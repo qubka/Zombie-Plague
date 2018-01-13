@@ -58,12 +58,17 @@ int iItem;
 #pragma unused iItem
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Initilizate extra item
-	iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Initilizate extra item
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_ZOMBIE, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+    }
 }
 
 /**

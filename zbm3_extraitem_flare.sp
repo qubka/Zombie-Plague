@@ -58,15 +58,17 @@ int iItem;
 #pragma unused iItem
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Initilizate extra item
-	iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
-
-	// Hook entity events
-	HookEvent("decoy_firing", EventEntityDecoy, EventHookMode_Post);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Initilizate extra item
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_ZOMBIE, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+    }
 }
 
 /**
@@ -120,124 +122,89 @@ public Action EventEntityDecoy(Event gEventHook, const char[] gEventName, bool d
 	int ownerIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid")); 
 	
 	// Validate client
-	if(!IsPlayerExist(ownerIndex))
+	if(IsPlayerExist(ownerIndex) && ZP_IsPlayerHuman(ownerIndex))
 	{
-		return;
-	}
-	
-	// Initialize vector variables
-	float flOrigin[3];
+        // Initialize vectors
+        float vExpOrigin[3];
 
-	// Get all required event info
-	int entityIndex = GetEventInt(gEventHook, "entityid");
-	flOrigin[0] = GetEventFloat(gEventHook, "x"); 
-	flOrigin[1] = GetEventFloat(gEventHook, "y"); 
-	flOrigin[2] = GetEventFloat(gEventHook, "z");
+        // Get all required event info
+        int entityIndex = GetEventInt(gEventHook, "entityid");
+        vExpOrigin[0] = GetEventFloat(gEventHook, "x"); 
+        vExpOrigin[1] = GetEventFloat(gEventHook, "y"); 
+        vExpOrigin[2] = GetEventFloat(gEventHook, "z");
 
-	// If entity isn't valid, then stop
-	if(!IsValidEdict(entityIndex))
-	{
-		return;
-	}
+        // Validate entity
+        if(IsValidEdict(entityIndex))
+        {
+            // Initialize grenade color
+            static char sGrenadeColorLight[SMALL_LINE_LENGTH];
+            GetConVarString(FindConVar("zp_grenade_light_color"), sGrenadeColorLight, sizeof(sGrenadeColorLight)); 
+            
+            // Generate color for random choose
+            if(!IsCharNumeric(sGrenadeColorLight[0]))
+            {
+                Format(sGrenadeColorLight, sizeof(sGrenadeColorLight), "%i %i %i 255", GetRandomInt(0,255), GetRandomInt(0,255), GetRandomInt(0,255));
+            }
+            
+            // Emit sound
+            EmitSoundToAll("items/nvg_on.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+            
+            // Create an light_dynamic entity
+            int iLight = CreateEntityByName("light_dynamic");
+            
+            // If entity isn't valid, then skip
+            if(IsValidEdict(iLight))
+            {
+                // Set the inner (bright) angle
+                DispatchKeyValue(iLight, "inner_cone", "0");
+                
+                // Set the outer (fading) angle
+                DispatchKeyValue(iLight, "cone", "80");
+                
+                // Set the light brightness
+                DispatchKeyValue(iLight, "brightness", "1");
+                
+                // Used instead of Pitch Yaw Roll's value for reasons unknown
+                DispatchKeyValue(iLight, "pitch", "90");
+                
+                // Change the lightstyle (see Appearance field for possible values)
+                DispatchKeyValue(iLight, "style", "1");
+                
+                // Set the light's render color (R G B)
+                DispatchKeyValue(iLight, "_light", sGrenadeColorLight);
+                
+                // Set the maximum light distance
+                DispatchKeyValueFloat(iLight, "distance", GetConVarFloat(FindConVar("zp_grenade_light_distance")),);
+                
+                // Set the radius of the spotlight at the end point
+                DispatchKeyValueFloat(iLight, "spotlight_radius", GetConVarFloat(FindConVar("zp_grenade_light_radius")));
 
-	// Forward event to modules
-	GrenadeOnDecoyDetonate(ownerIndex, entityIndex, flOrigin);
+                // Spawn the entity
+                DispatchSpawn(iLight);
+
+                // Activate the enity
+                AcceptEntityInput(iLight, "TurnOn");
+
+                // Teleport the entity
+                TeleportEntity(iLight, vExpOrigin, NULL_VECTOR, NULL_VECTOR);
+
+                // Initialize time
+                static char sTime[SMALL_LINE_LENGTH];
+                Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GetConVarFloat(FindConVar("zp_grenade_light_duration"))));
+                
+                // Set modified flags on the entity
+                SetVariantString(sTime);
+                AcceptEntityInput(iLight, "AddOutput");
+                AcceptEntityInput(iLight, "FireUser1");
+            }
+             
+            // Create dust effect
+            TE_SetupDust(vExpOrigin, NULL_VECTOR, 10.0, 1.0);
+            TE_SendToAll();
+            
+            // Remove grenade
+            RemoveEdict(entityIndex);
+        }
+    }
 }
 
-/**
- * The decoy nade is fired.
- * 
- * @param ownerIndex		The owner index.
- * @param entityIndex		The entity index.  
- * @param flOrigin			The explosion origin.
- **/
-void GrenadeOnDecoyDetonate(int ownerIndex, int entityIndex, float flOrigin[3])
-{
-	// Validate that thrower is human
-	if(ZP_IsPlayerHuman(ownerIndex))
-	{
-		// Get grenade color
-		static char sGrenadeColorLight[SMALL_LINE_LENGTH];
-		GetConVarString(FindConVar("zp_grenade_light_color"), sGrenadeColorLight, sizeof(sGrenadeColorLight)); 
-		
-		// Generate color for random choose
-		if(sGrenadeColorLight[0] == 'r')
-		{
-			Format(sGrenadeColorLight, sizeof(sGrenadeColorLight), "%i %i %i 255", GetRandomInt(0,255), GetRandomInt(0,255), GetRandomInt(0,255));
-		}
-		
-		// Create light effect
-		GrenadeOnLight(flOrigin, sGrenadeColorLight, GetConVarFloat(FindConVar("zp_grenade_light_distance")), GetConVarFloat(FindConVar("zp_grenade_light_radius")), GetConVarFloat(FindConVar("zp_grenade_light_duration")));
-		
-		// Create dust effect
-		TE_SetupDust(flOrigin, NULL_VECTOR, 10.0, 1.0);
-		TE_SendToAll();
-	}
-	
-	// Remove grenade
-	RemoveEdict(entityIndex);
-}
-
-/**
- * Create a light dynamic entity.
- * 
- * @param flOrigin			The vector for origin of entity.
- * @param colorLight		The string will color. (RGBA)
- * @param flDistanceLight	The distance of light.
- * @param flRadiusLight		The radius of light.
- * @param flDurationLight	The duration of light.
- **/
-void GrenadeOnLight(float flOrigin[3], char[] colorLight, float flDistanceLight, float flRadiusLight, float flDurationLight)
-{
-	// Create an light_dynamic entity
-	int iLight = CreateEntityByName("light_dynamic");
-	
-	// If entity isn't valid, then skip
-	if(iLight)
-	{
-		// Set the inner (bright) angle
-		DispatchKeyValue(iLight, "inner_cone", "0");
-		
-		// Set the outer (fading) angle
-		DispatchKeyValue(iLight, "cone", "80");
-		
-		// Set the light brightness
-		DispatchKeyValue(iLight, "brightness", "1");
-		
-		// Used instead of Pitch Yaw Roll's value for reasons unknown
-		DispatchKeyValue(iLight, "pitch", "90");
-		
-		// Change the lightstyle (see Appearance field for possible values)
-		DispatchKeyValue(iLight, "style", "1");
-		
-		// Set the light's render color (R G B)
-		DispatchKeyValue(iLight, "_light", colorLight);
-		
-		// Set the maximum light distance
-		DispatchKeyValueFloat(iLight, "distance", flDistanceLight);
-		
-		// Set the radius of the spotlight at the end point
-		DispatchKeyValueFloat(iLight, "spotlight_radius", flRadiusLight);
-
-		// Spawn the entity
-		DispatchSpawn(iLight);
-
-		// Activate the enity
-		AcceptEntityInput(iLight, "TurnOn");
-
-		// Teleport the entity
-		TeleportEntity(iLight, flOrigin, NULL_VECTOR, NULL_VECTOR);
-		
-		// Emit sound
-		EmitSoundToAll("items/nvg_on.wav", iLight, SNDCHAN_STATIC);
-		
-		// Initialize time
-		static char sTime[SMALL_LINE_LENGTH];
-		Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationLight);
-		
-		// Set modified flags on the entity
-		SetVariantString(sTime);
-		AcceptEntityInput(iLight, "AddOutput");
-		AcceptEntityInput(iLight, "FireUser1");
-	}
-}

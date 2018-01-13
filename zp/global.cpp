@@ -613,24 +613,24 @@ methodmap CBasePlayer
 		}
 	}
 
-	//! Remove all weapons and give default knife
-	public void CItemRemoveAll()
+	//! Remove all weapons and give default weapon
+	public void CItemRemoveAll(char[] weapon)
 	{
 		int size = GetEntPropArraySize(this.Index, Prop_Send, "m_hMyWeapons");
 		
 		for (int i = 0; i < size; i++)
 		{
-			int weapon = GetEntPropEnt(this.Index, Prop_Send, "m_hMyWeapons", i);
+			int index = GetEntPropEnt(this.Index, Prop_Send, "m_hMyWeapons", i);
 
-			if(IsValidEdict(weapon))
+			if(IsValidEdict(index))
 			{
-				RemovePlayerItem(this.Index, weapon);
-				AcceptEntityInput(weapon, "Kill");
+				RemovePlayerItem(this.Index, index);
+				AcceptEntityInput(index, "Kill");
 			}
 		}
 		
-		GivePlayerItem(this.Index, "weapon_knife");
-		FakeClientCommandEx(this.Index, "use weapon_knife");
+		GivePlayerItem(this.Index, weapon);
+		FakeClientCommandEx(this.Index, "use %s", weapon);
 	}
 
 	//! Emit random sound depend on the key

@@ -56,16 +56,21 @@ enum
 };
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Load translations phrases used by plugin
-	LoadTranslations("zombieplague.phrases");
-	
-	// Create a commands
-	RegConsoleCmd("zshopmenu", Command_ShopMenu, "Open the main shop menu.");
-	RegConsoleCmd("zsubshopmenu", Command_SubShopMenu, "Open the sub shop menu.");
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Load translations phrases used by plugin
+        LoadTranslations("zombieplague.phrases");
+        
+        // Create a commands
+        RegConsoleCmd("zshopmenu", Command_ShopMenu, "Open the main shop menu.");
+        RegConsoleCmd("zsubshopmenu", Command_SubShopMenu, "Open the sub shop menu.");
+    }
 }
 
 /**

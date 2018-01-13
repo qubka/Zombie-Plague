@@ -103,23 +103,23 @@ void VEffectsOnCvarInit(/*void*/)
 void VEffectInfectEffect(int clientIndex)
 {
 	// Initialize vector variables
-	static float flOrigin[3];
+	static float vOrigin[3];
 	
 	// Get client's position
-	GetClientAbsOrigin(clientIndex, flOrigin);
-	flOrigin[2] += 30;
+	GetClientAbsOrigin(clientIndex, vOrigin);
+	vOrigin[2] += 30;
 
 	// Create smoke explosion at client's origin
 	if(GetConVarBool(gCvarList[CVAR_VEFFECTS_EXPLOSION])) 
 	{
-		VEffectSmokeFunction(flOrigin);
-		VEffectDustFunction(flOrigin);
+		VEffectSmokeFunction(vOrigin);
+		VEffectDustFunction(vOrigin);
 	}
 	
 	// Create energy splash effect
 	if(GetConVarBool(gCvarList[CVAR_VEFFECTS_SPLASH]))
 	{
-		VEffectEnergySplashFunction(flOrigin);
+		VEffectEnergySplashFunction(vOrigin);
 	}
 	
 	// Shake client's screen
@@ -134,40 +134,40 @@ void VEffectInfectEffect(int clientIndex)
 void VEffectSpawnEffect(int clientIndex)
 {
 	// Initialize vector variable
-	static float flOrigin[3];
+	static float vOrigin[3];
 	
 	// Get client's position
-	GetClientAbsOrigin(clientIndex, flOrigin);
+	GetClientAbsOrigin(clientIndex, vOrigin);
 	
 	// Create an fire entity
-	int nEntity = CreateEntityByName("info_particle_system");
+	int entityIndex = CreateEntityByName("info_particle_system");
 	
 	// If entity isn't valid, then skip
-	if(nEntity)
+	if(IsValidEdict(entityIndex))
 	{
 		// Give name to the entity 
-		DispatchKeyValue(nEntity, "effect_name", "env_fire_large");
+		DispatchKeyValue(entityIndex, "effect_name", "env_fire_large");
 		
 		// Sets the origin of the explosion
-		DispatchKeyValueVector(nEntity, "origin", flOrigin);
+		DispatchKeyValueVector(entityIndex, "origin", vOrigin);
 		
 		// Spawn the entity into the world
-		DispatchSpawn(nEntity);
+		DispatchSpawn(entityIndex);
 		
 		// Get and modify flags on fired
 		SetVariantString("!activator");
 		
 		// Sets parent to the entity
-		AcceptEntityInput(nEntity, "SetParent", clientIndex);
+		AcceptEntityInput(entityIndex, "SetParent", clientIndex);
 		
 		// Activate the enity
-		ActivateEntity(nEntity);
-		AcceptEntityInput(nEntity, "Start");
+		ActivateEntity(entityIndex);
+		AcceptEntityInput(entityIndex, "Start");
 		
 		// Sets modified flags on entity
 		SetVariantString("OnUser1 !self:kill::1.5:1");
-		AcceptEntityInput(nEntity, "AddOutput");
-		AcceptEntityInput(nEntity, "FireUser1");
+		AcceptEntityInput(entityIndex, "AddOutput");
+		AcceptEntityInput(entityIndex, "FireUser1");
 	}
 }
 
@@ -252,16 +252,16 @@ public Action VEffectsBleeding(Handle sTimer, CBasePlayer* cBasePlayer)
 		if(cBasePlayer->m_iFlags & FL_ONGROUND)
 		{
 			// Initialize origin vectors
-			static float flOrigin[3];
+			static float vOrigin[3];
 
 			// Get client's position
-			cBasePlayer->m_flGetOrigin(flOrigin);
+			cBasePlayer->m_flGetOrigin(vOrigin);
 			
 			// Get the foot' position
-			flOrigin[1] -= 36.0;
+			vOrigin[1] -= 36.0;
 			
 			// Create bleeding particle
-			VEffectBloodDecalFunction(flOrigin);
+			VEffectBloodDecalFunction(vOrigin);
 		}
 		
 		// Allow bleeding
@@ -275,7 +275,7 @@ public Action VEffectsBleeding(Handle sTimer, CBasePlayer* cBasePlayer)
 /**
  * Create a light dynamic entity.
  * 
- * @param flOrigin			The vector for origin of entity.
+ * @param vOrigin			The vector for origin of entity.
  * @param colorLight		The string will color. (RGBA)
  * @param flDistanceLight	The distance of light.
  * @param flRadiusLight		The radius of light.
@@ -283,66 +283,66 @@ public Action VEffectsBleeding(Handle sTimer, CBasePlayer* cBasePlayer)
  * @param attachMent		If true, entity will be attach to client.
  * @param clientIndex	 	(Optional) The client index.
  **/
-void VEffectLightDynamic(float flOrigin[3] = 0.0, char[] colorLight, float flDistanceLight, float flRadiusLight, float flDurationLight, bool attachMent = false, int clientIndex = 0)
+void VEffectLightDynamic(float vOrigin[3] = 0.0, char[] colorLight, float flDistanceLight, float flRadiusLight, float flDurationLight, bool attachMent = false, int clientIndex = 0)
 {
 	// Create an light_dynamic entity
-	int iLight = CreateEntityByName("light_dynamic");
+	int entityIndex = CreateEntityByName("light_dynamic");
 
 	// If entity isn't valid, then skip
-	if(iLight)
+	if(IsValidEdict(entityIndex))
 	{
 		// Sets the inner (bright) angle
-		DispatchKeyValue(iLight, "inner_cone", "0");
+		DispatchKeyValue(entityIndex, "inner_cone", "0");
 		
 		// Sets the outer (fading) angle
-		DispatchKeyValue(iLight, "cone", "80");
+		DispatchKeyValue(entityIndex, "cone", "80");
 		
 		// Sets the light brightness
-		DispatchKeyValue(iLight, "brightness", "1");
+		DispatchKeyValue(entityIndex, "brightness", "1");
 		
 		// Used instead of Pitch Yaw Roll's value for reasons unknown
-		DispatchKeyValue(iLight, "pitch", "90");
+		DispatchKeyValue(entityIndex, "pitch", "90");
 		
 		// Change the lightstyle (see Appearance field for possible values)
-		DispatchKeyValue(iLight, "style", "1");
+		DispatchKeyValue(entityIndex, "style", "1");
 		
 		// Sets the light's render color (R G B)
-		DispatchKeyValue(iLight, "_light", colorLight);
+		DispatchKeyValue(entityIndex, "_light", colorLight);
 		
 		// Sets the maximum light distance
-		DispatchKeyValueFloat(iLight, "distance", flDistanceLight);
+		DispatchKeyValueFloat(entityIndex, "distance", flDistanceLight);
 		
 		// Sets the radius of the spotlight at the end point
-		DispatchKeyValueFloat(iLight, "spotlight_radius", flRadiusLight);
+		DispatchKeyValueFloat(entityIndex, "spotlight_radius", flRadiusLight);
 
 		// Spawn the entity
-		DispatchSpawn(iLight);
+		DispatchSpawn(entityIndex);
 
 		// Activate the enity
-		AcceptEntityInput(iLight, "TurnOn");
+		AcceptEntityInput(entityIndex, "TurnOn");
 		
 		// Update vectors of player
 		if(attachMent)
 		{
 			// Get client's position
-			GetClientAbsOrigin(clientIndex, flOrigin);
+			GetClientAbsOrigin(clientIndex, vOrigin);
 		}
 
 		// Teleport the entity
-		TeleportEntity(iLight, flOrigin, NULL_VECTOR, NULL_VECTOR);
+		TeleportEntity(entityIndex, vOrigin, NULL_VECTOR, NULL_VECTOR);
 		
 		// Attach light to the player
 		if(attachMent)
 		{
 			// Sets the parent
 			SetVariantString("!activator"); 
-			AcceptEntityInput(iLight, "SetParent", clientIndex, iLight); 
-			SetEntPropEnt(iLight, Prop_Data, "m_pParent", clientIndex);
+			AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex); 
+			SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex);
 		}
 		else
 		{
 			// Emit the sound
-			EmitSoundToAll("items/nvg_on.wav", iLight, SNDCHAN_STATIC);
+			EmitSoundToAll("items/nvg_on.wav", entityIndex, SNDCHAN_STATIC);
 		}
 		
 		// Initialize char
@@ -351,8 +351,8 @@ void VEffectLightDynamic(float flOrigin[3] = 0.0, char[] colorLight, float flDis
 		
 		// Sets modified flags on the entity
 		SetVariantString(sTime);
-		AcceptEntityInput(iLight, "AddOutput");
-		AcceptEntityInput(iLight, "FireUser1");
+		AcceptEntityInput(entityIndex, "AddOutput");
+		AcceptEntityInput(entityIndex, "FireUser1");
 	}
 }
 
@@ -369,26 +369,25 @@ void VEffectRemoveLightDynamic(int clientIndex)
 	// Get max amount of entities
 	int nGetMaxEnt = GetMaxEntities();
 	
-	// nEntity = entity index
-	for (int nEntity = 0; nEntity <= nGetMaxEnt; nEntity++)
+	// i = entity index
+	for (int i = 0; i <= nGetMaxEnt; i++)
 	{
-		// If entity isn't valid, then stop
-		if(!IsValidEdict(nEntity))
+		// If entity isn't valid, then continue
+		if(IsValidEdict(i))
 		{
-			continue;	
-		}
-		
-		// Get valid edict's classname
-		GetEdictClassname(nEntity, sClassname, sizeof(sClassname));
-		
-		// If entity is light dymanic
-		if(StrEqual(sClassname, "light_dynamic"))
-		{
-			if(GetEntPropEnt(nEntity, Prop_Data, "m_pParent") == clientIndex)
-			{
-				AcceptEntityInput(nEntity, "Kill");
-			}
-		}
+            // Get valid edict's classname
+            GetEdictClassname(i, sClassname, sizeof(sClassname));
+            
+            // If entity is light dymanic
+            if(StrEqual(sClassname, "light_dynamic"))
+            {
+                // Validate parent
+                if(GetEntPropEnt(i, Prop_Data, "m_pParent") == clientIndex)
+                {
+                    AcceptEntityInput(i, "Kill");
+                }
+            }
+        }
 	}
 }
 
@@ -427,12 +426,12 @@ void VEffectExtinguishEntity(int clientIndex)
 /**
  * Create blood decal.
  *
- * @param flOrigin			The position of the effect.
+ * @param vOrigin			The position of the effect.
  **/
-void VEffectBloodDecalFunction(float flOrigin[3])
+void VEffectBloodDecalFunction(float vOrigin[3])
 {
 	TE_Start("World Decal");
-	TE_WriteVector("m_vecOrigin", flOrigin);
+	TE_WriteVector("m_vecOrigin", vOrigin);
 	TE_WriteNum("m_nIndex", decalBloodDecal);
 	TE_SendToAll();
 }
@@ -440,32 +439,32 @@ void VEffectBloodDecalFunction(float flOrigin[3])
 /**
  * Create smoke explosion effect.
  *
- * @param flOrigin			The position of the effect.
+ * @param vOrigin			The position of the effect.
  **/
-void VEffectSmokeFunction(float flOrigin[3])
+void VEffectSmokeFunction(float vOrigin[3])
 {
-	TE_SetupSmoke(flOrigin, decalSmoke, 130.0, 10);
+	TE_SetupSmoke(vOrigin, decalSmoke, 130.0, 10);
 	TE_SendToAll();
 }
 
 /**
  * Create dust effect.
  *
- * @param flOrigin			The position of the effect.
+ * @param vOrigin			The position of the effect.
  **/
-void VEffectDustFunction(float flOrigin[3])
+void VEffectDustFunction(float vOrigin[3])
 {
-	TE_SetupDust(flOrigin, NULL_VECTOR, 10.0, 1.0);
+	TE_SetupDust(vOrigin, NULL_VECTOR, 10.0, 1.0);
 	TE_SendToAll();
 }
 
 /**
  * Create energy splash effect.
  *
- * @param flOrigin			The position of the effect.
+ * @param vOrigin			The position of the effect.
  **/
-void VEffectEnergySplashFunction(float flOrigin[3])
+void VEffectEnergySplashFunction(float vOrigin[3])
 {
-	TE_SetupEnergySplash(flOrigin, NULL_VECTOR, true);
+	TE_SetupEnergySplash(vOrigin, NULL_VECTOR, true);
 	TE_SendToAll();
 }

@@ -59,8 +59,7 @@ int gExtraBuyLimit[MAXPLAYERS+1][ExtraItemMax];
 void ExtraItemsLoad(/*void*/)
 {
 	// No extra items?
-	int iSize = GetArraySize(arrayExtraItems);
-	if(!iSize)
+	if(arrayExtraItems == NULL)
 	{
 		LogEvent(false, LogType_Normal, LOG_CORE_EVENTS, LogModule_Extraitems, "Extra Items Validation", "No extra items loaded");
 	}

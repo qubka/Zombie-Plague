@@ -67,23 +67,28 @@ int gZombieNormalM01;
 #pragma unused gZombieNormalM01
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Initilizate zombie class
-	gZombieNormalM01 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME, 
-	ZOMBIE_CLASS_MODEL, 
-	ZOMBIE_CLASS_CLAW, 
-	ZOMBIE_CLASS_HEALTH, 
-	ZOMBIE_CLASS_SPEED, 
-	ZOMBIE_CLASS_GRAVITY, 
-	ZOMBIE_CLASS_KNOCKBACK, 
-	ZOMBIE_CLASS_LEVEL,
-	ZOMBIE_CLASS_FEMALE,
-	ZOMBIE_CLASS_VIP, 
-	ZOMBIE_CLASS_DURATION, 
-	ZOMBIE_CLASS_COUNTDOWN, 
-	ZOMBIE_CLASS_REGEN_HEALTH, 
-	ZOMBIE_CLASS_REGEN_INTERVAL);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Initilizate zombie class
+        gZombieNormalM01 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME, 
+        ZOMBIE_CLASS_MODEL, 
+        ZOMBIE_CLASS_CLAW, 
+        ZOMBIE_CLASS_HEALTH, 
+        ZOMBIE_CLASS_SPEED, 
+        ZOMBIE_CLASS_GRAVITY, 
+        ZOMBIE_CLASS_KNOCKBACK, 
+        ZOMBIE_CLASS_LEVEL,
+        ZOMBIE_CLASS_FEMALE,
+        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_DURATION, 
+        ZOMBIE_CLASS_COUNTDOWN, 
+        ZOMBIE_CLASS_REGEN_HEALTH, 
+        ZOMBIE_CLASS_REGEN_INTERVAL);
+    }
 }

@@ -437,31 +437,28 @@ stock void DamageOnClientKnockBack(CBasePlayer* cBaseVictim, CBasePlayer* cBaseA
 	}
 	
 	// Initialize vectors
-	float flClientLoc[3];
-	float flEyeAngle[3];
-	float flAttackerLoc[3];
-	float flVector[3];
+	static float vClientLoc[3]; static float vEyeAngle[3]; static float vAttackerLoc[3]; static float vVelocity[3];
 	
 	// Get victim's and attacker's position
-	cBaseVictim->m_flGetOrigin(flClientLoc);
-	cBaseAttacker->m_flGetEyeAngles(flEyeAngle);
-	cBaseAttacker->m_flGetEyePosition(flAttackerLoc);
+	cBaseVictim->m_flGetOrigin(vClientLoc);
+	cBaseAttacker->m_flGetEyeAngles(vEyeAngle);
+	cBaseAttacker->m_flGetEyePosition(vAttackerLoc);
 
 	// Calculate knockback end-vector
-	TR_TraceRayFilter(flAttackerLoc, flEyeAngle, MASK_ALL, RayType_Infinite, FilterPlayers);
-	TR_GetEndPosition(flClientLoc);
+	TR_TraceRayFilter(vAttackerLoc, vEyeAngle, MASK_ALL, RayType_Infinite, FilterPlayers);
+	TR_GetEndPosition(vClientLoc);
 	
 	// Get vector from the given starting and ending points
-	MakeVectorFromPoints(flAttackerLoc, flClientLoc, flVector);
+	MakeVectorFromPoints(vAttackerLoc, vClientLoc, vVelocity);
 	
 	// Normalize the vector (equal magnitude at varying distances)
-	NormalizeVector(flVector, flVector);
+	NormalizeVector(vVelocity, vVelocity);
 
 	// Apply the magnitude by scaling the vector
-	ScaleVector(flVector, knockbackAmount);
+	ScaleVector(vVelocity, knockbackAmount);
 
 	// Push the player
-	cBaseVictim->m_iTeleportPlayer(NULL_VECTOR, NULL_VECTOR, flVector);
+	cBaseVictim->m_iTeleportPlayer(NULL_VECTOR, NULL_VECTOR, vVelocity);
 }
 
 /**

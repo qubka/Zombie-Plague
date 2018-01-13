@@ -45,15 +45,20 @@ public Plugin UnStuck =
 float gOrigin[MAXPLAYERS+1][3];
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Create a command
-	RegConsoleCmd("zstuck", Command_Unstuck, "Unstuck player from the another entity.");
-	
-	// Hook spawn event
-	HookEvent("player_spawn", EventPlayerSpawn, EventHookMode_Post);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Create a command
+        RegConsoleCmd("zstuck", Command_Unstuck, "Unstuck player from the another entity.");
+        
+        // Hook spawn event
+        HookEvent("player_spawn", EventPlayerSpawn, EventHookMode_Post);
+    }
 }
 
 /**

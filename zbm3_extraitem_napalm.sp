@@ -52,21 +52,26 @@ public Plugin HeGrenade =
 /**
  * @endsection
  **/
-
+ 
 // Item index
 int iItem;
 #pragma unused iItem
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Initilizate extra item
-	iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Initilizate extra item
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
 
-	// Hook entity events
-	HookEvent("hegrenade_detonate", EventEntityExplosion, EventHookMode_Post);
+        // Hook entity events
+        HookEvent("hegrenade_detonate", EventEntityExplosion, EventHookMode_Post);
+    }
 }
 
 /**
@@ -80,8 +85,6 @@ public void OnPluginStart(/*void*/)
  **/
 public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-	#pragma unused clientIndex, extraitemIndex
-	
 	// Validate client
 	if(!IsPlayerExist(clientIndex))
 	{
@@ -121,107 +124,55 @@ public Action EventEntityExplosion(Event gEventHook, const char[] gEventName, bo
 	int ownerIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid")); 
 	
 	// Validate client
-	if(!IsPlayerExist(ownerIndex))
+	if(IsPlayerExist(ownerIndex) && ZP_IsPlayerHuman(ownerIndex))
 	{
-		return;
-	}
-	
-	// Initialize vector variables
-	float flOrigin[3];
+        // Initialize vectors
+        static float vExpOrigin[3]; static float vVictimOrigin[3]; static float vVelocity[3];
 
-	// Get all required event info
-	int entityIndex = GetEventInt(gEventHook, "entityid");
-	flOrigin[0] = GetEventFloat(gEventHook, "x"); 
-	flOrigin[1] = GetEventFloat(gEventHook, "y"); 
-	flOrigin[2] = GetEventFloat(gEventHook, "z");
+        // Get all required event info
+        int entityIndex = GetEventInt(gEventHook, "entityid");
+        vExpOrigin[0] = GetEventFloat(gEventHook, "x"); 
+        vExpOrigin[1] = GetEventFloat(gEventHook, "y"); 
+        vExpOrigin[2] = GetEventFloat(gEventHook, "z");
 
-	// If entity isn't valid, then stop
-	if(!IsValidEdict(entityIndex))
-	{
-		return;
-	}
+        // Validate entity
+        if(IsValidEdict(entityIndex))
+        {
+            // i = client index
+            for(int i = 1; i <= MaxClients; i++)
+            {
+                // Validate client
+                if(IsPlayerExist(i) && ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i))
+                {
+                    // Get victim's origin
+                    GetClientAbsOrigin(i, vVictimOrigin);
+                    
+                    // Calculate the distance
+                    float flDistance = GetVectorDistance(vExpOrigin, vVictimOrigin);
+                    
+                    // Validate distance
+                    if(flDistance <= GetConVarFloat(FindConVar("zp_grenade_exp_radius")))
+                    {				
+                        // Calculate the push power
+                        float flKnockBack = FloatMul(GetConVarFloat(FindConVar("zp_grenade_exp_knockback")), (1.0 - (FloatDiv(flDistance, GetConVarFloat(FindConVar("zp_grenade_exp_radius"))))));
 
-	// Forward event to modules
-	GrenadeOnHeDetonate(ownerIndex, entityIndex, flOrigin);
-}
+                        // Calculate the velocity's vector
+                        SubtractVectors(vVictimOrigin, vExpOrigin, vVelocity);
+                        
+                        // Normalize the vector (equal magnitude at varying distances)
+                        NormalizeVector(vVelocity, vVelocity);
+                        
+                        // Apply the magnitude by scaling the vector
+                        ScaleVector(vVelocity, SquareRoot(FloatDiv(FloatMul(flKnockBack, flKnockBack), (FloatAdd(FloatAdd(FloatMul(vVelocity[0], vVelocity[0]), FloatMul(vVelocity[1], vVelocity[1])), FloatMul(vVelocity[2], vVelocity[2])))))); FloatMul(vVelocity[2], 10.0);
 
-/**
- * The hegrenade nade is exployed.
- * 
- * @param ownerIndex		The owner index.
- * @param entityIndex		The entity index.  
- * @param flOrigin			The explosion origin.
- **/
-void GrenadeOnHeDetonate(int ownerIndex, int entityIndex, float flOrigin[3])
-{
-	// Validate that thrower is human
-	if(ZP_IsPlayerHuman(ownerIndex))
-	{
-		// Initialize vector variables
-		float flVictimOrigin[3];
-		
-		// i = client index
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			// Validate client
-			if(IsPlayerExist(i))
-			{
-				// Get victim's position
-				GetClientAbsOrigin(i, flVictimOrigin);
-				flVictimOrigin[2] += 2.0;
-				
-				// Initialize distance variable
-				float flDistance = GetVectorDistance(flOrigin, flVictimOrigin);
-				
-				// If distance to the entity is less than the radius of explosion
-				if(flDistance <= GetConVarFloat(FindConVar("zp_grenade_exp_radius")))
-				{				
-					// Push entity
-					GrenadeOnEntityExploade(i, flOrigin, flVictimOrigin, flDistance);
-				}
-			}
-		}
-	}
-	
-	// Remove grenade
-	RemoveEdict(entityIndex);
-}
-
-/**
- * Player is about to push back.
- *
- * @param clientIndex		The client index.
- * @param flOrigin			The explosion origin.
- * @param flVictimOrigin	The client origin.
- * @param flDistance		The distance bettween points.
- **/
-void GrenadeOnEntityExploade(int clientIndex, float flOrigin[3], float flVictimOrigin[3], float flDistance)
-{
-	#pragma unused clientIndex
-	
-	// Verify that the client is a zombie
-	if(!ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerNemesis(clientIndex))
-	{
-		return;
-	}
-
-	// Initialize velocity vector
-	float flVelocity[3];
-	
-	// Get knockpback power
-	float flKnockBack = GetConVarFloat(FindConVar("zp_grenade_exp_knockback")) * (1.0 - (flDistance / GetConVarFloat(FindConVar("zp_grenade_exp_radius"))));
-
-	// Calculate velocity
-	flVelocity[0] = flVictimOrigin[0] - flOrigin[0];
-	flVelocity[1] = flVictimOrigin[1] - flOrigin[1];
-	flVelocity[2] = flVictimOrigin[2] - flOrigin[2];
-	
-	// Calculate push power
-	float flPower = SquareRoot(flKnockBack * flKnockBack / (flVelocity[0] * flVelocity[0] + flVelocity[1] * flVelocity[1] + flVelocity[2] * flVelocity[2]));
-	flVelocity[0] *= flPower;
-	flVelocity[1] *= flPower;
-	flVelocity[2] *= flPower * 10.0;
-
-	// Push away
-	TeleportEntity(clientIndex, NULL_VECTOR, NULL_VECTOR, flVelocity);
+                        // Push the victim
+                        TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
+                    }
+                }
+            }
+            
+            // Remove grenade
+            RemoveEdict(entityIndex);
+        }
+    }
 }

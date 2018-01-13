@@ -83,13 +83,13 @@ void SkillsOnHealthRegen(CBasePlayer* cBasePlayer)
 	//*********************************************************************
 	
 	// Initialize float
-	static float flVelocity[3];
+	static float vVelocity[3];
 	
 	// Get the client's velocity
-	cBasePlayer->m_flVelocity(flVelocity);
+	cBasePlayer->m_flVelocity(vVelocity);
 	
 	// If the zombie don't move, then check health
-	if(!(SquareRoot(Pow(flVelocity[0], 2.0) + Pow(flVelocity[1], 2.0))))
+	if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
 	{
 		// If restoring is available, then do it
 		if(cBasePlayer->m_iHealth < ZombieGetHealth(cBasePlayer->m_nZombieClass))

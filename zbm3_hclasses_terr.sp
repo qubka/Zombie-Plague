@@ -63,19 +63,24 @@ int gHuman;
 #pragma unused gHuman
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Initilizate human class
-	gHuman = ZP_RegisterHumanClass(HUMAN_CLASS_NAME, 
-	HUMAN_CLASS_MODEL, 
-	HUMAN_CLASS_ARM, 
-	HUMAN_CLASS_HEALTH, 
-	HUMAN_CLASS_SPEED, 
-	HUMAN_CLASS_GRAVITY, 
-	HUMAN_CLASS_ARMOR,
-	HUMAN_CLASS_LEVEL,
-	HUMAN_CLASS_FEMALE,
-	HUMAN_CLASS_VIP);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Initilizate human class
+        gHuman = ZP_RegisterHumanClass(HUMAN_CLASS_NAME, 
+        HUMAN_CLASS_MODEL, 
+        HUMAN_CLASS_ARM, 
+        HUMAN_CLASS_HEALTH, 
+        HUMAN_CLASS_SPEED, 
+        HUMAN_CLASS_GRAVITY, 
+        HUMAN_CLASS_ARMOR,
+        HUMAN_CLASS_LEVEL,
+        HUMAN_CLASS_FEMALE,
+        HUMAN_CLASS_VIP);
+    }
 }

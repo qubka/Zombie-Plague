@@ -163,7 +163,7 @@ void InfectHumanToZombie(CBasePlayer* cBaseVictim, CBasePlayer* cBaseAttacker = 
 	}
 	
 	// Remove player's weapons
-	cBaseVictim->CItemRemoveAll();
+	cBaseVictim->CItemRemoveAll("weapon_knife_t"); //! Give default
 	
 	//*********************************************************************
 	//*          EMIT SOUNDS AND CREATE EFFECTS OF THE INFECTION          *
@@ -239,12 +239,12 @@ void MakeZombieToHuman(CBasePlayer* cBasePlayer)
 	//*********************************************************************
 	
 	// Initialize vector variables
-	static float flOrigin[3];
-	static float flEyeAngle[3];
+	static float vOrigin[3];
+	static float vEyeAngle[3];
 
 	// Client location and view direction
-	cBasePlayer->m_flGetOrigin(flOrigin);
-	cBasePlayer->m_flGetEyeAngles(flEyeAngle);
+	cBasePlayer->m_flGetOrigin(vOrigin);
+	cBasePlayer->m_flGetEyeAngles(vEyeAngle);
 	
 	// Respawn a player like a human
 	cBasePlayer->m_bRespawn = TEAM_HUMAN;
@@ -254,7 +254,7 @@ void MakeZombieToHuman(CBasePlayer* cBasePlayer)
 	if(!GetConVarBool(gCvarList[CVAR_HUMAN_ANTIDOT]))
 	{
 		// Teleport to the previus position
-		cBasePlayer->m_iTeleportPlayer(flOrigin, flEyeAngle);
+		cBasePlayer->m_iTeleportPlayer(vOrigin, vEyeAngle);
 	}
 
 	// Set glowing for the zombie vision
@@ -319,7 +319,7 @@ void MakeHumanIntoSurvivor(CBasePlayer* cBasePlayer)
 	cBasePlayer->m_ModelName(sModel);
 	
 	// Remove player's weapons
-	cBasePlayer->CItemRemoveAll();
+	cBasePlayer->CItemRemoveAll("weapon_knife"); //! Give default
 	
 	// Initialize weapon char
 	static char sWeapon[SMALL_LINE_LENGTH];

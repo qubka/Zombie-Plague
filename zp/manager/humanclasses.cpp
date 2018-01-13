@@ -57,34 +57,34 @@ enum
  **/
 void HumanClassesLoad(/*void*/)
 {
-	// No human classes?
-	int iSize = GetArraySize(arrayHumanClasses);
-	if(!iSize)
-	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Human Class Validation", "No human classes loaded");
-		return;
-	}
-	
-	// Initialize model char
-	static char sModel[BIG_LINE_LENGTH];
-	
-	// Precache of the human classes
-	for(int i = 0; i < iSize; i++)
-	{
-		// Validate player model
-		HumanGetModel(i, sModel, sizeof(sModel));
-		if(!ModelsPlayerPrecache(sModel))
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\".", sModel);
-		}
-		
-		// Validate arm model
-		HumanGetArmModel(i, sModel, sizeof(sModel));
-		if(!ModelsPlayerPrecache(sModel))
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\".", sModel);
-		}
-	}
+    // No human classes?
+    if(arrayHumanClasses == NULL)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Human Class Validation", "No human classes loaded");
+        return;
+    }
+
+    // Initialize model char
+    static char sModel[BIG_LINE_LENGTH];
+
+    // Precache of the human classes
+    int iSize = GetArraySize(arrayHumanClasses);
+    for(int i = 0; i < iSize; i++)
+    {
+        // Validate player model
+        HumanGetModel(i, sModel, sizeof(sModel));
+        if(!ModelsPlayerPrecache(sModel))
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\".", sModel);
+        }
+
+        // Validate arm model
+        HumanGetArmModel(i, sModel, sizeof(sModel));
+        if(!ModelsPlayerPrecache(sModel))
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\".", sModel);
+        }
+    }
 }
 
 /*

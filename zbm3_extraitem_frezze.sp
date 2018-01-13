@@ -61,19 +61,24 @@ int iItem;
 #pragma unused iItem
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Initilizate extra item
-	iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
-
-	// Hook player events
-	HookEvent("player_spawn", EventPlayerSpawn, EventHookMode_Post);
-	HookEvent("player_death", EventPlayerDeath, EventHookMode_Post);
-	
-	// Hook entity events
-	HookEvent("smokegrenade_detonate", EventEntitySmoke, EventHookMode_Post);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Initilizate extra item
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_ZOMBIE, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        
+        // Hook player events
+        HookEvent("player_spawn", EventPlayerSpawn, EventHookMode_Post);
+        HookEvent("player_death", EventPlayerDeath, EventHookMode_Post);
+        
+        // Hook entity events
+        HookEvent("smokegrenade_detonate", EventEntitySmoke, EventHookMode_Post);
+    }
 }
 
 /**
@@ -193,7 +198,7 @@ public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 
 /**
  * Event callback (smokegrenade_detonate)
- * The flashbang nade is exployed.
+ * The smokegrenade is exployed.
  * 
  * @param gEventHook        The event handle.
  * @param gEventName        The name of the event.
@@ -205,105 +210,90 @@ public Action EventEntitySmoke(Event gEventHook, const char[] gEventName, bool d
 	int ownerIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid")); 
 	
 	// Validate client
-	if(!IsPlayerExist(ownerIndex))
+	if(IsPlayerExist(ownerIndex) && ZP_IsPlayerHuman(ownerIndex))
 	{
-		return;
-	}
-	
-	// Initialize vector variables
-	float flOrigin[3];
+        // Initialize vectors
+        static float vExpOrigin[3]; static float vVictimOrigin[3]; static float vVictimAngle[3];
 
-	// Get all required event info
-	int entityIndex = GetEventInt(gEventHook, "entityid");
-	flOrigin[0] = GetEventFloat(gEventHook, "x"); 
-	flOrigin[1] = GetEventFloat(gEventHook, "y"); 
-	flOrigin[2] = GetEventFloat(gEventHook, "z");
+        // Get all required event info
+        int entityIndex = GetEventInt(gEventHook, "entityid");
+        vExpOrigin[0] = GetEventFloat(gEventHook, "x"); 
+        vExpOrigin[1] = GetEventFloat(gEventHook, "y"); 
+        vExpOrigin[2] = GetEventFloat(gEventHook, "z");
 
-	// If entity isn't valid, then stop
-	if(!IsValidEdict(entityIndex))
-	{
-		return;
-	}
+        // Validate entity
+        if(IsValidEdict(entityIndex))
+        {
+            // i = client index
+            for(int i = 1; i <= MaxClients; i++)
+            {
+                // Validate client
+                if(IsPlayerExist(i) && (ZP_IsPlayerZombie(i) || ZP_IsPlayerNemesis(i) && GetConVarBool(FindConVar("zp_grenade_freeze_nemesis"))))
+                {
+                    // Get victim's origin
+                    GetClientAbsOrigin(i, vVictimOrigin);
+                    
+                    // Get victim's eye angle
+                    GetClientEyeAngles(i, vVictimAngle);
+                    
+                    // Calculate the distance
+                    float flDistance = GetVectorDistance(vExpOrigin, vVictimOrigin);
+                    
+                    // Validate distance
+                    if(flDistance <= GetConVarFloat(FindConVar("zp_grenade_freeze_radius")))
+                    {			
+                        // Freeze the client
+                        SetEntityMoveType(i, MOVETYPE_NONE);
 
-	// Forward event to modules
-	GrenadeOnSmokeDetonate(ownerIndex, entityIndex, flOrigin);
-}
+                        // Set blue render color
+                        SetEntityRenderMode(i, RENDER_TRANSCOLOR);
+                        SetEntityRenderColor(i, 120, 120, 255, 255);
+                        
+                        // Emit sound
+                        EmitSoundToAll("*/zbm3/impalehit.mp3", i, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
-/**
- * The smoke nade is exployed.
- * 
- * @param ownerIndex		The owner index.
- * @param entityIndex		The entity index.  
- * @param flOrigin			The explosion origin.
- **/
-void GrenadeOnSmokeDetonate(int ownerIndex, int entityIndex, float flOrigin[3])
-{
-	// Validate that thrower is human
-	if(ZP_IsPlayerHuman(ownerIndex))
-	{
-		// Initialize vector variables
-		float flVictimOrigin[3];
-		
-		// i = client index
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			// Validate client
-			if(IsPlayerExist(i))
-			{
-				// Get victim's position
-				GetClientAbsOrigin(i, flVictimOrigin);
-				
-				// Initialize distance variable
-				float flDistance = GetVectorDistance(flOrigin, flVictimOrigin);
-				
-				// If distance to the entity is less than the radius of explosion
-				if(flDistance <= GetConVarFloat(FindConVar("zp_grenade_freeze_radius")))
-				{				
-					// Freeze entity
-					GrenadeOnEntityFrozen(i, flVictimOrigin);
-				}
-			}
-		}
+                        // Create timer for removing freezing
+                        delete Task_ZombieFreezed[i];
+                        Task_ZombieFreezed[i] = CreateTimer(GetConVarFloat(FindConVar("zp_grenade_freeze_time")), ClientRemoveFreezing, i, TIMER_FLAG_NO_MAPCHANGE);
+                        
+                        // Create a prop_dynamic entity
+                        int iIce = CreateEntityByName("prop_dynamic");
+                        
+                        // Validate entity
+                        if(IsValidEdict(iIce))
+                        {
+                            // Set the model
+                            DispatchKeyValue(iIce, "model", "models/spree/spree.mdl");
+                            
+                            // Spawn the entity
+                            DispatchSpawn(iIce);
+                            TeleportEntity(iIce, vVictimOrigin, vVictimAngle, NULL_VECTOR);
 
-		// Create sparks splash effect
-		TE_SetupSparks(flOrigin, NULL_VECTOR, 5000, 1000);
-		TE_SendToAll();
-	}
-	
-	// Remove grenade
-	RemoveEdict(entityIndex);
-}
+                            // Sets the parent for the entity
+                            SetVariantString("!activator");
+                            AcceptEntityInput(iIce, "SetParent", i, i);
+                            
+                            // Initialize char
+                            static char sTime[SMALL_LINE_LENGTH];
+                            Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GetConVarFloat(FindConVar("zp_grenade_freeze_time")));
+                            
+                            // Sets modified flags on entity
+                            SetVariantString(sTime);
+                            AcceptEntityInput(iIce, "AddOutput");
+                            AcceptEntityInput(iIce, "FireUser1");
+                        }
+                    }
+                }
+            }
 
-/**
- * Player is about to freeze.
- *
- * @param clientIndex		The client index.
- * @param flClientOrigin	The client position.
- **/
-void GrenadeOnEntityFrozen(int clientIndex, float flClientOrigin[3])
-{
-	// Verify that the client is a zombie
-	if(!ZP_IsPlayerZombie(clientIndex) || (ZP_IsPlayerNemesis(clientIndex) && !GetConVarBool(FindConVar("zp_grenade_freeze_nemesis"))))
-	{
-		return;
-	}
+            // Create sparks splash effect
+            TE_SetupSparks(vExpOrigin, NULL_VECTOR, 5000, 1000);
+            TE_SendToAll();
 
-	// Freeze client
-	SetEntityMoveType(clientIndex, MOVETYPE_NONE);
-
-	// Set blue render color
-	SetEntityRenderMode(clientIndex, RENDER_TRANSCOLOR);
-	SetEntityRenderColor(clientIndex, 120, 120, 255, 255);
-	
-	// Create ice
-	GrenadeOnCreateIce(clientIndex, flClientOrigin);
-
-	// Emit sound
-	EmitSoundToAll("*/zbm3/impalehit.mp3", clientIndex, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-
-	// Create timer for removing freezing
-	delete Task_ZombieFreezed[clientIndex];
-	Task_ZombieFreezed[clientIndex] = CreateTimer(GetConVarFloat(FindConVar("zp_grenade_freeze_time")), GrenadeRemoveFreezing, clientIndex, TIMER_FLAG_NO_MAPCHANGE);
+            // Remove grenade
+            RemoveEdict(entityIndex);
+        }
+    }
 }
 
 /**
@@ -312,63 +302,25 @@ void GrenadeOnEntityFrozen(int clientIndex, float flClientOrigin[3])
  * @param hTimer			The timer handle.
  * @param clientIndex		The client index.
  **/
-public Action GrenadeRemoveFreezing(Handle hTimer, any clientIndex)
+public Action ClientRemoveFreezing(Handle hTimer, any clientIndex)
 {
 	// Clear timer 
 	Task_ZombieFreezed[clientIndex] = INVALID_HANDLE;
 
 	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Stop;
-	}
-
-	// Unfreeze client
-	SetEntityMoveType(clientIndex, MOVETYPE_WALK);
-
-	// Set standart render color
-	SetEntityRenderMode(clientIndex, RENDER_TRANSCOLOR);
-	SetEntityRenderColor(clientIndex, 255, 255, 255, 255);
-
-	// Emit sound
-	EmitSoundToAll("*/zbm3/zombi_wood_broken.mp3", clientIndex, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-	
-	// Destroy timer
-	return Plugin_Stop;
-}
-
-/**
- * Create the attached ice model.
- *
- * @param clientIndex		The client index.
- * @param flClientOrigin	The client position.
- **/
-void GrenadeOnCreateIce(int clientIndex, float flClientOrigin[3])
-{
-	// Validate client
 	if(IsPlayerExist(clientIndex))
 	{
-		// Create a prop_dynamic entity
-		int iIce = CreateEntityByName("prop_dynamic");
-		
-		// Validate entity
-		if(IsValidEdict(iIce))
-		{
-			// Set the model
-			DispatchKeyValue(iIce, "model", "models/spree/spree.mdl");
-			
-			// Spawn the entity
-			DispatchSpawn(iIce);
-			TeleportEntity(iIce, flClientOrigin, NULL_VECTOR, NULL_VECTOR);
+        // Unfreeze the client
+        SetEntityMoveType(clientIndex, MOVETYPE_WALK);
 
-			// Initialize char
-			static char sTime[SMALL_LINE_LENGTH];
-			Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GetConVarFloat(FindConVar("zp_grenade_freeze_time")));
-			
-			// Sets modified flags on entity
-			SetVariantString(sTime);
-			AcceptEntityInput(iIce, "AddOutput");
-			AcceptEntityInput(iIce, "FireUser1");
-		}
+        // Set standart render color
+        SetEntityRenderMode(clientIndex, RENDER_TRANSCOLOR);
+        SetEntityRenderColor(clientIndex, 255, 255, 255, 255);
+
+        // Emit sound
+        EmitSoundToAll("*/zbm3/zombi_wood_broken.mp3", clientIndex, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 	}
+    
+	// Destroy timer
+	return Plugin_Stop;
 }

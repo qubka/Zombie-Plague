@@ -43,12 +43,17 @@ public Plugin Ammunition =
 }
 
 /**
- * Plugin is loading.
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
  **/
-public void OnPluginStart(/*void*/)
+public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Hook player events
-	HookEvent("player_spawn", EventPlayerSpawn, EventHookMode_Post);
+    // Validate library
+    if(StrEqual(sLibrary, "zombieplague"))
+    {
+        // Hook player events
+        HookEvent("player_spawn", EventPlayerSpawn, EventHookMode_Post);
+    }
 }
 
 /**

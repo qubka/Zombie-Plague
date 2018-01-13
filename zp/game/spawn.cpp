@@ -111,7 +111,7 @@ void SpawnOnClientSpawn(int clientIndex)
 	if(weaponUpdate)
 	{
 		// Remove player's weapons
-		cBasePlayer->CItemRemoveAll();
+		cBasePlayer->CItemRemoveAll("weapon_knife"); //! Give default
 		
 		// Give default weapon
 		cBasePlayer->CItemMaterialize(IsFakeClient(cBasePlayer->Index) ? GetRandomInt(0,1) ? "weapon_negev" : "weapon_ak47" : GetRandomInt(0,1) ? "weapon_glock" : "weapon_usp_silencer");

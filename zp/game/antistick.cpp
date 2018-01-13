@@ -215,73 +215,73 @@ stock void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBox
 	// Get real player index from event key 
 	CBasePlayer* cBasePlayer = CBasePlayer(clientIndex);
 
-	static float flClientLoc[3];
-	static float flTwistAngle[3];
-	static float flCornerAngle[3];
-	static float flSideLoc[3];
-	static float flFinalLoc[4][3];
+	static float vClientLoc[3];
+	static float vTwistAngle[3];
+	static float vCornerAngle[3];
+	static float vSideLoc[3];
+	static float vFinalLoc[4][3];
 
 	// Get needed vector info
-	cBasePlayer->m_flGetOrigin(flClientLoc);
+	cBasePlayer->m_flGetOrigin(vClientLoc);
 
 	// Set the pitch to 0
-	flTwistAngle[1] = 90.0;
-	flCornerAngle[1] = 0.0;
+	vTwistAngle[1] = 90.0;
+	vCornerAngle[1] = 0.0;
 
 	for (int x = 0; x < 4; x++)
 	{
 		// Jump to point on player's left side.
-		AntiStickJumpToPoint(flClientLoc, flTwistAngle, flWidth / 2, flSideLoc);
+		AntiStickJumpToPoint(vClientLoc, vTwistAngle, flWidth / 2, vSideLoc);
 
 		// From this point, jump to the corner, which would be half the width from the middle of a side
-		AntiStickJumpToPoint(flSideLoc, flCornerAngle, flWidth / 2, flFinalLoc[x]);
+		AntiStickJumpToPoint(vSideLoc, vCornerAngle, flWidth / 2, vFinalLoc[x]);
 
 		// Twist 90 degrees to find next side/corner
-		flTwistAngle[1] += 90.0;
-		flCornerAngle[1] += 90.0;
+		vTwistAngle[1] += 90.0;
+		vCornerAngle[1] += 90.0;
 
 		// Fix angles
-		if(flTwistAngle[1] > 180.0)
+		if(vTwistAngle[1] > 180.0)
 		{
-			flTwistAngle[1] -= 360.0;
+			vTwistAngle[1] -= 360.0;
 		}
 
-		if(flCornerAngle[1] > 180.0)
+		if(vCornerAngle[1] > 180.0)
 		{
-			flCornerAngle[1] -= 360.0;
+			vCornerAngle[1] -= 360.0;
 		}
 	}
 
 	// Copy all horizontal model box data to array
-	boundaries[BoxBound_FUR][0] = flFinalLoc[3][0];
-	boundaries[BoxBound_FUR][1] = flFinalLoc[3][1];
-	boundaries[BoxBound_FUL][0] = flFinalLoc[0][0];
-	boundaries[BoxBound_FUL][1] = flFinalLoc[0][1];
-	boundaries[BoxBound_FDR][0] = flFinalLoc[3][0];
-	boundaries[BoxBound_FDR][1] = flFinalLoc[3][1];
-	boundaries[BoxBound_FDL][0] = flFinalLoc[0][0];
-	boundaries[BoxBound_FDL][1] = flFinalLoc[0][1];
-	boundaries[BoxBound_BUR][0] = flFinalLoc[2][0];
-	boundaries[BoxBound_BUR][1] = flFinalLoc[2][1];
-	boundaries[BoxBound_BUL][0] = flFinalLoc[1][0];
-	boundaries[BoxBound_BUL][1] = flFinalLoc[1][1];
-	boundaries[BoxBound_BDR][0] = flFinalLoc[2][0];
-	boundaries[BoxBound_BDR][1] = flFinalLoc[2][1];
-	boundaries[BoxBound_BDL][0] = flFinalLoc[1][0];
-	boundaries[BoxBound_BDL][1] = flFinalLoc[1][1];
+	boundaries[BoxBound_FUR][0] = vFinalLoc[3][0];
+	boundaries[BoxBound_FUR][1] = vFinalLoc[3][1];
+	boundaries[BoxBound_FUL][0] = vFinalLoc[0][0];
+	boundaries[BoxBound_FUL][1] = vFinalLoc[0][1];
+	boundaries[BoxBound_FDR][0] = vFinalLoc[3][0];
+	boundaries[BoxBound_FDR][1] = vFinalLoc[3][1];
+	boundaries[BoxBound_FDL][0] = vFinalLoc[0][0];
+	boundaries[BoxBound_FDL][1] = vFinalLoc[0][1];
+	boundaries[BoxBound_BUR][0] = vFinalLoc[2][0];
+	boundaries[BoxBound_BUR][1] = vFinalLoc[2][1];
+	boundaries[BoxBound_BUL][0] = vFinalLoc[1][0];
+	boundaries[BoxBound_BUL][1] = vFinalLoc[1][1];
+	boundaries[BoxBound_BDR][0] = vFinalLoc[2][0];
+	boundaries[BoxBound_BDR][1] = vFinalLoc[2][1];
+	boundaries[BoxBound_BDL][0] = vFinalLoc[1][0];
+	boundaries[BoxBound_BDL][1] = vFinalLoc[1][1];
 
 	// Set Z bounds
-	static float flEyeLoc[3];
-	cBasePlayer->m_flGetEyePosition(flEyeLoc);
+	static float vEyeLoc[3];
+	cBasePlayer->m_flGetEyePosition(vEyeLoc);
 
-	boundaries[BoxBound_FUR][2] = flEyeLoc[2];
-	boundaries[BoxBound_FUL][2] = flEyeLoc[2];
-	boundaries[BoxBound_FDR][2] = flClientLoc[2] + 15.0;
-	boundaries[BoxBound_FDL][2] = flClientLoc[2] + 15.0;
-	boundaries[BoxBound_BUR][2] = flEyeLoc[2];
-	boundaries[BoxBound_BUL][2] = flEyeLoc[2];
-	boundaries[BoxBound_BDR][2] = flClientLoc[2] + 15.0;
-	boundaries[BoxBound_BDL][2] = flClientLoc[2] + 15.0;
+	boundaries[BoxBound_FUR][2] = vEyeLoc[2];
+	boundaries[BoxBound_FUL][2] = vEyeLoc[2];
+	boundaries[BoxBound_FDR][2] = vClientLoc[2] + 15.0;
+	boundaries[BoxBound_FDL][2] = vClientLoc[2] + 15.0;
+	boundaries[BoxBound_BUR][2] = vEyeLoc[2];
+	boundaries[BoxBound_BUL][2] = vEyeLoc[2];
+	boundaries[BoxBound_BDR][2] = vClientLoc[2] + 15.0;
+	boundaries[BoxBound_BDL][2] = vClientLoc[2] + 15.0;
 }
 
 /**
@@ -292,21 +292,21 @@ stock void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBox
  * @param flDistance  	Distance to jump
  * @param flResult    	Resultant point.
  */
-stock void AntiStickJumpToPoint(const float flVector[3], const float flAngle[3], float flDistance, float flResult[3])
+stock void AntiStickJumpToPoint(const float vVector[3], const float vAngle[3], const float flDistance, float vResult[3])
 {
-    float flViewVector[3];
+    float vViewVector[3];
     
     // Turn client angle, into a vector
-    GetAngleVectors(flAngle, flViewVector, NULL_VECTOR, NULL_VECTOR);
+    GetAngleVectors(vAngle, vViewVector, NULL_VECTOR, NULL_VECTOR);
     
     // Normalize vector
-    NormalizeVector(flViewVector, flViewVector);
+    NormalizeVector(vViewVector, vViewVector);
     
     // Scale to the given distance
-    ScaleVector(flViewVector, flDistance);
+    ScaleVector(vViewVector, flDistance);
     
     // Add the vectors together
-    AddVectors(flVector, flViewVector, flResult);
+    AddVectors(vVector, vViewVector, vResult);
 }
 
 /**

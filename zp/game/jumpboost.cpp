@@ -59,24 +59,24 @@ public void JumpBoostOnClientJumpPost(CBasePlayer* cBasePlayer)
 	}
 
 	// Initialize velocity vector
-	float flVelocity[3];
+	float vVelocity[3];
 	
 	// Get the client's velocity
-	cBasePlayer->m_flVelocity(flVelocity);
+	cBasePlayer->m_flVelocity(vVelocity);
 	
 	// Only apply horizontal multiplier ifit's not a bhop
-	if(SquareRoot(Pow(flVelocity[0], 2.0) + Pow(flVelocity[1], 2.0)) < GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MAX]))
+	if(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0)) < GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MAX]))
 	{
 		// Apply horizontal multipliers to jump vector
-		flVelocity[0] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
-		flVelocity[1] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
+		vVelocity[0] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
+		vVelocity[1] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
 	}
 
 	// Apply height multiplier to jump vector
-	flVelocity[2] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
+	vVelocity[2] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
 
 	// Push the player
-	cBasePlayer->m_iTeleportPlayer(NULL_VECTOR, NULL_VECTOR, flVelocity);
+	cBasePlayer->m_iTeleportPlayer(NULL_VECTOR, NULL_VECTOR, vVelocity);
 }
 
 /**
@@ -185,27 +185,25 @@ void JumpBoostOnClientLeapJump(CBasePlayer* cBasePlayer)
 	//*********************************************************************
 	
 	// Initialize some floats
-	static float flAngle[3];
-	static float flOrigin[3];
-	static float flVelocity[3];
+	static float vAngle[3]; static float vOrigin[3]; static float vVelocity[3];
 	
 	// Get client's location and view direction
-	cBasePlayer->m_flGetOrigin(flOrigin);
-	cBasePlayer->m_flGetEyeAngles(flAngle);
+	cBasePlayer->m_flGetOrigin(vOrigin);
+	cBasePlayer->m_flGetEyeAngles(vAngle);
 	
 	// Store zero's angle
-	float flAngleZero = flAngle[0];	
+	float flAngleZero = vAngle[0];	
 	
 	// Get location's angles
-	flAngle[0] = -30.0;
-	GetAngleVectors(flAngle, flVelocity, NULL_VECTOR, NULL_VECTOR);
+	vAngle[0] = -30.0;
+	GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
 	
 	// Scale vector for the boost
-	ScaleVector(flVelocity, cBasePlayer->m_bSurvivor ? GetConVarFloat(gCvarList[CVAR_LEAP_SURVIVOR_FORCE]) : (cBasePlayer->m_bNemesis ? GetConVarFloat(gCvarList[CVAR_LEAP_NEMESIS_FORCE]) : GetConVarFloat(gCvarList[CVAR_LEAP_ZOMBIE_FORCE])));
+	ScaleVector(vVelocity, cBasePlayer->m_bSurvivor ? GetConVarFloat(gCvarList[CVAR_LEAP_SURVIVOR_FORCE]) : (cBasePlayer->m_bNemesis ? GetConVarFloat(gCvarList[CVAR_LEAP_NEMESIS_FORCE]) : GetConVarFloat(gCvarList[CVAR_LEAP_ZOMBIE_FORCE])));
 	
 	// Restore eye angle
-	flAngle[0] = flAngleZero;
+	vAngle[0] = flAngleZero;
 	
 	// Push the player
-	cBasePlayer->m_iTeleportPlayer(flOrigin, flAngle, flVelocity);
+	cBasePlayer->m_iTeleportPlayer(vOrigin, vAngle, vVelocity);
 }

@@ -62,31 +62,31 @@ enum
  **/
 void ZombieClassesLoad(/*void*/)
 {
-	// No zombie classes?
-	int iSize = GetArraySize(arrayZombieClasses);
-	if(!iSize)
-	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Zombie Class Validation", "No zombie classes loaded");
-		return;
-	}
-	
-	// Initialize model char
-	static char sModel[BIG_LINE_LENGTH];
-	
-	// Precache of the zombie classes
-	for(int i = 0; i < iSize; i++)
-	{
-		// Validate player model
-		ZombieGetModel(i, sModel, sizeof(sModel));
-		if(!ModelsPlayerPrecache(sModel))
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Model Validation", "Invalid model path. File not found: \"%s\".", sModel);
-		}
-		
-		// Validate claw model
-		ZombieGetClawModel(i, sModel, sizeof(sModel));
-		ZombieSetClawIndex(i, ModelsViewPrecache(sModel));
-	}
+    // No zombie classes?
+    if(arrayZombieClasses == NULL)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Zombie Class Validation", "No zombie classes loaded");
+        return;
+    }
+
+    // Initialize model char
+    static char sModel[BIG_LINE_LENGTH];
+
+    // Precache of the zombie classes
+    int iSize = GetArraySize(arrayZombieClasses);
+    for(int i = 0; i < iSize; i++)
+    {
+        // Validate player model
+        ZombieGetModel(i, sModel, sizeof(sModel));
+        if(!ModelsPlayerPrecache(sModel))
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Model Validation", "Invalid model path. File not found: \"%s\".", sModel);
+        }
+
+        // Validate claw model
+        ZombieGetClawModel(i, sModel, sizeof(sModel));
+        ZombieSetClawIndex(i, ModelsViewPrecache(sModel));
+    }
 }
 
 /*
