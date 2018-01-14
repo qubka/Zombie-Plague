@@ -433,20 +433,26 @@ stock void SetWorldModel(int weaponIndex, int modelIndex)
 stock bool IsPlayerExist(int clientIndex, bool aliveness = true)
 {
 	// If client isn't valid
-	if (clientIndex <= 0 || clientIndex > MaxClients)
+	if(clientIndex <= 0 || clientIndex > MaxClients)
 	{
 		return false;
 	}
 	
 	// If client isn't connected
-	if (!IsClientConnected(clientIndex))
+	if(!IsClientConnected(clientIndex))
 	{
 		return false;
 	}
 
 	// If client isn't in game
-	if (!IsClientInGame(clientIndex))
+	if(!IsClientInGame(clientIndex))
 	{
+		return false;
+	}
+    
+    // If client isn't TV
+    if(IsClientSourceTV(clientIndex))
+    {
 		return false;
 	}
 
@@ -483,13 +489,13 @@ stock bool IsPlayerHasWeapon(int clientIndex, char[] weaponName)
 		int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
 		
 		// If entity isn't valid, then skip
-		if (IsValidEdict(weaponIndex))
+		if(IsValidEdict(weaponIndex))
 		{
 			// Get weapon classname
 			GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
 			
 			// If weapon find, then return
-			if (StrEqual(sClassname, weaponName, false))
+			if(StrEqual(sClassname, weaponName, false))
 			{
 				return true;
 			}

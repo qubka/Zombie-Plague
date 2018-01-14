@@ -172,7 +172,7 @@ public Action EventEntityExplosion(Event gEventHook, const char[] gEventName, bo
             }
             
             // Remove grenade
-            RemoveEdict(entityIndex);
+            AcceptEntityInput(entityIndex, "Kill");
         }
     }
 }

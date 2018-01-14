@@ -139,7 +139,7 @@ public Action EventPlayerDeath(Event gEventHook, const char[] gEventName, bool d
 		int iExplosion = CreateEntityByName("env_explosion");
 
 		// If explosion entity isn't valid, then stop.
-		if (iExplosion)
+		if(iExplosion)
 		{
 			// Spawn the entity into the world
 			DispatchSpawn(iExplosion);

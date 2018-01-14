@@ -203,7 +203,7 @@ public Action EventEntityDecoy(Event gEventHook, const char[] gEventName, bool d
             TE_SendToAll();
             
             // Remove grenade
-            RemoveEdict(entityIndex);
+            AcceptEntityInput(entityIndex, "Kill");
         }
     }
 }

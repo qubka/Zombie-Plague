@@ -56,24 +56,50 @@ void CommandsInit(/*void*/)
  **/
 public Action CommandsHook(int clientIndex, const char[] commandMsg, int iArguments)
 {
-	// Swithes hooked commands
-	switch(commandMsg[0])
-	{
-		// Jointeam
-		case 'j' :
-		{
-			return ACTION_HANDLED;
-		}
-		
-		// Suicide
-		case 'k', 'e' : 
-		{
-			return GetConVarBool(gCvarList[CVAR_RESPAWN_SUICIDE]) ? ACTION_CONTINUE : ACTION_HANDLED;
-		}
-	}
+    // Get real player index from event key
+    CBasePlayer* cBasePlayer = CBasePlayer(clientIndex);
 
-	// Allow other commands
-	return ACTION_CONTINUE;
+    // Verify that the client is exist
+    if(!IsPlayerExist(cBasePlayer->Index, false))
+    {
+        // Allow commands
+        return ACTION_CONTINUE;
+    }
+
+    // Switches hooked commands
+    switch(commandMsg[0])
+    {
+        // Jointeam
+        case 'j' :
+        {
+            //!! IMPORTANT BUG FIX !!//
+            // Choose random team for the new clients
+            if(cBasePlayer->m_iTeamNum == TEAM_NONE || cBasePlayer->m_iTeamNum == TEAM_SPECTATOR)
+            {
+                // Switch team to random
+                cBasePlayer->m_iTeamNum = GetRandomInt(TEAM_ZOMBIE, TEAM_HUMAN);
+
+                // If game round didn't start, then respawn
+                if(gServerData[Server_RoundMode] == GameModes_None)
+                {
+                    // Force client to respawn
+                    ToolsForceToRespawn(cBasePlayer);
+                }
+            }
+            
+            // Block commands
+            return ACTION_HANDLED;
+        }
+
+        // Suicide
+        case 'k', 'e' : 
+        {
+            return GetConVarBool(gCvarList[CVAR_RESPAWN_SUICIDE]) ? ACTION_CONTINUE : ACTION_HANDLED;
+        }
+    }
+
+    // Allow commands
+    return ACTION_CONTINUE;
 }
 
 /**

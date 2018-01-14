@@ -147,9 +147,9 @@ public Action EventPlayerSpawn(Event gEventHook, const char[] gEventName, bool d
  *
  * @param clientIndex		The client index.
  * @param contentsMask		The contents mask.
- * @param victimIndex		The victim index.
+ * @param hitIndex		    The hit index.
  **/
-public bool FilterStuck(int clientIndex, int contentsMask, any victimIndex) 
+public bool FilterStuck(int clientIndex, int contentsMask, any hitIndex) 
 {
-    return (clientIndex != victimIndex);
+    return (clientIndex != hitIndex);
 }

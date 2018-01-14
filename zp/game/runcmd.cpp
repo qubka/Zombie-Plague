@@ -71,14 +71,6 @@ Action RunCmdOnPlayerRunCmd(int clientIndex, int &bitFlags, bool clientAlive)
 	}
 	else 
 	{
-		//!! IMPORTANT BUG FIX !!//
-		// Choose random team for the new clients
-		if(cBasePlayer->m_iTeamNum == TEAM_NONE || cBasePlayer->m_iTeamNum == TEAM_SPECTATOR)
-		{
-			// Swith team to random
-			cBasePlayer->m_iTeamNum = GetRandomInt(TEAM_ZOMBIE, TEAM_HUMAN);
-		}
-		
 		// Block hooks of the bot control button
 		bitFlags &= (~IN_USE);
 		return ACTION_CHANGED;

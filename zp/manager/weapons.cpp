@@ -842,7 +842,7 @@ stock int WeaponsGetModelWorldID(int iD)
 public void OnEntityCreated(int entityIndex, const char[] sClassname)
 {
 	// Validate classname
-	if (StrContains(sClassname, "projectile") != -1)
+	if(StrContains(sClassname, "projectile") != -1)
 	{
 		// Hook weapon callbacks
 		SDKHook(entityIndex, SDKHook_SpawnPost, WeaponsOnSpawnPost);
@@ -1155,7 +1155,7 @@ public Action WeaponsOnAnimationFix(int clientIndex)
 		if(WeaponsValidateKnife(weaponID))
 		{
 			// Validate animation delay
-			if (nSequence == nOldSequence[cBasePlayer->Index] && flCycle < flOldCycle[cBasePlayer->Index])
+			if(nSequence == nOldSequence[cBasePlayer->Index] && flCycle < flOldCycle[cBasePlayer->Index])
 			{
 				switch (nSequence)
 				{
@@ -1180,17 +1180,17 @@ public Action WeaponsOnAnimationFix(int clientIndex)
 			float flCurrentTime = GetEngineTime();
 			
 			// Play previous animation
-			if (nPrevSequence[cBasePlayer->Index] != 0 && flDelay[cBasePlayer->Index] < flCurrentTime)
+			if(nPrevSequence[cBasePlayer->Index] != 0 && flDelay[cBasePlayer->Index] < flCurrentTime)
 			{
 				SetEntProp(viewIndex, Prop_Send, "m_nSequence", nPrevSequence[cBasePlayer->Index]);
 				nPrevSequence[cBasePlayer->Index] = 0;
 			}
 			
 			// Validate animation delay
-			if (flCycle < flOldCycle[cBasePlayer->Index])
+			if(flCycle < flOldCycle[cBasePlayer->Index])
 			{
 				// Validate animation
-				if (nSequence == nOldSequence[cBasePlayer->Index])
+				if(nSequence == nOldSequence[cBasePlayer->Index])
 				{
 					SetEntProp(viewIndex, Prop_Send, "m_nSequence", 0);
 					nPrevSequence[cBasePlayer->Index] = nSequence;

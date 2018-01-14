@@ -171,32 +171,38 @@ void GameEngineInit(/*void*/)
  **/
 stock bool IsPlayerExist(int clientIndex, bool clientAlive = true)
 {
-	// If client isn't valid
-	if(clientIndex <= 0 || clientIndex > MaxClients)
-	{
-		return false;
-	}
-	
-	// If client isn't connected
-	if(!IsClientConnected(clientIndex))
-	{
-		return false;
-	}
+    // If client isn't valid
+    if(clientIndex <= 0 || clientIndex > MaxClients)
+    {
+        return false;
+    }
 
-	// If client isn't in game
-	if(!IsClientInGame(clientIndex))
-	{
-		return false;
-	}
+    // If client isn't connected
+    if(!IsClientConnected(clientIndex))
+    {
+        return false;
+    }
 
-	// If client isn't alive
-	if(clientAlive && !IsPlayerAlive(clientIndex))
-	{
-		return false;
-	}
-	
-	// If client exist
-	return true;
+    // If client isn't in game
+    if(!IsClientInGame(clientIndex))
+    {
+        return false;
+    }
+
+    // If client isn't TV
+    if(IsClientSourceTV(clientIndex))
+    {
+        return false;
+    } 
+
+    // If client isn't alive
+    if(clientAlive && !IsPlayerAlive(clientIndex))
+    {
+        return false;
+    }
+
+    // If client exist
+    return true;
 }
 
 /**
