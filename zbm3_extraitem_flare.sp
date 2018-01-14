@@ -67,7 +67,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(StrEqual(sLibrary, "zombieplague"))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_ZOMBIE, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
 }
 
@@ -174,7 +174,7 @@ public Action EventEntityDecoy(Event gEventHook, const char[] gEventName, bool d
                 DispatchKeyValue(iLight, "_light", sGrenadeColorLight);
                 
                 // Set the maximum light distance
-                DispatchKeyValueFloat(iLight, "distance", GetConVarFloat(FindConVar("zp_grenade_light_distance")),);
+                DispatchKeyValueFloat(iLight, "distance", GetConVarFloat(FindConVar("zp_grenade_light_distance")));
                 
                 // Set the radius of the spotlight at the end point
                 DispatchKeyValueFloat(iLight, "spotlight_radius", GetConVarFloat(FindConVar("zp_grenade_light_radius")));
@@ -190,7 +190,7 @@ public Action EventEntityDecoy(Event gEventHook, const char[] gEventName, bool d
 
                 // Initialize time
                 static char sTime[SMALL_LINE_LENGTH];
-                Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GetConVarFloat(FindConVar("zp_grenade_light_duration"))));
+                Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GetConVarFloat(FindConVar("zp_grenade_light_duration")));
                 
                 // Set modified flags on the entity
                 SetVariantString(sTime);
