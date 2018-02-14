@@ -100,7 +100,7 @@ void AntiStickClientInit(int clientIndex)
  */
 public void AntiStickStartTouch(int clientIndex, int entityIndex)
 {
-	// If antistick is disabled, then stop.
+	// If antistick is disabled, then stop
 	bool bAntiStick = GetConVarBool(gCvarList[CVAR_GAME_CUSTOM_ANTISTICK]);
 	if(!bAntiStick)
 	{

@@ -432,38 +432,38 @@ stock void SetWorldModel(int weaponIndex, int modelIndex)
  **/
 stock bool IsPlayerExist(int clientIndex, bool aliveness = true)
 {
-	// If client isn't valid
-	if(clientIndex <= 0 || clientIndex > MaxClients)
-	{
-		return false;
-	}
-	
-	// If client isn't connected
-	if(!IsClientConnected(clientIndex))
-	{
-		return false;
-	}
+    // If client isn't valid
+    if(clientIndex <= 0 || clientIndex > MaxClients)
+    {
+        return false;
+    }
 
-	// If client isn't in game
-	if(!IsClientInGame(clientIndex))
-	{
-		return false;
-	}
-    
+    // If client isn't connected
+    if(!IsClientConnected(clientIndex))
+    {
+        return false;
+    }
+
+    // If client isn't in game
+    if(!IsClientInGame(clientIndex))
+    {
+        return false;
+    }
+
     // If client isn't TV
     if(IsClientSourceTV(clientIndex))
     {
-		return false;
-	}
+        return false;
+    }
 
-	// If client isn't alive
-	if(aliveness && !IsPlayerAlive(clientIndex))
-	{
-		return false;
-	}
-	
-	// If client exist
-	return true;
+    // If client isn't alive
+    if(aliveness && !IsPlayerAlive(clientIndex))
+    {
+        return false;
+    }
+
+    // If client exist
+    return true;
 }
 
 /**
