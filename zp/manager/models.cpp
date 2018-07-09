@@ -30,213 +30,194 @@
  **/
 void ModelsLoad(/*void*/)
 {
-	// Initialize char
-	static char sPath[PLATFORM_MAX_PATH];
+    // Initialize char
+    static char sModel[PLATFORM_MAX_PATH];
 
-	//*********************************************************************
-	//*               PRECACHE OF NEMESIS PLAYER MODEL            		  *
-	//*********************************************************************
-	
-	// Load nemesis player model
-	GetConVarString(gCvarList[CVAR_NEMESIS_PLAYER_MODEL], sPath, sizeof(sPath)); 
-	
-	// Validate player model
-	if(!ModelsPlayerPrecache(sPath))
-	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid nemesis model path. File not found: \"%s\".", sPath);
-	}
-	
-	//*********************************************************************
-	//*               PRECACHE OF SURVIVOR PLAYER MODEL            		  *
-	//*********************************************************************
-	
-	// Load survivor player model
-	GetConVarString(gCvarList[CVAR_SURVIVOR_PLAYER_MODEL], sPath, sizeof(sPath)); 
-	
-	// Validate player model
-	if(!ModelsPlayerPrecache(sPath))
-	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid survivor model path. File not found: \"%s\".", sPath);
-	}
+    //*********************************************************************
+    //*               PRECACHE OF NEMESIS PLAYER MODEL                      *
+    //*********************************************************************
+    
+    // Load nemesis player model
+    gCvarList[CVAR_NEMESIS_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
+    
+    // Validate player model
+    if(!ModelsPlayerPrecache(sModel))
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid nemesis model path. File not found: \"%s\"", sModel);
+    }
+    
+    //*********************************************************************
+    //*               PRECACHE OF SURVIVOR PLAYER MODEL                      *
+    //*********************************************************************
+    
+    // Load survivor player model
+    gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
+    
+    // Validate player model
+    if(!ModelsPlayerPrecache(sModel))
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid survivor model path. File not found: \"%s\"", sModel);
+    }
 }
 
 /**
  * Precache models and return model index.
- *   	NOTE: Precache with hiding models include.
+ *       NOTE: Precache with hiding models include.
  *
- * @param sModel			The model path. 
+ * @param sModel            The model path. 
  **/
-stock bool ModelsPlayerPrecache(const char[] sModel)
+stock bool ModelsPlayerPrecache(char[] sModel)
 {
-	// If model's path is empty, then stop
-	if(!strlen(sModel))
-	{
-		return false;
-	}
-	
-	// If model didn't exist
-	if(!FileExists(sModel))
-	{
-		// Try to find model in game folder by name
-		return ModelsIsStandart(sModel);
-	}
+    // If model's path is empty, then stop
+    if(!strlen(sModel))
+    {
+        return false;
+    }
+    
+    // If model didn't exist
+    if(!FileExists(sModel))
+    {
+        // Try to find model in game folder by name
+        return ModelsIsStandart(sModel);
+    }
 
-	// Search for model files with the specified name and add them to downloads table
-	ModelsPrecacheDirFromMainFile(sModel);
-	return true;
+    // Search for model files with the specified name and add them to downloads table
+    ModelsPrecacheDirFromMainFile(sModel);
+    return true;
 }
 
 /**
  * Precache weapon models and return model index.
  *
- * @param sModel			The model path. 
- * @return					The model index.
+ * @param sModel            The model path. 
+ * @return                  The model index.
  **/
-stock int ModelsViewPrecache(const char[] sModel)
+stock int ModelsViewPrecache(char[] sModel)
 {
-	// If model's path is empty, then return 0 index
-	if(!strlen(sModel))
-	{
-		return 0;
-	}
-	
-	// If model didn't exist
-	if(!FileExists(sModel))
-	{
-		// Return error
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid model path. File not found: \"%s\".", sModel);
-	}
-	
-	// Convert model to index
-	int iModelIndex = PrecacheModel(sModel);
+    // If model's path is empty, then return 0 index
+    if(!strlen(sModel))
+    {
+        return 0;
+    }
+    
+    // If model didn't exist
+    if(!FileExists(sModel))
+    {
+        // Return error
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
+    }
+    
+    // Convert model to index
+    int iModelIndex = PrecacheModel(sModel, true);
+    
+    // Validate index (Bugfix for modules)
+    if(iModelIndex) 
+    {
+        // Add file to download table
+        AddFileToDownloadsTable(sModel);
 
-	// Search for model files with the specified name and add them to downloads table
-	ModelsPrecacheDirFromMainFile(sModel);
-	
-	// Return model index
-	return iModelIndex;
+        // Search for model files with the specified name and add them to downloads table
+        ModelsPrecacheDirFromMainFile(sModel);
+    }
+    
+    // Return model index
+    return iModelIndex;
 }
 
 /**
  * Reads and precache the current directory from a local filename.
  *
- * @param sModel			The model path.
+ * @param sModel            The model path.
  **/
-void ModelsPrecacheDirFromMainFile(const char[] sModel)
+void ModelsPrecacheDirFromMainFile(char[] sModel)
 {
-	// Automatic precache of player models
-	int iLenth = FindCharInString(sModel, '/', true);
-	
-	// The index of the first occurrence of the character in the string
-	if(iLenth != -1)
-	{
-		// Copy one string onto another
-		static char sPath[PLATFORM_MAX_PATH];
-		strcopy(sPath, sizeof(sPath), sModel);
-		
-		// Cut the string after last slash
-		sPath[iLenth] = '\0';
-		
-		// Open directory of file
-		DirectoryListing sDirectory = OpenDirectory(sPath);
-		
-		// If doesn't exist stop
-		if(sDirectory == NULL)
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening directory: %s", sPath);
-		}
-		
-		// Initialize some variables
-		static char sFile[NORMAL_LINE_LENGTH];
-		static char sLine[PLATFORM_MAX_PATH];
-		
-		// File types
-		FileType sType;
-		
-		// Search any files in directory and precache them
-		while (ReadDirEntry(sDirectory, sFile, NORMAL_LINE_LENGTH, sType)) 
-		{ 
-			if(sType == FileType_File) 
-			{
-				// Format full path to file
-				Format(sLine, sizeof(sLine), "%s/%s", sPath, sFile);
-				
-				// Add to server precache list
-				DownloadsAddFileToPrecache(sLine);
-			}
-		}
-	
-		// Close directory
-		delete sDirectory;
-	}
+    // Finds the first occurrence of a character in a string
+    int iLenth = FindCharInString(sModel, '/', true);
+    
+    // The index of the first occurrence of the character in the string
+    if(iLenth != -1)
+    {
+        // Cut the string after last slash
+        sModel[iLenth] = '\0';
+        
+        // Open directory of file
+        DirectoryListing sDirectory = OpenDirectory(sModel);
+        
+        // If doesn't exist stop
+        if(sDirectory == INVALID_HANDLE)
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening directory: \"%s\"", sModel);
+        }
+        
+        // Initialize some variables
+        static char sFile[NORMAL_LINE_LENGTH];
+        static char sLine[PLATFORM_MAX_PATH];
+        
+        // File types
+        FileType sType;
+        
+        // Search any files in directory and precache them
+        while(ReadDirEntry(sDirectory, sFile, sizeof(sFile), sType)) 
+        { 
+            if(sType == FileType_File) 
+            {
+                // Format full path to file
+                Format(sLine, sizeof(sLine), "%s/%s", sModel, sFile);
+                
+                // Add to server precache list
+                fnMultiFilePrecache(sLine);
+            }
+        }
+    
+        // Close directory
+        delete sDirectory;
+    }
 }
 
 /**
  * Validates the specified standart models from game folder.
  *
- * @param sModel			The model path for validation.
- * @return					True ifstandart model, false otherwise.
+ * @param sModel            The model path for validation.
+ * @return                  True if standart model, false otherwise.
  **/
 bool ModelsIsStandart(const char[] sModel)
 {
-	// Copy one string onto another
-	static char sPath[PLATFORM_MAX_PATH];
-	strcopy(sPath, sizeof(sPath), sModel);
-	
-	//*********************************************************************
-	//*                VALIDATE STANDART MODELS FILES            		  *
-	//*********************************************************************
-	
-	if(!strncmp(sPath, "models/player/", 14))
-	{
-		// Given a string, replaces all occurrences of a search string with a empty string
-		ReplaceString(sPath, sizeof(sPath), "models/player/", "");
-		
-		// If path contains standart path
-		if(!strncmp(sPath, "custom_player/legacy/", 21))
-		{
-			// Given a string, replaces all occurrences of a search string with a empty string
-			ReplaceString(sPath, sizeof(sPath), "custom_player/legacy/", "");
-			
-			// If path contains standart path
-			if(!strncmp(sPath, "ctm_", 4) || !strncmp(sPath, "tm_", 3))
-			{
-				// Precache models
-				if(!IsModelPrecached(sModel)) PrecacheModel(sModel);
-				return true;
-			}
-		}
-		else
-		{
-			// If path contains standart path
-			if(!strncmp(sPath, "ctm_", 4) || !strncmp(sPath, "tm_", 3))
-			{
-				// Precache models
-				if(!IsModelPrecached(sModel)) PrecacheModel(sModel);
-				return true;
-			}
-		}
-	}
-	
-	//*********************************************************************
-	//*               VALIDATE STANDART ARM MODELS FILES            	  *
-	//*********************************************************************
-	
-	else if(!strncmp(sPath, "models/weapons/", 15))
-	{
-		// Given a string, replaces all occurrences of a search string with a empty string
-		ReplaceString(sPath, sizeof(sPath), "models/weapons/", "");
-		
-		// If path contains standart path
-		if(!strncmp(sPath, "ct_arms_", 8) || !strncmp(sPath, "t_arms_", 7))
-		{
-			// Precache models
-			if(!IsModelPrecached(sModel)) PrecacheModel(sModel);
-			return true;
-		}
-			
-	}
-	
-	// Model didn't exist, then stop
-	return false;
+    // Validate path
+    if(!strncmp(sModel, "models/player/", 14, true))
+    {
+        // If path contains standart path
+        if(!strncmp(sModel[14], "custom_player/legacy/", 21, true))
+        {
+            // If path contains standart path
+            if(!strncmp(sModel[35], "ctm_", 4, true) || !strncmp(sModel[35], "tm_", 3, true))
+            {
+                // Precache models
+                if(!IsModelPrecached(sModel)) PrecacheModel(sModel, true);
+                return true;
+            }
+        }
+        else
+        {
+            // If path contains standart path
+            if(!strncmp(sModel[14], "ctm_", 4, true) || !strncmp(sModel[14], "tm_", 3, true))
+            {
+                // Precache models
+                if(!IsModelPrecached(sModel)) PrecacheModel(sModel, true);
+                return true;
+            }
+        }
+    }
+    else if(!strncmp(sModel, "models/weapons/", 15, true))
+    {
+        // If path contains standart path
+        if(!strncmp(sModel[15], "ct_arms_", 8, true) || !strncmp(sModel[15], "t_arms_", 7, true))
+        {
+            // Precache models
+            if(!IsModelPrecached(sModel)) PrecacheModel(sModel, true);
+            return true;
+        }
+    }
+    
+    // Model didn't exist, then stop
+    return false;
 }

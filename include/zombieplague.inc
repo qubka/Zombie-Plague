@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 7.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -35,56 +35,19 @@
 /**
  * Lenth of usual strings.
  **/
-#define SMALL_LINE_LENGTH 	32
-#define NORMAL_LINE_LENGTH 	64
-#define BIG_LINE_LENGTH 	128
-
-/**
- * Number of gamemodes.
- **/
-enum
-{
-	MODE_NONE = -1,			/**< Used as return value when an mode didn't start */
-	
-	MODE_INFECTION,			/**< Normal infection */
-	MODE_MULTI,				/**< Multi infection */
-	MODE_SWARM,				/**< Swarm mode */
-	MODE_NEMESIS,			/**< Nemesis round */
-	MODE_SURVIVOR,			/**< Survivor round */
-	MODE_ARMAGEDDON			/**< Armageddon round */
-};
+#define SMALL_LINE_LENGTH     32
+#define NORMAL_LINE_LENGTH     64
+#define BIG_LINE_LENGTH     128
 
 /**
  * Number of player's classes.
  **/
 enum ZPClassType
 {
-	TYPE_ZOMBIE,			/**< Make a zombie */
-	TYPE_NEMESIS,			/**< Make a nemesis */
-	TYPE_SURVIVOR,			/**< Make a survivor */
-	TYPE_HUMAN				/**< Make a human */
-};
-
-/**
- * Number of round's states.
- **/
-enum ZPServerRound
-{
-	SERVER_ROUND_NEW,		/**< Round not started */
-	SERVER_ROUND_END,		/**< Round ended ? */
-	SERVER_ROUND_STARTED,	/**< Round started ? */
-	SERVER_ROUND_NUMBER,	/**< Round number */
-	SERVER_ROUND_MODE		/**< Round gamemode */
-};
-
-/**
- * Number of valid player's teams.
- **/
-enum ZPTeamType
-{
-	TEAM_HUMAN,				/**< Human team */
-	TEAM_ZOMBIE,			/**< Zombie team */
-	TEAM_ALL				/**< Any team */
+    TYPE_ZOMBIE,            /**< Make a zombie */
+    TYPE_NEMESIS,           /**< Make a nemesis */
+    TYPE_SURVIVOR,          /**< Make a survivor */
+    TYPE_HUMAN              /**< Make a human */
 };
 
 /**
@@ -92,35 +55,37 @@ enum ZPTeamType
  **/
 enum ZPSelectType
 {
-	NO,				
-	YES
+    NO,                
+    YES
 };
 
 
 #include "zombieplague/weapons.inc"
+#include "zombieplague/gamemodes.inc"
+#include "zombieplague/hitgroups.inc"
 #include "zombieplague/extraitems.inc"
 #include "zombieplague/humanclasses.inc" 
 #include "zombieplague/zombieclasses.inc"
 
 
 //*********************************************************************
-//*           			CORE MAIN FORWARDS            				  *
+//*                       CORE MAIN FORWARDS                              *
 //*********************************************************************
 
 /**
- * @brief Called when a client became a zombie.
+ * @brief Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex		The client index.
- * @param attackerIndex		The attacker index.
+ * @param clientIndex        The client index.
+ * @param attackerIndex      The attacker index.
  *
  * @noreturn
  **/
 forward void ZP_OnClientInfected(int clientIndex, int attackerIndex);
 
 /**
- * @brief Called when a client became a survivor.
+ * @brief Called when a client became a human/survivor.
  * 
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *
  * @noreturn
  **/
@@ -129,28 +94,29 @@ forward void ZP_OnClientHeroed(int clientIndex);
 /**
  * @brief Called when a client take a fake damage.
  * 
- * @param clientIndex		The client index.
- * @param attackerIndex		The attacker index.
- * @param damageAmount		The amount of damage inflicted.
+ * @param clientIndex        The client index.
+ * @param attackerIndex      The attacker index.
+ * @param damageAmount       The amount of damage inflicted.
+ * @param damageType         The ditfield of damage types
  *
  * @noreturn
  **/
-forward void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount);
+forward void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType);
 
 /**
  * @brief Called when a client use a zombie skill.
  * 
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *
- * @return					Plugin_Handled or Plugin_Stop to block using skill. Anything else
- *                          	(like Plugin_Continue) to allow use.
+ * @return                   Plugin_Handled or Plugin_Stop to block using skill. Anything else
+ *                              (like Plugin_Continue) to allow use.
  **/
 forward Action ZP_OnClientSkillUsed(int clientIndex);
 
 /**
  * @brief Called when a zombie skill duration is over.
  * 
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *
  * @noreturn
  **/
@@ -158,77 +124,75 @@ forward void ZP_OnClientSkillOver(int clientIndex);
 
 /**
  * @brief Called after a zombie round is started.
- * 
- * @param modeIndex			The round mode.
  *
  * @noreturn
  **/
-forward void ZP_OnZombieModStarted(int modeIndex);
+forward void ZP_OnZombieModStarted(/*void*/);
 
 
 //*********************************************************************
-//*           			CORE MAIN NATIVES            				  *
+//*                       CORE MAIN NATIVES                              *
 //*********************************************************************
 
 /**
  * Returns whether a player is allowed to do a certain operation or not.
  *
- * @param clientIndex		The client index.
- * @param flag				The access flag. See enum AdminFlag.
+ * @param clientIndex        The client index.
+ * @param flag               The access flag. See enum AdminFlag.
  *  
- * @return			        True or false.
+ * @return                   True or false.
  **/
 native bool ZP_IsPlayerPrivileged(int clientIndex, AdminFlag flag);
 
 /**
  * @brief Returns true if the player is a zombie, false if not. 
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        True or false.
+ * @return                   True or false.
  **/
 native bool ZP_IsPlayerZombie(int clientIndex);
 
 /**
  * @brief Returns true if the player is a human, false if not.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        True or false.
+ * @return                   True or false.
  **/
 native bool ZP_IsPlayerHuman(int clientIndex);
 
 /**
  * @brief Returns true if the player is a nemesis, false if not. (In addition, Nemesis always have ZP_IsPlayerZombie() native)
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        True or false.
+ * @return                   True or false.
  **/
 native bool ZP_IsPlayerNemesis(int clientIndex);
 
 /**
  * @brief Returns true if the player is a survivor, false if not.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        True or false.
+ * @return                   True or false.
  **/
 native bool ZP_IsPlayerSurvivor(int clientIndex);
 
 /**
  * @brief Returns true if the player use a zombie skill, false if not. 
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        True or false.
+ * @return                   True or false.
  **/
 native bool ZP_IsPlayerUseZombieSkill(int clientIndex);
 
 /**
  * @brief Force to respawn a player.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
  * @noreturn
  **/
@@ -237,27 +201,28 @@ native void ZP_ForceClientRespawn(int clientIndex);
 /**
  * @brief Force to switch a player's class.
  *
- * @param clientIndex		The client index.
- * @param typeIndex			The class type. See enum ZPClassType.
+ * @param clientIndex        The client index.
+ * @param attackerIndex      (Optional) The attacker index.
+ * @param typeIndex          The class type. See enum ZPClassType.
  *  
  * @noreturn
  **/
-native void ZP_SwitchClientClass(int clientIndex, ZPClassType typeIndex);
+native void ZP_SwitchClientClass(int clientIndex, int attackerIndex = 0, ZPClassType typeIndex);
 
 /**
  * @brief Gets the player's amount of ammopacks.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        The number of ammopacks.
+ * @return                   The number of ammopacks.
  **/
 native int ZP_GetClientAmmoPack(int clientIndex);
 
 /**
  * @brief Sets the player's amount of ammopacks.
  *
- * @param clientIndex		The client index.
- * @param amountAmmo		The number of ammopacks.
+ * @param clientIndex        The client index.
+ * @param amountAmmo         The number of ammopacks.
  *  
  * @noreturn
  **/
@@ -266,17 +231,17 @@ native void ZP_SetClientAmmoPack(int clientIndex, int amountAmmo);
 /**
  * @brief Gets the player's amount of previous ammopacks spended.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        The number of ammopacks.
+ * @return                   The number of ammopacks.
  **/
 native int ZP_GetClientLastBought(int clientIndex);
 
 /**
  * @brief Sets the player's amount of ammopacks spending.
  *
- * @param clientIndex		The client index.
- * @param amountAmmo		The number of ammopacks.
+ * @param clientIndex        The client index.
+ * @param amountAmmo         The number of ammopacks.
  *  
  * @noreturn
  **/
@@ -285,17 +250,17 @@ native void ZP_SetClientLastBought(int clientIndex, int amountAmmo);
 /**
  * @brief Gets the player's level.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        The number of level.
+ * @return                   The number of level.
  **/
 native int ZP_GetClientLevel(int clientIndex);
 
 /**
  * @brief Sets the player's level.
  *
- * @param clientIndex		The client index.
- * @param amountLevel		The number of level.
+ * @param clientIndex        The client index.
+ * @param amountLevel        The number of level.
  *  
  * @noreturn
  **/
@@ -304,133 +269,133 @@ native int ZP_SetClientLevel(int clientIndex, int amountLevel);
 /**
  * @brief Gets the player's exp.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *  
- * @return			        The number of exp.
+ * @return                   The number of exp.
  **/
 native int ZP_GetClientExp(int clientIndex);
 
 /**
  * @brief Sets the player's exp.
  *
- * @param clientIndex		The client index.
- * @param amountExp			The number of exp.
+ * @param clientIndex        The client index.
+ * @param amountExp          The number of exp.
  *  
  * @noreturn
  **/
 native int ZP_SetClientExp(int clientIndex, int amountExp);
 
 //*********************************************************************
-//*           			CORE USEFUL NATIVES            				  *
+//*                       CORE USEFUL NATIVES                              *
 //*********************************************************************
 
 /**
- * @brief Sets the game mode.
+ * Emits random sound from a block from 'sounds.ini' config.
  *
- * @param modeIndex         The round mode.
- * @param clientIndex		(Optional) The client index.
+ * @param sKey                The key to search for sound ID.
+ * @param clientIndex         (Optional) The client index.
  *  
  * @noreturn
  **/
-native void ZP_SetRoundGameMode(int modeIndex, int clientIndex = 0);
+native void ZP_EmitSound(char[] sKey, int clientIndex = 0);
 
 /**
- * @brief Gets the round's state.
+ * Gets the new round's state.
  *
- * @param typeIndex         The state type. See enum ZPServerRound.
- *  
- * @return			        The integer of type state.
+ * @return                  True or false.
  **/
-native int ZP_GetRoundState(ZPServerRound typeIndex);
+native bool ZP_IsNewRound();
+
+/**
+ * Gets the end round's state.
+ *
+ * @return                  True or false.
+**/
+native bool ZP_IsEndRound();
+
+/**
+ * Gets the new round's state.
+ *
+ * @return                  True or false.
+ **/
+native bool ZP_IsStartedRound();
+
+/**
+ * Gets the number of round.
+ *
+ * @return                  The round counter.
+ **/
+native int ZP_GetNumberRound();
 
 /**
  * @brief Gets amount of total humans.
  * 
- * @return	 				The amount of total humans.
+ * @return                  The amount of total humans.
  **/
 native int ZP_GetHumanAmount();
 
 /**
  * @brief Gets amount of total zombies.
  *
- * @return	 				The amount of total zombies.
+ * @return                  The amount of total zombies.
  **/
 native int ZP_GetZombieAmount();
 
 /**
  * @brief Gets amount of total alive players.
  *
- * @return	 				The amount of total alive players.
+ * @return                  The amount of total alive players.
  **/
 native int ZP_GetAliveAmount();
-
 
 /**
  * @brief Gets amount of total playing players.
  *
- * @return					The amount of total playing players.
+ * @return                   The amount of total playing players.
  **/
 native int ZP_GetPlayingAmount();
 
-//*********************************************************************
-//*           			OTHER USEFUL STOCKS            				  *
-//*********************************************************************
+/**
+ * @brief Gets index of the random human.
+ *
+ * @return                  The index of random human.
+ **/
+native int ZP_GetRandomHuman();
 
 /**
- * @brief Sets the view weapon's model.
+ * @brief Gets index of the random zombie.
  *
- * @param clientIndex		The client index.
- * @param weaponIndex		The weapon index.
- * @param modelIndex		The model index. (Must be precached)
- *
- * @noreturn
+ * @return                  The index of random zombie.
  **/
-stock void SetViewModel(int clientIndex, int weaponIndex, int modelIndex)
-{
-	// Get view index
-	int viewIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hViewModel");
-
-	// Verify that the entity is valid
-	if(IsValidEdict(viewIndex))
-	{
-		// Delete default model index
-		SetEntProp(weaponIndex, Prop_Send, "m_nModelIndex", 0);
-		
-		// Set new view model index for the weapon
-		SetEntProp(viewIndex, Prop_Send, "m_nModelIndex", modelIndex);
-	}
-}
+native int ZP_GetRandomZombie();
 
 /**
- * @brief Sets the world weapon's model.
+ * @brief Gets index of the random survivor.
  *
- * @param weaponIndex		The weapon index.
- * @param modelIndex		The model index. (Must be precached)
- *
- * @noreturn
+ * @return                  The index of random survivor.
  **/
-stock void SetWorldModel(int weaponIndex, int modelIndex)
-{
-	// Get world index
-	int worldIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
-	
-	// Verify that the entity is valid
-	if(IsValidEdict(worldIndex))
-	{
-		// Set model for the entity
-		SetEntProp(worldIndex, Prop_Send, "m_nModelIndex", modelIndex);
-	}
-}
+native int ZP_GetRandomSurvivor();
+
+/**
+ * @brief Gets index of the random nemesis.
+ *
+ * @return                  The index of random nemesis.
+ **/
+native int ZP_GetRandomNemesis();
+
+//*********************************************************************
+//*                       OTHER USEFUL STOCKS                              *
+//*********************************************************************
 
 /**
  * @brief Returns true if the player is connected and alive, false if not.
  *
- * @param clientIndex		The client index.
- * @param aliveness			(Optional) Set to true to validate that the client is alive, false to ignore.
+ * @param clientIndex       The client index.
+ * @param aliveness         (Optional) Set to true to validate that the client is alive, false to ignore.
  *  
- * @return					True or false.
+ * @return                    True or false.
  **/
-stock bool IsPlayerExist(int clientIndex, bool aliveness = true)
+stock bool IsPlayerExist(const int clientIndex, const bool aliveness = true)
 {
     // If client isn't valid
     if(clientIndex <= 0 || clientIndex > MaxClients)
@@ -445,12 +410,12 @@ stock bool IsPlayerExist(int clientIndex, bool aliveness = true)
     }
 
     // If client isn't in game
-    if(!IsClientInGame(clientIndex))
+    if(!IsClientInGame(clientIndex) || IsClientInKickQueue(clientIndex))
     {
         return false;
     }
 
-    // If client isn't TV
+    // If client is TV
     if(IsClientSourceTV(clientIndex))
     {
         return false;
@@ -469,98 +434,194 @@ stock bool IsPlayerExist(int clientIndex, bool aliveness = true)
 /**
  * @brief Returns true if the player has a current weapon, false if not.
  *
- * @param clientIndex		The client index.
- * @param weaponName		The weapon name.
+ * @param clientIndex       The client index.
+ * @param weaponName        The weapon name.
  *
- * @return					True or false.
+ * @return                  True or false.
  **/
-stock bool IsPlayerHasWeapon(int clientIndex, char[] weaponName)
+stock bool IsPlayerHasWeapon(const int clientIndex, char[] weaponName)
 {
-	// Initialize char
-	char sClassname[SMALL_LINE_LENGTH];
+    // Gets custom weapon id
+    int iD = ZP_GetWeaponNameID(weaponName);
 
-	// Get number of all client weapons
-	int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
-	
-	// i = weapon number
-	for (int i = 0; i < iSize; i++)
-	{
-		// Get weapon index
-		int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
-		
-		// If entity isn't valid, then skip
-		if(IsValidEdict(weaponIndex))
-		{
-			// Get weapon classname
-			GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
-			
-			// If weapon find, then return
-			if(StrEqual(sClassname, weaponName, false))
-			{
-				return true;
-			}
-		}
-		
-		// Go to next weapon
-		continue;
-	}
+    // Gets number of all client weapons
+    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    
+    // i = weapon number
+    for (int i = 0; i < iSize; i++)
+    {
+        // Gets weapon index
+        int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
+        
+        // If entity isn't valid, then skip
+        if(IsValidEdict(weaponIndex))
+        {
+            // If weapon find, then return
+            if(ZP_GetWeaponID(weaponIndex) == iD)
+            {
+                return true;
+            }
+        }
+        
+        // Go to next weapon
+        continue;
+    }
 
-	// If wasn't found
-	return false;
+    // If wasn't found
+    return false;
 }
 
 /**
- * @brief Precache models and also adding them into the downloading table.
+ * Create a particle entity.
  * 
- * @param modelPath			The model path.
- *
- * @return					The model index.
+ * @param parentIndex       The client index.
+ * @param sAttach           (Optional) The attachment bone of the entity parent.
+ * @param sType             The type of the particle.
+ * @param flDurationTime    The duration of light.
+ * @return                  The entity index.
  **/
-stock int FakePrecacheModel(const char[] modelPath)
+stock int FakeCreateParticle(const int parentIndex, const char[] sAttach = "", const char[] sType, const float flDurationTime)
 {
-	// Precache main model
-	int modelIndex = PrecacheModel(modelPath);
-	
-	// Adding main model to the download list
-	AddFileToDownloadsTable(modelPath);
+    // Create an attach particle entity
+    int entityIndex = CreateEntityByName("info_particle_system");
+    
+    // If entity isn't valid, then skip
+    if(entityIndex != INVALID_ENT_REFERENCE)
+    {
+        // Dispatch main values of the entity
+        DispatchKeyValue(entityIndex, "start_active", "1");
+        DispatchKeyValue(entityIndex, "effect_name", sType);
+        
+        // Spawn the entity into the world
+        DispatchSpawn(entityIndex);
 
-	// Initialize path char
-	char fullPath[PLATFORM_MAX_PATH];
-	char typePath[3][SMALL_LINE_LENGTH] = { ".dx90.vtx", ".phy", ".vvd" };
-	
-	// Get number of the all types
-	int iSize = sizeof(typePath);
-	
-	// i = type index
-	for(int i = 0; i < iSize; i++)
-	{
-		// Adding other parts to download list
-		Format(fullPath, sizeof(fullPath), "%s", modelPath);
-		ReplaceString(fullPath, sizeof(fullPath), ".mdl", typePath[i]);
-		if(!FileExists(fullPath)) continue;
-		AddFileToDownloadsTable(fullPath);
-	}
-	
-	// Return model index
-	return modelIndex;
+        // Sets parent to the entity
+        SetVariantString("!activator");
+        AcceptEntityInput(entityIndex, "SetParent", parentIndex, entityIndex);
+        SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", parentIndex);
+        
+        // Sets attachment to the entity
+        if(strlen(sAttach))
+        { 
+            SetVariantString(sAttach); 
+            AcceptEntityInput(entityIndex, "SetParentAttachment", parentIndex, entityIndex);
+        }
+        else
+        {
+            // Initialize vector variables
+            static float vOrigin[3];
+
+            // Gets parent's position
+            GetEntPropVector(parentIndex, Prop_Send, "m_vecOrigin", vOrigin);
+
+            // Spawn the entity
+            DispatchKeyValueVector(entityIndex, "origin", vOrigin);
+        }
+        
+        // Activate the entity
+        ActivateEntity(entityIndex);
+        AcceptEntityInput(entityIndex, "Start");
+        
+        // Initialize char
+        static char sTime[SMALL_LINE_LENGTH];
+        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
+        
+        // Sets modified flags on the entity
+        SetVariantString(sTime);
+        AcceptEntityInput(entityIndex, "AddOutput");
+        AcceptEntityInput(entityIndex, "FireUser1");
+    }
+    
+    // Return on the success
+    return entityIndex;
 }
 
 /**
- * @brief Precache sounds and also adding them into the downloading table.
+ * @brief Create an fake entity.
  * 
- * @param soundPath			The sound path. .
+ * @param vOrigin           The origin of the entity.
+ * @param flDurationTime    The duration of life.
+ * @return                  The entity index.
  **/
-stock void FakePrecacheSound(const char[] soundPath)
+stock int FakeCreateEntity(const float vOrigin[3], const float flDurationTime)
 {
-	// Initialize path char
-	char fullPath[PLATFORM_MAX_PATH];
-	
-	// Adding sound to the download list
-	Format(fullPath, sizeof(fullPath), "sound/%s", soundPath);
-	if(!FileExists(fullPath)) return;
-	AddFileToDownloadsTable(fullPath);
-	
-	// Precache sound
-	Format(fullPath, sizeof(fullPath), "*/%s", soundPath);
-	AddToStringTable(FindStringTable("soundprecache"), fullPath);
+    // Create an fake info entity
+    int entityIndex = CreateEntityByName("info_target");
+
+    // If entity isn't valid, then skip
+    if(entityIndex != INVALID_ENT_REFERENCE)
+    {
+        // Spawn the entity into the world
+        DispatchSpawn(entityIndex);
+
+        // Spawn the entity
+        DispatchKeyValueVector(entityIndex, "origin", vOrigin);
+
+        // Initialize char
+        static char sTime[SMALL_LINE_LENGTH];
+        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
+
+        // Sets modified flags on the entity
+        SetVariantString(sTime);
+        AcceptEntityInput(entityIndex, "AddOutput");
+        AcceptEntityInput(entityIndex, "FireUser1");
+    }
+
+    // Return on the success
+    return entityIndex;
+}
+
+/**
+ * @brief Shake a client's screen with specific parameters.
+ * 
+ * @param clientIndex       The client index.
+ * @param flAmplitude       The amplitude of shake.
+ * @param flFrequency       The frequency of shake.
+ * @param flDuration        The duration of shake in the seconds.
+ **/
+stock void FakeCreateShakeScreen(const int clientIndex, const float flAmplitude, const float flFrequency, const float flDuration)
+{
+    // Create message
+    Handle hShake = StartMessageOne("Shake", clientIndex);
+
+    // Validate message
+    if(hShake != INVALID_HANDLE)
+    {
+        // Write shake information to message handle
+        PbSetInt(hShake,   "command", 0);
+        PbSetFloat(hShake, "local_amplitude", flAmplitude);
+        PbSetFloat(hShake, "frequency", flFrequency);
+        PbSetFloat(hShake, "duration", flDuration);
+
+        // End usermsg and send to client
+        EndMessage();
+    }
+}
+
+/**
+ * @brief Fade a client's screen with specific parameters.
+ * 
+ * @param clientIndex       The client index.
+ * @param flDuration        The duration of fade in the seconds.
+ * @param flHoldTime        The holding time of fade in the seconds.
+ * @param iFlags            The flags.
+ * @param vColor            The array with RGB color.
+ **/
+stock void FakeCreateFadeScreen(const int clientIndex, const float flDuration, const float flHoldTime, const int iFlags, const int vColor[4])
+{
+    // Create message
+    Handle hFade = StartMessageOne("Fade", clientIndex);
+
+    // Validate message
+    if(hFade != INVALID_HANDLE)
+    {
+        // Write shake information to message handle
+        PbSetInt(hFade, "duration", RoundToNearest(flDuration * 1000.0)); 
+        PbSetInt(hFade, "hold_time", RoundToNearest(flHoldTime * 1000.0)); 
+        PbSetInt(hFade, "flags", iFlags); 
+        PbSetColor(hFade, "clr", vColor); 
+
+        // End usermsg and send to client
+        EndMessage();
+    }
 }

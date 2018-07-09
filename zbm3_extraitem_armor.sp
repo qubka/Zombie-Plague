@@ -24,7 +24,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -34,25 +33,31 @@
  **/
 public Plugin Armor =
 {
-	name        	= "[ZP] ExtraItem: Armor",
-	author      	= "qubka (Nikita Ushakov)", 	
-	description 	= "Addon of extra items",
-	version     	= "1.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] ExtraItem: Armor",
+    author          = "qubka (Nikita Ushakov)",     
+    description     = "Addon of extra items",
+    version         = "1.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME				"@Anti-Infection Armor"	// If string has @, phrase will be taken from translation file	
-#define EXTRA_ITEM_COST				5
-#define EXTRA_ITEM_LEVEL			0
-#define EXTRA_ITEM_ONLINE			0
-#define EXTRA_ITEM_LIMIT			0
+#define EXTRA_ITEM_NAME                "Anti-Infection Armor"    // Only will be taken from translation file    
+#define EXTRA_ITEM_COST                5
+#define EXTRA_ITEM_LEVEL               0
+#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LIMIT               0
 /**
  * @endsection
  **/
+ 
+// Initialize variable
+bool bArmored[MAXPLAYERS+1];
 
+// ConVar for sound level
+ConVar hSoundLevel;
+ 
 // Item index
 int iItem;
 #pragma unused iItem
@@ -64,45 +69,116 @@ int iItem;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
+}
+
+/**
+ * The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+}
+
+/**
+ * Called when a client is disconnecting from the server.
+ *
+ * @param clientIndex       The client index.
+ **/
+public void OnClientDisconnect(int clientIndex)
+{
+    // Reset variable
+    bArmored[clientIndex] = false;
+}
+
+/**
+ * Called when a client became a zombie/nemesis.
+ * 
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ **/
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+{
+    // Reset variable
+    bArmored[clientIndex] = false;
+}
+
+/**
+ * Called when a client became a human/survivor.
+ * 
+ * @param clientIndex       The client index.
+ **/
+public void ZP_OnClientHumanized(int clientIndex)
+{
+    // Reset variable
+    bArmored[clientIndex] = false;
+}
+
+/**
+ * Called before show an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ *
+ * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
+ **/
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // If you don't allowed to buy, then stop
+        if(GetClientArmor(clientIndex) >= 100 || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Handled;
+        }
+    }
+
+    // Allow showing
+    return Plugin_Continue;
 }
 
 /**
  * Called after select an extraitem in the equipment menu.
  * 
- * @param clientIndex		The client index.
- * @param extraitemIndex	The index of extraitem from ZP_RegisterExtraItem() native.
- *
- * @return					Plugin_Handled or Plugin_Stop to block purhase. Anything else
- *                          	(like Plugin_Continue) to allow purhase and taking ammopacks.
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
  **/
-public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-	#pragma unused clientIndex, extraitemIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Handled;
-	}
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
 
-	// Check the item's index
-	if(extraitemIndex == iItem)
-	{
-		// If you don't allowed to buy, then return ammopacks
-		if(GetClientArmor(clientIndex) >= 100 || ZP_IsPlayerZombie(clientIndex))
-		{
-			return Plugin_Handled;
-		}
-		
-		// Give item
-		SetEntProp(clientIndex, Prop_Send, "m_ArmorValue", 100, 1);
-	}
-	
-	// Allow buying
-	return Plugin_Continue;
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // Give item
+        SetEntProp(clientIndex, Prop_Send, "m_ArmorValue", 100, 1);
+        
+        // Validate no armor before
+        if(!bArmored[clientIndex]) 
+        {
+            // Create an effect
+            FakeCreateParticle(clientIndex, _, "nimb_final", 9999.9);
+            bArmored[clientIndex] = true;
+        }
+        
+        // Emit sound
+        EmitSoundToAll("*/zbm3/kevlar.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+    }
 }

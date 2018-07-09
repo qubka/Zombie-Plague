@@ -30,218 +30,216 @@
  **/
 void SkillsOnCommandsCreate(/*void*/)
 {
-	// Hook commands
-	AddCommandListener(SkillsHook, "drop");
+    // Hook commands
+    AddCommandListener(SkillsHook, "drop");
 }
 
 /**
- * Called when player restore health.
- *
- * @param cBasePlayer		The client index.
+ * Client has been infected.
+ * 
+ * @param clientIndex       The client index.
+ * @param nemesisMode       (Optional) Indicates that client will be a nemesis.
  **/
-void SkillsOnHealthRegen(CBasePlayer* cBasePlayer)
+void SkillsOnClientInfected(int clientIndex, bool nemesisMode = false)
 {
-	// If health restoring disabled, then stop
-	if(!GetConVarBool(gCvarList[CVAR_ZOMBIE_RESTORE]))
-	{
-		return;
-	}
-	
-	// Verify that the client is zombie
-	if(!cBasePlayer->m_bZombie || cBasePlayer->m_bNemesis)
-	{
-		return;
-	}
-	
-	// If health restoring disabled, then stop
-	if(ZombieGetRegenInterval(cBasePlayer->m_nZombieClass) == 0.0 || ZombieGetRegenHealth(cBasePlayer->m_nZombieClass) == 0)
-	{
-		return;
-	}
-	
-	//*********************************************************************
-	//*            		 CHECK DELAY OF THE REGENERATION           	  	  *
-	//*********************************************************************
-	
-	// Initialize variable
-	static float flDelay[MAXPLAYERS+1];
-	
-	// Returns the game time based on the game tick
-	float flCurrentTime = GetEngineTime();
-	
-	// Cooldown don't over yet, then stop
-	if(flCurrentTime - flDelay[cBasePlayer->Index] < ZombieGetRegenInterval(cBasePlayer->m_nZombieClass))
-	{
-		return;
-	}
-	
-	// Update the health interval delay
-	flDelay[cBasePlayer->Index] = flCurrentTime;
-	
-	//*********************************************************************
-	//*            		    DO THE REGENERATION           	  			  *
-	//*********************************************************************
-	
-	// Initialize float
-	static float vVelocity[3];
-	
-	// Get the client's velocity
-	cBasePlayer->m_flVelocity(vVelocity);
-	
-	// If the zombie don't move, then check health
-	if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
-	{
-		// If restoring is available, then do it
-		if(cBasePlayer->m_iHealth < ZombieGetHealth(cBasePlayer->m_nZombieClass))
-		{
-			// Initialize a new health amount
-			int healthAmount = cBasePlayer->m_iHealth + ZombieGetRegenHealth(cBasePlayer->m_nZombieClass);
-			
-			// If new health more, than set default class health
-			if(healthAmount > ZombieGetHealth(cBasePlayer->m_nZombieClass))
-			{
-				healthAmount = ZombieGetHealth(cBasePlayer->m_nZombieClass);
-			}
-			
-			// Update health
-			cBasePlayer->m_iHealth = healthAmount;
+    // If health restoring disabled, then stop
+    if(!gCvarList[CVAR_ZOMBIE_RESTORE].BoolValue || nemesisMode)
+    {
+        return;
+    }
 
-			// Create regeneration effect
-			VEffectsFadeClientScreen(cBasePlayer->Index);
-			
-			// Emit heal sound
-			cBasePlayer->InputEmitAISound(SNDCHAN_VOICE, SNDLEVEL_CONVO, ZombieIsFemale(cBasePlayer->m_nZombieClass) ? "ZOMBIE_FEMALE_REGEN_SOUNDS" : "ZOMBIE_REGEN_SOUNDS");
-		}
-	}
+    // Sets timer for restoring health
+    delete gClientData[clientIndex][Client_ZombieHealTimer];
+    gClientData[clientIndex][Client_ZombieHealTimer] = CreateTimer(ZombieGetRegenInterval(gClientData[clientIndex][Client_ZombieClass]), SkillsOnHealthRegen, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+}
+
+/**
+ * Timer for restore a player health.
+ *
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
+ **/
+public Action SkillsOnHealthRegen(Handle hTimer, int userID)
+{
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
+
+    // Validate client
+    if(clientIndex)
+    {
+        // Gets zombie's class regen interval/amount
+        int iRegen = ZombieGetRegenHealth(gClientData[clientIndex][Client_ZombieClass]);
+        float flInterval = ZombieGetRegenInterval(gClientData[clientIndex][Client_ZombieClass]);
+
+        // Validate them
+        if(iRegen || flInterval)
+        {
+            // Initialize float
+            static float vVelocity[3];
+            
+            // Gets the client's velocity
+            ToolsGetClientVelocity(clientIndex, vVelocity);
+            
+            // If the zombie don't move, then check health
+            if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
+            {
+                // If restoring is available, then do it
+                int iHealth = GetClientHealth(clientIndex); // Store for next usage
+                if(iHealth < ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]))
+                {
+                    // Initialize a new health amount
+                    int healthAmount = iHealth + ZombieGetRegenHealth(gClientData[clientIndex][Client_ZombieClass]);
+                    
+                    // If new health more, than set default class health
+                    if(healthAmount > ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]))
+                    {
+                        healthAmount = ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]);
+                    }
+                    
+                    // Update health
+                    ToolsSetClientHealth(clientIndex, healthAmount);
+
+                    // Forward event to modules
+                    SoundsOnClientRegen(clientIndex);
+                    VEffectsOnClientRegen(clientIndex);
+                }
+            }
+
+            // Allow counter
+            return Plugin_Continue;
+        }
+    }
+
+    // Clear timer
+    gClientData[clientIndex][Client_ZombieHealTimer] = INVALID_HANDLE;
+    
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 /**
  * Hook client command.
  *
- * @param clientIndex		The client index.
- * @param commandMsg		Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
- * @param iArguments		Argument count.
+ * @param clientIndex       The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
  **/
 public Action SkillsHook(int clientIndex, const char[] commandMsg, int iArguments)
 {
-	// Get real player index from event key 
-	CBasePlayer* cBasePlayer = CBasePlayer(clientIndex);
-	
-	// Validate client 
-	if(!IsPlayerExist(cBasePlayer->Index))
-	{
-		return ACTION_HANDLED;
-	}
-	
-	// If the client is survivor, than stop
-	if(cBasePlayer->m_bSurvivor)
-	{
-		return ACTION_HANDLED;
-	}
-	
-	// If the client isn't zombie, than allow drop
-	return (cBasePlayer->m_bZombie && !cBasePlayer->m_bNemesis) ? SkillsOnStart(cBasePlayer) : ACTION_CONTINUE;
+    // If the client isn't zombie/survivor, than allow drop
+    return (gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]) ? SkillsOnStart(clientIndex) : (gClientData[clientIndex][Client_Survivor] ? Plugin_Handled : Plugin_Continue);
 }
 
 /**
  * Called when player press drop button.
  *
- * @param cBasePlayer		The client index.
+ * @param clientIndex       The client index.
  **/
-Action SkillsOnStart(CBasePlayer* cBasePlayer)
+Action SkillsOnStart(int clientIndex)
 {
-	// If zombie class don't have a skill, then stop
-	if(!ZombieGetSkillDuration(cBasePlayer->m_nZombieClass) && !ZombieGetSkillCountDown(cBasePlayer->m_nZombieClass))
-	{
-		return ACTION_HANDLED;
-	}
-	
-	// Verify that the skills are avalible
-	if(!cBasePlayer->m_bSkill && !cBasePlayer->m_nSkillCountDown)
-	{
-		// Call forward
-		Action resultHandle = API_OnClientSkillUsed(cBasePlayer->Index);
-		
-		// Block skill usage
-		if(resultHandle == ACTION_HANDLED || resultHandle == ACTION_STOP)
-		{
-			return ACTION_HANDLED;
-		}
+    // If zombie class don't have a skill, then stop
+    if(!ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]) && !ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Verify that the skills are avalible
+    if(!gClientData[clientIndex][Client_Skill] && !gClientData[clientIndex][Client_SkillCountDown])
+    {
+        // Call forward
+        Action resultHandle = API_OnClientSkillUsed(clientIndex);
+        
+        // Block skill usage
+        if(resultHandle == Plugin_Handled || resultHandle == Plugin_Stop)
+        {
+            return Plugin_Handled;
+        }
 
-		// Set skill usage
-		cBasePlayer->m_bSkill = true;
-		
-		// Set timer for removing skill usage
-		delete cBasePlayer->m_hZombieSkillTimer;
-		cBasePlayer->m_hZombieSkillTimer = CreateTimer(float(ZombieGetSkillDuration(cBasePlayer->m_nZombieClass)), SkillsOnEnd, cBasePlayer, TIMER_FLAG_NO_MAPCHANGE);
-	}
-	
-	// Allow skill
-	return ACTION_HANDLED;
+        // Sets skill usage
+        gClientData[clientIndex][Client_Skill] = true;
+        
+        // Sets timer for removing skill usage
+        delete gClientData[clientIndex][Client_ZombieSkillTimer];
+        gClientData[clientIndex][Client_ZombieSkillTimer] = CreateTimer(ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]), SkillsOnEnd, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+    }
+    
+    // Allow skill
+    return Plugin_Handled;
 }
 
 /**
  * Timer for remove a skill usage.
  *
- * @param hTimer			The timer handle.
- * @param cBasePlayer		The client index.
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
  **/
-public Action SkillsOnEnd(Handle hTimer, CBasePlayer* cBasePlayer)
+public Action SkillsOnEnd(Handle hTimer, int userID)
 {
-	// Clear timer
-	cBasePlayer->m_hZombieSkillTimer = NULL;
-	
-	// Validate client
-	if(!IsPlayerExist(cBasePlayer->Index))
-	{
-		return ACTION_STOP;
-	}
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
 
-	// Remove skill usage and set countdown time
-	cBasePlayer->m_bSkill = false;
-	cBasePlayer->m_nSkillCountDown = ZombieGetSkillCountDown(cBasePlayer->m_nZombieClass);
-	
-	// Create counter
-	CreateTimer(1.0, SkillsOnCountDown, cBasePlayer, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-	
-	// Call forward
-	API_OnClientSkillOver(cBasePlayer->Index);
-	
-	// Destroy timer
-	return ACTION_STOP;
+    // Clear timer
+    gClientData[clientIndex][Client_ZombieSkillTimer] = INVALID_HANDLE;
+    
+    // Validate client
+    if(clientIndex)
+    {
+        // Remove skill usage and set countdown time
+        gClientData[clientIndex][Client_Skill] = false;
+        gClientData[clientIndex][Client_SkillCountDown] = ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]);
+        
+        // Sets timer for countdown
+        delete gClientData[clientIndex][Client_ZombieCountDownTimer];
+        gClientData[clientIndex][Client_ZombieCountDownTimer] = CreateTimer(1.0, SkillsOnCountDown, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        
+        // Call forward
+        API_OnClientSkillOver(clientIndex);
+    }
+
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 /**
  * Timer for the skill countdown.
  *
- * @param hTimer			The timer handle.
- * @param cBasePlayer		The client index.
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
  **/
-public Action SkillsOnCountDown(Handle hTimer, CBasePlayer* cBasePlayer)
+public Action SkillsOnCountDown(Handle hTimer, int userID)
 {
-	// Validate client
-	if(IsPlayerExist(cBasePlayer->Index) && cBasePlayer->m_bZombie && !cBasePlayer->m_bNemesis)
-	{
-		// Substitute counter
-		cBasePlayer->m_nSkillCountDown--;
-		
-		// If counter is over, then stop
-		if(!cBasePlayer->m_nSkillCountDown)
-		{
-			// Show message
-			TranslationPrintHintText(cBasePlayer->Index, "Skill ready");
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
 
-			// Destroy timer
-			return ACTION_STOP;
-		}
+    // Validate client
+    if(clientIndex)
+    {
+        // Substitute counter
+        gClientData[clientIndex][Client_SkillCountDown]--;
+        
+        // If counter is over, then stop
+        if(!gClientData[clientIndex][Client_SkillCountDown])
+        {
+            // Show message
+            TranslationPrintHintText(clientIndex, "Skill ready");
 
-		// Show counter
-		TranslationPrintHintText(cBasePlayer->Index, "Countdown", cBasePlayer->m_nSkillCountDown);
-		
-		// Allow counter
-		return ACTION_CONTINUE;
-	}
-	
-	// Destroy timer
-	return ACTION_STOP;
+            // Clear timer
+            gClientData[clientIndex][Client_ZombieCountDownTimer] = INVALID_HANDLE;
+            
+            // Destroy timer
+            return Plugin_Stop;
+        }
+
+        // Show counter
+        TranslationPrintHintText(clientIndex, "Countdown", RoundToCeil(gClientData[clientIndex][Client_SkillCountDown]));
+        
+        // Allow timer
+        return Plugin_Continue;
+    }
+    
+    // Clear timer
+    gClientData[clientIndex][Client_ZombieCountDownTimer] = INVALID_HANDLE;
+    
+    // Destroy timer
+    return Plugin_Stop;
 }

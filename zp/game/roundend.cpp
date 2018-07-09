@@ -26,201 +26,228 @@
  **/
 
 /**
- * Delay between round ending and new round starting. (Normal)
+ * @section All round end reasons.
  **/
-#define ROUNDEND_DELAY 5.0
+#define ROUNDEND_TARGET_BOMBED                          0        // Target Successfully Bombed!
+#define ROUNDEND_VIP_ESCAPED                            1        // The VIP has escaped!
+#define ROUNDEND_VIP_ASSASSINATED                       2        // VIP has been assassinated!
+#define ROUNDEND_TERRORISTS_ESCAPED                     3        // The terrorists have escaped!
+#define ROUNDEND_CTS_PREVENTESCAPE                      4        // The CT's have prevented most of the terrorists from escaping!
+#define ROUNDEND_ESCAPING_TERRORISTS_NEUTRALIZED        5        // Escaping terrorists have all been neutralized!
+#define ROUNDEND_BOMB_DEFUSED                           6        // The bomb has been defused!
+#define ROUNDEND_CTS_WIN                                7        // Counter-Terrorists Win!
+#define ROUNDEND_TERRORISTS_WIN                         8        // Terrorists Win!
+#define ROUNDEND_ROUND_DRAW                             9        // Round Draw!
+#define ROUNDEND_ALL_HOSTAGES_RESCUED                   10       // All Hostages have been rescued!
+#define ROUNDEND_TARGET_SAVED                           11       // Target has been saved!
+#define ROUNDEND_HOSTAGES_NOT_RESCUED                   12       // Hostages have not been rescued!
+#define ROUNDEND_TERRORISTS_NOT_ESCAPED                 13       // Terrorists have not escaped!
+#define ROUNDEND_VIP_NOT_ESCAPED                        14       // VIP has not escaped!
+#define ROUNDEND_GAME_COMMENCING                        15       // Game Commencing!
+/**
+ * @endsection
+ **/
 
 /**
- * Possible round end outcomes.
+ * The round is ending.
+ *
+ * @param CReason           Reason the round has ended.
  **/
-#define RoundEnd_ZombiesWin 	CSRoundEnd_TerroristWin
-#define RoundEnd_HumansWin 		CSRoundEnd_CTWin
-
-/**
- * The round is ending by them self.
- **/
-public Action RoundEndOnRoundEnd(/*void*/)
+public Action RoundEndOnRoundEnd(int &CReason)
 {
-	// Reset server grobal bools
-	gServerData[Server_RoundNew] 	= false;
-	gServerData[Server_RoundEnd] 	= true;
-	gServerData[Server_RoundStart] 	= false;
+    // If first round, then stop
+    if(gServerData[Server_RoundNumber] <= 1)
+    {
+        return;
+    }
+    
+    // Initialize team scores
+    int nZombieScore = GetTeamScore(TEAM_ZOMBIE);
+    int nHumanScore = GetTeamScore(TEAM_HUMAN);
+    
+    // Gets amount of total playing players
+    int nPlayers = fnGetPlaying();
 
-	// If round end timer is running, then kill it
-	delete gServerData[Server_RoundTimer];
+    // Resets server grobal bools
+    gServerData[Server_RoundNew] = false;
+    gServerData[Server_RoundEnd] = true;
+    gServerData[Server_RoundStart] = false;
+
+    // If round end timer is running, then kill it
+    delete gServerData[Server_RoundTimer];
+
+    // If there aren't clients on both teams, then stop
+    if(!nPlayers)
+    {
+        return;
+    }
+
+    // Initialize some variables
+    int nHumanBonus; int nZombieBonus; OverlayType CType;
+
+    // Switch end round reason
+    switch(CReason)
+    {
+        /// Terrorists Win!
+        case ROUNDEND_TERRORISTS_WIN :     
+        {    
+            // Increment T score
+            nZombieScore++;
+            
+            // Calculate bonuses
+            nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_WIN].IntValue;
+            nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_FAIL].IntValue;
+            
+            // Sets the overlay
+            CType = Overlay_ZombieWin;
+        }
+
+        /// Counter-Terrorists Win!
+        case ROUNDEND_CTS_WIN :
+        {
+            // Increment CT score
+            nHumanScore++;
+            
+            // Calculate bonuses
+            nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_FAIL].IntValue;
+            nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_WIN].IntValue;
+            
+            // Sets the overlay
+            CType = Overlay_HumanWin;
+        }
+        
+        /// Round Draw!
+        case ROUNDEND_ROUND_DRAW :
+        {
+            // Increment CT score
+            /** skip **/
+            
+            // Calculate bonuses
+            nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_DRAW].IntValue;
+            nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_DRAW].IntValue;
+            
+            // Sets the overlay
+            CType = Overlay_Draw;
+        }
+
+        /// Other Results!
+        default : return;
+    }
+
+    // Sets score in the scoreboard
+    SetTeamScore(TEAM_ZOMBIE, nZombieScore);
+    SetTeamScore(TEAM_HUMAN,  nHumanScore);
+
+    //*********************************************************************
+    //*                    GIVE BONUSES AND SHOW OVERLAYS                       *
+    //*********************************************************************
+    
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate client
+        if(IsPlayerExist(i, false))
+        {
+            // Give ammopack bonuses
+            gClientData[i][Client_AmmoPacks] += gClientData[i][Client_Zombie] ? nZombieBonus : nHumanBonus;
+
+            // Display overlay to client
+            VOverlayOnClientUpdate(i, CType);
+
+            // Stop sounds
+            ClientCommand(i, "playgamesound Music.StopAllExceptMusic"); 
+        }
+    }
 }
 
 /**
  * Call termination of the round with human advantageously.
  *
- * @param hTimer			The timer handle.
+ * @param hTimer            The timer handle.
  **/
 public Action RoundEndTimer(Handle hTimer)
 {
-	// Clear timer
-	gServerData[Server_RoundTimer] = NULL;
+    // Clear timer
+    gServerData[Server_RoundTimer] = INVALID_HANDLE;
 
-	// Terminate round without validation
-	RoundEndOnValidate(false);
-	
-	// Destroy timer
-	return ACTION_STOP;
+    // Terminate round without validation
+    RoundEndOnValidate(false);
+    
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 /**
  * Validate round with human advantageously and also terminate it when round isn't active.
  *
- * @param validateRound		If true, then validate amount of players.
+ * @param validateRound     If true, then validate amount of players.
  **/
 bool RoundEndOnValidate(bool validateRound = true)
 {
-	// If gamemodes disabled, then stop
-	if(!GetConVarInt(gCvarList[CVAR_GAME_CUSTOM_START]))
-	{
-		// Round isn't active
-		return false;
-	}
-	
-	// Get amount of total playing players
-	int nPlayers = fnGetPlaying();
-	
-	// If there aren't clients on both teams, then stop
-	if(!nPlayers)
-	{
-		// Round isn't active
-		return false;
-	}
-	
-	// Get amount of total humans and zombies
-	int nHumans  = fnGetHumans();
-	int nZombies = fnGetZombies();
-	
-	// If round need to be validate
-	if(validateRound)
-	{
-		// Mode didn't started yet?
-		if(gServerData[Server_RoundNew])
-		{
-			// Get amount of total alive players
-			int nAlive = fnGetAlive();
-			
-			// If more than two players still play
-			if(nAlive > 1)
-			{
-				// Round isn't over
-				return false;
-			}
-		}
-		
-		// If there are clients on both teams during validation, then stop
-		if(nZombies && nHumans)
-		{
-			// Round isn't over
-			return false;
-		}
-	}
-	
-	// We know here, that either zombies or humans is 0 (not both)
-	
-	// If there are no zombies, that means there must be humans, they win the round
-	if(nHumans)
-	{
-		CS_TerminateRound(ROUNDEND_DELAY, RoundEnd_HumansWin, false);
-	}
-	// If there are zombies, then zombies win the round
-	else
-	{
-		CS_TerminateRound(ROUNDEND_DELAY, RoundEnd_ZombiesWin, false);
-	}
+    // If gamemodes disabled, then stop
+    if(!gCvarList[CVAR_GAME_CUSTOM_START].IntValue)
+    {
+        // Round isn't active
+        return false;
+    }
+    
+    // Gets amount of total playing players
+    int nPlayers = fnGetPlaying();
+    
+    // If there aren't clients on both teams, then stop
+    if(!nPlayers)
+    {
+        // Round isn't active
+        return false;
+    }
+    
+    // Gets amount of total humans and zombies
+    int nHumans  = fnGetHumans();
+    int nZombies = fnGetZombies();
+    
+    // If round need to be validate
+    if(validateRound)
+    {
+        // Mode didn't started yet?
+        if(gServerData[Server_RoundNew])
+        {
+            // Gets amount of total alive players
+            int nAlive = fnGetAlive();
+            
+            // If more than two players still play
+            if(nAlive > 1)
+            {
+                // Round isn't over
+                return false;
+            }
+        }
+        
+        // If there are clients on both teams during validation, then stop
+        if(nZombies && nHumans)
+        {
+            // Round isn't over
+            return false;
+        }
+    }
 
-	// Round is over
-	return true;
-}
+    // If there are no zombies, that means there must be humans, they win the round
+    if(!nZombies && nHumans)
+    {
+        ToolsTerminateRound(ROUNDEND_CTS_WIN);
+    }
+    // If there are zombies, then zombies win the round
+    else if(nZombies && !nHumans)
+    {
+        ToolsTerminateRound(ROUNDEND_TERRORISTS_WIN);
+    }
+    // We know here, that either zombies or humans is 0 (not both)
+    else
+    {
+        ToolsTerminateRound(ROUNDEND_ROUND_DRAW);
+    }
 
-/**
- * Called when TerminateRound is called.
- * 
- * @param flDelay			Time (in seconds) until new round startsю
- * @param CReason			The reason of the round end.
- **/	
-public Action CS_OnTerminateRound(float &flDelay, CSRoundEndReason &CReason)
-{
-	// If round didn't started, then stop
-	if(!gServerData[Server_RoundStart])
-	{
-		return ACTION_CHANGED;
-	}
-	
-	// Initialize team score
-	static int nScore[2];
-	
-	// Get amount of total playing players
-	int nPlayers = fnGetPlaying();
-	
-	// If there aren't clients on both teams, then stop
-	if(!nPlayers)
-	{
-		return ACTION_CHANGED;
-	}
-	
-	// Initialize bonus variables
-	int nHumanBonus; int nZombieBonus; 
-	
-	// Switch end round reason
-	switch(CReason)
-	{
-		case CSRoundEnd_TerroristWin : 	
-		{	
-			// Increment T score
-			nScore[0]++;
-			
-			// Calculate bonuses
-			nZombieBonus = GetConVarInt(gCvarList[CVAR_BONUS_ZOMBIE_WIN]);
-			nHumanBonus  = GetConVarInt(gCvarList[CVAR_BONUS_HUMAN_FAIL]);
-		}
-
-		case CSRoundEnd_CTWin :
-		{
-			// Increment CT score
-			nScore[1]++;
-			
-			// Calculate bonuses
-			nZombieBonus = GetConVarInt(gCvarList[CVAR_BONUS_ZOMBIE_FAIL]);
-			nHumanBonus  = GetConVarInt(gCvarList[CVAR_BONUS_HUMAN_WIN]);
-		}
-
-		default : return ACTION_CHANGED;
-	}
-
-	// Set score in the scoreboard
-	SetTeamScore(TEAM_ZOMBIE, nScore[0]);
-	SetTeamScore(TEAM_HUMAN,  nScore[1]);
-	
-	//*********************************************************************
-	//*            		GIVE BONUSES AND SHOW OVERLAYS           	  	  *
-	//*********************************************************************
-	
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Get real player index from event key
-		CBasePlayer* cBasePlayer = CBasePlayer(i);
-		
-		// Validate client
-		if(!IsPlayerExist(cBasePlayer->Index, false))
-		{
-			continue;
-		}
-
-		// Display overlay to client
-		VOverlayOnClientUpdate(cBasePlayer->Index, (CReason == CSRoundEnd_TerroristWin) ? Overlay_ZombieWin : Overlay_HumanWin);
-
-		// Give ammopack bonuses
-		cBasePlayer->m_nAmmoPacks += cBasePlayer->m_bZombie ? nZombieBonus : nHumanBonus;
-	}
-	
-	// Allow to terminate
-	return ACTION_CHANGED;
+    // Round is over
+    return true;
 }
 
 /**
@@ -228,36 +255,42 @@ public Action CS_OnTerminateRound(float &flDelay, CSRoundEndReason &CReason)
  **/
 void RoundEndOnClientDisconnect(/*void*/)
 {
-	// If mode doesn't started yet, then stop
-	if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
-	{
-		// Round isn't active
-		return;
-	}
+    // If mode doesn't started yet, then stop
+    if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
+    {
+        // Round isn't active
+        return;
+    }
 
-	// Get amount of total humans and zombies
-	int nHumans  = fnGetHumans();
-	int nZombies = fnGetZombies();
+    // Gets amount of total humans and zombies
+    int nHumans  = fnGetHumans();
+    int nZombies = fnGetZombies();
 
-	// If the last zombie disconnecting, then terminate round
-	if(!nZombies && nHumans)
-	{
-		// Show message
-		TranslationPrintHintTextAll("Zombie Left"); 
-		
-		// Terminate the round with humans as the winner
-		CS_TerminateRound(ROUNDEND_DELAY, RoundEnd_HumansWin, false);
-		return;
-	}
-	
-	// If the last human disconnecting, then terminate round
-	if(nZombies && !nHumans)
-	{
-		// Show message
-		TranslationPrintHintTextAll("Human Left"); 
+    // If the last zombie disconnecting, then terminate round
+    if(!nZombies && nHumans)
+    {
+        // Show message
+        TranslationPrintHintTextAll("Zombie Left"); 
+        
+        // Terminate the round with humans as the winner
+        ToolsTerminateRound(ROUNDEND_CTS_WIN);
+    }
+    // If the last human disconnecting, then terminate round
+    else if(nZombies && !nHumans)
+    {
+        // Show message
+        TranslationPrintHintTextAll("Human Left"); 
 
-		// Terminate the round with zombies as the winner
-		CS_TerminateRound(ROUNDEND_DELAY, RoundEnd_ZombiesWin, false);
-		return;
-	}
+        // Terminate the round with zombies as the winner
+        ToolsTerminateRound(ROUNDEND_TERRORISTS_WIN);
+    }
+    // If the last player disconnecting, then terminate round
+    else if(!nZombies && !nHumans)
+    {
+        // Show message
+        TranslationPrintHintTextAll("Player Left"); 
+
+        // Terminate the round with zombies as the winner
+        ToolsTerminateRound(ROUNDEND_ROUND_DRAW);
+    }
 }

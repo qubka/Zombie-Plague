@@ -28,7 +28,7 @@
 /**
  * Number of max valid extra items.
  **/
-#define ExtraItemMax 64
+#define ExtraItemMax 32
 
 /**
  * Array handle to store extra item native data.
@@ -40,12 +40,11 @@ ArrayList arrayExtraItems;
  **/
 enum
 {
-	EXTRAITEMS_DATA_NAME,
-	EXTRAITEMS_DATA_COST,
-	EXTRAITEMS_DATA_TEAM,
-	EXTRAITEMS_DATA_LEVEL,
-	EXTRAITEMS_DATA_ONLINE,
-	EXTRAITEMS_DATA_LIMIT
+    EXTRAITEMS_DATA_NAME,
+    EXTRAITEMS_DATA_COST,
+    EXTRAITEMS_DATA_LEVEL,
+    EXTRAITEMS_DATA_ONLINE,
+    EXTRAITEMS_DATA_LIMIT
 }
 
 /**
@@ -58,11 +57,32 @@ int gExtraBuyLimit[MAXPLAYERS+1][ExtraItemMax];
  **/
 void ExtraItemsLoad(/*void*/)
 {
-	// No extra items?
-	if(arrayExtraItems == NULL)
-	{
-		LogEvent(false, LogType_Normal, LOG_CORE_EVENTS, LogModule_Extraitems, "Extra Items Validation", "No extra items loaded");
-	}
+    // No extra items?
+    if(arrayExtraItems == INVALID_HANDLE)
+    {
+        LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Extraitems, "Extra Items Validation", "No extra items loaded");
+    }
+}
+
+/**
+ * Creates commands for extra items module. Called when commands are created.
+ **/
+void ExtraItemsOnCommandsCreate(/*void*/)
+{
+    // Hook commands
+    RegConsoleCmd("zitemmenu", ExtraItemsCommandCatched, "Open the extra items menu.");
+}
+
+/**
+ * Handles the <!zitemmenu> command. Open the extra items menu.
+ * 
+ * @param clientIndex        The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action ExtraItemsCommandCatched(int clientIndex, int iArguments)
+{
+    // Open the extra items menu
+    ExtraItemsMenu(clientIndex);
 }
 
 /*
@@ -76,31 +96,39 @@ void ExtraItemsLoad(/*void*/)
  **/
 public int API_GiveClientExtraItem(Handle isPlugin, int iNumParams)
 {
-	// Get real player index from native cell 
-	CBasePlayer* cBasePlayer = CBasePlayer(GetNativeCell(1));
-	
-	// Validate client
-	if(!IsPlayerExist(cBasePlayer->Index, false))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", cBasePlayer->Index);
-		return -1;
-	}
-	
-	// Get item index from native cell
-	int iD = GetNativeCell(2);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Call forward
-	Action resultHandle = API_OnClientBuyExtraItem(cBasePlayer->Index, iD);
-	
-	// Return on success
-	return (resultHandle == ACTION_HANDLED || resultHandle == ACTION_STOP) ? false : true;
+    // Gets real player index from native cell 
+    int clientIndex = GetNativeCell(1);
+    
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        return -1;
+    }
+    
+    // Gets item index from native cell
+    int iD = GetNativeCell(2);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+
+    // Call forward
+    Action resultHandle = API_OnClientValidateExtraItem(clientIndex, iD);
+
+    // Validate handle
+    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    {
+        // Call forward
+        API_OnClientBuyExtraItem(clientIndex, iD); /// Buy item
+        return true;
+    }
+    
+    // Return on unsuccess
+    return false;
 }
 
 /**
@@ -110,31 +138,31 @@ public int API_GiveClientExtraItem(Handle isPlugin, int iNumParams)
  **/
 public int API_SetClientExtraItemLimit(Handle isPlugin, int iNumParams)
 {
-	// Get real player index from native cell 
-	CBasePlayer* cBasePlayer = CBasePlayer(GetNativeCell(1));
-	
-	// Validate client
-	if(!IsPlayerExist(cBasePlayer->Index, false))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", cBasePlayer->Index);
-		return -1;
-	}
-	
-	// Get item index from native cell
-	int iD = GetNativeCell(2);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Set buy limit of the current player's item
-	ItemsSetLimits(cBasePlayer->Index, iD, GetNativeCell(3));
-	
-	// Return on success
-	return iD;
+    // Gets real player index from native cell 
+    int clientIndex = GetNativeCell(1);
+    
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        return -1;
+    }
+    
+    // Gets item index from native cell
+    int iD = GetNativeCell(2);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Sets buy limit of the current player's item
+    ItemsSetLimits(clientIndex, iD, GetNativeCell(3));
+    
+    // Return on success
+    return iD;
 }
 
 /**
@@ -144,28 +172,28 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, int iNumParams)
  **/
 public int API_GetClientExtraItemLimit(Handle isPlugin, int iNumParams)
 {
-	// Get real player index from native cell 
-	CBasePlayer* cBasePlayer = CBasePlayer(GetNativeCell(1));
-	
-	// Validate client
-	if(!IsPlayerExist(cBasePlayer->Index, false))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", cBasePlayer->Index);
-		return -1;
-	}
-	
-	// Get item index from native cell
-	int iD = GetNativeCell(2);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Return buy limit of the current player's item
-	return ItemsGetLimits(cBasePlayer->Index, iD);
+    // Gets real player index from native cell 
+    int clientIndex = GetNativeCell(1);
+    
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        return -1;
+    }
+    
+    // Gets item index from native cell
+    int iD = GetNativeCell(2);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Return buy limit of the current player's item
+    return ItemsGetLimits(clientIndex, iD);
 }
  
 /**
@@ -175,53 +203,72 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, int iNumParams)
  **/
 public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
 {
-	// If array hasn't been created, then create
-	if(arrayExtraItems == NULL)
-	{
-		// Create array in handle
-		arrayExtraItems = CreateArray(ExtraItemMax);
-	}
-	
-	// Retrieves the string length from a native parameter string
-	int iLenth;
-	GetNativeStringLength(1, iLenth);
-	
-	// Strings are empty ?
-	if(iLenth <= 0)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Can't register extra item with an empty name");
-		return -1;
-	}
-	
-	// Maximum amout of extra items
-	if(GetArraySize(arrayExtraItems) >= ExtraItemMax)
-	{
-		LogEvent(false, LogType_Normal, LOG_CORE_EVENTS, LogModule_Extraitems, "ExtraItems Validation",  "Maximum number of extra items reached (%d). Skipping other items.", ExtraItemMax);
-		return -1;
-	}
-	
-	// Get native data
-	static char sItemName[SMALL_LINE_LENGTH];
-	
-	// General
-	GetNativeString(1, sItemName, sizeof(sItemName));
-	
-	// Initialize array block
-	ArrayList arrayExtraItem = CreateArray(ExtraItemMax);
-	
-	// Push native data into array
-	PushArrayString(arrayExtraItem, sItemName);  	 	// Index: 0
-	PushArrayCell(arrayExtraItem, GetNativeCell(2)); 	// Index: 1
-	PushArrayCell(arrayExtraItem, GetNativeCell(3)); 	// Index: 2
-	PushArrayCell(arrayExtraItem, GetNativeCell(4)); 	// Index: 3
-	PushArrayCell(arrayExtraItem, GetNativeCell(5)); 	// Index: 4
-	PushArrayCell(arrayExtraItem, GetNativeCell(6)); 	// Index: 5
-	
-	// Store this handle in the main array
-	PushArrayCell(arrayExtraItems, arrayExtraItem);
-	
-	// Return id under which we registered the item
-	return GetArraySize(arrayExtraItems)-1;
+    // If array hasn't been created, then create
+    if(arrayExtraItems == INVALID_HANDLE)
+    {
+        // Create array in handle
+        arrayExtraItems = CreateArray(ExtraItemMax);
+    }
+
+    // Retrieves the string length from a native parameter string
+    int maxLen;
+    GetNativeStringLength(1, maxLen);
+    
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Can't register extra item with an empty name");
+        return -1;
+    }
+    
+    // Gets extra items amount
+    int iCount = GetArraySize(arrayExtraItems);
+
+    // Maximum amout of extra items
+    if(iCount >= ExtraItemMax)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "ExtraItems Validation",  "Maximum number of extra items reached (%d). Skipping other items.", ExtraItemMax);
+        return -1;
+    }
+    
+    // Gets native data
+    char sItemName[SMALL_LINE_LENGTH];
+    
+    // General                                          
+    GetNativeString(1, sItemName, sizeof(sItemName)); 
+
+    // Initialize char
+    char sName[SMALL_LINE_LENGTH];
+    
+    // i = Extra item number
+    for(int i = 0; i < iCount; i++)
+    {
+        // Gets extra item name
+        ItemsGetName(i, sName, sizeof(sName));
+    
+        // If names match, then stop
+        if(!strcmp(sItemName, sName, false))
+        {
+            LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Extra item already registered (%s)", sName);
+            return -1;
+        }
+    }
+    
+    // Initialize array block
+    ArrayList arrayExtraItem = CreateArray(ExtraItemMax);
+    
+    // Push native data into array
+    arrayExtraItem.PushString(sItemName);      // Index: 0
+    arrayExtraItem.Push(GetNativeCell(2));     // Index: 1
+    arrayExtraItem.Push(GetNativeCell(3));     // Index: 2
+    arrayExtraItem.Push(GetNativeCell(4));     // Index: 3
+    arrayExtraItem.Push(GetNativeCell(5));     // Index: 4
+    
+    // Store this handle in the main array
+    arrayExtraItems.Push(arrayExtraItem);
+    
+    // Return id under which we registered the item
+    return GetArraySize(arrayExtraItems)-1;
 }
 
 /**
@@ -231,7 +278,7 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
  **/
 public int API_GetNumberExtraItem(Handle isPlugin, int iNumParams)
 {
-	return GetArraySize(arrayExtraItems);
+    return GetArraySize(arrayExtraItems);
 }
 
 /**
@@ -241,32 +288,32 @@ public int API_GetNumberExtraItem(Handle isPlugin, int iNumParams)
  **/
 public int API_GetExtraItemName(Handle isPlugin, int iNumParams)
 {
-	// Get item index from native cell
-	int iD = GetNativeCell(1);
+    // Gets item index from native cell
+    int iD = GetNativeCell(1);
 
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Get string size from native cell
-	int maxLen = GetNativeCell(3);
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
 
-	// Validate size
-	if(maxLen <= 0)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize name char
-	static char sName[PLATFORM_MAX_PATH];
-	ItemsGetName(iD, sName, sizeof(sName));
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize name char
+    static char sName[SMALL_LINE_LENGTH];
+    ItemsGetName(iD, sName, sizeof(sName));
 
-	// Return on success
-	return SetNativeString(2, sName, maxLen);
+    // Return on success
+    return SetNativeString(2, sName, maxLen);
 }
 
 /**
@@ -276,39 +323,18 @@ public int API_GetExtraItemName(Handle isPlugin, int iNumParams)
  **/
 public int API_GetExtraItemCost(Handle isPlugin, int iNumParams)
 {
-	// Get item index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ItemsGetCost(iD);
-}
-
-/**
- * Gets the team of the extra item.
- *
- * native int ZP_GetExtraItemTeam(iD);
- **/
-public int API_GetExtraItemTeam(Handle isPlugin, int iNumParams)
-{
-	// Get item index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ItemsGetTeam(iD);
+    // Gets item index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ItemsGetCost(iD);
 }
 
 /**
@@ -318,18 +344,18 @@ public int API_GetExtraItemTeam(Handle isPlugin, int iNumParams)
  **/
 public int API_GetExtraItemLevel(Handle isPlugin, int iNumParams)
 {
-	// Get item index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ItemsGetLevel(iD);
+    // Gets item index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ItemsGetLevel(iD);
 }
 
 /**
@@ -339,18 +365,18 @@ public int API_GetExtraItemLevel(Handle isPlugin, int iNumParams)
  **/
 public int API_GetExtraItemOnline(Handle isPlugin, int iNumParams)
 {
-	// Get item index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ItemsGetOnline(iD);
+    // Gets item index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ItemsGetOnline(iD);
 }
 
 /**
@@ -360,18 +386,18 @@ public int API_GetExtraItemOnline(Handle isPlugin, int iNumParams)
  **/
 public int API_GetExtraItemLimit(Handle isPlugin, int iNumParams)
 {
-	// Get item index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ItemsGetLimit(iD);
+    // Gets item index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ItemsGetLimit(iD);
 }
 
 /**
@@ -381,48 +407,45 @@ public int API_GetExtraItemLimit(Handle isPlugin, int iNumParams)
  **/
 public int API_PrintExtraItemInfo(Handle isPlugin, int iNumParams)
 {
-	// If help messages disable, then stop 
-	if(!GetConVarBool(gCvarList[CVAR_MESSAGES_HELP]))
-	{
-		return -1;
-	}
-	
-	// Get real player index from native cell 
-	CBasePlayer* cBasePlayer = CBasePlayer(GetNativeCell(1));
-	
-	// Validate client
-	if(!IsPlayerExist(cBasePlayer->Index, false))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", cBasePlayer->Index);
-		return -1;
-	}
-	
-	// Get item index from native cell
-	int iD = GetNativeCell(2);
-	
-	// Validate index
-	if(iD >= GetArraySize(arrayExtraItems))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Get extra item name
-	static char sItemName[BIG_LINE_LENGTH];
-	ItemsGetName(iD, sItemName, sizeof(sItemName));
-	
-	// Remove translation symbol, ifit exist
-	ReplaceString(sItemName, sizeof(sItemName), "@", "");
-	
-	// Get client name
-	static char sClientName[NORMAL_LINE_LENGTH];
-	GetClientName(cBasePlayer->Index, sClientName, sizeof(sClientName));
-	
-	// Show message of successful buying
-	TranslationPrintToChatAll("Buy extraitem", sClientName, sItemName);
-	
-	// Return on success
-	return sizeof(sClientName);
+    // If help messages disable, then stop 
+    if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+    {
+        return -1;
+    }
+    
+    // Gets real player index from native cell 
+    int clientIndex = GetNativeCell(1);
+    
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        return -1;
+    }
+    
+    // Gets item index from native cell
+    int iD = GetNativeCell(2);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayExtraItems))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets extra item name
+    static char sItemName[SMALL_LINE_LENGTH];
+    ItemsGetName(iD, sItemName, sizeof(sItemName));
+
+    // Gets client name
+    static char sClientName[SMALL_LINE_LENGTH];
+    GetClientName(clientIndex, sClientName, sizeof(sClientName));
+    
+    // Show message of successful buying
+    TranslationPrintToChatAll("Buy extraitem", sClientName, sItemName);
+    
+    // Return on success
+    return sizeof(sClientName);
 }
 
 /*
@@ -432,128 +455,300 @@ public int API_PrintExtraItemInfo(Handle isPlugin, int iNumParams)
 /**
  * Gets the name of a item at a given index.
  *
- * @param iD				The item index.
- * @param sName				The string to return name in.
- * @param iMaxLen			The max length of the string.
+ * @param iD                The item index.
+ * @param sName             The string to return name in.
+ * @param iMaxLen           The max length of the string.
  **/
 stock void ItemsGetName(int iD, char[] sName, int iMaxLen)
 {
-	// Get array handle of extra item at given index
-	Handle arrayExtraItem = GetArrayCell(arrayExtraItems, iD);
+    // Gets array handle of extra item at given index
+    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
 
-	// Get extra item name
-	GetArrayString(arrayExtraItem, EXTRAITEMS_DATA_NAME, sName, iMaxLen);
+    // Gets extra item name
+    arrayExtraItem.GetString(EXTRAITEMS_DATA_NAME, sName, iMaxLen);
 }
 
 /**
  * Gets the price of ammo for the item.
  *
- * @param iD				The item index.
- * @return					The ammo price.	
+ * @param iD                The item index.
+ * @return                  The ammo price.    
  **/
 stock int ItemsGetCost(int iD)
 {
-	// Get array handle of extra item at given index
-	Handle arrayExtraItem = GetArrayCell(arrayExtraItems, iD);
+    // Gets array handle of extra item at given index
+    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
 
-	// Get extra item cost
-	return GetArrayCell(arrayExtraItem, EXTRAITEMS_DATA_COST);
-}
-
-/**
- * Gets the team for the item.
- *
- * @param iD				The item index.
- * @return					The team index.	
- **/
-stock int ItemsGetTeam(int iD)
-{
-	// Get array handle of extra item at given index
-	Handle arrayExtraItem = GetArrayCell(arrayExtraItems, iD);
-
-	// Get extra item team
-	return GetArrayCell(arrayExtraItem, EXTRAITEMS_DATA_TEAM);
+    // Gets extra item cost
+    return arrayExtraItem.Get(EXTRAITEMS_DATA_COST);
 }
 
 /**
  * Gets the level for the item.
  *
- * @param iD				The item index.
- * @return					The level value.	
+ * @param iD                The item index.
+ * @return                  The level value.    
  **/
 stock int ItemsGetLevel(int iD)
 {
-	// Get array handle of extra item at given index
-	Handle arrayExtraItem = GetArrayCell(arrayExtraItems, iD);
+    // Gets array handle of extra item at given index
+    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
 
-	// Get extra item level
-	return GetArrayCell(arrayExtraItem, EXTRAITEMS_DATA_LEVEL);
+    // Gets extra item level
+    return arrayExtraItem.Get(EXTRAITEMS_DATA_LEVEL);
 }
 
 /**
  * Gets the online for the item.
  *
- * @param iD       	 		The item index.
- * @return          		The online value.	
+ * @param iD                The item index.
+ * @return                  The online value.    
  **/
 stock int ItemsGetOnline(int iD)
 {
-	// Get array handle of extra item at given index
-	Handle arrayExtraItem = GetArrayCell(arrayExtraItems, iD);
+    // Gets array handle of extra item at given index
+    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
 
-	// Get extra item online
-	return GetArrayCell(arrayExtraItem, EXTRAITEMS_DATA_ONLINE);
+    // Gets extra item online
+    return arrayExtraItem.Get(EXTRAITEMS_DATA_ONLINE);
 }
 
 /**
  * Gets the limit for the item.
- * @param iD				The item index.
- * @return          		The limit value.	
+ * @param iD                The item index.
+ * @return                  The limit value.    
  **/
 stock int ItemsGetLimit(int iD)
 {
-	// Get array handle of extra item at given index
-	Handle arrayExtraItem = GetArrayCell(arrayExtraItems, iD);
+    // Gets array handle of extra item at given index
+    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
 
-	// Get extra item limit
-	return GetArrayCell(arrayExtraItem, EXTRAITEMS_DATA_LIMIT);
+    // Gets extra item limit
+    return arrayExtraItem.Get(EXTRAITEMS_DATA_LIMIT);
 }
 
 /**
- * Remove the buy limit of the all player's items.
+ * Remove the buy limit of the all client's items.
  *
- * @param clientIndex		The player index.
+ * @param clientIndex       The client index.
  **/
 stock void ItemsRemoveLimits(int clientIndex)
 {
-	// Remove all extraitems limit
-	for(int i = 0; i < GetArraySize(arrayExtraItems); i++)
-	{
-		gExtraBuyLimit[clientIndex][i] = 0;
-	}
+    // If array hasn't been created, then skip
+    if(arrayExtraItems != INVALID_HANDLE)
+    {
+        // Remove all extraitems limit
+        for(int i = 0; i < GetArraySize(arrayExtraItems); i++)
+        {
+            gExtraBuyLimit[clientIndex][i] = 0;
+        }
+    }
 }
 
 /**
- * Sets the buy limit of the current player's item.
+ * Sets the buy limit of the current client's item.
  *
- * @param clientIndex		The player index.
- * @param iD				The item index.
- * @param nLimit			The limit value.	
+ * @param clientIndex       The client index.
+ * @param iD                The item index.
+ * @param nLimit            The limit value.    
  **/
 stock void ItemsSetLimits(int clientIndex, int iD, int nLimit)
 {
-	// Set buy limit for the player
-	gExtraBuyLimit[clientIndex][iD] = nLimit;
+    // Sets buy limit for the client
+    gExtraBuyLimit[clientIndex][iD] = nLimit;
 }
 
 /**
- * Gets the buy limit of the current player's item.
+ * Gets the buy limit of the current client's item.
  *
- * @param clientIndex		The player index.
- * @param iD				The item index.
+ * @param clientIndex       The client index.
+ * @param iD                The item index.
  **/
 stock int ItemsGetLimits(int clientIndex, int iD)
 {
-	// Get buy limit for the player
-	return gExtraBuyLimit[clientIndex][iD];
+    // Gets buy limit for the client
+    return gExtraBuyLimit[clientIndex][iD];
+}
+
+/*
+ * Stocks extra items API.
+ */
+ 
+/**
+ * Create the extra items menu.
+ *  
+ * @param clientIndex        The client index.
+ **/ 
+void ExtraItemsMenu(int clientIndex)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+        }
+    
+    // If client is survivor or nemesis, then stop 
+    if(gClientData[clientIndex][Client_Nemesis] || gClientData[clientIndex][Client_Survivor])
+    {
+        // Emit error sound
+        ClientCommand(clientIndex, "play buttons/button11.wav");
+        return;
+    }
+    
+    // Initialize chars
+    static char sBuffer[NORMAL_LINE_LENGTH];
+    static char sName[SMALL_LINE_LENGTH];
+    static char sInfo[SMALL_LINE_LENGTH];
+
+    // Create extra items menu handle
+    Menu hMenu = CreateMenu(ExtraItemsSlots);
+
+    // Sets the language to target
+    SetGlobalTransTarget(clientIndex);
+    
+    // Sets title
+    hMenu.SetTitle("%t", "Buy extraitems");
+    
+    // Initialize forward
+    Action resultHandle;
+    
+    // i = Extra item number
+    int iCount = GetArraySize(arrayExtraItems);
+    for(int i = 0; i < iCount; i++)
+    {
+        // Call forward
+        resultHandle = API_OnClientValidateExtraItem(clientIndex, i);
+        
+        // Validate handle
+        if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+        {
+            // Gets extra item name
+            ItemsGetName(i, sName, sizeof(sName));
+            if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
+            
+            // Format some chars for showing in menu
+            Format(sBuffer, sizeof(sBuffer), "%t    %t", sName, "Ammopacks", ItemsGetCost(i));
+
+            // Show option
+            IntToString(i, sInfo, sizeof(sInfo));
+            hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(gClientData[clientIndex][Client_Level] < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex][Client_AmmoPacks] < ItemsGetCost(i)) ? false : true));
+        }
+    }
+    
+    // If there are no cases, add an "(Empty)" line
+    if(!iCount)
+    {
+        static char sEmpty[SMALL_LINE_LENGTH];
+        Format(sEmpty, sizeof(sEmpty), "%t", "Empty");
+
+        hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
+    }
+    
+    // Sets exit and back button
+    hMenu.ExitBackButton = true;
+    
+    // Sets options and display it
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+}
+
+/**
+ * Called when client selects option in the extra items menu, and handles it.
+ *  
+ * @param hMenu              The handle of the menu being used.
+ * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex        The client index.
+ * @param mSlot              The slot index selected (starting from 0).
+ **/ 
+public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+{
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Open main menu back
+                MenuMain(clientIndex);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(clientIndex))
+            {
+                return;
+            }
+            
+            // If round ended, then stop
+            // If client is survivor or nemesis, then stop
+            if(gServerData[Server_RoundEnd] || gClientData[clientIndex][Client_Nemesis] || gClientData[clientIndex][Client_Survivor])
+            {
+                // Emit error sound
+                ClientCommand(clientIndex, "play buttons/button11.wav");    
+                return;
+            }
+
+            // Initialize char
+            static char sItemName[SMALL_LINE_LENGTH];
+
+            // Gets ID of the extra item
+            hMenu.GetItem(mSlot, sItemName, sizeof(sItemName));
+            int iD = StringToInt(sItemName);
+            
+            // Call forward
+            Action resultHandle = API_OnClientValidateExtraItem(clientIndex, iD);
+
+            // Validate handle
+            if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+            {
+                // Call forward
+                API_OnClientBuyExtraItem(clientIndex, iD); /// Buy item
+        
+                // If help messages enable, then show 
+                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                {
+                    // Gets extra item name
+                    ItemsGetName(iD, sItemName, sizeof(sItemName));
+
+                    // Gets client name
+                    static char sClientName[SMALL_LINE_LENGTH];
+                    GetClientName(clientIndex, sClientName, sizeof(sClientName));
+
+                    // Show message of successful buying
+                    TranslationPrintToChatAll("Buy extraitem", sClientName, sItemName);
+                }
+                
+                // If item has a cost
+                if(ItemsGetCost(iD))
+                {
+                    // Remove ammo and store it for returning if player will be first zombie
+                    ToolsSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - ItemsGetCost(iD));
+                    gClientData[clientIndex][Client_LastBoughtAmount] += ItemsGetCost(iD);
+                    
+                    // If item has a limit
+                    if(ItemsGetLimit(iD))
+                    {
+                        // Increment count
+                        ItemsSetLimits(clientIndex, iD, ItemsGetLimits(clientIndex, iD) + 1);
+                    }
+                }
+            }
+            else
+            {
+                // Emit error sound
+                ClientCommand(clientIndex, "play buttons/button11.wav");    
+            }
+        }
+    }
 }

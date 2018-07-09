@@ -34,21 +34,29 @@
  **/
 public Plugin HeGrenade =
 {
-	name        	= "[ZP] ExtraItem: Hegrenade",
-	author      	= "qubka (Nikita Ushakov)", 	
-	description 	= "Addon of extra items",
-	version     	= "2.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] ExtraItem: Hegrenade",
+    author          = "qubka (Nikita Ushakov)",     
+    description     = "Addon of extra items",
+    version         = "2.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME				"@Hegrenade" // If string has @, phrase will be taken from translation file	 	
-#define EXTRA_ITEM_COST				1
-#define EXTRA_ITEM_LEVEL			0
-#define EXTRA_ITEM_ONLINE			0
-#define EXTRA_ITEM_LIMIT			0
+#define EXTRA_ITEM_NAME                "Hegrenade" // Only will be taken from translation file         
+#define EXTRA_ITEM_COST                1
+#define EXTRA_ITEM_LEVEL               0
+#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LIMIT               0
+/**
+ * @endsection
+ **/
+ 
+ /**
+ * @section Properties of the grenade.
+ **/
+#define GRENADE_EXP_DAMAGE             3.0     // Damage of hegrenade multiplier (2.0 = double damage)
 /**
  * @endsection
  **/
@@ -64,115 +72,86 @@ int iItem;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
-
-        // Hook entity events
-        HookEvent("hegrenade_detonate", EventEntityExplosion, EventHookMode_Post);
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
+}
+
+/**
+ * Called before show an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ *
+ * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
+ **/
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // If you don't allowed to buy, then stop
+        if(IsPlayerHasWeapon(clientIndex, "NapalmNade") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Handled;
+        }
+    }
+
+    // Allow showing
+    return Plugin_Continue;
 }
 
 /**
  * Called after select an extraitem in the equipment menu.
  * 
- * @param clientIndex		The client index.
- * @param extraitemIndex	The index of extraitem from ZP_RegisterExtraItem() native.
- *
- * @return					Plugin_Handled or Plugin_Stop to block purhase. Anything else
- *                          	(like Plugin_Continue) to allow purhase and taking ammopacks.
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
  **/
-public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Handled;
-	}
-	
-	// Check the item's index
-	if(extraitemIndex == iItem)
-	{
-		// If you don't allowed to buy, then return ammopacks
-		if(IsPlayerHasWeapon(clientIndex, "weapon_hegrenade") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
-		{
-			return Plugin_Handled;
-		}
-			
-		// Give item and select it
-		GivePlayerItem(clientIndex, "weapon_hegrenade");
-		FakeClientCommandEx(clientIndex, "use weapon_hegrenade");
-	}
-	
-	// Allow buying
-	return Plugin_Continue;
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // Give item and select it
+        ZP_GiveClientWeapon(clientIndex, "NapalmNade");
+    }
 }
 
-
 /**
- * Event callback (hegrenade_detonate)
- * The hegrenade is exployed.
+ * Called when a client take a fake damage.
  * 
- * @param gEventHook        The event handle.
- * @param gEventName        The name of the event.
- * @param dontBroadcast    	If true, event is broadcasted to all clients, false if not.
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param damageAmount      The amount of damage inflicted.
+ * @param damageType        The ditfield of damage types
  **/
-public Action EventEntityExplosion(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType)
 {
-	// Get real player index from event key
-	int ownerIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid")); 
-	
-	// Validate client
-	if(IsPlayerExist(ownerIndex) && ZP_IsPlayerHuman(ownerIndex))
-	{
-        // Initialize vectors
-        static float vExpOrigin[3]; static float vVictimOrigin[3]; static float vVelocity[3];
-
-        // Get all required event info
-        int entityIndex = GetEventInt(gEventHook, "entityid");
-        vExpOrigin[0] = GetEventFloat(gEventHook, "x"); 
-        vExpOrigin[1] = GetEventFloat(gEventHook, "y"); 
-        vExpOrigin[2] = GetEventFloat(gEventHook, "z");
-
-        // Validate entity
-        if(IsValidEdict(entityIndex))
-        {
-            // i = client index
-            for(int i = 1; i <= MaxClients; i++)
-            {
-                // Validate client
-                if(IsPlayerExist(i) && ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i))
-                {
-                    // Get victim's origin
-                    GetClientAbsOrigin(i, vVictimOrigin);
-                    
-                    // Calculate the distance
-                    float flDistance = GetVectorDistance(vExpOrigin, vVictimOrigin);
-                    
-                    // Validate distance
-                    if(flDistance <= GetConVarFloat(FindConVar("zp_grenade_exp_radius")))
-                    {				
-                        // Calculate the push power
-                        float flKnockBack = FloatMul(GetConVarFloat(FindConVar("zp_grenade_exp_knockback")), (1.0 - (FloatDiv(flDistance, GetConVarFloat(FindConVar("zp_grenade_exp_radius"))))));
-
-                        // Calculate the velocity's vector
-                        SubtractVectors(vVictimOrigin, vExpOrigin, vVelocity);
-                        
-                        // Normalize the vector (equal magnitude at varying distances)
-                        NormalizeVector(vVelocity, vVelocity);
-                        
-                        // Apply the magnitude by scaling the vector
-                        ScaleVector(vVelocity, SquareRoot(FloatDiv(FloatMul(flKnockBack, flKnockBack), (FloatAdd(FloatAdd(FloatMul(vVelocity[0], vVelocity[0]), FloatMul(vVelocity[1], vVelocity[1])), FloatMul(vVelocity[2], vVelocity[2])))))); FloatMul(vVelocity[2], 10.0);
-
-                        // Push the victim
-                        TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
-                    }
-                }
-            }
-            
-            // Remove grenade
-            AcceptEntityInput(entityIndex, "Kill");
-        }
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Client was damaged by 'explosion'
+    if(damageType & DMG_BLAST)
+    {
+        // Sets explosion damage
+        damageAmount *= ZP_IsPlayerZombie(clientIndex) ? GRENADE_EXP_DAMAGE : 0.0;
     }
 }

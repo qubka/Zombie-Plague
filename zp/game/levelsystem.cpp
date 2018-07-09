@@ -39,127 +39,209 @@ static char LevelSystemStats[LevelSystemMax][SMALL_LINE_LENGTH];
 /**
  * Prepare all level data.
  **/
-void LevelSystemLoad()
+void LevelSystemLoad(/*void*/)
 {
-	// Reset level's data
-	LevelSystemNum = 0;
+    // Resets level's data
+    LevelSystemNum = 0;
 
-	// If level system disabled, then stop
-	if(!GetConVarBool(gCvarList[CVAR_LEVEL_SYSTEM]))
-	{
-		return;
-	}
-	
-	// Initialize level list
-	static char sList[PLATFORM_MAX_PATH];
-	GetConVarString(gCvarList[CVAR_LEVEL_STATISTICS], sList, sizeof(sList));
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+    
+    // Initialize level list
+    static char sList[PLATFORM_MAX_PATH];
+    gCvarList[CVAR_LEVEL_STATISTICS].GetString(sList, sizeof(sList));
 
-	// Check iflist is empty, then skip
-	if(strlen(sList))
-	{
-		// Convert list string to pieces
-		LevelSystemNum = ExplodeString(sList, ",", LevelSystemStats, sizeof(LevelSystemStats), sizeof(LevelSystemStats[])) - 1;
-
-		// Loop throught pieces
-		for(int i = 0; i <= LevelSystemNum; i++)
-		{
-			// Trim string
-			TrimString(LevelSystemStats[i]);
-		}
-		
-		// Create timer
-		if(LevelSystemNum) CreateTimer(1.0, LevelSystemHUD, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-	}
+    // Check if list is empty, then skip
+    if(strlen(sList))
+    {
+        // Convert list string to pieces
+        LevelSystemNum = ExplodeString(sList, " ", LevelSystemStats, sizeof(LevelSystemStats), sizeof(LevelSystemStats[])) - 1;
+    }
 }
 
 /**
- * Validate the client's level and prevent it from overloading.
+ * Client has been changed class state.
  *
- * @param cBasePlayer    	The client index.
+ * @param clientIndex       The client index.
  **/
-void LevelSystemOnValidate(CBasePlayer* cBasePlayer)
+void LevelSystemOnClientUpdate(int clientIndex)
 {
-	// If level system disabled, then stop
-	if(!GetConVarBool(gCvarList[CVAR_LEVEL_SYSTEM]))
-	{
-		return;
-	}
-	
-	// Validate level amount
-	if(!LevelSystemNum)
-	{
-		return;
-	}
-	
-	// Validate level
-	if(cBasePlayer->m_iLevel > LevelSystemNum)
-	{
-		// Update it
-		cBasePlayer->m_iLevel = LevelSystemNum;
-	}
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+    
+    // Validate level amount
+    if(!LevelSystemNum)
+    {
+        return;
+    }
+
+    // Validate real client
+    if(!IsFakeClient(clientIndex))
+    {
+        // Sets timer for player HUD
+        delete gClientData[clientIndex][Client_HUDTimer];
+        gClientData[clientIndex][Client_HUDTimer] = CreateTimer(1.0, LevelSystemOnHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    }
 }
 
 /**
- * Validate the client's experience, increasing level ifit reach level's experience limit and prevent it from overloading.
+ * Sets the client's level and prevent it from overloading.
  *
- * @param cBasePlayer    	The client index.
+ * @param clientIndex       The client index.
+ * @param nLevel            The level amount.
  **/
-void LevelSystemOnValidateExp(CBasePlayer* cBasePlayer)
+void LevelSystemOnSetLvl(int clientIndex, int nLevel)
 {
-	// If level system disabled, then stop
-	if(!GetConVarBool(gCvarList[CVAR_LEVEL_SYSTEM]))
-	{
-		return;
-	}
-	
-	// Validate level amount
-	if(!LevelSystemNum)
-	{
-		return;
-	}
-	
-	// Give experience to the player
-	if(cBasePlayer->m_iLevel == LevelSystemNum && cBasePlayer->m_iExp > StringToInt(LevelSystemStats[cBasePlayer->m_iLevel]))
-	{
-		cBasePlayer->m_iExp = StringToInt(LevelSystemStats[cBasePlayer->m_iLevel]);
-	}
-	else
-	{
-		// Loop throught experience
-		while(cBasePlayer->m_iLevel < LevelSystemNum && cBasePlayer->m_iExp >= StringToInt(LevelSystemStats[cBasePlayer->m_iLevel]))
-		{
-			// Increase level
-			cBasePlayer->m_iLevel++;
-			
-			// Emit levelup sound
-			if(IsPlayerExist(cBasePlayer->Index)) cBasePlayer->InputEmitAISound(SNDCHAN_STATIC, SNDLEVEL_NORMAL, "LEVEL_UP_SOUNDS");
-		}
-	}
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+
+    // Validate level amount
+    if(!LevelSystemNum)
+    {
+        return;
+    }
+
+    // If amount below 0, then stop
+    if(nLevel < 0)
+    {
+        return;
+    }
+
+    // Sets the level
+    gClientData[clientIndex][Client_Level] = nLevel;
+
+    // Validate level
+    if(gClientData[clientIndex][Client_Level] > LevelSystemNum)
+    {
+        // Update it
+        gClientData[clientIndex][Client_Level] = LevelSystemNum;
+    }
+    else
+    {
+        // Emit sound
+        if(IsPlayerExist(clientIndex)) SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, "LEVEL_UP_SOUNDS");
+    }
+}
+
+/**
+ * Sets the client's experience, increasing level if it reach level's experience limit and prevent it from overloading.
+ *
+ * @param clientIndex       The client index.
+ * @param nExperience       The experience amount.
+ **/
+void LevelSystemOnSetExp(int clientIndex, int nExperience)
+{
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+
+    // Validate level amount
+    if(!LevelSystemNum)
+    {
+        return;
+    }
+
+    // If amount below 0, then stop
+    if(nExperience < 0)
+    {
+        return;
+    }
+
+    // Sets the experience
+    gClientData[clientIndex][Client_Exp] = nExperience;
+
+    // Give experience to the player
+    if(gClientData[clientIndex][Client_Level] == LevelSystemNum && gClientData[clientIndex][Client_Exp] > StringToInt(LevelSystemStats[gClientData[clientIndex][Client_Level]]))
+    {
+        gClientData[clientIndex][Client_Exp] = StringToInt(LevelSystemStats[gClientData[clientIndex][Client_Level]]);
+    }
+    else
+    {
+        // Loop throught experience
+        while(gClientData[clientIndex][Client_Level] < LevelSystemNum && gClientData[clientIndex][Client_Exp] >= StringToInt(LevelSystemStats[gClientData[clientIndex][Client_Level]]))
+        {
+            // Increase level
+            LevelSystemOnSetLvl(clientIndex, gClientData[clientIndex][Client_Level] + 1);
+        }
+    }
 }
 
 /**
  * Main timer for show HUD text within information about client's level and experience.
  *
- * @param hTimer			The timer handle.
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
  **/
-public Action LevelSystemHUD(Handle hTimer)
+public Action LevelSystemOnHUD(Handle hTimer, int userID)
 {
-	// Initialize variables
-	CBasePlayer* cBasePlayer;
-	
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Get real player index from event key
-		cBasePlayer = CBasePlayer(i);
-		
-		// Verify that the client is exist
-		if(!IsPlayerExist(cBasePlayer->Index))
-		{
-			continue;
-		}
-		
-		// Print hud text to client
-		TranslationPrintHudText(cBasePlayer->Index, 0.02, 0.9, 1.0, 255, 255, 255, 255, 0, 0.0, 0.0, 0.0, "Level info", cBasePlayer->m_iLevel, cBasePlayer->m_iExp, LevelSystemStats[cBasePlayer->m_iLevel]);
-	}
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
+
+    // Validate client
+    if(clientIndex)
+    {
+        // Initialize variables
+        static char sInfo[SMALL_LINE_LENGTH]; static int iRed, iGreen, iBlue;
+    
+        // Validate zombie hud
+        if(gClientData[clientIndex][Client_Zombie])
+        {
+            // Validate nemesis hud
+            if(gClientData[clientIndex][Client_Nemesis])
+            {
+                strcopy(sInfo, sizeof(sInfo), "Nemesis");
+            }
+            else
+            {
+                // Gets zombie name
+                ZombieGetName(gClientData[clientIndex][Client_ZombieClass], sInfo, sizeof(sInfo));
+            }
+            
+            // Gets colors 
+            iRed = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R].IntValue;
+            iGreen = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_G].IntValue;
+            iBlue = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B].IntValue;
+        }
+        // Otherwise, show human hud
+        else
+        {
+            // Validate survivor hud
+            if(gClientData[clientIndex][Client_Survivor])
+            {
+                strcopy(sInfo, sizeof(sInfo), "Survivor");
+            }
+            else
+            {
+                // Gets human name
+                HumanGetName(gClientData[clientIndex][Client_HumanClass], sInfo, sizeof(sInfo));
+            }
+            // Gets colors 
+            iRed = gCvarList[CVAR_LEVEL_HUD_HUMAN_R].IntValue;
+            iGreen = gCvarList[CVAR_LEVEL_HUD_HUMAN_G].IntValue;
+            iBlue = gCvarList[CVAR_LEVEL_HUD_HUMAN_B].IntValue;
+        }
+
+        // Print hud text to client
+        TranslationPrintHudText(clientIndex, 0.02, 0.885, 1.0, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "Level info", GetClientArmor(clientIndex), sInfo, gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], LevelSystemStats[gClientData[clientIndex][Client_Level]]);
+    
+        // Allow timer
+        return Plugin_Continue;
+    }
+    
+    // Clear timer
+    gClientData[clientIndex][Client_HUDTimer] = INVALID_HANDLE;
+    
+    // Destroy timer
+    return Plugin_Stop;
 }

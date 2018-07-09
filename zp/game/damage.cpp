@@ -26,313 +26,225 @@
  **/
 
 /**
- * @section Damage flags.
- **/
-#define DMG_CSGO_FALL        (DMG_FALL)      /** Client was damaged by falling.	 **/
-#define DMG_CSGO_BLAST       (DMG_BLAST)     /** Client was damaged by explosion.**/
-#define DMG_CSGO_BURN        (DMG_BURN)    	 /** Client was damaged by inferno.	 **/
-#define DMG_CSGO_FIRE        (DMG_DIRECT)    /** Client was damaged by fire.	 **/
-#define DMG_CSGO_BULLET      (DMG_NEVERGIB)  /** Client was shot or knifed. 	 **/
-#define DMG_CSGO_DROWN    	 (DMG_DROWN)     /** Client was damaged by water. 	 **/
-/**
- * @endsection
- **/
- 
-/**
- * @section Water levels.
- **/
-#define WLEVEL_CSGO_DRY  0
-#define WLEVEL_CSGO_FEET 1
-#define WLEVEL_CSGO_HALF 2
-#define WLEVEL_CSGO_FULL 3
-/**
- * @endsection
- **/
-
-/**
  * Client is joining the server.
  * 
- * @param client    The client index.  
- */
+ * @param clientIndex       The client index.  
+ **/
 void DamageClientInit(int clientIndex)
 {
-	// Hook damage callbacks
-	SDKHook(clientIndex, SDKHook_TraceAttack, DamageOnTraceAttack);
-	SDKHook(clientIndex, SDKHook_OnTakeDamage, DamageOnTakeDamage);
+    // Hook damage callbacks
+    SDKHook(clientIndex, SDKHook_TraceAttack,  DamageOnTraceAttack);
+    SDKHook(clientIndex, SDKHook_OnTakeDamage, DamageOnTakeDamage);
 }
  
 /**
  * Hook: OnTraceAttack
  * Called right before the bullet enters a client.
  * 
- * @param victimIndex		The victim index.
- * @param attackerIndex		The attacker index.
- * @param inflicterIndex	The inflictor index.
- * @param damageAmount		The amount of damage inflicted.
- * @param damageBits		The type of damage inflicted.
- * @param ammoType			The ammo type of the attacker's weapon.
- * @param hitroupBox		The hitbox index.  
- * @param hitgroupIndex		The hitgroup index.  
+ * @param victimIndex       The victim index.
+ * @param attackerIndex     The attacker index.
+ * @param inflicterIndex    The inflictor index.
+ * @param damageAmount      The amount of damage inflicted.
+ * @param damageBits        The type of damage inflicted.
+ * @param ammoType          The ammo type of the attacker's weapon.
+ * @param hitroupBox        The hitbox index.  
+ * @param hitgroupIndex     The hitgroup index.  
  **/
 public Action DamageOnTraceAttack(int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits, int &ammoType, int hitroupBox, int hitgroupIndex)
 {
-	// If gamemodes enable, then validate state
-	if(GetConVarInt(gCvarList[CVAR_GAME_CUSTOM_START]))
-	{
-		// If mode doesn't started yet, then stop trace
-		if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
-		{
-			// Stop trace
-			return ACTION_HANDLED;
-		}
-	}
-	
-	// Get real player index from event key 
-	CBasePlayer* cBaseVictim = CBasePlayer(victimIndex);
-	CBasePlayer* cBaseAttacker = CBasePlayer(attackerIndex);
-	
-	// Verify that the clients are exists
-	if(!IsPlayerExist(cBaseAttacker->Index) || !IsPlayerExist(cBaseVictim->Index))
-	{
-		// Stop trace
-		return ACTION_HANDLED;
-	}
+    // If gamemodes enable, then validate state
+    if(gCvarList[CVAR_GAME_CUSTOM_START].IntValue)
+    {
+        // If mode doesn't started yet, then stop trace
+        if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
+        {
+            // Stop trace
+            return Plugin_Handled;
+        }
+    }
 
-	// If clients have same class, then stop trace
-	if(cBaseVictim->m_bZombie == cBaseAttacker->m_bZombie || !cBaseVictim->m_bZombie == !cBaseAttacker->m_bZombie)
-	{
-		// Stop trace
-		return ACTION_HANDLED;
-	}
+    // Verify that the clients are exists
+    if(!IsPlayerExist(victimIndex) || !IsPlayerExist(attackerIndex))
+    {
+        // Stop trace
+        return Plugin_Handled;
+    }
 
-	// Allow trace
-	return ACTION_CONTINUE;
+    // If clients have same class, then stop trace
+    if(GetClientTeam(victimIndex) == GetClientTeam(attackerIndex))
+    {
+        // Stop trace
+        return Plugin_Handled;
+    }
+
+    // If damage hitgroups cvar is disabled, then allow damage
+    if(!gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
+    {
+        // Allow trace
+        return Plugin_Continue;
+    }
+
+    // Get hitgroup index
+    int iIndex = HitgroupToIndex(hitroupBox);
+
+    // If index can't be found, then allow damage
+    if(iIndex == -1)
+    {
+        // Allow trace
+        return Plugin_Continue;
+    }
+
+    // If damage is disabled for this hitgroup, then stop
+    if(!HitgroupsCanDamage(iIndex))
+    {
+        // Stop trace
+        return Plugin_Handled;
+    }
+
+    // Allow trace
+    return Plugin_Continue;
 }
- 
+
 /**
  * Hook: OnTakeDamage
  * Called right before damage is done.
  * 
- * @param victimIndex		The victim index.
- * @param attackerIndex		The attacker index.
- * @param inflicterIndex	The inflicter index.
- * @param damageAmount		The amount of damage inflicted.
- * @param damageBits		The type of damage inflicted.
+ * @param victimIndex       The victim index.
+ * @param attackerIndex     The attacker index.
+ * @param inflicterIndex    The inflicter index.
+ * @param damageAmount      The amount of damage inflicted.
+ * @param damageBits        The type of damage inflicted.
  **/
 public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits)
 {
-	//*********************************************************************
-	//*                   VALIDATION OF THE INFLICTOR           		  *
-	//*********************************************************************
-	
-	// If inflicter isn't valid, then skip
-	if(IsValidEdict(inflicterIndex))
-	{
-		// Get classname of the inflictor
-		static char sClassname[SMALL_LINE_LENGTH];
-		GetEdictClassname(inflicterIndex, sClassname, sizeof(sClassname));
+    //*********************************************************************
+    //*                   VALIDATION OF THE INFLICTOR                     *
+    //*********************************************************************
+    
+    // If inflicter isn't valid, then skip
+    if(IsValidEdict(inflicterIndex))
+    {
+        // Gets classname of the inflictor
+        static char sClassname[SMALL_LINE_LENGTH];
+        GetEdictClassname(inflicterIndex, sClassname, sizeof(sClassname));
 
-		// If entity is a trigger, then allow damage (Map is damaging client)
-		if(StrContains(sClassname, "trigger") > -1)
-		{
-			// Allow damage
-			return ACTION_CONTINUE;
-		}
-	}
-	
-	//*********************************************************************
-	//*                     VALIDATION OF THE PLAYER           		  	  *
-	//*********************************************************************
-	
-	// If gamemodes disabled, then skip
-	if(!GetConVarInt(gCvarList[CVAR_GAME_CUSTOM_START]))
-	{
-		// Allow damage
-		return ACTION_CONTINUE;
-	}
-	
-	// If mode doesn't started yet, then stop
-	if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
-	{
-		// Block damage
-		return ACTION_HANDLED;
-	}
+        // If entity is a trigger, then allow damage (Map is damaging client)
+        if(StrContains(sClassname, "trigger") > -1)
+        {
+            // Allow damage
+            return Plugin_Continue;
+        }
+    }
+    
+    //*********************************************************************
+    //*                     VALIDATION OF THE PLAYER                           *
+    //*********************************************************************
+    
+    // If gamemodes disabled, then skip
+    if(!gCvarList[CVAR_GAME_CUSTOM_START].IntValue)
+    {
+        // Allow damage
+        return Plugin_Continue;
+    }
+    
+    // If mode doesn't started yet, then stop
+    if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
+    {
+        // Block damage
+        return Plugin_Handled;
+    }
 
-	// If client is attacking himself, then stop
-	if(victimIndex == attackerIndex)
-	{
-		// Block damage
-		return ACTION_HANDLED;
-	}
-	
-	// Get real player index from event key 
-	CBasePlayer* cBaseVictim = CBasePlayer(victimIndex);
+    // Verify that the victim is exist
+    if(!IsPlayerExist(victimIndex))
+    {
+        // Block damage
+        return Plugin_Handled;
+    }
 
-	// Verify that the victim is exist
-	if(!IsPlayerExist(cBaseVictim->Index))
-	{
-		// Block damage
-		return ACTION_HANDLED;
-	}
-	
-	//*********************************************************************
-	//*                    APPLY DAMAGE TO THE PLAYER           		  *
-	//*********************************************************************
-	
-	// Client was damaged by 'fire' or 'burn
-	if(damageBits & DMG_CSGO_BURN || damageBits & DMG_CSGO_FIRE)
-	{
-		// Verify that the victim is zombie
-		if(cBaseVictim->m_bZombie)
-		{
-			// If the victim is in the water or freezed
-			if(cBaseVictim->m_bDrown(WLEVEL_CSGO_FEET) || cBaseVictim->m_iMoveType == MOVETYPE_NONE)
-			{
-				// Extinguishes the victim that is on fire
-				VEffectExtinguishEntity(cBaseVictim->Index);
-			}
-			else
-			{
-				// Put the fire on
-				if(damageBits & DMG_CSGO_BURN) VEffectIgniteEntity(cBaseVictim->Index , GetConVarFloat(gCvarList[CVAR_GRENADE_IGNITTING]));
-				
-				// Emit burn sound
-				if(GetRandomInt(0, 1)) cBaseVictim->InputEmitAISound(SNDCHAN_BODY, SNDLEVEL_NORMAL, (ZombieIsFemale(cBaseVictim->m_nZombieClass)) ? "ZOMBIE_FEMALE_BURN_SOUNDS" : "ZOMBIE_BURN_SOUNDS");
+    //*********************************************************************
+    //*                    APPLY DAMAGE TO THE PLAYER                     *
+    //*********************************************************************
 
-				// Return damage multiplier
-				damageAmount *= GetConVarFloat(gCvarList[CVAR_GRENADE_DAMAGE_MOLOTOV]);
-				
-				// Change damage
-				return ACTION_CHANGED;
-			}
-		}
-		
-		// Block damage
-		return ACTION_HANDLED;
-	}
-	
-	//###########################################################################
-	
-	// Client was damaged by 'falling' or 'drowning'
-	else if(damageBits & DMG_CSGO_FALL || damageBits & DMG_CSGO_DROWN)
-	{
-		// Block damage for zombie 
-		return cBaseVictim->m_bZombie ? ACTION_HANDLED : ACTION_CONTINUE;
-	}
-	
-	//###########################################################################
-	
-	// Client was damaged by 'explosion'
-	else if(damageBits & DMG_CSGO_BLAST)
-	{
-		// Set explosion damage
-		damageAmount *= cBaseVictim->m_bZombie ? GetConVarFloat(gCvarList[CVAR_GRENADE_DAMAGE_HEGRENADE]) : 0.0;
-	}
-	
-	//###########################################################################
-	
-	// Client was damaged by 'bullet'
-	else if(damageBits & DMG_CSGO_BULLET)
-	{
-		// Get real player index from event key 
-		CBasePlayer* cBaseAttacker = CBasePlayer(attackerIndex);
-	
-		// Verify that the attacker is exist
-		if(!IsPlayerExist(cBaseAttacker->Index))
-		{
-			// Block damage
-			return ACTION_HANDLED;
-		}
-		
-		// Verify that the attacker is zombie 
-		if(cBaseAttacker->m_bZombie)
-		{
-			// If victim is zombies, then stop
-			if(cBaseVictim->m_bZombie)
-			{
-				// Block damage
-				return ACTION_HANDLED;
-			}
-			
-			// Emit human hurt sound
-			cBaseVictim->InputEmitAISound(SNDCHAN_BODY, SNDLEVEL_NORMAL, cBaseVictim->m_bSurvivor ? "HUMAN_SURVIVOR_HURT_SOUNDS" : ((HumanIsFemale(cBaseVictim->m_nHumanClass)) ? "HUMAN_FEMALE_HURT_SOUNDS" : "HUMAN_HURT_SOUNDS"));
-			
-			// If the normal gamemode, then infect humans
-			if(GameModesValidateInfection(gServerData[Server_RoundMode]))
-			{
-				// Infect victim
-				return DamageOnClientInfect(cBaseVictim, cBaseAttacker, damageAmount);
-			}
+    // Client was damaged by 'bullet'
+    if(damageBits & DMG_NEVERGIB)
+    {
+        // Verify that the attacker is exist
+        if(!IsPlayerExist(attackerIndex))
+        {
+            // Block damage
+            return Plugin_Handled;
+        }
 
-			// If not, then apply multiplier
-			else
-			{
-				//!! IMPORTANT BUG FIX !!/
-				// Disable flash light before receive damage ~ Player.FlashlightOff
-				cBaseVictim->m_bFlashLightOn(false);  
-				
-				// Calculate zombie damage
-				damageAmount = cBaseAttacker->m_bNemesis ? GetConVarFloat(gCvarList[CVAR_NEMESIS_DAMAGE]) : damageAmount;
-			}
-		}
-		
-		// Verify that the attacker is human 
-		else
-		{
-			// If the zombie is frozen, then stop
-			if(cBaseVictim->m_iMoveType == MOVETYPE_NONE)
-			{
-				// Block damage
-				return ACTION_HANDLED;
-			}
-			
-			// Emit zombie hurt sound
-			cBaseVictim->InputEmitAISound(SNDCHAN_BODY, SNDLEVEL_NORMAL, cBaseVictim->m_bNemesis ? "ZOMBIE_NEMESIS_HURT_SOUNDS" : ((ZombieIsFemale(cBaseVictim->m_nZombieClass)) ? "ZOMBIE_FEMALE_HURT_SOUNDS" : "ZOMBIE_HURT_SOUNDS"));
+        // Initialize additional knockback multiplier for zombie
+        float knockbackAmount = ZombieGetKnockBack(gClientData[victimIndex][Client_ZombieClass]);
 
-			// Initialize zombie knockback multiplier
-			float knockbackAmount = ZombieGetKnockBack(cBaseVictim->m_nZombieClass);
-			
-			// Verify that the attacker is survivor
-			if(cBaseAttacker->m_bSurvivor)
-			{
-				damageAmount *= GetConVarFloat(gCvarList[CVAR_SURVIVOR_DAMAGE]);
-			}
-			
-			// Verify that the attacker is human
-			else
-			{
-				// Apply level's damage multiplier
-				if(GetConVarBool(gCvarList[CVAR_LEVEL_SYSTEM]))
-				{
-					damageAmount *= float(cBaseAttacker->m_iLevel) * GetConVarFloat(gCvarList[CVAR_LEVEL_DAMAGE_RATIO]);
-				}
-				
-				// Apply weapon damage and knockback multiplier by client's active weapon
-				int iIndex = WeaponsGetWeaponIndex(cBaseAttacker->m_iActiveWeapon);
-				if(iIndex != -1)
-				{
-					damageAmount *= WeaponsGetDamage(iIndex);
-					knockbackAmount *= WeaponsGetKnockBack(iIndex);
-				}
-			}
+        // Apply hitgrops damage multiplier
+        if(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
+        {
+            int iHitIndex = HitgroupToIndex(GetEntData(victimIndex, g_iOffset_PlayerHitGroup));
+            if(iHitIndex != -1)
+            {
+                knockbackAmount *= HitgroupsGetKnockback(iHitIndex);
+            }
+        }
+        
+        // Gets the active weapon index from the client
+        int weaponIndex = GetEntDataEnt2(attackerIndex, g_iOffset_PlayerActiveWeapon);
+        
+        // Validate weapon
+        if(IsValidEdict(weaponIndex))
+        {
+            int iIndex = gWeaponData[weaponIndex];
+            if(iIndex != -1)
+            {
+                damageAmount *= WeaponsGetDamage(iIndex);
+                knockbackAmount *= WeaponsGetKnockBack(iIndex);
+            }
+        }
+        
+        // Apply level damage multiplier
+        if(gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+        {
+            damageAmount *= float(gClientData[attackerIndex][Client_Level]) * gCvarList[CVAR_LEVEL_DAMAGE_RATIO].FloatValue + 1.0;
+        }
 
-			// Apply knockback
-			DamageOnClientKnockBack(cBaseVictim, cBaseAttacker, damageAmount * knockbackAmount);
-		}
+        // Verify that the attacker is zombie 
+        if(gClientData[attackerIndex][Client_Zombie])
+        {
+            // If victim is zombies, then stop
+            if(gClientData[victimIndex][Client_Zombie])
+            {
+                // Block damage
+                return Plugin_Handled;
+            }
 
-		// Give rewards for applied damage
-		DamageOnClientAmmo(cBaseAttacker, damageAmount);
-		DamageOnClientExp(cBaseAttacker, damageAmount);
-		
-		// Call forward
-		API_OnClientDamaged(cBaseVictim->Index, cBaseAttacker->Index, damageAmount);
-	}
-	
-	//###########################################################################
+            // If the gamemode allow infection, then apply it
+            if(ModesIsInfection(gServerData[Server_RoundMode]))
+            {
+                // Infect victim
+                return DamageOnClientInfect(victimIndex, attackerIndex, damageAmount);
+            }
+        }
+        // Verify that the attacker is human 
+        else
+        {
+            // Apply knockback
+            DamageOnClientKnockBack(victimIndex, attackerIndex, damageAmount * knockbackAmount);
+        }
+        
+        // Give rewards for applied damage
+        DamageOnClientAmmo(attackerIndex, damageAmount);
+        DamageOnClientExp(attackerIndex, damageAmount);
+        
+        // If help messages enabled, show info
+        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "Damage info", GetClientHealth(victimIndex));
+    }
+    
+    // Call forward
+    API_OnClientDamaged(victimIndex, attackerIndex, damageAmount, damageBits);
 
-	
-	// Apply fake damage
-	return DamageOnClientFakeDamage(cBaseVictim, damageAmount);
+    // Apply fake damage
+    return DamageOnClientFakeDamage(victimIndex, damageAmount, damageBits);
 }
 
 /*
@@ -342,207 +254,218 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
 /**
  * Damage without pain shock.
  *
- * @param cBasePlayer		The client index.
- * @param damageAmount		The amount of damage inflicted. 
+ * @param clientIndex       The client index.
+ * @param damageAmount      The amount of damage inflicted. 
+ * @param damageBits        The type of damage inflicted.
  **/
-stock Action DamageOnClientFakeDamage(CBasePlayer* cBasePlayer, float damageAmount)
+stock Action DamageOnClientFakeDamage(int clientIndex, float damageAmount, int damageBits)
 {
-	// Get health
-	int healthAmount = cBasePlayer->m_iHealth;
-	
-	// Verify that the victim has a health
-	if(healthAmount)
-	{
-		// Count the damage
-		healthAmount -= RoundFloat(damageAmount);
-		
-		// If amount of damage to high, then stop
-		if(healthAmount <= 0)
-		{
-			// Allow damage
-			return ACTION_CHANGED;
-		}
-		else
-		{
-			// Set applied damage
-			cBasePlayer->m_iHealth = healthAmount;
-			
-			// Block damage
-			return ACTION_HANDLED;
-		}
-	}
-	else
-	{
-		// Allow damage
-		return ACTION_CHANGED;
-	}
+    // Verify that the damage is positive
+    if(!damageAmount)
+    {
+        // Block damage
+        return Plugin_Handled;
+    }
+    
+    // Forward event to modules
+    SoundsOnClientHurt(clientIndex, damageBits);
+    
+    // Gets health
+    int healthAmount = GetClientHealth(clientIndex);
+    
+    // Validate health
+    if(healthAmount)
+    {
+        // Count the damage
+        healthAmount -= RoundFloat(damageAmount);
+        
+        // If amount of damage to high, then stop
+        if(healthAmount <= 0)
+        {
+            // Allow damage
+            return Plugin_Changed;
+        }
+        else
+        {
+            // Sets applied damage
+            ToolsSetClientHealth(clientIndex, healthAmount);
+            
+            // Block damage
+            return Plugin_Handled;
+        }
+    }
+    else
+    {
+        // Allow damage
+        return Plugin_Changed;
+    }
 }
 
 /**
  * Reducing armor and infect the victim.
  *
- * @param cBaseVictim		The victim index.
- * @param cBaseAttacker		The attacker index.
- * @param damageAmount		The amount of damage inflicted. 
+ * @param victimIndex       The victim index.
+ * @param attackerIndex     The attacker index.
+ * @param damageAmount      The amount of damage inflicted. 
  **/
-stock Action DamageOnClientInfect(CBasePlayer* cBaseVictim, CBasePlayer* cBaseAttacker, float damageAmount)
+stock Action DamageOnClientInfect(int victimIndex, int attackerIndex, float damageAmount)
 {
-	// Last human need to be killed ?
-	if(!GetConVarBool(gCvarList[CVAR_HUMAN_LAST_INFECTION]) && fnGetHumans() <= 1)
-	{
-		// Allow damage
-		return ACTION_CONTINUE;
-	}
-	
-	// Human armor need to be reduced before infecting ?
-	if(GetConVarBool(gCvarList[CVAR_HUMAN_ARMOR_PROTECT]))
-	{
-		// Get armor
-		int armorAmount = cBaseVictim->m_iArmorValue;
+    // Last human need to be killed ?
+    if(!gCvarList[CVAR_HUMAN_LAST_INFECTION].BoolValue && fnGetHumans() <= 1)
+    {
+        // Allow damage
+        return Plugin_Changed;
+    }
+    
+    // Human armor need to be reduced before infecting ?
+    if(gCvarList[CVAR_HUMAN_ARMOR_PROTECT].BoolValue)
+    {
+        // Gets armor
+        int armorAmount = GetClientArmor(victimIndex);
 
-		// Verify that the victim has an armor
-		if(armorAmount)
-		{
-			// Count the damage
-			armorAmount -= RoundFloat(damageAmount);
-			
-			// Set a new armor amount
-			cBaseVictim->m_iArmorValue = (armorAmount < 0) ? 0 : armorAmount;
-			
-			// Block infection
-			return ACTION_HANDLED;
-		}
-	}
+        // Verify that the victim has an armor
+        if(armorAmount)
+        {
+            // Count the damage
+            armorAmount -= RoundFloat(damageAmount);
 
-	// Make a zombie
-	InfectHumanToZombie(cBaseVictim, cBaseAttacker);
+            // Sets a new armor amount
+            ToolsSetClientArmor(victimIndex, armorAmount < 0 ? 0 : armorAmount);
+            
+            // Block infection
+            return Plugin_Handled;
+        }
+    }
 
-	// Block damage
-	return ACTION_HANDLED;
+    // Make a zombie
+    ClassMakeZombie(victimIndex, attackerIndex);
+
+    // Block damage
+    return Plugin_Handled;
 }
 
 /** 
  * Set velocity knockback for applied damage.
  *
- * @param cBaseVictim		The client index.
- * @param cBaseAttacker		The attacker index.
- * @param knockbackAmount	The knockback multiplier.
+ * @param victimIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param knockbackAmount   The knockback multiplier.
  **/
-stock void DamageOnClientKnockBack(CBasePlayer* cBaseVictim, CBasePlayer* cBaseAttacker, float knockbackAmount)
+stock void DamageOnClientKnockBack(int victimIndex, int attackerIndex, float knockbackAmount)
 {
-	// If nemesis knockback disabled, then stop
-	if(!GetConVarBool(gCvarList[CVAR_NEMESIS_KNOCKBACK]) && cBaseVictim->m_bNemesis)
-	{
-		return;
-	}
-	
-	// Initialize vectors
-	static float vClientLoc[3]; static float vEyeAngle[3]; static float vAttackerLoc[3]; static float vVelocity[3];
-	
-	// Get victim's and attacker's position
-	cBaseVictim->m_flGetOrigin(vClientLoc);
-	cBaseAttacker->m_flGetEyeAngles(vEyeAngle);
-	cBaseAttacker->m_flGetEyePosition(vAttackerLoc);
+    // If nemesis knockback disabled, then stop
+    if(!gCvarList[CVAR_NEMESIS_KNOCKBACK].BoolValue && gClientData[victimIndex][Client_Nemesis])
+    {
+        return;
+    }
 
-	// Calculate knockback end-vector
-	TR_TraceRayFilter(vAttackerLoc, vEyeAngle, MASK_ALL, RayType_Infinite, FilterPlayers);
-	TR_GetEndPosition(vClientLoc);
-	
-	// Get vector from the given starting and ending points
-	MakeVectorFromPoints(vAttackerLoc, vClientLoc, vVelocity);
-	
-	// Normalize the vector (equal magnitude at varying distances)
-	NormalizeVector(vVelocity, vVelocity);
+    // Initialize vectors
+    static float vClientLoc[3]; static float vEyeAngle[3]; static float vAttackerLoc[3]; static float vVelocity[3];
 
-	// Apply the magnitude by scaling the vector
-	ScaleVector(vVelocity, knockbackAmount);
+    // Gets victim's and attacker's position
+    GetClientAbsOrigin(victimIndex, vClientLoc);
+    GetClientEyeAngles(attackerIndex, vEyeAngle);
+    GetClientEyePosition(attackerIndex, vAttackerLoc);
 
-	// Push the player
-	cBaseVictim->m_iTeleportPlayer(NULL_VECTOR, NULL_VECTOR, vVelocity);
+    // Calculate knockback end-vector
+    TR_TraceRayFilter(vAttackerLoc, vEyeAngle, MASK_ALL, RayType_Infinite, FilterNoPlayers);
+    TR_GetEndPosition(vClientLoc);
+
+    // Gets vector from the given starting and ending points
+    MakeVectorFromPoints(vAttackerLoc, vClientLoc, vVelocity);
+
+    // Normalize the vector (equal magnitude at varying distances)
+    NormalizeVector(vVelocity, vVelocity);
+
+    // Apply the magnitude by scaling the vector
+    ScaleVector(vVelocity, knockbackAmount);
+
+    // ADD the given vector to the client's current velocity
+    ToolsClientVelocity(victimIndex, vVelocity);
 }
 
 /**
  * Reward ammopacks for applied damage.
  *
- * @param cBasePlayer		The client index.
- * @param damageAmount		The amount of damage inflicted. 
+ * @param clientIndex       The client index.
+ * @param damageAmount      The amount of damage inflicted. 
  **/
-stock void DamageOnClientAmmo(CBasePlayer* cBasePlayer, float damageAmount)
+stock void DamageOnClientAmmo(int clientIndex, float damageAmount)
 {
-	// Initialize client applied damage
-	static int AppliedDamage[MAXPLAYERS+1];
-	
-	// Increment total damage
-	AppliedDamage[cBasePlayer->Index] += RoundFloat(damageAmount);
-	
-	// Counting bonuses
-	int nBonus = cBasePlayer->m_bZombie ? GetConVarInt(gCvarList[CVAR_BONUS_DAMAGE_ZOMBIE]) : cBasePlayer->m_bSurvivor ? GetConVarInt(gCvarList[CVAR_BONUS_DAMAGE_SURVIVOR]) : GetConVarInt(gCvarList[CVAR_BONUS_DAMAGE_HUMAN]);
+    // Initialize client applied damage
+    static int nAppliedDamage[MAXPLAYERS+1];
+    
+    // Increment total damage
+    nAppliedDamage[clientIndex] += RoundFloat(damageAmount);
+    
+    // Counting bonuses
+    int nBonus = gClientData[clientIndex][Client_Zombie] ? gCvarList[CVAR_BONUS_DAMAGE_ZOMBIE].IntValue : gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_BONUS_DAMAGE_SURVIVOR].IntValue : gCvarList[CVAR_BONUS_DAMAGE_HUMAN].IntValue;
 
-	// Validate bonus
-	if(!nBonus)
-	{
-		return;
-	}
-	
-	// Computing multiplier
-	int nMultipler = AppliedDamage[cBasePlayer->Index] / nBonus;
-	
-	// Validate multiplier
-	if(!nMultipler) 
-	{
-		return;
-	}
-	
-	// Give ammopacks for the attacker
-	cBasePlayer->m_nAmmoPacks += nMultipler;
-	
-	// Reset damage filter
-	AppliedDamage[cBasePlayer->Index] -= nMultipler * nBonus;
+    // Validate bonus
+    if(!nBonus)
+    {
+        return;
+    }
+    
+    // Computing multiplier
+    int nMultipler = nAppliedDamage[clientIndex] / nBonus;
+    
+    // Validate multiplier
+    if(!nMultipler) 
+    {
+        return;
+    }
+    
+    // Give ammopacks for the attacker
+    ToolsSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] + nMultipler);
+    
+    // Resets damage filter
+    nAppliedDamage[clientIndex] -= nMultipler * nBonus;
 }
 
 /**
  * Reward experience for applied damage.
  *
- * @param cBasePlayer		The client index.
- * @param damageAmount		The amount of damage inflicted. 
+ * @param clientIndex       The client index.
+ * @param damageAmount      The amount of damage inflicted. 
  **/
-stock void DamageOnClientExp(CBasePlayer* cBasePlayer, float damageAmount)
+stock void DamageOnClientExp(int clientIndex, float damageAmount)
 {
-	// If level system disabled, then stop
-	if(!GetConVarBool(gCvarList[CVAR_LEVEL_SYSTEM]))
-	{
-		return;
-	}
-	
-	// Initialize client applied damage
-	static int AppliedDamage[MAXPLAYERS+1];
-	
-	// Increment total damage
-	AppliedDamage[cBasePlayer->Index] += RoundFloat(damageAmount);
-	
-	// Counting bonuses
-	int nBonus = cBasePlayer->m_bZombie ? GetConVarInt(gCvarList[CVAR_LEVEL_DAMAGE_ZOMBIE]) : cBasePlayer->m_bSurvivor ? GetConVarInt(gCvarList[CVAR_LEVEL_DAMAGE_SURVIVOR]) : GetConVarInt(gCvarList[CVAR_LEVEL_DAMAGE_HUMAN]);
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+    
+    // Initialize client applied damage
+    static int nAppliedDamage[MAXPLAYERS+1];
+    
+    // Increment total damage
+    nAppliedDamage[clientIndex] += RoundFloat(damageAmount);
+    
+    // Counting bonuses
+    int nBonus = gClientData[clientIndex][Client_Zombie] ? gCvarList[CVAR_LEVEL_DAMAGE_ZOMBIE].IntValue : gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_LEVEL_DAMAGE_SURVIVOR].IntValue : gCvarList[CVAR_LEVEL_DAMAGE_HUMAN].IntValue;
 
-	// Validate bonus
-	if(!nBonus)
-	{
-		return;
-	}
-	
-	// Computing multiplier
-	int nMultipler = AppliedDamage[cBasePlayer->Index] / nBonus;
-	
-	// Validate multiplier
-	if(!nMultipler) 
-	{
-		return;
-	}
-	
-	// Give experience for the attacker
-	cBasePlayer->m_iExp += nMultipler;
-	
-	// Reset damage filter
-	AppliedDamage[cBasePlayer->Index] -= nMultipler * nBonus;
+    // Validate bonus
+    if(!nBonus)
+    {
+        return;
+    }
+    
+    // Computing multiplier
+    int nMultipler = nAppliedDamage[clientIndex] / nBonus;
+    
+    // Validate multiplier
+    if(!nMultipler) 
+    {
+        return;
+    }
+    
+    // Give experience for the attacker
+    LevelSystemOnSetExp(clientIndex, gClientData[clientIndex][Client_Exp] + nMultipler);
+    
+    // Resets damage filter
+    nAppliedDamage[clientIndex] -= nMultipler * nBonus;
 }
 
 /*
@@ -552,13 +475,13 @@ stock void DamageOnClientExp(CBasePlayer* cBasePlayer, float damageAmount)
 /**
  * Trace filter.
  *  
- * @param nEntity			The entity index.
- * @param contentsMask		The contents mask.
+ * @param entityIndex       The entity index.
+ * @param contentsMask      The contents mask.
  *
- * @return					True or false.
+ * @return                  True or false.
  **/
-public bool FilterPlayers(int nEntity, int contentsMask)
+public bool FilterNoPlayers(int entityIndex, int contentsMask)
 {
-	// If entity is a player, continue tracing
-	return !(1 <= nEntity <= MaxClients);
+    // If entity is a player, continue tracing
+    return !(1 <= entityIndex <= MaxClients);
 }

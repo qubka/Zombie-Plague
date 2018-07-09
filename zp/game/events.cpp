@@ -30,18 +30,19 @@
  **/
 void EventInit(/*void*/)
 {
-	// Hook server events
-	HookEvent("round_prestart", 		EventRoundPreStart,  		EventHookMode_Pre);
-	HookEvent("round_start", 			EventRoundStart, 			EventHookMode_Post);
-	HookEvent("round_end", 				EventRoundEnd, 	 			EventHookMode_Pre);
-	HookEvent("cs_win_panel_round", 	EventBlockBroadCast, 	 	EventHookMode_Pre);
+    // Hook server events
+    HookEvent("round_prestart",      EventRoundPreStart,    EventHookMode_Pre);
+    HookEvent("round_start",         EventRoundStart,       EventHookMode_Post);
+    HookEvent("round_end",           EventRoundEnd,         EventHookMode_Post);
+    HookEvent("cs_win_panel_round",  EventBlockBroadCast,   EventHookMode_Pre);
 
-	// Hook player events
-	HookEvent("player_spawn",      		EventPlayerSpawn, 			EventHookMode_Post);
-	HookEvent("player_death", 			EventPlayerDeath, 	 		EventHookMode_Post);
-	HookEvent("player_jump", 			EventPlayerJump,			EventHookMode_Post);
-	HookEvent("weapon_fire",			EventPlayerFire,		 	EventHookMode_Pre);
-	HookEvent("player_team", 			EventBlockBroadCast,		EventHookMode_Pre);
+    // Hook player events
+    HookEvent("player_spawn",        EventPlayerSpawn,      EventHookMode_Post);
+    HookEvent("player_death",        EventPlayerDeath,      EventHookMode_Pre);
+    HookEvent("player_jump",         EventPlayerJump,       EventHookMode_Post);
+    HookEvent("weapon_fire",         EventPlayerFire,       EventHookMode_Pre);
+    HookEvent("hostage_follows",     EventPlayerHostage,    EventHookMode_Post);
+    HookEvent("player_team",         EventBlockBroadCast,   EventHookMode_Pre);
 }
 
 /*
@@ -51,28 +52,29 @@ void EventInit(/*void*/)
 /**
  * Called once a client successfully connects.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex       The client index.
  **/
 public void OnClientConnected(int clientIndex)
 {
-	#define	ToolsOnClientConnect ToolsResetVars
-	
-	// Forward event to modules
-	ToolsOnClientConnect(clientIndex);
+    #define ToolsOnClientConnect ToolsResetVars
+    
+    // Forward event to modules
+    ToolsOnClientConnect(clientIndex);
 }
 
 /**
  * Called when a client is disconnected from the server.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex       The client index.
  **/
 public void OnClientDisconnect_Post(int clientIndex)
 {
-	#define ToolsOnClientDisconnect	ToolsResetVars
-	
-	// Forward event to modules
-	ToolsOnClientDisconnect(clientIndex);
-	RoundEndOnClientDisconnect();
+    #define ToolsOnClientDisconnect ToolsResetVars
+    
+    // Forward event to modules
+    DataBaseOnClientDisconnect(clientIndex);
+    ToolsOnClientDisconnect(clientIndex);
+    RoundEndOnClientDisconnect();
 }
 
 /**
@@ -82,14 +84,15 @@ public void OnClientDisconnect_Post(int clientIndex)
  * This callback is gauranteed to occur on all clients, and always 
  * after each OnClientPutInServer() call.
  * 
- * @param clientIndex		The client index. 
+ * @param clientIndex       The client index. 
  **/
 public void OnClientPostAdminCheck(int clientIndex)
 {
-	// Forward event to modules
-	DamageClientInit(clientIndex);
-	WeaponsClientInit(clientIndex);
-	AntiStickClientInit(clientIndex);
+    // Forward event to modules
+    DamageClientInit(clientIndex);
+    WeaponsClientInit(clientIndex);
+    AntiStickClientInit(clientIndex);
+    DataBaseClientInit(clientIndex);
 }
 
 /*
@@ -102,12 +105,12 @@ public void OnClientPostAdminCheck(int clientIndex)
  * 
  * @param gEventHook        The event handle.
  * @param gEventName        The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false ifnot.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventRoundPreStart(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventRoundPreStart(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Forward event to modules
-	RoundStartOnRoundPreStart();
+    // Forward event to modules
+    RoundStartOnRoundPreStart();
 }
 
 /**
@@ -116,176 +119,207 @@ public Action EventRoundPreStart(Event gEventHook, const char[] gEventName, bool
  * 
  * @param gEventHook        The event handle.
  * @param gEventName        The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false ifnot.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventRoundStart(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventRoundStart(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Forward event to modules
-	RoundStartOnRoundStart();
+    // Forward event to modules
+    RoundStartOnRoundStart();
+    SoundsOnRoundStart();
 }
 
 /**
  * Event callback (round_end)
  * The round is end.
  * 
- * @param gEventHook       	The event handle.
- * @param gEventName       	The name of the event.
- * @param dontBroadcast   	If true, event is broadcasted to all clients, false ifnot.
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventRoundEnd(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventRoundEnd(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Forward event to modules
-	RoundEndOnRoundEnd();
+    // Get all required event info.
+    int iReason = hEvent.GetInt("reason");
+
+    // Forward event to modules
+    RoundEndOnRoundEnd(iReason);
+    SoundsOnRoundEnd(iReason);
 }
 
 /**
  * Event callback (player_spawn)
- * Client is spawning.
+ * Client has been spawned.
  * 
- * @param gEventHook       	The event handle.
- * @param gEventName       	The name of the event.
- * @param dontBroadcast   	If true, event is broadcasted to all clients, false ifnot.
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerSpawn(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventPlayerSpawn(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Get all required event info
-	int clientIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return;
-	}
-	
-	// Forward event to modules
-	CvarsOnClientSpawn(clientIndex);
-	SpawnOnClientSpawn(clientIndex);
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    CvarsOnClientSpawn(clientIndex);
+    SpawnOnClientSpawn(clientIndex);
 }
 
 /**
  * Event callback (player_death)
  * Client has been killed.
  * 
- * @param gEventHook       	The event handle.
- * @param gEventName      	The name of the event.
- * @param dontBroadcast   	If true, event is broadcasted to all clients, false ifnot.
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerDeath(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Get the weapon name
-	static char sClassname[SMALL_LINE_LENGTH];
-	GetEventString(gEventHook, "weapon", sClassname, sizeof(sClassname));
+    // Gets all required event info
+    int victimIndex   = GetClientOfUserId(hEvent.GetInt("userid"));
+    int attackerIndex = GetClientOfUserId(hEvent.GetInt("attacker"));
+    
+    // Validate client
+    if(!IsPlayerExist(victimIndex, false))
+    {
+        // If the client isn't a player, a player really didn't die now. Some
+        // other mods might sent this event with bad data.
+        return Plugin_Handled;
+    }
 
-	// If client is being infected, then stop
-	if(StrEqual(sClassname, "weapon_claws"))
-	{
-		return ACTION_HANDLED;
-	}
+    // Forward event to modules
+    RagdollOnClientDeath(victimIndex);
+    SoundsOnClientDeath(victimIndex);
+    VEffectOnClientDeath(victimIndex);
+    WeaponsOnClientDeath(victimIndex);
+    DeathOnClientDeath(victimIndex, attackerIndex);
+    
+    // Allow death
+    return Plugin_Continue;
+}
 
-	// Get all required event info
-	int clientIndex   = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
-	int attackerIndex = GetClientOfUserId(GetEventInt(gEventHook, "attacker"));
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex, false))
-	{
-		// If the client isn't a player, a player really didn't die now. Some
-		// other mods might sent this event with bad data.
-		return ACTION_HANDLED;
-	}
-
-	// Forward event to modules
-	RagdollOnClientDeath(clientIndex);
-	DeathOnClientDeath(clientIndex, attackerIndex);
-	
-	// Allow death
-	return ACTION_CONTINUE;
+/**
+ * Event creation (player_death)
+ * Client has been killed. (Fake)
+ * 
+ * @param victimIndex       The victim index.
+ * @param attackerIndex     The attacker index.
+ **/
+public void EventFakePlayerDeath(int victimIndex, int attackerIndex)
+{
+    // Create and send custom death icon
+    Event hEvent = CreateEvent("player_death");
+    if(hEvent != INVALID_HANDLE)
+    {
+        // Sets event properties
+        hEvent.SetInt("userid", GetClientUserId(victimIndex));
+        hEvent.SetInt("attacker", GetClientUserId(attackerIndex));
+        hEvent.SetString("weapon", "weapon_claws");
+        hEvent.SetBool("headshot", true);
+        
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Send fake event
+            if(IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
+        }
+        
+        // Close it
+        hEvent.Close();
+    }
 }
 
 /**
  * Event callback (player_jump)
- * Client is jump.
+ * Client has been jumped.
  * 
- * @param gEventHook       	The event handle.
- * @param gEventName       	The name of the event.
- * @param dontBroadcast   	If true, event is broadcasted to all clients, false ifnot.
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerJump(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventPlayerJump(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Get all required event info
-	int clientIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	// Forward event to modules
-	JumpBoostOnClientJump(clientIndex);
+    // Forward event to modules
+    JumpBoostOnClientJump(clientIndex);
 }
 
 /**
  * Event callback (weapon_fire)
- * The player is shot.
+ * Client has been shooted.
  * 
- * @param gEventHook       	The event handle.
- * @param gEventName       	The name of the event.
- * @param dontBroadcast   	If true, event is broadcasted to all clients, false ifnot.
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerFire(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Get all required event info
-	int clientIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return;
-	}
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
 
-	// Get active weapon index
-	int weaponIndex = GetEntPropEnt(clientIndex, Prop_Data, "m_hActiveWeapon");
-	
-	// Forward event to modules
-	WeaponsOnFire(clientIndex, weaponIndex);
+    // Gets the active weapon index from the client
+    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    WeaponsOnFire(clientIndex, weaponIndex);
+}
+
+/**
+ * Event callback (hostage_follows)
+ * Client has been carried hostage.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action EventPlayerHostage(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    WeaponsOnHostage(clientIndex);
 }
 
 /**
  * Event callback (player_team), (cs_win_panel_round)
  * The block of the event's broadcast.
  * 
- * @param gEventHook       	The event handle.
- * @param gEventName       	The name of the event.
- * @param dontBroadcast   	If true, event is broadcasted to all clients, false ifnot.
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventBlockBroadCast(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action EventBlockBroadCast(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-	// Sets whether an event's broadcasting will be disabled
-	if(!dontBroadcast) 
-	{
-		// Disable broadcasting
-		SetEventBroadcast(gEventHook, true); 
-	}
-}
-
-/**
- * Called when a clients movement buttons are being processed.
- *  
- * @param clientIndex		The client index.
- * @param bitFlags          Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
- * @param iImpulse          Copyback buffer containing the current impulse command.
- * @param flVelocity        Players desired velocity.
- * @param flAngles 			Players desired view angles.	
- * @param weaponIndex		Entity index of the new weapon ifplayer switches weapon, 0 otherwise.
- * @param iSubType			Weapon subtype when selected from a menu.
- * @param iCmdNum			Command number. Increments from the first command sent.
- * @param iTickCount		Tick count. A client's prediction based on the server's GetGameTickCount value.
- * @param iSeed				Random seed. Used to determine weapon recoil, spread, and other predicted elements.
- * @param iMouse			Mouse direction (x, y).
- **/ 
-public Action OnPlayerRunCmd(int clientIndex, int &bitFlags, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponIndex, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
-{
-	// Validate client
-	if(!IsPlayerExist(clientIndex, false))
-	{
-		return ACTION_CONTINUE;
-	}
-	
-	// Forward event to modules
-	return RunCmdOnPlayerRunCmd(clientIndex, bitFlags, IsPlayerAlive(clientIndex));
+    // Sets whether an event's broadcasting will be disabled
+    if(!dontBroadcast) 
+    {
+        // Disable broadcasting
+        hEvent.BroadcastDisabled = true;
+    }
 }

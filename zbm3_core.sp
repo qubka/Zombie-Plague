@@ -10,11 +10,11 @@
  *  and remaked to Zombie Plague modification.
  *
  *  This project started back on late 2007, when the free infection mods
- *	around were quite buggy and MeRcyLeZZ wanted to make one big mode.
+ *    around were quite buggy and MeRcyLeZZ wanted to make one big mode.
  *  Acctually Zombie Plague was the most popular mode in Counter Strike 1.6
  *  So when I look on Zombie:Reloaded, I planned to port Zombie Plague mode
  *  to Counter Strike: Global Offensive. I hope you will enjoy playing.
- *	
+ *    
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -30,12 +30,14 @@
  *
  * ============================================================================
  */
+ 
+// Comment to remove a DHook module features (experimental branch)
+#define USE_DHOOKS
 
 // Sourcemod
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#include <cstrike>
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -48,42 +50,45 @@
 // Core
 #include "zp/core/log.cpp"  
 #include "zp/core/zombieplague.cpp" 
+#include "zp/core/debug.cpp" 
 #include "zp/core/config.cpp"
+#include "zp/core/database.cpp"
 #include "zp/core/translation.cpp"    
 #include "zp/core/paramparser.cpp" 
 
 // Visual effects 
-#include "zp/visualeffects/visualeffects.cpp" //!(Module)
-
-// Manager
-#include "zp/manager/zombieclasses.cpp"
-#include "zp/manager/humanclasses.cpp"
-#include "zp/manager/extraitems.cpp"
-#include "zp/manager/downloads.cpp"
-#include "zp/manager/weapons.cpp"
-#include "zp/manager/models.cpp"
-#include "zp/manager/sounds.cpp"
-#include "zp/manager/menus.cpp"
-
-// API
-#include "zp/api/api.cpp"
+#include "zp/manager/visualeffects/visualeffects.cpp" //!(Module)
 
 // Game
 #include "zp/game/events.cpp"
 #include "zp/game/antistick.cpp"
-#include "zp/game/gamemodes.cpp"
-#include "zp/game/playertools.cpp"
+#include "zp/game/tools.cpp"
 #include "zp/game/spawn.cpp"
 #include "zp/game/death.cpp"
 #include "zp/game/damage.cpp"
 #include "zp/game/roundstart.cpp"
 #include "zp/game/jumpboost.cpp"
 #include "zp/game/roundend.cpp"
-#include "zp/game/infect.cpp"
+#include "zp/game/class.cpp"
 #include "zp/game/skillsystem.cpp"
 #include "zp/game/runcmd.cpp"
 #include "zp/game/levelsystem.cpp"
 #include "zp/game/commands.cpp"
+
+// Manager
+#include "zp/manager/zombieclasses.cpp"
+#include "zp/manager/humanclasses.cpp"
+#include "zp/manager/extraitems.cpp"
+#include "zp/manager/downloads.cpp"
+#include "zp/manager/hitgroups.cpp"
+#include "zp/manager/weapons.cpp"
+#include "zp/manager/models.cpp"
+#include "zp/manager/sounds.cpp"
+#include "zp/manager/menus.cpp"
+#include "zp/manager/gamemodes.cpp"
+
+// API
+#include "zp/api/api.cpp"
 
 /* 
  * Thanks for code and ideas to Greyscale, Richard Helgeby and AlliedMods community :)
@@ -94,25 +99,25 @@
  **/
 public Plugin Zombie_Plague =
 {
-	name        	= PLUGIN_NAME,
-	author      	= PLUGIN_AUTHOR,
-	description 	= PLUGIN_COPYRIGHT,
-	version     	= PLUGIN_VERSION,
-	url         	= PLUGIN_LINK
+    name            = PLUGIN_NAME,
+    author          = PLUGIN_AUTHOR,
+    description     = PLUGIN_COPYRIGHT,
+    version         = PLUGIN_VERSION,
+    url             = PLUGIN_LINK
 }
 
 //*********************************************************************
 //*           Don't modify the code below this line unless            *
-//*          	 you know _exactly_ what you are doing!!!             *
+//*               you know _exactly_ what you are doing!!!             *
 //*********************************************************************
 
 /**
- * Called before plugin is loaded.
+    * Called before plugin is loaded.
  **/
 public APLRes AskPluginLoad2(Handle iMyself, bool bLate, char[] sError, int iErrorMax)
 {
-	// Load API
-	return APIInit();
+    // Load API
+    return APIInit();
 }
 
 /**
@@ -120,13 +125,16 @@ public APLRes AskPluginLoad2(Handle iMyself, bool bLate, char[] sError, int iErr
  **/
 public void OnPluginStart(/*void*/)
 {
-	// Forward event to modules
-	EventInit();
-	LogInit();
-	CommandsInit();
-	CvarsInit();
-	TranslationInit();
-	GameEngineInit();
+    // Forward event to modules
+    ConfigInit();
+    EventInit();
+    LogInit();
+    CommandsInit();
+    CvarsInit();
+    ToolsInit();
+    WeaponsInit();
+    TranslationInit();
+    GameEngineInit();
 }
 
 /**
@@ -134,18 +142,39 @@ public void OnPluginStart(/*void*/)
  **/
 public void OnMapStart(/*void*/)
 {
-	// Forward event to modules
-	ConfigLoad();
-	ModelsLoad();
-	MenusLoad();
-	SoundsLoad();
-	WeaponsLoad();
-	DownloadsLoad();
-	ZombieClassesLoad();
-	HumanClassesLoad();
-	ExtraItemsLoad();
-	LevelSystemLoad();
-	VEffectsLoad();
-	GameModesLoad();
-	VersionLoad();
+    // Forward event to modules
+    ConfigLoad();
+    ModelsLoad();
+    SoundsLoad();
+    WeaponsLoad();
+    DownloadsLoad();
+    ZombieClassesLoad();
+    HumanClassesLoad();
+    VEffectsLoad();
+    ExtraItemsLoad();
+    LevelSystemLoad();
+    GameModesLoad();
+    MenusLoad();
+    HitgroupsLoad();
+    DataBaseLoad();
+    VersionLoad();
+}
+
+/**
+ * The map is ending.
+ **/
+public void OnMapEnd(/*void*/)
+{
+    // Forward event to modules
+    ToolsPurge();
+}
+
+/**
+ * Plugin is unload.
+ **/
+public void OnPluginEnd(/*void*/)
+{
+    // Forward event to modules
+    WeaponsUnload();
+    DataBaseUnload();
 }

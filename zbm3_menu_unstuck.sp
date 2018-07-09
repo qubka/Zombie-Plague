@@ -24,7 +24,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -34,15 +33,15 @@
  **/
 public Plugin UnStuck =
 {
-	name        	= "[ZP] Menu: UnStuck",
-	author      	= "qubka (Nikita Ushakov)", 	
-	description 	= "Menu for unstucking player and teleport them on respawn point",
-	version     	= "1.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] Menu: UnStuck",
+    author          = "qubka (Nikita Ushakov)",     
+    description     = "Menu for unstucking player and teleport them on respawn point",
+    version         = "1.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 // Array to store spawn origin
-float gOrigin[MAXPLAYERS+1][3];
+float gPosition[MAXPLAYERS+1][3];
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -51,89 +50,72 @@ float gOrigin[MAXPLAYERS+1][3];
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Create a command
         RegConsoleCmd("zstuck", Command_Unstuck, "Unstuck player from the another entity.");
-        
-        // Hook spawn event
-        HookEvent("player_spawn", EventPlayerSpawn, EventHookMode_Post);
     }
 }
 
 /**
  * Handles the zstuck command. Unstuck player from the another entity.
  * 
- * @param clientIndex		The client index.
- * @param iArguments		The number of arguments that were in the argument string.
+ * @param clientIndex       The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
  **/ 
 public Action Command_Unstuck(int clientIndex, int iArguments)
 {
-	#pragma unused clientIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return;
-	}
-	
-	/* 
-	 * Checks to see if a player would collide with MASK_SOLID. (i.e. they would be stuck)
-	 * Inflates player mins/maxs a little bit for better protection against sticking.
-	 * Thanks to Andersso for the basis of this function.
-	 */
-	
-	// Initialize vector variables
-	float flOrigin[3];
-	float flMax[3]; 
-	float flMin[3]; 
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    /* 
+     * Checks to see if a player would collide with MASK_SOLID. (i.e. they would be stuck)
+     * Inflates player mins/maxs a little bit for better protection against sticking.
+     * Thanks to Andersso for the basis of this function.
+     */
+    
+    // Initialize vector variables
+    static float vPosition[3]; static float vMax[3]; static float vMin[3]; 
 
-	// Get client's location
-	GetClientAbsOrigin(clientIndex, flOrigin);
-	
-	// Get the client's min and max size vector
-	GetClientMins(clientIndex, flMin);
-	GetClientMaxs(clientIndex, flMax);
+    // Gets client's location
+    GetClientAbsOrigin(clientIndex, vPosition);
+    
+    // Gets the client's min and max size vector
+    GetClientMins(clientIndex, vMin);
+    GetClientMaxs(clientIndex, vMax);
 
-	// Starts up a new trace hull using a global trace result and a customized trace ray filter
-	TR_TraceHullFilter(flOrigin, flOrigin, flMin, flMax, MASK_SOLID, FilterStuck, clientIndex);
+    // Starts up a new trace hull using a global trace result and a customized trace ray filter
+    TR_TraceHullFilter(vPosition, vPosition, vMin, vMax, MASK_SOLID, FilterStuck, clientIndex);
 
-	// Returns if there was any kind of collision along the trace ray
-	if(TR_DidHit())
-	{
-		// Teleport player back on the previus spawn point
-		TeleportEntity(clientIndex, gOrigin[clientIndex], NULL_VECTOR, NULL_VECTOR);
-	}
-	else
-	{
-		// Emit fail sound
-		ClientCommand(clientIndex, "play buttons/button11.wav");	
-	}
+    // Returns if there was any kind of collision along the trace ray
+    if(TR_DidHit())
+    {
+        // Teleport player back on the previus spawn point
+        TeleportEntity(clientIndex, gPosition[clientIndex], NULL_VECTOR, NULL_VECTOR);
+    }
+    else
+    {
+        // Emit fail sound
+        ClientCommand(clientIndex, "play buttons/button11.wav");    
+    }
 }
 
 /**
- * Event callback (player_spawn)
- * The player is spawning.
+ * Called when a client became a human/survivor.
  * 
- * @param gEventHook        The event handle.
- * @param gEventName        The name of the event.
- * @dontBroadcast   	    If true, event is broadcasted to all clients, false if not.
+ * @param clientIndex       The client index.
  **/
-public Action EventPlayerSpawn(Event gEventHook, const char[] gEventName, bool dontBroadcast)
+public void ZP_OnClientHumanized(int clientIndex)
 {
-	// Get real player index from event key
-	int clientIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid")); 
-
-	#pragma unused clientIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return;
-	}
-	
-	// Get client's position
-	GetClientAbsOrigin(clientIndex, gOrigin[clientIndex]);
+    // Validate client
+    if(IsPlayerExist(clientIndex))
+    {
+        // Gets client's position
+        GetClientAbsOrigin(clientIndex, gPosition[clientIndex]);
+    }   
 }
 
 
@@ -145,9 +127,9 @@ public Action EventPlayerSpawn(Event gEventHook, const char[] gEventName, bool d
 /**
  * Trace filter.
  *
- * @param clientIndex		The client index.
- * @param contentsMask		The contents mask.
- * @param hitIndex		    The hit index.
+ * @param clientIndex       The client index.
+ * @param contentsMask      The contents mask.
+ * @param hitIndex          The hit index.
  **/
 public bool FilterStuck(int clientIndex, int contentsMask, any hitIndex) 
 {

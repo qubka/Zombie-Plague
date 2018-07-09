@@ -26,142 +26,108 @@
  **/
  
 /**
- * Event callback (player_death)
- * The player is about to die.
+ * Client has been killed.
  * 
- * @param victimIndex		The victim index.
- * @param attackerIndex		The attacker index.
+ * @param victimIndex       The victim index.
+ * @param attackerIndex     The attacker index.
  **/
 void DeathOnClientDeath(int victimIndex, int attackerIndex)
 {
-	// Get real player index from event key
-	CBasePlayer* cBaseVictim  = CBasePlayer(victimIndex);
-	CBasePlayer* cBaseAttacker = CBasePlayer(attackerIndex);
+    // Resets some tools
+    ToolsResetTimers(victimIndex);
+    ToolsSetClientDetecting(victimIndex, false);
+    ToolsSetClientFlashLight(victimIndex, false);
+    ToolsSetClientHud(victimIndex, true);
 
-	//*********************************************************************
-	//*           			EMIT ZOMBIE DEATH SOUNDS           			  *
-	//*********************************************************************
-	
-	// Is zombie died ?
-	if(cBaseVictim->m_bZombie)
-	{
-		// Emit zombie death sound
-		cBaseVictim->InputEmitAISound(SNDCHAN_STATIC, SNDLEVEL_NORMAL, cBaseVictim->m_bNemesis ? "ZOMBIE_NEMESIS_DEATH_SOUNDS" : (ZombieIsFemale(cBaseVictim->m_nZombieClass) ? "ZOMBIE_FEMALE_DEATH_SOUNDS" : "ZOMBIE_DEATH_SOUNDS"));
-	}
-	else
-	{
-		// Emit human death sound
-		cBaseVictim->InputEmitAISound(SNDCHAN_STATIC, SNDLEVEL_NORMAL, cBaseVictim->m_bSurvivor ? "HUMAN_SURVIVOR_DEATH_SOUNDS" : (HumanIsFemale(cBaseVictim->m_nHumanClass) ? "HUMAN_FEMALE_DEATH_SOUNDS" : "HUMAN_DEATH_SOUNDS"));
-	}
-	
-	//*********************************************************************
-	//*                  UPDATE VARIABLES OF THE PLAYER           		  *
-	//*********************************************************************
-	
-	// Reset all timers
-	ToolsResetTimers(cBaseVictim);
-	
-	// Reset some variables
-	cBaseVictim->m_bNightVisionOn = 0;
-	cBaseVictim->m_bSetGlow(false);
+    // Update or clean screen overlay
+    ///VOverlayOnClientUpdate(victimIndex, Overlay_Reset);
+    
+    // Validate round
+    if(!RoundEndOnValidate())
+    {
+        // Player was killed by other ?
+        if(victimIndex != attackerIndex) 
+        {
+            // If respawn amount more, than limit, stop
+            if(gClientData[victimIndex][Client_RespawnTimes] > gCvarList[CVAR_RESPAWN_AMOUNT].IntValue)
+            {
+                return;
+            }
+            
+            // Verify that the attacker is exist
+            if(IsPlayerExist(attackerIndex))
+            {
+                // Increment exp and bonuses
+                if(gClientData[victimIndex][Client_Zombie])
+                {
+                    ToolsSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + (gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_BONUS_KILL_NEMESIS].IntValue : gCvarList[CVAR_BONUS_KILL_ZOMBIE].IntValue));
+                    LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex][Client_Exp] + (gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_LEVEL_KILL_NEMESIS].IntValue : gCvarList[CVAR_LEVEL_KILL_ZOMBIE].IntValue));
+                }
+                else
+                {
+                    ToolsSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + (gClientData[victimIndex][Client_Survivor] ? gCvarList[CVAR_BONUS_KILL_SURVIVOR].IntValue : gCvarList[CVAR_BONUS_KILL_HUMAN].IntValue));
+                    LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex][Client_Exp] + (gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_LEVEL_KILL_NEMESIS].IntValue : gCvarList[CVAR_LEVEL_KILL_HUMAN].IntValue));
+                }
+            }
+        }
+        // If player was killed by world, respawn on suicide?
+        else if(!gCvarList[CVAR_RESPAWN_WORLD].BoolValue)
+        {
+            return;
+        }
 
-	// Validate round
-	if(!RoundEndOnValidate())
-	{
-		// Player was killed by other ?
-		if(cBaseVictim != cBaseAttacker) 
-		{
-			// If respawn amount more, than limit, stop
-			if(cBaseVictim->m_nRespawnTimes > GetConVarInt(gCvarList[CVAR_RESPAWN_AMOUNT]))
-			{
-				return;
-			}
-			
-			// Verify that the attacker is exist
-			if(IsPlayerExist(cBaseAttacker->Index))
-			{
-				// Increment exp and bonuses
-				if(cBaseVictim->m_bZombie)
-				{
-					cBaseAttacker->m_nAmmoPacks += cBaseVictim->m_bNemesis ? GetConVarInt(gCvarList[CVAR_BONUS_KILL_NEMESIS]) : GetConVarInt(gCvarList[CVAR_BONUS_KILL_ZOMBIE]);
-					if(GetConVarBool(gCvarList[CVAR_LEVEL_SYSTEM])) cBaseAttacker->m_iExp += cBaseVictim->m_bNemesis ? GetConVarInt(gCvarList[CVAR_LEVEL_KILL_NEMESIS]) : GetConVarInt(gCvarList[CVAR_LEVEL_KILL_ZOMBIE]);
-				}
-				else
-				{
-					cBaseAttacker->m_nAmmoPacks += cBaseVictim->m_bSurvivor ? GetConVarInt(gCvarList[CVAR_BONUS_KILL_SURVIVOR]) : GetConVarInt(gCvarList[CVAR_BONUS_KILL_HUMAN]);
-					if(GetConVarBool(gCvarList[CVAR_LEVEL_SYSTEM])) cBaseAttacker->m_iExp += cBaseVictim->m_bNemesis ? GetConVarInt(gCvarList[CVAR_LEVEL_KILL_NEMESIS]) : GetConVarInt(gCvarList[CVAR_LEVEL_KILL_HUMAN]);
-				}
-			}
-		}
-		// If player was killed by world, respawn on suicide?
-		else if(!GetConVarBool(gCvarList[CVAR_RESPAWN_WORLD]))
-		{
-			return;
-		}
-
-		// Respawn ifhuman/zombie/nemesis/survivor?
-		if((cBaseVictim->m_bZombie && !cBaseVictim->m_bNemesis && !GetConVarBool(gCvarList[CVAR_RESPAWN_ZOMBIE])) || (!cBaseVictim->m_bZombie && !cBaseVictim->m_bSurvivor && !GetConVarBool(gCvarList[CVAR_RESPAWN_HUMAN])) || (cBaseVictim->m_bNemesis && !GetConVarBool(gCvarList[CVAR_RESPAWN_NEMESIS])) || (cBaseVictim->m_bSurvivor && !GetConVarBool(gCvarList[CVAR_RESPAWN_SURVIVOR])))
-		{
-			return;
-		}
-		
-		// Increment count
-		cBaseVictim->m_nRespawnTimes++;
-		
-		// Set timer for respawn player
-		delete cBaseVictim->m_hZombieRespawnTimer;
-		cBaseVictim->m_hZombieRespawnTimer = CreateTimer(GetConVarFloat(gCvarList[CVAR_RESPAWN_TIME]), DeathOnRespawnZombie, cBaseVictim, TIMER_FLAG_NO_MAPCHANGE);
-	}
+        // Respawn if human/zombie/nemesis/survivor?
+        if((gClientData[victimIndex][Client_Zombie] && !gClientData[victimIndex][Client_Nemesis] && !gCvarList[CVAR_RESPAWN_ZOMBIE].BoolValue) || (!gClientData[victimIndex][Client_Zombie] && !gClientData[victimIndex][Client_Survivor] && !gCvarList[CVAR_RESPAWN_HUMAN].BoolValue) || (gClientData[victimIndex][Client_Nemesis] && !gCvarList[CVAR_RESPAWN_NEMESIS].BoolValue) || (gClientData[victimIndex][Client_Survivor] && !gCvarList[CVAR_RESPAWN_SURVIVOR].BoolValue))
+        {
+            return;
+        }
+        
+        // Increment count
+        gClientData[victimIndex][Client_RespawnTimes]++;
+        
+        // Sets timer for respawn player
+        delete gClientData[victimIndex][Client_RespawnTimer];
+        gClientData[victimIndex][Client_RespawnTimer] = CreateTimer(gCvarList[CVAR_RESPAWN_TIME].FloatValue, DeathOnRespawn, GetClientUserId(victimIndex), TIMER_FLAG_NO_MAPCHANGE);
+    }
 }
 
 /**
  * The player is about to respawn.
  *
- * @param hTimer     	 The timer handle.
- * @param cBaseVictim	 The victim index.
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
  **/
-public Action DeathOnRespawnZombie(Handle hTimer, CBasePlayer* cBaseVictim)
+public Action DeathOnRespawn(Handle hTimer, int userID)
 {
-	// Clear timer
-	cBaseVictim->m_hZombieRespawnTimer = NULL;	
-	
-	// If mode doesn't started yet, then stop
-	if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
-	{
-		return ACTION_STOP;
-	}
-		
-	// Validate client
-	if(!IsPlayerExist(cBaseVictim->Index, false))
-	{
-		return ACTION_STOP;
-	}
-	
-	// Verify that the client is dead
-	if(IsPlayerAlive(cBaseVictim->Index))
-	{
-		return ACTION_STOP;
-	}
-	
-	// Respawn player automatically ifallowed on current round
-	if((gServerData[Server_RoundMode] != GameModes_Survivor || GetConVarBool(gCvarList[CVAR_RESPAWN_ALLOW_SURVIVOR])) && (gServerData[Server_RoundMode] != GameModes_Swarm || GetConVarBool(gCvarList[CVAR_RESPAWN_ALLOW_SWARM])) && (gServerData[Server_RoundMode] != GameModes_Nemesis || GetConVarBool(gCvarList[CVAR_RESPAWN_ALLOW_NEMESIS])))
-	{
-		// Infection rounds = none of the above
-		if(!GetConVarBool(gCvarList[CVAR_RESPAWN_INFETION]) && gServerData[Server_RoundMode] != GameModes_Survivor && gServerData[Server_RoundMode] != GameModes_Swarm && gServerData[Server_RoundMode] != GameModes_Nemesis && gServerData[Server_RoundMode] != GameModes_Armageddon)
-		{
-			return ACTION_STOP;
-		}
-		
-		// Respawn ifonly the last human is left? (ignore this setting on survivor rounds)
-		if(gServerData[Server_RoundMode] != GameModes_Survivor && !GetConVarBool(gCvarList[CVAR_RESPAWN_LAST]) && fnGetHumans() <= 1)
-		{
-			return ACTION_STOP;
-		}
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
 
-		// Respawn a player
-		ToolsForceToRespawn(cBaseVictim);
-	}
-	
-	// Destroy timer
-	return ACTION_STOP;
+    // Clear timer
+    gClientData[clientIndex][Client_RespawnTimer] = INVALID_HANDLE;    
+    
+    // Validate client
+    if(clientIndex)
+    {
+        // If mode doesn't started yet, then stop
+        if(gServerData[Server_RoundNew] || gServerData[Server_RoundEnd])
+        {
+            return Plugin_Stop;
+        }
+
+        // Respawn player automatically, if allowed on the current game mode
+        if(ModesIsRespawn(gServerData[Server_RoundMode]))
+        {
+            // Respawn if only the last human/zombie is left? (ignore this setting on survivor/nemesis rounds)
+            if((!ModesIsSurvivor(gServerData[Server_RoundMode]) && !gCvarList[CVAR_RESPAWN_LAST].BoolValue && fnGetHumans() <= 1) || (!ModesIsNemesis(gServerData[Server_RoundMode]) && !gCvarList[CVAR_RESPAWN_LAST].BoolValue && fnGetZombies() <= 1))
+            {
+                return Plugin_Stop;
+            }
+
+            // Respawn a player
+            ToolsForceToRespawn(clientIndex);
+        }
+    }
+    
+    // Destroy timer
+    return Plugin_Stop;
 }

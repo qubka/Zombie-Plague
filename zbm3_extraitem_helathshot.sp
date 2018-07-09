@@ -24,7 +24,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -34,21 +33,21 @@
  **/
 public Plugin HealthShot =
 {
-	name        	= "[ZP] ExtraItem: Health Shot",
-	author      	= "qubka (Nikita Ushakov)", 	
-	description 	= "Addon of extra items",
-	version     	= "1.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] ExtraItem: Health Shot",
+    author          = "qubka (Nikita Ushakov)",     
+    description     = "Addon of extra items",
+    version         = "1.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME				"@Medi Shot" // If string has @, phrase will be taken from translation file		
-#define EXTRA_ITEM_COST				1
-#define EXTRA_ITEM_LEVEL			0
-#define EXTRA_ITEM_ONLINE			0
-#define EXTRA_ITEM_LIMIT			0
+#define EXTRA_ITEM_NAME                "Medi Shot" // Only will be taken from translation file        
+#define EXTRA_ITEM_COST                1
+#define EXTRA_ITEM_LEVEL               0
+#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LIMIT               0
 /**
  * @endsection
  **/
@@ -64,46 +63,94 @@ int iItem;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        
+        // Hook player events
+        HookEvent("weapon_fire", EventPlayerFire, EventHookMode_Post);
     }
+}
+
+/**
+ * Event callback (weapon_fire)
+ * Client has been shot.
+ * 
+ * @param hEvent            The event handle.
+ * @param sName             The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets real player index from event key
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid")); 
+
+    // Validate client
+    if(IsPlayerExist(clientIndex))
+    {
+        // Gets weapon name from event key
+        static char sClassname[NORMAL_LINE_LENGTH];
+        hEvent.GetString("weapon", sClassname, sizeof(sClassname));
+        
+        // Validate healthshot
+        if(!strcmp(sClassname[7], "health", false))
+        {
+            // Create an effect
+            FakeCreateParticle(clientIndex, _, "heal_ss", 1.5);
+        }
+    }
+}
+
+/**
+ * Called before show an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ *
+ * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
+ **/
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // If you don't allowed to buy, then stop
+        if(IsPlayerHasWeapon(clientIndex, "MediShot") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Handled;
+        }
+    }
+
+    // Allow showing
+    return Plugin_Continue;
 }
 
 /**
  * Called after select an extraitem in the equipment menu.
  * 
- * @param clientIndex		The client index.
- * @param extraitemIndex	The index of extraitem from ZP_RegisterExtraItem() native.
- *
- * @return					Plugin_Handled or Plugin_Stop to block purhase. Anything else
- *                          	(like Plugin_Continue) to allow purhase and taking ammopacks.
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
  **/
-public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-	#pragma unused clientIndex, extraitemIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Handled;
-	}
-	
-	// Check the item's index
-	if(extraitemIndex == iItem)
-	{
-		// If you don't allowed to buy, then return ammopacks
-		if(IsPlayerHasWeapon(clientIndex, "weapon_healthshot") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
-		{
-			return Plugin_Handled;
-		}
-		
-		// Give item and select it
-		GivePlayerItem(clientIndex, "weapon_healthshot");
-		FakeClientCommandEx(clientIndex, "use weapon_healthshot");
-	}
-	
-	// Allow buying
-	return Plugin_Continue;
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // Give item and select it
+        ZP_GiveClientWeapon(clientIndex, "MediShot");
+    }
 }

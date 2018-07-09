@@ -24,7 +24,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -34,34 +33,46 @@
  **/
 public Plugin ZombieClassTank =
 {
-	name        	= "[ZP] Zombie Class: Tank",
-	author      	= "qubka (Nikita Ushakov)",
-	description 	= "Addon of zombie classses",
-	version     	= "4.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] Zombie Class: Tank",
+    author          = "qubka (Nikita Ushakov)",
+    description     = "Addon of zombie classses",
+    version         = "4.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME				"@Tank" // If string has @, phrase will be taken from translation file	
-#define ZOMBIE_CLASS_MODEL				"models/player/custom_player/zombie/sherif/sherif.mdl"
-#define ZOMBIE_CLASS_CLAW				"models/player/custom_player/zombie/sherif/hand/hand_zombie_normal.mdl"
-#define ZOMBIE_CLASS_HEALTH				8000
-#define ZOMBIE_CLASS_SPEED				0.8
-#define ZOMBIE_CLASS_GRAVITY			1.0
-#define ZOMBIE_CLASS_KNOCKBACK			0.5
-#define ZOMBIE_CLASS_LEVEL				1
-#define ZOMBIE_CLASS_FEMALE				NO
-#define ZOMBIE_CLASS_VIP				NO
-#define ZOMBIE_CLASS_DURATION			3	
-#define ZOMBIE_CLASS_COUNTDOWN			40
-#define ZOMBIE_CLASS_REGEN_HEALTH		400
-#define ZOMBIE_CLASS_REGEN_INTERVAL		2.0
+#define ZOMBIE_CLASS_NAME               "Tank" // Only will be taken from translation file    
+#define ZOMBIE_CLASS_INFO               "TankInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/sherif/sherif.mdl"
+#define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/sherif/hand_v2/hand_zombie_sherif.mdl"
+#define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/sherif/grenade/grenade_zombie_sherif.mdl"    
+#define ZOMBIE_CLASS_HEALTH             10000
+#define ZOMBIE_CLASS_SPEED              0.8
+#define ZOMBIE_CLASS_GRAVITY            1.0
+#define ZOMBIE_CLASS_KNOCKBACK          0.5
+#define ZOMBIE_CLASS_LEVEL              1
+#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_DURATION           4.0    
+#define ZOMBIE_CLASS_COUNTDOWN          40.0
+#define ZOMBIE_CLASS_REGEN_HEALTH       400
+#define ZOMBIE_CLASS_REGEN_INTERVAL     6.0
+#define ZOMBIE_CLASS_SOUND_DEATH        "ZOMBIE_DEATH_SOUNDS"
+#define ZOMBIE_CLASS_SOUND_HURT         "ZOMBIE_HURT_SOUNDS"
+#define ZOMBIE_CLASS_SOUND_IDLE         "ZOMBIE_IDLE_SOUNDS"
+#define ZOMBIE_CLASS_SOUND_RESPAWN      "ZOMBIE_RESPAWN_SOUNDS"
+#define ZOMBIE_CLASS_SOUND_BURN         "ZOMBIE_BURN_SOUNDS"
+#define ZOMBIE_CLASS_SOUND_ATTACK       "ZOMBIE_ATTACK_SOUNDS"
+#define ZOMBIE_CLASS_SOUND_FOOTSTEP     "ZOMBIE_FOOTSTEP_SOUNDS"
+#define ZOMBIE_CLASS_SOUND_REGEN        "ZOMBIE_REGEN_SOUNDS"
 /**
  * @endsection
  **/
 
+// ConVar for sound level
+ConVar hSoundLevel;
+ 
 // Initialize zombie class index
 int gZombieTank; 
 #pragma unused gZombieTank
@@ -73,23 +84,32 @@ int gZombieTank;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate zombie class
-        gZombieTank = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME, 
+        gZombieTank = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
-        ZOMBIE_CLASS_CLAW, 
+        ZOMBIE_CLASS_CLAW,  
+        ZOMBIE_CLASS_GRENADE,
         ZOMBIE_CLASS_HEALTH, 
         ZOMBIE_CLASS_SPEED, 
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_FEMALE,
         ZOMBIE_CLASS_VIP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
-        ZOMBIE_CLASS_REGEN_INTERVAL);
+        ZOMBIE_CLASS_REGEN_INTERVAL,
+        ZOMBIE_CLASS_SOUND_DEATH,
+        ZOMBIE_CLASS_SOUND_HURT,
+        ZOMBIE_CLASS_SOUND_IDLE,
+        ZOMBIE_CLASS_SOUND_RESPAWN,
+        ZOMBIE_CLASS_SOUND_BURN,
+        ZOMBIE_CLASS_SOUND_ATTACK,
+        ZOMBIE_CLASS_SOUND_FOOTSTEP,
+        ZOMBIE_CLASS_SOUND_REGEN);
     }
 }
 
@@ -98,95 +118,84 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void OnMapStart(/*void*/)
 {
-	// Sounds
-	FakePrecacheSound("zbm3/zombi_pressure.mp3");
-	FakePrecacheSound("zbm3/zombi_pressure_female.mp3");
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
  * Called when a client use a zombie skill.
  * 
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  *
- * @return					Plugin_Handled to block using skill. Anything else
- *                          	(like Plugin_Continue) to allow use.
+ * @return                   Plugin_Handled to block using skill. Anything else
+ *                              (like Plugin_Continue) to allow use.
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-	#pragma unused clientIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Handled;
-	}
-	
-	// Validate the zombie class index
-	if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
-	{
-		// Set color
-		SetEntityRenderMode(clientIndex, RENDER_TRANSCOLOR);  
-		SetEntityRenderColor(clientIndex, 0, 0, 0, 255);
-		
-		// Emit sound
-		EmitSoundToAll("*/zbm3/zombi_pressure.mp3", clientIndex, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-	}
-	
-	// Allow usage
-	return Plugin_Continue;
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Validate the zombie class index
+    if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
+    {
+        // Emit sound
+        EmitSoundToAll("*/zbm3/zombi_pressure.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        
+        // Create an effect
+        FakeCreateParticle(clientIndex, _, "cloud", ZOMBIE_CLASS_DURATION);
+    }
+    
+    // Allow usage
+    return Plugin_Continue;
 }
 
 /**
  * Called when a zombie skill duration is over.
  * 
- * @param clientIndex		The client index.
+ * @param clientIndex        The client index.
  **/
 public void ZP_OnClientSkillOver(int clientIndex)
 {
-	#pragma unused clientIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return;
-	}
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
 
-	// Validate the zombie class index
-	if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
-	{
-		// Remove color
-		SetEntityRenderMode(clientIndex, RENDER_TRANSCOLOR);  
-		SetEntityRenderColor(clientIndex, 255, 255, 255, 255); 
-		
-		// Emit sound
-		EmitSoundToAll("*/zbm3/zombi_pressure_female.mp3", clientIndex, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-	}
+    // Validate the zombie class index
+    if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
+    {
+        // Emit sound
+        EmitSoundToAll("*/zbm3/zombi_pressure_female.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+    }
 }
 
 /**
  * Called when a client take a fake damage.
  * 
- * @param clientIndex		The client index.
- * @param attackerIndex		The attacker index.
- * @param damageAmount		The amount of damage inflicted.
+ * @param clientIndex        The client index.
+ * @param attackerIndex      The attacker index.
+ * @param damageAmount       The amount of damage inflicted.
+ * @param damageType         The ditfield of damage types
  **/
-public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount)
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType)
 {
-	#pragma unused clientIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return;
-	}
-	
-	// If client used the zombie skill, then stop appling damage
-	if(ZP_IsPlayerZombie(clientIndex))
-	{
-		// Validate the zombie class index
-		if(ZP_GetClientZombieClass(clientIndex) == gZombieTank && ZP_IsPlayerUseZombieSkill(clientIndex))
-		{
-			damageAmount *= 0.1;
-		}
-	}
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // If client used the zombie skill, then stop appling damage
+    if(ZP_IsPlayerZombie(clientIndex))
+    {
+        // Validate the zombie class index
+        if(ZP_GetClientZombieClass(clientIndex) == gZombieTank && ZP_IsPlayerUseZombieSkill(clientIndex))
+        {
+            damageAmount *= 0.1;
+        }
+    }
 }

@@ -24,7 +24,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -34,21 +33,21 @@
  **/
 public Plugin IncGrenade =
 {
-	name        	= "[ZP] ExtraItem: IncGrenade",
-	author      	= "qubka (Nikita Ushakov)", 	
-	description 	= "Addon of extra items",
-	version     	= "1.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] ExtraItem: IncGrenade",
+    author          = "qubka (Nikita Ushakov)",     
+    description     = "Addon of extra items",
+    version         = "1.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME				"@IncGrenade" // If string has @, phrase will be taken from translation file		
-#define EXTRA_ITEM_COST				5
-#define EXTRA_ITEM_LEVEL			0
-#define EXTRA_ITEM_ONLINE			0
-#define EXTRA_ITEM_LIMIT			0
+#define EXTRA_ITEM_NAME                "IncGrenade" // Only will be taken from translation file        
+#define EXTRA_ITEM_COST                5
+#define EXTRA_ITEM_LEVEL               0
+#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LIMIT               0
 /**
  * @endsection
  **/
@@ -64,46 +63,62 @@ int iItem;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
+}
+
+/**
+ * Called before show an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ *
+ * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
+ **/
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // If you don't allowed to buy, then stop
+        if(IsPlayerHasWeapon(clientIndex, "IncNade") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Handled;
+        }
+    }
+
+    // Allow showing
+    return Plugin_Continue;
 }
 
 /**
  * Called after select an extraitem in the equipment menu.
  * 
- * @param clientIndex		The client index.
- * @param extraitemIndex	The index of extraitem from ZP_RegisterExtraItem() native.
- *
- * @return					Plugin_Handled or Plugin_Stop to block purhase. Anything else
- *                          	(like Plugin_Continue) to allow purhase and taking ammopacks.
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
  **/
-public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-	#pragma unused clientIndex, extraitemIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Handled;
-	}
-	
-	// Check the item's index
-	if(extraitemIndex == iItem)
-	{
-		// If you don't allowed to buy, then return ammopacks
-		if(IsPlayerHasWeapon(clientIndex, "weapon_incgrenade") || IsPlayerHasWeapon(clientIndex, "weapon_molotov") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
-		{
-			return Plugin_Handled;
-		}
-		
-		// Give item and select it
-		GivePlayerItem(clientIndex, "weapon_incgrenade");
-		FakeClientCommandEx(clientIndex, "use weapon_incgrenade");
-	}
-	
-	// Allow buying
-	return Plugin_Continue;
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // Give item and select it
+        ZP_GiveClientWeapon(clientIndex, "IncNade");
+    }
 }

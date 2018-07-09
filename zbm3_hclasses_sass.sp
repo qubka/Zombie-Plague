@@ -24,7 +24,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -34,31 +33,33 @@
  **/
 public Plugin HumanClassSASS =
 {
-	name        	= "[ZP] Human Class: SASS",
-	author      	= "qubka (Nikita Ushakov)",
-	description 	= "Addon of human classes",
-	version     	= "1.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] Human Class: SASS",
+    author          = "qubka (Nikita Ushakov)",
+    description     = "Addon of human classes",
+    version         = "1.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about human class.
  **/
-#define HUMAN_CLASS_NAME				"@SASS" // If string has @, phrase will be taken from translation file
-#define HUMAN_CLASS_MODEL				"models/player/tm_professional_var2.mdl"	
-#define HUMAN_CLASS_ARM					"models/weapons/t_arms_professional.mdl"	
-#define HUMAN_CLASS_HEALTH				80
-#define HUMAN_CLASS_SPEED				1.0
-#define HUMAN_CLASS_GRAVITY				0.9
-#define HUMAN_CLASS_ARMOR				0
-#define HUMAN_CLASS_LEVEL				5
-#define HUMAN_CLASS_FEMALE				NO
-#define HUMAN_CLASS_VIP					NO
+#define HUMAN_CLASS_NAME                "SASS" // Only will be taken from translation file
+#define HUMAN_CLASS_MODEL               "models/player/tm_professional_var2.mdl"    
+#define HUMAN_CLASS_ARM                 "models/weapons/t_arms_professional.mdl"    
+#define HUMAN_CLASS_HEALTH              80
+#define HUMAN_CLASS_SPEED               1.0
+#define HUMAN_CLASS_GRAVITY             0.9
+#define HUMAN_CLASS_ARMOR               0
+#define HUMAN_CLASS_LEVEL               5
+#define HUMAN_CLASS_VIP                 NO
+#define HUMAN_CLASS_SOUND_DEATH         "HUMAN_DEATH_SOUNDS"
+#define HUMAN_CLASS_SOUND_HURT          "HUMAN_HURT_SOUNDS"
+#define HUMAN_CLASS_SOUND_INFECT        "HUMAN_INFECTION_SOUNDS"
 /**
  * @endsection
  **/
 
- // Initialize human class index
+// Initialize human class index
 int gHuman;
 #pragma unused gHuman
 
@@ -69,7 +70,7 @@ int gHuman;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate human class
         gHuman = ZP_RegisterHumanClass(HUMAN_CLASS_NAME, 
@@ -80,7 +81,9 @@ public void OnLibraryAdded(const char[] sLibrary)
         HUMAN_CLASS_GRAVITY, 
         HUMAN_CLASS_ARMOR,
         HUMAN_CLASS_LEVEL,
-        HUMAN_CLASS_FEMALE,
-        HUMAN_CLASS_VIP);
+        HUMAN_CLASS_VIP,
+        HUMAN_CLASS_SOUND_DEATH,
+        HUMAN_CLASS_SOUND_HURT,
+        HUMAN_CLASS_SOUND_INFECT);
     }
 }

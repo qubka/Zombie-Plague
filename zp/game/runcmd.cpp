@@ -28,54 +28,73 @@
 /**
  * Called when a clients movement buttons are being processed.
  *  
- * @param clientIndex		The client index.
- * @param bitFlags			Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
- * @param clientAlive		If true, then will be apply for the alive client.
+ * @param clientIndex       The client index.
+ * @param iButtons          Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
+ * @param iImpulse          Copyback buffer containing the current impulse command.
+ * @param flVelocity        Players desired velocity.
+ * @param flAngles          Players desired view angles.    
+ * @param weaponIndex       Entity index of the new weapon ifplayer switches weapon, 0 otherwise.
+ * @param iSubType          Weapon subtype when selected from a menu.
+ * @param iCmdNum           Command number. Increments from the first command sent.
+ * @param iTickCount        Tick count. A client's prediction based on the server's GetGameTickCount value.
+ * @param iSeed             Random seed. Used to determine weapon recoil, spread, and other predicted elements.
+ * @param iMouse            Mouse direction (x, y).
  **/ 
-Action RunCmdOnPlayerRunCmd(int clientIndex, int &bitFlags, bool clientAlive)
+public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponIndex, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
 {
-	// Get real player index from event key 
-	CBasePlayer* cBasePlayer = CBasePlayer(clientIndex);
+    // Initialize variable
+    static int nLastButtons[MAXPLAYERS+1];
+    
+    // Button menu button
+    if(iButtons & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue))
+    {
+        // Validate overtransmitting
+        if(!(nLastButtons[clientIndex] & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue)))
+        {
+            // Validate that menu isn't open yet, then open
+            if(GetClientMenu(clientIndex, INVALID_HANDLE) == MenuSource_None) 
+            {
+                // The main menu
+                MenuMain(clientIndex);
+            }
+        }
+    }
+    
+    // Validate client
+    if(IsPlayerExist(clientIndex, false))
+    {
+        // If the client is alive, than continue
+        if(IsPlayerAlive(clientIndex))
+        {
+            //!! IMPORTANT BUG FIX !!//
+            // Ladder can reset gravity, so update it each frame
+            ToolsSetClientGravity(clientIndex, gClientData[clientIndex][Client_Nemesis] ? gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue : (gClientData[clientIndex][Client_Zombie] ? ZombieGetGravity(gClientData[clientIndex][Client_ZombieClass]) : HumanGetGravity(gClientData[clientIndex][Client_HumanClass])));
 
-	// Update client money HUD
-	cBasePlayer->m_iAccount(cBasePlayer->m_nAmmoPacks);
-	
-	// Button menu hooks
-	if(bitFlags & (1 << GetConVarInt(gCvarList[CVAR_GAME_CUSTOM_MENU])))
-	{
-		// Open the main menu
-		if(cBasePlayer->m_bMenuEmpty()) MenuMain(cBasePlayer);
-	}
-	
-	// If player is alive ?
-	if(clientAlive)
-	{
-		//!! IMPORTANT BUG FIX !!//
-		// Ladder can reset gravity, so update it each frame
-		cBasePlayer->m_flGravity = cBasePlayer->m_bNemesis ? GetConVarFloat(gCvarList[CVAR_NEMESIS_GRAVITY]) : (cBasePlayer->m_bZombie ? ZombieGetGravity(cBasePlayer->m_nZombieClass) : HumanGetGravity(cBasePlayer->m_nHumanClass));
-
-		// Update client position on the radar
-		cBasePlayer->m_bSpotted(!cBasePlayer->m_bZombie);
-		
-		// Button leap hooks
-		if((bitFlags & IN_JUMP) && (bitFlags & IN_DUCK))
-		{	
-			// Do jump
-			JumpBoostOnClientLeapJump(cBasePlayer);
-		}
-		else
-		{
-			// Do restore health
-			SkillsOnHealthRegen(cBasePlayer);
-		}
-	}
-	else 
-	{
-		// Block hooks of the bot control button
-		bitFlags &= (~IN_USE);
-		return ACTION_CHANGED;
-	}
-	
-	// Allow hooks
-	return ACTION_CONTINUE;
+            // Update client position on the radar
+            ToolsSetClientSpot(clientIndex, !gClientData[clientIndex][Client_Zombie]);
+            
+            // Button leap hooks
+            if((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
+            {    
+                // Validate overtransmitting
+                if(!(nLastButtons[clientIndex] & IN_JUMP) && !(nLastButtons[clientIndex] & IN_DUCK))
+                {
+                    // Create a leap jump
+                    JumpBoostOnClientLeapJump(clientIndex);
+                }
+            }
+        }
+        else
+        {
+            // Block button (Bot control)
+            iButtons &= (~IN_USE);
+            return Plugin_Changed;
+        }
+    }
+    
+    // Store the button for next usage
+    nLastButtons[clientIndex] = iButtons;
+    
+    // Allow button
+    return Plugin_Continue;
 }

@@ -28,182 +28,183 @@
 /**
  * Client is jumping.
  * 
- * @param clientIndex		The client index.
+ * @param clientIndex       The client index.
  **/
 void JumpBoostOnClientJump(int clientIndex)
 { 
-	// If jump boost disabled, then stop
-	if(!GetConVarBool(gCvarList[CVAR_JUMPBOOST_ENABLE]))
-	{
-		return;
-	}
-	
-	// Get real player index from event key
-	CBasePlayer* cBasePlayer = CBasePlayer(clientIndex);
+    // If jump boost disabled, then stop
+    if(!gCvarList[CVAR_JUMPBOOST_ENABLE].BoolValue)
+    {
+        return;
+    }
 
-	// Creates a single use next frame hook
-	RequestFrame(view_as<RequestFrameCallback>(JumpBoostOnClientJumpPost), cBasePlayer);
+    // Creates a single use next frame hook
+    RequestFrame(view_as<RequestFrameCallback>(JumpBoostOnClientJumpPost), GetClientUserId(clientIndex));
 }  
 
 /**
  * Client is jumping. *(Post)
  *
- * @param cBasePlayer		The client index.
+ * @param userID            The user id.
  **/
-public void JumpBoostOnClientJumpPost(CBasePlayer* cBasePlayer)
+public void JumpBoostOnClientJumpPost(int userID)
 {
-	// Validate client
-	if(!IsPlayerExist(cBasePlayer->Index))
-	{
-		return;
-	}
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
 
-	// Initialize velocity vector
-	float vVelocity[3];
-	
-	// Get the client's velocity
-	cBasePlayer->m_flVelocity(vVelocity);
-	
-	// Only apply horizontal multiplier ifit's not a bhop
-	if(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0)) < GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MAX]))
-	{
-		// Apply horizontal multipliers to jump vector
-		vVelocity[0] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
-		vVelocity[1] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
-	}
+    // Validate client
+    if(clientIndex)
+    {
+        // Initialize velocity vector
+        static float vVelocity[3];
+        
+        // Gets the client's velocity
+        ToolsGetClientVelocity(clientIndex, vVelocity);
+        
+        // Only apply horizontal multiplier if it's not a bhop
+        if(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0)) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
+        {
+            // Apply horizontal multipliers to jump vector
+            vVelocity[0] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
+            vVelocity[1] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
+        }
 
-	// Apply height multiplier to jump vector
-	vVelocity[2] *= GetConVarFloat(gCvarList[CVAR_JUMPBOOST_MULTIPLIER]);
+        // Apply height multiplier to jump vector
+        vVelocity[2] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
 
-	// Push the player
-	cBasePlayer->m_iTeleportPlayer(NULL_VECTOR, NULL_VECTOR, vVelocity);
+        // Set new velocity
+        ToolsClientVelocity(clientIndex, vVelocity, true, false);
+    }
 }
 
 /**
  * Called when player want do the leap jump.
  *
- * @param cBasePlayer		The client index.
+ * @param clientIndex       The client index.
  **/
-void JumpBoostOnClientLeapJump(CBasePlayer* cBasePlayer)
+void JumpBoostOnClientLeapJump(int clientIndex)
 {
-	// If not on the ground, then stop
-	if(!(cBasePlayer->m_iFlags & FL_ONGROUND))
-	{
-		return;
-	}
+    // If not on the ground, then stop
+    if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
+    {
+        return;
+    }
 
-	//*********************************************************************
-	//*            		INITIALIZE LEAP JUMP PROPERTIES        	  		  *
-	//*********************************************************************
-	
-	// Initialize variable
-	float flCountDown;
-	
-	// Verify that the client is zombie
-	if(cBasePlayer->m_bZombie)
-	{
-		// Verify that the client is nemesis
-		if(cBasePlayer->m_bNemesis)
-		{
-			// If nemesis leap disabled, then stop
-			if(!GetConVarBool(gCvarList[CVAR_LEAP_NEMESIS])) 
-			{
-				return;
-			}
-			
-			// Get countdown time
-			flCountDown = GetConVarFloat(gCvarList[CVAR_LEAP_NEMESIS_COUNTDOWN]);
-		}
-		
-		// If not
-		else
-		{
-			// Switch type of leap jump
-			switch(GetConVarInt(gCvarList[CVAR_LEAP_ZOMBIE]))
-			{
-				// If zombie leap disabled, then stop
-				case 0 :
-				{
-					return;
-				}
-				// If zombie leap just for single zombie
-				case 2 :
-				{
-					if(fnGetZombies() > 1) 
-					{
-						return;
-					}
-				}
-			}
-			
-			// Get countdown time
-			flCountDown = GetConVarFloat(gCvarList[CVAR_LEAP_ZOMBIE_COUNTDOWN]);
-		}
-	}
-	
-	// If not
-	else
-	{
-		// Verify that the client is survivor
-		if(cBasePlayer->m_bSurvivor)
-		{
-			// If survivor leap disabled, then stop
-			if(!GetConVarBool(gCvarList[CVAR_LEAP_SURVIVOR]))
-			{
-				return;
-			}
-			
-			// Get countdown time
-			flCountDown = GetConVarFloat(gCvarList[CVAR_LEAP_SURVIVOR_COUNTDOWN]);
-		}
-		
-		// If player is human, stop
-		else return;
-	}
-	
-	//*********************************************************************
-	//*            		 CHECK DELAY OF THE LEAP JUMP           	  	  *
-	//*********************************************************************
-	
-	// Initialize variable
-	static float flDelay[MAXPLAYERS+1];
-	
-	// Returns the game time based on the game tick
-	float flCurrentTime = GetEngineTime();
-	
-	// Cooldown don't over yet, then stop
-	if(flCurrentTime - flDelay[cBasePlayer->Index] < flCountDown)
-	{
-		return;
-	}
-	
-	// Update the leap jump delay
-	flDelay[cBasePlayer->Index] = flCurrentTime;
-	
-	//*********************************************************************
-	//*            				DO THE LEAP JUMP           	  			  *
-	//*********************************************************************
-	
-	// Initialize some floats
-	static float vAngle[3]; static float vOrigin[3]; static float vVelocity[3];
-	
-	// Get client's location and view direction
-	cBasePlayer->m_flGetOrigin(vOrigin);
-	cBasePlayer->m_flGetEyeAngles(vAngle);
-	
-	// Store zero's angle
-	float flAngleZero = vAngle[0];	
-	
-	// Get location's angles
-	vAngle[0] = -30.0;
-	GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
-	
-	// Scale vector for the boost
-	ScaleVector(vVelocity, cBasePlayer->m_bSurvivor ? GetConVarFloat(gCvarList[CVAR_LEAP_SURVIVOR_FORCE]) : (cBasePlayer->m_bNemesis ? GetConVarFloat(gCvarList[CVAR_LEAP_NEMESIS_FORCE]) : GetConVarFloat(gCvarList[CVAR_LEAP_ZOMBIE_FORCE])));
-	
-	// Restore eye angle
-	vAngle[0] = flAngleZero;
-	
-	// Push the player
-	cBasePlayer->m_iTeleportPlayer(vOrigin, vAngle, vVelocity);
+    //*********************************************************************
+    //*                    INITIALIZE LEAP JUMP PROPERTIES                        *
+    //*********************************************************************
+    
+    // Initialize variable
+    static float flCountDown;
+    
+    // Verify that the client is zombie
+    if(gClientData[clientIndex][Client_Zombie])
+    {
+        // Verify that the client is nemesis
+        if(gClientData[clientIndex][Client_Nemesis])
+        {
+            // If nemesis leap disabled, then stop
+            if(!gCvarList[CVAR_LEAP_NEMESIS].BoolValue) 
+            {
+                return;
+            }
+            
+            // Gets countdown time
+            flCountDown = gCvarList[CVAR_LEAP_NEMESIS_COUNTDOWN].FloatValue;
+        }
+        
+        // If not
+        else
+        {
+            // Switch type of leap jump
+            switch(gCvarList[CVAR_LEAP_ZOMBIE].IntValue)
+            {
+                // If zombie leap disabled, then stop
+                case 0 :
+                {
+                    return;
+                }
+                // If zombie leap just for single zombie
+                case 2 :
+                {
+                    if(fnGetZombies() > 1) 
+                    {
+                        return;
+                    }
+                }
+            }
+            
+            // Gets countdown time
+            flCountDown = gCvarList[CVAR_LEAP_ZOMBIE_COUNTDOWN].FloatValue;
+        }
+    }
+    
+    // If not
+    else
+    {
+        // Verify that the client is survivor
+        if(gClientData[clientIndex][Client_Survivor])
+        {
+            // If survivor leap disabled, then stop
+            if(!gCvarList[CVAR_LEAP_SURVIVOR].BoolValue)
+            {
+                return;
+            }
+            
+            // Gets countdown time
+            flCountDown = gCvarList[CVAR_LEAP_SURVIVOR_COUNTDOWN].FloatValue;
+        }
+        
+        // If player is human, stop
+        else return;
+    }
+    
+    //*********************************************************************
+    //*                     CHECK DELAY OF THE LEAP JUMP                       *
+    //*********************************************************************
+    
+    // Initialize variable
+    static float flDelay[MAXPLAYERS+1];
+    
+    // Returns the game time based on the game tick
+    float flCurrentTime = GetGameTime();
+    
+    // Cooldown don't over yet, then stop
+    if(flCurrentTime - flDelay[clientIndex] < flCountDown)
+    {
+        return;
+    }
+    
+    // Update the leap jump delay
+    flDelay[clientIndex] = flCurrentTime;
+    
+    //*********************************************************************
+    //*                            DO THE LEAP JUMP                               *
+    //*********************************************************************
+    
+    // Initialize some floats
+    static float vAngle[3]; static float vOrigin[3]; static float vVelocity[3];
+    
+    // Gets client's location and view direction
+    GetClientAbsOrigin(clientIndex, vOrigin);
+    GetClientEyeAngles(clientIndex, vAngle);
+    
+    // Store zero's angle
+    float flAngleZero = vAngle[0];    
+    
+    // Gets location's angles
+    vAngle[0] = -30.0;
+    GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
+    
+    // Scale vector for the boost
+    ScaleVector(vVelocity, gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_LEAP_SURVIVOR_FORCE].FloatValue : (gClientData[clientIndex][Client_Nemesis] ? gCvarList[CVAR_LEAP_NEMESIS_FORCE].FloatValue : gCvarList[CVAR_LEAP_ZOMBIE_FORCE].FloatValue));
+    
+    // Restore eye angle
+    vAngle[0] = flAngleZero;
+    
+    // Push the player
+    TeleportEntity(clientIndex, vOrigin, vAngle, vVelocity);
+    
+    // Forward event to modules
+    VEffectsOnClientJump(clientIndex);
 }

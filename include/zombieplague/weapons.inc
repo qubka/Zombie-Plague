@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 7.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -33,125 +33,198 @@
 #define _weaponlist_included
 
 /**
+ * Gets the current position of the client's weapon attachment.
+ *
+ * @param clientIndex       The client index.
+ * @param attachment        The attachment bone of the entity parent.
+ * @raram position          Array to store vector in. 
+ **/
+native void ZP_GetWeaponAttachmentPos(int clientIndex, char[] attachment, float position[3]);
+
+/**
+ * @brief Gives the weapon by a given name.
+ *
+ * @param clientIndex       The client index.
+ * @param name              The weapon name.
+ * @return                  The weapon index.
+ **/
+native int ZP_GiveClientWeapon(int clientIndex, char[] name);
+
+/**
+ * @brief Gets the custom weapon id from a given weapon index. 
+ *
+ * @param weaponIndex       The weapon index.
+ * @return                  The weapon ID or -1 if no weapon was found.
+ **/
+native int ZP_GetWeaponID(int weaponIndex);
+
+/**
+ * @brief Gets the custom weapon id from a given name.
+ *
+ * @param name              The weapon name.
+ * @return                  The weapon ID or -1 if no weapon was found.
+ **/
+native int ZP_GetWeaponNameID(char[] name);
+
+/**
  * @brief Gets the amount of all weapons.
  *
- * @return          		The weapon amount.	
- */
+ * @return                  The weapon amount.    
+ **/
 native int ZP_GetNumberWeapon();
 
 /**
- * @brief Gets the name of a weapon at a given index.
+ * @brief Gets the name of a weapon at a given id.
  *
- * @param weaponID     	 	The weapon index.
- * @param name      		The string to return name in.
- * @param maxlenght			The lenght of string.
+ * @param weaponID          The weapon ID.
+ * @param name              The string to return name in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetWeaponName(int weaponID, char[] name, int maxlenght = 32);
 
 /**
- * @brief Gets the entity a weapon at a given index.
+ * @brief Gets the entity a weapon at a given id.
  *
- * @param weaponID     	 	The weapon index.
- * @param entity      		The string to return entity in.
- * @param maxlenght			The lenght of string.
+ * @param weaponID          The weapon ID.
+ * @param entity            The string to return entity in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetWeaponEntity(int weaponID, char[] entity, int maxlenght = 32);
 
 /**
  * @brief Gets the definition index of the weapon.
  *
- * @param weaponID			The weapon index.
- * @return					The definition index. (m_iItemDefinitionIndex)
+ * @param weaponID          The weapon ID.
+ * @return                  The definition index. (m_iItemDefinitionIndex)
  **/
 native int ZP_GetWeaponIndex(int weaponID);
 
 /**
  * @brief Gets the cost of the weapon.
  * 
- * @param weaponID			The weapon index.
- * @return          		The cost amount.	
+ * @param weaponID          The weapon ID.
+ * @return                  The cost amount.    
  **/
 native int ZP_GetWeaponCost(int weaponID);
 
 /**
  * @brief Gets the slot of the weapon.
  * 
- * @param weaponID			The weapon index.
- * @return          		The weapon slot.	
+ * @param weaponID          The weapon ID.
+ * @return                  The weapon slot.    
  **/
 native int ZP_GetWeaponSlot(int weaponID);
 
 /**
  * @brief Gets the level of the weapon.
  * 
- * @param weaponID			The weapon index.
- * @return          		The level amount.	
+ * @param weaponID          The weapon ID.
+ * @return                  The level amount.    
  **/
 native int ZP_GetWeaponLevel(int weaponID);
 
 /**
  * @brief Gets the online of the weapon.
  * 
- * @param weaponID			The weapon index.
- * @return          		The online amount.	
+ * @param weaponID          The weapon ID.
+ * @return                  The online amount.    
  **/
 native int ZP_GetWeaponOnline(int weaponID);
 
 /**
  * @brief Gets the damage of the weapon.
  * 
- * @param weaponID			The weapon index.
- * @return          		The damage amount.	
+ * @param weaponID          The weapon ID.
+ * @return                  The damage amount.    
  **/
 native float ZP_GetWeaponDamage(int weaponID);
 
 /**
  * @brief Gets the knockback of the weapon.
  * 
- * @param weaponID			The weapon index.
- * @return          		The knockback amount.	
+ * @param weaponID          The weapon ID.
+ * @return                  The knockback amount.    
  **/
 native float ZP_GetWeaponKnockBack(int weaponID);
 
 /**
- * @brief Gets the models' class access of a weapon at a given index.
- *
- * @param weaponID     	 	The weapon index.
- * @param class      		The string to return class in.
- * @param maxlenght			The lenght of string.
+ * @brief Gets the clip ammo of the weapon.
+ * 
+ * @param weaponID          The weapon ID.
+ * @return                  The clip ammo amount.
  **/
-native void ZP_GetWeaponModelClass(int weaponID, char[] class, int maxlenght = 32);
+native int ZP_GetWeaponClip(int weaponID);
 
 /**
- * @brief Gets the view model path a weapon at a given index.
+ * @brief Gets the reserve clip of the weapon.
+ * 
+ * @param weaponID          The weapon ID.
+ * @return                  The reserve ammo amount.    
+ **/
+native int ZP_GetWeaponAmmo(int weaponID);
+
+/**
+ * @brief Gets the class access of the weapon.
  *
- * @param weaponID     	 	The weapon index.
- * @param model      		The string to return model in.
- * @param maxlenght			The lenght of string.
+ * @param iD                The weapon id.
+ * @return                  The class access index.
+ **/
+native int ZP_GetWeaponClass(int weaponID);
+
+/**
+ * @brief Gets the view model path a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param model             The string to return model in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetWeaponModelView(int weaponID, char[] model, int maxlenght = 256);
 
 /**
  * @brief Gets the index of the weapon view model.
  * 
- * @param weaponID			The weapon index.
- * @return          		The knockback amount.	
+ * @param weaponID          The weapon ID.
+ * @return                  The view model index.    
  **/
 native int ZP_GetWeaponModelViewID(int weaponID);
 
 /**
- * @brief Gets the world model path a weapon at a given index.
+ * @brief Gets the world model path a weapon at a given id.
  *
- * @param weaponID     	 	The weapon index.
- * @param model      		The string to return model in.
- * @param maxlenght			The lenght of string.
+ * @param weaponID          The weapon ID.
+ * @param model             The string to return model in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetWeaponModelWorld(int weaponID, char[] model, int maxlenght = 256);
 
 /**
  * @brief Gets the index of the weapon world model.
  * 
- * @param weaponID			The weapon index.
- * @return          		The knockback amount.	
+ * @param weaponID          The weapon ID.
+ * @return                  The world model index.    
  **/
 native int ZP_GetWeaponModelWorldID(int weaponID);
+
+/**
+ * @brief Gets the body index of the weapon view model.
+ *
+ * @param weaponID          The weapon ID.
+ * @return                  The view model body index.    
+ **/
+native int ZP_GetWeaponModelViewBody(int weaponID);
+
+/**
+ * @brief Gets the skin index of the weapon view model.
+ *
+ * @param weaponID          The weapon ID.
+ * @return                  The view model skin index.    
+ **/
+native int ZP_GetWeaponModelViewSkin(int weaponID);
+
+/**
+ * @brief Gets the skin index of the weapon view model.
+ *
+ * @param weaponID          The weapon ID.
+ * @return                  The heat amount.    
+ **/
+native float ZP_GetWeaponModelViewHeat(int weaponID);

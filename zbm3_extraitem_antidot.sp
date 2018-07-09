@@ -24,7 +24,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -34,21 +33,21 @@
  **/
 public Plugin AntiDot =
 {
-	name        	= "[ZP] ExtraItem: Antidot",
-	author      	= "qubka (Nikita Ushakov)", 	
-	description 	= "Addon of extra items",
-	version     	= "1.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] ExtraItem: Antidot",
+    author          = "qubka (Nikita Ushakov)",     
+    description     = "Addon of extra items",
+    version         = "1.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME				"@Antidot" // If string has @, phrase will be taken from translation file 	
-#define EXTRA_ITEM_COST				20			
-#define EXTRA_ITEM_LEVEL			0
-#define EXTRA_ITEM_ONLINE			0
-#define EXTRA_ITEM_LIMIT			0
+#define EXTRA_ITEM_NAME                "Antidot" // Only will be taken from translation file     
+#define EXTRA_ITEM_COST                20            
+#define EXTRA_ITEM_LEVEL               0
+#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LIMIT               0
 /**
  * @endsection
  **/
@@ -64,55 +63,65 @@ int iItem;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_ZOMBIE, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
+}
+
+/**
+ * Called before show an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ *
+ * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
+ **/
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // Initialize round type
+        int modeIndex = ZP_GetCurrentGameMode();
+        
+        // If you don't allowed to buy, then stop
+        if(ZP_GetZombieAmount() <= 1 || ZP_IsPlayerHuman(clientIndex) || ZP_IsPlayerNemesis(clientIndex) || ZP_IsGameModeSurvivor(modeIndex) || ZP_IsGameModeNemesis(modeIndex))
+        {
+            return Plugin_Handled;
+        }
+    }
+
+    // Allow showing
+    return Plugin_Continue;
 }
 
 /**
  * Called after select an extraitem in the equipment menu.
  * 
- * @param clientIndex		The client index.
- * @param extraitemIndex	The index of extraitem from ZP_RegisterExtraItem() native.
- *
- * @return					Plugin_Handled or Plugin_Stop to block purhase. Anything else
- *                          	(like Plugin_Continue) to allow purhase and taking ammopacks.
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
  **/
-public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-	#pragma unused clientIndex, extraitemIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Handled;
-	}
-	
-	// Check the item's index
-	if(extraitemIndex == iItem)
-	{
-		// If you don't allowed to buy, then return ammopacks
-		if(ZP_GetZombieAmount() <= 1 || ZP_IsPlayerHuman(clientIndex))
-		{
-			return Plugin_Handled;
-		}
-		
-		// Initialize round type
-		int CMode = ZP_GetRoundState(SERVER_ROUND_MODE);
-
-		// Switch game round
-		switch(CMode)
-		{
-			// If specific game round modes, then don't allowed to buy and return ammopacks
-			case MODE_NONE, MODE_NEMESIS, MODE_SURVIVOR, MODE_ARMAGEDDON : return Plugin_Handled;
-			
-			// Change class to human
-			default : ZP_SwitchClientClass(clientIndex, TYPE_HUMAN);
-		}
-	}
-	
-	// Allow buying
-	return Plugin_Continue;
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // Change class to human
+        ZP_SwitchClientClass(clientIndex, _, TYPE_HUMAN);
+    }
 }

@@ -25,7 +25,7 @@
  * ============================================================================
  **/
  
- /*
+/*
  * Application Programming Interface (API)
  * 
  * To allow other plugins or extensions to interact directly with Zombie Plague Mod we need to implement
@@ -44,15 +44,15 @@
  **/
 APLRes APIInit(/*void*/)
 {
-	// Load natives
-	APINativesInit();
-	
-	// Load forwards
-	APIForwardsInit();
-	
-	// Register mod library
-	RegPluginLibrary("zombieplague");
-	
-	// Return on success
-	return APLRes_Success;
+    // Load natives
+    APINativesInit();
+    
+    // Load forwards
+    APIForwardsInit();
+    
+    // Register mod library
+    RegPluginLibrary("zombieplague");
+    
+    // Return on success
+    return APLRes_Success;
 }

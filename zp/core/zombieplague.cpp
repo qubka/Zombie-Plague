@@ -48,7 +48,7 @@
 #define ENGINE_NUCLEARDAWN          "Nuclear Dawn"
 #define ENGINE_SDK2013              "Source SDK 2013"
 #define ENGINE_BLADE                "Blade Symphony"
-#define ENGINE_INSURGENCY			"Insurgency"
+#define ENGINE_INSURGENCY           "Insurgency"
 #define ENGINE_CONTAGION            "Contagion"
 /**
  * @endsection
@@ -59,102 +59,105 @@
  */
  
 /**
- * Called once when server is started. Will log a warning ifa unsupported game is detected.
+ * Called once when server is started. Will log a warning if a unsupported game is detected.
  **/
 void GameEngineInit(/*void*/)
 {
-	// Get engine of the game
-	switch(GetEngineVersion(/*void*/))
-	{
-		case Engine_Unknown :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague %s", ENGINE_UNKNOWN);
-		}
-		case Engine_Original :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_ORIGINAL);
-		}
-		case Engine_SourceSDK2006 :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_SOURCESDK2006);
-		}
-		case Engine_SourceSDK2007 :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_SOURCESDK2007);
-		}
-		case Engine_Left4Dead :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_LEFT4DEAD);
-		}
-		case Engine_DarkMessiah :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_DARKMESSIAH);
-		}
-		case Engine_Left4Dead2 :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_LEFT4DEAD2);
-		}
-		case Engine_AlienSwarm :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_ALIENSWARM);
-		}
-		case Engine_BloodyGoodTime :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_BLOODYGOODTIME);
-		}
-		case Engine_EYE :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_EYE);
-		}
-		case Engine_Portal2 :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_PORTAL2);
-		}
-		case Engine_CSGO :	
-		{
-			LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Engine catched: %s", ENGINE_CSGO);
-		}
-		case Engine_CSS :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_CSS);
-		}
-		case Engine_DOTA :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_DOTA);
-		}
-		case Engine_HL2DM :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_HL2DM);
-		}
-		case Engine_DODS :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_DODS);
-		}
-		case Engine_TF2 :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_TF2);
-		}
-		case Engine_NuclearDawn :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_NUCLEARDAWN);
-		}
-		case Engine_SDK2013 :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_SDK2013);
-		}
-		case Engine_Blade :	
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_BLADE);
-		}
-		case Engine_Insurgency :
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_INSURGENCY);
-		}
-		case Engine_Contagion :
-		{
-			LogEvent(true, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support %s", ENGINE_CONTAGION);
-		}
-	}
+    // Gets engine of the game
+    switch(GetEngineVersion(/*void*/))
+    {
+        case Engine_Unknown :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague %s", ENGINE_UNKNOWN);
+        }
+        case Engine_Original :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_ORIGINAL);
+        }
+        case Engine_SourceSDK2006 :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_SOURCESDK2006);
+        }
+        case Engine_SourceSDK2007 :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_SOURCESDK2007);
+        }
+        case Engine_Left4Dead :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_LEFT4DEAD);
+        }
+        case Engine_DarkMessiah :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_DARKMESSIAH);
+        }
+        case Engine_Left4Dead2 :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_LEFT4DEAD2);
+        }
+        case Engine_AlienSwarm :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_ALIENSWARM);
+        }
+        case Engine_BloodyGoodTime :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_BLOODYGOODTIME);
+        }
+        case Engine_EYE :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_EYE);
+        }
+        case Engine_Portal2 :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_PORTAL2);
+        }
+        case Engine_CSGO :    
+        {
+            LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Engine catched: \"%s\"", ENGINE_CSGO);
+        }
+        case Engine_CSS :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_CSS);
+        }
+        case Engine_DOTA :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_DOTA);
+        }
+        case Engine_HL2DM :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_HL2DM);
+        }
+        case Engine_DODS :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_DODS);
+        }
+        case Engine_TF2 :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_TF2);
+        }
+        case Engine_NuclearDawn :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_NUCLEARDAWN);
+        }
+        case Engine_SDK2013 :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_SDK2013);
+        }
+        case Engine_Blade :    
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_BLADE);
+        }
+        case Engine_Insurgency :
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_INSURGENCY);
+        }
+        case Engine_Contagion :
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_CONTAGION);
+        }
+    }
+
+    // Unload the gamedata config
+    delete gServerData[Server_GameConfig];
 }
 
 /*
@@ -162,12 +165,12 @@ void GameEngineInit(/*void*/)
  */
 
 /**
- * Returns true ifthe player is connected and alive, false ifnot.
+ * Returns true if the player is connected and alive, false if not.
  *
- * @param clientIndex		The client index.
- * @param clientAlive		(Optional) Set to true to validate that the client is alive, false to ignore.
+ * @param clientIndex       The client index.
+ * @param clientAlive       (Optional) Set to true to validate that the client is alive, false to ignore.
  *
- * @return					True or false.
+ * @return                  True or false.
  **/
 stock bool IsPlayerExist(int clientIndex, bool clientAlive = true)
 {
@@ -184,12 +187,12 @@ stock bool IsPlayerExist(int clientIndex, bool clientAlive = true)
     }
 
     // If client isn't in game
-    if(!IsClientInGame(clientIndex))
+    if(!IsClientInGame(clientIndex) || IsClientInKickQueue(clientIndex)) //! Improved, thanks to fl0wer!
     {
         return false;
     }
 
-    // If client isn't TV
+    // If client is TV
     if(IsClientSourceTV(clientIndex))
     {
         return false;
@@ -208,122 +211,122 @@ stock bool IsPlayerExist(int clientIndex, bool clientAlive = true)
 /**
  * Returns whether a player has exact of the specified admin flag or not.
  *
- * @param clientIndex		The client index.
+ * @param clientIndex       The client index.
  *
- * @return					True or false.
+ * @return                  True or false.
  **/
 stock bool IsPlayerHasFlag(int clientIndex, AdminFlag iFlag = Admin_Generic)
 {
-	// Validate client
-	if(!IsPlayerExist(clientIndex, false))
-	{
-		return false;
-	}
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        return false;
+    }
 
-	/*********************************
-	 *                               *
-	 *  FLAG SIMPLE AUTHENTICATION   *
-	 *                               *
-	 *********************************/
+    /*********************************
+     *                               *
+     *  FLAG SIMPLE AUTHENTICATION   *
+     *                               *
+     *********************************/
 
-	// Retrieves a client's AdminId
-	AdminId iD = GetUserAdmin(clientIndex);
+    // Retrieves a client's AdminId
+    AdminId iD = GetUserAdmin(clientIndex);
 
-	// Validate id
-	if(iD == INVALID_ADMIN_ID)
-	{
-		return false;
-	}
-	
-	// Return true on the success
-	return GetAdminFlag(iD, iFlag);
+    // Validate id
+    if(iD == INVALID_ADMIN_ID)
+    {
+        return false;
+    }
+    
+    // Return true on the success
+    return GetAdminFlag(iD, iFlag);
 }
 
 /**
  * Returns whether a player has all of the specified admin flags or not.
  *
- * @param clientIndex		The client index.
- * @param sFlags			The string with flags to validate.
+ * @param clientIndex       The client index.
+ * @param sFlags            The string with flags to validate.
  *
- * @return					True or false.
- */
+ * @return                  True or false.
+ **/
 stock bool IsPlayerHasFlags(int clientIndex, const char[] sFlags)
 {
-	// Validate normal user
-	if(!strlen(sFlags))
-	{
-		return true;
-	}
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex, false))
-	{
-		return false;
-	}
+    // Validate normal user
+    if(!strlen(sFlags))
+    {
+        return true;
+    }
+    
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        return false;
+    }
 
-	/*********************************
-	 *                               *
-	 *   FLAG BASED AUTHENTICATION   *
-	 *                               *
-	 *********************************/
-	
-	#define ADMFLAG_BYTE	(1<<view_as<int>(i))
-	
+    /*********************************
+     *                               *
+     *   FLAG BASED AUTHENTICATION   *
+     *                               *
+     *********************************/
+    
+    #define ADMFLAG_BYTE    (1 << view_as<int>(i))
+    
     // Retrieves a client's AdminId
-	AdminId iD = GetUserAdmin(clientIndex);
+    AdminId iD = GetUserAdmin(clientIndex);
 
-	// Validate id
-	if(iD == INVALID_ADMIN_ID)
-	{
-		return false;
-	}
-	
-	// Get number of flags
-	int iCount, iFound, iFlag = ReadFlagString(sFlags);
+    // Validate id
+    if(iD == INVALID_ADMIN_ID)
+    {
+        return false;
+    }
+    
+    // Gets number of flags
+    int iCount, iFound, iFlag = ReadFlagString(sFlags);
 
-	// Loop through access levels (flags) for admins
-	for (AdminFlag i = Admin_Reservation; i <= Admin_Custom6; i++)
-	{
-		// Validate bitwise values definitions for admin flags
-		if(iFlag & ADMFLAG_BYTE)
-		{
-			iCount++;
+    // Loop through access levels (flags) for admins
+    for(AdminFlag i = Admin_Reservation; i <= Admin_Custom6; i++)
+    {
+        // Validate bitwise values definitions for admin flags
+        if(iFlag & ADMFLAG_BYTE)
+        {
+            iCount++;
 
-			// Validate flag
-			if(GetAdminFlag(iD, i))
-			{
-				iFound++;
-			}
-		}
-	}
+            // Validate flag
+            if(GetAdminFlag(iD, i))
+            {
+                iFound++;
+            }
+        }
+    }
 
-	// Return true on the success
-	return (iCount == iFound);
+    // Return true on the success
+    return (iCount == iFound);
 }  
 
 /**
  * Returns whether a player is in a spesific group or not.
  *
- * @param clientIndex		The client index.
- * @param sGroup     		The SourceMod group name to check.
+ * @param clientIndex       The client index.
+ * @param sGroup            The SourceMod group name to check.
  *
- * @return              	True or false.
+ * @return                  True or false.
  **/
 stock bool IsPlayerInGroup(int clientIndex, const char[] sGroup)
 {
-	// Validate client
-	if(!IsPlayerExist(clientIndex, false))
-	{
-		return false;
-	}
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        return false;
+    }
 
-	/*********************************
-	 *                               *
-	 *   FLAG GROUP AUTHENTICATION   *
-	 *                               *
-	 *********************************/
-	
-	// Retrieves a client's AdminId
+    /*********************************
+     *                               *
+     *   FLAG GROUP AUTHENTICATION   *
+     *                               *
+     *********************************/
+    
+    // Retrieves a client's AdminId
     AdminId iD = GetUserAdmin(clientIndex);
     
     // Validate id
@@ -332,21 +335,21 @@ stock bool IsPlayerInGroup(int clientIndex, const char[] sGroup)
         return false;
     }
     
-    // Get number of groups
-    int  nGroup = GetAdminGroupCount(iD);
+    // Gets number of groups
+    int nGroup = GetAdminGroupCount(iD);
     static char sGroupName[NORMAL_LINE_LENGTH];
     
     // Validate number of groups
     if(nGroup)
     {
         // Loop through each group
-        for (int i = 0; i < nGroup; i++)
+        for(int i = 0; i < nGroup; i++)
         {
-            // Get group name
+            // Gets group name
             GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
             
             // Compare names
-            if(StrEqual(sGroup, sGroupName, false))
+            if(!strcmp(sGroup, sGroupName, false))
             {
                 return true;
             }
@@ -360,173 +363,400 @@ stock bool IsPlayerInGroup(int clientIndex, const char[] sGroup)
 /*
  * Server functions
  */
-
+ 
 /**
- * Get amount of total humans.
+ * Gets amount of total humans.
  * 
- * @return	 				The amount of total humans.
+ * @return      The amount of total humans.
  **/
 stock int fnGetHumans(/*void*/)
 {
-	// Initialize variables
-	int nHumans; CBasePlayer* cBasePlayer;
-	
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Get real player index from event key
-		cBasePlayer = CBasePlayer(i);
-		
-		// Verify that the client is exist
-		if(!IsPlayerExist(cBasePlayer->Index))
-		{
-			continue;
-		}
-		
-		// Verify that the client is human
-		if(cBasePlayer->m_bZombie)
-		{
-			continue;
-		}
-		
-		// Increment amount
-		nHumans++;
-	}
-	
-	// Return amount
-	return nHumans;
+    // Initialize variables
+    int nHumans;
+    
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate human
+        if(IsPlayerExist(i) && !gClientData[i][Client_Zombie])
+        {
+            // Increment amount
+            nHumans++;
+        }
+    }
+    
+    // Return amount
+    return nHumans;
 }
 
 /**
- * Get amount of total zombies.
+ * Gets amount of total zombies.
  *
- * @return	 				The amount of total zombies.
+ * @return      The amount of total zombies.
  **/
 stock int fnGetZombies(/*void*/)
 {
-	// Initialize variables
-	int nZombies; CBasePlayer* cBasePlayer;
-	
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Get real player index from event key
-		cBasePlayer = CBasePlayer(i);
-		
-		// Verify that the client is exist
-		if(!IsPlayerExist(cBasePlayer->Index))
-		{
-			continue;
-		}
-		
-		// Verify that the client is zombie
-		if(!cBasePlayer->m_bZombie)
-		{
-			continue;
-		}
-		
-		// Increment amount	
-		nZombies++;
-	}
-	
-	// Return amount
-	return nZombies;
+    // Initialize variables
+    int nZombies;
+    
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate zombie
+        if(IsPlayerExist(i) && gClientData[i][Client_Zombie])
+        {
+            // Increment amount    
+            nZombies++;
+        }
+    }
+    
+    // Return amount
+    return nZombies;
 }
 
 /**
- * Get amount of total alive players.
+ * Gets amount of total alive players.
  *
- * @return	 				The amount of total alive players.
+ * @return      The amount of total alive players.
  **/
 stock int fnGetAlive(/*void*/)
 {
-	// Initialize variables
-	int nAlive; CBasePlayer* cBasePlayer;
+    // Initialize variables
+    int nAlive;
 
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Get real player index from event key
-		cBasePlayer = CBasePlayer(i);
-		
-		// Verify that the client is exist
-		if(!IsPlayerExist(cBasePlayer->Index))
-		{
-			continue;
-		}
-		
-		// Increment amount
-		nAlive++;
-	}
-	
-	// Return amount
-	return nAlive;
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate client
+        if(IsPlayerExist(i))
+        {
+            // Increment amount
+            nAlive++;
+        }
+    }
+    
+    // Return amount
+    return nAlive;
 }
 
 /**
- * Get index of the random player.
+ * Gets index of the random human.
  *
- * @param nRandom			The random number.
- * 
- * @return	 				The index of random player.
+ * @return      The index of random human.
  **/
-stock int fnGetRandomAlive(int nRandom)
+stock int fnGetRandomHuman(/*void*/)
 {
-	// Initialize variables
-	int nAlive; CBasePlayer* cBasePlayer;
-	
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Get real player index from event key
-		cBasePlayer = CBasePlayer(i);
-		
-		// Verify that the client is exist
-		if(!IsPlayerExist(cBasePlayer->Index))
-		{
-			continue;
-		}
-		
-		// Increment amount
-		nAlive++;
-		
-		// If random number is equal, so return index
-		if(nAlive == nRandom)
-		{
-			return i;
-		}
-	}
-	
-	// Return error
-	return -1;
+    // Initialize variables
+    int nRandom; static int clientIndex[MAXPLAYERS+1];
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate human
+        if(IsPlayerExist(i) && !gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
+        {
+            // Increment amount
+            clientIndex[nRandom++] = i;
+        }
+    }
+
+    // Return amount
+    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
 }
 
 /**
- * Get amount of total playing players.
+ * Gets index of the random zombie.
  *
- * @return	 				The amount of total playing players.
+ * @return      The index of random zombie.
+ **/
+stock int fnGetRandomZombie(/*void*/)
+{
+    // Initialize variables
+    int nRandom; static int clientIndex[MAXPLAYERS+1];
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate zombie
+        if(IsPlayerExist(i) && gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
+        {
+            // Increment amount
+            clientIndex[nRandom++] = i;
+        }
+    }
+
+    // Return amount
+    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
+}
+
+/**
+ * Gets index of the random survivor.
+ *
+ * @return      The index of random survivor.
+ **/
+stock int fnGetRandomSurvivor(/*void*/)
+{
+    // Initialize variables
+    int nRandom; static int clientIndex[MAXPLAYERS+1];
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate survivor
+        if(IsPlayerExist(i) && gClientData[i][Client_Survivor])
+        {
+            // Increment amount
+            clientIndex[nRandom++] = i;
+        }
+    }
+
+    // Return amount
+    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
+}
+
+/**
+ * Gets index of the random nemesis.
+ *
+ * @return      The index of random nemesis.
+ **/
+stock int fnGetRandomNemesis(/*void*/)
+{
+    // Initialize variables
+    int nRandom; static int clientIndex[MAXPLAYERS+1];
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate nemesis
+        if(IsPlayerExist(i) && gClientData[i][Client_Nemesis])
+        {
+            // Increment amount
+            clientIndex[nRandom++] = i;
+        }
+    }
+
+    // Return amount
+    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
+}
+
+/**
+ * Gets amount of total playing players.
+ *
+ * @return      The amount of total playing players.
  **/
 stock int fnGetPlaying(/*void*/)
 {
-	// Initialize variables
-	int nPlaying; CBasePlayer* cBasePlayer;
+    // Initialize variables
+    int nPlaying;
 
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Get real player index from event key
-		cBasePlayer = CBasePlayer(i);
-		
-		// Verify that the client is exist
-		if(!IsPlayerExist(cBasePlayer->Index, false))
-		{
-			continue;
-		}
-		
-		// Increment amount
-		nPlaying++;
-	}
-	
-	// Return amount
-	return nPlaying;
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate client
+        if(IsPlayerExist(i, false))
+        {
+            // Increment amount
+            nPlaying++;
+        }
+    }
+    
+    // Return amount
+    return nPlaying;
+}
+
+
+/**
+ * Precache file and add it to the download table.
+ *
+ * @param sPath             The path to file.
+ * @return                  True or false.
+ **/
+stock bool fnMultiFilePrecache(const char[] sPath)
+{
+    // Finds the first occurrence of a character in a string
+    int iDelimiter = FindCharInString(sPath, '@', true); //! Fix for particles
+    
+    // If file doesn't exist, then log, and stop
+    if(!FileExists(sPath) && iDelimiter == -1) 
+    {
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file: %s", sPath);
+        return false;
+    }
+    
+    // Finds the first occurrence of a character in a string
+    int iFormat = FindCharInString(sPath, '.', true);
+    
+    // If model's path is don't have format, then log, and stop
+    if(iFormat == -1)
+    {
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);
+        return false;
+    }
+    
+    // Add to precache if path contains '.mdl'
+    if(!strcmp(sPath[iFormat], ".mdl", false))
+    {
+        // If model doesn't precache yet, then continue
+        if(!IsModelPrecached(sPath))
+        {
+            // Add file to download table
+            AddFileToDownloadsTable(sPath);
+            
+            // Precache file
+            PrecacheModel(sPath, true);
+        }
+    }
+    // Add to precache if path contains '.mp3' or '.wav'
+    else if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
+    {
+        // Copy one string onto another
+        static char sSound[PLATFORM_MAX_PATH];
+        strcopy(sSound, sizeof(sSound), sPath);
+
+        /// Look here: https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
+        if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
+        {
+            // If sound doesn't precache yet, then continue
+            if(fnGetTableItemIndex("soundprecache", sSound) == INVALID_STRING_INDEX)
+            {
+                // Add file to download table
+                AddFileToDownloadsTable(sPath);
+
+                // Precache sound
+                ///bool bSave = LockStringTables(false);
+                AddToStringTable(fnGetTableIndex("soundprecache"), sSound);
+                ///LockStringTables(bSave);
+            }
+        }
+        else
+        {
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Wrong sound path: %s", sPath);
+            return false;
+        }
+    }
+    // Add to precache if path contains '.pcf'
+    else if(!strncmp(sPath[iFormat], ".pcf", 4, false))
+    {
+        // Cut out name at the end of a line
+        static char sParticle[NORMAL_LINE_LENGTH];
+        if(SplitString(sPath, "@", sParticle, sizeof(sParticle)) != -1)
+        {
+            // Add file to download table
+            AddFileToDownloadsTable(sParticle);
+            
+            // Precache generic
+            PrecacheGeneric(sParticle, true); //! Precache only here
+
+            // If particle doesn't precache yet, then continue
+            ///if(fnGetTableItemIndex("ParticleEffectNames", sPath[iDelimiter+1]) == INVALID_STRING_INDEX) => NOT WORK!!! WTF???
+
+            // Precache particle
+            bool bSave = LockStringTables(false);
+            AddToStringTable(fnGetTableIndex("ParticleEffectNames"), sPath[iDelimiter+1]);
+            LockStringTables(bSave);
+        }
+        else
+        {
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Wrong particle path: %s", sPath);
+            return false;
+        }
+    }
+    // Add to precache if path contains '.vtf'
+    else if(!strcmp(sPath[iFormat], ".vtf", false))
+    {
+        // If decal doesn't precache yet, then continue
+        if(!IsDecalPrecached(sPath))
+        {
+            // Add file to download table
+            AddFileToDownloadsTable(sPath);
+            
+            // Precache file
+            PrecacheDecal(sPath, true);
+        }
+    }
+    else
+    {
+        // Add file to download table
+        AddFileToDownloadsTable(sPath);
+    }
+    
+    // Return on success
+    return true;
+}
+
+/**
+ * Searches for a string table.
+ *
+ * @param sTable            The table name.
+ * @return                  The table index.
+ **/
+stock int fnGetTableIndex(const char[] sTable)
+{
+    // Searches for a string table
+    int tableIndex = FindStringTable(sTable);
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        ///LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Table not found: %s", sTable);
+        return INVALID_STRING_TABLE;
+    }
+
+    // Return index on the success
+    return tableIndex;
+}
+
+/**
+ * Searches for the index of a given string in a string table.
+ *
+ * @param sTable            The table.
+ * @param sIndex            The index.
+ * @return                  The item index.
+ **/
+stock int fnGetTableItemIndex(const char[] sTable, const char[] sIndex)
+{
+    // Searches for the index of a given string in a string table
+    int itemIndex = FindStringIndex(fnGetTableIndex(sTable), sIndex);
+
+    // Validate item
+    if(itemIndex == INVALID_STRING_INDEX)
+    {
+        ///LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Item not found: %s", sIndex);
+        return INVALID_STRING_INDEX;
+    }
+
+    // Return index on the success
+    return itemIndex;
+}
+
+/**
+ * Returns an offset value from a given config.
+ *
+ * @param gameConf          The game config handle.
+ * @param iOffset           An offset, or -1 on failure. (Destanation)
+ * @param sKey              Key to retrieve from the offset section.
+ **/
+stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, const char[] sKey)
+{
+    // Validate offset
+    if((iOffset = GameConfGetOffset(gameConf, sKey)) == -1)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get offset: \"%s\"", sKey);
+    }
+}
+
+/**
+ * Given a server classname, finds a networkable send property offset.
+ *
+ * @param iOffset           An offset, or -1 on failure. (Destanation) 
+ * @param sServerClass      The classname.
+ * @param sProp             The property name.
+ **/
+stock void fnInitSendPropOffset(int &iOffset, const char[] sServerClass, const char[] sProp)
+{
+    // Validate prop
+    if((iOffset = FindSendPropInfo(sServerClass, sProp)) < 1)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find prop: \"%s\"", sProp);
+    }
 }

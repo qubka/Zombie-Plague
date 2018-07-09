@@ -26,17 +26,18 @@
  **/
  
 /**
- * @section	Modification information.
+ * @section    Modification information.
  **/
-#define PLUGIN_NAME    				"Zombie Plague"
-#define PLUGIN_VERSION 				"7.8"
-#define PLUGIN_TAG					"zp"
-#define PLUGIN_AUTHOR				"qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
-#define PLUGIN_COPYRIGHT        	"Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)"
-#define PLUGIN_BRANCH           	"zp-7.8"
-#define PLUGIN_LINK        			"https://forums.alliedmods.net/showthread.php?t=290657"
-#define PLUGIN_LICENSE          	"GNU GPL, Version 3"
-#define PLUGIN_DATE             	"14 January 2018 19:02:00 +0200"
+#define PLUGIN_NAME         "Zombie Plague"
+#define PLUGIN_VERSION      "8.0"
+#define PLUGIN_TAG          "zp"
+#define PLUGIN_CONFIG       "plugin.zombieplague"
+#define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
+#define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)"
+#define PLUGIN_BRANCH       "zp-8.0"
+#define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
+#define PLUGIN_LICENSE      "GNU GPL, Version 3"
+#define PLUGIN_DATE         "09-July-2018T06:30:00-GMT+02:00"
 /**
  * @endsection
  **/
@@ -46,7 +47,7 @@
  **/
 void VersionOnCommandsCreate(/*void*/)
 {
-    RegConsoleCmd("zp_version", Command_Version, "Prints version info about this plugin.");
+    RegConsoleCmd("zp_version", VersionCommandCatched, "Prints version info about this plugin.");
 }
 
 /**
@@ -54,7 +55,8 @@ void VersionOnCommandsCreate(/*void*/)
  **/
 void VersionOnCvarInit(/*void*/)
 {
-	SetConVarString(FindConVar("sv_tags"), PLUGIN_TAG, true);
+    // Adds core tag
+    FindConVar("sv_tags").SetString(PLUGIN_TAG, true);
 }
 
 /**
@@ -62,51 +64,51 @@ void VersionOnCvarInit(/*void*/)
  **/
 void VersionLoad(/*void*/)
 {
-	// Print a version into the console
-	Command_Version(LANG_SERVER, LANG_SERVER);
+    // Print a version into the console
+    VersionCommandCatched(LANG_SERVER, LANG_SERVER);
 }
 
 /**
- * Called when a generic console command is invoked.
+ * Handles the <!zp_version> command. Called when a generic console command is invoked.
  * 
- * @param clientIndex		The client index.
- * @param iArguments		The number of arguments that were in the argument string.
+ * @param clientIndex      The client index.
+ * @param iArguments       The number of arguments that were in the argument string.
  **/ 
-public Action Command_Version(int clientIndex, int iArguments)
+public Action VersionCommandCatched(int clientIndex, int iArguments)
 {
-	// Initialize chars
-	static char sBuffer[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
-	static char sLine[BIG_LINE_LENGTH];
+    // Initialize chars
+    static char sBuffer[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
+    static char sLine[BIG_LINE_LENGTH];
 
-	// Quick initialize string buffer
-	sBuffer[0] = 0;
-	sLine[0] = 0;
+    // Quick clear string buffer
+    sBuffer[0] = '\0';
+    sLine[0] = '\0';
 
-	#define FORMATSTRING "%24s: %s\n"
+    #define FORMATSTRING "%24s: %s\n"
 
-	// Format strings
-	Format(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
-	StrCat(sBuffer, sizeof(sBuffer), sLine);
+    // Format strings
+    Format(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
+    StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	Format(sLine, sizeof(sLine), "%s\n\n", PLUGIN_COPYRIGHT);
-	StrCat(sBuffer, sizeof(sBuffer), sLine);
+    Format(sLine, sizeof(sLine), "%s\n\n", PLUGIN_COPYRIGHT);
+    StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	Format(sLine, sizeof(sLine), FORMATSTRING, "Version", PLUGIN_VERSION);
-	StrCat(sBuffer, sizeof(sBuffer), sLine);
+    Format(sLine, sizeof(sLine), FORMATSTRING, "Version", PLUGIN_VERSION);
+    StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	Format(sLine, sizeof(sLine), FORMATSTRING, "Last edit", PLUGIN_DATE);
-	StrCat(sBuffer, sizeof(sBuffer), sLine);
+    Format(sLine, sizeof(sLine), FORMATSTRING, "Last edit", PLUGIN_DATE);
+    StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	Format(sLine, sizeof(sLine), FORMATSTRING, "License", PLUGIN_LICENSE);
-	StrCat(sBuffer, sizeof(sBuffer), sLine);
+    Format(sLine, sizeof(sLine), FORMATSTRING, "License", PLUGIN_LICENSE);
+    StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	Format(sLine, sizeof(sLine), FORMATSTRING, "Link+", PLUGIN_LINK);
-	StrCat(sBuffer, sizeof(sBuffer), sLine);
+    Format(sLine, sizeof(sLine), FORMATSTRING, "Link+", PLUGIN_LINK);
+    StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	Format(sLine, sizeof(sLine), FORMATSTRING, "Branch", PLUGIN_BRANCH);
-	StrCat(sBuffer, sizeof(sBuffer), sLine);
+    Format(sLine, sizeof(sLine), FORMATSTRING, "Branch", PLUGIN_BRANCH);
+    StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	// Send information into the console
-	ReplyToCommand(clientIndex, sBuffer);
-	return Plugin_Handled;
+    // Send information into the console
+    ReplyToCommand(clientIndex, sBuffer);
+    return Plugin_Handled;
 }

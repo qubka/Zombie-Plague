@@ -34,24 +34,38 @@
  **/
 public Plugin Flare =
 {
-	name        	= "[ZP] ExtraItem: Flare",
-	author      	= "qubka (Nikita Ushakov)", 	
-	description 	= "Addon of extra items",
-	version     	= "1.0",
-	url         	= "https://forums.alliedmods.net/showthread.php?t=290657"
+    name            = "[ZP] ExtraItem: Flare",
+    author          = "qubka (Nikita Ushakov)",     
+    description     = "Addon of extra items",
+    version         = "1.0",
+    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME				"@Flare Grenade" // If string has @, phrase will be taken from translation file		 
-#define EXTRA_ITEM_COST				7
-#define EXTRA_ITEM_LEVEL			0
-#define EXTRA_ITEM_ONLINE			0
-#define EXTRA_ITEM_LIMIT			0
+#define EXTRA_ITEM_NAME              "Flare Grenade" // Only will be taken from translation file         
+#define EXTRA_ITEM_COST              7
+#define EXTRA_ITEM_LEVEL             0
+#define EXTRA_ITEM_ONLINE            0
+#define EXTRA_ITEM_LIMIT             1
 /**
  * @endsection
  **/
+ 
+/**
+ * @section Properties of the grenade.
+ **/
+#define GRENADE_FLARE_RADIUS         150.0                 // Flare lightning size (radius)
+#define GRENADE_FLARE_DISTANCE       600.0                 // Flare lightning size (distance)
+#define GRENADE_FLARE_DURATION       20.0                  // Flare lightning duration in seconds
+#define GRENADE_FLARE_COLOR          "255 0 0 255"         // Flare color in 'RGBA'
+/**
+ * @endsection
+ **/
+ 
+// ConVar for sound level
+ConVar hSoundLevel;
 
 // Item index
 int iItem;
@@ -64,147 +78,165 @@ int iItem;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(StrEqual(sLibrary, "zombieplague"))
+    if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, TEAM_HUMAN, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
 }
 
 /**
- * Called after select an extraitem in equipment menu.
- * 
- * @param clientIndex		The client index.
- * @param extraitemIndex	The index of extraitem from ZP_RegisterExtraItem() native.
- *
- * @return					Plugin_Handled or Plugin_Stop to block purhase. Anything else
- *                          	(like Plugin_Continue) to allow purhase and taking ammopacks.
+ * The map is starting.
  **/
-public Action ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void OnMapStart(/*void*/)
 {
-	#pragma unused clientIndex, extraitemIndex
-	
-	// Validate client
-	if(!IsPlayerExist(clientIndex))
-	{
-		return Plugin_Handled;
-	}
-	
-	// Check the item's index
-	if(extraitemIndex == iItem)
-	{
-		// If you don't allowed to buy, then return ammopacks
-		if(IsPlayerHasWeapon(clientIndex, "weapon_decoy") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
-		{
-			return Plugin_Handled;
-		}
-		
-		// Give item and select it
-		GivePlayerItem(clientIndex, "weapon_decoy");
-		FakeClientCommandEx(clientIndex, "use weapon_decoy");
-	}
-	
-	// Allow buying
-	return Plugin_Continue;
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
- * Event callback (decoy_firing)
- * The decoy nade is fired.
+ * Called before show an extraitem in the equipment menu.
  * 
- * @param gEventHook        The event handle.
- * @param gEventName        The name of the event.
- * @param dontBroadcast    	If true, event is broadcasted to all clients, false if not.
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ *
+ * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action EventEntityDecoy(Event gEventHook, const char[] gEventName, bool dontBroadcast) 
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-	// Get real player index from event key
-	int ownerIndex = GetClientOfUserId(GetEventInt(gEventHook, "userid")); 
-	
-	// Validate client
-	if(IsPlayerExist(ownerIndex) && ZP_IsPlayerHuman(ownerIndex))
-	{
-        // Initialize vectors
-        float vExpOrigin[3];
-
-        // Get all required event info
-        int entityIndex = GetEventInt(gEventHook, "entityid");
-        vExpOrigin[0] = GetEventFloat(gEventHook, "x"); 
-        vExpOrigin[1] = GetEventFloat(gEventHook, "y"); 
-        vExpOrigin[2] = GetEventFloat(gEventHook, "z");
-
-        // Validate entity
-        if(IsValidEdict(entityIndex))
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // If you don't allowed to buy, then stop
+        if(IsPlayerHasWeapon(clientIndex, "FlareNade") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
         {
-            // Initialize grenade color
-            static char sGrenadeColorLight[SMALL_LINE_LENGTH];
-            GetConVarString(FindConVar("zp_grenade_light_color"), sGrenadeColorLight, sizeof(sGrenadeColorLight)); 
-            
-            // Generate color for random choose
-            if(!IsCharNumeric(sGrenadeColorLight[0]))
-            {
-                Format(sGrenadeColorLight, sizeof(sGrenadeColorLight), "%i %i %i 255", GetRandomInt(0,255), GetRandomInt(0,255), GetRandomInt(0,255));
-            }
-            
-            // Emit sound
-            EmitSoundToAll("items/nvg_on.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-            
-            // Create an light_dynamic entity
-            int iLight = CreateEntityByName("light_dynamic");
-            
-            // If entity isn't valid, then skip
-            if(IsValidEdict(iLight))
-            {
-                // Set the inner (bright) angle
-                DispatchKeyValue(iLight, "inner_cone", "0");
-                
-                // Set the outer (fading) angle
-                DispatchKeyValue(iLight, "cone", "80");
-                
-                // Set the light brightness
-                DispatchKeyValue(iLight, "brightness", "1");
-                
-                // Used instead of Pitch Yaw Roll's value for reasons unknown
-                DispatchKeyValue(iLight, "pitch", "90");
-                
-                // Change the lightstyle (see Appearance field for possible values)
-                DispatchKeyValue(iLight, "style", "1");
-                
-                // Set the light's render color (R G B)
-                DispatchKeyValue(iLight, "_light", sGrenadeColorLight);
-                
-                // Set the maximum light distance
-                DispatchKeyValueFloat(iLight, "distance", GetConVarFloat(FindConVar("zp_grenade_light_distance")));
-                
-                // Set the radius of the spotlight at the end point
-                DispatchKeyValueFloat(iLight, "spotlight_radius", GetConVarFloat(FindConVar("zp_grenade_light_radius")));
-
-                // Spawn the entity
-                DispatchSpawn(iLight);
-
-                // Activate the enity
-                AcceptEntityInput(iLight, "TurnOn");
-
-                // Teleport the entity
-                TeleportEntity(iLight, vExpOrigin, NULL_VECTOR, NULL_VECTOR);
-
-                // Initialize time
-                static char sTime[SMALL_LINE_LENGTH];
-                Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GetConVarFloat(FindConVar("zp_grenade_light_duration")));
-                
-                // Set modified flags on the entity
-                SetVariantString(sTime);
-                AcceptEntityInput(iLight, "AddOutput");
-                AcceptEntityInput(iLight, "FireUser1");
-            }
-             
-            // Create dust effect
-            TE_SetupDust(vExpOrigin, NULL_VECTOR, 10.0, 1.0);
-            TE_SendToAll();
-            
-            // Remove grenade
-            AcceptEntityInput(entityIndex, "Kill");
+            return Plugin_Handled;
         }
     }
+
+    // Allow showing
+    return Plugin_Continue;
 }
 
+/**
+ * Called after select an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ **/
+public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
+    // Check the item's index
+    if(extraitemIndex == iItem)
+    {
+        // Give item and select it
+        ZP_GiveClientWeapon(clientIndex, "FlareNade");
+    }
+}
+
+/**
+ * Called, when an entity is created.
+ *
+ * @param entityIndex       The entity index.
+ * @param sClassname        The string with returned name.
+ **/
+public void OnEntityCreated(int entityIndex, const char[] sClassname)
+{
+    // Validate grenade
+    if(!strncmp(sClassname, "decoy_", 6, false))
+    {
+        // Hook grenade callbacks
+        SDKHook(entityIndex, SDKHook_SpawnPost, EntityDecoyOnSpawn);
+    }
+}
+
+/**
+ * Decoy grenade is spawn.
+ *
+ * @param entityIndex       The entity index.
+ **/
+public void EntityDecoyOnSpawn(int entityIndex) 
+{
+    // Apply spawn on the next frame
+    RequestFrame(view_as<RequestFrameCallback>(EntityDecoyOnSpawnPost), entityIndex);
+}
+
+/**
+ * FakeHook: EntityDecoyOnSpawnPost
+ *
+ * @param entityIndex       The entity index.
+ **/
+public void EntityDecoyOnSpawnPost(any entityIndex) 
+{
+    // Validate grenade
+    if(IsValidEdict(entityIndex))
+    {
+        // Create an effect
+        FakeCreateParticle(entityIndex, _, "smoking", GRENADE_FLARE_DURATION);
+
+        // Block grenade
+        SetEntProp(entityIndex, Prop_Data, "m_nNextThinkTick", -1);
+
+        // Emit sound
+        EmitSoundToAll("*/zbm3/flare.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+
+        // Create an light_dynamic entity
+        int lightIndex = CreateEntityByName("light_dynamic");
+
+        // If entity isn't valid, then skip
+        if(lightIndex != INVALID_ENT_REFERENCE)
+        {
+            // Dispatch main values of the entity
+            DispatchKeyValue(lightIndex, "inner_cone", "0");
+            DispatchKeyValue(lightIndex, "cone", "80");
+            DispatchKeyValue(lightIndex, "brightness", "1");
+            DispatchKeyValue(lightIndex, "pitch", "90");
+            DispatchKeyValue(lightIndex, "style", "5");
+            DispatchKeyValue(lightIndex, "_light", GRENADE_FLARE_COLOR);
+            DispatchKeyValueFloat(lightIndex, "distance", GRENADE_FLARE_DISTANCE);
+            DispatchKeyValueFloat(lightIndex, "spotlight_radius", GRENADE_FLARE_RADIUS);
+
+            // Spawn the entity into the world
+            DispatchSpawn(lightIndex);
+
+            // Activate the entity
+            AcceptEntityInput(lightIndex, "TurnOn");
+
+            // Sets parent to the entity
+            SetVariantString("!activator"); 
+            AcceptEntityInput(lightIndex, "SetParent", entityIndex, lightIndex); 
+            SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", entityIndex);
+
+            // Initialize vector variables
+            static float vOrigin[3];
+            
+            // Gets parent's position
+            GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vOrigin);
+            
+            // Spawn the entity
+            DispatchKeyValueVector(lightIndex, "origin", vOrigin);
+        }
+
+        // Initialize char
+        static char sTime[SMALL_LINE_LENGTH];
+        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GRENADE_FLARE_DURATION);
+
+        // Sets modified flags on the entity
+        SetVariantString(sTime);
+        AcceptEntityInput(entityIndex, "AddOutput");
+        AcceptEntityInput(entityIndex, "FireUser1");
+    }
+}
