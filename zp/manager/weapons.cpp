@@ -295,8 +295,12 @@ public void WeaponsOnClientDeath(int clientIndex)
  **/
 public void OnEntityCreated(int entityIndex, const char[] sClassname)
 {
-    // Forward event to sub-modules
-    WeaponSDKOnCreated(entityIndex, sClassname);
+    // Validate entity
+    if(entityIndex > INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
+    {
+        // Forward event to sub-modules
+        WeaponSDKOnCreated(entityIndex, sClassname);
+    }
 }
 
 /*
@@ -351,8 +355,8 @@ public int API_GetWeaponID(Handle isPlugin, int iNumParams)
     // Gets weapon index from native cell 
     int weaponIndex = GetNativeCell(1);
 
-    // Validate client
-    if(weaponIndex == INVALID_ENT_REFERENCE)
+    // Validate weapon
+    if(weaponIndex <= INVALID_ENT_REFERENCE)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weaponIndex);
         return -1;
@@ -1271,7 +1275,7 @@ stock int WeaponsNameToIndex(char[] sWeapon, int iMaxLen = 0, bool bOverWriteNam
     }
     
     // Name doesn't exist
-    return -1;
+    return INVALID_ENT_REFERENCE;
 }
  
 /**
@@ -1328,8 +1332,8 @@ stock bool WeaponsIsExist(int clientIndex, int iD)
         // Gets weapon index
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
         
-        // If entity isn't valid, then skip
-        if(IsValidEdict(weaponIndex))
+        // Validate weapon
+        if(weaponIndex > INVALID_ENT_REFERENCE)
         {
             // If weapon find, then return
             if(gWeaponData[weaponIndex] == iD)
@@ -1363,7 +1367,7 @@ stock bool WeaponsRemoveAll(int clientIndex, ConVar hConVar)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
         
         // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        if(weaponIndex > INVALID_ENT_REFERENCE)
         {
             // Validate custom index
             int iD = gWeaponData[weaponIndex];
@@ -1482,10 +1486,9 @@ stock int WeaponsGive(int clientIndex, char[] sName)
                 // Sets the weapon id
                 gWeaponData[weaponIndex] = iD;
                 
-                // Bug fix for native calling
-                FakeClientCommandEx(clientIndex, "use %s", sName);
-                WeaponSDKOnDeploy(clientIndex, weaponIndex);
-                WeaponSDKOnDeployPost(clientIndex, weaponIndex);
+                // Switch the weapon
+                SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
+                SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
             }
         }
     }

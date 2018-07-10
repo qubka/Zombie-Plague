@@ -154,11 +154,6 @@ void GameModesEventStart(int modeIndex = -1, int selectedIndex = 0)
     // Initalize some variables
     static int lastMode; int defaultMode; int nAlive = fnGetAlive(); 
 
-    // Mode fully started
-    gServerData[Server_RoundNew] = false;
-    gServerData[Server_RoundEnd] = false;
-    gServerData[Server_RoundStart] = true;
-
     // Validate random mode
     if(modeIndex == -1)
     {
@@ -200,13 +195,14 @@ void GameModesEventStart(int modeIndex = -1, int selectedIndex = 0)
     // Remaining players should be humans
     GameModesTurnIntoHuman();
 
-    // Terminate the round, if zombies weren't infect
-    if(!RoundEndOnValidate())
-    {
-        // Call forward
-        API_OnZombieModStarted();
-    }
-    
+    // Call forward
+    API_OnZombieModStarted();
+
+    // Resets server grobal variables
+    gServerData[Server_RoundNew] = false;
+    gServerData[Server_RoundEnd] = false;
+    gServerData[Server_RoundStart] = true;
+
     // Update mode index for the next round
     lastMode = gServerData[Server_RoundMode];
 }

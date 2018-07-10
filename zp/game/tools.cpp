@@ -52,9 +52,6 @@ void ToolsInit(/*void*/)
  **/
 void ToolsPurge(/*void*/)
 {
-    // Purge server's timer
-    gServerData[Server_RoundTimer] = INVALID_HANDLE;
-
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
     {

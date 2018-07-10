@@ -212,15 +212,11 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
         // Validate target
         if(IsValidEdict(targetIndex))
         {
-            // Gets the rocket's owner
-            int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+            // Gets the thrower index
+            int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
 
-            // Gets the entity's classname
-            static char sClassname[SMALL_LINE_LENGTH];
-            GetEdictClassname(targetIndex, sClassname, sizeof(sClassname));
-
-            // Validate classname
-            if(!strcmp(sClassname, "player", false) && ownerIndex == targetIndex)
+            // Validate thrower
+            if(throwerIndex == targetIndex)
             {
                 // Return on the unsuccess
                 return Plugin_Continue;
@@ -246,7 +242,7 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
             }
 
             // Validate owner
-            if(IsPlayerExist(ownerIndex))
+            if(IsPlayerExist(throwerIndex))
             {
                 // i = client index
                 for(int i = 1; i <= MaxClients; i++)
@@ -264,7 +260,7 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
                         if(flDistance <= WEAPON_ROCKET_RADIUS)
                         {
                             // Create the damage for a victim
-                            SDKHooks_TakeDamage(i, ownerIndex, ownerIndex, WEAPON_ROCKET_DAMAGE);
+                            SDKHooks_TakeDamage(i, throwerIndex, throwerIndex, WEAPON_ROCKET_DAMAGE);
 
                             // Create a shake
                             FakeCreateShakeScreen(i, WEAPON_ROCKET_SHAKE_AMP, WEAPON_ROCKET_SHAKE_FREQUENCY, WEAPON_ROCKET_SHAKE_DURATION);

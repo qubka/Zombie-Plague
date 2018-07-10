@@ -192,7 +192,7 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
         int weaponIndex = GetEntDataEnt2(attackerIndex, g_iOffset_PlayerActiveWeapon);
         
         // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        if(weaponIndex > INVALID_ENT_REFERENCE)
         {
             int iIndex = gWeaponData[weaponIndex];
             if(iIndex != -1)

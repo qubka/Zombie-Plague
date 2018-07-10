@@ -188,6 +188,7 @@ void SoundsOnRoundEnd(int CReason)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
+    SoundsInputStop();
     
     // Create timer for emit sounds 
     CreateTimer(0.1, SoundsOnRoundEndPost, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
@@ -428,7 +429,7 @@ stock void SoundsInputEmitToClient(int clientIndex, int iChannel, int nLevel, ch
  *  
  * @param sSound            The path to the sound file (relative to sounds/) 
  **/
-stock void SoundsInputStop(const char[] sSound)
+stock void SoundsInputStop(/*const char[] sSound*/)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -437,7 +438,10 @@ stock void SoundsInputStop(const char[] sSound)
         if(IsPlayerExist(i, false))
         {
             // Stop sound
-            StopSound(i, SNDCHAN_STATIC, sSound);
+            //StopSound(i, SNDCHAN_STATIC, sSound);
+            ClientCommand(i, "playgamesound Music.StopAllExceptMusic"); 
+            ClientCommand(i, "playgamesound Music.StopAllMusic"); 
+            ClientCommand(i, "playgamesound Music.StopAll");
         }
     }
 }

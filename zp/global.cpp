@@ -107,7 +107,6 @@ enum ServerData
     Server_RoundNumber,
     Server_RoundMode,
     Server_RoundCount,
-    Handle:Server_RoundTimer,
     Handle:Server_GameConfig,
     String:Server_MapName[PLATFORM_MAX_PATH]
 };

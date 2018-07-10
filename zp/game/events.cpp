@@ -33,7 +33,7 @@ void EventInit(/*void*/)
     // Hook server events
     HookEvent("round_prestart",      EventRoundPreStart,    EventHookMode_Pre);
     HookEvent("round_start",         EventRoundStart,       EventHookMode_Post);
-    HookEvent("round_end",           EventRoundEnd,         EventHookMode_Post);
+    HookEvent("round_end",           EventRoundEnd,         EventHookMode_Pre);
     HookEvent("cs_win_panel_round",  EventBlockBroadCast,   EventHookMode_Pre);
 
     // Hook player events

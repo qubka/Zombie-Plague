@@ -283,10 +283,10 @@ public int API_SwitchClientClass(Handle isPlugin, int iNumParams)
     // Force client to switch player's class
     switch(GetNativeCell(3))
     {
-        case 0 :  ClassMakeZombie(clientIndex, attackerIndex);
-        case 1 :  ClassMakeZombie(clientIndex, attackerIndex, true);
-        case 2 :  ClassMakeHuman(clientIndex, true);
-        case 3 :  ClassMakeHuman(clientIndex);
+        case 0 /*TYPE_ZOMBIE*/ :   ClassMakeZombie(clientIndex, attackerIndex);       /**< Make a zombie */
+        case 1 /*TYPE_NEMESIS*/ :  ClassMakeZombie(clientIndex, attackerIndex, true); /**< Make a nemesis */
+        case 2 /*TYPE_SURVIVOR*/ : ClassMakeHuman(clientIndex, true);                 /**< Make a survivor */
+        case 3 /*TYPE_HUMAN*/ :    ClassMakeHuman(clientIndex);                       /**< Make a human */
     }
 }
 

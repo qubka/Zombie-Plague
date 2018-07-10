@@ -99,15 +99,7 @@ void ToolsResetVars(int clientIndex)
     gClientData[clientIndex][Client_Exp] = 0;
     gClientData[clientIndex][Client_DataID] = -1;
     gClientData[clientIndex][Client_AttachmentBits] = 0;
-    gClientData[clientIndex][Client_AttachmentAddons][0] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][1] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][2] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][3] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][4] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][5] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][6] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][7] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentAddons][8] = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
     gClientData[clientIndex][Client_AttachmentEntity] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentWeapon] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentLast][0] = '\0';
@@ -205,7 +197,7 @@ stock void ToolsSetClientCash(int clientIndex, int nAmmoPacks)
     {
         nAmmoPacks = 0;
     }
-
+    
     // If value higher, then set to max
     if(nAmmoPacks > ACCOUNT_CASH_MAX)
     {
@@ -445,6 +437,7 @@ stock void ToolsSetClientDetecting(int clientIndex, bool bEnable)
 stock void ToolsSetClientHud(int clientIndex, bool bEnable)
 {   
     #define HIDEHUD_CROSSHAIR (1 << 8)
+    // Sets value on the client
     SetEntData(clientIndex, g_iOffset_PlayerHUD, bEnable ? (GetEntData(clientIndex, g_iOffset_PlayerHUD) & ~HIDEHUD_CROSSHAIR) : (GetEntData(clientIndex, g_iOffset_PlayerHUD) | HIDEHUD_CROSSHAIR), _, true);
 }
 
@@ -457,6 +450,7 @@ stock void ToolsSetClientHud(int clientIndex, bool bEnable)
 stock void ToolsSetClientFlashLight(int clientIndex, bool bEnable)
 {
     #define EF_FLASHLIGHT 4
+    // Sets value on the client
     SetEntData(clientIndex, g_iOffset_PlayerFlashLight, bEnable ? (GetEntData(clientIndex, g_iOffset_PlayerFlashLight) ^ EF_FLASHLIGHT) : (EF_FLASHLIGHT ^ EF_FLASHLIGHT), _, true);
 }
 
@@ -467,5 +461,6 @@ stock void ToolsSetClientFlashLight(int clientIndex, bool bEnable)
  **/
 stock void ToolsTerminateRound(int CReason)
 {
+    // Terminate round
     SDKCall(hSDKCallTerminateRound, gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CReason);
 }

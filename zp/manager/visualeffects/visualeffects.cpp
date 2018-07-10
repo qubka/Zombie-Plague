@@ -341,22 +341,22 @@ void VEffectRemoveParticle(int clientIndex)
     // Gets max amount of entities
     int nGetMaxEnt = GetMaxEntities();
     
-    // entityIndex = entity index
-    for(int entityIndex = MaxClients; entityIndex <= nGetMaxEnt; entityIndex++)
+    // x = entity index
+    for(int x = MaxClients; x <= nGetMaxEnt; x++)
     {
-        // If entity isn't valid, then continue
-        if(IsValidEdict(entityIndex))
+        // Validate entity
+        if(IsValidEdict(x))
         {
             // Gets valid edict's classname
-            GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
+            GetEdictClassname(x, sClassname, sizeof(sClassname));
             
             // If entity is an attach particle entity
             if(!strncmp(sClassname, "info_pa", 7, false)) //! Only validate few charcters
             {
                 // Validate parent
-                if(GetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity) == clientIndex)
+                if(GetEntDataEnt2(x, g_iOffset_EntityOwnerEntity) == clientIndex)
                 {
-                    AcceptEntityInput(entityIndex, "Kill"); //! Destroy!
+                    AcceptEntityInput(x, "Kill"); //! Destroy!
                 }
             }
         }

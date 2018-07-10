@@ -35,20 +35,16 @@
  **/
 void RoundStartOnRoundPreStart(/*void*/)
 {
-    // Resets server grobal bools
+    // Resets server grobal variables
     gServerData[Server_RoundNew] = true;
     gServerData[Server_RoundEnd] = false;
     gServerData[Server_RoundStart] = false;
     
-    // Resets mode
+    // Update server grobal variables
     gServerData[Server_RoundMode] = -1;
-    
-    // Increment number of rounds
     gServerData[Server_RoundNumber]++;
-    
-    // Restore default time for zombie event timer
     gServerData[Server_RoundCount] = gCvarList[CVAR_GAME_CUSTOM_START].IntValue;
-    
+
     // Balance of all teams
     RoundStartOnBalanceTeams();
 }
@@ -58,10 +54,6 @@ void RoundStartOnRoundPreStart(/*void*/)
  **/
 void RoundStartOnRoundStart(/*void*/)
 {
-    // Create timer for terminate round
-    delete gServerData[Server_RoundTimer];
-    gServerData[Server_RoundTimer] = CreateTimer(gCvarList[CVAR_SERVER_ROUNDTIME_ZP].FloatValue * 60.0 - 1.0, RoundEndTimer);
-
     // Kill all objective entities
     RoundStartOnKillEntity();
 }
@@ -71,15 +63,6 @@ void RoundStartOnRoundStart(/*void*/)
  **/
 void RoundStartOnBalanceTeams(/*void*/)
 {
-    // Gets amount of total playing players
-    int nPlayers = fnGetPlaying();
-
-    // If there aren't clients on both teams, then stop
-    if(!nPlayers)
-    {
-        return;
-    }
-
     // Move all clients to random teams
     
     // i = client index
@@ -107,20 +90,19 @@ void RoundStartOnKillEntity(/*void*/)
     // Gets max amount of entities
     int nGetMaxEnt = GetMaxEntities();
     
-    // entityIndex = entity index
-    for(int entityIndex = MaxClients; entityIndex <= nGetMaxEnt; entityIndex++)
+    // x = entity index
+    for(int x = MaxClients; x <= nGetMaxEnt; x++)
     {
-        // If entity isn't valid, then continue
-        if(IsValidEdict(entityIndex))
+        // Validate entity
+        if(IsValidEdict(x))
         {
             // Gets valid edict's classname
-            GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
+            GetEdictClassname(x, sClassname, sizeof(sClassname));
             
             // Check if it matches any objective entities, then stop if it doesn't
             if(StrContains(ROUNDSTART_OBJECTIVE_ENTITIES, sClassname) != -1) 
             {
-                // Entity is an objective, kill it
-                RemoveEdict(entityIndex);
+                AcceptEntityInput(x, "Kill"); //! Destroy!
             }
         }
     }

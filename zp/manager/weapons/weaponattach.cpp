@@ -136,12 +136,9 @@ void WeaponAttachmentSetAddons(int clientIndex)
         {
             // Gets weapon index
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Secondary));
-            
-            // Gets the active weapon index from the client
-            int activeIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
-            
+
             // Validate taser slot
-            if(weaponIndex == activeIndex) /// Bugfix
+            if(weaponIndex == GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon))
             {
                 // Gets weapon index
                 weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_taser");
@@ -178,7 +175,7 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_flashbang");
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = gWeaponData[weaponIndex];
@@ -208,7 +205,7 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_flashbang");
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = gWeaponData[weaponIndex];
@@ -238,7 +235,7 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_hegrenade");
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = gWeaponData[weaponIndex];
@@ -268,7 +265,7 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_smokegrenade");
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = gWeaponData[weaponIndex];
@@ -298,7 +295,7 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_decoy");
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = gWeaponData[weaponIndex];
@@ -358,7 +355,7 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_tagrenade");
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = gWeaponData[weaponIndex];
@@ -554,6 +551,13 @@ public Action WeaponAttachmentOnTransmit(int entityIndex , int clientIndex)
     // Get the owner of the entity
     int ownerIndex = GetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity);
 
+    // Validate dead owner
+    if(!IsPlayerAlive(ownerIndex))
+    {
+        // Block transmitting
+        return Plugin_Handled;
+    }
+    
     // Validate observer mode
     if(GetEntData(clientIndex, g_iOffset_PlayerObserverMode) == TEAM_OBSERVER && ownerIndex == GetEntDataEnt2(clientIndex, g_iOffset_PlayerObserverTarget))
     {
@@ -585,7 +589,7 @@ stock int WeaponsAttachmentGetIndex(int clientIndex, char[] sWeaponName)
         // Gets weapon index
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
 
-        // If entity isn't valid, then skip
+        // Validate weapon
         if(IsValidEdict(weaponIndex))
         {
             // Get weapon classname
@@ -603,7 +607,7 @@ stock int WeaponsAttachmentGetIndex(int clientIndex, char[] sWeaponName)
     }
 
     // If wasn't found
-    return -1;
+    return INVALID_ENT_REFERENCE;
 }
 #endif
 

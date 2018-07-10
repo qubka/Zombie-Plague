@@ -260,15 +260,11 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
         // Validate target
         if(IsValidEdict(targetIndex))
         {
-            // Gets the entity's classname
-            static char sClassname[SMALL_LINE_LENGTH];
-            GetEdictClassname(targetIndex, sClassname, sizeof(sClassname));
-
             // Gets the thrower index
             int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
             
-            // Validate classname
-            if(!strcmp(sClassname, "player", false) && throwerIndex == targetIndex)
+            // Validate thrower
+            if(throwerIndex == targetIndex)
             {
                 // Return on the unsuccess
                 return Plugin_Continue;

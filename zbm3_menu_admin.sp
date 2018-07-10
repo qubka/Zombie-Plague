@@ -281,7 +281,7 @@ void MenuSubAdmin(int clientIndex, AdminMenu iMode)
                 {
                     // Start mode
                     ZP_SetServerGameMode("Swarm");
-
+                    
                     // Print event
                     HUDSendToAll("Admin started swarm mode", sAdminName);
                 }

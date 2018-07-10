@@ -60,6 +60,7 @@ enum WeaponSDKClassType
  * Variables to store SDK calls handlers.
  **/
 Handle hSDKCallRemoveAllItems;
+Handle hSDKCallWeaponSwitch;
 Handle hSDKCallCSWeaponDrop;
 
 #if defined USE_DHOOKS
@@ -90,6 +91,19 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RemoveAllItems\". Update offsets in \"%s\"", PLUGIN_CONFIG);
+    }
+
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Player);
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Virtual, "Weapon_Switch");
+    PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+
+    //  Validate call
+    if(!(hSDKCallWeaponSwitch = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update offsets in \"%s\"", PLUGIN_CONFIG);
     }
 
     // Starts the preparation of an SDK call
@@ -212,31 +226,15 @@ void WeaponSDKClientInit(int clientIndex)
 void WeaponSDKOnCreated(int entityIndex, const char[] sClassname)
 {
     // Validate weapon
-    if(!strncmp(sClassname, "weapon", 6, false))
+    if(!strncmp(sClassname, "weapon_", 7, false))
     {
-        // Switch character
-        switch(sClassname[6])
-        {
-            /// CBaseWeaponWorldModel
-            case 'w' :
-            {
-                // Hook weapon callbacks
-                ///SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWorldSpawn);
-            }
-            
-            /// CBaseCombatWeapon
-            case '_' :
-            {
-                // Reset variable
-                gWeaponData[entityIndex] = INVALID_ENT_REFERENCE;
+        // Reset variable
+        gWeaponData[entityIndex] = INVALID_ENT_REFERENCE;
 
-                #if defined USE_DHOOKS
-                    // Hook weapon callbacks
-                    SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWeaponSpawn);
-                #endif
-            }
-        }
-        
+        #if defined USE_DHOOKS
+            // Hook weapon callbacks
+            SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWeaponSpawn);
+        #endif
     }
     else
     {
@@ -347,7 +345,7 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
         
         // Validate weapon
-        if(weaponIndex == INVALID_ENT_REFERENCE) 
+        if(weaponIndex <= INVALID_ENT_REFERENCE) 
         {
             return;
         }
@@ -401,7 +399,7 @@ public void WeaponSDKOnDropPost(int clientIndex, int weaponIndex)
     }
 
     // Validate weapon
-    if(weaponIndex == INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
+    if(weaponIndex <= INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
     {
         return;
     }
@@ -440,7 +438,7 @@ public void WeaponSDKOnDropPost(int clientIndex, int weaponIndex)
 public Action WeaponSDKOnCanUse(int clientIndex, int weaponIndex)
 {
     // Validate weapon
-    if(weaponIndex == INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
+    if(weaponIndex <= INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
     {
         return Plugin_Continue;
     }
@@ -471,16 +469,18 @@ public Action WeaponSDKOnCanUse(int clientIndex, int weaponIndex)
         /** Uncomment bellow, if you want to check the client's level/online access **/
         
         // Block pickup it, if online too low
-        /*if(!gClientData[clientIndex][Client_Survivor] && fnGetPlaying() < WeaponsGetOnline(iD))
+        /*
+        if(!gClientData[clientIndex][Client_Survivor] && fnGetPlaying() < WeaponsGetOnline(iD))
         {
             return Plugin_Handled;
         }
-        
+
         // Block pickup it, if level too low
         if(!gClientData[clientIndex][Client_Survivor] && gClientData[clientIndex][Client_Level] < WeaponsGetLevel(iD))
         {
             return Plugin_Handled;
-        }*/
+        }
+        */
     }
     
     // Allow pickup
@@ -534,11 +534,15 @@ void WeaponSDKOnClientUpdate(int clientIndex)
     gClientData[clientIndex][Client_ViewModels][1] = EntIndexToEntRef(viewModel2);
 
     // Gets the active weapon index from the client
-    int activeIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
 
-    // Forward event to modules (FakeHook)
-    WeaponSDKOnDeploy(clientIndex, activeIndex);
-    WeaponSDKOnDeployPost(clientIndex, activeIndex);
+    // Validate weapon
+    if(IsValidEdict(weaponIndex))
+    {
+        // Update the weapon
+        SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
+        SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
+    }
 }
 
 /**
@@ -588,7 +592,7 @@ public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex)
     if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
     {
         // Validate weapon
-        if(weaponIndex != INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
+        if(weaponIndex > INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
         {
             // Validate custom index
             int iD = gWeaponData[weaponIndex];
@@ -715,19 +719,19 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     // If view model exist, then apply it
     if(iModel)
     {
+        // Gets the draw animation sequence
+        gClientData[clientIndex][Client_DrawSequence] = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
+
         // Make the first view model invisible
         WeaponHDRSetEntityVisibility(viewModel1, false);
         SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
         
         // Make the second view model visible
         WeaponHDRSetEntityVisibility(viewModel2, true);
-        ///SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2); //-> below
+        ///SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2); //-> transport a bit below
         
         // Remove the muzzle on the switch
         VEffectRemoveMuzzle(clientIndex, viewModel2);
-
-        // Gets the draw animation sequence
-        gClientData[clientIndex][Client_DrawSequence] = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
 
         // Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
         SetEntData(viewModel1, g_iOffset_ViewModelSequence, -1, _, true);
@@ -820,13 +824,13 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
 public void WeaponSDKOnAnimationFix(int clientIndex) 
 {
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(clientIndex, false))
     {
         return;
     }
 
     // Set current addons
-    WeaponAttachmentSetAddons(clientIndex);
+    WeaponAttachmentSetAddons(clientIndex); /// Back weapon's models
     
     // Validate weapon
     if(!gClientData[clientIndex][Client_CustomWeapon]) /// Optimization for frame check
@@ -895,7 +899,7 @@ public void WeaponSDKOnAnimationFix(int clientIndex)
         // Validate sequence
         if(drawSequence != -1 && nSequence != drawSequence)
         {
-            SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
+            SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1); /// Update!
             gClientData[clientIndex][Client_DrawSequence] = -1;
         }
         

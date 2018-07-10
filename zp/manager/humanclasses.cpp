@@ -1006,8 +1006,11 @@ public int HumanMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             // Sets next zombie class
             gClientData[clientIndex][Client_HumanClassNext] = iD;
 
-            // Show class info
-            TranslationPrintToChat(clientIndex, "Human info", sInfo, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
+            // Gets human name
+            HumanGetName(iD, sInfo, sizeof(sInfo));
+            
+            // If help messages enabled, show info
+            if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "Human info", sInfo, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
         }
     }
 }

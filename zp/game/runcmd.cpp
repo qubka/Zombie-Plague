@@ -77,7 +77,7 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
             if((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
             {    
                 // Validate overtransmitting
-                if(!(nLastButtons[clientIndex] & IN_JUMP) && !(nLastButtons[clientIndex] & IN_DUCK))
+                if(!((nLastButtons[clientIndex] & IN_JUMP) && (nLastButtons[clientIndex] & IN_DUCK)))
                 {
                     // Create a leap jump
                     JumpBoostOnClientLeapJump(clientIndex);
