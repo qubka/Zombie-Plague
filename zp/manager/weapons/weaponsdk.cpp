@@ -289,7 +289,7 @@ public void WeaponSDKOnFakeWeaponReload(int referenceIndex)
         if(iD != -1)
         {
             // If custom reload speed exist, then apply it
-            float flReload = WeaponsGetSpeed(iD);
+            float flReload = WeaponsGetReload(iD);
             if(flReload)
             {
                 // Gets the weapon's owner
