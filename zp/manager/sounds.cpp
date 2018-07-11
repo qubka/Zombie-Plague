@@ -92,21 +92,18 @@ void SoundsLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sSoundsPath);
     }
     
-    // Initialize line char
-    static char sLine[PLATFORM_MAX_PATH];
-    
     // i = sound array index
     for(int i = 0; i < iSounds; i++)
     {
         // Gets array line
-        SoundsGetLine(i, sLine, sizeof(sLine));
+        SoundsGetLine(i, sSoundsPath, sizeof(sSoundsPath));
 
         // Parses a parameter string in key="value" format and store the result in a ParamParseResult array
-        if(ParamParseString(SoundBuffer, sLine, sizeof(sLine), i) == PARAM_ERROR_NO)
+        if(ParamParseString(SoundBuffer, sSoundsPath, sizeof(sSoundsPath), i) == PARAM_ERROR_NO)
         {
             // Count number of parts inside of string
             static char sSound[PARAM_VALUE_MAXPARTS][PLATFORM_MAX_PATH];
-            int nSounds = ExplodeString(sLine, ",", sSound, sizeof(sSound), sizeof(sSound[]));
+            int nSounds = ExplodeString(sSoundsPath, ",", sSound, sizeof(sSound), sizeof(sSound[]));
             
             // Gets array size
             ArrayList arraySound = arraySounds.Get(i);
@@ -124,16 +121,16 @@ void SoundsLoad(/*void*/)
                 arraySound.PushString(sSound[x]);
                 
                 // Format the full path
-                Format(sLine, sizeof(sLine), "sound/%s", sSound[x]);
+                Format(sSoundsPath, sizeof(sSoundsPath), "sound/%s", sSound[x]);
 
                 // Add to server precache list
-                if(fnMultiFilePrecache(sLine)) iSoundValidCount++; else iSoundUnValidCount++;
+                if(fnMultiFilePrecache(sSoundsPath)) iSoundValidCount++; else iSoundUnValidCount++;
             }
         }
         else
         {
             // Log sound error info
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of sound block: %d in sounds config file: \"%s\"", i + 1, sSoundsPath);
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of sound block: %d", i + 1);
             
             // Remove sound block from array
             arraySounds.Erase(i);

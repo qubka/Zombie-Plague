@@ -432,46 +432,6 @@ stock bool IsPlayerExist(const int clientIndex, const bool aliveness = true)
 }
 
 /**
- * @brief Returns true if the player has a current weapon, false if not.
- *
- * @param clientIndex       The client index.
- * @param weaponName        The weapon name.
- *
- * @return                  True or false.
- **/
-stock bool IsPlayerHasWeapon(const int clientIndex, char[] weaponName)
-{
-    // Gets custom weapon id
-    int iD = ZP_GetWeaponNameID(weaponName);
-
-    // Gets number of all client weapons
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
-    
-    // i = weapon number
-    for (int i = 0; i < iSize; i++)
-    {
-        // Gets weapon index
-        int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
-        
-        // If entity isn't valid, then skip
-        if(IsValidEdict(weaponIndex))
-        {
-            // If weapon find, then return
-            if(ZP_GetWeaponID(weaponIndex) == iD)
-            {
-                return true;
-            }
-        }
-        
-        // Go to next weapon
-        continue;
-    }
-
-    // If wasn't found
-    return false;
-}
-
-/**
  * Create a particle entity.
  * 
  * @param parentIndex       The client index.

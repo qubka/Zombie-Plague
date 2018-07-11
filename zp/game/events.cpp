@@ -43,6 +43,9 @@ void EventInit(/*void*/)
     HookEvent("weapon_fire",         EventPlayerFire,       EventHookMode_Pre);
     HookEvent("hostage_follows",     EventPlayerHostage,    EventHookMode_Post);
     HookEvent("player_team",         EventBlockBroadCast,   EventHookMode_Pre);
+    
+    // Hook temp events
+    AddTempEntHook("Shotgun Shot",   EventPlayerShoot);
 }
 
 /*
@@ -322,4 +325,37 @@ public Action EventBlockBroadCast(Event hEvent, const char[] sName, bool dontBro
         // Disable broadcasting
         hEvent.BroadcastDisabled = true;
     }
+}
+
+/**
+ * Event callback (Shotgun Shot)
+ * The bullet was been created.
+ * 
+ * @param sTEName           The temp name.
+ * @param iPlayers          Array containing target player indexes.
+ * @param numClients        Number of players in the array.
+ * @param flDelay           Delay in seconds to send the TE.
+ **/ 
+public Action EventPlayerShoot(const char[] sTEName, const int[] iPlayers, int numClients, float flDelay) 
+{ 
+    // Gets all required event info
+    int clientIndex = TE_ReadNum("m_iPlayer") + 1;
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Continue;
+    }
+
+    // Gets the active weapon index from the client
+    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
+    {
+        return Plugin_Continue;
+    }
+    
+    // Forward event to modules
+    return WeaponsOnShoot(clientIndex, weaponIndex);
 }

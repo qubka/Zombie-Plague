@@ -76,35 +76,32 @@ void DownloadsLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sDownloadsPath);
     }
 
-    // Initialize line char
-    static char sDownloadPath[PLATFORM_MAX_PATH];
-    
     // i = download array index
     for(int i = 0; i < iDownloads; i++)
     {
         // Gets download path
-        arrayDownloads.GetString(i, sDownloadPath, sizeof(sDownloadPath));
+        arrayDownloads.GetString(i, sDownloadsPath, sizeof(sDownloadsPath));
 
         // If file exist
-        if(FileExists(sDownloadPath) || FindCharInString(sDownloadPath, '@', true) != -1) //! Fix for particles
+        if(FileExists(sDownloadsPath) || FindCharInString(sDownloadsPath, '@', true) != -1) //! Fix for particles
         {
             // Add to server precache list
-            if(fnMultiFilePrecache(sDownloadPath)) iDownloadValidCount++; else iDownloadUnValidCount++;
+            if(fnMultiFilePrecache(sDownloadsPath)) iDownloadValidCount++; else iDownloadUnValidCount++;
         }
         // If doesn't exist, it might be directory ?
         else
         {
             // Gets last static char in the string
-            int iLastChar = strlen(sDownloadPath) - 1;
+            int iLastChar = strlen(sDownloadsPath) - 1;
             
             // Open directory
-            DirectoryListing sDirectory = OpenDirectory(sDownloadPath);
+            DirectoryListing sDirectory = OpenDirectory(sDownloadsPath);
             
             // If directory doesn't exist, then log, and stop
-            if(sDirectory == INVALID_HANDLE || sDownloadPath[iLastChar] != '/')
+            if(sDirectory == INVALID_HANDLE || sDownloadsPath[iLastChar] != '/')
             {
                 // Log download error info
-                LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sDownloadPath);
+                LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sDownloadsPath);
                 
                 // Remove download from array
                 RemoveFromArray(arrayDownloads, i);
@@ -118,8 +115,7 @@ void DownloadsLoad(/*void*/)
             }
     
             // Initialize some variables
-            static char sFile[NORMAL_LINE_LENGTH];
-            static char sLine[PLATFORM_MAX_PATH];
+            static char sFile[PLATFORM_MAX_PATH];
             
             // File types
             FileType sType;
@@ -130,10 +126,10 @@ void DownloadsLoad(/*void*/)
                 if(sType == FileType_File) 
                 {
                     // Format full path to file
-                    Format(sLine, sizeof(sLine), "%s%s", sDownloadPath, sFile);
+                    Format(sFile, sizeof(sFile), "%s%s", sDownloadsPath, sFile);
                     
                     // Add to server precache list
-                    if(fnMultiFilePrecache(sLine)) iDownloadValidCount++; else iDownloadUnValidCount++;
+                    if(fnMultiFilePrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
                 }
             }
         

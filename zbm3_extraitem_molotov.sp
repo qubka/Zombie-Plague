@@ -37,13 +37,15 @@ public Plugin Molotov =
     name            = "[ZP] ExtraItem: Molotov",
     author          = "qubka (Nikita Ushakov)",     
     description     = "Addon of extra items",
-    version         = "1.0",
+    version         = "2.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about extra items.
  **/
+#define EXTRA_ITEM_REFERENCE           "MolotovNade" // Only will be taken from weapons.ini
+#define EXTRA_ITEM_DUBLICAT            "IncNade" // Only will be taken from weapons.ini
 #define EXTRA_ITEM_NAME                "Molotov" // Only will be taken from translation file         
 #define EXTRA_ITEM_COST                2
 #define EXTRA_ITEM_LEVEL               0
@@ -79,8 +81,8 @@ public Plugin Molotov =
 Handle Task_ZombieBurned[MAXPLAYERS+1] = INVALID_HANDLE; float flSpeed[MAXPLAYERS+1];
  
 // Item index
-int iItem;
-#pragma unused iItem
+int gItem; int gWeapon; int gDublicat;
+#pragma unused gItem, gWeapon, gDublicat
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -95,8 +97,19 @@ public void OnLibraryAdded(const char[] sLibrary)
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
+}
+
+/**
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ **/
+public void OnConfigsExecuted(/*void*/)
+{
+    // Initilizate weapon
+    gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
+    gDublicat = ZP_GetWeaponNameID(EXTRA_ITEM_DUBLICAT); /// Bugfix
+    if(gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 }
 
 /**
@@ -193,10 +206,10 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // If you don't allowed to buy, then stop
-        if(IsPlayerHasWeapon(clientIndex, "MolotovNade") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerHasWeapon(clientIndex, gDublicat) || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
         {
             return Plugin_Handled;
         }
@@ -221,10 +234,10 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, "MolotovNade");
+        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE);
     }
 }
 

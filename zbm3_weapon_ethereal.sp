@@ -36,7 +36,7 @@ public Plugin WeaponM4A1Ethereal =
     name            = "[ZP] Weapon: Ethereal",
     author          = "qubka (Nikita Ushakov)",
     description     = "Addon of survivor weapon",
-    version         = "1.0",
+    version         = "2.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -51,8 +51,8 @@ public Plugin WeaponM4A1Ethereal =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Initialize variables
+int gWeapon;
 
 // Variables for precache resources
 int decalBeam;
@@ -67,56 +67,21 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Hook temp entity
-        AddTempEntHook("Shotgun Shot", WeaponFireBullets);
         HookEvent("bullet_impact", WeaponImpactBullets, EventHookMode_Post);
     }
 }
 
 /**
- * The map is starting.
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
  **/
-public void OnMapStart(/*void*/)
+public void OnConfigsExecuted(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
-    
+    // Initilizate weapon
+    gWeapon = ZP_GetWeaponNameID(WEAPON_REFERANCE);
+    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
+
     // Models
     decalBeam = PrecacheModel("materials/sprites/laserbeam.vmt");
-}
-
-/**
- * Event callback (Shotgun Shot)
- * The weapon was been shoted.
- * 
- * @param sTEName       Temp name.
- * @param iPlayers      Array containing target player indexes.
- * @param numClients    Number of players in the array.
- * @param flDelay       Delay in seconds to send the TE.
- **/
-public Action WeaponFireBullets(const char[] sTEName, const int[] iPlayers, int numClients, float flDelay)
-{
-    // Initialize weapon index
-    int weaponIndex;
-
-    // Gets all required event info
-    int clientIndex = TE_ReadNum("m_iPlayer") + 1;
-
-    // Validate weapon
-    if(!IsCustomItem(clientIndex, weaponIndex))
-    {
-        // Allow broadcast
-        return Plugin_Continue;
-    }
-
-    // Emit fire sound
-    EmitSoundToAll("*/weapons/eminem/ethereal/ethereal_shoot1.mp3", clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
-    EmitSoundToAll("*/weapons/eminem/ethereal/ethereal_shoot1.mp3", clientIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-    
-    // Sets speed of shooting
-    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", GetGameTime() + WEAPON_SPEED);
-    
-    // Block broadcast
-    return Plugin_Stop;
 }
 
 /**
@@ -130,77 +95,65 @@ public Action WeaponFireBullets(const char[] sTEName, const int[] iPlayers, int 
 public Action WeaponImpactBullets(Event hEvent, const char[] sName, bool iDontBroadcast) 
 {
     // Initialize weapon index
-    static int weaponIndex;
+    int weaponIndex;
 
     // Gets all required event info
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
 
-    // If weapon isn't custom
-    if(!IsCustomItem(clientIndex, weaponIndex))
+    // Validate weapon
+    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
-        return;
+        // Initialize vector variables
+        static float flStart[3];
+        
+        // Update weapon's shoot position
+        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
+        
+        // Send data to the next frame
+        DataPack hPack = CreateDataPack();
+        hPack.WriteCell(GetClientUserId(clientIndex));
+        hPack.WriteFloat(hEvent.GetFloat("x"));
+        hPack.WriteFloat(hEvent.GetFloat("y"));
+        hPack.WriteFloat(hEvent.GetFloat("z"));
+
+        // Create beam on the next frame
+        RequestFrame(view_as<RequestFrameCallback>(WeaponImpactBulletsPost), hPack);
     }
-
-    // Initialize vector variables
-    static float flStart[3]; static float flEnd[3];
-
-    // Gets end position
-    flEnd[0] = hEvent.GetFloat("x");
-    flEnd[1] = hEvent.GetFloat("y");
-    flEnd[2] = hEvent.GetFloat("z");
-
-    // Gets weapon position
-    ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
-    
-    // Sent a beam
-    TE_SetupBeamPoints(flStart, flEnd, decalBeam, 0 , 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-    TE_SendToAll();
 }
 
-//**********************************************
-//* VALIDATIONS                                *
-//**********************************************
-
 /**
- * Validate custom weapon and player.
- * 
- * @param clientIndex       The client index. 
- * @param weaponIndex       The weapon index.
- * @return                  True if valid, false if not.
+ * Event callback (bullet_impact)
+ * The bullet hits something.
+ *
+ * @param hPack             The data pack.
  **/
-stock bool IsCustomItem(int clientIndex, int &weaponIndex)
+public void WeaponImpactBulletsPost(DataPack hPack)
 {
+    // Resets the position in the datapack
+    hPack.Reset();
+    
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(hPack.ReadCell());
+
     // Validate client
-    if (!IsPlayerExist(clientIndex))
+    if(clientIndex)
     {
-        return false;
+        // Initialize vector variables
+        static float flStart[3]; static float flEnd[3];
+
+        // Gets hit position
+        flEnd[0] = hPack.ReadFloat();
+        flEnd[1] = hPack.ReadFloat();
+        flEnd[2] = hPack.ReadFloat();
+
+        // Gets weapon position
+        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
+        
+        // Sent a beam
+        TE_SetupBeamPoints(flStart, flEnd, decalBeam, 0 , 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+        TE_SendToAll();
     }
     
-    // Validate survivor
-    if (!ZP_IsPlayerSurvivor(clientIndex))
-    {
-        return false;
-    }
-
-    // Gets weapon index
-    weaponIndex = GetEntPropEnt(clientIndex, Prop_Data, "m_hActiveWeapon");
-
-    // Verify that the weapon is valid
-    if(!IsValidEdict(weaponIndex))
-    {
-        return false;
-    }
-    
-    // Gets custom weapon id
-    static int iD;
-    if(!iD) iD = ZP_GetWeaponNameID(WEAPON_REFERANCE);
-    
-    // If weapon id isn't equal, then stop
-    if(ZP_GetWeaponID(weaponIndex) != iD)
-    {
-        return false;
-    }
-
-    // Return on unsuccess
-    return true;
+    // Close the datapack
+    delete hPack;
 }

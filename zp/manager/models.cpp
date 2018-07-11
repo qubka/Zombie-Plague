@@ -92,7 +92,7 @@ stock bool ModelsPlayerPrecache(char[] sModel)
  * @param sModel            The model path. 
  * @return                  The model index.
  **/
-stock int ModelsViewPrecache(char[] sModel)
+stock int ModelsWeaponPrecache(char[] sModel)
 {
     // If model's path is empty, then return 0 index
     if(!strlen(sModel))
@@ -108,10 +108,10 @@ stock int ModelsViewPrecache(char[] sModel)
     }
     
     // Convert model to index
-    int iModelIndex = PrecacheModel(sModel, true);
+    int modelIndex = PrecacheModel(sModel, true);
     
     // Validate index (Bugfix for modules)
-    if(iModelIndex) 
+    if(modelIndex) 
     {
         // Add file to download table
         AddFileToDownloadsTable(sModel);
@@ -121,7 +121,7 @@ stock int ModelsViewPrecache(char[] sModel)
     }
     
     // Return model index
-    return iModelIndex;
+    return modelIndex;
 }
 
 /**
@@ -175,7 +175,7 @@ void ModelsPrecacheDirFromMainFile(char[] sModel)
 }
 
 /**
- * Validates the specified standart models from game folder.
+    * Validates the specified standart models from game folder.
  *
  * @param sModel            The model path for validation.
  * @return                  True if standart model, false otherwise.

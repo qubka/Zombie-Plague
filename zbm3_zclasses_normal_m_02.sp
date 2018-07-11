@@ -56,7 +56,7 @@ public Plugin ZombieClassNormalM02 =
 #define ZOMBIE_CLASS_LEVEL              1
 #define ZOMBIE_CLASS_VIP                NO
 #define ZOMBIE_CLASS_DURATION           10.0    
-#define ZOMBIE_CLASS_COUNTDOWN          30.0
+#define ZOMBIE_CLASS_COUNTDOWN          15.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       300
 #define ZOMBIE_CLASS_REGEN_INTERVAL     5.0
 #define ZOMBIE_CLASS_SKILL_DISTANCE     60.0
@@ -201,9 +201,9 @@ public void OnLibraryAdded(const char[] sLibrary) // Stamper
 }
 
 /**
-    * The map is starting.
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
  **/
-public void OnMapStart(/*void*/)
+public void OnConfigsExecuted(/*void*/)
 {
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

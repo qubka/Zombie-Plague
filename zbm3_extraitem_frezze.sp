@@ -44,7 +44,7 @@ public Plugin Freeze =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_WEAPONS            "FreezeNade" // Name in weapons.ini
+#define EXTRA_ITEM_REFERENCE          "FreezeNade" // Name in weapons.ini
 #define EXTRA_ITEM_NAME               "Freeze Grenade" // Only will be taken from translation file        
 #define EXTRA_ITEM_COST               5
 #define EXTRA_ITEM_LEVEL              0
@@ -85,8 +85,8 @@ Handle Task_ZombieFreezed[MAXPLAYERS+1] = INVALID_HANDLE;
 ConVar hSoundLevel;
 
 // Item index
-int iItem;
-#pragma unused iItem
+int gItem; int gWeapon;
+#pragma unused gItem, gWeapon
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -104,15 +104,19 @@ public void OnLibraryAdded(const char[] sLibrary)
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
 }
 
 /**
- * The map is starting.
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
  **/
-public void OnMapStart(/*void*/)
+public void OnConfigsExecuted(/*void*/)
 {
+    // Initilizate weapon
+    gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
+    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
+
     // Hooks server sounds
     AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
     
@@ -205,10 +209,10 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // If you don't allowed to buy, then stop
-        if(IsPlayerHasWeapon(clientIndex, "FreezeNade") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
         {
             return Plugin_Handled;
         }
@@ -233,10 +237,10 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     { 
         // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, "FreezeNade");
+        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE);
     }
 }
 
@@ -281,20 +285,16 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
     static float vEntPosition[3]; static float vVictimPosition[3]; static float vVictimAngle[3];
 
     // Gets all required event info
-    int entityIndex = hEvent.GetInt("entityid");
+    int grenadeIndex = hEvent.GetInt("entityid");
     vEntPosition[0] = hEvent.GetFloat("x"); 
     vEntPosition[1] = hEvent.GetFloat("y"); 
     vEntPosition[2] = hEvent.GetFloat("z");
     
     // Validate entity
-    if(IsValidEdict(entityIndex))
+    if(IsValidEdict(grenadeIndex))
     {
-        // Gets custom grenade id
-        static int iD;
-        if(!iD) iD = ZP_GetWeaponNameID(EXTRA_ITEM_WEAPONS);
-
         // Validate custom grenade
-        if(ZP_GetWeaponID(entityIndex) == iD)
+        if(ZP_GetWeaponID(grenadeIndex) == gWeapon)
         {
             // i = client index
             for(int i = 1; i <= MaxClients; i++)
@@ -370,7 +370,7 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
             TE_SendToAll();
             
             // Remove grenade
-            AcceptEntityInput(entityIndex, "Kill");
+            AcceptEntityInput(grenadeIndex, "Kill");
         }
     }
 }

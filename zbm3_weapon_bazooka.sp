@@ -37,7 +37,7 @@ public Plugin WeaponAWPBazooka =
     name            = "[ZP] Weapon: Bazooka",
     author          = "qubka (Nikita Ushakov)",
     description     = "Addon of custom weapon",
-    version         = "1.0",
+    version         = "2.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -79,7 +79,10 @@ public Plugin WeaponAWPBazooka =
 /**
  * @endsection
  **/
- 
+
+// Initialize variables
+int gWeapon;
+
 // ConVar for sound level
 ConVar hSoundLevel;
 
@@ -92,110 +95,126 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Hook temp entity
-        AddTempEntHook("Shotgun Shot", WeaponFireBullets);
+        // Hook player events
+        HookEvent("weapon_fire", EventPlayerFire, EventHookMode_Pre);
     }
 }
 
+
 /**
- * The map is starting.
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
  **/
-public void OnMapStart(/*void*/)
+public void OnConfigsExecuted(/*void*/)
 {
+    // Initilizate weapon
+    gWeapon = ZP_GetWeaponNameID(WEAPON_REFERANCE);
+    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
+
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
- * Event callback (Shotgun Shot)
- * The weapon was been shoted.
+ * Event callback (weapon_fire)
+ * Client has been shooted.
  * 
- * @param sTEName       Temp name.
- * @param iPlayers      Array containing target player indexes.
- * @param numClients    Number of players in the array.
- * @param flDelay       Delay in seconds to send the TE.
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action WeaponFireBullets(const char[] sTEName, const int[] iPlayers, int numClients, float flDelay)
+public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
     // Initialize weapon index
     int weaponIndex;
-
-    // Gets all required event info
-    int clientIndex = TE_ReadNum("m_iPlayer") + 1;
-
-    // Validate weapon
-    if(!IsCustomItem(clientIndex, weaponIndex))
-    {
-        // Allow broadcast
-        return Plugin_Continue;
-    }
-
-    // Initialize vectors
-    static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
-
-    // Gets the weapon's shoot position
-    ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", vPosition);
-
-    // Gets the client's eye angle
-    GetClientEyeAngles(clientIndex, vAngle);
-
-    // Gets the client's speed
-    GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
-
-    // Emit fire sound
-    EmitSoundToAll("*/zombie/bazooka/bazooka_1.mp3", clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
-    EmitSoundToAll("*/zombie/bazooka/bazooka_1.mp3", clientIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-
-    // Sets speed of shooting
-    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", GetGameTime() + WEAPON_SPEED);
     
-    // Create a rocket entity
-    int entityIndex = CreateEntityByName("hegrenade_projectile");
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    
+    // Validate weapon
+    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-
-        // Returns vectors in the direction of an angle
-        GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
-
-        // Normalize the vector (equal magnitude at varying distances)
-        NormalizeVector(vEntVelocity, vEntVelocity);
-
-        // Apply the magnitude by scaling the vector
-        ScaleVector(vEntVelocity, WEAPON_ROCKET_SPEED);
-
-        // Adds two vectors
-        AddVectors(vEntVelocity, vVelocity, vEntVelocity);
-
-        // Push the rocket
-        TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
-
-        // Sets the model
-        SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
-
-        // Create an effect
-        FakeCreateParticle(entityIndex, _, "smoking", WEAPON_EFFECT_TIME);
-
-        // Sets the parent for the entity
-        SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
-        SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
-        SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
-
-        // Sets the gravity
-        SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
+        // Initialize vectors
+        static float vPosition[3];
         
-        // Emit sound
-        EmitSoundToAll("*/zombie/bazooka/ignite_trail.mp3", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-
-        // Create touch hook
-        SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
+        // Gets the weapon's shoot position
+        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", vPosition); /// Bug fix for new attachment
+        
+        // Create rocket on the next frame
+        RequestFrame(view_as<RequestFrameCallback>(EventPlayerFirePost), GetClientUserId(clientIndex));
     }
+}
 
-    // Block broadcast
-    return Plugin_Stop;
+/**
+ * Event callback (weapon_fire) (Post)
+ * Client has been shooted.
+ *
+ * @param userID            The user id.
+ **/
+public void EventPlayerFirePost(int userID)
+{
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
+
+    // Validate client
+    if(clientIndex)
+    {
+        // Initialize vectors
+        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
+        
+        // Gets the weapon's shoot position
+        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", vPosition);
+
+        // Gets the client's eye angle
+        GetClientEyeAngles(clientIndex, vAngle);
+
+        // Gets the client's speed
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
+
+        // Create a rocket entity
+        int entityIndex = CreateEntityByName("hegrenade_projectile");
+
+        // Validate entity
+        if(entityIndex != INVALID_ENT_REFERENCE)
+        {
+            // Spawn the entity
+            DispatchSpawn(entityIndex);
+
+            // Returns vectors in the direction of an angle
+            GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
+
+            // Normalize the vector (equal magnitude at varying distances)
+            NormalizeVector(vEntVelocity, vEntVelocity);
+
+            // Apply the magnitude by scaling the vector
+            ScaleVector(vEntVelocity, WEAPON_ROCKET_SPEED);
+
+            // Adds two vectors
+            AddVectors(vEntVelocity, vVelocity, vEntVelocity);
+
+            // Push the rocket
+            TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
+
+            // Sets the model
+            SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
+
+            // Create an effect
+            FakeCreateParticle(entityIndex, _, "smoking", WEAPON_EFFECT_TIME);
+
+            // Sets the parent for the entity
+            SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
+            SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
+            SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+
+            // Sets the gravity
+            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
+            
+            // Emit sound
+            EmitSoundToAll("*/zombie/bazooka/ignite_trail.mp3", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+
+            // Create touch hook
+            SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
+        }
+    }
 }
 
 /**
@@ -276,46 +295,4 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
 
     // Return on the success
     return Plugin_Continue;
-}
-
-//**********************************************
-//* VALIDATIONS                                *
-//**********************************************
-
-/**
- * Validate custom weapon and player.
- * 
- * @param clientIndex       The client index. 
- * @param weaponIndex       The weapon index.
- * @return                  True if valid, false if not.
- **/
-stock bool IsCustomItem(int clientIndex, int &weaponIndex)
-{
-    // Validate client
-    if (!IsPlayerExist(clientIndex))
-    {
-        return false;
-    }
-
-    // Gets weapon index
-    weaponIndex = GetEntPropEnt(clientIndex, Prop_Data, "m_hActiveWeapon");
-
-    // Verify that the weapon is valid
-    if(!IsValidEdict(weaponIndex))
-    {
-        return false;
-    }
-
-    // Gets custom weapon id
-    static int iD;
-    if(!iD) iD = ZP_GetWeaponNameID(WEAPON_REFERANCE);
-    
-    // If weapon id isn't equal, then stop
-    if(ZP_GetWeaponID(weaponIndex) != iD)
-    {
-        return false;
-    }
-
-    // Return on unsuccess
-    return true;
 }

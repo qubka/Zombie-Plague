@@ -164,6 +164,31 @@ native int ZP_GetWeaponClip(int weaponID);
 native int ZP_GetWeaponAmmo(int weaponID);
 
 /**
+ * @brief Gets the shoot delay of the weapon.
+ *
+ * @param weaponID          The weapon ID.
+ * @return                  The delay amount.    
+ **/
+native float ZP_GetWeaponSpeed(int weaponID);
+
+/**
+ * @brief Gets the reload duration of the weapon.
+ *
+ * @param weaponID          The weapon ID.
+ * @return                  The duration amount.    
+ **/
+native float ZP_GetWeaponReload(int weaponID);
+
+/**
+ * @brief Gets the sound of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param model             The string to return sound in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponSound(int weaponID, char[] sound, int maxlenght = 256);
+
+/**
  * @brief Gets the class access of the weapon.
  *
  * @param iD                The weapon id.
@@ -228,3 +253,76 @@ native int ZP_GetWeaponModelViewSkin(int weaponID);
  * @return                  The heat amount.    
  **/
 native float ZP_GetWeaponModelViewHeat(int weaponID);
+
+/**
+ * @brief Returns true if the player has a current weapon, false if not.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  True or false.
+ **/
+stock bool ZP_IsPlayerHasWeapon(const int clientIndex, const int weaponID)
+{
+    // Gets number of all client weapons
+    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    
+    // i = weapon number
+    for (int i = 0; i < iSize; i++)
+    {
+        // Gets weapon index
+        int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
+        
+        // If entity isn't valid, then skip
+        if(IsValidEdict(weaponIndex))
+        {
+            // If weapon find, then return
+            if(ZP_GetWeaponID(weaponIndex) == weaponID)
+            {
+                return true;
+            }
+        }
+        
+        // Go to next weapon
+        continue;
+    }
+
+    // If wasn't found
+    return false;
+}
+
+/**
+ * @brief Returns true if the player hold a current weapon, false if not.
+ * 
+ * @param clientIndex       The client index. 
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ * 
+ * @return                  True or false.
+ **/
+stock bool ZP_IsPlayerHoldWeapon(const int clientIndex, int &weaponIndex, const int weaponID)
+{
+    // Validate client
+    if (!IsPlayerExist(clientIndex))
+    {
+        return false;
+    }
+
+    // Gets weapon index
+    weaponIndex = GetEntPropEnt(clientIndex, Prop_Data, "m_hActiveWeapon");
+
+    // If entity isn't valid, then stop
+    if(!IsValidEdict(weaponIndex))
+    {
+        return false;
+    }
+
+    // If weapon didn't find, then stop
+    if(ZP_GetWeaponID(weaponIndex) != weaponID)
+    {
+        return false;
+    }
+
+    // Return on success
+    return true;
+}

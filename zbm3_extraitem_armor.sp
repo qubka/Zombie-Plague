@@ -36,7 +36,7 @@ public Plugin Armor =
     name            = "[ZP] ExtraItem: Armor",
     author          = "qubka (Nikita Ushakov)",     
     description     = "Addon of extra items",
-    version         = "1.0",
+    version         = "2.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -59,8 +59,8 @@ bool bArmored[MAXPLAYERS+1];
 ConVar hSoundLevel;
  
 // Item index
-int iItem;
-#pragma unused iItem
+int gItem;
+#pragma unused gItem
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -72,14 +72,14 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
 }
 
 /**
- * The map is starting.
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
  **/
-public void OnMapStart(/*void*/)
+public void OnConfigsExecuted(/*void*/)
 {
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
@@ -137,7 +137,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // If you don't allowed to buy, then stop
         if(GetClientArmor(clientIndex) >= 100 || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
@@ -165,7 +165,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     }
 
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // Give item
         SetEntProp(clientIndex, Prop_Send, "m_ArmorValue", 100, 1);

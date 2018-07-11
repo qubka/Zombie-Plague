@@ -36,7 +36,7 @@ public Plugin AntiDot =
     name            = "[ZP] ExtraItem: Antidot",
     author          = "qubka (Nikita Ushakov)",     
     description     = "Addon of extra items",
-    version         = "1.0",
+    version         = "2.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -53,8 +53,8 @@ public Plugin AntiDot =
  **/
 
 // Item index
-int iItem;
-#pragma unused iItem
+int gItem;
+#pragma unused gItem
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -66,7 +66,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
 }
 
@@ -88,7 +88,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // Initialize round type
         int modeIndex = ZP_GetCurrentGameMode();
@@ -119,7 +119,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // Change class to human
         ZP_SwitchClientClass(clientIndex, _, TYPE_HUMAN);

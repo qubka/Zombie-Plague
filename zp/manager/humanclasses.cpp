@@ -214,55 +214,31 @@ public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
         return -1;
     }
 
-    // Gets native data
-    char sHumanName[SMALL_LINE_LENGTH];
-    char sHumanModel[PLATFORM_MAX_PATH];
-    char sHumanArm[PLATFORM_MAX_PATH];
-    char sHumanDeath[SMALL_LINE_LENGTH];
-    char sHumanHurt[SMALL_LINE_LENGTH];
-    char sHumanInfect[SMALL_LINE_LENGTH];
-    
-    // General                                                 
-    GetNativeString(1,  sHumanName,   sizeof(sHumanName));   
-    GetNativeString(2,  sHumanModel,  sizeof(sHumanModel));  
-    GetNativeString(3,  sHumanArm,    sizeof(sHumanArm));     
-    GetNativeString(10, sHumanDeath,  sizeof(sHumanDeath));  
-    GetNativeString(11, sHumanHurt,   sizeof(sHumanHurt));     
-    GetNativeString(12, sHumanInfect, sizeof(sHumanInfect)); 
-    
     // Initialize char
-    char sName[SMALL_LINE_LENGTH];
-    
-    // i = Human class number
-    for(int i = 0; i < iCount; i++)
-    {
-        // Gets human class name
-        HumanGetName(i, sName, sizeof(sName));
-    
-        // If names match, then stop
-        if(!strcmp(sHumanName, sName, false))
-        {
-            LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Human class already registered (%s)", sName);
-            return -1;
-        }
-    }
-    
+    char sHumanBuffer[PLATFORM_MAX_PATH];
+
     // Initialize array block
     ArrayList arrayHumanClass = CreateArray(HumanClassMax);
     
     // Push native data into array
-    arrayHumanClass.PushString(sHumanName);   // Index: 0
-    arrayHumanClass.PushString(sHumanModel);  // Index: 1
-    arrayHumanClass.PushString(sHumanArm);    // Index: 2
+    GetNativeString(1, sHumanBuffer, sizeof(sHumanBuffer));   
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 0
+    GetNativeString(2, sHumanBuffer, sizeof(sHumanBuffer));
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 1
+    GetNativeString(3, sHumanBuffer, sizeof(sHumanBuffer)); 
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 2
     arrayHumanClass.Push(GetNativeCell(4));   // Index: 3
     arrayHumanClass.Push(GetNativeCell(5));   // Index: 4
     arrayHumanClass.Push(GetNativeCell(6));   // Index: 5
     arrayHumanClass.Push(GetNativeCell(7));   // Index: 6
     arrayHumanClass.Push(GetNativeCell(8));   // Index: 7
     arrayHumanClass.Push(GetNativeCell(9));   // Index: 8
-    arrayHumanClass.PushString(sHumanDeath);  // Index: 9
-    arrayHumanClass.PushString(sHumanHurt);   // Index: 10
-    arrayHumanClass.PushString(sHumanInfect); // Index: 11
+    GetNativeString(10, sHumanBuffer, sizeof(sHumanBuffer));  
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 9
+    GetNativeString(11, sHumanBuffer, sizeof(sHumanBuffer));
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 10
+    GetNativeString(12, sHumanBuffer, sizeof(sHumanBuffer));
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 11
     
     // Store this handle in the main array
     arrayHumanClasses.Push(arrayHumanClass);

@@ -122,7 +122,7 @@ void HitgroupsCacheData(/*void*/)
 {
     // Gets config's file path
     char sHitGroupsPath[PLATFORM_MAX_PATH];
-    ConfigGetConfigPath(File_Hitgroups, sHitGroupsPath, sizeof(sHitGroupsPath));
+    ConfigGetConfigPath(File_Hitgroups, sHitGroupsPath, sizeof(sHitGroupsPath)); 
     
     KeyValues kvHitgroups;
     bool bSuccess = ConfigOpenConfigFile(File_Hitgroups, kvHitgroups);
@@ -131,37 +131,26 @@ void HitgroupsCacheData(/*void*/)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Hitgroups, "Config Validation", "Unexpected error caching data from hitgroups config file: %s", sHitGroupsPath);
     }
-    
-    char sHitGroupName[SMALL_LINE_LENGTH];
-    
+
     // i = array index
     int iSize = GetArraySize(arrayHitgroups);
     for(int i = 0; i < iSize; i++)
     {
-        HitgroupsGetName(i, sHitGroupName, sizeof(sHitGroupName));
+        HitgroupsGetName(i, sHitGroupsPath, sizeof(sHitGroupsPath));             // Index: 0
         kvHitgroups.Rewind();
-        if(!kvHitgroups.JumpToKey(sHitGroupName))
+        if(!kvHitgroups.JumpToKey(sHitGroupsPath))
         {
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Hitgroups, "Config Validation", "Couldn't cache hitgroup data for: %s (check hitgroup config)", sHitGroupName);
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Hitgroups, "Config Validation", "Couldn't cache hitgroup data for: %s (check hitgroup config)", sHitGroupsPath);
             continue;
         }
-        
-        // General
-        int iIndex = kvHitgroups.GetNum("hitindex", -1);
-        
-        // Damage
-        bool bDamage = ConfigKvGetStringBool(kvHitgroups, "hitdamage", "yes");
-        
-        // Knockback
-        float flKnockback = kvHitgroups.GetFloat("hitknockback", 1.0);
-        
+
         // Gets array size
         ArrayList arrayHitgroup = arrayHitgroups.Get(i);
         
         // Push data into array
-        arrayHitgroup.Push(iIndex);        // Index: 1
-        arrayHitgroup.Push(bDamage);       // Index: 2
-        arrayHitgroup.Push(flKnockback);   // Index: 3
+        arrayHitgroup.Push(kvHitgroups.GetNum("index", -1));                     // Index: 1
+        arrayHitgroup.Push(ConfigKvGetStringBool(kvHitgroups, "damage", "yes")); // Index: 2
+        arrayHitgroup.Push(kvHitgroups.GetFloat("knockback", 1.0));              // Index: 3
     }
     
     // We're done with this file now, so we can close it

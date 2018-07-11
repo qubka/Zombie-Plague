@@ -44,6 +44,7 @@ public Plugin HeGrenade =
 /**
  * @section Information about extra items.
  **/
+#define EXTRA_ITEM_REFERENCE           "NapalmNade" // Only will be taken from weapons.ini
 #define EXTRA_ITEM_NAME                "Hegrenade" // Only will be taken from translation file         
 #define EXTRA_ITEM_COST                1
 #define EXTRA_ITEM_LEVEL               0
@@ -62,8 +63,8 @@ public Plugin HeGrenade =
  **/
  
 // Item index
-int iItem;
-#pragma unused iItem
+int gItem; int gWeapon;
+#pragma unused gItem, gWeapon
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -75,8 +76,18 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initilizate extra item
-        iItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
+}
+
+/**
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ **/
+public void OnConfigsExecuted(/*void*/)
+{
+    // Initilizate weapon
+    gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
+    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 }
 
 /**
@@ -97,10 +108,10 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // If you don't allowed to buy, then stop
-        if(IsPlayerHasWeapon(clientIndex, "NapalmNade") || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
         {
             return Plugin_Handled;
         }
@@ -125,10 +136,10 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     }
     
     // Check the item's index
-    if(extraitemIndex == iItem)
+    if(extraitemIndex == gItem)
     {
         // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, "NapalmNade");
+        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE);
     }
 }
 

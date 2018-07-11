@@ -58,6 +58,11 @@ enum AdminMenu
 };
 
 /**
+ * HUD synchronization hadnle.
+ **/
+Handle hHudSync;
+
+/**
  * Called after a library is added that the current plugin references optionally. 
  * A library is either a plugin name or extension name, as exposed via its include file.
  **/
@@ -71,6 +76,20 @@ public void OnLibraryAdded(const char[] sLibrary)
         
         // Create a commands
         RegConsoleCmd("zadminmenu", Command_AdminMenu, "Open the administator menu with unique commands.");
+        
+        /*
+         * Creates a HUD synchronization object. This object is used to automatically assign and re-use channels for a set of messages.
+         * The HUD has a hardcoded number of channels (usually 6) for displaying text. You can use any channel for any area of the screen. 
+         * Text on different channels can overlap, but text on the same channel will erase the old text first. This overlapping and overwriting gets problematic.
+         * A HUD synchronization object automatically selects channels for you based on the following heuristics: - If channel X was last used by the object, 
+         * and hasn't been modified again, channel X gets re-used. - Otherwise, a new channel is chosen based on the least-recently-used channel.
+         * This ensures that if you display text on a sync object, that the previous text displayed on it will always be cleared first. 
+         * This is because your new text will either overwrite the old text on the same channel, or because another channel has already erased your text.
+         * Note that messages can still overlap if they are on different synchronization objects, or they are displayed to manual channels.
+         * These are particularly useful for displaying repeating or refreshing HUD text, in addition to displaying multiple message sets in one area of the screen 
+         * (for example, center-say messages that may pop up randomly that you don't want to overlap each other).
+         */
+        hHudSync = CreateHudSynchronizer();
     }
 }
 
@@ -791,7 +810,7 @@ stock void HUDSendToAll(any ...)
 
         // Print translated phrase to server or client's screen
         SetHudTextParams(0.5, 0.3, 3.0, 255, 255, 255, 255, 0);
-        ShowHudText(i, -1, sHudText);
+        ShowSyncHudText(i, hHudSync, sHudText);
     }
 }
 

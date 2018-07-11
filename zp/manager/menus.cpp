@@ -127,38 +127,29 @@ void MenusCacheData(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error caching data from menus config file: \"%s\"", sMenusPath);
     }
 
-    static char sMenuName[SMALL_LINE_LENGTH];
-
     // i = array index
     int iSize = GetArraySize(arrayMenus);
     for(int i = 0; i < iSize; i++)
     {
         // General
-        MenusGetName(i, sMenuName, sizeof(sMenuName)); // Index: 0
+        MenusGetName(i, sMenusPath, sizeof(sMenusPath)); // Index: 0
         kvMenus.Rewind();
-        if(!kvMenus.JumpToKey(sMenuName))
+        if(!kvMenus.JumpToKey(sMenusPath))
         {
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sMenuName);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sMenusPath);
             continue;
         }
 
-        // Gets config data
-        static char sMenuTitle[CONFIG_MAX_LENGTH];
-        static char sMenuAccess[CONFIG_MAX_LENGTH];
-        static char sMenuCommand[CONFIG_MAX_LENGTH];
-        
-        // General                                                              
-        kvMenus.GetString("menutitle", sMenuTitle, sizeof(sMenuTitle));   
-        kvMenus.GetString("menuaccess", sMenuAccess, sizeof(sMenuAccess));  
-        kvMenus.GetString("menucommand", sMenuCommand, sizeof(sMenuCommand));
-        
         // Initialize array block
         ArrayList arrayMenu = arrayMenus.Get(i);
 
         // Push data into array
-        arrayMenu.PushString(sMenuTitle);     // Index: 1
-        arrayMenu.PushString(sMenuAccess);    // Index: 2
-        arrayMenu.PushString(sMenuCommand);   // Index: 3
+        kvMenus.GetString("title", sMenusPath, sizeof(sMenusPath), ""); 
+        arrayMenu.PushString(sMenusPath); // Index: 1
+        kvMenus.GetString("access", sMenusPath, sizeof(sMenusPath), "");  
+        arrayMenu.PushString(sMenusPath); // Index: 2
+        kvMenus.GetString("command", sMenusPath, sizeof(sMenusPath), "");
+        arrayMenu.PushString(sMenusPath); // Index: 3
     }
 
     // We're done with this file now, so we can close it

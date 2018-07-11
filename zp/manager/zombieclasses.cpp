@@ -94,11 +94,11 @@ void ZombieClassesLoad(/*void*/)
 
         // Validate claw model
         ZombieGetClawModel(i, sModel, sizeof(sModel));
-        ZombieSetClawIndex(i, ModelsViewPrecache(sModel));
+        ZombieSetClawIndex(i, ModelsWeaponPrecache(sModel));
         
         // Validate grenade model
         ZombieGetGrenadeModel(i, sModel, sizeof(sModel));
-        ZombieSetGrenadeIndex(i, ModelsViewPrecache(sModel));
+        ZombieSetGrenadeIndex(i, ModelsWeaponPrecache(sModel));
     }
 }
 
@@ -228,82 +228,51 @@ public int API_RegisterZombieClass(Handle isPlugin, int iNumParams)
         return -1;
     }
 
-    // Gets native data
-    char sZombieName[SMALL_LINE_LENGTH];
-    char sZombieInfo[BIG_LINE_LENGTH];
-    char sZombieModel[PLATFORM_MAX_PATH];
-    char sZombieClaw[PLATFORM_MAX_PATH];
-    char sZombieGrenade[PLATFORM_MAX_PATH];
-    char sZombieDeath[SMALL_LINE_LENGTH];
-    char sZombieHurt[SMALL_LINE_LENGTH];
-    char sZombieIdle[SMALL_LINE_LENGTH];
-    char sZombieRespawn[SMALL_LINE_LENGTH];
-    char sZombieBurn[SMALL_LINE_LENGTH];
-    char sZombieAttack[SMALL_LINE_LENGTH];
-    char sZombieFoot[SMALL_LINE_LENGTH];
-    char sZombieRegen[SMALL_LINE_LENGTH];
-    
-    // General                                                     
-    GetNativeString(1,  sZombieName,    sizeof(sZombieName)); 
-    GetNativeString(2,  sZombieInfo,    sizeof(sZombieInfo));   
-    GetNativeString(3,  sZombieModel,   sizeof(sZombieModel));   
-    GetNativeString(4,  sZombieClaw,    sizeof(sZombieClaw));    
-    GetNativeString(5,  sZombieGrenade, sizeof(sZombieGrenade)); 
-    GetNativeString(16, sZombieDeath,   sizeof(sZombieDeath));   
-    GetNativeString(17, sZombieHurt,    sizeof(sZombieHurt));    
-    GetNativeString(18, sZombieIdle,    sizeof(sZombieIdle));      
-    GetNativeString(19, sZombieRespawn, sizeof(sZombieRespawn)); 
-    GetNativeString(20, sZombieBurn,    sizeof(sZombieBurn));      
-    GetNativeString(21, sZombieAttack,  sizeof(sZombieAttack));  
-    GetNativeString(22, sZombieFoot,    sizeof(sZombieFoot));      
-    GetNativeString(23, sZombieRegen,   sizeof(sZombieRegen));      
-
     // Initialize char
-    char sName[SMALL_LINE_LENGTH];
-    
-    // i = Zombie class number
-    for(int i = 0; i < iCount; i++)
-    {
-        // Gets zombie class name
-        ZombieGetName(i, sName, sizeof(sName));
-    
-        // If names match, then stop
-        if(!strcmp(sZombieName, sName, false))
-        {
-            LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Zombie class already registered (%s)", sName);
-            return -1;
-        }
-    }
-    
+    char sZombieBuffer[PLATFORM_MAX_PATH];
+
     // Initialize array block
     ArrayList arrayZombieClass = CreateArray(ZombieClassMax);
     
     // Push native data into array
-    arrayZombieClass.PushString(sZombieName);    // Index: 0
-    arrayZombieClass.PushString(sZombieInfo);    // Index: 1
-    arrayZombieClass.PushString(sZombieModel);   // Index: 2
-    arrayZombieClass.PushString(sZombieClaw);    // Index: 3
-    arrayZombieClass.PushString(sZombieGrenade); // Index: 4
-    arrayZombieClass.Push(GetNativeCell(6));     // Index: 5
-    arrayZombieClass.Push(GetNativeCell(7));     // Index: 6
-    arrayZombieClass.Push(GetNativeCell(8));     // Index: 7
-    arrayZombieClass.Push(GetNativeCell(9));     // Index: 8
-    arrayZombieClass.Push(GetNativeCell(10));    // Index: 9
-    arrayZombieClass.Push(GetNativeCell(11));    // Index: 10
-    arrayZombieClass.Push(GetNativeCell(12));    // Index: 11
-    arrayZombieClass.Push(GetNativeCell(13));    // Index: 12
-    arrayZombieClass.Push(GetNativeCell(14));    // Index: 13
-    arrayZombieClass.Push(GetNativeCell(15));    // Index: 14
-    arrayZombieClass.Push(0);                    // Index: 15
-    arrayZombieClass.Push(0);                    // Index: 16
-    arrayZombieClass.PushString(sZombieDeath);   // Index: 17
-    arrayZombieClass.PushString(sZombieHurt);    // Index: 18
-    arrayZombieClass.PushString(sZombieIdle);    // Index: 19
-    arrayZombieClass.PushString(sZombieRespawn); // Index: 20
-    arrayZombieClass.PushString(sZombieBurn);    // Index: 21
-    arrayZombieClass.PushString(sZombieAttack);  // Index: 22
-    arrayZombieClass.PushString(sZombieFoot);    // Index: 23
-    arrayZombieClass.PushString(sZombieRegen);   // Index: 24
+    GetNativeString(1, sZombieBuffer, sizeof(sZombieBuffer)); 
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 0
+    GetNativeString(2, sZombieBuffer, sizeof(sZombieBuffer));   
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 1
+    GetNativeString(3, sZombieBuffer, sizeof(sZombieBuffer));  
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 2
+    GetNativeString(4, sZombieBuffer, sizeof(sZombieBuffer));   
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 3
+    GetNativeString(5, sZombieBuffer, sizeof(sZombieBuffer)); 
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 4
+    arrayZombieClass.Push(GetNativeCell(6));    // Index: 5
+    arrayZombieClass.Push(GetNativeCell(7));    // Index: 6
+    arrayZombieClass.Push(GetNativeCell(8));    // Index: 7
+    arrayZombieClass.Push(GetNativeCell(9));    // Index: 8
+    arrayZombieClass.Push(GetNativeCell(10));   // Index: 9
+    arrayZombieClass.Push(GetNativeCell(11));   // Index: 10
+    arrayZombieClass.Push(GetNativeCell(12));   // Index: 11
+    arrayZombieClass.Push(GetNativeCell(13));   // Index: 12
+    arrayZombieClass.Push(GetNativeCell(14));   // Index: 13
+    arrayZombieClass.Push(GetNativeCell(15));   // Index: 14
+    arrayZombieClass.Push(0);                   // Index: 15
+    arrayZombieClass.Push(0);                   // Index: 16
+    GetNativeString(16, sZombieBuffer, sizeof(sZombieBuffer));   
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 17
+    GetNativeString(17, sZombieBuffer, sizeof(sZombieBuffer)); 
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 18
+    GetNativeString(18, sZombieBuffer, sizeof(sZombieBuffer)); 
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 19
+    GetNativeString(19, sZombieBuffer, sizeof(sZombieBuffer));
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 20
+    GetNativeString(20, sZombieBuffer, sizeof(sZombieBuffer)); 
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 21
+    GetNativeString(21, sZombieBuffer, sizeof(sZombieBuffer));  
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 22
+    GetNativeString(22, sZombieBuffer, sizeof(sZombieBuffer)); 
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 23
+    GetNativeString(23, sZombieBuffer, sizeof(sZombieBuffer));   
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 24
 
     // Store this handle in the main array
     arrayZombieClasses.Push(arrayZombieClass);

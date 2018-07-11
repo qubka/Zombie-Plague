@@ -443,40 +443,19 @@ public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
         return -1;
     }
 
-    // Gets native data
-    char sModeName[SMALL_LINE_LENGTH];
-    char sModeDesc[SMALL_LINE_LENGTH];
-    char sModeSound[SMALL_LINE_LENGTH];
-    
-    // General                                            
-    GetNativeString(1, sModeName,  sizeof(sModeName));  
-    GetNativeString(2, sModeDesc,  sizeof(sModeDesc));  
-    GetNativeString(3, sModeSound, sizeof(sModeSound)); 
-    
     // Initialize char
-    static char sName[SMALL_LINE_LENGTH];
-    
-    // i = Game mode number
-    for(int i = 0; i < iCount; i++)
-    {
-        // Gets game mode name
-        ModesGetName(i, sName, sizeof(sName));
-    
-        // If names match, then stop
-        if(!strcmp(sModeName, sName, false))
-        {
-            LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Game mode already registered (%s)", sName);
-            return -1;
-        }
-    }
-    
+    char sModeBuffer[SMALL_LINE_LENGTH];
+
     // Initialize array block
     ArrayList arrayGameMode = CreateArray(GameModesMax);
     
     // Push native data into array
-    arrayGameMode.PushString(sModeName);      // Index: 0
-    arrayGameMode.PushString(sModeDesc);      // Index: 1
-    arrayGameMode.PushString(sModeSound);     // Index: 2
+    GetNativeString(1, sModeBuffer,  sizeof(sModeBuffer)); 
+    arrayGameMode.PushString(sModeBuffer);    // Index: 0 
+    GetNativeString(2, sModeBuffer,  sizeof(sModeBuffer));  
+    arrayGameMode.PushString(sModeBuffer);    // Index: 1
+    GetNativeString(3, sModeBuffer, sizeof(sModeBuffer)); 
+    arrayGameMode.PushString(sModeBuffer);    // Index: 2
     arrayGameMode.Push(GetNativeCell(4));     // Index: 3
     arrayGameMode.Push(GetNativeCell(5));     // Index: 4
     arrayGameMode.Push(GetNativeCell(6));     // Index: 5

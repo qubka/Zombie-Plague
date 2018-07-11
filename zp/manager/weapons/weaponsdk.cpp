@@ -138,6 +138,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     fnInitSendPropOffset(g_iOffset_PlayerObserverTarget, "CBasePlayer", "m_hObserverTarget");
     fnInitSendPropOffset(g_iOffset_PlayerAddonBits, "CCSPlayer", "m_iAddonBits");
     fnInitSendPropOffset(g_iOffset_PlayerArms, "CCSPlayer", "m_szArmsModel");
+    fnInitSendPropOffset(g_iOffset_PlayerAttack, "CBasePlayer", "m_flNextAttack");
     fnInitSendPropOffset(g_iOffset_ViewModelOwner, "CBaseViewModel", "m_hOwner");
     fnInitSendPropOffset(g_iOffset_ViewModelWeapon, "CBaseViewModel", "m_hWeapon");
     fnInitSendPropOffset(g_iOffset_ViewModelSequence, "CBaseViewModel", "m_nSequence");
@@ -213,7 +214,7 @@ void WeaponSDKClientInit(int clientIndex)
     SDKHook(clientIndex, SDKHook_WeaponCanUse, WeaponSDKOnCanUse);
     SDKHook(clientIndex, SDKHook_WeaponSwitch, WeaponSDKOnDeploy);
     SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponSDKOnDeployPost);
-    SDKHook(clientIndex, SDKHook_WeaponDropPost, WeaponSDKOnDropPost);
+    SDKHook(clientIndex, SDKHook_WeaponDrop , WeaponSDKOnDrop);
     SDKHook(clientIndex, SDKHook_PostThinkPost, WeaponSDKOnAnimationFix);
 }
 
@@ -231,8 +232,9 @@ void WeaponSDKOnCreated(int entityIndex, const char[] sClassname)
         // Reset variable
         gWeaponData[entityIndex] = INVALID_ENT_REFERENCE;
 
+        // Hook weapon callbacks
+        SDKHook(entityIndex, SDKHook_ReloadPost, WeaponSDKOnWeaponReload);
         #if defined USE_DHOOKS
-            // Hook weapon callbacks
             SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWeaponSpawn);
         #endif
     }
@@ -252,6 +254,55 @@ void WeaponSDKOnCreated(int entityIndex, const char[] sClassname)
         
                 // Hook grenade callbacks
                 SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnGrenadeSpawn);
+            }
+        }
+    }
+}
+
+/**
+ * Hook: WeaponReloadPost
+ * Weapon is reloaded.
+ *
+ * @param weaponIndex       The weapon index.
+ **/
+public Action WeaponSDKOnWeaponReload(int weaponIndex) 
+{
+    // Apply fake reload hook on the next frame
+    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeWeaponReload), weaponIndex);
+}
+
+/**
+ * FakeHook: WeaponReloadPost
+ *
+ * @param referenceIndex    The reference index.
+ **/
+public void WeaponSDKOnFakeWeaponReload(int referenceIndex) 
+{
+    // Get the weapon index from the reference
+    int weaponIndex = EntRefToEntIndex(referenceIndex);
+
+    // Validate weapon
+    if(weaponIndex != INVALID_ENT_REFERENCE)
+    {
+        // Validate custom index
+        int iD = gWeaponData[weaponIndex];
+        if(iD != -1)
+        {
+            // If custom reload speed exist, then apply it
+            float flReload = WeaponsGetSpeed(iD);
+            if(flReload)
+            {
+                // Gets the weapon's owner
+                int clientIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponOwner);
+                
+                // Validate owner
+                if(!IsPlayerExist(clientIndex)) 
+                {
+                    return;
+                }
+                
+                // Sets the next attack time
+                SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, GetGameTime() + flReload, true);
             }
         }
     }
@@ -384,48 +435,54 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
 }
 
 /**
- * Hook: WeaponDropPost
+ * Hook: WeaponDrop
  * Player drop any weapon.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-public void WeaponSDKOnDropPost(int clientIndex, int weaponIndex)
+public Action WeaponSDKOnDrop(int clientIndex, int weaponIndex)
 {
-    // If custom weapons models disabled, then stop
-    if(!gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
+    // Validate survivor
+    if(gClientData[clientIndex][Client_Survivor])
     {
-        return;
-    }
-
-    // Validate weapon
-    if(weaponIndex <= INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
-    {
-        return;
+        // Block drop
+        return Plugin_Handled;
     }
     
-    // Validate custom index
-    int iD = gWeaponData[weaponIndex];
-    if(iD != -1)
+    // If custom weapons models disabled, then skip
+    if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
     {
-        // If world model exist, then apply it
-        if(WeaponsGetModelWorldID(iD))
+        // Validate weapon
+        if(weaponIndex > INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
         {
-            // Gets weapon's world model
-            static char sModel[PLATFORM_MAX_PATH];
-            WeaponsGetModelWorld(iD, sModel, sizeof(sModel));
+            // Validate custom index
+            int iD = gWeaponData[weaponIndex];
+            if(iD != -1)
+            {
+                // If world model exist, then apply it
+                if(WeaponsGetModelWorldID(iD))
+                {
+                    // Gets weapon's world model
+                    static char sModel[PLATFORM_MAX_PATH];
+                    WeaponsGetModelWorld(iD, sModel, sizeof(sModel));
 
-            // Send data to the next frame
-            DataPack hPack = CreateDataPack();
-            hPack.WriteString(sModel);
-            hPack.WriteCell(EntIndexToEntRef(weaponIndex));
-            hPack.WriteCell(WeaponsGetModelViewBody(iD));
-            hPack.WriteCell(WeaponsGetModelViewSkin(iD));
-            
-            // Apply dropped model on the next frame
-            RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), hPack);
+                    // Send data to the next frame
+                    DataPack hPack = CreateDataPack();
+                    hPack.WriteString(sModel);
+                    hPack.WriteCell(EntIndexToEntRef(weaponIndex));
+                    hPack.WriteCell(WeaponsGetModelViewBody(iD));
+                    hPack.WriteCell(WeaponsGetModelViewSkin(iD));
+                    
+                    // Apply dropped model on the next frame
+                    RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), hPack);
+                }
+            }
         }
     }
+    
+    // Allow drop
+    return Plugin_Continue;
 }
 
 /**
@@ -921,59 +978,69 @@ public void WeaponSDKOnAnimationFix(int clientIndex)
  **/
 void WeaponSDKOnFire(int clientIndex, int weaponIndex) 
 { 
-    // Gets the weapon id from the reference
-    int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only view model's identification
-
-    // Validate id
-    if(iD != -1)
+    // Validate custom index
+    int iD = gWeaponData[weaponIndex];
+    if(iD != -1)    
     {
         // Returns the game time based on the game tick
         float flCurrentTime = GetGameTime();
-        
-        // Initialize variables
-        static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
 
-        // Gets the entity index from the reference
-        int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
-
-        // Validate secondary view model
-        if(viewModel2 == INVALID_ENT_REFERENCE)
+        // If view model exist, then apply muzzle smoke
+        if(WeaponsGetModelViewID(iD))
         {
-            return;
-        }
+            // Initialize variables
+            static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
 
-        // Weapons without any type of ammo will not use smoke effects
-        if(GetEntData(weaponIndex, g_iOffset_WeaponAmmoType) == -1)
-        {
-            return;
-        }
+            // Gets the entity index from the reference
+            int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
 
-        // Calculate the expected heat amount
-        float flHeat = ((flCurrentTime - GetEntDataFloat(weaponIndex, g_iOffset_LastShotTime)) * -0.5) + flHeatDelay[clientIndex];
-
-        // This value is set specifically for each weapon
-        flHeat += WeaponsGetModelViewHeat(iD);
-        
-        // Reset the heat
-        if(flHeat < 0.0) flHeat = 0.0;
-
-        // Validate heat
-        if(flHeat > 1.0)
-        {
-            // Validate delay
-            if(flCurrentTime - flSmoke[clientIndex] > 1.0)
+            // Validate secondary view model
+            if(viewModel2 == INVALID_ENT_REFERENCE)
             {
-                // Create a muzzle smoke
-                VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
-                flSmoke[clientIndex] = flCurrentTime;
+                return;
             }
-            
-            // Resets then
-            flHeat = 0.0;
-        }
 
-        // Update the heat delay
-        flHeatDelay[clientIndex] = flHeat;
+            // Weapons without any type of ammo will not use smoke effects
+            if(GetEntData(weaponIndex, g_iOffset_WeaponAmmoType) == -1)
+            {
+                return;
+            }
+
+            // Calculate the expected heat amount
+            float flHeat = ((flCurrentTime - GetEntDataFloat(weaponIndex, g_iOffset_LastShotTime)) * -0.5) + flHeatDelay[clientIndex];
+
+            // This value is set specifically for each weapon
+            flHeat += WeaponsGetModelViewHeat(iD);
+            
+            // Reset the heat
+            if(flHeat < 0.0) flHeat = 0.0;
+
+            // Validate heat
+            if(flHeat > 1.0)
+            {
+                // Validate delay
+                if(flCurrentTime - flSmoke[clientIndex] > 1.0)
+                {
+                    // Create a muzzle smoke
+                    VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
+                    flSmoke[clientIndex] = flCurrentTime;
+                }
+                
+                // Resets then
+                flHeat = 0.0;
+            }
+
+            // Update the heat delay
+            flHeatDelay[clientIndex] = flHeat;
+        }
+        
+        // If custom fire speed exist, then apply it
+        float flSpeed = WeaponsGetSpeed(iD);
+        if(flSpeed)
+        {
+            // Sets the next attack time
+            SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flCurrentTime + flSpeed, true);
+        }
     }
     
     // Validate a non-knife
@@ -988,7 +1055,40 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
         }
     }
 }
+
+/**
+ * Event: WeaponOnFire
+ * Weapon has been shoot.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ **/
+Action WeaponSDKOnShoot(int clientIndex, int weaponIndex) 
+{ 
+    // Validate custom index
+    int iD = gWeaponData[weaponIndex];
+    if(iD != -1)    
+    {
+        // Gets weapon's attack sound
+        static char sSound[PLATFORM_MAX_PATH];
+        WeaponsGetSound(iD, sSound, sizeof(sSound));
+
+        // If custom shoot sound exist, then apply it
+        if(strlen(sSound))
+        {
+            // Emit shoot sound
+            EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
+            EmitSoundToAll(sSound, clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
     
+            // Block broadcast
+            return Plugin_Stop;
+        }
+    }
+    
+    // Allow broadcast
+    return Plugin_Continue;
+}
+
 /**
  * Event: WeaponOnHostage
  * Weapon has been switch by hostage.
@@ -1052,8 +1152,6 @@ public MRESReturn WeaponDHookOnGetMaxClip1(int weaponIndex, Handle hReturn)
     {
         // Gets the weapon clip
         int iClip = WeaponsGetClip(iD);
-
-        // Reset clip
         if(iClip)
         {
             DHookSetReturn(hReturn, iClip);
@@ -1080,8 +1178,6 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weaponIndex, Handle hReturn)
     {
         // Gets the weapon ammo
         int iAmmo = WeaponsGetAmmo(iD);
-
-        // Reset ammo
         if(iAmmo)
         {
             DHookSetReturn(hReturn, iAmmo);

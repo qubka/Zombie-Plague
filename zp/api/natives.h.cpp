@@ -139,6 +139,9 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetWeaponKnockBack",             API_GetWeaponKnockBack);
     CreateNative("ZP_GetWeaponClip",                  API_GetWeaponClip);
     CreateNative("ZP_GetWeaponAmmo",                  API_GetWeaponAmmo);
+    CreateNative("ZP_GetWeaponSpeed",                 API_GetWeaponSpeed);
+    CreateNative("ZP_GetWeaponReload",                API_GetWeaponReload);
+    CreateNative("ZP_GetWeaponSound",                 API_GetWeaponSound);
     CreateNative("ZP_GetWeaponClass",                 API_GetWeaponClass);
     CreateNative("ZP_GetWeaponModelView",             API_GetWeaponModelView);
     CreateNative("ZP_GetWeaponModelViewID",           API_GetWeaponModelViewID);

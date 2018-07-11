@@ -230,35 +230,16 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "ExtraItems Validation",  "Maximum number of extra items reached (%d). Skipping other items.", ExtraItemMax);
         return -1;
     }
-    
-    // Gets native data
-    char sItemName[SMALL_LINE_LENGTH];
-    
-    // General                                          
-    GetNativeString(1, sItemName, sizeof(sItemName)); 
 
     // Initialize char
-    char sName[SMALL_LINE_LENGTH];
-    
-    // i = Extra item number
-    for(int i = 0; i < iCount; i++)
-    {
-        // Gets extra item name
-        ItemsGetName(i, sName, sizeof(sName));
-    
-        // If names match, then stop
-        if(!strcmp(sItemName, sName, false))
-        {
-            LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Extra item already registered (%s)", sName);
-            return -1;
-        }
-    }
-    
+    char sItemBuffer[SMALL_LINE_LENGTH];
+
     // Initialize array block
     ArrayList arrayExtraItem = CreateArray(ExtraItemMax);
     
     // Push native data into array
-    arrayExtraItem.PushString(sItemName);      // Index: 0
+    GetNativeString(1, sItemBuffer, sizeof(sItemBuffer)); 
+    arrayExtraItem.PushString(sItemBuffer);    // Index: 0
     arrayExtraItem.Push(GetNativeCell(2));     // Index: 1
     arrayExtraItem.Push(GetNativeCell(3));     // Index: 2
     arrayExtraItem.Push(GetNativeCell(4));     // Index: 3
@@ -584,14 +565,6 @@ void ExtraItemsMenu(int clientIndex)
     // Validate client
     if(!IsPlayerExist(clientIndex))
     {
-        return;
-        }
-    
-    // If client is survivor or nemesis, then stop 
-    if(gClientData[clientIndex][Client_Nemesis] || gClientData[clientIndex][Client_Survivor])
-    {
-        // Emit error sound
-        ClientCommand(clientIndex, "play buttons/button11.wav");
         return;
     }
     

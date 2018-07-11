@@ -129,9 +129,9 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * The map is starting.
+ * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
  **/
-public void OnMapStart(/*void*/)
+public void OnConfigsExecuted(/*void*/)
 {
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

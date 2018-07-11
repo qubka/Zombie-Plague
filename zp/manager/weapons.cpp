@@ -46,6 +46,9 @@ enum
     WEAPONS_DATA_KNOCKBACK,
     WEAPONS_DATA_CLIP,
     WEAPONS_DATA_AMMO,
+    WEAPONS_DATA_SPEED,
+    WEAPONS_DATA_RELOAD,
+    WEAPONS_DATA_SOUND,
     WEAPONS_DATA_CLASS,
     WEAPONS_DATA_MODEL_VIEW,
     WEAPONS_DATA_MODEL_VIEW_ID,
@@ -141,54 +144,54 @@ void WeaponsCacheData(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sPathWeapons);
     }
 
-    static char sWeaponName[SMALL_LINE_LENGTH];
-
     // i = array index
     int iSize = GetArraySize(arrayWeapons);
     for(int i = 0; i < iSize; i++)
     {
-        WeaponsGetName(i, sWeaponName, sizeof(sWeaponName));        // Index: 0
+        WeaponsGetName(i, sPathWeapons, sizeof(sPathWeapons)); // Index: 0
         kvWeapons.Rewind();
-        if(!kvWeapons.JumpToKey(sWeaponName))
+        if(!kvWeapons.JumpToKey(sPathWeapons))
         {
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sWeaponName);
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
             continue;
         }
 
-        // Gets config data
-        static char sWeaponEntity[CONFIG_MAX_LENGTH];
-        static char sWeaponModelView[PLATFORM_MAX_PATH];
-        static char sWeaponModelWorld[PLATFORM_MAX_PATH];
-        
-        // General                                                                           
-        kvWeapons.GetString("weaponentity", sWeaponEntity, sizeof(sWeaponEntity));       
-        kvWeapons.GetString("weaponview", sWeaponModelView, sizeof(sWeaponModelView));  
-        kvWeapons.GetString("weaponworld", sWeaponModelWorld, sizeof(sWeaponModelWorld)); 
-        
         // Gets array size
         ArrayList arrayWeapon = arrayWeapons.Get(i); int swapSequences[WeaponsSequencesMax];
  
         // Push data into array
-        arrayWeapon.PushString(sWeaponEntity);                      // Index: 1
-        arrayWeapon.Push(kvWeapons.GetNum("weaponindex", 0));       // Index: 2
-        arrayWeapon.Push(kvWeapons.GetNum("weaponcost", 0));        // Index: 3
-        arrayWeapon.Push(kvWeapons.GetNum("weaponslot", 0));        // Index: 4
-        arrayWeapon.Push(kvWeapons.GetNum("weaponlevel", 0));       // Index: 5
-        arrayWeapon.Push(kvWeapons.GetNum("weapononline", 0));      // Index: 6
-        arrayWeapon.Push(kvWeapons.GetFloat("weapondamage", 1.0));  // Index: 7
-        arrayWeapon.Push(kvWeapons.GetFloat("weaponknock", 1.0));   // Index: 8
-        arrayWeapon.Push(kvWeapons.GetNum("weaponclip", 0));        // Index: 9
-        arrayWeapon.Push(kvWeapons.GetNum("weaponammo", 0));        // Index: 10
-        arrayWeapon.Push(kvWeapons.GetNum("weaponclass", 0));       // Index: 11
-        arrayWeapon.PushString(sWeaponModelView);                   // Index: 12    
-        arrayWeapon.Push(ModelsViewPrecache(sWeaponModelView));     // Index: 13
-        arrayWeapon.PushString(sWeaponModelWorld);                  // Index: 14
-        arrayWeapon.Push(ModelsViewPrecache(sWeaponModelWorld));    // Index: 15
-        arrayWeapon.Push(kvWeapons.GetNum("weaponbody", 0));        // Index: 16
-        arrayWeapon.Push(kvWeapons.GetNum("weaponskin", 0));        // Index: 17
-        arrayWeapon.Push(kvWeapons.GetFloat("weaponheat", 0.5));    // Index: 18
-        arrayWeapon.Push(-1);                                       // Index: 19
-        arrayWeapon.PushArray(swapSequences);                       // Index: 20
+        kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 1
+        arrayWeapon.Push(kvWeapons.GetNum("index", 0));       // Index: 2
+        arrayWeapon.Push(kvWeapons.GetNum("cost", 0));        // Index: 3
+        arrayWeapon.Push(kvWeapons.GetNum("slot", 0));        // Index: 4
+        arrayWeapon.Push(kvWeapons.GetNum("level", 0));       // Index: 5
+        arrayWeapon.Push(kvWeapons.GetNum("online", 0));      // Index: 6
+        arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));  // Index: 7
+        arrayWeapon.Push(kvWeapons.GetFloat("knock", 1.0));   // Index: 8
+        arrayWeapon.Push(kvWeapons.GetNum("clip", 0));        // Index: 9
+        arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));        // Index: 10
+        arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));   // Index: 11
+        arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));  // Index: 12
+        kvWeapons.GetString("sound", sPathWeapons, sizeof(sPathWeapons), "");
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 13 
+        if(strlen(sPathWeapons)) 
+        {
+            Format(sPathWeapons, sizeof(sPathWeapons), "sound/%s", sPathWeapons[2]);
+            fnMultiFilePrecache(sPathWeapons); /// Precache the formated sound
+        }
+        arrayWeapon.Push(kvWeapons.GetNum("class", 0));       // Index: 14
+        kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 15    
+        arrayWeapon.Push(ModelsWeaponPrecache(sPathWeapons)); // Index: 16
+        kvWeapons.GetString("world", sPathWeapons, sizeof(sPathWeapons), "");
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 17
+        arrayWeapon.Push(ModelsWeaponPrecache(sPathWeapons)); // Index: 18
+        arrayWeapon.Push(kvWeapons.GetNum("body", 0));        // Index: 19
+        arrayWeapon.Push(kvWeapons.GetNum("skin", 0));        // Index: 20
+        arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));    // Index: 21
+        arrayWeapon.Push(-1);                                 // Index: 22
+        arrayWeapon.PushArray(swapSequences);                 // Index: 23
     }
 
     // We're done with this file now, so we can close it
@@ -255,6 +258,18 @@ void WeaponsOnHostage(int clientIndex)
 {
     // Forward event to sub-modules
     WeaponSDKOnHostage(clientIndex);
+}
+
+/**
+ * Client has been shoot.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ **/
+Action WeaponsOnShoot(int clientIndex, int weaponIndex) 
+{
+    // Forward event to sub-modules
+    return WeaponSDKOnShoot(clientIndex, weaponIndex);
 }
 
 /**
@@ -665,6 +680,83 @@ public int API_GetWeaponAmmo(Handle isPlugin, int iNumParams)
 }
 
 /**
+ * Gets the shoot delay of the weapon.
+ *
+ * native float ZP_GetWeaponSpeed(iD);
+ **/
+public int API_GetWeaponSpeed(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayWeapons))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+        return -1;
+    }
+    
+    // Return the value (Float fix)
+    return view_as<int>(WeaponsGetSpeed(iD));
+}
+
+/**
+ * Gets the reload duration of the weapon.
+ *
+ * native float ZP_GetWeaponReload(iD);
+ **/
+public int API_GetWeaponReload(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayWeapons))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+        return -1;
+    }
+    
+    // Return the value (Float fix)
+    return view_as<int>(WeaponsGetReload(iD));
+}
+
+/**
+ * Gets the sound of a weapon at a given id.
+ *
+ * native void ZP_GetWeaponSound(iD, sound, maxlen);
+ **/
+public int API_GetWeaponSound(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayWeapons))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize sound char
+    static char sSound[PLATFORM_MAX_PATH];
+    WeaponsGetSound(iD, sSound, sizeof(sSound));
+
+    // Return on success
+    return SetNativeString(2, sSound, maxLen);
+}
+
+/**
  * Gets the class access of the weapon.
  *
  * native int ZP_GetWeaponClass(iD);
@@ -761,7 +853,7 @@ public int API_GetWeaponModelWorld(Handle isPlugin, int iNumParams)
     // Gets string size from native cell
     int maxLen = GetNativeCell(3);
 
-    // Validate size
+    // Validate s
     if(!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
@@ -1032,6 +1124,52 @@ stock int WeaponsGetAmmo(int iD)
 }
 
 /**
+ * Gets the shoot delay of the weapon.
+ *
+ * @param iD                The weapon id.
+ * @return                  The delay amount.
+ **/
+stock float WeaponsGetSpeed(int iD)
+{
+    // Gets array handle of weapon at given index
+    ArrayList arrayWeapon = arrayWeapons.Get(iD);
+    
+    // Gets weapon shoot delay
+    return arrayWeapon.Get(WEAPONS_DATA_SPEED);
+}
+
+/**
+ * Gets the reload duration of the weapon.
+ *
+ * @param iD                The weapon id.
+ * @return                  The duration amount.
+ **/
+stock float WeaponsGetReload(int iD)
+{
+    // Gets array handle of weapon at given index
+    ArrayList arrayWeapon = arrayWeapons.Get(iD);
+    
+    // Gets weapon reload duration
+    return arrayWeapon.Get(WEAPONS_DATA_RELOAD);
+}
+
+/**
+ * Gets the path of a weapon attack sound at a given id.
+ *
+ * @param iD                The weapon id.
+ * @param sSound            The string to return sound in.
+ * @param iMaxLen           The max length of the string.
+ **/
+stock void WeaponsGetSound(int iD, char[] sSound, int iMaxLen)
+{
+    // Gets array handle of weapon at given index
+    ArrayList arrayWeapon = arrayWeapons.Get(iD);
+    
+    // Gets weapon sound
+    arrayWeapon.GetString(WEAPONS_DATA_SOUND, sSound, iMaxLen);
+}
+
+/**
  * Gets the class access of the weapon.
  *
  * @param iD                The weapon id.
@@ -1260,10 +1398,10 @@ stock int WeaponsNameToIndex(char[] sWeapon, int iMaxLen = 0, bool bOverWriteNam
         WeaponsGetName(i, sWeaponName, sizeof(sWeaponName));
         
         // If names match, then return index
-        if (!strcmp(sWeapon, sWeaponName, false))
+        if(!strcmp(sWeapon, sWeaponName, false))
         {
             // If 'overwrite' name is true, then overwrite the old string with new
-            if (bOverWriteName)
+            if(bOverWriteName)
             {
                 // Copy config name to return string
                 strcopy(sWeapon, iMaxLen, sWeaponName);

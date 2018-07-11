@@ -33,7 +33,7 @@
  * @param iImpulse          Copyback buffer containing the current impulse command.
  * @param flVelocity        Players desired velocity.
  * @param flAngles          Players desired view angles.    
- * @param weaponIndex       Entity index of the new weapon ifplayer switches weapon, 0 otherwise.
+ * @param weaponIndex       Entity index of the new weapon if player switches weapon, 0 otherwise.
  * @param iSubType          Weapon subtype when selected from a menu.
  * @param iCmdNum           Command number. Increments from the first command sent.
  * @param iTickCount        Tick count. A client's prediction based on the server's GetGameTickCount value.

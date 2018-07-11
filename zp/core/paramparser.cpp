@@ -188,9 +188,21 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, int
                 StrExtract(sParamString, sParamString, iStartPos, iLen);
 
                 // Check if string is empty, then stop
-                if(!strlen(sParamString) || FindCharInString(sParamString, '"', false) == -1)
+                if(!strlen(sParamString))
                 {
                     return PARAM_ERROR_UNEXPECTED_END;
+                }
+                else
+                {
+                    // Gets quotes at the beginning and at the end
+                    int iQuote1 = FindCharInString(sParamString, '"', true);
+                    int iQuote2 = FindCharInString(sParamString, '"', false);
+                    
+                    // Check if string without quote, then stop
+                    if(iQuote1 == -1 || iQuote2 == -1 || iQuote1 == iQuote2)
+                    {
+                        return PARAM_ERROR_UNEXPECTED_END;
+                    }
                 }
                 
                 // Cut out comments at the end of a line
