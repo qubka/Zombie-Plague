@@ -396,7 +396,7 @@ void CoffinExpload(int entityIndex)
             if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
             {                
                 // Calculate the push power
-                float flKnockBack = FloatMul(ZOMBIE_CLASS_SKILL_POWER, (1.0 - (FloatDiv(flDistance, ZOMBIE_CLASS_SKILL_RADIUS))));
+                float flKnockBack = ZOMBIE_CLASS_SKILL_POWER * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_RADIUS));
 
                 // Calculate the velocity's vector
                 SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
@@ -405,7 +405,7 @@ void CoffinExpload(int entityIndex)
                 NormalizeVector(vVelocity, vVelocity);
                 
                 // Apply the magnitude by scaling the vector
-                ScaleVector(vVelocity, SquareRoot(FloatDiv(FloatMul(flKnockBack, flKnockBack), (FloatAdd(FloatAdd(FloatMul(vVelocity[0], vVelocity[0]), FloatMul(vVelocity[1], vVelocity[1])), FloatMul(vVelocity[2], vVelocity[2])))))); FloatMul(vVelocity[2], ZOMBIE_CLASS_SKILL_POWER);
+                ScaleVector(vVelocity, SquareRoot((flKnockBack * flKnockBack) / ((vVelocity[0] * vVelocity[0]) + (vVelocity[1] * vVelocity[1]) + (vVelocity[2] * vVelocity[2])))); vVelocity[2] * ZOMBIE_CLASS_SKILL_POWER;
 
                 // Push the victim
                 TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
@@ -514,7 +514,7 @@ stock void GetVectorPosition(int clientIndex, float flForward = 0.0, float flRig
     GetAngleVectors(vAngle, vForward, vRight, vVertical);
 
     // Calculate ends point by applying all vectors distances 
-    vOrigin[0] = FloatAdd(FloatAdd(vPosition[0], FloatMul(vForward[0], flForward)), FloatAdd(FloatMul(vRight[0], flRight), FloatMul(vVertical[0], flVertical)));
-    vOrigin[1] = FloatAdd(FloatAdd(vPosition[1], FloatMul(vForward[1], flForward)), FloatAdd(FloatMul(vRight[1], flRight), FloatMul(vVertical[1], flVertical)));
-    vOrigin[2] = FloatAdd(FloatAdd(vPosition[2], FloatMul(vForward[2], flForward)), FloatAdd(FloatMul(vRight[2], flRight), FloatMul(vVertical[2], flVertical)));
+    vOrigin[0] = vPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
+    vOrigin[1] = vPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
+    vOrigin[2] = vPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
 }

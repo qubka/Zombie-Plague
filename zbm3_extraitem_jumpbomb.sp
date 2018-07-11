@@ -208,7 +208,7 @@ public Action EventEntityFlash(Event hEvent, const char[] sName, bool dontBroadc
                     if(flDistance <= GRENADE_JUMP_RADIUS)
                     {                
                         // Calculate the push power
-                        float flKnockBack = FloatMul(GRENADE_JUMP_POWER, (1.0 - (FloatDiv(flDistance, GRENADE_JUMP_RADIUS))));
+                        float flKnockBack = GRENADE_JUMP_POWER * (1.0 - (flDistance / GRENADE_JUMP_RADIUS));
 
                         // Calculate the velocity's vector
                         SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
@@ -217,7 +217,7 @@ public Action EventEntityFlash(Event hEvent, const char[] sName, bool dontBroadc
                         NormalizeVector(vVelocity, vVelocity);
                         
                         // Apply the magnitude by scaling the vector
-                        ScaleVector(vVelocity, SquareRoot(FloatDiv(FloatMul(flKnockBack, flKnockBack), (FloatAdd(FloatAdd(FloatMul(vVelocity[0], vVelocity[0]), FloatMul(vVelocity[1], vVelocity[1])), FloatMul(vVelocity[2], vVelocity[2])))))); FloatMul(vVelocity[2], GRENADE_JUMP_POWER);
+                        ScaleVector(vVelocity, SquareRoot((flKnockBack * flKnockBack) / ((vVelocity[0] * vVelocity[0]) + (vVelocity[1] * vVelocity[1]) + (vVelocity[2] * vVelocity[2])))); vVelocity[2] * GRENADE_JUMP_POWER;
 
                         // Push the victim
                         TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
