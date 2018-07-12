@@ -592,20 +592,20 @@ void ExtraItemsMenu(int clientIndex)
         // Call forward
         resultHandle = API_OnClientValidateExtraItem(clientIndex, i);
         
-        // Validate handle
-        if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
-        {
-            // Gets extra item name
-            ItemsGetName(i, sName, sizeof(sName));
-            if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
-            
-            // Format some chars for showing in menu
-            Format(sBuffer, sizeof(sBuffer), "%t    %t", sName, "Ammopacks", ItemsGetCost(i));
+        // Skip, if item is disabled
+        if(resultHandle == Plugin_Stop)
+            continue;
 
-            // Show option
-            IntToString(i, sInfo, sizeof(sInfo));
-            hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(gClientData[clientIndex][Client_Level] < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex][Client_AmmoPacks] < ItemsGetCost(i)) ? false : true));
-        }
+        // Gets extra item name
+        ItemsGetName(i, sName, sizeof(sName));
+        if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
+        
+        // Format some chars for showing in menu
+        Format(sBuffer, sizeof(sBuffer), "%t    %t", sName, "Ammopacks", ItemsGetCost(i));
+
+        // Show option
+        IntToString(i, sInfo, sizeof(sInfo));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || gClientData[clientIndex][Client_Level] < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex][Client_AmmoPacks] < ItemsGetCost(i)) ? false : true));
     }
     
     // If there are no cases, add an "(Empty)" line
@@ -664,8 +664,7 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, int clientIndex, int 
             }
             
             // If round ended, then stop
-            // If client is survivor or nemesis, then stop
-            if(gServerData[Server_RoundEnd] || gClientData[clientIndex][Client_Nemesis] || gClientData[clientIndex][Client_Survivor])
+            if(gServerData[Server_RoundEnd])
             {
                 // Emit error sound
                 ClientCommand(clientIndex, "play buttons/button11.wav");    

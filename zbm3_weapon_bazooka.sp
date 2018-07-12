@@ -115,6 +115,59 @@ public void OnConfigsExecuted(/*void*/)
 }
 
 /**
+ * Called once a client is authorized and fully in-game, and 
+ * after all post-connection authorizations have been performed.  
+ *
+ * This callback is gauranteed to occur on all clients, and always 
+ * after each OnClientPutInServer() call.
+ * 
+ * @param clientIndex       The client index. 
+ **/
+public void OnClientPostAdminCheck(int clientIndex)
+{
+    // Hook entity callbacks
+    SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponOnDeployPost);
+}
+
+/**
+ * Hook: WeaponSwitchPost
+ * Player deploy any weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ **/
+public void WeaponOnDeployPost(int clientIndex, int weaponIndex) 
+{
+    // Validate weapon
+    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    {
+        // Update weapon position on the next frame
+        RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
+    }
+}
+
+/**
+ * FakeHook: WeaponSwitchPost
+ *
+ * @param userID            The user id.
+ **/
+public void WeaponOnFakeDeployPost(int userID)
+{
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
+
+    // Validate client
+    if(clientIndex)
+    {
+        // Initialize vector variables
+        static float flStart[3]; 
+        
+        // Update weapon position
+        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
+    }
+}
+
+/**
  * Event callback (weapon_fire)
  * Client has been shooted.
  * 
@@ -132,31 +185,6 @@ public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadca
     
     // Validate weapon
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
-    {
-        // Initialize vectors
-        static float vPosition[3];
-        
-        // Gets the weapon's shoot position
-        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", vPosition); /// Bug fix for new attachment
-        
-        // Create rocket on the next frame
-        RequestFrame(view_as<RequestFrameCallback>(EventPlayerFirePost), GetClientUserId(clientIndex));
-    }
-}
-
-/**
- * Event callback (weapon_fire) (Post)
- * Client has been shooted.
- *
- * @param userID            The user id.
- **/
-public void EventPlayerFirePost(int userID)
-{
-    // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
-
-    // Validate client
-    if(clientIndex)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];

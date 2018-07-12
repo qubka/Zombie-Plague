@@ -240,6 +240,25 @@ void ZMarketSubMenu(int clientIndex, char[] sTitle, int mSlot = 0)
             if(WeaponsGetSlot(i) != mSlot)
                 continue;
         
+            // Skip some weapons, if class isn't equal
+            switch(WeaponsGetClass(i))
+            {
+                // Validate human class
+                case ClassType_Human : if(!(!gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Survivor]))   continue;
+                
+                // Validate survivor class
+                case ClassType_Survivor : if(!(!gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Survivor])) continue;
+                
+                // Validate zombie class
+                case ClassType_Zombie : if(!(gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]))    continue;
+                
+                // Validate nemesis class
+                case ClassType_Nemesis : if(!(gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Nemesis]))    continue;
+            
+                // Validate invalid class
+                default: continue;
+            }
+
             // Gets weapon name
             WeaponsGetName(i, sName, sizeof(sName));
             if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
@@ -329,21 +348,32 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, int clientInde
             {
                 return;
             }
-            
-            // If client is survivor or zombie, then stop
-            if(gClientData[clientIndex][Client_Zombie] || gClientData[clientIndex][Client_Survivor])
-            {
-                // Emit error sound
-                ClientCommand(clientIndex, "play buttons/button11.wav");    
-                return;
-            }
-            
+
             // Initialize char
             static char sWeaponName[SMALL_LINE_LENGTH];
 
             // Gets ID of the weapon
             hSubMenu.GetItem(mSlot, sWeaponName, sizeof(sWeaponName));
             int iD = StringToInt(sWeaponName);
+
+            // if class isn't equal, then stop
+            switch(WeaponsGetClass(iD))
+            {
+                // Validate human class
+                case ClassType_Human : if(!(!gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Survivor]))   return;
+                
+                // Validate survivor class
+                case ClassType_Survivor : if(!(!gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Survivor])) return;
+                
+                // Validate zombie class
+                case ClassType_Zombie : if(!(gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]))    return;
+                
+                // Validate nemesis class
+                case ClassType_Nemesis : if(!(gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Nemesis]))    return;
+            
+                // Validate invalid class
+                default: return;
+            }
 
             // Gets weapon alias
             WeaponsGetEntity(iD, sWeaponName, sizeof(sWeaponName));

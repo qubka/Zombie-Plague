@@ -190,7 +190,7 @@ void WeaponsCacheData(/*void*/)
         arrayWeapon.Push(kvWeapons.GetNum("body", 0));        // Index: 19
         arrayWeapon.Push(kvWeapons.GetNum("skin", 0));        // Index: 20
         arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));    // Index: 21
-        arrayWeapon.Push(-1);                                 // Index: 22
+        arrayWeapon.Push(INVALID_ENT_REFERENCE);              // Index: 22
         arrayWeapon.PushArray(swapSequences);                 // Index: 23
     }
 
@@ -310,12 +310,8 @@ public void WeaponsOnClientDeath(int clientIndex)
  **/
 public void OnEntityCreated(int entityIndex, const char[] sClassname)
 {
-    // Validate entity
-    if(entityIndex > INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
-    {
-        // Forward event to sub-modules
-        WeaponSDKOnCreated(entityIndex, sClassname);
-    }
+    // Forward event to sub-modules
+    WeaponSDKOnCreated(entityIndex, sClassname);
 }
 
 /*
@@ -371,14 +367,14 @@ public int API_GetWeaponID(Handle isPlugin, int iNumParams)
     int weaponIndex = GetNativeCell(1);
 
     // Validate weapon
-    if(weaponIndex <= INVALID_ENT_REFERENCE)
+    if(!IsValidEdict(weaponIndex))
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weaponIndex);
         return -1;
     }
     
     // Return the value
-    return gWeaponData[weaponIndex];
+    return WeaponsGetCustomID(weaponIndex);
 }
 
 /**
@@ -1376,6 +1372,43 @@ stock void WeaponsClearSequenceSwap(int iD)
 /*
  * Stocks weapons API.
  */
+ 
+/**
+ * Gets custom weapon ID.
+ *
+ * @param weaponIndex       The weapon index.
+ *
+ * @return                  The weapon id.    
+ **/
+stock int WeaponsGetCustomID(int weaponIndex)
+{
+    // Find the datamap
+    if(!g_iOffset_WeaponID)
+    {
+        g_iOffset_WeaponID = FindDataMapInfo(weaponIndex, "m_iHammerID");
+    }
+    
+    // Sets custom id for the weapon
+    return GetEntData(weaponIndex, g_iOffset_WeaponID);
+}
+
+/**
+ * Sets custom weapon ID.
+ *
+ * @param weaponIndex       The weapon index.
+ * @param iD                The weapon id.
+ **/
+stock void WeaponsSetCustomID(int weaponIndex, int iD)
+{
+    // Find the datamap
+    if(!g_iOffset_WeaponID)
+    {
+        g_iOffset_WeaponID = FindDataMapInfo(weaponIndex, "m_iHammerID");
+    }
+
+    // Sets custom id for the weapon
+    SetEntData(weaponIndex, g_iOffset_WeaponID, iD, _, true);
+}
 
 /**
  * Find the index at which the weapon's name is at.
@@ -1471,10 +1504,10 @@ stock bool WeaponsIsExist(int clientIndex, int iD)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
         
         // Validate weapon
-        if(weaponIndex > INVALID_ENT_REFERENCE)
+        if(IsValidEdict(weaponIndex))
         {
             // If weapon find, then return
-            if(gWeaponData[weaponIndex] == iD)
+            if(WeaponsGetCustomID(weaponIndex) == iD)
             {
                 return true;
             }
@@ -1505,11 +1538,11 @@ stock bool WeaponsRemoveAll(int clientIndex, ConVar hConVar)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
         
         // Validate weapon
-        if(weaponIndex > INVALID_ENT_REFERENCE)
+        if(IsValidEdict(weaponIndex))
         {
             // Validate custom index
-            int iD = gWeaponData[weaponIndex];
-            if(iD != -1)
+            int iD = WeaponsGetCustomID(weaponIndex);
+            if(iD != INVALID_ENT_REFERENCE)
             {
                 // Switch class access
                 switch(WeaponsGetClass(iD))
@@ -1594,7 +1627,7 @@ stock int WeaponsGive(int clientIndex, char[] sName)
     {
         // Validate weapon index
         int iD = WeaponsNameToIndex(sName);
-        if(iD != -1)        
+        if(iD != INVALID_ENT_REFERENCE)        
         {
             // Switch class access
             switch(WeaponsGetClass(iD))
@@ -1622,11 +1655,12 @@ stock int WeaponsGive(int clientIndex, char[] sName)
             if(weaponIndex != INVALID_ENT_REFERENCE) 
             {
                 // Sets the weapon id
-                gWeaponData[weaponIndex] = iD;
+                WeaponsSetCustomID(weaponIndex, iD);
                 
                 // Switch the weapon
                 SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
-                SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
+                FakeClientCommandEx(clientIndex, "use %s", sName); /// Bugfix
+                ///SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
             }
         }
     }

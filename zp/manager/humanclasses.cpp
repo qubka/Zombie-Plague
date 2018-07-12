@@ -171,10 +171,17 @@ public int API_SetClientHumanClass(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Sets next class to the client
-    gClientData[clientIndex][Client_HumanClassNext] = iD;
-    
+
+    // Call forward
+    Action resultHandle = API_OnClientValidateHumanClass(clientIndex, iD);
+
+    // Validate handle
+    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    {
+        // Sets next class to the client
+        gClientData[clientIndex][Client_HumanClassNext] = iD;
+    }
+
     // Return on success
     return iD;
 }
@@ -909,10 +916,20 @@ void HumanMenu(int clientIndex)
     // Sets title
     hMenu.SetTitle("%t", "Choose humanclass");
     
+    // Initialize forward
+    Action resultHandle;
+    
     // i = Human class number
     int iCount = GetArraySize(arrayHumanClasses);
     for(int i = 0; i < iCount; i++)
     {
+        // Call forward
+        resultHandle = API_OnClientValidateHumanClass(clientIndex, i);
+        
+        // Skip, if class is disabled
+        if(resultHandle == Plugin_Stop)
+            continue;
+
         // Gets human class name
         HumanGetName(i, sName, sizeof(sName));
         if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
@@ -923,7 +940,7 @@ void HumanMenu(int clientIndex)
         
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(((!IsPlayerHasFlag(clientIndex, Admin_Custom1) && HumanIsVIP(i)) || gClientData[clientIndex][Client_Level] < HumanGetLevel(i) || gClientData[clientIndex][Client_HumanClassNext] == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerHasFlag(clientIndex, Admin_Custom1) && HumanIsVIP(i)) || gClientData[clientIndex][Client_Level] < HumanGetLevel(i) || gClientData[clientIndex][Client_HumanClassNext] == i) ? false : true));
     }
 
     // Sets exit and back button
@@ -979,14 +996,21 @@ public int HumanMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
             int iD = StringToInt(sInfo);
             
-            // Sets next zombie class
-            gClientData[clientIndex][Client_HumanClassNext] = iD;
+            // Call forward
+            Action resultHandle = API_OnClientValidateHumanClass(clientIndex, iD);
 
-            // Gets human name
-            HumanGetName(iD, sInfo, sizeof(sInfo));
-            
-            // If help messages enabled, show info
-            if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "Human info", sInfo, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
+            // Validate handle
+            if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+            {
+                // Sets next zombie class
+                gClientData[clientIndex][Client_HumanClassNext] = iD;
+
+                // Gets human name
+                HumanGetName(iD, sInfo, sizeof(sInfo));
+                
+                // If help messages enabled, show info
+                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "Human info", sInfo, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
+            }
         }
     }
 }

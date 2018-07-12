@@ -33,6 +33,17 @@
 #define _zombieclasses_included
 
 /**
+ * @brief Called before show a zombie class in the zombie class menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param classID           The index of class from ZP_RegisterZombieClass() native.
+ *
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and selecting.
+ **/
+forward Action ZP_OnClientValidateZombieClass(int clientIndex, int classID);
+
+/**
  * @brief Gets the amount of all zombie classes.
  *
  * @return                  The zombie class amount.    

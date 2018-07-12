@@ -192,13 +192,14 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
         int weaponIndex = GetEntDataEnt2(attackerIndex, g_iOffset_PlayerActiveWeapon);
         
         // Validate weapon
-        if(weaponIndex > INVALID_ENT_REFERENCE)
+        if(IsValidEdict(weaponIndex))
         {
-            int iIndex = gWeaponData[weaponIndex];
-            if(iIndex != -1)
+            // Validate custom index
+            int iD = WeaponsGetCustomID(weaponIndex);
+            if(iD != INVALID_ENT_REFERENCE)
             {
-                damageAmount *= WeaponsGetDamage(iIndex);
-                knockbackAmount *= WeaponsGetKnockBack(iIndex);
+                damageAmount *= WeaponsGetDamage(iD);
+                knockbackAmount *= WeaponsGetKnockBack(iD);
             }
         }
         
@@ -214,6 +215,9 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
             // If victim is zombies, then stop
             if(gClientData[victimIndex][Client_Zombie])
             {
+                // Call forward
+                API_OnClientDamaged(victimIndex, attackerIndex, damageAmount, damageBits);
+
                 // Block damage
                 return Plugin_Handled;
             }
@@ -221,6 +225,9 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
             // If the gamemode allow infection, then apply it
             if(ModesIsInfection(gServerData[Server_RoundMode]))
             {
+                // Call forward
+                API_OnClientDamaged(victimIndex, attackerIndex, damageAmount, damageBits);
+
                 // Infect victim
                 return DamageOnClientInfect(victimIndex, attackerIndex, damageAmount);
             }

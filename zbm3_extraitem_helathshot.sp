@@ -87,7 +87,7 @@ public void OnConfigsExecuted(/*void*/)
  * @param clientIndex       The client index.
  * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
  *
- * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
@@ -95,7 +95,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     // Validate client
     if(!IsPlayerExist(clientIndex))
     {
-        return Plugin_Handled;
+        return Plugin_Stop;
     }
     
     // Check the item's index

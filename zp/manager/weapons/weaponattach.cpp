@@ -111,8 +111,8 @@ void WeaponAttachmentSetAddons(int clientIndex)
             if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_PrimaryWeapon, "primary");
@@ -148,8 +148,8 @@ void WeaponAttachmentSetAddons(int clientIndex)
             if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_SecondaryWeapon, "pistol");
@@ -175,11 +175,11 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_flashbang");
             
             // Validate weapon
-            if(weaponIndex != INVALID_ENT_REFERENCE)
+            if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_Flashbang1, "grenade0");
@@ -205,11 +205,11 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_flashbang");
             
             // Validate weapon
-            if(weaponIndex != INVALID_ENT_REFERENCE)
+            if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_Flashbang2, "eholster");
@@ -235,11 +235,11 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_hegrenade");
             
             // Validate weapon
-            if(weaponIndex != INVALID_ENT_REFERENCE)
+            if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_HEGrenade, "grenade1");
@@ -265,11 +265,11 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_smokegrenade");
             
             // Validate weapon
-            if(weaponIndex != INVALID_ENT_REFERENCE)
+            if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_SmokeGrenade, "grenade2");
@@ -295,11 +295,11 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_decoy");
             
             // Validate weapon
-            if(weaponIndex != INVALID_ENT_REFERENCE)
+            if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_Decoy, "grenade3");
@@ -328,8 +328,8 @@ void WeaponAttachmentSetAddons(int clientIndex)
             if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_Knife, "knife");
@@ -355,11 +355,11 @@ void WeaponAttachmentSetAddons(int clientIndex)
             weaponIndex = WeaponsAttachmentGetIndex(clientIndex, "weapon_tagrenade");
             
             // Validate weapon
-            if(weaponIndex != INVALID_ENT_REFERENCE)
+            if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_TaGrenade, "grenade4");
@@ -390,8 +390,8 @@ void WeaponAttachmentSetAddons(int clientIndex)
             if(IsValidEdict(weaponIndex))
             {
                 // Validate custom index
-                iD = gWeaponData[weaponIndex];
-                if(iD != -1)
+                iD = WeaponsGetCustomID(weaponIndex);
+                if(iD != INVALID_ENT_REFERENCE)
                 {
                     // Create weapon's addons
                     WeaponAttachmentCreateAddons(clientIndex, iD, BitType_C4, "c4");
@@ -769,7 +769,7 @@ void WeaponAttachmentRemoveEntity(int clientIndex)
     // Validate attachment
     if(entityIndex != INVALID_ENT_REFERENCE) 
     {
-        AcceptEntityInput(entityIndex, "Kill");
+        AcceptEntityInput(entityIndex, "Kill"); //! Destroy
     }
 
     // Clear the client's cache

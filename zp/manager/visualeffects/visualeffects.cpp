@@ -356,7 +356,7 @@ void VEffectRemoveParticle(int clientIndex)
                 // Validate parent
                 if(GetEntDataEnt2(x, g_iOffset_EntityOwnerEntity) == clientIndex)
                 {
-                    AcceptEntityInput(x, "Kill"); //! Destroy!
+                    AcceptEntityInput(x, "Kill"); //! Destroy
                 }
             }
         }

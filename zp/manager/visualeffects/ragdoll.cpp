@@ -58,7 +58,7 @@ void RagdollOnClientDeath(int clientIndex)
     int iRagdoll = GetEntDataEnt2(clientIndex, g_iOffset_PlayerRagdool);
 
     // If the ragdoll is invalid, then stop
-    if(iRagdoll == -1)
+    if(iRagdoll == INVALID_ENT_REFERENCE)
     {
         return;
     }

@@ -148,7 +148,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     fnInitSendPropOffset(g_iOffset_EconItemDefinitionIndex, "CEconEntity", "m_iItemDefinitionIndex");
     fnInitSendPropOffset(g_iOffset_NewSequenceParity, "CBaseAnimating", "m_nNewSequenceParity");
     fnInitSendPropOffset(g_iOffset_LastShotTime, "CWeaponCSBase", "m_fLastShotTime");
-    fnInitSendPropOffset(g_iOffset_PlayerAmmo, "CBasePlayer", "m_iAmmo"); 
+    ///fnInitSendPropOffset(g_iOffset_PlayerAmmo, "CBasePlayer", "m_iAmmo"); 
     fnInitSendPropOffset(g_iOffset_WeaponAmmoType, "CBaseCombatWeapon", "m_iPrimaryAmmoType");
     fnInitSendPropOffset(g_iOffset_WeaponClip1, "CBaseCombatWeapon", "m_iClip1");
     ///fnInitSendPropOffset(g_iOffset_WeaponClip2, "CBaseCombatWeapon", "m_iClip2");
@@ -229,14 +229,9 @@ void WeaponSDKOnCreated(int entityIndex, const char[] sClassname)
     // Validate weapon
     if(!strncmp(sClassname, "weapon_", 7, false))
     {
-        // Reset variable
-        gWeaponData[entityIndex] = INVALID_ENT_REFERENCE;
-
         // Hook weapon callbacks
         SDKHook(entityIndex, SDKHook_ReloadPost, WeaponSDKOnWeaponReload);
-        #if defined USE_DHOOKS
-            SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWeaponSpawn);
-        #endif
+        SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWeaponSpawn);
     }
     else
     {
@@ -249,9 +244,6 @@ void WeaponSDKOnCreated(int entityIndex, const char[] sClassname)
             // Validate grenade
             if(!strncmp(sClassname[iLen], "_proj", 5, false))
             {
-                // Reset variable
-                gWeaponData[entityIndex] = INVALID_ENT_REFERENCE;
-        
                 // Hook grenade callbacks
                 SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnGrenadeSpawn);
             }
@@ -285,8 +277,8 @@ public void WeaponSDKOnFakeWeaponReload(int referenceIndex)
     if(weaponIndex != INVALID_ENT_REFERENCE)
     {
         // Validate custom index
-        int iD = gWeaponData[weaponIndex];
-        if(iD != -1)
+        int iD = WeaponsGetCustomID(weaponIndex);
+        if(iD != INVALID_ENT_REFERENCE)
         {
             // If custom reload speed exist, then apply it
             float flReload = WeaponsGetReload(iD);
@@ -314,11 +306,19 @@ public void WeaponSDKOnFakeWeaponReload(int referenceIndex)
  *
  * @param weaponIndex       The weapon index.
  **/
-#if defined USE_DHOOKS
 public void WeaponSDKOnWeaponSpawn(int weaponIndex)
 {
-    // Apply fake reload hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeSpawnPost), EntIndexToEntRef(weaponIndex));
+    // Validate weapon
+    if(IsValidEdict(weaponIndex)) 
+    {
+        // Reset the weapon id
+        WeaponsSetCustomID(weaponIndex, INVALID_ENT_REFERENCE);
+    }
+    
+    #if defined USE_DHOOKS
+        // Apply fake spawn hook on the next frame
+        RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeSpawnPost), EntIndexToEntRef(weaponIndex));
+    #endif
 }
 
 /**
@@ -326,6 +326,7 @@ public void WeaponSDKOnWeaponSpawn(int weaponIndex)
  *
  * @param referenceIndex    The reference index.
  **/
+#if defined USE_DHOOKS
 public void WeaponSDKOnFakeSpawnPost(int referenceIndex) 
 {
     // Get the weapon index from the reference
@@ -335,8 +336,8 @@ public void WeaponSDKOnFakeSpawnPost(int referenceIndex)
     if(weaponIndex != INVALID_ENT_REFERENCE)
     {
         // Validate custom index
-        int iD = gWeaponData[weaponIndex];
-        if(iD != -1)
+        int iD = WeaponsGetCustomID(weaponIndex);
+        if(iD != INVALID_ENT_REFERENCE)
         {
             // Gets the weapon clip
             int iClip = WeaponsGetClip(iD);
@@ -366,6 +367,13 @@ public void WeaponSDKOnFakeSpawnPost(int referenceIndex)
  **/
 public void WeaponSDKOnGrenadeSpawn(int grenadeIndex)
 {
+    // Validate grenade
+    if(IsValidEdict(grenadeIndex)) 
+    {
+        // Reset the grenade id
+        WeaponsSetCustomID(grenadeIndex, INVALID_ENT_REFERENCE);
+    }
+    
     // Apply fake throw hook on the next frame
     RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeGrenadeSpawn), EntIndexToEntRef(grenadeIndex));
 }
@@ -396,20 +404,20 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
         
         // Validate weapon
-        if(weaponIndex <= INVALID_ENT_REFERENCE) 
+        if(!IsValidEdict(weaponIndex))
         {
             return;
         }
 
         // Validate custom index
-        int iD = gWeaponData[weaponIndex];
-        if(iD != -1)
+        int iD = WeaponsGetCustomID(weaponIndex);
+        if(iD != INVALID_ENT_REFERENCE)
         {
             // Validate grenade slot
             if(WeaponsGetSlot(iD) == 6) /// (Bug fix for other addons)
             {
                 // Duplicate index to the projectile for future use
-                gWeaponData[grenadeIndex] = gWeaponData[weaponIndex];
+                WeaponsSetCustomID(grenadeIndex, WeaponsGetCustomID(weaponIndex));
         
                 // If custom weapons models disabled, then skip
                 if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
@@ -454,11 +462,11 @@ public Action WeaponSDKOnDrop(int clientIndex, int weaponIndex)
     if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
     {
         // Validate weapon
-        if(weaponIndex > INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
+        if(IsValidEdict(weaponIndex))
         {
             // Validate custom index
-            int iD = gWeaponData[weaponIndex];
-            if(iD != -1)
+            int iD = WeaponsGetCustomID(weaponIndex);
+            if(iD != INVALID_ENT_REFERENCE)
             {
                 // If world model exist, then apply it
                 if(WeaponsGetModelWorldID(iD))
@@ -495,49 +503,49 @@ public Action WeaponSDKOnDrop(int clientIndex, int weaponIndex)
 public Action WeaponSDKOnCanUse(int clientIndex, int weaponIndex)
 {
     // Validate weapon
-    if(weaponIndex <= INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
+    if(IsValidEdict(weaponIndex))
     {
-        return Plugin_Continue;
-    }
-    
-    // Validate custom index
-    int iD = gWeaponData[weaponIndex];
-    if(iD != -1)
-    {
-        // Switch class access
-        switch(WeaponsGetClass(iD))
+        // Validate custom index
+        int iD = WeaponsGetCustomID(weaponIndex);
+        if(iD != INVALID_ENT_REFERENCE)
         {
-            // Validate human class
-            case ClassType_Human : if(!(!gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Survivor]))   return Plugin_Handled;
+            // Switch class access
+            switch(WeaponsGetClass(iD))
+            {
+                // Validate human class
+                case ClassType_Human : if(!(!gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Survivor]))   return Plugin_Handled;
+                
+                // Validate survivor class
+                case ClassType_Survivor : if(!(!gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Survivor])) return Plugin_Handled;
+                
+                // Validate zombie class
+                case ClassType_Zombie : if(!(gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]))    return Plugin_Handled;
+                
+                // Validate nemesis class
+                case ClassType_Nemesis : if(!(gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Nemesis]))    return Plugin_Handled;
             
-            // Validate survivor class
-            case ClassType_Survivor : if(!(!gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Survivor])) return Plugin_Handled;
-            
-            // Validate zombie class
-            case ClassType_Zombie : if(!(gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]))    return Plugin_Handled;
-            
-            // Validate nemesis class
-            case ClassType_Nemesis : if(!(gClientData[clientIndex][Client_Zombie] && gClientData[clientIndex][Client_Nemesis]))    return Plugin_Handled;
-        
-            // Validate invalid class
-            default: return Plugin_Handled;
-        }
+                // Validate invalid class
+                default: return Plugin_Handled;
+            }
 
-        /** Uncomment bellow, if you want to check the client's level/online access **/
-        
-        // Block pickup it, if online too low
-        /*
-        if(!gClientData[clientIndex][Client_Survivor] && fnGetPlaying() < WeaponsGetOnline(iD))
-        {
-            return Plugin_Handled;
-        }
+            /** Uncomment bellow, if you want to check the client's level/online access **/
+            
+            // Block pickup it, if online too low
+            /*
+            if(!gClientData[clientIndex][Client_Survivor] && fnGetPlaying() < WeaponsGetOnline(iD))
+            {
+                return Plugin_Handled;
+            }
 
-        // Block pickup it, if level too low
-        if(!gClientData[clientIndex][Client_Survivor] && gClientData[clientIndex][Client_Level] < WeaponsGetLevel(iD))
-        {
-            return Plugin_Handled;
+            // Block pickup it, if level too low
+            if(!gClientData[clientIndex][Client_Survivor] && gClientData[clientIndex][Client_Level] < WeaponsGetLevel(iD))
+            {
+                return Plugin_Handled;
+            }
+            */
         }
-        */
+        // Block pickup
+        else return Plugin_Handled;
     }
     
     // Allow pickup
@@ -598,7 +606,6 @@ void WeaponSDKOnClientUpdate(int clientIndex)
     {
         // Update the weapon
         SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
-        SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
     }
 }
 
@@ -649,11 +656,11 @@ public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex)
     if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
     {
         // Validate weapon
-        if(weaponIndex > INVALID_ENT_REFERENCE) /// Avoid the invalid index for array
+        if(IsValidEdict(weaponIndex))
         {
             // Validate custom index
-            int iD = gWeaponData[weaponIndex];
-            if(iD != -1)
+            int iD = WeaponsGetCustomID(weaponIndex);
+            if(iD != INVALID_ENT_REFERENCE)
             {
                 // If view/world model exist, then apply them later
                 if(WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || ((WeaponsValidateKnife(weaponIndex) || WeaponsValidateGrenade(weaponIndex)) && gClientData[clientIndex][Client_Zombie]))
@@ -670,7 +677,7 @@ public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex)
 
     // Client has swapped to a regular weapon
     gClientData[clientIndex][Client_CustomWeapon] = 0;
-    gClientData[clientIndex][Client_WeaponIndex] = -1; /// Only view model's identification
+    gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only view model's identification
     
     // Gets human's arm model
     static char sArm[PLATFORM_MAX_PATH];
@@ -743,7 +750,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
         if(!iModel || !strlen(sModel))
         {
             // Clear the custom id cache
-            gClientData[clientIndex][Client_CustomWeapon] = 0; iD = -1; /// (Bug fix for zombie)
+            gClientData[clientIndex][Client_CustomWeapon] = 0; iD = INVALID_ENT_REFERENCE; /// (Bug fix for zombie)
         }
     }
 
@@ -751,7 +758,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     if(weaponIndex != gClientData[clientIndex][Client_CustomWeapon])
     {
         // Hide the secondary view model. This needs to be done on post because the weapon needs to be switched first
-        if(iD == -1)
+        if(iD == INVALID_ENT_REFERENCE)
         {
             // Make the first view model visible
             WeaponHDRSetEntityVisibility(viewModel1, true);
@@ -762,7 +769,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
             SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
 
             // Resets the weapon index
-            gClientData[clientIndex][Client_WeaponIndex] = -1; /// Only view model's identification
+            gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only view model's identification
         }
         return;
     }
@@ -979,8 +986,8 @@ public void WeaponSDKOnAnimationFix(int clientIndex)
 void WeaponSDKOnFire(int clientIndex, int weaponIndex) 
 { 
     // Validate custom index
-    int iD = gWeaponData[weaponIndex];
-    if(iD != -1)    
+    int iD = WeaponsGetCustomID(weaponIndex);
+    if(iD != INVALID_ENT_REFERENCE)    
     {
         // Returns the game time based on the game tick
         float flCurrentTime = GetGameTime();
@@ -1066,8 +1073,8 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
 Action WeaponSDKOnShoot(int clientIndex, int weaponIndex) 
 { 
     // Validate custom index
-    int iD = gWeaponData[weaponIndex];
-    if(iD != -1)    
+    int iD = WeaponsGetCustomID(weaponIndex);
+    if(iD != INVALID_ENT_REFERENCE)    
     {
         // Gets weapon's attack sound
         static char sSound[PLATFORM_MAX_PATH];
@@ -1102,24 +1109,27 @@ void WeaponSDKOnHostage(int clientIndex)
     WeaponHDRSetPlayerViewModel(clientIndex, 1, INVALID_ENT_REFERENCE);
 
     // Apply fake hostage follow hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeHostage), clientIndex);
+    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeHostage), GetClientUserId(clientIndex));
 }
     
 /**
  * FakeEvent: WeaponOnFakeHostage
  *
- * @param clientIndex       The client index.
+ * @param userID            The user id.
  **/
-public void WeaponSDKOnFakeHostage(int clientIndex) 
+public void WeaponSDKOnFakeHostage(int userID) 
 {
+// Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
+
     // Validate client
-    if(IsPlayerExist(clientIndex))
+    if(clientIndex)
     {
         // Gets the weapon id from the reference
         int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only view model's identification
 
         // Validate id
-        if(iD != -1)
+        if(iD != INVALID_ENT_REFERENCE)
         {
             // Gets the second view model
             int viewModel2 = WeaponHDRGetPlayerViewModel(clientIndex, 1);
@@ -1147,8 +1157,8 @@ public void WeaponSDKOnFakeHostage(int clientIndex)
 public MRESReturn WeaponDHookOnGetMaxClip1(int weaponIndex, Handle hReturn)
 {
     // Validate custom index
-    int iD = gWeaponData[weaponIndex];
-    if(iD != -1)
+    int iD = WeaponsGetCustomID(weaponIndex);
+    if(iD != INVALID_ENT_REFERENCE)
     {
         // Gets the weapon clip
         int iClip = WeaponsGetClip(iD);
@@ -1173,8 +1183,8 @@ public MRESReturn WeaponDHookOnGetMaxClip1(int weaponIndex, Handle hReturn)
 public MRESReturn WeaponDHookOnGetReverseMax(int weaponIndex, Handle hReturn)
 {
     // Validate custom index
-    int iD = gWeaponData[weaponIndex];
-    if(iD != -1)
+    int iD = WeaponsGetCustomID(weaponIndex);
+    if(iD != INVALID_ENT_REFERENCE)
     {
         // Gets the weapon ammo
         int iAmmo = WeaponsGetAmmo(iD);

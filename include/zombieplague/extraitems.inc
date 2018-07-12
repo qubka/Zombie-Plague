@@ -38,7 +38,7 @@
  * @param clientIndex       The client index.
  * @param itemID            The index of extraitem from ZP_RegisterExtraItem() native.
  *
- * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
 forward Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID);

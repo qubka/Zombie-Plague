@@ -186,9 +186,16 @@ public int API_SetClientZombieClass(Handle isPlugin, int iNumParams)
         return -1;
     }
     
-    // Sets next class to the client
-    gClientData[clientIndex][Client_ZombieClassNext] = iD;
-    
+    // Call forward
+    Action resultHandle = API_OnClientValidateZombieClass(clientIndex, iD);
+
+    // Validate handle
+    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    {
+        // Sets next class to the client
+        gClientData[clientIndex][Client_ZombieClassNext] = iD;
+    }
+
     // Return on success
     return iD;
 }
@@ -1546,10 +1553,20 @@ void ZombieMenu(int clientIndex)
     // Sets title
     hMenu.SetTitle("%t", "Choose zombieclass");
     
+    // Initialize forward
+    Action resultHandle;
+    
     // i = Zombie class number
     int iCount = GetArraySize(arrayZombieClasses);
     for(int i = 0; i < iCount; i++)
     {
+        // Call forward
+        resultHandle = API_OnClientValidateZombieClass(clientIndex, i);
+        
+        // Skip, if class is disabled
+        if(resultHandle == Plugin_Stop)
+            continue;
+
         // Gets zombie class name
         ZombieGetName(i, sName, sizeof(sName));
         if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
@@ -1560,7 +1577,7 @@ void ZombieMenu(int clientIndex)
         
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(((!IsPlayerHasFlag(clientIndex, Admin_Custom1) && ZombieIsVIP(i)) || gClientData[clientIndex][Client_Level] < ZombieGetLevel(i) || gClientData[clientIndex][Client_ZombieClassNext] == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerHasFlag(clientIndex, Admin_Custom1) && ZombieIsVIP(i)) || gClientData[clientIndex][Client_Level] < ZombieGetLevel(i) || gClientData[clientIndex][Client_ZombieClassNext] == i) ? false : true));
     }
 
     // Sets exit and back button
@@ -1616,14 +1633,21 @@ public int ZombieMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int 
             hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
             int iD = StringToInt(sInfo);
             
-            // Sets next zombie class
-            gClientData[clientIndex][Client_ZombieClassNext] = iD;
-    
-            // Gets zombie name
-            ZombieGetName(iD, sInfo, sizeof(sInfo));
+            // Call forward
+            Action resultHandle = API_OnClientValidateZombieClass(clientIndex, iD);
 
-            // If help messages enabled, show info
-            if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "Zombie info", sInfo, ZombieGetHealth(iD), ZombieGetSpeed(iD), ZombieGetGravity(iD));
+            // Validate handle
+            if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+            {
+                // Sets next zombie class
+                gClientData[clientIndex][Client_ZombieClassNext] = iD;
+        
+                // Gets zombie name
+                ZombieGetName(iD, sInfo, sizeof(sInfo));
+
+                // If help messages enabled, show info
+                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "Zombie info", sInfo, ZombieGetHealth(iD), ZombieGetSpeed(iD), ZombieGetGravity(iD));
+            }
         }
     }
 }

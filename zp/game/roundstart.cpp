@@ -28,7 +28,7 @@
 /**
  * List of objective entities.
  **/
-#define ROUNDSTART_OBJECTIVE_ENTITIES "func_bomb_target_hostage_entity_func_hostage_rescue_func_buyzone"
+#define OBJECTIVE_ENTITIES "func_bomb_target_hostage_entity_func_hostage_rescue_func_buyzone"
 
 /**
  * The round is pre starting.
@@ -99,10 +99,10 @@ void RoundStartOnKillEntity(/*void*/)
             // Gets valid edict's classname
             GetEdictClassname(x, sClassname, sizeof(sClassname));
             
-            // Check if it matches any objective entities, then stop if it doesn't
-            if(StrContains(ROUNDSTART_OBJECTIVE_ENTITIES, sClassname) != -1) 
+            // Validate objectives
+            if(StrContains(OBJECTIVE_ENTITIES, sClassname) != -1) 
             {
-                AcceptEntityInput(x, "Kill"); //! Destroy!
+                AcceptEntityInput(x, "Kill"); //! Destroy
             }
         }
     }

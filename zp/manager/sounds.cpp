@@ -435,7 +435,6 @@ stock void SoundsInputStop(/*const char[] sSound*/)
         if(IsPlayerExist(i, false))
         {
             // Stop sound
-            //StopSound(i, SNDCHAN_STATIC, sSound);
             ClientCommand(i, "playgamesound Music.StopAllExceptMusic"); 
             ClientCommand(i, "playgamesound Music.StopAllMusic"); 
             ClientCommand(i, "playgamesound Music.StopAll");

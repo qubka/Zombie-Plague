@@ -165,6 +165,165 @@ public void MenusOnConfigReload(/*void*/)
     MenusLoad();
 }
 
+/*
+ * Menus natives API.
+ */
+
+/**
+ * Gets the amount of all menus.
+ *
+ * native int ZP_GetNumberMenu();
+ **/
+public int API_GetNumberMenu(Handle isPlugin, int iNumParams)
+{
+    // Return the value 
+    return GetArraySize(arrayMenus);
+}
+
+/**
+ * Gets the name of a menu at a given id.
+ *
+ * native void ZP_GetMenuName(iD, name, maxlen);
+ **/
+public int API_GetMenuName(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayMenus))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize name char
+    static char sName[SMALL_LINE_LENGTH];
+    MenusGetName(iD, sName, sizeof(sName));
+
+    // Return on success
+    return SetNativeString(2, sName, maxLen);
+}
+
+/**
+ * Gets the title of a menu at a given id.
+ *
+ * native void ZP_GetMenuTitle(iD, title, maxlen);
+ **/
+public int API_GetMenuTitle(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayMenus))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize title char
+    static char sTitle[SMALL_LINE_LENGTH];
+    MenusGetTitle(iD, sTitle, sizeof(sTitle));
+
+    // Return on success
+    return SetNativeString(2, sTitle, maxLen);
+}
+
+/**
+ * Gets the access of a menu at a given id.
+ *
+ * native void ZP_GetMenuAccess(iD, flags, maxlen);
+ **/
+public int API_GetMenuAccess(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayMenus))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize flags char
+    static char sFlags[SMALL_LINE_LENGTH];
+    MenusGetAccess(iD, sFlags, sizeof(sFlags));
+
+    // Return on success
+    return SetNativeString(2, sFlags, maxLen);
+}
+
+/**
+ * Gets the command of a menu at a given id.
+ *
+ * native void ZP_GetMenuCommand(iD, command, maxlen);
+ **/
+public int API_GetMenuCommand(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= GetArraySize(arrayMenus))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize command char
+    static char sCommand[SMALL_LINE_LENGTH];
+    MenusGetCommand(iD, sCommand, sizeof(sCommand));
+
+    // Return on success
+    return SetNativeString(2, sCommand, maxLen);
+}
+
+/*
+ * Menus data reading API.
+ */
+
 /**
  * Gets the name of a menu at a given index.
  *
@@ -204,7 +363,7 @@ stock void MenusGetTitle(int iD, char[] sType, int iMaxLen)
  * @param sType             The string to return entity in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void MenusGetAcess(int iD, char[] sType, int iMaxLen)
+stock void MenusGetAccess(int iD, char[] sType, int iMaxLen)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
@@ -230,7 +389,7 @@ stock void MenusGetCommand(int iD, char[] sType, int iMaxLen)
 }
 
 /*
- * Main menu
+ * Stocks menus API.
  */
  
 /**
@@ -246,53 +405,60 @@ void MenuMain(int clientIndex)
         return;
     }
 
-    // Initialize chars
-    static char sBuffer[NORMAL_LINE_LENGTH];
-    static char sName[SMALL_LINE_LENGTH];
-    static char sInfo[SMALL_LINE_LENGTH];
+    // Call forward
+    Action resultHandle = API_OnClientValidateMainMenu(clientIndex);
 
-    // Create menu handle
-    Menu hMenu = CreateMenu(MenuMainSlots);
-    
-    // Sets the language to target
-    SetGlobalTransTarget(clientIndex);
-    
-    // Sets title
-    hMenu.SetTitle("%t", "Main menu");
-    
-    // i = Array index
-    int iSize = GetArraySize(arrayMenus);
-    for(int i = 0; i < iSize; i++)
+    // Validate handle
+    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
     {
-        // Gets menu title
-        MenusGetTitle(i, sName, sizeof(sName));
+        // Initialize chars
+        static char sBuffer[NORMAL_LINE_LENGTH];
+        static char sName[SMALL_LINE_LENGTH];
+        static char sInfo[SMALL_LINE_LENGTH];
+
+        // Create menu handle
+        Menu hMenu = CreateMenu(MenuMainSlots);
         
-        // Format some chars for showing in menu
-        Format(sBuffer, sizeof(sBuffer), "%t", sName);
-
-        // Gets menu access flags
-        MenusGetAcess(i, sName, sizeof(sName));
+        // Sets the language to target
+        SetGlobalTransTarget(clientIndex);
         
-        // Show option
-        IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(IsPlayerHasFlags(clientIndex, sName)));
+        // Sets title
+        hMenu.SetTitle("%t", "Main menu");
+        
+        // i = Array index
+        int iSize = GetArraySize(arrayMenus);
+        for(int i = 0; i < iSize; i++)
+        {
+            // Gets menu title
+            MenusGetTitle(i, sName, sizeof(sName));
+            
+            // Format some chars for showing in menu
+            Format(sBuffer, sizeof(sBuffer), "%t", sName);
+
+            // Gets menu access flags
+            MenusGetAccess(i, sName, sizeof(sName));
+            
+            // Show option
+            IntToString(i, sInfo, sizeof(sInfo));
+            hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(IsPlayerHasFlags(clientIndex, sName)));
+        }
+        
+        // If there are no cases, add an "(Empty)" line
+        if(!iSize)
+        {
+            static char sEmpty[SMALL_LINE_LENGTH];
+            Format(sEmpty, sizeof(sEmpty), "%t", "Empty");
+
+            hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
+        }
+
+        // Sets exit and back button
+        hMenu.ExitButton = true;
+
+        // Sets options and display it
+        hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
+        hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
     }
-    
-    // If there are no cases, add an "(Empty)" line
-    if(!iSize)
-    {
-        static char sEmpty[SMALL_LINE_LENGTH];
-        Format(sEmpty, sizeof(sEmpty), "%t", "Empty");
-
-        hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
-    }
-
-    // Sets exit and back button
-    hMenu.ExitButton = true;
-
-    // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
-    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
 /**

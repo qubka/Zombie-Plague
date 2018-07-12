@@ -310,7 +310,7 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
         DispatchSpawn(itemIndex);
 
         // Sets the weapon id
-        gWeaponData[itemIndex] = iD;
+        WeaponsSetCustomID(itemIndex, iD);
         
         // Sets parent to the entity
         SetEntDataEnt2(itemIndex, g_iOffset_WeaponOwner, clientIndex, true);

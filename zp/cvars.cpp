@@ -47,6 +47,7 @@ enum CvarsList
     ConVar:CVAR_SERVER_FRIENDLY_SELF,
     ConVar:CVAR_SERVER_BUY_ANYWHERE,
     ConVar:CVAR_SERVER_GIVE_BOMB,
+    ConVar:CVAR_SERVER_GIVE_WEAPON,
     ConVar:CVAR_SERVER_WARMUP_TIME,
     ConVar:CVAR_SERVER_WARMUP_PERIOD,
     ConVar:CVAR_SERVER_ROUNDTIME_ZP,
@@ -294,6 +295,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SERVER_FRIENDLY_SELF]        = FindConVar("ff_damage_reduction_grenade_self");
     gCvarList[CVAR_SERVER_BUY_ANYWHERE]         = FindConVar("mp_buy_anywhere");
     gCvarList[CVAR_SERVER_GIVE_BOMB]            = FindConVar("mp_give_player_c4");
+    gCvarList[CVAR_SERVER_GIVE_WEAPON]          = FindConVar("mp_weapons_allow_map_placed");
     gCvarList[CVAR_SERVER_WARMUP_TIME]          = FindConVar("mp_warmuptime");
     gCvarList[CVAR_SERVER_WARMUP_PERIOD]        = FindConVar("mp_do_warmup_period");
     gCvarList[CVAR_SERVER_ROUNDTIME_ZP]         = FindConVar("mp_roundtime");
@@ -590,6 +592,7 @@ void CvarsHook(/*void*/)
     gCvarList[CVAR_SERVER_FRIENDLY_FIRE].IntValue = 0;
     gCvarList[CVAR_SERVER_BUY_ANYWHERE].IntValue = 0;
     gCvarList[CVAR_SERVER_GIVE_BOMB].IntValue = 0;
+    gCvarList[CVAR_SERVER_GIVE_WEAPON].IntValue = 0;
     gCvarList[CVAR_SERVER_WARMUP_TIME].IntValue = 0;
     gCvarList[CVAR_SERVER_WARMUP_PERIOD].IntValue = 0;
     gCvarList[CVAR_CT_DEFAULT_GRENADES].SetString("");
@@ -613,6 +616,7 @@ void CvarsHook(/*void*/)
     HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_FIRE],    CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_BUY_ANYWHERE],     CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_GIVE_BOMB],        CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_WEAPON],      CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_TIME],      CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_PERIOD],    CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_CT_DEFAULT_GRENADES],     CvarsHookLockedString);

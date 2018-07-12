@@ -65,6 +65,7 @@ int g_iOffset_PlayerCollision;
 int g_iOffset_PlayerRagdool;
 int g_iOffset_EntityModelIndex;
 int g_iOffset_EntityOwnerEntity;
+int g_iOffset_WeaponID;
 int g_iOffset_WeaponOwner;
 int g_iOffset_WeaponWorldModel;
 int g_iOffset_WeaponWorldSkin;
@@ -87,7 +88,6 @@ int g_iOffset_ViewModelIgnoreOffsAcc;
 int g_iOffset_EconItemDefinitionIndex;
 int g_iOffset_NewSequenceParity;
 int g_iOffset_LastShotTime;
-int g_iOffset_PlayerAmmo;
 int g_iOffset_WeaponAmmoType;
 int g_iOffset_WeaponClip1;
 int g_iOffset_WeaponReserve;
@@ -170,8 +170,3 @@ enum ClientData
  * Arrays to store the clients' data.
  **/
 int gClientData[MAXPLAYERS+1][ClientData];
-
-/**
- * Arrays to store the weapons's data.
- **/
-int gWeaponData[MAXENTITIES+1] = {INVALID_ENT_REFERENCE,...};

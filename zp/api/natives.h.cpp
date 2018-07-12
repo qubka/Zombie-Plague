@@ -156,6 +156,12 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_SetHitgroupDamage",              API_SetHitgroupDamage);
     CreateNative("ZP_GetHitgroupKnockback",           API_GetHitgroupKnockback);
     CreateNative("ZP_SetHitgroupKnockback",           API_SetHitgroupKnockback);
+
+    CreateNative("ZP_GetNumberMenu",                  API_GetNumberMenu);
+    CreateNative("ZP_GetMenuName",                    API_GetMenuName);
+    CreateNative("ZP_GetMenuTitle",                   API_GetMenuTitle);
+    CreateNative("ZP_GetMenuAccess",                  API_GetMenuAccess);
+    CreateNative("ZP_GetMenuCommand",                 API_GetMenuCommand);
     
     CreateNative("ZP_GetCurrentGameMode",             API_GetCurrentGameMode);
     CreateNative("ZP_GetNumberGameMode",              API_GetNumberGameMode);

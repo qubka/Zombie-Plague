@@ -33,6 +33,17 @@
 #define _humanclasses_included
 
 /**
+ * @brief Called before show a human class in the human class menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param classID           The index of class from ZP_RegisterHumanClass() native.
+ *
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and selecting.
+ **/
+forward Action ZP_OnClientValidateHumanClass(int clientIndex, int classID);
+
+/**
  * @brief Gets the amount of all human classes.
  *
  * @return                  The human class amount.    

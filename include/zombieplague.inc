@@ -60,6 +60,7 @@ enum ZPSelectType
 };
 
 
+#include "zombieplague/menus.inc"
 #include "zombieplague/weapons.inc"
 #include "zombieplague/gamemodes.inc"
 #include "zombieplague/hitgroups.inc"
@@ -89,7 +90,7 @@ forward void ZP_OnClientInfected(int clientIndex, int attackerIndex);
  *
  * @noreturn
  **/
-forward void ZP_OnClientHeroed(int clientIndex);
+forward void ZP_OnClientHumanized(int clientIndex);
 
 /**
  * @brief Called when a client take a fake damage.
