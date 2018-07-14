@@ -57,14 +57,14 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
         
         // Increment exp and bonuses
         ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + gCvarList[CVAR_BONUS_INFECT_HEALTH].IntValue);
-        ToolsSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + gCvarList[CVAR_BONUS_INFECT].IntValue);
+        AccountSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + gCvarList[CVAR_BONUS_INFECT].IntValue);
         LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex][Client_Exp] + gCvarList[CVAR_LEVEL_INFECT].IntValue);
     }
     // If infection was done by server
     else if(!attackerIndex)
     {
         // Return ammopacks, which was spent before server infection
-        ToolsSetClientCash(victimIndex, gClientData[victimIndex][Client_AmmoPacks] + gClientData[victimIndex][Client_LastBoughtAmount]);
+        AccountSetClientCash(victimIndex, gClientData[victimIndex][Client_AmmoPacks] + gClientData[victimIndex][Client_LastBoughtAmount]);
         gClientData[victimIndex][Client_LastBoughtAmount] = 0;
     }
 
@@ -163,6 +163,7 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
     SoundsOnClientInfected(victimIndex, respawnMode);
     VEffectsOnClientInfected(victimIndex, nemesisMode, respawnMode);
     LevelSystemOnClientUpdate(victimIndex);
+    AccountOnClientUpdate(victimIndex);
     if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION]) VOverlayOnClientUpdate(victimIndex, Overlay_Vision);
     RequestFrame(view_as<RequestFrameCallback>(WeaponsOnClientUpdate), GetClientUserId(victimIndex));
     
@@ -283,6 +284,7 @@ void ClassMakeHuman(int clientIndex, bool survivorMode = false, bool respawnMode
     VEffectsOnClientHumanized(clientIndex, survivorMode, respawnMode);
     VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
     LevelSystemOnClientUpdate(clientIndex);
+    AccountOnClientUpdate(clientIndex);
     RequestFrame(view_as<RequestFrameCallback>(WeaponsOnClientUpdate), GetClientUserId(clientIndex));
     
     // Validate non-respawn

@@ -102,27 +102,28 @@ public Action GameModesStart(Handle hTimer)
                 // If counter is counting ?
                 if(gServerData[Server_RoundCount])
                 {
-                    // If help messages enabled, show info
-                    if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                    // Validate beginning
+                    if(gServerData[Server_RoundCount] == (gCvarList[CVAR_GAME_CUSTOM_START].IntValue - 2))
                     {
-                        // Validate beginning
-                        if(gServerData[Server_RoundCount] == (gCvarList[CVAR_GAME_CUSTOM_START].IntValue - 2))
+                        // If help messages enabled, then proceed
+                        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
                         {
                             // Show help information
                             TranslationPrintToChatAll("General round objective");
                             TranslationPrintHintTextAll("General buttons reminder");
                         }
 
-                        // Show counter message
-                        if(gServerData[Server_RoundCount] <= 20)
+                        // Emit round start sound
+                        SoundsInputEmitToAll("ROUND_START_SOUNDS");
+                    }
+            
+                    // Validate counter
+                    if(SoundsInputEmitToAll("ROUND_COUNTER_SOUNDS", gServerData[Server_RoundCount]))
+                    {
+                        // If help messages enabled, then proceed
+                        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
                         {
-                            // Play counter sounds
-                            if(1 <= gServerData[Server_RoundCount] <= 10) SoundsInputEmitToAll("ROUND_COUNTER_SOUNDS", gServerData[Server_RoundCount]);
-                            
-                            // Player round start sounds
-                            if(gServerData[Server_RoundCount] == 20) SoundsInputEmitToAll("ROUND_START_SOUNDS");
-                            
-                            // Initialize string and format it
+                            // Show help information
                             TranslationPrintHintTextAll("Zombie comming", gServerData[Server_RoundCount]);
                         }
                     }
@@ -158,7 +159,7 @@ void GameModesEventStart(int modeIndex = -1, int selectedIndex = 0)
     if(modeIndex == -1)
     {
         // i = mode number
-        int iCount = GetArraySize(arrayGameModes);
+        int iCount = arrayGameModes.Length;
         for(int i = 0; i < iCount; i++)
         {
             // Starting default game mode ?
@@ -196,7 +197,7 @@ void GameModesEventStart(int modeIndex = -1, int selectedIndex = 0)
     GameModesTurnIntoHuman();
 
     // Call forward
-    API_OnZombieModStarted();
+    API_OnZombieModStarted(modeIndex);
 
     // Resets server grobal variables
     gServerData[Server_RoundNew] = false;
@@ -300,7 +301,7 @@ public int API_GetCurrentGameMode(Handle isPlugin, int iNumParams)
 public int API_GetNumberGameMode(Handle isPlugin, int iNumParams)
 {
     // Return the value 
-    return GetArraySize(arrayGameModes);
+    return arrayGameModes.Length;
 }
 
 /**
@@ -328,7 +329,7 @@ public int API_GetServerGameMode(Handle isPlugin, int iNumParams)
     GetNativeString(1, sName, sizeof(sName));
 
     // i = mode number
-    int iCount = GetArraySize(arrayGameModes);
+    int iCount = arrayGameModes.Length;
     for(int i = 0; i < iCount; i++)
     {
         // Gets the name of a game mode at a given index
@@ -388,7 +389,7 @@ public int API_SetServerGameMode(Handle isPlugin, int iNumParams)
     }
 
     // i = mode number
-    int iCount = GetArraySize(arrayGameModes);
+    int iCount = arrayGameModes.Length;
     for(int i = 0; i < iCount; i++)
     {
         // Gets the name of a game mode at a given index
@@ -434,7 +435,7 @@ public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
     }
     
     // Gets game modes amount
-    int iCount = GetArraySize(arrayGameModes);
+    int iCount = arrayGameModes.Length;
     
     // Maximum amout of game modes
     if(iCount >= GameModesMax)
@@ -468,7 +469,7 @@ public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
     arrayGameModes.Push(arrayGameMode);
     
     // Return id under which we registered the item
-    return GetArraySize(arrayGameModes)-1;
+    return arrayGameModes.Length-1;
 }
 
 /**
@@ -488,7 +489,7 @@ public int API_GetGameModeName(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -529,7 +530,7 @@ public int API_GetGameModeDesc(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -570,7 +571,7 @@ public int API_GetGameModeSound(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -611,7 +612,7 @@ public int API_GetGameModeChance(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -638,7 +639,7 @@ public int API_GetGameModeMinPlayers(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -665,7 +666,7 @@ public int API_GetGameModeRatio(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -692,7 +693,7 @@ public int API_IsGameModeInfect(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -719,7 +720,7 @@ public int API_IsGameModeRespawn(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -746,7 +747,7 @@ public int API_IsGameModeSurvivor(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
@@ -773,7 +774,7 @@ public int API_IsGameModeNemesis(Handle isPlugin, int iNumParams)
     }
     
     // Validate index
-    if(iD >= GetArraySize(arrayGameModes))
+    if(iD >= arrayGameModes.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;

@@ -96,6 +96,17 @@ int g_iOffset_GrenadeThrower;
 /**
  * @endsection
  **/
+
+/**
+ * List of operation types for gamedata config.
+ **/
+enum GameData
+{
+    Handle:Game_Zombie,
+    Handle:Game_SDKHooks,
+    Handle:Game_SDKTools,
+    Handle:Game_CStrike
+};
  
 /**
  * List of operation types for global array.
@@ -108,7 +119,7 @@ enum ServerData
     Server_RoundNumber,
     Server_RoundMode,
     Server_RoundCount,
-    Handle:Server_GameConfig,
+    Handle:Server_GameConfig[GameData],
     String:Server_MapName[PLATFORM_MAX_PATH]
 };
 
@@ -141,9 +152,11 @@ enum ClientData
     Client_Level,
     Client_Exp,
     Client_DataID,
+    Client_Costume,
+    Client_AttachmentCostume,
     Client_AttachmentBits,
-    Client_AttachmentAddons[9], 
-    Client_AttachmentEntity,
+    Client_AttachmentAddons[9], /* Amount of weapon's back attachments */
+    Client_AttachmentMuzzle,
     Client_AttachmentWeapon,
     String:Client_AttachmentLast[SMALL_LINE_LENGTH],
     
@@ -158,7 +171,8 @@ enum ClientData
     Client_SwapWeapon,
    
     /* Timers */
-    Handle:Client_HUDTimer,
+    Handle:Client_LevelTimer,
+    Handle:Client_AccountTimer,
     Handle:Client_RespawnTimer,
     Handle:Client_ZombieSkillTimer,
     Handle:Client_ZombieCountDownTimer,

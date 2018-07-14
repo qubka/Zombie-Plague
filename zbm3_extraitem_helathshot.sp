@@ -72,9 +72,9 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ * Called after a zombie core is loaded.
  **/
-public void OnConfigsExecuted(/*void*/)
+public void ZP_OnEngineExecute(/*void*/)
 {
     // Initilizate weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
@@ -92,17 +92,17 @@ public void OnConfigsExecuted(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Stop;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {
-        // If you don't allowed to buy, then stop
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        // Validate class
+        if(ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Stop;
+        }
+        
+        // Validate access
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
         {
             return Plugin_Handled;
         }

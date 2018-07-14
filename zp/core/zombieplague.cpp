@@ -160,6 +160,15 @@ void GameEngineInit(/*void*/)
     delete gServerData[Server_GameConfig];
 }
 
+/**
+ * Called when core is loaded.
+ **/
+void GameEngineLoad(/*void*/)
+{
+    // Call forward
+    API_OnEngineExecute();
+}
+
 /*
  * Player functions
  */

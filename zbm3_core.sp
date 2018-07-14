@@ -39,6 +39,10 @@
 #include <sdktools>
 #include <sdkhooks>
 
+#if defined USE_DHOOKS
+    #tryinclude <dhooks>   
+#endif
+
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -62,6 +66,7 @@
 // Game
 #include "zp/game/events.cpp"
 #include "zp/game/antistick.cpp"
+#include "zp/game/account.cpp"
 #include "zp/game/tools.cpp"
 #include "zp/game/spawn.cpp"
 #include "zp/game/death.cpp"
@@ -81,6 +86,7 @@
 #include "zp/manager/extraitems.cpp"
 #include "zp/manager/downloads.cpp"
 #include "zp/manager/hitgroups.cpp"
+#include "zp/manager/costumes.cpp"
 #include "zp/manager/weapons.cpp"
 #include "zp/manager/models.cpp"
 #include "zp/manager/sounds.cpp"
@@ -129,10 +135,14 @@ public void OnPluginStart(/*void*/)
     ConfigInit();
     EventInit();
     LogInit();
+    CostumesInit();
     CommandsInit();
     CvarsInit();
     ToolsInit();
+    SoundsInit();
+    AccountInit();
     WeaponsInit();
+    LevelSystemInit();
     TranslationInit();
     GameEngineInit();
 }
@@ -150,6 +160,7 @@ public void OnMapStart(/*void*/)
     DownloadsLoad();
     ZombieClassesLoad();
     HumanClassesLoad();
+    CostumesLoad();
     VEffectsLoad();
     ExtraItemsLoad();
     LevelSystemLoad();
@@ -158,6 +169,7 @@ public void OnMapStart(/*void*/)
     HitgroupsLoad();
     DataBaseLoad();
     VersionLoad();
+    GameEngineLoad();
 }
 
 /**

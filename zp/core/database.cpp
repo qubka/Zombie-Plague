@@ -117,11 +117,11 @@ void DataBaseLoad(/*void*/)
     // Format request
     if(MySQL)
     {
-        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (`id` int(64) NOT NULL auto_increment, `steam_id` varchar(32) NOT NULL, `money` int(64) NOT NULL, `level` int(64) NOT NULL, `exp` int(64) NOT NULL, `zclass` int(64) NOT NULL, `hclass` int(64) NOT NULL, `rebuy` int(64) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `steam_id` (`steam_id`))", sDataBase);
+        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (`id` int(64) NOT NULL auto_increment, `steam_id` varchar(32) NOT NULL, `money` int(64) NOT NULL, `level` int(64) NOT NULL, `exp` int(64) NOT NULL, `zclass` int(64) NOT NULL, `hclass` int(64) NOT NULL, `rebuy` int(64) NOT NULL, `costume` int(64) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `steam_id` (`steam_id`))", sDataBase);
     }
     else
     {
-        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (id INTEGER PRIMARY KEY AUTOINCREMENT, steam_id TEXT UNIQUE, money INTEGER, level INTEGER, exp INTEGER, zclass INTEGER, hclass INTEGER, rebuy INTEGER)", sDataBase);
+        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (id INTEGER PRIMARY KEY AUTOINCREMENT, steam_id TEXT UNIQUE, money INTEGER, level INTEGER, exp INTEGER, zclass INTEGER, hclass INTEGER, rebuy INTEGER, costume INTEGER)", sDataBase);
     }
 
     // Sent a request
@@ -232,7 +232,7 @@ void DataBaseClientInit(int clientIndex)
         if(GetClientAuthId(clientIndex, AuthId_Steam2, SteamID[clientIndex], sizeof(SteamID[])))
         {
             // Format request
-            Format(sRequest, sizeof(sRequest), "SELECT id, money, level, exp, zclass, hclass, rebuy FROM `%s` WHERE steam_id = '%s'", sDataBase, SteamID[clientIndex]);
+            Format(sRequest, sizeof(sRequest), "SELECT id, money, level, exp, zclass, hclass, rebuy, costume FROM `%s` WHERE steam_id = '%s'", sDataBase, SteamID[clientIndex]);
             
             // Sent a request
             SQL_TQuery(hDataBase, SQLBaseExtract_Callback, sRequest, clientIndex);
@@ -289,12 +289,13 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
             {
                 // Gets client's data
                 gClientData[clientIndex][Client_DataID] = SQL_FetchInt(hResult, 0); 
-                ToolsSetClientCash(clientIndex, SQL_FetchInt(hResult, 1));
+                AccountSetClientCash(clientIndex, SQL_FetchInt(hResult, 1));
                 LevelSystemOnSetLvl(clientIndex, SQL_FetchInt(hResult, 2));
                 LevelSystemOnSetExp(clientIndex, SQL_FetchInt(hResult, 3));              
                 gClientData[clientIndex][Client_ZombieClassNext] = SQL_FetchInt(hResult, 4);
                 gClientData[clientIndex][Client_HumanClassNext] = SQL_FetchInt(hResult, 5);
                 gClientData[clientIndex][Client_AutoRebuy] = view_as<bool>(SQL_FetchInt(hResult, 6));
+                gClientData[clientIndex][Client_Costume] = SQL_FetchInt(hResult, 7);
 
                 // Update info in the database
                 DataBaseSaveClientInfo(clientIndex);
@@ -336,7 +337,7 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
                 SQL_UnlockDatabase(hDataBase);
 
                 // Sets client's data
-                ToolsSetClientCash(clientIndex, gCvarList[CVAR_BONUS_CONNECT].IntValue);
+                AccountSetClientCash(clientIndex, gCvarList[CVAR_BONUS_CONNECT].IntValue);
             }
             
             // Client was loaded
@@ -362,11 +363,11 @@ void DataBaseSaveClientInfo(int clientIndex)
     // Format request
     if(gClientData[clientIndex][Client_DataID] < 1)
     {
-        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, level = %d, exp = %d, zclass = %d, hclass = %d, rebuy = %d WHERE steam_id = '%s'", sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], SteamID[clientIndex]);
+        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, level = %d, exp = %d, zclass = %d, hclass = %d, rebuy = %d, costume = %d WHERE steam_id = '%s'", sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], SteamID[clientIndex]);
     }
     else
     {
-        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, level = %d, exp = %d, zclass = %d, hclass = %d, rebuy = %d WHERE id = %d", sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_DataID]);
+        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, level = %d, exp = %d, zclass = %d, hclass = %d, rebuy = %d, costume = %d WHERE id = %d", sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], gClientData[clientIndex][Client_DataID]);
     }
 
     // Block sql base from the other requests

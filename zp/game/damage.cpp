@@ -424,7 +424,7 @@ stock void DamageOnClientAmmo(int clientIndex, float damageAmount)
     }
     
     // Give ammopacks for the attacker
-    ToolsSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] + nMultipler);
+    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] + nMultipler);
     
     // Resets damage filter
     nAppliedDamage[clientIndex] -= nMultipler * nBonus;

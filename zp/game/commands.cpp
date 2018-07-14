@@ -51,6 +51,7 @@ void CommandsInit(/*void*/)
     SkillsOnCommandsCreate();
     WeaponsOnCommandsCreate();
     ExtraItemsOnCommandsCreate();
+    CostumesOnCommandsCreate();
     VersionOnCommandsCreate();
 }
 

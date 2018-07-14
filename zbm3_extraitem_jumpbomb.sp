@@ -96,17 +96,23 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ * Plugin is loading.
  **/
-public void OnConfigsExecuted(/*void*/)
+public void OnPluginStart(/*void*/)
+{
+    // Hooks server sounds
+    AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
+}
+
+/**
+ * Called after a zombie core is loaded.
+ **/
+public void ZP_OnEngineExecute(/*void*/)
 {
     // Initilizate weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
-    // Hooks server sounds
-    AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
-    
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
@@ -122,17 +128,17 @@ public void OnConfigsExecuted(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Stop;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {
-        // If you don't allowed to buy, then stop
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerHuman(clientIndex) || ZP_IsPlayerNemesis(clientIndex))
+        // Validate class
+        if(ZP_IsPlayerHuman(clientIndex) || ZP_IsPlayerNemesis(clientIndex))
+        {
+            return Plugin_Stop;
+        }
+        
+        // Validate access
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
         {
             return Plugin_Handled;
         }
@@ -150,12 +156,6 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {
@@ -286,9 +286,9 @@ public Action EventPlayerBlind(Event hEvent, const char[] sName, bool dontBroadc
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
- * @param iFrags            The sound flags.
+ * @param iFlags            The sound flags.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags)
+public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
 {
     // Validate client
     if(IsValidEdict(entityIndex))

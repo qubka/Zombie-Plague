@@ -62,6 +62,7 @@ enum ZPSelectType
 
 #include "zombieplague/menus.inc"
 #include "zombieplague/weapons.inc"
+#include "zombieplague/costumes.inc"
 #include "zombieplague/gamemodes.inc"
 #include "zombieplague/hitgroups.inc"
 #include "zombieplague/extraitems.inc"
@@ -126,10 +127,18 @@ forward void ZP_OnClientSkillOver(int clientIndex);
 /**
  * @brief Called after a zombie round is started.
  *
+ * @param modeIndex         The mode index. 
+ *
  * @noreturn
  **/
-forward void ZP_OnZombieModStarted(/*void*/);
+forward void ZP_OnZombieModStarted(int modeIndex);
 
+/**
+ * @brief Called after a zombie core is loaded.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnEngineExecute(/*void*/);
 
 //*********************************************************************
 //*                       CORE MAIN NATIVES                              *
@@ -282,7 +291,7 @@ native int ZP_GetClientExp(int clientIndex);
  * @param clientIndex        The client index.
  * @param amountExp          The number of exp.
  *  
- * @noreturn
+ * @return                   True if the sound was emit, false otherwise.
  **/
 native int ZP_SetClientExp(int clientIndex, int amountExp);
 
@@ -298,7 +307,7 @@ native int ZP_SetClientExp(int clientIndex, int amountExp);
  *  
  * @noreturn
  **/
-native void ZP_EmitSound(char[] sKey, int clientIndex = 0);
+native bool ZP_EmitSound(char[] sKey, int clientIndex = 0);
 
 /**
  * Gets the new round's state.

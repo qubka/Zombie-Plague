@@ -94,6 +94,7 @@ enum LogModules
     bool:LogModule_Zombieclasses,
     bool:LogModule_Humanclasses,
     bool:LogModule_Extraitems,
+    bool:LogModule_Costumes,
     bool:LogModule_Gamemodes,
     bool:LogModule_Admin,
     bool:LogModule_Native
@@ -203,6 +204,10 @@ LogModules LogGetModule(char[] sModuleName)
     else if(!strcmp(sModuleName, "extraitems", false))
     {
         return LogModule_Extraitems;
+    }
+    else if(!strcmp(sModuleName, "costumes", false))
+    {
+        return LogModule_Costumes;
     }
     else if(!strcmp(sModuleName, "gamemodes", false))
     {
@@ -331,6 +336,10 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModules iModule, bool
         case LogModule_Extraitems :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "extraitems") : strcopy(sBuffer, iMaxLen, "Extra Items");
+        }
+        case LogModule_Costumes :
+        {
+            return shortName ? strcopy(sBuffer, iMaxLen, "costumes") : strcopy(sBuffer, iMaxLen, "Costumes");
         }
         case LogModule_Gamemodes :
         {
@@ -532,7 +541,7 @@ void LogModuleFilterCacheUpdate(/*void*/)
     }
     
     // Loop through the module array
-    int iSize = GetArraySize(arrayLogModuleFilter);
+    int iSize = arrayLogModuleFilter.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Gets the module name

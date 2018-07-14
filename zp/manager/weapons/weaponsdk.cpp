@@ -25,10 +25,6 @@
  * ============================================================================
  **/
 
-#if defined USE_DHOOKS
-    #tryinclude <dhooks>   
-#endif
-
 /**
  * Number of valid slots.
  **/
@@ -64,7 +60,7 @@ Handle hSDKCallWeaponSwitch;
 Handle hSDKCallCSWeaponDrop;
 
 #if defined USE_DHOOKS
-    /**
+ /**
  * Variables to store DHook calls handlers.
  **/
 Handle hDHookGetMaxClip;
@@ -84,18 +80,18 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
 {                             // C_BaseFlex -> C_EconEntity -> C_BaseCombatWeapon -> C_WeaponCSBase -> C_BaseCSGrenade
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Virtual, "RemoveAllItems");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Weapon_RemoveAllItems");
 
     //  Validate call
     if(!(hSDKCallRemoveAllItems = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RemoveAllItems\". Update offsets in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RemoveAllItems\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
     }
 
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Virtual, "Weapon_Switch");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_SDKHooks], SDKConf_Virtual, "Weapon_Switch");
     PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
@@ -103,12 +99,12 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     if(!(hSDKCallWeaponSwitch = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update offsets in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update \"SourceMod\"");
     }
 
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Signature, "CSWeaponDrop");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "CSWeaponDrop");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
@@ -119,7 +115,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     if(!(hSDKCallCSWeaponDrop = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::CSWeaponDrop\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::CSWeaponDrop\". Update \"SourceMod\"");
     }
 
     // Load offsets here
@@ -157,8 +153,8 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     
     #if defined USE_DHOOKS
     // Load offsets
-    fnInitGameConfOffset(gServerData[Server_GameConfig], DHook_GetMaxClip1, "GetMaxClip1");
-    fnInitGameConfOffset(gServerData[Server_GameConfig], DHook_GetMaxReverse, "GetMaxReverse");
+    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetMaxClip1, "Weapon_GetMaxClip1");
+    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetMaxReverse, "Weapon_GetMaxReverse");
 
     /// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
     hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
@@ -417,7 +413,10 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
             if(WeaponsGetSlot(iD) == 6) /// (Bug fix for other addons)
             {
                 // Duplicate index to the projectile for future use
-                WeaponsSetCustomID(grenadeIndex, WeaponsGetCustomID(weaponIndex));
+                WeaponsSetCustomID(grenadeIndex, iD);
+        
+                // Call forward
+                API_OnWeaponCreated(grenadeIndex, iD);
         
                 // If custom weapons models disabled, then skip
                 if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
@@ -433,8 +432,8 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
                         SetEntityModel(grenadeIndex, sModel);
                         
                         // Sets the body/skin index for the grenade
-                        SetEntData(grenadeIndex, g_iOffset_WeaponBody, WeaponsGetModelViewBody(iD), _, true);
-                        SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelViewSkin(iD), _, true);
+                        SetEntData(grenadeIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
+                        SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
                     }
                 }
             }
@@ -451,13 +450,6 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
  **/
 public Action WeaponSDKOnDrop(int clientIndex, int weaponIndex)
 {
-    // Validate survivor
-    if(gClientData[clientIndex][Client_Survivor])
-    {
-        // Block drop
-        return Plugin_Handled;
-    }
-    
     // If custom weapons models disabled, then skip
     if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
     {
@@ -479,8 +471,8 @@ public Action WeaponSDKOnDrop(int clientIndex, int weaponIndex)
                     DataPack hPack = CreateDataPack();
                     hPack.WriteString(sModel);
                     hPack.WriteCell(EntIndexToEntRef(weaponIndex));
-                    hPack.WriteCell(WeaponsGetModelViewBody(iD));
-                    hPack.WriteCell(WeaponsGetModelViewSkin(iD));
+                    hPack.WriteCell(WeaponsGetModelBody(iD));
+                    hPack.WriteCell(WeaponsGetModelSkin(iD));
                     
                     // Apply dropped model on the next frame
                     RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), hPack);
@@ -544,8 +536,6 @@ public Action WeaponSDKOnCanUse(int clientIndex, int weaponIndex)
             }
             */
         }
-        // Block pickup
-        else return Plugin_Handled;
     }
     
     // Allow pickup
@@ -563,7 +553,7 @@ void WeaponSDKOnClientUpdate(int clientIndex)
     gClientData[clientIndex][Client_CustomWeapon] = 0;
 
     // Remove current addons
-    WeaponAttachmentRemoveAddons(clientIndex);
+    WeaponAttachRemoveAddons(clientIndex);
     
     // Gets the player viewmodel indexes
     int viewModel1 = WeaponHDRGetPlayerViewModel(clientIndex, 0);
@@ -605,6 +595,7 @@ void WeaponSDKOnClientUpdate(int clientIndex)
     if(IsValidEdict(weaponIndex))
     {
         // Update the weapon
+        SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
         SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
     }
 }
@@ -783,9 +774,6 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     // If view model exist, then apply it
     if(iModel)
     {
-        // Gets the draw animation sequence
-        gClientData[clientIndex][Client_DrawSequence] = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
-
         // Make the first view model invisible
         WeaponHDRSetEntityVisibility(viewModel1, false);
         SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
@@ -797,6 +785,9 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
         // Remove the muzzle on the switch
         VEffectRemoveMuzzle(clientIndex, viewModel2);
 
+        // Gets the draw animation sequence
+        gClientData[clientIndex][Client_DrawSequence] = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
+        
         // Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
         SetEntData(viewModel1, g_iOffset_ViewModelSequence, -1, _, true);
         SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
@@ -844,8 +835,8 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
 
         // Sets the model/body/skin index for view model
         SetEntData(viewModel2, g_iOffset_EntityModelIndex, iModel, _, true);
-        SetEntData(viewModel2, g_iOffset_WeaponBody, WeaponsGetModelViewBody(iD), _, true);
-        SetEntData(viewModel2, g_iOffset_WeaponSkin, WeaponsGetModelViewSkin(iD), _, true);
+        SetEntData(viewModel2, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
+        SetEntData(viewModel2, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
         
         //  Update the animation interval delay for second view model 
         SetEntDataFloat(viewModel2, g_iOffset_ViewModelPlaybackRate, GetEntDataFloat(viewModel1, g_iOffset_ViewModelPlaybackRate), true);
@@ -865,7 +856,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     // If world model exist, then apply it
     if(WeaponsGetModelWorldID(iD))
     {
-        WeaponHDRSetPlayerWorldModel(weaponIndex, WeaponsGetModelWorldID(iD), WeaponsGetModelViewBody(iD), WeaponsGetModelViewSkin(iD));
+        WeaponHDRSetPlayerWorldModel(weaponIndex, WeaponsGetModelWorldID(iD), WeaponsGetModelBody(iD), WeaponsGetModelSkin(iD));
     }
     // If it don't exist, then hide it
     else
@@ -894,7 +885,7 @@ public void WeaponSDKOnAnimationFix(int clientIndex)
     }
 
     // Set current addons
-    WeaponAttachmentSetAddons(clientIndex); /// Back weapon's models
+    WeaponAttachSetAddons(clientIndex); /// Back weapon's models
     
     // Validate weapon
     if(!gClientData[clientIndex][Client_CustomWeapon]) /// Optimization for frame check
@@ -1017,7 +1008,7 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
             float flHeat = ((flCurrentTime - GetEntDataFloat(weaponIndex, g_iOffset_LastShotTime)) * -0.5) + flHeatDelay[clientIndex];
 
             // This value is set specifically for each weapon
-            flHeat += WeaponsGetModelViewHeat(iD);
+            flHeat += WeaponsGetModelHeat(iD);
             
             // Reset the heat
             if(flHeat < 0.0) flHeat = 0.0;

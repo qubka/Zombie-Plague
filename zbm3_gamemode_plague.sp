@@ -87,10 +87,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * Called after a zombie round is started.
  **/
-public void ZP_OnZombieModStarted(/*void*/)
+public void ZP_OnZombieModStarted(int modeIndex)
 {
     // Validate plague mode
-    if(ZP_GetCurrentGameMode() == gPlague) /* OR if(ZP_GetCurrentGameMode() == ZP_GetServerGameMode(GAME_MODE_NAME))*/
+    if(modeIndex == gPlague) /* OR if(ZP_GetCurrentGameMode() == ZP_GetServerGameMode(GAME_MODE_NAME))*/
     {
         // Make a random nemesis/survivor
         ZP_SwitchClientClass(ZP_GetRandomHuman(), _, TYPE_NEMESIS);

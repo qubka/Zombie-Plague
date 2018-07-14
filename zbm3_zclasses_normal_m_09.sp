@@ -121,9 +121,9 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ * Called after a zombie core is loaded.
  **/
-public void OnConfigsExecuted(/*void*/)
+public void ZP_OnEngineExecute(/*void*/)
 {
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

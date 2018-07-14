@@ -70,9 +70,9 @@ native int ZP_GetClientZombieClassNext(int clientIndex);
  * @brief Sets the zombie class index to the client.
  * 
  * @param clientIndex       The client index.
- * @param classIndex        The zombie class index.    
+ * @param classID           The zombie class index.    
  */
-native void ZP_SetClientZombieClass(int clientIndex, int classIndex);
+native void ZP_SetClientZombieClass(int clientIndex, int classID);
 
 /**
  * @brief Registers a custom class which will be added to the zombie classes menu of ZP.

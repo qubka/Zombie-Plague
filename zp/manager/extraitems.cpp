@@ -110,7 +110,7 @@ public int API_GiveClientExtraItem(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -152,7 +152,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -186,7 +186,7 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -222,7 +222,7 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
     }
     
     // Gets extra items amount
-    int iCount = GetArraySize(arrayExtraItems);
+    int iCount = arrayExtraItems.Length;
 
     // Maximum amout of extra items
     if(iCount >= ExtraItemMax)
@@ -249,7 +249,7 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
     arrayExtraItems.Push(arrayExtraItem);
     
     // Return id under which we registered the item
-    return GetArraySize(arrayExtraItems)-1;
+    return arrayExtraItems.Length-1;
 }
 
 /**
@@ -259,7 +259,7 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
  **/
 public int API_GetNumberExtraItem(Handle isPlugin, int iNumParams)
 {
-    return GetArraySize(arrayExtraItems);
+    return arrayExtraItems.Length;
 }
 
 /**
@@ -273,7 +273,7 @@ public int API_GetExtraItemName(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -308,7 +308,7 @@ public int API_GetExtraItemCost(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -329,7 +329,7 @@ public int API_GetExtraItemLevel(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -350,7 +350,7 @@ public int API_GetExtraItemOnline(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -371,7 +371,7 @@ public int API_GetExtraItemLimit(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -408,7 +408,7 @@ public int API_PrintExtraItemInfo(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= GetArraySize(arrayExtraItems))
+    if(iD >= arrayExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -519,7 +519,7 @@ stock void ItemsRemoveLimits(int clientIndex)
     if(arrayExtraItems != INVALID_HANDLE)
     {
         // Remove all extraitems limit
-        for(int i = 0; i < GetArraySize(arrayExtraItems); i++)
+        for(int i = 0; i < arrayExtraItems.Length; i++)
         {
             gExtraBuyLimit[clientIndex][i] = 0;
         }
@@ -586,7 +586,7 @@ void ExtraItemsMenu(int clientIndex)
     Action resultHandle;
     
     // i = Extra item number
-    int iCount = GetArraySize(arrayExtraItems);
+    int iCount = arrayExtraItems.Length;
     for(int i = 0; i < iCount; i++)
     {
         // Call forward
@@ -601,7 +601,7 @@ void ExtraItemsMenu(int clientIndex)
         if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
         
         // Format some chars for showing in menu
-        Format(sBuffer, sizeof(sBuffer), "%t    %t", sName, "Ammopacks", ItemsGetCost(i));
+        Format(sBuffer, sizeof(sBuffer), "%t    %t", sName, "Price", ItemsGetCost(i), "Ammopack");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
@@ -705,7 +705,7 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, int clientIndex, int 
                 if(ItemsGetCost(iD))
                 {
                     // Remove ammo and store it for returning if player will be first zombie
-                    ToolsSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - ItemsGetCost(iD));
+                    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - ItemsGetCost(iD));
                     gClientData[clientIndex][Client_LastBoughtAmount] += ItemsGetCost(iD);
                     
                     // If item has a limit

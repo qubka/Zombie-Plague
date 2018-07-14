@@ -81,20 +81,20 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Stop;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {
+        // Validate class
+        if(ZP_IsPlayerHuman(clientIndex) || ZP_IsPlayerNemesis(clientIndex))
+        {
+            return Plugin_Stop;
+        }
+        
         // Initialize round type
         int modeIndex = ZP_GetCurrentGameMode();
         
-        // If you don't allowed to buy, then stop
-        if(ZP_GetZombieAmount() <= 1 || ZP_IsPlayerHuman(clientIndex) || ZP_IsPlayerNemesis(clientIndex) || ZP_IsGameModeSurvivor(modeIndex) || ZP_IsGameModeNemesis(modeIndex))
+        // Validate access
+        if(ZP_GetZombieAmount() <= 1 || ZP_IsGameModeSurvivor(modeIndex) || ZP_IsGameModeNemesis(modeIndex))
         {
             return Plugin_Handled;
         }
@@ -112,12 +112,6 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {

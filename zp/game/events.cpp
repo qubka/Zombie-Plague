@@ -96,6 +96,7 @@ public void OnClientPostAdminCheck(int clientIndex)
     WeaponsClientInit(clientIndex);
     AntiStickClientInit(clientIndex);
     DataBaseClientInit(clientIndex);
+    CostumesClientInit(clientIndex);
 }
 
 /*
@@ -169,7 +170,6 @@ public Action EventPlayerSpawn(Event hEvent, const char[] sName, bool dontBroadc
     }
     
     // Forward event to modules
-    CvarsOnClientSpawn(clientIndex);
     SpawnOnClientSpawn(clientIndex);
 }
 

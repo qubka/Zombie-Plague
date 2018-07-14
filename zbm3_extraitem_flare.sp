@@ -87,9 +87,9 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ * Called after a zombie core is loaded.
  **/
-public void OnConfigsExecuted(/*void*/)
+public void ZP_OnEngineExecute(/*void*/)
 {
     // Initilizate weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
@@ -110,17 +110,17 @@ public void OnConfigsExecuted(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Stop;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {
-        // If you don't allowed to buy, then stop
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        // Validate class
+        if(ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Stop;
+        }
+
+        // Validate access
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
         {
             return Plugin_Handled;
         }
@@ -138,12 +138,6 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {
@@ -153,103 +147,69 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 }
 
 /**
- * Called, when an entity is created.
+ * Called after a custom weapon is created.
  *
- * @param entityIndex       The entity index.
- * @param sClassname        The string with returned name.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
  **/
-public void OnEntityCreated(int entityIndex, const char[] sClassname)
+public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
 {
-    // Validate grenade
-    if(!strncmp(sClassname, "decoy_", 6, false))
+    // Validate custom grenade
+    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(weaponIndex) == gWeapon)*/
     {
-        // Hook grenade callbacks
-        SDKHook(entityIndex, SDKHook_SpawnPost, EntityDecoyOnSpawn);
-    }
-}
+        // Create an effect
+        FakeCreateParticle(weaponIndex, _, "smoking", GRENADE_FLARE_DURATION);
 
-/**
- * Decoy grenade is spawn.
- *
- * @param grenadeIndex       The grenade index.
- **/
-public void EntityDecoyOnSpawn(int grenadeIndex) 
-{
-    // Apply spawn on the next milisecond
-    CreateTimer(0.1, EntityFlareHook, EntIndexToEntRef(grenadeIndex), TIMER_FLAG_NO_MAPCHANGE);
-}
+        // Block grenade
+        SetEntProp(weaponIndex, Prop_Data, "m_nNextThinkTick", -1);
 
-/**
- * Main timer for flare hook.
- *
- * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
- **/
-public Action EntityFlareHook(Handle hTimer, int referenceIndex) 
-{
-    // Gets entity index from reference key
-    int grenadeIndex = EntRefToEntIndex(referenceIndex);
+        // Emit sound
+        EmitSoundToAll("*/zbm3/flare.mp3", weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
 
-    // Validate entity
-    if(grenadeIndex != INVALID_ENT_REFERENCE)
-    {
-        // Validate custom grenade
-        if(ZP_GetWeaponID(grenadeIndex) == gWeapon)
+        // Create an light_dynamic entity
+        int lightIndex = CreateEntityByName("light_dynamic");
+
+        // If entity isn't valid, then skip
+        if(lightIndex != INVALID_ENT_REFERENCE)
         {
-            // Create an effect
-            FakeCreateParticle(grenadeIndex, _, "smoking", GRENADE_FLARE_DURATION);
+            // Dispatch main values of the entity
+            DispatchKeyValue(lightIndex, "inner_cone", "0");
+            DispatchKeyValue(lightIndex, "cone", "80");
+            DispatchKeyValue(lightIndex, "brightness", "1");
+            DispatchKeyValue(lightIndex, "pitch", "90");
+            DispatchKeyValue(lightIndex, "style", "5");
+            DispatchKeyValue(lightIndex, "_light", GRENADE_FLARE_COLOR);
+            DispatchKeyValueFloat(lightIndex, "distance", GRENADE_FLARE_DISTANCE);
+            DispatchKeyValueFloat(lightIndex, "spotlight_radius", GRENADE_FLARE_RADIUS);
 
-            // Block grenade
-            SetEntProp(grenadeIndex, Prop_Data, "m_nNextThinkTick", -1);
+            // Spawn the entity into the world
+            DispatchSpawn(lightIndex);
 
-            // Emit sound
-            EmitSoundToAll("*/zbm3/flare.mp3", grenadeIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+            // Activate the entity
+            AcceptEntityInput(lightIndex, "TurnOn");
 
-            // Create an light_dynamic entity
-            int lightIndex = CreateEntityByName("light_dynamic");
+            // Sets parent to the entity
+            SetVariantString("!activator"); 
+            AcceptEntityInput(lightIndex, "SetParent", weaponIndex, lightIndex); 
+            SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", weaponIndex);
 
-            // If entity isn't valid, then skip
-            if(lightIndex != INVALID_ENT_REFERENCE)
-            {
-                // Dispatch main values of the entity
-                DispatchKeyValue(lightIndex, "inner_cone", "0");
-                DispatchKeyValue(lightIndex, "cone", "80");
-                DispatchKeyValue(lightIndex, "brightness", "1");
-                DispatchKeyValue(lightIndex, "pitch", "90");
-                DispatchKeyValue(lightIndex, "style", "5");
-                DispatchKeyValue(lightIndex, "_light", GRENADE_FLARE_COLOR);
-                DispatchKeyValueFloat(lightIndex, "distance", GRENADE_FLARE_DISTANCE);
-                DispatchKeyValueFloat(lightIndex, "spotlight_radius", GRENADE_FLARE_RADIUS);
-
-                // Spawn the entity into the world
-                DispatchSpawn(lightIndex);
-
-                // Activate the entity
-                AcceptEntityInput(lightIndex, "TurnOn");
-
-                // Sets parent to the entity
-                SetVariantString("!activator"); 
-                AcceptEntityInput(lightIndex, "SetParent", grenadeIndex, lightIndex); 
-                SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", grenadeIndex);
-
-                // Initialize vector variables
-                static float vOrigin[3];
-                
-                // Gets parent's position
-                GetEntPropVector(grenadeIndex, Prop_Send, "m_vecOrigin", vOrigin);
-                
-                // Spawn the entity
-                DispatchKeyValueVector(lightIndex, "origin", vOrigin);
-            }
-
-            // Initialize char
-            static char sTime[SMALL_LINE_LENGTH];
-            Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GRENADE_FLARE_DURATION);
-
-            // Sets modified flags on the entity
-            SetVariantString(sTime);
-            AcceptEntityInput(grenadeIndex, "AddOutput");
-            AcceptEntityInput(grenadeIndex, "FireUser1");
+            // Initialize vector variables
+            static float vOrigin[3];
+            
+            // Gets parent's position
+            GetEntPropVector(weaponIndex, Prop_Send, "m_vecOrigin", vOrigin);
+            
+            // Spawn the entity
+            DispatchKeyValueVector(lightIndex, "origin", vOrigin);
         }
+
+        // Initialize char
+        static char sTime[SMALL_LINE_LENGTH];
+        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GRENADE_FLARE_DURATION);
+
+        // Sets modified flags on the entity
+        SetVariantString(sTime);
+        AcceptEntityInput(weaponIndex, "AddOutput");
+        AcceptEntityInput(weaponIndex, "FireUser1");
     }
 }

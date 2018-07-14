@@ -40,6 +40,7 @@ enum CvarsList
     ConVar:CVAR_SERVER_TEAM_BALANCE,
     ConVar:CVAR_SERVER_LIMIT_TEAMS,
     ConVar:CVAR_SERVER_CASH_AWARD,
+    ConVar:CVAR_SERVER_CASH_MAX,
     ConVar:CVAR_SERVER_FRIENDLY_FIRE,
     ConVar:CVAR_SERVER_FRIENDLY_GRENADE,
     ConVar:CVAR_SERVER_FRIENDLY_BULLETS,
@@ -59,6 +60,7 @@ enum CvarsList
     ConVar:CVAR_GAME_CUSTOM_MODELS,
     ConVar:CVAR_GAME_CUSTOM_ANTISTICK,
     ConVar:CVAR_GAME_CUSTOM_HITGROUPS,
+    ConVar:CVAR_GAME_CUSTOM_COSTUMES,
     ConVar:CVAR_GAME_CUSTOM_DATABASE,
     ConVar:CVAR_GAME_CUSTOM_MENU_BUTTON,
     ConVar:CVAR_GAME_CUSTOM_SOUND_LEVEL,
@@ -67,6 +69,7 @@ enum CvarsList
     ConVar:CVAR_CONFIG_PATH_SOUNDS,
     ConVar:CVAR_CONFIG_PATH_WEAPONS,
     ConVar:CVAR_CONFIG_PATH_MENUS,
+    ConVar:CVAR_CONFIG_PATH_COSTUMES,
     ConVar:CVAR_CONFIG_PATH_DATABASE,
     ConVar:CVAR_CONFIG_NAME_DATABASE,
     ConVar:CVAR_LOG,
@@ -121,6 +124,9 @@ enum CvarsList
     ConVar:CVAR_BONUS_HUMAN_WIN,
     ConVar:CVAR_BONUS_HUMAN_FAIL,
     ConVar:CVAR_BONUS_HUMAN_DRAW,
+    ConVar:CVAR_BONUS_HUD_ACCOUNT_R,
+    ConVar:CVAR_BONUS_HUD_ACCOUNT_G,
+    ConVar:CVAR_BONUS_HUD_ACCOUNT_B,
     ConVar:CVAR_LEVEL_SYSTEM,
     ConVar:CVAR_LEVEL_STATISTICS,
     ConVar:CVAR_LEVEL_HEALTH_RATIO,
@@ -288,6 +294,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SERVER_TEAM_BALANCE]         = FindConVar("mp_autoteambalance"); 
     gCvarList[CVAR_SERVER_LIMIT_TEAMS]          = FindConVar("mp_limitteams");
     gCvarList[CVAR_SERVER_CASH_AWARD]           = FindConVar("mp_playercashawards");
+    gCvarList[CVAR_SERVER_CASH_MAX]             = FindConVar("mp_maxmoney");
     gCvarList[CVAR_SERVER_FRIENDLY_FIRE]        = FindConVar("mp_friendlyfire");
     gCvarList[CVAR_SERVER_FRIENDLY_GRENADE]     = FindConVar("ff_damage_reduction_grenade");
     gCvarList[CVAR_SERVER_FRIENDLY_BULLETS]     = FindConVar("ff_damage_reduction_bullets");
@@ -311,6 +318,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_GAME_CUSTOM_MODELS]          = CreateConVar("zp_game_custom_models",             "1",                                                               "Enable custom weapon models [0-no // 1-yes] (Disable it, if you do not want to have possible ban)");
     gCvarList[CVAR_GAME_CUSTOM_ANTISTICK]       = CreateConVar("zp_game_custom_antistick",          "1",                                                               "Enable auto unstick players when stuck within each others' collision hull [0-no // 1-yes]");
     gCvarList[CVAR_GAME_CUSTOM_HITGROUPS]       = CreateConVar("zp_game_custom_hitgroups",          "1",                                                               "Enable hitgroups module, disabling this will disable hitgroup-related features. (hitgroup knockback multipliers, hitgroup damage control) [0-no // 1-yes]");
+    gCvarList[CVAR_GAME_CUSTOM_COSTUMES]        = CreateConVar("zp_game_custom_costumes",           "1",                                                               "Enable costumes module, disabling this will disable costumes-related features. (hats on the players) [0-no // 1-yes]");
     gCvarList[CVAR_GAME_CUSTOM_DATABASE]        = CreateConVar("zp_game_custom_database",           "1",                                                               "Enable auto saving of players data in the database [0-no // 1-yes]");
     gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON]     = CreateConVar("zp_game_custom_menu_button",        "5",                                                               "Index of the button for the main menu");
     gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL]     = CreateConVar("zp_game_custom_sound_level",        "75",                                                              "Index of the sound level for the modification");
@@ -323,6 +331,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_CONFIG_PATH_SOUNDS]          = CreateConVar("zp_config_path_sounds",             "zombieplague/sounds.ini",                                         "Path, relative to root sourcemod directory, to sounds config file");
     gCvarList[CVAR_CONFIG_PATH_WEAPONS]         = CreateConVar("zp_config_path_weapons",            "zombieplague/weapons.ini",                                        "Path, relative to root sourcemod directory, to weapons config file");
     gCvarList[CVAR_CONFIG_PATH_MENUS]           = CreateConVar("zp_config_path_menus",              "zombieplague/menus.ini",                                          "Path, relative to root sourcemod directory, to menus config file");
+    gCvarList[CVAR_CONFIG_PATH_COSTUMES]        = CreateConVar("zp_config_path_costumes",           "zombieplague/costumes.ini",                                       "Path, relative to root sourcemod directory, to costumes config file");
     gCvarList[CVAR_CONFIG_PATH_DATABASE]        = CreateConVar("zp_config_path_database",           "zombiedatabase",                                                  "Section, relative to root sourcemod directory, to default 'database.cfg' file");
     gCvarList[CVAR_CONFIG_NAME_DATABASE]        = CreateConVar("zp_config_name_database",           "zombieplague_database",                                           "Name of database in the section above");
     
@@ -409,7 +418,10 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_BONUS_HUMAN_WIN]             = CreateConVar("zp_bonus_human_win",                "3",                                                               "Amount of ammopacks, for winning round, if you a human"); 
     gCvarList[CVAR_BONUS_HUMAN_FAIL]            = CreateConVar("zp_bonus_human_fail",               "2",                                                               "Amount of ammopacks, for losing round, if you a human"); 
     gCvarList[CVAR_BONUS_HUMAN_DRAW]            = CreateConVar("zp_bonus_human_draw",               "1",                                                               "Amount of ammopacks, for drawing round, if you a human"); 
-
+    gCvarList[CVAR_BONUS_HUD_ACCOUNT_R]         = CreateConVar("zp_bonus_hud_account_R",            "255",                                                             "Color of account hud (Red)");
+    gCvarList[CVAR_BONUS_HUD_ACCOUNT_G]         = CreateConVar("zp_bonus_hud_account_G",            "255",                                                             "Color of account hud (Green)"); 
+    gCvarList[CVAR_BONUS_HUD_ACCOUNT_B]         = CreateConVar("zp_bonus_hud_account_B",            "255",                                                             "Color of account hud (Blue)");   
+    
     // =========================== //
     //         Level System        //
     // =========================== //
@@ -767,20 +779,4 @@ stock void CvarsOnCheatSet(ConVar hConVar, int iValue)
     hConVar.Flags = hConVar.Flags & ~FCVAR_CHEAT;
     hConVar.IntValue = 0;
     //hConVar.Flags = hConVar.Flags | FCVAR_PROTECTED;  -> Sent errors to console!
-}
-
-/**
- * Replicates a convar values to a specific client. 
- * This does not change the actual convar values.
- *
- * @param clientIndex       The client index.
- **/
-void CvarsOnClientSpawn(int clientIndex)
-{
-    // Validate real client
-    if(!IsFakeClient(clientIndex))
-    {    
-        // Send a convar to client
-        gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "1");
-    }
 }

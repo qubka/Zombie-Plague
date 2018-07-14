@@ -33,9 +33,9 @@
 #define _gamemodes_included
 
 /**
- * Gets the current game mode.
+ * @brief Gets the current game mode.
  *
- * @return                  The mode infex.    
+ * @return                  The mode index.    
  **/
 native int ZP_GetCurrentGameMode();
 
@@ -94,7 +94,7 @@ native int ZP_RegisterGameMode(char[] name, char[] desc, char[] sound, int chanc
  * @param name              The string to return name in.
  * @param maxlenght         The lenght of string.
  **/
-native void ZP_GetGameModeName(int modeID, char[] name, int maxLen = 32);
+native void ZP_GetGameModeName(int modeID, char[] name, int maxlenght = 32);
 
 /**
  * @brief Gets the description of a game mode at a given index.
@@ -103,7 +103,7 @@ native void ZP_GetGameModeName(int modeID, char[] name, int maxLen = 32);
  * @param desc              The string to return desc in.
  * @param maxlenght         The lenght of string.
  **/
-native void ZP_GetGameModeDesc(int modeID, char[] desc, int maxLen = 32);
+native void ZP_GetGameModeDesc(int modeID, char[] desc, int maxlenght = 32);
 
 /**
  * @brief Gets the sound of a game mode at a given index.
@@ -112,7 +112,7 @@ native void ZP_GetGameModeDesc(int modeID, char[] desc, int maxLen = 32);
  * @param sound             The string to return sound in.
  * @param maxlenght         The lenght of string.
  **/
-native void ZP_GetGameModeSound(int modeID, char[] sound, int maxLen = 32);
+native void ZP_GetGameModeSound(int modeID, char[] sound, int maxlenght = 32);
 
 /**
  * @brief Gets the chance of the game mode.
@@ -120,7 +120,7 @@ native void ZP_GetGameModeSound(int modeID, char[] sound, int maxLen = 32);
  * @param modeID            The mode index.
  * @return                  The chance amount.    
  **/
-native int ZP_GetGameModeChance(modeID);
+native int ZP_GetGameModeChance(int modeID);
 
 /**
  * @brief Gets the min players of the game mode.
@@ -128,7 +128,7 @@ native int ZP_GetGameModeChance(modeID);
  * @param modeID            The mode index.
  * @return                  The min players amount.    
  **/
-native int ZP_GetGameModeMinPlayers(modeID);
+native int ZP_GetGameModeMinPlayers(int modeID);
 
 /**
  * @brief Gets the ratio of the game mode.
@@ -136,7 +136,7 @@ native int ZP_GetGameModeMinPlayers(modeID);
  * @param modeID            The mode index.
  * @return                  The ratio amount.    
  **/
-native float ZP_GetGameModeRatio(modeID);
+native float ZP_GetGameModeRatio(int modeID);
 
 /**
  * @brief Check the infection type of the game mode.
@@ -144,7 +144,7 @@ native float ZP_GetGameModeRatio(modeID);
  * @param modeID            The mode index.
  * @return                  True or false.    
  **/
-native bool ZP_IsGameModeInfect(modeID);
+native bool ZP_IsGameModeInfect(int modeID);
 
 /**
  * @brief Check the respawn type of the game mode.
@@ -152,7 +152,7 @@ native bool ZP_IsGameModeInfect(modeID);
  * @param modeID            The mode index.
  * @return                  True or false.    
  **/
-native bool ZP_IsGameModeRespawn(modeID);
+native bool ZP_IsGameModeRespawn(int modeID);
 
 /**
  * @brief Check the survivor type of the game mode.
@@ -160,7 +160,7 @@ native bool ZP_IsGameModeRespawn(modeID);
  * @param modeID            The mode index.
  * @return                  True or false.    
  **/
-native bool ZP_IsGameModeSurvivor(modeID);
+native bool ZP_IsGameModeSurvivor(int modeID);
 
 /**
  * @brief Check the nemesis type of the game mode.
@@ -168,4 +168,4 @@ native bool ZP_IsGameModeSurvivor(modeID);
  * @param modeID            The mode index.
  * @return                  True or false.    
  **/
-native bool ZP_IsGameModeNemesis(modeID);
+native bool ZP_IsGameModeNemesis(int modeID);

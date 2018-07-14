@@ -38,32 +38,38 @@ enum ForwardsList
     Handle:OnClientValidateMenu,
     Handle:OnClientValidateZombie,
     Handle:OnClientValidateHuman,
+    Handle:OnClientValidateCostume,
     Handle:OnClientSkillUsed,
     Handle:OnClientSkillOver,
-    Handle:OnZombieModStarted
+    Handle:OnWeaponCreated,
+    Handle:OnZombieModStarted,
+    Handle:OnEngineExecute
 }
 
 /**
  * Array to store forward data in.
  **/
-ConVar gForwardsList[ForwardsList];
+Handle gForwardsList[ForwardsList];
 
 /**
  * Initializes all natives and forwards related to infection.
  **/
 void APIForwardsInit(/*void*/)
 {
-    gForwardsList[OnClientInfected]       = CreateGlobalForward("ZP_OnClientInfected", ET_Ignore, Param_Cell, Param_Cell);
-    gForwardsList[OnClientHumanized]      = CreateGlobalForward("ZP_OnClientHumanized", ET_Ignore, Param_Cell);
-    gForwardsList[OnClientDamaged]        = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_FloatByRef, Param_Cell);
-    gForwardsList[OnClientValidateItem]   = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
-    gForwardsList[OnClientBuyItem]        = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
-    gForwardsList[OnClientValidateMenu]   = CreateGlobalForward("ZP_OnClientValidateMainMenu", ET_Hook, Param_Cell);
-    gForwardsList[OnClientValidateZombie] = CreateGlobalForward("ZP_OnClientValidateZombieClass", ET_Hook, Param_Cell, Param_Cell);
-    gForwardsList[OnClientValidateHuman]  = CreateGlobalForward("ZP_OnClientValidateHumanClass", ET_Hook, Param_Cell, Param_Cell);
-    gForwardsList[OnClientSkillUsed]      = CreateGlobalForward("ZP_OnClientSkillUsed", ET_Hook, Param_Cell);
-    gForwardsList[OnClientSkillOver]      = CreateGlobalForward("ZP_OnClientSkillOver", ET_Ignore, Param_Cell);
-    gForwardsList[OnZombieModStarted]     = CreateGlobalForward("ZP_OnZombieModStarted", ET_Ignore);
+    gForwardsList[OnClientInfected]        = CreateGlobalForward("ZP_OnClientInfected", ET_Ignore, Param_Cell, Param_Cell);
+    gForwardsList[OnClientHumanized]       = CreateGlobalForward("ZP_OnClientHumanized", ET_Ignore, Param_Cell);
+    gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_FloatByRef, Param_Cell);
+    gForwardsList[OnClientValidateItem]    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
+    gForwardsList[OnClientBuyItem]         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
+    gForwardsList[OnClientValidateMenu]    = CreateGlobalForward("ZP_OnClientValidateMainMenu", ET_Hook, Param_Cell);
+    gForwardsList[OnClientValidateZombie]  = CreateGlobalForward("ZP_OnClientValidateZombieClass", ET_Hook, Param_Cell, Param_Cell);
+    gForwardsList[OnClientValidateHuman]   = CreateGlobalForward("ZP_OnClientValidateHumanClass", ET_Hook, Param_Cell, Param_Cell);
+    gForwardsList[OnClientValidateCostume] = CreateGlobalForward("ZP_OnClientValidateCostume", ET_Hook, Param_Cell, Param_Cell);
+    gForwardsList[OnClientSkillUsed]       = CreateGlobalForward("ZP_OnClientSkillUsed", ET_Hook, Param_Cell);
+    gForwardsList[OnClientSkillOver]       = CreateGlobalForward("ZP_OnClientSkillOver", ET_Ignore, Param_Cell);
+    gForwardsList[OnWeaponCreated]         = CreateGlobalForward("ZP_OnWeaponCreated", ET_Ignore, Param_Cell, Param_Cell);
+    gForwardsList[OnZombieModStarted]      = CreateGlobalForward("ZP_OnZombieModStarted", ET_Ignore);
+    gForwardsList[OnEngineExecute]         = CreateGlobalForward("ZP_OnEngineExecute", ET_Ignore);
 }
 
 /**
@@ -202,7 +208,7 @@ Action API_OnClientValidateMainMenu(int clientIndex)
 }
 
 /**
- * @brief Called before show a zombie class in the zombie class menu.
+ * Called before show a zombie class in the zombie class menu.
  * 
  * @param clientIndex       The client index.
  * @param classIndex        The index of class from ZP_RegisterZombieClass() native.
@@ -230,7 +236,7 @@ Action API_OnClientValidateZombieClass(int clientIndex, int classIndex)
 }
 
 /**
- * @brief Called before show a human class in the human class menu.
+ * Called before show a human class in the human class menu.
  * 
  * @param clientIndex       The client index.
  * @param classIndex        The index of class from ZP_RegisterHumanClass() native.
@@ -249,6 +255,34 @@ Action API_OnClientValidateHumanClass(int clientIndex, int classIndex)
     // Push the parameters
     Call_PushCell(clientIndex);
     Call_PushCell(classIndex);
+    
+    // Finish the call
+    Call_Finish(resultHandle);
+    
+    // Return result
+    return resultHandle;
+}
+
+/**
+ * Called before show a costume in the costumes menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param costumeID         The costume index.
+ *
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and selecting.
+ **/
+Action API_OnClientValidateCostume(int clientIndex, int costumeIndex)
+{
+    // Initialize future result
+    Action resultHandle;
+    
+    // Start forward call
+    Call_StartForward(gForwardsList[OnClientValidateCostume]);
+    
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCell(costumeIndex);
     
     // Finish the call
     Call_Finish(resultHandle);
@@ -301,12 +335,45 @@ void API_OnClientSkillOver(int clientIndex)
 }
 
 /**
- * Called after a zombie round is started.
+ * Called after a custom weapon is created.
+ *
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
  **/
-void API_OnZombieModStarted(/*void*/)
+void API_OnWeaponCreated(int weaponIndex, int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponCreated]);
+
+    // Push the parameters
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * Called after a zombie round is started.
+ * 
+ * @param modeIndex         The mode index.
+ **/
+void API_OnZombieModStarted(int modeIndex)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnZombieModStarted]);
+
+    // Finish the call
+    Call_Finish(modeIndex);
+}
+
+/**
+ * Called after a zombie core is loaded.
+ **/
+void API_OnEngineExecute(/*void*/)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnEngineExecute]);
 
     // Finish the call
     Call_Finish();

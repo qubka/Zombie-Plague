@@ -47,6 +47,15 @@ ArrayList arraySounds;
 int SoundBuffer[SoundBlocksMax][ParamParseResult];
 
 /**
+ * Sounds module init function.
+ **/
+void SoundsInit(/*void*/)
+{
+    // Hooks server sounds
+    AddNormalSoundHook(view_as<NormalSHook>(PlayerSoundsNormalHook));
+}
+
+/**
  * Prepare all sound/download data.
  **/
 void SoundsLoad(/*void*/)
@@ -86,7 +95,7 @@ void SoundsLoad(/*void*/)
     int iSoundUnValidCount;
     
     // Validate sound config
-    int iSounds = iSoundCount = GetArraySize(arraySounds);
+    int iSounds = iSoundCount = arraySounds.Length;
     if(!iSounds)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sSoundsPath);
@@ -151,9 +160,6 @@ void SoundsLoad(/*void*/)
     ConfigSetConfigLoaded(File_Sounds, true);
     ConfigSetConfigReloadFunc(File_Sounds, GetFunctionByName(GetMyHandle(), "SoundsOnConfigReload"));
     ConfigSetConfigHandle(File_Sounds, arraySounds);
-    
-    // Hooks server sounds
-    AddNormalSoundHook(view_as<NormalSHook>(PlayerSoundsNormalHook));
 }
 
 /**
@@ -273,7 +279,7 @@ void SoundsOnClientRegen(int clientIndex)
 /**
  * Emits random sound from a block from sounds config.
  *
- * native void ZP_EmitSound(sKey, clientIndex);
+ * native bool ZP_EmitSound(sKey, clientIndex);
  **/
 public int API_EmitSound(Handle isPlugin, int iNumParams)
 {
@@ -297,20 +303,8 @@ public int API_EmitSound(Handle isPlugin, int iNumParams)
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(2);
 
-    // Validate client
-    if(IsPlayerExist(clientIndex))
-    {
-        // Play sound to client
-        SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, sSoundKey);
-    }
-    else
-    {
-        // Play sound to all
-        SoundsInputEmitToAll(sSoundKey);
-    }
-
-    // Return on the success
-    return 1;
+    // Play sound to client
+    return IsPlayerExist(clientIndex) ? SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, sSoundKey) : SoundsInputEmitToAll(sSoundKey);
 }
  
 /*
@@ -356,7 +350,7 @@ stock void SoundsGetSound(char[] sLine, int iMaxLen, char[] sKey, int iNum = 0)
     ArrayList arraySound = arraySounds.Get(iBlockNum);
 
     // Gets size of array handle
-    int iSize = GetArraySize(arraySound);
+    int iSize = arraySound.Length;
     
     // Validate size
     if(iNum >= iSize)
@@ -373,11 +367,12 @@ stock void SoundsGetSound(char[] sLine, int iMaxLen, char[] sKey, int iNum = 0)
  * 
  * @param sKey              The key to search for array ID.
  * @param nNum              (Optional) The number of sound from the key array.
+ * @return                  True if the sound was emit, false otherwise.
  **/
-stock void SoundsInputEmitToAll(char[] sKey, int nNum = 0)
+stock bool SoundsInputEmitToAll(char[] sKey, int nNum = 0)
 {
     // Initialize char
-    static char sSound[PLATFORM_MAX_PATH];
+    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
     
     // Select sound in the array
     SoundsGetSound(sSound, sizeof(sSound), sKey, nNum);
@@ -390,7 +385,11 @@ stock void SoundsInputEmitToAll(char[] sKey, int nNum = 0)
         
         // Emit sound
         EmitSoundToAll(sSound, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
+        return true;
     }
+
+    // Return on unsuccess
+    return false;
 }
 
 /**
@@ -401,11 +400,12 @@ stock void SoundsInputEmitToAll(char[] sKey, int nNum = 0)
  * @param nLevel            The sound level.
  * @param sKey              The key to search for array ID.
  * @param entityIndex       (Optional) The entity to emit from.  
+ * @return                  True if the sound was emit, false otherwise.
  **/
-stock void SoundsInputEmitToClient(int clientIndex, int iChannel, int nLevel, char[] sKey, int entityIndex = 0)
+stock bool SoundsInputEmitToClient(int clientIndex, int iChannel, int nLevel, char[] sKey, int entityIndex = 0)
 {
     // Initialize char
-    static char sSound[PLATFORM_MAX_PATH];
+    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
     
     // Select sound in the array
     SoundsGetSound(sSound, sizeof(sSound), sKey);
@@ -418,7 +418,11 @@ stock void SoundsInputEmitToClient(int clientIndex, int iChannel, int nLevel, ch
 
         // Emit sound
         EmitSoundToAll(sSound, entityIndex ? entityIndex : clientIndex, iChannel, nLevel);
+        return true;
     }
+
+    // Return on unsuccess
+    return false;
 }
 
 /**

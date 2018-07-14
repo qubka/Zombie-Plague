@@ -42,6 +42,11 @@
  **/
 
 /**
+ * Array handle to store hitgroups data.
+ **/
+ArrayList arrayHitgroups;
+
+/**
  * Hitgroup config data indexes.
  **/
 enum
@@ -51,11 +56,6 @@ enum
     HITGROUPS_DATA_DAMAGE,
     HITGROUPS_DATA_KNOCKBACK,
 }
-
-/**
- * Array handle to store hitgroups data.
- **/
-ArrayList arrayHitgroups;
 
 /**
  * Loads hitgroup data from file.
@@ -99,7 +99,7 @@ void HitgroupsLoad(/*void*/)
     }
 
     // Validate hitgroups config
-    int iSize = GetArraySize(arrayHitgroups);
+    int iSize = arrayHitgroups.Length;
     if(!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Hitgroups, "Config Validation", "No usable data found in hitgroups config file: %s", sHitgroupPath);
@@ -133,7 +133,7 @@ void HitgroupsCacheData(/*void*/)
     }
 
     // i = array index
-    int iSize = GetArraySize(arrayHitgroups);
+    int iSize = arrayHitgroups.Length;
     for(int i = 0; i < iSize; i++)
     {
         HitgroupsGetName(i, sHitGroupsPath, sizeof(sHitGroupsPath));             // Index: 0
@@ -180,7 +180,7 @@ stock int HitgroupsNameToIndex(char[] sHitGroup, int iMaxLen = 0, bool bOverWrit
     static char sHitGroupName[SMALL_LINE_LENGTH];
     
     // i = box index
-    int iSize = GetArraySize(arrayHitgroups);
+    int iSize = arrayHitgroups.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Gets hitbox name 
@@ -214,7 +214,7 @@ stock int HitgroupsNameToIndex(char[] sHitGroup, int iMaxLen = 0, bool bOverWrit
 stock int HitgroupToIndex(int iHitGroup)
 {
     // i = box index
-    int iSize = GetArraySize(arrayHitgroups);
+    int iSize = arrayHitgroups.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Gets hitgroup index at this array index
@@ -243,7 +243,7 @@ stock int HitgroupToIndex(int iHitGroup)
 public int API_GetNumberHitgroup(Handle isPlugin, int iNumParams)
 {
     // Return the value 
-    return GetArraySize(arrayHitgroups);
+    return arrayHitgroups.Length;
 }
 
 /**
@@ -268,7 +268,7 @@ public int API_GetHitgroupName(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHitgroups))
+    if(iD >= arrayHitgroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Hitgroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -303,7 +303,7 @@ public int API_GetHitgroupIndex(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHitgroups))
+    if(iD >= arrayHitgroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Hitgroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -324,7 +324,7 @@ public int API_IsHitgroupDamage(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHitgroups))
+    if(iD >= arrayHitgroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Hitgroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -345,7 +345,7 @@ public int API_SetHitgroupDamage(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHitgroups))
+    if(iD >= arrayHitgroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Hitgroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return;
@@ -366,7 +366,7 @@ public int API_GetHitgroupKnockback(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHitgroups))
+    if(iD >= arrayHitgroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Hitgroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -387,7 +387,7 @@ public int API_SetHitgroupKnockback(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHitgroups))
+    if(iD >= arrayHitgroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Hitgroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return;
@@ -397,27 +397,31 @@ public int API_SetHitgroupKnockback(Handle isPlugin, int iNumParams)
     HitgroupsSetKnockback(iD, GetNativeCell(2));
 }
 
+/*
+ * Hitgroups data reading API.
+ */
+
 /**
- * Gets the name of a hitgroup at a given index. (static)
+ * Gets the name of a hitgroup at a given index.
  *
  * @param iD                The hitgroup index.
- * @param sHitGroup         The string to return name in.
+ * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HitgroupsGetName(int iD, char[] sHitGroup, int iMaxLen)
+stock void HitgroupsGetName(int iD, char[] sName, int iMaxLen)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitgroup = arrayHitgroups.Get(iD);
     
     // Gets hitgroup name
-    arrayHitgroup.GetString(HITGROUPS_DATA_NAME, sHitGroup, iMaxLen);
+    arrayHitgroup.GetString(HITGROUPS_DATA_NAME, sName, iMaxLen);
 }
 
 /**
- * Retrieve hitgroup index. (static)
+ * Retrieve hitgroup index.
  * 
- * @param iD                The array index.
- * @return                  The hitgroup index.
+ * @param iD                The hitgroup index.
+ * @return                  The real hitgroup index.
  **/
 stock int HitgroupsGetIndex(int iD)
 {
@@ -429,9 +433,9 @@ stock int HitgroupsGetIndex(int iD)
 }
 
 /**
- * Set hitgroup damage value. (dynamic)
+ * Set hitgroup damage value.
  * 
- * @param iD                The array index.
+ * @param iD                The hitgroup index.
  * @param bCanDamage        True to allow damage to hitgroup, false to block damage.
  **/
 stock void HitgroupsSetDamage(int iD, bool bCanDamage)
@@ -444,9 +448,9 @@ stock void HitgroupsSetDamage(int iD, bool bCanDamage)
 }
 
 /**
- * Retrieve hitgroup damage value. (dynamic)
+ * Retrieve hitgroup damage value.
  * 
- * @param iD                The array index.
+ * @param iD                The hitgroup index.
  * @return                  True if hitgroup can be damaged, false if not.
  **/
 stock bool HitgroupsCanDamage(int iD)
@@ -459,9 +463,9 @@ stock bool HitgroupsCanDamage(int iD)
 }
 
 /**
- * Set hitgroup knockback value. (dynamic)
+ * Set hitgroup knockback value.
  * 
- * @param iD                The array index.
+ * @param iD                The hitgroup index.
  * @param flKnockback       The knockback multiplier for the hitgroup.
  **/
 stock void HitgroupsSetKnockback(int iD, float flKnockback)
@@ -474,7 +478,7 @@ stock void HitgroupsSetKnockback(int iD, float flKnockback)
 }
 
 /**
- * Retrieve hitgroup knockback value. (dynamic)
+ * Retrieve hitgroup knockback value.
  * 
  * @param iD                The array index.
  * @return                  The knockback multiplier of the hitgroup.

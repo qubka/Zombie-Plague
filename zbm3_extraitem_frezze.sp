@@ -109,17 +109,23 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ * Plugin is loading.
  **/
-public void OnConfigsExecuted(/*void*/)
+public void OnPluginStart(/*void*/)
+{
+    // Hooks server sounds
+    AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
+}
+
+/**
+ * Called after a zombie core is loaded.
+ **/
+public void ZP_OnEngineExecute(/*void*/)
 {
     // Initilizate weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
-    // Hooks server sounds
-    AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
-    
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
@@ -171,7 +177,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
 public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
 {
     // Reset move
-    if(IsPlayerExist(clientIndex)) SetEntityMoveType(clientIndex, MOVETYPE_WALK);
+    SetEntityMoveType(clientIndex, MOVETYPE_WALK);
 
     // Delete timer
     delete Task_ZombieFreezed[clientIndex];
@@ -185,7 +191,7 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
 public void ZP_OnClientHumanized(int clientIndex)
 {
     // Reset move
-    if(IsPlayerExist(clientIndex)) SetEntityMoveType(clientIndex, MOVETYPE_WALK);
+    SetEntityMoveType(clientIndex, MOVETYPE_WALK);
 
     // Delete timer
     delete Task_ZombieFreezed[clientIndex];
@@ -202,17 +208,17 @@ public void ZP_OnClientHumanized(int clientIndex)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Stop;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     {
-        // If you don't allowed to buy, then stop
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        // Validate class
+        if(ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Stop;
+        }
+        
+        // Validate access
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
         {
             return Plugin_Handled;
         }
@@ -230,12 +236,6 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Check the item's index
     if(extraitemIndex == gItem)
     { 
@@ -476,9 +476,9 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
- * @param iFrags            The sound flags.
+ * @param iFlags            The sound flags.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags)
+public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
 {
     // Validate client
     if(IsValidEdict(entityIndex))

@@ -70,7 +70,6 @@ void ToolsFindOffsets(/*void*/) //IClientUnknown, IClientRenderable, IClientNetw
     fnInitSendPropOffset(g_iOffset_PlayerLMV, "CBasePlayer", "m_flLaggedMovementValue");
     fnInitSendPropOffset(g_iOffset_PlayerHasNightVision, "CCSPlayer", "m_bHasNightVision");
     fnInitSendPropOffset(g_iOffset_PlayerNightVisionOn, "CCSPlayer", "m_bNightVisionOn");
-    fnInitSendPropOffset(g_iOffset_PlayerAccount, "CCSPlayer", "m_iAccount");
     fnInitSendPropOffset(g_iOffset_PlayerSpotted, "CBasePlayer", "m_bSpotted");
     fnInitSendPropOffset(g_iOffset_PlayerDetected, "CCSPlayer", "m_flDetectedByEnemySensorTime");
     fnInitSendPropOffset(g_iOffset_PlayerHUD, "CBasePlayer", "m_iHideHUD");
@@ -90,41 +89,41 @@ void ToolsSetupGameData(/*void*/)
 {
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_GameRules);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Signature, "TerminateRound");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "TerminateRound");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallTerminateRound = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CGameRules::TerminateRound\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CGameRules::TerminateRound\". Update \"SourceMod\"");
     }
 
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Signature, "SwitchTeam");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "SwitchTeam");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallSwitchTeam = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBasePlayer::SwitchTeam\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBasePlayer::SwitchTeam\". Update \"SourceMod\"");
     }
 
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Signature, "RoundRespawn");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "RoundRespawn");
 
     //  Validate call
     if(!(hSDKCallRoundRespawn = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RoundRespawn\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RoundRespawn\". Update \"SourceMod\"");
     }
 }

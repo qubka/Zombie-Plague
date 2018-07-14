@@ -113,6 +113,7 @@
 #define CONFIG_FILE_ALIAS_SOUNDS        "sounds"
 #define CONFIG_FILE_ALIAS_MENUS         "menus"
 #define CONFIG_FILE_ALIAS_HITGROUPS     "hitgroups"
+#define CONFIG_FILE_ALIAS_COSTUMES      "costumes"
 /**
  * @endsection
  **/
@@ -137,7 +138,8 @@ enum ConfigFile
     File_Weapons,           /** <sourcemod root>/zombieplague/weapons.ini (default) */
     File_Sounds,            /** <sourcemod root>/zombieplague/sounds.ini (default) */
     File_Menus,             /** <sourcemod root>/zombieplague/menus.ini (default) */
-    File_Hitgroups          /** <sourcemod root>/zombieplague/hitgroups.ini (default) */
+    File_Hitgroups,         /** <sourcemod root>/zombieplague/hitgroups.ini (default) */
+    File_Costumes           /** <sourcemod root>/zombieplague/costumes.ini (default) */
 }
 
 /**
@@ -184,15 +186,20 @@ void ConfigOnCommandsCreate(/*void*/)
  */
 void ConfigInit(/*void*/)
 {
-    // Loads a gamedata config file
-    gServerData[Server_GameConfig] = LoadGameConfigFile(PLUGIN_CONFIG);
+    // Loads a gamedata configs file
+    gServerData[Server_GameConfig][Game_Zombie] = LoadGameConfigFile(PLUGIN_CONFIG);
 
     // Validate config
-    if(gServerData[Server_GameConfig] == INVALID_HANDLE)
+    if(gServerData[Server_GameConfig][Game_Zombie] == INVALID_HANDLE)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Config, "Config Validation", "Missing gamedata config file: \"%s\"", PLUGIN_CONFIG);
     }
+    
+    // Load others standart sourcemod configs
+    gServerData[Server_GameConfig][Game_SDKHooks] = LoadGameConfigFile("sdkhooks.games");
+    gServerData[Server_GameConfig][Game_SDKTools] = LoadGameConfigFile("sdktools.games");
+    gServerData[Server_GameConfig][Game_CStrike] = LoadGameConfigFile("sm-cstrike.games");
 }
 
 /**
@@ -739,7 +746,7 @@ stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction iAction 
 void ConfigClearKvArray(ArrayList arrayKv)
 {
     //  i = array index
-    int iSize = GetArraySize(arrayKv);
+    int iSize = arrayKv.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Destroy nested arrays
@@ -801,7 +808,7 @@ public Action Command_ReloadCommand(int clientIndex, int iArguments)
     {
         TranslationReplyToCommand(clientIndex, "Config reload");
         TranslationReplyToCommand(clientIndex, "Config reload commands");
-        TranslationReplyToCommand(clientIndex, "Config reload commands aliases", CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_SOUNDS);
+        TranslationReplyToCommand(clientIndex, "Config reload commands aliases", CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES);
         return Plugin_Handled;
     }
 

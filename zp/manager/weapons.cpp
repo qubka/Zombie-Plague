@@ -75,6 +75,7 @@ enum
 void WeaponsInit(/*void*/)
 {
     // Forward event to sub-modules
+    WeaponAttachInit();
     WeaponSDKInit();
     WeaponHDRInit();
 }
@@ -111,7 +112,7 @@ void WeaponsLoad(/*void*/)
     }
 
     // Validate weapons config
-    int iSize = GetArraySize(arrayWeapons);
+    int iSize = arrayWeapons.Length;
     if(!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
@@ -145,7 +146,7 @@ void WeaponsCacheData(/*void*/)
     }
 
     // i = array index
-    int iSize = GetArraySize(arrayWeapons);
+    int iSize = arrayWeapons.Length;
     for(int i = 0; i < iSize; i++)
     {
         WeaponsGetName(i, sPathWeapons, sizeof(sPathWeapons)); // Index: 0
@@ -213,8 +214,8 @@ public void WeaponsOnConfigReload(/*void*/)
 void WeaponsUnload(/*void*/)
 {
     // Forward event to sub-modules
-    WeaponSDKUnload();
     WeaponAttachUnload();
+    WeaponSDKUnload();
 }
 
 /**
@@ -310,8 +311,12 @@ public void WeaponsOnClientDeath(int clientIndex)
  **/
 public void OnEntityCreated(int entityIndex, const char[] sClassname)
 {
-    // Forward event to sub-modules
-    WeaponSDKOnCreated(entityIndex, sClassname);
+    // Validate entity
+    if(entityIndex > INVALID_ENT_REFERENCE) /// Bugfix for some sm builds
+    {
+        // Forward event to sub-modules
+        WeaponSDKOnCreated(entityIndex, sClassname);
+    }
 }
 
 /*
@@ -413,7 +418,7 @@ public int API_GetWeaponNameID(Handle isPlugin, int iNumParams)
 public int API_GetNumberWeapon(Handle isPlugin, int iNumParams)
 {
     // Return the value 
-    return GetArraySize(arrayWeapons);
+    return arrayWeapons.Length;
 }
 
 /**
@@ -427,7 +432,7 @@ public int API_GetWeaponName(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -462,7 +467,7 @@ public int API_GetWeaponEntity(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -497,7 +502,7 @@ public int API_GetWeaponIndex(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -518,7 +523,7 @@ public int API_GetWeaponCost(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -539,7 +544,7 @@ public int API_GetWeaponSlot(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -560,7 +565,7 @@ public int API_GetWeaponLevel(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -581,7 +586,7 @@ public int API_GetWeaponOnline(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -602,7 +607,7 @@ public int API_GetWeaponDamage(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -623,7 +628,7 @@ public int API_GetWeaponKnockBack(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -644,7 +649,7 @@ public int API_GetWeaponClip(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -665,7 +670,7 @@ public int API_GetWeaponAmmo(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -686,7 +691,7 @@ public int API_GetWeaponSpeed(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -707,7 +712,7 @@ public int API_GetWeaponReload(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -728,7 +733,7 @@ public int API_GetWeaponSound(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -763,7 +768,7 @@ public int API_GetWeaponClass(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -784,7 +789,7 @@ public int API_GetWeaponModelView(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -819,7 +824,7 @@ public int API_GetWeaponModelViewID(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -840,7 +845,7 @@ public int API_GetWeaponModelWorld(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -875,7 +880,7 @@ public int API_GetWeaponModelWorldID(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -888,64 +893,64 @@ public int API_GetWeaponModelWorldID(Handle isPlugin, int iNumParams)
 /**
  * Gets the body index of the weapon view model.
  *
- * native int ZP_GetWeaponModelViewBody(iD);
+ * native int ZP_GetWeaponModelBody(iD);
  **/
-public int API_GetWeaponModelViewBody(Handle isPlugin, int iNumParams)
+public int API_GetWeaponModelBody(Handle isPlugin, int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
     }
     
     // Return the value
-    return WeaponsGetModelViewBody(iD);
+    return WeaponsGetModelBody(iD);
 }
 
 /**
  * Gets the skin index of the weapon view model.
  *
- * native int ZP_GetWeaponModelViewSkin(iD);
+ * native int ZP_GetWeaponModelSkin(iD);
  **/
-public int API_GetWeaponModelViewSkin(Handle isPlugin, int iNumParams)
+public int API_GetWeaponModelSkin(Handle isPlugin, int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
     }
     
     // Return the value
-    return WeaponsGetModelViewSkin(iD);
+    return WeaponsGetModelSkin(iD);
 }
 
 /**
- * Gets the skin index of the weapon view model.
+ * Gets the heat amount of the weapon view model.
  *
- * native float ZP_GetWeaponModelViewHeat(iD);
+ * native float ZP_GetWeaponModelHeat(iD);
  **/
-public int API_GetWeaponModelViewHeat(Handle isPlugin, int iNumParams)
+public int API_GetWeaponModelHeat(Handle isPlugin, int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayWeapons))
+    if(iD >= arrayWeapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
     }
     
     // Return the value (Float fix)
-    return view_as<int>(WeaponsGetModelViewHeat(iD));
+    return view_as<int>(WeaponsGetModelHeat(iD));
 }
 
 /*
@@ -956,16 +961,16 @@ public int API_GetWeaponModelViewHeat(Handle isPlugin, int iNumParams)
  * Gets the name of a weapon at a given id.
  *
  * @param iD                The weapon index.
- * @param sClassname        The string to return name in.
+ * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void WeaponsGetName(int iD, char[] sClassname, int iMaxLen)
+stock void WeaponsGetName(int iD, char[] sName, int iMaxLen)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
     
     // Gets weapon name
-    arrayWeapon.GetString(WEAPONS_DATA_NAME, sClassname, iMaxLen);
+    arrayWeapon.GetString(WEAPONS_DATA_NAME, sName, iMaxLen);
 }
 
 /**
@@ -1243,12 +1248,12 @@ stock int WeaponsGetModelWorldID(int iD)
 }
 
 /**
- * Gets the body index of the weapon view model.
+ * Gets the body index of the weapon model.
  *
  * @param iD                The weapon id.
  * @return                  The body index.
  **/
-stock int WeaponsGetModelViewBody(int iD)
+stock int WeaponsGetModelBody(int iD)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
@@ -1258,12 +1263,12 @@ stock int WeaponsGetModelViewBody(int iD)
 }
 
 /**
- * Gets the skin index of the weapon view model.
+ * Gets the skin index of the weapon model.
  *
  * @param iD                The weapon id.
  * @return                  The body index.
  **/
-stock int WeaponsGetModelViewSkin(int iD)
+stock int WeaponsGetModelSkin(int iD)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
@@ -1273,12 +1278,12 @@ stock int WeaponsGetModelViewSkin(int iD)
 }
 
 /**
- * Gets the heat amount of the weapon view model. (For muzzleflash)
+ * Gets the heat amount of the weapon model. (For muzzleflash)
  *
  * @param iD                The weapon id.
  * @return                  The heat amount.    
  **/
-stock float WeaponsGetModelViewHeat(int iD)
+stock float WeaponsGetModelHeat(int iD)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
@@ -1424,7 +1429,7 @@ stock int WeaponsNameToIndex(char[] sWeapon, int iMaxLen = 0, bool bOverWriteNam
     static char sWeaponName[SMALL_LINE_LENGTH];
     
     // i = weapon index
-    int iSize = GetArraySize(arrayWeapons);
+    int iSize = arrayWeapons.Length;
     for (int i = 0; i < iSize; i++)
     {
         // Gets weapon name 
@@ -1657,10 +1662,12 @@ stock int WeaponsGive(int clientIndex, char[] sName)
                 // Sets the weapon id
                 WeaponsSetCustomID(weaponIndex, iD);
                 
+                // Call forward
+                API_OnWeaponCreated(weaponIndex, iD);
+                
                 // Switch the weapon
+                SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
                 SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
-                FakeClientCommandEx(clientIndex, "use %s", sName); /// Bugfix
-                ///SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
             }
         }
     }

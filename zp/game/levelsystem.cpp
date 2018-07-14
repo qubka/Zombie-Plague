@@ -37,6 +37,31 @@ int  LevelSystemNum;
 static char LevelSystemStats[LevelSystemMax][SMALL_LINE_LENGTH];
  
 /**
+ * HUD synchronization hadnle.
+ **/
+Handle hHudLevel;
+ 
+/**
+ * Level system module init function.
+ **/
+void LevelSystemInit(/*void*/)
+{
+    /*
+     * Creates a HUD synchronization object. This object is used to automatically assign and re-use channels for a set of messages.
+     * The HUD has a hardcoded number of channels (usually 6) for displaying text. You can use any channel for any area of the screen. 
+     * Text on different channels can overlap, but text on the same channel will erase the old text first. This overlapping and overwriting gets problematic.
+     * A HUD synchronization object automatically selects channels for you based on the following heuristics: - If channel X was last used by the object, 
+     * and hasn't been modified again, channel X gets re-used. - Otherwise, a new channel is chosen based on the least-recently-used channel.
+     * This ensures that if you display text on a sync object, that the previous text displayed on it will always be cleared first. 
+     * This is because your new text will either overwrite the old text on the same channel, or because another channel has already erased your text.
+     * Note that messages can still overlap if they are on different synchronization objects, or they are displayed to manual channels.
+     * These are particularly useful for displaying repeating or refreshing HUD text, in addition to displaying multiple message sets in one area of the screen 
+     * (for example, center-say messages that may pop up randomly that you don't want to overlap each other).
+     */
+    hHudLevel = CreateHudSynchronizer();
+}
+
+/**
  * Prepare all level data.
  **/
 void LevelSystemLoad(/*void*/)
@@ -49,7 +74,7 @@ void LevelSystemLoad(/*void*/)
     {
         return;
     }
-    
+
     // Initialize level list
     static char sList[PLATFORM_MAX_PATH];
     gCvarList[CVAR_LEVEL_STATISTICS].GetString(sList, sizeof(sList));
@@ -84,9 +109,9 @@ void LevelSystemOnClientUpdate(int clientIndex)
     // Validate real client
     if(!IsFakeClient(clientIndex))
     {
-        // Sets timer for player HUD
-        delete gClientData[clientIndex][Client_HUDTimer];
-        gClientData[clientIndex][Client_HUDTimer] = CreateTimer(1.0, LevelSystemOnHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        // Sets timer for player level HUD
+        delete gClientData[clientIndex][Client_LevelTimer];
+        gClientData[clientIndex][Client_LevelTimer] = CreateTimer(1.0, LevelSystemOnHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
@@ -233,14 +258,14 @@ public Action LevelSystemOnHUD(Handle hTimer, int userID)
         }
 
         // Print hud text to client
-        TranslationPrintHudText(clientIndex, 0.02, 0.885, 1.0, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "Level info", GetClientArmor(clientIndex), sInfo, gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], LevelSystemStats[gClientData[clientIndex][Client_Level]]);
+        TranslationPrintHudText(hHudLevel, clientIndex, 0.02, 0.885, 1.1, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "Level info", GetClientArmor(clientIndex), sInfo, gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], LevelSystemStats[gClientData[clientIndex][Client_Level]]);
     
         // Allow timer
         return Plugin_Continue;
     }
     
     // Clear timer
-    gClientData[clientIndex][Client_HUDTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_LevelTimer] = INVALID_HANDLE;
     
     // Destroy timer
     return Plugin_Stop;

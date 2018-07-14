@@ -233,7 +233,7 @@ void ZMarketSubMenu(int clientIndex, char[] sTitle, int mSlot = 0)
     if(mSlot)
     {
         // i = weapon number
-        iCount = GetArraySize(arrayWeapons);
+        iCount = arrayWeapons.Length;
         for(int i = 0; i < iCount; i++)
         {
             // Skip some weapons, if slot isn't equal
@@ -264,18 +264,18 @@ void ZMarketSubMenu(int clientIndex, char[] sTitle, int mSlot = 0)
             if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
             
             // Format some chars for showing in menu
-            Format(sBuffer, sizeof(sBuffer), (WeaponsGetCost(i)) ? "%s    %t" : "%s", sName, "Ammopacks", WeaponsGetCost(i));
+            Format(sBuffer, sizeof(sBuffer), (WeaponsGetCost(i)) ? "%s    %t" : "%s", sName, "Price", WeaponsGetCost(i), "Ammopack");
 
             // Show option
             IntToString(i, sInfo, sizeof(sInfo));
-            hSubMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((gClientData[clientIndex][Client_Level] < WeaponsGetLevel(i) || fnGetPlaying() < WeaponsGetOnline(i) || gClientData[clientIndex][Client_AmmoPacks] < WeaponsGetCost(i)) ? false : true));
+            hSubMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((WeaponsIsExist(clientIndex, i) || gClientData[clientIndex][Client_Level] < WeaponsGetLevel(i) || fnGetPlaying() < WeaponsGetOnline(i) || gClientData[clientIndex][Client_AmmoPacks] < WeaponsGetCost(i)) ? false : true));
         }
     }
     // Otherwise open rebuy menu
     else
     {
         // i = array number
-        iCount = GetArraySize(arrayShoppingList[clientIndex]);
+        iCount = arrayShoppingList[clientIndex].Length;
         for(int i = 0; i < iCount; i++)
         {
             // Gets the weapon index from the list
@@ -286,11 +286,11 @@ void ZMarketSubMenu(int clientIndex, char[] sTitle, int mSlot = 0)
             if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
             
             // Format some chars for showing in menu
-            Format(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%s    %t" : "%s", sName, "Ammopacks", WeaponsGetCost(iD));
+            Format(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%s    %t" : "%s", sName, "Price", WeaponsGetCost(iD), "Ammopack");
 
             // Show option
             IntToString(iD, sInfo, sizeof(sInfo));
-            hSubMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((gClientData[clientIndex][Client_Level] < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || gClientData[clientIndex][Client_AmmoPacks] < WeaponsGetCost(iD)) ? false : true));
+            hSubMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((WeaponsIsExist(clientIndex, iD) || gClientData[clientIndex][Client_Level] < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || gClientData[clientIndex][Client_AmmoPacks] < WeaponsGetCost(iD)) ? false : true));
         }
     }
     
@@ -402,7 +402,7 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, int clientInde
                 if(WeaponsGetCost(iD))
                 {
                     // Remove ammo and store it for returning if player will be first zombie
-                    ToolsSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - WeaponsGetCost(iD));
+                    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - WeaponsGetCost(iD));
                     gClientData[clientIndex][Client_LastBoughtAmount] += WeaponsGetCost(iD);
                 }
 
@@ -434,11 +434,11 @@ bool ZMarketRebuyMenu(int clientIndex)
     if(arrayShoppingList[clientIndex] == INVALID_HANDLE)
     {
         // Create array in handle
-        arrayShoppingList[clientIndex] = CreateArray(GetArraySize(arrayWeapons));
+        arrayShoppingList[clientIndex] = CreateArray(arrayWeapons.Length);
     }
 
     // Validate list size
-    int iSize = GetArraySize(arrayShoppingList[clientIndex]);
+    int iSize = arrayShoppingList[clientIndex].Length;
     if(!iSize)
     {
         return false;

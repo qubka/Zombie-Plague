@@ -70,7 +70,7 @@ void DownloadsLoad(/*void*/)
     int iDownloadUnValidCount;
     
     // Validate downloads config
-    int iDownloads = iDownloadCount = GetArraySize(arrayDownloads);
+    int iDownloads = iDownloadCount = arrayDownloads.Length;
     if(!iDownloads)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sDownloadsPath);

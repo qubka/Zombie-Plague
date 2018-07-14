@@ -60,12 +60,12 @@ void DeathOnClientDeath(int victimIndex, int attackerIndex)
                 // Increment exp and bonuses
                 if(gClientData[victimIndex][Client_Zombie])
                 {
-                    ToolsSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + (gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_BONUS_KILL_NEMESIS].IntValue : gCvarList[CVAR_BONUS_KILL_ZOMBIE].IntValue));
+                    AccountSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + (gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_BONUS_KILL_NEMESIS].IntValue : gCvarList[CVAR_BONUS_KILL_ZOMBIE].IntValue));
                     LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex][Client_Exp] + (gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_LEVEL_KILL_NEMESIS].IntValue : gCvarList[CVAR_LEVEL_KILL_ZOMBIE].IntValue));
                 }
                 else
                 {
-                    ToolsSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + (gClientData[victimIndex][Client_Survivor] ? gCvarList[CVAR_BONUS_KILL_SURVIVOR].IntValue : gCvarList[CVAR_BONUS_KILL_HUMAN].IntValue));
+                    AccountSetClientCash(attackerIndex, gClientData[attackerIndex][Client_AmmoPacks] + (gClientData[victimIndex][Client_Survivor] ? gCvarList[CVAR_BONUS_KILL_SURVIVOR].IntValue : gCvarList[CVAR_BONUS_KILL_HUMAN].IntValue));
                     LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex][Client_Exp] + (gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_LEVEL_KILL_NEMESIS].IntValue : gCvarList[CVAR_LEVEL_KILL_HUMAN].IntValue));
                 }
             }

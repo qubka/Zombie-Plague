@@ -51,11 +51,6 @@
  **/
  
 /**
- * HUD synchronization hadnle.
- **/
-Handle hHudSync;
-
-/**
  * Load translations file here.
  **/
 void TranslationInit(/*void*/)
@@ -64,20 +59,6 @@ void TranslationInit(/*void*/)
     LoadTranslations("common.phrases");
     LoadTranslations("core.phrases");
     LoadTranslations("zombieplague.phrases");
-    
-    /*
-     * Creates a HUD synchronization object. This object is used to automatically assign and re-use channels for a set of messages.
-     * The HUD has a hardcoded number of channels (usually 6) for displaying text. You can use any channel for any area of the screen. 
-     * Text on different channels can overlap, but text on the same channel will erase the old text first. This overlapping and overwriting gets problematic.
-     * A HUD synchronization object automatically selects channels for you based on the following heuristics: - If channel X was last used by the object, 
-     * and hasn't been modified again, channel X gets re-used. - Otherwise, a new channel is chosen based on the least-recently-used channel.
-     * This ensures that if you display text on a sync object, that the previous text displayed on it will always be cleared first. 
-     * This is because your new text will either overwrite the old text on the same channel, or because another channel has already erased your text.
-     * Note that messages can still overlap if they are on different synchronization objects, or they are displayed to manual channels.
-     * These are particularly useful for displaying repeating or refreshing HUD text, in addition to displaying multiple message sets in one area of the screen 
-     * (for example, center-say messages that may pop up randomly that you don't want to overlap each other).
-     */
-    hHudSync = CreateHudSynchronizer();
 }
 
 /**
@@ -250,6 +231,7 @@ stock void TranslationPrintHintTextAll(any ...)
 /**
  * Print hud text to client.
  * 
+ * @param hSync             New HUD synchronization object.
  * @param clientIndex       The client index.
  * @param x                 x coordinate, from 0 to 1. -1.0 is the center.
  * @param y                 y coordinate, from 0 to 1. -1.0 is the center.
@@ -264,7 +246,7 @@ stock void TranslationPrintHintTextAll(any ...)
  * @param fadeOut           Number of seconds to spend fading out.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHudText(int clientIndex, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
+stock void TranslationPrintHudText(Handle hSync, int clientIndex, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
 {
     // Validate real client
     if(!IsFakeClient(clientIndex))
@@ -274,19 +256,20 @@ stock void TranslationPrintHudText(int clientIndex, float x, float y, float hold
 
         // Translate phrase
         static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-        VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 13);
+        VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 14);
 
         // Sets the HUD parameters for drawing text
         SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
         
         // Print translated phrase to client's screen
-        ShowSyncHudText(clientIndex, hHudSync, sTranslation);
+        ShowSyncHudText(clientIndex, hSync, sTranslation);
     }
 }
 
 /**
  * Print hud text to all clients.
  *
+ * @param hSync             New HUD synchronization object.
  * @param x                 x coordinate, from 0 to 1. -1.0 is the center.
  * @param y                 y coordinate, from 0 to 1. -1.0 is the center.
  * @param holdTime          Number of seconds to hold the text.
@@ -300,7 +283,7 @@ stock void TranslationPrintHudText(int clientIndex, float x, float y, float hold
  * @param fadeOut           Number of seconds to spend fading out.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHudTextAll(float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
+stock void TranslationPrintHudTextAll(Handle hSync, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -319,13 +302,13 @@ stock void TranslationPrintHudTextAll(float x, float y, float holdTime, int r, i
             
             // Translate phrase
             static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-            VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 12);
+            VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 13);
             
             // Sets the HUD parameters for drawing text
             SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
 
             // Print translated phrase to client's screen
-            ShowSyncHudText(i, hHudSync, sTranslation);
+            ShowSyncHudText(i, hSync, sTranslation);
         }
     }
 }

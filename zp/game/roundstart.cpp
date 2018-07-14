@@ -104,6 +104,18 @@ void RoundStartOnKillEntity(/*void*/)
             {
                 AcceptEntityInput(x, "Kill"); //! Destroy
             }
+            // Validate weapon
+            else if(!strncmp(sClassname, "weapon_", 7, false))
+            {
+                // Gets the weapon's owner
+                int clientIndex = GetEntDataEnt2(x, g_iOffset_WeaponOwner);
+                
+                // Validate owner
+                if(!IsPlayerExist(clientIndex))
+                {
+                    AcceptEntityInput(x, "Kill"); //! Destroy
+                }
+            }
         }
     }
 }

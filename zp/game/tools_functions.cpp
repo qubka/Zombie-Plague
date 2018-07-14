@@ -24,11 +24,6 @@
  *
  * ============================================================================
  **/
- 
-/**
- * Maximum limit for cash in CS:GO.
- **/
-#define ACCOUNT_CASH_MAX 65000
 
 /**
  * Creates commands for tools module. Called when commands are created.
@@ -98,9 +93,11 @@ void ToolsResetVars(int clientIndex)
     gClientData[clientIndex][Client_Level] = 1;
     gClientData[clientIndex][Client_Exp] = 0;
     gClientData[clientIndex][Client_DataID] = -1;
+    gClientData[clientIndex][Client_Costume] = -1;
+    gClientData[clientIndex][Client_AttachmentCostume] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentBits] = 0;
     gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
-    gClientData[clientIndex][Client_AttachmentEntity] = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex][Client_AttachmentMuzzle] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentWeapon] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentLast][0] = '\0';
     gClientData[clientIndex][Client_ViewModels] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
@@ -161,7 +158,8 @@ void ToolsForceToRespawn(int clientIndex)
  **/
 void ToolsResetTimers(int clientIndex)
 {
-    delete gClientData[clientIndex][Client_HUDTimer];
+    delete gClientData[clientIndex][Client_LevelTimer];
+    delete gClientData[clientIndex][Client_AccountTimer];
     delete gClientData[clientIndex][Client_RespawnTimer];
     delete gClientData[clientIndex][Client_ZombieSkillTimer];
     delete gClientData[clientIndex][Client_ZombieCountDownTimer];
@@ -176,39 +174,13 @@ void ToolsResetTimers(int clientIndex)
  **/
 void ToolsPurgeTimers(int clientIndex)
 {
-    gClientData[clientIndex][Client_HUDTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_LevelTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_AccountTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_RespawnTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_ZombieSkillTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_ZombieCountDownTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_ZombieHealTimer] = INVALID_HANDLE;    
     gClientData[clientIndex][Client_ZombieMoanTimer] = INVALID_HANDLE; 
-}
-
-/**
- * Set's a client's account value (ammopacks)
- * 
- * @param clientIndex       The client index.
- * @param nAmmoPacks        The ammopacks amount.
- **/
-stock void ToolsSetClientCash(int clientIndex, int nAmmoPacks)
-{
-    // If value below 0, then set to 0
-    if(nAmmoPacks < 0)
-    {
-        nAmmoPacks = 0;
-    }
-    
-    // If value higher, then set to max
-    if(nAmmoPacks > ACCOUNT_CASH_MAX)
-    {
-        nAmmoPacks = ACCOUNT_CASH_MAX;
-    }
-
-    // Sets the ammopacks
-    gClientData[clientIndex][Client_AmmoPacks] = nAmmoPacks;
-
-    // Sets client's cash
-    SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_AmmoPacks], 4, true);
 }
 
 /**

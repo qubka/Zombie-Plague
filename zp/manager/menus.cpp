@@ -36,13 +36,12 @@ ArrayList arrayMenus;
 enum
 {
     MENUS_DATA_NAME,
-    MENUS_DATA_TITLE,
     MENUS_DATA_ACCESS,
     MENUS_DATA_COMMAND
 }
 
 /**
- * Creates commands for mainmenu module. Called when commands are created.
+ * Creates commands for menu module. Called when commands are created.
  **/
 void MenusOnCommandsCreate(/*void*/)
 {
@@ -94,7 +93,7 @@ void MenusLoad(/*void*/)
     }
 
     // Validate menus config
-    int iSize = GetArraySize(arrayMenus);
+    int iSize = arrayMenus.Length;
     if(!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sMenuPath);
@@ -128,7 +127,7 @@ void MenusCacheData(/*void*/)
     }
 
     // i = array index
-    int iSize = GetArraySize(arrayMenus);
+    int iSize = arrayMenus.Length;
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -144,12 +143,10 @@ void MenusCacheData(/*void*/)
         ArrayList arrayMenu = arrayMenus.Get(i);
 
         // Push data into array
-        kvMenus.GetString("title", sMenusPath, sizeof(sMenusPath), ""); 
-        arrayMenu.PushString(sMenusPath); // Index: 1
         kvMenus.GetString("access", sMenusPath, sizeof(sMenusPath), "");  
-        arrayMenu.PushString(sMenusPath); // Index: 2
+        arrayMenu.PushString(sMenusPath); // Index: 1
         kvMenus.GetString("command", sMenusPath, sizeof(sMenusPath), "");
-        arrayMenu.PushString(sMenusPath); // Index: 3
+        arrayMenu.PushString(sMenusPath); // Index: 2
     }
 
     // We're done with this file now, so we can close it
@@ -177,7 +174,7 @@ public void MenusOnConfigReload(/*void*/)
 public int API_GetNumberMenu(Handle isPlugin, int iNumParams)
 {
     // Return the value 
-    return GetArraySize(arrayMenus);
+    return arrayMenus.Length;
 }
 
 /**
@@ -191,7 +188,7 @@ public int API_GetMenuName(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayMenus))
+    if(iD >= arrayMenus.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -216,41 +213,6 @@ public int API_GetMenuName(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the title of a menu at a given id.
- *
- * native void ZP_GetMenuTitle(iD, title, maxlen);
- **/
-public int API_GetMenuTitle(Handle isPlugin, int iNumParams)
-{
-    // Gets weapon index from native cell
-    int iD = GetNativeCell(1);
-    
-    // Validate index
-    if(iD >= GetArraySize(arrayMenus))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
-        return -1;
-    }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
-
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize title char
-    static char sTitle[SMALL_LINE_LENGTH];
-    MenusGetTitle(iD, sTitle, sizeof(sTitle));
-
-    // Return on success
-    return SetNativeString(2, sTitle, maxLen);
-}
-
-/**
  * Gets the access of a menu at a given id.
  *
  * native void ZP_GetMenuAccess(iD, flags, maxlen);
@@ -261,7 +223,7 @@ public int API_GetMenuAccess(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayMenus))
+    if(iD >= arrayMenus.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -296,7 +258,7 @@ public int API_GetMenuCommand(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayMenus))
+    if(iD >= arrayMenus.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -328,39 +290,23 @@ public int API_GetMenuCommand(Handle isPlugin, int iNumParams)
  * Gets the name of a menu at a given index.
  *
  * @param iD                The menu index.
- * @param sClassname        The string to return name in.
+ * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void MenusGetName(int iD, char[] sClassname, int iMaxLen)
+stock void MenusGetName(int iD, char[] sName, int iMaxLen)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
     
     // Gets menu name
-    arrayMenu.GetString(MENUS_DATA_NAME, sClassname, iMaxLen);
-}
-
-/**
- * Gets the title of a menu at a given index.
- *
- * @param iD                The weapon index.
- * @param sType             The string to return entity in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void MenusGetTitle(int iD, char[] sType, int iMaxLen)
-{
-    // Gets array handle of weapon at given index
-    ArrayList arrayMenu = arrayMenus.Get(iD);
-    
-    // Gets menu title
-    arrayMenu.GetString(MENUS_DATA_TITLE, sType, iMaxLen);
+    arrayMenu.GetString(MENUS_DATA_NAME, sName, iMaxLen);
 }
 
 /**
  * Gets the access flag of a menu at a given index.
  *
- * @param iD                The weapon index.
- * @param sType             The string to return entity in.
+ * @param iD                The menu index.
+ * @param sType             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
 stock void MenusGetAccess(int iD, char[] sType, int iMaxLen)
@@ -375,17 +321,17 @@ stock void MenusGetAccess(int iD, char[] sType, int iMaxLen)
 /**
  * Gets the command of a menu at a given index.
  *
- * @param iD                The weapon index.
- * @param sType             The string to return entity in.
+ * @param iD                The menu index.
+ * @param sCommand          The string to return command in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void MenusGetCommand(int iD, char[] sType, int iMaxLen)
+stock void MenusGetCommand(int iD, char[] sCommand, int iMaxLen)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
     
     // Gets menu command
-    arrayMenu.GetString(MENUS_DATA_COMMAND, sType, iMaxLen);
+    arrayMenu.GetString(MENUS_DATA_COMMAND, sCommand, iMaxLen);
 }
 
 /*
@@ -393,7 +339,7 @@ stock void MenusGetCommand(int iD, char[] sType, int iMaxLen)
  */
  
 /**
- * Create an main menu.
+ * Create a main menu.
  *
  * @param clientIndex       The client index.
  **/
@@ -426,11 +372,11 @@ void MenuMain(int clientIndex)
         hMenu.SetTitle("%t", "Main menu");
         
         // i = Array index
-        int iSize = GetArraySize(arrayMenus);
+        int iSize = arrayMenus.Length;
         for(int i = 0; i < iSize; i++)
         {
-            // Gets menu title
-            MenusGetTitle(i, sName, sizeof(sName));
+            // Gets menu name
+            MenusGetName(i, sName, sizeof(sName));
             
             // Format some chars for showing in menu
             Format(sBuffer, sizeof(sBuffer), "%t", sName);

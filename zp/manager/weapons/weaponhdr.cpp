@@ -91,18 +91,18 @@ void WeaponHDRInit(/*void*/)
 {
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Virtual, "Entity_UpdateTransmitState");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Entity_UpdateTransmitState");
 
     //  Validate call
     if(!(hSDKCallEntityUpdateTransmitState = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::UpdateTransmitState\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::UpdateTransmitState\". Update offset in \"%s\"", PLUGIN_CONFIG);
     }
 
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig], SDKConf_Signature, "Animating_GetSequenceActivity");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Signature, "Animating_GetSequenceActivity");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
@@ -112,13 +112,13 @@ void WeaponHDRInit(/*void*/)
     if(!(hSDKCallAnimatingGetSequenceActivity = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::Animating_GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
     }
 
     // Load other offsets
-    fnInitGameConfOffset(gServerData[Server_GameConfig], Animating_StudioHdr, "Animating_StudioHdr");
-    fnInitGameConfOffset(gServerData[Server_GameConfig], StudioHdrStruct_SequenceCount, "StudioHdrStruct_SequenceCount");
-    fnInitGameConfOffset(gServerData[Server_GameConfig], VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct_SequenceVector_Size");
+    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], Animating_StudioHdr, "Animating_StudioHdr");
+    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], StudioHdrStruct_SequenceCount, "StudioHdrStruct_SequenceCount");
+    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct_SequenceVector_Size");
 
     /// Info bellow
     int lightingOriginOffset;

@@ -69,7 +69,7 @@ void HumanClassesLoad(/*void*/)
     static char sModel[PLATFORM_MAX_PATH];
 
     // Precache of the human classes
-    int iSize = GetArraySize(arrayHumanClasses);
+    int iSize = arrayHumanClasses.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Validate player model
@@ -121,7 +121,7 @@ public Action HumanCommandCatched(int clientIndex, int iArguments)
 public int API_GetNumberHumanClass(Handle isPlugin, int iNumParams)
 {
     // Return the value 
-    return GetArraySize(arrayHumanClasses);
+    return arrayHumanClasses.Length;
 }
 
 /**
@@ -166,7 +166,7 @@ public int API_SetClientHumanClass(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(2);
 
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -212,7 +212,7 @@ public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
     }
     
     // Gets human classes amount
-    int iCount = GetArraySize(arrayHumanClasses);
+    int iCount = arrayHumanClasses.Length;
     
     // Maximum amout reached ?
     if(iCount >= HumanClassMax)
@@ -251,7 +251,7 @@ public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
     arrayHumanClasses.Push(arrayHumanClass);
 
     // Return id under which we registered the class
-    return GetArraySize(arrayHumanClasses)-1;
+    return arrayHumanClasses.Length-1;
 }
 
 /**
@@ -265,7 +265,7 @@ public int API_GetHumanClassName(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -300,7 +300,7 @@ public int API_GetHumanClassModel(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -335,7 +335,7 @@ public int API_GetHumanClassArm(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -370,7 +370,7 @@ public int API_GetHumanClassHealth(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -391,7 +391,7 @@ public int API_GetHumanClassSpeed(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -412,7 +412,7 @@ public int API_GetHumanClassGravity(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -433,7 +433,7 @@ public int API_GetHumanClassArmor(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -454,7 +454,7 @@ public int API_GetHumanClassLevel(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -475,7 +475,7 @@ public int API_IsHumanClassVIP(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -496,7 +496,7 @@ public int API_GetHumanClassSoundDeath(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -531,7 +531,7 @@ public int API_GetHumanClassSoundHurt(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -566,7 +566,7 @@ public int API_GetHumanClassSoundInfect(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -617,7 +617,7 @@ public int API_PrintHumanClassInfo(Handle isPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= GetArraySize(arrayHumanClasses))
+    if(iD >= arrayHumanClasses.Length)
     {
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -836,7 +836,7 @@ stock void HumanGetSoundInfect(int iD, char[] sSound, int iMaxLen)
 void HumanOnValidate(int clientIndex)
 {
     // Gets array size
-    int iSize = GetArraySize(arrayHumanClasses);
+    int iSize = arrayHumanClasses.Length;
     
     // Gets client's access
     bool IsVIP = IsPlayerHasFlag(clientIndex, Admin_Custom1);
@@ -920,7 +920,7 @@ void HumanMenu(int clientIndex)
     Action resultHandle;
     
     // i = Human class number
-    int iCount = GetArraySize(arrayHumanClasses);
+    int iCount = arrayHumanClasses.Length;
     for(int i = 0; i < iCount; i++)
     {
         // Call forward

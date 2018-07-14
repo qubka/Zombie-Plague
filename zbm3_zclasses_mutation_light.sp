@@ -114,9 +114,9 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * Called when the map has loaded, servercfgfile (server.cfg) has been executed, and all plugin configs are done executing.
+ * Called after a zombie core is loaded.
  **/
-public void OnConfigsExecuted(/*void*/)
+public void ZP_OnEngineExecute(/*void*/)
 {
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
@@ -131,7 +131,7 @@ public void OnConfigsExecuted(/*void*/)
 public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
 {
     // Reset visibility
-    if(IsPlayerExist(clientIndex)) SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
+    SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
 }
  
 /**
@@ -142,7 +142,7 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
 public void ZP_OnClientHumanized(int clientIndex)
 {
     // Reset visibility
-    if(IsPlayerExist(clientIndex)) SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
+    SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
 }
 
 /**

@@ -123,7 +123,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetExtraItemLimit",              API_GetExtraItemLimit); 
     CreateNative("ZP_PrintExtraItemInfo",             API_PrintExtraItemInfo); 
     
-    CreateNative("ZP_GetWeaponAttachmentPos",         API_GetWeaponAttachmentPos);
+    CreateNative("ZP_GetWeaponAttachmentPos",         API_GetWeaponAttachPos);
     CreateNative("ZP_GiveClientWeapon",               API_GiveClientWeapon);
     CreateNative("ZP_GetWeaponNameID",                API_GetWeaponNameID);
     CreateNative("ZP_GetWeaponID",                    API_GetWeaponID);
@@ -147,6 +147,9 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetWeaponModelViewID",           API_GetWeaponModelViewID);
     CreateNative("ZP_GetWeaponModelWorld",            API_GetWeaponModelWorld);    
     CreateNative("ZP_GetWeaponModelWorldID",          API_GetWeaponModelWorldID); 
+    CreateNative("ZP_GetWeaponModelBody",             API_GetWeaponModelBody); 
+    CreateNative("ZP_GetWeaponModelSkin",             API_GetWeaponModelSkin); 
+    CreateNative("ZP_GetWeaponModelHeat",             API_GetWeaponModelHeat); 
     
     CreateNative("ZP_GetNumberHitgroup",              API_GetNumberHitgroup);
     CreateNative("ZP_GetHitgroupID",                  API_GetHitgroupID);
@@ -159,7 +162,6 @@ void APINativesInit(/*void*/)
 
     CreateNative("ZP_GetNumberMenu",                  API_GetNumberMenu);
     CreateNative("ZP_GetMenuName",                    API_GetMenuName);
-    CreateNative("ZP_GetMenuTitle",                   API_GetMenuTitle);
     CreateNative("ZP_GetMenuAccess",                  API_GetMenuAccess);
     CreateNative("ZP_GetMenuCommand",                 API_GetMenuCommand);
     
@@ -178,6 +180,17 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_IsGameModeRespawn",              API_IsGameModeRespawn);
     CreateNative("ZP_IsGameModeSurvivor",             API_IsGameModeSurvivor);
     CreateNative("ZP_IsGameModeNemesis",              API_IsGameModeNemesis);
+    
+    CreateNative("ZP_GetNumberCostumes",              API_GetNumberCostumes);
+    CreateNative("ZP_GetClientCostume",               API_GetClientCostume);
+    CreateNative("ZP_SetClientCostume",               API_SetClientCostume);
+    CreateNative("ZP_GetCostumeName",                 API_GetCostumeName);
+    CreateNative("ZP_GetCostumeModel",                API_GetCostumeModel);
+    CreateNative("ZP_GetCostumeBody",                 API_GetCostumeBody);
+    CreateNative("ZP_GetCostumeSkin",                 API_GetCostumeSkin);
+    CreateNative("ZP_GetCostumeAttach",               API_GetCostumeAttach);
+    CreateNative("ZP_GetCostumeAccess",               API_GetCostumeAccess);
+    CreateNative("ZP_IsCostumeHide",                  API_IsCostumeHide);
 }
 
 /**
@@ -324,7 +337,7 @@ public int API_SetClientAmmoPack(Handle isPlugin, int iNumParams)
     int clientIndex = GetNativeCell(1);
 
     // Sets ammopacks for the client
-    ToolsSetClientCash(clientIndex, GetNativeCell(2));
+    AccountSetClientCash(clientIndex, GetNativeCell(2));
 }
 
 /**

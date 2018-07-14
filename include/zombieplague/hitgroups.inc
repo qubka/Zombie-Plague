@@ -33,12 +33,12 @@
 #define _higrouplist_included
 
 /**
- * Gets the amount of all hitgrups.
+ * @brief Gets the amount of all hitgrups.
  **/
 native int ZP_GetNumberHitgroup();
 
 /**
- * Gets the array index at which the hitgroup index is at.
+ * @brief Gets the array index at which the hitgroup index is at.
  *
  * @param hitgroup          The real hitgroup index.
  * @return                  The hitgroup index.
@@ -46,50 +46,50 @@ native int ZP_GetNumberHitgroup();
 native int ZP_GetHitgroupID(int hitgroup);
 
 /**
- * Gets the name of a hitgroup at a given index.
+ * @brief Gets the name of a hitgroup at a given index.
  *
- * @param iD                The hitgroup index.
+ * @param hitID             The hitgroup index.
  * @param name              The string to return name in.
- * @param maxlen            The max length of the string.
+ * @param maxlenght         The max length of the string.
  **/
-native void ZP_GetHitgroupName(int iD, char[] name, int maxlen);
+native void ZP_GetHitgroupName(int hitID, char[] name, int maxlenght = 32);
 
 /**
- * Gets the real hitgroup index of the hitgroup.
- *
- * @param iD                The array index.
- * @return                  The hitgroup index.
+ * @brief Gets the real hitgroup index of the hitgroup.
+ * 
+ * @param hitID             The hitgroup index.
+ * @return                  The real hitgroup index.
  **/
-native int ZP_GetHitgroupIndex(int iD);
+native int ZP_GetHitgroupIndex(int hitID);
 
 /**
- * Gets the damage value of the hitgroup.
+ * @brief Gets the damage value of the hitgroup.
  *
- * @param iD                The hitgroup index.
+ * @param hitID             The hitgroup index.
  * @return                  True if hitgroup can be damaged, false if not.
  **/
-native bool ZP_IsHitgroupDamage(int iD);
+native bool ZP_IsHitgroupDamage(int hitID);
 
 /**
- * Sets the damage value of the hitgroup.
+ * @brief Sets the damage value of the hitgroup.
  *
- * @param iD                The hitgroup index.
+ * @param hitID             The hitgroup index.
  * @param damage            True to allow damage to hitgroup, false to block damage.
  **/
-native void ZP_SetHitgroupDamage(int iD, bool damage);
+native void ZP_SetHitgroupDamage(int hitID, bool damage);
 
 /**
- * Gets the knockback value of the hitgroup.
+ * @brief Gets the knockback value of the hitgroup.
  *
- * @param iD                The hitgroup index.
+ * @param hitID             The hitgroup index.
  * @return                  The knockback multiplier of the hitgroup.
  **/
-native float ZP_GetHitgroupKnockback(int iD);
+native float ZP_GetHitgroupKnockback(int hitID);
 
 /**
- * Sets the knockback value of the hitgroup.
+ * @brief Sets the knockback value of the hitgroup.
  *
- * @param iD                The hitgroup index.
+ * @param hitID             The hitgroup index.
  * @param knockback         The knockback multiplier for the hitgroup.
  **/
-native void ZP_SetHitgroupKnockback(int iD, float knockback);
+native void ZP_SetHitgroupKnockback(int hitID, float knockback);

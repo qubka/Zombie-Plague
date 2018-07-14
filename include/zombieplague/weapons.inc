@@ -33,11 +33,19 @@
 #define _weaponlist_included
 
 /**
- * Gets the current position of the client's weapon attachment.
+ * @brief Called after a custom weapon is created.
+ *
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+forward void ZP_OnWeaponCreated(int weaponIndex, int weaponID);
+
+/**
+ * @brief Gets the current position of the weapon attachment.
  *
  * @param clientIndex       The client index.
  * @param attachment        The attachment bone of the entity parent.
- * @raram position          Array to store vector in. 
+ * @raram position          Array to store vector in.
  **/
 native void ZP_GetWeaponAttachmentPos(int clientIndex, char[] attachment, float position[3]);
 
@@ -231,28 +239,28 @@ native void ZP_GetWeaponModelWorld(int weaponID, char[] model, int maxlenght = 2
 native int ZP_GetWeaponModelWorldID(int weaponID);
 
 /**
- * @brief Gets the body index of the weapon view model.
+ * @brief Gets the body index of the weapon model.
  *
  * @param weaponID          The weapon ID.
  * @return                  The view model body index.    
  **/
-native int ZP_GetWeaponModelViewBody(int weaponID);
+native int ZP_GetWeaponModelBody(int weaponID);
 
 /**
- * @brief Gets the skin index of the weapon view model.
+ * @brief Gets the skin index of the weapon model.
  *
  * @param weaponID          The weapon ID.
  * @return                  The view model skin index.    
  **/
-native int ZP_GetWeaponModelViewSkin(int weaponID);
+native int ZP_GetWeaponModelSkin(int weaponID);
 
 /**
- * @brief Gets the skin index of the weapon view model.
+ * @brief Gets the heat amount of the weapon model.
  *
  * @param weaponID          The weapon ID.
  * @return                  The heat amount.    
  **/
-native float ZP_GetWeaponModelViewHeat(int weaponID);
+native float ZP_GetWeaponModelHeat(int weaponID);
 
 /**
  * @brief Returns true if the player has a current weapon, false if not.

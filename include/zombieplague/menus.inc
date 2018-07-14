@@ -43,42 +43,33 @@
 forward Action ZP_OnClientValidateMainMenu(int clientIndex);
 
 /**
- * Gets the amount of all menus.
+ * @brief Gets the amount of all menus.
  **/
 native int ZP_GetNumberMenu();
 
 /**
- * Gets the name of a menu at a given index.
+ * @brief Gets the name of a menu at a given index.
  *
- * @param iD                The menu index.
+ * @param menuID            The menu index.
  * @param name              The string to return name in.
- * @param maxlen            The max length of the string.
+ * @param maxlenght         The max length of the string.
  **/
-native void ZP_GetMenuName(int iD, char[] name, int maxlen);
+native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32);
 
 /**
- * Gets the title of a menu at a given index.
+ * @brief Gets the flags of a menu at a given index.
  *
- * @param iD                The menu index.
- * @param title             The string to return title in.
- * @param maxlen            The max length of the string.
- **/
-native void ZP_GetMenuTitle(int iD, char[] title, int maxlen);
-
-/**
- * Gets the flags of a menu at a given index.
- *
- * @param iD                The menu index.
+ * @param menuID            The menu index.
  * @param flags             The string to return flags in.
- * @param maxlen            The max length of the string.
+ * @param maxlenght         The max length of the string.
  **/
-native void ZP_GetMenuAccess(int iD, char[] flags, int maxlen);
+native void ZP_GetMenuAccess(int menuID, char[] flags, int maxlenght = 32);
 
 /**
- * Gets the command of a menu at a given index.
+ * @brief Gets the command of a menu at a given index.
  *
- * @param iD                The menu index.
+ * @param menuID            The menu index.
  * @param command           The string to return command in.
- * @param maxlen            The max length of the string.
+ * @param maxlenght         The max length of the string.
  **/
-native void ZP_GetMenuCommand(int iD, char[] command, int maxlen);
+native void ZP_GetMenuCommand(int menuID, char[] command, int maxlenght = 32);

@@ -37,34 +37,23 @@
             // Offset from the 'Counter-Strike:Source Deathmatch' ( https://github.com/alliedmodders/cssdm )
             // You can update it from that file "../sourcemod/gamedata/cssdm.games"
             // Change them if the offset out of date and use the last cssdm repository
-            "RemoveAllItems"
+            "Weapon_RemoveAllItems"
             {
                 "windows"    "385"
                 "linux"      "386"
                 "mac"        "386"
             }
             
-            // Offset from the 'sdkhooks.ext'
-            // You can update it from that file "../sourcemod/gamedata/sdkhooks.games/engine.csgo"
-            // Change it if the offset out of date and use the last sourcemod repository
-            "Weapon_Switch"
-            {
-                "windows"    "285"
-                "linux"      "286"
-                "mac"        "286"
-            }
-            
             // DHOOK SUPPORT
             // Offsets from the engine ( https://forums.alliedmods.net/showthread.php?t=191171 )
             // You can update them only by yourself using tutorial in the link
-            // Change them if the offsets out of date and use the last sourcemod repository
-            "GetMaxClip1"
+            "Weapon_GetMaxClip1"
             {
                 "windows"    "347"
                 "linux"      "353"
                 "mac"        "353"
             }
-            "GetMaxReverse"
+            "Weapon_GetMaxReverse"
             {
                 "windows"    "351"
                 "linux"      "357"
@@ -72,40 +61,15 @@
             }
         }
 
-        // Signatures from the 'cstrike.ext' except 'Animating_GetSequenceActivity' ( https://forums.alliedmods.net/showthread.php?t=191171 )
-        // You can update them from that file "../sourcemod/gamedata/sm-cstrike.games/sm-cstrike.games"
-        // Change them if the signatures out of date and use the last sourcemod repository
+        // Signature from the engine ( https://forums.alliedmods.net/showthread.php?t=191171 )
+        // You can update them only by yourself using tutorial in the link
         "Signatures"
         {
-            "Animating_GetSequenceActivity" // You can update them only by yourself using tutorial in the link
+            "Animating_GetSequenceActivity"
             {
                 "library"    "server"
                 "windows"    "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
                 "linux"      "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
-            }
-            "SwitchTeam"
-            {
-                "library"    "server"
-                "windows"    "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6\x0F\x88\x2A\x2A\x2A\x2A\x3B\x35"
-                "linux"      "\x55\x89\xE5\x83\xEC\x68\x89\x75\xF8\x8B\x75\x0C\x89\x5D\xF4\x8B\x5D\x08\x89\x7D\xFC\x89\x34\x24\xE8\x2A\x2A\x2A\x2A\x85\xC0"
-            }
-            "CSWeaponDrop"
-            {
-                "library"    "server"
-                "windows"    "\x2A\x2A\x2A\x2A\x2A\x2A\x81\xEC\x2A\x2A\x2A\x2A\x53\x8B\x5D\x08\x56\x57\x6A\x00\x68"
-                "linux"      "\x2A\x2A\x2A\x2A\x2A\x2A\x56\x53\x81\xEC\x7C\x02\x00\x00\x8B\x5D\x0C\x8B\x75\x08\x85\xDB\x74\x2A\xC7\x44\x24\x2A\x2A\x2A\x2A\x00"
-            }
-            "TerminateRound"
-            {
-                "library"    "server"
-                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x2A\x53\x8B\xD9\xF3\x0F\x2A\x2A\x2A\x2A\x56\x57\x89\x2A\x2A\x2A\x83\xBB"
-                "linux"      "\x55\x89\xE5\x57\x56\x53\x81\xEC\xBC\x00\x00\x00\x8B\x7D\x08\x8B\x9F"
-            }
-            "RoundRespawn"
-            {
-                "library"    "server"
-                "windows"    "\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A\x57\x8B\x01"
-                "linux"      "\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\xA1\x2A\x2A\x2A\x2A\x8B\x5D\x08\x89\x04\x24"
             }
         }
     }
