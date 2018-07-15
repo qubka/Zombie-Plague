@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin Armor =
+public Plugin myinfo =
 {
     name            = "[ZP] ExtraItem: Armor",
     author          = "qubka (Nikita Ushakov)",     

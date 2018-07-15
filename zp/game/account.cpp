@@ -27,7 +27,7 @@
  
 /**
  * Maximum limit for cash in CS:GO.
- */
+ **/
 #define ACCOUNT_CASH_MAX 65000
 
 /**

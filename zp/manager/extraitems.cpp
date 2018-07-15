@@ -231,14 +231,30 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
         return -1;
     }
 
-    // Initialize char
+    // Initialize chars
     char sItemBuffer[SMALL_LINE_LENGTH];
+    char sItemName[SMALL_LINE_LENGTH];
 
+    // General
+    GetNativeString(1, sItemBuffer, sizeof(sItemBuffer)); 
+    
+    // i = item number
+    for(int i = 0; i < iCount; i++)
+    {
+        // Gets the name of an item at a given index
+        ItemsGetName(i, sItemName, sizeof(sItemName));
+    
+        // If names match, then stop
+        if(!strcmp(sItemBuffer, sItemName, false))
+        {
+            return -1;
+        }
+    }
+    
     // Initialize array block
     ArrayList arrayExtraItem = CreateArray(ExtraItemMax);
     
     // Push native data into array
-    GetNativeString(1, sItemBuffer, sizeof(sItemBuffer)); 
     arrayExtraItem.PushString(sItemBuffer);    // Index: 0
     arrayExtraItem.Push(GetNativeCell(2));     // Index: 1
     arrayExtraItem.Push(GetNativeCell(3));     // Index: 2
@@ -704,7 +720,7 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, int clientIndex, int 
                 // If item has a cost
                 if(ItemsGetCost(iD))
                 {
-                    // Remove ammo and store it for returning if player will be first zombie
+                    // Remove ammopacks and store it for returning if player will be first zombie
                     AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - ItemsGetCost(iD));
                     gClientData[clientIndex][Client_LastBoughtAmount] += ItemsGetCost(iD);
                     

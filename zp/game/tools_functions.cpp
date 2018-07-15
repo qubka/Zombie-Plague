@@ -58,7 +58,7 @@ public Action ToolsHook(int clientIndex, const char[] commandMsg, int iArguments
             // Switch on/off flashlight
             ToolsSetClientFlashLight(clientIndex, true);
             
-            // Emit sound
+            // Emit flashlight sound
             SoundsInputEmitToClient(clientIndex, SNDCHAN_VOICE, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, "FLASH_LIGHT_SOUNDS");
         }
     }

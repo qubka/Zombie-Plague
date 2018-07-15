@@ -32,7 +32,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin Flare =
+public Plugin myinfo =
 {
     name            = "[ZP] ExtraItem: Flare",
     author          = "qubka (Nikita Ushakov)",     

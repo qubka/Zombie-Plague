@@ -58,6 +58,8 @@ enum WeaponSDKClassType
 Handle hSDKCallRemoveAllItems;
 Handle hSDKCallWeaponSwitch;
 Handle hSDKCallCSWeaponDrop;
+Handle hSDKCallGetMaxClip1;
+Handle hSDKCallGetReserveAmmoMax;
 
 #if defined USE_DHOOKS
  /**
@@ -70,7 +72,7 @@ Handle hDHookGetReserveAmmoMax;
  * Variables to store dynamic DHook offsets.
  **/
 int DHook_GetMaxClip1;
-int DHook_GetMaxReverse;
+int DHook_GetReserveAmmoMax;
 #endif
 
 /**
@@ -82,7 +84,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     StartPrepSDKCall(SDKCall_Player);
     PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Weapon_RemoveAllItems");
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallRemoveAllItems = EndPrepSDKCall()))
     {
         // Log failure
@@ -95,7 +97,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallWeaponSwitch = EndPrepSDKCall()))
     {
         // Log failure
@@ -111,12 +113,38 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
     PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallCSWeaponDrop = EndPrepSDKCall()))
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::CSWeaponDrop\". Update \"SourceMod\"");
     }
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Entity);
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Weapon_GetMaxClip1");
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
+    
+    // Validate call
+    if(!(hSDKCallGetMaxClip1 = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+    }
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Entity);
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Weapon_GetReserveAmmoMax");
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
+    
+    // Validate call
+    if(!(hSDKCallGetReserveAmmoMax = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+    }
+    
+    /*_________________________________________________________________________________________________________________________________________*/
 
     // Load offsets here
     fnInitSendPropOffset(g_iOffset_EntityEffects, "CBaseEntity", "m_fEffects");
@@ -148,19 +176,22 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     fnInitSendPropOffset(g_iOffset_WeaponAmmoType, "CBaseCombatWeapon", "m_iPrimaryAmmoType");
     fnInitSendPropOffset(g_iOffset_WeaponClip1, "CBaseCombatWeapon", "m_iClip1");
     ///fnInitSendPropOffset(g_iOffset_WeaponClip2, "CBaseCombatWeapon", "m_iClip2");
-    fnInitSendPropOffset(g_iOffset_WeaponReserve, "CBaseCombatWeapon", "m_iPrimaryReserveAmmoCount");
+    fnInitSendPropOffset(g_iOffset_WeaponReserve1, "CBaseCombatWeapon", "m_iPrimaryReserveAmmoCount");
+    fnInitSendPropOffset(g_iOffset_WeaponReserve2, "CBaseCombatWeapon", "m_iSecondaryReserveAmmoCount");
     fnInitSendPropOffset(g_iOffset_GrenadeThrower, "CBaseGrenade", "m_hThrower");
+
+    /*_________________________________________________________________________________________________________________________________________*/
     
     #if defined USE_DHOOKS
     // Load offsets
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetMaxClip1, "Weapon_GetMaxClip1");
-    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetMaxReverse, "Weapon_GetMaxReverse");
+    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetReserveAmmoMax, "Weapon_GetReserveAmmoMax");
 
     /// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
     hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
     
     /// CBaseCombatWeapon::GetReserveAmmoMax(AmmoPosition_t)
-    hDHookGetReserveAmmoMax = DHookCreate(DHook_GetMaxReverse, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetReverseMax);
+    hDHookGetReserveAmmoMax = DHookCreate(DHook_GetReserveAmmoMax, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetReverseMax);
     DHookAddParam(hDHookGetReserveAmmoMax, HookParamType_Unknown);
     #endif
 }
@@ -212,6 +243,16 @@ void WeaponSDKClientInit(int clientIndex)
     SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponSDKOnDeployPost);
     SDKHook(clientIndex, SDKHook_WeaponDrop , WeaponSDKOnDrop);
     SDKHook(clientIndex, SDKHook_PostThinkPost, WeaponSDKOnAnimationFix);
+}
+
+/**
+ * Hook commands specific to buy ammunition. Called when commands are created.
+ **/
+void WeaponSDKOnCommandsCreate(/*void*/)
+{
+    // Hook commands
+    AddCommandListener(WeaponSDKOnAmmunition, "buyammo1");
+    AddCommandListener(WeaponSDKOnAmmunition, "buyammo2");
 }
 
 /**
@@ -347,7 +388,7 @@ public void WeaponSDKOnFakeSpawnPost(int referenceIndex)
             int iAmmo = WeaponsGetAmmo(iD);
             if(iAmmo)
             {/// Set ammo here, because of creating dhook on the next frame after spawn
-                SetEntData(weaponIndex, g_iOffset_WeaponReserve, iAmmo, _, true); 
+                SetEntData(weaponIndex, g_iOffset_WeaponReserve1, iAmmo, _, true); 
                 DHookEntity(hDHookGetReserveAmmoMax, false, weaponIndex);
             }
         }
@@ -998,7 +1039,7 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
                 return;
             }
 
-            // Weapons without any type of ammo will not use smoke effects
+            // If weapon without any type of ammo, then stop
             if(GetEntData(weaponIndex, g_iOffset_WeaponAmmoType) == -1)
             {
                 return;
@@ -1045,10 +1086,10 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
     if(!WeaponsValidateKnife(weaponIndex) && !WeaponsValidateTaser(weaponIndex)) 
     {
         // Validate current ammunition mode
-        switch(gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_SURVIVOR_INF_AMMO].IntValue : gCvarList[CVAR_HUMAN_INF_AMMO].IntValue)
+        switch(gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_SURVIVOR_INF_AMMUNITION].IntValue : gCvarList[CVAR_HUMAN_INF_AMMUNITION].IntValue)
         {
             case 0 : return;
-            case 1 : { SetEntData(weaponIndex, g_iOffset_WeaponReserve, 200, _, true); }
+            case 1 : { SetEntData(weaponIndex, g_iOffset_WeaponReserve1, GetEntData(weaponIndex, g_iOffset_WeaponReserve2), _, true); }
             case 2 : { SetEntData(weaponIndex, g_iOffset_WeaponClip1, GetEntData(weaponIndex, g_iOffset_WeaponClip1) + 1, _, true); } 
         }
     }
@@ -1110,7 +1151,7 @@ void WeaponSDKOnHostage(int clientIndex)
  **/
 public void WeaponSDKOnFakeHostage(int userID) 
 {
-// Gets the client index from the user ID
+    // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
     // Validate client
@@ -1135,6 +1176,73 @@ public void WeaponSDKOnFakeHostage(int userID)
             WeaponHDRSetPlayerViewModel(clientIndex, 1, EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]));
         }
     }
+}
+
+/**
+ * Callback for command listener to buy ammunition.
+ *
+ * @param entityIndex       The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action WeaponSDKOnAmmunition(int clientIndex, const char[] commandMsg, int iArguments)
+{
+    // Validate client
+    if(IsPlayerExist(clientIndex))
+    {
+        // Validate current ammunition mode
+        switch(gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_SURVIVOR_INF_AMMUNITION].IntValue : gCvarList[CVAR_HUMAN_INF_AMMUNITION].IntValue)
+        {
+            case 0 : { /* empty statement */ }
+            default: return Plugin_Continue;
+        }
+
+        // Validate ammunition cost
+        int iCost = gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_SURVIVOR_PRICE_AMMUNITION].IntValue : gCvarList[CVAR_HUMAN_PRICE_AMMUNITION].IntValue;
+        if(!iCost || gClientData[clientIndex][Client_AmmoPacks] < iCost)
+        {
+            return Plugin_Continue;
+        }
+
+        // Gets the active weapon index from the client
+        int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+
+        // Validate weapon
+        if(IsValidEdict(weaponIndex))
+        {
+            // If weapon without any type of ammo, then stop
+            if(GetEntData(weaponIndex, g_iOffset_WeaponAmmoType) == -1)
+            {
+                return Plugin_Continue;
+            }
+    
+            // Gets current/max reverse ammo
+            int iAmmo = GetEntData(weaponIndex, g_iOffset_WeaponReserve1);
+            int iMaxAmmo = SDKCall(hSDKCallGetReserveAmmoMax, weaponIndex);
+            
+            // Reset ammomax for standart weapons
+            if(!iMaxAmmo) iMaxAmmo = GetEntData(weaponIndex, g_iOffset_WeaponReserve2); /// Bug fix for standart weapons
+            
+            // Validate amount
+            if(iAmmo < iMaxAmmo)
+            {
+                // Generate amount
+                iAmmo += SDKCall(hSDKCallGetMaxClip1, weaponIndex);
+
+                // Gives ammo of a certain type to a weapon
+                SetEntData(weaponIndex, g_iOffset_WeaponReserve1, (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo, _, true);
+
+                // Remove ammopacks
+                AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - iCost);
+
+                // Emit ammunition sound
+                SoundsInputEmitToClient(clientIndex, SNDCHAN_VOICE, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, "AMMUNITION_BUY_SOUNDS");
+            }
+        }
+    }
+
+    // Allow commands
+    return Plugin_Continue;
 }
 
 #if defined USE_DHOOKS
@@ -1166,7 +1274,7 @@ public MRESReturn WeaponDHookOnGetMaxClip1(int weaponIndex, Handle hReturn)
 
 /**
  * DHook: Sets a weapon's reserved ammunition when its spawned, picked, dropped or reloaded. 
- * int CBaseCombatWeapon::GetMaxReverse(void *)
+ * int CBaseCombatWeapon::GetReserveAmmoMax(AmmoPosition_t)
  *
  * @param weaponIndex       The weapon index.
  * @param hReturn           Handle to return structure.

@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin GameModeNormal =
+public Plugin myinfo =
 {
     name            = "[ZP] Game Mode: Normal",
     author          = "qubka (Nikita Ushakov)",

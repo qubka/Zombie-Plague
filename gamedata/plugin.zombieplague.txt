@@ -44,7 +44,6 @@
                 "mac"        "386"
             }
             
-            // DHOOK SUPPORT
             // Offsets from the engine ( https://forums.alliedmods.net/showthread.php?t=191171 )
             // You can update them only by yourself using tutorial in the link
             "Weapon_GetMaxClip1"
@@ -53,7 +52,7 @@
                 "linux"      "353"
                 "mac"        "353"
             }
-            "Weapon_GetMaxReverse"
+            "Weapon_GetReserveAmmoMax"
             {
                 "windows"    "351"
                 "linux"      "357"

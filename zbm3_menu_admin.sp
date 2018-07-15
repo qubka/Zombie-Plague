@@ -30,7 +30,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin AdministatorMenu =
+public Plugin myinfo =
 {
     name            = "[ZP] Menu: Administator",
     author          = "qubka (Nikita Ushakov)",     

@@ -93,7 +93,7 @@ void WeaponHDRInit(/*void*/)
     StartPrepSDKCall(SDKCall_Entity);
     PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Entity_UpdateTransmitState");
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallEntityUpdateTransmitState = EndPrepSDKCall()))
     {
         // Log failure
@@ -108,7 +108,7 @@ void WeaponHDRInit(/*void*/)
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallAnimatingGetSequenceActivity = EndPrepSDKCall()))
     {
         // Log failure

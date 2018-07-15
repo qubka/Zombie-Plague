@@ -103,7 +103,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin Zombie_Plague =
+public Plugin myinfo =
 {
     name            = PLUGIN_NAME,
     author          = PLUGIN_AUTHOR,

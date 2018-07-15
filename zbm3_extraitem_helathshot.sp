@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin HealthShot =
+public Plugin myinfo =
 {
     name            = "[ZP] ExtraItem: Health Shot",
     author          = "qubka (Nikita Ushakov)",     

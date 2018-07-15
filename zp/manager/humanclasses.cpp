@@ -221,14 +221,30 @@ public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
         return -1;
     }
 
-    // Initialize char
+    // Initialize chars
     char sHumanBuffer[PLATFORM_MAX_PATH];
+    char sHumanName[SMALL_LINE_LENGTH];
 
+    // General
+    GetNativeString(1, sHumanBuffer, sizeof(sHumanBuffer));   
+
+    // i = human class number
+    for(int i = 0; i < iCount; i++)
+    {
+        // Gets the name of a human class at a given index
+        HumanGetName(i, sHumanName, sizeof(sHumanName));
+    
+        // If names match, then stop
+        if(!strcmp(sHumanBuffer, sHumanName, false))
+        {
+            return -1;
+        }
+    }
+    
     // Initialize array block
     ArrayList arrayHumanClass = CreateArray(HumanClassMax);
     
     // Push native data into array
-    GetNativeString(1, sHumanBuffer, sizeof(sHumanBuffer));   
     arrayHumanClass.PushString(sHumanBuffer); // Index: 0
     GetNativeString(2, sHumanBuffer, sizeof(sHumanBuffer));
     arrayHumanClass.PushString(sHumanBuffer); // Index: 1

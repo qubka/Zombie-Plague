@@ -401,7 +401,7 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, int clientInde
                 // If weapon has a cost
                 if(WeaponsGetCost(iD))
                 {
-                    // Remove ammo and store it for returning if player will be first zombie
+                    // Remove ammopacks and store it for returning if player will be first zombie
                     AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - WeaponsGetCost(iD));
                     gClientData[clientIndex][Client_LastBoughtAmount] += WeaponsGetCost(iD);
                 }

@@ -32,7 +32,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin ZombieClassNormalM10 =
+public Plugin myinfo =
 {
     name            = "[ZP] Zombie Class: NormalM10",
     author          = "qubka (Nikita Ushakov)",

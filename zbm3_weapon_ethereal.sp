@@ -32,7 +32,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin WeaponM4A1Ethereal =
+public Plugin myinfo =
 {
     name            = "[ZP] Weapon: Ethereal",
     author          = "qubka (Nikita Ushakov)",

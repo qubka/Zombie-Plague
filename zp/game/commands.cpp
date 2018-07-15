@@ -31,10 +31,10 @@
 void CommandsInit(/*void*/)
 {
     // Hook commands
-    AddCommandListener(CommandsHook, "jointeam");
-    AddCommandListener(CommandsHook, "kill");
-    AddCommandListener(CommandsHook, "explode");
-    AddCommandListener(CommandsHook, "killvector");
+    AddCommandListener(CommandsOnHook, "jointeam");
+    AddCommandListener(CommandsOnHook, "kill");
+    AddCommandListener(CommandsOnHook, "explode");
+    AddCommandListener(CommandsOnHook, "killvector");
     
     // Hook messages
     HookUserMessage(GetUserMessageId("TextMsg"), EventMessageHook, true);
@@ -67,7 +67,7 @@ void CommandsInit(/*void*/)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action CommandsHook(int clientIndex, const char[] commandMsg, int iArguments)
+public Action CommandsOnHook(int clientIndex, const char[] commandMsg, int iArguments)
 {
     // Validate client
     if(IsPlayerExist(clientIndex, false))

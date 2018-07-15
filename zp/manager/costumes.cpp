@@ -101,7 +101,8 @@ public Action CostumesCommandCatched(int clientIndex, int iArguments)
 void CostumesInit(/*void*/)
 {
     // Starts the preparation of an SDK call
-    /*StartPrepSDKCall(SDKCall_Entity);
+    /*
+    StartPrepSDKCall(SDKCall_Entity);
     PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Signature, "Animating_LookupAttachment");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
@@ -111,10 +112,11 @@ void CostumesInit(/*void*/)
     //  Validate call
     if(!(hSDKCallLookupAttachment = EndPrepSDKCall()))
     {
-    // Log failure
-    LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update \"SourceMod\"");
-    }*/
-
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update \"SourceMod\"");
+    }
+    */
+    
     #if defined USE_DHOOKS
     // Load offsets
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_SDKTools], DHook_SetEntityModel, "SetEntityModel");
@@ -160,7 +162,7 @@ void CostumesLoad(/*void*/)
     // Unexpected error, stop plugin
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sCostumePath);
+        ///LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sCostumePath);
         return;
     }
 
@@ -168,7 +170,8 @@ void CostumesLoad(/*void*/)
     int iSize = arrayCostumes.Length;
     if(!iSize)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sCostumePath);
+        ///LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sCostumePath);
+        return;
     }
 
     // Now copy data to array structure
@@ -216,18 +219,7 @@ void CostumesCacheData(/*void*/)
         // Push data into array
         kvCostumes.GetString("model", sCostumesPath, sizeof(sCostumesPath), ""); 
         arrayCostume.PushString(sCostumesPath);          // Index: 1
-        if(!ModelsPlayerPrecache(sCostumesPath))
-        {
-            // Log custome error info
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Invalid costume model path. File not found: \"%s\"", sCostumesPath);
-
-            // Remove download from array
-            RemoveFromArray(arrayCostumes, i);
-
-            // Backtrack one index, because we deleted it out from under the loop
-            i--;
-            continue;
-        }
+        ModelsPlayerPrecache(sCostumesPath);
         arrayCostume.Push(kvCostumes.GetNum("body", 0)); // Index: 2
         arrayCostume.Push(kvCostumes.GetNum("skin", 0)); // Index: 3
         kvCostumes.GetString("attachment", sCostumesPath, sizeof(sCostumesPath), "facemask");  
@@ -856,6 +848,9 @@ public void CostumesCreateEntity(int clientIndex)
             
             // Gets costume attachment
             CostumesGetAttach(gClientData[clientIndex][Client_Costume], sModel, sizeof(sModel)); 
+            
+            // Validate attachment
+            //if(SDKCall(hSDKCallLookupAttachment, clientIndex, sModel) !=  -1)
             
             // Sets attachment to the client
             SetVariantString(sModel);

@@ -32,7 +32,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin WeaponAWPBazooka =
+public Plugin myinfo =
 {
     name            = "[ZP] Weapon: Bazooka",
     author          = "qubka (Nikita Ushakov)",

@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin GameModeSwarm =
+public Plugin myinfo =
 {
     name            = "[ZP] Game Mode: Swarm",
     author          = "qubka (Nikita Ushakov)",

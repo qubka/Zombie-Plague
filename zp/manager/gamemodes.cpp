@@ -444,14 +444,30 @@ public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
         return -1;
     }
 
-    // Initialize char
+    // Initialize chars
     char sModeBuffer[SMALL_LINE_LENGTH];
+    char sModeName[SMALL_LINE_LENGTH];
 
+    // General
+    GetNativeString(1, sModeBuffer,  sizeof(sModeBuffer)); 
+    
+    // i = mode number
+    for(int i = 0; i < iCount; i++)
+    {
+        // Gets the name of a game mode at a given index
+        ModesGetName(i, sModeName, sizeof(sModeName));
+    
+        // If names match, then stop
+        if(!strcmp(sModeBuffer, sModeName, false))
+        {
+            return -1;
+        }
+    }
+    
     // Initialize array block
     ArrayList arrayGameMode = CreateArray(GameModesMax);
     
     // Push native data into array
-    GetNativeString(1, sModeBuffer,  sizeof(sModeBuffer)); 
     arrayGameMode.PushString(sModeBuffer);    // Index: 0 
     GetNativeString(2, sModeBuffer,  sizeof(sModeBuffer));  
     arrayGameMode.PushString(sModeBuffer);    // Index: 1

@@ -152,7 +152,7 @@ void LevelSystemOnSetLvl(int clientIndex, int nLevel)
     }
     else
     {
-        // Emit sound
+        // Emit levelup sound
         if(IsPlayerExist(clientIndex)) SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, "LEVEL_UP_SOUNDS");
     }
 }

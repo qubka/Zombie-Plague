@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin InfectBomb =
+public Plugin myinfo =
 {
     name            = "[ZP] ExtraItem: InfectBomb",
     author          = "qubka (Nikita Ushakov)",     

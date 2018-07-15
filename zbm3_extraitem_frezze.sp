@@ -32,7 +32,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin Freeze =
+public Plugin myinfo =
 {
     name            = "[ZP] ExtraItem: Freeze",
     author          = "qubka (Nikita Ushakov)",     

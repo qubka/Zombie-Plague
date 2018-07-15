@@ -32,7 +32,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin HeGrenade =
+public Plugin myinfo =
 {
     name            = "[ZP] ExtraItem: Hegrenade",
     author          = "qubka (Nikita Ushakov)",     

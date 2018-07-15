@@ -90,7 +90,8 @@ int g_iOffset_NewSequenceParity;
 int g_iOffset_LastShotTime;
 int g_iOffset_WeaponAmmoType;
 int g_iOffset_WeaponClip1;
-int g_iOffset_WeaponReserve;
+int g_iOffset_WeaponReserve1;
+int g_iOffset_WeaponReserve2;
 int g_iOffset_WeaponAttachment;
 int g_iOffset_GrenadeThrower;
 /**

@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin HumanClassClassic =
+public Plugin myinfo =
 {
     name            = "[ZP] Human Class: SWAT",
     author          = "qubka (Nikita Ushakov)",

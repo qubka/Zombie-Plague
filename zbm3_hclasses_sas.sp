@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin HumanClassSAS =
+public Plugin myinfo =
 {
     name            = "[ZP] Human Class: SAS",
     author          = "qubka (Nikita Ushakov)",

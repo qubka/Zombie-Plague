@@ -82,12 +82,14 @@ enum CvarsList
     ConVar:CVAR_JUMPBOOST_MAX,
     ConVar:CVAR_HUMAN_ARMOR_PROTECT,
     ConVar:CVAR_HUMAN_LAST_INFECTION,
-    ConVar:CVAR_HUMAN_INF_AMMO,
+    ConVar:CVAR_HUMAN_INF_AMMUNITION,
+    ConVar:CVAR_HUMAN_PRICE_AMMUNITION,
     ConVar:CVAR_HUMAN_RANDOM_CLASS,
     ConVar:CVAR_SURVIVOR_SPEED,
     ConVar:CVAR_SURVIVOR_GRAVITY,
     ConVar:CVAR_SURVIVOR_HEALTH,
-    ConVar:CVAR_SURVIVOR_INF_AMMO,
+    ConVar:CVAR_SURVIVOR_INF_AMMUNITION,
+    ConVar:CVAR_SURVIVOR_PRICE_AMMUNITION,
     ConVar:CVAR_SURVIVOR_PLAYER_MODEL,
     ConVar:CVAR_ZOMBIE_FISRT_HEALTH,
     ConVar:CVAR_ZOMBIE_NIGHT_VISION,
@@ -356,7 +358,8 @@ void CvarsCreate(/*void*/)
     // =========================== //
     gCvarList[CVAR_HUMAN_ARMOR_PROTECT]         = CreateConVar("zp_human_armor_protect",            "1",                                                               "Armor needs to be reduced completely in order to get infected ? [0-no // 1-yes]"); 
     gCvarList[CVAR_HUMAN_LAST_INFECTION]        = CreateConVar("zp_human_last_infection",           "1",                                                               "Allow last human to be infected [0-no // 1-yes]"); 
-    gCvarList[CVAR_HUMAN_INF_AMMO]              = CreateConVar("zp_human_unlimited_ammo",           "1",                                                               "Give unlimited amount of ammo [0-disabled // 1-BP ammo // 2-clip ammo]");
+    gCvarList[CVAR_HUMAN_INF_AMMUNITION]        = CreateConVar("zp_human_inf_ammunition",           "1",                                                               "Give unlimited amount of ammunition for humans [0-disabled // 1-BP ammunition // 2-clip ammunition]");
+    gCvarList[CVAR_HUMAN_PRICE_AMMUNITION]      = CreateConVar("zp_human_price_ammunition",         "1",                                                               "Clip price of the ammunition for humans, if unlimited amount is off [0-disabled]");
     gCvarList[CVAR_HUMAN_RANDOM_CLASS]          = CreateConVar("zp_human_random_class",             "0",                                                               "Randomize human class for the Non-VIP players [0-no // 1-yes - don't forget to block access for menus in the 'menus.ini']");  
     
     // =========================== //
@@ -365,7 +368,8 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SURVIVOR_SPEED]              = CreateConVar("zp_survivor_speed",                 "1.3",                                                             "Speed"); 
     gCvarList[CVAR_SURVIVOR_GRAVITY]            = CreateConVar("zp_survivor_gravity",               "0.8",                                                             "Gravity"); 
     gCvarList[CVAR_SURVIVOR_HEALTH]             = CreateConVar("zp_survivor_health",                "200",                                                             "Health [player count*health ratio]"); 
-    gCvarList[CVAR_SURVIVOR_INF_AMMO]           = CreateConVar("zp_survivor_unlimited_ammo",        "1",                                                               "Give unlimited amount of ammo for survivors [0-disabled // 1-BP ammo // 2-clip ammo]");
+    gCvarList[CVAR_SURVIVOR_INF_AMMUNITION]     = CreateConVar("zp_survivor_inf_ammunition",        "1",                                                               "Give unlimited amount of ammunition for survivors [0-disabled // 1-BP ammunition // 2-clip ammunition]");
+    gCvarList[CVAR_SURVIVOR_PRICE_AMMUNITION]   = CreateConVar("zp_survivor_price_ammunition",      "1",                                                               "Clip price of the ammunition for survivors, if unlimited amount is off [0-disabled]");
     gCvarList[CVAR_SURVIVOR_PLAYER_MODEL]       = CreateConVar("zp_survivor_model",                 "models/player/custom_player/legacy/tm_phoenix_heavy.mdl",         "Player model. This model files will be automatically precache, just add model's textures files into downloads.ini");
 
     // =========================== //

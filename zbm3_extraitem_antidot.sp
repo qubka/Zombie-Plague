@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin AntiDot =
+public Plugin myinfo =
 {
     name            = "[ZP] ExtraItem: Antidot",
     author          = "qubka (Nikita Ushakov)",     

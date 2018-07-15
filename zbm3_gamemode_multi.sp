@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin GameModeMulti =
+public Plugin myinfo =
 {
     name            = "[ZP] Game Mode: Multi-Infection",
     author          = "qubka (Nikita Ushakov)",

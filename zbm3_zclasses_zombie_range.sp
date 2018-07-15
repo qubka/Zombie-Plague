@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin ZombieClassRange =
+public Plugin myinfo =
 {
     name            = "[ZP] Zombie Class: Range",
     author          = "qubka (Nikita Ushakov)",

@@ -80,7 +80,7 @@ void DownloadsLoad(/*void*/)
     for(int i = 0; i < iDownloads; i++)
     {
         // Gets download path
-        arrayDownloads.GetString(i, sDownloadsPath, sizeof(sDownloadsPath));
+        sDownloadsPath[0] = '\0'; arrayDownloads.GetString(i, sDownloadsPath, sizeof(sDownloadsPath));
 
         // If file exist
         if(FileExists(sDownloadsPath) || FindCharInString(sDownloadsPath, '@', true) != -1) //! Fix for particles

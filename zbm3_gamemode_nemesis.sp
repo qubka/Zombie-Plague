@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin GameModeNemesis =
+public Plugin myinfo =
 {
     name            = "[ZP] Game Mode: Nemesis",
     author          = "qubka (Nikita Ushakov)",

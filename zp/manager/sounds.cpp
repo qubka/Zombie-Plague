@@ -105,7 +105,7 @@ void SoundsLoad(/*void*/)
     for(int i = 0; i < iSounds; i++)
     {
         // Gets array line
-        SoundsGetLine(i, sSoundsPath, sizeof(sSoundsPath));
+        sSoundsPath[0] = '\0'; SoundsGetLine(i, sSoundsPath, sizeof(sSoundsPath));
 
         // Parses a parameter string in key="value" format and store the result in a ParamParseResult array
         if(ParamParseString(SoundBuffer, sSoundsPath, sizeof(sSoundsPath), i) == PARAM_ERROR_NO)

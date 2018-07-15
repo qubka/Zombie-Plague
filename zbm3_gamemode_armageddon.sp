@@ -31,7 +31,7 @@
 /**
  * Record plugin info.
  **/
-public Plugin GameModeArmageddon =
+public Plugin myinfo =
 {
     name            = "[ZP] Game Mode: Armageddon",
     author          = "qubka (Nikita Ushakov)",

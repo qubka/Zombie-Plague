@@ -235,14 +235,30 @@ public int API_RegisterZombieClass(Handle isPlugin, int iNumParams)
         return -1;
     }
 
-    // Initialize char
+    // Initialize chars
     char sZombieBuffer[PLATFORM_MAX_PATH];
+    char sZombieName[SMALL_LINE_LENGTH];
 
+    // General
+    GetNativeString(1, sZombieBuffer, sizeof(sZombieBuffer)); 
+    
+    // i = zombie class number
+    for(int i = 0; i < iCount; i++)
+    {
+        // Gets the name of a zombie class at a given index
+        ZombieGetName(i, sZombieName, sizeof(sZombieName));
+    
+        // If names match, then stop
+        if(!strcmp(sZombieBuffer, sZombieName, false))
+        {
+            return -1;
+        }
+    }
+    
     // Initialize array block
     ArrayList arrayZombieClass = CreateArray(ZombieClassMax);
     
     // Push native data into array
-    GetNativeString(1, sZombieBuffer, sizeof(sZombieBuffer)); 
     arrayZombieClass.PushString(sZombieBuffer); // Index: 0
     GetNativeString(2, sZombieBuffer, sizeof(sZombieBuffer));   
     arrayZombieClass.PushString(sZombieBuffer); // Index: 1
