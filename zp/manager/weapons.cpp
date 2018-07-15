@@ -1664,7 +1664,7 @@ stock int WeaponsGive(int clientIndex, char[] sName)
                 WeaponsSetCustomID(weaponIndex, iD);
 
                 // Sets the max ammo only for standart weapons
-                if(!WeaponsGetAmmo(iD)) SetEntData(weaponIndex, g_iOffset_WeaponReserve2, GetEntData(weaponIndex, g_iOffset_WeaponReserve1), _, true); /// GetReserveAmmoMax not work for standart weapons
+                SetEntData(weaponIndex, g_iOffset_WeaponReserve2, GetEntData(weaponIndex, g_iOffset_WeaponReserve1), _, true); /// GetReserveAmmoMax not work for standart weapons
                 
                 // Call forward
                 API_OnWeaponCreated(weaponIndex, iD);
