@@ -247,7 +247,7 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
         // If names match, then stop
         if(!strcmp(sItemBuffer, sItemName, false))
         {
-            return -1;
+            return i;
         }
     }
     

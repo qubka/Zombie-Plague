@@ -251,7 +251,7 @@ public int API_RegisterZombieClass(Handle isPlugin, int iNumParams)
         // If names match, then stop
         if(!strcmp(sZombieBuffer, sZombieName, false))
         {
-            return -1;
+            return i;
         }
     }
     

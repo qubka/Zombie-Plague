@@ -807,11 +807,11 @@ public int API_GetWeaponModelView(Handle isPlugin, int iNumParams)
     }
     
     // Initialize model char
-    static char sEntity[PLATFORM_MAX_PATH];
-    WeaponsGetModelView(iD, sEntity, sizeof(sEntity));
+    static char sModel[PLATFORM_MAX_PATH];
+    WeaponsGetModelView(iD, sModel, sizeof(sModel));
 
     // Return on success
-    return SetNativeString(2, sEntity, maxLen);
+    return SetNativeString(2, sModel, maxLen);
 }
 
 /**
@@ -863,11 +863,11 @@ public int API_GetWeaponModelWorld(Handle isPlugin, int iNumParams)
     }
     
     // Initialize model char
-    static char sEntity[PLATFORM_MAX_PATH];
-    WeaponsGetModelWorld(iD, sEntity, sizeof(sEntity));
+    static char sModel[PLATFORM_MAX_PATH];
+    WeaponsGetModelWorld(iD, sModel, sizeof(sModel));
 
     // Return on success
-    return SetNativeString(2, sEntity, maxLen);
+    return SetNativeString(2, sModel, maxLen);
 }
 
 /**
@@ -1198,7 +1198,7 @@ stock void WeaponsGetModelView(int iD, char[] sModel, int iMaxLen)
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
     
-     // Gets weapon view model
+    // Gets weapon view model
     arrayWeapon.GetString(WEAPONS_DATA_MODEL_VIEW, sModel, iMaxLen);
 }
 
@@ -1624,7 +1624,7 @@ stock int WeaponsGive(int clientIndex, char[] sName)
     TrimString(sName);
 
     /*
-     * Currently the fastest approach is store an item's index into the global array,
+     * Currently the fastest approach is store an item's index into the m_iHammerID prop,
      * because the game call some hooks really frequently and loop for find id can cost more.
      */
     

@@ -460,7 +460,7 @@ public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
         // If names match, then stop
         if(!strcmp(sModeBuffer, sModeName, false))
         {
-            return -1;
+            return i;
         }
     }
     

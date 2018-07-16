@@ -237,7 +237,7 @@ public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
         // If names match, then stop
         if(!strcmp(sHumanBuffer, sHumanName, false))
         {
-            return -1;
+            return i;
         }
     }
     

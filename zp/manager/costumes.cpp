@@ -850,7 +850,7 @@ public void CostumesCreateEntity(int clientIndex)
             CostumesGetAttach(gClientData[clientIndex][Client_Costume], sModel, sizeof(sModel)); 
             
             // Validate attachment
-            //if(SDKCall(hSDKCallLookupAttachment, clientIndex, sModel) !=  -1)
+            //if(SDKCall(hSDKCallLookupAttachment, clientIndex, sModel) != -1)
             
             // Sets attachment to the client
             SetVariantString(sModel);
