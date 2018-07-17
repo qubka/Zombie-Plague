@@ -23,6 +23,7 @@
  **/
 
 #include <sourcemod>
+#include <sdktools>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -75,7 +76,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         LoadTranslations("zombieplague.phrases");
         
         // Create a commands
-        RegConsoleCmd("zadminmenu", Command_AdminMenu, "Open the administator menu with unique commands.");
+        RegConsoleCmd("zadminmenu", AdminCommandCatched, "Open the administator menu with unique commands.");
         
         /*
          * Creates a HUD synchronization object. This object is used to automatically assign and re-use channels for a set of messages.
@@ -94,15 +95,16 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * Handles the zadminmenu command. Open the administator menu with unique commands.
+ * Handles the <!zadminmenu> command. Open the administator menu with unique commands.
  * 
  * @param clientIndex        The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action Command_AdminMenu(int clientIndex, int iArguments)
+public Action AdminCommandCatched(int clientIndex, int iArguments)
 {
     // Open an admin menu
     MenuAdmin(clientIndex);
+    return Plugin_Handled;
 }
 
 /*

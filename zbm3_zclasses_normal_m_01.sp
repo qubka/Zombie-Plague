@@ -74,8 +74,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 // Initialize variables
 float vGasPostion[MAXPLAYERS+1][3];
@@ -125,8 +125,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
 }
 
 /**
@@ -149,7 +149,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM01)
     {
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombi_smoke.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
         
         // Create an effect
         int iSmoke = FakeCreateParticle(clientIndex, _, "explosion_smokegrenade_base_green", ZOMBIE_CLASS_DURATION);

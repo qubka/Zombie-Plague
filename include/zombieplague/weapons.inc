@@ -188,13 +188,12 @@ native float ZP_GetWeaponSpeed(int weaponID);
 native float ZP_GetWeaponReload(int weaponID);
 
 /**
- * @brief Gets the sound of a weapon at a given id.
+ * @brief Gets the sound key of the weapon.
  *
  * @param weaponID          The weapon ID.
- * @param model             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key index.
  **/
-native void ZP_GetWeaponSound(int weaponID, char[] sound, int maxlenght = 256);
+native int ZP_GetWeaponSoundID(int weaponID);
 
 /**
  * @brief Gets the class access of the weapon.

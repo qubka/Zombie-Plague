@@ -68,8 +68,8 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Item index
 int gItem; int gWeapon;
@@ -113,8 +113,8 @@ public void ZP_OnEngineExecute(/*void*/)
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("JUMP_GRENADE_SOUNDS");
 }
 
 /**
@@ -303,12 +303,12 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
             if(!strncmp(sSample[27], "hit", 3, false))
             {
                 // Emit a custom bounce sound
-                EmitSoundToAll(GetRandomInt(0, 1) ? "*/zbm3/jump_bounce-1.mp3" : "*/zbm3/jump_bounce-2.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, GetRandomInt(1, 2));
             }
             else if(!strncmp(sSample[29], "exp", 3, false))
             {
                 // Emit explosion sound
-                EmitSoundToAll("*/zbm3/jump_exp.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+               ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 3);
             }
 
             // Block sounds

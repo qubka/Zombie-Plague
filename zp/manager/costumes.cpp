@@ -93,6 +93,7 @@ public Action CostumesCommandCatched(int clientIndex, int iArguments)
 {
     // Open the costumes menu
     CostumesMenu(clientIndex);
+    return Plugin_Handled;
 }
 
 /**

@@ -43,6 +43,7 @@ enum
     GAMEMODES_DATA_NAME,
     GAMEMODES_DATA_DESCRIPTION,
     GAMEMODES_DATA_SOUND,
+    GAMEMODES_DATA_SOUND_ID,
     GAMEMODES_DATA_CHANCE,
     GAMEMODES_DATA_MINPLAYERS,
     GAMEMODES_DATA_RATIO,
@@ -61,6 +62,18 @@ void GameModesLoad(/*void*/)
     if(arrayGameModes == INVALID_HANDLE)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Gamemodes, "Game Mode Validation", "No game modes loaded");
+    }
+
+    // Initialize char
+    static char sBuffer[NORMAL_LINE_LENGTH];
+
+    // Precache of the game modes
+    int iSize = arrayGameModes.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Load sounds
+        ModesGetSound(i, sBuffer, sizeof(sBuffer));
+        ModesSetSoundID(i, SoundsKeyToIndex(sBuffer));
     }
     
     // Forward event to modules (FakeHook)
@@ -110,15 +123,16 @@ public Action GameModesStart(Handle hTimer)
                         {
                             // Show help information
                             TranslationPrintToChatAll("General round objective");
+                            TranslationPrintToChatAll("General ammunition reminder");
                             TranslationPrintHintTextAll("General buttons reminder");
                         }
 
                         // Emit round start sound
-                        SoundsInputEmitToAll("ROUND_START_SOUNDS");
+                        SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, gServerKey[Round_Start]);
                     }
             
                     // Validate counter
-                    if(SoundsInputEmitToAll("ROUND_COUNTER_SOUNDS", gServerData[Server_RoundCount]))
+                    if(SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, gServerKey[Round_Count], gServerData[Server_RoundCount]))
                     {
                         // If help messages enabled, then proceed
                         if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
@@ -187,8 +201,7 @@ void GameModesEventStart(int modeIndex = -1, int selectedIndex = 0)
     TranslationPrintHintTextAll(sBuffer);
 
     // Play game mode sounds
-    ModesGetSound(modeIndex, sBuffer, sizeof(sBuffer));
-    SoundsInputEmitToAll(sBuffer);
+    SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, ModesGetSoundID(modeIndex));
 
     // Random players should be zombie
     GameModesTurnIntoZombie(selectedIndex, nMaxZombies);
@@ -468,18 +481,19 @@ public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
     ArrayList arrayGameMode = CreateArray(GameModesMax);
     
     // Push native data into array
-    arrayGameMode.PushString(sModeBuffer);    // Index: 0 
+    arrayGameMode.PushString(sModeBuffer);  // Index: 0 
     GetNativeString(2, sModeBuffer,  sizeof(sModeBuffer));  
-    arrayGameMode.PushString(sModeBuffer);    // Index: 1
+    arrayGameMode.PushString(sModeBuffer);  // Index: 1
     GetNativeString(3, sModeBuffer, sizeof(sModeBuffer)); 
-    arrayGameMode.PushString(sModeBuffer);    // Index: 2
-    arrayGameMode.Push(GetNativeCell(4));     // Index: 3
-    arrayGameMode.Push(GetNativeCell(5));     // Index: 4
-    arrayGameMode.Push(GetNativeCell(6));     // Index: 5
-    arrayGameMode.Push(GetNativeCell(7));     // Index: 6
-    arrayGameMode.Push(GetNativeCell(8));     // Index: 7
-    arrayGameMode.Push(GetNativeCell(9));     // Index: 8
-    arrayGameMode.Push(GetNativeCell(10));    // Index: 9
+    arrayGameMode.PushString(sModeBuffer);  // Index: 2
+    arrayGameMode.Push(-1);                 // Index: 3
+    arrayGameMode.Push(GetNativeCell(4));   // Index: 4
+    arrayGameMode.Push(GetNativeCell(5));   // Index: 5
+    arrayGameMode.Push(GetNativeCell(6));   // Index: 6
+    arrayGameMode.Push(GetNativeCell(7));   // Index: 7
+    arrayGameMode.Push(GetNativeCell(8));   // Index: 8
+    arrayGameMode.Push(GetNativeCell(9));   // Index: 9
+    arrayGameMode.Push(GetNativeCell(10));  // Index: 10
 
     // Store this handle in the main array
     arrayGameModes.Push(arrayGameMode);
@@ -571,11 +585,11 @@ public int API_GetGameModeDesc(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the sound of a game mode at a given index.
+ * Gets the sound key of the game mode.
  *
- * native void ZP_GetGameModeSound(iD, sName, maxLen);
+ * native int ZP_GetGameModeSoundID(iD);
  **/
-public int API_GetGameModeSound(Handle isPlugin, int iNumParams)
+public int API_GetGameModeSoundID(Handle isPlugin, int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -592,23 +606,9 @@ public int API_GetGameModeSound(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sName[SMALL_LINE_LENGTH];
-    ModesGetSound(iD, sName, sizeof(sName));
-
-    // Return on success
-    return SetNativeString(2, sName, maxLen);
+    // Return value
+    return ModesGetSoundID(iD);
 }
 
 /**
@@ -840,16 +840,46 @@ stock void ModesGetDesc(int iD, char[] sDesc, int iMaxLen)
  * Gets the sound of a game mode at a given index.
  *
  * @param iD                The game mode index.
- * @param sSound            The string to return name in.
+ * @param sDesc             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ModesGetSound(int iD, char[] sSound, int iMaxLen)
+stock void ModesGetSound(int iD, char[] sDesc, int iMaxLen)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
     
     // Gets game mode sound
-    arrayGameMode.GetString(GAMEMODES_DATA_SOUND, sSound, iMaxLen);
+    arrayGameMode.GetString(GAMEMODES_DATA_SOUND, sDesc, iMaxLen);
+}
+
+/**
+ * Gets the sound key of the game mode.
+ *
+ * @param iD                The game mode index.
+ * @return                  The key index.
+ **/
+stock int ModesGetSoundID(int iD)
+{
+    // Gets array handle of game mode at given index
+    ArrayList arrayGameMode = arrayGameModes.Get(iD);
+    
+    // Gets game mode sound key
+    return arrayGameMode.Get(GAMEMODES_DATA_SOUND_ID);
+}
+
+/**
+ * Sets the sound key of the game mode.
+ *
+ * @param iD                The game mode index.
+ * @param iKey              The key index.
+ **/
+stock int ModesSetSoundID(int iD, int iKey)
+{
+    // Gets array handle of game mode at given index
+    ArrayList arrayGameMode = arrayGameModes.Get(iD);
+    
+    // Sets game mode sound key
+    arrayGameMode.Set(GAMEMODES_DATA_SOUND_ID, iKey);
 }
 
 /**

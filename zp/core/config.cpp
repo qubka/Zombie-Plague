@@ -851,7 +851,6 @@ public Action Command_ReloadCommand(int clientIndex, int iArguments)
         // Log action to game events
         LogEvent(true, LogType_Command, LOG_GAME_EVENTS, LogModule_Admin, "Admin Command", sLogMessage);
     }
-
     return Plugin_Handled;
 }
 
@@ -897,7 +896,6 @@ public Action Command_ReloadAllCommand(int clientIndex, int iArguments)
 
     // Log action to game events
     LogEvent(true, LogType_Command, LOG_GAME_EVENTS, LogModule_Admin, "Admin Command", "[%N] reloaded all config files", clientIndex);
-
     return Plugin_Handled;
 }
 

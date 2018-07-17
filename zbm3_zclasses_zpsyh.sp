@@ -81,8 +81,8 @@ int decalTrail; int decalHalo;
 // Initialize variables
 Handle Task_ZombieScream[MAXPLAYERS+1] = INVALID_HANDLE; 
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombiePsyh;
@@ -132,8 +132,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("PSYH_SKILL_SOUNDS");
 
     // Models
     decalTrail = PrecacheModel("materials/sprites/laserbeam.vmt");
@@ -226,7 +226,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         Task_ZombieScream[clientIndex] = CreateTimer(0.1, ClientOnScreaming, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
         // Emit sound
-        EmitSoundToAll("*/zbm3/siren_scream.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
         
         // Create an effect
         FakeCreateParticle(clientIndex, _, "hell_end", ZOMBIE_CLASS_DURATION);

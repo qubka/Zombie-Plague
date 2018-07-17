@@ -77,8 +77,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieNormalM09;
@@ -125,8 +125,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
 }
 
 /**
@@ -149,7 +149,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM09)
     {
         // Emit sound
-        EmitSoundToAll("*/zbm3/td_buff.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
 
         // Create an effect
         FakeCreateParticle(clientIndex, _, "tornado", ZOMBIE_CLASS_DURATION);
@@ -185,12 +185,8 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
                     // Validate lower health
                     if(GetClientHealth(i) < iHealth)
                     {
-                        // Gets zombie's healing sound
-                        static char sHealSound[SMALL_LINE_LENGTH];
-                        ZP_GetZombieClassSoundRegen(iD, sHealSound, sizeof(sHealSound));
-                
                         // Emit sound
-                        ZP_EmitSound(sHealSound, i);
+                        ZP_EmitSoundKeyID(i, ZP_GetZombieClassSoundRegenID(iD), SNDCHAN_VOICE);    
                         
                         // Create an effect
                         FakeCreateParticle(i, _, "heal_ss", ZOMBIE_CLASS_DURATION);

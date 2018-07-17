@@ -51,7 +51,10 @@ enum
     HUMANCLASSES_DATA_VIP,
     HUMANCLASSES_DATA_SOUNDDEATH,
     HUMANCLASSES_DATA_SOUNDHURT,
-    HUMANCLASSES_DATA_SOUNDINFECT
+    HUMANCLASSES_DATA_SOUNDINFECT,
+    HUMANCLASSES_DATA_SOUNDDEATH_ID,
+    HUMANCLASSES_DATA_SOUNDHURT_ID,
+    HUMANCLASSES_DATA_SOUNDINFECT_ID
 }
 
 /**
@@ -65,26 +68,38 @@ void HumanClassesLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Human Class Validation", "No human classes loaded");
     }
 
-    // Initialize model char
-    static char sModel[PLATFORM_MAX_PATH];
+    // Initialize char
+    static char sBuffer[PLATFORM_MAX_PATH];
 
     // Precache of the human classes
     int iSize = arrayHumanClasses.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Validate player model
-        HumanGetModel(i, sModel, sizeof(sModel));
-        if(!ModelsPlayerPrecache(sModel))
+        HumanGetModel(i, sBuffer, sizeof(sBuffer));
+        if(!ModelsPlayerPrecache(sBuffer))
         {
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sModel);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
         }
 
         // Validate arm model
-        HumanGetArmModel(i, sModel, sizeof(sModel));
-        if(!ModelsPlayerPrecache(sModel))
+        HumanGetArmModel(i, sBuffer, sizeof(sBuffer));
+        if(!ModelsPlayerPrecache(sBuffer))
         {
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sModel);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
         }
+
+        // Load death sounds
+        HumanGetSoundDeath(i, sBuffer, sizeof(sBuffer));
+        HumanSetSoundDeathID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load hurt sounds
+        HumanGetSoundHurt(i, sBuffer, sizeof(sBuffer));
+        HumanSetSoundHurtID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load infect sounds
+        HumanGetSoundInfect(i, sBuffer, sizeof(sBuffer));
+        HumanSetSoundInfectID(i, SoundsKeyToIndex(sBuffer));
     }
 }
 
@@ -107,6 +122,7 @@ public Action HumanCommandCatched(int clientIndex, int iArguments)
 {
     // Open the human classes menu
     HumanMenu(clientIndex);
+    return Plugin_Handled;
 }
 
 /*
@@ -262,7 +278,10 @@ public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
     arrayHumanClass.PushString(sHumanBuffer); // Index: 10
     GetNativeString(12, sHumanBuffer, sizeof(sHumanBuffer));
     arrayHumanClass.PushString(sHumanBuffer); // Index: 11
-    
+    arrayHumanClass.Push(-1);                 // Index: 12
+    arrayHumanClass.Push(-1);                 // Index: 13
+    arrayHumanClass.Push(-1);                 // Index: 14
+
     // Store this handle in the main array
     arrayHumanClasses.Push(arrayHumanClass);
 
@@ -502,11 +521,11 @@ public int API_IsHumanClassVIP(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the death sound of a human class at a given index.
+ * Gets the death sound key of the human class.
  *
- * native void ZP_GetHumanClassSoundDeath(iD, sSound, maxLen);
+ * native int ZP_GetHumanClassSoundDeathID(iD);
  **/
-public int API_GetHumanClassSoundDeath(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassSoundDeathID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -517,31 +536,17 @@ public int API_GetHumanClassSoundDeath(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    HumanGetSoundDeath(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return HumanGetSoundDeathID(iD);
 }
 
 /**
- * Gets the hurt sound of a human class at a given index.
+ * Gets the hurt sound key of the human class.
  *
- * native void ZP_GetHumanClassSoundHurt(iD, sSound, maxLen);
+ * native int ZP_GetHumanClassSoundHurtID(iD);
  **/
-public int API_GetHumanClassSoundHurt(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassSoundHurtID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -552,31 +557,17 @@ public int API_GetHumanClassSoundHurt(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    HumanGetSoundHurt(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return HumanGetSoundHurtID(iD);
 }
 
 /**
- * Gets the infect sound of a human class at a given index.
+ * Gets the infect sound key of the human class.
  *
- * native void ZP_GetHumanClassSoundInfect(iD, sSound, maxLen);
+ * native int ZP_GetHumanClassSoundInfectID(iD);
  **/
-public int API_GetHumanClassSoundInfect(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassSoundInfectID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -587,23 +578,9 @@ public int API_GetHumanClassSoundInfect(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
-
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    HumanGetSoundInfect(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+   
+    // Return value
+    return HumanGetSoundInfectID(iD);
 }
 
 /**
@@ -809,6 +786,36 @@ stock void HumanGetSoundDeath(int iD, char[] sSound, int iMaxLen)
 }
 
 /**
+ * Gets the death sound key of the human class. 
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int HumanGetSoundDeathID(int iD)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human class death sound key
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDDEATH_ID);
+}
+
+/**
+ * Sets the death sound key of the human class. 
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock void HumanSetSoundDeathID(int iD, int iKey)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Sets human class death sound key
+    arrayHumanClass.Set(HUMANCLASSES_DATA_SOUNDDEATH_ID, iKey);
+}
+
+/**
  * Gets the hurt sound of a human class at a given index.
  *
  * @param iD                The class index.
@@ -825,6 +832,36 @@ stock void HumanGetSoundHurt(int iD, char[] sSound, int iMaxLen)
 }
 
 /**
+ * Gets the hurt sound key of the human class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int HumanGetSoundHurtID(int iD)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human class hurt sound key
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDHURT_ID);
+}
+
+/**
+ * Sets the hurt sound key of the human class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock void HumanSetSoundHurtID(int iD, int iKey)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Sets human class hurt sound key
+    arrayHumanClass.Set(HUMANCLASSES_DATA_SOUNDHURT_ID, iKey);
+}
+
+/**
  * Gets the infect sound of a human class at a given index.
  *
  * @param iD                The class index.
@@ -838,6 +875,36 @@ stock void HumanGetSoundInfect(int iD, char[] sSound, int iMaxLen)
 
     // Gets human class infect sound
     arrayHumanClass.GetString(HUMANCLASSES_DATA_SOUNDINFECT, sSound, iMaxLen);
+}
+
+/**
+ * Gets the infect sound key of the human class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int HumanGetSoundInfectID(int iD)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human class infect sound key
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDINFECT_ID);
+}
+
+/**
+ * Sets the infect sound key of the human class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock void HumanSetSoundInfectID(int iD, int iKey)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Sets human class infect sound key
+    arrayHumanClass.Set(HUMANCLASSES_DATA_SOUNDINFECT_ID, iKey);
 }
 
 /*

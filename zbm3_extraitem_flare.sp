@@ -65,8 +65,8 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 // Item index
 int gItem; int gWeapon;
@@ -95,8 +95,8 @@ public void ZP_OnEngineExecute(/*void*/)
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
 }
 
 /**
@@ -164,7 +164,7 @@ public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
         SetEntProp(weaponIndex, Prop_Data, "m_nNextThinkTick", -1);
 
         // Emit sound
-        EmitSoundToAll("*/zbm3/flare.mp3", weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(weaponIndex, gSound, SNDCHAN_WEAPON);
 
         // Create an light_dynamic entity
         int lightIndex = CreateEntityByName("light_dynamic");

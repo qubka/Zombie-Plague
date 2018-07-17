@@ -49,6 +49,7 @@ public Action ZMarketCommandCatched(int clientIndex, int iArguments)
 {
     // Open the weapon menu
     ZMarketMenu(clientIndex);
+    return Plugin_Handled;
 }
 
 /**

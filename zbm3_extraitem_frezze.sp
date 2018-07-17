@@ -81,8 +81,8 @@ public Plugin myinfo =
 // Initialize variables
 Handle Task_ZombieFreezed[MAXPLAYERS+1] = INVALID_HANDLE; 
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 // Item index
 int gItem; int gWeapon;
@@ -126,8 +126,8 @@ public void ZP_OnEngineExecute(/*void*/)
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("FREEZE_GRENADE_SOUNDS");
 }
 
 /**
@@ -349,7 +349,7 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
                             AcceptEntityInput(iceIndex, "FireUser1");
                             
                             // Emit freeze sound
-                            EmitSoundToAll("*/zbm3/freeze.mp3", iceIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                            ZP_EmitSoundKeyID(iceIndex, gSound, SNDCHAN_STATIC, 1);
                         }
                     }
                 }
@@ -399,7 +399,7 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
         SetEntityMoveType(clientIndex, MOVETYPE_WALK);
         
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombi_wood_broken.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 2);
 
         // Create a breaked glass effect
         static char sModel[NORMAL_LINE_LENGTH];
@@ -493,12 +493,12 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
             if(!strncmp(sSample[31], "hit", 3, false))
             {
                 // Emit a custom bounce sound
-                EmitSoundToAll("*/zbm3/freeze_bounce-1.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 3);
             }
             else if(!strncmp(sSample[29], "emit", 4, false))
             {
                 // Emit explosion sound
-                EmitSoundToAll("*/zbm3/freeze_exp.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 4);
             }
 
             // Block sounds

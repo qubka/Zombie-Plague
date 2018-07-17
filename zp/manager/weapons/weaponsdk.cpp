@@ -766,7 +766,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
             ZombieGetClawModel(gClientData[clientIndex][Client_ZombieClass], sModel, sizeof(sModel));
             
             // Update model index
-            iModel = ZombieGetClawIndex(gClientData[clientIndex][Client_ZombieClass]);
+            iModel = ZombieGetClawID(gClientData[clientIndex][Client_ZombieClass]);
         }
         // Validate grenade
         else if(WeaponsValidateGrenade(weaponIndex))
@@ -775,7 +775,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
             ZombieGetGrenadeModel(gClientData[clientIndex][Client_ZombieClass], sModel, sizeof(sModel));
             
             // Update model index
-            iModel = ZombieGetGrenadeIndex(gClientData[clientIndex][Client_ZombieClass]);
+            iModel = ZombieGetGrenadeID(gClientData[clientIndex][Client_ZombieClass]);
         }
 
         // Resets if model wasn't found 
@@ -1104,24 +1104,14 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
  **/
 Action WeaponSDKOnShoot(int clientIndex, int weaponIndex) 
 { 
+    #pragma unused clientIndex
+    
     // Validate custom index
     int iD = WeaponsGetCustomID(weaponIndex);
     if(iD != INVALID_ENT_REFERENCE)    
     {
-        // Gets weapon's attack sound
-        static char sSound[PLATFORM_MAX_PATH];
-        WeaponsGetSound(iD, sSound, sizeof(sSound));
-
-        // If custom shoot sound exist, then apply it
-        if(strlen(sSound))
-        {
-            // Emit shoot sound
-            EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
-            EmitSoundToAll(sSound, clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
-    
-            // Block broadcast
-            return Plugin_Stop;
-        }
+        // Validate broadcast
+        return SoundsInputEmit(weaponIndex, SNDCHAN_WEAPON, WeaponsGetSoundID(iD)) ? Plugin_Stop : Plugin_Continue;
     }
     
     // Allow broadcast
@@ -1235,8 +1225,8 @@ public Action WeaponSDKOnAmmunition(int clientIndex, const char[] commandMsg, in
                 // Remove ammopacks
                 AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - iCost);
 
-                // Emit ammunition sound
-                SoundsInputEmitToClient(clientIndex, SNDCHAN_VOICE, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, "AMMUNITION_BUY_SOUNDS");
+                // Forward event to modules
+                SoundsOnClientAmmunition(clientIndex);
             }
         }
     }

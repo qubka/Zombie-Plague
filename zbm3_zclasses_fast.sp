@@ -71,8 +71,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 // Initialize zombie class index
 int gZombieFast;
@@ -119,8 +119,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("FAST_SKILL_SOUNDS");
 }
 
 /**
@@ -146,7 +146,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", ZOMBIE_CLASS_SKILL_SPEED);
         
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombie_madness1.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
         
         // Create an effect
         FakeCreateParticle(clientIndex, _, "viy_viy_viy", ZOMBIE_CLASS_DURATION);

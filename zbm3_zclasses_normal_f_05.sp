@@ -81,8 +81,8 @@ public Plugin myinfo =
 // Variables for precache resources
 int decalSmoke;
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 // Initialize zombie class index
 int gZombieNormalF05;
@@ -129,8 +129,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("WITCH_SKILL_SOUNDS");
 
     // Models
     decalSmoke = PrecacheModel("sprites/steam1.vmt");
@@ -166,10 +166,10 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 
         // Gets the client's speed
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
-
+        
         // Emit sound
-        EmitSoundToAll("*/zbm3/banshee_pulling_fire.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
-
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        
         // Create a bat entity
         int entityIndex = CreateEntityByName("hegrenade_projectile");
 
@@ -324,7 +324,7 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
                 }
 
                 // Emit sound
-                EmitSoundToAll("*/zbm3/banshee_laugh.mp3", targetIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(targetIndex, gSound, SNDCHAN_VOICE, 2);
             }
             else
             {
@@ -338,7 +338,7 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
                     FakeCreateParticle(infoIndex, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);
                     
                     // Emit sound
-                    EmitSoundToAll("*/zbm3/banshee_pulling_fail.mp3", infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                    ZP_EmitSoundKeyID(infoIndex, gSound, SNDCHAN_STATIC, 3);
                 }
         
                 // Create effect

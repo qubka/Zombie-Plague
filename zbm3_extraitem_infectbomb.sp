@@ -24,6 +24,7 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <sdkhooks>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -60,12 +61,13 @@ public Plugin myinfo =
 #define GRENADE_INFECT_SURVIVOR        false        // Can survivor infect [false-no // true-yes]
 #define GRENADE_INFECT_LAST            false        // Can last human infect [false-no // true-yes]
 #define GRENADE_INFECT_EXP_TIME        2.0          // Duration of the explosion effect in seconds
+#define GRENADE_INFECT_ATTACH          false        // If true, will be attached to the wall, false to bounce from wall
 /**
  * @endsection
  **/
  
-// ConVar for sound level and XRay vision
-ConVar hSoundLevel; ConVar hXRay; 
+// Variables for the key sound block and XRay vision
+int gSound; ConVar hXRay;
  
 // Item index
 int gItem; int gWeapon;
@@ -106,8 +108,10 @@ public void ZP_OnEngineExecute(/*void*/)
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
+    // Sounds
+    gSound = ZP_GetSoundKeyID("INFECT_GRENADE_SOUNDS");
+    
     // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
     hXRay = FindConVar("zp_zombie_xray_give");
 }
 
@@ -156,6 +160,34 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE);
     }
+}
+
+/**
+ * Called after a custom weapon is created.
+ *
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
+{
+    // Validate custom grenade
+    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(weaponIndex) == gWeapon)*/
+    {
+        // Hook entity callbacks
+        SDKHook(weaponIndex, SDKHook_Touch, TanadeTouchHook);
+    }
+}
+
+/**
+ * Tagrenade touch hook.
+ * 
+ * @param entityIndex       The entity index.        
+ * @param targetIndex       The target index.               
+ **/
+public Action TanadeTouchHook(int entityIndex, int targetIndex)
+{
+    // Validate attaching
+    return (IsValidEdict(entityIndex) && GRENADE_INFECT_ATTACH) ? Plugin_Continue : Plugin_Handled;
 }
 
 /**
@@ -266,17 +298,17 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
             if(!strncmp(sSample[30], "arm", 3, false))
             {
                 // Emit a custom bounce sound
-                EmitSoundToAll("*/zbm3/infect_bounce-1.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 1);
             }
             else if(!strncmp(sSample[30], "det", 3, false))
             {
                 // Emit a custom bounce sound
-                EmitSoundToAll("*/zbm3/infect_bounce-2.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 2);
             }
             else if(!strncmp(sSample[30], "exp", 3, false))
             {
                 // Emit explosion sound
-                EmitSoundToAll("*/zbm3/infect_exp.mp3", entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 3);
             }
 
             // Block sounds

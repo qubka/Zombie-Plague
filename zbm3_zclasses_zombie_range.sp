@@ -74,8 +74,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieRange;
@@ -125,8 +125,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("RANGE_SKILL_SOUNDS");
 }
 
 /**
@@ -185,7 +185,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
                 FakeCreateParticle(iRagdoll, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
                 
                 // Emit sound
-                EmitSoundToAll("*/zbm3/infect_exp.mp3", iRagdoll, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(iRagdoll, gSound, SNDCHAN_STATIC);
             }
         }
     }

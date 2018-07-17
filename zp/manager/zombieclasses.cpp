@@ -64,7 +64,15 @@ enum
     ZOMBIECLASSES_DATA_SOUNDBURN,
     ZOMBIECLASSES_DATA_SOUNDATTACK,
     ZOMBIECLASSES_DATA_SOUNDFOOTSTEP,
-    ZOMBIECLASSES_DATA_SOUNDREGEN
+    ZOMBIECLASSES_DATA_SOUNDREGEN,
+    ZOMBIECLASSES_DATA_SOUNDDEATH_ID,
+    ZOMBIECLASSES_DATA_SOUNDHURT_ID,
+    ZOMBIECLASSES_DATA_SOUNDIDLE_ID,
+    ZOMBIECLASSES_DATA_SOUNDRESPAWN_ID,
+    ZOMBIECLASSES_DATA_SOUNDBURN_ID,
+    ZOMBIECLASSES_DATA_SOUNDATTACK_ID,
+    ZOMBIECLASSES_DATA_SOUNDFOOTSTEP_ID,
+    ZOMBIECLASSES_DATA_SOUNDREGEN_ID
 }
 
 /**
@@ -78,27 +86,59 @@ void ZombieClassesLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Zombie Class Validation", "No zombie classes loaded");
     }
 
-    // Initialize model char
-    static char sModel[PLATFORM_MAX_PATH];
+    // Initialize char
+    static char sBuffer[PLATFORM_MAX_PATH];
 
     // Precache of the zombie classes
     int iSize = arrayZombieClasses.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Validate player model
-        ZombieGetModel(i, sModel, sizeof(sModel));
-        if(!ModelsPlayerPrecache(sModel))
+        ZombieGetModel(i, sBuffer, sizeof(sBuffer));
+        if(!ModelsPlayerPrecache(sBuffer))
         {
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sModel);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
         }
 
         // Validate claw model
-        ZombieGetClawModel(i, sModel, sizeof(sModel));
-        ZombieSetClawIndex(i, ModelsWeaponPrecache(sModel));
+        ZombieGetClawModel(i, sBuffer, sizeof(sBuffer));
+        ZombieSetClawID(i, ModelsWeaponPrecache(sBuffer));
         
         // Validate grenade model
-        ZombieGetGrenadeModel(i, sModel, sizeof(sModel));
-        ZombieSetGrenadeIndex(i, ModelsWeaponPrecache(sModel));
+        ZombieGetGrenadeModel(i, sBuffer, sizeof(sBuffer));
+        ZombieSetGrenadeID(i, ModelsWeaponPrecache(sBuffer));
+
+        // Load death sounds
+        ZombieGetSoundDeath(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundDeathID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load hurt sounds
+        ZombieGetSoundHurt(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundHurtID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load idle sounds
+        ZombieGetSoundIdle(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundIdleID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load respawn sounds
+        ZombieGetSoundRespawn(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundRespawnID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load burn sounds
+        ZombieGetSoundBurn(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundBurnID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load attack sounds    
+        ZombieGetSoundAttack(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundAttackID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load footstep sounds
+        ZombieGetSoundFoot(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundFootID(i, SoundsKeyToIndex(sBuffer));
+
+        // Load regen sounds
+        ZombieGetSoundRegen(i, sBuffer, sizeof(sBuffer));
+        ZombieSetSoundRegenID(i, SoundsKeyToIndex(sBuffer));
     }
 }
 
@@ -121,6 +161,7 @@ public Action ZombieCommandCatched(int clientIndex, int iArguments)
 {
     // Open the zombie classes menu
     ZombieMenu(clientIndex);
+    return Plugin_Handled;
 }
 
 /*
@@ -296,6 +337,14 @@ public int API_RegisterZombieClass(Handle isPlugin, int iNumParams)
     arrayZombieClass.PushString(sZombieBuffer); // Index: 23
     GetNativeString(23, sZombieBuffer, sizeof(sZombieBuffer));   
     arrayZombieClass.PushString(sZombieBuffer); // Index: 24
+    arrayZombieClass.Push(-1);                  // Index: 25
+    arrayZombieClass.Push(-1);                  // Index: 26
+    arrayZombieClass.Push(-1);                  // Index: 27
+    arrayZombieClass.Push(-1);                  // Index: 28
+    arrayZombieClass.Push(-1);                  // Index: 29
+    arrayZombieClass.Push(-1);                  // Index: 30
+    arrayZombieClass.Push(-1);                  // Index: 31
+    arrayZombieClass.Push(-1);                  // Index: 32
 
     // Store this handle in the main array
     arrayZombieClasses.Push(arrayZombieClass);
@@ -707,7 +756,7 @@ public int API_GetZombieClassClawID(Handle isPlugin, int iNumParams)
     }
     
     // Return value
-    return ZombieGetClawIndex(iD);
+    return ZombieGetClawID(iD);
 }
 
 /**
@@ -728,15 +777,15 @@ public int API_GetZombieClassGrenadeID(Handle isPlugin, int iNumParams)
     }
     
     // Return value
-    return ZombieGetGrenadeIndex(iD);
+    return ZombieGetGrenadeID(iD);
 }
 
 /**
- * Gets the death sound of a zombie class at a given index.
+ * Gets the death sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundDeath(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundDeathID(iD);
  **/
-public int API_GetZombieClassSoundDeath(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundDeathID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -747,31 +796,17 @@ public int API_GetZombieClassSoundDeath(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundDeath(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundDeathID(iD);
 }
 
 /**
- * Gets the hurt sound of a zombie class at a given index.
+ * Gets the hurt sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundHurt(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundHurtID(iD);
  **/
-public int API_GetZombieClassSoundHurt(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundHurtID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -782,31 +817,17 @@ public int API_GetZombieClassSoundHurt(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundHurt(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundHurtID(iD);
 }
 
 /**
- * Gets the idle sound of a zombie class at a given index.
+ * Gets the idle sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundIdle(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundIdleID(iD);
  **/
-public int API_GetZombieClassSoundIdle(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundIdleID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -817,31 +838,17 @@ public int API_GetZombieClassSoundIdle(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundIdle(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundIdleID(iD);
 }
 
 /**
- * Gets the respawn sound of a zombie class at a given index.
+ * Gets the respawn sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundRespawn(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundRespawnID(iD);
  **/
-public int API_GetZombieClassSoundRespawn(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundRespawnID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -852,31 +859,17 @@ public int API_GetZombieClassSoundRespawn(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundRespawn(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundRespawnID(iD);
 }
 
 /**
- * Gets the burn sound of a zombie class at a given index.
+ * Gets the burn sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundBurn(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundBurnID(iD);
  **/
-public int API_GetZombieClassSoundBurn(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundBurnID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -887,31 +880,17 @@ public int API_GetZombieClassSoundBurn(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundBurn(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundBurnID(iD);
 }
 
 /**
- * Gets the attack sound of a zombie class at a given index.
+ * Gets the attack sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundAttack(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundAttackID(iD);
  **/
-public int API_GetZombieClassSoundAttack(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundAttackID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -922,31 +901,17 @@ public int API_GetZombieClassSoundAttack(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundAttack(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundAttackID(iD);
 }
 
 /**
- * Gets the footstep sound of a zombie class at a given index.
+ * Gets the footstep sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundFoot(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundFootID(iD);
  **/
-public int API_GetZombieClassSoundFoot(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundFootID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -957,31 +922,17 @@ public int API_GetZombieClassSoundFoot(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundFoot(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundFootID(iD);
 }
 
 /**
- * Gets the regeneration sound of a zombie class at a given index.
+ * Gets the regeneration sound key of the zombie class.
  *
- * native void ZP_GetZombieClassSoundRegen(iD, sSound, maxLen);
+ * native void ZP_GetZombieClassSoundRegenID(iD);
  **/
-public int API_GetZombieClassSoundRegen(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundRegenID(Handle isPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -992,23 +943,9 @@ public int API_GetZombieClassSoundRegen(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
 
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    ZombieGetSoundRegen(iD, sSound, sizeof(sSound));
-
-    // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    // Return value
+    return ZombieGetSoundRegenID(iD);
 }
 
 /**
@@ -1295,7 +1232,7 @@ stock float ZombieGetRegenInterval(int iD)
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-stock int ZombieGetClawIndex(int iD)
+stock int ZombieGetClawID(int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1310,7 +1247,7 @@ stock int ZombieGetClawIndex(int iD)
  * @param iD                The class index.
  * @param modelIndex        The model index.    
  **/
-stock void ZombieSetClawIndex(int iD, int modelIndex)
+stock void ZombieSetClawID(int iD, int modelIndex)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1325,7 +1262,7 @@ stock void ZombieSetClawIndex(int iD, int modelIndex)
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-stock int ZombieGetGrenadeIndex(int iD)
+stock int ZombieGetGrenadeID(int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1340,7 +1277,7 @@ stock int ZombieGetGrenadeIndex(int iD)
  * @param iD                The class index.
  * @param modelIndex        The model index.    
  **/
-stock void ZombieSetGrenadeIndex(int iD, int modelIndex)
+stock void ZombieSetGrenadeID(int iD, int modelIndex)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1366,6 +1303,36 @@ stock void ZombieGetSoundDeath(int iD, char[] sSound, int iMaxLen)
 }
 
 /**
+ * Gets the death sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundDeathID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class death sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDDEATH_ID);
+}
+
+/**
+ * Sets the death sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundDeathID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class death sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDDEATH_ID, iKey);
+}
+
+/**
  * Gets the hurt sound of a zombie class at a given index.
  *
  * @param iD                The class index.
@@ -1379,6 +1346,36 @@ stock void ZombieGetSoundHurt(int iD, char[] sSound, int iMaxLen)
 
     // Gets zombie class hurt sound
     arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDHURT, sSound, iMaxLen);
+}
+
+/**
+ * Gets the hurt sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundHurtID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class hurt sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDHURT_ID);
+}
+
+/**
+ * Sets the hurt sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundHurtID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class hurt sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDHURT_ID, iKey);
 }
 
 /**
@@ -1398,6 +1395,36 @@ stock void ZombieGetSoundIdle(int iD, char[] sSound, int iMaxLen)
 }
 
 /**
+ * Gets the idle sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundIdleID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class idle sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDIDLE_ID);
+}
+
+/**
+ * Sets the idle sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundIdleID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class idle sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDIDLE_ID, iKey);
+}
+
+/**
  * Gets the respawn sound of a zombie class at a given index.
  *
  * @param iD                The class index.
@@ -1411,6 +1438,36 @@ stock void ZombieGetSoundRespawn(int iD, char[] sSound, int iMaxLen)
 
     // Gets zombie class respawn sound
     arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDRESPAWN, sSound, iMaxLen);
+}
+
+/**
+ * Gets the respawn sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundRespawnID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class respawn sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDRESPAWN_ID);
+}
+
+/**
+ * Sets the respawn sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundRespawnID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class respawn sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDRESPAWN_ID, iKey);
 }
 
 /**
@@ -1430,6 +1487,36 @@ stock void ZombieGetSoundBurn(int iD, char[] sSound, int iMaxLen)
 }
 
 /**
+ * Gets the burn sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundBurnID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class idle sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDBURN_ID);
+}
+
+/**
+ * Sets the burn sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundBurnID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class idle sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDBURN_ID, iKey);
+}
+
+/**
  * Gets the attack sound of a zombie class at a given index.
  *
  * @param iD                The class index.
@@ -1443,6 +1530,36 @@ stock void ZombieGetSoundAttack(int iD, char[] sSound, int iMaxLen)
 
     // Gets zombie class idle sound
     arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDATTACK, sSound, iMaxLen);
+}
+
+/**
+ * Gets the attack sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundAttackID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class idle sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDATTACK_ID);
+}
+
+/**
+ * Sets the attack sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundAttackID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class idle sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDATTACK_ID, iKey);
 }
 
 /**
@@ -1462,6 +1579,36 @@ stock void ZombieGetSoundFoot(int iD, char[] sSound, int iMaxLen)
 }
 
 /**
+ * Gets the footstep sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundFootID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class footstep sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDFOOTSTEP_ID);
+}
+
+/**
+ * Sets the footstep sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundFootID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class footstep sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDFOOTSTEP_ID, iKey);
+}
+
+/**
  * Gets the regeneration sound of a zombie class at a given index.
  *
  * @param iD                The class index.
@@ -1475,6 +1622,36 @@ stock void ZombieGetSoundRegen(int iD, char[] sSound, int iMaxLen)
 
     // Gets zombie class regeneration sound
     arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDREGEN, sSound, iMaxLen);
+}
+
+/**
+ * Gets the regeneration sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+stock int ZombieGetSoundRegenID(int iD)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Gets zombie class regeneration sound key
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDREGEN_ID);
+}
+
+/**
+ * Sets the regeneration sound key of the zombie class.
+ *
+ * @param iD                The class index.
+ * @param iKey              The key index.
+ **/
+stock void ZombieSetSoundRegenID(int iD, int iKey)
+{
+    // Gets array handle of zombie class at given index
+    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
+
+    // Sets zombie class regeneration sound key
+    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDREGEN_ID, iKey);
 }
 
 /*

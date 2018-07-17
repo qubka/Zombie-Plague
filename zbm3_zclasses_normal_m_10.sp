@@ -90,8 +90,8 @@ public Plugin myinfo =
 // Initialize variables
 Handle Task_HumanBlasted[MAXPLAYERS+1] = INVALID_HANDLE;
  
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieNormalM10;
@@ -138,8 +138,8 @@ public void OnLibraryAdded(const char[] sLibrary) // Paralizing blast
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("BALLER_SKILL_SOUNDS");
 }
 
 /**
@@ -227,7 +227,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Emit sound
-        EmitSoundToAll("*/zbm3/electro4.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
         
         // Create a blast entity
         int entityIndex = CreateEntityByName("hegrenade_projectile");
@@ -269,7 +269,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             SetEntPropFloat(entityIndex, Prop_Send, "m_flElasticity", ZOMBIE_CLASS_SKILL_ELASTICITY);
             
             // Emit sound
-            EmitSoundToAll("*/zbm3/gauss2.mp3", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 2);
             
             // Create an effect
             FakeCreateParticle(entityIndex, _, "gamma_blue", ZOMBIE_CLASS_DURATION);
@@ -305,7 +305,7 @@ public Action BlastTouchHook(int entityIndex, int targetIndex)
     if(IsValidEdict(entityIndex))
     {
         // Emit sound
-        EmitSoundToAll(GetRandomInt(0, 1) ? "*/zbm3/ric_conc-1.mp3" : "*/zbm3/ric_conc-2.mp3", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, GetRandomInt(3, 4));
     }
 
     // Return on the success
@@ -342,7 +342,7 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
             FakeCreateParticle(infoIndex, _, "explosion_molotov_air", ZOMBIE_CLASS_SKILL_EXP_TIME);
             
             // Emit sound
-            EmitSoundToAll("*/zbm3/td_stun_exp.mp3", infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            ZP_EmitSoundKeyID(infoIndex, gSound, SNDCHAN_STATIC, 5);
         }
         
         // Gets the blast's owner

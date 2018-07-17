@@ -46,7 +46,6 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_SetClientLevel",                 API_SetClientLevel);
     CreateNative("ZP_GetClientExp",                   API_GetClientExp);
     CreateNative("ZP_SetClientExp",                   API_SetClientExp);
-    CreateNative("ZP_EmitSound",                      API_EmitSound);
     CreateNative("ZP_IsNewRound",                     API_IsNewRound);
     CreateNative("ZP_IsEndRound",                     API_IsEndRound);
     CreateNative("ZP_IsStartedRound",                 API_IsStartedRound);
@@ -60,6 +59,9 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetRandomSurvivor",              API_GetRandomSurvivor);
     CreateNative("ZP_GetRandomNemesis",               API_GetRandomNemesis);
     
+    CreateNative("ZP_GetSoundKeyID",                  API_GetSoundKeyID);
+    CreateNative("ZP_EmitSoundKeyID",                 API_EmitSoundKeyID);
+
     CreateNative("ZP_GetNumberHumanClass",            API_GetNumberHumanClass);
     CreateNative("ZP_GetClientHumanClass",            API_GetClientHumanClass);
     CreateNative("ZP_GetClientHumanClassNext",        API_GetClientHumanClassNext);
@@ -74,9 +76,9 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetHumanClassArmor",             API_GetHumanClassArmor);
     CreateNative("ZP_GetHumanClassLevel",             API_GetHumanClassLevel);
     CreateNative("ZP_IsHumanClassVIP",                API_IsHumanClassVIP);
-    CreateNative("ZP_GetHumanClassSoundDeath",        API_GetHumanClassSoundDeath);
-    CreateNative("ZP_GetHumanClassSoundHurt",         API_GetHumanClassSoundHurt);
-    CreateNative("ZP_GetHumanClassSoundInfect",       API_GetHumanClassSoundInfect);
+    CreateNative("ZP_GetHumanClassSoundDeathID",      API_GetHumanClassSoundDeathID);
+    CreateNative("ZP_GetHumanClassSoundHurtID",       API_GetHumanClassSoundHurtID);
+    CreateNative("ZP_GetHumanClassSoundInfectID",     API_GetHumanClassSoundInfectID);
     CreateNative("ZP_PrintHumanClassInfo",            API_PrintHumanClassInfo);
     
     CreateNative("ZP_GetNumberZombieClass",           API_GetNumberZombieClass);
@@ -101,14 +103,14 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetZombieClassRegenInterval",    API_GetZombieClassRegenInterval);
     CreateNative("ZP_GetZombieClassClawID",           API_GetZombieClassClawID);
     CreateNative("ZP_GetZombieClassGrenadeID",        API_GetZombieClassGrenadeID);
-    CreateNative("ZP_GetZombieClassSoundDeath",       API_GetZombieClassSoundDeath);
-    CreateNative("ZP_GetZombieClassSoundHurt",        API_GetZombieClassSoundHurt);
-    CreateNative("ZP_GetZombieClassSoundIdle",        API_GetZombieClassSoundIdle);
-    CreateNative("ZP_GetZombieClassSoundRespawn",     API_GetZombieClassSoundRespawn);
-    CreateNative("ZP_GetZombieClassSoundBurn",        API_GetZombieClassSoundBurn);
-    CreateNative("ZP_GetZombieClassSoundAttack",      API_GetZombieClassSoundAttack);
-    CreateNative("ZP_GetZombieClassSoundFoot",        API_GetZombieClassSoundFoot);
-    CreateNative("ZP_GetZombieClassSoundRegen",       API_GetZombieClassSoundRegen);
+    CreateNative("ZP_GetZombieClassSoundDeathID",     API_GetZombieClassSoundDeathID);
+    CreateNative("ZP_GetZombieClassSoundHurtID",      API_GetZombieClassSoundHurtID);
+    CreateNative("ZP_GetZombieClassSoundIdleID",      API_GetZombieClassSoundIdleID);
+    CreateNative("ZP_GetZombieClassSoundRespawnID",   API_GetZombieClassSoundRespawnID);
+    CreateNative("ZP_GetZombieClassSoundBurnID",      API_GetZombieClassSoundBurnID);
+    CreateNative("ZP_GetZombieClassSoundAttackID",    API_GetZombieClassSoundAttackID);
+    CreateNative("ZP_GetZombieClassSoundFootID",      API_GetZombieClassSoundFootID);
+    CreateNative("ZP_GetZombieClassSoundRegenID",     API_GetZombieClassSoundRegenID);
     CreateNative("ZP_PrintZombieClassInfo",           API_PrintZombieClassInfo);
     
     CreateNative("ZP_GiveClientExtraItem",            API_GiveClientExtraItem); 
@@ -141,7 +143,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetWeaponAmmo",                  API_GetWeaponAmmo);
     CreateNative("ZP_GetWeaponSpeed",                 API_GetWeaponSpeed);
     CreateNative("ZP_GetWeaponReload",                API_GetWeaponReload);
-    CreateNative("ZP_GetWeaponSound",                 API_GetWeaponSound);
+    CreateNative("ZP_GetWeaponSoundID",               API_GetWeaponSoundID);
     CreateNative("ZP_GetWeaponClass",                 API_GetWeaponClass);
     CreateNative("ZP_GetWeaponModelView",             API_GetWeaponModelView);
     CreateNative("ZP_GetWeaponModelViewID",           API_GetWeaponModelViewID);
@@ -172,7 +174,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_RegisterGameMode",               API_RegisterGameMode);
     CreateNative("ZP_GetGameModeName",                API_GetGameModeName);
     CreateNative("ZP_GetGameModeDesc",                API_GetGameModeDesc);
-    CreateNative("ZP_GetGameModeSound",               API_GetGameModeSound);
+    CreateNative("ZP_GetGameModeSoundID",             API_GetGameModeSoundID);
     CreateNative("ZP_GetGameModeChance",              API_GetGameModeChance);
     CreateNative("ZP_GetGameModeMinPlayers",          API_GetGameModeMinPlayers);
     CreateNative("ZP_GetGameModeRatio",               API_GetGameModeRatio);

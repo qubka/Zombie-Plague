@@ -83,8 +83,8 @@ public Plugin myinfo =
 // Initialize variables
 int gWeapon;
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -110,8 +110,8 @@ public void ZP_OnEngineExecute(/*void*/)
     gWeapon = ZP_GetWeaponNameID(WEAPON_REFERANCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
 
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("BAZOOKA_EXPLOSION_SOUNDS");
 }
 
 /**
@@ -237,8 +237,8 @@ public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadca
             SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
             
             // Emit sound
-            EmitSoundToAll("*/zombie/bazooka/ignite_trail.mp3", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-
+            ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 1);
+            
             // Create touch hook
             SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
         }
@@ -285,7 +285,7 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
                 FakeCreateParticle(infoIndex, _, "expl_coopmission_skyboom", WEAPON_EXPLOSION_TIME);
                 
                 // Emit sound
-                EmitSoundToAll("*/zombie/bazooka/rocket_explode.mp3", infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(infoIndex, gSound, SNDCHAN_STATIC, 2);
             }
 
             // Validate owner

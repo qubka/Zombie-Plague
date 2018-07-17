@@ -59,6 +59,7 @@ public Action MenusCommandCatched(int clientIndex, int iArguments)
 {
     // Open the main menu
     MenuMain(clientIndex);
+    return Plugin_Handled;
 }
 
 /**

@@ -26,16 +26,134 @@
  **/
  
 /**
- * Sound types
+ * Server sound types.
  **/
-enum PlayerSounds
+enum ServerSounds
 {
-    Infect,       /** When player is infect */
-    Moan,         /** Zombie's moan periodically */
-    Groan,        /** When zombie is hurt */
-    Death,        /** When a zombie is killed */
-    Burn,         /** When a zombie is on fire */
-    FootStep      /** When a zombie is walk */
+    Survivor_Infect,    /** When a survivor is infect */
+    Survivor_Hurt,      /** When a survivor is hurt */
+    Survivor_Death,     /** When a survivor is killed */
+
+    Nemesis_Idle,       /** Nemesis's moan periodically */
+    Nemesis_Hurt,       /** When a nemesis is hurt */
+    Nemesis_Death,      /** When a nemesis is killed */
+    Nemesis_Burn,       /** When a nemesis is on fire */
+    Nemesis_Footstep,   /** When a nemesis is walk */
+    Nemesis_Respawn,    /** When a nemesis is respawn */
+    Nemesis_Attack,     /** When a nemesis is attack */
+
+    Player_Flashlight,  /** When a player is switch the flashlight */
+    Player_Ammunition,  /** When a player is buy the ammunition */
+    Player_Level,       /** When a player is level up */       
+
+    Round_Start,        /** When a round is started */
+    Round_Count,        /** When a round is counting */
+    Round_Zombie,       /** When a zombie is won */
+    Round_Human,        /** When a human is won */
+    Round_Draw          /** When a nobody is won */
+}
+
+/**
+ * Sound default keys.
+ **/
+int gServerKey[ServerSounds];
+
+/**
+ * Prepare all player sounds data.
+ **/
+void PlayerSoundsOnLoad(/*void*/)
+{
+    // Initialize char
+    static char sBuffer[PARAM_NAME_MAXLEN];
+    
+    // Load survivor infect sounds
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_INFECT].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Survivor_Infect] = SoundsKeyToIndex(sBuffer);
+
+    // Load survivor hurt sounds
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_HURT].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Survivor_Hurt] = SoundsKeyToIndex(sBuffer);
+
+    // Load survivor death sounds
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_DEATH].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Survivor_Death] = SoundsKeyToIndex(sBuffer);
+
+    // Load nemesis idle sounds
+    gCvarList[CVAR_SEFFECTS_NEMESIS_IDLE].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Nemesis_Idle] = SoundsKeyToIndex(sBuffer);
+
+    // Load nemesis hurt sounds
+    gCvarList[CVAR_SEFFECTS_NEMESIS_HURT].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Nemesis_Hurt] = SoundsKeyToIndex(sBuffer);
+
+    // Load nemesis death sounds
+    gCvarList[CVAR_SEFFECTS_NEMESIS_DEATH].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Nemesis_Death] = SoundsKeyToIndex(sBuffer);
+
+    // Load nemesis burn sounds
+    gCvarList[CVAR_SEFFECTS_NEMESIS_BURN].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Nemesis_Burn] = SoundsKeyToIndex(sBuffer);
+
+    // Load nemesis footstep sounds
+    gCvarList[CVAR_SEFFECTS_NEMESIS_FOOTSTEP].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Nemesis_Footstep] = SoundsKeyToIndex(sBuffer);
+
+    // Load nemesis respawn sounds
+    gCvarList[CVAR_SEFFECTS_NEMESIS_RESPAWN].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Nemesis_Respawn] = SoundsKeyToIndex(sBuffer);
+
+    // Load nemesis attack sounds
+    gCvarList[CVAR_SEFFECTS_NEMESIS_ATTACK].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Nemesis_Attack] = SoundsKeyToIndex(sBuffer);
+
+    // Load player flashlight sounds
+    gCvarList[CVAR_SEFFECTS_PLAYER_FLASHLIGHT].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Player_Flashlight] = SoundsKeyToIndex(sBuffer);
+
+    // Load player ammunition sounds
+    gCvarList[CVAR_SEFFECTS_PLAYER_AMMUNITION].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Player_Ammunition] = SoundsKeyToIndex(sBuffer);
+
+    // Load player level sounds
+    gCvarList[CVAR_SEFFECTS_PLAYER_LEVEL].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Player_Level] = SoundsKeyToIndex(sBuffer);
+
+    // Load round start sounds
+    gCvarList[CVAR_SEFFECTS_ROUND_START].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Round_Start] = SoundsKeyToIndex(sBuffer);
+
+    // Load round count sounds
+    gCvarList[CVAR_SEFFECTS_ROUND_COUNT].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Round_Count] = SoundsKeyToIndex(sBuffer);
+
+    // Load round zombie win sounds
+    gCvarList[CVAR_SEFFECTS_ROUND_ZOMBIE].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Round_Zombie] = SoundsKeyToIndex(sBuffer);
+
+    // Load round human win sounds
+    gCvarList[CVAR_SEFFECTS_ROUND_HUMAN].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Round_Human] = SoundsKeyToIndex(sBuffer);
+
+    // Load round draw sounds
+    gCvarList[CVAR_SEFFECTS_ROUND_DRAW].GetString(sBuffer, sizeof(sBuffer));
+    gServerKey[Round_Draw] = SoundsKeyToIndex(sBuffer);
+}
+
+/**
+ * The round is ending. (Post)
+ *
+ * @param CReason           Reason the round has ended.
+ **/
+public Action PlayerSoundsOnRoundEnd(Handle hTimer, int CReason)
+{
+    // Switch end round reason
+    switch(CReason)
+    {
+        // Emit sounds
+        case ROUNDEND_TERRORISTS_WIN : SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, gServerKey[Round_Zombie]);   
+        case ROUNDEND_CTS_WIN :        SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, gServerKey[Round_Human]);
+        case ROUNDEND_ROUND_DRAW :     SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, gServerKey[Round_Draw]);
+    }
 }
 
 /**
@@ -51,26 +169,17 @@ void PlayerSoundsOnClientDeath(int clientIndex)
     {
         return;
     }
-    
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    
+
     // Is zombie died ?
     if(gClientData[clientIndex][Client_Zombie])
     {
-        // Gets zombie's sound
-        ZombieGetSoundDeath(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-        
         // Emit zombie death sound
-        SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Nemesis] ? "NEMESIS_DEATH_SOUNDS" : sSound);
+        SoundsInputEmit(clientIndex, SNDCHAN_STATIC, gClientData[clientIndex][Client_Nemesis] ? gServerKey[Nemesis_Death] : ZombieGetSoundDeathID(gClientData[clientIndex][Client_ZombieClass]));
     }
     else
     {
-        // Gets human's sound
-        HumanGetSoundDeath(gClientData[clientIndex][Client_HumanClass], sSound, sizeof(sSound));
-        
         // Emit human death sound
-        SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Survivor] ? "SURVIVOR_DEATH_SOUNDS" : sSound);
+        SoundsInputEmit(clientIndex, SNDCHAN_STATIC, gClientData[clientIndex][Client_Survivor] ? gServerKey[Survivor_Death] : HumanGetSoundDeathID(gClientData[clientIndex][Client_HumanClass]));
     }
 }
 
@@ -92,20 +201,14 @@ void PlayerSoundsOnClientHurt(int clientIndex, bool bBurning)
     // 1 in 'groan' chance of groaning
     if(GetRandomInt(1, iGroan) == 1)
     {
-        // Initialize sound char
-        static char sSound[SMALL_LINE_LENGTH];
-        
         // Validate burning
         if(bBurning)
         {
             // If burn sounds disabled, then skip
             if(gCvarList[CVAR_SEFFECTS_BURN].BoolValue) 
             {
-                // Gets zombie's sound
-                ZombieGetSoundBurn(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-                
                 // Emit zombie burn sound
-                SoundsInputEmitToClient(clientIndex, SNDCHAN_BODY, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Nemesis] ? "NEMESIS_BURN_SOUNDS" : sSound);
+                SoundsInputEmit(clientIndex, SNDCHAN_BODY, gClientData[clientIndex][Client_Nemesis] ? gServerKey[Nemesis_Burn] : ZombieGetSoundBurnID(gClientData[clientIndex][Client_ZombieClass]));
                 return; //! Exit here
             }
         }
@@ -113,19 +216,13 @@ void PlayerSoundsOnClientHurt(int clientIndex, bool bBurning)
         // Is zombie hurt ?
         if(gClientData[clientIndex][Client_Zombie])
         {
-            // Gets zombie's sound
-            ZombieGetSoundHurt(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-            
             // Emit zombie hurt sound
-            SoundsInputEmitToClient(clientIndex, SNDCHAN_BODY, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Nemesis] ? "NEMESIS_HURT_SOUNDS" : sSound);
+            SoundsInputEmit(clientIndex, SNDCHAN_BODY, gClientData[clientIndex][Client_Nemesis] ? gServerKey[Nemesis_Hurt] : ZombieGetSoundHurtID(gClientData[clientIndex][Client_ZombieClass]));
         }
         else
         {
-            // Gets human's sound
-            HumanGetSoundHurt(gClientData[clientIndex][Client_HumanClass], sSound, sizeof(sSound));
-            
             // Emit human hurt sound
-            SoundsInputEmitToClient(clientIndex, SNDCHAN_BODY, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Survivor] ? "SURVIVOR_HURT_SOUNDS" : sSound);
+            SoundsInputEmit(clientIndex, SNDCHAN_BODY, gClientData[clientIndex][Client_Survivor] ? gServerKey[Survivor_Hurt] : HumanGetSoundHurtID(gClientData[clientIndex][Client_HumanClass]));
         }
     }
 }
@@ -141,26 +238,17 @@ void PlayerSoundsOnClientInfected(int clientIndex, bool respawnMode)
     // If infect sound cvar is disabled, then skip
     if(gCvarList[CVAR_SEFFECTS_INFECT].BoolValue) 
     {
-        // Initialize sound char
-        static char sSound[SMALL_LINE_LENGTH];
-        
         // Validate respawn mode
         if(respawnMode)
         {
-            // Gets zombie's sound
-            ZombieGetSoundRespawn(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-            
             // Emit zombie respawn sound
-            SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Nemesis] ? "NEMESIS_RESPAWN_SOUNDS" : sSound);
+            SoundsInputEmit(clientIndex, SNDCHAN_STATIC, gClientData[clientIndex][Client_Nemesis] ? gServerKey[Nemesis_Respawn] : ZombieGetSoundRespawnID(gClientData[clientIndex][Client_ZombieClass]));
             
         }
         else
         {
-            // Gets human's sound
-            HumanGetSoundInfect(gClientData[clientIndex][Client_HumanClass], sSound, sizeof(sSound));
-            
             // Emit human infect sound
-            SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Survivor] ? "SURVIVOR_INFECTION_SOUNDS" : sSound);
+            SoundsInputEmit(clientIndex, SNDCHAN_STATIC, gClientData[clientIndex][Client_Survivor] ? gServerKey[Survivor_Infect] : HumanGetSoundInfectID(gClientData[clientIndex][Client_HumanClass]));
         }
     }
     
@@ -190,14 +278,8 @@ public Action PlayerSoundsMoanTimer(Handle hTimer, int userID)
     // Validate client
     if(clientIndex)
     {
-        // Initialize sound char
-        static char sSound[SMALL_LINE_LENGTH];
-        
-        // Gets zombie's sound
-        ZombieGetSoundIdle(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-        
         // Emit zombie moan sound
-        SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Nemesis] ? "NEMESIS_IDLE_SOUNDS" : sSound);
+        SoundsInputEmit(clientIndex, SNDCHAN_STATIC, gClientData[clientIndex][Client_Nemesis] ? gServerKey[Nemesis_Idle] : ZombieGetSoundIdleID(gClientData[clientIndex][Client_ZombieClass]));
 
         // Allow timer
         return Plugin_Continue;
@@ -217,14 +299,41 @@ public Action PlayerSoundsMoanTimer(Handle hTimer, int userID)
  **/
 void PlayerSoundsOnClientRegen(int clientIndex)
 {
-    // Initialize sound char
-    static char sSound[SMALL_LINE_LENGTH];
-    
-    // Gets zombie's sound
-    ZombieGetSoundRegen(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-    
     // Emit zombie regen sound
-    SoundsInputEmitToClient(clientIndex, SNDCHAN_VOICE, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, sSound);
+    SoundsInputEmit(clientIndex, SNDCHAN_VOICE, ZombieGetSoundRegenID(gClientData[clientIndex][Client_ZombieClass]));
+}
+
+/**
+ * Client has been swith flashlight.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void PlayerSoundsOnClientFlashLight(int clientIndex)
+{
+    // Emit player flashlight sound
+    SoundsInputEmit(clientIndex, SNDCHAN_VOICE, gServerKey[Player_Flashlight]);
+}
+
+/**
+ * Client has been buy ammunition.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void PlayerSoundsOnClientAmmunition(int clientIndex)
+{
+    // Emit player ammunition sound
+    SoundsInputEmit(clientIndex, SNDCHAN_VOICE, gServerKey[Player_Ammunition]);
+}
+
+/**
+ * Client has been level's up.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void PlayerSoundsOnClientLevelUp(int clientIndex)
+{
+    // Emit player levelup sound
+    SoundsInputEmit(clientIndex, SNDCHAN_VOICE, gServerKey[Player_Level]);
 }
 
 /**
@@ -251,20 +360,14 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients,
         // Verify that the client is zombie
         if(gClientData[clientIndex][Client_Zombie])
         {
-            // Initialize sound char
-            static char sSound[SMALL_LINE_LENGTH];
-            
             // If a footstep sound, then proceed
             if(StrContains(sSample, "footsteps") != -1)
             {
                 // If footstep sounds disabled, then stop
                 if(gCvarList[CVAR_SEFFECTS_FOOTSTEPS].BoolValue) 
                 {
-                    // Gets zombie's sound
-                    ZombieGetSoundFoot(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-                    
                     // Emit zombie footstep sound
-                    SoundsInputEmitToClient(clientIndex, SNDCHAN_STREAM, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Nemesis] ? "NEMESIS_FOOTSTEP_SOUNDS" : sSound);
+                    SoundsInputEmit(clientIndex, SNDCHAN_STREAM, gClientData[clientIndex][Client_Nemesis] ? gServerKey[Nemesis_Footstep] : ZombieGetSoundFootID(gClientData[clientIndex][Client_ZombieClass]));
                 }
                 
                 // Block sounds
@@ -276,11 +379,8 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients,
                 // If attack sounds disabled, then stop
                 if(gCvarList[CVAR_SEFFECTS_CLAWS].BoolValue) 
                 {
-                    // Gets zombie's sound
-                    ZombieGetSoundAttack(gClientData[clientIndex][Client_ZombieClass], sSound, sizeof(sSound));
-                    
-                    // Emit zombie slash sound using the knife entity
-                    SoundsInputEmitToClient(clientIndex, SNDCHAN_WEAPON, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, gClientData[clientIndex][Client_Nemesis] ? "NEMESIS_ATTACK_SOUNDS" : sSound, entityIndex);
+                    // Emit zombie slash sound
+                    SoundsInputEmit(entityIndex, SNDCHAN_WEAPON, gClientData[clientIndex][Client_Nemesis] ? gServerKey[Nemesis_Attack] : ZombieGetSoundAttackID(gClientData[clientIndex][Client_ZombieClass]));
                 }
                 
                 // Block sounds

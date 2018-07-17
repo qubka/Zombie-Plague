@@ -102,8 +102,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieGirl;
@@ -150,8 +150,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("DEIMOS_SKILL_SOUNDS");
 }
 
 /**
@@ -186,7 +186,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Emit sound
-        EmitSoundToAll("*/zbm3/deimos_skill_start.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
         
         // Create a bomb entity
         int entityIndex = CreateEntityByName("hegrenade_projectile");
@@ -275,7 +275,7 @@ public Action BombTouchHook(int entityIndex, int targetIndex)
                 FakeCreateParticle(infoIndex, _, "explosion_hegrenade_interior", ZOMBIE_CLASS_SKILL_EXP_TIME);
                 
                 // Emit sound
-                EmitSoundToAll("*/zbm3/deimos_skill_hit.mp3", infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(infoIndex, gSound, SNDCHAN_STATIC, 2);
             }
 
             // Remove entity from world

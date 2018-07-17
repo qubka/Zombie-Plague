@@ -70,8 +70,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieTank; 
@@ -118,8 +118,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("TANK_SKILL_SOUNDS");
 }
 
 /**
@@ -142,7 +142,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
     {
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombi_pressure.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
         
         // Create an effect
         FakeCreateParticle(clientIndex, _, "cloud", ZOMBIE_CLASS_DURATION);
@@ -169,7 +169,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
     {
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombi_pressure_female.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 2);
     }
 }
 

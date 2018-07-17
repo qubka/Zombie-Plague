@@ -51,8 +51,9 @@
 #define PARAM_ERROR_UNEXPECTED_KEY      1   /** Unexpected key name. */
 #define PARAM_ERROR_UNEXPECTED_END      2   /** Unexpected end of source string. */
 #define PARAM_ERROR_MISSING_EQUATION    3   /** Could not find a equation sign (=) after previous key name. */
-#define PARAM_ERROR_UNKNOWN             4   /** Unknown error. The parser got a invalid result from a search function it couldn't handle. */
-#define PARAM_ERROR_FULL                5   /** Destination array is full. */
+#define PARAM_ERROR_MISSING_QUOTES      4   /** Could not find a quotes sign (") after key name. */
+#define PARAM_ERROR_UNKNOWN             5   /** Unknown error. The parser got a invalid result from a search function it couldn't handle. */
+#define PARAM_ERROR_FULL                6   /** Destination array is full. */
 /**
  * @endsection
  **/
@@ -201,7 +202,7 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, int
                     // Check if string without quote, then stop
                     if(iQuote1 == -1 || iQuote2 == -1 || iQuote1 == iQuote2)
                     {
-                        return PARAM_ERROR_UNEXPECTED_END;
+                        return PARAM_ERROR_MISSING_QUOTES;
                     }
                 }
                 
@@ -246,6 +247,7 @@ stock int ParamFindKey(iBuffer[][ParamParseResult], int iMaxKeys, const char[] s
         }
     }
     
+    // Return on unsuccess
     return -1;
 }
 

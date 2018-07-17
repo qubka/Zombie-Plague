@@ -61,6 +61,7 @@ enum ZPSelectType
 
 
 #include "zombieplague/menus.inc"
+#include "zombieplague/sounds.inc"
 #include "zombieplague/weapons.inc"
 #include "zombieplague/costumes.inc"
 #include "zombieplague/gamemodes.inc"
@@ -145,7 +146,7 @@ forward void ZP_OnEngineExecute(/*void*/);
 //*********************************************************************
 
 /**
- * Returns whether a player is allowed to do a certain operation or not.
+ * @brief Returns whether a player is allowed to do a certain operation or not.
  *
  * @param clientIndex        The client index.
  * @param flag               The access flag. See enum AdminFlag.
@@ -300,38 +301,28 @@ native int ZP_SetClientExp(int clientIndex, int amountExp);
 //*********************************************************************
 
 /**
- * Emits random sound from a block from 'sounds.ini' config.
- *
- * @param sKey                The key to search for sound ID.
- * @param clientIndex         (Optional) The client index.
- *  
- * @noreturn
- **/
-native bool ZP_EmitSound(char[] sKey, int clientIndex = 0);
-
-/**
- * Gets the new round's state.
+ * @brief Gets the new round's state.
  *
  * @return                  True or false.
  **/
 native bool ZP_IsNewRound();
 
 /**
- * Gets the end round's state.
+ * @brief Gets the end round's state.
  *
  * @return                  True or false.
 **/
 native bool ZP_IsEndRound();
 
 /**
- * Gets the new round's state.
+ * @brief Gets the new round's state.
  *
  * @return                  True or false.
  **/
 native bool ZP_IsStartedRound();
 
 /**
- * Gets the number of round.
+ * @brief Gets the number of round.
  *
  * @return                  The round counter.
  **/
@@ -442,7 +433,7 @@ stock bool IsPlayerExist(const int clientIndex, const bool aliveness = true)
 }
 
 /**
- * Create a particle entity.
+ * @brief Create a particle entity.
  * 
  * @param parentIndex       The client index.
  * @param sAttach           (Optional) The attachment bone of the entity parent.

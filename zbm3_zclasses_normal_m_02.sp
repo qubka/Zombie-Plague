@@ -150,15 +150,15 @@ enum /*Collision_Group_t*/
 
     COLLISION_GROUP_NPC_ACTOR,          // Used so NPCs in scripts ignore the player.
     COLLISION_GROUP_NPC_SCRIPTED,       // USed for NPCs in scripts that should not collide with each other
-
+    
     LAST_SHARED_COLLISION_GROUP
 };
 /**
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieNormalM02;
@@ -205,8 +205,8 @@ public void OnLibraryAdded(const char[] sLibrary) // Stamper
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("COFFIN_SKILL_SOUNDS");
 }
 
 /**
@@ -235,8 +235,8 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         GetVectorPosition(clientIndex, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vFromPosition);
 
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombi_stamper_iron_maiden_stamping.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
-
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        
         // Create a trap entity
         int entityIndex = CreateEntityByName("prop_physics_multiplayer"); 
 
@@ -245,7 +245,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         {
             // Dispatch main values of the entity
             DispatchKeyValue(entityIndex, "model", "models/player/custom_player/zombie/zombiepile/zombiepile.mdl");
-            DispatchKeyValue(entityIndex, "spawnflags", "8834"); /// Don't take physics damage | Not affected by rotor wash | Prevent pickup | Force server-side
+            //DispatchKeyValue(entityIndex, "spawnflags", "8834"); /// Don't take physics damage | Not affected by rotor wash | Prevent pickup | Force server-side
 
             // Spawn the entity
             DispatchSpawn(entityIndex);
@@ -258,7 +258,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
             
             // Sets owner to the entity
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
+            SetEntPropEnt(entityIndex, Prop_Data, "m_hParent", clientIndex);
 
             // Sets the health
             SetEntProp(entityIndex, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
@@ -266,8 +266,8 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", ZOMBIE_CLASS_SKILL_HEALTH);
 
             // Create damage/touch hook
-            SDKHook(entityIndex, SDKHook_OnTakeDamage, CoffinDamageHook);
             SDKHook(entityIndex, SDKHook_Touch, CoffinTouchHook);
+            SDKHook(entityIndex, SDKHook_OnTakeDamage, CoffinDamageHook);
             
             // Create remove timer
             CreateTimer(ZOMBIE_CLASS_DURATION, CoffinExploadHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
@@ -293,7 +293,7 @@ public Action CoffinTouchHook(int entityIndex, int targetIndex)
         if(IsPlayerExist(targetIndex))
         {
             // Expload with other player coliding
-            if(GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity") != targetIndex)
+            if(GetEntPropEnt(entityIndex, Prop_Data, "m_hParent") != targetIndex)
             {
                 // Destroy touch hook
                 SDKUnhook(entityIndex, SDKHook_Touch, CoffinTouchHook);
@@ -337,8 +337,8 @@ public Action CoffinDamageHook(int entityIndex, int &attackerIndex, int &inflict
         else
         {
             // Emit sound
-            EmitSoundToAll(GetRandomInt(0,1) ? "*/zbm3/tacticalk_wood1.mp3" : "*/zbm3/tacticalk_wood2.mp3", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-
+            ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, GetRandomInt(2, 3));
+            
             // Apply damage
             SetEntProp(entityIndex, Prop_Data, "m_iHealth", healthAmount);
         }
@@ -420,8 +420,8 @@ void CoffinExpload(int entityIndex)
     FakeCreateParticle(entityIndex, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_SKILL_EXP_TIME);
 
     // Emit sound
-    EmitSoundToAll("*/zbm3/zombi_stamper_iron_maiden_explosion.mp3", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-
+    ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 4);
+    
     // Create a breaked glass effect
     static char sModel[NORMAL_LINE_LENGTH];
     for(int x = 0; x <= 4; x++)

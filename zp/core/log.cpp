@@ -634,7 +634,6 @@ public Action Command_LogList(int clientIndex, int iArguments)
         Format(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[view_as<LogModules>(i)] ? "On" : "Off");
         ReplyToCommand(clientIndex, sLineBuffer);
     }
-    
     return Plugin_Handled;
 }
 

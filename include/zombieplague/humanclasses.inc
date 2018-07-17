@@ -173,31 +173,28 @@ native int ZP_GetHumanClassLevel(int classID);
 native bool ZP_IsHumanClassVIP(int classID);
 
 /**
- * @brief Gets the death sound of a human class at a given index.
+ * @brief Gets the death sound key of the human class.
  *
  * @param classID            The class index.
- * @param name               The string to return sound in.
- * @param maxlenght          The lenght of string.
+ * @return                   The key id.
  **/
-native void ZP_GetHumanClassSoundDeath(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetHumanClassSoundDeathID(int classID);
 
 /**
- * @brief Gets the hurt sound of a human class at a given index.
+ * @brief Gets the hurt sound key of the human class.
  *
  * @param classID            The class index.
- * @param name               The string to return sound in.
- * @param maxlenght          The lenght of string.
+ * @return                   The key id.
  **/
-native void ZP_GetHumanClassSoundHurt(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetHumanClassSoundHurtID(int classID);
 
 /**
- * @brief Gets the infect sound of a human class at a given index.
+ * @brief Gets the infect sound key of the human class.
  *
  * @param classID            The class index.
- * @param name               The string to return sound in.
- * @param maxlenght          The lenght of string.
+ * @return                   The key id.
  **/
-native void ZP_GetHumanClassSoundInfect(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetHumanClassSoundInfectID(int classID);
 
 /**
  * @brief Print the info about the human class.

@@ -83,6 +83,7 @@ public Action ExtraItemsCommandCatched(int clientIndex, int iArguments)
 {
     // Open the extra items menu
     ExtraItemsMenu(clientIndex);
+    return Plugin_Handled;
 }
 
 /*

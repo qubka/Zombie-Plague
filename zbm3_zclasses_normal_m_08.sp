@@ -82,8 +82,8 @@ public Plugin myinfo =
 // Initialize variables
 Handle Task_ZombieHallucination[MAXPLAYERS+1] = INVALID_HANDLE; 
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 // Initialize zombie class index
 int gZombieNormalM08;
@@ -133,8 +133,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("TESLA_SKILL_SOUNDS");
 }
 
 /**
@@ -219,8 +219,8 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM08)
     {
         // Emit sound
-        EmitSoundToAll("*/zbm3/td_debuff.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
-    
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
+        
         // Initialize vectors
         static float vPosition[3]; 
 

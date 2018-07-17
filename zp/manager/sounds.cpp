@@ -34,7 +34,7 @@
 /**
  * Number of max valid sounds blocks.
  **/
-#define SoundBlocksMax 128
+#define SoundBlocksMax 256
 
 /**
  * Array handle to store soundtable config data.
@@ -160,6 +160,9 @@ void SoundsLoad(/*void*/)
     ConfigSetConfigLoaded(File_Sounds, true);
     ConfigSetConfigReloadFunc(File_Sounds, GetFunctionByName(GetMyHandle(), "SoundsOnConfigReload"));
     ConfigSetConfigHandle(File_Sounds, arraySounds);
+
+    // Forward event to sub-modules
+    PlayerSoundsOnLoad();
 }
 
 /**
@@ -194,24 +197,7 @@ void SoundsOnRoundEnd(int CReason)
     SoundsInputStop();
     
     // Create timer for emit sounds 
-    CreateTimer(0.1, SoundsOnRoundEndPost, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
-}
-
-/**
- * The round is ending. (Post)
- *
- * @param CReason           Reason the round has ended.
- **/
-public Action SoundsOnRoundEndPost(Handle hTimer, int CReason)
-{
-    // Switch end round reason
-    switch(CReason)
-    {
-        // Emit sounds
-        case ROUNDEND_TERRORISTS_WIN : SoundsInputEmitToAll("ROUND_ZOMBIE_SOUNDS");   
-        case ROUNDEND_CTS_WIN :        SoundsInputEmitToAll("ROUND_HUMAN_SOUNDS");
-        case ROUNDEND_ROUND_DRAW :     SoundsInputEmitToAll("ROUND_DRAW_SOUNDS");
-    }
+    CreateTimer(0.1, PlayerSoundsOnRoundEnd, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
 }
 
 /**
@@ -272,16 +258,49 @@ void SoundsOnClientRegen(int clientIndex)
     PlayerSoundsOnClientRegen(clientIndex);
 }
 
+/**
+ * Client has been swith flashlight.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void SoundsOnClientFlashLight(int clientIndex)
+{
+    // Forward event to sub-modules
+    PlayerSoundsOnClientFlashLight(clientIndex);
+}
+
+/**
+ * Client has been buy ammunition.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void SoundsOnClientAmmunition(int clientIndex)
+{
+    // Forward event to sub-modules
+    PlayerSoundsOnClientAmmunition(clientIndex);
+}
+
+/**
+ * Client has been level's up.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void SoundsOnClientLevelUp(int clientIndex)
+{
+    // Forward event to sub-modules
+    PlayerSoundsOnClientLevelUp(clientIndex);
+}
+
 /*
  * Sounds natives API.
  */
 
 /**
- * Emits random sound from a block from sounds config.
+ * Gets the key id from a given name.
  *
- * native bool ZP_EmitSound(sKey, clientIndex);
+ * native int ZP_GetSoundKeyID(name);
  **/
-public int API_EmitSound(Handle isPlugin, int iNumParams)
+public int API_GetSoundKeyID(Handle isPlugin, int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -290,21 +309,36 @@ public int API_EmitSound(Handle isPlugin, int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "Can't find block with an empty name");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "Can't find key with an empty name");
         return -1;
     }
 
     // Gets native data
-    char sSoundKey[SMALL_LINE_LENGTH];
+    static char sName[PARAM_NAME_MAXLEN];
 
     // General                                            
-    GetNativeString(1, sSoundKey, sizeof(sSoundKey));
+    GetNativeString(1, sName, sizeof(sName));
 
-    // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(2);
+    // Return the value
+    return SoundsKeyToIndex(sName);
+}
 
-    // Play sound to client
-    return IsPlayerExist(clientIndex) ? SoundsInputEmitToClient(clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue, sSoundKey) : SoundsInputEmitToAll(sSoundKey);
+/**
+ * Emit random sound from a key id from sounds config.
+ *
+ * native bool ZP_EmitSoundKeyID(entityIndex, keyID, channel, position);
+ **/
+public int API_EmitSoundKeyID(Handle isPlugin, int iNumParams)
+{
+    // Validate sound
+    if(!SoundsInputEmit(GetNativeCell(1), GetNativeCell(3), GetNativeCell(2), GetNativeCell(4)))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "Can't find sound with that key");
+        return false;
+    }  
+
+    // Return on success
+    return true;
 }
  
 /*
@@ -332,22 +366,19 @@ stock void SoundsGetLine(int iD, char[] sLine, int iMaxLen)
  * 
  * @param sLine             The string to return name in.
  * @param iMaxLen           The max length of the string.
- * @param sKey              The key to search for array ID.
- * @param iNum              The number of sound in 2D array. (Optional) If 0 sound will be choose randomly from key.
+ * @param iKey              The key index.
+ * @param iNum              The number of sound in 2D array. (Optional) If 0 sound will be choose randomly from the key.
  **/
-stock void SoundsGetSound(char[] sLine, int iMaxLen, char[] sKey, int iNum = 0)
+stock void SoundsGetSound(char[] sLine, int iMaxLen, int iKey, int iNum = 0)
 {
-    // Gets number of sound block
-    int iBlockNum = ParamFindKey(SoundBuffer, SoundBlocksMax, sKey);
-    
-    // If block didn't find, then stop
-    if(iBlockNum == -1)
+    // Validate key
+    if(iKey == -1)
     {
         return;
     }
-    
+
     // Gets array handle of weapon at given index
-    ArrayList arraySound = arraySounds.Get(iBlockNum);
+    ArrayList arraySound = arraySounds.Get(iKey);
 
     // Gets size of array handle
     int iSize = arraySound.Length;
@@ -363,52 +394,35 @@ stock void SoundsGetSound(char[] sLine, int iMaxLen, char[] sKey, int iNum = 0)
 }
 
 /**
- * Emits sounds to all players.
+ * Find the index at which the key is at.
  * 
- * @param sKey              The key to search for array ID.
- * @param nNum              (Optional) The number of sound from the key array.
- * @return                  True if the sound was emit, false otherwise.
+ * @param sKey              The key name.
+ * @return                  The array index containing the given key.
  **/
-stock bool SoundsInputEmitToAll(char[] sKey, int nNum = 0)
+stock int SoundsKeyToIndex(char[] sKey)
 {
-    // Initialize char
-    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
-    
-    // Select sound in the array
-    SoundsGetSound(sSound, sizeof(sSound), sKey, nNum);
-    
-    // Validate sound
-    if(strlen(sSound))
-    {
-        // Format sound
-        Format(sSound, sizeof(sSound), "*/%s", sSound);
-        
-        // Emit sound
-        EmitSoundToAll(sSound, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
-        return true;
-    }
-
-    // Return on unsuccess
-    return false;
+    // Find key index
+    return ParamFindKey(SoundBuffer, arraySounds.Length, sKey);
 }
 
 /**
- * Emits sounds to particular player.
+ * Emit sound.
  * 
- * @param clientIndex       The client index.
+ * @param entityIndex       The entity index.
  * @param iChannel          The channel to emit with.
- * @param nLevel            The sound level.
- * @param sKey              The key to search for array ID.
+ * @param iLevel            The sound level.
+ * @param iKey              The key index.
  * @param entityIndex       (Optional) The entity to emit from.  
+ * @param iNum              (Optional) The index of sound from the key array.
  * @return                  True if the sound was emit, false otherwise.
  **/
-stock bool SoundsInputEmitToClient(int clientIndex, int iChannel, int nLevel, char[] sKey, int entityIndex = 0)
+stock bool SoundsInputEmit(int entityIndex, int iChannel, int iKey, int iNum = 0)
 {
     // Initialize char
     static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
     
     // Select sound in the array
-    SoundsGetSound(sSound, sizeof(sSound), sKey);
+    SoundsGetSound(sSound, sizeof(sSound), iKey, iNum);
     
     // Validate sound
     if(strlen(sSound))
@@ -417,7 +431,7 @@ stock bool SoundsInputEmitToClient(int clientIndex, int iChannel, int nLevel, ch
         Format(sSound, sizeof(sSound), "*/%s", sSound);
 
         // Emit sound
-        EmitSoundToAll(sSound, entityIndex ? entityIndex : clientIndex, iChannel, nLevel);
+        EmitSoundToAll(sSound, entityIndex, iChannel, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
         return true;
     }
 
@@ -426,17 +440,15 @@ stock bool SoundsInputEmitToClient(int clientIndex, int iChannel, int nLevel, ch
 }
 
 /**
- * Stop sound to the all players.
- *  
- * @param sSound            The path to the sound file (relative to sounds/) 
+ * Stop sound.
  **/
-stock void SoundsInputStop(/*const char[] sSound*/)
+stock void SoundsInputStop(/*void*/)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
     {
-        // Validate client
-        if(IsPlayerExist(i, false))
+        // Validate real client
+        if(IsPlayerExist(i, false) && !IsFakeClient(i))
         {
             // Stop sound
             ClientCommand(i, "playgamesound Music.StopAllExceptMusic"); 

@@ -74,8 +74,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieNormalF01;
@@ -122,8 +122,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
 }
 
 /**
@@ -164,7 +164,7 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damage
             if(nChanceIndex[clientIndex] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
             {
                 // Emit sound
-                EmitSoundToAll("*/zbm3/sleepimpact.mp3", attackerIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+                ZP_EmitSoundKeyID(attackerIndex, gSound, SNDCHAN_VOICE);
                 
                 // Create an fade
                 FakeCreateFadeScreen(attackerIndex, ZOMBIE_CLASS_EFFECT_DURATION_F, ZOMBIE_CLASS_EFFECT_TIME_F, 0x0001, ZOMBIE_CLASS_EFFECT_COLOR_F);

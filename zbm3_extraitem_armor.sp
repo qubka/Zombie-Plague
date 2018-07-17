@@ -55,8 +55,8 @@ public Plugin myinfo =
 // Initialize variable
 bool bArmored[MAXPLAYERS+1];
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Item index
 int gItem;
@@ -81,8 +81,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("ARMOR_BUY_SOUNDS");
 }
 
 /**
@@ -173,6 +173,6 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
         }
         
         // Emit sound
-        EmitSoundToAll("*/zbm3/kevlar.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
     }
 }

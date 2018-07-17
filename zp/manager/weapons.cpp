@@ -175,12 +175,7 @@ void WeaponsCacheData(/*void*/)
         arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));   // Index: 11
         arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));  // Index: 12
         kvWeapons.GetString("sound", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                 // Index: 13 
-        if(strlen(sPathWeapons)) 
-        {
-            Format(sPathWeapons, sizeof(sPathWeapons), "sound/%s", sPathWeapons[2]);
-            fnMultiFilePrecache(sPathWeapons); /// Precache the formated sound
-        }
+        arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));     // Index: 13
         arrayWeapon.Push(kvWeapons.GetNum("class", 0));       // Index: 14
         kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                 // Index: 15    
@@ -724,11 +719,11 @@ public int API_GetWeaponReload(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the sound of a weapon at a given id.
+ * Gets the sound key of the weapon.
  *
- * native void ZP_GetWeaponSound(iD, sound, maxlen);
+ * native int ZP_GetWeaponSoundID(iD);
  **/
-public int API_GetWeaponSound(Handle isPlugin, int iNumParams)
+public int API_GetWeaponSoundID(Handle isPlugin, int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -739,23 +734,9 @@ public int API_GetWeaponSound(Handle isPlugin, int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
     }
-    
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
-
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize sound char
-    static char sSound[PLATFORM_MAX_PATH];
-    WeaponsGetSound(iD, sSound, sizeof(sSound));
 
     // Return on success
-    return SetNativeString(2, sSound, maxLen);
+    return WeaponsGetSoundID(iD);
 }
 
 /**
@@ -1156,19 +1137,18 @@ stock float WeaponsGetReload(int iD)
 }
 
 /**
- * Gets the path of a weapon attack sound at a given id.
+ *  Gets the sound key of the weapon.
  *
  * @param iD                The weapon id.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
+ * @return                  The key index.
  **/
-stock void WeaponsGetSound(int iD, char[] sSound, int iMaxLen)
+stock int WeaponsGetSoundID(int iD)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
     
-    // Gets weapon sound
-    arrayWeapon.GetString(WEAPONS_DATA_SOUND, sSound, iMaxLen);
+    // Gets weapon sound key
+    return arrayWeapon.Get(WEAPONS_DATA_SOUND);
 }
 
 /**

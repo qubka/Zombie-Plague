@@ -70,8 +70,8 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
 
 // Initialize zombie class index
 int gZombieMutationLight;
@@ -118,8 +118,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("GHOST_SKILL_SOUNDS");
 }
 
 /**
@@ -168,7 +168,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 0.0);  
 
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombi_female_laugh.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
     }
     
     // Allow usage
@@ -195,6 +195,6 @@ public void ZP_OnClientSkillOver(int clientIndex)
         SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
 
         // Emit sound
-        EmitSoundToAll("*/zbm3/ghost_change01.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 2);
     }
 }

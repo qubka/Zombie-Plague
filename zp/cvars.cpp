@@ -224,6 +224,24 @@ enum CvarsList
     ConVar:CVAR_SEFFECTS_DEATH,
     ConVar:CVAR_SEFFECTS_FOOTSTEPS,
     ConVar:CVAR_SEFFECTS_CLAWS,
+    ConVar:CVAR_SEFFECTS_SURVIVOR_INFECT,
+    ConVar:CVAR_SEFFECTS_SURVIVOR_HURT,
+    ConVar:CVAR_SEFFECTS_SURVIVOR_DEATH,
+    ConVar:CVAR_SEFFECTS_NEMESIS_IDLE,
+    ConVar:CVAR_SEFFECTS_NEMESIS_HURT,
+    ConVar:CVAR_SEFFECTS_NEMESIS_DEATH,
+    ConVar:CVAR_SEFFECTS_NEMESIS_BURN,
+    ConVar:CVAR_SEFFECTS_NEMESIS_FOOTSTEP,
+    ConVar:CVAR_SEFFECTS_NEMESIS_RESPAWN, 
+    ConVar:CVAR_SEFFECTS_NEMESIS_ATTACK,     
+    ConVar:CVAR_SEFFECTS_PLAYER_FLASHLIGHT, 
+    ConVar:CVAR_SEFFECTS_PLAYER_AMMUNITION,  
+    ConVar:CVAR_SEFFECTS_PLAYER_LEVEL,       
+    ConVar:CVAR_SEFFECTS_ROUND_START,       
+    ConVar:CVAR_SEFFECTS_ROUND_COUNT,        
+    ConVar:CVAR_SEFFECTS_ROUND_ZOMBIE,           
+    ConVar:CVAR_SEFFECTS_ROUND_HUMAN,         
+    ConVar:CVAR_SEFFECTS_ROUND_DRAW,
     ConVar:CVAR_MESSAGES_HELP,
     ConVar:CVAR_MESSAGES_BLOCK,
     ConVar:CVAR_CT_DEFAULT_GRENADES,
@@ -556,6 +574,24 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SEFFECTS_DEATH]              = CreateConVar("zp_seffects_death",                 "1",                                                               "Emit a death sound when a zombie dies");
     gCvarList[CVAR_SEFFECTS_FOOTSTEPS]          = CreateConVar("zp_seffects_footsteps",             "1",                                                               "Emit a footstep sound when a zombie walks");
     gCvarList[CVAR_SEFFECTS_CLAWS]              = CreateConVar("zp_seffects_claws",                 "1",                                                               "Emit a claw sound when a zombie attacks");
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_INFECT]    = CreateConVar("zp_seffects_survivor_infect",       "SURVIVOR_INFECTION_SOUNDS",                                       "The key block for survivor infect sounds");
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_HURT]      = CreateConVar("zp_seffects_survivor_hurt",         "SURVIVOR_HURT_SOUNDS",                                            "The key block for survivor hurt sounds");
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_DEATH]     = CreateConVar("zp_seffects_survivor_death",        "SURVIVOR_DEATH_SOUNDS",                                           "The key block for survivor death sounds");
+    gCvarList[CVAR_SEFFECTS_NEMESIS_IDLE]       = CreateConVar("zp_seffects_nemesis_idle",          "NEMESIS_IDLE_SOUNDS",                                             "The key block for nemesis idle sounds"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_HURT]       = CreateConVar("zp_seffects_nemesis_hurt",          "NEMESIS_HURT_SOUNDS",                                             "The key block for nemesis hurt sounds");  
+    gCvarList[CVAR_SEFFECTS_NEMESIS_DEATH]      = CreateConVar("zp_seffects_nemesis_death",         "NEMESIS_DEATH_SOUNDS",                                            "The key block for nemesis death sounds"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_BURN]       = CreateConVar("zp_seffects_nemesis_burn",          "NEMESIS_BURN_SOUNDS",                                             "The key block for nemesis burn sounds");
+    gCvarList[CVAR_SEFFECTS_NEMESIS_FOOTSTEP]   = CreateConVar("zp_seffects_nemesis_footstep",      "NEMESIS_FOOTSTEP_SOUNDS",                                         "The key block for nemesis footstep sounds"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_RESPAWN]    = CreateConVar("zp_seffects_nemesis_respawn",       "NEMESIS_RESPAWN_SOUNDS",                                          "The key block for nemesis respawn sounds"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_ATTACK]     = CreateConVar("zp_seffects_nemesis_attack",        "NEMESIS_ATTACK_SOUNDS",                                           "The key block for nemesis attack sounds");
+    gCvarList[CVAR_SEFFECTS_PLAYER_FLASHLIGHT]  = CreateConVar("zp_seffects_player_flashlight",     "FLASH_LIGHT_SOUNDS",                                              "The key block for player flashlight sounds");  
+    gCvarList[CVAR_SEFFECTS_PLAYER_AMMUNITION]  = CreateConVar("zp_seffects_player_ammunition",     "AMMUNITION_BUY_SOUNDS",                                           "The key block for player ammunition sounds");
+    gCvarList[CVAR_SEFFECTS_PLAYER_LEVEL]       = CreateConVar("zp_seffects_player_level",          "LEVEL_UP_SOUNDS",                                                 "The key block for player levelup sounds");
+    gCvarList[CVAR_SEFFECTS_ROUND_START]        = CreateConVar("zp_seffects_round_start",           "ROUND_START_SOUNDS",                                              "The key block for round start sounds");   
+    gCvarList[CVAR_SEFFECTS_ROUND_COUNT]        = CreateConVar("zp_seffects_round_count",           "ROUND_COUNTER_SOUNDS",                                            "The key block for round counter sounds");   
+    gCvarList[CVAR_SEFFECTS_ROUND_ZOMBIE]       = CreateConVar("zp_seffects_round_zombie",          "ROUND_ZOMBIE_SOUNDS",                                             "The key block for round zombie sounds");
+    gCvarList[CVAR_SEFFECTS_ROUND_HUMAN]        = CreateConVar("zp_seffects_round_human",           "ROUND_HUMAN_SOUNDS",                                              "The key block for round human sounds");  
+    gCvarList[CVAR_SEFFECTS_ROUND_DRAW]         = CreateConVar("zp_seffects_round_draw",            "ROUND_DRAW_SOUNDS",                                               "The key block for round draw sounds");  
     
     // =========================== //
     //            Messages         //

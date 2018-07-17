@@ -150,8 +150,8 @@ enum /*Collision_Group_t*/
 // Initialize variables
 Handle Task_HumanTrapped[MAXPLAYERS+1] = INVALID_HANDLE;  bool bStandOnTrap[MAXPLAYERS+1];
 
-// ConVar for sound level
-ConVar hSoundLevel;
+// Variables for the key sound block
+int gSound;
  
 // Initialize zombie class index
 int gZombieMutationHeavy;
@@ -201,8 +201,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Cvars
-    hSoundLevel = FindConVar("zp_game_custom_sound_level");
+    // Sounds
+    gSound = ZP_GetSoundKeyID("TRAP_SKILL_SOUNDS");
 }
 
 /**
@@ -304,7 +304,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         GetClientAbsOrigin(clientIndex, vPosition);
         
         // Emit sound
-        EmitSoundToAll("*/zbm3/zombi_trapsetup.mp3", clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
         
         // Create a trap entity
         int entityIndex = CreateEntityByName("prop_physics_multiplayer"); 
@@ -372,8 +372,8 @@ public Action TrapTouchHook(int entityIndex, int targetIndex)
                 Task_HumanTrapped[targetIndex] = CreateTimer(ZOMBIE_CLASS_DURATION, ClientRemoveTrapEffect, GetClientUserId(targetIndex), TIMER_FLAG_NO_MAPCHANGE);
 
                 // Emit sound
-                EmitSoundToAll("*/zbm3/trap.mp3", targetIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
-
+                ZP_EmitSoundKeyID(targetIndex, gSound, SNDCHAN_VOICE, 2);
+                
                 // Remove entity from world
                 AcceptEntityInput(entityIndex, "Kill");
 

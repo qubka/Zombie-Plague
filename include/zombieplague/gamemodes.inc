@@ -106,13 +106,12 @@ native void ZP_GetGameModeName(int modeID, char[] name, int maxlenght = 32);
 native void ZP_GetGameModeDesc(int modeID, char[] desc, int maxlenght = 32);
 
 /**
- * @brief Gets the sound of a game mode at a given index.
+ * @brief Gets the sound key of the game mode.
  *
  * @param modeID            The mode index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.
  **/
-native void ZP_GetGameModeSound(int modeID, char[] sound, int maxlenght = 32);
+native int ZP_GetGameModeSoundID(int modeID);
 
 /**
  * @brief Gets the chance of the game mode.

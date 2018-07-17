@@ -253,76 +253,68 @@ native int ZP_GetZombieClassClawID(int classID);
 native int ZP_GetZombieClassGrenadeID(int classID);
 
 /**
- * @brief Gets the death sound of a zombie class at a given index.
+ * @brief Gets the death sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundDeath(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundDeathID(int classID);
 
 /**
- * @brief Gets the hurt sound of a zombie class at a given index.
+ * @brief Gets the hurt sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundHurt(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundHurtID(int classID);
 
 /**
- * @brief Gets the idle sound of a zombie class at a given index.
+ * @brief Gets the idle sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundIdle(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundIdleID(int classID);
 
 /**
- * @brief Gets the respawn sound of a zombie class at a given index.
+ * @brief Gets the respawn sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundRespawn(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundRespawnID(int classID);
 
 /**
- * @brief Gets the burn sound of a zombie class at a given index.
+ * @brief Gets the burn sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundBurn(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundBurnID(int classID);
 
 /**
- * @brief Gets the attack sound of a zombie class at a given index.
+ * @brief Gets the attack sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundAttack(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundAttackID(int classID);
 
 /**
- * @brief Gets the footstep sound of a zombie class at a given index.
+ * @brief Gets the footstep sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundFoot(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundFootID(int classID);
 
 /**
- * @brief Gets the regeneration sound of a zombie class at a given index.
+ * @brief Gets the regeneration sound key of the zombie class.
  *
  * @param classID           The class index.
- * @param sound             The string to return sound in.
- * @param maxlenght         The lenght of string.
+ * @return                  The key id.   
  **/
-native void ZP_GetZombieClassSoundRegen(int classID, char[] sound, int maxlenght = 32);
+native int ZP_GetZombieClassSoundRegenID(int classID);
 
 /**
  * @brief Print the info about the zombie class.
