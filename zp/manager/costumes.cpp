@@ -190,7 +190,7 @@ void CostumesLoad(/*void*/)
  **/
 void CostumesCacheData(/*void*/)
 {
-    // Gets config's file path
+    // Gets config file path
     char sCostumesPath[PLATFORM_MAX_PATH];
     ConfigGetConfigPath(File_Costumes, sCostumesPath, sizeof(sCostumesPath)); 
     
@@ -784,7 +784,7 @@ public void CostumesCreateEntity(int clientIndex)
     // Validate client
     if(IsPlayerExist(clientIndex))
     {
-        // Gets the current costume from the client's reference
+        // Gets the current costume from the client reference
         int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentCostume]);
 
         // Validate costume
@@ -860,7 +860,7 @@ public void CostumesCreateEntity(int clientIndex)
             // Hook entity callbacks
             if(CostumesIsHide(gClientData[clientIndex][Client_Costume])) SDKHook(entityIndex, SDKHook_SetTransmit, CostumesOnTransmit);
             
-            // Store the client's cache
+            // Store the client cache
             gClientData[clientIndex][Client_AttachmentCostume] = EntIndexToEntRef(entityIndex);
         }
     }

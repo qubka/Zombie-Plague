@@ -175,7 +175,7 @@ void VEffectsOnClientJump(int clientIndex)
  */
 
 /**
- * Shake a client's screen with specific parameters.
+ * Shake a client screen with specific parameters.
  * 
  * @param clientIndex       The client index.
  * @param hAmplitude        The cvar with amplitude of shake.
@@ -208,7 +208,7 @@ void VEffectsShakeClientScreen(int clientIndex, ConVar hAmplitude, ConVar hFrequ
 }
 
 /**
- * Fade a client's screen with specific parameters.
+ * Fade a client screen with specific parameters.
  * 
  * @param clientIndex       The client index.
  * @param hDuration         The cvar with duration of fade in the seconds.
@@ -242,7 +242,7 @@ void VEffectsFadeClientScreen(int clientIndex, ConVar hDuration, ConVar hHoldTim
 }
 
 /**
- * Send a hint message to client's screen with specific parameters.
+ * Send a hint message to client screen with specific parameters.
  * 
  * @param clientIndex       The client index.
  * @param sMessage          The message to send.
@@ -303,7 +303,7 @@ int VEffectSpawnParticle(int clientIndex, char[] sAttach, char[] sType, float fl
             // Initialize vector variables
             static float vOrigin[3];
 
-            // Gets client's position
+            // Gets client position
             GetClientAbsOrigin(clientIndex, vOrigin);
 
             // Spawn the entity
@@ -347,7 +347,7 @@ void VEffectRemoveParticle(int clientIndex)
         // Validate entity
         if(IsValidEdict(x))
         {
-            // Gets valid edict's classname
+            // Gets valid edict classname
             GetEdictClassname(x, sClassname, sizeof(sClassname));
             
             // If entity is an attach particle entity

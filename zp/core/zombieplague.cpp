@@ -238,7 +238,7 @@ stock bool IsPlayerHasFlag(int clientIndex, AdminFlag iFlag = Admin_Generic)
      *                               *
      *********************************/
 
-    // Retrieves a client's AdminId
+    // Retrieves a client AdminId
     AdminId iD = GetUserAdmin(clientIndex);
 
     // Validate id
@@ -281,7 +281,7 @@ stock bool IsPlayerHasFlags(int clientIndex, const char[] sFlags)
     
     #define ADMFLAG_BYTE    (1 << view_as<int>(i))
     
-    // Retrieves a client's AdminId
+    // Retrieves a client AdminId
     AdminId iD = GetUserAdmin(clientIndex);
 
     // Validate id
@@ -335,7 +335,7 @@ stock bool IsPlayerInGroup(int clientIndex, const char[] sGroup)
      *                               *
      *********************************/
     
-    // Retrieves a client's AdminId
+    // Retrieves a client AdminId
     AdminId iD = GetUserAdmin(clientIndex);
     
     // Validate id
@@ -595,7 +595,7 @@ stock bool fnMultiFilePrecache(const char[] sPath)
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sPath, '.', true);
     
-    // If model's path is don't have format, then log, and stop
+    // If model path is don't have format, then log, and stop
     if(iFormat == -1)
     {
         LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);

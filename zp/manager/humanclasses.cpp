@@ -675,7 +675,7 @@ stock void HumanGetArmModel(int iD, char[] sModel, int iMaxLen)
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
 
-    // Gets human class arm's model
+    // Gets human class arm model
     arrayHumanClass.GetString(HUMANCLASSES_DATA_ARM, sModel, iMaxLen);
 }
 
@@ -912,7 +912,7 @@ stock void HumanSetSoundInfectID(int iD, int iKey)
  */
 
 /**
- * Validate human class for client's availability.
+ * Validate human class for client availability.
  *
  * @param clientIndex       The client index.
  **/
@@ -921,7 +921,7 @@ void HumanOnValidate(int clientIndex)
     // Gets array size
     int iSize = arrayHumanClasses.Length;
     
-    // Gets client's access
+    // Gets client access
     bool IsVIP = IsPlayerHasFlag(clientIndex, Admin_Custom1);
     
     // Choose random zombie class for the client

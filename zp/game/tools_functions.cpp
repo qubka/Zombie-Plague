@@ -46,13 +46,13 @@ public Action ToolsHook(int clientIndex, const char[] commandMsg, int iArguments
     // Validate client 
     if(IsPlayerExist(clientIndex))
     {
-        // If zombie's nightvision ?
+        // If zombie nightvision ?
         if(gClientData[clientIndex][Client_Zombie])
         {
             // Switch on/off nightvision
             if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION] && !gServerData[Server_RoundEnd]) VOverlayOnClientUpdate(clientIndex, !ToolsGetClientNightVision(clientIndex, true) ? Overlay_Vision : Overlay_Reset);
         }
-        // If human's flashlight ?
+        // If human flashlight ?
         else
         {
             // Switch on/off flashlight
@@ -152,7 +152,7 @@ void ToolsForceToRespawn(int clientIndex)
 }
 
 /**
- * Reset all player's timers.
+ * Reset all player timers.
  *
  * @param clientIndex       The client index.
  **/
@@ -168,7 +168,7 @@ void ToolsResetTimers(int clientIndex)
 }
 
 /**
- * Purge all player's timers.
+ * Purge all player timers.
  *
  * @param clientIndex       The client index.
  **/
@@ -184,17 +184,17 @@ void ToolsPurgeTimers(int clientIndex)
 }
 
 /**
- * Get or set a client's velocity.
+ * Get or set a client velocity.
  *
  * @param clientIndex       The client index.
  * @param vecVelocity       Array to store vector in, or velocity to set on client.
- * @param bApply            True to get client's velocity, false to set it.
- * @param bStack            If modifying velocity, then true will stack new velocity onto the client's
+ * @param bApply            True to get client velocity, false to set it.
+ * @param bStack            If modifying velocity, then true will stack new velocity onto the client
  *                          current velocity, false will reset it.
  **/
 stock void ToolsClientVelocity(int clientIndex, float vecVelocity[3], bool bApply = true, bool bStack = true)
 {
-    // If retrieve if true, then get client's velocity
+    // If retrieve if true, then get client velocity
     if(!bApply)
     {
         // i = vector component
@@ -207,10 +207,10 @@ stock void ToolsClientVelocity(int clientIndex, float vecVelocity[3], bool bAppl
         return;
     }
     
-    // If stack is true, then add client's velocity
+    // If stack is true, then add client velocity
     if(bStack)
     {
-        // Gets client's velocity
+        // Gets client velocity
         static float vecClientVelocity[3];
         
         // i = vector component
@@ -227,7 +227,7 @@ stock void ToolsClientVelocity(int clientIndex, float vecVelocity[3], bool bAppl
 }
 
 /**
- * Gets client's velocity.
+ * Gets client velocity.
  *
  * @param clientIndex       The client index.
  * @param vecVelocity       Array to store vector in.
@@ -242,7 +242,7 @@ stock void ToolsGetClientVelocity(int clientIndex, float vecVelocity[3])
 }
 
 /**
- * Set a client's health value.
+ * Set a client health value.
  *
  * @param clientIndex       The client index.
  * @param iValue            Armor value.
@@ -254,7 +254,7 @@ stock void ToolsSetClientHealth(int clientIndex, int iValue)
 }
 
 /**
- * Set a client's lagged movement value.
+ * Set a client lagged movement value.
  *
  * @param clientIndex       The client index.
  * @param flValue           LMV value.
@@ -266,7 +266,7 @@ stock void ToolsSetClientLMV(int clientIndex, float flValue)
 }
 
 /**
- * Set a client's armor value.
+ * Set a client armor value.
  * @param clientIndex   The client index.
  * @param iValue         Armor value.
  **/
@@ -277,7 +277,7 @@ stock void ToolsSetClientArmor(int clientIndex, int iValue)
 }
 
 /**
- * Set a client's team index.
+ * Set a client team index.
  *
  * @param clientIndex       The client index.
  * @param iValue            Team index.
@@ -301,8 +301,8 @@ stock void ToolsSetClientTeam(int clientIndex, int nTeam)
  * Get nightvision values on a client.
  *
  * @param clientIndex       The client index.
- * @param ownership         If true, function will return the value of the client's ownership of nightvision.
- *                          If false, function will return the value of the client's on/off state of the nightvision.
+ * @param ownership         If true, function will return the value of the client ownership of nightvision.
+ *                          If false, function will return the value of the client on/off state of the nightvision.
  * @return                  True if aspect of nightvision is enabled on the client, false if not.
  **/
 stock bool ToolsGetClientNightVision(int clientIndex, bool bOwnership = false)
@@ -316,8 +316,8 @@ stock bool ToolsGetClientNightVision(int clientIndex, bool bOwnership = false)
  *
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of nightvision. (see ownership parameter)
- * @param bOwnership        If true, enable will toggle the client's ownership of nightvision.
- *                          If false, enable will toggle the client's on/off state of the nightvision.
+ * @param bOwnership        If true, enable will toggle the client ownership of nightvision.
+ *                          If false, enable will toggle the client on/off state of the nightvision.
  **/
 stock void ToolsSetClientNightVision(int clientIndex, bool bEnable, bool bOwnership = false)
 {
@@ -326,11 +326,11 @@ stock void ToolsSetClientNightVision(int clientIndex, bool bEnable, bool bOwners
 }
 
 /**
- * Set a client's score or deaths.
+ * Set a client score or deaths.
  * 
  * @param clientIndex       The client index.
  * @param bScore            True to look at score, false to look at deaths.  
- * @param iValue            The value of the client's score or deaths.
+ * @param iValue            The value of the client score or deaths.
  **/
 stock void ToolsSetClientScore(int clientIndex, bool bScore = true, int iValue = 0)
 {
@@ -341,12 +341,12 @@ stock void ToolsSetClientScore(int clientIndex, bool bScore = true, int iValue =
         g_iOffset_PlayerDeath = FindDataMapInfo(clientIndex, "m_iDeaths");
     }
     
-    // If score is true, then set client's score, otherwise set client's deaths
+    // If score is true, then set client score, otherwise set client deaths
     SetEntData(clientIndex, bScore ? g_iOffset_PlayerFrags : g_iOffset_PlayerDeath, iValue, _, true);
 }
 
 /**
- * Get or set a client's score or deaths.
+ * Get or set a client score or deaths.
  * 
  * @param clientIndex        The client index.
  * @param bScore            True to look at score, false to look at deaths.  
@@ -354,15 +354,15 @@ stock void ToolsSetClientScore(int clientIndex, bool bScore = true, int iValue =
  **/
 stock int ToolsGetClientScore(int clientIndex, bool bScore = true)
 {
-    // If score is true, then return client's score, otherwise return client's deaths
+    // If score is true, then return client score, otherwise return client deaths
     return bScore ? GetClientFrags(clientIndex) : GetClientDeaths(clientIndex);
 }
 
 /**
- * Set a client's gravity.
+ * Set a client gravity.
  * 
  * @param clientIndex       The client index.
- * @param flValue           The value of the client's gravity.
+ * @param flValue           The value of the client gravity.
  **/
 stock void ToolsSetClientGravity(int clientIndex, float flValue)
 {
@@ -377,7 +377,7 @@ stock void ToolsSetClientGravity(int clientIndex, float flValue)
 }
 
 /**
- * Set a client's spotting.
+ * Set a client spotting.
  * 
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of spotting.
@@ -389,7 +389,7 @@ stock void ToolsSetClientSpot(int clientIndex, bool bEnable)
 }
 
 /**
- * Set a client's detecting.
+ * Set a client detecting.
  * 
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of detection.
@@ -401,7 +401,7 @@ stock void ToolsSetClientDetecting(int clientIndex, bool bEnable)
 }
 
 /**
- * Set a client's hud.
+ * Set a client hud.
  * 
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of hud.
@@ -414,7 +414,7 @@ stock void ToolsSetClientHud(int clientIndex, bool bEnable)
 }
 
 /**
- * Set a client's flashlight.
+ * Set a client flashlight.
  * 
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of flashlight.
@@ -427,7 +427,7 @@ stock void ToolsSetClientFlashLight(int clientIndex, bool bEnable)
 }
 
 /**
- * Set a round's termination.
+ * Set a round termination.
  * 
  * @param CReason           Reason the round has ended.
  **/

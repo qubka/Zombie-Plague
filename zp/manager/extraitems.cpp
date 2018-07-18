@@ -133,7 +133,7 @@ public int API_GiveClientExtraItem(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Sets the buy limit of the current player's item.
+ * Sets the buy limit of the current player item.
  *
  * native void ZP_SetClientExtraItemLimit(clientIndex, iD, limit);
  **/
@@ -159,7 +159,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, int iNumParams)
         return -1;
     }
     
-    // Sets buy limit of the current player's item
+    // Sets buy limit of the current player item
     ItemsSetLimits(clientIndex, iD, GetNativeCell(3));
     
     // Return on success
@@ -167,7 +167,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the buy limit of the current player's item.
+ * Gets the buy limit of the current player item.
  *
  * native int ZP_GetClientExtraItemLimit(clientIndex, iD);
  **/
@@ -193,7 +193,7 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, int iNumParams)
         return -1;
     }
     
-    // Return buy limit of the current player's item
+    // Return buy limit of the current player item
     return ItemsGetLimits(clientIndex, iD);
 }
  
@@ -526,7 +526,7 @@ stock int ItemsGetLimit(int iD)
 }
 
 /**
- * Remove the buy limit of the all client's items.
+ * Remove the buy limit of the all client items.
  *
  * @param clientIndex       The client index.
  **/
@@ -544,7 +544,7 @@ stock void ItemsRemoveLimits(int clientIndex)
 }
 
 /**
- * Sets the buy limit of the current client's item.
+ * Sets the buy limit of the current client item.
  *
  * @param clientIndex       The client index.
  * @param iD                The item index.
@@ -557,7 +557,7 @@ stock void ItemsSetLimits(int clientIndex, int iD, int nLimit)
 }
 
 /**
- * Gets the buy limit of the current client's item.
+ * Gets the buy limit of the current client item.
  *
  * @param clientIndex       The client index.
  * @param iD                The item index.

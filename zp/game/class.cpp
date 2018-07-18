@@ -107,10 +107,10 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
         ToolsSetClientGravity(victimIndex, gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue);
         ToolsSetClientArmor(victimIndex, 0);
         
-        // Gets nemesis's model
+        // Gets nemesis model
         gCvarList[CVAR_NEMESIS_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
         
-        // Remove player's weapons
+        // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon
@@ -132,10 +132,10 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
         ToolsSetClientGravity(victimIndex, ZombieGetGravity(gClientData[victimIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level])) : 0.0));
         ToolsSetClientArmor(victimIndex, 0);
         
-        // Gets zombie's model
+        // Gets zombie model
         ZombieGetModel(gClientData[victimIndex][Client_ZombieClass], sModel, sizeof(sModel));
         
-        // Remove player's weapons
+        // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon
@@ -146,11 +146,11 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
         // If help messages enable, then show 
         if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
         {
-            // Gets zombie's info
+            // Gets zombie info
             static char sInfo[BIG_LINE_LENGTH];
             ZombieGetInfo(gClientData[victimIndex][Client_ZombieClass], sInfo, sizeof(sInfo));
             
-            // Show zombie's personal info
+            // Show zombie personal info
             if(strlen(sInfo)) TranslationPrintHintText(victimIndex, sInfo);
         }
     }
@@ -239,10 +239,10 @@ void ClassMakeHuman(int clientIndex, bool survivorMode = false, bool respawnMode
         ToolsSetClientGravity(clientIndex, gCvarList[CVAR_SURVIVOR_GRAVITY].FloatValue);
         ToolsSetClientArmor(clientIndex, 0);
         
-        // Gets survivor's model
+        // Gets survivor model
         gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sModel, sizeof(sModel)); sArm[0] = '\0';
         
-        // Remove player's weapons
+        // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon
@@ -262,10 +262,10 @@ void ClassMakeHuman(int clientIndex, bool survivorMode = false, bool respawnMode
         ToolsSetClientGravity(clientIndex, HumanGetGravity(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
         ToolsSetClientArmor(clientIndex, (GetClientArmor(clientIndex) < HumanGetArmor(gClientData[clientIndex][Client_HumanClass])) ? HumanGetArmor(gClientData[clientIndex][Client_HumanClass]) : GetClientArmor(clientIndex));
 
-        // Gets human's models
+        // Gets human models
         HumanGetArmModel(gClientData[clientIndex][Client_HumanClass], sArm, sizeof(sArm)); HumanGetModel(gClientData[clientIndex][Client_HumanClass], sModel, sizeof(sModel));
 
-        // Remove player's weapons
+        // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon

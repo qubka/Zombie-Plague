@@ -5,7 +5,7 @@
  *
  *  File:          account.cpp
  *  Type:          Game 
- *  Description:   Handles client's accounts. (cash)
+ *  Description:   Handles client accounts. (cash)
  *
  *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
  *
@@ -98,14 +98,14 @@ void AccountOnClientUpdate(int clientIndex)
             // Send a convar to client
             gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "1");
             
-            // Update client's cash
+            // Update client cash
             SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_AmmoPacks], 4, true);
         }
     }
 }
 
 /**
- * Set's a client's account value. (ammopacks)
+ * Set a client account value. (ammopacks)
  * 
  * @param clientIndex       The client index.
  * @param nAmmoPacks        The ammopacks amount.
@@ -143,13 +143,13 @@ stock void AccountSetClientCash(int clientIndex, int nAmmoPacks)
     }
     else
     {
-        // Update client's cash
+        // Update client cash
         SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_AmmoPacks], 4, true);
     }
 }
 
 /**
- * Main timer for show HUD text within information about client's account value. (ammopacks)
+ * Main timer for show HUD text within information about client account value. (ammopacks)
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.

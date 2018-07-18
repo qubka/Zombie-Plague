@@ -128,7 +128,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate primary bits
     if(iBits & CSAddon_PrimaryWeapon)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_PrimaryWeapon))
         {
             // Gets weapon index
@@ -141,7 +141,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_PrimaryWeapon, "primary");
                 }
             }
@@ -158,7 +158,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate secondary bits
     if(iBits & CSAddon_SecondaryWeapon)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SecondaryWeapon))
         {
             // Gets weapon index
@@ -178,7 +178,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_SecondaryWeapon, "pistol");
                 }
             }
@@ -195,7 +195,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate flashbang1 bits
     if(iBits & CSAddon_Flashbang1)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang1))
         {
             // Gets weapon index
@@ -208,7 +208,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Flashbang1, "grenade0");
                 }
             }
@@ -225,7 +225,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate flashbang2 bits
     if(iBits & CSAddon_Flashbang2)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang2))
         {
             // Gets weapon index
@@ -238,7 +238,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Flashbang2, "eholster");
                 }
             }
@@ -255,7 +255,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate hegrenade bits
     if(iBits & CSAddon_HEGrenade)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_HEGrenade))
         {
             // Gets weapon index
@@ -268,7 +268,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_HEGrenade, "grenade1");
                 }
             }
@@ -285,7 +285,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate smokegrenade bits
     if(iBits & CSAddon_SmokeGrenade)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SmokeGrenade))
         {
             // Gets weapon index
@@ -298,7 +298,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_SmokeGrenade, "grenade2");
                 }
             }
@@ -315,7 +315,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate decoy bits
     if(iBits & CSAddon_Decoy)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Decoy))
         {
             // Gets weapon index
@@ -328,7 +328,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Decoy, "grenade3");
                 }
             }
@@ -345,7 +345,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate knife bits
     if(iBits & CSAddon_Knife)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Knife))
         {
             // Gets weapon index
@@ -358,7 +358,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Knife, "knife");
                 }
             }
@@ -375,7 +375,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate tagrenade bits
     if(iBits & CSAddon_TaGrenade)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_TaGrenade))
         {
             // Gets weapon index
@@ -388,7 +388,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_TaGrenade, "grenade4");
                 }
             }
@@ -407,7 +407,7 @@ void WeaponAttachSetAddons(int clientIndex)
     // Validate c4 bits 
     if(iBits & CSAddon_C4)
     {
-        // Gets the client's bits
+        // Gets the client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_C4))
         {
             // Gets weapon index
@@ -420,7 +420,7 @@ void WeaponAttachSetAddons(int clientIndex)
                 iD = WeaponsGetCustomID(weaponIndex);
                 if(iD != INVALID_ENT_REFERENCE)
                 {
-                    // Create weapon's addons
+                    // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_C4, "c4");
                 }
             }
@@ -508,7 +508,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, WeaponAttachBitType bitTy
         // If entity isn't valid, then skip
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Gets weapon's world model
+            // Gets weapon world model
             static char sModel[PLATFORM_MAX_PATH];
             WeaponsGetModelWorld(iD, sModel, sizeof(sModel)); 
 
@@ -542,7 +542,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, WeaponAttachBitType bitTy
             // Hook entity callbacks
             SDKHook(entityIndex, SDKHook_SetTransmit, WeaponAttachmentOnTransmit);
             
-            // Store the client's cache
+            // Store the client cache
             gClientData[clientIndex][Client_AttachmentAddons][bitType] = EntIndexToEntRef(entityIndex);
         }
     }
@@ -653,7 +653,7 @@ void WeaponAttachRemoveAddons(int clientIndex, WeaponAttachBitType bitType = Bit
         // i = slot index
         for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_TaGrenade; i++)
         {
-            // Gets the current addon from the client's reference
+            // Gets the current addon from the client reference
             int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]);
     
             // Validate addon
@@ -662,14 +662,14 @@ void WeaponAttachRemoveAddons(int clientIndex, WeaponAttachBitType bitType = Bit
                 AcceptEntityInput(entityIndex, "Kill");
             }
 
-            // Clear the client's cache
+            // Clear the client cache
             gClientData[clientIndex][Client_AttachmentBits] = CSAddon_NONE;
             gClientData[clientIndex][Client_AttachmentAddons][i] = INVALID_ENT_REFERENCE;
         }
     }
     else
     {
-        // Gets the current addon from the client's reference
+        // Gets the current addon from the client reference
         int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][bitType]);
 
         // Validate addon
@@ -678,7 +678,7 @@ void WeaponAttachRemoveAddons(int clientIndex, WeaponAttachBitType bitType = Bit
             AcceptEntityInput(entityIndex, "Kill");
         }
 
-        // Clear the client's cache
+        // Clear the client cache
         gClientData[clientIndex][Client_AttachmentBits] = CSAddon_NONE;
         gClientData[clientIndex][Client_AttachmentAddons][bitType] = INVALID_ENT_REFERENCE;
     }
@@ -688,7 +688,7 @@ void WeaponAttachRemoveAddons(int clientIndex, WeaponAttachBitType bitType = Bit
 }
 
 /**
- * Gets the current position of the client's weapon attachment.
+ * Gets the current position of the client weapon attachment.
  *
  * native void ZP_GetWeaponAttachmentPos(clientIndex, attachment, position, view);
  **/
@@ -724,7 +724,7 @@ public int API_GetWeaponAttachPos(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the current position of the client's weapon attachment.
+ * Gets the current position of the client weapon attachment.
  *
  * @param clientIndex       The client index.
  * @param sAttach           The attachment bone of the entity parent.
@@ -738,7 +738,7 @@ void WeaponAttachGetPosition(int clientIndex, char[] sAttach, float vPosition[3]
         return;
     }
 
-    // Gets the current muzzle from the client's reference
+    // Gets the current muzzle from the client reference
     int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentMuzzle]);
 
     // If a weapon muzzle doesn't exist, create one
@@ -753,7 +753,7 @@ void WeaponAttachGetPosition(int clientIndex, char[] sAttach, float vPosition[3]
             return;
         }
         
-        // Store the client's muzzle to the reference
+        // Store the client muzzle to the reference
         gClientData[clientIndex][Client_AttachmentMuzzle] = EntIndexToEntRef(entityIndex);
     }
 
@@ -769,7 +769,7 @@ void WeaponAttachGetPosition(int clientIndex, char[] sAttach, float vPosition[3]
     // Validate a new weapon
     if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentWeapon]) != weaponIndex || !!strcmp(sAttach, gClientData[clientIndex][Client_AttachmentLast], false)) 
     {
-        // Store the client's cache
+        // Store the client cache
         gClientData[clientIndex][Client_AttachmentWeapon] = EntIndexToEntRef(weaponIndex);
         strcopy(gClientData[clientIndex][Client_AttachmentLast], SMALL_LINE_LENGTH, sAttach);
 
@@ -800,7 +800,7 @@ void WeaponAttachGetPosition(int clientIndex, char[] sAttach, float vPosition[3]
         g_iOffset_WeaponAttachment = FindDataMapInfo(entityIndex, "m_vecAbsOrigin");
     }
     
-    // Gets current entity's position
+    // Gets current entity position
     GetEntDataVector(entityIndex, g_iOffset_WeaponAttachment, vPosition);
 }
 
@@ -824,7 +824,7 @@ int WeaponAttachCreateEntity(int clientIndex)
         // Spawn the entity into the world
         DispatchSpawn(entityIndex);
     
-        // Clear the client's cache
+        // Clear the client cache
         gClientData[clientIndex][Client_AttachmentWeapon] = INVALID_ENT_REFERENCE;
         gClientData[clientIndex][Client_AttachmentLast][0] = '\0';
     }
@@ -840,7 +840,7 @@ int WeaponAttachCreateEntity(int clientIndex)
  **/
 void WeaponAttachRemoveMuzzle(int clientIndex) 
 {
-    // Gets the current muzzle from the client's reference
+    // Gets the current muzzle from the client reference
     int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentMuzzle]);
     
     // Validate muzzle
@@ -849,7 +849,7 @@ void WeaponAttachRemoveMuzzle(int clientIndex)
         AcceptEntityInput(entityIndex, "Kill"); //! Destroy
     }
 
-    // Clear the client's cache
+    // Clear the client cache
     gClientData[clientIndex][Client_AttachmentMuzzle] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentWeapon] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentLast][0] = '\0';

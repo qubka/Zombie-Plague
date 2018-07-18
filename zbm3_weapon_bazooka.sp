@@ -186,6 +186,12 @@ public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadca
     // Validate weapon
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
+        // Validate ammo
+        if(GetEntProp(weaponIndex, Prop_Data, "m_iClip1") <= 0)
+        {
+            return;
+        }
+
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
         

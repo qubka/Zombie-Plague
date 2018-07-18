@@ -120,7 +120,7 @@ void HitgroupsLoad(/*void*/)
  **/
 void HitgroupsCacheData(/*void*/)
 {
-    // Gets config's file path
+    // Gets config file path
     char sHitGroupsPath[PLATFORM_MAX_PATH];
     ConfigGetConfigPath(File_Hitgroups, sHitGroupsPath, sizeof(sHitGroupsPath)); 
     
@@ -167,7 +167,7 @@ public void HitgroupsOnConfigReload(/*void*/)
 }
 
 /**
- * Find the index at which the hitgroup's name is at.
+ * Find the index at which the hitgroup name is at.
  * 
  * @param sHitGroup         The higroup name.
  * @param iMaxLen           (Only if 'overwritename' is true) The max length of the hitgroup name. 

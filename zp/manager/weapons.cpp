@@ -133,7 +133,7 @@ void WeaponsLoad(/*void*/)
  **/
 void WeaponsCacheData(/*void*/)
 {
-    // Gets config's file path.
+    // Gets config file path.
     static char sPathWeapons[PLATFORM_MAX_PATH];
     ConfigGetConfigPath(File_Weapons, sPathWeapons, sizeof(sPathWeapons));
 
@@ -1397,7 +1397,7 @@ stock void WeaponsSetCustomID(int weaponIndex, int iD)
 }
 
 /**
- * Find the index at which the weapon's name is at.
+ * Find the index at which the weapon name is at.
  * 
  * @param sWeapon           The weapon name.
  * @param iMaxLen           (Only if 'overwritename' is true) The max length of the weapon name. 
@@ -1440,7 +1440,7 @@ stock int WeaponsNameToIndex(char[] sWeapon, int iMaxLen = 0, bool bOverWriteNam
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
- * @param bNormalDrop       True to drop client's weapon, false to remove it.
+ * @param bNormalDrop       True to drop client weapon, false to remove it.
  **/
 stock void WeaponsDrop(int clientIndex, int weaponIndex, bool bNormalDrop = true)
 {
@@ -1552,7 +1552,7 @@ stock bool WeaponsRemoveAll(int clientIndex, ConVar hConVar)
     // Create SDK call to the remove weapons
     SDKCall(hSDKCallRemoveAllItems, clientIndex);
 
-    // Gets weapon's name from a convar handler
+    // Gets weapon name from a convar handler
     static char sName[SMALL_LINE_LENGTH];
     hConVar.GetString(sName, sizeof(sName));
     
@@ -1604,7 +1604,7 @@ stock int WeaponsGive(int clientIndex, char[] sName)
     TrimString(sName);
 
     /*
-     * Currently the fastest approach is store an item's index into the m_iHammerID prop,
+     * Currently the fastest approach is store an item index into the m_iHammerID prop,
      * because the game call some hooks really frequently and loop for find id can cost more.
      */
     
@@ -1672,7 +1672,7 @@ stock bool WeaponsValidateKnife(int weaponIndex)
     // Validate weapon
     if(IsValidEdict(weaponIndex))
     {
-        // Gets client weapon's classname
+        // Gets client weapon classname
         static char sWeapon[SMALL_LINE_LENGTH];
         GetEdictClassname(weaponIndex, sWeapon, sizeof(sWeapon));
 
@@ -1693,7 +1693,7 @@ stock bool WeaponsValidateKnife(int weaponIndex)
  **/
 stock bool WeaponsValidateTaser(int weaponIndex)
 {
-    // Gets client weapon's classname
+    // Gets client weapon classname
     static char sWeapon[SMALL_LINE_LENGTH];
     GetEdictClassname(weaponIndex, sWeapon, sizeof(sWeapon));
 
@@ -1710,7 +1710,7 @@ stock bool WeaponsValidateTaser(int weaponIndex)
  **/
 stock bool WeaponsValidateGrenade(int weaponIndex)
 {
-    // Gets client weapon's classname
+    // Gets client weapon classname
     static char sWeapon[SMALL_LINE_LENGTH];
     GetEdictClassname(weaponIndex, sWeapon, sizeof(sWeapon));
 

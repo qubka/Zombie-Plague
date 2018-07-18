@@ -181,7 +181,7 @@ stock void VoiceSetClientTeam(int clientIndex, bool bInfected)
 }
 
 /**
- * Update a client's listening/speaking status.
+ * Update a client listening/speaking status.
  * 
  * @param clientIndex       The client index.
  * @param bInfected         True to permit verbal communication to zombies only, false for humans only.
@@ -194,7 +194,7 @@ stock void VoiceUpdateClient(int clientIndex)
         return;
     }
     
-    // Sets the client's listening/speaking status to their current team
+    // Sets the client listening/speaking status to their current team
     VoiceSetClientTeam(clientIndex, gClientData[clientIndex][Client_Zombie]);
 }
 

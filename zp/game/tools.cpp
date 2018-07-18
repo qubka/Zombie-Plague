@@ -55,7 +55,7 @@ void ToolsPurge(/*void*/)
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
     {
-        // Purge player's timers
+        // Purge player timers
         ToolsPurgeTimers(i); /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
 }

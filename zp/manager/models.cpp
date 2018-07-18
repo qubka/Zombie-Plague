@@ -68,7 +68,7 @@ void ModelsLoad(/*void*/)
  **/
 stock bool ModelsPlayerPrecache(char[] sModel)
 {
-    // If model's path is empty, then stop
+    // If model path is empty, then stop
     if(!strlen(sModel))
     {
         return false;
@@ -94,7 +94,7 @@ stock bool ModelsPlayerPrecache(char[] sModel)
  **/
 stock int ModelsWeaponPrecache(char[] sModel)
 {
-    // If model's path is empty, then return 0 index
+    // If model path is empty, then return 0 index
     if(!strlen(sModel))
     {
         return 0;

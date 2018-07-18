@@ -281,7 +281,7 @@ void SoundsOnClientAmmunition(int clientIndex)
 }
 
 /**
- * Client has been level's up.
+ * Client has been level up.
  * 
  * @param clientIndex       The client index.
  **/

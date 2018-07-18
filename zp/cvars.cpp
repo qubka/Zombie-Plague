@@ -388,7 +388,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SURVIVOR_HEALTH]             = CreateConVar("zp_survivor_health",                "200",                                                             "Health [player count*health ratio]"); 
     gCvarList[CVAR_SURVIVOR_INF_AMMUNITION]     = CreateConVar("zp_survivor_inf_ammunition",        "1",                                                               "Give unlimited amount of ammunition for survivors [0-disabled // 1-BP ammunition // 2-clip ammunition]");
     gCvarList[CVAR_SURVIVOR_PRICE_AMMUNITION]   = CreateConVar("zp_survivor_price_ammunition",      "1",                                                               "Clip price of the ammunition for survivors, if unlimited amount is off [0-disabled]");
-    gCvarList[CVAR_SURVIVOR_PLAYER_MODEL]       = CreateConVar("zp_survivor_model",                 "models/player/custom_player/legacy/tm_phoenix_heavy.mdl",         "Player model. This model files will be automatically precache, just add model's textures files into downloads.ini");
+    gCvarList[CVAR_SURVIVOR_PLAYER_MODEL]       = CreateConVar("zp_survivor_model",                 "models/player/custom_player/legacy/tm_phoenix_heavy.mdl",         "Player model. This model files will be automatically precache, just add model textures files into downloads.ini");
 
     // =========================== //
     //            Zombies          //
@@ -406,7 +406,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_NEMESIS_GRAVITY]             = CreateConVar("zp_nemesis_gravity",                "0.8",                                                             "Gravity"); 
     gCvarList[CVAR_NEMESIS_HEALTH]              = CreateConVar("zp_nemesis_health_ratio",           "1000",                                                            "Health [player count*health ratio]"); 
     gCvarList[CVAR_NEMESIS_KNOCKBACK]           = CreateConVar("zp_nemesis_knockback",              "0",                                                               "Nemesis knockback [0-no // 1-yes]"); 
-    gCvarList[CVAR_NEMESIS_PLAYER_MODEL]        = CreateConVar("zp_nemesis_model",                  "models/player/custom_player/zombie/zombie_bomb/zombie_bomb.mdl",  "Player model. This model files will be automatically precache, just add model's textures files into downloads.ini"); 
+    gCvarList[CVAR_NEMESIS_PLAYER_MODEL]        = CreateConVar("zp_nemesis_model",                  "models/player/custom_player/zombie/zombie_bomb/zombie_bomb.mdl",  "Player model. This model files will be automatically precache, just add model textures files into downloads.ini"); 
 
     // =========================== //
     //           Leap jump         //

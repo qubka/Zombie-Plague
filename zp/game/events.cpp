@@ -311,7 +311,7 @@ public Action EventPlayerHostage(Event hEvent, const char[] sName, bool dontBroa
 
 /**
  * Event callback (player_team), (cs_win_panel_round)
- * The block of the event's broadcast.
+ * The block of the event broadcast.
  * 
  * @param gEventHook        The event handle.
  * @param gEventName        The name of the event.
@@ -319,7 +319,7 @@ public Action EventPlayerHostage(Event hEvent, const char[] sName, bool dontBroa
  **/
 public Action EventBlockBroadCast(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-    // Sets whether an event's broadcasting will be disabled
+    // Sets whether an event broadcasting will be disabled
     if(!dontBroadcast) 
     {
         // Disable broadcasting

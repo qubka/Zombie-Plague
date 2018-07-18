@@ -60,7 +60,7 @@
 #define ANTISTICK_DEFAULT_HULL_WIDTH 32.0
 
 /**
- * List of components that make up the model's rectangular boundaries.
+ * List of components that make up the model rectangular boundaries.
  * 
  * F = Front
  * B = Back
@@ -168,7 +168,7 @@ public Action AntiStickSolidifyTimer(Handle hTimer, int userID)
         return Plugin_Stop;
     }
 
-    // If the client's collisions are already on, then stop
+    // If the client collisions are already on, then stop
     if(AntiStickGetCollisionGroup(clientIndex) == ANTISTICK_COLLISIONS_ON)
     {
         return Plugin_Stop;
@@ -228,7 +228,7 @@ stock void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBox
 
     for(int x = 0; x < 4; x++)
     {
-        // Jump to point on player's left side.
+        // Jump to point on player left side.
         AntiStickJumpToPoint(vClientLoc, vTwistAngle, flWidth / 2, vSideLoc);
 
         // From this point, jump to the corner, which would be half the width from the middle of a side
@@ -319,7 +319,7 @@ stock float AntiStickGetBoxMaxBoundary(int Axis, float boundaries[AntiStickBoxBo
     // Create 'outlier' with initial value of first boundary
     float outlier = boundaries[0][Axis];
     
-    // x = Boundary index. (Start at 1 because we initialized 'outlier' with the 0 index's value)
+    // x = Boundary index. (Start at 1 because we initialized 'outlier' with the 0 index value)
     int iSize = sizeof(boundaries);
     for(int x = 1; x < iSize; x++)
     {

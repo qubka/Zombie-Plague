@@ -34,7 +34,7 @@ enum ServerSounds
     Survivor_Hurt,      /** When a survivor is hurt */
     Survivor_Death,     /** When a survivor is killed */
 
-    Nemesis_Idle,       /** Nemesis's moan periodically */
+    Nemesis_Idle,       /** Nemesis moan periodically */
     Nemesis_Hurt,       /** When a nemesis is hurt */
     Nemesis_Death,      /** When a nemesis is killed */
     Nemesis_Burn,       /** When a nemesis is on fire */
@@ -326,7 +326,7 @@ void PlayerSoundsOnClientAmmunition(int clientIndex)
 }
 
 /**
- * Client has been level's up.
+ * Client has been level up.
  * 
  * @param clientIndex       The client index.
  **/
@@ -339,7 +339,7 @@ void PlayerSoundsOnClientLevelUp(int clientIndex)
 /**
  * Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
  *  
- * @param clients           Array of client's indexes.
+ * @param clients           Array of client indexes.
  * @param numClients        Number of clients in the array (modify this value ifyou add/remove elements from the client array).
  * @param sSample           Sound file name relative to the "sounds" folder.
  * @param entityIndex       Entity emitting the sound.

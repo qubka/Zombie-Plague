@@ -41,11 +41,11 @@
     * The second parameter is the structure of the config file we are loading.
       The supported structures are listed in the "ConfigStructure" enum in config.inc
       
-    * The last parameter is the file's alias.  Or what we use to refer to the
-      config file from a non-developer's point of view.  For example zp_config_reload
+    * The last parameter is the file alias.  Or what we use to refer to the
+      config file from a non-developer point of view.  For example zp_config_reload
       requires the file alias to identify the config file the user wants to reload.
     
-    -Next we need to define the config file's path.  To do this we first need to
+    -Next we need to define the config file path.  To do this we first need to
      retrieve the path file from cvar.
      
     Example:
@@ -349,7 +349,7 @@ stock bool ConfigIsConfigLoaded(ConfigFile iConfig)
 }
 
 /**
- * Returns config's structure type.
+ * Returns config structure type.
  * 
  * @param iConfig            Config file to get structure type of.
  * @return                   Config structure type.
@@ -361,7 +361,7 @@ stock ConfigStructure ConfigGetConfigStructure(ConfigFile iConfig)
 }
 
 /**
- * Returns config's reload function.
+ * Returns config reload function.
  * 
  * @param iConfig            Config file to get reload function of.
  * @return                   Config reload function.
@@ -373,7 +373,7 @@ stock Function ConfigGetConfigReloadFunc(ConfigFile iConfig)
 }
 
 /**
- * Returns config's file handle.
+ * Returns config file handle.
  * 
  * @param iConfig            Config file to get file handle of.
  * @return                   Config file handle.
@@ -416,14 +416,14 @@ stock void ConfigGetConfigAlias(ConfigFile iConfig, char[] sAlias, int iMaxLen)
  **/
 stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int blockSize = CONFIG_MAX_LENGTH)
 {
-    // Gets config's structure
+    // Gets config structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
 
-    // Gets config's alias
+    // Gets config alias
     static char sConfigAlias[CONFIG_MAX_LENGTH];
     ConfigGetConfigAlias(iConfig, sConfigAlias, sizeof(sConfigAlias));
 
-    // Gets config's file path
+    // Gets config file path
     static char sConfigPath[PLATFORM_MAX_PATH];
     ConfigGetConfigPath(iConfig, sConfigPath, sizeof(sConfigPath));
 
@@ -552,7 +552,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
                     // Create new array to store information for config entry
                     ArrayList arrayConfigEntry = CreateArray(blockSize);
                     
-                    // Push the key name into the config entry's array
+                    // Push the key name into the config entry array
                     static char sKeyName[CONFIG_MAX_LENGTH];
                     hKeyvalue.GetSectionName(sKeyName, sizeof(sKeyName));
                     
@@ -609,14 +609,14 @@ stock bool ConfigReloadConfig(ConfigFile iConfig)
  **/
 stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
 {
-    // Gets config's structure
+    // Gets config structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
     
-    // Gets config's file path
+    // Gets config file path
     static char sConfigPath[PLATFORM_MAX_PATH];
     ConfigGetConfigPath(iConfig, sConfigPath, sizeof(sConfigPath));
     
-    // Gets config's alias
+    // Gets config alias
     static char sConfigAlias[CONFIG_MAX_LENGTH];
     ConfigGetConfigAlias(iConfig, sConfigAlias, sizeof(sConfigAlias));
     
@@ -661,7 +661,7 @@ stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
  **/
 stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction iAction = KvAction_Create, const char[][] sKeys, int keysMax, const char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
 {
-    // Gets config file's structure
+    // Gets config file structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
     
     // If the config is any other structure beside keyvalue, then stop
@@ -881,7 +881,7 @@ public Action Command_ReloadAllCommand(int clientIndex, int iArguments)
         // Reload config file
         bool bSuccessful = ConfigReloadConfig(view_as<ConfigFile>(i));
 
-        // Gets config's alias
+        // Gets config alias
         ConfigGetConfigAlias(view_as<ConfigFile>(i), sConfigAlias, sizeof(sConfigAlias));
 
         if(bSuccessful)
@@ -907,7 +907,7 @@ public Action Command_ReloadAllCommand(int clientIndex, int iArguments)
  **/
 stock bool ConfigGetCvarFilePath(CvarsList iConVar, char[] sPath)
 {
-    // Gets cvar's path
+    // Gets cvar path
     static char sFilePath[PLATFORM_MAX_PATH];
     gCvarList[iConVar].GetString(sFilePath, sizeof(sFilePath));
 

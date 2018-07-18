@@ -62,7 +62,7 @@ void TranslationInit(/*void*/)
 }
 
 /**
- * Format the string to the plugin's style.
+ * Format the string to the plugin style.
  * 
  * @param sText             Text to format.
  * @param iMaxlen           Maximum length of the formatted text.
@@ -108,7 +108,7 @@ stock void TranslationPrintToConsole(int clientIndex, any ...)
         // Format string to create plugin style
         TranslationPluginFormatString(sTranslation, sizeof(sTranslation), false);
         
-        // Print translated phrase to client's console
+        // Print translated phrase to client console
         PrintToConsole(clientIndex, sTranslation);
     }
 }
@@ -136,7 +136,7 @@ stock void TranslationPrintToConsoleAll(bool bServer, bool bAdmin, any ...)
         // Format string to create plugin style
         TranslationPluginFormatString(sTranslation, sizeof(sTranslation), false);
 
-        // Print translated phrase to server's console
+        // Print translated phrase to server console
         PrintToServer(sTranslation);
     }
 
@@ -167,7 +167,7 @@ stock void TranslationPrintToConsoleAll(bool bServer, bool bAdmin, any ...)
             // Format string to create plugin style
             TranslationPluginFormatString(sTranslation, sizeof(sTranslation), false);
 
-            // Print translated phrase to client's console
+            // Print translated phrase to client console
             PrintToConsole(i, sTranslation);
         }
     }
@@ -191,7 +191,7 @@ stock void TranslationPrintHintText(int clientIndex, any ...)
         static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
         VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 2);
 
-        // Print translated phrase to client's screen
+        // Print translated phrase to client screen
         VEffectsHintClientScreen(clientIndex, sTranslation);
     }
 }
@@ -222,7 +222,7 @@ stock void TranslationPrintHintTextAll(any ...)
             static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
             VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 1);
             
-            // Print translated phrase to client's screen
+            // Print translated phrase to client screen
             VEffectsHintClientScreen(i, sTranslation);
         }
     }
@@ -261,7 +261,7 @@ stock void TranslationPrintHudText(Handle hSync, int clientIndex, float x, float
         // Sets the HUD parameters for drawing text
         SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
         
-        // Print translated phrase to client's screen
+        // Print translated phrase to client screen
         ShowSyncHudText(clientIndex, hSync, sTranslation);
     }
 }
@@ -307,7 +307,7 @@ stock void TranslationPrintHudTextAll(Handle hSync, float x, float y, float hold
             // Sets the HUD parameters for drawing text
             SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
 
-            // Print translated phrase to client's screen
+            // Print translated phrase to client screen
             ShowSyncHudText(i, hSync, sTranslation);
         }
     }
@@ -334,7 +334,7 @@ stock void TranslationPrintToChat(int clientIndex, any ...)
         // Format string to create plugin style
         TranslationPluginFormatString(sTranslation, TRANSLATION_MAX_LENGTH_CHAT);
 
-        // Print translated phrase to client's chat
+        // Print translated phrase to client chat
         PrintToChat(clientIndex, sTranslation);
     }
 }
@@ -368,7 +368,7 @@ stock void TranslationPrintToChatAll(any ...)
             // Format string to create plugin style
             TranslationPluginFormatString(sTranslation, TRANSLATION_MAX_LENGTH_CHAT);
             
-            // Print translated phrase to client's chat
+            // Print translated phrase to client chat
             PrintToChat(i, sTranslation);
         }
     }
@@ -391,7 +391,7 @@ stock void TranslationPrintToServer(any:...)
     // Format string to create plugin style
     TranslationPluginFormatString(sTranslation, sizeof(sTranslation), false);
 
-    // Print translated phrase to server's console
+    // Print translated phrase to server console
     PrintToServer(sTranslation);
 }
 
@@ -419,6 +419,6 @@ stock void TranslationReplyToCommand(int clientIndex, any ...)
     // Format string to create plugin style
     TranslationPluginFormatString(sTranslation, TRANSLATION_MAX_LENGTH_CONSOLE, false);
 
-    // Print translated phrase to client's console
+    // Print translated phrase to client console
     ReplyToCommand(clientIndex, sTranslation);
 }

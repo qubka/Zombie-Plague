@@ -190,7 +190,7 @@ void VAmbienceApplySky(bool bDisable = false)
     // Default sky of current map
     static char VAmbienceDefaultSky[PLATFORM_MAX_PATH];
 
-    // Store map's default sky before applying new one
+    // Store map default sky before applying new one
     hSkyname.GetString(VAmbienceDefaultSky, sizeof(VAmbienceDefaultSky));
 
     // If default, then set to default sky

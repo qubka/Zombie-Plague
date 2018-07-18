@@ -125,7 +125,7 @@ enum ServerData
 };
 
 /**
- * Arrays to store the server's data.
+ * Arrays to store the server data.
  **/
 int gServerData[ServerData];
 
@@ -156,7 +156,7 @@ enum ClientData
     Client_Costume,
     Client_AttachmentCostume,
     Client_AttachmentBits,
-    Client_AttachmentAddons[9], /* Amount of weapon's back attachments */
+    Client_AttachmentAddons[9], /* Amount of weapon back attachments */
     Client_AttachmentMuzzle,
     Client_AttachmentWeapon,
     String:Client_AttachmentLast[SMALL_LINE_LENGTH],

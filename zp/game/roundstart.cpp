@@ -96,7 +96,7 @@ void RoundStartOnKillEntity(/*void*/)
         // Validate entity
         if(IsValidEdict(x))
         {
-            // Gets valid edict's classname
+            // Gets valid edict classname
             GetEdictClassname(x, sClassname, sizeof(sClassname));
             
             // Validate objectives
@@ -107,7 +107,7 @@ void RoundStartOnKillEntity(/*void*/)
             // Validate weapon
             else if(!strncmp(sClassname, "weapon_", 7, false))
             {
-                // Gets the weapon's owner
+                // Gets the weapon owner
                 int clientIndex = GetEntDataEnt2(x, g_iOffset_WeaponOwner);
                 
                 // Validate owner

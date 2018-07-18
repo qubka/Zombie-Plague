@@ -113,7 +113,7 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, int
         return PARAM_ERROR_EMPTY;
     }
 
-    // Check if there's space left in the destination buffer
+    // Check if there space left in the destination buffer
     if(iMaxLen > PARAM_VALUE_MAXLEN || iLen > PARAM_VALUE_MAXLEN)
     {
         // Exit loop. No more parameters can be parsed

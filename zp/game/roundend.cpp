@@ -32,7 +32,7 @@
 #define ROUNDEND_VIP_ESCAPED                            1        // The VIP has escaped!
 #define ROUNDEND_VIP_ASSASSINATED                       2        // VIP has been assassinated!
 #define ROUNDEND_TERRORISTS_ESCAPED                     3        // The terrorists have escaped!
-#define ROUNDEND_CTS_PREVENTESCAPE                      4        // The CT's have prevented most of the terrorists from escaping!
+#define ROUNDEND_CTS_PREVENTESCAPE                      4        // The CT have prevented most of the terrorists from escaping!
 #define ROUNDEND_ESCAPING_TERRORISTS_NEUTRALIZED        5        // Escaping terrorists have all been neutralized!
 #define ROUNDEND_BOMB_DEFUSED                           6        // The bomb has been defused!
 #define ROUNDEND_CTS_WIN                                7        // Counter-Terrorists Win!

@@ -58,10 +58,10 @@ public void JumpBoostOnClientJumpPost(int userID)
         // Initialize velocity vector
         static float vVelocity[3];
         
-        // Gets the client's velocity
+        // Gets the client velocity
         ToolsGetClientVelocity(clientIndex, vVelocity);
         
-        // Only apply horizontal multiplier if it's not a bhop
+        // Only apply horizontal multiplier if it not a bhop
         if(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0)) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
         {
             // Apply horizontal multipliers to jump vector
@@ -185,14 +185,14 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     // Initialize some floats
     static float vAngle[3]; static float vOrigin[3]; static float vVelocity[3];
     
-    // Gets client's location and view direction
+    // Gets client location and view direction
     GetClientAbsOrigin(clientIndex, vOrigin);
     GetClientEyeAngles(clientIndex, vAngle);
     
-    // Store zero's angle
+    // Store zero angle
     float flAngleZero = vAngle[0];    
     
-    // Gets location's angles
+    // Gets location angles
     vAngle[0] = -30.0;
     GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
     

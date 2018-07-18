@@ -208,7 +208,7 @@ void DataBaseUnload(/*void*/)
  **/
 void DataBaseClientInit(int clientIndex)
 {
-    // Resets client's variables
+    // Resets client variables
     gClientData[clientIndex][Client_DataID] = -1;
     gClientData[clientIndex][Client_Loaded] = false;
     
@@ -228,7 +228,7 @@ void DataBaseClientInit(int clientIndex)
         static char sDataBase[SMALL_LINE_LENGTH];
         gCvarList[CVAR_CONFIG_NAME_DATABASE].GetString(sDataBase, sizeof(sDataBase));
         
-        // Validate client's authentication string (SteamID)
+        // Validate client authentication string (SteamID)
         if(GetClientAuthId(clientIndex, AuthId_Steam2, SteamID[clientIndex], sizeof(SteamID[])))
         {
             // Format request
@@ -256,7 +256,7 @@ void DataBaseOnClientDisconnect(int clientIndex)
         // Update info in the database
         DataBaseSaveClientInfo(clientIndex);
         
-        // Resets client's variables
+        // Resets client variables
         gClientData[clientIndex][Client_DataID] = -1;
         gClientData[clientIndex][Client_Loaded] = false;
     }
@@ -287,7 +287,7 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
             // Client was found, get ammopacks from the table
             if(SQL_FetchRow(hResult))
             {
-                // Gets client's data
+                // Gets client data
                 gClientData[clientIndex][Client_DataID] = SQL_FetchInt(hResult, 0); 
                 AccountSetClientCash(clientIndex, SQL_FetchInt(hResult, 1));
                 LevelSystemOnSetLvl(clientIndex, SQL_FetchInt(hResult, 2));
@@ -336,7 +336,7 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
                 // Unlock base
                 SQL_UnlockDatabase(hDataBase);
 
-                // Sets client's data
+                // Sets client data
                 AccountSetClientCash(clientIndex, gCvarList[CVAR_BONUS_CONNECT].IntValue);
             }
             

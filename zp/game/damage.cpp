@@ -46,7 +46,7 @@ void DamageClientInit(int clientIndex)
  * @param inflicterIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
  * @param damageBits        The type of damage inflicted.
- * @param ammoType          The ammo type of the attacker's weapon.
+ * @param ammoType          The ammo type of the attacker weapon.
  * @param hitroupBox        The hitbox index.  
  * @param hitgroupIndex     The hitgroup index.  
  **/
@@ -369,7 +369,7 @@ stock void DamageOnClientKnockBack(int victimIndex, int attackerIndex, float kno
     // Initialize vectors
     static float vClientLoc[3]; static float vEyeAngle[3]; static float vAttackerLoc[3]; static float vVelocity[3];
 
-    // Gets victim's and attacker's position
+    // Gets victim and attacker position
     GetClientAbsOrigin(victimIndex, vClientLoc);
     GetClientEyeAngles(attackerIndex, vEyeAngle);
     GetClientEyePosition(attackerIndex, vAttackerLoc);
@@ -387,7 +387,7 @@ stock void DamageOnClientKnockBack(int victimIndex, int attackerIndex, float kno
     // Apply the magnitude by scaling the vector
     ScaleVector(vVelocity, knockbackAmount);
 
-    // ADD the given vector to the client's current velocity
+    // ADD the given vector to the client current velocity
     ToolsClientVelocity(victimIndex, vVelocity);
 }
 

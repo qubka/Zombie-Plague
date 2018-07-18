@@ -115,7 +115,7 @@ void MenusLoad(/*void*/)
  **/
 void MenusCacheData(/*void*/)
 {
-    // Gets config's file path
+    // Gets config file path
     static char sMenusPath[PLATFORM_MAX_PATH];
     ConfigGetConfigPath(File_Menus, sMenusPath, sizeof(sMenusPath));
 

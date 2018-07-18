@@ -34,7 +34,7 @@
  *  3. And lastly: offset = m_pStudioHdr - m_hLightingOrigin
  *
  *  One last thing, GetModelPtr() returns a CStudioHdr object, which actually acts like a kind of wrapper of the studiohdr_t object.
- *  What we actually want is the pointer of the studiohdr_t object. And lucky we are, it's located as the first member of the
+ *  What we actually want is the pointer of the studiohdr_t object. And lucky we are, it located as the first member of the
  *  CStudioHdr class. This means that we don't need any extra offset to get the pointer from memory.
  *  
  * Some useful references:
@@ -164,7 +164,7 @@ stock void WeaponHDRToggleViewModel(int clientIndex, int viewIndex, int iD)
 }
 
 /**
- * Gets the view (player) weapon's model.
+ * Gets the view (player) weapon model.
  *
  * @param clientIndex       The cleint index.
  * @param viewIndex         The view index.
@@ -177,7 +177,7 @@ stock int WeaponHDRGetPlayerViewModel(int clientIndex, int viewIndex)
 }
 
 /**
- * Sets the view (player) weapon's model.
+ * Sets the view (player) weapon model.
  *
  * @param clientIndex       The cleint index.
  * @param viewIndex         The view index.
@@ -190,7 +190,7 @@ stock void WeaponHDRSetPlayerViewModel(int clientIndex, int viewIndex, int model
 }
 
 /**
- * Sets the world (player) weapon's model.
+ * Sets the world (player) weapon model.
  *
  * @param weaponIndex       The weapon index.
  * @param modelIndex        (Optional) The model index.
@@ -226,35 +226,38 @@ stock void WeaponHDRSetPlayerWorldModel(int weaponIndex, int modelIndex = 0, int
 }
 
 /**
- * Sets the world (dropped) weapon's model.
+ * Sets the world (dropped) weapon model.
  *
- * @param hPack             The data pack.
+ * @param referenceIndex    The reference index.
  **/
-public void WeaponHDRSetDroppedModel(DataPack hPack)
+public void WeaponHDRSetDroppedModel(int referenceIndex)
 {
-    // Resets the position in the datapack
-    hPack.Reset();
-
-    // Gets the world model from the datapack
-    static char sModel[PLATFORM_MAX_PATH];
-    hPack.ReadString(sModel, sizeof(sModel));
-
-    // Gets the weapon index from the datapack
-    int weaponIndex = EntRefToEntIndex(hPack.ReadCell());
+    // Gets the weapon index from the reference
+    int weaponIndex = EntRefToEntIndex(referenceIndex);
     
     // Validate weapon
     if(weaponIndex != INVALID_ENT_REFERENCE)
     {
-        // Sets dropped model for the dropped model
-        SetEntityModel(weaponIndex, sModel);
-        
-        // Sets the body/skin index for dropped model
-        SetEntData(weaponIndex, g_iOffset_WeaponBody, hPack.ReadCell(), _, true);
-        SetEntData(weaponIndex, g_iOffset_WeaponSkin, hPack.ReadCell(), _, true);
+        // Validate custom index
+        int iD = WeaponsGetCustomID(weaponIndex);
+        if(iD != INVALID_ENT_REFERENCE)
+        {
+            // If world model exist, then apply it
+            if(WeaponsGetModelWorldID(iD))
+            {
+                // Gets weapon world model
+                static char sModel[PLATFORM_MAX_PATH];
+                WeaponsGetModelWorld(iD, sModel, sizeof(sModel));
+                
+                // Sets dropped model for the dropped model
+                SetEntityModel(weaponIndex, sModel);
+                
+                // Sets the body/skin index for dropped model
+                SetEntData(weaponIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
+                SetEntData(weaponIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
+            }
+        }
     }
-    
-    // Close the datapack
-    delete hPack;
 }
 
 /**
@@ -296,7 +299,7 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
         }
     }
     
-    // Gets client weapon's classname
+    // Gets weapon classname
     static char sClassname[SMALL_LINE_LENGTH];
     WeaponsGetEntity(iD, sClassname, sizeof(sClassname));
     
@@ -316,7 +319,7 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
         SetEntDataEnt2(itemIndex, g_iOffset_WeaponOwner, clientIndex, true);
         SetEntDataEnt2(itemIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
 
-        // Remove an entity's movetype
+        // Remove an entity movetype
         SetEntityMoveType(itemIndex, MOVETYPE_NONE);
 
         // CEconEntity: The parent of the swap weapon must the client using it
@@ -335,7 +338,7 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
 
 /**
  * Generate a new sequence for the (any) custom view models.
- * This algorithm give Andersso an headache. But he's hope, it as fast as it can be. Regards to him a lot.
+ * This algorithm give Andersso an headache. But he hope, it as fast as it can be. Regards to him a lot.
  *
  * @param iSequences        The sequence array.
  * @param nSequenceCount    The sequence count.

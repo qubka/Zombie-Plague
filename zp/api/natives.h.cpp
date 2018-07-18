@@ -294,7 +294,7 @@ public int API_ForceClientRespawn(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Force to switch a player's class.
+ * Force to switch a player class.
  *
  * native void ZP_SwitchClientClass(clientIndex, attackerIndex, iD);
  **/
@@ -304,7 +304,7 @@ public int API_SwitchClientClass(Handle isPlugin, int iNumParams)
     int clientIndex = GetNativeCell(1);
     int attackerIndex = GetNativeCell(2);
 
-    // Force client to switch player's class
+    // Force client to switch player class
     switch(GetNativeCell(3))
     {
         case 0 /*TYPE_ZOMBIE*/ :   ClassMakeZombie(clientIndex, attackerIndex);       /**< Make a zombie */
@@ -315,7 +315,7 @@ public int API_SwitchClientClass(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the player's amount of ammopacks.
+ * Gets the player amount of ammopacks.
  *
  * native int ZP_GetClientAmmoPack(clientIndex);
  **/
@@ -329,7 +329,7 @@ public int API_GetClientAmmoPack(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Sets the player's amount of ammopacks.
+ * Sets the player amount of ammopacks.
  *
  * native void ZP_SetClientAmmoPack(clientIndex, iD);
  **/
@@ -343,7 +343,7 @@ public int API_SetClientAmmoPack(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the player's amount of previous ammopacks spended.
+ * Gets the player amount of previous ammopacks spended.
  *
  * native int ZP_GetClientLastBought(clientIndex);
  **/
@@ -357,7 +357,7 @@ public int API_GetClientLastBought(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Sets the player's amount of ammopacks spending.
+ * Sets the player amount of ammopacks spending.
  *
  * native void ZP_SetClientLastBoughtv(clientIndex, iD);
  **/
@@ -371,7 +371,7 @@ public int API_SetClientLastBought(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the player's level.
+ * Gets the player level.
  *
  * native int ZP_GetClientLevel(clientIndex);
  **/
@@ -385,7 +385,7 @@ public int API_GetClientLevel(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Sets the player's level.
+ * Sets the player level.
  *
  * native void ZP_SetClientLevel(clientIndex, iD);
  **/
@@ -399,7 +399,7 @@ public int API_SetClientLevel(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the player's exp.
+ * Gets the player exp.
  *
  * native int ZP_GetClientExp(clientIndex);
  **/
@@ -413,7 +413,7 @@ public int API_GetClientExp(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Sets the player's exp.
+ * Sets the player exp.
  *
  * native void ZP_SetClientExp(clientIndex, iD);
  **/
@@ -427,7 +427,7 @@ public int API_SetClientExp(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the new round's state.
+ * Gets the new round state.
  *
  * native bool ZP_IsNewRound();
  **/
@@ -438,7 +438,7 @@ public int API_IsNewRound(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the end round's state.
+ * Gets the end round state.
  *
  * native bool ZP_IsEndRound();
  **/
@@ -449,7 +449,7 @@ public int API_IsEndRound(Handle isPlugin, int iNumParams)
 }
 
 /**
- * Gets the new round's state.
+ * Gets the new round state.
  *
  * native bool ZP_IsStartedRound();
  **/

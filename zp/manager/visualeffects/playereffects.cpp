@@ -57,7 +57,7 @@ void PlayerVEffectsOnClientInfected(int clientIndex, bool nemesisMode = false, b
             return;
         }
 
-        // Gets respawn's particle
+        // Gets respawn particle
         gCvarList[CVAR_VEFFECTS_RESPAWN_NAME].GetString(sParticle, sizeof(sParticle));
         gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     }
@@ -79,7 +79,7 @@ void PlayerVEffectsOnClientInfected(int clientIndex, bool nemesisMode = false, b
                 return;
             }
 
-            // Gets nemesis's particle
+            // Gets nemesis particle
             gCvarList[CVAR_VEFFECTS_NEMESIS_NAME].GetString(sParticle, sizeof(sParticle)); 
             gCvarList[CVAR_VEFFECTS_NEMESIS_ATTACH].GetString(sAttachment, sizeof(sAttachment));
         }
@@ -99,7 +99,7 @@ void PlayerVEffectsOnClientInfected(int clientIndex, bool nemesisMode = false, b
                 return;
             }
 
-            // Gets infect's particle
+            // Gets infect particle
             gCvarList[CVAR_VEFFECTS_INFECT_NAME].GetString(sParticle, sizeof(sParticle)); 
             gCvarList[CVAR_VEFFECTS_INFECT_ATTACH].GetString(sAttachment, sizeof(sAttachment));
         }
@@ -133,7 +133,7 @@ void PlayerVEffectsOnClientRegen(int clientIndex)
     static char sParticle[SMALL_LINE_LENGTH];
     static char sAttachment[SMALL_LINE_LENGTH];
     
-    // Gets healing's particle
+    // Gets healing particle
     gCvarList[CVAR_VEFFECTS_HEAL_NAME].GetString(sParticle, sizeof(sParticle));
     gCvarList[CVAR_VEFFECTS_HEAL_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     
@@ -172,7 +172,7 @@ void PlayerVEffectsOnClientHumanized(int clientIndex, bool survivorMode = false)
             return;
         }
 
-        // Gets survivor's particle
+        // Gets survivor particle
         gCvarList[CVAR_VEFFECTS_SURVIVOR_NAME].GetString(sParticle, sizeof(sParticle)); 
         gCvarList[CVAR_VEFFECTS_SURVIVOR_ATTACH].GetString(sAttachment, sizeof(sAttachment)); 
     }
@@ -191,7 +191,7 @@ void PlayerVEffectsOnClientHumanized(int clientIndex, bool survivorMode = false)
             return;
         }
 
-        // Gets antidot's particle
+        // Gets antidot particle
         gCvarList[CVAR_VEFFECTS_ANTIDOT_NAME].GetString(sParticle, sizeof(sParticle)); 
         gCvarList[CVAR_VEFFECTS_ANTIDOT_ATTACH].GetString(sAttachment, sizeof(sAttachment)); 
     }
@@ -224,7 +224,7 @@ void PlayerVEffectsOnClientJump(int clientIndex)
     static char sParticle[SMALL_LINE_LENGTH];
     static char sAttachment[SMALL_LINE_LENGTH];
     
-    // Gets jump's particle
+    // Gets jump particle
     gCvarList[CVAR_VEFFECTS_LEAP_NAME].GetString(sParticle, sizeof(sParticle)); 
     gCvarList[CVAR_VEFFECTS_LEAP_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     

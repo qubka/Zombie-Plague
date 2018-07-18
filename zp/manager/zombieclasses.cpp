@@ -1056,7 +1056,7 @@ stock void ZombieGetClawModel(int iD, char[] sModel, int iMaxLen)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class claw's model
+    // Gets zombie class claw model
     arrayZombieClass.GetString(ZOMBIECLASSES_DATA_CLAW, sModel, iMaxLen);
 }
 
@@ -1072,7 +1072,7 @@ stock void ZombieGetGrenadeModel(int iD, char[] sModel, int iMaxLen)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class grenade's model
+    // Gets zombie class grenade model
     arrayZombieClass.GetString(ZOMBIECLASSES_DATA_GRENADE, sModel, iMaxLen);
 }
 
@@ -1177,7 +1177,7 @@ stock float ZombieGetSkillDuration(int iD)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class skill's duration 
+    // Gets zombie class skill duration 
     return arrayZombieClass.Get(ZOMBIECLASSES_DATA_DURATION);
 }
 
@@ -1192,7 +1192,7 @@ stock float ZombieGetSkillCountDown(int iD)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class skill's countdown  
+    // Gets zombie class skill countdown  
     return arrayZombieClass.Get(ZOMBIECLASSES_DATA_COUNTDOWN);
 }
 
@@ -1207,7 +1207,7 @@ stock int ZombieGetRegenHealth(int iD)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class regen's health
+    // Gets zombie class regen health
     return arrayZombieClass.Get(ZOMBIECLASSES_DATA_REGENHEALTH);
 }
 
@@ -1222,7 +1222,7 @@ stock float ZombieGetRegenInterval(int iD)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class regen's interval
+    // Gets zombie class regen interval
     return arrayZombieClass.Get(ZOMBIECLASSES_DATA_REGENINTERVAL);
 }
 
@@ -1237,7 +1237,7 @@ stock int ZombieGetClawID(int iD)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class claw's model index
+    // Gets zombie class claw model index
     return arrayZombieClass.Get(ZOMBIECLASSES_DATA_CLAW_ID);
 }
 
@@ -1267,7 +1267,7 @@ stock int ZombieGetGrenadeID(int iD)
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class grenade's model index
+    // Gets zombie class grenade model index
     return arrayZombieClass.Get(ZOMBIECLASSES_DATA_GRENADE_ID);
 }
 
@@ -1659,7 +1659,7 @@ stock void ZombieSetSoundRegenID(int iD, int iKey)
  */
 
 /**
- * Validate zombie class for client's availability.
+ * Validate zombie class for client availability.
  *
  * @param clientIndex       The client index.
  **/
@@ -1668,7 +1668,7 @@ void ZombieOnValidate(int clientIndex)
     // Gets array size
     int iSize = arrayZombieClasses.Length;
     
-    // Gets client's access
+    // Gets client access
     bool IsVIP = IsPlayerHasFlag(clientIndex, Admin_Custom1);
     
     // Choose random zombie class for the client

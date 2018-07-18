@@ -67,7 +67,7 @@ public Action SkillsOnHealthRegen(Handle hTimer, int userID)
     // Validate client
     if(clientIndex)
     {
-        // Gets zombie's class regen interval/amount
+        // Gets zombie class regen interval/amount
         int iRegen = ZombieGetRegenHealth(gClientData[clientIndex][Client_ZombieClass]);
         float flInterval = ZombieGetRegenInterval(gClientData[clientIndex][Client_ZombieClass]);
 
@@ -77,7 +77,7 @@ public Action SkillsOnHealthRegen(Handle hTimer, int userID)
             // Initialize float
             static float vVelocity[3];
             
-            // Gets the client's velocity
+            // Gets the client velocity
             ToolsGetClientVelocity(clientIndex, vVelocity);
             
             // If the zombie don't move, then check health

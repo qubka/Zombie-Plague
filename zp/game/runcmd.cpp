@@ -36,7 +36,7 @@
  * @param weaponIndex       Entity index of the new weapon if player switches weapon, 0 otherwise.
  * @param iSubType          Weapon subtype when selected from a menu.
  * @param iCmdNum           Command number. Increments from the first command sent.
- * @param iTickCount        Tick count. A client's prediction based on the server's GetGameTickCount value.
+ * @param iTickCount        Tick count. A client prediction based on the server GetGameTickCount value.
  * @param iSeed             Random seed. Used to determine weapon recoil, spread, and other predicted elements.
  * @param iMouse            Mouse direction (x, y).
  **/ 

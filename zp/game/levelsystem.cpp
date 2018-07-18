@@ -31,7 +31,7 @@
 #define LevelSystemMax 100
 
 /**
- * Arrays to store the level's data.
+ * Arrays to store the level data.
  **/
 int  LevelSystemNum;
 static char LevelSystemStats[LevelSystemMax][SMALL_LINE_LENGTH];
@@ -66,7 +66,7 @@ void LevelSystemInit(/*void*/)
  **/
 void LevelSystemLoad(/*void*/)
 {
-    // Resets level's data
+    // Resets level data
     LevelSystemNum = 0;
 
     // If level system disabled, then stop
@@ -116,7 +116,7 @@ void LevelSystemOnClientUpdate(int clientIndex)
 }
 
 /**
- * Sets the client's level and prevent it from overloading.
+ * Sets the client level and prevent it from overloading.
  *
  * @param clientIndex       The client index.
  * @param nLevel            The level amount.
@@ -162,7 +162,7 @@ void LevelSystemOnSetLvl(int clientIndex, int nLevel)
 }
 
 /**
- * Sets the client's experience, increasing level if it reach level's experience limit and prevent it from overloading.
+ * Sets the client experience, increasing level if it reach level experience limit and prevent it from overloading.
  *
  * @param clientIndex       The client index.
  * @param nExperience       The experience amount.
@@ -207,7 +207,7 @@ void LevelSystemOnSetExp(int clientIndex, int nExperience)
 }
 
 /**
- * Main timer for show HUD text within information about client's level and experience.
+ * Main timer for show HUD text within information about client level and experience.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
