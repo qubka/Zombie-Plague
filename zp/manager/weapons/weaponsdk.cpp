@@ -494,8 +494,12 @@ public Action WeaponSDKOnDrop(int clientIndex, int weaponIndex)
     // If custom weapons models disabled, then skip
     if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
     {
-        // Apply dropped model on the next frame
-        RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), EntIndexToEntRef(weaponIndex));
+        // Validate weapon
+        if(IsValidEdict(weaponIndex))
+        {
+            // Apply dropped model on the next frame
+            RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), EntIndexToEntRef(weaponIndex));
+        }
     }
     
     // Allow drop

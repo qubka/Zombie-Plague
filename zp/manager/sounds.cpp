@@ -440,7 +440,7 @@ stock bool SoundsInputEmit(int entityIndex, int iChannel, int iKey, int iNum = 0
 }
 
 /**
- * Stop sound.
+ * Stop sounds.
  **/
 stock void SoundsInputStop(/*void*/)
 {
@@ -452,8 +452,8 @@ stock void SoundsInputStop(/*void*/)
         {
             // Stop sound
             ClientCommand(i, "playgamesound Music.StopAllExceptMusic"); 
-            ClientCommand(i, "playgamesound Music.StopAllMusic"); 
-            ClientCommand(i, "playgamesound Music.StopAll");
+            ///ClientCommand(i, "playgamesound Music.StopAllMusic"); 
+            ///ClientCommand(i, "playgamesound Music.StopAll");
         }
     }
 }
