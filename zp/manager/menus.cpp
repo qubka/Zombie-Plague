@@ -312,7 +312,7 @@ stock void MenusGetName(int iD, char[] sName, int iMaxLen)
  **/
 stock void MenusGetAccess(int iD, char[] sType, int iMaxLen)
 {
-    // Gets array handle of weapon at given index
+    // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
 
     // Gets menu access
@@ -328,7 +328,7 @@ stock void MenusGetAccess(int iD, char[] sType, int iMaxLen)
  **/
 stock void MenusGetCommand(int iD, char[] sCommand, int iMaxLen)
 {
-    // Gets array handle of weapon at given index
+    // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
     
     // Gets menu command

@@ -65,7 +65,7 @@ void DataBaseLoad(/*void*/)
     // Initialize chars
     static char sError[BIG_LINE_LENGTH];
     static char sDriver[SMALL_LINE_LENGTH]; 
-    static char sRequest[PLATFORM_MAX_PATH];
+    static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
 
     // Creates an SQL connection from a named configuration
     hDataBase = SQL_Connect(sDataBase , false, sError, sizeof(sError));
@@ -163,7 +163,7 @@ void DataBaseOnCommandsCreate(/*void*/)
  * Returning Plugin_Handled or Plugin_Stop will prevent the original, baseline code from running.
  * -- TEXT BELOW IS IMPLEMENTATION, AND NOT GUARANTEED -- Even if returning Plugin_Handled or Plugin_Stop, some callbacks will still trigger. These are: * C++ command dispatch hooks from Metamod:Source plugins * Reg*Cmd() hooks that did not create new commands.
  *
- * @param entityIndex        The entity index. (Client, or 0 for server. )
+ * @param entityIndex       The entity index. (Client, or 0 for server)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
@@ -222,7 +222,7 @@ void DataBaseClientInit(int clientIndex)
     if(!IsFakeClient(clientIndex))
     {
         // Initialize chars
-        static char sRequest[PLATFORM_MAX_PATH]; 
+        static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH]; 
 
         // Gets database name
         static char sDataBase[SMALL_LINE_LENGTH];
@@ -268,7 +268,7 @@ void DataBaseOnClientDisconnect(int clientIndex)
  *
  * @param hDriver            Parent object of the handle.
  * @param hResult            Handle to the child object.
- * @param sSQLerror            Error string if there was an error.
+ * @param sSQLerror          Error string if there was an error.
  * @param clientIndex        Data passed in via the original threaded invocation.
  **/
 public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[] sSQLerror, int clientIndex)
@@ -303,7 +303,7 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
             else
             {
                 // Initialize chars
-                static char sRequest[PLATFORM_MAX_PATH]; 
+                static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH]; 
 
                 // Gets database name
                 static char sDataBase[SMALL_LINE_LENGTH];
@@ -354,7 +354,7 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
 void DataBaseSaveClientInfo(int clientIndex)
 {
     // Initialize chars
-    static char sRequest[PLATFORM_MAX_PATH]; 
+    static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH]; 
 
     // Gets database name
     static char sDataBase[SMALL_LINE_LENGTH];

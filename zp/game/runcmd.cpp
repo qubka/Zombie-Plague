@@ -33,19 +33,19 @@
  * @param iImpulse          Copyback buffer containing the current impulse command.
  * @param flVelocity        Players desired velocity.
  * @param flAngles          Players desired view angles.    
- * @param weaponIndex       Entity index of the new weapon if player switches weapon, 0 otherwise.
+ * @param weaponID          The entity index of the new weapon if player switches weapon, 0 otherwise.
  * @param iSubType          Weapon subtype when selected from a menu.
  * @param iCmdNum           Command number. Increments from the first command sent.
  * @param iTickCount        Tick count. A client prediction based on the server GetGameTickCount value.
  * @param iSeed             Random seed. Used to determine weapon recoil, spread, and other predicted elements.
  * @param iMouse            Mouse direction (x, y).
  **/ 
-public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponIndex, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
+public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
 {
     // Initialize variable
     static int nLastButtons[MAXPLAYERS+1];
     
-    // Button menu button
+    // Button menu hook
     if(iButtons & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue))
     {
         // Validate overtransmitting

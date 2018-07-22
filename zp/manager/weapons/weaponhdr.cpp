@@ -53,7 +53,7 @@
 /**
  * Variables to store SDK calls handlers.
  **/
-Handle hSDKCallEntityUpdateTransmitState; // UpdateTransmitState will stop the view model from transmitting if EF_NODRAW flag is present
+Handle hSDKCallEntityUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
 Handle hSDKCallAnimatingGetSequenceActivity;
 
 /**
@@ -172,7 +172,7 @@ stock void WeaponHDRToggleViewModel(int clientIndex, int viewIndex, int iD)
  **/
 stock int WeaponHDRGetPlayerViewModel(int clientIndex, int viewIndex)
 {
-    // Gets view model for the client
+    // Gets viewmodel of the client
     return GetEntDataEnt2(clientIndex, g_iOffset_PlayerViewModel + (viewIndex * 4));
 }
 
@@ -185,7 +185,7 @@ stock int WeaponHDRGetPlayerViewModel(int clientIndex, int viewIndex)
  **/
 stock void WeaponHDRSetPlayerViewModel(int clientIndex, int viewIndex, int modelIndex)
 {
-    // Sets view model for the client
+    // Sets viewmodel for the client
     SetEntDataEnt2(clientIndex, g_iOffset_PlayerViewModel + (viewIndex * 4), modelIndex, true);
 }
 
@@ -199,13 +199,13 @@ stock void WeaponHDRSetPlayerViewModel(int clientIndex, int viewIndex, int model
  **/
 stock void WeaponHDRSetPlayerWorldModel(int weaponIndex, int modelIndex = 0, int bodyIndex = 0, int skinIndex = 0)
 { 
-    // Get world model entity
+    // Get worldmodel entity
     int worldIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponWorldModel);
 
-    // Validate world model
+    // Validate worldmodel
     if(IsValidEdict(worldIndex))
     {
-        // Sets world model for the world model
+        // Sets model index for the worldmodel
         SetEntData(worldIndex, g_iOffset_EntityModelIndex, modelIndex, _, true);
         
         // Validate model
@@ -217,7 +217,7 @@ stock void WeaponHDRSetPlayerWorldModel(int weaponIndex, int modelIndex = 0, int
                 g_iOffset_WeaponWorldSkin = FindDataMapInfo(worldIndex, "m_nSkin"); /// Not work properly, but data offset exist in CBaseWeaponWorldModel
             }
 
-            // Sets body/skin index for the world model
+            // Sets body/skin index for the worldmodel
             SetEntData(worldIndex, g_iOffset_WeaponBody, bodyIndex, _, true);
             SetEntData(worldIndex, g_iOffset_WeaponWorldSkin, skinIndex, _, true);
         }
@@ -242,10 +242,10 @@ public void WeaponHDRSetDroppedModel(int referenceIndex)
         int iD = WeaponsGetCustomID(weaponIndex);
         if(iD != INVALID_ENT_REFERENCE)
         {
-            // If world model exist, then apply it
+            // If worldmodel exist, then apply it
             if(WeaponsGetModelWorldID(iD))
             {
-                // Gets weapon world model
+                // Gets weapon worldmodel
                 static char sModel[PLATFORM_MAX_PATH];
                 WeaponsGetModelWorld(iD, sModel, sizeof(sModel));
                 
@@ -337,7 +337,7 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
 }
 
 /**
- * Generate a new sequence for the (any) custom view models.
+ * Generate a new sequence for the (any) custom viewmodels.
  * This algorithm give Andersso an headache. But he hope, it as fast as it can be. Regards to him a lot.
  *
  * @param iSequences        The sequence array.

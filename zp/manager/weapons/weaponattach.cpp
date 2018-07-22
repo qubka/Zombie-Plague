@@ -499,7 +499,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, WeaponAttachBitType bitTy
     // Remove current addons
     WeaponAttachRemoveAddons(clientIndex, bitType);
 
-    // If world model exist, then apply it
+    // If world =model exist, then apply it
     if(WeaponsGetModelWorldID(iD))
     {
         // Create an attach addon entity 
@@ -508,7 +508,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, WeaponAttachBitType bitTy
         // If entity isn't valid, then skip
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Gets weapon world model
+            // Gets weapon worldmodel
             static char sModel[PLATFORM_MAX_PATH];
             WeaponsGetModelWorld(iD, sModel, sizeof(sModel)); 
 
@@ -776,10 +776,10 @@ void WeaponAttachGetPosition(int clientIndex, char[] sAttach, float vPosition[3]
         // Clears parent of the entity
         AcceptEntityInput(entityIndex, "ClearParent");
 
-        // Gets the world model index
+        // Gets the worldmodel index
         weaponIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponWorldModel);
 
-        // Validate world/view model
+        // Validate worldmodel
         if(!IsValidEdict(weaponIndex))
         {
             return;

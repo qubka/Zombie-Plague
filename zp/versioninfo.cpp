@@ -26,18 +26,18 @@
  **/
  
 /**
- * @section    Modification information.
+ * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "8.0.8"
+#define PLUGIN_VERSION      "8.1.0"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
 #define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)"
-#define PLUGIN_BRANCH       "zp-8.0.8"
+#define PLUGIN_BRANCH       "zp-8.1.0"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "20-July-2018T00:00:00-GMT+02:00"
+#define PLUGIN_DATE         "22-July-2018T00:00:00-GMT+02:00"
 /**
  * @endsection
  **/

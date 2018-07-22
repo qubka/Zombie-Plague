@@ -36,7 +36,8 @@ enum WeaponSDKSlotType
     SlotType_Secondary,           /** Secondary slot */
     SlotType_Melee,               /** Melee slot */
     SlotType_Equipment,           /** Equipment slot */  
-    SlotType_C4                   /** C4 slot */  
+    SlotType_C4,                  /** C4 slot */  
+    SlotType_Grenades = 6         /** Grenade slot */
 };
 
 /**
@@ -160,9 +161,9 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     fnInitSendPropOffset(g_iOffset_PlayerActiveWeapon, "CBasePlayer", "m_hActiveWeapon");
     fnInitSendPropOffset(g_iOffset_PlayerObserverMode, "CBasePlayer", "m_iObserverMode");
     fnInitSendPropOffset(g_iOffset_PlayerObserverTarget, "CBasePlayer", "m_hObserverTarget");
-    fnInitSendPropOffset(g_iOffset_PlayerAddonBits, "CCSPlayer", "m_iAddonBits");
-    fnInitSendPropOffset(g_iOffset_PlayerArms, "CCSPlayer", "m_szArmsModel");
     fnInitSendPropOffset(g_iOffset_PlayerAttack, "CBasePlayer", "m_flNextAttack");
+    fnInitSendPropOffset(g_iOffset_PlayerArms, "CCSPlayer", "m_szArmsModel");
+    fnInitSendPropOffset(g_iOffset_PlayerAddonBits, "CCSPlayer", "m_iAddonBits");
     fnInitSendPropOffset(g_iOffset_ViewModelOwner, "CBaseViewModel", "m_hOwner");
     fnInitSendPropOffset(g_iOffset_ViewModelWeapon, "CBaseViewModel", "m_hWeapon");
     fnInitSendPropOffset(g_iOffset_ViewModelSequence, "CBaseViewModel", "m_nSequence");
@@ -178,6 +179,9 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     ///fnInitSendPropOffset(g_iOffset_WeaponClip2, "CBaseCombatWeapon", "m_iClip2");
     fnInitSendPropOffset(g_iOffset_WeaponReserve1, "CBaseCombatWeapon", "m_iPrimaryReserveAmmoCount");
     fnInitSendPropOffset(g_iOffset_WeaponReserve2, "CBaseCombatWeapon", "m_iSecondaryReserveAmmoCount");
+    fnInitSendPropOffset(g_iOffset_WeaponPrimaryAttack, "CBaseCombatWeapon", "m_flNextPrimaryAttack");
+    fnInitSendPropOffset(g_iOffset_WeaponSecondaryAttack, "CBaseCombatWeapon", "m_flNextSecondaryAttack");
+    fnInitSendPropOffset(g_iOffset_WeaponIdle, "CBaseCombatWeapon", "m_flTimeWeaponIdle");
     fnInitSendPropOffset(g_iOffset_GrenadeThrower, "CBaseGrenade", "m_hThrower");
 
     /*_________________________________________________________________________________________________________________________________________*/
@@ -211,18 +215,18 @@ void WeaponSDKUnload(/*void*/)
             int viewModel1 = EntRefToEntIndex(gClientData[i][Client_ViewModels][0]);
             int viewModel2 = EntRefToEntIndex(gClientData[i][Client_ViewModels][1]);
 
-            // Validate fist view model
+            // Validate fist viewmodel
             if(viewModel1 != INVALID_ENT_REFERENCE)
             {
-                // Make the first view model visible
+                // Make the first viewmodel visible
                 WeaponHDRSetEntityVisibility(viewModel1, true);
                 SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
             }
 
-            // Validate secondary view model
+            // Validate secondary viewmodel
             if(viewModel2 != INVALID_ENT_REFERENCE)
             {
-                // Make the second view model visible
+                // Make the second viewmodel visible
                 WeaponHDRSetEntityVisibility(viewModel2, false);
                 SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
             }
@@ -276,7 +280,7 @@ void WeaponSDKOnCreated(int entityIndex, const char[] sClassname)
         int iLen = strlen(sClassname) - 11;
         
         // Validate length
-        if(iLen)
+        if(iLen > 0)
         {
             // Validate grenade
             if(!strncmp(sClassname[iLen], "_proj", 5, false))
@@ -321,17 +325,13 @@ public void WeaponSDKOnFakeWeaponReload(int referenceIndex)
             float flReload = WeaponsGetReload(iD);
             if(flReload)
             {
-                // Gets the weapon owner
-                int clientIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponOwner);
-                
-                // Validate owner
-                if(!IsPlayerExist(clientIndex)) 
-                {
-                    return;
-                }
-                
-                // Sets the next attack time
-                SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, GetGameTime() + flReload, true);
+                // Adds the game time based on the game tick
+                flReload += GetGameTime();
+        
+                // Sets the reload time
+                SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flReload, true);
+                SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flReload, true);
+                SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flReload, true);
             }
         }
     }
@@ -451,7 +451,7 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
         if(iD != INVALID_ENT_REFERENCE)
         {
             // Validate grenade slot
-            if(WeaponsGetSlot(iD) == 6) /// (Bug fix for other addons)
+            if(WeaponsGetSlot(iD) == view_as<int>(SlotType_Grenades)) /// (Bug fix for other addons)
             {
                 // Duplicate index to the projectile for future use
                 WeaponsSetCustomID(grenadeIndex, iD);
@@ -462,10 +462,10 @@ public void WeaponSDKOnFakeGrenadeSpawn(int referenceIndex)
                 // If custom weapons models disabled, then skip
                 if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
                 {
-                    // If world model exist, then apply it
+                    // If worldmodel exist, then apply it
                     if(WeaponsGetModelWorldID(iD))
                     {
-                        // Gets weapon world model
+                        // Gets weapon worldmodel
                         static char sModel[PLATFORM_MAX_PATH];
                         WeaponsGetModelWorld(iD, sModel, sizeof(sModel));
 
@@ -580,14 +580,14 @@ void WeaponSDKOnClientUpdate(int clientIndex)
     int viewModel1 = WeaponHDRGetPlayerViewModel(clientIndex, 0);
     int viewModel2 = WeaponHDRGetPlayerViewModel(clientIndex, 1);
 
-    // If a secondary view model doesn't exist, create one
+    // If a secondary viewmodel doesn't exist, create one
     if(!IsValidEdict(viewModel2))
     {
         // Validate entity
         if((viewModel2 = CreateEntityByName("predicted_viewmodel")) == INVALID_ENT_REFERENCE)
         {
             // Unexpected error, log it
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to create secondary view model");
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to create secondary viewmodel");
             return;
         }
 
@@ -601,7 +601,7 @@ void WeaponSDKOnClientUpdate(int clientIndex)
         // Spawn the entity into the world
         DispatchSpawn(viewModel2);
 
-        // Sets the view model to the owner
+        // Sets the viewmodel to the owner
         WeaponHDRSetPlayerViewModel(clientIndex, 1, viewModel2);
     }
 
@@ -632,10 +632,10 @@ void WeaponSDKOnClientDeath(int clientIndex)
     // Gets the entity index from the reference
     int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
 
-    // Validate secondary view model
+    // Validate secondary viewmodel
     if(viewModel2 != INVALID_ENT_REFERENCE)
     {
-        // Hide the custom view model if the player dies
+        // Hide the custom viewmodel if the player dies
         WeaponHDRSetEntityVisibility(viewModel2, false);
         SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
     }
@@ -658,29 +658,42 @@ public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex)
     int viewModel1 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][0]);
     int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
 
-    // Validate view models
+    // Validate viewmodels
     if(viewModel1 == INVALID_ENT_REFERENCE || viewModel2 == INVALID_ENT_REFERENCE)
     {
         return;
     }
 
-    // If custom weapons models disabled, then skip
-    if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
+    // Validate weapon
+    if(IsValidEdict(weaponIndex))
     {
-        // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        // Validate custom index
+        int iD = WeaponsGetCustomID(weaponIndex);
+        if(iD != INVALID_ENT_REFERENCE)
         {
-            // Validate custom index
-            int iD = WeaponsGetCustomID(weaponIndex);
-            if(iD != INVALID_ENT_REFERENCE)
+            // If custom deploy speed exist, then apply it
+            float flDeploy = WeaponsGetReload(iD);
+            if(flDeploy)
             {
-                // If view/world model exist, then apply them later
+                // Adds the game time based on the game tick
+                flDeploy += GetGameTime();
+        
+                // Sets the deploy time
+                SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flDeploy, true);
+                SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flDeploy, true);
+                SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flDeploy, true);
+            }
+    
+            // If custom weapons models disabled, then skip
+            if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
+            {
+                // If view/world model exist, then set them
                 if(WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || ((WeaponsValidateKnife(weaponIndex) || WeaponsValidateGrenade(weaponIndex)) && gClientData[clientIndex][Client_Zombie]))
                 {
                     // Client has swapped to a custom weapon
                     gClientData[clientIndex][Client_SwapWeapon] = INVALID_ENT_REFERENCE;
                     gClientData[clientIndex][Client_CustomWeapon] = weaponIndex;
-                    gClientData[clientIndex][Client_WeaponIndex] = iD; /// Only view model identification
+                    gClientData[clientIndex][Client_WeaponIndex] = iD; /// Only viewmodel identification
                     return;
                 }
             }
@@ -689,7 +702,7 @@ public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex)
 
     // Client has swapped to a regular weapon
     gClientData[clientIndex][Client_CustomWeapon] = 0;
-    gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only view model identification
+    gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only viewmodel identification
     
     // Gets human arm model
     static char sArm[PLATFORM_MAX_PATH];
@@ -713,19 +726,19 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     {
         return;
     }
-    
-    // Validate weapon
-    if(!IsValidEdict(weaponIndex))
-    {
-        return;
-    }
 
     // Gets the entity index from the reference
     int viewModel1 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][0]);
     int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
 
-    // Validate view models
+    // Validate viewmodels
     if(viewModel1 == INVALID_ENT_REFERENCE || viewModel2 == INVALID_ENT_REFERENCE)
+    {
+        return;
+    }
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
     {
         return;
     }
@@ -734,7 +747,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     int iModel; static char sModel[PLATFORM_MAX_PATH]; sModel[0] = '\0';
     
     // Gets the weapon id from the reference
-    int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only view model identification
+    int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only viewmodel identification
 
     // Validate zombie
     if(gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis])
@@ -769,19 +782,19 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     // Validate the switched weapon
     if(weaponIndex != gClientData[clientIndex][Client_CustomWeapon])
     {
-        // Hide the secondary view model. This needs to be done on post because the weapon needs to be switched first
+        // Hide the secondary viewmodel. This needs to be done on post because the weapon needs to be switched first
         if(iD == INVALID_ENT_REFERENCE)
         {
-            // Make the first view model visible
+            // Make the first viewmodel visible
             WeaponHDRSetEntityVisibility(viewModel1, true);
             SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
 
-            // Make the second view model invisible
+            // Make the second viewmodel invisible
             WeaponHDRSetEntityVisibility(viewModel2, false);
             SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
 
             // Resets the weapon index
-            gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only view model identification
+            gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only viewmodel identification
         }
         return;
     }
@@ -789,17 +802,17 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
     // Gets the model index
     if(!iModel) iModel = WeaponsGetModelViewID(iD);
     
-    // Gets weapon view model
+    // Gets the weapon viewmodel
     if(!strlen(sModel)) WeaponsGetModelView(iD, sModel, sizeof(sModel));   
 
-    // If view model exist, then apply it
+    // If viewmodel exist, then apply it
     if(iModel)
     {
-        // Make the first view model invisible
+        // Make the first viewmodel invisible
         WeaponHDRSetEntityVisibility(viewModel1, false);
         SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
         
-        // Make the second view model visible
+        // Make the second viewmodel visible
         WeaponHDRSetEntityVisibility(viewModel2, true);
         ///SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2); //-> transport a bit below
         
@@ -854,12 +867,12 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
             }
         }
 
-        // Sets the model/body/skin index for view model
+        // Sets the model/body/skin index for viewmodel
         SetEntData(viewModel2, g_iOffset_EntityModelIndex, iModel, _, true);
         SetEntData(viewModel2, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
         SetEntData(viewModel2, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
         
-        //  Update the animation interval delay for second view model 
+        //  Update the animation interval delay for second viewmodel 
         SetEntDataFloat(viewModel2, g_iOffset_ViewModelPlaybackRate, GetEntDataFloat(viewModel1, g_iOffset_ViewModelPlaybackRate), true);
 
         // Create a toggle model
@@ -873,8 +886,8 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
         // Clear the custom id cache
         gClientData[clientIndex][Client_CustomWeapon] = 0;
     }
-
-    // If world model exist, then apply it
+    
+    // If worldmodel exist, then apply it
     if(WeaponsGetModelWorldID(iD))
     {
         WeaponHDRSetPlayerWorldModel(weaponIndex, WeaponsGetModelWorldID(iD), WeaponsGetModelBody(iD), WeaponsGetModelSkin(iD));
@@ -918,7 +931,7 @@ public void WeaponSDKOnAnimationFix(int clientIndex)
     int viewModel1 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][0]);
     int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
 
-    // Validate view models
+    // Validate viewmodels
     if(viewModel1 == INVALID_ENT_REFERENCE || viewModel2 == INVALID_ENT_REFERENCE)
     {
         return;
@@ -950,7 +963,7 @@ public void WeaponSDKOnAnimationFix(int clientIndex)
             }
 
             // Gets the weapon id from the reference
-            int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only view model identification
+            int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only viewmodel identification
             int swapSequence = WeaponsGetSequenceSwap(iD, nSequence);
             
             // Change to swap sequence, if present
@@ -1004,7 +1017,21 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
         // Returns the game time based on the game tick
         float flCurrentTime = GetGameTime();
 
-        // If view model exist, then apply muzzle smoke
+        // If custom fire speed exist, then apply it
+        float flSpeed = WeaponsGetSpeed(iD);
+        if(flSpeed)
+        {
+            // Adds the game time based on the game tick
+            flSpeed += flCurrentTime;
+    
+            // Sets the next attack time
+            SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flSpeed, true);
+            SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flSpeed, true);
+            SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flSpeed, true);
+            SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flSpeed, true);
+        }
+        
+        // If viewmodel exist, then create muzzle smoke
         if(WeaponsGetModelViewID(iD))
         {
             // Initialize variables
@@ -1013,7 +1040,7 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
             // Gets the entity index from the reference
             int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
 
-            // Validate secondary view model
+            // Validate secondary viewmodel
             if(viewModel2 == INVALID_ENT_REFERENCE)
             {
                 return;
@@ -1051,14 +1078,6 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
 
             // Update the heat delay
             flHeatDelay[clientIndex] = flHeat;
-        }
-        
-        // If custom fire speed exist, then apply it
-        float flSpeed = WeaponsGetSpeed(iD);
-        if(flSpeed)
-        {
-            // Sets the next attack time
-            SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flCurrentTime + flSpeed, true);
         }
     }
     
@@ -1107,7 +1126,7 @@ Action WeaponSDKOnShoot(int clientIndex, int weaponIndex)
  **/
 void WeaponSDKOnHostage(int clientIndex) 
 {
-    // Prevent the view model from being removed
+    // Prevent the viewmodel from being removed
     WeaponHDRSetPlayerViewModel(clientIndex, 1, INVALID_ENT_REFERENCE);
 
     // Apply fake hostage follow hook on the next frame
@@ -1128,21 +1147,21 @@ public void WeaponSDKOnFakeHostage(int userID)
     if(clientIndex)
     {
         // Gets the weapon id from the reference
-        int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only view model identification
+        int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only viewmodel identification
 
         // Validate id
         if(iD != INVALID_ENT_REFERENCE)
         {
-            // Gets the second view model
+            // Gets the second viewmodel
             int viewModel2 = WeaponHDRGetPlayerViewModel(clientIndex, 1);
 
-            // Remove the view model created by the game
+            // Remove the viewmodel created by the game
             if(IsValidEdict(viewModel2))
             {
                 AcceptEntityInput(viewModel2, "Kill");
             }
 
-            // Resets the view model
+            // Resets the viewmodel
             WeaponHDRSetPlayerViewModel(clientIndex, 1, EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]));
         }
     }

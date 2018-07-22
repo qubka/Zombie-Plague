@@ -48,6 +48,7 @@ enum
     WEAPONS_DATA_AMMO,
     WEAPONS_DATA_SPEED,
     WEAPONS_DATA_RELOAD,
+    WEAPONS_DATA_DEPLOY,
     WEAPONS_DATA_SOUND,
     WEAPONS_DATA_CLASS,
     WEAPONS_DATA_MODEL_VIEW,
@@ -174,20 +175,21 @@ void WeaponsCacheData(/*void*/)
         arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));        // Index: 10
         arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));   // Index: 11
         arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));  // Index: 12
+        arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));  // Index: 13
         kvWeapons.GetString("sound", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));     // Index: 13
-        arrayWeapon.Push(kvWeapons.GetNum("class", 0));       // Index: 14
+        arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));     // Index: 14
+        arrayWeapon.Push(kvWeapons.GetNum("class", 0));       // Index: 15
         kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                 // Index: 15    
-        arrayWeapon.Push(ModelsWeaponPrecache(sPathWeapons)); // Index: 16
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 16    
+        arrayWeapon.Push(ModelsWeaponPrecache(sPathWeapons)); // Index: 17
         kvWeapons.GetString("world", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                 // Index: 17
-        arrayWeapon.Push(ModelsWeaponPrecache(sPathWeapons)); // Index: 18
-        arrayWeapon.Push(kvWeapons.GetNum("body", 0));        // Index: 19
-        arrayWeapon.Push(kvWeapons.GetNum("skin", 0));        // Index: 20
-        arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));    // Index: 21
-        arrayWeapon.Push(INVALID_ENT_REFERENCE);              // Index: 22
-        arrayWeapon.PushArray(swapSequences);                 // Index: 23
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 18
+        arrayWeapon.Push(ModelsWeaponPrecache(sPathWeapons)); // Index: 19
+        arrayWeapon.Push(kvWeapons.GetNum("body", 0));        // Index: 20
+        arrayWeapon.Push(kvWeapons.GetNum("skin", 0));        // Index: 21
+        arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));    // Index: 22
+        arrayWeapon.Push(INVALID_ENT_REFERENCE);              // Index: 23
+        arrayWeapon.PushArray(swapSequences);                 // Index: 24
     }
 
     // We're done with this file now, so we can close it
@@ -719,6 +721,27 @@ public int API_GetWeaponReload(Handle isPlugin, int iNumParams)
 }
 
 /**
+ * Gets the deploy duration of the weapon.
+ *
+ * native float ZP_GetWeaponDeploy(iD);
+ **/
+public int API_GetWeaponDeploy(Handle isPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayWeapons.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+        return -1;
+    }
+    
+    // Return the value (Float fix)
+    return view_as<int>(WeaponsGetDeploy(iD));
+}
+
+/**
  * Gets the sound key of the weapon.
  *
  * native int ZP_GetWeaponSoundID(iD);
@@ -1134,6 +1157,21 @@ stock float WeaponsGetReload(int iD)
     
     // Gets weapon reload duration
     return arrayWeapon.Get(WEAPONS_DATA_RELOAD);
+}
+
+/**
+ * Gets the deploy duration of the weapon.
+ *
+ * @param iD                The weapon id.
+ * @return                  The duration amount.
+ **/
+stock float WeaponsGetDeploy(int iD)
+{
+    // Gets array handle of weapon at given index
+    ArrayList arrayWeapon = arrayWeapons.Get(iD);
+    
+    // Gets weapon deploy duration
+    return arrayWeapon.Get(WEAPONS_DATA_DEPLOY);
 }
 
 /**

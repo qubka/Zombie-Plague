@@ -140,7 +140,7 @@ stock void TranslationPrintToConsoleAll(bool bServer, bool bAdmin, any ...)
         PrintToServer(sTranslation);
     }
 
-    // x = client index.
+    // x = client index
     for(int i = 1; i <= MaxClients; i++)
     {
         // Validate client

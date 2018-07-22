@@ -354,7 +354,7 @@ public int API_EmitSoundKeyID(Handle isPlugin, int iNumParams)
  **/
 stock void SoundsGetLine(int iD, char[] sLine, int iMaxLen)
 {
-    // Gets array handle of weapon at given index
+    // Gets array handle of sound at given index
     ArrayList arraySound = arraySounds.Get(iD);
     
     // Gets line
@@ -377,7 +377,7 @@ stock void SoundsGetSound(char[] sLine, int iMaxLen, int iKey, int iNum = 0)
         return;
     }
 
-    // Gets array handle of weapon at given index
+    // Gets array handle of sound at given index
     ArrayList arraySound = arraySounds.Get(iKey);
 
     // Gets size of array handle

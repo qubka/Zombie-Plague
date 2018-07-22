@@ -793,6 +793,12 @@ public void CostumesCreateEntity(int clientIndex)
             AcceptEntityInput(entityIndex, "Kill"); //! Destroy
         }
 
+        // Validate zombie
+        if(gClientData[clientIndex][Client_Zombie])
+        {
+            return;
+        }
+        
         // Gets array size
         int iSize = arrayCostumes.Length;
 

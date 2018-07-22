@@ -188,6 +188,14 @@ native float ZP_GetWeaponSpeed(int weaponID);
 native float ZP_GetWeaponReload(int weaponID);
 
 /**
+ * @brief Gets the delpoy duration of the weapon.
+ *
+ * @param weaponID          The weapon ID.
+ * @return                  The duration amount.    
+ **/
+native float ZP_GetWeaponDeploy(int weaponID);
+
+/**
  * @brief Gets the sound key of the weapon.
  *
  * @param weaponID          The weapon ID.
@@ -204,7 +212,7 @@ native int ZP_GetWeaponSoundID(int weaponID);
 native int ZP_GetWeaponClass(int weaponID);
 
 /**
- * @brief Gets the view model path a weapon at a given id.
+ * @brief Gets the viewmodel path a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
  * @param model             The string to return model in.
@@ -213,15 +221,15 @@ native int ZP_GetWeaponClass(int weaponID);
 native void ZP_GetWeaponModelView(int weaponID, char[] model, int maxlenght = 256);
 
 /**
- * @brief Gets the index of the weapon view model.
+* @brief Gets the index of the weapon viewmodel.
  * 
  * @param weaponID          The weapon ID.
- * @return                  The view model index.    
+ * @return                  The viewmodel index.    
  **/
 native int ZP_GetWeaponModelViewID(int weaponID);
 
 /**
- * @brief Gets the world model path a weapon at a given id.
+ * @brief Gets the worldmodel path a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
  * @param model             The string to return model in.
@@ -230,10 +238,10 @@ native int ZP_GetWeaponModelViewID(int weaponID);
 native void ZP_GetWeaponModelWorld(int weaponID, char[] model, int maxlenght = 256);
 
 /**
- * @brief Gets the index of the weapon world model.
+ * @brief Gets the index of the weapon worldmodel.
  * 
  * @param weaponID          The weapon ID.
- * @return                  The world model index.    
+ * @return                  The worldmodel index.    
  **/
 native int ZP_GetWeaponModelWorldID(int weaponID);
 
@@ -241,7 +249,7 @@ native int ZP_GetWeaponModelWorldID(int weaponID);
  * @brief Gets the body index of the weapon model.
  *
  * @param weaponID          The weapon ID.
- * @return                  The view model body index.    
+ * @return                  The viewmodel body index.    
  **/
 native int ZP_GetWeaponModelBody(int weaponID);
 
@@ -249,7 +257,7 @@ native int ZP_GetWeaponModelBody(int weaponID);
  * @brief Gets the skin index of the weapon model.
  *
  * @param weaponID          The weapon ID.
- * @return                  The view model skin index.    
+ * @return                  The viewmodel skin index.    
  **/
 native int ZP_GetWeaponModelSkin(int weaponID);
 

@@ -37,7 +37,7 @@ public Plugin myinfo =
     name            = "[ZP] Weapon: Bazooka",
     author          = "qubka (Nikita Ushakov)",
     description     = "Addon of custom weapon",
-    version         = "2.0",
+    version         = "3.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -87,21 +87,6 @@ int gWeapon;
 int gSound;
 
 /**
- * Called after a library is added that the current plugin references optionally. 
- * A library is either a plugin name or extension name, as exposed via its include file.
- **/
-public void OnLibraryAdded(const char[] sLibrary)
-{
-    // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
-    {
-        // Hook player events
-        HookEvent("weapon_fire", EventPlayerFire, EventHookMode_Pre);
-    }
-}
-
-
-/**
  * Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
@@ -111,7 +96,7 @@ public void ZP_OnEngineExecute(/*void*/)
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
 
     // Sounds
-    gSound = ZP_GetSoundKeyID("BAZOOKA_EXPLOSION_SOUNDS");
+    gSound = ZP_GetSoundKeyID("BAZOOKA_SHOOT_SOUNDS");
 }
 
 /**
@@ -130,6 +115,22 @@ public void OnClientPostAdminCheck(int clientIndex)
 }
 
 /**
+ * Called after a custom weapon is created.
+ *
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
+{
+    // Validate custom grenade
+    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(weaponIndex) == gWeapon)*/
+    {
+        // Hook entity callbacks
+        SDKHook(weaponIndex, SDKHook_ReloadPost, WeaponOnReloadPost);
+    }
+}
+
+/**
  * Hook: WeaponSwitchPost
  * Player deploy any weapon.
  *
@@ -138,12 +139,8 @@ public void OnClientPostAdminCheck(int clientIndex)
  **/
 public void WeaponOnDeployPost(int clientIndex, int weaponIndex) 
 {
-    // Validate weapon
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
-    {
-        // Update weapon position on the next frame
-        RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
-    }
+    // Update weapon position on the next frame
+    RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
 }
 
 /**
@@ -153,102 +150,201 @@ public void WeaponOnDeployPost(int clientIndex, int weaponIndex)
  **/
 public void WeaponOnFakeDeployPost(int userID)
 {
+    // Initialize weapon index
+    static int weaponIndex;
+    
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
         // Initialize vector variables
         static float flStart[3]; 
         
         // Update weapon position
         ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
+
+        // Returns the game time based on the game tick
+        float flCurrentTime = GetGameTime();
+        
+        // Block the real attack
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+        
+        // Resets the custom attack
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
     }
 }
 
 /**
- * Event callback (weapon_fire)
- * Client has been shooted.
- * 
- * @param gEventHook        The event handle.
- * @param gEventName        The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ * Hook: WeaponReloadPost
+ * Weapon is reloaded.
+ *
+ * @param weaponIndex       The weapon index.
  **/
-public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action WeaponOnReloadPost(int weaponIndex) 
 {
-    // Initialize weapon index
-    int weaponIndex;
-    
-    // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
-    
+    // Apply fake reload hook on the next frame
+    RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeReloadPost), weaponIndex);
+}
+
+/**
+ * FakeHook: WeaponReloadPost
+ *
+ * @param referenceIndex    The reference index.
+ **/
+public void WeaponOnFakeReloadPost(int referenceIndex) 
+{
+    // Get the weapon index from the reference
+    int weaponIndex = EntRefToEntIndex(referenceIndex);
+
     // Validate weapon
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    if(weaponIndex != INVALID_ENT_REFERENCE)
     {
-        // Validate ammo
-        if(GetEntProp(weaponIndex, Prop_Data, "m_iClip1") <= 0)
-        {
-            return;
-        }
-
-        // Initialize vectors
-        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
+        // Returns the game time based on the game tick
+        float flCurrentTime = GetGameTime();
         
-        // Gets the weapon's shoot position
-        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", vPosition);
+        // Block the real attack
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+        
+        // Resets the custom attack
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponReload(gWeapon));
+    }
+}
 
-        // Gets the client's eye angle
-        GetClientEyeAngles(clientIndex, vAngle);
-
-        // Gets the client's speed
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
-
-        // Create a rocket entity
-        int entityIndex = CreateEntityByName("hegrenade_projectile");
-
-        // Validate entity
-        if(entityIndex != INVALID_ENT_REFERENCE)
+/**
+ * Called when a clients movement buttons are being processed.
+ *  
+ * @param clientIndex       The client index.
+ * @param iButtons          Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
+ * @param iImpulse          Copyback buffer containing the current impulse command.
+ * @param flVelocity        Players desired velocity.
+ * @param flAngles          Players desired view angles.    
+ * @param weaponID          The entity index of the new weapon if player switches weapon, 0 otherwise.
+ * @param iSubType          Weapon subtype when selected from a menu.
+ * @param iCmdNum           Command number. Increments from the first command sent.
+ * @param iTickCount        Tick count. A client prediction based on the server GetGameTickCount value.
+ * @param iSeed             Random seed. Used to determine weapon recoil, spread, and other predicted elements.
+ * @param iMouse            Mouse direction (x, y).
+ **/ 
+public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
+{
+    // Initialize variable
+    static int nLastButtons[MAXPLAYERS+1];
+    
+    // Button attack hook
+    if(iButtons & IN_ATTACK)
+    {
+        // Validate overtransmitting
+        if(!(nLastButtons[clientIndex] & IN_ATTACK))
         {
-            // Spawn the entity
-            DispatchSpawn(entityIndex);
+            // Initialize weapon index
+            static int weaponIndex;
 
-            // Returns vectors in the direction of an angle
-            GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
+            // Validate weapon
+            if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+            {
+                // Returns the game time based on the game tick
+                float flCurrentTime = GetGameTime();
 
-            // Normalize the vector (equal magnitude at varying distances)
-            NormalizeVector(vEntVelocity, vEntVelocity);
+                // Validate attack
+                if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController") > flCurrentTime)
+                {
+                    return;
+                }
+        
+                // Validate ammo
+                int iClip = GetEntProp(weaponIndex, Prop_Send, "m_iClip1");
+                if(iClip <= 0)
+                {
+                    return;
+                }
+                
+                // Sets the next attack time
+                SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponSpeed(gWeapon)); //! Add 0.5 to play idle to update state
 
-            // Apply the magnitude by scaling the vector
-            ScaleVector(vEntVelocity, WEAPON_ROCKET_SPEED);
+                // Substract ammo
+                iClip -= 1;
+                SetEntProp(weaponIndex, Prop_Send, "m_iClip1", iClip); 
+                if(!iClip) SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime); //! Reset for allow reloading
+                
+                // Gets the client viewmodel
+                int viewModel = GetEntPropEnt(clientIndex, Prop_Send, "m_hViewModel");
+                
+                // Validate viewmodel
+                if(IsValidEdict(viewModel))
+                {
+                    // Sets the attack animation
+                    SetEntProp(viewModel, Prop_Send, "m_nSequence", 1);
+                }
+                
+                // Emit sound
+                ZP_EmitSoundKeyID(weaponIndex, gSound, SNDCHAN_WEAPON, 3);
+                
+                /*________________________________________________________________________________________________________________*/
+                
+                // Initialize vectors
+                static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
+                
+                // Gets the weapon's shoot position
+                ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", vPosition);
 
-            // Adds two vectors
-            AddVectors(vEntVelocity, vVelocity, vEntVelocity);
+                // Gets the client's eye angle
+                GetClientEyeAngles(clientIndex, vAngle);
 
-            // Push the rocket
-            TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
+                // Gets the client's speed
+                GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
 
-            // Sets the model
-            SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
+                // Create a rocket entity
+                int entityIndex = CreateEntityByName("hegrenade_projectile");
 
-            // Create an effect
-            FakeCreateParticle(entityIndex, _, "smoking", WEAPON_EFFECT_TIME);
+                // Validate entity
+                if(entityIndex != INVALID_ENT_REFERENCE)
+                {
+                    // Spawn the entity
+                    DispatchSpawn(entityIndex);
 
-            // Sets the parent for the entity
-            SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+                    // Returns vectors in the direction of an angle
+                    GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
 
-            // Sets the gravity
-            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
-            
-            // Emit sound
-            ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 1);
-            
-            // Create touch hook
-            SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
+                    // Normalize the vector (equal magnitude at varying distances)
+                    NormalizeVector(vEntVelocity, vEntVelocity);
+
+                    // Apply the magnitude by scaling the vector
+                    ScaleVector(vEntVelocity, WEAPON_ROCKET_SPEED);
+
+                    // Adds two vectors
+                    AddVectors(vEntVelocity, vVelocity, vEntVelocity);
+
+                    // Push the rocket
+                    TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
+
+                    // Sets the model
+                    SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
+
+                    // Create an effect
+                    FakeCreateParticle(entityIndex, _, "smoking", WEAPON_EFFECT_TIME);
+
+                    // Sets the parent for the entity
+                    SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
+                    SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
+                    SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+
+                    // Sets the gravity
+                    SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
+                    
+                    // Emit sound
+                    ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 1);
+                    
+                    // Create touch hook
+                    SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
+                }
+            }
         }
     }
+    
+    // Store the button for next usage
+    nLastButtons[clientIndex] = iButtons;
 }
 
 /**
