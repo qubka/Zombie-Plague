@@ -165,8 +165,14 @@ public void WeaponOnFakeDeployPost(int userID)
         // Update weapon position
         ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
         
+        // Returns the game time based on the game tick
+        float flCurrentTime = GetGameTime();
+        
+        // Block the real attack
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+        
         // Resets the custom attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", GetGameTime() + ZP_GetWeaponDeploy(gWeapon));
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
     }
 }
 
@@ -195,8 +201,14 @@ public void WeaponOnFakeReloadPost(int referenceIndex)
     // Validate weapon
     if(weaponIndex != INVALID_ENT_REFERENCE)
     {
+        // Returns the game time based on the game tick
+        float flCurrentTime = GetGameTime();
+
+        // Block the real attack
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+
         // Resets the custom attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", GetGameTime() + ZP_GetWeaponReload(gWeapon));
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponReload(gWeapon));
     }
 }
 
@@ -235,14 +247,6 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
                 // Returns the game time based on the game tick
                 float flCurrentTime = GetGameTime();
 
-                // Validate ammo
-                int iClip = GetEntProp(weaponIndex, Prop_Send, "m_iClip1");
-                if(iClip <= 0)
-                {
-                    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime); //! Reset for allow reloading
-                    return;
-                }
-                
                 // Validate reload
                 if(!GetEntProp(weaponIndex, Prop_Data, "m_bInReload"))
                 {
@@ -251,6 +255,14 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
                 }
                 else return;
                 
+                // Validate ammo
+                int iClip = GetEntProp(weaponIndex, Prop_Send, "m_iClip1");
+                if(iClip <= 0)
+                {
+                    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime); //! Reset for allow reloading
+                    return;
+                }
+
                 // Validate attack
                 if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController") > flCurrentTime)
                 {
