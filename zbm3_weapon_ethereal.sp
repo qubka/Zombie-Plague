@@ -45,7 +45,6 @@ public Plugin myinfo =
  * @section Information about weapon.
  **/
 #define WEAPON_REFERANCE                "Etherial" // Models and other properties in the 'weapons.ini'
-#define WEAPON_SPEED                    0.25
 #define WEAPON_BEAM_LIFE                0.105
 #define WEAPON_BEAM_COLOR               {0, 194, 194, 255}
 /**
@@ -77,65 +76,12 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Initilizate weapon
+    // Initialize weapon
     gWeapon = ZP_GetWeaponNameID(WEAPON_REFERANCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
 
     // Models
     decalBeam = PrecacheModel("materials/sprites/laserbeam.vmt");
-}
-
-/**
- * Called once a client is authorized and fully in-game, and 
- * after all post-connection authorizations have been performed.  
- *
- * This callback is gauranteed to occur on all clients, and always 
- * after each OnClientPutInServer() call.
- * 
- * @param clientIndex       The client index. 
- **/
-public void OnClientPostAdminCheck(int clientIndex)
-{
-    // Hook entity callbacks
-    SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponOnDeployPost);
-}
-
-/**
- * Hook: WeaponSwitchPost
- * Player deploy any weapon.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- **/
-public void WeaponOnDeployPost(int clientIndex, int weaponIndex) 
-{
-    // Validate weapon
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
-    {
-        // Update weapon position on the next frame
-        RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
-    }
-}
-
-/**
- * FakeHook: WeaponSwitchPost
- *
- * @param userID            The user id.
- **/
-public void WeaponOnFakeDeployPost(int userID)
-{
-    // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
-
-    // Validate client
-    if(clientIndex)
-    {
-        // Initialize vector variables
-        static float flStart[3]; 
-        
-        // Update weapon position
-        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
-    }
 }
 
 /**
@@ -158,18 +104,22 @@ public Action WeaponImpactBullets(Event hEvent, const char[] sName, bool iDontBr
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
         // Initialize vector variables
-        static float flStart[3]; static float flEnd[3];
+        static float vEntPosition[3]; static float vBulletPosition[3];
 
         // Gets hit position
-        flEnd[0] = hEvent.GetFloat("x");
-        flEnd[1] = hEvent.GetFloat("y");
-        flEnd[2] = hEvent.GetFloat("z");
+        vBulletPosition[0] = hEvent.GetFloat("x");
+        vBulletPosition[1] = hEvent.GetFloat("y");
+        vBulletPosition[2] = hEvent.GetFloat("z");
 
-        // Gets weapon position
-        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
+        // Gets the weapon's position
+        ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vEntPosition);
         
         // Sent a beam
-        TE_SetupBeamPoints(flStart, flEnd, decalBeam, 0, 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+        TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
         TE_SendToAll();
+        
+        // Create a muzzleflesh / True for getting the custom viewmodel index
+        FakeDispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_flash_taser", "ParticleEffect", _, _, _, 1);
+        TE_SendToClient(clientIndex);
     }
 }

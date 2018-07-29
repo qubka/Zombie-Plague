@@ -33,7 +33,7 @@
  * @param nemesisMode       (Optional) Indicates that client will be a nemesis.
  * @param respawnMode       (Optional) Indicates that infection was on spawn.
  **/
-void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = false, bool respawnMode = false)
+void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const bool nemesisMode = false, const bool respawnMode = false)
 {
     // Validate client 
     if(!IsPlayerExist(victimIndex))
@@ -163,8 +163,8 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
     SoundsOnClientInfected(victimIndex, respawnMode);
     VEffectsOnClientInfected(victimIndex, nemesisMode, respawnMode);
     LevelSystemOnClientUpdate(victimIndex);
-    AccountOnClientUpdate(victimIndex);
     if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION]) VOverlayOnClientUpdate(victimIndex, Overlay_Vision);
+    RequestFrame(view_as<RequestFrameCallback>(AccountOnClientUpdate), GetClientUserId(victimIndex));
     RequestFrame(view_as<RequestFrameCallback>(WeaponsOnClientUpdate), GetClientUserId(victimIndex));
     
     // Switch to T
@@ -174,7 +174,7 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
     RoundEndOnValidate();
 
     // Call forward
-    API_OnClientInfected(victimIndex, attackerIndex);
+    API_OnClientInfected(victimIndex, attackerIndex, nemesisMode, respawnMode);
 }
 
 /**
@@ -184,7 +184,7 @@ void ClassMakeZombie(int victimIndex, int attackerIndex = 0, bool nemesisMode = 
  * @param survivorMode      (Optional) Indicates that client will be a survivor.
  * @param respawnMode       (Optional) Indicates that humanizing was on spawn.
  **/
-void ClassMakeHuman(int clientIndex, bool survivorMode = false, bool respawnMode = false)
+void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, const bool respawnMode = false)
 {
     // Validate client 
     if(!IsPlayerExist(clientIndex))
@@ -284,7 +284,7 @@ void ClassMakeHuman(int clientIndex, bool survivorMode = false, bool respawnMode
     VEffectsOnClientHumanized(clientIndex, survivorMode, respawnMode);
     VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
     LevelSystemOnClientUpdate(clientIndex);
-    AccountOnClientUpdate(clientIndex);
+    RequestFrame(view_as<RequestFrameCallback>(AccountOnClientUpdate), GetClientUserId(clientIndex));
     RequestFrame(view_as<RequestFrameCallback>(WeaponsOnClientUpdate), GetClientUserId(clientIndex));
     
     // Validate non-respawn
@@ -295,5 +295,5 @@ void ClassMakeHuman(int clientIndex, bool survivorMode = false, bool respawnMode
     }
     
     // Call forward
-    API_OnClientHumanized(clientIndex);
+    API_OnClientHumanized(clientIndex, survivorMode, respawnMode);
 }

@@ -100,7 +100,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         // Hook player events
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombiePsyh = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
@@ -263,7 +263,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientOnScreaming(Handle hTimer, int userID)
+public Action ClientOnScreaming(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

@@ -68,11 +68,11 @@ void AccountFindOffsets(/*void*/)
 }
 
 /**
- * Client has been changed class state.
+ * Client has been changed class state. (Post)
  *
- * @param clientIndex       The client index.
+ * @param userID            The user id.
  **/
-void AccountOnClientUpdate(int clientIndex)
+public void AccountOnClientUpdate(const int userID)
 {
     // If max money disabled, then stop
     if(!gCvarList[CVAR_SERVER_CASH_MAX].IntValue)
@@ -80,26 +80,33 @@ void AccountOnClientUpdate(int clientIndex)
         return;
     }
     
-    // Validate real client
-    if(!IsFakeClient(clientIndex))
-    {
-        // If value higher, then create custom HUD
-        if(gClientData[clientIndex][Client_AmmoPacks] > ACCOUNT_CASH_MAX)
-        {
-            // Send a convar to client
-            gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "0");
+    // Gets the client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
 
-            // Sets timer for player account HUD
-            delete gClientData[clientIndex][Client_AccountTimer];
-            gClientData[clientIndex][Client_AccountTimer] = CreateTimer(1.0, AccountOnHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-        }
-        else
+    // Validate client
+    if(clientIndex)
+    {
+        // Validate real client
+        if(!IsFakeClient(clientIndex))
         {
-            // Send a convar to client
-            gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "1");
-            
-            // Update client cash
-            SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_AmmoPacks], 4, true);
+            // If value higher, then create custom HUD
+            if(gClientData[clientIndex][Client_AmmoPacks] > ACCOUNT_CASH_MAX)
+            {
+                // Send a convar to client
+                gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "0");
+
+                // Sets timer for player account HUD
+                delete gClientData[clientIndex][Client_AccountTimer];
+                gClientData[clientIndex][Client_AccountTimer] = CreateTimer(1.0, AccountOnHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+            }
+            else
+            {
+                // Send a convar to client
+                gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "1");
+                
+                // Update client cash
+                SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_AmmoPacks], 4, true);
+            }
         }
     }
 }
@@ -110,7 +117,7 @@ void AccountOnClientUpdate(int clientIndex)
  * @param clientIndex       The client index.
  * @param nAmmoPacks        The ammopacks amount.
  **/
-stock void AccountSetClientCash(int clientIndex, int nAmmoPacks)
+stock void AccountSetClientCash(const int clientIndex, int nAmmoPacks)
 {
     // If value below 0, then set to 0
     if(nAmmoPacks < 0)
@@ -154,7 +161,7 @@ stock void AccountSetClientCash(int clientIndex, int nAmmoPacks)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AccountOnHUD(Handle hTimer, int userID)
+public Action AccountOnHUD(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

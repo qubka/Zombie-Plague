@@ -95,18 +95,18 @@ void ZombieClassesLoad(/*void*/)
     {
         // Validate player model
         ZombieGetModel(i, sBuffer, sizeof(sBuffer));
-        if(!ModelsPlayerPrecache(sBuffer))
+        if(!ModelsPrecacheStatic(sBuffer))
         {
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
         }
 
         // Validate claw model
         ZombieGetClawModel(i, sBuffer, sizeof(sBuffer));
-        ZombieSetClawID(i, ModelsWeaponPrecache(sBuffer));
+        ZombieSetClawID(i, ModelsPrecacheWeapon(sBuffer));
         
         // Validate grenade model
         ZombieGetGrenadeModel(i, sBuffer, sizeof(sBuffer));
-        ZombieSetGrenadeID(i, ModelsWeaponPrecache(sBuffer));
+        ZombieSetGrenadeID(i, ModelsPrecacheWeapon(sBuffer));
 
         // Load death sounds
         ZombieGetSoundDeath(i, sBuffer, sizeof(sBuffer));
@@ -157,7 +157,7 @@ void ZombieOnCommandsCreate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZombieCommandCatched(int clientIndex, int iArguments)
+public Action ZombieCommandCatched(const int clientIndex, const int iArguments)
 {
     // Open the zombie classes menu
     ZombieMenu(clientIndex);
@@ -173,7 +173,7 @@ public Action ZombieCommandCatched(int clientIndex, int iArguments)
  *
  * native int ZP_GetNumberZombieClass();
  **/
-public int API_GetNumberZombieClass(Handle isPlugin, int iNumParams)
+public int API_GetNumberZombieClass(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayZombieClasses.Length;
@@ -184,7 +184,7 @@ public int API_GetNumberZombieClass(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientZombieClass(clientIndex);
  **/
-public int API_GetClientZombieClass(Handle isPlugin, int iNumParams)
+public int API_GetClientZombieClass(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -198,7 +198,7 @@ public int API_GetClientZombieClass(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientZombieClassNext(clientIndex);
  **/
-public int API_GetClientZombieClassNext(Handle isPlugin, int iNumParams)
+public int API_GetClientZombieClassNext(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -212,7 +212,7 @@ public int API_GetClientZombieClassNext(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientZombieClass(clientIndex, iD);
  **/
-public int API_SetClientZombieClass(Handle isPlugin, int iNumParams)
+public int API_SetClientZombieClass(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -246,7 +246,7 @@ public int API_SetClientZombieClass(Handle isPlugin, int iNumParams)
  *
  * native int ZP_RegisterZombieClass(name, model, claw_model, gren_model, health, speed, gravity, vip, duration, countdown, death, hurt, idle, respawn, burn, attack, foot, regen)
  **/
-public int API_RegisterZombieClass(Handle isPlugin, int iNumParams)
+public int API_RegisterZombieClass(Handle isPlugin, const int iNumParams)
 {
     // If array hasn't been created, then create
     if(arrayZombieClasses == INVALID_HANDLE)
@@ -358,7 +358,7 @@ public int API_RegisterZombieClass(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassName(iD, sName, maxLen);
  **/
-public int API_GetZombieClassName(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassName(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -393,7 +393,7 @@ public int API_GetZombieClassName(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassInfo(iD, sInfo, maxLen);
  **/
-public int API_GetZombieClassInfo(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassInfo(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -428,7 +428,7 @@ public int API_GetZombieClassInfo(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassModel(iD, sModel, maxLen);
  **/
-public int API_GetZombieClassModel(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassModel(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -463,7 +463,7 @@ public int API_GetZombieClassModel(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassClaw(iD, sModel, maxLen);
  **/
-public int API_GetZombieClassClaw(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassClaw(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -498,7 +498,7 @@ public int API_GetZombieClassClaw(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassGrenade(iD, sModel, maxLen);
  **/
-public int API_GetZombieClassGrenade(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassGrenade(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -533,7 +533,7 @@ public int API_GetZombieClassGrenade(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetZombieClassHealth(iD);
  **/
-public int API_GetZombieClassHealth(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassHealth(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -554,7 +554,7 @@ public int API_GetZombieClassHealth(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetZombieClassSpeed(iD);
  **/
-public int API_GetZombieClassSpeed(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSpeed(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -575,7 +575,7 @@ public int API_GetZombieClassSpeed(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetZombieClassGravity(iD);
  **/
-public int API_GetZombieClassGravity(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassGravity(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -596,7 +596,7 @@ public int API_GetZombieClassGravity(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetZombieClassKnockBack(iD);
  **/
-public int API_GetZombieClassKnockBack(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassKnockBack(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -617,7 +617,7 @@ public int API_GetZombieClassKnockBack(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetZombieClassLevel(iD);
  **/
-public int API_GetZombieClassLevel(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassLevel(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -638,7 +638,7 @@ public int API_GetZombieClassLevel(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsZombieClassVIP(iD);
  **/
-public int API_IsZombieClassVIP(Handle isPlugin, int iNumParams)
+public int API_IsZombieClassVIP(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -659,7 +659,7 @@ public int API_IsZombieClassVIP(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetZombieClassSkillDuration(iD);
  **/
-public int API_GetZombieClassSkillDuration(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSkillDuration(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -680,7 +680,7 @@ public int API_GetZombieClassSkillDuration(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetZombieClassSkillCountdown(iD);
  **/
-public int API_GetZombieClassSkillCountdown(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSkillCountdown(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -701,7 +701,7 @@ public int API_GetZombieClassSkillCountdown(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetZombieClassRegen(iD);
  **/
-public int API_GetZombieClassRegen(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassRegen(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -722,7 +722,7 @@ public int API_GetZombieClassRegen(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetZombieClassRegenInterval(iD);
  **/
-public int API_GetZombieClassRegenInterval(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassRegenInterval(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -743,7 +743,7 @@ public int API_GetZombieClassRegenInterval(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetZombieClassClawID(iD);
  **/
-public int API_GetZombieClassClawID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassClawID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -764,7 +764,7 @@ public int API_GetZombieClassClawID(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetZombieClassGrenadeID(iD);
  **/
-public int API_GetZombieClassGrenadeID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassGrenadeID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -785,7 +785,7 @@ public int API_GetZombieClassGrenadeID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundDeathID(iD);
  **/
-public int API_GetZombieClassSoundDeathID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundDeathID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -806,7 +806,7 @@ public int API_GetZombieClassSoundDeathID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundHurtID(iD);
  **/
-public int API_GetZombieClassSoundHurtID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundHurtID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -827,7 +827,7 @@ public int API_GetZombieClassSoundHurtID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundIdleID(iD);
  **/
-public int API_GetZombieClassSoundIdleID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundIdleID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -848,7 +848,7 @@ public int API_GetZombieClassSoundIdleID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundRespawnID(iD);
  **/
-public int API_GetZombieClassSoundRespawnID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundRespawnID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -869,7 +869,7 @@ public int API_GetZombieClassSoundRespawnID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundBurnID(iD);
  **/
-public int API_GetZombieClassSoundBurnID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundBurnID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -890,7 +890,7 @@ public int API_GetZombieClassSoundBurnID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundAttackID(iD);
  **/
-public int API_GetZombieClassSoundAttackID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundAttackID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -911,7 +911,7 @@ public int API_GetZombieClassSoundAttackID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundFootID(iD);
  **/
-public int API_GetZombieClassSoundFootID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundFootID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -932,7 +932,7 @@ public int API_GetZombieClassSoundFootID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetZombieClassSoundRegenID(iD);
  **/
-public int API_GetZombieClassSoundRegenID(Handle isPlugin, int iNumParams)
+public int API_GetZombieClassSoundRegenID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -953,7 +953,7 @@ public int API_GetZombieClassSoundRegenID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_PrintZombieClassInfo(clientIndex, iD);
  **/
-public int API_PrintZombieClassInfo(Handle isPlugin, int iNumParams)
+public int API_PrintZombieClassInfo(Handle isPlugin, const int iNumParams)
 {
     // If help messages disable, then stop 
     if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
@@ -1003,7 +1003,7 @@ public int API_PrintZombieClassInfo(Handle isPlugin, int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetName(int iD, char[] sName, int iMaxLen)
+stock void ZombieGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1019,7 +1019,7 @@ stock void ZombieGetName(int iD, char[] sName, int iMaxLen)
  * @param sInfo             The string to return info in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetInfo(int iD, char[] sInfo, int iMaxLen)
+stock void ZombieGetInfo(const int iD, char[] sInfo, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1035,7 +1035,7 @@ stock void ZombieGetInfo(int iD, char[] sInfo, int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetModel(int iD, char[] sModel, int iMaxLen)
+stock void ZombieGetModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1051,7 +1051,7 @@ stock void ZombieGetModel(int iD, char[] sModel, int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetClawModel(int iD, char[] sModel, int iMaxLen)
+stock void ZombieGetClawModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1067,7 +1067,7 @@ stock void ZombieGetClawModel(int iD, char[] sModel, int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetGrenadeModel(int iD, char[] sModel, int iMaxLen)
+stock void ZombieGetGrenadeModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1082,7 +1082,7 @@ stock void ZombieGetGrenadeModel(int iD, char[] sModel, int iMaxLen)
  * @param iD                The class index.
  * @return                  The health amount.    
  **/
-stock int ZombieGetHealth(int iD)
+stock int ZombieGetHealth(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1097,7 +1097,7 @@ stock int ZombieGetHealth(int iD)
  * @param iD                The class index.
  * @return                  The speed amount.    
  **/
-stock float ZombieGetSpeed(int iD)
+stock float ZombieGetSpeed(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1112,7 +1112,7 @@ stock float ZombieGetSpeed(int iD)
  * @param iD                The class index.
  * @return                  The gravity amount.    
  **/
-stock float ZombieGetGravity(int iD)
+stock float ZombieGetGravity(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1127,7 +1127,7 @@ stock float ZombieGetGravity(int iD)
  * @param iD                The class index.
  * @return                  The knockback amount.    
  **/
-stock float ZombieGetKnockBack(int iD)
+stock float ZombieGetKnockBack(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1142,7 +1142,7 @@ stock float ZombieGetKnockBack(int iD)
  * @param iD                The class index.
  * @return                  The duration amount.    
  **/
-stock int ZombieGetLevel(int iD)
+stock int ZombieGetLevel(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1157,7 +1157,7 @@ stock int ZombieGetLevel(int iD)
  * @param iD                The class index.
  * @return                  True or false.
  **/
-stock bool ZombieIsVIP(int iD)
+stock bool ZombieIsVIP(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1172,7 +1172,7 @@ stock bool ZombieIsVIP(int iD)
  * @param iD                The class index.
  * @return                  The duration amount.    
  **/
-stock float ZombieGetSkillDuration(int iD)
+stock float ZombieGetSkillDuration(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1187,7 +1187,7 @@ stock float ZombieGetSkillDuration(int iD)
  * @param iD                The class index.
  * @return                  The countdown amount.    
  **/
-stock float ZombieGetSkillCountDown(int iD)
+stock float ZombieGetSkillCountDown(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1202,7 +1202,7 @@ stock float ZombieGetSkillCountDown(int iD)
  * @param iD                The class index.
  * @return                  The health amount.    
  **/
-stock int ZombieGetRegenHealth(int iD)
+stock int ZombieGetRegenHealth(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1217,7 +1217,7 @@ stock int ZombieGetRegenHealth(int iD)
  * @param iD                The class index.
  * @return                  The interval amount.    
  **/
-stock float ZombieGetRegenInterval(int iD)
+stock float ZombieGetRegenInterval(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1232,7 +1232,7 @@ stock float ZombieGetRegenInterval(int iD)
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-stock int ZombieGetClawID(int iD)
+stock int ZombieGetClawID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1247,7 +1247,7 @@ stock int ZombieGetClawID(int iD)
  * @param iD                The class index.
  * @param modelIndex        The model index.    
  **/
-stock void ZombieSetClawID(int iD, int modelIndex)
+stock void ZombieSetClawID(const int iD, const int modelIndex)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1262,7 +1262,7 @@ stock void ZombieSetClawID(int iD, int modelIndex)
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-stock int ZombieGetGrenadeID(int iD)
+stock int ZombieGetGrenadeID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1277,7 +1277,7 @@ stock int ZombieGetGrenadeID(int iD)
  * @param iD                The class index.
  * @param modelIndex        The model index.    
  **/
-stock void ZombieSetGrenadeID(int iD, int modelIndex)
+stock void ZombieSetGrenadeID(const int iD, const int modelIndex)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1293,7 +1293,7 @@ stock void ZombieSetGrenadeID(int iD, int modelIndex)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundDeath(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundDeath(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1308,7 +1308,7 @@ stock void ZombieGetSoundDeath(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundDeathID(int iD)
+stock int ZombieGetSoundDeathID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1323,7 +1323,7 @@ stock int ZombieGetSoundDeathID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundDeathID(int iD, int iKey)
+stock void ZombieSetSoundDeathID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1339,7 +1339,7 @@ stock void ZombieSetSoundDeathID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundHurt(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundHurt(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1354,7 +1354,7 @@ stock void ZombieGetSoundHurt(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundHurtID(int iD)
+stock int ZombieGetSoundHurtID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1369,7 +1369,7 @@ stock int ZombieGetSoundHurtID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundHurtID(int iD, int iKey)
+stock void ZombieSetSoundHurtID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1385,7 +1385,7 @@ stock void ZombieSetSoundHurtID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundIdle(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundIdle(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1400,7 +1400,7 @@ stock void ZombieGetSoundIdle(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundIdleID(int iD)
+stock int ZombieGetSoundIdleID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1415,7 +1415,7 @@ stock int ZombieGetSoundIdleID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundIdleID(int iD, int iKey)
+stock void ZombieSetSoundIdleID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1431,7 +1431,7 @@ stock void ZombieSetSoundIdleID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundRespawn(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundRespawn(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1446,7 +1446,7 @@ stock void ZombieGetSoundRespawn(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundRespawnID(int iD)
+stock int ZombieGetSoundRespawnID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1461,7 +1461,7 @@ stock int ZombieGetSoundRespawnID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundRespawnID(int iD, int iKey)
+stock void ZombieSetSoundRespawnID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1477,7 +1477,7 @@ stock void ZombieSetSoundRespawnID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundBurn(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundBurn(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1492,7 +1492,7 @@ stock void ZombieGetSoundBurn(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundBurnID(int iD)
+stock int ZombieGetSoundBurnID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1507,7 +1507,7 @@ stock int ZombieGetSoundBurnID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundBurnID(int iD, int iKey)
+stock void ZombieSetSoundBurnID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1523,7 +1523,7 @@ stock void ZombieSetSoundBurnID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundAttack(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundAttack(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1538,7 +1538,7 @@ stock void ZombieGetSoundAttack(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundAttackID(int iD)
+stock int ZombieGetSoundAttackID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1553,7 +1553,7 @@ stock int ZombieGetSoundAttackID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundAttackID(int iD, int iKey)
+stock void ZombieSetSoundAttackID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1569,7 +1569,7 @@ stock void ZombieSetSoundAttackID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundFoot(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundFoot(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1584,7 +1584,7 @@ stock void ZombieGetSoundFoot(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundFootID(int iD)
+stock int ZombieGetSoundFootID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1599,7 +1599,7 @@ stock int ZombieGetSoundFootID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundFootID(int iD, int iKey)
+stock void ZombieSetSoundFootID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1615,7 +1615,7 @@ stock void ZombieSetSoundFootID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ZombieGetSoundRegen(int iD, char[] sSound, int iMaxLen)
+stock void ZombieGetSoundRegen(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1630,7 +1630,7 @@ stock void ZombieGetSoundRegen(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ZombieGetSoundRegenID(int iD)
+stock int ZombieGetSoundRegenID(const int iD)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1645,7 +1645,7 @@ stock int ZombieGetSoundRegenID(int iD)
  * @param iD                The class index.
  * @param iKey              The key index.
  **/
-stock void ZombieSetSoundRegenID(int iD, int iKey)
+stock void ZombieSetSoundRegenID(const int iD, const int iKey)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
@@ -1663,7 +1663,7 @@ stock void ZombieSetSoundRegenID(int iD, int iKey)
  *
  * @param clientIndex       The client index.
  **/
-void ZombieOnValidate(int clientIndex)
+void ZombieOnValidate(const int clientIndex)
 {
     // Gets array size
     int iSize = arrayZombieClasses.Length;
@@ -1723,7 +1723,7 @@ void ZombieOnValidate(int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ZombieMenu(int clientIndex) 
+void ZombieMenu(const int clientIndex) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -1789,7 +1789,7 @@ void ZombieMenu(int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZombieMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int ZombieMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)

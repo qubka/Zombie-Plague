@@ -45,7 +45,7 @@ void ZMarketOnCommandsCreate(/*void*/)
  * @param clientIndex        The client index.
  * @param iArguments         The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketCommandCatched(const int clientIndex, const int iArguments)
 {
     // Open the weapon menu
     ZMarketMenu(clientIndex);
@@ -57,7 +57,7 @@ public Action ZMarketCommandCatched(int clientIndex, int iArguments)
  * 
  * @param clientIndex       The client index.
  **/
-void ZMarketOnClientUpdate(int clientIndex)
+void ZMarketOnClientUpdate(const int clientIndex)
 {
     // Resets purchase counts for client
     if(ZMarketRebuyMenu(clientIndex))
@@ -72,7 +72,7 @@ void ZMarketOnClientUpdate(int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ZMarketMenu(int clientIndex) 
+void ZMarketMenu(const int clientIndex) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -136,7 +136,7 @@ void ZMarketMenu(int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -197,7 +197,7 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
  * @param sTitle            The menu title.
  * @param mSlot             The slot index selected. (starting from 0)
  **/
-void ZMarketSubMenu(int clientIndex, char[] sTitle, int mSlot = 0) 
+void ZMarketSubMenu(const int clientIndex, const char[] sTitle, const int mSlot = 0) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -320,7 +320,7 @@ void ZMarketSubMenu(int clientIndex, char[] sTitle, int mSlot = 0)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -351,11 +351,11 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, int clientInde
             }
 
             // Initialize char
-            static char sWeaponName[SMALL_LINE_LENGTH];
+            static char sName[SMALL_LINE_LENGTH];
 
             // Gets ID of the weapon
-            hSubMenu.GetItem(mSlot, sWeaponName, sizeof(sWeaponName));
-            int iD = StringToInt(sWeaponName);
+            hSubMenu.GetItem(mSlot, sName, sizeof(sName));
+            int iD = StringToInt(sName);
 
             // if class isn't equal, then stop
             switch(WeaponsGetClass(iD))
@@ -377,27 +377,24 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, int clientInde
             }
 
             // Gets weapon alias
-            WeaponsGetEntity(iD, sWeaponName, sizeof(sWeaponName));
+            WeaponsGetEntity(iD, sName, sizeof(sName));
             
-            // If client have this weapon
+            // Validate existance
             if(WeaponsIsExist(clientIndex, iD))
             {
                 // Emit error sound
                 ClientCommand(clientIndex, "play buttons/button11.wav");    
                 return;
             }
-            
-            // Force client to drop weapon
-            if(!!strcmp(sWeaponName[7], "taser", false))
-            {
-                WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == 1) ? view_as<int>(SlotType_Secondary) : view_as<int>(SlotType_Primary)));
-            }
-            
+
+            // Drop weapon
+            WeaponsDrop(clientIndex, !strcmp(sName[7], "taser", false) ? WeaponsGetIndex(clientIndex, sName) : GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == 1) ? view_as<int>(SlotType_Secondary) : view_as<int>(SlotType_Primary)));
+
             // Gets weapon name
-            WeaponsGetName(iD, sWeaponName, sizeof(sWeaponName));
+            WeaponsGetName(iD, sName, sizeof(sName));
             
             // Give weapon for the player
-            if(WeaponsGive(clientIndex, sWeaponName) != INVALID_ENT_REFERENCE)
+            if(WeaponsGive(clientIndex, sName) != INVALID_ENT_REFERENCE)
             {
                 // If weapon has a cost
                 if(WeaponsGetCost(iD))
@@ -423,7 +420,7 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, int clientInde
  *
  * @param clientIndex       The client index.
  **/
-bool ZMarketRebuyMenu(int clientIndex)
+bool ZMarketRebuyMenu(const int clientIndex)
 {
     // If client is survivor or nemesis/zombie, then stop 
     if(gClientData[clientIndex][Client_Zombie] || gClientData[clientIndex][Client_Survivor])
@@ -468,7 +465,7 @@ bool ZMarketRebuyMenu(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void ZMarketResetPurchaseCount(int clientIndex)
+void ZMarketResetPurchaseCount(const int clientIndex)
 {
     // Clear out the array of all data
     if(arrayShoppingList[clientIndex] != INVALID_HANDLE)

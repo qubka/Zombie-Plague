@@ -201,7 +201,7 @@ public Action RoundEndOnRoundEnd(int &CReason)
  *
  * @param validateRound     If true, then validate amount of players.
  **/
-bool RoundEndOnValidate(bool validateRound = true)
+bool RoundEndOnValidate(const bool validateRound = true)
 {
     // If gamemodes disabled, then stop
     if(!gCvarList[CVAR_GAME_CUSTOM_START].IntValue)

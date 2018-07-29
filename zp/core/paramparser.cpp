@@ -95,7 +95,7 @@ enum ParamParseResult
  * @param iKeys             Opional output: Number of array.
  * @return                  Returns error code ifparsing error.
  **/
-stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, int iMaxLen, int &iKeys = 0)
+stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, const int iMaxLen, int &iKeys = 0)
 {
     /*
      *  VALIDATION OF INPUT AND BUFFERS
@@ -234,7 +234,7 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, int
  * @param caseSensitive      Specifies whether the search is case sensitive or not (default).
  * @return                   Index of the key iff ound, -1 otherwise.
  **/
-stock int ParamFindKey(iBuffer[][ParamParseResult], int iMaxKeys, const char[] sKey, bool caseSensitive = false)
+stock int ParamFindKey(const iBuffer[][ParamParseResult], const int iMaxKeys, const char[] sKey, const bool caseSensitive = false)
 {
     // Loop through all parameters
     for(int iIndex = 0; iIndex < iMaxKeys; iIndex++)
@@ -266,7 +266,7 @@ stock int ParamFindKey(iBuffer[][ParamParseResult], int iMaxKeys, const char[] s
  * @param endPos            End position of string to extract.
  * @return                  The number of cells written.
  **/
-stock int StrExtract(char[] sBuffer, const char[] sSource, int startPos, int endPos)
+stock int StrExtract(char[] sBuffer, const char[] sSource, const int startPos, const int endPos)
 {
     // Calculate string length. Also add space for null terminator
     int iMaxLen = endPos - startPos + 1;
@@ -279,4 +279,53 @@ stock int StrExtract(char[] sBuffer, const char[] sSource, int startPos, int end
     
     // Extract string and store it in the buffer
     return strcopy(sBuffer, iMaxLen, sSource[startPos]);
+}
+
+/**
+ * 
+ *
+ * @param sBuffer           The string buffer.
+ * @return                  .
+ **/
+stock bool IsByteString(const char[] sBuffer)
+{
+    // Initialize variables
+    int iSize = strlen(sBuffer);
+
+    // Validate size
+    if(iSize < 3)
+    {
+        return true;
+    }
+    
+    // i = char index
+    for(int i = 0; i < iSize; i++)
+    {
+        // Validate byte
+        if(IsCharMB(sBuffer[i]) || IsCharSpace(sBuffer[i]))
+        {
+            return true;
+        }
+        
+        // Validate numbers
+        if(IsCharNumeric(sBuffer[i]))
+        {
+            continue;
+        }
+        
+        // Validate delimiters
+        switch(sBuffer[i])
+        {
+            case '/', '\\', '.', '_', '-' : continue;
+        }
+
+        // Validate letters
+        if(!IsCharAlpha(sBuffer[i]))
+        {
+            return true;
+        }
+    }
+
+    // Return on the unsuccess
+    return false;
 }

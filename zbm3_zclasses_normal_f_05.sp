@@ -89,7 +89,7 @@ int gZombieNormalF05;
 #pragma unused gZombieNormalF05
 
 /**
-    * Called after a library is added that the current plugin references optionally. 
+ * Called after a library is added that the current plugin references optionally. 
  * A library is either a plugin name or extension name, as exposed via its include file.
  **/
 public void OnLibraryAdded(const char[] sLibrary)
@@ -97,7 +97,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombieNormalF05 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
@@ -252,7 +252,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action BatTouchHook(int entityIndex, int targetIndex)
+public Action BatTouchHook(const int entityIndex, const int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -361,7 +361,7 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action BatAttachHook(Handle hTimer, int referenceIndex)
+public Action BatAttachHook(Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);

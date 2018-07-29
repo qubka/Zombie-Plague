@@ -43,13 +43,13 @@
 public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
 {
     // Initialize variable
-    static int nLastButtons[MAXPLAYERS+1];
+    static int iLastButtons[MAXPLAYERS+1];
     
     // Button menu hook
     if(iButtons & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue))
     {
         // Validate overtransmitting
-        if(!(nLastButtons[clientIndex] & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue)))
+        if(!(iLastButtons[clientIndex] & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue)))
         {
             // Validate that menu isn't open yet, then open
             if(GetClientMenu(clientIndex, INVALID_HANDLE) == MenuSource_None) 
@@ -77,7 +77,7 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
             if((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
             {    
                 // Validate overtransmitting
-                if(!((nLastButtons[clientIndex] & IN_JUMP) && (nLastButtons[clientIndex] & IN_DUCK)))
+                if(!((iLastButtons[clientIndex] & IN_JUMP) && (iLastButtons[clientIndex] & IN_DUCK)))
                 {
                     // Create a leap jump
                     JumpBoostOnClientLeapJump(clientIndex);
@@ -92,8 +92,8 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
         }
     }
     
-    // Store the button for next usage
-    nLastButtons[clientIndex] = iButtons;
+    // Store the current button
+    iLastButtons[clientIndex] = iButtons;
     
     // Allow button
     return Plugin_Continue;

@@ -63,8 +63,8 @@ enum WeaponAttachBitType
     BitType_SmokeGrenade,         /** Smokegrenade bit */
     BitType_Decoy,                /** Decoy bit */
     BitType_Knife,                /** Knife bit */
-    BitType_TaGrenade             /** Tagrenade bit */
-    //BitType_C4                  /** C4 bit */
+    BitType_TaGrenade,            /** Tagrenade bit */
+    BitType_C4                    /** C4 bit */
 };
  
 /**
@@ -107,7 +107,6 @@ public void WeaponAttachUnload(/*void*/)
         {
             // Remove current attachment
             WeaponAttachRemoveAddons(i);
-            WeaponAttachRemoveMuzzle(i);
         }
     }
 }
@@ -117,7 +116,7 @@ public void WeaponAttachUnload(/*void*/)
  *
  * @param clientIndex       The client index.
  **/
-void WeaponAttachSetAddons(int clientIndex)
+void WeaponAttachSetAddons(const int clientIndex)
 {
     #if defined USE_ATTACHMENTS
     // Gets the current bits
@@ -168,7 +167,7 @@ void WeaponAttachSetAddons(int clientIndex)
             if(weaponIndex == GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon))
             {
                 // Gets weapon index
-                weaponIndex = WeaponsAttachGetIndex(clientIndex, "weapon_taser");
+                weaponIndex = WeaponsGetIndex(clientIndex, "weapon_taser");
             }
             
             // Validate weapon
@@ -199,7 +198,7 @@ void WeaponAttachSetAddons(int clientIndex)
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang1))
         {
             // Gets weapon index
-            weaponIndex = WeaponsAttachGetIndex(clientIndex, "weapon_flashbang");
+            weaponIndex = WeaponsGetIndex(clientIndex, "weapon_flashbang");
             
             // Validate weapon
             if(weaponIndex != INVALID_ENT_REFERENCE)
@@ -229,7 +228,7 @@ void WeaponAttachSetAddons(int clientIndex)
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang2))
         {
             // Gets weapon index
-            weaponIndex = WeaponsAttachGetIndex(clientIndex, "weapon_flashbang");
+            weaponIndex = WeaponsGetIndex(clientIndex, "weapon_flashbang");
             
             // Validate weapon
             if(weaponIndex != INVALID_ENT_REFERENCE)
@@ -259,7 +258,7 @@ void WeaponAttachSetAddons(int clientIndex)
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_HEGrenade))
         {
             // Gets weapon index
-            weaponIndex = WeaponsAttachGetIndex(clientIndex, "weapon_hegrenade");
+            weaponIndex = WeaponsGetIndex(clientIndex, "weapon_hegrenade");
             
             // Validate weapon
             if(weaponIndex != INVALID_ENT_REFERENCE)
@@ -289,7 +288,7 @@ void WeaponAttachSetAddons(int clientIndex)
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SmokeGrenade))
         {
             // Gets weapon index
-            weaponIndex = WeaponsAttachGetIndex(clientIndex, "weapon_smokegrenade");
+            weaponIndex = WeaponsGetIndex(clientIndex, "weapon_smokegrenade");
             
             // Validate weapon
             if(weaponIndex != INVALID_ENT_REFERENCE)
@@ -319,7 +318,7 @@ void WeaponAttachSetAddons(int clientIndex)
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Decoy))
         {
             // Gets weapon index
-            weaponIndex = WeaponsAttachGetIndex(clientIndex, "weapon_decoy");
+            weaponIndex = WeaponsGetIndex(clientIndex, "weapon_decoy");
             
             // Validate weapon
             if(weaponIndex != INVALID_ENT_REFERENCE)
@@ -379,7 +378,7 @@ void WeaponAttachSetAddons(int clientIndex)
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_TaGrenade))
         {
             // Gets weapon index
-            weaponIndex = WeaponsAttachGetIndex(clientIndex, "weapon_tagrenade");
+            weaponIndex = WeaponsGetIndex(clientIndex, "weapon_tagrenade");
             
             // Validate weapon
             if(weaponIndex != INVALID_ENT_REFERENCE)
@@ -402,8 +401,6 @@ void WeaponAttachSetAddons(int clientIndex)
     
     /*____________________________________________________________________________________________*/
     
-    /** Uncomment bellow, if you want to use c4 model **/
-    /*
     // Validate c4 bits 
     if(iBits & CSAddon_C4)
     {
@@ -431,7 +428,6 @@ void WeaponAttachSetAddons(int clientIndex)
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_C4);
     }
-    */
 
     /*____________________________________________________________________________________________*/
     
@@ -472,10 +468,10 @@ void WeaponAttachSetAddons(int clientIndex)
     {
         iBitPurge |= CSAddon_TaGrenade;
     }
-    /*if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_C4]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_C4]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_C4;
-    }*/
+    }
     
     // Store the bits for next usage
     gClientData[clientIndex][Client_AttachmentBits] = iBits;
@@ -494,13 +490,13 @@ void WeaponAttachSetAddons(int clientIndex)
  * @param bitType           The bit type.
  * @param sAttach           The attachment bone of the entity parent.
  **/
-void WeaponAttachCreateAddons(int clientIndex, int iD, WeaponAttachBitType bitType, char[] sAttach)
+void WeaponAttachCreateAddons(const int clientIndex, const int iD, WeaponAttachBitType bitType, const char[] sAttach)
 {
     // Remove current addons
     WeaponAttachRemoveAddons(clientIndex, bitType);
 
-    // If world =model exist, then apply it
-    if(WeaponsGetModelWorldID(iD))
+    // If dropmodel exist, then apply it
+    if(WeaponsGetModelDropID(iD))
     {
         // Create an attach addon entity 
         int entityIndex = CreateEntityByName("prop_dynamic_override");
@@ -508,9 +504,9 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, WeaponAttachBitType bitTy
         // If entity isn't valid, then skip
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Gets weapon worldmodel
+            // Gets weapon dropmodel
             static char sModel[PLATFORM_MAX_PATH];
-            WeaponsGetModelWorld(iD, sModel, sizeof(sModel)); 
+            WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 
 
             // Dispatch main values of the entity
             DispatchKeyValue(entityIndex, "model", sModel);
@@ -555,7 +551,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, WeaponAttachBitType bitTy
  * @param entityIndex       The entity index.
  * @param clientIndex       The client index.
  **/
-public Action WeaponAttachmentOnTransmit(int entityIndex , int clientIndex)
+public Action WeaponAttachmentOnTransmit(const int entityIndex, const int clientIndex)
 {
     // i = slot index
     for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_TaGrenade; i++)
@@ -595,47 +591,6 @@ public Action WeaponAttachmentOnTransmit(int entityIndex , int clientIndex)
     // Allow transmitting
     return Plugin_Continue;
 }
-
-/**
- * Returns index if the player has a weapon.
- *
- * @param clientIndex       The client index.
- * @param sWeaponName       The weapon name.
- *
- * @return                  The weapon index.
- **/
-stock int WeaponsAttachGetIndex(int clientIndex, char[] sWeaponName)
-{
-    // Initialize char
-    char sClassname[SMALL_LINE_LENGTH];
-
-    // i = weapon number
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
-    for(int i = 0; i < iSize; i++)
-    {
-        // Gets weapon index
-        int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
-
-        // Validate weapon
-        if(IsValidEdict(weaponIndex))
-        {
-            // Get weapon classname
-            GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
-
-            // If weapon find, then return
-            if(!strcmp(sClassname[7], sWeaponName[7], false))
-            {
-                return weaponIndex;
-            }
-        }
-
-        // Go to next weapon
-        continue;
-    }
-
-    // If wasn't found
-    return INVALID_ENT_REFERENCE;
-}
 #endif
 
 /**
@@ -644,14 +599,14 @@ stock int WeaponsAttachGetIndex(int clientIndex, char[] sWeaponName)
  * @param clientIndex       The client index.
  * @param bitType           The bit type.
  **/
-void WeaponAttachRemoveAddons(int clientIndex, WeaponAttachBitType bitType = BitType_Invalid) 
+void WeaponAttachRemoveAddons(const int clientIndex, WeaponAttachBitType bitType = BitType_Invalid) 
 {
     #if defined USE_ATTACHMENTS
     // Validate all
     if(bitType == BitType_Invalid)
     {
         // i = slot index
-        for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_TaGrenade; i++)
+        for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_C4; i++)
         {
             // Gets the current addon from the client reference
             int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]);
@@ -685,172 +640,4 @@ void WeaponAttachRemoveAddons(int clientIndex, WeaponAttachBitType bitType = Bit
     #else
         #pragma unused clientIndex, bitType
     #endif
-}
-
-/**
- * Gets the current position of the client weapon attachment.
- *
- * native void ZP_GetWeaponAttachmentPos(clientIndex, attachment, position, view);
- **/
-public int API_GetWeaponAttachPos(Handle isPlugin, int iNumParams)
-{
-    // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
-
-    // Retrieves the string length from a native parameter string
-    static int maxLen;
-    GetNativeStringLength(2, maxLen);
-    
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Can't find muzzle position with an empty name");
-        return -1;
-    }
-
-    // Gets native data
-    static char sAttach[SMALL_LINE_LENGTH];
-
-    // General
-    GetNativeString(2, sAttach, sizeof(sAttach));   
-
-    // Gets the muzzle position
-    static float vPosition[3];
-    WeaponAttachGetPosition(clientIndex, sAttach, vPosition);
-    //SDKCall(hSDKCallGetAttachment, viewModel1, sAttach, vPosition, vAngle); 
-
-    // Return on success
-    return SetNativeArray(3, vPosition, sizeof(vPosition));
-}
-
-/**
- * Gets the current position of the client weapon attachment.
- *
- * @param clientIndex       The client index.
- * @param sAttach           The attachment bone of the entity parent.
- * @param vPosition         Array to store vector in. 
- **/
-void WeaponAttachGetPosition(int clientIndex, char[] sAttach, float vPosition[3])
-{
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-
-    // Gets the current muzzle from the client reference
-    int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentMuzzle]);
-
-    // If a weapon muzzle doesn't exist, create one
-    if(entityIndex == INVALID_ENT_REFERENCE) 
-    {
-        // Create an muzzle
-        entityIndex = WeaponAttachCreateEntity(clientIndex);
-
-        // Validate muzzle
-        if(entityIndex == INVALID_ENT_REFERENCE) 
-        {
-            return;
-        }
-        
-        // Store the client muzzle to the reference
-        gClientData[clientIndex][Client_AttachmentMuzzle] = EntIndexToEntRef(entityIndex);
-    }
-
-    // Gets the active weapon index from the client
-    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
-
-    // Validate weapon
-    if(!IsValidEdict(weaponIndex))
-    {
-        return;
-    }
-
-    // Validate a new weapon
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentWeapon]) != weaponIndex || !!strcmp(sAttach, gClientData[clientIndex][Client_AttachmentLast], false)) 
-    {
-        // Store the client cache
-        gClientData[clientIndex][Client_AttachmentWeapon] = EntIndexToEntRef(weaponIndex);
-        strcopy(gClientData[clientIndex][Client_AttachmentLast], SMALL_LINE_LENGTH, sAttach);
-
-        // Clears parent of the entity
-        AcceptEntityInput(entityIndex, "ClearParent");
-
-        // Gets the worldmodel index
-        weaponIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponWorldModel);
-
-        // Validate worldmodel
-        if(!IsValidEdict(weaponIndex))
-        {
-            return;
-        }
-
-        // Sets parent to the entity
-        SetVariantString("!activator");
-        AcceptEntityInput(entityIndex, "SetParent", weaponIndex, entityIndex);
-
-        // Sets attachment to the entity
-        SetVariantString(sAttach);
-        AcceptEntityInput(entityIndex, "SetParentAttachment", weaponIndex, entityIndex);
-    }
-
-    // Find the datamap
-    if(!g_iOffset_WeaponAttachment)
-    {
-        g_iOffset_WeaponAttachment = FindDataMapInfo(entityIndex, "m_vecAbsOrigin");
-    }
-    
-    // Gets current entity position
-    GetEntDataVector(entityIndex, g_iOffset_WeaponAttachment, vPosition);
-}
-
-/**
- * Create an attachment muzzle entity for the client.
- *
- * @param clientIndex       The client index.
- * @return                  The entity index.
- **/
-int WeaponAttachCreateEntity(int clientIndex) 
-{
-    // Remove current muzzle
-    WeaponAttachRemoveMuzzle(clientIndex);
-
-    // Create an info_target entity
-    int entityIndex = CreateEntityByName("info_target");
-
-    // If entity isn't valid, then skip
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Spawn the entity into the world
-        DispatchSpawn(entityIndex);
-    
-        // Clear the client cache
-        gClientData[clientIndex][Client_AttachmentWeapon] = INVALID_ENT_REFERENCE;
-        gClientData[clientIndex][Client_AttachmentLast][0] = '\0';
-    }
-
-    // Return index on the success
-    return entityIndex;
-}
-
-/**
- * Remove an attachment muzzle entity from the client.
- *
- * @param clientIndex       The client index.
- **/
-void WeaponAttachRemoveMuzzle(int clientIndex) 
-{
-    // Gets the current muzzle from the client reference
-    int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentMuzzle]);
-    
-    // Validate muzzle
-    if(entityIndex != INVALID_ENT_REFERENCE) 
-    {
-        AcceptEntityInput(entityIndex, "Kill"); //! Destroy
-    }
-
-    // Clear the client cache
-    gClientData[clientIndex][Client_AttachmentMuzzle] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentWeapon] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentLast][0] = '\0';
 }

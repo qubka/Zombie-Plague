@@ -67,7 +67,7 @@ void CommandsInit(/*void*/)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action CommandsOnHook(int clientIndex, const char[] commandMsg, int iArguments)
+public Action CommandsOnHook(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
     // Validate client
     if(IsPlayerExist(clientIndex, false))

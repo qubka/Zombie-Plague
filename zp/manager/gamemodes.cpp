@@ -164,7 +164,7 @@ public Action GameModesStart(Handle hTimer)
  * @param modeIndex         (Optional) The mode index. 
  * @param selectedIndex     (Optional) The selected index.
  **/
-void GameModesEventStart(int modeIndex = -1, int selectedIndex = 0)
+void GameModesEventStart(int modeIndex = -1, const int selectedIndex = 0)
 {
     // Initalize some variables
     static int lastMode; int defaultMode; int nAlive = fnGetAlive(); 
@@ -227,7 +227,7 @@ void GameModesEventStart(int modeIndex = -1, int selectedIndex = 0)
  * @param selectedIndex     The selected index.
  * @param nMaxZombies       The amount of zombies.
  **/
-void GameModesTurnIntoZombie(int selectedIndex, int nMaxZombies)
+void GameModesTurnIntoZombie(const int selectedIndex, const int nMaxZombies)
 {
     // Validate client for a given client index
     if(IsPlayerExist(selectedIndex))
@@ -300,7 +300,7 @@ void GameModesTurnIntoHuman(/*void*/)
  *
  * native int ZP_GetCurrentGameMode();
  **/
-public int API_GetCurrentGameMode(Handle isPlugin, int iNumParams)
+public int API_GetCurrentGameMode(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData[Server_RoundMode];
@@ -311,7 +311,7 @@ public int API_GetCurrentGameMode(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetNumberGameMode();
  **/
-public int API_GetNumberGameMode(Handle isPlugin, int iNumParams)
+public int API_GetNumberGameMode(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayGameModes.Length;
@@ -322,7 +322,7 @@ public int API_GetNumberGameMode(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetServerGameMode(name);
  **/
-public int API_GetServerGameMode(Handle isPlugin, int iNumParams)
+public int API_GetServerGameMode(Handle isPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -365,7 +365,7 @@ public int API_GetServerGameMode(Handle isPlugin, int iNumParams)
  *
  * native int ZP_SetServerGameMode(name, client);
  **/
-public int API_SetServerGameMode(Handle isPlugin, int iNumParams)
+public int API_SetServerGameMode(Handle isPlugin, const int iNumParams)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData[Server_RoundNew])
@@ -427,7 +427,7 @@ public int API_SetServerGameMode(Handle isPlugin, int iNumParams)
  *
  * native int ZP_RegisterGameMode(name, desc, sound, chance, min, ratio, infect, respawn, survivor, nemesis)
  **/
-public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
+public int API_RegisterGameMode(Handle isPlugin, const int iNumParams)
 {
     // If array hasn't been created, then create
     if(arrayGameModes == INVALID_HANDLE)
@@ -507,7 +507,7 @@ public int API_RegisterGameMode(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetGameModeName(iD, sName, maxLen);
  **/
-public int API_GetGameModeName(Handle isPlugin, int iNumParams)
+public int API_GetGameModeName(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -548,7 +548,7 @@ public int API_GetGameModeName(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetGameModeDesc(iD, sName, maxLen);
  **/
-public int API_GetGameModeDesc(Handle isPlugin, int iNumParams)
+public int API_GetGameModeDesc(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -589,7 +589,7 @@ public int API_GetGameModeDesc(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetGameModeSoundID(iD);
  **/
-public int API_GetGameModeSoundID(Handle isPlugin, int iNumParams)
+public int API_GetGameModeSoundID(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -616,7 +616,7 @@ public int API_GetGameModeSoundID(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetGameModeChance(iD);
  **/
-public int API_GetGameModeChance(Handle isPlugin, int iNumParams)
+public int API_GetGameModeChance(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -643,7 +643,7 @@ public int API_GetGameModeChance(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetGameModeMinPlayers(iD);
  **/
-public int API_GetGameModeMinPlayers(Handle isPlugin, int iNumParams)
+public int API_GetGameModeMinPlayers(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -670,7 +670,7 @@ public int API_GetGameModeMinPlayers(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetGameModeRatio(iD);
  **/
-public int API_GetGameModeRatio(Handle isPlugin, int iNumParams)
+public int API_GetGameModeRatio(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -697,7 +697,7 @@ public int API_GetGameModeRatio(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsGameModeInfect(iD);
  **/
-public int API_IsGameModeInfect(Handle isPlugin, int iNumParams)
+public int API_IsGameModeInfect(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -724,7 +724,7 @@ public int API_IsGameModeInfect(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsGameModeRespawn(iD);
  **/
-public int API_IsGameModeRespawn(Handle isPlugin, int iNumParams)
+public int API_IsGameModeRespawn(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -751,7 +751,7 @@ public int API_IsGameModeRespawn(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsGameModeSurvivor(iD);
  **/
-public int API_IsGameModeSurvivor(Handle isPlugin, int iNumParams)
+public int API_IsGameModeSurvivor(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -778,7 +778,7 @@ public int API_IsGameModeSurvivor(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsGameModeNemesis(iD);
  **/
-public int API_IsGameModeNemesis(Handle isPlugin, int iNumParams)
+public int API_IsGameModeNemesis(Handle isPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -811,7 +811,7 @@ public int API_IsGameModeNemesis(Handle isPlugin, int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ModesGetName(int iD, char[] sName, int iMaxLen)
+stock void ModesGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -827,7 +827,7 @@ stock void ModesGetName(int iD, char[] sName, int iMaxLen)
  * @param sDesc             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ModesGetDesc(int iD, char[] sDesc, int iMaxLen)
+stock void ModesGetDesc(const int iD, char[] sDesc, const int iMaxLen)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -843,7 +843,7 @@ stock void ModesGetDesc(int iD, char[] sDesc, int iMaxLen)
  * @param sDesc             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ModesGetSound(int iD, char[] sDesc, int iMaxLen)
+stock void ModesGetSound(const int iD, char[] sDesc, const int iMaxLen)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -858,7 +858,7 @@ stock void ModesGetSound(int iD, char[] sDesc, int iMaxLen)
  * @param iD                The game mode index.
  * @return                  The key index.
  **/
-stock int ModesGetSoundID(int iD)
+stock int ModesGetSoundID(const int iD)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -873,7 +873,7 @@ stock int ModesGetSoundID(int iD)
  * @param iD                The game mode index.
  * @param iKey              The key index.
  **/
-stock int ModesSetSoundID(int iD, int iKey)
+stock int ModesSetSoundID(const int iD, const int iKey)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -888,7 +888,7 @@ stock int ModesSetSoundID(int iD, int iKey)
  * @param iD                The game mode index.
  * @return                  The chance amount.
  **/
-stock int ModesGetChance(int iD)
+stock int ModesGetChance(const int iD)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -903,7 +903,7 @@ stock int ModesGetChance(int iD)
  * @param iD                The game mode index.
  * @return                  The min players amount.
  **/
-stock int ModesGetMinPlayers(int iD)
+stock int ModesGetMinPlayers(const int iD)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -918,7 +918,7 @@ stock int ModesGetMinPlayers(int iD)
  * @param iD                The game mode index.
  * @return                  The ratio amount.
  **/
-stock float ModesGetRatio(int iD)
+stock float ModesGetRatio(const int iD)
 {
     // Gets array handle of game mode at given index
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
@@ -933,7 +933,7 @@ stock float ModesGetRatio(int iD)
  * @param iD                The game mode index.
  * @return                  True or false.
  **/
-stock bool ModesIsInfection(int iD)
+stock bool ModesIsInfection(const int iD)
 {
     // Validate no game mode
     if(iD == -1)
@@ -954,7 +954,7 @@ stock bool ModesIsInfection(int iD)
  * @param iD                The game mode index.
  * @return                  True or false.
  **/
-stock bool ModesIsRespawn(int iD)
+stock bool ModesIsRespawn(const int iD)
 {
     // Validate no game mode
     if(iD == -1)
@@ -975,7 +975,7 @@ stock bool ModesIsRespawn(int iD)
  * @param iD                The game mode index.
  * @return                  True or false.
  **/
-stock bool ModesIsSurvivor(int iD)
+stock bool ModesIsSurvivor(const int iD)
 {
     // Validate no game mode
     if(iD == -1)
@@ -996,7 +996,7 @@ stock bool ModesIsSurvivor(int iD)
  * @param iD                The game mode index.
  * @return                  True or false.
  **/
-stock bool ModesIsNemesis(int iD)
+stock bool ModesIsNemesis(const int iD)
 {
     // Validate no game mode
     if(iD == -1)

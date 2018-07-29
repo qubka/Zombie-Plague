@@ -30,7 +30,7 @@
  * 
  * @param clientIndex       The client index.
  **/
-void JumpBoostOnClientJump(int clientIndex)
+void JumpBoostOnClientJump(const int clientIndex)
 { 
     // If jump boost disabled, then stop
     if(!gCvarList[CVAR_JUMPBOOST_ENABLE].BoolValue)
@@ -47,7 +47,7 @@ void JumpBoostOnClientJump(int clientIndex)
  *
  * @param userID            The user id.
  **/
-public void JumpBoostOnClientJumpPost(int userID)
+public void JumpBoostOnClientJumpPost(const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -82,7 +82,7 @@ public void JumpBoostOnClientJumpPost(int userID)
  *
  * @param clientIndex       The client index.
  **/
-void JumpBoostOnClientLeapJump(int clientIndex)
+void JumpBoostOnClientLeapJump(const int clientIndex)
 {
     // If not on the ground, then stop
     if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))

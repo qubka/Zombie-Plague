@@ -96,7 +96,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         // Hook player events
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
-        // Initilizate extra item
+        // Initialize extra item
         gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
 }
@@ -106,7 +106,7 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Initilizate weapon
+    // Initialize weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     gDublicat = ZP_GetWeaponNameID(EXTRA_ITEM_DUBLICAT); /// Bugfix
     if(gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
@@ -318,7 +318,7 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damage
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveBurnEffect(Handle hTimer, int userID)
+public Action ClientRemoveBurnEffect(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

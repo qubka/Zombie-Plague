@@ -32,7 +32,7 @@
  * @param nemesisMode       (Optional) Indicates that client will be a nemesis.
  * @param respawnMode       (Optional) Indicates that infection was on spawn.
  **/
-void PlayerVEffectsOnClientInfected(int clientIndex, bool nemesisMode = false, bool respawnMode = false)
+void PlayerVEffectsOnClientInfected(const int clientIndex, const bool nemesisMode = false, const bool respawnMode = false)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -114,7 +114,7 @@ void PlayerVEffectsOnClientInfected(int clientIndex, bool nemesisMode = false, b
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerVEffectsOnClientRegen(int clientIndex)
+void PlayerVEffectsOnClientRegen(const int clientIndex)
 {
     // If regeneration effect disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
@@ -147,7 +147,7 @@ void PlayerVEffectsOnClientRegen(int clientIndex)
  * @param clientIndex       The client index.
  * @param survivorMode      (Optional) Indicates that client will be a survivor.
  **/
-void PlayerVEffectsOnClientHumanized(int clientIndex, bool survivorMode = false)
+void PlayerVEffectsOnClientHumanized(const int clientIndex, const bool survivorMode = false)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -205,7 +205,7 @@ void PlayerVEffectsOnClientHumanized(int clientIndex, bool survivorMode = false)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerVEffectsOnClientJump(int clientIndex)
+void PlayerVEffectsOnClientJump(const int clientIndex)
 {
     // If jump effect disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_LEAP].BoolValue) 

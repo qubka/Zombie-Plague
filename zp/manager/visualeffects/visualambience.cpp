@@ -140,7 +140,7 @@ void VAmbienceLoad(/*void*/)
 /**
  * Apply light style on server.
  **/
-void VAmbienceApplyLightStyle(bool bDisable = false)
+void VAmbienceApplyLightStyle(const bool bDisable = false)
 {
     // If default, then set to normal light style
     if(bDisable)
@@ -178,7 +178,7 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
 /**
  * Apply sky on server.
  **/
-void VAmbienceApplySky(bool bDisable = false)
+void VAmbienceApplySky(const bool bDisable = false)
 {
     // If we can't find the sv_skyname cvar, then stop
     ConVar hSkyname = gCvarList[CVAR_VEFFECTS_SKYNAME];
@@ -215,7 +215,7 @@ void VAmbienceApplySky(bool bDisable = false)
 /**
  * Apply sun on server.
  **/
-void VAmbienceApplySunDisable(bool bDisable = false)
+void VAmbienceApplySunDisable(const bool bDisable = false)
 {
     // Find sun entity
     int iSun = FindEntityByClassname(-1, "env_sun");

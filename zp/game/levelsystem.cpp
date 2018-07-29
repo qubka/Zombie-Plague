@@ -92,7 +92,7 @@ void LevelSystemLoad(/*void*/)
  *
  * @param clientIndex       The client index.
  **/
-void LevelSystemOnClientUpdate(int clientIndex)
+void LevelSystemOnClientUpdate(const int clientIndex)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -121,7 +121,7 @@ void LevelSystemOnClientUpdate(int clientIndex)
  * @param clientIndex       The client index.
  * @param nLevel            The level amount.
  **/
-void LevelSystemOnSetLvl(int clientIndex, int nLevel)
+void LevelSystemOnSetLvl(const int clientIndex, const int nLevel)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -167,7 +167,7 @@ void LevelSystemOnSetLvl(int clientIndex, int nLevel)
  * @param clientIndex       The client index.
  * @param nExperience       The experience amount.
  **/
-void LevelSystemOnSetExp(int clientIndex, int nExperience)
+void LevelSystemOnSetExp(const int clientIndex, const int nExperience)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -212,7 +212,7 @@ void LevelSystemOnSetExp(int clientIndex, int nExperience)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action LevelSystemOnHUD(Handle hTimer, int userID)
+public Action LevelSystemOnHUD(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

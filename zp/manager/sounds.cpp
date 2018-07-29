@@ -133,7 +133,7 @@ void SoundsLoad(/*void*/)
                 Format(sSoundsPath, sizeof(sSoundsPath), "sound/%s", sSound[x]);
 
                 // Add to server precache list
-                if(fnMultiFilePrecache(sSoundsPath)) iSoundValidCount++; else iSoundUnValidCount++;
+                if(DownloadsOnPrecache(sSoundsPath)) iSoundValidCount++; else iSoundUnValidCount++;
             }
         }
         else
@@ -190,7 +190,7 @@ void SoundsOnRoundStart(/*void*/)
  *
  * @param CReason           Reason the round has ended.
  **/
-void SoundsOnRoundEnd(int CReason)
+void SoundsOnRoundEnd(const int CReason)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
@@ -205,7 +205,7 @@ void SoundsOnRoundEnd(int CReason)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientDeath(int clientIndex)
+void SoundsOnClientDeath(const int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientDeath(clientIndex);
@@ -217,7 +217,7 @@ void SoundsOnClientDeath(int clientIndex)
  * @param clientIndex       The client index.
  * @param damageBits        The type of damage inflicted.
  **/
-void SoundsOnClientHurt(int clientIndex, int damageBits)
+void SoundsOnClientHurt(const int clientIndex, const int damageBits)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientHurt(clientIndex, (damageBits & DMG_BURN || damageBits & DMG_DIRECT));
@@ -229,7 +229,7 @@ void SoundsOnClientHurt(int clientIndex, int damageBits)
  * @param clientIndex       The client index.
  * @param respawnMode       (Optional) Indicates that infection was on spawn.
  **/
-void SoundsOnClientInfected(int clientIndex, bool respawnMode)
+void SoundsOnClientInfected(const int clientIndex, const bool respawnMode)
 {
     // Forward event to sub-modules
     VoiceOnClientInfected(clientIndex);
@@ -241,7 +241,7 @@ void SoundsOnClientInfected(int clientIndex, bool respawnMode)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientHumanized(int clientIndex)
+void SoundsOnClientHumanized(const int clientIndex)
 {
     // Forward event to sub-modules
     VoiceOnClientHumanized(clientIndex);
@@ -252,7 +252,7 @@ void SoundsOnClientHumanized(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientRegen(int clientIndex)
+void SoundsOnClientRegen(const int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientRegen(clientIndex);
@@ -263,7 +263,7 @@ void SoundsOnClientRegen(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientFlashLight(int clientIndex)
+void SoundsOnClientFlashLight(const int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientFlashLight(clientIndex);
@@ -274,7 +274,7 @@ void SoundsOnClientFlashLight(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientAmmunition(int clientIndex)
+void SoundsOnClientAmmunition(const int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientAmmunition(clientIndex);
@@ -285,7 +285,7 @@ void SoundsOnClientAmmunition(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientLevelUp(int clientIndex)
+void SoundsOnClientLevelUp(const int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientLevelUp(clientIndex);
@@ -300,7 +300,7 @@ void SoundsOnClientLevelUp(int clientIndex)
  *
  * native int ZP_GetSoundKeyID(name);
  **/
-public int API_GetSoundKeyID(Handle isPlugin, int iNumParams)
+public int API_GetSoundKeyID(Handle isPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -328,7 +328,7 @@ public int API_GetSoundKeyID(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_EmitSoundKeyID(entityIndex, keyID, channel, position);
  **/
-public int API_EmitSoundKeyID(Handle isPlugin, int iNumParams)
+public int API_EmitSoundKeyID(Handle isPlugin, const int iNumParams)
 {
     // Validate sound
     if(!SoundsInputEmit(GetNativeCell(1), GetNativeCell(3), GetNativeCell(2), GetNativeCell(4)))
@@ -352,7 +352,7 @@ public int API_EmitSoundKeyID(Handle isPlugin, int iNumParams)
  * @param sLine             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void SoundsGetLine(int iD, char[] sLine, int iMaxLen)
+stock void SoundsGetLine(const int iD, char[] sLine, const int iMaxLen)
 {
     // Gets array handle of sound at given index
     ArrayList arraySound = arraySounds.Get(iD);
@@ -369,7 +369,7 @@ stock void SoundsGetLine(int iD, char[] sLine, int iMaxLen)
  * @param iKey              The key index.
  * @param iNum              The number of sound in 2D array. (Optional) If 0 sound will be choose randomly from the key.
  **/
-stock void SoundsGetSound(char[] sLine, int iMaxLen, int iKey, int iNum = 0)
+stock void SoundsGetSound(char[] sLine, const int iMaxLen, const int iKey, const int iNum = 0)
 {
     // Validate key
     if(iKey == -1)
@@ -399,7 +399,7 @@ stock void SoundsGetSound(char[] sLine, int iMaxLen, int iKey, int iNum = 0)
  * @param sKey              The key name.
  * @return                  The array index containing the given key.
  **/
-stock int SoundsKeyToIndex(char[] sKey)
+stock int SoundsKeyToIndex(const char[] sKey)
 {
     // Find key index
     return ParamFindKey(SoundBuffer, arraySounds.Length, sKey);
@@ -416,7 +416,7 @@ stock int SoundsKeyToIndex(char[] sKey)
  * @param iNum              (Optional) The index of sound from the key array.
  * @return                  True if the sound was emit, false otherwise.
  **/
-stock bool SoundsInputEmit(int entityIndex, int iChannel, int iKey, int iNum = 0)
+stock bool SoundsInputEmit(const int entityIndex, const int iChannel, const int iKey, const int iNum = 0)
 {
     // Initialize char
     static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';

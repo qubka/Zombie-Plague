@@ -173,7 +173,7 @@ public void OnLibraryAdded(const char[] sLibrary) // Stamper
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombieNormalM02 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
@@ -231,8 +231,8 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Initialize vectors
         static float vFromPosition[3];
 
-        // Gets from the client's position
-        GetVectorPosition(clientIndex, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vFromPosition);
+        // Gets the weapon's position
+        ZP_GetPlayerGunPosition(clientIndex, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vFromPosition);
 
         // Emit sound
         ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
@@ -317,7 +317,7 @@ public Action CoffinTouchHook(int entityIndex, int targetIndex)
  * @param damageAmount      The damage amount.
  * @param damageType        The damage type.
  **/
-public Action CoffinDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType)
+public Action CoffinDamageHook(const int entityIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -354,7 +354,7 @@ public Action CoffinDamageHook(int entityIndex, int &attackerIndex, int &inflict
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.                    
  **/
-public Action CoffinExploadHook(Handle hTimer, int referenceIndex)
+public Action CoffinExploadHook(Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -372,7 +372,7 @@ public Action CoffinExploadHook(Handle hTimer, int referenceIndex)
  * 
  * @param entityIndex       The entity index.                    
  **/
-void CoffinExpload(int entityIndex)
+void CoffinExpload(const int entityIndex)
 {
     // Initialize vectors
     static float vEntPosition[3]; static float vEntAngle[3]; static float vVictimPosition[3]; static float vVelocity[3]; static float vAngle[3];
@@ -499,7 +499,7 @@ void CoffinExpload(int entityIndex)
  * @param flVertical        (Optional) The vertical distance.
  * @param vOrigin            The calculated position's vector output.
  **/
-stock void GetVectorPosition(int clientIndex, float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOrigin[3]) 
+stock void GetVectorPosition(const int clientIndex, float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOrigin[3]) 
 {
     // Initialize vectors
     static float vPosition[3]; static float vAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 

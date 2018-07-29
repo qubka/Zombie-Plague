@@ -86,7 +86,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombieMutationLight = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 

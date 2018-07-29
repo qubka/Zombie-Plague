@@ -31,7 +31,7 @@
  * @param victimIndex       The victim index.
  * @param attackerIndex     The attacker index.
  **/
-void DeathOnClientDeath(int victimIndex, int attackerIndex)
+void DeathOnClientDeath(const int victimIndex, const int attackerIndex)
 {
     // Resets some tools
     ToolsResetTimers(victimIndex);
@@ -97,7 +97,7 @@ void DeathOnClientDeath(int victimIndex, int attackerIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action DeathOnRespawn(Handle hTimer, int userID)
+public Action DeathOnRespawn(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

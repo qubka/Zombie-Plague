@@ -181,7 +181,7 @@ void GameEngineLoad(/*void*/)
  *
  * @return                  True or false.
  **/
-stock bool IsPlayerExist(int clientIndex, bool clientAlive = true)
+stock bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
 {
     // If client isn't valid
     if(clientIndex <= 0 || clientIndex > MaxClients)
@@ -224,7 +224,7 @@ stock bool IsPlayerExist(int clientIndex, bool clientAlive = true)
  *
  * @return                  True or false.
  **/
-stock bool IsPlayerHasFlag(int clientIndex, AdminFlag iFlag = Admin_Generic)
+stock bool IsPlayerHasFlag(const int clientIndex, AdminFlag iFlag = Admin_Generic)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -259,7 +259,7 @@ stock bool IsPlayerHasFlag(int clientIndex, AdminFlag iFlag = Admin_Generic)
  *
  * @return                  True or false.
  **/
-stock bool IsPlayerHasFlags(int clientIndex, const char[] sFlags)
+stock bool IsPlayerHasFlags(const int clientIndex, const char[] sFlags)
 {
     // Validate normal user
     if(!strlen(sFlags))
@@ -321,7 +321,7 @@ stock bool IsPlayerHasFlags(int clientIndex, const char[] sFlags)
  *
  * @return                  True or false.
  **/
-stock bool IsPlayerInGroup(int clientIndex, const char[] sGroup)
+stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -376,7 +376,7 @@ stock bool IsPlayerInGroup(int clientIndex, const char[] sGroup)
 /**
  * Gets amount of total humans.
  * 
- * @return      The amount of total humans.
+ * @return                  The amount of total humans.
  **/
 stock int fnGetHumans(/*void*/)
 {
@@ -401,7 +401,7 @@ stock int fnGetHumans(/*void*/)
 /**
  * Gets amount of total zombies.
  *
- * @return      The amount of total zombies.
+ * @return                  The amount of total zombies.
  **/
 stock int fnGetZombies(/*void*/)
 {
@@ -426,7 +426,7 @@ stock int fnGetZombies(/*void*/)
 /**
  * Gets amount of total alive players.
  *
- * @return      The amount of total alive players.
+ * @return                  The amount of total alive players.
  **/
 stock int fnGetAlive(/*void*/)
 {
@@ -451,7 +451,7 @@ stock int fnGetAlive(/*void*/)
 /**
  * Gets index of the random human.
  *
- * @return      The index of random human.
+ * @return                  The index of random human.
  **/
 stock int fnGetRandomHuman(/*void*/)
 {
@@ -501,7 +501,7 @@ stock int fnGetRandomZombie(/*void*/)
 /**
  * Gets index of the random survivor.
  *
- * @return      The index of random survivor.
+ * @return                  The index of random survivor.
  **/
 stock int fnGetRandomSurvivor(/*void*/)
 {
@@ -526,7 +526,7 @@ stock int fnGetRandomSurvivor(/*void*/)
 /**
  * Gets index of the random nemesis.
  *
- * @return      The index of random nemesis.
+ * @return                  The index of random nemesis.
  **/
 stock int fnGetRandomNemesis(/*void*/)
 {
@@ -551,7 +551,7 @@ stock int fnGetRandomNemesis(/*void*/)
 /**
  * Gets amount of total playing players.
  *
- * @return      The amount of total playing players.
+ * @return                  The amount of total playing players.
  **/
 stock int fnGetPlaying(/*void*/)
 {
@@ -571,171 +571,6 @@ stock int fnGetPlaying(/*void*/)
     
     // Return amount
     return nPlaying;
-}
-
-
-/**
- * Precache file and add it to the download table.
- *
- * @param sPath             The path to file.
- * @return                  True or false.
- **/
-stock bool fnMultiFilePrecache(const char[] sPath)
-{
-    // Finds the first occurrence of a character in a string
-    int iDelimiter = FindCharInString(sPath, '@', true); //! Fix for particles
-    
-    // If file doesn't exist, then log, and stop
-    if(!FileExists(sPath) && iDelimiter == -1) 
-    {
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file: %s", sPath);
-        return false;
-    }
-    
-    // Finds the first occurrence of a character in a string
-    int iFormat = FindCharInString(sPath, '.', true);
-    
-    // If model path is don't have format, then log, and stop
-    if(iFormat == -1)
-    {
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);
-        return false;
-    }
-    
-    // Add to precache if path contains '.mdl'
-    if(!strcmp(sPath[iFormat], ".mdl", false))
-    {
-        // If model doesn't precache yet, then continue
-        if(!IsModelPrecached(sPath))
-        {
-            // Add file to download table
-            AddFileToDownloadsTable(sPath);
-            
-            // Precache file
-            PrecacheModel(sPath, true);
-        }
-    }
-    // Add to precache if path contains '.mp3' or '.wav'
-    else if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
-    {
-        // Copy one string onto another
-        static char sSound[PLATFORM_MAX_PATH];
-        strcopy(sSound, sizeof(sSound), sPath);
-
-        /// Look here: https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
-        if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
-        {
-            // If sound doesn't precache yet, then continue
-            if(fnGetTableItemIndex("soundprecache", sSound) == INVALID_STRING_INDEX)
-            {
-                // Add file to download table
-                AddFileToDownloadsTable(sPath);
-
-                // Precache sound
-                ///bool bSave = LockStringTables(false);
-                AddToStringTable(fnGetTableIndex("soundprecache"), sSound);
-                ///LockStringTables(bSave);
-            }
-        }
-        else
-        {
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Wrong sound path: %s", sPath);
-            return false;
-        }
-    }
-    // Add to precache if path contains '.pcf'
-    else if(!strncmp(sPath[iFormat], ".pcf", 4, false))
-    {
-        // Cut out name at the end of a line
-        static char sParticle[NORMAL_LINE_LENGTH];
-        if(SplitString(sPath, "@", sParticle, sizeof(sParticle)) != -1)
-        {
-            // Add file to download table
-            AddFileToDownloadsTable(sParticle);
-            
-            // Precache generic
-            PrecacheGeneric(sParticle, true); //! Precache only here
-
-            // If particle doesn't precache yet, then continue
-            ///if(fnGetTableItemIndex("ParticleEffectNames", sPath[iDelimiter+1]) == INVALID_STRING_INDEX) => NOT WORK!!! WTF???
-
-            // Precache particle
-            bool bSave = LockStringTables(false);
-            AddToStringTable(fnGetTableIndex("ParticleEffectNames"), sPath[iDelimiter+1]);
-            LockStringTables(bSave);
-        }
-        else
-        {
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Wrong particle path: %s", sPath);
-            return false;
-        }
-    }
-    // Add to precache if path contains '.vtf'
-    else if(!strcmp(sPath[iFormat], ".vtf", false))
-    {
-        // If decal doesn't precache yet, then continue
-        if(!IsDecalPrecached(sPath))
-        {
-            // Add file to download table
-            AddFileToDownloadsTable(sPath);
-            
-            // Precache file
-            PrecacheDecal(sPath, true);
-        }
-    }
-    else
-    {
-        // Add file to download table
-        AddFileToDownloadsTable(sPath);
-    }
-    
-    // Return on success
-    return true;
-}
-
-/**
- * Searches for a string table.
- *
- * @param sTable            The table name.
- * @return                  The table index.
- **/
-stock int fnGetTableIndex(const char[] sTable)
-{
-    // Searches for a string table
-    int tableIndex = FindStringTable(sTable);
-
-    // Validate table
-    if(tableIndex == INVALID_STRING_TABLE)
-    {
-        ///LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Table not found: %s", sTable);
-        return INVALID_STRING_TABLE;
-    }
-
-    // Return index on the success
-    return tableIndex;
-}
-
-/**
- * Searches for the index of a given string in a string table.
- *
- * @param sTable            The table.
- * @param sIndex            The index.
- * @return                  The item index.
- **/
-stock int fnGetTableItemIndex(const char[] sTable, const char[] sIndex)
-{
-    // Searches for the index of a given string in a string table
-    int itemIndex = FindStringIndex(fnGetTableIndex(sTable), sIndex);
-
-    // Validate item
-    if(itemIndex == INVALID_STRING_INDEX)
-    {
-        ///LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Item not found: %s", sIndex);
-        return INVALID_STRING_INDEX;
-    }
-
-    // Return index on the success
-    return itemIndex;
 }
 
 /**
@@ -768,4 +603,139 @@ stock void fnInitSendPropOffset(int &iOffset, const char[] sServerClass, const c
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find prop: \"%s\"", sProp);
     }
+}
+
+/**
+ * Searches for the index of a given string in a dispatch table.
+ *
+ * @param sEffect           The effect name.
+ * @return                  The item index.
+ **/
+stock int fnGetEffectIndex(const char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("EffectDispatch");
+    }
+
+    // Searches for the index of a given string in a string table
+    int itemIndex = FindStringIndex(tableIndex, sEffect);
+
+    // Validate item
+    if(itemIndex != INVALID_STRING_INDEX)
+    {
+        return itemIndex;
+    }
+
+    // Return on the unsuccess
+    return 0;
+}
+
+/**
+ * Searches for the index of a given string in an effect table.
+ *
+ * @param sEffect           The effect name.
+ * @return                  The item index.
+ **/
+stock int fnGetParticleEffectIndex(const char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ParticleEffectNames");
+    }
+
+    // Searches for the index of a given string in a string table
+    int itemIndex = FindStringIndex(tableIndex, sEffect);
+
+    // Validate item
+    if(itemIndex != INVALID_STRING_INDEX)
+    {
+        return itemIndex;
+    }
+
+    // Return on the unsuccess
+    return 0;
+}
+
+/**
+ * Precache the particle in the effect table.
+ *
+ * @param sEffect           The effect name.
+ **/
+stock void fnPrecacheParticleEffect(const char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ParticleEffectNames");
+    }
+
+    // If particle doesn't precache yet, then continue
+    ///if(FindStringIndex(tableIndex, sEffect) == INVALID_STRING_INDEX)
+
+    // Precache particle
+    bool bSave = LockStringTables(false);
+    AddToStringTable(tableIndex, sEffect);
+    LockStringTables(bSave);
+}
+
+/**
+ * Precache the sound in the sounds table.
+ *
+ * @param sPath             The sound path.
+ * @return                  True if was precached, false otherwise.
+ **/
+stock bool fnPrecacheSoundQuirk(const char[] sPath)
+{
+    // Extract value string
+    static char sSound[PLATFORM_MAX_PATH];
+    StrExtract(sSound, sPath, 0, PLATFORM_MAX_PATH);
+
+    /// Look here: https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
+    if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
+    {
+        // Initialize the table index
+        static int tableIndex = INVALID_STRING_TABLE;
+
+        // Validate table
+        if(tableIndex == INVALID_STRING_TABLE)
+        {
+            // Searches for a string table
+            tableIndex = FindStringTable("soundprecache");
+        }
+
+        // If sound doesn't precache yet, then continue
+        if(FindStringIndex(tableIndex, sSound) == INVALID_STRING_INDEX)
+        {
+            // Add file to download table
+            AddFileToDownloadsTable(sPath);
+
+            // Precache sound
+            ///bool bSave = LockStringTables(false);
+            AddToStringTable(tableIndex, sSound);
+            ///LockStringTables(bSave);
+        }
+    }
+    else
+    {
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Wrong sound path: %s", sPath);
+        return false;
+    }
+    
+    // Return on the success
+    return true;
 }

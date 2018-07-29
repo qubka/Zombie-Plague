@@ -77,14 +77,14 @@ void HumanClassesLoad(/*void*/)
     {
         // Validate player model
         HumanGetModel(i, sBuffer, sizeof(sBuffer));
-        if(!ModelsPlayerPrecache(sBuffer))
+        if(!ModelsPrecacheStatic(sBuffer))
         {
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
         }
 
         // Validate arm model
         HumanGetArmModel(i, sBuffer, sizeof(sBuffer));
-        if(!ModelsPlayerPrecache(sBuffer))
+        if(!ModelsPrecacheStatic(sBuffer))
         {
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
         }
@@ -118,7 +118,7 @@ void HumanOnCommandsCreate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action HumanCommandCatched(int clientIndex, int iArguments)
+public Action HumanCommandCatched(const int clientIndex, const int iArguments)
 {
     // Open the human classes menu
     HumanMenu(clientIndex);
@@ -134,7 +134,7 @@ public Action HumanCommandCatched(int clientIndex, int iArguments)
  *
  * native int ZP_GetNumberHumanClass();
  **/
-public int API_GetNumberHumanClass(Handle isPlugin, int iNumParams)
+public int API_GetNumberHumanClass(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayHumanClasses.Length;
@@ -145,7 +145,7 @@ public int API_GetNumberHumanClass(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientHumanClass(clientIndex);
  **/
-public int API_GetClientHumanClass(Handle isPlugin, int iNumParams)
+public int API_GetClientHumanClass(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -159,7 +159,7 @@ public int API_GetClientHumanClass(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientHumanClassNext(clientIndex);
  **/
-public int API_GetClientHumanClassNext(Handle isPlugin, int iNumParams)
+public int API_GetClientHumanClassNext(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -173,7 +173,7 @@ public int API_GetClientHumanClassNext(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientHumanClass(clientIndex, iD);
  **/
-public int API_SetClientHumanClass(Handle isPlugin, int iNumParams)
+public int API_SetClientHumanClass(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -207,7 +207,7 @@ public int API_SetClientHumanClass(Handle isPlugin, int iNumParams)
  *
  * native int ZP_RegisterHumanClass(name, model, arm_model, health, speed, gravity, armor, level, vip, death, hurt, infect);
  **/
-public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
+public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
 {
     // If array hasn't been created, then create
     if(arrayHumanClasses == INVALID_HANDLE)
@@ -294,7 +294,7 @@ public int API_RegisterHumanClass(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetHumanClassName(iD, sName, maxLen);
  **/
-public int API_GetHumanClassName(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -329,7 +329,7 @@ public int API_GetHumanClassName(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetHumanClassModel(iD, sModel, maxLen);
  **/
-public int API_GetHumanClassModel(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassModel(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -364,7 +364,7 @@ public int API_GetHumanClassModel(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetHumanClassArm(iD, sModel, maxLen);
  **/
-public int API_GetHumanClassArm(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassArm(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -399,7 +399,7 @@ public int API_GetHumanClassArm(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHumanClassHealth(iD);
  **/
-public int API_GetHumanClassHealth(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassHealth(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -420,7 +420,7 @@ public int API_GetHumanClassHealth(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetHumanClassSpeed(iD);
  **/
-public int API_GetHumanClassSpeed(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassSpeed(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -441,7 +441,7 @@ public int API_GetHumanClassSpeed(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetHumanClassGravity(iD);
  **/
-public int API_GetHumanClassGravity(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassGravity(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -462,7 +462,7 @@ public int API_GetHumanClassGravity(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHumanClassArmor(iD);
  **/
-public int API_GetHumanClassArmor(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassArmor(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -483,7 +483,7 @@ public int API_GetHumanClassArmor(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHumanClassLevel(iD);
  **/
-public int API_GetHumanClassLevel(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassLevel(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -504,7 +504,7 @@ public int API_GetHumanClassLevel(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsHumanClassVIP(iD);
  **/
-public int API_IsHumanClassVIP(Handle isPlugin, int iNumParams)
+public int API_IsHumanClassVIP(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -525,7 +525,7 @@ public int API_IsHumanClassVIP(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHumanClassSoundDeathID(iD);
  **/
-public int API_GetHumanClassSoundDeathID(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassSoundDeathID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -546,7 +546,7 @@ public int API_GetHumanClassSoundDeathID(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHumanClassSoundHurtID(iD);
  **/
-public int API_GetHumanClassSoundHurtID(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassSoundHurtID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -567,7 +567,7 @@ public int API_GetHumanClassSoundHurtID(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHumanClassSoundInfectID(iD);
  **/
-public int API_GetHumanClassSoundInfectID(Handle isPlugin, int iNumParams)
+public int API_GetHumanClassSoundInfectID(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -588,7 +588,7 @@ public int API_GetHumanClassSoundInfectID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_PrintHumanClassInfo(clientIndex, iD);
  **/
-public int API_PrintHumanClassInfo(Handle isPlugin, int iNumParams)
+public int API_PrintHumanClassInfo(Handle isPlugin, const int iNumParams)
 {
     // If help messages disable, then stop 
     if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
@@ -638,7 +638,7 @@ public int API_PrintHumanClassInfo(Handle isPlugin, int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HumanGetName(int iD, char[] sName, int iMaxLen)
+stock void HumanGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -654,7 +654,7 @@ stock void HumanGetName(int iD, char[] sName, int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HumanGetModel(int iD, char[] sModel, int iMaxLen)
+stock void HumanGetModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -670,7 +670,7 @@ stock void HumanGetModel(int iD, char[] sModel, int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HumanGetArmModel(int iD, char[] sModel, int iMaxLen)
+stock void HumanGetArmModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -685,7 +685,7 @@ stock void HumanGetArmModel(int iD, char[] sModel, int iMaxLen)
  * @param iD                The class index.
  * @return                  The health amount.    
  **/
-stock int HumanGetHealth(int iD)
+stock int HumanGetHealth(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -700,7 +700,7 @@ stock int HumanGetHealth(int iD)
  * @param iD                The class index.
  * @return                  The speed amount.    
  **/
-stock float HumanGetSpeed(int iD)
+stock float HumanGetSpeed(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -715,7 +715,7 @@ stock float HumanGetSpeed(int iD)
  * @param iD                The class index.
  * @return                  The gravity amount.    
  **/
-stock float HumanGetGravity(int iD)
+stock float HumanGetGravity(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -730,7 +730,7 @@ stock float HumanGetGravity(int iD)
  * @param iD                The class index.
  * @return                  The armor amount.    
  **/
-stock int HumanGetArmor(int iD)
+stock int HumanGetArmor(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -745,7 +745,7 @@ stock int HumanGetArmor(int iD)
  * @param iD                The class index.
  * @return                  The armor amount.    
  **/
-stock int HumanGetLevel(int iD)
+stock int HumanGetLevel(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -760,7 +760,7 @@ stock int HumanGetLevel(int iD)
  * @param iD                The class index.
  * @return                  True or false.
  **/
-stock bool HumanIsVIP(int iD)
+stock bool HumanIsVIP(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -776,7 +776,7 @@ stock bool HumanIsVIP(int iD)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HumanGetSoundDeath(int iD, char[] sSound, int iMaxLen)
+stock void HumanGetSoundDeath(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -791,7 +791,7 @@ stock void HumanGetSoundDeath(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int HumanGetSoundDeathID(int iD)
+stock int HumanGetSoundDeathID(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -806,7 +806,7 @@ stock int HumanGetSoundDeathID(int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock void HumanSetSoundDeathID(int iD, int iKey)
+stock void HumanSetSoundDeathID(const int iD, const int iKey)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -822,7 +822,7 @@ stock void HumanSetSoundDeathID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HumanGetSoundHurt(int iD, char[] sSound, int iMaxLen)
+stock void HumanGetSoundHurt(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -837,7 +837,7 @@ stock void HumanGetSoundHurt(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int HumanGetSoundHurtID(int iD)
+stock int HumanGetSoundHurtID(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -852,7 +852,7 @@ stock int HumanGetSoundHurtID(int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock void HumanSetSoundHurtID(int iD, int iKey)
+stock void HumanSetSoundHurtID(const int iD, const int iKey)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -868,7 +868,7 @@ stock void HumanSetSoundHurtID(int iD, int iKey)
  * @param sSound            The string to return sound in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HumanGetSoundInfect(int iD, char[] sSound, int iMaxLen)
+stock void HumanGetSoundInfect(const int iD, char[] sSound, const int iMaxLen)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -883,7 +883,7 @@ stock void HumanGetSoundInfect(int iD, char[] sSound, int iMaxLen)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int HumanGetSoundInfectID(int iD)
+stock int HumanGetSoundInfectID(const int iD)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -898,7 +898,7 @@ stock int HumanGetSoundInfectID(int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock void HumanSetSoundInfectID(int iD, int iKey)
+stock void HumanSetSoundInfectID(const int iD, const int iKey)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
@@ -916,7 +916,7 @@ stock void HumanSetSoundInfectID(int iD, int iKey)
  *
  * @param clientIndex       The client index.
  **/
-void HumanOnValidate(int clientIndex)
+void HumanOnValidate(const int clientIndex)
 {
     // Gets array size
     int iSize = arrayHumanClasses.Length;
@@ -976,7 +976,7 @@ void HumanOnValidate(int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void HumanMenu(int clientIndex) 
+void HumanMenu(const int clientIndex) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -1042,7 +1042,7 @@ void HumanMenu(int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int HumanMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int HumanMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)

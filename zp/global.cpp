@@ -95,7 +95,6 @@ int g_iOffset_WeaponReserve2;
 int g_iOffset_WeaponPrimaryAttack;
 int g_iOffset_WeaponSecondaryAttack;
 int g_iOffset_WeaponIdle;
-int g_iOffset_WeaponAttachment;
 int g_iOffset_GrenadeThrower;
 /**
  * @endsection
@@ -159,10 +158,7 @@ enum ClientData
     Client_Costume,
     Client_AttachmentCostume,
     Client_AttachmentBits,
-    Client_AttachmentAddons[9], /* Amount of weapon back attachments */
-    Client_AttachmentMuzzle,
-    Client_AttachmentWeapon,
-    String:Client_AttachmentLast[SMALL_LINE_LENGTH],
+    Client_AttachmentAddons[10], /* Amount of weapon back attachments */
     
     /* Weapons */
     Client_ViewModels[2],

@@ -86,7 +86,7 @@ enum AntiStickBoxBound
  * 
  * @param clientIndex       The client index.
  **/
-void AntiStickClientInit(int clientIndex)
+void AntiStickClientInit(const int clientIndex)
 {
     // Hook entity callbacks
     SDKHook(clientIndex, SDKHook_StartTouch, AntiStickStartTouch);
@@ -99,7 +99,7 @@ void AntiStickClientInit(int clientIndex)
  * @param clientIndex       The client index.
  * @param entityIndex       The entity index of the entity being touched.
  **/
-public void AntiStickStartTouch(int clientIndex, int entityIndex)
+public void AntiStickStartTouch(const int clientIndex, const int entityIndex)
 {
     // If antistick is disabled, then stop.
     bool bAntiStick = gCvarList[CVAR_GAME_CUSTOM_ANTISTICK].BoolValue;
@@ -157,7 +157,7 @@ public void AntiStickStartTouch(int clientIndex, int entityIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AntiStickSolidifyTimer(Handle hTimer, int userID)
+public Action AntiStickSolidifyTimer(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -211,7 +211,7 @@ public Action AntiStickSolidifyTimer(Handle hTimer, int userID)
  * @param boundaries        Array with 'AntiStickBoxBounds' for indexes to return bounds into.
  * @param width             The width of the model box.
  **/
-stock void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBoxBound][3], float flWidth)
+stock void AntiStickBuildModelBox(const int clientIndex, float boundaries[AntiStickBoxBound][3], const float flWidth)
 {
     static float vClientLoc[3];
     static float vTwistAngle[3];
@@ -314,7 +314,7 @@ stock void AntiStickJumpToPoint(const float vVector[3], const float vAngle[3], c
  * @param boundaries        The boundaries to check.
  * @param iMin              Return the min value instead.
  **/
-stock float AntiStickGetBoxMaxBoundary(int Axis, float boundaries[AntiStickBoxBound][3], bool iMin = false)
+stock float AntiStickGetBoxMaxBoundary(const int Axis, const float boundaries[AntiStickBoxBound][3],const bool iMin = false)
 {
     // Create 'outlier' with initial value of first boundary
     float outlier = boundaries[0][Axis];
@@ -344,7 +344,7 @@ stock float AntiStickGetBoxMaxBoundary(int Axis, float boundaries[AntiStickBoxBo
  * @param client2           The second client index.
  * @return                  True if they are stuck together, false if not.
  **/
-stock bool AntiStickIsModelBoxColliding(int client1, int client2)
+stock bool AntiStickIsModelBoxColliding(const int client1, const int client2)
 {
     float client1modelbox[AntiStickBoxBound][3];
     float client2modelbox[AntiStickBoxBound][3];
@@ -396,7 +396,7 @@ stock bool AntiStickIsModelBoxColliding(int client1, int client2)
  * @param client            The client index.
  * @param collisiongroup    Collision group flag.
  **/
-stock void AntiStickSetCollisionGroup(int clientIndex, int collisiongroup)
+stock void AntiStickSetCollisionGroup(const int clientIndex, const int collisiongroup)
 {
     SetEntData(clientIndex, g_iOffset_PlayerCollision, collisiongroup, _, true);
 }
@@ -407,7 +407,7 @@ stock void AntiStickSetCollisionGroup(int clientIndex, int collisiongroup)
  * @param client            The client index.
  * @return                  The collision group on the client.
  **/
-stock int AntiStickGetCollisionGroup(int clientIndex)
+stock int AntiStickGetCollisionGroup(const int clientIndex)
 {
     return GetEntData(clientIndex, g_iOffset_PlayerCollision);
 }

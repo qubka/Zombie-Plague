@@ -77,7 +77,7 @@ void VEffectsLoad(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectOnClientDeath(int clientIndex)
+void VEffectOnClientDeath(const int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -100,7 +100,7 @@ void VEffectOnClientDeath(int clientIndex)
  * @param nemesisMode       (Optional) Indicates that client will be a nemesis.
  * @param respawnMode       (Optional) Indicates that infection was on spawn.
  **/
-void VEffectsOnClientInfected(int clientIndex, bool nemesisMode = false, bool respawnMode = false)
+void VEffectsOnClientInfected(const int clientIndex, const bool nemesisMode = false, const bool respawnMode = false)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -122,7 +122,7 @@ void VEffectsOnClientInfected(int clientIndex, bool nemesisMode = false, bool re
  * @param survivorMode      (Optional) Indicates that client will be a survivor.
  * @param respawnMode       (Optional) Indicates that humanized was on spawn.
  **/
-void VEffectsOnClientHumanized(int clientIndex, bool survivorMode = false, bool respawnMode = false)
+void VEffectsOnClientHumanized(const int clientIndex, const bool survivorMode = false, const bool respawnMode = false)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -140,7 +140,7 @@ void VEffectsOnClientHumanized(int clientIndex, bool survivorMode = false, bool 
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectsOnClientRegen(int clientIndex)
+void VEffectsOnClientRegen(const int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -158,7 +158,7 @@ void VEffectsOnClientRegen(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectsOnClientJump(int clientIndex)
+void VEffectsOnClientJump(const int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -182,7 +182,7 @@ void VEffectsOnClientJump(int clientIndex)
  * @param hFrequency        The cvar with frequency of shake.
  * @param hDuration         The cvar with duration of shake in the seconds.
  **/
-void VEffectsShakeClientScreen(int clientIndex, ConVar hAmplitude, ConVar hFrequency, ConVar hDuration)
+void VEffectsShakeClientScreen(const int clientIndex, const ConVar hAmplitude, const ConVar hFrequency, const ConVar hDuration)
 {
     // If screen shake disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_SHAKE].BoolValue) 
@@ -216,7 +216,7 @@ void VEffectsShakeClientScreen(int clientIndex, ConVar hAmplitude, ConVar hFrequ
  * @param iFlags            The flags.
  * @param vColor            The array with RGB color.
  **/
-void VEffectsFadeClientScreen(int clientIndex, ConVar hDuration, ConVar hHoldTime, int iFlags, int vColor[4])
+void VEffectsFadeClientScreen(const int clientIndex, const ConVar hDuration, const ConVar hHoldTime, const int iFlags, const int vColor[4])
 {
     // If screen fade disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_FADE].BoolValue) 
@@ -247,7 +247,7 @@ void VEffectsFadeClientScreen(int clientIndex, ConVar hDuration, ConVar hHoldTim
  * @param clientIndex       The client index.
  * @param sMessage          The message to send.
  **/
-void VEffectsHintClientScreen(int clientIndex, char[] sMessage)
+void VEffectsHintClientScreen(const int clientIndex, const char[] sMessage)
 {
     // Create message
     Handle hMessage = StartMessageOne("HintText", clientIndex);
@@ -272,7 +272,7 @@ void VEffectsHintClientScreen(int clientIndex, char[] sMessage)
  * @param flDurationTime    The duration of light.
  * @return                  The entity index.
  **/
-int VEffectSpawnParticle(int clientIndex, char[] sAttach, char[] sType, float flDurationTime)
+int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char[] sType, const float flDurationTime)
 {
     // Create an attach particle entity
     int entityIndex = CreateEntityByName("info_particle_system");
@@ -333,7 +333,7 @@ int VEffectSpawnParticle(int clientIndex, char[] sAttach, char[] sType, float fl
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectRemoveParticle(int clientIndex)
+void VEffectRemoveParticle(const int clientIndex)
 {
     // Initialize char
     static char sClassname[NORMAL_LINE_LENGTH];
@@ -369,18 +369,16 @@ void VEffectRemoveParticle(int clientIndex)
  * @param clientIndex       The client index.
  * @param entityIndex       The weapon index.
  **/
-void VEffectSpawnMuzzleSmoke(int clientIndex, int entityIndex)
+void VEffectSpawnMuzzleSmoke(const int clientIndex, const int entityIndex)
 {
-    #define PARTICLE_DISPATCH_FROM_ENTITY (1 << 0)
-    #define PATTACH_WORLDORIGIN 5
+    // Initialize vector variables
+    static float vOrigin[3];
 
-    TE_Start("EffectDispatch");
-    TE_WriteNum("entindex", entityIndex);
-    TE_WriteNum("m_fFlags", PARTICLE_DISPATCH_FROM_ENTITY); // https://developer.valvesoftware.com/wiki/SDK_Known_Issues_List_Fixed#Server%20Dispatching%20an%20Attached%20Particle%20Effect
-    TE_WriteNum("m_nHitBox", fnGetTableItemIndex("ParticleEffectNames", "weapon_muzzle_smoke"));
-    TE_WriteNum("m_iEffectName", fnGetTableItemIndex("EffectDispatch", "ParticleEffect"));
-    TE_WriteNum("m_nAttachmentIndex", 1);
-    TE_WriteNum("m_nDamageType", PATTACH_WORLDORIGIN);
+    // Gets client position
+    GetClientAbsOrigin(clientIndex, vOrigin); 
+
+    // Create an effect
+    VEffectDispatch(entityIndex, "weapon_muzzle_smoke", "ParticleEffect", vOrigin, vOrigin, _, 1);
     TE_SendToClient(clientIndex);
 }
 
@@ -390,10 +388,47 @@ void VEffectSpawnMuzzleSmoke(int clientIndex, int entityIndex)
  * @param clientIndex       The client index.
  * @param entityIndex       The weapon index.
  **/
-void VEffectRemoveMuzzle(int clientIndex, int entityIndex)
+void VEffectRemoveMuzzle(const int clientIndex, const int entityIndex)
 {
-    TE_Start("EffectDispatch");
-    TE_WriteNum("entindex", entityIndex);
-    TE_WriteNum("m_iEffectName", fnGetTableItemIndex("EffectDispatch", "ParticleEffectStop"));
+    // Initialize vector variables
+    static float vOrigin[3];
+
+    // Gets client position
+    GetClientAbsOrigin(clientIndex, vOrigin); 
+
+    // Delete an effect
+    VEffectDispatch(entityIndex, _, "ParticleEffectStop", vOrigin, vOrigin);
     TE_SendToClient(clientIndex);
+}
+
+/**
+ * Dispatch an attached effect.
+ * 
+ * @param entityIndex       (Optional) The entity index.
+ * @param sParticle         (Optional) The particle name.
+ * @param sItem             (Optional) The particle item.
+ * @param vStart            (Optional) The start origin.
+ * @param vEnd              (Optional) The end origin.
+ * @param vAngle            (Optional) The angle vector.
+ * @param iAttachment       (Optional) The attachment index.
+ **/
+void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
+{
+    #define PATTACH_WORLDORIGIN 5
+    #define PARTICLE_DISPATCH_FROM_ENTITY (1 << 0)
+    
+    // Dispatch effect
+    TE_Start("EffectDispatch");
+    if(IsValidEdict(entityIndex)) TE_WriteNum("entindex", entityIndex);
+    TE_WriteFloatArray("m_vStart.x", vStart, 3);
+    TE_WriteFloatArray("m_vOrigin.x", vEnd, 3);
+    TE_WriteVector("m_vAngles", vAngle);
+    if(strlen(sParticle)) TE_WriteNum("m_nHitBox", fnGetParticleEffectIndex(sParticle)); 
+    if(strlen(sIndex)) TE_WriteNum("m_iEffectName", fnGetEffectIndex(sIndex));
+    if(iAttachment) 
+    {
+        TE_WriteNum("m_nDamageType", PATTACH_WORLDORIGIN);
+        TE_WriteNum("m_fFlags", PARTICLE_DISPATCH_FROM_ENTITY); /// https://developer.valvesoftware.com/wiki/SDK_Known_Issues_List_Fixed#Server%20Dispatching%20an%20Attached%20Particle%20Effect
+        TE_WriteNum("m_nAttachmentIndex", iAttachment);
+    }
 }

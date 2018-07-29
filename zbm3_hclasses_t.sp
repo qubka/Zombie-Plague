@@ -72,7 +72,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate human class
+        // Initialize human class
         gHuman = ZP_RegisterHumanClass(HUMAN_CLASS_NAME, 
         HUMAN_CLASS_MODEL, 
         HUMAN_CLASS_ARM, 

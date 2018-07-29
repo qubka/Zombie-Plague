@@ -167,7 +167,7 @@ void DataBaseOnCommandsCreate(/*void*/)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action DataBaseHook(int entityIndex, const char[] commandMsg, int iArguments)
+public Action DataBaseHook(const int entityIndex, const char[] commandMsg, const int iArguments)
 {
     // Validate Server
     if(!entityIndex)
@@ -206,7 +206,7 @@ void DataBaseUnload(/*void*/)
  * 
  * @param clientIndex        The client index. 
  **/
-void DataBaseClientInit(int clientIndex)
+void DataBaseClientInit(const int clientIndex)
 {
     // Resets client variables
     gClientData[clientIndex][Client_DataID] = -1;
@@ -248,7 +248,7 @@ void DataBaseClientInit(int clientIndex)
  *
  * @param clientIndex        The client index.
  **/
-void DataBaseOnClientDisconnect(int clientIndex)
+void DataBaseOnClientDisconnect(const int clientIndex)
 {
     // If client was load, then save
     if(gClientData[clientIndex][Client_Loaded])
@@ -271,7 +271,7 @@ void DataBaseOnClientDisconnect(int clientIndex)
  * @param sSQLerror          Error string if there was an error.
  * @param clientIndex        Data passed in via the original threaded invocation.
  **/
-public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[] sSQLerror, int clientIndex)
+public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[] sSQLerror, const int clientIndex)
 {
     // Make sure the client didn't disconnect while the thread was running
     if(IsPlayerExist(clientIndex, false))

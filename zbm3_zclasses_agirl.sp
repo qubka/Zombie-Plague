@@ -118,7 +118,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombieGirl = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
@@ -244,7 +244,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action BombTouchHook(int entityIndex, int targetIndex)
+public Action BombTouchHook(const int entityIndex, const int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))

@@ -66,7 +66,7 @@ int DHook_SetEntityModel;
  * 
  * @param clientIndex       The client index.  
  **/
-void CostumesClientInit(int clientIndex)
+void CostumesClientInit(const int clientIndex)
 {
     #if defined USE_DHOOKS    
     // Hook entity callbacks
@@ -89,7 +89,7 @@ void CostumesOnCommandsCreate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action CostumesCommandCatched(int clientIndex, int iArguments)
+public Action CostumesCommandCatched(const int clientIndex, const int iArguments)
 {
     // Open the costumes menu
     CostumesMenu(clientIndex);
@@ -220,7 +220,7 @@ void CostumesCacheData(/*void*/)
         // Push data into array
         kvCostumes.GetString("model", sCostumesPath, sizeof(sCostumesPath), ""); 
         arrayCostume.PushString(sCostumesPath);          // Index: 1
-        ModelsPlayerPrecache(sCostumesPath);
+        ModelsPrecacheStatic(sCostumesPath);
         arrayCostume.Push(kvCostumes.GetNum("body", 0)); // Index: 2
         arrayCostume.Push(kvCostumes.GetNum("skin", 0)); // Index: 3
         kvCostumes.GetString("attachment", sCostumesPath, sizeof(sCostumesPath), "facemask");  
@@ -228,7 +228,6 @@ void CostumesCacheData(/*void*/)
         kvCostumes.GetString("access", sCostumesPath, sizeof(sCostumesPath), "");  
         arrayCostume.PushString(sCostumesPath);          // Index: 5
         arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no")); // Index: 6
-        
     }
     
     // We're done with this file now, so we can close it
@@ -253,7 +252,7 @@ public void CostumesOnConfigReload(/*void*/)
  *
  * native int ZP_GetNumberCostumes();
  **/
-public int API_GetNumberCostumes(Handle isPlugin, int iNumParams)
+public int API_GetNumberCostumes(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayCostumes.Length;
@@ -264,7 +263,7 @@ public int API_GetNumberCostumes(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientCostume(clientIndex);
  **/
-public int API_GetClientCostume(Handle isPlugin, int iNumParams)
+public int API_GetClientCostume(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -278,7 +277,7 @@ public int API_GetClientCostume(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientCostume(clientIndex, iD);
  **/
-public int API_SetClientCostume(Handle isPlugin, int iNumParams)
+public int API_SetClientCostume(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -312,7 +311,7 @@ public int API_SetClientCostume(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetCostumeName(iD, name, maxlen);
  **/
-public int API_GetCostumeName(Handle isPlugin, int iNumParams)
+public int API_GetCostumeName(Handle isPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -347,7 +346,7 @@ public int API_GetCostumeName(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetCostumeModel(iD, model, maxlen);
  **/
-public int API_GetCostumeModel(Handle isPlugin, int iNumParams)
+public int API_GetCostumeModel(Handle isPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -382,7 +381,7 @@ public int API_GetCostumeModel(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetCostumeBody(iD);
  **/
-public int API_GetCostumeBody(Handle isPlugin, int iNumParams)
+public int API_GetCostumeBody(Handle isPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -403,7 +402,7 @@ public int API_GetCostumeBody(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetCostumeSkin(iD);
  **/
-public int API_GetCostumeSkin(Handle isPlugin, int iNumParams)
+public int API_GetCostumeSkin(Handle isPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -424,7 +423,7 @@ public int API_GetCostumeSkin(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetCostumeAttach(iD, attach, maxlen);
  **/
-public int API_GetCostumeAttach(Handle isPlugin, int iNumParams)
+public int API_GetCostumeAttach(Handle isPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -459,7 +458,7 @@ public int API_GetCostumeAttach(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetCostumeAccess(iD, flags, maxlen);
  **/
-public int API_GetCostumeAccess(Handle isPlugin, int iNumParams)
+public int API_GetCostumeAccess(Handle isPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -494,7 +493,7 @@ public int API_GetCostumeAccess(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsCostumeHide(iD);
  **/
-public int API_IsCostumeHide(Handle isPlugin, int iNumParams)
+public int API_IsCostumeHide(Handle isPlugin, const int iNumParams)
 {    
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -521,7 +520,7 @@ public int API_IsCostumeHide(Handle isPlugin, int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void CostumesGetName(int iD, char[] sName, int iMaxLen)
+stock void CostumesGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
@@ -537,7 +536,7 @@ stock void CostumesGetName(int iD, char[] sName, int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void CostumesGetModel(int iD, char[] sModel, int iMaxLen)
+stock void CostumesGetModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
@@ -552,7 +551,7 @@ stock void CostumesGetModel(int iD, char[] sModel, int iMaxLen)
  * @param iD                The costume index.
  * @return                  The body index. 
  **/
-stock bool CostumesGetBody(int iD)
+stock bool CostumesGetBody(const int iD)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
@@ -567,7 +566,7 @@ stock bool CostumesGetBody(int iD)
  * @param iD                The costume index.
  * @return                  The skin index. 
  **/
-stock bool CostumesGetSkin(int iD)
+stock bool CostumesGetSkin(const int iD)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
@@ -583,7 +582,7 @@ stock bool CostumesGetSkin(int iD)
  * @param sAttach           The string to return attachment in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void CostumesGetAttach(int iD, char[] sAttach, int iMaxLen)
+stock void CostumesGetAttach(const int iD, char[] sAttach, const int iMaxLen)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
@@ -599,7 +598,7 @@ stock void CostumesGetAttach(int iD, char[] sAttach, int iMaxLen)
  * @param sFlags            The string to return flags in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void CostumesGetAccess(int iD, char[] sFlags, int iMaxLen)
+stock void CostumesGetAccess(const int iD, char[] sFlags, const int iMaxLen)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
@@ -614,7 +613,7 @@ stock void CostumesGetAccess(int iD, char[] sFlags, int iMaxLen)
  * @param iD                The costume index.
  * @return                  True if costume is hided, false if not.
  **/
-stock bool CostumesIsHide(int iD)
+stock bool CostumesIsHide(const int iD)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
@@ -632,7 +631,7 @@ stock bool CostumesIsHide(int iD)
  *
  * @param clientIndex       The client index.
  **/
-void CostumesMenu(int clientIndex)
+void CostumesMenu(const int clientIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -707,7 +706,7 @@ void CostumesMenu(int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -767,7 +766,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, in
  *
  * @param clientIndex       The client index.
  **/
-public MRESReturn CostumesDhookOnSetEntityModel(int clientIndex)
+public MRESReturn CostumesDhookOnSetEntityModel(const int clientIndex)
 {
     // Update costume
     CostumesCreateEntity(clientIndex);
@@ -779,7 +778,7 @@ public MRESReturn CostumesDhookOnSetEntityModel(int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-public void CostumesCreateEntity(int clientIndex)
+public void CostumesCreateEntity(const int clientIndex)
 {
     // Validate client
     if(IsPlayerExist(clientIndex))
@@ -879,7 +878,7 @@ public void CostumesCreateEntity(int clientIndex)
  * @param entityIndex       The entity index.
  * @param clientIndex       The client index.
  **/
-public Action CostumesOnTransmit(int entityIndex , int clientIndex)
+public Action CostumesOnTransmit(const int entityIndex, const int clientIndex)
 {
     // Validate addons
     if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentCostume]) == entityIndex)

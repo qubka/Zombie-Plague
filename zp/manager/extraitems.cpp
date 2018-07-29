@@ -79,7 +79,7 @@ void ExtraItemsOnCommandsCreate(/*void*/)
  * @param clientIndex        The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ExtraItemsCommandCatched(int clientIndex, int iArguments)
+public Action ExtraItemsCommandCatched(const int clientIndex, const int iArguments)
 {
     // Open the extra items menu
     ExtraItemsMenu(clientIndex);
@@ -95,7 +95,7 @@ public Action ExtraItemsCommandCatched(int clientIndex, int iArguments)
  *
  * native bool ZP_GiveClientExtraItem(clientIndex, iD);
  **/
-public int API_GiveClientExtraItem(Handle isPlugin, int iNumParams)
+public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -137,7 +137,7 @@ public int API_GiveClientExtraItem(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientExtraItemLimit(clientIndex, iD, limit);
  **/
-public int API_SetClientExtraItemLimit(Handle isPlugin, int iNumParams)
+public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -171,7 +171,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientExtraItemLimit(clientIndex, iD);
  **/
-public int API_GetClientExtraItemLimit(Handle isPlugin, int iNumParams)
+public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -202,7 +202,7 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, int iNumParams)
  *
  * native int ZP_RegisterExtraItem(name, cost, team, level, online, limit)
  **/
-public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
+public int API_RegisterExtraItem(Handle isPlugin, const int iNumParams)
 {
     // If array hasn't been created, then create
     if(arrayExtraItems == INVALID_HANDLE)
@@ -274,7 +274,7 @@ public int API_RegisterExtraItem(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetNumberExtraItem();
  **/
-public int API_GetNumberExtraItem(Handle isPlugin, int iNumParams)
+public int API_GetNumberExtraItem(Handle isPlugin, const int iNumParams)
 {
     return arrayExtraItems.Length;
 }
@@ -284,7 +284,7 @@ public int API_GetNumberExtraItem(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetExtraItemName(iD, sName, maxLen);
  **/
-public int API_GetExtraItemName(Handle isPlugin, int iNumParams)
+public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -319,7 +319,7 @@ public int API_GetExtraItemName(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetExtraItemCost(iD);
  **/
-public int API_GetExtraItemCost(Handle isPlugin, int iNumParams)
+public int API_GetExtraItemCost(Handle isPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -340,7 +340,7 @@ public int API_GetExtraItemCost(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetExtraItemLevel(iD);
  **/
-public int API_GetExtraItemLevel(Handle isPlugin, int iNumParams)
+public int API_GetExtraItemLevel(Handle isPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -361,7 +361,7 @@ public int API_GetExtraItemLevel(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetExtraItemOnline(iD);
  **/
-public int API_GetExtraItemOnline(Handle isPlugin, int iNumParams)
+public int API_GetExtraItemOnline(Handle isPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -382,7 +382,7 @@ public int API_GetExtraItemOnline(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetExtraItemLimit(iD);
  **/
-public int API_GetExtraItemLimit(Handle isPlugin, int iNumParams)
+public int API_GetExtraItemLimit(Handle isPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -403,7 +403,7 @@ public int API_GetExtraItemLimit(Handle isPlugin, int iNumParams)
  *
  * native void ZP_PrintExtraItemInfo(clientIndex, iD);
  **/
-public int API_PrintExtraItemInfo(Handle isPlugin, int iNumParams)
+public int API_PrintExtraItemInfo(Handle isPlugin, const int iNumParams)
 {
     // If help messages disable, then stop 
     if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
@@ -457,7 +457,7 @@ public int API_PrintExtraItemInfo(Handle isPlugin, int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void ItemsGetName(int iD, char[] sName, int iMaxLen)
+stock void ItemsGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
@@ -472,7 +472,7 @@ stock void ItemsGetName(int iD, char[] sName, int iMaxLen)
  * @param iD                The item index.
  * @return                  The ammo price.    
  **/
-stock int ItemsGetCost(int iD)
+stock int ItemsGetCost(const int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
@@ -487,7 +487,7 @@ stock int ItemsGetCost(int iD)
  * @param iD                The item index.
  * @return                  The level value.    
  **/
-stock int ItemsGetLevel(int iD)
+stock int ItemsGetLevel(const int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
@@ -502,7 +502,7 @@ stock int ItemsGetLevel(int iD)
  * @param iD                The item index.
  * @return                  The online value.    
  **/
-stock int ItemsGetOnline(int iD)
+stock int ItemsGetOnline(const int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
@@ -516,7 +516,7 @@ stock int ItemsGetOnline(int iD)
  * @param iD                The item index.
  * @return                  The limit value.    
  **/
-stock int ItemsGetLimit(int iD)
+stock int ItemsGetLimit(const int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
@@ -530,7 +530,7 @@ stock int ItemsGetLimit(int iD)
  *
  * @param clientIndex       The client index.
  **/
-stock void ItemsRemoveLimits(int clientIndex)
+stock void ItemsRemoveLimits(const int clientIndex)
 {
     // If array hasn't been created, then skip
     if(arrayExtraItems != INVALID_HANDLE)
@@ -550,7 +550,7 @@ stock void ItemsRemoveLimits(int clientIndex)
  * @param iD                The item index.
  * @param nLimit            The limit value.    
  **/
-stock void ItemsSetLimits(int clientIndex, int iD, int nLimit)
+stock void ItemsSetLimits(const int clientIndex, const int iD, const int nLimit)
 {
     // Sets buy limit for the client
     gExtraBuyLimit[clientIndex][iD] = nLimit;
@@ -562,7 +562,7 @@ stock void ItemsSetLimits(int clientIndex, int iD, int nLimit)
  * @param clientIndex       The client index.
  * @param iD                The item index.
  **/
-stock int ItemsGetLimits(int clientIndex, int iD)
+stock int ItemsGetLimits(const int clientIndex, const int iD)
 {
     // Gets buy limit for the client
     return gExtraBuyLimit[clientIndex][iD];
@@ -577,7 +577,7 @@ stock int ItemsGetLimits(int clientIndex, int iD)
  *  
  * @param clientIndex        The client index.
  **/ 
-void ExtraItemsMenu(int clientIndex)
+void ExtraItemsMenu(const int clientIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -650,7 +650,7 @@ void ExtraItemsMenu(int clientIndex)
  * @param clientIndex        The client index.
  * @param mSlot              The slot index selected (starting from 0).
  **/ 
-public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)

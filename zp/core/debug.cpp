@@ -40,7 +40,7 @@ void DebugOnCommandsCreate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action DebugCommandCatched(int clientIndex, int iArguments)
+public Action DebugCommandCatched(const int clientIndex, const int iArguments)
 {
     // Check if privileged, then continue
     if (!IsPlayerHasFlag(clientIndex, Admin_Generic))

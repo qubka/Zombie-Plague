@@ -78,8 +78,8 @@ enum ZPSelectType
 /**
  * @brief Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex        The client index.
- * @param attackerIndex      The attacker index.
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
  *
  * @noreturn
  **/
@@ -88,7 +88,7 @@ forward void ZP_OnClientInfected(int clientIndex, int attackerIndex);
 /**
  * @brief Called when a client became a human/survivor.
  * 
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *
  * @noreturn
  **/
@@ -97,10 +97,10 @@ forward void ZP_OnClientHumanized(int clientIndex);
 /**
  * @brief Called when a client take a fake damage.
  * 
- * @param clientIndex        The client index.
- * @param attackerIndex      The attacker index.
- * @param damageAmount       The amount of damage inflicted.
- * @param damageType         The ditfield of damage types
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param damageAmount      The amount of damage inflicted.
+ * @param damageType        The ditfield of damage types
  *
  * @noreturn
  **/
@@ -109,9 +109,9 @@ forward void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damag
 /**
  * @brief Called when a client use a zombie skill.
  * 
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *
- * @return                   Plugin_Handled or Plugin_Stop to block using skill. Anything else
+ * @return                  Plugin_Handled or Plugin_Stop to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
 forward Action ZP_OnClientSkillUsed(int clientIndex);
@@ -119,7 +119,7 @@ forward Action ZP_OnClientSkillUsed(int clientIndex);
 /**
  * @brief Called when a zombie skill duration is over.
  * 
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *
  * @noreturn
  **/
@@ -148,62 +148,62 @@ forward void ZP_OnEngineExecute(/*void*/);
 /**
  * @brief Returns whether a player is allowed to do a certain operation or not.
  *
- * @param clientIndex        The client index.
- * @param flag               The access flag. See enum AdminFlag.
+ * @param clientIndex       The client index.
+ * @param flag              The access flag. See enum AdminFlag.
  *  
- * @return                   True or false.
+ * @return                  True or false.
  **/
 native bool ZP_IsPlayerPrivileged(int clientIndex, AdminFlag flag);
 
 /**
  * @brief Returns true if the player is a zombie, false if not. 
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   True or false.
+ * @return                  True or false.
  **/
 native bool ZP_IsPlayerZombie(int clientIndex);
 
 /**
  * @brief Returns true if the player is a human, false if not.
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   True or false.
+ * @return                  True or false.
  **/
 native bool ZP_IsPlayerHuman(int clientIndex);
 
 /**
  * @brief Returns true if the player is a nemesis, false if not. (In addition, Nemesis always have ZP_IsPlayerZombie() native)
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   True or false.
+ * @return                  True or false.
  **/
 native bool ZP_IsPlayerNemesis(int clientIndex);
 
 /**
  * @brief Returns true if the player is a survivor, false if not.
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   True or false.
+ * @return                  True or false.
  **/
 native bool ZP_IsPlayerSurvivor(int clientIndex);
 
 /**
  * @brief Returns true if the player use a zombie skill, false if not. 
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   True or false.
+ * @return                  True or false.
  **/
 native bool ZP_IsPlayerUseZombieSkill(int clientIndex);
 
 /**
  * @brief Force to respawn a player.
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
  * @noreturn
  **/
@@ -212,9 +212,9 @@ native void ZP_ForceClientRespawn(int clientIndex);
 /**
  * @brief Force to switch a player's class.
  *
- * @param clientIndex        The client index.
- * @param attackerIndex      (Optional) The attacker index.
- * @param typeIndex          The class type. See enum ZPClassType.
+ * @param clientIndex       The client index.
+ * @param attackerIndex     (Optional) The attacker index.
+ * @param typeIndex         The class type. See enum ZPClassType.
  *  
  * @noreturn
  **/
@@ -223,17 +223,17 @@ native void ZP_SwitchClientClass(int clientIndex, int attackerIndex = 0, ZPClass
 /**
  * @brief Gets the player's amount of ammopacks.
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   The number of ammopacks.
+ * @return                  The number of ammopacks.
  **/
 native int ZP_GetClientAmmoPack(int clientIndex);
 
 /**
  * @brief Sets the player's amount of ammopacks.
  *
- * @param clientIndex        The client index.
- * @param amountAmmo         The number of ammopacks.
+ * @param clientIndex       The client index.
+ * @param amountAmmo        The number of ammopacks.
  *  
  * @noreturn
  **/
@@ -242,17 +242,17 @@ native void ZP_SetClientAmmoPack(int clientIndex, int amountAmmo);
 /**
  * @brief Gets the player's amount of previous ammopacks spended.
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   The number of ammopacks.
+ * @return                  The number of ammopacks.
  **/
 native int ZP_GetClientLastBought(int clientIndex);
 
 /**
  * @brief Sets the player's amount of ammopacks spending.
  *
- * @param clientIndex        The client index.
- * @param amountAmmo         The number of ammopacks.
+ * @param clientIndex       The client index.
+ * @param amountAmmo        The number of ammopacks.
  *  
  * @noreturn
  **/
@@ -261,17 +261,17 @@ native void ZP_SetClientLastBought(int clientIndex, int amountAmmo);
 /**
  * @brief Gets the player's level.
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   The number of level.
+ * @return                  The number of level.
  **/
 native int ZP_GetClientLevel(int clientIndex);
 
 /**
  * @brief Sets the player's level.
  *
- * @param clientIndex        The client index.
- * @param amountLevel        The number of level.
+ * @param clientIndex       The client index.
+ * @param amountLevel       The number of level.
  *  
  * @noreturn
  **/
@@ -280,19 +280,19 @@ native int ZP_SetClientLevel(int clientIndex, int amountLevel);
 /**
  * @brief Gets the player's exp.
  *
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  *  
- * @return                   The number of exp.
+ * @return                  The number of exp.
  **/
 native int ZP_GetClientExp(int clientIndex);
 
 /**
  * @brief Sets the player's exp.
  *
- * @param clientIndex        The client index.
- * @param amountExp          The number of exp.
+ * @param clientIndex       The client index.
+ * @param amountExp         The number of exp.
  *  
- * @return                   True if the sound was emit, false otherwise.
+ * @return                  True if the sound was emit, false otherwise.
  **/
 native int ZP_SetClientExp(int clientIndex, int amountExp);
 
@@ -585,4 +585,98 @@ stock void FakeCreateFadeScreen(const int clientIndex, const float flDuration, c
         // End usermsg and send to client
         EndMessage();
     }
+}
+
+/**
+ * @brief Dispatch an attached effect.
+ * 
+ * @param entityIndex       (Optional) The entity index.
+ * @param sParticle         (Optional) The particle name.
+ * @param sItem             (Optional) The particle item.
+ * @param vStart            (Optional) The start origin.
+ * @param vEnd              (Optional) The end origin.
+ * @param vAngle            (Optional) The angle vector.
+ * @param iAttachment       (Optional) The attachment index.
+ **/
+stock void FakeDispatchEffect(const int entityIndex = INVALID_ENT_REFERENCE, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
+{
+    #define PATTACH_WORLDORIGIN 5
+    #define PARTICLE_DISPATCH_FROM_ENTITY (1 << 0)
+    
+    // Dispatch effect
+    TE_Start("EffectDispatch");
+    if(IsValidEdict(entityIndex)) TE_WriteNum("entindex", entityIndex);
+    TE_WriteFloatArray("m_vStart.x", vStart, 3);
+    TE_WriteFloatArray("m_vOrigin.x", vEnd, 3);
+    TE_WriteVector("m_vAngles", vAngle);
+    if(strlen(sParticle)) TE_WriteNum("m_nHitBox", GetParticleEffectIndex(sParticle)); 
+    if(strlen(sIndex)) TE_WriteNum("m_iEffectName", GetEffectIndex(sIndex));
+    if(iAttachment) 
+    {
+        TE_WriteNum("m_nDamageType", PATTACH_WORLDORIGIN);
+        TE_WriteNum("m_fFlags", PARTICLE_DISPATCH_FROM_ENTITY); /// https://developer.valvesoftware.com/wiki/SDK_Known_Issues_List_Fixed#Server%20Dispatching%20an%20Attached%20Particle%20Effect
+        TE_WriteNum("m_nAttachmentIndex", iAttachment);
+    }
+}
+
+/**
+ * @brief Searches for the index of a given string in a dispatch table.
+ *
+ * @param sEffect           The effect name.
+ * @return                  The item index.
+ **/
+stock int GetEffectIndex(const char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("EffectDispatch");
+    }
+
+    // Searches for the index of a given string in a string table
+    int itemIndex = FindStringIndex(tableIndex, sEffect);
+
+    // Validate item
+    if(itemIndex != INVALID_STRING_INDEX)
+    {
+        return itemIndex;
+    }
+
+    // Return on the unsuccess
+    return 0;
+}
+
+/**
+ * @brief Searches for the index of a given string in an effect table.
+ *
+ * @param sEffect           The effect name.
+ * @return                  The item index.
+ **/
+stock int GetParticleEffectIndex(const char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ParticleEffectNames");
+    }
+
+    // Searches for the index of a given string in a string table
+    int itemIndex = FindStringIndex(tableIndex, sEffect);
+
+    // Validate item
+    if(itemIndex != INVALID_STRING_INDEX)
+    {
+        return itemIndex;
+    }
+
+    // Return on the unsuccess
+    return 0;
 }

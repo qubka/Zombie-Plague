@@ -66,7 +66,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false)) /// Use that to customize 'sm_cvar healthshot_health 10'
     {
-        // Initilizate extra item
+        // Initialize extra item
         gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
     }
 }
@@ -76,7 +76,7 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Initilizate weapon
+    // Initialize weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 }

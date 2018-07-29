@@ -82,7 +82,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate extra item
+        // Initialize extra item
         gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
         
         // Hook entity events
@@ -104,7 +104,7 @@ public void OnPluginStart(/*void*/)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Initilizate weapon
+    // Initialize weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
@@ -184,7 +184,7 @@ public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action TanadeTouchHook(int entityIndex, int targetIndex)
+public Action TanadeTouchHook(const int entityIndex, const int targetIndex)
 {
     // Validate attaching
     return (IsValidEdict(entityIndex) && GRENADE_INFECT_ATTACH) ? Plugin_Continue : Plugin_Handled;

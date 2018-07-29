@@ -30,7 +30,7 @@
  * 
  * @param clientIndex       The client index.  
  **/
-void DamageClientInit(int clientIndex)
+void DamageClientInit(const int clientIndex)
 {
     // Hook damage callbacks
     SDKHook(clientIndex, SDKHook_TraceAttack,  DamageOnTraceAttack);
@@ -50,7 +50,7 @@ void DamageClientInit(int clientIndex)
  * @param hitroupBox        The hitbox index.  
  * @param hitgroupIndex     The hitgroup index.  
  **/
-public Action DamageOnTraceAttack(int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits, int &ammoType, int hitroupBox, int hitgroupIndex)
+public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits, int &ammoType, int hitroupBox, int hitgroupIndex)
 {
     // If gamemodes enable, then validate state
     if(gCvarList[CVAR_GAME_CUSTOM_START].IntValue)
@@ -77,7 +77,7 @@ public Action DamageOnTraceAttack(int victimIndex, int &attackerIndex, int &infl
         return Plugin_Handled;
     }
 
-    // If damage hitgroups cvar is disabled, then allow damage
+    // If damage hitgroups disabled, then allow damage
     if(!gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
     {
         // Allow trace
@@ -115,7 +115,7 @@ public Action DamageOnTraceAttack(int victimIndex, int &attackerIndex, int &infl
  * @param damageAmount      The amount of damage inflicted.
  * @param damageBits        The type of damage inflicted.
  **/
-public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits)
+public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits)
 {
     //*********************************************************************
     //*                   VALIDATION OF THE INFLICTOR                     *
@@ -178,9 +178,10 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
         // Initialize additional knockback multiplier for zombie
         float knockbackAmount = ZombieGetKnockBack(gClientData[victimIndex][Client_ZombieClass]);
 
-        // Apply hitgrops damage multiplier
+        // If damage hitgroups enabled, then apply multiplier
         if(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
         {
+            // Validate hitgroup index
             int iHitIndex = HitgroupToIndex(GetEntData(victimIndex, g_iOffset_PlayerHitGroup));
             if(iHitIndex != -1)
             {
@@ -203,7 +204,7 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
             }
         }
         
-        // Apply level damage multiplier
+        // If level system enabled, then apply multiplier
         if(gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
         {
             damageAmount *= float(gClientData[attackerIndex][Client_Level]) * gCvarList[CVAR_LEVEL_DAMAGE_RATIO].FloatValue + 1.0;
@@ -265,7 +266,7 @@ public Action DamageOnTakeDamage(int victimIndex, int &attackerIndex, int &infli
  * @param damageAmount      The amount of damage inflicted. 
  * @param damageBits        The type of damage inflicted.
  **/
-stock Action DamageOnClientFakeDamage(int clientIndex, float damageAmount, int damageBits)
+stock Action DamageOnClientFakeDamage(const int clientIndex, const float damageAmount, const int damageBits)
 {
     // Verify that the damage is positive
     if(!damageAmount)
@@ -315,7 +316,7 @@ stock Action DamageOnClientFakeDamage(int clientIndex, float damageAmount, int d
  * @param attackerIndex     The attacker index.
  * @param damageAmount      The amount of damage inflicted. 
  **/
-stock Action DamageOnClientInfect(int victimIndex, int attackerIndex, float damageAmount)
+stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex, const float damageAmount)
 {
     // Last human need to be killed ?
     if(!gCvarList[CVAR_HUMAN_LAST_INFECTION].BoolValue && fnGetHumans() <= 1)
@@ -358,7 +359,7 @@ stock Action DamageOnClientInfect(int victimIndex, int attackerIndex, float dama
  * @param attackerIndex     The attacker index.
  * @param knockbackAmount   The knockback multiplier.
  **/
-stock void DamageOnClientKnockBack(int victimIndex, int attackerIndex, float knockbackAmount)
+stock void DamageOnClientKnockBack(const int victimIndex, const int attackerIndex, const float knockbackAmount)
 {
     // If nemesis knockback disabled, then stop
     if(!gCvarList[CVAR_NEMESIS_KNOCKBACK].BoolValue && gClientData[victimIndex][Client_Nemesis])
@@ -367,28 +368,36 @@ stock void DamageOnClientKnockBack(int victimIndex, int attackerIndex, float kno
     }
 
     // Initialize vectors
-    static float vClientLoc[3]; static float vEyeAngle[3]; static float vAttackerLoc[3]; static float vVelocity[3];
+    static float vEntAngle[3]; static float vEntPosition[3]; static float vBulletPosition[3]; static float vVelocity[3]; 
 
-    // Gets victim and attacker position
-    GetClientAbsOrigin(victimIndex, vClientLoc);
-    GetClientEyeAngles(attackerIndex, vEyeAngle);
-    GetClientEyePosition(attackerIndex, vAttackerLoc);
+    // Gets the attacker position
+    GetClientEyeAngles(attackerIndex, vEntAngle);
+    GetClientEyePosition(attackerIndex, vEntPosition);
 
-    // Calculate knockback end-vector
-    TR_TraceRayFilter(vAttackerLoc, vEyeAngle, MASK_ALL, RayType_Infinite, FilterNoPlayers);
-    TR_GetEndPosition(vClientLoc);
+    // Create the infinite trace
+    Handle hTrace = TR_TraceRayFilterEx(vEntPosition, vEntAngle, MASK_SHOT, RayType_Infinite, TraceFilter, attackerIndex);
 
-    // Gets vector from the given starting and ending points
-    MakeVectorFromPoints(vAttackerLoc, vClientLoc, vVelocity);
+    // Validate trace
+    if(TR_GetEntityIndex(hTrace) == victimIndex)
+    {
+        // Gets the hit point
+        TR_GetEndPosition(vBulletPosition, hTrace);
 
-    // Normalize the vector (equal magnitude at varying distances)
-    NormalizeVector(vVelocity, vVelocity);
+        // Gets vector from the given starting and ending points
+        MakeVectorFromPoints(vEntPosition, vBulletPosition, vVelocity);
 
-    // Apply the magnitude by scaling the vector
-    ScaleVector(vVelocity, knockbackAmount);
+        // Normalize the vector (equal magnitude at varying distances)
+        NormalizeVector(vVelocity, vVelocity);
 
-    // ADD the given vector to the client current velocity
-    ToolsClientVelocity(victimIndex, vVelocity);
+        // Apply the magnitude by scaling the vector
+        ScaleVector(vVelocity, knockbackAmount);
+
+        // Adds the given vector to the client current velocity
+        ToolsClientVelocity(victimIndex, vVelocity);
+    }
+    
+    // Close the trace
+    delete hTrace;
 }
 
 /**
@@ -397,7 +406,7 @@ stock void DamageOnClientKnockBack(int victimIndex, int attackerIndex, float kno
  * @param clientIndex       The client index.
  * @param damageAmount      The amount of damage inflicted. 
  **/
-stock void DamageOnClientAmmo(int clientIndex, float damageAmount)
+stock void DamageOnClientAmmo(const int clientIndex, const float damageAmount)
 {
     // Initialize client applied damage
     static int nAppliedDamage[MAXPLAYERS+1];
@@ -436,7 +445,7 @@ stock void DamageOnClientAmmo(int clientIndex, float damageAmount)
  * @param clientIndex       The client index.
  * @param damageAmount      The amount of damage inflicted. 
  **/
-stock void DamageOnClientExp(int clientIndex, float damageAmount)
+stock void DamageOnClientExp(const int clientIndex, const float damageAmount)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -484,11 +493,12 @@ stock void DamageOnClientExp(int clientIndex, float damageAmount)
  *  
  * @param entityIndex       The entity index.
  * @param contentsMask      The contents mask.
+ * @param clientIndex       The client index.
  *
  * @return                  True or false.
  **/
-public bool FilterNoPlayers(int entityIndex, int contentsMask)
+public bool TraceFilter(const int entityIndex, const int contentsMask, const int clientIndex)
 {
     // If entity is a player, continue tracing
-    return !(1 <= entityIndex <= MaxClients);
+    return (1 <= entityIndex <= MaxClients && entityIndex != clientIndex);
 }

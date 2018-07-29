@@ -88,6 +88,7 @@ enum LogModules
     bool:LogModule_Sounds,
     bool:LogModule_Downloads,
     bool:LogModule_Weapons,
+    bool:LogModule_Effects,
     bool:LogModule_Menus,
     bool:LogModule_Hitgroups,
     bool:LogModule_Antistick,
@@ -180,6 +181,10 @@ LogModules LogGetModule(char[] sModuleName)
     else if(!strcmp(sModuleName, "weapons", false))
     {
         return LogModule_Weapons;
+    }
+    else if(!strcmp(sModuleName, "effects", false))
+    {
+        return LogModule_Effects;
     }
     else if(!strcmp(sModuleName, "menus", false))
     {
@@ -309,11 +314,15 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModules iModule, bool
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "downloads") : strcopy(sBuffer, iMaxLen, "Downloads");
         }
-        case LogModule_Weapons:
+        case LogModule_Weapons :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "weapons") : strcopy(sBuffer, iMaxLen, "Weapons");
         }
-        case LogModule_Menus:
+        case LogModule_Effects :
+        {
+            return shortName ? strcopy(sBuffer, iMaxLen, "effects") : strcopy(sBuffer, iMaxLen, "Effects");
+        }
+        case LogModule_Menus :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "menus") : strcopy(sBuffer, iMaxLen, "Menus");
         }
@@ -643,7 +652,7 @@ public Action Command_LogList(int clientIndex, int iArguments)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action Command_LogAddModule(int clientIndex, int iArguments)
+public Action Command_LogAddModule(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];
@@ -702,7 +711,7 @@ public Action Command_LogAddModule(int clientIndex, int iArguments)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action Command_LogRemoveModule(int clientIndex, int iArguments)
+public Action Command_LogRemoveModule(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];

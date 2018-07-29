@@ -31,6 +31,7 @@
 Handle hSDKCallTerminateRound;
 Handle hSDKCallSwitchTeam;
 Handle hSDKCallRoundRespawn;
+///Handle hSDKCallFindEntityInSphere;
 
 // Tools Functions (core)
 #include "zp/game/tools_functions.cpp"
@@ -126,4 +127,21 @@ void ToolsSetupGameData(/*void*/)
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RoundRespawn\". Update \"SourceMod\"");
     }
+
+    // Starts the preparation of an SDK call
+    /*StartPrepSDKCall(SDKCall_EntityList);
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Signature, "FindEntityInSphere");
+
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByValue);
+    PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
+    PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity , SDKPass_Pointer);
+    
+    //  Validate call
+    if(!(hSDKCallFindEntityInSphere = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CGlobalEntityList::FindEntityInSphere\". Update signature in \"%s\"", PLUGIN_CONFIG);
+    }*/
 }

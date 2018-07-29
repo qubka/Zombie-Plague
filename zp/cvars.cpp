@@ -556,10 +556,10 @@ void CvarsCreate(/*void*/)
     // =========================== //
     //           Resources         //
     // =========================== //
-    gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE]         = CreateConVar("zp_veffects_hud_zombie",            "overlays/zp/zg_zombies_win",                                      "[\"\"-disabled] Overlay, relative to \"materials\" folder, to display when zombies win the round. This file is automatically downloaded to clients"); 
-    gCvarList[CVAR_VEFFECTS_HUD_HUMAN]          = CreateConVar("zp_veffects_hud_human",             "overlays/zp/zg_humans_win",                                       "[\"\"-disabled] Overlay, relative to \"materials\" folder, to display when humans win the round. This file is automatically downloaded to clients");
-    gCvarList[CVAR_VEFFECTS_HUD_DRAW]           = CreateConVar("zp_veffects_hud_draw",              "",                                                                "[\"\"-disabled] Overlay, relative to \"materials\" folder, to display when the round draw. This file is automatically downloaded to clients");
-    gCvarList[CVAR_VEFFECTS_HUD_VISION]         = CreateConVar("zp_veffects_hud_vision",            "overlays/zp/zvision",                                             "[\"\"-default nightvision] Overlay, relative to \"materials\" folder, to display when humans win the round. This file is automatically downloaded to clients");
+    gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE]         = CreateConVar("zp_veffects_hud_zombie",            "overlays/zp/zg_zombies_win.vmt",                                   "[\"\"-disabled] Overlay (.vmt), relative to \"materials\" folder, to display when zombies win the round. This file is automatically downloaded to clients"); 
+    gCvarList[CVAR_VEFFECTS_HUD_HUMAN]          = CreateConVar("zp_veffects_hud_human",             "overlays/zp/zg_humans_win.vmt",                                    "[\"\"-disabled] Overlay (.vmt), relative to \"materials\" folder, to display when humans win the round. This file is automatically downloaded to clients");
+    gCvarList[CVAR_VEFFECTS_HUD_DRAW]           = CreateConVar("zp_veffects_hud_draw",              "",                                                                 "[\"\"-disabled] Overlay (.vmt), relative to \"materials\" folder, to display when the round draw. This file is automatically downloaded to clients");
+    gCvarList[CVAR_VEFFECTS_HUD_VISION]         = CreateConVar("zp_veffects_hud_vision",            "overlays/zp/zvision.vmt",                                          "[\"\"-default nightvision] Overlay (.vmt), relative to \"materials\" folder, to display when humans win the round. This file is automatically downloaded to clients");
     
     // =========================== //
     //         Sound Effects       //
@@ -813,10 +813,10 @@ public void CvarsHookZombieVision(ConVar hConVar, const char[] oldValue, const c
  * @param hConVar           Handle to the convar.
  * @param iValue            New integer value.
  **/
-stock void CvarsOnCheatSet(ConVar hConVar, int iValue) 
+stock void CvarsOnCheatSet(ConVar hConVar, const int iValue) 
 {
     // Revert to locked value
     hConVar.Flags = hConVar.Flags & ~FCVAR_CHEAT;
-    hConVar.IntValue = 0;
+    hConVar.IntValue = iValue;
     //hConVar.Flags = hConVar.Flags | FCVAR_PROTECTED;  -> Sent errors to console!
 }

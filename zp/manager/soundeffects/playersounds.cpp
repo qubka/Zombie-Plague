@@ -144,7 +144,7 @@ void PlayerSoundsOnLoad(/*void*/)
  *
  * @param CReason           Reason the round has ended.
  **/
-public Action PlayerSoundsOnRoundEnd(Handle hTimer, int CReason)
+public Action PlayerSoundsOnRoundEnd(Handle hTimer, const int CReason)
 {
     // Switch end round reason
     switch(CReason)
@@ -161,7 +161,7 @@ public Action PlayerSoundsOnRoundEnd(Handle hTimer, int CReason)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientDeath(int clientIndex)
+void PlayerSoundsOnClientDeath(const int clientIndex)
 {
     // If death sound cvar is disabled, then stop
     bool bDeath = gCvarList[CVAR_SEFFECTS_DEATH].BoolValue;
@@ -189,7 +189,7 @@ void PlayerSoundsOnClientDeath(int clientIndex)
  * @param clientIndex       The client index.
  * @param bBurning          The burning type of damage. 
  **/
-void PlayerSoundsOnClientHurt(int clientIndex, bool bBurning)
+void PlayerSoundsOnClientHurt(const int clientIndex, const bool bBurning)
 {
     // Gets groan factor, if 0, then stop
     int iGroan = gCvarList[CVAR_SEFFECTS_GROAN].IntValue;
@@ -233,7 +233,7 @@ void PlayerSoundsOnClientHurt(int clientIndex, bool bBurning)
  * @param clientIndex       The client index.
  * @param respawnMode       (Optional) Indicates that infection was on spawn.
  **/
-void PlayerSoundsOnClientInfected(int clientIndex, bool respawnMode)
+void PlayerSoundsOnClientInfected(const int clientIndex, const bool respawnMode)
 {
     // If infect sound cvar is disabled, then skip
     if(gCvarList[CVAR_SEFFECTS_INFECT].BoolValue) 
@@ -270,7 +270,7 @@ void PlayerSoundsOnClientInfected(int clientIndex, bool respawnMode)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action PlayerSoundsMoanTimer(Handle hTimer, int userID)
+public Action PlayerSoundsMoanTimer(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -297,7 +297,7 @@ public Action PlayerSoundsMoanTimer(Handle hTimer, int userID)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientRegen(int clientIndex)
+void PlayerSoundsOnClientRegen(const int clientIndex)
 {
     // Emit zombie regen sound
     SoundsInputEmit(clientIndex, SNDCHAN_VOICE, ZombieGetSoundRegenID(gClientData[clientIndex][Client_ZombieClass]));
@@ -308,7 +308,7 @@ void PlayerSoundsOnClientRegen(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientFlashLight(int clientIndex)
+void PlayerSoundsOnClientFlashLight(const int clientIndex)
 {
     // Emit player flashlight sound
     SoundsInputEmit(clientIndex, SNDCHAN_VOICE, gServerKey[Player_Flashlight]);
@@ -319,7 +319,7 @@ void PlayerSoundsOnClientFlashLight(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientAmmunition(int clientIndex)
+void PlayerSoundsOnClientAmmunition(const int clientIndex)
 {
     // Emit player ammunition sound
     SoundsInputEmit(clientIndex, SNDCHAN_VOICE, gServerKey[Player_Ammunition]);
@@ -330,7 +330,7 @@ void PlayerSoundsOnClientAmmunition(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientLevelUp(int clientIndex)
+void PlayerSoundsOnClientLevelUp(const int clientIndex)
 {
     // Emit player levelup sound
     SoundsInputEmit(clientIndex, SNDCHAN_VOICE, gServerKey[Player_Level]);

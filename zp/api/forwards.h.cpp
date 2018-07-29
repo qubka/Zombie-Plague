@@ -56,8 +56,8 @@ Handle gForwardsList[ForwardsList];
  **/
 void APIForwardsInit(/*void*/)
 {
-    gForwardsList[OnClientInfected]        = CreateGlobalForward("ZP_OnClientInfected", ET_Ignore, Param_Cell, Param_Cell);
-    gForwardsList[OnClientHumanized]       = CreateGlobalForward("ZP_OnClientHumanized", ET_Ignore, Param_Cell);
+    gForwardsList[OnClientInfected]        = CreateGlobalForward("ZP_OnClientInfected", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnClientHumanized]       = CreateGlobalForward("ZP_OnClientHumanized", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
     gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_FloatByRef, Param_Cell);
     gForwardsList[OnClientValidateItem]    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientBuyItem]         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
@@ -68,7 +68,7 @@ void APIForwardsInit(/*void*/)
     gForwardsList[OnClientSkillUsed]       = CreateGlobalForward("ZP_OnClientSkillUsed", ET_Hook, Param_Cell);
     gForwardsList[OnClientSkillOver]       = CreateGlobalForward("ZP_OnClientSkillOver", ET_Ignore, Param_Cell);
     gForwardsList[OnWeaponCreated]         = CreateGlobalForward("ZP_OnWeaponCreated", ET_Ignore, Param_Cell, Param_Cell);
-    gForwardsList[OnZombieModStarted]      = CreateGlobalForward("ZP_OnZombieModStarted", ET_Ignore);
+    gForwardsList[OnZombieModStarted]      = CreateGlobalForward("ZP_OnZombieModStarted", ET_Ignore, Param_Cell);
     gForwardsList[OnEngineExecute]         = CreateGlobalForward("ZP_OnEngineExecute", ET_Ignore);
 }
 
@@ -77,8 +77,10 @@ void APIForwardsInit(/*void*/)
  * 
  * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-void API_OnClientInfected(int victimIndex, int attackerIndex)
+void API_OnClientInfected(const int victimIndex, const int attackerIndex, const bool nemesisMode = false, const bool respawnMode = false)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientInfected]);
@@ -86,6 +88,8 @@ void API_OnClientInfected(int victimIndex, int attackerIndex)
     // Push the parameters
     Call_PushCell(victimIndex);
     Call_PushCell(attackerIndex);
+    Call_PushCell(nemesisMode);
+    Call_PushCell(respawnMode);
     
     // Finish the call
     Call_Finish();
@@ -95,14 +99,18 @@ void API_OnClientInfected(int victimIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-void API_OnClientHumanized(int clientIndex)
+void API_OnClientHumanized(const int clientIndex, const bool survivorMode = false, const bool respawnMode = false)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientHumanized]);
 
     // Push the parameters
     Call_PushCell(clientIndex);
+    Call_PushCell(survivorMode);
+    Call_PushCell(respawnMode);
 
     // Finish the call
     Call_Finish();
@@ -116,7 +124,7 @@ void API_OnClientHumanized(int clientIndex)
  * @param damageAmount      The amount of damage inflicted.
  * @param damageType        The ditfield of damage types
  **/
-void API_OnClientDamaged(int victimIndex, int attackerIndex, float &damageAmount, int damageType)
+void API_OnClientDamaged(const int victimIndex, const int attackerIndex, float &damageAmount, const int damageType)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientDamaged]);
@@ -140,7 +148,7 @@ void API_OnClientDamaged(int victimIndex, int attackerIndex, float &damageAmount
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-Action API_OnClientValidateExtraItem(int clientIndex, int itemIndex)
+Action API_OnClientValidateExtraItem(const int clientIndex, const int itemIndex)
 {
     // Initialize future result
     Action resultHandle;
@@ -168,7 +176,7 @@ Action API_OnClientValidateExtraItem(int clientIndex, int itemIndex)
  * @return                  Plugin_Handled or Plugin_Stop to block purhase. Anything else
  *                                 (like Plugin_Continue) to allow purhase and withdraw ammopacks.
  **/
-void API_OnClientBuyExtraItem(int clientIndex, int itemIndex)
+void API_OnClientBuyExtraItem(const int clientIndex, const int itemIndex)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientBuyItem]);
@@ -189,7 +197,7 @@ void API_OnClientBuyExtraItem(int clientIndex, int itemIndex)
  * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
  *                              (like Plugin_Continue) to allow showing.
  **/
-Action API_OnClientValidateMainMenu(int clientIndex)
+Action API_OnClientValidateMainMenu(const int clientIndex)
 {
     // Initialize future result
     Action resultHandle;
@@ -216,7 +224,7 @@ Action API_OnClientValidateMainMenu(int clientIndex)
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-Action API_OnClientValidateZombieClass(int clientIndex, int classIndex)
+Action API_OnClientValidateZombieClass(const int clientIndex, const int classIndex)
 {
     // Initialize future result
     Action resultHandle;
@@ -244,7 +252,7 @@ Action API_OnClientValidateZombieClass(int clientIndex, int classIndex)
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-Action API_OnClientValidateHumanClass(int clientIndex, int classIndex)
+Action API_OnClientValidateHumanClass(const int clientIndex, const int classIndex)
 {
     // Initialize future result
     Action resultHandle;
@@ -272,7 +280,7 @@ Action API_OnClientValidateHumanClass(int clientIndex, int classIndex)
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-Action API_OnClientValidateCostume(int clientIndex, int costumeIndex)
+Action API_OnClientValidateCostume(const int clientIndex, const int costumeIndex)
 {
     // Initialize future result
     Action resultHandle;
@@ -299,7 +307,7 @@ Action API_OnClientValidateCostume(int clientIndex, int costumeIndex)
  * @return                  Plugin_Handled or Plugin_Stop to block using skill. Anything else
  *                                (like Plugin_Continue) to allow use.
  **/
-Action API_OnClientSkillUsed(int clientIndex)
+Action API_OnClientSkillUsed(const int clientIndex)
 {
     // Initialize future result
     Action resultHandle;
@@ -322,7 +330,7 @@ Action API_OnClientSkillUsed(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void API_OnClientSkillOver(int clientIndex)
+void API_OnClientSkillOver(const int clientIndex)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientSkillOver]);
@@ -340,7 +348,7 @@ void API_OnClientSkillOver(int clientIndex)
  * @param weaponIndex       The weapon index.
  * @param weaponID          The weapon id.
  **/
-void API_OnWeaponCreated(int weaponIndex, int weaponID)
+void API_OnWeaponCreated(const int weaponIndex, const int weaponID)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnWeaponCreated]);
@@ -358,13 +366,16 @@ void API_OnWeaponCreated(int weaponIndex, int weaponID)
  * 
  * @param modeIndex         The mode index.
  **/
-void API_OnZombieModStarted(int modeIndex)
+void API_OnZombieModStarted(const int modeIndex)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnZombieModStarted]);
 
+    // Push the parameters
+    Call_PushCell(modeIndex);
+    
     // Finish the call
-    Call_Finish(modeIndex);
+    Call_Finish();
 }
 
 /**

@@ -30,7 +30,7 @@
  *
  * @param clientIndex       The client index.
  **/
-void SpawnOnClientSpawn(int clientIndex)
+void SpawnOnClientSpawn(const int clientIndex)
 {
     // If mode doesn't started yet, then reset type
     if(gServerData[Server_RoundNew])

@@ -55,7 +55,7 @@ void MenusOnCommandsCreate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action MenusCommandCatched(int clientIndex, int iArguments)
+public Action MenusCommandCatched(const int clientIndex, const int iArguments)
 {
     // Open the main menu
     MenuMain(clientIndex);
@@ -172,7 +172,7 @@ public void MenusOnConfigReload(/*void*/)
  *
  * native int ZP_GetNumberMenu();
  **/
-public int API_GetNumberMenu(Handle isPlugin, int iNumParams)
+public int API_GetNumberMenu(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayMenus.Length;
@@ -183,7 +183,7 @@ public int API_GetNumberMenu(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetMenuName(iD, name, maxlen);
  **/
-public int API_GetMenuName(Handle isPlugin, int iNumParams)
+public int API_GetMenuName(Handle isPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -218,7 +218,7 @@ public int API_GetMenuName(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetMenuAccess(iD, flags, maxlen);
  **/
-public int API_GetMenuAccess(Handle isPlugin, int iNumParams)
+public int API_GetMenuAccess(Handle isPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -253,7 +253,7 @@ public int API_GetMenuAccess(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetMenuCommand(iD, command, maxlen);
  **/
-public int API_GetMenuCommand(Handle isPlugin, int iNumParams)
+public int API_GetMenuCommand(Handle isPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -294,7 +294,7 @@ public int API_GetMenuCommand(Handle isPlugin, int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void MenusGetName(int iD, char[] sName, int iMaxLen)
+stock void MenusGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
@@ -310,7 +310,7 @@ stock void MenusGetName(int iD, char[] sName, int iMaxLen)
  * @param sType             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void MenusGetAccess(int iD, char[] sType, int iMaxLen)
+stock void MenusGetAccess(const int iD, char[] sType, const int iMaxLen)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
@@ -326,7 +326,7 @@ stock void MenusGetAccess(int iD, char[] sType, int iMaxLen)
  * @param sCommand          The string to return command in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void MenusGetCommand(int iD, char[] sCommand, int iMaxLen)
+stock void MenusGetCommand(const int iD, char[] sCommand, const int iMaxLen)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
@@ -344,7 +344,7 @@ stock void MenusGetCommand(int iD, char[] sCommand, int iMaxLen)
  *
  * @param clientIndex       The client index.
  **/
-void MenuMain(int clientIndex)
+void MenuMain(const int clientIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -416,7 +416,7 @@ void MenuMain(int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int MenuMainSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int MenuMainSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -457,7 +457,7 @@ public int MenuMainSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mS
  * 
  * @param menuCondition     If this is true, item will be drawn normally.
  **/
-stock int MenuGetItemDraw(bool menuCondition)
+stock int MenuGetItemDraw(const bool menuCondition)
 {
     return menuCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
 }

@@ -106,7 +106,7 @@ public void OnLibraryAdded(const char[] sLibrary) // Paralizing blast
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombieNormalM10 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
@@ -299,7 +299,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action BlastTouchHook(int entityIndex, int targetIndex)
+public Action BlastTouchHook(const int entityIndex, const int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -318,7 +318,7 @@ public Action BlastTouchHook(int entityIndex, int targetIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.                    
  **/
-public Action BlastExploadHook(Handle hTimer, int referenceIndex)
+public Action BlastExploadHook(Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -397,7 +397,7 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveBlastEffect(Handle hTimer, int userID)
+public Action ClientRemoveBlastEffect(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

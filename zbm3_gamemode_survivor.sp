@@ -70,7 +70,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate game mode
+        // Initialize game mode
         gSurvivor = ZP_RegisterGameMode(GAME_MODE_NAME, 
         GAME_MODE_DESCRIPTION, 
         GAME_MODE_SOUND, 

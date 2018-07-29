@@ -174,7 +174,7 @@ public void HitgroupsOnConfigReload(/*void*/)
  * @param bOverWriteName    (Optional) If true, the hitgroup given will be overwritten with the name from the config.
  * @return                  The array index containing the given hitgroup name.
  **/
-stock int HitgroupsNameToIndex(char[] sHitGroup, int iMaxLen = 0, bool bOverWriteName = false)
+stock int HitgroupsNameToIndex(char[] sHitGroup, const int iMaxLen = 0, const bool bOverWriteName = false)
 {
     // Initialize char
     static char sHitGroupName[SMALL_LINE_LENGTH];
@@ -193,7 +193,7 @@ stock int HitgroupsNameToIndex(char[] sHitGroup, int iMaxLen = 0, bool bOverWrit
             if(bOverWriteName)
             {
                 // Copy config name to return string
-                strcopy(sHitGroup, iMaxLen, sHitGroupName);
+                StrExtract(sHitGroup, sHitGroupName, 0, iMaxLen);
             }
             
             // Return this index
@@ -211,7 +211,7 @@ stock int HitgroupsNameToIndex(char[] sHitGroup, int iMaxLen = 0, bool bOverWrit
  * @param iHitGroup         The hitgroup index to search for.
  * @return                  The array index that contains the given hitgroup index.
  **/
-stock int HitgroupToIndex(int iHitGroup)
+stock int HitgroupToIndex(const int iHitGroup)
 {
     // i = box index
     int iSize = arrayHitgroups.Length;
@@ -240,7 +240,7 @@ stock int HitgroupToIndex(int iHitGroup)
  *
  * native int ZP_GetNumberHitgroup();
  **/
-public int API_GetNumberHitgroup(Handle isPlugin, int iNumParams)
+public int API_GetNumberHitgroup(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayHitgroups.Length;
@@ -251,7 +251,7 @@ public int API_GetNumberHitgroup(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHitgroupID(hitgroup);
  **/
-public int API_GetHitgroupID(Handle isPlugin, int iNumParams)
+public int API_GetHitgroupID(Handle isPlugin, const int iNumParams)
 {
     // Return the value
     return HitgroupToIndex(GetNativeCell(1));
@@ -262,7 +262,7 @@ public int API_GetHitgroupID(Handle isPlugin, int iNumParams)
  *
  * native void ZP_GetHitgroupName(iD, name, maxlen);
  **/
-public int API_GetHitgroupName(Handle isPlugin, int iNumParams)
+public int API_GetHitgroupName(Handle isPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -297,7 +297,7 @@ public int API_GetHitgroupName(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHitgroupIndex(iD);
  **/
-public int API_GetHitgroupIndex(Handle isPlugin, int iNumParams)
+public int API_GetHitgroupIndex(Handle isPlugin, const int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -318,7 +318,7 @@ public int API_GetHitgroupIndex(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsHitgroupDamage(iD);
  **/
-public int API_IsHitgroupDamage(Handle isPlugin, int iNumParams)
+public int API_IsHitgroupDamage(Handle isPlugin, const int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -339,7 +339,7 @@ public int API_IsHitgroupDamage(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetHitgroupDamage(iD, damage);
  **/
-public int API_SetHitgroupDamage(Handle isPlugin, int iNumParams)
+public int API_SetHitgroupDamage(Handle isPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -360,7 +360,7 @@ public int API_SetHitgroupDamage(Handle isPlugin, int iNumParams)
  *
  * native float ZP_GetHitgroupKnockback(iD);
  **/
-public int API_GetHitgroupKnockback(Handle isPlugin, int iNumParams)
+public int API_GetHitgroupKnockback(Handle isPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -381,7 +381,7 @@ public int API_GetHitgroupKnockback(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetHitgroupKnockback(iD, knockback);
  **/
-public int API_SetHitgroupKnockback(Handle isPlugin, int iNumParams)
+public int API_SetHitgroupKnockback(Handle isPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -408,7 +408,7 @@ public int API_SetHitgroupKnockback(Handle isPlugin, int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void HitgroupsGetName(int iD, char[] sName, int iMaxLen)
+stock void HitgroupsGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitgroup = arrayHitgroups.Get(iD);
@@ -423,7 +423,7 @@ stock void HitgroupsGetName(int iD, char[] sName, int iMaxLen)
  * @param iD                The hitgroup index.
  * @return                  The real hitgroup index.
  **/
-stock int HitgroupsGetIndex(int iD)
+stock int HitgroupsGetIndex(const int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitgroup = arrayHitgroups.Get(iD);
@@ -438,7 +438,7 @@ stock int HitgroupsGetIndex(int iD)
  * @param iD                The hitgroup index.
  * @param bCanDamage        True to allow damage to hitgroup, false to block damage.
  **/
-stock void HitgroupsSetDamage(int iD, bool bCanDamage)
+stock void HitgroupsSetDamage(const int iD, const bool bCanDamage)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitgroup = arrayHitgroups.Get(iD);
@@ -453,7 +453,7 @@ stock void HitgroupsSetDamage(int iD, bool bCanDamage)
  * @param iD                The hitgroup index.
  * @return                  True if hitgroup can be damaged, false if not.
  **/
-stock bool HitgroupsCanDamage(int iD)
+stock bool HitgroupsCanDamage(const int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitgroup = arrayHitgroups.Get(iD);
@@ -468,7 +468,7 @@ stock bool HitgroupsCanDamage(int iD)
  * @param iD                The hitgroup index.
  * @param flKnockback       The knockback multiplier for the hitgroup.
  **/
-stock void HitgroupsSetKnockback(int iD, float flKnockback)
+stock void HitgroupsSetKnockback(const int iD, const float flKnockback)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitgroup = arrayHitgroups.Get(iD);
@@ -483,7 +483,7 @@ stock void HitgroupsSetKnockback(int iD, float flKnockback)
  * @param iD                The array index.
  * @return                  The knockback multiplier of the hitgroup.
  **/
-stock float HitgroupsGetKnockback(int iD)
+stock float HitgroupsGetKnockback(const int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitgroup = arrayHitgroups.Get(iD);

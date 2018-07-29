@@ -164,7 +164,7 @@ public Action EventPlayerSpawn(Event hEvent, const char[] sName, bool dontBroadc
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(clientIndex) || GetClientTeam(clientIndex) <= TEAM_SPECTATOR)
     {
         return;
     }
@@ -213,7 +213,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
  * @param victimIndex       The victim index.
  * @param attackerIndex     The attacker index.
  **/
-public void EventFakePlayerDeath(int victimIndex, int attackerIndex)
+public void EventFakePlayerDeath(const int victimIndex, const int attackerIndex)
 {
     // Create and send custom death icon
     Event hEvent = CreateEvent("player_death");

@@ -40,7 +40,7 @@ void SkillsOnCommandsCreate(/*void*/)
  * @param clientIndex       The client index.
  * @param nemesisMode       (Optional) Indicates that client will be a nemesis.
  **/
-void SkillsOnClientInfected(int clientIndex, bool nemesisMode = false)
+void SkillsOnClientInfected(const int clientIndex, const bool nemesisMode = false)
 {
     // If health restoring disabled, then stop
     if(!gCvarList[CVAR_ZOMBIE_RESTORE].BoolValue || nemesisMode)
@@ -48,9 +48,16 @@ void SkillsOnClientInfected(int clientIndex, bool nemesisMode = false)
         return;
     }
 
+    // Validate zombie class regen interval/amount
+    float flInterval = ZombieGetRegenInterval(gClientData[clientIndex][Client_ZombieClass]);
+    if(!flInterval || !ZombieGetRegenHealth(gClientData[clientIndex][Client_ZombieClass]))
+    {
+        return;
+    }
+    
     // Sets timer for restoring health
     delete gClientData[clientIndex][Client_ZombieHealTimer];
-    gClientData[clientIndex][Client_ZombieHealTimer] = CreateTimer(ZombieGetRegenInterval(gClientData[clientIndex][Client_ZombieClass]), SkillsOnHealthRegen, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    gClientData[clientIndex][Client_ZombieHealTimer] = CreateTimer(flInterval, SkillsOnHealthRegen, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
@@ -59,7 +66,7 @@ void SkillsOnClientInfected(int clientIndex, bool nemesisMode = false)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillsOnHealthRegen(Handle hTimer, int userID)
+public Action SkillsOnHealthRegen(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -67,47 +74,39 @@ public Action SkillsOnHealthRegen(Handle hTimer, int userID)
     // Validate client
     if(clientIndex)
     {
-        // Gets zombie class regen interval/amount
-        int iRegen = ZombieGetRegenHealth(gClientData[clientIndex][Client_ZombieClass]);
-        float flInterval = ZombieGetRegenInterval(gClientData[clientIndex][Client_ZombieClass]);
-
-        // Validate them
-        if(iRegen || flInterval)
+        // Initialize variable
+        static float vVelocity[3];
+        
+        // Gets the client velocity
+        ToolsGetClientVelocity(clientIndex, vVelocity);
+        
+        // If the zombie don't move, then check health
+        if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
         {
-            // Initialize float
-            static float vVelocity[3];
-            
-            // Gets the client velocity
-            ToolsGetClientVelocity(clientIndex, vVelocity);
-            
-            // If the zombie don't move, then check health
-            if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
+            // If restoring is available, then do it
+            int iHealth = GetClientHealth(clientIndex); // Store for next usage
+            if(iHealth < ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]))
             {
-                // If restoring is available, then do it
-                int iHealth = GetClientHealth(clientIndex); // Store for next usage
-                if(iHealth < ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]))
+                // Initialize a new health amount
+                int iRegen = iHealth + ZombieGetRegenHealth(gClientData[clientIndex][Client_ZombieClass]);
+                
+                // If new health more, than set default class health
+                if(iRegen > ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]))
                 {
-                    // Initialize a new health amount
-                    int healthAmount = iHealth + ZombieGetRegenHealth(gClientData[clientIndex][Client_ZombieClass]);
-                    
-                    // If new health more, than set default class health
-                    if(healthAmount > ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]))
-                    {
-                        healthAmount = ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]);
-                    }
-                    
-                    // Update health
-                    ToolsSetClientHealth(clientIndex, healthAmount);
-
-                    // Forward event to modules
-                    SoundsOnClientRegen(clientIndex);
-                    VEffectsOnClientRegen(clientIndex);
+                    iRegen = ZombieGetHealth(gClientData[clientIndex][Client_ZombieClass]);
                 }
-            }
+                
+                // Update health
+                ToolsSetClientHealth(clientIndex, iRegen);
 
-            // Allow counter
-            return Plugin_Continue;
+                // Forward event to modules
+                SoundsOnClientRegen(clientIndex);
+                VEffectsOnClientRegen(clientIndex);
+            }
         }
+
+        // Allow counter
+        return Plugin_Continue;
     }
 
     // Clear timer
@@ -124,7 +123,7 @@ public Action SkillsOnHealthRegen(Handle hTimer, int userID)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SkillsHook(int clientIndex, const char[] commandMsg, int iArguments)
+public Action SkillsHook(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
     // If the client isn't zombie/survivor, than allow drop
     return (gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]) ? SkillsOnStart(clientIndex) : (gClientData[clientIndex][Client_Survivor] ? Plugin_Handled : Plugin_Continue);
@@ -135,10 +134,11 @@ public Action SkillsHook(int clientIndex, const char[] commandMsg, int iArgument
  *
  * @param clientIndex       The client index.
  **/
-Action SkillsOnStart(int clientIndex)
+Action SkillsOnStart(const int clientIndex)
 {
-    // If zombie class don't have a skill, then stop
-    if(!ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]) && !ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]))
+    // Validate zombie class skill duration/countdown
+    float flInterval = ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]);
+    if(!flInterval && !ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]))
     {
         return Plugin_Handled;
     }
@@ -160,7 +160,7 @@ Action SkillsOnStart(int clientIndex)
         
         // Sets timer for removing skill usage
         delete gClientData[clientIndex][Client_ZombieSkillTimer];
-        gClientData[clientIndex][Client_ZombieSkillTimer] = CreateTimer(ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]), SkillsOnEnd, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        gClientData[clientIndex][Client_ZombieSkillTimer] = CreateTimer(flInterval, SkillsOnEnd, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
     }
     
     // Allow skill
@@ -173,7 +173,7 @@ Action SkillsOnStart(int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillsOnEnd(Handle hTimer, int userID)
+public Action SkillsOnEnd(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -206,7 +206,7 @@ public Action SkillsOnEnd(Handle hTimer, int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillsOnCountDown(Handle hTimer, int userID)
+public Action SkillsOnCountDown(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

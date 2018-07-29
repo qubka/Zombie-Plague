@@ -48,7 +48,7 @@
 /**
  * Number of max valid sequences.
  **/
-#define WeaponsSequencesMax 20 /// Can be increase until whatever you need
+#define WeaponsSequencesMax 25 /// Can be increase until whatever you need
 
 /**
  * Variables to store SDK calls handlers.
@@ -135,7 +135,7 @@ void WeaponHDRInit(/*void*/)
  * @param viewIndex         The view index.
  * @param iD                The weapon index.
  **/
-stock void WeaponHDRToggleViewModel(int clientIndex, int viewIndex, int iD)
+stock void WeaponHDRToggleViewModel(const int clientIndex, const int viewIndex, const int iD)
 {
     // Initialize variable
     static int weaponIndex;
@@ -146,7 +146,7 @@ stock void WeaponHDRToggleViewModel(int clientIndex, int viewIndex, int iD)
         // Gets the swapped weapon index from the reference
         weaponIndex = EntRefToEntIndex(gClientData[clientIndex][Client_SwapWeapon]);
 
-        // Validate no weapon, then create swap pair 
+        // Validate no weapon, then create a swaped pair 
         if(weaponIndex == INVALID_ENT_REFERENCE)
         {
             weaponIndex = WeaponHDRCreateSwapWeapon(iD, clientIndex);
@@ -170,7 +170,7 @@ stock void WeaponHDRToggleViewModel(int clientIndex, int viewIndex, int iD)
  * @param viewIndex         The view index.
  * @return                  The model index.
  **/
-stock int WeaponHDRGetPlayerViewModel(int clientIndex, int viewIndex)
+stock int WeaponHDRGetPlayerViewModel(const int clientIndex, const int viewIndex)
 {
     // Gets viewmodel of the client
     return GetEntDataEnt2(clientIndex, g_iOffset_PlayerViewModel + (viewIndex * 4));
@@ -183,7 +183,7 @@ stock int WeaponHDRGetPlayerViewModel(int clientIndex, int viewIndex)
  * @param viewIndex         The view index.
  * @param modelIndex        The model index.
  **/
-stock void WeaponHDRSetPlayerViewModel(int clientIndex, int viewIndex, int modelIndex)
+stock void WeaponHDRSetPlayerViewModel(const int clientIndex, const int viewIndex, const int modelIndex)
 {
     // Sets viewmodel for the client
     SetEntDataEnt2(clientIndex, g_iOffset_PlayerViewModel + (viewIndex * 4), modelIndex, true);
@@ -197,7 +197,7 @@ stock void WeaponHDRSetPlayerViewModel(int clientIndex, int viewIndex, int model
  * @param bodyIndex         (Optional) The body index.
  * @param skinIndex         (Optional) The skin index.
  **/
-stock void WeaponHDRSetPlayerWorldModel(int weaponIndex, int modelIndex = 0, int bodyIndex = 0, int skinIndex = 0)
+stock void WeaponHDRSetPlayerWorldModel(const int weaponIndex, const int modelIndex = 0, const int bodyIndex = 0, const int skinIndex = 0)
 { 
     // Get worldmodel entity
     int worldIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponWorldModel);
@@ -230,7 +230,7 @@ stock void WeaponHDRSetPlayerWorldModel(int weaponIndex, int modelIndex = 0, int
  *
  * @param referenceIndex    The reference index.
  **/
-public void WeaponHDRSetDroppedModel(int referenceIndex)
+public void WeaponHDRSetDroppedModel(const int referenceIndex)
 {
     // Gets the weapon index from the reference
     int weaponIndex = EntRefToEntIndex(referenceIndex);
@@ -242,17 +242,17 @@ public void WeaponHDRSetDroppedModel(int referenceIndex)
         int iD = WeaponsGetCustomID(weaponIndex);
         if(iD != INVALID_ENT_REFERENCE)
         {
-            // If worldmodel exist, then apply it
-            if(WeaponsGetModelWorldID(iD))
+            // If dropmodel exist, then apply it
+            if(WeaponsGetModelDropID(iD))
             {
-                // Gets weapon worldmodel
+                // Gets weapon dropmodel
                 static char sModel[PLATFORM_MAX_PATH];
-                WeaponsGetModelWorld(iD, sModel, sizeof(sModel));
+                WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
                 
-                // Sets dropped model for the dropped model
+                // Sets dropped model for the weapon
                 SetEntityModel(weaponIndex, sModel);
                 
-                // Sets the body/skin index for dropped model
+                // Sets the body/skin index for the weapon
                 SetEntData(weaponIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
                 SetEntData(weaponIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
             }
@@ -266,7 +266,7 @@ public void WeaponHDRSetDroppedModel(int referenceIndex)
  * @param entityIndex       The entity index.
  * @param bInvisible        True or false.
  **/
-stock void WeaponHDRSetEntityVisibility(int entityIndex, bool bInvisible)
+stock void WeaponHDRSetEntityVisibility(const int entityIndex, const bool bInvisible)
 {
     #define EF_INVISIBLE 0x20
     int iFlags = GetEntData(entityIndex, g_iOffset_EntityEffects);
@@ -280,7 +280,7 @@ stock void WeaponHDRSetEntityVisibility(int entityIndex, bool bInvisible)
  * @param clientIndex       The client index.
  * @return                  The weapon index
  **/
-stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
+stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
 {
     // Gets the weapon index from the reference
     int weaponIndex1 = gClientData[clientIndex][Client_CustomWeapon];
@@ -300,11 +300,11 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
     }
     
     // Gets weapon classname
-    static char sClassname[SMALL_LINE_LENGTH];
-    WeaponsGetEntity(iD, sClassname, sizeof(sClassname));
+    static char sWeapon[SMALL_LINE_LENGTH];
+    WeaponsGetEntity(iD, sWeapon, sizeof(sWeapon));
     
     // Create an attach swapped entity
-    int itemIndex = CreateEntityByName(sClassname);
+    int itemIndex = CreateEntityByName(sWeapon);
 
     // If entity isn't valid, then log
     if(itemIndex != INVALID_ENT_REFERENCE)
@@ -322,14 +322,14 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
         // Remove an entity movetype
         SetEntityMoveType(itemIndex, MOVETYPE_NONE);
 
-        // CEconEntity: The parent of the swap weapon must the client using it
+        // CEconEntity: Sets the parent of a weapon
         SetVariantString("!activator");
         AcceptEntityInput(itemIndex, "SetParent", clientIndex);
     }
     else
     {
         // Unexpected error, log it
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Failed to create swap weapon entity: \"%s\"", sClassname);
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Failed to create swap weapon entity: \"%s\"", sWeapon);
     }
 
     // Return on the success
@@ -346,7 +346,7 @@ stock int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
  * @param iIndex            The sequence cell.
  * @return                  The sequence index.
  **/
-stock int WeaponHDRBuildSwapSequenceArray(int iSequences[WeaponsSequencesMax], int nSequenceCount, int weaponIndex, int iIndex = 0)
+stock int WeaponHDRBuildSwapSequenceArray(int iSequences[WeaponsSequencesMax], const int nSequenceCount, const int weaponIndex, int iIndex = 0)
 {
     #define SWAP_SEQ_PAIRED (1 << 31)
     
@@ -433,7 +433,7 @@ stock int WeaponHDRBuildSwapSequenceArray(int iSequences[WeaponsSequencesMax], i
  * @param iAnimating        The animating index.
  * @return                  The sequence count.
  **/
-stock int Animating_GetSequenceCount(int iAnimating)
+stock int Animating_GetSequenceCount(const int iAnimating)
 {
     // Load some bytes from a memory address
     Address studioHdrClass = view_as<Address>(GetEntData(iAnimating, Animating_StudioHdr));
@@ -489,14 +489,14 @@ stock int Animating_GetSequenceCount(int iAnimating)
  * @param nSequence             The sequence index.
  * @return                      The activity index.
  **/
-stock int Animating_GetSequenceActivity(int iAnimating, int nSequence)
+stock int Animating_GetSequenceActivity(const int iAnimating, const int nSequence)
 {
     return SDKCall(hSDKCallAnimatingGetSequenceActivity, iAnimating, nSequence);
 }
 
 /** DEBUG **/
 /*
-Address Animating_GetStudioHdrClass(int iAnimating)
+Address Animating_GetStudioHdrClass(const int iAnimating)
 {
     return view_as<Address>(GetEntData(animating, g_iOffset_StudioHdr));
 }
@@ -511,7 +511,7 @@ int StudioHdrGetSequenceCount(Address studioHdrStruct)
     return LoadFromAddress(studioHdrStruct + view_as<Address>(g_iOffset_SequenceCount), NumberType_Int32);
 }
 
-int Animating_GetNumMovements(int iAnimating, int nSequence)
+int Animating_GetNumMovements(const int iAnimating, const int nSequence)
 {
     Address studioHdrStruct = StudioHdrClass_GetStudioHdrStruct(Animating_GetStudioHdrClass(iAnimating));
     
@@ -520,7 +520,7 @@ int Animating_GetNumMovements(int iAnimating, int nSequence)
     return StudioAnimDesc_GetValue(studioAnimDesc, StudioAnimDesc_NumMovements);
 }
 
-float Animating_GetSequenceDuration(int iAnimating, int nSequence)
+float Animating_GetSequenceDuration(const int iAnimating, const int nSequence)
 {
     Address studioHdrStruct = StudioHdrClass_GetStudioHdrStruct(Animating_GetStudioHdrClass(iAnimating));
     Address studioAnimDesc = GetLocalAnimDescription(studioHdrStruct, nSequence);
@@ -529,7 +529,7 @@ float Animating_GetSequenceDuration(int iAnimating, int nSequence)
     return cyclesPerSecond != 0.0 ? 1.0 / cyclesPerSecond : 0.0;
 }
 
-Address GetLocalAnimDescription(Address studioHdrStruct, int nSequence)
+Address GetLocalAnimDescription(Address studioHdrStruct, const int nSequence)
 {
     if(nSequence < 0 || nSequence >= StudioHdrGetSequenceCount(studioHdrStruct))
     {

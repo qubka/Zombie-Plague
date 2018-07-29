@@ -43,7 +43,7 @@
  * 
  * @param clientIndex       The client index.
  **/
-void RagdollOnClientDeath(int clientIndex)
+void RagdollOnClientDeath(const int clientIndex)
 {
     // If true, the stop
     bool iRagDollRemove = gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue;
@@ -80,7 +80,7 @@ void RagdollOnClientDeath(int clientIndex)
  * 
  * @param iRagdoll          The ragdoll index.
  **/
-void RagdollRemove(int iRagdoll)
+void RagdollRemove(const int iRagdoll)
 {
     // Gets the dissolve type
     int iRagDollType = gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE].IntValue;
@@ -132,7 +132,7 @@ void RagdollRemove(int iRagdoll)
  * @param hTimer            The timer handle. 
  * @param referenceIndex    The reference index.
  **/
-public Action RagdollTimer(Handle hTimer, int referenceIndex)
+public Action RagdollTimer(Handle hTimer, const int referenceIndex)
 {
     // If ragdoll removal is disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue)

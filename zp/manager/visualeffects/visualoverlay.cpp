@@ -44,58 +44,53 @@ void VOverlayLoad(/*void*/)
 {
     // Initialize chars
     static char sPath[PLATFORM_MAX_PATH];
-    static char sOverlay[PLATFORM_MAX_PATH];
     
     //*********************************************************************
     //*               PRECACHE OF WIN OVERLAYS FILES                      *
     //*********************************************************************
     
-    // Load zombie win overlay
-    gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE].GetString(sOverlay, sizeof(sOverlay));
-    
-    // Precache decals
-    if(strlen(sOverlay))
+    // Validate zombie win overlay
+    gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE].GetString(sPath, sizeof(sPath));
+    if(strlen(sPath))
     {
-        Format(sPath, sizeof(sPath), "materials/%s.vmt", sOverlay);
-        fnMultiFilePrecache(sPath);
-        Format(sPath, sizeof(sPath), "materials/%s.vtf", sOverlay);
-        fnMultiFilePrecache(sPath);
+        Format(sPath, sizeof(sPath), "materials/%s", sPath);
+        if(!ModelsPrecacheTextures(sPath))
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Effects, "Config Validation", "Invalid zombie win overlay path. File not found: \"%s\"", sPath);
+        }
     }
     
-    // Load human win overlay
-    gCvarList[CVAR_VEFFECTS_HUD_HUMAN].GetString(sOverlay, sizeof(sOverlay));
-    
-    // Precache decals
-    if(strlen(sOverlay))
+    // Validate human win overlay
+    gCvarList[CVAR_VEFFECTS_HUD_HUMAN].GetString(sPath, sizeof(sPath));
+    if(strlen(sPath))
     {
-        Format(sPath, sizeof(sPath), "materials/%s.vmt", sOverlay);
-        fnMultiFilePrecache(sPath);
-        Format(sPath, sizeof(sPath), "materials/%s.vtf", sOverlay);
-        fnMultiFilePrecache(sPath);
+        Format(sPath, sizeof(sPath), "materials/%s", sPath);
+        if(!ModelsPrecacheTextures(sPath))
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Effects, "Config Validation", "Invalid human win overlay path. File not found: \"%s\"", sPath);
+        }
     }
     
-    // Load draw overlay
-    gCvarList[CVAR_VEFFECTS_HUD_DRAW].GetString(sOverlay, sizeof(sOverlay));
-    
-    // Precache decals
-    if(strlen(sOverlay))
+    // Validate draw overlay
+    gCvarList[CVAR_VEFFECTS_HUD_DRAW].GetString(sPath, sizeof(sPath));
+    if(strlen(sPath))
     {
-        Format(sPath, sizeof(sPath), "materials/%s.vmt", sOverlay);
-        fnMultiFilePrecache(sPath);
-        Format(sPath, sizeof(sPath), "materials/%s.vtf", sOverlay);
-        fnMultiFilePrecache(sPath);
+        Format(sPath, sizeof(sPath), "materials/%s", sPath);
+        if(!ModelsPrecacheTextures(sPath))
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Effects, "Config Validation", "Invalid draw overlay path. File not found: \"%s\"", sPath);
+        }
     }
     
-    // Load vision overlay
-    gCvarList[CVAR_VEFFECTS_HUD_VISION].GetString(sOverlay, sizeof(sOverlay));
-    
-    // Precache decals
-    if(strlen(sOverlay))
+    // Validate vision overlay
+    gCvarList[CVAR_VEFFECTS_HUD_VISION].GetString(sPath, sizeof(sPath));
+    if(strlen(sPath))
     {
-        Format(sPath, sizeof(sPath), "materials/%s.vmt", sOverlay);
-        fnMultiFilePrecache(sPath);
-        Format(sPath, sizeof(sPath), "materials/%s.vtf", sOverlay);
-        fnMultiFilePrecache(sPath);
+        Format(sPath, sizeof(sPath), "materials/%s", sPath);
+        if(!ModelsPrecacheTextures(sPath)) 
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Effects, "Config Validation", "Invalid zombie vision overlay path. File not found: \"%s\"", sPath);
+        }
     }
 }
 
@@ -105,7 +100,7 @@ void VOverlayLoad(/*void*/)
  * @param clientIndex       The client index.
  * @param layIndex          The type of the overlay.
  **/
-void VOverlayOnClientUpdate(int clientIndex, OverlayType layIndex)
+void VOverlayOnClientUpdate(const int clientIndex, OverlayType layIndex)
 {
     // Initilize path
     static char sOverlay[NORMAL_LINE_LENGTH];

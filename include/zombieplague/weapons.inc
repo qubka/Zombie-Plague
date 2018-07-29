@@ -41,22 +41,23 @@
 forward void ZP_OnWeaponCreated(int weaponIndex, int weaponID);
 
 /**
- * @brief Gets the current position of the weapon attachment.
- *
- * @param clientIndex       The client index.
- * @param attachment        The attachment bone of the entity parent.
- * @raram position          Array to store vector in.
- **/
-native void ZP_GetWeaponAttachmentPos(int clientIndex, char[] attachment, float position[3]);
-
-/**
  * @brief Gives the weapon by a given name.
  *
  * @param clientIndex       The client index.
  * @param name              The weapon name.
+ * @param slot              The slot index (mod specific).
  * @return                  The weapon index.
  **/
-native int ZP_GiveClientWeapon(int clientIndex, char[] name);
+native int ZP_GiveClientWeapon(int clientIndex, char[] name, int slot = -1);
+
+/**
+ * @brief Gets the client viewmodel. 
+ *
+ * @param weaponIndex       The weapon index.
+ * @param custom            True to gets the custom viewmodel, false the original.           
+ * @return                  The viewmodel index.
+ **/
+native int ZP_GetClientViewModel(int clientIndex, bool custom);
 
 /**
  * @brief Gets the custom weapon id from a given weapon index. 
@@ -98,14 +99,6 @@ native void ZP_GetWeaponName(int weaponID, char[] name, int maxlenght = 32);
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetWeaponEntity(int weaponID, char[] entity, int maxlenght = 32);
-
-/**
- * @brief Gets the definition index of the weapon.
- *
- * @param weaponID          The weapon ID.
- * @return                  The definition index. (m_iItemDefinitionIndex)
- **/
-native int ZP_GetWeaponIndex(int weaponID);
 
 /**
  * @brief Gets the cost of the weapon.
@@ -246,6 +239,23 @@ native void ZP_GetWeaponModelWorld(int weaponID, char[] model, int maxlenght = 2
 native int ZP_GetWeaponModelWorldID(int weaponID);
 
 /**
+ * @brief Gets the dropmodel path a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param model             The string to return model in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponModelDrop(int weaponID, char[] model, int maxlenght = 256);
+
+/**
+ * @brief Gets the index of the weapon dropmodel.
+ * 
+ * @param weaponID          The weapon ID.
+ * @return                  The dropmodel index.    
+ **/
+native int ZP_GetWeaponModelDropID(int weaponID);
+
+/**
  * @brief Gets the body index of the weapon model.
  *
  * @param weaponID          The weapon ID.
@@ -340,4 +350,100 @@ stock bool ZP_IsPlayerHoldWeapon(const int clientIndex, int &weaponIndex, const 
 
     // Return on success
     return true;
+}
+
+/**
+ * @brief Gets the weapon's shoot position.
+ *
+ * @param clientIndex       The client index.
+ * @param flForward         (Optional) The forward distance.
+ * @param flRight           (Optional) The right distance. 
+ * @param flVertical        (Optional) The vertical distance.
+ * @param vOrigin           The calculated position's vector output.
+ **/
+stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward = 0.0, const float flRight = 0.0, const float flVertical = 0.0, float vOrigin[3])
+{
+    // Initialize vectors
+    static float vEntPosition[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
+
+    // Gets the client's eye angle
+    GetClientEyePosition(clientIndex, vEntPosition);
+    
+    // Gets the client's eye angle
+    GetClientEyeAngles(clientIndex, vEntAngle);
+
+    // Returns vectors in the direction of an angle
+    GetAngleVectors(vEntAngle, vForward, vRight, vVertical);
+
+    // Calculate ends point by applying all vectors distances 
+    vOrigin[0] = vEntPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
+    vOrigin[1] = vEntPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
+    vOrigin[2] = vEntPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
+}
+
+/**
+ * @brief Gets the weapon's animating index.
+ *
+ * @param clientIndex       The client index.
+ * @return                  The sequence index.
+ **/
+stock int ZP_GetWeaponAnimation(int clientIndex)
+{
+    // Gets the client viewmodel
+    int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
+
+    // Validate viewmodel
+    if(IsValidEdict(viewModel))
+    {
+        // Gets the animation
+        return GetEntProp(viewModel, Prop_Send, "m_nSequence");
+    }
+    
+    // Return on unsuccess
+    return -1;
+}
+
+/**
+ * @brief Sets the weapon's animating index.
+ *
+ * @param clientIndex       The client index.
+ * @param nSequence         The sequence index.
+ **/
+stock void ZP_SetWeaponAnimation(int clientIndex, int nSequence)
+{
+    // Gets the client viewmodel
+    int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
+
+    // Validate viewmodel
+    if(IsValidEdict(viewModel))
+    {
+        // Sets the animation
+        SetEntProp(viewModel, Prop_Send, "m_nSequence", nSequence);
+    }
+}
+
+/**
+ * @brief Sets the weapon's animating paired index. (Important for animations, which should played in the not-repeatable row, like an attack)
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param nSequence         The sequence array.
+ **/
+stock void ZP_SetWeaponAnimationPair(int clientIndex, int weaponIndex, int nSequence[2])
+{
+    // Gets the client viewmodel
+    int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
+
+    // Validate viewmodel
+    if(IsValidEdict(viewModel))
+    {
+        // Get the current played state of animation
+        bool bPrevAnim = view_as<bool>(GetEntProp(weaponIndex, Prop_Send, "m_bSilencerOn"));
+        
+        // Sets the animation
+        SetEntProp(viewModel, Prop_Send, "m_nSequence", nSequence[bPrevAnim ? 0 : 1]);
+        
+        // Sets the inversed played state
+        SetEntProp(weaponIndex, Prop_Send, "m_bSilencerOn", !bPrevAnim);
+    }
 }

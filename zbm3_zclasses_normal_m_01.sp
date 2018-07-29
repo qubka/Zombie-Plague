@@ -44,7 +44,7 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "NormalM01" // Only will be taken from translation file
+ #define ZOMBIE_CLASS_NAME               "NormalM01" // Only will be taken from translation file
 #define ZOMBIE_CLASS_INFO               "NormalM01Info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_m_01/normal_m_01.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_m_01/hand_v2/hand_zombie_normal_m_01.mdl"    
@@ -93,7 +93,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombieNormalM01 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
@@ -171,7 +171,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action ClientOnToxicGas(Handle hTimer, int referenceIndex)
+public Action ClientOnToxicGas(Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);

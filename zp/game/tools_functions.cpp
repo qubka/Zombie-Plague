@@ -41,7 +41,7 @@ void ToolsOnCommandsCreate(/*void*/)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action ToolsHook(int clientIndex, const char[] commandMsg, int iArguments)
+public Action ToolsHook(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
     // Validate client 
     if(IsPlayerExist(clientIndex))
@@ -72,7 +72,7 @@ public Action ToolsHook(int clientIndex, const char[] commandMsg, int iArguments
  *
  * @param clientIndex       The client index.
  **/
-void ToolsResetVars(int clientIndex)
+void ToolsResetVars(const int clientIndex)
 {
     // Resets all variables
     gClientData[clientIndex][Client_Zombie] = false;
@@ -96,10 +96,7 @@ void ToolsResetVars(int clientIndex)
     gClientData[clientIndex][Client_Costume] = -1;
     gClientData[clientIndex][Client_AttachmentCostume] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentBits] = 0;
-    gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
-    gClientData[clientIndex][Client_AttachmentMuzzle] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentWeapon] = INVALID_ENT_REFERENCE;
-    gClientData[clientIndex][Client_AttachmentLast][0] = '\0';
+    gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
     gClientData[clientIndex][Client_ViewModels] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
     gClientData[clientIndex][Client_LastSequence] = -1;
     gClientData[clientIndex][Client_CustomWeapon] = 0;
@@ -118,7 +115,7 @@ void ToolsResetVars(int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ToolsForceToRespawn(int clientIndex)
+void ToolsForceToRespawn(const int clientIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -156,7 +153,7 @@ void ToolsForceToRespawn(int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ToolsResetTimers(int clientIndex)
+void ToolsResetTimers(const int clientIndex)
 {
     delete gClientData[clientIndex][Client_LevelTimer];
     delete gClientData[clientIndex][Client_AccountTimer];
@@ -172,7 +169,7 @@ void ToolsResetTimers(int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ToolsPurgeTimers(int clientIndex)
+void ToolsPurgeTimers(const int clientIndex)
 {
     gClientData[clientIndex][Client_LevelTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_AccountTimer] = INVALID_HANDLE;
@@ -192,7 +189,7 @@ void ToolsPurgeTimers(int clientIndex)
  * @param bStack            If modifying velocity, then true will stack new velocity onto the client
  *                          current velocity, false will reset it.
  **/
-stock void ToolsClientVelocity(int clientIndex, float vecVelocity[3], bool bApply = true, bool bStack = true)
+stock void ToolsClientVelocity(const int clientIndex, float vecVelocity[3], const bool bApply = true, const bool bStack = true)
 {
     // If retrieve if true, then get client velocity
     if(!bApply)
@@ -232,7 +229,7 @@ stock void ToolsClientVelocity(int clientIndex, float vecVelocity[3], bool bAppl
  * @param clientIndex       The client index.
  * @param vecVelocity       Array to store vector in.
  **/
-stock void ToolsGetClientVelocity(int clientIndex, float vecVelocity[3])
+stock void ToolsGetClientVelocity(const int clientIndex, float vecVelocity[3])
 {
     // i = vector component
     for(int i = 0; i < 3; i++)
@@ -247,7 +244,7 @@ stock void ToolsGetClientVelocity(int clientIndex, float vecVelocity[3])
  * @param clientIndex       The client index.
  * @param iValue            Armor value.
  **/
-stock void ToolsSetClientHealth(int clientIndex, int iValue)
+stock void ToolsSetClientHealth(const int clientIndex, const int iValue)
 {
     // Sets health of client
     SetEntData(clientIndex, g_iOffset_PlayerHealth, iValue, _, true);
@@ -259,7 +256,7 @@ stock void ToolsSetClientHealth(int clientIndex, int iValue)
  * @param clientIndex       The client index.
  * @param flValue           LMV value.
  **/
-stock void ToolsSetClientLMV(int clientIndex, float flValue)
+stock void ToolsSetClientLMV(const int clientIndex, const float flValue)
 {
     // Sets lagged movement value of client
     SetEntDataFloat(clientIndex, g_iOffset_PlayerLMV, flValue, true);
@@ -267,10 +264,10 @@ stock void ToolsSetClientLMV(int clientIndex, float flValue)
 
 /**
  * Set a client armor value.
- * @param clientIndex   The client index.
- * @param iValue         Armor value.
+ * @param clientIndex       The client index.
+ * @param iValue            Armor value.
  **/
-stock void ToolsSetClientArmor(int clientIndex, int iValue)
+stock void ToolsSetClientArmor(const int clientIndex, const int iValue)
 {
     // Sets armor of client
     SetEntData(clientIndex, g_iOffset_PlayerArmor, iValue, _, true);
@@ -282,7 +279,7 @@ stock void ToolsSetClientArmor(int clientIndex, int iValue)
  * @param clientIndex       The client index.
  * @param iValue            Team index.
  **/
-stock void ToolsSetClientTeam(int clientIndex, int nTeam)
+stock void ToolsSetClientTeam(const int clientIndex, const int nTeam)
 {
     // Validate team
     if(GetClientTeam(clientIndex) <= TEAM_SPECTATOR) //! Fix, thanks to inklesspen!
@@ -305,7 +302,7 @@ stock void ToolsSetClientTeam(int clientIndex, int nTeam)
  *                          If false, function will return the value of the client on/off state of the nightvision.
  * @return                  True if aspect of nightvision is enabled on the client, false if not.
  **/
-stock bool ToolsGetClientNightVision(int clientIndex, bool bOwnership = false)
+stock bool ToolsGetClientNightVision(const int clientIndex, const bool bOwnership = false)
 {
     // If ownership is true, then toggle the ownership of nightvision on client
     return view_as<bool>(GetEntData(clientIndex, bOwnership ? g_iOffset_PlayerHasNightVision : g_iOffset_PlayerNightVisionOn, 1));
@@ -319,7 +316,7 @@ stock bool ToolsGetClientNightVision(int clientIndex, bool bOwnership = false)
  * @param bOwnership        If true, enable will toggle the client ownership of nightvision.
  *                          If false, enable will toggle the client on/off state of the nightvision.
  **/
-stock void ToolsSetClientNightVision(int clientIndex, bool bEnable, bool bOwnership = false)
+stock void ToolsSetClientNightVision(const int clientIndex, const bool bEnable, const bool bOwnership = false)
 {
     // If ownership is true, then toggle the ownership of nightvision on client
     SetEntData(clientIndex, bOwnership ? g_iOffset_PlayerHasNightVision : g_iOffset_PlayerNightVisionOn, bEnable, _, true);
@@ -332,7 +329,7 @@ stock void ToolsSetClientNightVision(int clientIndex, bool bEnable, bool bOwners
  * @param bScore            True to look at score, false to look at deaths.  
  * @param iValue            The value of the client score or deaths.
  **/
-stock void ToolsSetClientScore(int clientIndex, bool bScore = true, int iValue = 0)
+stock void ToolsSetClientScore(const int clientIndex, const bool bScore = true, const int iValue = 0)
 {
     // Find the datamap
     if(!g_iOffset_PlayerFrags || !g_iOffset_PlayerDeath)
@@ -352,7 +349,7 @@ stock void ToolsSetClientScore(int clientIndex, bool bScore = true, int iValue =
  * @param bScore            True to look at score, false to look at deaths.  
  * @return                  The score or death count of the client.
  **/
-stock int ToolsGetClientScore(int clientIndex, bool bScore = true)
+stock int ToolsGetClientScore(const int clientIndex, const bool bScore = true)
 {
     // If score is true, then return client score, otherwise return client deaths
     return bScore ? GetClientFrags(clientIndex) : GetClientDeaths(clientIndex);
@@ -364,7 +361,7 @@ stock int ToolsGetClientScore(int clientIndex, bool bScore = true)
  * @param clientIndex       The client index.
  * @param flValue           The value of the client gravity.
  **/
-stock void ToolsSetClientGravity(int clientIndex, float flValue)
+stock void ToolsSetClientGravity(const int clientIndex, const float flValue)
 {
     // Find the datamap
     if(!g_iOffset_PlayerGravity)
@@ -382,7 +379,7 @@ stock void ToolsSetClientGravity(int clientIndex, float flValue)
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of spotting.
  **/
-stock void ToolsSetClientSpot(int clientIndex, bool bEnable)
+stock void ToolsSetClientSpot(const int clientIndex, const bool bEnable)
 {
     // Sets value on the client
     SetEntData(clientIndex, g_iOffset_PlayerSpotted, bEnable, 1, true);
@@ -394,7 +391,7 @@ stock void ToolsSetClientSpot(int clientIndex, bool bEnable)
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of detection.
  **/
-stock void ToolsSetClientDetecting(int clientIndex, bool bEnable)
+stock void ToolsSetClientDetecting(const int clientIndex, const bool bEnable)
 {
     // Sets value on the client
     SetEntDataFloat(clientIndex, g_iOffset_PlayerDetected, bEnable ? (GetGameTime() + 9999.0) : 0.0, true);
@@ -406,7 +403,7 @@ stock void ToolsSetClientDetecting(int clientIndex, bool bEnable)
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of hud.
  **/
-stock void ToolsSetClientHud(int clientIndex, bool bEnable)
+stock void ToolsSetClientHud(const int clientIndex, const bool bEnable)
 {   
     #define HIDEHUD_CROSSHAIR (1 << 8)
     // Sets value on the client
@@ -419,7 +416,7 @@ stock void ToolsSetClientHud(int clientIndex, bool bEnable)
  * @param clientIndex       The client index.
  * @param bEnable           Enable or disable an aspect of flashlight.
  **/
-stock void ToolsSetClientFlashLight(int clientIndex, bool bEnable)
+stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
 {
     #define EF_FLASHLIGHT 4
     // Sets value on the client
@@ -431,8 +428,20 @@ stock void ToolsSetClientFlashLight(int clientIndex, bool bEnable)
  * 
  * @param CReason           Reason the round has ended.
  **/
-stock void ToolsTerminateRound(int CReason)
+stock void ToolsTerminateRound(const int CReason)
 {
     // Terminate round
     SDKCall(hSDKCallTerminateRound, gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CReason);
 }
+
+/**
+ * Used to iterate all the entities within a sphere.
+ *
+ * @param entityIndex       The entity index.
+ * @param vCenter           The center origin.
+ * @param flRadius          The search radius for the entity.
+ **/
+/*stock int ToolsFindEntityInSphere(const int entityIndex, const float vCenter[3], const float flRadius)
+{
+    return SDKCall(hSDKCallFindEntityInSphere, entityIndex, vCenter, flRadius);
+}*/

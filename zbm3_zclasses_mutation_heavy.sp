@@ -169,7 +169,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         // Hook player events
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
-        // Initilizate zombie class
+        // Initialize zombie class
         gZombieMutationHeavy = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
@@ -347,7 +347,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action TrapTouchHook(int entityIndex, int targetIndex)
+public Action TrapTouchHook(const int entityIndex, const int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -418,7 +418,7 @@ public Action TrapTouchHook(int entityIndex, int targetIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
+public Action ClientRemoveTrapEffect(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

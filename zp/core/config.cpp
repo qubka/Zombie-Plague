@@ -253,7 +253,7 @@ void ConfigLoad(/*void*/)
  * @param iFile              Config file entry to register.
  * @param sAlias             Config file alias, used for client interaction.
  **/
-stock void ConfigRegisterConfig(ConfigFile iFile, ConfigStructure iStructure, const char[] sAlias = "")
+stock void ConfigRegisterConfig(const ConfigFile iFile, const ConfigStructure iStructure, const char[] sAlias = "")
 {
     // Copy file info to data container
     gConfigData[iFile][Data_Loaded] = false;
@@ -270,7 +270,7 @@ stock void ConfigRegisterConfig(ConfigFile iFile, ConfigStructure iStructure, co
  * @param iConfig            Config file to set load state of.
  * @param bLoaded            True to set as loaded, false to set as unloaded.
  **/
-stock void ConfigSetConfigLoaded(ConfigFile iConfig, bool bLoaded)
+stock void ConfigSetConfigLoaded(const ConfigFile iConfig, const bool bLoaded)
 {
     // Sets load state
     gConfigData[iConfig][Data_Loaded] = bLoaded;
@@ -282,7 +282,7 @@ stock void ConfigSetConfigLoaded(ConfigFile iConfig, bool bLoaded)
  * @param iConfig            Config file to set structure type of.
  * @param iStructure         Structure to set as.
  **/
-stock void ConfigSetConfigStructure(ConfigFile iConfig, ConfigStructure iStructure)
+stock void ConfigSetConfigStructure(const ConfigFile iConfig, const ConfigStructure iStructure)
 {
     // Sets load state
     gConfigData[iConfig][Data_Structure] = iStructure;
@@ -294,7 +294,7 @@ stock void ConfigSetConfigStructure(ConfigFile iConfig, ConfigStructure iStructu
  * @param iConfig            Config file to set reload function of.
  * @param iReloadfunc        Reload function.
  **/
-stock void ConfigSetConfigReloadFunc(ConfigFile iConfig, Function iReloadfunc)
+stock void ConfigSetConfigReloadFunc(const ConfigFile iConfig, const Function iReloadfunc)
 {
     // Sets reload function.
     gConfigData[iConfig][Data_ReloadFunc] = iReloadfunc;
@@ -306,7 +306,7 @@ stock void ConfigSetConfigReloadFunc(ConfigFile iConfig, Function iReloadfunc)
  * @param iConfig            Config file to set handle of.
  * @param iFile              Config file handle.
  **/
-stock void ConfigSetConfigHandle(ConfigFile iConfig, Handle iFile)
+stock void ConfigSetConfigHandle(const ConfigFile iConfig, Handle iFile)
 {
     // Sets file handle
     gConfigData[iConfig][Data_Handle] = iFile;
@@ -318,7 +318,7 @@ stock void ConfigSetConfigHandle(ConfigFile iConfig, Handle iFile)
  * @param iConfig            Config file to set file path of.
  * @param sPath              File path.
  **/
-stock void ConfigSetConfigPath(ConfigFile iConfig, const char[] sPath)
+stock void ConfigSetConfigPath(const ConfigFile iConfig, const char[] sPath)
 {
     // Sets config file path
     strcopy(gConfigData[iConfig][Data_Path], PLATFORM_MAX_PATH, sPath);
@@ -330,7 +330,7 @@ stock void ConfigSetConfigPath(ConfigFile iConfig, const char[] sPath)
  * @param iConfig            Config file to set alias of.
  * @param sAlias             Alias of the config file entry.
  **/
-stock void ConfigSetConfigAlias(ConfigFile iConfig, const char[] sAlias)
+stock void ConfigSetConfigAlias(const ConfigFile iConfig, const char[] sAlias)
 {
     // Sets config alias
     strcopy(gConfigData[iConfig][Data_Alias], CONFIG_MAX_LENGTH, sAlias);
@@ -342,7 +342,7 @@ stock void ConfigSetConfigAlias(ConfigFile iConfig, const char[] sAlias)
  * @param iConfig            Config file to check load status of.
  * @return                   True if config is loaded, false otherwise.
  **/
-stock bool ConfigIsConfigLoaded(ConfigFile iConfig)
+stock bool ConfigIsConfigLoaded(const ConfigFile iConfig)
 {
     // Return load status
     return gConfigData[iConfig][Data_Loaded];
@@ -354,7 +354,7 @@ stock bool ConfigIsConfigLoaded(ConfigFile iConfig)
  * @param iConfig            Config file to get structure type of.
  * @return                   Config structure type.
  **/
-stock ConfigStructure ConfigGetConfigStructure(ConfigFile iConfig)
+stock ConfigStructure ConfigGetConfigStructure(const ConfigFile iConfig)
 {
     // Return load status
     return gConfigData[iConfig][Data_Structure];
@@ -366,7 +366,7 @@ stock ConfigStructure ConfigGetConfigStructure(ConfigFile iConfig)
  * @param iConfig            Config file to get reload function of.
  * @return                   Config reload function.
  **/
-stock Function ConfigGetConfigReloadFunc(ConfigFile iConfig)
+stock Function ConfigGetConfigReloadFunc(const ConfigFile iConfig)
 {
     // Return load status
     return gConfigData[iConfig][Data_ReloadFunc];
@@ -378,7 +378,7 @@ stock Function ConfigGetConfigReloadFunc(ConfigFile iConfig)
  * @param iConfig            Config file to get file handle of.
  * @return                   Config file handle.
  **/
-stock Handle ConfigGetConfigHandle(ConfigFile iConfig)
+stock Handle ConfigGetConfigHandle(const ConfigFile iConfig)
 {
     // Return load status
     return gConfigData[iConfig][Data_Handle];
@@ -389,7 +389,7 @@ stock Handle ConfigGetConfigHandle(ConfigFile iConfig)
  * 
  * @param iConfig            Config file to get path of. (see ConfigFile enum)
  **/
-stock void ConfigGetConfigPath(ConfigFile iConfig, char[] sPath, int iMaxLen)
+stock void ConfigGetConfigPath(const ConfigFile iConfig, char[] sPath, const int iMaxLen)
 {
     // Copy path to return string
     strcopy(sPath, iMaxLen, gConfigData[iConfig][Data_Path]);
@@ -400,7 +400,7 @@ stock void ConfigGetConfigPath(ConfigFile iConfig, char[] sPath, int iMaxLen)
  * 
  * @param iConfig            Config file to get alias of. (see ConfigFile enum)
  **/
-stock void ConfigGetConfigAlias(ConfigFile iConfig, char[] sAlias, int iMaxLen)
+stock void ConfigGetConfigAlias(const ConfigFile iConfig, char[] sAlias, const int iMaxLen)
 {
     // Copy alias to return string
     strcopy(sAlias, iMaxLen, gConfigData[iConfig][Data_Alias]);
@@ -414,7 +414,7 @@ stock void ConfigGetConfigAlias(ConfigFile iConfig, char[] sAlias, int iMaxLen)
  * @param blockSize          The max length of the contained strings. 
  * @return                   True if file was loaded successfuly, false otherwise.
  **/
-stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int blockSize = CONFIG_MAX_LENGTH)
+stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, const int blockSize = CONFIG_MAX_LENGTH)
 {
     // Gets config structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
@@ -448,7 +448,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
                 return false;
             }
 
-            // Clear out array.
+            // Clear out array
             arrayConfig.Clear();
 
             static char sLine[PLATFORM_MAX_PATH];
@@ -566,7 +566,6 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             
             // We're done this file for now, so now we can destory it from memory 
             delete hKeyvalue;
-            
             return true;
         }
     }
@@ -580,7 +579,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
  * @param iConfig            The config file entry to reload.
  * @return                   True if the config is loaded, false if not.
  **/
-stock bool ConfigReloadConfig(ConfigFile iConfig)
+stock bool ConfigReloadConfig(const ConfigFile iConfig)
 {
     // If file isn't loaded, then stop
     bool bLoaded = ConfigIsConfigLoaded(iConfig);
@@ -607,7 +606,7 @@ stock bool ConfigReloadConfig(ConfigFile iConfig)
  * @param iStructure         The structure of the config file.
  * @param hConfig            The handle of the opened file.
  **/
-stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
+stock bool ConfigOpenConfigFile(const ConfigFile iConfig, Handle &hConfig)
 {
     // Gets config structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
@@ -627,6 +626,7 @@ stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
             hConfig = CreateKeyValues(sConfigAlias);
             return FileToKeyValues(hConfig, sConfigPath);
         }
+        
         default :
         {
             // Open file
@@ -659,7 +659,7 @@ stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
  * @param iMaxLen           (Optional) The maxlength of the retrieved value.
  * @return                  True if the change was made successfully, false otherwise. 
  **/
-stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction iAction = KvAction_Create, const char[][] sKeys, int keysMax, const char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
+stock bool ConfigKeyvalueTreeSetting(const ConfigFile iConfig, const ConfigKvAction iAction = KvAction_Create, const char[][] sKeys, const int keysMax, const char[] sSetting = "", const char[] sValue = "", const int iMaxLen = 0)
 {
     // Gets config file structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
@@ -743,7 +743,7 @@ stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction iAction 
  * 
  * @param arrayKv           The array converted from a keyvalue structure.
  **/
-void ConfigClearKvArray(ArrayList arrayKv)
+void ConfigClearKvArray(const ArrayList arrayKv)
 {
     //  i = array index
     int iSize = arrayKv.Length;
@@ -794,7 +794,7 @@ stock ConfigFile ConfigAliasToConfigFile(const char[] sAlias)
  * @param clientIndex        The client index.
  * @param iArguments         The number of arguments that were in the argument string.
  **/
-public Action Command_ReloadCommand(int clientIndex, int iArguments)
+public Action Command_ReloadCommand(const int clientIndex, const int iArguments)
 {
     // Verify admin
     if(!IsPlayerHasFlag(clientIndex, Admin_Config))
@@ -861,7 +861,7 @@ public Action Command_ReloadCommand(int clientIndex, int iArguments)
  * @param clientIndex        The client index.
  * @param iArguments         The number of arguments that were in the argument string.
  **/
-public Action Command_ReloadAllCommand(int clientIndex, int iArguments)
+public Action Command_ReloadAllCommand(const int clientIndex, const int iArguments)
 {
     // Verify admin
     if(!IsPlayerHasFlag(clientIndex, Admin_Config))
@@ -905,7 +905,7 @@ public Action Command_ReloadAllCommand(int clientIndex, int iArguments)
  * @param iConVar              The cvar define of the path to the file.
  * @return                     True if the file exists, false if not.
  **/
-stock bool ConfigGetCvarFilePath(CvarsList iConVar, char[] sPath)
+stock bool ConfigGetCvarFilePath(const CvarsList iConVar, char[] sPath)
 {
     // Gets cvar path
     static char sFilePath[PLATFORM_MAX_PATH];
@@ -945,7 +945,7 @@ stock bool ConfigSettingToBool(const char[] sOption)
  * @param bYesNo            When true, returns "yes/no", false returns "on/off."
  * @param targetIndex       The target to use as translation language.
  **/
-stock void ConfigBoolToSetting(bool bOption, char[] sOption, int iMaxLen, bool bYesNo = true, int targetIndex = LANG_SERVER)
+stock void ConfigBoolToSetting(const bool bOption, char[] sOption, const int iMaxLen, const bool bYesNo = true, const int targetIndex = LANG_SERVER)
 {
     // Initialize char
     static char sBuffer[10];
@@ -992,7 +992,7 @@ stock void ConfigBoolToSetting(bool bOption, char[] sOption, int iMaxLen, bool b
  * @param sKey              The keyname the value is under.
  * @param sDefaultValue     (Optional) Value to return if setting is missing.
  **/
-stock bool ConfigKvGetStringBool(KeyValues kv, const char[] sKey, const char[] sDefaultValue = "yes")
+stock bool ConfigKvGetStringBool(const KeyValues kv, const char[] sKey, const char[] sDefaultValue = "yes")
 {
     // Gets string from key
     static char sValue[CONFIG_MAX_LENGTH];

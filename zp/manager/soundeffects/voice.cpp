@@ -67,7 +67,7 @@ void VoiceOnRoundEnd(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void VoiceOnClientInfected(int clientIndex)
+void VoiceOnClientInfected(const int clientIndex)
 {
     // Give client proper verbal permissions
     VoiceUpdateClient(clientIndex);
@@ -78,7 +78,7 @@ void VoiceOnClientInfected(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void VoiceOnClientHumanized(int clientIndex)
+void VoiceOnClientHumanized(const int clientIndex)
 {
     // Give client proper verbal permissions
     VoiceUpdateClient(clientIndex);
@@ -92,7 +92,7 @@ void VoiceOnClientHumanized(int clientIndex)
  * @param iSender           The sender index.
  * @return                  True if successful otherwise false.
  **/
-stock bool VoiceSetClientListening(int iReceiver, int iSender, bool bListen)
+stock bool VoiceSetClientListening(const int iReceiver, const int iSender, const bool bListen)
 {
     // If the sender is muted, then return false
     if(VoiceIsClientMuted(iSender))
@@ -146,7 +146,7 @@ stock void VoiceAllTalk(/*void*/)
  * @param clientIndex       The client index.
  * @param bInfected         True to permit verbal communication to zombies only, false for humans only.
  **/
-stock void VoiceSetClientTeam(int clientIndex, bool bInfected)
+stock void VoiceSetClientTeam(const int clientIndex, const bool bInfected)
 {
     // If zombie mute is disabled, then skip
     bool bVoiceZombieMute = gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE].BoolValue;
@@ -186,7 +186,7 @@ stock void VoiceSetClientTeam(int clientIndex, bool bInfected)
  * @param clientIndex       The client index.
  * @param bInfected         True to permit verbal communication to zombies only, false for humans only.
  **/
-stock void VoiceUpdateClient(int clientIndex)
+stock void VoiceUpdateClient(const int clientIndex)
 {
     // If voice module is disabled, then stop
     if(!g_bVoice)
@@ -204,7 +204,7 @@ stock void VoiceUpdateClient(int clientIndex)
  * @param clientIndex    The client index.
  * @return               True if the client is muted, false if not.
  **/
-stock bool VoiceIsClientMuted(int clientIndex)
+stock bool VoiceIsClientMuted(const int clientIndex)
 {
     // Return true if the mute flag isn't on the client
     return view_as<bool>(GetClientListeningFlags(clientIndex) & VOICE_MUTED);

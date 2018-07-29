@@ -86,7 +86,7 @@ void DownloadsLoad(/*void*/)
         if(FileExists(sDownloadsPath) || FindCharInString(sDownloadsPath, '@', true) != -1) //! Fix for particles
         {
             // Add to server precache list
-            if(fnMultiFilePrecache(sDownloadsPath)) iDownloadValidCount++; else iDownloadUnValidCount++;
+            if(DownloadsOnPrecache(sDownloadsPath)) iDownloadValidCount++; else iDownloadUnValidCount++;
         }
         // If doesn't exist, it might be directory ?
         else
@@ -95,10 +95,10 @@ void DownloadsLoad(/*void*/)
             int iLastChar = strlen(sDownloadsPath) - 1;
             
             // Open directory
-            DirectoryListing sDirectory = OpenDirectory(sDownloadsPath);
+            DirectoryListing hDirectory = OpenDirectory(sDownloadsPath);
             
             // If directory doesn't exist, then log, and stop
-            if(sDirectory == INVALID_HANDLE || sDownloadsPath[iLastChar] != '/')
+            if(hDirectory == INVALID_HANDLE || sDownloadsPath[iLastChar] != '/')
             {
                 // Log download error info
                 LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sDownloadsPath);
@@ -114,30 +114,31 @@ void DownloadsLoad(/*void*/)
                 continue;
             }
     
-            // Initialize some variables
+            // Initialize variables
             static char sFile[PLATFORM_MAX_PATH];
             
-            // File types
-            FileType sType;
+            // Initialize types
+            FileType hType;
             
-            // Search any files in directory and precache them
-            while(ReadDirEntry(sDirectory, sFile, sizeof(sFile), sType)) 
-            { 
-                if(sType == FileType_File) 
+            // Search any files in the directory and precache them
+            while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
+            {
+                // Validate what found
+                if(hType == FileType_File) 
                 {
                     // Format full path to file
                     Format(sFile, sizeof(sFile), "%s%s", sDownloadsPath, sFile);
                     
                     // Add to server precache list
-                    if(fnMultiFilePrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
+                    if(DownloadsOnPrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
                 }
             }
         
             // Close directory
-            delete sDirectory;
+            delete hDirectory;
         }
     }
-
+    
     // Log download validation info
     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Total blocks: %d | Unsuccessful blocks: %d | Total: %d | Successful: %d | Unsuccessful: %d", iDownloadCount, iDownloadCount - iDownloads, iDownloadValidCount + iDownloadUnValidCount, iDownloadValidCount, iDownloadUnValidCount);
     
@@ -156,4 +157,51 @@ public void DownloadsOnConfigReload(ConfigFile iConfig)
 {
     // Reload download config
     DownloadsLoad();
+}
+
+/**
+ * Adds file to the download table.
+ *
+ * @param sPath             The path to file.
+ * @return                  True or false.
+ **/
+stock bool DownloadsOnPrecache(const char[] sPath)
+{
+    // Finds the first occurrence of a character in a string
+    int iFormat = FindCharInString(sPath, '.', true);
+    
+    // If model path is don't have format, then log, and stop
+    if(iFormat == -1)
+    {
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);
+        return false;
+    }
+    
+    // Validate sound format
+    if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
+    {
+        // Precache sound
+        return fnPrecacheSoundQuirk(sPath);
+    }
+    // Validate model format
+    else if(!strcmp(sPath[iFormat], ".mdl", false))
+    {
+        // Precache model
+        return !ModelsPrecacheStatic(sPath) ? false : true;   
+    }
+    // Validate particle format 
+    else if(!strcmp(sPath[iFormat], ".pcf", false))
+    {
+        // Precache paricle
+        return ModelsPrecacheParticle(sPath);
+    }
+    // Validate meterial format
+    else if(!strcmp(sPath[iFormat], ".vmt", false))
+    {
+        // Precache textures
+        return ModelsPrecacheTextures(sPath);
+    }
+    
+    // Return on success
+    return true;
 }

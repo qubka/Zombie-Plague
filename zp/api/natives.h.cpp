@@ -125,14 +125,13 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetExtraItemLimit",              API_GetExtraItemLimit); 
     CreateNative("ZP_PrintExtraItemInfo",             API_PrintExtraItemInfo); 
     
-    CreateNative("ZP_GetWeaponAttachmentPos",         API_GetWeaponAttachPos);
     CreateNative("ZP_GiveClientWeapon",               API_GiveClientWeapon);
+    CreateNative("ZP_GetClientViewModel",             API_GetClientViewModel);
     CreateNative("ZP_GetWeaponNameID",                API_GetWeaponNameID);
     CreateNative("ZP_GetWeaponID",                    API_GetWeaponID);
     CreateNative("ZP_GetNumberWeapon",                API_GetNumberWeapon);
     CreateNative("ZP_GetWeaponName",                  API_GetWeaponName);
     CreateNative("ZP_GetWeaponEntity",                API_GetWeaponEntity);
-    CreateNative("ZP_GetWeaponIndex",                 API_GetWeaponIndex);
     CreateNative("ZP_GetWeaponCost",                  API_GetWeaponCost);
     CreateNative("ZP_GetWeaponSlot",                  API_GetWeaponSlot);
     CreateNative("ZP_GetWeaponLevel",                 API_GetWeaponLevel);
@@ -150,6 +149,8 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetWeaponModelViewID",           API_GetWeaponModelViewID);
     CreateNative("ZP_GetWeaponModelWorld",            API_GetWeaponModelWorld);    
     CreateNative("ZP_GetWeaponModelWorldID",          API_GetWeaponModelWorldID); 
+    CreateNative("ZP_GetWeaponModelDrop",             API_GetWeaponModelDrop);    
+    CreateNative("ZP_GetWeaponModelDropID",           API_GetWeaponModelDropID); 
     CreateNative("ZP_GetWeaponModelBody",             API_GetWeaponModelBody); 
     CreateNative("ZP_GetWeaponModelSkin",             API_GetWeaponModelSkin); 
     CreateNative("ZP_GetWeaponModelHeat",             API_GetWeaponModelHeat); 
@@ -201,7 +202,7 @@ void APINativesInit(/*void*/)
  *
  * native bool ZP_IsPlayerPrivileged(clientIndex, flag);
  **/
-public int API_IsPlayerPrivileged(Handle isPlugin, int iNumParams)
+public int API_IsPlayerPrivileged(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -215,7 +216,7 @@ public int API_IsPlayerPrivileged(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsPlayerZombie(clientIndex);
  **/
-public int API_IsPlayerZombie(Handle isPlugin, int iNumParams)
+public int API_IsPlayerZombie(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -229,7 +230,7 @@ public int API_IsPlayerZombie(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsPlayerHuman(clientIndex);
  **/
-public int API_IsPlayerHuman(Handle isPlugin, int iNumParams)
+public int API_IsPlayerHuman(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -243,7 +244,7 @@ public int API_IsPlayerHuman(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsPlayerNemesis(clientIndex);
  **/
-public int API_IsPlayerNemesis(Handle isPlugin, int iNumParams)
+public int API_IsPlayerNemesis(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -257,7 +258,7 @@ public int API_IsPlayerNemesis(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsPlayerSurvivor(clientIndex);
  **/
-public int API_IsPlayerSurvivor(Handle isPlugin, int iNumParams)
+public int API_IsPlayerSurvivor(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -271,7 +272,7 @@ public int API_IsPlayerSurvivor(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsPlayerUseZombieSkill(clientIndex);
  **/
-public int API_IsPlayerUseZombieSkill(Handle isPlugin, int iNumParams)
+public int API_IsPlayerUseZombieSkill(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -285,7 +286,7 @@ public int API_IsPlayerUseZombieSkill(Handle isPlugin, int iNumParams)
  *
  * native void ZP_ForceClientRespawn(clientIndex, iD);
  **/
-public int API_ForceClientRespawn(Handle isPlugin, int iNumParams)
+public int API_ForceClientRespawn(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -299,7 +300,7 @@ public int API_ForceClientRespawn(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SwitchClientClass(clientIndex, attackerIndex, iD);
  **/
-public int API_SwitchClientClass(Handle isPlugin, int iNumParams)
+public int API_SwitchClientClass(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -320,7 +321,7 @@ public int API_SwitchClientClass(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientAmmoPack(clientIndex);
  **/
-public int API_GetClientAmmoPack(Handle isPlugin, int iNumParams)
+public int API_GetClientAmmoPack(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -334,7 +335,7 @@ public int API_GetClientAmmoPack(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientAmmoPack(clientIndex, iD);
  **/
-public int API_SetClientAmmoPack(Handle isPlugin, int iNumParams)
+public int API_SetClientAmmoPack(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -348,7 +349,7 @@ public int API_SetClientAmmoPack(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientLastBought(clientIndex);
  **/
-public int API_GetClientLastBought(Handle isPlugin, int iNumParams)
+public int API_GetClientLastBought(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -362,7 +363,7 @@ public int API_GetClientLastBought(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientLastBoughtv(clientIndex, iD);
  **/
-public int API_SetClientLastBought(Handle isPlugin, int iNumParams)
+public int API_SetClientLastBought(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -376,7 +377,7 @@ public int API_SetClientLastBought(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientLevel(clientIndex);
  **/
-public int API_GetClientLevel(Handle isPlugin, int iNumParams)
+public int API_GetClientLevel(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -390,7 +391,7 @@ public int API_GetClientLevel(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientLevel(clientIndex, iD);
  **/
-public int API_SetClientLevel(Handle isPlugin, int iNumParams)
+public int API_SetClientLevel(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -404,7 +405,7 @@ public int API_SetClientLevel(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetClientExp(clientIndex);
  **/
-public int API_GetClientExp(Handle isPlugin, int iNumParams)
+public int API_GetClientExp(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -418,7 +419,7 @@ public int API_GetClientExp(Handle isPlugin, int iNumParams)
  *
  * native void ZP_SetClientExp(clientIndex, iD);
  **/
-public int API_SetClientExp(Handle isPlugin, int iNumParams)
+public int API_SetClientExp(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -432,7 +433,7 @@ public int API_SetClientExp(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsNewRound();
  **/
-public int API_IsNewRound(Handle isPlugin, int iNumParams)
+public int API_IsNewRound(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData[Server_RoundNew];
@@ -443,7 +444,7 @@ public int API_IsNewRound(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsEndRound();
  **/
-public int API_IsEndRound(Handle isPlugin, int iNumParams)
+public int API_IsEndRound(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData[Server_RoundEnd];
@@ -454,7 +455,7 @@ public int API_IsEndRound(Handle isPlugin, int iNumParams)
  *
  * native bool ZP_IsStartedRound();
  **/
-public int API_IsStartedRound(Handle isPlugin, int iNumParams)
+public int API_IsStartedRound(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData[Server_RoundStart];
@@ -465,7 +466,7 @@ public int API_IsStartedRound(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetNumberRound();
  **/
-public int API_GetNumberRound(Handle isPlugin, int iNumParams)
+public int API_GetNumberRound(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData[Server_RoundNumber];
@@ -476,7 +477,7 @@ public int API_GetNumberRound(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetHumanAmount();
  **/
-public int API_GetHumanAmount(Handle isPlugin, int iNumParams)
+public int API_GetHumanAmount(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetHumans();
@@ -487,7 +488,7 @@ public int API_GetHumanAmount(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetZombieAmount();
  **/
-public int API_GetZombieAmount(Handle isPlugin, int iNumParams)
+public int API_GetZombieAmount(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetZombies();
@@ -498,7 +499,7 @@ public int API_GetZombieAmount(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetAliveAmount();
  **/
-public int API_GetAliveAmount(Handle isPlugin, int iNumParams)
+public int API_GetAliveAmount(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetAlive();
@@ -509,7 +510,7 @@ public int API_GetAliveAmount(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetPlayingAmount();
  **/
-public int API_GetPlayingAmount(Handle isPlugin, int iNumParams)
+public int API_GetPlayingAmount(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetPlaying();
@@ -520,7 +521,7 @@ public int API_GetPlayingAmount(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetRandomHuman();
  **/
-public int API_GetRandomHuman(Handle isPlugin, int iNumParams)
+public int API_GetRandomHuman(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetRandomHuman();
@@ -531,7 +532,7 @@ public int API_GetRandomHuman(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetRandomZombie();
  **/
-public int API_GetRandomZombie(Handle isPlugin, int iNumParams)
+public int API_GetRandomZombie(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetRandomZombie();
@@ -542,7 +543,7 @@ public int API_GetRandomZombie(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetRandomSurvivor();
  **/
-public int API_GetRandomSurvivor(Handle isPlugin, int iNumParams)
+public int API_GetRandomSurvivor(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetRandomSurvivor();
@@ -553,7 +554,7 @@ public int API_GetRandomSurvivor(Handle isPlugin, int iNumParams)
  *
  * native int ZP_GetRandomNemesis();
  **/
-public int API_GetRandomNemesis(Handle isPlugin, int iNumParams)
+public int API_GetRandomNemesis(Handle isPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetRandomNemesis();

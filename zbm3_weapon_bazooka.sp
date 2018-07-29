@@ -42,14 +42,25 @@ public Plugin myinfo =
 }
 
 /**
+ * @section Information about extra items.
+ **/
+#define EXTRA_ITEM_REFERENCE         "Bazooka" // Only will be taken from weapons.ini
+#define EXTRA_ITEM_NAME              "Bazooka" // Only will be taken from translation file         
+#define EXTRA_ITEM_COST              20
+#define EXTRA_ITEM_LEVEL             0
+#define EXTRA_ITEM_ONLINE            0
+#define EXTRA_ITEM_LIMIT             0
+/**
+ * @endsection
+ **/
+
+/**
  * @section Information about weapon.
  **/
-#define WEAPON_REFERANCE                "Bazooka" // Models and other properties in the 'weapons.ini'
-#define WEAPON_SPEED                    1.0   
 #define WEAPON_ROCKET_SPEED             2000.0
 #define WEAPON_ROCKET_GRAVITY           0.01
-#define WEAPON_ROCKET_RADIUS            250000.0 // [squared]
-#define WEAPON_ROCKET_DAMAGE            700.0
+#define WEAPON_ROCKET_RADIUS            160000.0 // [squared]
+#define WEAPON_ROCKET_DAMAGE            500.0
 #define WEAPON_ROCKET_EXPLOSION         0.1
 #define WEAPON_ROCKET_SHAKE_AMP         10.0
 #define WEAPON_ROCKET_SHAKE_FREQUENCY   1.0
@@ -80,25 +91,373 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Initialize variables
-int gWeapon;
+/**
+ * @section Water levels.
+ **/
+#define WLEVEL_CSGO_DRY                0
+#define WLEVEL_CSGO_FEET               1
+#define WLEVEL_CSGO_HALF               2
+#define WLEVEL_CSGO_FULL               3
+/**
+ * @endsection
+ **/
+ 
+// Animation sequences
+enum
+{
+    ANIM_IDLE,
+    ANIM_SHOOT,
+    ANIM_DRAW,
+    ANIM_RELOAD
+};
+
+// Item index
+int gItem; int gWeapon;
+#pragma unused gItem, gWeapon
 
 // Variables for the key sound block
 int gSound;
+
+/**
+ * Called after a library is added that the current plugin references optionally. 
+ * A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // Initialize extra item
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+    }
+}
 
 /**
  * Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Initilizate weapon
-    gWeapon = ZP_GetWeaponNameID(WEAPON_REFERANCE);
-    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
+    // Initialize weapon
+    gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
+    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
     // Sounds
     gSound = ZP_GetSoundKeyID("BAZOOKA_SHOOT_SOUNDS");
 }
 
+/**
+ * Called before show an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ *
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
+ **/
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Check the item's index
+    if(extraitemIndex == gItem)
+    {
+        // Validate class
+        if(ZP_IsPlayerZombie(clientIndex) || ZP_IsPlayerSurvivor(clientIndex))
+        {
+            return Plugin_Stop;
+        }
+
+        // Validate access
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
+        {
+            return Plugin_Handled;
+        }
+    }
+
+    // Allow showing
+    return Plugin_Continue;
+}
+
+/**
+ * Called after select an extraitem in the equipment menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.
+ **/
+public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+{
+    // Check the item's index
+    if(extraitemIndex == gItem)
+    {
+        // Give item and select it
+        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE, 0);
+    }
+}
+
+//*********************************************************************
+//*          Don't modify the code below this line unless             *
+//*             you know _exactly_ what you are doing!!!              *
+//*********************************************************************
+
+void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
+
+    // Block the real attack
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+
+    // Sets the next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));
+}
+
+void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
+    
+    // Validate animation delay
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    {
+        return;
+    }
+
+    // Validate ammo
+    if(iClip < ZP_GetWeaponClip(gWeapon))
+    {
+        // Sets the reload animation
+        ZP_SetWeaponAnimation(clientIndex, ANIM_RELOAD); 
+
+        // Reset for allowing reload
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
+    }
+}
+
+void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
+
+    // Sets the draw animation
+    ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
+    
+    // Block the real attack
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+
+    // Sets the shots counter
+    SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", 0);
+    
+    // Sets the next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+}
+
+void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
+
+    // Validate ammo
+    if(iClip <= 0)
+    {
+        return;
+    }
+
+    // Validate animation delay
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    {
+        return;
+    }
+
+    // Validate water
+    if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
+    {
+        return;
+    }
+
+    // Substract ammo
+    iClip -= 1; SetEntProp(weaponIndex, Prop_Send, "m_iClip1", iClip); 
+    if(!iClip) SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
+
+    // Sets the next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));
+
+    // Sets the shots count
+    SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", GetEntProp(clientIndex, Prop_Send, "m_iShotsFired") + 1);
+    
+    // Emit sound
+    ZP_EmitSoundKeyID(weaponIndex, gSound, SNDCHAN_WEAPON, 3);
+    
+    // Sets the attack animation
+    ZP_SetWeaponAnimation(clientIndex, ANIM_SHOOT);
+    
+    // Create a rocket
+    Weapon_OnCreateRocket(clientIndex);
+
+    // Initialize some variables
+    static float vVelocity[3]; int iFlags = GetEntityFlags(clientIndex);
+
+    // Gets the client velocity
+    GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
+
+    // Apply kick back
+    if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
+    {
+        Weapon_OnKickBack(clientIndex, 10.5, 7.5, 0.225, 0.05, 10.5, 7.5, 7);
+    }
+    else if(!(iFlags & FL_ONGROUND))
+    {
+        Weapon_OnKickBack(clientIndex, 14.0, 10.0, 0.5, 0.35, 14.0, 10.0, 5);
+    }
+    else if(iFlags & FL_DUCKING)
+    {
+        Weapon_OnKickBack(clientIndex, 10.5, 6.5, 0.15, 0.025, 10.5, 6.5, 9);
+    }
+    else
+    {
+        Weapon_OnKickBack(clientIndex, 10.75, 10.75, 0.175, 0.0375, 10.75, 10.75, 8);
+    }
+}
+
+void Weapon_OnCreateRocket(const int clientIndex)
+{
+    #pragma unused clientIndex
+
+    // Initialize vectors
+    static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
+
+    // Gets the weapon's position
+    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, 0.0, vPosition);
+    
+    // Create a muzzleflesh / True for getting the custom viewmodel index
+    FakeDispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_flash_autoshotgun", "ParticleEffect", _, _, _, 1);
+    TE_SendToClient(clientIndex);
+
+    // Gets the client's eye angle
+    GetClientEyeAngles(clientIndex, vAngle);
+
+    // Gets the client's velocity
+    GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
+
+    // Create a rocket entity
+    int entityIndex = CreateEntityByName("hegrenade_projectile");
+
+    // Validate entity
+    if(entityIndex != INVALID_ENT_REFERENCE)
+    {
+        // Spawn the entity
+        DispatchSpawn(entityIndex);
+
+        // Returns vectors in the direction of an angle
+        GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
+
+        // Normalize the vector (equal magnitude at varying distances)
+        NormalizeVector(vEntVelocity, vEntVelocity);
+
+        // Apply the magnitude by scaling the vector
+        ScaleVector(vEntVelocity, WEAPON_ROCKET_SPEED);
+
+        // Adds two vectors
+        AddVectors(vEntVelocity, vVelocity, vEntVelocity);
+
+        // Push the rocket
+        TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
+
+        // Sets the model
+        SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
+
+        // Create an effect
+        FakeCreateParticle(entityIndex, _, "smoking", WEAPON_EFFECT_TIME);
+
+        // Sets the parent for the entity
+        SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
+        SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
+        SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+
+        // Sets the gravity
+        SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
+        
+        // Emit sound
+        ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 1);
+        
+        // Create touch hook
+        SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
+    }
+}
+
+void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
+{
+    #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
+
+    // Initialize some variables
+    int iDirection; int iShotsFired; static float vPunchAngle[3];
+    GetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
+
+    // Gets a shots fired
+    if((iShotsFired = GetEntProp(clientIndex, Prop_Send, "m_iShotsFired")) != 1)
+    {
+        // Calculate a base power
+        upBase += iShotsFired * upMod;
+        lateralBase += iShotsFired * lateralMod;
+    }
+
+    // Reduce a max power
+    upMax *= -1.0;
+    vPunchAngle[0] -= upBase;
+
+    // Validate max angle
+    if(upMax >= vPunchAngle[0])
+    {
+        vPunchAngle[0] = upMax;
+    }
+
+    // Gets a direction change
+    if((iDirection = GetEntProp(clientIndex, Prop_Send, "m_iDirection")))
+    {
+        // Increase the angle
+        vPunchAngle[1] += lateralBase;
+
+        // Validate min angle
+        if(lateralMax < vPunchAngle[1])
+        {
+            vPunchAngle[1] = lateralMax;
+        }
+    }
+    else
+    {
+        // Decrease the angle
+        lateralMax *=  -1.0;
+        vPunchAngle[1] -= lateralBase;
+
+        // Validate max angle
+        if(lateralMax > vPunchAngle[1])
+        {
+            vPunchAngle[1] = lateralMax;
+        }
+    }
+
+    // Create a direction change
+    if(!GetRandomInt(0, directionChange))
+    {
+        SetEntProp(clientIndex, Prop_Send, "m_iDirection", !iDirection);
+    }
+
+    // Sets a punch angle
+    SetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
+    SetEntPropVector(clientIndex, Prop_Send, "m_viewPunchAngle", vPunchAngle);
+}
+
+//**********************************************
+//* Item (weapon) hooks.                       *
+//**********************************************
+
+#define _call.%0(%1,%2)         \
+                                \
+    Weapon_On%0                 \
+    (                           \
+        %1,                     \
+        %2,                     \
+                                \
+        GetEntProp(%2, Prop_Send, "m_iClip1"), \
+                                \
+        GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
+                                \
+        GetGameTime()           \
+    )    
+    
 /**
  * Called once a client is authorized and fully in-game, and 
  * after all post-connection authorizations have been performed.  
@@ -122,8 +481,8 @@ public void OnClientPostAdminCheck(int clientIndex)
  **/
 public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
 {
-    // Validate custom grenade
-    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(weaponIndex) == gWeapon)*/
+    // Validate custom weapon
+    if(weaponID == gWeapon)
     {
         // Hook entity callbacks
         SDKHook(weaponIndex, SDKHook_ReloadPost, WeaponOnReloadPost);
@@ -137,9 +496,9 @@ public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-public void WeaponOnDeployPost(int clientIndex, int weaponIndex) 
+public void WeaponOnDeployPost(const int clientIndex, const int weaponIndex) 
 {
-    // Update weapon position on the next frame
+    // Apply fake deploy hook on the next frame
     RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
 }
 
@@ -148,31 +507,16 @@ public void WeaponOnDeployPost(int clientIndex, int weaponIndex)
  *
  * @param userID            The user id.
  **/
-public void WeaponOnFakeDeployPost(int userID)
+public void WeaponOnFakeDeployPost(const int userID)
 {
-    // Initialize weapon index
-    static int weaponIndex;
-    
     // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int clientIndex = GetClientOfUserId(userID); int weaponIndex;
 
-    // Validate client
+    // Validate weapon
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
-        // Initialize vector variables
-        static float flStart[3]; 
-        
-        // Update weapon position
-        ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", flStart);
-        
-        // Returns the game time based on the game tick
-        float flCurrentTime = GetGameTime();
-        
-        // Block the real attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-        
-        // Resets the custom attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+        // Call event
+        _call.Deploy(clientIndex, weaponIndex);
     }
 }
 
@@ -182,10 +526,10 @@ public void WeaponOnFakeDeployPost(int userID)
  *
  * @param weaponIndex       The weapon index.
  **/
-public Action WeaponOnReloadPost(int weaponIndex) 
+public Action WeaponOnReloadPost(const int weaponIndex) 
 {
     // Apply fake reload hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeReloadPost), weaponIndex);
+    RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeReloadPost), EntIndexToEntRef(weaponIndex));
 }
 
 /**
@@ -193,27 +537,29 @@ public Action WeaponOnReloadPost(int weaponIndex)
  *
  * @param referenceIndex    The reference index.
  **/
-public void WeaponOnFakeReloadPost(int referenceIndex) 
+public void WeaponOnFakeReloadPost(const int referenceIndex) 
 {
     // Get the weapon index from the reference
-    int weaponIndex = EntRefToEntIndex(referenceIndex);
+    int entityIndex = EntRefToEntIndex(referenceIndex);
 
     // Validate weapon
-    if(weaponIndex != INVALID_ENT_REFERENCE)
+    if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Returns the game time based on the game tick
-        float flCurrentTime = GetGameTime();
+        // Gets the weapon owner
+        int clientIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwner");
 
-        // Block the real attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-
-        // Resets the custom attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponReload(gWeapon));
+        // Validate owner
+        if(IsPlayerExist(clientIndex))
+        {
+            // Call event
+            _call.Reload(clientIndex, entityIndex);
+        }
     }
 }
 
 /**
- * Called when a clients movement buttons are being processed.
+ * Event: WeaponPostFrame
+ * Weapon is holding.
  *  
  * @param clientIndex       The client index.
  * @param iButtons          Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
@@ -229,153 +575,44 @@ public void WeaponOnFakeReloadPost(int referenceIndex)
  **/ 
 public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
 {
-    // Initialize variable
-    static int nLastButtons[MAXPLAYERS+1];
-    
-    // Button attack hook
-    if(iButtons & IN_ATTACK)
+    // Validate weapon
+    static int weaponIndex;
+    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
-        // Validate overtransmitting
-        if(!(nLastButtons[clientIndex] & IN_ATTACK))
+        // Initialize variable
+        static int iLastButtons[MAXPLAYERS+1];
+
+        // Button primary attack press
+        if(iButtons & IN_ATTACK)
         {
-            // Initialize weapon index
-            static int weaponIndex;
+            // Call event
+            _call.PrimaryAttack(clientIndex, weaponIndex);
+            iButtons &= (~IN_ATTACK); //! Bugfix
+            return Plugin_Changed;
+        }
 
-            // Validate weapon
-            if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+        // Button reload press
+        if(iButtons & IN_RELOAD)
+        {
+            // Validate overtransmitting
+            if(!(iLastButtons[clientIndex] & IN_RELOAD))
             {
-                // Returns the game time based on the game tick
-                float flCurrentTime = GetGameTime();
-
-                // Validate reload
-                if(!GetEntProp(weaponIndex, Prop_Data, "m_bInReload"))
-                {
-                    // Block the real attack
-                    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-                }
-                else return;
-                
-                // Validate ammo
-                int iClip = GetEntProp(weaponIndex, Prop_Send, "m_iClip1");
-                if(iClip <= 0)
-                {
-                    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime); //! Reset for allow reloading
-                    return;
-                }
-
-                // Validate attack
-                if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController") > flCurrentTime)
-                {
-                    return;
-                }
-
-                // Sets the next attack time
-                SetEntPropFloat(weaponIndex, Prop_Send, "m_flEncodedController", flCurrentTime + ZP_GetWeaponSpeed(gWeapon)); //! Add 0.5 to play idle to update state
-
-                // Substract ammo
-                iClip -= 1;
-                SetEntProp(weaponIndex, Prop_Send, "m_iClip1", iClip); 
-                if(!iClip) SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime); //! Reset for allow reloading
-                
-                // Gets the client viewmodel
-                int viewModel = GetEntPropEnt(clientIndex, Prop_Send, "m_hViewModel");
-                
-                // Validate viewmodel
-                if(IsValidEdict(viewModel))
-                {
-                    // Sets the attack animation
-                    SetEntProp(viewModel, Prop_Send, "m_nSequence", 1);
-                }
-                
-                // Emit sound
-                ZP_EmitSoundKeyID(weaponIndex, gSound, SNDCHAN_WEAPON, 3);
-                
-                /*________________________________________________________________________________________________________________*/
-                
-                // Initialize vectors
-                static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
-                
-                // Gets the weapon's shoot position
-                ZP_GetWeaponAttachmentPos(clientIndex, "muzzle_flash", vPosition);
-
-                // Gets the client's eye angle
-                GetClientEyeAngles(clientIndex, vAngle);
-
-                // Gets the client's speed
-                GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
-
-                // Create a rocket entity
-                int entityIndex = CreateEntityByName("hegrenade_projectile");
-
-                // Validate entity
-                if(entityIndex != INVALID_ENT_REFERENCE)
-                {
-                    // Spawn the entity
-                    DispatchSpawn(entityIndex);
-
-                    // Returns vectors in the direction of an angle
-                    GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
-
-                    // Normalize the vector (equal magnitude at varying distances)
-                    NormalizeVector(vEntVelocity, vEntVelocity);
-
-                    // Apply the magnitude by scaling the vector
-                    ScaleVector(vEntVelocity, WEAPON_ROCKET_SPEED);
-
-                    // Adds two vectors
-                    AddVectors(vEntVelocity, vVelocity, vEntVelocity);
-
-                    // Push the rocket
-                    TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
-
-                    // Sets the model
-                    SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
-
-                    // Create an effect
-                    FakeCreateParticle(entityIndex, _, "smoking", WEAPON_EFFECT_TIME);
-
-                    // Sets the parent for the entity
-                    SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
-                    SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
-                    SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
-
-                    // Sets the gravity
-                    SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
-                    
-                    // Emit sound
-                    ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 1);
-                    
-                    // Create touch hook
-                    SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
-                }
+                // Call event
+                _call.Holster(clientIndex, weaponIndex);
             }
         }
-    }
-    // Button reload hook
-    if(iButtons & IN_RELOAD)
-    {
-        // Validate overtransmitting
-        if(!(nLastButtons[clientIndex] & IN_RELOAD))
-        {
-            // Initialize weapon index
-            static int weaponIndex;
-
-            // Validate weapon
-            if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
-            {
-                // Validate ammo
-                if(GetEntProp(weaponIndex, Prop_Send, "m_iClip1") < ZP_GetWeaponClip(gWeapon))
-                {
-                    // Reset for allow reloading
-                    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", GetGameTime());
-                }
-            }
-        }
+        
+        // Store the current button
+        iLastButtons[clientIndex] = iButtons;
     }
     
-    // Store the button for next usage
-    nLastButtons[clientIndex] = iButtons;
+    // Allow button
+    return Plugin_Continue;
 }
+
+//**********************************************
+//* Item (rocket) hooks.                       *
+//**********************************************
 
 /**
  * Rocket touch hook.
@@ -383,7 +620,7 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
  * @param entityIndex    The entity index.        
  * @param targetIndex    The target index.               
  **/
-public Action RocketTouchHook(int entityIndex, int targetIndex)
+public Action RocketTouchHook(const int entityIndex, const int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -423,26 +660,39 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
             // Validate owner
             if(IsPlayerExist(throwerIndex))
             {
-                // i = client index
-                for(int i = 1; i <= MaxClients; i++)
+                // Gets max amount of entities
+                int nGetMaxEnt = GetMaxEntities();
+        
+                // x = entity index
+                for(int x = 1; x <= nGetMaxEnt; x++)
                 {
-                    // Validate client
-                    if(IsPlayerExist(i) && ZP_IsPlayerZombie(i))
-                    {
-                        // Gets victim's origin
-                        GetClientAbsOrigin(i, vVictimPosition);
-
-                        // Calculate the distance
-                        float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
-
-                        // Validate distance
-                        if(flDistance <= WEAPON_ROCKET_RADIUS)
+                    // Validate entity
+                    if(IsValidEdict(x))
+                    {   
+                        // Validate properties
+                        if(!HasEntProp(x, Prop_Send, "m_vecOrigin"))
                         {
-                            // Create the damage for a victim
-                            SDKHooks_TakeDamage(i, throwerIndex, throwerIndex, WEAPON_ROCKET_DAMAGE);
+                            continue;
+                        }
+            
+                        // Validate breakness
+                        if((IsPlayerExist(x) && ZP_IsPlayerZombie(x)) || (x > MAXPLAYERS && GetEntProp(x, Prop_Data, "m_takedamage")))
+                        {
+                            // Gets victim's origin
+                            GetEntPropVector(x, Prop_Send, "m_vecOrigin", vVictimPosition);    
 
-                            // Create a shake
-                            FakeCreateShakeScreen(i, WEAPON_ROCKET_SHAKE_AMP, WEAPON_ROCKET_SHAKE_FREQUENCY, WEAPON_ROCKET_SHAKE_DURATION);
+                            // Calculate the distance
+                            float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+
+                            // Validate distance
+                            if(flDistance <= WEAPON_ROCKET_RADIUS)
+                            {
+                                // Create the damage for a victim
+                                SDKHooks_TakeDamage(x, throwerIndex, throwerIndex, WEAPON_ROCKET_DAMAGE);
+
+                                // Create a shake
+                                if(x <= MAXPLAYERS) FakeCreateShakeScreen(x, WEAPON_ROCKET_SHAKE_AMP, WEAPON_ROCKET_SHAKE_FREQUENCY, WEAPON_ROCKET_SHAKE_DURATION);
+                            }
                         }
                     }
                 }
