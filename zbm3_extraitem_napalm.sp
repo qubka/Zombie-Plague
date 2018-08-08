@@ -44,20 +44,25 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE           "NapalmNade" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_NAME                "Hegrenade" // Only will be taken from translation file         
+#define EXTRA_ITEM_REFERENCE           "hegrenade" // Name in weapons.ini from translation file  
+#define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST                1
-#define EXTRA_ITEM_LEVEL               0
-#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LEVEL               1
+#define EXTRA_ITEM_ONLINE              1
 #define EXTRA_ITEM_LIMIT               0
+#define EXTRA_ITEM_GROUP               ""
 /**
  * @endsection
  **/
- 
- /**
+
+/**
  * @section Properties of the grenade.
  **/
-#define GRENADE_EXP_DAMAGE             3.0     // Damage of hegrenade multiplier (2.0 = double damage)
+#define GRENADE_NAPALM_RADIUS            400.0         // Napalm size (radius)
+#define GRENADE_NAPALM_NEMESIS           true          // Can nemesis push [false-no // true-yes]
+#define GRENADE_NAPALM_SHAKE_AMP         2.0           // Amplutude of the shake effect
+#define GRENADE_NAPALM_SHAKE_FREQUENCY   1.0           // Frequency of the shake effect
+#define GRENADE_NAPALM_SHAKE_DURATION    3.0           // Duration of the shake effect in seconds
 /**
  * @endsection
  **/
@@ -76,7 +81,10 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
+    
+        // Hook entity events
+        HookEvent("hegrenade_detonate", EventEntityNapalm, EventHookMode_Post);
     }
 }
 
@@ -101,7 +109,7 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -129,7 +137,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Give item and select it
@@ -142,10 +150,12 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
- * @param damageType        The ditfield of damage types
+ * @param damageType        The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType)
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -157,6 +167,64 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damage
     if(damageType & DMG_BLAST)
     {
         // Sets explosion damage
-        damageAmount *= ZP_IsPlayerZombie(clientIndex) ? GRENADE_EXP_DAMAGE : 0.0;
+        damageAmount *= ZP_IsPlayerZombie(clientIndex) ? ZP_GetWeaponDamage(gWeapon) : 0.0;
+    }
+}
+
+/**
+ * Event callback (hegrenade_detonate)
+ * The hegrenade is exployed.
+ * 
+ * @param hEvent               The event handle.
+ * @param sName                The name of the event.
+ * @param dontBroadcast        If true, event is broadcasted to all clients, false if not.
+ **/
+public Action EventEntityNapalm(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets real player index from event key
+    ///int ownerIndex = GetClientOfUserId(hEvent.GetInt("userid")); 
+
+    // Initialize vectors
+    static float vEntPosition[3]; static float vVictimPosition[3]; static float vVelocity[3];
+
+    // Gets all required event info
+    int grenadeIndex = hEvent.GetInt("entityid");
+    vEntPosition[0] = hEvent.GetFloat("x"); 
+    vEntPosition[1] = hEvent.GetFloat("y"); 
+    vEntPosition[2] = hEvent.GetFloat("z");
+
+    // Validate entity
+    if(IsValidEdict(grenadeIndex))
+    {
+        // Validate custom grenade
+        if(ZP_GetWeaponID(grenadeIndex) == gWeapon)
+        {
+            // i = client index
+            for(int i = 1; i <= MaxClients; i++)
+            {
+                // Validate client
+                if(IsPlayerExist(i) && ((ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i)) || (ZP_IsPlayerNemesis(i) && GRENADE_NAPALM_NEMESIS)))
+                {
+                    // Gets victim origin
+                    GetClientAbsOrigin(i, vVictimPosition);
+                    
+                    // Calculate the distance
+                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
+                    
+                    // Validate distance
+                    if(flDistance <= GRENADE_NAPALM_RADIUS)
+                    {         
+                        // Calculate the velocity vector
+                        SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
+                
+                        // Create a knockback
+                        FakeCreateKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), GRENADE_NAPALM_RADIUS);
+                        
+                        // Create a shake
+                        FakeCreateShakeScreen(i, GRENADE_NAPALM_SHAKE_AMP, GRENADE_NAPALM_SHAKE_FREQUENCY, GRENADE_NAPALM_SHAKE_DURATION);
+                    }
+                }
+            }
+        }
     }
 }

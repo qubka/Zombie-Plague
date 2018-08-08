@@ -28,7 +28,7 @@
 /**
  * Number of max valid zombie classes.
  **/
-#define ZombieClassMax 32
+#define ZombieClassMax 64
  
 /**
  * Array handle to store zombie class native data.
@@ -50,7 +50,7 @@ enum
     ZOMBIECLASSES_DATA_GRAVITY,
     ZOMBIECLASSES_DATA_KNOCKBACK,
     ZOMBIECLASSES_DATA_LEVEL,
-    ZOMBIECLASSES_DATA_VIP,
+    ZOMBIECLASSES_DATA_GROUP,
     ZOMBIECLASSES_DATA_DURATION,
     ZOMBIECLASSES_DATA_COUNTDOWN,
     ZOMBIECLASSES_DATA_REGENHEALTH,
@@ -296,12 +296,24 @@ public int API_RegisterZombieClass(Handle isPlugin, const int iNumParams)
         }
     }
     
+    // Validate translation
+    if(!TranslationPhraseExists(sZombieBuffer))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Couldn't cache zombie class name: \"%s\" (check translation file)", sZombieBuffer);
+        return -1;
+    }
+    
     // Initialize array block
     ArrayList arrayZombieClass = CreateArray(ZombieClassMax);
     
     // Push native data into array
     arrayZombieClass.PushString(sZombieBuffer); // Index: 0
-    GetNativeString(2, sZombieBuffer, sizeof(sZombieBuffer));   
+    GetNativeString(2, sZombieBuffer, sizeof(sZombieBuffer));
+    if(!TranslationPhraseExists(sZombieBuffer) && strlen(sZombieBuffer))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Couldn't cache zombie class info: \"%s\" (check translation file)", sZombieBuffer);
+        return -1;
+    }
     arrayZombieClass.PushString(sZombieBuffer); // Index: 1
     GetNativeString(3, sZombieBuffer, sizeof(sZombieBuffer));  
     arrayZombieClass.PushString(sZombieBuffer); // Index: 2
@@ -314,7 +326,8 @@ public int API_RegisterZombieClass(Handle isPlugin, const int iNumParams)
     arrayZombieClass.Push(GetNativeCell(8));    // Index: 7
     arrayZombieClass.Push(GetNativeCell(9));    // Index: 8
     arrayZombieClass.Push(GetNativeCell(10));   // Index: 9
-    arrayZombieClass.Push(GetNativeCell(11));   // Index: 10
+    GetNativeString(11, sZombieBuffer, sizeof(sZombieBuffer));   
+    arrayZombieClass.PushString(sZombieBuffer); // Index: 10
     arrayZombieClass.Push(GetNativeCell(12));   // Index: 11
     arrayZombieClass.Push(GetNativeCell(13));   // Index: 12
     arrayZombieClass.Push(GetNativeCell(14));   // Index: 13
@@ -356,7 +369,7 @@ public int API_RegisterZombieClass(Handle isPlugin, const int iNumParams)
 /**
  * Gets the name of a zombie class at a given index.
  *
- * native void ZP_GetZombieClassName(iD, sName, maxLen);
+ * native void ZP_GetZombieClassName(iD, name, maxlen);
  **/
 public int API_GetZombieClassName(Handle isPlugin, const int iNumParams)
 {
@@ -391,7 +404,7 @@ public int API_GetZombieClassName(Handle isPlugin, const int iNumParams)
 /**
  * Gets the info of a zombie class at a given index.
  *
- * native void ZP_GetZombieClassInfo(iD, sInfo, maxLen);
+ * native void ZP_GetZombieClassInfo(iD, info, maxlen);
  **/
 public int API_GetZombieClassInfo(Handle isPlugin, const int iNumParams)
 {
@@ -426,7 +439,7 @@ public int API_GetZombieClassInfo(Handle isPlugin, const int iNumParams)
 /**
  * Gets the player model of a zombie class at a given index.
  *
- * native void ZP_GetZombieClassModel(iD, sModel, maxLen);
+ * native void ZP_GetZombieClassModel(iD, model, maxlen);
  **/
 public int API_GetZombieClassModel(Handle isPlugin, const int iNumParams)
 {
@@ -461,7 +474,7 @@ public int API_GetZombieClassModel(Handle isPlugin, const int iNumParams)
 /**
  * Gets the knife model of a zombie class at a given index.
  *
- * native void ZP_GetZombieClassClaw(iD, sModel, maxLen);
+ * native void ZP_GetZombieClassClaw(iD, model, maxlen);
  **/
 public int API_GetZombieClassClaw(Handle isPlugin, const int iNumParams)
 {
@@ -496,7 +509,7 @@ public int API_GetZombieClassClaw(Handle isPlugin, const int iNumParams)
 /**
  * Gets the grenade model of a zombie class at a given index.
  *
- * native void ZP_GetZombieClassGrenade(iD, sModel, maxLen);
+ * native void ZP_GetZombieClassGrenade(iD, model, maxlen);
  **/
 public int API_GetZombieClassGrenade(Handle isPlugin, const int iNumParams)
 {
@@ -634,15 +647,15 @@ public int API_GetZombieClassLevel(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Check the access of the zombie class.
+ * Gets the group of a zombie class at a given index.
  *
- * native bool ZP_IsZombieClassVIP(iD);
+ * native void ZP_GetZombieClassGroup(iD, group, maxlen);
  **/
-public int API_IsZombieClassVIP(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassGroup(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
-    
+
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
@@ -650,8 +663,22 @@ public int API_IsZombieClassVIP(Handle isPlugin, const int iNumParams)
         return -1;
     }
     
-    // Return value
-    return ZombieIsVIP(iD);
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize group char
+    static char sGroup[PLATFORM_MAX_PATH];
+    ZombieGetGroup(iD, sGroup, sizeof(sGroup));
+
+    // Return on success
+    return SetNativeString(2, sGroup, maxLen);
 }
 
 /**
@@ -986,7 +1013,7 @@ public int API_PrintZombieClassInfo(Handle isPlugin, const int iNumParams)
     ZombieGetName(iD, sZombieName, sizeof(sZombieName));
 
     // If help messages enabled, show info
-    TranslationPrintToChat(clientIndex, "Zombie info", sZombieName, ZombieGetHealth(iD), ZombieGetSpeed(iD), ZombieGetGravity(iD));
+    TranslationPrintToChat(clientIndex, "zombie info", sZombieName, ZombieGetHealth(iD), ZombieGetSpeed(iD), ZombieGetGravity(iD));
     
     // Return on success
     return sizeof(sZombieName);
@@ -1140,7 +1167,7 @@ stock float ZombieGetKnockBack(const int iD)
  * Gets the level of the zombie class.
  *
  * @param iD                The class index.
- * @return                  The duration amount.    
+ * @return                  The level amount.    
  **/
 stock int ZombieGetLevel(const int iD)
 {
@@ -1152,18 +1179,19 @@ stock int ZombieGetLevel(const int iD)
 }
 
 /**
- * Check the access to the zombie class.
+ * Gets the access group of a zombie class at a given index.
  *
  * @param iD                The class index.
- * @return                  True or false.
+ * @param sGroup            The string to return group in.
+ * @param iMaxLen           The max length of the string.
  **/
-stock bool ZombieIsVIP(const int iD)
+stock void ZombieGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 {
     // Gets array handle of zombie class at given index
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
-    // Gets zombie class access 
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_VIP);
+    // Gets zombie class group
+    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_GROUP, sGroup, iMaxLen);
 }
 
 /**
@@ -1667,35 +1695,34 @@ void ZombieOnValidate(const int clientIndex)
 {
     // Gets array size
     int iSize = arrayZombieClasses.Length;
-    
-    // Gets client access
-    bool IsVIP = IsPlayerHasFlag(clientIndex, Admin_Custom1);
-    
+
     // Choose random zombie class for the client
-    if(IsFakeClient(clientIndex) || (!IsVIP && gCvarList[CVAR_ZOMBIE_RANDOM_CLASS].BoolValue) || iSize <= gClientData[clientIndex][Client_ZombieClass])
+    if(IsFakeClient(clientIndex) || iSize <= gClientData[clientIndex][Client_ZombieClass])
     {
         gClientData[clientIndex][Client_ZombieClass] = GetRandomInt(0, iSize-1);
     }
     
+    // Gets class group
+    static char sGroup[SMALL_LINE_LENGTH];
+    ZombieGetGroup(gClientData[clientIndex][Client_ZombieClass], sGroup, sizeof(sGroup));
+    
     // Validate that user does not have VIP flag to play it
-    if(!IsVIP)
+    if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
     {
-        // But have privileged zombie class by default
-        if(ZombieIsVIP(gClientData[clientIndex][Client_ZombieClass]))
+        // Choose any accessable zombie class
+        for(int i = 0; i < iSize; i++)
         {
-            // Choose any accessable zombie class
-            for(int i = 0; i < iSize; i++)
+            // Skip all non-accessable zombie classes
+            ZombieGetGroup(i, sGroup, sizeof(sGroup));
+            if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
             {
-                // Skip all non-accessable zombie classes
-                if(ZombieIsVIP(i))
-                {
-                    continue;
-                }
-                
-                // Update zombie class
-                gClientData[clientIndex][Client_ZombieClassNext]  = i;
-                gClientData[clientIndex][Client_ZombieClass] = i;
+                continue;
             }
+            
+            // Update zombie class
+            gClientData[clientIndex][Client_ZombieClassNext]  = i;
+            gClientData[clientIndex][Client_ZombieClass] = i;
+            break;
         }
     }
     
@@ -1714,6 +1741,7 @@ void ZombieOnValidate(const int clientIndex)
             // Update zombie class
             gClientData[clientIndex][Client_ZombieClassNext]  = i;
             gClientData[clientIndex][Client_ZombieClass] = i;
+            break;
         }
     }
 }
@@ -1736,6 +1764,7 @@ void ZombieMenu(const int clientIndex)
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
     static char sLevel[SMALL_LINE_LENGTH];
+    static char sGroup[SMALL_LINE_LENGTH];
 
     // Create menu handle
     Menu hMenu = CreateMenu(ZombieMenuSlots);
@@ -1744,7 +1773,7 @@ void ZombieMenu(const int clientIndex)
     SetGlobalTransTarget(clientIndex);
     
     // Sets title
-    hMenu.SetTitle("%t", "Choose zombieclass");
+    hMenu.SetTitle("%t", "choose zombieclass");
     
     // Initialize forward
     Action resultHandle;
@@ -1758,19 +1787,21 @@ void ZombieMenu(const int clientIndex)
         
         // Skip, if class is disabled
         if(resultHandle == Plugin_Stop)
+        {
             continue;
-
-        // Gets zombie class name
-        ZombieGetName(i, sName, sizeof(sName));
-        if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
+        }
         
+        // Gets zombie class data
+        ZombieGetName(i, sName, sizeof(sName));
+        ZombieGetGroup(i, sGroup, sizeof(sGroup));
+
         // Format some chars for showing in menu
-        Format(sLevel, sizeof(sLevel), "[LVL:%d]", ZombieGetLevel(i));
-        Format(sBuffer, sizeof(sBuffer), "%t    %s", sName, ZombieIsVIP(i) ? "[VIP]" : ZombieGetLevel(i) > 1 ? sLevel : "");
+        Format(sLevel, sizeof(sLevel), "%t", "level", ZombieGetLevel(i));
+        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < ZombieGetLevel(i)) ? sLevel : "");
         
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerHasFlag(clientIndex, Admin_Custom1) && ZombieIsVIP(i)) || gClientData[clientIndex][Client_Level] < ZombieGetLevel(i) || gClientData[clientIndex][Client_ZombieClassNext] == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < ZombieGetLevel(i) || gClientData[clientIndex][Client_ZombieClassNext] == i) ? false : true));
     }
 
     // Sets exit and back button
@@ -1839,7 +1870,7 @@ public int ZombieMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                 ZombieGetName(iD, sInfo, sizeof(sInfo));
 
                 // If help messages enabled, show info
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "Zombie info", sInfo, ZombieGetHealth(iD), ZombieGetSpeed(iD), ZombieGetGravity(iD));
+                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "zombie info", sInfo, ZombieGetHealth(iD), ZombieGetSpeed(iD), ZombieGetGravity(iD));
             }
         }
     }

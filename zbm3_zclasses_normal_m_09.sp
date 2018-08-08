@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "NormalM09" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "NormalM09Info" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "normalm09" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "normalm09 info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_m_09/normal_m_09.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_m_09/hand_v2/hand_zombie_normal_m_09.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/normal_m_09/grenade/grenade_normal_m_09.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            1.1
 #define ZOMBIE_CLASS_KNOCKBACK          1.0
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           2.0    
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       0
@@ -78,7 +78,7 @@ public Plugin myinfo =
  **/
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieNormalM09;
@@ -104,7 +104,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -127,6 +127,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -149,19 +152,21 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM09)
     {
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
 
-        // Create an effect
-        FakeCreateParticle(clientIndex, _, "tornado", ZOMBIE_CLASS_DURATION);
-        
         // Create an fade
         FakeCreateFadeScreen(clientIndex, ZOMBIE_CLASS_EFFECT_DURATION_F, ZOMBIE_CLASS_EFFECT_TIME_F, 0x0001, ZOMBIE_CLASS_EFFECT_COLOR_F);  
         
         // Initialize vectors
         static float vEntPosition[3]; static float vVictimPosition[3];
         
-        // Gets client's origin
+        // Gets client origin
         GetClientAbsOrigin(clientIndex, vEntPosition);
+        
+        // Create an effect
+        FakeCreateParticle(clientIndex, vEntPosition, _, "tornado", ZOMBIE_CLASS_DURATION);
         
         // i = client index
         for(int i = 1; i <= MaxClients; i++)
@@ -169,7 +174,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             // Validate client
             if(IsPlayerExist(i) && ((ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i)) || (ZP_IsPlayerNemesis(i) && ZOMBIE_CLASS_SKILL_NEMESIS)))
             {
-                // Gets victim's origin
+                // Gets victim origin
                 GetClientAbsOrigin(i, vVictimPosition);
 
                 // Calculate the distance
@@ -178,18 +183,19 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
                 // Validate distance
                 if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
                 {
-                    // Gets victim's zombie class/health
+                    // Gets victim zombie class/health
                     int iD = ZP_GetClientZombieClass(i);
                     int iHealth = ZP_GetZombieClassHealth(iD);
-            
+
                     // Validate lower health
                     if(GetClientHealth(i) < iHealth)
                     {
                         // Emit sound
-                        ZP_EmitSoundKeyID(i, ZP_GetZombieClassSoundRegenID(iD), SNDCHAN_VOICE);    
+                        ZP_GetSound(ZP_GetZombieClassSoundRegenID(iD), sSound, sizeof(sSound));
+                        EmitSoundToAll(sSound, i, SNDCHAN_VOICE, hSoundLevel.IntValue);
                         
                         // Create an effect
-                        FakeCreateParticle(i, _, "heal_ss", ZOMBIE_CLASS_DURATION);
+                        FakeCreateParticle(i, vVictimPosition, _, "heal_ss", ZOMBIE_CLASS_DURATION);
                         
                         // Set a new health 
                         SetEntProp(i, Prop_Send, "m_iHealth", iHealth, 4); 

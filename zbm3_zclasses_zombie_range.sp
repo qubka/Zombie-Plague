@@ -43,8 +43,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "Range" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "RangeInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "range" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "range info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/zombie_range/zombie_range.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/zombie_range/hand_v2/hand_zombie_range.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/zombie_range/grenade/grenade_zombie_range.mdl"    
@@ -53,7 +53,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.0
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           0.0    
 #define ZOMBIE_CLASS_COUNTDOWN          0.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       500
@@ -75,7 +75,7 @@ public Plugin myinfo =
  **/
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieRange;
@@ -101,7 +101,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -127,6 +127,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("RANGE_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -148,10 +151,16 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
         // Validate the zombie class index
         if(ZP_GetClientZombieClass(clientIndex) == gZombieRange)
         {
+            // Validate zombie amount
+            if(ZP_GetZombieAmount() <= 0)
+            {
+                return;
+            }
+    
             // Initialize vectors
             static float vEntPosition[3]; static float vVictimPosition[3];
 
-            // Gets the client's origin
+            // Gets the client origin
             GetClientAbsOrigin(clientIndex, vEntPosition);
 
             // i = client index
@@ -160,7 +169,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
                 // Validate client
                 if(IsPlayerExist(i) && ((ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && ZOMBIE_CLASS_EXP_SURVIVOR)))
                 {
-                    // Gets victim's origin
+                    // Gets victim origin
                     GetClientAbsOrigin(i, vVictimPosition);
 
                     // Calculate the distance
@@ -182,10 +191,12 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
             if(IsValidEdict(iRagdoll))
             {
                 // Create an effect
-                FakeCreateParticle(iRagdoll, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
+                FakeCreateParticle(iRagdoll, vEntPosition, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
                 
                 // Emit sound
-                ZP_EmitSoundKeyID(iRagdoll, gSound, SNDCHAN_STATIC);
+                static char sSound[PLATFORM_MAX_PATH];
+                ZP_GetSound(gSound, sSound, sizeof(sSound));
+                EmitSoundToAll(sSound, iRagdoll, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
         }
     }

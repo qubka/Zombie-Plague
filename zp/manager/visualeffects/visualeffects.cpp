@@ -36,19 +36,19 @@
 /**
  * @section Explosion flags.
  **/
-#define EXP_NODAMAGE               1
-#define EXP_REPEATABLE             2
-#define EXP_NOFIREBALL             4
-#define EXP_NOSMOKE                8
-#define EXP_NODECAL               16
-#define EXP_NOSPARKS              32
-#define EXP_NOSOUND               64
-#define EXP_RANDOMORIENTATION    128
-#define EXP_NOFIREBALLSMOKE      256
-#define EXP_NOPARTICLES          512
-#define EXP_NODLIGHTS           1024
-#define EXP_NOCLAMPMIN          2048
-#define EXP_NOCLAMPMAX          4096
+#define EXP_NODAMAGE            (1<<0)
+#define EXP_REPEATABLE          (1<<1)
+#define EXP_NOFIREBALL          (1<<2)
+#define EXP_NOSMOKE             (1<<3)
+#define EXP_NODECAL             (1<<4)
+#define EXP_NOSPARKS            (1<<5)
+#define EXP_NOSOUND             (1<<6)
+#define EXP_RANDOMORIENTATION   (1<<7)
+#define EXP_NOFIREBALLSMOKE     (1<<8)
+#define EXP_NOPARTICLES         (1<<9)
+#define EXP_NODLIGHTS           (1<<10)
+#define EXP_NOCLAMPMIN          (1<<11)
+#define EXP_NOCLAMPMAX          (1<<12)
 /**
  * @endsection
  **/
@@ -267,7 +267,7 @@ void VEffectsHintClientScreen(const int clientIndex, const char[] sMessage)
  * Create an attached particle entity.
  * 
  * @param clientIndex       The client index.
- * @param sAttach           The attachment bone of the entity parent.
+ * @param sAttach           The attachment name.
  * @param sType             The type of the particle.
  * @param flDurationTime    The duration of light.
  * @return                  The entity index.
@@ -364,6 +364,26 @@ void VEffectRemoveParticle(const int clientIndex)
 }
 
 /**
+ * Create an attached muzzle to the entity.
+ * 
+ * @param clientIndex       The client index.
+ * @param entityIndex       The weapon index.
+ * @param sEffect           The effect name.
+ **/
+void VEffectSpawnMuzzle(const int clientIndex, const int entityIndex, const char[] sEffect)
+{
+    // Initialize vector variables
+    static float vOrigin[3];
+
+    // Gets client position
+    GetClientAbsOrigin(clientIndex, vOrigin); 
+
+    // Create an effect
+    VEffectDispatch(entityIndex, sEffect, "ParticleEffect", vOrigin, vOrigin, _, 1);
+    TE_SendToClient(clientIndex);
+}
+
+/**
  * Create an attached muzzlesmoke to the entity.
  * 
  * @param clientIndex       The client index.
@@ -414,19 +434,23 @@ void VEffectRemoveMuzzle(const int clientIndex, const int entityIndex)
  **/
 void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
 {
-    #define PATTACH_WORLDORIGIN 5
-    #define PARTICLE_DISPATCH_FROM_ENTITY (1 << 0)
-    
     // Dispatch effect
     TE_Start("EffectDispatch");
-    if(IsValidEdict(entityIndex)) TE_WriteNum("entindex", entityIndex);
-    TE_WriteFloatArray("m_vStart.x", vStart, 3);
-    TE_WriteFloatArray("m_vOrigin.x", vEnd, 3);
-    TE_WriteVector("m_vAngles", vAngle);
     if(strlen(sParticle)) TE_WriteNum("m_nHitBox", fnGetParticleEffectIndex(sParticle)); 
     if(strlen(sIndex)) TE_WriteNum("m_iEffectName", fnGetEffectIndex(sIndex));
+    TE_WriteFloat("m_vOrigin.x", vEnd[0]);
+    TE_WriteFloat("m_vOrigin.y", vEnd[1]);
+    TE_WriteFloat("m_vOrigin.z", vEnd[2]);
+    TE_WriteFloat("m_vStart.x", vStart[0]);
+    TE_WriteFloat("m_vStart.y", vStart[1]);
+    TE_WriteFloat("m_vStart.z", vStart[2]);
+    TE_WriteVector("m_vAngles", vAngle);
+    TE_WriteNum("entindex", entityIndex);
     if(iAttachment) 
     {
+        #define PATTACH_WORLDORIGIN 5
+        #define PARTICLE_DISPATCH_FROM_ENTITY (1 << 0)
+    
         TE_WriteNum("m_nDamageType", PATTACH_WORLDORIGIN);
         TE_WriteNum("m_fFlags", PARTICLE_DISPATCH_FROM_ENTITY); /// https://developer.valvesoftware.com/wiki/SDK_Known_Issues_List_Fixed#Server%20Dispatching%20an%20Attached%20Particle%20Effect
         TE_WriteNum("m_nAttachmentIndex", iAttachment);

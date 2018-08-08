@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
- #define ZOMBIE_CLASS_NAME               "NormalM01" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "NormalM01Info" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "normalm01" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "normalm01 info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_m_01/normal_m_01.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_m_01/hand_v2/hand_zombie_normal_m_01.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/normal_m_01/grenade/grenade_normal_m_01.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.0
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           15.0    
 #define ZOMBIE_CLASS_COUNTDOWN          20.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       300
@@ -75,9 +75,9 @@ public Plugin myinfo =
  **/
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
 
-// Initialize variables
+// Initialize vectors
 float vGasPostion[MAXPLAYERS+1][3];
 
 // Initialize zombie class index
@@ -104,7 +104,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -149,13 +149,15 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM01)
     {
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+
+        // Gets the client origin
+        GetClientAbsOrigin(clientIndex, vGasPostion[clientIndex]);
         
         // Create an effect
-        int iSmoke = FakeCreateParticle(clientIndex, _, "explosion_smokegrenade_base_green", ZOMBIE_CLASS_DURATION);
-        
-        // Gets the client's origin
-        GetClientAbsOrigin(clientIndex, vGasPostion[clientIndex]);
+        int iSmoke = FakeCreateParticle(clientIndex, vGasPostion[clientIndex], _, "explosion_smokegrenade_base_green", ZOMBIE_CLASS_DURATION);
         
         // Create gas damage task
         CreateTimer(0.1, ClientOnToxicGas, EntIndexToEntRef(iSmoke), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -186,7 +188,7 @@ public Action ClientOnToxicGas(Handle hTimer, const int referenceIndex)
         int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
 
         // Validate owner
-        if(IsPlayerExist(ownerIndex))
+        if(IsPlayerExist(ownerIndex, false))
         {
             // i = client index
             for(int i = 1; i <= MaxClients; i++)
@@ -194,7 +196,7 @@ public Action ClientOnToxicGas(Handle hTimer, const int referenceIndex)
                 // Validate client
                 if(IsPlayerExist(i) && ((ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && ZOMBIE_CLASS_SKILL_SURVIVOR)))
                 {
-                    // Gets victim's origin
+                    // Gets victim origin
                     GetClientAbsOrigin(i, vVictimPosition);
 
                     // Calculate the distance
@@ -203,8 +205,8 @@ public Action ClientOnToxicGas(Handle hTimer, const int referenceIndex)
                     // Validate distance
                     if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
                     {            
-                        // Apply damage
-                        SDKHooks_TakeDamage(i, ownerIndex, ownerIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_BURN);
+                        // Create the damage for a victim
+                        ZP_TakeDamage(i, ownerIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS);
                     }
                 }
             }

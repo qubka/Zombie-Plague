@@ -114,13 +114,12 @@ stock void TranslationPrintToConsole(const int clientIndex, any ...)
 }
 
 /**
- * Print console text to all admins or server. (with style)
+ * Print console text to all players or server. (with style)
  * 
  * @param bServer           True to also print text to server console, false just to clients.
- * @param bAdmin            True to just administators, false just to clients.
  * @param ...               Translation formatting parameters.
  **/
-stock void TranslationPrintToConsoleAll(const bool bServer, const bool bAdmin, any ...)
+stock void TranslationPrintToConsoleAll(const bool bServer, any ...)
 {
     static char sTranslation[TRANSLATION_MAX_LENGTH_CONSOLE];
 
@@ -145,12 +144,6 @@ stock void TranslationPrintToConsoleAll(const bool bServer, const bool bAdmin, a
     {
         // Validate client
         if(!IsPlayerExist(i, false))
-        {
-            continue;
-        }
-
-        // If client isn't an admin, and we're only printing to admins, then stop
-        if(bAdmin && !IsPlayerHasFlag(i))
         {
             continue;
         }

@@ -76,7 +76,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         LoadTranslations("zombieplague.phrases");
         
         // Create a commands
-        RegConsoleCmd("zadminmenu", AdminCommandCatched, "Open the administator menu with unique commands.");
+        RegAdminCmd("zadminmenu", AdminCommandCatched, ADMFLAG_GENERIC, "Open the administator menu with unique commands.");
         
         /*
          * Creates a HUD synchronization object. This object is used to automatically assign and re-use channels for a set of messages.
@@ -97,7 +97,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * Handles the <!zadminmenu> command. Open the administator menu with unique commands.
  * 
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
 public Action AdminCommandCatched(int clientIndex, int iArguments)
@@ -123,15 +123,7 @@ void MenuAdmin(int clientIndex)
     {
         return;
     }
-    
-    // Verify admin
-    if(!ZP_IsPlayerPrivileged(clientIndex, Admin_Generic))
-    {
-        // Emit error sound
-        ClientCommand(clientIndex, "play buttons/button11.wav");
-        return;
-    }
-    
+
     // Initialize char
     static char sBuffer[NORMAL_LINE_LENGTH];
 
@@ -139,72 +131,72 @@ void MenuAdmin(int clientIndex)
     SetGlobalTransTarget(clientIndex);
 
     // Initialize menu
-    Menu iMenu = CreateMenu(AdminMenuSlots);
+    Menu hMenu = CreateMenu(AdminMenuSlots);
 
     // Add formatted options to menu
-    SetMenuTitle(iMenu, "%t", "Admin menu");
+    hMenu.SetTitle("%t", "admin menu");
 
     // Make human
-    Format(sBuffer, sizeof(sBuffer), "%t", "Make human");
-    AddMenuItem(iMenu, "1", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Reservation)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "make human");
+    hMenu.AddItem("1", sBuffer);
     
     // Make zombie
-    Format(sBuffer, sizeof(sBuffer), "%t", "Make zombie");
-    AddMenuItem(iMenu, "2", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Kick)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "make zombie");
+    hMenu.AddItem("2", sBuffer);
     
     // Respawn player
-    Format(sBuffer, sizeof(sBuffer), "%t", "Respawn");
-    AddMenuItem(iMenu, "3", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Slay)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "respawn");
+    hMenu.AddItem("3", sBuffer);
     
     // Make nemesis
-    Format(sBuffer, sizeof(sBuffer), "%t", "Make nemesis");
-    AddMenuItem(iMenu, "4", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Changemap)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "make nemesis");
+    hMenu.AddItem("4", sBuffer);
     
     // Make survivor
-    Format(sBuffer, sizeof(sBuffer), "%t", "Make survivor");
-    AddMenuItem(iMenu, "5", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Custom2)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "make survivor");
+    hMenu.AddItem("5", sBuffer);
     
     // Give ammopacks
-    Format(sBuffer, sizeof(sBuffer), "%t", "Give ammopacks");
-    AddMenuItem(iMenu, "6", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Custom3)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "give ammopacks");
+    hMenu.AddItem("6", sBuffer);
     
     // Give level
-    Format(sBuffer, sizeof(sBuffer), "%t", "Give level");
-    AddMenuItem(iMenu, "7", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Custom3)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "give level");
+    hMenu.AddItem("7", sBuffer);
     
     // Start armageddon
-    Format(sBuffer, sizeof(sBuffer), "%t", "Start armageddon");
-    AddMenuItem(iMenu, "8", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Custom4)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "start armageddon");
+    hMenu.AddItem("8", sBuffer);
     
     // Start multi mode
-    Format(sBuffer, sizeof(sBuffer), "%t", "Start multi mode");
-    AddMenuItem(iMenu, "9", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Custom5)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "start multi mode");
+    hMenu.AddItem("9", sBuffer);
     
     // Start swarm mode
-    Format(sBuffer, sizeof(sBuffer), "%t", "Start swarm mode");
-    AddMenuItem(iMenu, "10", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Custom6)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "start swarm mode");
+    hMenu.AddItem("10", sBuffer);
 
     // Start plague mode
-    Format(sBuffer, sizeof(sBuffer), "%t", "Start plague mode");
-    AddMenuItem(iMenu, "11", sBuffer, MenuGetItemDraw(ZP_IsPlayerPrivileged(clientIndex, Admin_Custom6)));
+    Format(sBuffer, sizeof(sBuffer), "%t", "start plague mode");
+    hMenu.AddItem("11", sBuffer);
     
     // Sets exit and back button
-    SetMenuExitBackButton(iMenu, true);
+    hMenu.ExitBackButton = true;
     
     // Sets options and display it
-    SetMenuOptionFlags(iMenu, MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK);
-    DisplayMenu(iMenu, clientIndex, MENU_TIME_FOREVER); 
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
 /**
  * Called when client selects option in the admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int AdminMenuSlots(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int AdminMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -212,7 +204,7 @@ public int AdminMenuSlots(Menu iMenu, MenuAction mAction, int clientIndex, int m
         // Client hit 'Exit' button
         case MenuAction_End :
         {
-            CloseHandle(iMenu);
+            delete hMenu;
         }
         
         // Client hit 'Back' button
@@ -237,8 +229,8 @@ public int AdminMenuSlots(Menu iMenu, MenuAction mAction, int clientIndex, int m
 /**
  * Used for creating sub part of admin menu by choosing mode.
  *
- * @param clientIndex        The client index.
- * @param iMode                The mode of the command.
+ * @param clientIndex       The client index.
+ * @param iMode             The mode of the command.
  **/
 void MenuSubAdmin(int clientIndex, AdminMenu iMode)
 {
@@ -256,19 +248,19 @@ void MenuSubAdmin(int clientIndex, AdminMenu iMode)
     GetClientName(clientIndex, sAdminName, sizeof(sAdminName));
     
     // Initialize menu
-    Menu iMenu;
+    Menu hMenu;
     
     // Switch the menu mode
     switch(iMode)
     {
         //!                                                      Menu Handle      Title             Alive?        Dead?           Skip Zombies?       Skip Humans?        Skip Nemesises?         Skip Survivors?
-        case AdminMenu_Human    : iMenu = CreatePlayerList(AdminMakeHumanList,    "Make human",     true,         false,          false,              true,               false,                  true);
-        case AdminMenu_Zombie   : iMenu = CreatePlayerList(AdminMakeZombieList,   "Make zombie",    true,         false,          true,               false,              true,                   false);
-        case AdminMenu_Respawn  : iMenu = CreatePlayerList(AdminMakeAliveList,    "Respawn",        false,        true,           false,              false,              false,                  false);    
-        case AdminMenu_Nemesis  : iMenu = CreatePlayerList(AdminMakeNemesisList,  "Make nemesis",   true,         false,          false,              false,              true,                   false);         
-        case AdminMenu_Survivor : iMenu = CreatePlayerList(AdminMakeSurvivorList, "Make survivor",  true,         false,          false,              false,              false,                  true);
-        case AdminMenu_Ammopack : iMenu = CreatePlayerList(AdminMakeAmmopackList, "Give ammopacks", false,        false,          false,              false,              false,                  false);
-        case AdminMenu_Level    : iMenu = CreatePlayerList(AdminMakeLevelList,    "Give level",     false,        false,          false,              false,              false,                  false);
+        case AdminMenu_Human    : hMenu = CreatePlayerList(AdminMakeHumanList,    "make human",     true,         false,          false,              true,               false,                  true);
+        case AdminMenu_Zombie   : hMenu = CreatePlayerList(AdminMakeZombieList,   "make zombie",    true,         false,          true,               false,              true,                   false);
+        case AdminMenu_Respawn  : hMenu = CreatePlayerList(AdminMakeAliveList,    "respawn",        false,        true,           false,              false,              false,                  false);    
+        case AdminMenu_Nemesis  : hMenu = CreatePlayerList(AdminMakeNemesisList,  "make nemesis",   true,         false,          false,              false,              true,                   false);         
+        case AdminMenu_Survivor : hMenu = CreatePlayerList(AdminMakeSurvivorList, "make survivor",  true,         false,          false,              false,              false,                  true);
+        case AdminMenu_Ammopack : hMenu = CreatePlayerList(AdminMakeAmmopackList, "give ammopacks", false,        false,          false,              false,              false,                  false);
+        case AdminMenu_Level    : hMenu = CreatePlayerList(AdminMakeLevelList,    "give level",     false,        false,          false,              false,              false,                  false);
         default : 
         {
             // If round started, then stop
@@ -285,34 +277,34 @@ void MenuSubAdmin(int clientIndex, AdminMenu iMode)
                 case AdminMenu_Armageddon :
                 {
                     // Start mode
-                    ZP_SetServerGameMode("Armageddon");
+                    ZP_SetServerGameMode("armageddon");
                     
                     // Print event
-                    HUDSendToAll("Admin started armageddon", sAdminName);
+                    HUDSendToAll("admin started armageddon", sAdminName);
                 }
                 case AdminMenu_Multi :
                 {
                     // Start mode
-                    ZP_SetServerGameMode("Multi");
+                    ZP_SetServerGameMode("multi");
 
                     // Print event
-                    HUDSendToAll("Admin started multi mode", sAdminName);
+                    HUDSendToAll("admin started multi mode", sAdminName);
                 }
                 case AdminMenu_Swarm :
                 {
                     // Start mode
-                    ZP_SetServerGameMode("Swarm");
+                    ZP_SetServerGameMode("swarm");
                     
                     // Print event
-                    HUDSendToAll("Admin started swarm mode", sAdminName);
+                    HUDSendToAll("admin started swarm mode", sAdminName);
                 }
                 case AdminMenu_Plague :
                 {
                     // Start mode
-                    ZP_SetServerGameMode("Plague");
+                    ZP_SetServerGameMode("plague");
 
                     // Print event
-                    HUDSendToAll("Admin started plague mode", sAdminName);
+                    HUDSendToAll("admin started plague mode", sAdminName);
                 }
             }
             return;
@@ -320,37 +312,39 @@ void MenuSubAdmin(int clientIndex, AdminMenu iMode)
     }
 
     // Sets exit and back button
-    SetMenuExitBackButton(iMenu, true);
+    hMenu.ExitBackButton = true;
     
     // Sets options and display it
-    SetMenuOptionFlags(iMenu, MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK);
-    DisplayMenu(iMenu, clientIndex, MENU_TIME_FOREVER); 
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
 /**
  * Shows a list of all clients to a client, different handlers can be used for this, as well as title.
  * 
- * @param sHandler            The menu handler.
+ * @param hHandler          The menu handler.
  * @param sTitle            Set menu title to the translated phrase.
  * @param bAlive            If true, only clients that are alive will be displayed.
  * @param bDead             If true, only clients that are dead will be displayed. 
  * @param bZombie           If true, only clients on a zombie will be skipped.
  * @param bHuman            If true, only clients on a human will be skipped.
  * @param bNemesis          If true, only clients on a nemesis will be skipped.
- * @param bSurvivor            If true, only clients on a survivor will be skipped.
- * @return                     The menu index.
+ * @param bSurvivor         If true, only clients on a survivor will be skipped.
+ * @return                  The menu index.
  **/
-Menu CreatePlayerList(MenuHandler sHandler, char[] sTitle, bool bAlive, bool bDead, bool bZombie, bool bHuman , bool bNemesis, bool bSurvivor)
+Menu CreatePlayerList(MenuHandler hHandle, char[] sTitle, bool bAlive, bool bDead, bool bZombie, bool bHuman , bool bNemesis, bool bSurvivor)
 {
+    #define TEAM_SPECTATOR      1    /**< Spectators */
+    
     // Initialize menu
-    Menu iMenu = CreateMenu(sHandler);
+    Menu hMenu = CreateMenu(hHandle);
     
     // Initialize chars variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
     
     // Add formatted options to menu
-    SetMenuTitle(iMenu, "%t", sTitle);
+    hMenu.SetTitle("%t", sTitle);
     
     // Amount of cases
     int iCount;
@@ -358,49 +352,55 @@ Menu CreatePlayerList(MenuHandler sHandler, char[] sTitle, bool bAlive, bool bDe
     // i = Client index
     for(int i = 1; i <= MaxClients; i++)
     {
-        //If client isn't connected, then stop
+        //If client isn't connected, then skip
         if(!IsClientConnected(i))
         {
             continue;
         }
 
-        // If client isn't in-game, then stop
-        if(!IsClientInGame(i))
+        // If client isn't in-game, then skip
+        if(!IsClientInGame(i) || IsClientInKickQueue(i)) //! Improved, thanks to fl0wer!
         {
             continue;
         }
+        
+        // If client is in GoTV, then skip
+        if(IsClientSourceTV(i))
+        {
+            continue;
+        } 
 
-        // If client is dead, then stop
+        // If client is dead, then skip
         if(bAlive && !IsPlayerAlive(i))
         {
             continue;
         }
 
-        // If client is alive, then stop
-        if(bDead && IsPlayerAlive(i))
+        // If client is alive, then skip
+        if(bDead && (IsPlayerAlive(i) || GetClientTeam(i) <= TEAM_SPECTATOR))
         {
             continue;
         }
 
-        // If client is zombie, then stop
+        // If client is zombie, then skip
         if(bZombie && ZP_IsPlayerZombie(i))
         {
             continue;
         }
         
-        // If client is human, then stop
+        // If client is human, then skip
         if(bHuman && ZP_IsPlayerHuman(i))
         {
             continue;
         }
         
-        // If client is nemesis, then stop
+        // If client is nemesis, then skip
         if(bNemesis && ZP_IsPlayerNemesis(i))
         {
             continue;
         }
 
-        // If client is survivor, then stop
+        // If client is survivor, then skip
         if(bSurvivor && ZP_IsPlayerSurvivor(i))
         {
             continue;
@@ -415,7 +415,7 @@ Menu CreatePlayerList(MenuHandler sHandler, char[] sTitle, bool bAlive, bool bDe
         
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        AddMenuItem(iMenu, sInfo, sBuffer);
+        hMenu.AddItem(sInfo, sBuffer);
 
         // Increment count
         iCount++;
@@ -425,22 +425,22 @@ Menu CreatePlayerList(MenuHandler sHandler, char[] sTitle, bool bAlive, bool bDe
     if(!iCount)
     {
         static char sEmpty[SMALL_LINE_LENGTH];
-        Format(sEmpty, sizeof(sEmpty), "%t", "Empty");
+        Format(sEmpty, sizeof(sEmpty), "%t", "empty");
 
-        AddMenuItem(iMenu, "empty", sEmpty, ITEMDRAW_DISABLED);
+        hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
     }
 
     // Return a new menu Handle
-    return iMenu;
+    return hMenu;
 }            
 
 /**
  * Called when client selects option in the sub admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int AdminMakeHumanList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
@@ -450,10 +450,10 @@ public int AdminMakeHumanList(Menu iMenu, MenuAction mAction, int clientIndex, i
 /**
  * Called when client selects option in the sub admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int AdminMakeZombieList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
@@ -463,10 +463,10 @@ public int AdminMakeZombieList(Menu iMenu, MenuAction mAction, int clientIndex, 
 /**
  * Called when client selects option in the sub admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int AdminMakeAliveList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
@@ -476,10 +476,10 @@ public int AdminMakeAliveList(Menu iMenu, MenuAction mAction, int clientIndex, i
 /**
  * Called when client selects option in the sub admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int AdminMakeNemesisList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
@@ -489,10 +489,10 @@ public int AdminMakeNemesisList(Menu iMenu, MenuAction mAction, int clientIndex,
 /**
  * Called when client selects option in the sub admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int AdminMakeSurvivorList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
@@ -502,10 +502,10 @@ public int AdminMakeSurvivorList(Menu iMenu, MenuAction mAction, int clientIndex
 /**
  * Called when client selects option in the sub admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int AdminMakeAmmopackList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
@@ -515,10 +515,10 @@ public int AdminMakeAmmopackList(Menu iMenu, MenuAction mAction, int clientIndex
 /**
  * Called when client selects option in the sub admin menu, and handles it.
  *  
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int AdminMakeLevelList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
@@ -528,13 +528,13 @@ public int AdminMakeLevelList(Menu iMenu, MenuAction mAction, int clientIndex, i
 /**
  * Create sub admin menu.
  *
- * @param iMenu                The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot                The slot index selected (starting from 0).
- * @param menuMode            The mode of the command.
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ * @param menuMode          The mode of the command.
  **/
-void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, AdminMenu menuMode)
+void AdminCommand(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot, AdminMenu menuMode)
 {
     // Switch the menu action
     switch(mAction)
@@ -542,7 +542,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
         // Client hit 'Exit' button
         case MenuAction_End :
         {
-            CloseHandle(iMenu);
+            delete hMenu;
         }
         
         // Client hit 'Back' button
@@ -572,7 +572,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                 return;
             }
 
-            // Gets client's name
+            // Gets client name
             static char sAdminName[NORMAL_LINE_LENGTH];
             GetClientName(clientIndex, sAdminName, sizeof(sAdminName));
             
@@ -584,7 +584,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
             static char sInfo[SMALL_LINE_LENGTH];
 
             // Gets index of the player in the menu
-            GetMenuItem(iMenu, mSlot, sInfo, sizeof(sInfo));
+            hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
             int selectedIndex = StringToInt(sInfo);
 
             // Verify that the selected client is connected
@@ -595,7 +595,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                 return;
             }
             
-            // Gets selected client's name
+            // Gets selected client name
             static char sClientName[NORMAL_LINE_LENGTH];
             GetClientName(selectedIndex, sClientName, sizeof(sClientName));
             
@@ -620,7 +620,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         ZP_SwitchClientClass(selectedIndex, _, TYPE_HUMAN);
 
                         // Print event
-                        HUDSendToAll("Admin give antidot", sAdminName, sClientName);
+                        HUDSendToAll("admin give antidot", sAdminName, sClientName);
                     }
                     // Player is dead or human
                     else 
@@ -639,7 +639,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         // Start mode
                         if(ZP_IsNewRound())
                         {
-                            ZP_SetServerGameMode("Normal", selectedIndex);
+                            ZP_SetServerGameMode("normal", selectedIndex);
                         }
                         else
                         {
@@ -656,7 +656,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         }
 
                         // Print event
-                        HUDSendToAll("Admin infect player", sAdminName, sClientName);
+                        HUDSendToAll("admin infect player", sAdminName, sClientName);
                     }
                     // Player is dead or zombie
                     else 
@@ -676,7 +676,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         ZP_ForceClientRespawn(selectedIndex);
 
                         // Print event
-                        HUDSendToAll("Admin respawned player", sAdminName, sClientName);
+                        HUDSendToAll("admin respawned player", sAdminName, sClientName);
                     }
                     // Player is alive
                     else
@@ -695,7 +695,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         // Start mode
                         if(ZP_IsNewRound())
                         {
-                            ZP_SetServerGameMode("Nemesis", selectedIndex);
+                            ZP_SetServerGameMode("nemesis", selectedIndex);
                         }
                         else
                         {
@@ -712,7 +712,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         }
 
                         // Print event
-                        HUDSendToAll("Admin give a nemesis to player", sAdminName, sClientName);
+                        HUDSendToAll("admin give a nemesis to player", sAdminName, sClientName);
                     }
                     // Player is dead
                     else 
@@ -731,7 +731,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         // Start mode
                         if(ZP_IsNewRound())
                         {
-                            ZP_SetServerGameMode("Survivor", selectedIndex);
+                            ZP_SetServerGameMode("survivor", selectedIndex);
                         }
                         else
                         {
@@ -748,7 +748,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                         }
 
                         // Print event
-                        HUDSendToAll("Admin give a survivor to player", sAdminName, sClientName);
+                        HUDSendToAll("admin give a survivor to player", sAdminName, sClientName);
                     }
                     // Player is dead
                     else 
@@ -765,7 +765,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                     ZP_SetClientAmmoPack(selectedIndex, ZP_GetClientAmmoPack(selectedIndex) + 100);
 
                     // Print event
-                    HUDSendToAll("Admin give 100 ammopacks to player", sAdminName, sClientName);
+                    HUDSendToAll("admin give 100 ammopacks to player", sAdminName, sClientName);
                 }
                 
                 // Give a level
@@ -775,7 +775,7 @@ void AdminCommand(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                     ZP_SetClientLevel(selectedIndex, ZP_GetClientLevel(selectedIndex) + 1);
 
                     // Print event
-                    HUDSendToAll("Admin give 1 level to player", sAdminName, sClientName);
+                    HUDSendToAll("admin give 1 level to player", sAdminName, sClientName);
                 }
             }
             
@@ -810,7 +810,7 @@ stock void HUDSendToAll(any ...)
         // Create phrase
         VFormat(sHudText, sizeof(sHudText), "%t", 1);
 
-        // Print translated phrase to server or client's screen
+        // Print translated phrase to server or client screen
         SetHudTextParams(0.5, 0.3, 3.0, 255, 255, 255, 255, 0);
         ShowSyncHudText(i, hHudSync, sHudText);
     }

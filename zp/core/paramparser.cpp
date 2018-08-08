@@ -282,7 +282,7 @@ stock int StrExtract(char[] sBuffer, const char[] sSource, const int startPos, c
 }
 
 /**
- * 
+ * Validate a byte string.
  *
  * @param sBuffer           The string buffer.
  * @return                  .

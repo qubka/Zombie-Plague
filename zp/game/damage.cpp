@@ -24,7 +24,7 @@
  *
  * ============================================================================
  **/
-
+ 
 /**
  * Client is joining the server.
  * 
@@ -45,14 +45,14 @@ void DamageClientInit(const int clientIndex)
  * @param attackerIndex     The attacker index.
  * @param inflicterIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
- * @param damageBits        The type of damage inflicted.
+ * @param damageType        The type of damage inflicted.
  * @param ammoType          The ammo type of the attacker weapon.
- * @param hitroupBox        The hitbox index.  
+ * @param hitgroupBox       The hitbox index.  
  * @param hitgroupIndex     The hitgroup index.  
  **/
-public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits, int &ammoType, int hitroupBox, int hitgroupIndex)
+public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageType, int &ammoType, int hitgroupBox, int hitgroupIndex)
 {
-    // If gamemodes enable, then validate state
+    // If gamemodes enable, then check round
     if(gCvarList[CVAR_GAME_CUSTOM_START].IntValue)
     {
         // If mode doesn't started yet, then stop trace
@@ -63,20 +63,6 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
         }
     }
 
-    // Verify that the clients are exists
-    if(!IsPlayerExist(victimIndex) || !IsPlayerExist(attackerIndex))
-    {
-        // Stop trace
-        return Plugin_Handled;
-    }
-
-    // If clients have same class, then stop trace
-    if(GetClientTeam(victimIndex) == GetClientTeam(attackerIndex))
-    {
-        // Stop trace
-        return Plugin_Handled;
-    }
-
     // If damage hitgroups disabled, then allow damage
     if(!gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
     {
@@ -84,8 +70,8 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
         return Plugin_Continue;
     }
 
-    // Get hitgroup index
-    int iIndex = HitgroupToIndex(hitroupBox);
+    // Gets hitgroup index
+    int iIndex = HitgroupToIndex(hitgroupIndex);
 
     // If index can't be found, then allow damage
     if(iIndex == -1)
@@ -111,22 +97,25 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
  * 
  * @param victimIndex       The victim index.
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
- * @param damageBits        The type of damage inflicted.
+ * @param damageType        The type of damage inflicted.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
+ * @param damageForce       The velocity of damage force.
+ * @param damagePosition    The origin of damage.
  **/
-public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageBits)
+public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex, const float damageForce[3], const float damagePosition[3]/*, int damagecustom*/)
 {
     //*********************************************************************
     //*                   VALIDATION OF THE INFLICTOR                     *
     //*********************************************************************
     
-    // If inflicter isn't valid, then skip
-    if(IsValidEdict(inflicterIndex))
+    // Validate inflictor
+    if(IsValidEdict(inflictorIndex))
     {
         // Gets classname of the inflictor
         static char sClassname[SMALL_LINE_LENGTH];
-        GetEdictClassname(inflicterIndex, sClassname, sizeof(sClassname));
+        GetEdictClassname(inflictorIndex, sClassname, sizeof(sClassname));
 
         // If entity is a trigger, then allow damage (Map is damaging client)
         if(StrContains(sClassname, "trigger") > -1)
@@ -135,7 +124,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
             return Plugin_Continue;
         }
     }
-    
+
     //*********************************************************************
     //*                     VALIDATION OF THE PLAYER                           *
     //*********************************************************************
@@ -154,7 +143,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
         return Plugin_Handled;
     }
 
-    // Verify that the victim is exist
+    // Validate victim
     if(!IsPlayerExist(victimIndex))
     {
         // Block damage
@@ -165,33 +154,15 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
     //*                    APPLY DAMAGE TO THE PLAYER                     *
     //*********************************************************************
 
-    // Client was damaged by 'bullet'
-    if(damageBits & DMG_NEVERGIB)
+    // Call forward
+    API_OnClientDamaged(victimIndex, attackerIndex, inflictorIndex, damageAmount, damageType, weaponIndex);
+    
+    // Validate attacker
+    if(IsPlayerExist(attackerIndex))
     {
-        // Verify that the attacker is exist
-        if(!IsPlayerExist(attackerIndex))
-        {
-            // Block damage
-            return Plugin_Handled;
-        }
-
         // Initialize additional knockback multiplier for zombie
         float knockbackAmount = ZombieGetKnockBack(gClientData[victimIndex][Client_ZombieClass]);
 
-        // If damage hitgroups enabled, then apply multiplier
-        if(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
-        {
-            // Validate hitgroup index
-            int iHitIndex = HitgroupToIndex(GetEntData(victimIndex, g_iOffset_PlayerHitGroup));
-            if(iHitIndex != -1)
-            {
-                knockbackAmount *= HitgroupsGetKnockback(iHitIndex);
-            }
-        }
-        
-        // Gets the active weapon index from the client
-        int weaponIndex = GetEntDataEnt2(attackerIndex, g_iOffset_PlayerActiveWeapon);
-        
         // Validate weapon
         if(IsValidEdict(weaponIndex))
         {
@@ -210,34 +181,43 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
             damageAmount *= float(gClientData[attackerIndex][Client_Level]) * gCvarList[CVAR_LEVEL_DAMAGE_RATIO].FloatValue + 1.0;
         }
 
-        // Verify that the attacker is zombie 
-        if(gClientData[attackerIndex][Client_Zombie])
+        // Client was damaged by 'bullet'
+        if(damageType & DMG_NEVERGIB)
         {
-            // If victim is zombies, then stop
-            if(gClientData[victimIndex][Client_Zombie])
+            // If damage hitgroups enabled, then apply multiplier
+            if(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
             {
-                // Call forward
-                API_OnClientDamaged(victimIndex, attackerIndex, damageAmount, damageBits);
-
-                // Block damage
-                return Plugin_Handled;
+                // Validate hitgroup index
+                int iHitIndex = HitgroupToIndex(GetEntData(victimIndex, g_iOffset_PlayerHitGroup));
+                if(iHitIndex != -1)
+                {
+                    knockbackAmount *= HitgroupsGetKnockback(iHitIndex);
+                }
             }
-
-            // If the gamemode allow infection, then apply it
-            if(ModesIsInfection(gServerData[Server_RoundMode]))
+    
+            // Validate zombie
+            if(gClientData[attackerIndex][Client_Zombie])
             {
-                // Call forward
-                API_OnClientDamaged(victimIndex, attackerIndex, damageAmount, damageBits);
+                // If victim is zombie, then stop
+                if(gClientData[victimIndex][Client_Zombie])
+                {
+                    // Block damage
+                    return Plugin_Handled;
+                }
 
-                // Infect victim
-                return DamageOnClientInfect(victimIndex, attackerIndex, damageAmount);
+                // If the gamemode allow infection, then apply it
+                if(ModesIsInfection(gServerData[Server_RoundMode]))
+                {
+                    // Infect victim
+                    return DamageOnClientInfect(victimIndex, attackerIndex, damageAmount);
+                }
             }
-        }
-        // Verify that the attacker is human 
-        else
-        {
-            // Apply knockback
-            DamageOnClientKnockBack(victimIndex, attackerIndex, damageAmount * knockbackAmount);
+            // Verify that the attacker is human 
+            else
+            {
+                // Apply knockback
+                DamageOnClientKnockBack(victimIndex, attackerIndex, damageAmount * knockbackAmount);
+            }
         }
         
         // Give rewards for applied damage
@@ -245,14 +225,43 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
         DamageOnClientExp(attackerIndex, damageAmount);
         
         // If help messages enabled, show info
-        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "Damage info", GetClientHealth(victimIndex));
+        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "damage info", GetClientHealth(victimIndex));
     }
     
-    // Call forward
-    API_OnClientDamaged(victimIndex, attackerIndex, damageAmount, damageBits);
-
     // Apply fake damage
-    return DamageOnClientFakeDamage(victimIndex, damageAmount, damageBits);
+    return DamageOnClientFakeDamage(victimIndex, damageAmount, damageType);
+}
+
+/*
+ * Damage natives API.
+ */
+ 
+/**
+ * Applies fake damage to a player.
+ *
+ * native void ZP_TakeDamage(clientIndex, attackerIndex, damageAmount, damageType, weaponIndex);
+ **/
+public int API_TakeDamage(Handle isPlugin, const int iNumParams)
+{
+    // Gets data from native cells
+    int clientIndex = GetNativeCell(1);
+    int attackerIndex = GetNativeCell(2);
+    float damageAmount = GetNativeCell(3);
+    int damageType = GetNativeCell(4);
+    int weaponIndex = GetNativeCell(5);
+
+    // Call fake hook
+    Action resultHandle = DamageOnTakeDamage(clientIndex, attackerIndex, attackerIndex, damageAmount, damageType, weaponIndex, NULL_VECTOR, NULL_VECTOR);
+    
+    // Validate damage 
+    if(resultHandle == Plugin_Changed)
+    {
+        // If attacker doens't exist, then make a self damage
+        if(!IsPlayerExist(attackerIndex, false)) attackerIndex = clientIndex;
+
+        // Create the damage to kill
+        SDKHooks_TakeDamage(clientIndex, attackerIndex, attackerIndex, damageAmount);
+    }
 }
 
 /*
@@ -264,11 +273,11 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
  *
  * @param clientIndex       The client index.
  * @param damageAmount      The amount of damage inflicted. 
- * @param damageBits        The type of damage inflicted.
+ * @param damageType        The type of damage inflicted.
  **/
-stock Action DamageOnClientFakeDamage(const int clientIndex, const float damageAmount, const int damageBits)
+stock Action DamageOnClientFakeDamage(const int clientIndex, const float damageAmount, const int damageType)
 {
-    // Verify that the damage is positive
+    // Validate amount
     if(!damageAmount)
     {
         // Block damage
@@ -276,7 +285,7 @@ stock Action DamageOnClientFakeDamage(const int clientIndex, const float damageA
     }
     
     // Forward event to modules
-    SoundsOnClientHurt(clientIndex, damageBits);
+    SoundsOnClientHurt(clientIndex, damageType);
     
     // Gets health
     int healthAmount = GetClientHealth(clientIndex);
@@ -499,6 +508,5 @@ stock void DamageOnClientExp(const int clientIndex, const float damageAmount)
  **/
 public bool TraceFilter(const int entityIndex, const int contentsMask, const int clientIndex)
 {
-    // If entity is a player, continue tracing
     return (1 <= entityIndex <= MaxClients && entityIndex != clientIndex);
 }

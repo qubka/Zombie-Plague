@@ -40,14 +40,10 @@ enum
     COSTUMES_DATA_BODY,
     COSTUMES_DATA_SKIN,
     COSTUMES_DATA_ATTACH,
-    COSTUMES_DATA_ACCESS,
-    COSTUMES_DATA_HIDE
+    COSTUMES_DATA_GROUP,
+    COSTUMES_DATA_HIDE,
+    COSTUMES_DATA_LEVEL
 }
-
-/**
- * Variables to store SDK calls handlers.
- **/
-//Handle hSDKCallLookupAttachment;
 
 #if defined USE_DHOOKS
  /**
@@ -69,8 +65,10 @@ int DHook_SetEntityModel;
 void CostumesClientInit(const int clientIndex)
 {
     #if defined USE_DHOOKS    
-    // Hook entity callbacks
+        // Hook entity callbacks
     DHookEntity(hDHookSetEntityModel, true, clientIndex);
+    #else
+        #pragma unused clientIndex
     #endif
 }
 
@@ -101,23 +99,6 @@ public Action CostumesCommandCatched(const int clientIndex, const int iArguments
  **/
 void CostumesInit(/*void*/)
 {
-    // Starts the preparation of an SDK call
-    /*
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Signature, "Animating_LookupAttachment");
-
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-
-    //  Validate call
-    if(!(hSDKCallLookupAttachment = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update \"SourceMod\"");
-    }
-    */
-    
     #if defined USE_DHOOKS
     // Load offsets
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_SDKTools], DHook_SetEntityModel, "SetEntityModel");
@@ -206,11 +187,39 @@ void CostumesCacheData(/*void*/)
     int iSize = arrayCostumes.Length;
     for(int i = 0; i < iSize; i++)
     {
+        // General
         CostumesGetName(i, sCostumesPath, sizeof(sCostumesPath)); // Index: 0
         kvCostumes.Rewind();
         if(!kvCostumes.JumpToKey(sCostumesPath))
         {
+            // Log costume fatal
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sCostumesPath);
+            
+            // Remove costume from array
+            kvCostumes.DeleteThis();
+
+            // Subtract one from count
+            iSize--;
+
+            // Backtrack one index, because we deleted it out from under the loop
+            i--;
+            continue;
+        }
+        
+        // Validate translation
+        if(!TranslationPhraseExists(sCostumesPath))
+        {
+            // Log costume error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sCostumesPath);
+            
+            // Remove costume from array
+            kvCostumes.DeleteThis();
+
+            // Subtract one from count
+            iSize--;
+
+            // Backtrack one index, because we deleted it out from under the loop
+            i--;
             continue;
         }
 
@@ -225,9 +234,10 @@ void CostumesCacheData(/*void*/)
         arrayCostume.Push(kvCostumes.GetNum("skin", 0)); // Index: 3
         kvCostumes.GetString("attachment", sCostumesPath, sizeof(sCostumesPath), "facemask");  
         arrayCostume.PushString(sCostumesPath);          // Index: 4
-        kvCostumes.GetString("access", sCostumesPath, sizeof(sCostumesPath), "");  
+        kvCostumes.GetString("group", sCostumesPath, sizeof(sCostumesPath), "");  
         arrayCostume.PushString(sCostumesPath);          // Index: 5
         arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no")); // Index: 6
+        arrayCostume.Push(kvCostumes.GetNum("level", 0)); // Index: 7
     }
     
     // We're done with this file now, so we can close it
@@ -454,11 +464,11 @@ public int API_GetCostumeAttach(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the access of a costume at a given id.
+ * Gets the group of a costume at a given id.
  *
- * native void ZP_GetCostumeAccess(iD, flags, maxlen);
+ * native void ZP_GetCostumeGroup(iD, group, maxlen);
  **/
-public int API_GetCostumeAccess(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeGroup(Handle isPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -480,12 +490,12 @@ public int API_GetCostumeAccess(Handle isPlugin, const int iNumParams)
         return -1;
     }
     
-    // Initialize flags char
-    static char sFlags[SMALL_LINE_LENGTH];
-    CostumesGetAccess(iD, sFlags, sizeof(sFlags));
+    // Initialize group char
+    static char sGroup[SMALL_LINE_LENGTH];
+    CostumesGetGroup(iD, sGroup, sizeof(sGroup));
 
     // Return on success
-    return SetNativeString(2, sFlags, maxLen);
+    return SetNativeString(2, sGroup, maxLen);
 }
 
 /**
@@ -507,6 +517,27 @@ public int API_IsCostumeHide(Handle isPlugin, const int iNumParams)
     
     // Return the value 
     return CostumesIsHide(iD);
+}
+
+/**
+ * Gets the level of the costume.
+ *
+ * native int ZP_GetCostumeLevel(iD);
+ **/
+public int API_GetCostumeLevel(Handle isPlugin, const int iNumParams)
+{    
+    // Gets costume index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayCostumes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+        return -1;
+    }
+    
+    // Return the value 
+    return CostumesGetLevel(iD);
 }
 
 /*
@@ -592,19 +623,19 @@ stock void CostumesGetAttach(const int iD, char[] sAttach, const int iMaxLen)
 } 
 
 /**
- * Gets the flags of a costume at a given index.
+ * Gets the access group of a costume at a given index.
  *
  * @param iD                The costume index.
- * @param sFlags            The string to return flags in.
+ * @param sGroup            The string to return group in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void CostumesGetAccess(const int iD, char[] sFlags, const int iMaxLen)
+stock void CostumesGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 {
     // Gets array handle of costume at given index
     ArrayList arrayCostume = arrayCostumes.Get(iD);
     
-    // Gets costume access
-    arrayCostume.GetString(COSTUMES_DATA_ACCESS, sFlags, iMaxLen);
+    // Gets costume group
+    arrayCostume.GetString(COSTUMES_DATA_GROUP, sGroup, iMaxLen);
 } 
 
 /**
@@ -620,6 +651,21 @@ stock bool CostumesIsHide(const int iD)
     
     // Return true if costume is hide, false if not
     return arrayCostume.Get(COSTUMES_DATA_HIDE);
+}
+
+/**
+ * Gets the level of the costume.
+ * 
+ * @param iD                The costume index.
+ * @return                  The level amount.    
+ **/
+stock int CostumesGetLevel(const int iD)
+{
+    // Gets array handle of costume at given index
+    ArrayList arrayCostume = arrayCostumes.Get(iD);
+    
+    // Gets costume level 
+    return arrayCostume.Get(COSTUMES_DATA_LEVEL);
 }
  
 /*
@@ -643,7 +689,9 @@ void CostumesMenu(const int clientIndex)
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
-
+    static char sLevel[SMALL_LINE_LENGTH];
+    static char sGroup[SMALL_LINE_LENGTH];
+    
     // Create menu handle
     Menu hMenu = CreateMenu(CostumesMenuSlots);
     
@@ -651,12 +699,12 @@ void CostumesMenu(const int clientIndex)
     SetGlobalTransTarget(clientIndex);
     
     // Sets title
-    hMenu.SetTitle("%t", "Costumes menu");
+    hMenu.SetTitle("%t", "costumes menu");
     
     // Initialize forward
     Action resultHandle;
     
-    // i = Array index
+    // i = array index
     int iSize = arrayCostumes.Length;
     for(int i = 0; i < iSize; i++)
     {
@@ -665,27 +713,28 @@ void CostumesMenu(const int clientIndex)
         
         // Skip, if class is disabled
         if(resultHandle == Plugin_Stop)
+        {
             continue;
+        }
         
-        // Gets costume name
+        // Gets costume data
         CostumesGetName(i, sName, sizeof(sName));
+        CostumesGetGroup(i, sGroup, sizeof(sGroup));
         
         // Format some chars for showing in menu
-        Format(sBuffer, sizeof(sBuffer), "%t", sName);
+        Format(sLevel, sizeof(sLevel), "%t", "level", CostumesGetLevel(i));
+        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < CostumesGetLevel(i)) ? sLevel : "");
 
-        // Gets menu access flags
-        CostumesGetAccess(i, sName, sizeof(sName));
-        
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || IsPlayerHasFlags(clientIndex, sName) || gClientData[clientIndex][Client_Costume] == i));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < CostumesGetLevel(i) || gClientData[clientIndex][Client_Costume] == i) ? false : true);
     }
     
     // If there are no cases, add an "(Empty)" line
     if(!iSize)
     {
         static char sEmpty[SMALL_LINE_LENGTH];
-        Format(sEmpty, sizeof(sEmpty), "%t", "Empty");
+        Format(sEmpty, sizeof(sEmpty), "%t", "empty");
 
         hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
     }
@@ -808,65 +857,67 @@ public void CostumesCreateEntity(const int clientIndex)
             return;
         }
         
-        // Gets menu access flags
-        static char sFlags[SMALL_LINE_LENGTH];
-        CostumesGetAccess(gClientData[clientIndex][Client_Costume], sFlags, sizeof(sFlags));
+        // Gets costume group
+        static char sGroup[SMALL_LINE_LENGTH];
+        CostumesGetGroup(gClientData[clientIndex][Client_Costume], sGroup, sizeof(sGroup));
         
         // Validate access
-        if(!IsPlayerHasFlags(clientIndex, sFlags))
+        if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
         {
             gClientData[clientIndex][Client_Costume] = -1;
             return;
         }
 
-        // Create an attach addon entity 
-        entityIndex = CreateEntityByName("prop_dynamic_override");
-        
-        // If entity isn't valid, then skip
-        if(entityIndex != INVALID_ENT_REFERENCE)
-        {
-            // Gets costume model
-            static char sModel[PLATFORM_MAX_PATH];
-            CostumesGetModel(gClientData[clientIndex][Client_Costume], sModel, sizeof(sModel)); 
+        // Gets costume attachment
+        static char sAttach[SMALL_LINE_LENGTH];
+        CostumesGetAttach(gClientData[clientIndex][Client_Costume], sAttach, sizeof(sAttach)); 
 
-            // Dispatch main values of the entity
-            DispatchKeyValue(entityIndex, "model", sModel);
-            DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
-            DispatchKeyValue(entityIndex, "solid", "0");
-           
-            // Sets bodygroup of the entity
-            SetVariantInt(CostumesGetBody(gClientData[clientIndex][Client_Costume]));
-            AcceptEntityInput(entityIndex, "SetBodyGroup");
+        // Validate attachment
+        if(ToolsLookupAttachment(clientIndex, sAttach))
+        {
+            // Create an attach addon entity 
+            entityIndex = CreateEntityByName("prop_dynamic_override");
             
-            // Sets skin of the entity
-            SetVariantInt(CostumesGetSkin(gClientData[clientIndex][Client_Costume]));
-            AcceptEntityInput(entityIndex, "ModelSkin");
-            
-            // Spawn the entity into the world
-            DispatchSpawn(entityIndex);
-            
-            // Sets parent to the entity
-            SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
-            
-            // Sets parent to the client
-            SetVariantString("!activator");
-            AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
-            
-            // Gets costume attachment
-            CostumesGetAttach(gClientData[clientIndex][Client_Costume], sModel, sizeof(sModel)); 
-            
-            // Validate attachment
-            //if(SDKCall(hSDKCallLookupAttachment, clientIndex, sModel) != -1)
-            
-            // Sets attachment to the client
-            SetVariantString(sModel);
-            AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
-            
-            // Hook entity callbacks
-            if(CostumesIsHide(gClientData[clientIndex][Client_Costume])) SDKHook(entityIndex, SDKHook_SetTransmit, CostumesOnTransmit);
-            
-            // Store the client cache
-            gClientData[clientIndex][Client_AttachmentCostume] = EntIndexToEntRef(entityIndex);
+            // If entity isn't valid, then skip
+            if(entityIndex != INVALID_ENT_REFERENCE)
+            {
+                // Gets costume model
+                static char sModel[PLATFORM_MAX_PATH];
+                CostumesGetModel(gClientData[clientIndex][Client_Costume], sModel, sizeof(sModel)); 
+
+                // Dispatch main values of the entity
+                DispatchKeyValue(entityIndex, "model", sModel);
+                DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
+                DispatchKeyValue(entityIndex, "solid", "0");
+               
+                // Sets bodygroup of the entity
+                SetVariantInt(CostumesGetBody(gClientData[clientIndex][Client_Costume]));
+                AcceptEntityInput(entityIndex, "SetBodyGroup");
+                
+                // Sets skin of the entity
+                SetVariantInt(CostumesGetSkin(gClientData[clientIndex][Client_Costume]));
+                AcceptEntityInput(entityIndex, "ModelSkin");
+                
+                // Spawn the entity into the world
+                DispatchSpawn(entityIndex);
+                
+                // Sets parent to the entity
+                SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
+                
+                // Sets parent to the client
+                SetVariantString("!activator");
+                AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
+
+                // Sets attachment to the client
+                SetVariantString(sAttach);
+                AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
+                
+                // Hook entity callbacks
+                if(CostumesIsHide(gClientData[clientIndex][Client_Costume])) SDKHook(entityIndex, SDKHook_SetTransmit, CostumesOnTransmit);
+                
+                // Store the client cache
+                gClientData[clientIndex][Client_AttachmentCostume] = EntIndexToEntRef(entityIndex);
+            }
         }
     }
 }

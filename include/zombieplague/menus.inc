@@ -57,13 +57,13 @@ native int ZP_GetNumberMenu();
 native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32);
 
 /**
- * @brief Gets the flags of a menu at a given index.
+ * @brief Gets the group of a menu at a given index.
  *
  * @param menuID            The menu index.
- * @param flags             The string to return flags in.
+ * @param group             The string to return group in.
  * @param maxlenght         The max length of the string.
  **/
-native void ZP_GetMenuAccess(int menuID, char[] flags, int maxlenght = 32);
+native void ZP_GetMenuGroup(int menuID, char[] group, int maxlenght = 32);
 
 /**
  * @brief Gets the command of a menu at a given index.

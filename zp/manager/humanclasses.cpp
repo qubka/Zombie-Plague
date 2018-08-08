@@ -28,7 +28,7 @@
 /**
  * Number of max valid human classes.
  **/
-#define HumanClassMax 32
+#define HumanClassMax 64
 
 /**
  * Array handle to store human class native data.
@@ -48,7 +48,7 @@ enum
     HUMANCLASSES_DATA_GRAVITY,
     HUMANCLASSES_DATA_ARMOR,
     HUMANCLASSES_DATA_LEVEL,
-    HUMANCLASSES_DATA_VIP,
+    HUMANCLASSES_DATA_GROUP,
     HUMANCLASSES_DATA_SOUNDDEATH,
     HUMANCLASSES_DATA_SOUNDHURT,
     HUMANCLASSES_DATA_SOUNDINFECT,
@@ -257,6 +257,13 @@ public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
         }
     }
     
+    // Validate translation
+    if(!TranslationPhraseExists(sHumanBuffer))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Couldn't cache human class name: \"%s\" (check translation file)", sHumanBuffer);
+        return -1;
+    }
+    
     // Initialize array block
     ArrayList arrayHumanClass = CreateArray(HumanClassMax);
     
@@ -271,7 +278,8 @@ public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
     arrayHumanClass.Push(GetNativeCell(6));   // Index: 5
     arrayHumanClass.Push(GetNativeCell(7));   // Index: 6
     arrayHumanClass.Push(GetNativeCell(8));   // Index: 7
-    arrayHumanClass.Push(GetNativeCell(9));   // Index: 8
+    GetNativeString(9, sHumanBuffer, sizeof(sHumanBuffer));  
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 8
     GetNativeString(10, sHumanBuffer, sizeof(sHumanBuffer));  
     arrayHumanClass.PushString(sHumanBuffer); // Index: 9
     GetNativeString(11, sHumanBuffer, sizeof(sHumanBuffer));
@@ -292,7 +300,7 @@ public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
 /**
  * Gets the name of a human class at a given index.
  *
- * native void ZP_GetHumanClassName(iD, sName, maxLen);
+ * native void ZP_GetHumanClassName(iD, name, maxlen);
  **/
 public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
 {
@@ -327,7 +335,7 @@ public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
 /**
  * Gets the player model of a human class at a given index.
  *
- * native void ZP_GetHumanClassModel(iD, sModel, maxLen);
+ * native void ZP_GetHumanClassModel(iD, model, maxlen);
  **/
 public int API_GetHumanClassModel(Handle isPlugin, const int iNumParams)
 {
@@ -362,7 +370,7 @@ public int API_GetHumanClassModel(Handle isPlugin, const int iNumParams)
 /**
  * Gets the arm model of a human class at a given index.
  *
- * native void ZP_GetHumanClassArm(iD, sModel, maxLen);
+ * native void ZP_GetHumanClassArm(iD, model, maxlen);
  **/
 public int API_GetHumanClassArm(Handle isPlugin, const int iNumParams)
 {
@@ -500,15 +508,15 @@ public int API_GetHumanClassLevel(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Check the access of the human class.
+ * Gets the group of a human class at a given index.
  *
- * native bool ZP_IsHumanClassVIP(iD);
+ * native void ZP_GetHumanClassGroup(iD, group, maxlen);
  **/
-public int API_IsHumanClassVIP(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassGroup(Handle isPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
-    
+
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
@@ -516,8 +524,22 @@ public int API_IsHumanClassVIP(Handle isPlugin, const int iNumParams)
         return -1;
     }
     
-    // Return value
-    return HumanIsVIP(iD);
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize group char
+    static char sGroup[PLATFORM_MAX_PATH];
+    HumanGetGroup(iD, sGroup, sizeof(sGroup));
+
+    // Return on success
+    return SetNativeString(2, sGroup, maxLen);
 }
 
 /**
@@ -621,7 +643,7 @@ public int API_PrintHumanClassInfo(Handle isPlugin, const int iNumParams)
     HumanGetName(iD, sHumanName, sizeof(sHumanName));
 
     // If help messages enabled, show info
-    TranslationPrintToChat(clientIndex, "Human info", sHumanName, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
+    TranslationPrintToChat(clientIndex, "human info", sHumanName, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
     
     // Return on success
     return sizeof(sHumanName);
@@ -743,7 +765,7 @@ stock int HumanGetArmor(const int iD)
  * Gets the level of the human class.
  *
  * @param iD                The class index.
- * @return                  The armor amount.    
+ * @return                  The level amount.    
  **/
 stock int HumanGetLevel(const int iD)
 {
@@ -755,18 +777,19 @@ stock int HumanGetLevel(const int iD)
 }
 
 /**
- * Check the access to the human class.
+ * Gets the access group of a human class at a given index.
  *
  * @param iD                The class index.
- * @return                  True or false.
+ * @param sGroup            The string to return group in.
+ * @param iMaxLen           The max length of the string.
  **/
-stock bool HumanIsVIP(const int iD)
+stock void HumanGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 {
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
 
-    // Gets human class access
-    return arrayHumanClass.Get(HUMANCLASSES_DATA_VIP);
+    // Gets human class group
+    arrayHumanClass.GetString(HUMANCLASSES_DATA_GROUP, sGroup, iMaxLen);
 }
 
 /**
@@ -920,35 +943,34 @@ void HumanOnValidate(const int clientIndex)
 {
     // Gets array size
     int iSize = arrayHumanClasses.Length;
-    
-    // Gets client access
-    bool IsVIP = IsPlayerHasFlag(clientIndex, Admin_Custom1);
-    
+
     // Choose random zombie class for the client
-    if(IsFakeClient(clientIndex) || (!IsVIP && gCvarList[CVAR_HUMAN_RANDOM_CLASS].BoolValue) || iSize <= gClientData[clientIndex][Client_HumanClass])
+    if(IsFakeClient(clientIndex) || iSize <= gClientData[clientIndex][Client_HumanClass])
     {
         gClientData[clientIndex][Client_HumanClass] = GetRandomInt(0, iSize-1);
     }
-    
+
+    // Gets class group
+    static char sGroup[SMALL_LINE_LENGTH];
+    HumanGetGroup(gClientData[clientIndex][Client_HumanClass], sGroup, sizeof(sGroup));
+
     // Validate that user does not have VIP flag to play it
-    if(!IsVIP)
+    if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
     {
-        // But have privileged human class by default
-        if(HumanIsVIP(gClientData[clientIndex][Client_HumanClass]))
+        // Choose any accessable human class
+        for(int i = 0; i < iSize; i++)
         {
-            // Choose any accessable human class
-            for(int i = 0; i < iSize; i++)
+            // Skip all non-accessable human classes
+            HumanGetGroup(i, sGroup, sizeof(sGroup));
+            if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
             {
-                // Skip all non-accessable human classes
-                if(HumanIsVIP(i))
-                {
-                    continue;
-                }
-                
-                // Update human class
-                gClientData[clientIndex][Client_HumanClassNext] = i;
-                gClientData[clientIndex][Client_HumanClass] = i;
+                continue;
             }
+            
+            // Update human class
+            gClientData[clientIndex][Client_HumanClassNext] = i;
+            gClientData[clientIndex][Client_HumanClass] = i;
+            break;
         }
     }
     
@@ -967,6 +989,7 @@ void HumanOnValidate(const int clientIndex)
             // Update human class
             gClientData[clientIndex][Client_HumanClassNext] = i;
             gClientData[clientIndex][Client_HumanClass] = i;
+            break;
         }
     }
 }
@@ -989,7 +1012,8 @@ void HumanMenu(const int clientIndex)
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
     static char sLevel[SMALL_LINE_LENGTH];
-
+    static char sGroup[SMALL_LINE_LENGTH];
+    
     // Create menu handle
     Menu hMenu = CreateMenu(HumanMenuSlots);
 
@@ -997,7 +1021,7 @@ void HumanMenu(const int clientIndex)
     SetGlobalTransTarget(clientIndex);
     
     // Sets title
-    hMenu.SetTitle("%t", "Choose humanclass");
+    hMenu.SetTitle("%t", "choose humanclass");
     
     // Initialize forward
     Action resultHandle;
@@ -1011,19 +1035,21 @@ void HumanMenu(const int clientIndex)
         
         // Skip, if class is disabled
         if(resultHandle == Plugin_Stop)
+        {
             continue;
-
-        // Gets human class name
+        }
+        
+        // Gets human class data
         HumanGetName(i, sName, sizeof(sName));
-        if(!IsCharUpper(sName[0]) && !IsCharNumeric(sName[0])) sName[0] = CharToUpper(sName[0]);
+        HumanGetGroup(i, sGroup, sizeof(sGroup));
         
         // Format some chars for showing in menu
-        Format(sLevel, sizeof(sLevel), "[LVL:%d]", HumanGetLevel(i));
-        Format(sBuffer, sizeof(sBuffer),"%t    %s", sName, HumanIsVIP(i) ? "[VIP]" : HumanGetLevel(i) > 1 ? sLevel : "");
-        
+        Format(sLevel, sizeof(sLevel), "%t", "level", HumanGetLevel(i));
+        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < HumanGetLevel(i)) ? sLevel : "");
+
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerHasFlag(clientIndex, Admin_Custom1) && HumanIsVIP(i)) || gClientData[clientIndex][Client_Level] < HumanGetLevel(i) || gClientData[clientIndex][Client_HumanClassNext] == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < HumanGetLevel(i) || gClientData[clientIndex][Client_HumanClassNext] == i) ? false : true));
     }
 
     // Sets exit and back button
@@ -1092,7 +1118,7 @@ public int HumanMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
                 HumanGetName(iD, sInfo, sizeof(sInfo));
                 
                 // If help messages enabled, show info
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "Human info", sInfo, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
+                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "human info", sInfo, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
             }
         }
     }

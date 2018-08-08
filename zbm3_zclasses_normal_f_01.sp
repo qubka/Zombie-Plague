@@ -43,8 +43,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "NormalF01" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "NormalF01Info" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "normalf01" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "normalf01 info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_f_01/normal_f_01.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_f_01/hand_v2/hand_zombie_normal_f_01.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/normal_f_01/grenade/grenade_normal_f_01.mdl"    
@@ -53,7 +53,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.0
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           0.0    
 #define ZOMBIE_CLASS_COUNTDOWN          0.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       300
@@ -75,7 +75,7 @@ public Plugin myinfo =
  **/
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieNormalF01;
@@ -101,7 +101,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -124,17 +124,22 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
  * Called when a client take a fake damage.
  * 
- * @param clientIndex        The client index.
- * @param attackerIndex      The attacker index.
- * @param damageAmount       The amount of damage inflicted.
- * @param damageType         The ditfield of damage types
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
+ * @param damageAmount      The amount of damage inflicted.
+ * @param damageType        The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType)
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -164,13 +169,19 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damage
             if(nChanceIndex[clientIndex] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
             {
                 // Emit sound
-                ZP_EmitSoundKeyID(attackerIndex, gSound, SNDCHAN_VOICE);
+                static char sSound[PLATFORM_MAX_PATH];
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+                EmitSoundToAll(sSound, attackerIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
                 
                 // Create an fade
                 FakeCreateFadeScreen(attackerIndex, ZOMBIE_CLASS_EFFECT_DURATION_F, ZOMBIE_CLASS_EFFECT_TIME_F, 0x0001, ZOMBIE_CLASS_EFFECT_COLOR_F);
                 
+                // Gets attacker origin
+                static float vAttackerPosition[3];
+                GetClientAbsOrigin(attackerIndex, vAttackerPosition);
+
                 // Create an effect
-                FakeCreateParticle(attackerIndex, _, "sila_trail_apalaal", ZOMBIE_CLASS_EFFECT_DURATION_F);
+                FakeCreateParticle(attackerIndex, vAttackerPosition, _, "sila_trail_apalaal", ZOMBIE_CLASS_EFFECT_DURATION_F);
             }
         }
     }

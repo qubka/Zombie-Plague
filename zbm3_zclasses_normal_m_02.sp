@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "NormalM02" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "NormalM02Info" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "normalm02" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "normalm02 info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_m_02/normal_m_02.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_m_02/hand_v2/hand_zombie_normal_m_02.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/normal_m_02/grenade/grenade_normal_m_02.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          0.9
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           10.0    
 #define ZOMBIE_CLASS_COUNTDOWN          15.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       300
@@ -62,7 +62,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_SKILL_DISTANCE     60.0
 #define ZOMBIE_CLASS_SKILL_HEALTH       200
 #define ZOMBIE_CLASS_SKILL_EXP_TIME     0.1
-#define ZOMBIE_CLASS_SKILL_RADIUS       160000.0  // [squared] 
+#define ZOMBIE_CLASS_SKILL_RADIUS       400.0
 #define ZOMBIE_CLASS_SKILL_POWER        1000.0         
 #define ZOMBIE_CLASS_SKILL_SURVIVOR     true          
 #define ZOMBIE_CLASS_SKILL_NEMESIS      true   
@@ -82,17 +82,6 @@ public Plugin myinfo =
  **/
  
 /**
- * @section Damage type values.
- **/
-#define DAMAGE_NO                            0
-#define DAMAGE_EVENTS_ONLY                   1    //! Call damage functions, but don't modify health
-#define DAMAGE_YES                           2
-#define DAMAGE_AIM                           3
-/**
- * @endsection
- **/
- 
-/**
  * @section Properties of the gibs shooter.
  **/
 #define METAL_GIBS_AMOUNT                   5.0
@@ -105,60 +94,8 @@ public Plugin myinfo =
  * @endsection
  **/
 
-/**
- * @section Solid types.
- **/
-enum /*SolidType_t*/
-{
-    SOLID_NONE      = 0,    // no solid model
-    SOLID_BSP       = 1,    // a BSP tree
-    SOLID_BBOX      = 2,    // an AABB
-    SOLID_OBB       = 3,    // an OBB (not implemented yet)
-    SOLID_OBB_YAW   = 4,    // an OBB, constrained so that it can only yaw
-    SOLID_CUSTOM    = 5,    // Always call into the entity for tests
-    SOLID_VPHYSICS  = 6,    // solid vphysics object, get vcollide from the model and collide with that
-    SOLID_LAST,
-};
-/**
- * @endsection
- **/
- 
-/**
- * @section Collision groups.
- **/
-enum /*Collision_Group_t*/
-{
-    COLLISION_GROUP_NONE  = 0,
-    COLLISION_GROUP_DEBRIS,             // Collides with nothing but world and static stuff
-    COLLISION_GROUP_DEBRIS_TRIGGER,     // Same as debris, but hits triggers
-    COLLISION_GROUP_INTERACTIVE_DEBRIS, // Collides with everything except other interactive debris or debris
-    COLLISION_GROUP_INTERACTIVE,        // Collides with everything except interactive debris or debris
-    COLLISION_GROUP_PLAYER,
-    COLLISION_GROUP_BREAKABLE_GLASS,
-    COLLISION_GROUP_VEHICLE,
-    COLLISION_GROUP_PLAYER_MOVEMENT,    // For HL2, same as Collision_Group_Player
-    
-    COLLISION_GROUP_NPC,                // Generic NPC group
-    COLLISION_GROUP_IN_VEHICLE,         // for any entity inside a vehicle
-    COLLISION_GROUP_WEAPON,             // for any weapons that need collision detection
-    COLLISION_GROUP_VEHICLE_CLIP,       // vehicle clip brush to restrict vehicle movement
-    COLLISION_GROUP_PROJECTILE,         // Projectiles!
-    COLLISION_GROUP_DOOR_BLOCKER,       // Blocks entities not permitted to get near moving doors
-    COLLISION_GROUP_PASSABLE_DOOR,      // Doors that the player shouldn't collide with
-    COLLISION_GROUP_DISSOLVING,         // Things that are dissolving are in this group
-    COLLISION_GROUP_PUSHAWAY,           // Nonsolid on client and server, pushaway in player code
-
-    COLLISION_GROUP_NPC_ACTOR,          // Used so NPCs in scripts ignore the player.
-    COLLISION_GROUP_NPC_SCRIPTED,       // USed for NPCs in scripts that should not collide with each other
-    
-    LAST_SHARED_COLLISION_GROUP
-};
-/**
- * @endsection
- **/
-
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieNormalM02;
@@ -184,7 +121,7 @@ public void OnLibraryAdded(const char[] sLibrary) // Stamper
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -207,6 +144,16 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("COFFIN_SKILL_SOUNDS");
+    
+    // Models
+    PrecacheModel("models/gibs/metal_gib1.mdl", true);
+    PrecacheModel("models/gibs/metal_gib2.mdl", true);
+    PrecacheModel("models/gibs/metal_gib3.mdl", true);
+    PrecacheModel("models/gibs/metal_gib4.mdl", true);
+    PrecacheModel("models/gibs/metal_gib5.mdl", true);
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -222,7 +169,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     // Validate client
     if(!IsPlayerExist(clientIndex))
     {
-    return Plugin_Handled;
+        return Plugin_Handled;
     }
 
     // Validate the zombie class index
@@ -231,11 +178,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Initialize vectors
         static float vFromPosition[3];
 
-        // Gets the weapon's position
+        // Gets the weapon position
         ZP_GetPlayerGunPosition(clientIndex, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vFromPosition);
 
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a trap entity
         int entityIndex = CreateEntityByName("prop_physics_multiplayer"); 
@@ -245,7 +194,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         {
             // Dispatch main values of the entity
             DispatchKeyValue(entityIndex, "model", "models/player/custom_player/zombie/zombiepile/zombiepile.mdl");
-            //DispatchKeyValue(entityIndex, "spawnflags", "8834"); /// Don't take physics damage | Not affected by rotor wash | Prevent pickup | Force server-side
+            DispatchKeyValue(entityIndex, "spawnflags", "8832"); /// Not affected by rotor wash | Prevent pickup | Force server-side
 
             // Spawn the entity
             DispatchSpawn(entityIndex);
@@ -258,7 +207,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
             
             // Sets owner to the entity
-            SetEntPropEnt(entityIndex, Prop_Data, "m_hParent", clientIndex);
+            SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex);
 
             // Sets the health
             SetEntProp(entityIndex, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
@@ -293,7 +242,7 @@ public Action CoffinTouchHook(int entityIndex, int targetIndex)
         if(IsPlayerExist(targetIndex))
         {
             // Expload with other player coliding
-            if(GetEntPropEnt(entityIndex, Prop_Data, "m_hParent") != targetIndex)
+            if(GetEntPropEnt(entityIndex, Prop_Data, "m_pParent") != targetIndex)
             {
                 // Destroy touch hook
                 SDKUnhook(entityIndex, SDKHook_Touch, CoffinTouchHook);
@@ -309,7 +258,7 @@ public Action CoffinTouchHook(int entityIndex, int targetIndex)
 }
 
 /**
- * Coffin touch hook.
+ * Coffin damage hook.
  *
  * @param entityIndex       The entity index.    
  * @param attackerIndex     The attacker index.
@@ -337,7 +286,9 @@ public Action CoffinDamageHook(const int entityIndex, int &attackerIndex, int &i
         else
         {
             // Emit sound
-            ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, GetRandomInt(2, 3));
+            static char sSound[PLATFORM_MAX_PATH];
+            ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(2, 3));
+            EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             
             // Apply damage
             SetEntProp(entityIndex, Prop_Data, "m_iHealth", healthAmount);
@@ -377,7 +328,7 @@ void CoffinExpload(const int entityIndex)
     // Initialize vectors
     static float vEntPosition[3]; static float vEntAngle[3]; static float vVictimPosition[3]; static float vVelocity[3]; static float vAngle[3];
 
-    // Gets the entity's position
+    // Gets the entity position
     GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
 
     // i = client index
@@ -386,29 +337,20 @@ void CoffinExpload(const int entityIndex)
         // Validate client
         if(IsPlayerExist(i) && ((ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i)) || (ZP_IsPlayerNemesis(i) && ZOMBIE_CLASS_SKILL_NEMESIS) || (ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && ZOMBIE_CLASS_SKILL_SURVIVOR)))
         {
-            // Gets victim's origin
+            // Gets victim origin
             GetClientAbsOrigin(i, vVictimPosition);
             
             // Calculate the distance
-            float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+            float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
             
             // Validate distance
             if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
             {                
-                // Calculate the push power
-                float flKnockBack = ZOMBIE_CLASS_SKILL_POWER * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_RADIUS));
-
-                // Calculate the velocity's vector
+                // Calculate the velocity vector
                 SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
                 
-                // Normalize the vector (equal magnitude at varying distances)
-                NormalizeVector(vVelocity, vVelocity);
-                
-                // Apply the magnitude by scaling the vector
-                ScaleVector(vVelocity, SquareRoot((flKnockBack * flKnockBack) / ((vVelocity[0] * vVelocity[0]) + (vVelocity[1] * vVelocity[1]) + (vVelocity[2] * vVelocity[2])))); vVelocity[2] * ZOMBIE_CLASS_SKILL_POWER;
-
-                // Push the victim
-                TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
+                // Create a knockback
+                FakeCreateKnockBack(i, vVelocity, flDistance, ZOMBIE_CLASS_SKILL_POWER, ZOMBIE_CLASS_SKILL_RADIUS);
                 
                 // Create a shake
                 FakeCreateShakeScreen(i, ZOMBIE_CLASS_EFFECT_SHAKE_AMP, ZOMBIE_CLASS_EFFECT_SHAKE_FREQUENCY, ZOMBIE_CLASS_EFFECT_SHAKE_DURATION);
@@ -417,10 +359,12 @@ void CoffinExpload(const int entityIndex)
     }
     
     // Create an explosion effect
-    FakeCreateParticle(entityIndex, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_SKILL_EXP_TIME);
+    FakeCreateParticle(entityIndex, vEntPosition, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_SKILL_EXP_TIME);
 
     // Emit sound
-    ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 4);
+    static char sSound[PLATFORM_MAX_PATH];
+    ZP_GetSound(gSound, sSound, sizeof(sSound), 4);
+    EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
     
     // Create a breaked glass effect
     static char sModel[NORMAL_LINE_LENGTH];
@@ -446,7 +390,7 @@ void CoffinExpload(const int entityIndex)
             DispatchKeyValueVector(gibIndex, "angles", vAngle);
             DispatchKeyValueVector(gibIndex, "gibangles", vEntAngle);
             DispatchKeyValue(gibIndex, "rendermode", "5");
-            DispatchKeyValue(gibIndex, "shootsounds", "2");  PrecacheModel(sModel); //! Prevent errors 
+            DispatchKeyValue(gibIndex, "shootsounds", "2");
             DispatchKeyValue(gibIndex, "shootmodel", sModel);
             DispatchKeyValueFloat(gibIndex, "m_iGibs", METAL_GIBS_AMOUNT);
             DispatchKeyValueFloat(gibIndex, "delay", METAL_GIBS_DELAY);
@@ -488,33 +432,4 @@ void CoffinExpload(const int entityIndex)
     SetVariantString(sTime);
     AcceptEntityInput(entityIndex, "AddOutput");
     AcceptEntityInput(entityIndex, "FireUser1");
-}
-
-/**
- * Gets position from the distance of the entity.
- *
- * @param clientIndex        The client index.
- * @param flForward            (Optional) The forward distance.
- * @param flRight            (Optional) The right distance. 
- * @param flVertical        (Optional) The vertical distance.
- * @param vOrigin            The calculated position's vector output.
- **/
-stock void GetVectorPosition(const int clientIndex, float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOrigin[3]) 
-{
-    // Initialize vectors
-    static float vPosition[3]; static float vAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
-
-    // Gets the client's eye position
-    GetClientEyePosition(clientIndex, vPosition);
-
-    // Gets the client's eye angle
-    GetClientEyeAngles(clientIndex, vAngle);
-
-    // Returns vectors in the direction of an angle
-    GetAngleVectors(vAngle, vForward, vRight, vVertical);
-
-    // Calculate ends point by applying all vectors distances 
-    vOrigin[0] = vPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
-    vOrigin[1] = vPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
-    vOrigin[2] = vPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
 }

@@ -44,13 +44,14 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE           "MolotovNade" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_DUBLICAT            "IncNade" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_NAME                "Molotov" // Only will be taken from translation file         
+#define EXTRA_ITEM_REFERENCE           "molotov" // Name in weapons.ini from translation file
+#define EXTRA_ITEM_DUBLICAT            "inc grenade" // Name in weapons.ini from translation file   
+#define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST                2
-#define EXTRA_ITEM_LEVEL               0
-#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LEVEL               1
+#define EXTRA_ITEM_ONLINE              1
 #define EXTRA_ITEM_LIMIT               0
+#define EXTRA_ITEM_GROUP              ""
 /**
  * @endsection
  **/
@@ -58,21 +59,8 @@ public Plugin myinfo =
 /**
  * @section Properties of the grenade.
  **/
-#define GRENADE_IGNITE_DAMAGE          7.0     // Damage of molotov multiplier (2.0 = double damage)
 #define GRENADE_IGNITE_DURATION        5.0     // Burning duration in seconds
-#define GRENADE_IGNITE_SPEED_RATIO     2.0     // Burning ratio which reduce speed
 #define GRENADE_IGNITE_SPEED_NEMESIS   false   // Can nemesis be slowed [false-no // true-yes]
-/**
- * @endsection
- **/
- 
-/**
- * @section Water levels.
- **/
-#define WLEVEL_CSGO_DRY                0
-#define WLEVEL_CSGO_FEET               1
-#define WLEVEL_CSGO_HALF               2
-#define WLEVEL_CSGO_FULL               3
 /**
  * @endsection
  **/
@@ -97,7 +85,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 
@@ -162,10 +150,12 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
 /**
  * Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex       The client index.
+ * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode)
 {
     // Reset variable
     flSpeed[clientIndex] = 0.0;
@@ -178,8 +168,10 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-public void ZP_OnClientHumanized(int clientIndex)
+public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode)
 {
     // Reset variable
     flSpeed[clientIndex] = 0.0;
@@ -199,7 +191,7 @@ public void ZP_OnClientHumanized(int clientIndex)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -227,7 +219,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Give item and select it
@@ -240,10 +232,12 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
- * @param damageType        The ditfield of damage types
+ * @param damageType        The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType)
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -279,7 +273,7 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damage
                 if(damageType & DMG_BURN) IgniteEntity(clientIndex, GRENADE_IGNITE_DURATION);
 
                 // Return damage multiplier
-                damageAmount *= GRENADE_IGNITE_DAMAGE;
+                damageAmount *= ZP_GetWeaponDamage(gWeapon);
                 
                 // Validate nemesis
                 if(ZP_IsPlayerNemesis(clientIndex) && !GRENADE_IGNITE_SPEED_NEMESIS) 
@@ -292,7 +286,7 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damage
                 if(!flSpeed[clientIndex]) flSpeed[clientIndex] = GetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue");
 
                 // Sets a new speed
-                SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", flSpeed[clientIndex] / GRENADE_IGNITE_SPEED_RATIO);
+                SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", flSpeed[clientIndex] / ZP_GetWeaponKnockBack(gWeapon));
                 
                 // Validate that timer not execute
                 if(Task_ZombieBurned[clientIndex] == INVALID_HANDLE)

@@ -43,13 +43,14 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE           "IncNade" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_DUBLICAT            "MolotovNade" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_NAME                "IncGrenade" // Only will be taken from translation file        
+#define EXTRA_ITEM_REFERENCE           "inc grenade" // Name in weapons.ini from translation file
+#define EXTRA_ITEM_DUBLICAT            "molotov" // Name in weapons.ini from translation file   
+#define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST                5
-#define EXTRA_ITEM_LEVEL               0
-#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LEVEL               1
+#define EXTRA_ITEM_ONLINE              1
 #define EXTRA_ITEM_LIMIT               0
+#define EXTRA_ITEM_GROUP               ""
 /**
  * @endsection
  **/
@@ -68,7 +69,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 
@@ -94,7 +95,7 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -122,7 +123,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Give item and select it

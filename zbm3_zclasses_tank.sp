@@ -43,8 +43,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "Tank" // Only will be taken from translation file    
-#define ZOMBIE_CLASS_INFO               "TankInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "tank" // Only will be taken from translation file    
+#define ZOMBIE_CLASS_INFO               "tank info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/sherif/sherif.mdl"
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/sherif/hand_v2/hand_zombie_sherif.mdl"
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/sherif/grenade/grenade_zombie_sherif.mdl"    
@@ -53,7 +53,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            1.0
 #define ZOMBIE_CLASS_KNOCKBACK          0.5
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           4.0    
 #define ZOMBIE_CLASS_COUNTDOWN          40.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       400
@@ -71,7 +71,7 @@ public Plugin myinfo =
  **/
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieTank; 
@@ -97,7 +97,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -120,6 +120,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("TANK_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -142,10 +145,18 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
     {
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        
+        // Initialize vectors
+        static float vPosition[3];
+        
+        // Gets the client origin
+        GetClientAbsOrigin(clientIndex, vPosition);
         
         // Create an effect
-        FakeCreateParticle(clientIndex, _, "cloud", ZOMBIE_CLASS_DURATION);
+        FakeCreateParticle(clientIndex, vPosition, _, "cloud", ZOMBIE_CLASS_DURATION);
     }
     
     // Allow usage
@@ -169,19 +180,23 @@ public void ZP_OnClientSkillOver(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
     {
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 2);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
     }
 }
 
 /**
  * Called when a client take a fake damage.
  * 
- * @param clientIndex        The client index.
- * @param attackerIndex      The attacker index.
- * @param damageAmount       The amount of damage inflicted.
- * @param damageType         The ditfield of damage types
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
+ * @param damageAmount      The amount of damage inflicted.
+ * @param damageType        The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType)
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))

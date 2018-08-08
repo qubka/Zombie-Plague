@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "MutationHeavy" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "MutationHeavyInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "mutationheavy" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "mutationheavy info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/mutation_heavy/mutation_heavy.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/mutation_heavy/hand_v2/hand_zombie_mutation_heavy.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/mutation_heavy/grenade/grenade_mutation_heavy.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            1.1
 #define ZOMBIE_CLASS_KNOCKBACK          0.5
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           5.0    
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       500
@@ -72,86 +72,11 @@ public Plugin myinfo =
  * @endsection
  **/
 
-/**
- * @section Solid flags.
- **/
-enum /*SolidFlags_t*/
-{
-    FSOLID_CUSTOMRAYTEST        = 0x0001,   // Ignore solid type + always call into the entity for ray tests
-    FSOLID_CUSTOMBOXTEST        = 0x0002,   // Ignore solid type + always call into the entity for swept box tests
-    FSOLID_NOT_SOLID            = 0x0004,   // Are we currently not solid?
-    FSOLID_TRIGGER              = 0x0008,   // This is something may be collideable but fires touch functions
-                                            // even when it's not collideable (when the FSOLID_NOT_SOLID flag is set)
-    FSOLID_NOT_STANDABLE        = 0x0010,   // You can't stand on this
-    FSOLID_VOLUME_CONTENTS      = 0x0020,   // Contains volumetric contents (like water)
-    FSOLID_FORCE_WORLD_ALIGNED  = 0x0040,   // Forces the collision rep to be world-aligned even if it's SOLID_BSP or SOLID_VPHYSICS
-    FSOLID_USE_TRIGGER_BOUNDS   = 0x0080,   // Uses a special trigger bounds separate from the normal OBB
-    FSOLID_ROOT_PARENT_ALIGNED  = 0x0100,   // Collisions are defined in root parent's local coordinate space
-    FSOLID_TRIGGER_TOUCH_DEBRIS = 0x0200,   // This trigger will touch debris objects
-
-    FSOLID_MAX_BITS    = 10
-};
-/**
- * @endsection
- **/
-
-/**
- * @section Solid types.
- **/
-enum /*SolidType_t*/
-{
-    SOLID_NONE      = 0,    // no solid model
-    SOLID_BSP       = 1,    // a BSP tree
-    SOLID_BBOX      = 2,    // an AABB
-    SOLID_OBB       = 3,    // an OBB (not implemented yet)
-    SOLID_OBB_YAW   = 4,    // an OBB, constrained so that it can only yaw
-    SOLID_CUSTOM    = 5,    // Always call into the entity for tests
-    SOLID_VPHYSICS  = 6,    // solid vphysics object, get vcollide from the model and collide with that
-    SOLID_LAST,
-};
-/**
- * @endsection
- **/
- 
-/**
- * @section Collision groups.
- **/
-enum /*Collision_Group_t*/
-{
-    COLLISION_GROUP_NONE  = 0,
-    COLLISION_GROUP_DEBRIS,             // Collides with nothing but world and static stuff
-    COLLISION_GROUP_DEBRIS_TRIGGER,     // Same as debris, but hits triggers
-    COLLISION_GROUP_INTERACTIVE_DEBRIS, // Collides with everything except other interactive debris or debris
-    COLLISION_GROUP_INTERACTIVE,        // Collides with everything except interactive debris or debris
-    COLLISION_GROUP_PLAYER,
-    COLLISION_GROUP_BREAKABLE_GLASS,
-    COLLISION_GROUP_VEHICLE,
-    COLLISION_GROUP_PLAYER_MOVEMENT,    // For HL2, same as Collision_Group_Player
-    
-    COLLISION_GROUP_NPC,                // Generic NPC group
-    COLLISION_GROUP_IN_VEHICLE,         // for any entity inside a vehicle
-    COLLISION_GROUP_WEAPON,             // for any weapons that need collision detection
-    COLLISION_GROUP_VEHICLE_CLIP,       // vehicle clip brush to restrict vehicle movement
-    COLLISION_GROUP_PROJECTILE,         // Projectiles!
-    COLLISION_GROUP_DOOR_BLOCKER,       // Blocks entities not permitted to get near moving doors
-    COLLISION_GROUP_PASSABLE_DOOR,      // Doors that the player shouldn't collide with
-    COLLISION_GROUP_DISSOLVING,         // Things that are dissolving are in this group
-    COLLISION_GROUP_PUSHAWAY,           // Nonsolid on client and server, pushaway in player code
-
-    COLLISION_GROUP_NPC_ACTOR,          // Used so NPCs in scripts ignore the player.
-    COLLISION_GROUP_NPC_SCRIPTED,       // USed for NPCs in scripts that should not collide with each other
-
-    LAST_SHARED_COLLISION_GROUP
-};
-/**
- * @endsection
- **/
-
 // Initialize variables
 Handle Task_HumanTrapped[MAXPLAYERS+1] = INVALID_HANDLE;  bool bStandOnTrap[MAXPLAYERS+1];
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieMutationHeavy;
@@ -180,7 +105,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -203,6 +128,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("TRAP_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -246,10 +174,12 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
 /**
  * Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex       The client index.
+ * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode)
 {
     // Reset move
     SetEntityMoveType(clientIndex, MOVETYPE_WALK);
@@ -262,8 +192,10 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-public void ZP_OnClientHumanized(int clientIndex)
+public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode)
 {
     // Reset move
     SetEntityMoveType(clientIndex, MOVETYPE_WALK);
@@ -300,11 +232,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Initialize vectors
         static float vPosition[3];
         
-        // Gets the client's position
+        // Gets the client position
         GetClientAbsOrigin(clientIndex, vPosition);
         
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a trap entity
         int entityIndex = CreateEntityByName("prop_physics_multiplayer"); 
@@ -328,7 +262,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
             SetEntityMoveType(entityIndex, MOVETYPE_NONE);
 
-            // Sets an entity's color
+            // Sets an entity color
             SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
             SetEntityRenderColor(entityIndex, _, _, _, 0); 
 
@@ -361,7 +295,7 @@ public Action TrapTouchHook(const int entityIndex, const int targetIndex)
                 // Initialize vectors
                 static float vPosition[3];
 
-                // Gets victim's origin
+                // Gets victim origin
                 GetClientAbsOrigin(targetIndex, vPosition);
                 
                 // Trap the client
@@ -372,7 +306,9 @@ public Action TrapTouchHook(const int entityIndex, const int targetIndex)
                 Task_HumanTrapped[targetIndex] = CreateTimer(ZOMBIE_CLASS_DURATION, ClientRemoveTrapEffect, GetClientUserId(targetIndex), TIMER_FLAG_NO_MAPCHANGE);
 
                 // Emit sound
-                ZP_EmitSoundKeyID(targetIndex, gSound, SNDCHAN_VOICE, 2);
+                static char sSound[PLATFORM_MAX_PATH];
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+                EmitSoundToAll(sSound, targetIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
                 
                 // Remove entity from world
                 AcceptEntityInput(entityIndex, "Kill");

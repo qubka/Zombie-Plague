@@ -44,12 +44,13 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE         "FlareNade" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_NAME              "Flare Grenade" // Only will be taken from translation file         
+#define EXTRA_ITEM_REFERENCE         "flare grenade" // Name in weapons.ini from translation file   
+#define EXTRA_ITEM_INFO              "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST              7
-#define EXTRA_ITEM_LEVEL             0
-#define EXTRA_ITEM_ONLINE            0
+#define EXTRA_ITEM_LEVEL             5
+#define EXTRA_ITEM_ONLINE            10
 #define EXTRA_ITEM_LIMIT             1
+#define EXTRA_ITEM_GROUP             ""
 /**
  * @endsection
  **/
@@ -66,7 +67,7 @@ public Plugin myinfo =
  **/
  
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
 
 // Item index
 int gItem; int gWeapon;
@@ -82,7 +83,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 
@@ -97,6 +98,9 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -110,7 +114,7 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -138,7 +142,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Give item and select it
@@ -157,14 +161,13 @@ public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
     // Validate custom grenade
     if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(weaponIndex) == gWeapon)*/
     {
-        // Create an effect
-        FakeCreateParticle(weaponIndex, _, "smoking", GRENADE_FLARE_DURATION);
-
         // Block grenade
         SetEntProp(weaponIndex, Prop_Data, "m_nNextThinkTick", -1);
 
         // Emit sound
-        ZP_EmitSoundKeyID(weaponIndex, gSound, SNDCHAN_WEAPON);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound));
+        EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
 
         // Create an light_dynamic entity
         int lightIndex = CreateEntityByName("light_dynamic");
@@ -194,13 +197,16 @@ public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
             SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", weaponIndex);
 
             // Initialize vector variables
-            static float vOrigin[3];
+            static float vPosition[3];
             
-            // Gets parent's position
-            GetEntPropVector(weaponIndex, Prop_Send, "m_vecOrigin", vOrigin);
+            // Gets parent position
+            GetEntPropVector(weaponIndex, Prop_Send, "m_vecOrigin", vPosition);
             
             // Spawn the entity
-            DispatchKeyValueVector(lightIndex, "origin", vOrigin);
+            DispatchKeyValueVector(lightIndex, "origin", vPosition);
+            
+            // Create an effect
+            FakeCreateParticle(weaponIndex, vPosition, _, "smoking", GRENADE_FLARE_DURATION);
         }
 
         // Initialize char

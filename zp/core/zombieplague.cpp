@@ -26,7 +26,7 @@
  **/
  
 /**
- * @section All engines versions.
+ * @section Engine versions.
  **/
 #define ENGINE_UNKNOWN              "could not determine the engine version"    
 #define ENGINE_ORIGINAL             "Original Source Engine"         
@@ -183,31 +183,31 @@ void GameEngineLoad(/*void*/)
  **/
 stock bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
 {
-    // If client isn't valid
+    // If client isn't valid, then stop
     if(clientIndex <= 0 || clientIndex > MaxClients)
     {
         return false;
     }
 
-    // If client isn't connected
+    // If client isn't connected, then stop
     if(!IsClientConnected(clientIndex))
     {
         return false;
     }
 
-    // If client isn't in game
+    // If client isn't in game, then stop
     if(!IsClientInGame(clientIndex) || IsClientInKickQueue(clientIndex)) //! Improved, thanks to fl0wer!
     {
         return false;
     }
 
-    // If client is TV
+    // If client is in GoTV, then stop
     if(IsClientSourceTV(clientIndex))
     {
         return false;
     } 
 
-    // If client isn't alive
+    // If client isn't alive, then stop
     if(clientAlive && !IsPlayerAlive(clientIndex))
     {
         return false;
@@ -216,102 +216,6 @@ stock bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
     // If client exist
     return true;
 }
-
-/**
- * Returns whether a player has exact of the specified admin flag or not.
- *
- * @param clientIndex       The client index.
- *
- * @return                  True or false.
- **/
-stock bool IsPlayerHasFlag(const int clientIndex, AdminFlag iFlag = Admin_Generic)
-{
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        return false;
-    }
-
-    /*********************************
-     *                               *
-     *  FLAG SIMPLE AUTHENTICATION   *
-     *                               *
-     *********************************/
-
-    // Retrieves a client AdminId
-    AdminId iD = GetUserAdmin(clientIndex);
-
-    // Validate id
-    if(iD == INVALID_ADMIN_ID)
-    {
-        return false;
-    }
-    
-    // Return true on the success
-    return GetAdminFlag(iD, iFlag);
-}
-
-/**
- * Returns whether a player has all of the specified admin flags or not.
- *
- * @param clientIndex       The client index.
- * @param sFlags            The string with flags to validate.
- *
- * @return                  True or false.
- **/
-stock bool IsPlayerHasFlags(const int clientIndex, const char[] sFlags)
-{
-    // Validate normal user
-    if(!strlen(sFlags))
-    {
-        return true;
-    }
-    
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        return false;
-    }
-
-    /*********************************
-     *                               *
-     *   FLAG BASED AUTHENTICATION   *
-     *                               *
-     *********************************/
-    
-    #define ADMFLAG_BYTE    (1 << view_as<int>(i))
-    
-    // Retrieves a client AdminId
-    AdminId iD = GetUserAdmin(clientIndex);
-
-    // Validate id
-    if(iD == INVALID_ADMIN_ID)
-    {
-        return false;
-    }
-    
-    // Gets number of flags
-    int iCount, iFound, iFlag = ReadFlagString(sFlags);
-
-    // Loop through access levels (flags) for admins
-    for(AdminFlag i = Admin_Reservation; i <= Admin_Custom6; i++)
-    {
-        // Validate bitwise values definitions for admin flags
-        if(iFlag & ADMFLAG_BYTE)
-        {
-            iCount++;
-
-            // Validate flag
-            if(GetAdminFlag(iD, i))
-            {
-                iFound++;
-            }
-        }
-    }
-
-    // Return true on the success
-    return (iCount == iFound);
-}  
 
 /**
  * Returns whether a player is in a spesific group or not.
@@ -344,24 +248,23 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
         return false;
     }
     
-    // Gets number of groups
-    int nGroup = GetAdminGroupCount(iD);
-    static char sGroupName[NORMAL_LINE_LENGTH];
+    // Gets immunity level
+    int iImmunity = GetAdminImmunityLevel(iD);
     
-    // Validate number of groups
-    if(nGroup)
+    // Initialize variables
+    static char sGroupName[NORMAL_LINE_LENGTH]; GroupId nGroup;
+
+    // i = group index
+    int iSize = GetAdminGroupCount(iD);
+    for(int i = 0; i < iSize; i++)
     {
-        // Loop through each group
-        for(int i = 0; i < nGroup; i++)
+        // Gets group name
+        nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
+        
+        // If names match, then return index
+        if(!strcmp(sGroup, sGroupName, false) || GetAdmGroupImmunityLevel(nGroup) <= iImmunity)
         {
-            // Gets group name
-            GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
-            
-            // Compare names
-            if(!strcmp(sGroup, sGroupName, false))
-            {
-                return true;
-            }
+            return true;
         }
     }
     

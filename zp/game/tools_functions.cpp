@@ -26,22 +26,151 @@
  **/
 
 /**
+ * @section Hud elements flags.
+ **/
+#define HIDEHUD_WEAPONSELECTION     (1<<0)   // Hide ammo count & weapon selection
+#define HIDEHUD_FLASHLIGHT          (1<<1)
+#define HIDEHUD_ALL                 (1<<2)
+#define HIDEHUD_HEALTH              (1<<3)   // Hide health & armor / suit battery
+#define HIDEHUD_PLAYERDEAD          (1<<4)   // Hide when local player's dead
+#define HIDEHUD_NEEDSUIT            (1<<5)   // Hide when the local player doesn't have the HEV suit
+#define HIDEHUD_MISCSTATUS          (1<<6)   // Hide miscellaneous status elements (trains, pickup history, death notices, etc)
+#define HIDEHUD_CHAT                (1<<7)   // Hide all communication elements (saytext, voice icon, etc)
+#define HIDEHUD_CROSSHAIR           (1<<8)   // Hide crosshairs
+#define HIDEHUD_VEHICLE_CROSSHAIR   (1<<9)   // Hide vehicle crosshair
+#define HIDEHUD_INVEHICLE           (1<<10)
+#define HIDEHUD_BONUS_PROGRESS      (1<<11)  // Hide bonus progress display (for bonus map challenges)
+/**
+ * @endsection
+ **/
+ 
+/**
+ * @section Entity effects flags.
+ **/
+#define EF_BONEMERGE                (1<<0)     // Performs bone merge on client side
+#define EF_BRIGHTLIGHT              (1<<1)     // DLIGHT centered at entity origin
+#define EF_DIMLIGHT                 (1<<2)     // Player flashlight
+#define EF_NOINTERP                 (1<<3)     // Don't interpolate the next frame
+#define EF_NOSHADOW                 (1<<4)     // Disables shadow
+#define EF_NODRAW                   (1<<5)     // Prevents the entity from drawing and networking
+#define EF_NORECEIVESHADOW          (1<<6)     // Don't receive shadows
+#define EF_BONEMERGE_FASTCULL       (1<<7)     // For use with EF_BONEMERGE. If this is set, then it places this ents origin at its parent and uses the parent's bbox + the max extents of the aiment. Otherwise, it sets up the parent's bones every frame to figure out where to place the aiment, which is inefficient because it'll setup the parent's bones even if the parent is not in the PVS.
+#define EF_ITEM_BLINK               (1<<8)     // Makes the entity blink
+#define EF_PARENT_ANIMATES          (1<<9)     // Always assume that the parent entity is animating
+#define EF_FOLLOWBONE               (1<<10)    
+/**
+ * @endsection
+ **/
+ 
+/**
  * Creates commands for tools module. Called when commands are created.
  **/
-void ToolsOnCommandsCreate(/*void*/)
+ void ToolsOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    AddCommandListener(ToolsHook, "+lookatweapon");
+    AddCommandListener(ToolsOnGeneric, "kill");
+    AddCommandListener(ToolsOnGeneric, "explode");
+    AddCommandListener(ToolsOnGeneric, "killvector");
+    AddCommandListener(ToolsOnGeneric, "jointeam");
+    AddCommandListener(ToolsOnFlashlight, "+lookatweapon");
+    
+    // Hook messages
+    HookUserMessage(GetUserMessageId("TextMsg"), ToolsMessage, true);
 }
 
 /**
- * Hook client command.
+    * Callback for command listeners.
  *
  * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action ToolsHook(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action ToolsOnGeneric(const int clientIndex, const char[] commandMsg, const int iArguments)
+{
+    // Validate client 
+    if(IsPlayerExist(clientIndex, false))
+    {
+        // Switches client commands
+        switch(commandMsg[0])
+        {
+            // Suicide
+            case 'k', 'e' : 
+            {
+                return gCvarList[CVAR_RESPAWN_SUICIDE].BoolValue ? Plugin_Continue : Plugin_Handled;
+            }
+            
+            // Jointeam
+            case 'j' :
+            {
+                // Retrieves a command argument given its index
+                static char sArg[SMALL_LINE_LENGTH];
+                GetCmdArg(1, sArg, sizeof(sArg));
+                
+                // Gets team index
+                int iTeam = StringToInt(sArg);
+
+                // Switch team
+                switch(GetClientTeam(clientIndex))
+                {
+                    // Non-playable team
+                    case TEAM_NONE, TEAM_SPECTATOR :
+                    {
+                        // Validate no spec team
+                        if(iTeam != TEAM_SPECTATOR)
+                        {
+                            // If game round didn't start, then respawn
+                            if(gServerData[Server_RoundMode] == -1)
+                            {
+                                // Switch team to random
+                                ToolsSetClientTeam(clientIndex, (iTeam != TEAM_NONE) ? iTeam : GetRandomInt(TEAM_ZOMBIE, TEAM_HUMAN));
+                                
+                                // Force client to respawn
+                                ToolsForceToRespawn(clientIndex);
+                                
+                                // Block command
+                                return Plugin_Handled;
+                            }
+                        }
+                    }
+                    
+                    // T team
+                    case TEAM_ZOMBIE:
+                    {
+                        // Validate opposite team
+                        if(iTeam == TEAM_NONE || iTeam == TEAM_HUMAN)
+                        {
+                            // Block command    
+                            return Plugin_Handled;
+                        }
+                    }
+                    
+                    // CT team
+                    case TEAM_HUMAN :
+                    {
+                        // Validate opposite team
+                        if(iTeam == TEAM_NONE || iTeam == TEAM_ZOMBIE)
+                        {
+                            // Block command    
+                            return Plugin_Handled;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Allow commands
+    return Plugin_Continue;
+}
+
+/**
+ * Callback for command listener to on/off flashlight.
+ *
+ * @param clientIndex       The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action ToolsOnFlashlight(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
     // Validate client 
     if(IsPlayerExist(clientIndex))
@@ -65,6 +194,30 @@ public Action ToolsHook(const int clientIndex, const char[] commandMsg, const in
     
     // Block command
     return Plugin_Handled;
+}
+
+/**
+ * Hook client messages.
+ *
+ * @param iMessage          The message index.
+ * @param hBuffer           Handle to the input bit buffer.
+ * @param iPlayers          Array containing player indexes.
+ * @param playersNum        Number of players in the array.
+ * @param bReliable         True if message is reliable, false otherwise.
+ * @param bInit             True if message is an initmsg, false otherwise.
+ **/
+public Action ToolsMessage(UserMsg iMessage, BfRead hBuffer, const int[] iPlayers, const int playersNum, const bool bReliable, const bool bInit)
+{
+    // Initialize engine message
+    static char sTxtMsg[PLATFORM_MAX_PATH]; 
+    PbReadString(hBuffer, "params", sTxtMsg, sizeof(sTxtMsg), 0); 
+
+    // Initialize block message list
+    static char sBlockMsg[PLATFORM_MAX_PATH];
+    gCvarList[CVAR_MESSAGES_BLOCK].GetString(sBlockMsg, sizeof(sBlockMsg)); 
+
+    // Block messages on the matching
+    return (StrContains(sBlockMsg, sTxtMsg) != -1) ? Plugin_Handled : Plugin_Continue; 
 }
 
 /**
@@ -96,7 +249,7 @@ void ToolsResetVars(const int clientIndex)
     gClientData[clientIndex][Client_Costume] = -1;
     gClientData[clientIndex][Client_AttachmentCostume] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentBits] = 0;
-    gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
+    gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
     gClientData[clientIndex][Client_ViewModels] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
     gClientData[clientIndex][Client_LastSequence] = -1;
     gClientData[clientIndex][Client_CustomWeapon] = 0;
@@ -242,7 +395,7 @@ stock void ToolsGetClientVelocity(const int clientIndex, float vecVelocity[3])
  * Set a client health value.
  *
  * @param clientIndex       The client index.
- * @param iValue            Armor value.
+ * @param iValue            The health value.
  **/
 stock void ToolsSetClientHealth(const int clientIndex, const int iValue)
 {
@@ -254,7 +407,7 @@ stock void ToolsSetClientHealth(const int clientIndex, const int iValue)
  * Set a client lagged movement value.
  *
  * @param clientIndex       The client index.
- * @param flValue           LMV value.
+ * @param flValue           The LMV value.
  **/
 stock void ToolsSetClientLMV(const int clientIndex, const float flValue)
 {
@@ -265,7 +418,7 @@ stock void ToolsSetClientLMV(const int clientIndex, const float flValue)
 /**
  * Set a client armor value.
  * @param clientIndex       The client index.
- * @param iValue            Armor value.
+ * @param iValue            The armor value.
  **/
 stock void ToolsSetClientArmor(const int clientIndex, const int iValue)
 {
@@ -277,7 +430,7 @@ stock void ToolsSetClientArmor(const int clientIndex, const int iValue)
  * Set a client team index.
  *
  * @param clientIndex       The client index.
- * @param iValue            Team index.
+ * @param iValue            The team index.
  **/
 stock void ToolsSetClientTeam(const int clientIndex, const int nTeam)
 {
@@ -290,7 +443,7 @@ stock void ToolsSetClientTeam(const int clientIndex, const int nTeam)
     else
     {
         // Switch team of client
-        SDKCall(hSDKCallSwitchTeam, clientIndex, nTeam);
+        SDKCall(hSDKCallSwitchTeam, clientIndex, nTeam); 
     }
 }
 
@@ -304,7 +457,7 @@ stock void ToolsSetClientTeam(const int clientIndex, const int nTeam)
  **/
 stock bool ToolsGetClientNightVision(const int clientIndex, const bool bOwnership = false)
 {
-    // If ownership is true, then toggle the ownership of nightvision on client
+    // If ownership is true, then gets the ownership of nightvision on client
     return view_as<bool>(GetEntData(clientIndex, bOwnership ? g_iOffset_PlayerHasNightVision : g_iOffset_PlayerNightVisionOn, 1));
 }
 
@@ -320,6 +473,30 @@ stock void ToolsSetClientNightVision(const int clientIndex, const bool bEnable, 
 {
     // If ownership is true, then toggle the ownership of nightvision on client
     SetEntData(clientIndex, bOwnership ? g_iOffset_PlayerHasNightVision : g_iOffset_PlayerNightVisionOn, bEnable, _, true);
+}
+
+/**
+ * Get defuser value on a client.
+ *
+ * @param clientIndex       The client index.
+ * @return                  The aspect of the client defuser.
+ **/
+stock bool ToolsGetClientDefuser(const int clientIndex, const bool bOwnership = false)
+{
+    // Gets value on the client
+    return view_as<bool>(GetEntData(clientIndex, g_iOffset_PlayerHasDefuser, 1));
+}
+
+/**
+ * Control defuser value on a client.
+ *
+ * @param clientIndex       The client index.
+ * @param bEnable           Enable or disable an aspect of defuser.
+ **/
+stock void ToolsSetClientDefuser(const int clientIndex, const bool bEnable)
+{
+    // Sets value on the client
+    SetEntData(clientIndex, g_iOffset_PlayerHasDefuser, bEnable, _, true);
 }
 
 /**
@@ -345,7 +522,7 @@ stock void ToolsSetClientScore(const int clientIndex, const bool bScore = true, 
 /**
  * Get or set a client score or deaths.
  * 
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  * @param bScore            True to look at score, false to look at deaths.  
  * @return                  The score or death count of the client.
  **/
@@ -405,7 +582,6 @@ stock void ToolsSetClientDetecting(const int clientIndex, const bool bEnable)
  **/
 stock void ToolsSetClientHud(const int clientIndex, const bool bEnable)
 {   
-    #define HIDEHUD_CROSSHAIR (1 << 8)
     // Sets value on the client
     SetEntData(clientIndex, g_iOffset_PlayerHUD, bEnable ? (GetEntData(clientIndex, g_iOffset_PlayerHUD) & ~HIDEHUD_CROSSHAIR) : (GetEntData(clientIndex, g_iOffset_PlayerHUD) | HIDEHUD_CROSSHAIR), _, true);
 }
@@ -418,10 +594,11 @@ stock void ToolsSetClientHud(const int clientIndex, const bool bEnable)
  **/
 stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
 {
-    #define EF_FLASHLIGHT 4
     // Sets value on the client
-    SetEntData(clientIndex, g_iOffset_PlayerFlashLight, bEnable ? (GetEntData(clientIndex, g_iOffset_PlayerFlashLight) ^ EF_FLASHLIGHT) : (EF_FLASHLIGHT ^ EF_FLASHLIGHT), _, true);
+    SetEntData(clientIndex, g_iOffset_PlayerFlashLight, bEnable ? (GetEntData(clientIndex, g_iOffset_PlayerFlashLight) ^ EF_DIMLIGHT) : 0, _, true);
 }
+
+/*_____________________________________________________________________________________________________*/
 
 /**
  * Set a round termination.
@@ -430,18 +607,44 @@ stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
  **/
 stock void ToolsTerminateRound(const int CReason)
 {
-    // Terminate round
     SDKCall(hSDKCallTerminateRound, gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CReason);
 }
 
 /**
- * Used to iterate all the entities within a sphere.
- *
+ * Update a entity transmit state.
+ * 
  * @param entityIndex       The entity index.
- * @param vCenter           The center origin.
- * @param flRadius          The search radius for the entity.
  **/
-/*stock int ToolsFindEntityInSphere(const int entityIndex, const float vCenter[3], const float flRadius)
+stock void ToolsUpdateTransmitState(const int entityIndex)
 {
-    return SDKCall(hSDKCallFindEntityInSphere, entityIndex, vCenter, flRadius);
-}*/
+    SDKCall(hSDKCallEntityUpdateTransmitState, entityIndex);
+}
+
+/**
+ * Validate the attachment on the entity.
+ *
+ * @param clientIndex       The entity index.
+ * @param sAttach           The attachment name.
+ * @return                  True or false.
+ **/
+bool ToolsLookupAttachment(const int entityIndex, const char[] sAttach)
+{
+    return SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
+}
+
+/**
+ * Gets the attachment of the entity.
+ *
+ * @param clientIndex       The entity index.
+ * @param sAttach           The attachment name.
+ * @param vOrigin           The origin ouput.
+ * @param vAngle            The angle ouput.
+ **/
+void ToolsGetAttachment(const int entityIndex, const char[] sAttach, float vOrigin[3], float vAngle[3])
+{
+    int iAnimating = SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
+    if(iAnimating)
+    {
+        SDKCall(hSDKCallGetAttachment, entityIndex, iAnimating, vOrigin, vAngle); 
+    }
+}

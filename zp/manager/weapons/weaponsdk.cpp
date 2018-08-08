@@ -37,7 +37,7 @@ enum WeaponSDKSlotType
     SlotType_Melee,               /** Melee slot */
     SlotType_Equipment,           /** Equipment slot */  
     SlotType_C4,                  /** C4 slot */  
-    SlotType_Grenades = 6         /** Grenade slot */
+    SlotType_Grenades = 6         /** Grenade slot */ // < Fake slot >
 };
 
 /**
@@ -58,12 +58,12 @@ enum WeaponSDKClassType
  **/
 Handle hSDKCallRemoveAllItems;
 Handle hSDKCallWeaponSwitch;
-Handle hSDKCallWeaponDrop;
+Handle hSDKCallCSWeaponDrop;
 Handle hSDKCallGetMaxClip1;
 Handle hSDKCallGetReserveAmmoMax;
 
 #if defined USE_DHOOKS
- /**
+/**
  * Variables to store DHook calls handlers.
  **/
 Handle hDHookGetMaxClip;
@@ -107,16 +107,18 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_SDKHooks], SDKConf_Virtual, "Weapon_Drop");
-    PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer); 
-    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_Pointer); 
-    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_Pointer); 
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "CSWeaponDrop");
+
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+    PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
+    PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
 
     // Validate call
-    if(!(hSDKCallWeaponDrop = EndPrepSDKCall()))
+    if(!(hSDKCallCSWeaponDrop = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Drop\". Update \"SourceMod\"");
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::CSWeaponDrop\". Update \"SourceMod\"");
     }
 
     // Starts the preparation of an SDK call
@@ -149,6 +151,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     fnInitSendPropOffset(g_iOffset_EntityEffects, "CBaseEntity", "m_fEffects");
     fnInitSendPropOffset(g_iOffset_EntityModelIndex, "CBaseEntity", "m_nModelIndex");
     fnInitSendPropOffset(g_iOffset_EntityOwnerEntity, "CBaseEntity", "m_hOwnerEntity");
+    fnInitSendPropOffset(g_iOffset_EntityTeam, "CBaseEntity", "m_iTeamNum");
     fnInitSendPropOffset(g_iOffset_WeaponOwner, "CBaseCombatWeapon", "m_hOwner");
     fnInitSendPropOffset(g_iOffset_WeaponWorldModel, "CBaseCombatWeapon", "m_hWeaponWorldModel"); /**"m_iWorldModelIndex" not flexible**/
     fnInitSendPropOffset(g_iOffset_WeaponBody, "CBaseCombatWeapon", "m_nBody");
@@ -218,7 +221,7 @@ void WeaponSDKUnload(/*void*/)
             {
                 // Make the first viewmodel visible
                 WeaponHDRSetEntityVisibility(viewModel1, true);
-                SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
+                ToolsUpdateTransmitState(viewModel1);
             }
 
             // Validate secondary viewmodel
@@ -226,7 +229,7 @@ void WeaponSDKUnload(/*void*/)
             {
                 // Make the second viewmodel visible
                 WeaponHDRSetEntityVisibility(viewModel2, false);
-                SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
+                ToolsUpdateTransmitState(viewModel2);
             }
         }
     }
@@ -271,6 +274,12 @@ void WeaponSDKOnCreated(const int entityIndex, const char[] sWeapon)
         // Hook weapon callbacks
         SDKHook(entityIndex, SDKHook_ReloadPost, WeaponSDKOnWeaponReload);
         SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWeaponSpawn);
+    }
+    // Validate item
+    else if(!strncmp(sWeapon, "item_", 5, false))
+    {
+        // Hook item callbacks
+        SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnItemSpawn);
     }
     else
     {
@@ -332,6 +341,22 @@ public void WeaponSDKOnFakeWeaponReload(const int referenceIndex)
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flReload, true);
             }
         }
+    }
+}
+
+/**
+ * Hook: ItemSpawnPost
+ * Item is spawned.
+ *
+ * @param itemIndex         The item index.
+ **/
+public void WeaponSDKOnItemSpawn(const int itemIndex)
+{
+    // Validate item
+    if(IsValidEdict(itemIndex)) 
+    {
+        // Reset the weapon id
+        WeaponsSetCustomID(itemIndex, INVALID_ENT_REFERENCE);
     }
 }
 
@@ -435,6 +460,9 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
             return;
         }
         
+        // Sets team index
+        SetEntData(grenadeIndex, g_iOffset_EntityTeam, GetClientTeam(clientIndex));
+        
         // Gets the active weapon index from the client
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
         
@@ -453,10 +481,7 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
             {
                 // Duplicate index to the projectile for future use
                 WeaponsSetCustomID(grenadeIndex, iD);
-        
-                // Call forward
-                API_OnWeaponCreated(grenadeIndex, iD);
-        
+
                 // If custom weapons models disabled, then skip
                 if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
                 {
@@ -475,6 +500,9 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
                         SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
                     }
                 }
+                
+                // Call forward
+                API_OnWeaponCreated(grenadeIndex, iD);
             }
         }
     }
@@ -538,11 +566,10 @@ public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
                 // Validate invalid class
                 default: return Plugin_Handled;
             }
-
-            /** Uncomment bellow, if you want to check the client level/online access **/
+            
+            /** Comment bellow, if you want to check the client level/online access **/
             
             // Block pickup it, if online too low
-            /*
             if(!gClientData[clientIndex][Client_Survivor] && fnGetPlaying() < WeaponsGetOnline(iD))
             {
                 return Plugin_Handled;
@@ -553,7 +580,18 @@ public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
             {
                 return Plugin_Handled;
             }
-            */
+            
+            // Validate bomb
+            if(WeaponsValidateBomb(weaponIndex))
+            {
+                // Gets weapon name
+                static char sName[SMALL_LINE_LENGTH];
+                WeaponsGetName(iD, sName, sizeof(sName));
+ 
+                // Give the new bomb
+                AcceptEntityInput(weaponIndex, "Kill"); //! Destroy
+                WeaponsGive(clientIndex, sName);
+            }
         }
     }
     
@@ -613,7 +651,12 @@ void WeaponSDKOnClientUpdate(const int clientIndex)
     // Validate weapon
     if(IsValidEdict(weaponIndex))
     {
+        // Gets client weapon classname
+        static char sWeapon[SMALL_LINE_LENGTH];
+        GetEdictClassname(weaponIndex, sWeapon, sizeof(sWeapon));
+
         // Update the weapon
+        FakeClientCommand(clientIndex, "use %s", sWeapon);
         SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
         SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
     }
@@ -635,7 +678,7 @@ void WeaponSDKOnClientDeath(const int clientIndex)
     {
         // Hide the custom viewmodel if the player dies
         WeaponHDRSetEntityVisibility(viewModel2, false);
-        SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
+        ToolsUpdateTransmitState(viewModel2);
     }
 
     // Clear the data
@@ -661,6 +704,10 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
     {
         return;
     }
+    
+    // Make the first viewmodel visible
+    WeaponHDRSetEntityVisibility(viewModel1, true);
+    ToolsUpdateTransmitState(viewModel1);
 
     // Validate weapon
     if(IsValidEdict(weaponIndex))
@@ -785,11 +832,11 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
         {
             // Make the first viewmodel visible
             WeaponHDRSetEntityVisibility(viewModel1, true);
-            SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
+            ToolsUpdateTransmitState(viewModel1);
 
             // Make the second viewmodel invisible
             WeaponHDRSetEntityVisibility(viewModel2, false);
-            SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
+            ToolsUpdateTransmitState(viewModel2);
 
             // Resets the weapon index
             gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only viewmodel identification
@@ -808,11 +855,11 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     {
         // Make the first viewmodel invisible
         WeaponHDRSetEntityVisibility(viewModel1, false);
-        SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1);
+        ToolsUpdateTransmitState(viewModel1);
         
         // Make the second viewmodel visible
         WeaponHDRSetEntityVisibility(viewModel2, true);
-        ///SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2); //-> transport a bit below
+        ///ToolsUpdateTransmitState(viewModel2); //-> transport a bit below
         
         // Remove the muzzle on the switch
         VEffectRemoveMuzzle(clientIndex, viewModel2);
@@ -822,7 +869,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
         
         // Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
         SetEntData(viewModel1, g_iOffset_ViewModelSequence, -1, _, true);
-        SDKCall(hSDKCallEntityUpdateTransmitState, viewModel2);
+        ToolsUpdateTransmitState(viewModel2);
         
         // Sets the model entity for the weapon
         SetEntityModel(weaponIndex, sModel);
@@ -986,7 +1033,7 @@ public void WeaponSDKOnAnimationFix(const int clientIndex)
         // Validate sequence
         if(drawSequence != -1 && nSequence != drawSequence)
         {
-            SDKCall(hSDKCallEntityUpdateTransmitState, viewModel1); /// Update!
+            ToolsUpdateTransmitState(viewModel1); /// Update!
             gClientData[clientIndex][Client_DrawSequence] = -1;
         }
         
@@ -1035,9 +1082,6 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
             // If viewmodel exist, then create muzzle smoke
             if(WeaponsGetModelViewID(iD))
             {
-                // Initialize variables
-                static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
-
                 // Gets the entity index from the reference
                 int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
 
@@ -1052,33 +1096,48 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
                 {
                     return;
                 }
-
-                // Calculate the expected heat amount
-                float flHeat = ((flCurrentTime - GetEntDataFloat(weaponIndex, g_iOffset_LastShotTime)) * -0.5) + flHeatDelay[clientIndex];
-
-                // This value is set specifically for each weapon
-                flHeat += WeaponsGetModelHeat(iD);
                 
-                // Reset the heat
-                if(flHeat < 0.0) flHeat = 0.0;
+                // Get weapon muzzle
+                static char sMuzzle[SMALL_LINE_LENGTH];
+                WeaponsGetModelMuzzle(iD, sMuzzle, sizeof(sMuzzle));
 
-                // Validate heat
-                if(flHeat > 1.0)
+                // Create a muzzle
+                if(strlen(sMuzzle)) VEffectSpawnMuzzle(clientIndex, viewModel2, sMuzzle);
+
+                // Validate weapon heat delay
+                float flDelay = WeaponsGetModelHeat(iD);
+                if(flDelay)
                 {
-                    // Validate delay
-                    if(flCurrentTime - flSmoke[clientIndex] > 1.0)
-                    {
-                        // Create a muzzle smoke
-                        VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
-                        flSmoke[clientIndex] = flCurrentTime;
-                    }
-                    
-                    // Resets then
-                    flHeat = 0.0;
-                }
+                    // Initialize variables
+                    static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
 
-                // Update the heat delay
-                flHeatDelay[clientIndex] = flHeat;
+                    // Calculate the expected heat amount
+                    float flHeat = ((flCurrentTime - GetEntDataFloat(weaponIndex, g_iOffset_LastShotTime)) * -0.5) + flHeatDelay[clientIndex];
+
+                    // This value is set specifically for each weapon
+                    flHeat += flDelay;
+                    
+                    // Reset the heat
+                    if(flHeat < 0.0) flHeat = 0.0;
+
+                    // Validate heat
+                    if(flHeat > 1.0)
+                    {
+                        // Validate delay
+                        if(flCurrentTime - flSmoke[clientIndex] > 1.0)
+                        {
+                            // Create a muzzle smoke
+                            VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
+                            flSmoke[clientIndex] = flCurrentTime;
+                        }
+                        
+                        // Resets then
+                        flHeat = 0.0;
+                    }
+
+                    // Update the heat delay
+                    flHeatDelay[clientIndex] = flHeat;
+                }
             }
         }
     }
@@ -1112,7 +1171,7 @@ Action WeaponSDKOnShoot(const int clientIndex, const int weaponIndex)
     if(iD != INVALID_ENT_REFERENCE)    
     {
         // Validate broadcast
-        return SoundsInputEmit(weaponIndex, SNDCHAN_WEAPON, WeaponsGetSoundID(iD)) ? Plugin_Stop : Plugin_Continue;
+        return SoundsInputEmitToAll(WeaponsGetSoundID(iD), 0, weaponIndex, SNDCHAN_WEAPON, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue) ? Plugin_Stop : Plugin_Continue;
     }
     
     // Allow broadcast
@@ -1160,7 +1219,7 @@ public void WeaponSDKOnFakeHostage(const int userID)
             // Remove the viewmodel created by the game
             if(IsValidEdict(viewModel2))
             {
-                AcceptEntityInput(viewModel2, "Kill");
+                AcceptEntityInput(viewModel2, "Kill"); //! Destroy
             }
 
             // Resets the viewmodel
@@ -1172,7 +1231,7 @@ public void WeaponSDKOnFakeHostage(const int userID)
 /**
  * Callback for command listener to buy ammunition.
  *
- * @param entityIndex       The client index.
+ * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/

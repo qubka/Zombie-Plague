@@ -46,8 +46,9 @@
  **/
 int g_iOffset_PlayerVelocity;
 int g_iOffset_PlayerLMV;
-int g_iOffset_PlayerHasNightVision;
 int g_iOffset_PlayerNightVisionOn;
+int g_iOffset_PlayerHasNightVision;
+int g_iOffset_PlayerHasDefuser;
 int g_iOffset_PlayerDefaultFOV;
 int g_iOffset_PlayerAccount;
 int g_iOffset_PlayerSpotted;
@@ -65,6 +66,7 @@ int g_iOffset_PlayerCollision;
 int g_iOffset_PlayerRagdool;
 int g_iOffset_EntityModelIndex;
 int g_iOffset_EntityOwnerEntity;
+int g_iOffset_EntityTeam;
 int g_iOffset_WeaponID;
 int g_iOffset_WeaponOwner;
 int g_iOffset_WeaponWorldModel;
@@ -158,7 +160,7 @@ enum ClientData
     Client_Costume,
     Client_AttachmentCostume,
     Client_AttachmentBits,
-    Client_AttachmentAddons[10], /* Amount of weapon back attachments */
+    Client_AttachmentAddons[11], /* Amount of weapon back attachments */
     
     /* Weapons */
     Client_ViewModels[2],

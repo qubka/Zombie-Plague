@@ -229,7 +229,7 @@ public Action LevelSystemOnHUD(Handle hTimer, const int userID)
             // Validate nemesis hud
             if(gClientData[clientIndex][Client_Nemesis])
             {
-                strcopy(sInfo, sizeof(sInfo), "Nemesis");
+                strcopy(sInfo, sizeof(sInfo), "nemesis");
             }
             else
             {
@@ -248,7 +248,7 @@ public Action LevelSystemOnHUD(Handle hTimer, const int userID)
             // Validate survivor hud
             if(gClientData[clientIndex][Client_Survivor])
             {
-                strcopy(sInfo, sizeof(sInfo), "Survivor");
+                strcopy(sInfo, sizeof(sInfo), "survivor");
             }
             else
             {
@@ -262,7 +262,7 @@ public Action LevelSystemOnHUD(Handle hTimer, const int userID)
         }
 
         // Print hud text to client
-        TranslationPrintHudText(hHudLevel, clientIndex, 0.02, 0.885, 1.1, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "Level info", GetClientArmor(clientIndex), sInfo, gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], LevelSystemStats[gClientData[clientIndex][Client_Level]]);
+        TranslationPrintHudText(hHudLevel, clientIndex, 0.02, 0.885, 1.1, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "level info", GetClientArmor(clientIndex), sInfo, gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], LevelSystemStats[gClientData[clientIndex][Client_Level]]);
     
         // Allow timer
         return Plugin_Continue;

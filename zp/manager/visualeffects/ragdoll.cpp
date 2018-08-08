@@ -134,29 +134,21 @@ void RagdollRemove(const int iRagdoll)
  **/
 public Action RagdollTimer(Handle hTimer, const int referenceIndex)
 {
-    // If ragdoll removal is disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue)
-    {
-        return;
-    }
-
     // Get the ragdoll index from the reference
     int iRagdoll = EntRefToEntIndex(referenceIndex);
 
     // If the ragdoll is already gone, then stop
-    if(iRagdoll == INVALID_ENT_REFERENCE)
+    if(iRagdoll != INVALID_ENT_REFERENCE)
     {
-        return;
-    }
+        // Make sure this edict is still a ragdoll and not become a new valid entity
+        static char sClassname[SMALL_LINE_LENGTH];
+        GetEdictClassname(iRagdoll, sClassname, sizeof(sClassname));
 
-    // Make sure this edict is still a ragdoll and not become a new valid entity
-    static char sClassname[SMALL_LINE_LENGTH];
-    GetEdictClassname(iRagdoll, sClassname, sizeof(sClassname));
-
-    // Validate classname
-    if(!strcmp(sClassname, "cs_ragdoll", false))
-    {
-        // Remove the ragdoll
-        RagdollRemove(iRagdoll);
+        // Validate classname
+        if(!strcmp(sClassname, "cs_ragdoll", false))
+        {
+            // Remove the ragdoll
+            RagdollRemove(iRagdoll);
+        }
     }
 }

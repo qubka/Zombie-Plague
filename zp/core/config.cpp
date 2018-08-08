@@ -177,8 +177,8 @@ enum ConfigKvAction
 void ConfigOnCommandsCreate(/*void*/)
 {
     // Create config admin commands
-    RegConsoleCmd("zp_config_reload", Command_ReloadCommand, "Reloads a config file. Usage: zp_config_reload <file alias>");
-    RegConsoleCmd("zp_config_reloadall", Command_ReloadAllCommand, "Reloads all config files. Usage: zp_config_reloadall");
+    RegAdminCmd("zp_config_reload", Command_ReloadCommand, ADMFLAG_CONFIG, "Reloads a config file. Usage: zp_config_reload <file alias>");
+    RegAdminCmd("zp_config_reloadall", Command_ReloadAllCommand, ADMFLAG_CONFIG, "Reloads all config files. Usage: zp_config_reloadall");
 }
 
 /**
@@ -796,19 +796,12 @@ stock ConfigFile ConfigAliasToConfigFile(const char[] sAlias)
  **/
 public Action Command_ReloadCommand(const int clientIndex, const int iArguments)
 {
-    // Verify admin
-    if(!IsPlayerHasFlag(clientIndex, Admin_Config))
-    {
-        TranslationReplyToCommand(clientIndex, "Can not do it");
-        return Plugin_Handled;
-    }
-
     // If not enough arguments given, then stop
     if(iArguments < 1)
     {
-        TranslationReplyToCommand(clientIndex, "Config reload");
-        TranslationReplyToCommand(clientIndex, "Config reload commands");
-        TranslationReplyToCommand(clientIndex, "Config reload commands aliases", CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES);
+        TranslationReplyToCommand(clientIndex, "config reload");
+        TranslationReplyToCommand(clientIndex, "config reload commands");
+        TranslationReplyToCommand(clientIndex, "config reload commands aliases", CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES);
         return Plugin_Handled;
     }
 
@@ -826,7 +819,7 @@ public Action Command_ReloadCommand(const int clientIndex, const int iArguments)
         ConfigFile iConfig = ConfigAliasToConfigFile(sFileAlias);
         if(iConfig == File_Invalid)
         {
-            TranslationReplyToCommand(clientIndex, "Config reload invalid");
+            TranslationReplyToCommand(clientIndex, "config reload invalid");
             return Plugin_Handled;
         }
 
@@ -842,7 +835,7 @@ public Action Command_ReloadCommand(const int clientIndex, const int iArguments)
         // If file isn't loaded then tell client, then stop
         if(!bLoaded)
         {
-            TranslationReplyToCommand(clientIndex, "Config reload not load");
+            TranslationReplyToCommand(clientIndex, "config reload not load");
 
             // Format a failed attempt string to the end of the log message
             Format(sLogMessage, sizeof(sLogMessage), "\"%s\" -- attempt failed, config file not loaded", sLogMessage);
@@ -863,15 +856,8 @@ public Action Command_ReloadCommand(const int clientIndex, const int iArguments)
  **/
 public Action Command_ReloadAllCommand(const int clientIndex, const int iArguments)
 {
-    // Verify admin
-    if(!IsPlayerHasFlag(clientIndex, Admin_Config))
-    {
-        TranslationReplyToCommand(clientIndex, "Can not do it");
-        return Plugin_Handled;
-    }
-
     // Begin statistics
-    TranslationReplyToCommand(clientIndex, "Config reload begin");
+    TranslationReplyToCommand(clientIndex, "config reload begin");
 
     static char sConfigAlias[CONFIG_MAX_LENGTH];
 
@@ -886,11 +872,11 @@ public Action Command_ReloadAllCommand(const int clientIndex, const int iArgumen
 
         if(bSuccessful)
         {
-            TranslationReplyToCommand(clientIndex, "Config reload finish");
+            TranslationReplyToCommand(clientIndex, "config reload finish");
         }
         else
         {
-            TranslationReplyToCommand(clientIndex, "Config reload falied");
+            TranslationReplyToCommand(clientIndex, "config reload falied");
         }
     }
 

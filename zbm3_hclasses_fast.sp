@@ -43,7 +43,7 @@ public Plugin myinfo =
 /**
  * @section Information about human class.
  **/
-#define HUMAN_CLASS_NAME                "Pirate" // Only will be taken from translation file
+#define HUMAN_CLASS_NAME                "pirate" // Only will be taken from translation file
 #define HUMAN_CLASS_MODEL               "models/player/tm_pirate_variantc.mdl"    
 #define HUMAN_CLASS_ARM                 "models/weapons/t_arms_pirate.mdl"    
 #define HUMAN_CLASS_HEALTH              50
@@ -51,7 +51,7 @@ public Plugin myinfo =
 #define HUMAN_CLASS_GRAVITY             0.9
 #define HUMAN_CLASS_ARMOR               0
 #define HUMAN_CLASS_LEVEL               1
-#define HUMAN_CLASS_VIP                 NO
+#define HUMAN_CLASS_GROUP               ""
 #define HUMAN_CLASS_SOUND_DEATH         "HUMAN_DEATH_SOUNDS"
 #define HUMAN_CLASS_SOUND_HURT          "HUMAN_HURT_SOUNDS"
 #define HUMAN_CLASS_SOUND_INFECT        "HUMAN_INFECTION_SOUNDS"
@@ -81,7 +81,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         HUMAN_CLASS_GRAVITY, 
         HUMAN_CLASS_ARMOR,
         HUMAN_CLASS_LEVEL,
-        HUMAN_CLASS_VIP,
+        HUMAN_CLASS_GROUP,
         HUMAN_CLASS_SOUND_DEATH,
         HUMAN_CLASS_SOUND_HURT,
         HUMAN_CLASS_SOUND_INFECT);

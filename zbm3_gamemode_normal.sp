@@ -43,16 +43,16 @@ public Plugin myinfo =
 /**
  * @section Information about human class.
  **/
-#define GAME_MODE_NAME                   "Normal"
-#define GAME_MODE_DESCRIPTION            "Mode infection" // String has taken from translation file
+#define GAME_MODE_NAME                   "normal"
+#define GAME_MODE_DESCRIPTION            "mode infection" // String has taken from translation file
 #define GAME_MODE_SOUND                  "ROUND_NORMAL_SOUNDS" // Sounds has taken from sounds file
 #define GAME_MODE_CHANCE                 0 // If value has 0, mode will be taken like a default            
 #define GAME_MODE_MIN_PLAYERS            0
 #define GAME_MODE_RATIO                  0.0
-#define GAME_MODE_INFECTION              YES
-#define GAME_MODE_RESPAWN                YES
-#define GAME_MODE_SURVIVOR               NO
-#define GAME_MODE_NEMESIS                NO
+#define GAME_MODE_INFECTION              true
+#define GAME_MODE_RESPAWN                true
+#define GAME_MODE_SURVIVOR               false
+#define GAME_MODE_NEMESIS                false
 /**
  * @endsection
  **/

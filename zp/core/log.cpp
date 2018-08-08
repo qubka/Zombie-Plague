@@ -117,9 +117,9 @@ int LogModuleFilterCache[LogModules];
  **/
 void LogOnCommandsCreate(/*void*/)
 {
-    RegConsoleCmd("zp_log_list", Command_LogList, "List available logging flags and modules with their status values.");
-    RegConsoleCmd("zp_log_add_module", Command_LogAddModule, "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...");
-    RegConsoleCmd("zp_log_remove_module", Command_LogRemoveModule, "Remove one or more modules from the module filter. Usage: zp_log_remove_module <module> [module] ...");
+    RegAdminCmd("zp_log_list", Command_LogList, ADMFLAG_CONFIG, "List available logging flags and modules with their status values.");
+    RegAdminCmd("zp_log_add_module", Command_LogAddModule, ADMFLAG_CONFIG, "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...");
+    RegAdminCmd("zp_log_remove_module", Command_LogRemoveModule, ADMFLAG_CONFIG, "Remove one or more modules from the module filter. Usage: zp_log_remove_module <module> [module] ...");
 }
 
 /**
@@ -256,7 +256,7 @@ bool LogCheckFlag(int eventType)
  * @param iModule           Module to check.
  * @return                  True ifenabled, false otherwise. 
  **/
-bool LogCheckModuleFilter(LogModules iModule)
+bool LogCheckModuleFilter(const LogModules iModule)
 {
     if(LogModuleFilterCache[iModule])
     {
@@ -278,7 +278,7 @@ bool LogCheckModuleFilter(LogModules iModule)
  *
  * @return                   Number of cells written.
  **/
-int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModules iModule, bool shortName = false)
+int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules iModule, const bool shortName = false)
 {
     switch(iModule)
     {
@@ -384,7 +384,7 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModules iModule, bool
  * @param sMessage          Log message. Can be formatted.
  * @param ...               Formatting parameters.
  **/
-void LogEvent(bool isConsole = false, LogTypes logType = LogType_Normal, int eventType = LOG_CORE_EVENTS, LogModules iModule, char[] sDescription, const char[] sMessage, any ...)
+void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Normal, const int eventType = LOG_CORE_EVENTS, const LogModules iModule, const char[] sDescription, const char[] sMessage, any ...)
 {    
     // Check filter overrides. Always log fatal errors, and check error override setting on error log types
     if((logType != LogType_Fatal && logType != LogType_Error) || (logType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
@@ -475,7 +475,7 @@ void LogEvent(bool isConsole = false, LogTypes logType = LogType_Normal, int eve
  * @param iModule           The module to add.
  * @return                  True if added, false otherwise.
  **/
-bool LogModuleFilterAdd(LogModules iModule)
+bool LogModuleFilterAdd(const LogModules iModule)
 {
     static char sModuleName[SMALL_LINE_LENGTH];
     
@@ -506,7 +506,7 @@ bool LogModuleFilterAdd(LogModules iModule)
  * @param iModule            The module to remove.
  * @return                   True ifremoved, false otherwise.
  **/
-bool LogModuleFilterRemove(LogModules iModule)
+bool LogModuleFilterRemove(const LogModules iModule)
 {
     static char sModuleName[SMALL_LINE_LENGTH];
     int  iModuleIndex;
@@ -574,7 +574,7 @@ void LogModuleFilterCacheUpdate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action Command_LogList(int clientIndex, int iArguments)
+public Action Command_LogList(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sBuffer[LOG_MAX_LENGTH_FILE];
@@ -595,13 +595,13 @@ public Action Command_LogList(int clientIndex, int iArguments)
     SetGlobalTransTarget(!clientIndex ? LANG_SERVER : clientIndex);
     
     // Gets phrases
-    Format(sPhraseGenericFlag, sizeof(sPhraseGenericFlag), "%t", "Log generic flag");
-    Format(sPhraseValue, sizeof(sPhraseValue), "%t", "Log value");
-    Format(sPhraseModule, sizeof(sPhraseModule), "%t", "Log module");
-    Format(sPhraseShortName, sizeof(sPhraseShortName), "%t", "Log module short name");
+    Format(sPhraseGenericFlag, sizeof(sPhraseGenericFlag), "%t", "log generic flag");
+    Format(sPhraseValue, sizeof(sPhraseValue), "%t", "log value");
+    Format(sPhraseModule, sizeof(sPhraseModule), "%t", "log module");
+    Format(sPhraseShortName, sizeof(sPhraseShortName), "%t", "log module short name");
     
     // Log flags:
-    Format(sLineBuffer, sizeof(sLineBuffer), "%-19s %-7s %t\n", sPhraseGenericFlag, sPhraseValue, "Log status");
+    Format(sLineBuffer, sizeof(sLineBuffer), "%-19s %-7s %t\n", sPhraseGenericFlag, sPhraseValue, "log status");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     StrCat(sBuffer, sizeof(sBuffer), "--------------------------------------------------------------------------------\n");
     
@@ -627,7 +627,7 @@ public Action Command_LogList(int clientIndex, int iArguments)
     Format(sLineBuffer, sizeof(sLineBuffer), "%t %ы\n\n", "Log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
-    Format(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "Log status");
+    Format(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "log status");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     StrCat(sBuffer, sizeof(sBuffer), "--------------------------------------------------------------------------------");
     
@@ -656,13 +656,6 @@ public Action Command_LogAddModule(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];
-
-    // Verify admin
-    if(!IsPlayerHasFlag(clientIndex))
-    {
-        TranslationReplyToCommand(clientIndex, "Can not do it");
-        return Plugin_Handled;
-    }
 
     // Module
     LogModules iModule;
@@ -715,14 +708,7 @@ public Action Command_LogRemoveModule(const int clientIndex, const int iArgument
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];
-    
-    // Verify admin
-    if(!IsPlayerHasFlag(clientIndex))
-    {
-        TranslationReplyToCommand(clientIndex, "Can not do it");
-        return Plugin_Handled;
-    }
-    
+
     // Module
     LogModules iModule;
     

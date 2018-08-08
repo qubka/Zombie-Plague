@@ -43,7 +43,7 @@ public Plugin myinfo =
 /**
  * @section Information about human class.
  **/
-#define HUMAN_CLASS_NAME                "Mila" // Only will be taken from translation file
+#define HUMAN_CLASS_NAME                "mila" // Only will be taken from translation file
 #define HUMAN_CLASS_MODEL               "models/player/custom_player/kuristaja/cso2/mila/mila.mdl"    
 #define HUMAN_CLASS_ARM                 "models/player/custom_player/kuristaja/cso2/mila/mila_arms.mdl"    
 #define HUMAN_CLASS_HEALTH              40
@@ -51,7 +51,7 @@ public Plugin myinfo =
 #define HUMAN_CLASS_GRAVITY             0.8
 #define HUMAN_CLASS_ARMOR               0
 #define HUMAN_CLASS_LEVEL               10
-#define HUMAN_CLASS_VIP                 NO
+#define HUMAN_CLASS_GROUP               "[VIP]"
 #define HUMAN_CLASS_SOUND_DEATH         "HUMAN_FEMALE_DEATH_SOUNDS"
 #define HUMAN_CLASS_SOUND_HURT          "HUMAN_FEMALE_HURT_SOUNDS"
 #define HUMAN_CLASS_SOUND_INFECT        "HUMAN_FEMALE_INFECTION_SOUNDS"
@@ -81,7 +81,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         HUMAN_CLASS_GRAVITY, 
         HUMAN_CLASS_ARMOR,
         HUMAN_CLASS_LEVEL,
-        HUMAN_CLASS_VIP,
+        HUMAN_CLASS_GROUP,
         HUMAN_CLASS_SOUND_DEATH,
         HUMAN_CLASS_SOUND_HURT,
         HUMAN_CLASS_SOUND_INFECT);

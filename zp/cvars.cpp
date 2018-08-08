@@ -47,10 +47,11 @@ enum CvarsList
     ConVar:CVAR_SERVER_FRIENDLY_OTHER,
     ConVar:CVAR_SERVER_FRIENDLY_SELF,
     ConVar:CVAR_SERVER_BUY_ANYWHERE,
-    ConVar:CVAR_SERVER_GIVE_BOMB,
-    ConVar:CVAR_SERVER_GIVE_WEAPON,
     ConVar:CVAR_SERVER_WARMUP_TIME,
     ConVar:CVAR_SERVER_WARMUP_PERIOD,
+    ConVar:CVAR_SERVER_GIVE_WEAPON,
+    ConVar:CVAR_SERVER_GIVE_TASER,
+    ConVar:CVAR_SERVER_GIVE_BOMB,
     ConVar:CVAR_SERVER_ROUNDTIME_ZP,
     ConVar:CVAR_SERVER_ROUNDTIME_CS,
     ConVar:CVAR_SERVER_ROUNDTIME_DE,
@@ -84,7 +85,6 @@ enum CvarsList
     ConVar:CVAR_HUMAN_LAST_INFECTION,
     ConVar:CVAR_HUMAN_INF_AMMUNITION,
     ConVar:CVAR_HUMAN_PRICE_AMMUNITION,
-    ConVar:CVAR_HUMAN_RANDOM_CLASS,
     ConVar:CVAR_SURVIVOR_SPEED,
     ConVar:CVAR_SURVIVOR_GRAVITY,
     ConVar:CVAR_SURVIVOR_HEALTH,
@@ -94,8 +94,8 @@ enum CvarsList
     ConVar:CVAR_ZOMBIE_FISRT_HEALTH,
     ConVar:CVAR_ZOMBIE_NIGHT_VISION,
     ConVar:CVAR_ZOMBIE_XRAY,
+    ConVar:CVAR_ZOMBIE_CROSSHAIR,
     ConVar:CVAR_ZOMBIE_RESTORE,
-    ConVar:CVAR_ZOMBIE_RANDOM_CLASS,
     ConVar:CVAR_NEMESIS_SPEED,
     ConVar:CVAR_NEMESIS_GRAVITY,
     ConVar:CVAR_NEMESIS_HEALTH,
@@ -252,19 +252,19 @@ enum CvarsList
     ConVar:CVAR_T_DEFAULT_MELEE,
     ConVar:CVAR_T_DEFAULT_SECONDARY,
     ConVar:CVAR_T_DEFAULT_PRIMARY,
-    ConVar:CVAR_H_DEFAULT_GRENADES,
+    ConVar:CVAR_H_DEFAULT_EQUIPMENT,
     ConVar:CVAR_H_DEFAULT_MELEE,
     ConVar:CVAR_H_DEFAULT_SECONDARY,
     ConVar:CVAR_H_DEFAULT_PRIMARY,
-    ConVar:CVAR_Z_DEFAULT_GRENADES,
+    ConVar:CVAR_Z_DEFAULT_EQUIPMENT,
     ConVar:CVAR_Z_DEFAULT_MELEE,
     ConVar:CVAR_Z_DEFAULT_SECONDARY,
     ConVar:CVAR_Z_DEFAULT_PRIMARY,
-    ConVar:CVAR_N_DEFAULT_GRENADES,
+    ConVar:CVAR_N_DEFAULT_EQUIPMENT,
     ConVar:CVAR_N_DEFAULT_MELEE,
     ConVar:CVAR_N_DEFAULT_SECONDARY,
     ConVar:CVAR_N_DEFAULT_PRIMARY,
-    ConVar:CVAR_S_DEFAULT_GRENADES,
+    ConVar:CVAR_S_DEFAULT_EQUIPMENT,
     ConVar:CVAR_S_DEFAULT_MELEE,
     ConVar:CVAR_S_DEFAULT_SECONDARY,
     ConVar:CVAR_S_DEFAULT_PRIMARY
@@ -321,10 +321,11 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SERVER_FRIENDLY_OTHER]       = FindConVar("ff_damage_reduction_other");
     gCvarList[CVAR_SERVER_FRIENDLY_SELF]        = FindConVar("ff_damage_reduction_grenade_self");
     gCvarList[CVAR_SERVER_BUY_ANYWHERE]         = FindConVar("mp_buy_anywhere");
-    gCvarList[CVAR_SERVER_GIVE_BOMB]            = FindConVar("mp_give_player_c4");
-    gCvarList[CVAR_SERVER_GIVE_WEAPON]          = FindConVar("mp_weapons_allow_map_placed");
     gCvarList[CVAR_SERVER_WARMUP_TIME]          = FindConVar("mp_warmuptime");
     gCvarList[CVAR_SERVER_WARMUP_PERIOD]        = FindConVar("mp_do_warmup_period");
+    gCvarList[CVAR_SERVER_GIVE_WEAPON]          = FindConVar("mp_weapons_allow_map_placed");
+    gCvarList[CVAR_SERVER_GIVE_TASER]           = FindConVar("mp_weapons_allow_zeus");
+    gCvarList[CVAR_SERVER_GIVE_BOMB]            = FindConVar("mp_give_player_c4");
     gCvarList[CVAR_SERVER_ROUNDTIME_ZP]         = FindConVar("mp_roundtime");
     gCvarList[CVAR_SERVER_ROUNDTIME_CS]         = FindConVar("mp_roundtime_hostage");
     gCvarList[CVAR_SERVER_ROUNDTIME_DE]         = FindConVar("mp_roundtime_defuse");
@@ -378,8 +379,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_HUMAN_LAST_INFECTION]        = CreateConVar("zp_human_last_infection",           "1",                                                               "Allow last human to be infected [0-no // 1-yes]"); 
     gCvarList[CVAR_HUMAN_INF_AMMUNITION]        = CreateConVar("zp_human_inf_ammunition",           "1",                                                               "Give unlimited amount of ammunition for humans [0-disabled // 1-BP ammunition // 2-clip ammunition]");
     gCvarList[CVAR_HUMAN_PRICE_AMMUNITION]      = CreateConVar("zp_human_price_ammunition",         "1",                                                               "Clip price of the ammunition for humans, if unlimited amount is off [0-disabled]");
-    gCvarList[CVAR_HUMAN_RANDOM_CLASS]          = CreateConVar("zp_human_random_class",             "0",                                                               "Randomize human class for the Non-VIP players [0-no // 1-yes - don't forget to block access for menus in the 'menus.ini']");  
-    
+
     // =========================== //
     //           Survivor          //
     // =========================== // 
@@ -396,9 +396,9 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_ZOMBIE_FISRT_HEALTH]         = CreateConVar("zp_zombie_additional_health",       "100",                                                             "Additional health to first zombie [player count*health ratio]"); 
     gCvarList[CVAR_ZOMBIE_NIGHT_VISION]         = CreateConVar("zp_zombie_nvg_give",                "1",                                                               "Enable custom nightvision [0-no // 1-yes]"); 
     gCvarList[CVAR_ZOMBIE_XRAY]                 = CreateConVar("zp_zombie_xray_give",               "1",                                                               "Enable custom x-ray for viewing through walls [0-no // 1-yes]"); 
+    gCvarList[CVAR_ZOMBIE_CROSSHAIR]            = CreateConVar("zp_zombie_crosshair_give",          "0",                                                               "Enable crosshair on weapons [0-no // 1-yes]"); 
     gCvarList[CVAR_ZOMBIE_RESTORE]              = CreateConVar("zp_zombie_restore",                 "0",                                                               "Enable restoring health, when zombie don't moving [0-no // 1-yes]");   
-    gCvarList[CVAR_ZOMBIE_RANDOM_CLASS]         = CreateConVar("zp_zombie_random_class",            "0",                                                               "Randomize zombie class for the Non-VIP players [0-no // 1-yes - don't forget to block access for menus in the 'menus.ini']");   
-    
+
     // =========================== //
     //            Nemesis          //
     // =========================== //
@@ -597,8 +597,8 @@ void CvarsCreate(/*void*/)
     //            Messages         //
     // =========================== //
     gCvarList[CVAR_MESSAGES_HELP]               = CreateConVar("zp_messages_help",                  "1",                                                               "Enable help messages [0-no // 1-yes]");
-    gCvarList[CVAR_MESSAGES_BLOCK]              = CreateConVar("zp_messages_block",                 "Player_Cash_Award_Team_Cash_Award_Player_Point_Award_Match_Will_Start", "List of standart engine messages and notifications for blocking. Look here: ../Counter-Strike Global Offensive/csgo/resource/csgo_*.txt");
-    
+    gCvarList[CVAR_MESSAGES_BLOCK]              = CreateConVar("zp_messages_block",                 "Player_Cash_Award_Team_Cash_Award_Player_Point_Award_Match_Will_Start_Chat_SavePlayer_YouDroppedWeapon_CannotDropWeapon", "List of standart engine messages and notifications for blocking. Look here: ../Counter-Strike Global Offensive/csgo/resource/csgo_*.txt");
+
     // =========================== //
     //     Additional settings     //
     // =========================== //
@@ -610,20 +610,20 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_T_DEFAULT_MELEE]             = FindConVar("mp_t_default_melee");
     gCvarList[CVAR_T_DEFAULT_SECONDARY]         = FindConVar("mp_t_default_secondary");
     gCvarList[CVAR_T_DEFAULT_PRIMARY]           = FindConVar("mp_t_default_primary");
-    gCvarList[CVAR_H_DEFAULT_GRENADES]          = CreateConVar("mp_h_default_grenades",             "",                                                                "Default grenades for human [\"weapon_hegrenade weapon_decoy weapon_flashbang weapon_incgrenade weapon_molotov weapon_smokegrenade weapon_tagrenade\" - in the string divided by ' ']");
-    gCvarList[CVAR_H_DEFAULT_MELEE]             = CreateConVar("mp_h_default_melee",                "Knife",                                                           "Default knife for human");
+    gCvarList[CVAR_H_DEFAULT_EQUIPMENT]         = CreateConVar("mp_h_default_equipment",            "",                                                                "Default equipment for human [\"hegrenade, freeze grenade ...\" - in the string divided by ',']");
+    gCvarList[CVAR_H_DEFAULT_MELEE]             = CreateConVar("mp_h_default_melee",                "knife",                                                           "Default knife for human");
     gCvarList[CVAR_H_DEFAULT_SECONDARY]         = CreateConVar("mp_h_default_secondary",            "",                                                                "Default secondaty for human");
     gCvarList[CVAR_H_DEFAULT_PRIMARY]           = CreateConVar("mp_h_default_primary",              "",                                                                "Default primary for human");
-    gCvarList[CVAR_Z_DEFAULT_GRENADES]          = CreateConVar("mp_z_default_grenades",             "",                                                                "Default grenades for zombie [\"weapon_hegrenade weapon_decoy weapon_flashbang weapon_incgrenade weapon_molotov weapon_smokegrenade weapon_tagrenade\" - in the string divided by ' ']");
-    gCvarList[CVAR_Z_DEFAULT_MELEE]             = CreateConVar("mp_z_default_melee",                "ZombieClaw",                                                      "Default knife for zombie");
+    gCvarList[CVAR_Z_DEFAULT_EQUIPMENT]         = CreateConVar("mp_z_default_equipment",            "",                                                                "Default equipment for zombie [\"hegrenade, ...\" - in the string divided by ',']");
+    gCvarList[CVAR_Z_DEFAULT_MELEE]             = CreateConVar("mp_z_default_melee",                "zombie claw",                                                     "Default knife for zombie");
     gCvarList[CVAR_Z_DEFAULT_SECONDARY]         = CreateConVar("mp_z_default_secondary",            "",                                                                "Default secondaty for zombie");
     gCvarList[CVAR_Z_DEFAULT_PRIMARY]           = CreateConVar("mp_z_default_primary",              "",                                                                "Default primary for zombie");
-    gCvarList[CVAR_N_DEFAULT_GRENADES]          = CreateConVar("mp_n_default_grenades",             "",                                                                "Default grenades for nemesis [\"weapon_hegrenade weapon_decoy weapon_flashbang weapon_incgrenade weapon_molotov weapon_smokegrenade weapon_tagrenade\" - in the string divided by ' ']");
-    gCvarList[CVAR_N_DEFAULT_MELEE]             = CreateConVar("mp_n_default_melee",                "NemesisClaw",                                                     "Default knife for nemesis");
+    gCvarList[CVAR_N_DEFAULT_EQUIPMENT]         = CreateConVar("mp_n_default_equipment",            "",                                                                "Default equipment for nemesis [\"hegrenade, ...\" - in the string divided by ',']");
+    gCvarList[CVAR_N_DEFAULT_MELEE]             = CreateConVar("mp_n_default_melee",                "nemesis claw",                                                    "Default knife for nemesis");
     gCvarList[CVAR_N_DEFAULT_SECONDARY]         = CreateConVar("mp_n_default_secondary",            "",                                                                "Default secondaty for nemesis");
     gCvarList[CVAR_N_DEFAULT_PRIMARY]           = CreateConVar("mp_n_default_primary",              "",                                                                "Default primary for nemesis");
-    gCvarList[CVAR_S_DEFAULT_GRENADES]          = CreateConVar("mp_s_default_grenades",             "",                                                                "Default grenades for survivor [\"weapon_hegrenade weapon_decoy weapon_flashbang weapon_incgrenade weapon_molotov weapon_smokegrenade weapon_tagrenade\" - in the string divided by ' ']");
-    gCvarList[CVAR_S_DEFAULT_MELEE]             = CreateConVar("mp_s_default_melee",                "SurvivorKnife",                                                   "Default knife for survivor");
+    gCvarList[CVAR_S_DEFAULT_EQUIPMENT]         = CreateConVar("mp_s_default_equipment",            "",                                                                "Default equipment for survivor [\"hegrenade, ...\" - in the string divided by ',']");
+    gCvarList[CVAR_S_DEFAULT_MELEE]             = CreateConVar("mp_s_default_melee",                "survivor knife",                                                  "Default knife for survivor");
     gCvarList[CVAR_S_DEFAULT_SECONDARY]         = CreateConVar("mp_s_default_secondary",            "",                                                                "Default secondaty for survivor");
     gCvarList[CVAR_S_DEFAULT_PRIMARY]           = CreateConVar("mp_s_default_primary",              "",                                                                "Default primary for survivor");    
     
@@ -643,10 +643,11 @@ void CvarsHook(/*void*/)
     gCvarList[CVAR_SERVER_CASH_AWARD].IntValue = 0;
     gCvarList[CVAR_SERVER_FRIENDLY_FIRE].IntValue = 0;
     gCvarList[CVAR_SERVER_BUY_ANYWHERE].IntValue = 0;
-    gCvarList[CVAR_SERVER_GIVE_BOMB].IntValue = 0;
-    gCvarList[CVAR_SERVER_GIVE_WEAPON].IntValue = 0;
     gCvarList[CVAR_SERVER_WARMUP_TIME].IntValue = 0;
     gCvarList[CVAR_SERVER_WARMUP_PERIOD].IntValue = 0;
+    gCvarList[CVAR_SERVER_GIVE_WEAPON].IntValue = 0;
+    gCvarList[CVAR_SERVER_GIVE_TASER].IntValue = 1;
+    gCvarList[CVAR_SERVER_GIVE_BOMB].IntValue = 1;
     gCvarList[CVAR_CT_DEFAULT_GRENADES].SetString("");
     gCvarList[CVAR_CT_DEFAULT_MELEE].SetString("");
     gCvarList[CVAR_CT_DEFAULT_SECONDARY].SetString("");
@@ -667,10 +668,11 @@ void CvarsHook(/*void*/)
     HookConVarChange(gCvarList[CVAR_SERVER_CASH_AWARD],       CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_FIRE],    CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_BUY_ANYWHERE],     CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_BOMB],        CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_WEAPON],      CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_TIME],      CvarsHookLocked);
     HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_PERIOD],    CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_WEAPON],      CvarsHookLocked);    
+    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_TASER],       CvarsHookUnlocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_BOMB],        CvarsHookUnlocked);
     HookConVarChange(gCvarList[CVAR_CT_DEFAULT_GRENADES],     CvarsHookLockedString);
     HookConVarChange(gCvarList[CVAR_CT_DEFAULT_MELEE],        CvarsHookLockedString);
     HookConVarChange(gCvarList[CVAR_CT_DEFAULT_SECONDARY],    CvarsHookLockedString);
@@ -702,6 +704,20 @@ public void CvarsHookLocked(ConVar hConVar, const char[] oldValue, const char[] 
 {
     // Revert to locked value
     hConVar.IntValue = 0;
+}
+
+/**
+ * Cvar hook callback.
+ * Prevents changes of the normal cvars.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void CvarsHookUnlocked(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Revert to locked value
+    hConVar.IntValue = 1;
 }
 
 /**
@@ -818,5 +834,5 @@ stock void CvarsOnCheatSet(ConVar hConVar, const int iValue)
     // Revert to locked value
     hConVar.Flags = hConVar.Flags & ~FCVAR_CHEAT;
     hConVar.IntValue = iValue;
-    //hConVar.Flags = hConVar.Flags | FCVAR_PROTECTED;  -> Sent errors to console!
+    //hConVar.Flags = hConVar.Flags | FCVAR_CHEAT;  -> Sent errors to console!
 }

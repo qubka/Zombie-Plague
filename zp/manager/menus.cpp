@@ -36,7 +36,7 @@ ArrayList arrayMenus;
 enum
 {
     MENUS_DATA_NAME,
-    MENUS_DATA_ACCESS,
+    MENUS_DATA_GROUP,
     MENUS_DATA_COMMAND
 }
 
@@ -136,7 +136,34 @@ void MenusCacheData(/*void*/)
         kvMenus.Rewind();
         if(!kvMenus.JumpToKey(sMenusPath))
         {
+            // Log menu fatal
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sMenusPath);
+            
+            // Remove menu from array
+            kvMenus.DeleteThis();
+
+            // Subtract one from count
+            iSize--;
+
+            // Backtrack one index, because we deleted it out from under the loop
+            i--;
+            continue;
+        }
+        
+        // Validate translation
+        if(!TranslationPhraseExists(sMenusPath))
+        {
+            // Log menu error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache menu name: \"%s\" (check translation file)", sMenusPath);
+            
+            // Remove menu from array
+            kvMenus.DeleteThis();
+
+            // Subtract one from count
+            iSize--;
+
+            // Backtrack one index, because we deleted it out from under the loop
+            i--;
             continue;
         }
 
@@ -144,7 +171,7 @@ void MenusCacheData(/*void*/)
         ArrayList arrayMenu = arrayMenus.Get(i);
 
         // Push data into array
-        kvMenus.GetString("access", sMenusPath, sizeof(sMenusPath), "");  
+        kvMenus.GetString("group", sMenusPath, sizeof(sMenusPath), "");  
         arrayMenu.PushString(sMenusPath); // Index: 1
         kvMenus.GetString("command", sMenusPath, sizeof(sMenusPath), "");
         arrayMenu.PushString(sMenusPath); // Index: 2
@@ -214,11 +241,11 @@ public int API_GetMenuName(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the access of a menu at a given id.
+ * Gets the group of a menu at a given id.
  *
- * native void ZP_GetMenuAccess(iD, flags, maxlen);
+ * native void ZP_GetMenuGroup(iD, group, maxlen);
  **/
-public int API_GetMenuAccess(Handle isPlugin, const int iNumParams)
+public int API_GetMenuGroup(Handle isPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -240,12 +267,12 @@ public int API_GetMenuAccess(Handle isPlugin, const int iNumParams)
         return -1;
     }
     
-    // Initialize flags char
-    static char sFlags[SMALL_LINE_LENGTH];
-    MenusGetAccess(iD, sFlags, sizeof(sFlags));
+    // Initialize group char
+    static char sGroup[SMALL_LINE_LENGTH];
+    MenusGetGroup(iD, sGroup, sizeof(sGroup));
 
     // Return on success
-    return SetNativeString(2, sFlags, maxLen);
+    return SetNativeString(2, sGroup, maxLen);
 }
 
 /**
@@ -304,19 +331,19 @@ stock void MenusGetName(const int iD, char[] sName, const int iMaxLen)
 }
 
 /**
- * Gets the access flag of a menu at a given index.
+ * Gets the access group of a menu at a given index.
  *
  * @param iD                The menu index.
- * @param sType             The string to return name in.
+ * @param sGroup            The string to return group in.
  * @param iMaxLen           The max length of the string.
  **/
-stock void MenusGetAccess(const int iD, char[] sType, const int iMaxLen)
+stock void MenusGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
 
-    // Gets menu access
-    arrayMenu.GetString(MENUS_DATA_ACCESS, sType, iMaxLen);
+    // Gets menu group
+    arrayMenu.GetString(MENUS_DATA_GROUP, sGroup, iMaxLen);
 }
 
 /**
@@ -370,7 +397,7 @@ void MenuMain(const int clientIndex)
         SetGlobalTransTarget(clientIndex);
         
         // Sets title
-        hMenu.SetTitle("%t", "Main menu");
+        hMenu.SetTitle("%t", "main menu");
         
         // i = Array index
         int iSize = arrayMenus.Length;
@@ -378,23 +405,23 @@ void MenuMain(const int clientIndex)
         {
             // Gets menu name
             MenusGetName(i, sName, sizeof(sName));
-            
+
             // Format some chars for showing in menu
             Format(sBuffer, sizeof(sBuffer), "%t", sName);
 
-            // Gets menu access flags
-            MenusGetAccess(i, sName, sizeof(sName));
+            // Gets menu group
+            MenusGetGroup(i, sName, sizeof(sName));
             
             // Show option
             IntToString(i, sInfo, sizeof(sInfo));
-            hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(IsPlayerHasFlags(clientIndex, sName)));
+            hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((!IsPlayerInGroup(clientIndex, sName) && strlen(sName)) ? false : true));
         }
         
         // If there are no cases, add an "(Empty)" line
         if(!iSize)
         {
             static char sEmpty[SMALL_LINE_LENGTH];
-            Format(sEmpty, sizeof(sEmpty), "%t", "Empty");
+            Format(sEmpty, sizeof(sEmpty), "%t", "empty");
 
             hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
         }

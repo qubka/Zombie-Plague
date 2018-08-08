@@ -108,13 +108,13 @@ native int ZP_GetCostumeSkin(int costumeID);
 native void ZP_GetCostumeAttach(int costumeID, char[] attach, int maxlenght = 32);
 
 /**
- * @brief Gets the flags of a costume at a given index.
+ * @brief Gets the group of a costume at a given index.
  *
  * @param costumeID         The costume index.
- * @param flags             The string to return flags in.
+ * @param group             The string to return group in.
  * @param maxlenght         The max length of the string.
  **/
-native void ZP_GetCostumeAccess(int costumeID, char[] flags, int maxlenght = 32);
+native void ZP_GetCostumeGroup(int costumeID, char[] group, int maxlenght = 32);
 
 /**
  * @brief Gets the hide value of the costume.
@@ -123,3 +123,11 @@ native void ZP_GetCostumeAccess(int costumeID, char[] flags, int maxlenght = 32)
  * @return                  True if costume is hide, false if not.
  **/
 native bool ZP_IsCostumeHide(int costumeID);
+
+/**
+ * @brief Gets the level of the costume.
+ *
+ * @param classID           The costume index.
+ * @return                  The level amount.    
+ **/
+native int ZP_GetCostumeLevel(int costumeID);

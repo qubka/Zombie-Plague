@@ -44,12 +44,13 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE         "ChainSaw" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_NAME              "ChainSaw" // Only will be taken from translation file         
+#define EXTRA_ITEM_REFERENCE         "chainsaw" // Name in weapons.ini from translation file     
+#define EXTRA_ITEM_INFO              "chainsaw info" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST              20
-#define EXTRA_ITEM_LEVEL             0
-#define EXTRA_ITEM_ONLINE            0
+#define EXTRA_ITEM_LEVEL             1
+#define EXTRA_ITEM_ONLINE            1
 #define EXTRA_ITEM_LIMIT             0
+#define EXTRA_ITEM_GROUP             ""
 /**
  * @endsection
  **/
@@ -57,34 +58,24 @@ public Plugin myinfo =
 /**
  * @section Information about weapon.
  **/
-#define WEAPON_SLASH_DAMAGE            150.0
-#define WEAPON_STAB_DAMAGE             200.0
+#define WEAPON_SLASH_DAMAGE            100.0
+#define WEAPON_STAB_DAMAGE             50.0
 #define WEAPON_SLASH_DISTANCE          80.0
 #define WEAPON_STAB_DISTANCE           90.0
 /**
  * @endsection
  **/
 
-/**
- * @section Water levels.
- **/
-#define WLEVEL_CSGO_DRY                0
-#define WLEVEL_CSGO_FEET               1
-#define WLEVEL_CSGO_HALF               2
-#define WLEVEL_CSGO_FULL               3
-/**
- * @endsection
- **/
-
 // Initialize variables
 Handle Task_IdleUpdate[MAXPLAYERS+1] = INVALID_HANDLE; 
+Handle Task_Stab[MAXPLAYERS+1] = INVALID_HANDLE; 
  
 // Item index
 int gItem; int gWeapon;
 #pragma unused gItem, gWeapon
 
 // Variables for the key sound block
-int gSoundAttack; int gSoundHit;
+int gSoundAttack; int gSoundHit; ConVar hSoundLevel;
 
 // Animation sequences
 enum
@@ -123,7 +114,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 
@@ -135,8 +126,9 @@ public void OnMapEnd(/*void*/)
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
     {
-        // Purge timer
+        // Purge timers
         Task_IdleUpdate[i] = INVALID_HANDLE; /// with flag TIMER_FLAG_NO_MAPCHANGE
+        Task_Stab[i] = INVALID_HANDLE; /// with flag TIMER_FLAG_NO_MAPCHANGE 
     }
 }
 
@@ -147,8 +139,9 @@ public void OnMapEnd(/*void*/)
  **/
 public void OnClientDisconnect(int clientIndex)
 {
-    // Delete timer
+    // Delete timers
     delete Task_IdleUpdate[clientIndex];
+    delete Task_Stab[clientIndex];
 }
 
 /**
@@ -163,6 +156,9 @@ public void ZP_OnEngineExecute(/*void*/)
     // Sounds
     gSoundAttack = ZP_GetSoundKeyID("CHAINSAW_SHOOT_SOUNDS");
     gSoundHit = ZP_GetSoundKeyID("CHAINSAW_HIT_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -176,7 +172,7 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -204,11 +200,11 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE, 0);
+        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE, SLOT_PRIMARY);
     }
 }
 
@@ -283,19 +279,6 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCl
 void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const int iChargeReady, const float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime
-    
-    // Validate animation delay
-    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
-    {
-        return;
-    }
-
-    // Validate water
-    if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
-    {
-        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
-        return;
-    }
 
     // Validate ammo
     if(iClip <= 0)
@@ -309,6 +292,22 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
         {
             Weapon_OnSecondaryAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
         }
+        return;
+    }
+    
+    // Resets the empty sound
+    SetEntProp(weaponIndex, Prop_Data, "m_bFireOnEmpty", false);
+
+    // Validate animation delay
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    {
+        return;
+    }
+
+    // Validate water
+    if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
+    {
+        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
         return;
     }
 
@@ -340,7 +339,9 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
             }
 
             // Emit the attack sound
-            ZP_EmitSoundKeyID(weaponIndex, gSoundAttack, SNDCHAN_WEAPON, 1);
+            static char sSound[PLATFORM_MAX_PATH];
+            ZP_GetSound(gSoundAttack, sSound, sizeof(sSound), 1);
+            EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
 
             // Sets the next attack time
             SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));           
@@ -413,7 +414,9 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
         ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
 
         // Emit the attack sound
-        ZP_EmitSoundKeyID(weaponIndex, gSoundAttack, SNDCHAN_WEAPON, 4);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSoundAttack, sSound, sizeof(sSound), 4);
+        EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
     else
     {
@@ -421,15 +424,33 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
         ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_SHOOT1, ANIM_SHOOT2 });     
 
         // Emit the attack sound
-        ZP_EmitSoundKeyID(weaponIndex, gSoundAttack, SNDCHAN_WEAPON, GetRandomInt(2, 3));
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSoundAttack, sSound, sizeof(sSound), GetRandomInt(2, 3));
+        EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
 
     // Create timer for stab
-    CreateTimer(0.105, Weapon_OnStab, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+    delete Task_Stab[clientIndex];
+    Task_Stab[clientIndex] = CreateTimer(0.105, Weapon_OnStab, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
     
     // Sets the next attack time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + 1.2);  
 }
+
+/*void Weapon_OnIdle(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
+    
+    // Validate reload complete
+    if(GetEntProp(weaponIndex, Prop_Send, "m_bReloadVisuallyComplete"))
+    {
+        // Block the real attack
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+        
+        // Reset completing
+        SetEntProp(weaponIndex, Prop_Send, "m_bReloadVisuallyComplete", false);
+    }
+}*/
 
 void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
 {
@@ -497,10 +518,10 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex, const float fl
 {    
     #pragma unused clientIndex, weaponIndex, flRightShift, bSlash
 
-    // Initialize some variables
-    static float vPosition[3]; static float vEndPosition[3];  static float vPlaneNormal[3];
+    // Initialize variables
+    static float vPosition[3]; static float vEndPosition[3];  static float vPlaneNormal[3]; static char sSound[PLATFORM_MAX_PATH];
 
-    // Gets the weapon's position
+    // Gets the weapon position
     ZP_GetPlayerGunPosition(clientIndex, 0.0, 0.0, 10.0, vPosition);
     ZP_GetPlayerGunPosition(clientIndex, bSlash ? WEAPON_SLASH_DISTANCE : WEAPON_STAB_DISTANCE, flRightShift, 10.0, vEndPosition);
 
@@ -524,38 +545,35 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex, const float fl
         // Gets the victim index
         int victimIndex = TR_GetEntityIndex(hTrace);
 
+        // Returns the collision position/angle of a trace result
+        TR_GetEndPosition(vEndPosition, hTrace);
+        TR_GetPlaneNormal(hTrace, vPlaneNormal); 
+
         // Validate victim
-        if((IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex)) || (victimIndex > MAXPLAYERS && GetEntProp(victimIndex, Prop_Data, "m_takedamage")))
+        if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
         {    
             // Create the damage for a victim
-            SDKHooks_TakeDamage(victimIndex, clientIndex, clientIndex, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE);
+            ZP_TakeDamage(victimIndex, clientIndex, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, DMG_NEVERGIB, weaponIndex);
             
             // Emit the hit sound
-            ZP_EmitSoundKeyID(victimIndex, gSoundHit, SNDCHAN_VOICE, GetRandomInt(3, 4));
+            ZP_GetSound(gSoundHit, sSound, sizeof(sSound), GetRandomInt(3, 4));
+            EmitSoundToAll(sSound, victimIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+
+            // Gets the weapon position
+            ZP_GetPlayerGunPosition(victimIndex, 0.0, 0.0, -45.0, vPosition);
             
-            // Validate players
-            if(victimIndex <= MAXPLAYERS) 
-            {
-                // Create a blood effect
-                FakeCreateParticle(victimIndex, _, "blood", 0.3);
-            }
+            // Create a blood effect
+            FakeCreateParticle(victimIndex, vPosition, _, "blood", 0.3);
         }
         else
         {
-            // Returns the collision position/angle of a trace result
-            TR_GetEndPosition(vEndPosition, hTrace);
-            TR_GetPlaneNormal(hTrace, vPlaneNormal); 
-
             // Create a sparks effect
             TE_SetupSparks(vEndPosition, vPlaneNormal, 50, 2);
-            TE_SendToAll();
+            TE_SendToAllInRange(vEndPosition, RangeType_Visibility);
 
-            // Create a muzzleflesh / True for getting the custom viewmodel index
-            ///FakeDispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_flash_sparks", "ParticleEffect", _, _, _, 1);
-            ///TE_SendToClient(clientIndex);
-            
             // Emit the hit sound
-            ZP_EmitSoundKeyID(clientIndex, gSoundHit, SNDCHAN_VOICE, GetRandomInt(1, 2));
+            ZP_GetSound(gSoundHit, sSound, sizeof(sSound), GetRandomInt(1, 2));
+            EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         }
     }
     
@@ -581,7 +599,7 @@ void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int 
 
         // Create timer for updating idle animation 
         delete Task_IdleUpdate[clientIndex]; /// Bugfix
-        Task_IdleUpdate[clientIndex] = CreateTimer(1.5, Weapon_OnIdle, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        Task_IdleUpdate[clientIndex] = CreateTimer(1.5, Weapon_OnReset, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
@@ -595,6 +613,9 @@ public Action Weapon_OnStab(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID); int weaponIndex;
+
+    // Clear timer 
+    Task_Stab[clientIndex] = INVALID_HANDLE;
 
     // Validate client
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
@@ -617,7 +638,7 @@ public Action Weapon_OnStab(Handle hTimer, const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action Weapon_OnIdle(Handle hTimer, const int userID)
+public Action Weapon_OnReset(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
     int clientIndex = GetClientOfUserId(userID); int weaponIndex;
@@ -696,8 +717,9 @@ public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
  **/
 public void WeaponOnDeployPost(const int clientIndex, const int weaponIndex) 
 {
-    // Delete timer
+    // Delete timers
     delete Task_IdleUpdate[clientIndex];
+    delete Task_Stab[clientIndex];
     
     // Apply fake deploy hook on the next frame
     RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
@@ -783,6 +805,9 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
         // Initialize variable
         static int iLastButtons[MAXPLAYERS+1];
 
+        // Call event
+        ///_call.Idle(clientIndex, weaponIndex);
+        
         // Button primary attack press
         if(iButtons & IN_ATTACK)
         {

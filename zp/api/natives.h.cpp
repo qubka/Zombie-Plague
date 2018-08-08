@@ -30,7 +30,13 @@
  **/
 void APINativesInit(/*void*/)
 {
-    CreateNative("ZP_IsPlayerPrivileged",             API_IsPlayerPrivileged);
+    CreateNative("ZP_TakeDamage",                     API_TakeDamage);
+    CreateNative("ZP_TerminateRound",                 API_TerminateRound);
+    CreateNative("ZP_UpdateTransmitState",            API_UpdateTransmitState);
+    CreateNative("ZP_LookupAttachment",               API_LookupAttachment);
+    CreateNative("ZP_GetAttachment",                  API_GetAttachment);
+    
+    CreateNative("ZP_IsPlayerInGroup",                API_IsPlayerInGroup);
     CreateNative("ZP_IsPlayerZombie",                 API_IsPlayerZombie);
     CreateNative("ZP_IsPlayerHuman",                  API_IsPlayerHuman);
     CreateNative("ZP_IsPlayerNemesis",                API_IsPlayerNemesis);
@@ -60,7 +66,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetRandomNemesis",               API_GetRandomNemesis);
     
     CreateNative("ZP_GetSoundKeyID",                  API_GetSoundKeyID);
-    CreateNative("ZP_EmitSoundKeyID",                 API_EmitSoundKeyID);
+    CreateNative("ZP_GetSound",                       API_GetSound);
 
     CreateNative("ZP_GetNumberHumanClass",            API_GetNumberHumanClass);
     CreateNative("ZP_GetClientHumanClass",            API_GetClientHumanClass);
@@ -75,7 +81,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetHumanClassGravity",           API_GetHumanClassGravity);
     CreateNative("ZP_GetHumanClassArmor",             API_GetHumanClassArmor);
     CreateNative("ZP_GetHumanClassLevel",             API_GetHumanClassLevel);
-    CreateNative("ZP_IsHumanClassVIP",                API_IsHumanClassVIP);
+    CreateNative("ZP_GetHumanClassGroup",             API_GetHumanClassGroup);
     CreateNative("ZP_GetHumanClassSoundDeathID",      API_GetHumanClassSoundDeathID);
     CreateNative("ZP_GetHumanClassSoundHurtID",       API_GetHumanClassSoundHurtID);
     CreateNative("ZP_GetHumanClassSoundInfectID",     API_GetHumanClassSoundInfectID);
@@ -96,7 +102,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetZombieClassGravity",          API_GetZombieClassGravity);
     CreateNative("ZP_GetZombieClassKnockBack",        API_GetZombieClassKnockBack);
     CreateNative("ZP_GetZombieClassLevel",            API_GetZombieClassLevel);    
-    CreateNative("ZP_IsZombieClassVIP",               API_IsZombieClassVIP);
+    CreateNative("ZP_GetZombieClassGroup",            API_GetZombieClassGroup);
     CreateNative("ZP_GetZombieClassSkillDuration",    API_GetZombieClassSkillDuration);
     CreateNative("ZP_GetZombieClassSkillCountdown",   API_GetZombieClassSkillCountdown);
     CreateNative("ZP_GetZombieClassRegen",            API_GetZombieClassRegen);
@@ -119,19 +125,23 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_RegisterExtraItem",              API_RegisterExtraItem);
     CreateNative("ZP_GetNumberExtraItem",             API_GetNumberExtraItem); 
     CreateNative("ZP_GetExtraItemName",               API_GetExtraItemName); 
+    CreateNative("ZP_GetExtraItemInfo",               API_GetExtraItemInfo); 
     CreateNative("ZP_GetExtraItemCost",               API_GetExtraItemCost); 
     CreateNative("ZP_GetExtraItemLevel",              API_GetExtraItemLevel); 
     CreateNative("ZP_GetExtraItemOnline",             API_GetExtraItemOnline); 
     CreateNative("ZP_GetExtraItemLimit",              API_GetExtraItemLimit); 
+    CreateNative("ZP_GetExtraItemGroup",              API_GetExtraItemGroup); 
     CreateNative("ZP_PrintExtraItemInfo",             API_PrintExtraItemInfo); 
     
     CreateNative("ZP_GiveClientWeapon",               API_GiveClientWeapon);
     CreateNative("ZP_GetClientViewModel",             API_GetClientViewModel);
+    CreateNative("ZP_GetClientAttachModel",           API_GetClientAttachModel);
     CreateNative("ZP_GetWeaponNameID",                API_GetWeaponNameID);
     CreateNative("ZP_GetWeaponID",                    API_GetWeaponID);
     CreateNative("ZP_GetNumberWeapon",                API_GetNumberWeapon);
     CreateNative("ZP_GetWeaponName",                  API_GetWeaponName);
     CreateNative("ZP_GetWeaponEntity",                API_GetWeaponEntity);
+    CreateNative("ZP_GetWeaponGroup",                 API_GetWeaponGroup);
     CreateNative("ZP_GetWeaponCost",                  API_GetWeaponCost);
     CreateNative("ZP_GetWeaponSlot",                  API_GetWeaponSlot);
     CreateNative("ZP_GetWeaponLevel",                 API_GetWeaponLevel);
@@ -153,6 +163,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetWeaponModelDropID",           API_GetWeaponModelDropID); 
     CreateNative("ZP_GetWeaponModelBody",             API_GetWeaponModelBody); 
     CreateNative("ZP_GetWeaponModelSkin",             API_GetWeaponModelSkin); 
+    CreateNative("ZP_GetWeaponModelMuzzle",           API_GetWeaponModelMuzzle);
     CreateNative("ZP_GetWeaponModelHeat",             API_GetWeaponModelHeat); 
     
     CreateNative("ZP_GetNumberHitgroup",              API_GetNumberHitgroup);
@@ -166,7 +177,7 @@ void APINativesInit(/*void*/)
 
     CreateNative("ZP_GetNumberMenu",                  API_GetNumberMenu);
     CreateNative("ZP_GetMenuName",                    API_GetMenuName);
-    CreateNative("ZP_GetMenuAccess",                  API_GetMenuAccess);
+    CreateNative("ZP_GetMenuGroup",                   API_GetMenuGroup);
     CreateNative("ZP_GetMenuCommand",                 API_GetMenuCommand);
     
     CreateNative("ZP_GetCurrentGameMode",             API_GetCurrentGameMode);
@@ -193,22 +204,29 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetCostumeBody",                 API_GetCostumeBody);
     CreateNative("ZP_GetCostumeSkin",                 API_GetCostumeSkin);
     CreateNative("ZP_GetCostumeAttach",               API_GetCostumeAttach);
-    CreateNative("ZP_GetCostumeAccess",               API_GetCostumeAccess);
+    CreateNative("ZP_GetCostumeGroup",                API_GetCostumeGroup);
     CreateNative("ZP_IsCostumeHide",                  API_IsCostumeHide);
+    CreateNative("ZP_GetCostumeLevel",                API_GetCostumeLevel);
 }
 
 /**
- * Returns whether a player is allowed to do a certain operation or not.
+ * Returns whether a player is in group or not.
  *
- * native bool ZP_IsPlayerPrivileged(clientIndex, flag);
+ * native bool ZP_IsPlayerInGroup(clientIndex, group);
  **/
-public int API_IsPlayerPrivileged(Handle isPlugin, const int iNumParams)
+public int API_IsPlayerInGroup(Handle isPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
+    // Initialize variables
+    static char sGroup[SMALL_LINE_LENGTH];
+
+    // General
+    GetNativeString(2, sGroup, sizeof(sGroup));
+    
     // Return the value
-    return IsPlayerHasFlag(clientIndex, view_as<AdminFlag>(GetNativeCell(2)));
+    return IsPlayerInGroup(clientIndex, sGroup);
 }
 
 /**
@@ -302,17 +320,13 @@ public int API_ForceClientRespawn(Handle isPlugin, const int iNumParams)
  **/
 public int API_SwitchClientClass(Handle isPlugin, const int iNumParams)
 {
-    // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
-    int attackerIndex = GetNativeCell(2);
-
     // Force client to switch player class
     switch(GetNativeCell(3))
     {
-        case 0 /*TYPE_ZOMBIE*/ :   ClassMakeZombie(clientIndex, attackerIndex);       /**< Make a zombie */
-        case 1 /*TYPE_NEMESIS*/ :  ClassMakeZombie(clientIndex, attackerIndex, true); /**< Make a nemesis */
-        case 2 /*TYPE_SURVIVOR*/ : ClassMakeHuman(clientIndex, true);                 /**< Make a survivor */
-        case 3 /*TYPE_HUMAN*/ :    ClassMakeHuman(clientIndex);                       /**< Make a human */
+        case 0 /*TYPE_ZOMBIE*/  : ClassMakeZombie(GetNativeCell(1), GetNativeCell(2));       /**< Make a zombie */
+        case 1 /*TYPE_NEMESIS*/ : ClassMakeZombie(GetNativeCell(1), GetNativeCell(2), true); /**< Make a nemesis */
+        case 2 /*TYPE_SURVIVOR*/: ClassMakeHuman(GetNativeCell(1), true);                    /**< Make a survivor */
+        case 3 /*TYPE_HUMAN*/   : ClassMakeHuman(GetNativeCell(1));                          /**< Make a human */
     }
 }
 

@@ -48,12 +48,11 @@
 /**
  * Number of max valid sequences.
  **/
-#define WeaponsSequencesMax 25 /// Can be increase until whatever you need
+#define WeaponsSequencesMax 32 /// Can be increase until whatever you need
 
 /**
  * Variables to store SDK calls handlers.
  **/
-Handle hSDKCallEntityUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
 Handle hSDKCallAnimatingGetSequenceActivity;
 
 /**
@@ -89,17 +88,6 @@ enum StudioAnimDesc
  **/
 void WeaponHDRInit(/*void*/)
 {
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Entity_UpdateTransmitState");
-
-    // Validate call
-    if(!(hSDKCallEntityUpdateTransmitState = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::UpdateTransmitState\". Update offset in \"%s\"", PLUGIN_CONFIG);
-    }
-
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
     PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Signature, "Animating_GetSequenceActivity");
@@ -268,9 +256,8 @@ public void WeaponHDRSetDroppedModel(const int referenceIndex)
  **/
 stock void WeaponHDRSetEntityVisibility(const int entityIndex, const bool bInvisible)
 {
-    #define EF_INVISIBLE 0x20
     int iFlags = GetEntData(entityIndex, g_iOffset_EntityEffects);
-    SetEntData(entityIndex, g_iOffset_EntityEffects, bInvisible ? iFlags & ~EF_INVISIBLE : iFlags | EF_INVISIBLE, _, true);
+    SetEntData(entityIndex, g_iOffset_EntityEffects, bInvisible ? iFlags & ~EF_NODRAW : iFlags | EF_NODRAW, _, true);
 }
 
 /**
@@ -301,7 +288,7 @@ stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
     
     // Gets weapon classname
     static char sWeapon[SMALL_LINE_LENGTH];
-    WeaponsGetEntity(iD, sWeapon, sizeof(sWeapon));
+    WeaponsGetEntity(iD, sWeapon, sizeof(sWeapon)); 
     
     // Create an attach swapped entity
     int itemIndex = CreateEntityByName(sWeapon);

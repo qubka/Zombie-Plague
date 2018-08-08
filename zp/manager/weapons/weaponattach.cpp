@@ -29,21 +29,22 @@
 #define USE_ATTACHMENTS
  
 /**
- * @section All addons bits.
+ * @section Weapon addon bits.
  **/
-#define CSAddon_NONE            0
-#define CSAddon_Flashbang1      (1<<0)
-#define CSAddon_Flashbang2      (1<<1)
-#define CSAddon_HEGrenade       (1<<2)
-#define CSAddon_SmokeGrenade    (1<<3)
-#define CSAddon_C4              (1<<4)
-#define CSAddon_DefuseKit       (1<<5)
-#define CSAddon_PrimaryWeapon   (1<<6)
-#define CSAddon_SecondaryWeapon (1<<7)
-#define CSAddon_Holster         (1<<8) 
-#define CSAddon_Decoy           512
-#define CSAddon_Knife           1024
-#define CSAddon_TaGrenade       4096
+#define CSAddon_NONE                0
+#define CSAddon_Flashbang1          (1<<0)
+#define CSAddon_Flashbang2          (1<<1)
+#define CSAddon_HEGrenade           (1<<2)
+#define CSAddon_SmokeGrenade        (1<<3)
+#define CSAddon_C4                  (1<<4)
+#define CSAddon_DefuseKit           (1<<5)
+#define CSAddon_PrimaryWeapon       (1<<6)
+#define CSAddon_SecondaryWeapon     (1<<7)
+#define CSAddon_Holster             (1<<8) 
+#define CSAddon_Decoy               (1<<9)
+#define CSAddon_Knife               (1<<10)
+#define CSAddon_FaceMask            (1<<11) // I'am guess
+#define CSAddon_TaGrenade           (1<<12)
 /**
  * @endsection
  **/
@@ -64,35 +65,9 @@ enum WeaponAttachBitType
     BitType_Decoy,                /** Decoy bit */
     BitType_Knife,                /** Knife bit */
     BitType_TaGrenade,            /** Tagrenade bit */
-    BitType_C4                    /** C4 bit */
+    BitType_C4,                   /** C4 bit */
+    BitType_DefuseKit             /** Defuse bit */
 };
- 
-/**
- * Variables to store SDK calls handlers.
- **/
-//Handle hSDKCallGetAttachment;
-
-/**
- * Initialize the main virtual offsets for the weapon attachment system.
- **/
-void WeaponAttachInit(/*void*/)
-{
-    // Starts the preparation of an SDK call
-    /*StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Signature, "Animating_GetAttachment");
-
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-    PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-
-    // Validate call
-    if(!(hSDKCallGetAttachment = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-    }*/
-}
 
 /**
  * Destoy weapon attachments.
@@ -431,6 +406,33 @@ void WeaponAttachSetAddons(const int clientIndex)
 
     /*____________________________________________________________________________________________*/
     
+    // Validate defuser bits 
+    if(iBits & CSAddon_DefuseKit)
+    {
+        // Gets the client bits
+        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_DefuseKit))
+        {
+            // Validate defuser
+            if(ToolsGetClientDefuser(clientIndex))
+            {
+                // Validate custom index
+                iD = WeaponsGetCustomID(clientIndex);
+                if(iD != INVALID_ENT_REFERENCE)
+                {
+                    // Create weapon addons
+                    WeaponAttachCreateAddons(clientIndex, iD, BitType_DefuseKit, "c4");
+                }
+            }
+        }
+    }
+    /*else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_DefuseKit)
+    {
+        // Remove current addons
+        WeaponAttachRemoveAddons(clientIndex, BitType_DefuseKit);
+    }*/
+    
+    /*____________________________________________________________________________________________*/
+    
     // Validate addons
     if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_PrimaryWeapon]) != INVALID_ENT_REFERENCE)
     {
@@ -462,7 +464,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     }
     if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_Knife]) != INVALID_ENT_REFERENCE || (gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]))
     {
-        iBitPurge |= CSAddon_Knife;
+        iBitPurge |= CSAddon_Knife; iBitPurge |= CSAddon_Holster;
     }
     if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_TaGrenade]) != INVALID_ENT_REFERENCE)
     {
@@ -471,6 +473,10 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_C4]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_C4;
+    }
+    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_DefuseKit]) != INVALID_ENT_REFERENCE)
+    {
+        iBitPurge |= CSAddon_DefuseKit; if(!ToolsGetClientDefuser(clientIndex)) WeaponAttachRemoveAddons(clientIndex, BitType_DefuseKit);
     }
     
     // Store the bits for next usage
@@ -488,9 +494,9 @@ void WeaponAttachSetAddons(const int clientIndex)
  * @param clientIndex       The client index.
  * @param iD                The weapon id.
  * @param bitType           The bit type.
- * @param sAttach           The attachment bone of the entity parent.
+ * @param sAttach           The attachment name.
  **/
-void WeaponAttachCreateAddons(const int clientIndex, const int iD, WeaponAttachBitType bitType, const char[] sAttach)
+void WeaponAttachCreateAddons(const int clientIndex, const int iD, const WeaponAttachBitType bitType, const char[] sAttach)
 {
     // Remove current addons
     WeaponAttachRemoveAddons(clientIndex, bitType);
@@ -498,48 +504,52 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, WeaponAttachB
     // If dropmodel exist, then apply it
     if(WeaponsGetModelDropID(iD))
     {
-        // Create an attach addon entity 
-        int entityIndex = CreateEntityByName("prop_dynamic_override");
-        
-        // If entity isn't valid, then skip
-        if(entityIndex != INVALID_ENT_REFERENCE)
+        // Validate attachment
+        if(ToolsLookupAttachment(clientIndex, sAttach))
         {
-            // Gets weapon dropmodel
-            static char sModel[PLATFORM_MAX_PATH];
-            WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 
+            // Create an attach addon entity 
+            int entityIndex = CreateEntityByName("prop_dynamic_override");
+            
+            // If entity isn't valid, then skip
+            if(entityIndex != INVALID_ENT_REFERENCE)
+            {
+                // Gets weapon dropmodel
+                static char sModel[PLATFORM_MAX_PATH];
+                WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 
 
-            // Dispatch main values of the entity
-            DispatchKeyValue(entityIndex, "model", sModel);
-            DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
-            DispatchKeyValue(entityIndex, "solid", "0");
-           
-            // Sets bodygroup of the entity
-            SetVariantInt(WeaponsGetModelBody(iD));
-            AcceptEntityInput(entityIndex, "SetBodyGroup");
-            
-            // Sets skin of the entity
-            SetVariantInt(WeaponsGetModelSkin(iD));
-            AcceptEntityInput(entityIndex, "ModelSkin");
-            
-            // Spawn the entity into the world
-            DispatchSpawn(entityIndex);
-            
-            // Sets parent to the entity
-            SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
-            
-            // Sets parent to the client
-            SetVariantString("!activator");
-            AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
-            
-            // Sets attachment to the client
-            SetVariantString(sAttach);
-            AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
-            
-            // Hook entity callbacks
-            SDKHook(entityIndex, SDKHook_SetTransmit, WeaponAttachmentOnTransmit);
-            
-            // Store the client cache
-            gClientData[clientIndex][Client_AttachmentAddons][bitType] = EntIndexToEntRef(entityIndex);
+                // Dispatch main values of the entity
+                DispatchKeyValue(entityIndex, "model", sModel);
+                DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
+                DispatchKeyValue(entityIndex, "solid", "0");
+               
+                // Sets bodygroup of the entity
+                SetVariantInt(WeaponsGetModelBody(iD));
+                AcceptEntityInput(entityIndex, "SetBodyGroup");
+                
+                // Sets skin of the entity
+                SetVariantInt(WeaponsGetModelSkin(iD));
+                AcceptEntityInput(entityIndex, "ModelSkin");
+                
+                // Spawn the entity into the world
+                DispatchSpawn(entityIndex);
+                
+                // Sets parent to the entity
+                SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
+                
+                // Sets parent to the client
+                SetVariantString("!activator");
+                AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
+                
+                // Sets attachment to the client
+                SetVariantString(sAttach);
+                AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
+                
+                // Hook entity callbacks
+                SDKHook(entityIndex, SDKHook_SetTransmit, WeaponAttachmentOnTransmit);
+                
+                // Store the client cache
+                gClientData[clientIndex][Client_AttachmentAddons][bitType] = EntIndexToEntRef(entityIndex);
+            }
         }
     }
 }
@@ -554,7 +564,7 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, WeaponAttachB
 public Action WeaponAttachmentOnTransmit(const int entityIndex, const int clientIndex)
 {
     // i = slot index
-    for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_TaGrenade; i++)
+    for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
     {
         // Validate addons
         if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]) == entityIndex)
@@ -599,14 +609,14 @@ public Action WeaponAttachmentOnTransmit(const int entityIndex, const int client
  * @param clientIndex       The client index.
  * @param bitType           The bit type.
  **/
-void WeaponAttachRemoveAddons(const int clientIndex, WeaponAttachBitType bitType = BitType_Invalid) 
+void WeaponAttachRemoveAddons(const int clientIndex, const WeaponAttachBitType bitType = BitType_Invalid) 
 {
     #if defined USE_ATTACHMENTS
     // Validate all
     if(bitType == BitType_Invalid)
     {
         // i = slot index
-        for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_C4; i++)
+        for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
         {
             // Gets the current addon from the client reference
             int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]);

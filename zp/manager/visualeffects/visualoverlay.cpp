@@ -139,10 +139,11 @@ void VOverlayOnClientUpdate(const int clientIndex, OverlayType layIndex)
         
         // Show vision overlay on the screen
         case Overlay_Vision : 
-        { 
+        {
+            bool bState = gCvarList[CVAR_ZOMBIE_NIGHT_VISION].BoolValue;
             gCvarList[CVAR_VEFFECTS_HUD_VISION].GetString(sOverlay, sizeof(sOverlay)); 
-            ToolsSetClientNightVision(clientIndex, true, true); /// Create ngv ownership
-            ToolsSetClientNightVision(clientIndex, gCvarList[CVAR_ZOMBIE_NIGHT_VISION].BoolValue); /// Enable ngv
+            ToolsSetClientNightVision(clientIndex, bState, bState); /// Create ngv ownership
+            ToolsSetClientNightVision(clientIndex, bState); /// Enable ngv
             if(!strlen(sOverlay)) return; // Stop here if the path empty
         }                        
     }

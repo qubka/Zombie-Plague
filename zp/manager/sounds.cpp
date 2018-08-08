@@ -215,12 +215,12 @@ void SoundsOnClientDeath(const int clientIndex)
  * Client has been hurt.
  * 
  * @param clientIndex       The client index.
- * @param damageBits        The type of damage inflicted.
+ * @param damageType        The type of damage inflicted.
  **/
-void SoundsOnClientHurt(const int clientIndex, const int damageBits)
+void SoundsOnClientHurt(const int clientIndex, const int damageType)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientHurt(clientIndex, (damageBits & DMG_BURN || damageBits & DMG_DIRECT));
+    PlayerSoundsOnClientHurt(clientIndex, (damageType & DMG_BURN || damageType & DMG_DIRECT));
 }
 
 /**
@@ -324,21 +324,37 @@ public int API_GetSoundKeyID(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Emit random sound from a key id from sounds config.
+ * Gets sound from a key id from sounds config.
  *
- * native bool ZP_EmitSoundKeyID(entityIndex, keyID, channel, position);
+ * native void ZP_GetSound(keyID, sound, maxlenght, position);
  **/
-public int API_EmitSoundKeyID(Handle isPlugin, const int iNumParams)
+public int API_GetSound(Handle isPlugin, const int iNumParams)
 {
-    // Validate sound
-    if(!SoundsInputEmit(GetNativeCell(1), GetNativeCell(3), GetNativeCell(2), GetNativeCell(4)))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "Can't find sound with that key");
-        return false;
-    }  
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
 
+    // Validate s
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize char
+    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
+    
+    // Select sound in the array
+    SoundsGetSound(sSound, sizeof(sSound), GetNativeCell(1), GetNativeCell(4));
+    
+    // Validate sound
+    if(strlen(sSound))
+    {
+        // Format sound
+        Format(sSound, sizeof(sSound), "*/%s", sSound);
+    }
+    
     // Return on success
-    return true;
+    return SetNativeString(2, sSound, maxLen);
 }
  
 /*
@@ -367,30 +383,26 @@ stock void SoundsGetLine(const int iD, char[] sLine, const int iMaxLen)
  * @param sLine             The string to return name in.
  * @param iMaxLen           The max length of the string.
  * @param iKey              The key index.
- * @param iNum              The number of sound in 2D array. (Optional) If 0 sound will be choose randomly from the key.
+ * @param iNum              The position index.
  **/
-stock void SoundsGetSound(char[] sLine, const int iMaxLen, const int iKey, const int iNum = 0)
+stock void SoundsGetSound(char[] sLine, const int iMaxLen, const int iKey, const int iNum)
 {
     // Validate key
-    if(iKey == -1)
+    if(iKey != -1)
     {
-        return;
-    }
+        // Gets array handle of sound at given index
+        ArrayList arraySound = arraySounds.Get(iKey);
 
-    // Gets array handle of sound at given index
-    ArrayList arraySound = arraySounds.Get(iKey);
-
-    // Gets size of array handle
-    int iSize = arraySound.Length;
-    
-    // Validate size
-    if(iNum >= iSize)
-    {
-        return;
+        // Gets size of array handle
+        int iSize = arraySound.Length;
+        
+        // Validate size
+        if(iNum < iSize)
+        {
+            // Gets sound name
+            arraySound.GetString(iNum ? iNum : GetRandomInt(1, iSize - 1), sLine, iMaxLen);
+        }
     }
-    
-    // Gets sound name
-    arraySound.GetString(iNum ? iNum : GetRandomInt(1, iSize - 1), sLine, iMaxLen);
 }
 
 /**
@@ -406,17 +418,24 @@ stock int SoundsKeyToIndex(const char[] sKey)
 }
 
 /**
- * Emit sound.
- * 
- * @param entityIndex       The entity index.
- * @param iChannel          The channel to emit with.
- * @param iLevel            The sound level.
- * @param iKey              The key index.
- * @param entityIndex       (Optional) The entity to emit from.  
- * @param iNum              (Optional) The index of sound from the key array.
+ * Emits a sound to all clients.
+ *
+ * @param iKey              The key array.
+ * @param iNum              The position index.
+ * @param entityIndex       (Optional) The entity to emit from.
+ * @param iChannel          (Optional) The channel to emit with.
+ * @param iLevel            (Optional) The sound level.
+ * @param iFlags            (Optional) The sound flags.
+ * @param flVolume          (Optional) The sound volume.
+ * @param iPitch            (Optional) The sound pitch.
+ * @param speakerIndex      (Optional) Unknown.
+ * @param vOrigin           (Optional) The sound origin.
+ * @param vDirection        (Optional) The sound direction.
+ * @param updatePos         (Optional) Unknown (updates positions?)
+ * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emit, false otherwise.
  **/
-stock bool SoundsInputEmit(const int entityIndex, const int iChannel, const int iKey, const int iNum = 0)
+stock bool SoundsInputEmitToAll(int iKey, int iNum, const int entityIndex = SOUND_FROM_PLAYER, const int iChannel = SNDCHAN_AUTO, const int iLevel = SNDLEVEL_NORMAL, const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const int speakerIndex = INVALID_ENT_REFERENCE, const float vOrigin[3] = NULL_VECTOR, const float vDirection[3] = NULL_VECTOR, const bool updatePos = true, const float flSoundTime = 0.0)
 {
     // Initialize char
     static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
@@ -430,8 +449,45 @@ stock bool SoundsInputEmit(const int entityIndex, const int iChannel, const int 
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);
 
-        // Emit sound
-        EmitSoundToAll(sSound, entityIndex, iChannel, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
+        // Emit normal sound
+        EmitSoundToAll(sSound, entityIndex, iChannel, iLevel, iFlags, flVolume, iPitch, speakerIndex, vOrigin, vDirection, updatePos, flSoundTime);
+        return true;
+    }
+
+    // Return on unsuccess
+    return false;
+}
+
+/**
+ * Emits an ambient sound to all clients.
+ *
+ * @param iKey              The key array.
+ * @param iNum              The position index.
+ * @param vOrigin           The origin of sound.
+ * @param entityIndex       (Optional) The entity index to associate sound with.
+ * @param iLevel            (Optional) The sound level (from 0 to 255).
+ * @param iFlags            (Optional) The sound flags.
+ * @param flVolume          (Optional) The volume (from 0.0 to 1.0).
+ * @param iPitch            (Optional) The pitch (from 0 to 255).
+ * @param flDelay           (Optional) The play delay.
+ * @return                  True if the sound was emit, false otherwise.
+ **/
+stock bool SoundsInputEmitAmbient(int iKey, int iNum, const float vOrigin[3], const int entityIndex = SOUND_FROM_WORLD, const int iLevel = SNDLEVEL_NORMAL,const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const float flDelay = 0.0)
+{
+    // Initialize char
+    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
+    
+    // Select sound in the array
+    SoundsGetSound(sSound, sizeof(sSound), iKey, iNum);
+    
+    // Validate sound
+    if(strlen(sSound))
+    {
+        // Format sound
+        Format(sSound, sizeof(sSound), "*/%s", sSound);
+
+        // Emit ambient sound
+        EmitAmbientSound(sSound, vOrigin, entityIndex, iLevel, iFlags, flVolume, iPitch, flDelay);
         return true;
     }
 
@@ -451,9 +507,7 @@ stock void SoundsInputStop(/*void*/)
         if(IsPlayerExist(i, false) && !IsFakeClient(i))
         {
             // Stop sound
-            ClientCommand(i, "playgamesound Music.StopAllExceptMusic"); 
-            ///ClientCommand(i, "playgamesound Music.StopAllMusic"); 
-            ///ClientCommand(i, "playgamesound Music.StopAll");
+            ClientCommand(i, "playgamesound Music.StopAllExceptMusic");
         }
     }
 }

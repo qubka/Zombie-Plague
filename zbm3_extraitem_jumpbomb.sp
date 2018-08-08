@@ -43,12 +43,13 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE           "ZombieJumpBomb" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_NAME                "JumpBomb" // Only will be taken from translation file        
+#define EXTRA_ITEM_REFERENCE           "jump bomb" // Name in weapons.ini from translation file 
+#define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST                3
-#define EXTRA_ITEM_LEVEL               0
-#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LEVEL               1
+#define EXTRA_ITEM_ONLINE              1
 #define EXTRA_ITEM_LIMIT               0
+#define EXTRA_ITEM_GROUP               ""
 /**
  * @endsection
  **/
@@ -56,8 +57,7 @@ public Plugin myinfo =
 /**
  * @section Properties of the grenade.
  **/
-#define GRENADE_JUMP_RADIUS            160000.0      // Jump size (radius) [squared]
-#define GRENADE_JUMP_POWER             800.0         // Jump power (knockback)
+#define GRENADE_JUMP_RADIUS            400.0         // Jump size (radius)
 #define GRENADE_JUMP_SURVIVOR          true          // Can survivor push [false-no // true-yes]
 #define GRENADE_JUMP_NEMESIS           true          // Can nemesis push [false-no // true-yes]
 #define GRENADE_JUMP_SHAKE_AMP         2.0           // Amplutude of the shake effect
@@ -69,7 +69,7 @@ public Plugin myinfo =
  **/
  
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Item index
 int gItem; int gWeapon;
@@ -85,7 +85,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
         
         // Hook player events
         HookEvent("player_blind", EventPlayerBlind, EventHookMode_Pre);
@@ -115,6 +115,9 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("JUMP_GRENADE_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -128,7 +131,7 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -156,7 +159,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Give item and select it
@@ -198,29 +201,20 @@ public Action EventEntityFlash(Event hEvent, const char[] sName, bool dontBroadc
                 // Validate client
                 if(IsPlayerExist(i) && ((ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i)) || (ZP_IsPlayerNemesis(i) && GRENADE_JUMP_NEMESIS) || (ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && GRENADE_JUMP_SURVIVOR)))
                 {
-                    // Gets victim's origin
+                    // Gets victim origin
                     GetClientAbsOrigin(i, vVictimPosition);
                     
                     // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
                     
                     // Validate distance
                     if(flDistance <= GRENADE_JUMP_RADIUS)
-                    {                
-                        // Calculate the push power
-                        float flKnockBack = GRENADE_JUMP_POWER * (1.0 - (flDistance / GRENADE_JUMP_RADIUS));
-
-                        // Calculate the velocity's vector
+                    {         
+                        // Calculate the velocity vector
                         SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
-                        
-                        // Normalize the vector (equal magnitude at varying distances)
-                        NormalizeVector(vVelocity, vVelocity);
-                        
-                        // Apply the magnitude by scaling the vector
-                        ScaleVector(vVelocity, SquareRoot((flKnockBack * flKnockBack) / ((vVelocity[0] * vVelocity[0]) + (vVelocity[1] * vVelocity[1]) + (vVelocity[2] * vVelocity[2])))); vVelocity[2] * GRENADE_JUMP_POWER;
-
-                        // Push the victim
-                        TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
+                
+                        // Create a knockback
+                        FakeCreateKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), GRENADE_JUMP_RADIUS);
                         
                         // Create a shake
                         FakeCreateShakeScreen(i, GRENADE_JUMP_SHAKE_AMP, GRENADE_JUMP_SHAKE_FREQUENCY, GRENADE_JUMP_SHAKE_DURATION);
@@ -235,7 +229,7 @@ public Action EventEntityFlash(Event hEvent, const char[] sName, bool dontBroadc
             if(IsValidEdict(infoIndex))
             {
                 // Create an explosion effect
-                FakeCreateParticle(infoIndex, _, "explosion_hegrenade_water", GRENADE_JUMP_EXP_TIME);
+                FakeCreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_water", GRENADE_JUMP_EXP_TIME);
             }
                 
             // Remove grenade
@@ -254,7 +248,7 @@ public Action EventEntityFlash(Event hEvent, const char[] sName, bool dontBroadc
  **/
 public Action EventPlayerBlind(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
-    // Sets whether an event's broadcasting will be disabled
+    // Sets whether an event broadcasting will be disabled
     if(!dontBroadcast) 
     {
         // Disable broadcasting
@@ -278,7 +272,7 @@ public Action EventPlayerBlind(Event hEvent, const char[] sName, bool dontBroadc
 /**
  * Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
  *  
- * @param clients           Array of client's indexes.
+ * @param clients           Array of client indexes.
  * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
  * @param sSample           Sound file name relative to the "sounds" folder.
  * @param entityIndex       Entity emitting the sound.
@@ -293,8 +287,8 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     // Validate client
     if(IsValidEdict(entityIndex))
     {
-        // Gets the entity's classname
-        static char sClassname[SMALL_LINE_LENGTH];
+        // Gets the entity classname
+        static char sClassname[PLATFORM_MAX_PATH];
         GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
 
         // Validate grenade
@@ -303,12 +297,14 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
             if(!strncmp(sSample[27], "hit", 3, false))
             {
                 // Emit a custom bounce sound
-                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, GetRandomInt(1, 2));
+                ZP_GetSound(gSound, sClassname, sizeof(sClassname), GetRandomInt(1, 2));
+                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[29], "exp", 3, false))
             {
-                // Emit explosion sound
-               ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 3);
+               // Emit explosion sound
+               ZP_GetSound(gSound, sClassname, sizeof(sClassname), 3);
+               EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
 
             // Block sounds

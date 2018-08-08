@@ -75,8 +75,8 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
     // Resets some tools
     ToolsResetTimers(victimIndex);
     ToolsSetClientDetecting(victimIndex, false);
-    ToolsSetClientFlashLight(victimIndex, false); 
-    ToolsSetClientHud(victimIndex, false);
+    ToolsSetClientFlashLight(victimIndex, false);
+    ToolsSetClientHud(victimIndex, gCvarList[CVAR_ZOMBIE_CROSSHAIR].BoolValue);
     
     // Resets some variables
     gClientData[victimIndex][Client_Zombie] = true;
@@ -109,12 +109,12 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
         
         // Gets nemesis model
         gCvarList[CVAR_NEMESIS_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
-        
+
         // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon
-            WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_GRENADES]);
+            WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_EQUIPMENT]);
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_SECONDARY]);
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_PRIMARY]);
         }
@@ -134,12 +134,12 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
         
         // Gets zombie model
         ZombieGetModel(gClientData[victimIndex][Client_ZombieClass], sModel, sizeof(sModel));
-        
+
         // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon
-            WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_GRENADES]);
+            WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_EQUIPMENT]);
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_SECONDARY]);
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_PRIMARY]);
         }
@@ -154,7 +154,7 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             if(strlen(sInfo)) TranslationPrintHintText(victimIndex, sInfo);
         }
     }
-    
+
     // Apply model
     if(strlen(sModel)) SetEntityModel(victimIndex, sModel);
 
@@ -241,12 +241,12 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
         
         // Gets survivor model
         gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sModel, sizeof(sModel)); sArm[0] = '\0';
-        
+
         // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon
-            WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_GRENADES]);
+            WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_EQUIPMENT]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_SECONDARY]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_PRIMARY]);
         }
@@ -269,7 +269,7 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_MELEE])) //! Give default
         {
             // Give default weapon
-            WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_GRENADES]);
+            WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_EQUIPMENT]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_SECONDARY]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_PRIMARY]);
         }
@@ -278,7 +278,7 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
     // Apply models
     if(strlen(sModel)) SetEntityModel(clientIndex, sModel);
     if(strlen(sArm)) SetEntDataString(clientIndex, g_iOffset_PlayerArms, sArm, sizeof(sArm), true);
-    
+
     // Forward event to modules
     SoundsOnClientHumanized(clientIndex);
     VEffectsOnClientHumanized(clientIndex, survivorMode, respawnMode);
@@ -293,7 +293,7 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
         // Switch to CT
         ToolsSetClientTeam(clientIndex, TEAM_HUMAN);
     }
-    
+
     // Call forward
     API_OnClientHumanized(clientIndex, survivorMode, respawnMode);
 }

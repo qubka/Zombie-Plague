@@ -58,7 +58,7 @@ void APIForwardsInit(/*void*/)
 {
     gForwardsList[OnClientInfected]        = CreateGlobalForward("ZP_OnClientInfected", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     gForwardsList[OnClientHumanized]       = CreateGlobalForward("ZP_OnClientHumanized", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
-    gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_FloatByRef, Param_Cell);
+    gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_FloatByRef, Param_Cell, Param_Cell);
     gForwardsList[OnClientValidateItem]    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientBuyItem]         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
     gForwardsList[OnClientValidateMenu]    = CreateGlobalForward("ZP_OnClientValidateMainMenu", ET_Hook, Param_Cell);
@@ -121,10 +121,12 @@ void API_OnClientHumanized(const int clientIndex, const bool survivorMode = fals
  * 
  * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
- * @param damageType        The ditfield of damage types
+ * @param damageType        The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-void API_OnClientDamaged(const int victimIndex, const int attackerIndex, float &damageAmount, const int damageType)
+void API_OnClientDamaged(const int victimIndex, const int attackerIndex, const int inflictorIndex, float &damageAmount, const int damageType, const int weaponIndex)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientDamaged]);
@@ -132,9 +134,11 @@ void API_OnClientDamaged(const int victimIndex, const int attackerIndex, float &
     // Push the parameters
     Call_PushCell(victimIndex);
     Call_PushCell(attackerIndex);
+    Call_PushCell(inflictorIndex);
     Call_PushFloatRef(damageAmount);
     Call_PushCell(damageType);
-
+    Call_PushCell(weaponIndex);
+    
     // Finish the call
     Call_Finish();
 }

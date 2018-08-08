@@ -86,7 +86,8 @@ void VoiceOnClientHumanized(const int clientIndex)
 
 /**
  * Set the receiver ability to listen to the sender.
- * Note:  This function is from sdktools_voice, it fails if iSender is muted.
+ *
+ * @note  This function is from sdktools_voice, it fails if iSender is muted.
  *
  * @param iReceiver         The listener index.
  * @param iSender           The sender index.

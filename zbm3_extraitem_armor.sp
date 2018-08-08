@@ -43,11 +43,13 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME                "Anti-Infection Armor"    // Only will be taken from translation file    
+#define EXTRA_ITEM_NAME                "anti infection armor"    // Only will be taken from translation file    
+#define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST                5
 #define EXTRA_ITEM_LEVEL               0
 #define EXTRA_ITEM_ONLINE              0
 #define EXTRA_ITEM_LIMIT               0
+#define EXTRA_ITEM_GROUP               ""
 /**
  * @endsection
  **/
@@ -56,7 +58,7 @@ public Plugin myinfo =
 bool bArmored[MAXPLAYERS+1];
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Item index
 int gItem;
@@ -72,7 +74,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 
@@ -83,6 +85,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("ARMOR_BUY_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -167,12 +172,20 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
         // Validate no armor before
         if(!bArmored[clientIndex]) 
         {
+            // Initialize vectors
+            static float vPosition[3];
+            
+            // Gets the client origin
+            GetClientAbsOrigin(clientIndex, vPosition);
+    
             // Create an effect
-            FakeCreateParticle(clientIndex, _, "nimb_final", 9999.9);
+            FakeCreateParticle(clientIndex, vPosition, _, "nimb_final", 9999.9);
             bArmored[clientIndex] = true;
         }
         
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound));
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
     }
 }

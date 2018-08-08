@@ -31,7 +31,7 @@
 void SkillsOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    AddCommandListener(SkillsHook, "drop");
+    AddCommandListener(SkillsOnUse, "drop");
 }
 
 /**
@@ -117,13 +117,13 @@ public Action SkillsOnHealthRegen(Handle hTimer, const int userID)
 }
 
 /**
- * Hook client command.
+ * Callback for command listener to use skill.
  *
  * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SkillsHook(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action SkillsOnUse(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
     // If the client isn't zombie/survivor, than allow drop
     return (gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]) ? SkillsOnStart(clientIndex) : (gClientData[clientIndex][Client_Survivor] ? Plugin_Handled : Plugin_Continue);
@@ -221,7 +221,7 @@ public Action SkillsOnCountDown(Handle hTimer, const int userID)
         if(!gClientData[clientIndex][Client_SkillCountDown])
         {
             // Show message
-            TranslationPrintHintText(clientIndex, "Skill ready");
+            TranslationPrintHintText(clientIndex, "skill ready");
 
             // Clear timer
             gClientData[clientIndex][Client_ZombieCountDownTimer] = INVALID_HANDLE;
@@ -231,7 +231,7 @@ public Action SkillsOnCountDown(Handle hTimer, const int userID)
         }
 
         // Show counter
-        TranslationPrintHintText(clientIndex, "Countdown", RoundToCeil(gClientData[clientIndex][Client_SkillCountDown]));
+        TranslationPrintHintText(clientIndex, "countdown", RoundToCeil(gClientData[clientIndex][Client_SkillCountDown]));
         
         // Allow timer
         return Plugin_Continue;

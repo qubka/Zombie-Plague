@@ -63,19 +63,25 @@ void RoundStartOnRoundStart(/*void*/)
  **/
 void RoundStartOnBalanceTeams(/*void*/)
 {
-    // Move all clients to random teams
+    // Move team clients to random teams
     
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
     {
-        // Verify that the client is exist
-        if(!IsPlayerExist(i, false))
+        // Validate client
+        if(IsPlayerExist(i, false))
         {
-            continue;
+            // Validate team
+            if(GetClientTeam(i) <= TEAM_SPECTATOR)
+            {
+                continue;
+            }
+    
+            // Swith team
+            bool bState = ToolsGetClientDefuser(i);
+            ToolsSetClientTeam(i, !(i % 2) ? TEAM_ZOMBIE : TEAM_HUMAN);
+            ToolsSetClientDefuser(i, bState);
         }
-
-        // Swith team
-        ToolsSetClientTeam(i, !(i % 2) ? TEAM_ZOMBIE : TEAM_HUMAN);
     }
 }
 

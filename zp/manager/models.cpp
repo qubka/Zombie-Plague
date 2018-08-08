@@ -58,7 +58,8 @@ void ModelsLoad(/*void*/)
 
 /**
  * Precache models and return model index.
- *  NOTE: Precache with engine 'hide' models included.
+ *
+ * @note Precache with engine 'hide' models included.
  *
  * @param sModel            The model path.
  * @return                  The model index if was precached, 0 otherwise.
@@ -185,8 +186,14 @@ stock bool ModelsPrecacheSounds(const char[] sModel)
     }
     
     // Initialize some variables
-    static char sPath[PLATFORM_MAX_PATH]; int iChar; 
+    static char sPath[PLATFORM_MAX_PATH]; int iChar; ///int iNumSeq;
 
+    // Find the total sequence amount
+    /*
+        hFile.Seek(180, SEEK_SET);
+        hFile.ReadInt32(iNumSeq);
+    */
+    
     do /// Reads a single binary char
     {
         hFile.Seek(2, SEEK_CUR);
@@ -324,6 +331,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
             // If doesn't exist stop
             if(hDirectory == INVALID_HANDLE)
             {
+                LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening folder: \"%s\"", sPath);
                 continue;
             }
             
@@ -504,7 +512,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
     // If doesn't exist stop
     if(!FileExists(sTexture))
     {
-        ///LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid material path. File not found: \"%s\"", sPath);
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid material path. File not found: \"%s\"", sPath);
         return false;
     }
 

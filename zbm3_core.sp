@@ -32,7 +32,7 @@
  */
  
 // Comment to remove a DHook module features (experimental branch)
-#define USE_DHOOKS
+ #define USE_DHOOKS
 
 // Sourcemod
 #include <sourcemod>
@@ -118,7 +118,7 @@ public Plugin myinfo =
 //*********************************************************************
 
 /**
-    * Called before plugin is loaded.
+ * Called before plugin is loaded.
  **/
 public APLRes AskPluginLoad2(Handle iMyself, bool bLate, char[] sError, int iErrorMax)
 {

@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "Girl" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "GirlInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "girl" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "girl info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/zombie_f/zombie_f.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/zombie_f/hand_v2/hand_zombie_normal_f.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/zombie_f/grenade/grenade_zombie_f.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.0
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           2.0   
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       300
@@ -81,29 +81,9 @@ public Plugin myinfo =
 /**
  * @endsection
  **/
- 
-/**
- * @section Explosion flags.
- **/
-#define EXP_NODAMAGE            1
-#define EXP_REPEATABLE          2
-#define EXP_NOFIREBALL          4
-#define EXP_NOSMOKE             8
-#define EXP_NODECAL             16
-#define EXP_NOSPARKS            32
-#define EXP_NOSOUND             64
-#define EXP_RANDOMORIENTATION   128
-#define EXP_NOFIREBALLSMOKE     256
-#define EXP_NOPARTICLES         512
-#define EXP_NODLIGHTS           1024
-#define EXP_NOCLAMPMIN          2048
-#define EXP_NOCLAMPMAX          4096
-/**
- * @endsection
- **/
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieGirl;
@@ -129,7 +109,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -152,6 +132,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("DEIMOS_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -176,17 +159,19 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
         
-        // Gets the client's eye position
+        // Gets the client eye position
         GetClientEyePosition(clientIndex, vPosition);
         
-        // Gets the client's eye angle
+        // Gets the client eye angle
         GetClientEyeAngles(clientIndex, vAngle);
 
-        // Gets the client's speed
+        // Gets the client speed
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a bomb entity
         int entityIndex = CreateEntityByName("hegrenade_projectile");
@@ -197,7 +182,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             // Spawn the entity
             DispatchSpawn(entityIndex);
             
-            // Sets the bomb's model scale
+            // Sets the bomb model scale
             SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", 0.0);
             
             // Returns vectors in the direction of an angle
@@ -227,7 +212,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             IgniteEntity(entityIndex, ZOMBIE_CLASS_EFFECT_FIRE);
             
             // Create an effect
-            FakeCreateParticle(entityIndex, _, "gamma_trail_xz", 5.0);
+            FakeCreateParticle(entityIndex, vPosition, _, "gamma_trail_xz", 5.0);
     
             // Create touch hook
             SDKHook(entityIndex, SDKHook_Touch, BombTouchHook);
@@ -262,7 +247,7 @@ public Action BombTouchHook(const int entityIndex, const int targetIndex)
             // Initialize vectors
             static float vEntPosition[3]; static float vVictimPosition[3];
 
-            // Gets the entity's position
+            // Gets the entity position
             GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
 
             // Create a info_target entity
@@ -272,10 +257,12 @@ public Action BombTouchHook(const int entityIndex, const int targetIndex)
             if(IsValidEdict(infoIndex))
             {
                 // Create an explosion effect
-                FakeCreateParticle(infoIndex, _, "explosion_hegrenade_interior", ZOMBIE_CLASS_SKILL_EXP_TIME);
+                FakeCreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_interior", ZOMBIE_CLASS_SKILL_EXP_TIME);
                 
                 // Emit sound
-                ZP_EmitSoundKeyID(infoIndex, gSound, SNDCHAN_STATIC, 2);
+                static char sSound[PLATFORM_MAX_PATH];
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+                EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
 
             // Remove entity from world
@@ -287,7 +274,7 @@ public Action BombTouchHook(const int entityIndex, const int targetIndex)
                 // Validate client
                 if(IsPlayerExist(i) && ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i))
                 {
-                    // Gets victim's origin
+                    // Gets victim origin
                     GetClientAbsOrigin(i, vVictimPosition);
 
                     // Calculate the distance

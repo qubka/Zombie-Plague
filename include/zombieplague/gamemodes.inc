@@ -68,7 +68,7 @@ native int ZP_SetServerGameMode(char[] name, int clientIndex = 0);
 /**
  * @brief Registers a custom game mode which will be added to the core of ZP.
  *
- *     Note: The returned game mode index can be later used to identify
+ * @note The returned game mode index can be later used to identify
  *             the mode when calling the ZP_GetServerGameMode() natives.
  *
  * @param name              Caption/name to analyse the mode.
@@ -85,7 +85,7 @@ native int ZP_SetServerGameMode(char[] name, int clientIndex = 0);
  *
  * @return                  An internal game mode index, or -1 on failure.
  **/
-native int ZP_RegisterGameMode(char[] name, char[] desc, char[] sound, int chance, int min, float ratio, ZPSelectType infect, ZPSelectType respawn, ZPSelectType survivor, ZPSelectType nemesis);
+native int ZP_RegisterGameMode(char[] name, char[] desc, char[] sound, int chance, int min, float ratio, bool infect, bool respawn, bool survivor, bool nemesis);
 
 /**
  * @brief Gets the name of a game mode at a given index.

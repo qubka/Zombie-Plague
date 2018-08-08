@@ -33,6 +33,26 @@
 #define _weaponlist_included
 
 /**
+ * Number of valid addons.
+ **/
+enum BitType
+{
+    BitType_Invalid = -1,         /** Used as return value when an bit doens't exist. */
+    
+    BitType_PrimaryWeapon,        /** Primary bit */
+    BitType_SecondaryWeapon,      /** Secondary bit */
+    BitType_Flashbang1,           /** Flashbang1 bit */
+    BitType_Flashbang2,           /** Flashbang2 bit */
+    BitType_HEGrenade,            /** Hegrenade bit */
+    BitType_SmokeGrenade,         /** Smokegrenade bit */
+    BitType_Decoy,                /** Decoy bit */
+    BitType_Knife,                /** Knife bit */
+    BitType_TaGrenade,            /** Tagrenade bit */
+    BitType_C4,                   /** C4 bit */
+    BitType_DefuseKit             /** Defuse bit */
+};
+
+/**
  * @brief Called after a custom weapon is created.
  *
  * @param weaponIndex       The weapon index.
@@ -53,11 +73,20 @@ native int ZP_GiveClientWeapon(int clientIndex, char[] name, int slot = -1);
 /**
  * @brief Gets the client viewmodel. 
  *
- * @param weaponIndex       The weapon index.
+ * @param clientIndex       The client index.
  * @param custom            True to gets the custom viewmodel, false the original.           
  * @return                  The viewmodel index.
  **/
 native int ZP_GetClientViewModel(int clientIndex, bool custom);
+
+/**
+ * @brief Gets the client attachmodel. (On the player's backpack)
+ *
+ * @param clientIndex       The client index.
+ * @param bitType           The bit type.         
+ * @return                  The attachmodel index.
+ **/
+native int ZP_GetClientAttachModel(int clientIndex, BitType bitType);
 
 /**
  * @brief Gets the custom weapon id from a given weapon index. 
@@ -99,6 +128,15 @@ native void ZP_GetWeaponName(int weaponID, char[] name, int maxlenght = 32);
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetWeaponEntity(int weaponID, char[] entity, int maxlenght = 32);
+
+/**
+ * @brief Gets the group of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param group             The string to return group in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponGroup(int weaponID, char[] group, int maxlenght = 32);
 
 /**
  * @brief Gets the cost of the weapon.
@@ -272,6 +310,15 @@ native int ZP_GetWeaponModelBody(int weaponID);
 native int ZP_GetWeaponModelSkin(int weaponID);
 
 /**
+ * Gets the muzzle name of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param muzzle            The string to return model in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponModelMuzzle(int weaponID, char[] muzzle, int maxlenght = 32); 
+
+/**
  * @brief Gets the heat amount of the weapon model.
  *
  * @param weaponID          The weapon ID.
@@ -353,23 +400,23 @@ stock bool ZP_IsPlayerHoldWeapon(const int clientIndex, int &weaponIndex, const 
 }
 
 /**
- * @brief Gets the weapon's shoot position.
+ * @brief Gets the weapon shoot position.
  *
  * @param clientIndex       The client index.
  * @param flForward         (Optional) The forward distance.
  * @param flRight           (Optional) The right distance. 
  * @param flVertical        (Optional) The vertical distance.
- * @param vOrigin           The calculated position's vector output.
+ * @param vOrigin           The calculated position vector output.
  **/
 stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward = 0.0, const float flRight = 0.0, const float flVertical = 0.0, float vOrigin[3])
 {
     // Initialize vectors
     static float vEntPosition[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
 
-    // Gets the client's eye angle
+    // Gets the client eye angle
     GetClientEyePosition(clientIndex, vEntPosition);
     
-    // Gets the client's eye angle
+    // Gets the client eye angle
     GetClientEyeAngles(clientIndex, vEntAngle);
 
     // Returns vectors in the direction of an angle
@@ -382,12 +429,12 @@ stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward 
 }
 
 /**
- * @brief Gets the weapon's animating index.
+ * @brief Gets the weapon animating index.
  *
  * @param clientIndex       The client index.
  * @return                  The sequence index.
  **/
-stock int ZP_GetWeaponAnimation(int clientIndex)
+stock int ZP_GetWeaponAnimation(const int clientIndex)
 {
     // Gets the client viewmodel
     int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
@@ -404,12 +451,12 @@ stock int ZP_GetWeaponAnimation(int clientIndex)
 }
 
 /**
- * @brief Sets the weapon's animating index.
+ * @brief Sets the weapon animating index.
  *
  * @param clientIndex       The client index.
  * @param nSequence         The sequence index.
  **/
-stock void ZP_SetWeaponAnimation(int clientIndex, int nSequence)
+stock void ZP_SetWeaponAnimation(const int clientIndex, const int nSequence)
 {
     // Gets the client viewmodel
     int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
@@ -423,13 +470,13 @@ stock void ZP_SetWeaponAnimation(int clientIndex, int nSequence)
 }
 
 /**
- * @brief Sets the weapon's animating paired index. (Important for animations, which should played in the not-repeatable row, like an attack)
+ * @brief Sets the weapon animating paired index. (Important for animations, which should played in the not-repeatable row, like an attack)
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  * @param nSequence         The sequence array.
  **/
-stock void ZP_SetWeaponAnimationPair(int clientIndex, int weaponIndex, int nSequence[2])
+stock void ZP_SetWeaponAnimationPair(const int clientIndex, const int weaponIndex, const int nSequence[2])
 {
     // Gets the client viewmodel
     int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
@@ -446,4 +493,45 @@ stock void ZP_SetWeaponAnimationPair(int clientIndex, int weaponIndex, int nSequ
         // Sets the inversed played state
         SetEntProp(weaponIndex, Prop_Send, "m_bSilencerOn", !bPrevAnim);
     }
+}
+
+/**
+ * Returns index if the player has a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param sWeapon           The weapon entity.
+ *
+ * @return                  The weapon index.
+ **/
+stock int ZP_GetWeaponIndex(const int clientIndex, const char[] sWeapon)
+{
+    // Initialize variable
+    static char sClassname[SMALL_LINE_LENGTH];
+
+    // i = weapon number
+    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets weapon index
+        int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
+
+        // Validate weapon
+        if(IsValidEdict(weaponIndex))
+        {
+            // Gets weapon classname
+            GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
+
+            // If weapon find, then return
+            if(!strcmp(sClassname[7], sWeapon[7], false))
+            {
+                return weaponIndex;
+            }
+        }
+
+        // Go to next weapon
+        continue;
+    }
+
+    // If wasn't found
+    return INVALID_ENT_REFERENCE;
 }

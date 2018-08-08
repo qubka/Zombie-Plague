@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "NormalM08" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "NormalM08Info" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "normalm08" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "normalm08 info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_m_08/normal_m_08.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_m_08/hand_v2/hand_zombie_normal_m_08.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/normal_m_08/grenade/grenade_normal_m_08.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.0
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           5.0    
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       300
@@ -83,7 +83,7 @@ public Plugin myinfo =
 Handle Task_ZombieHallucination[MAXPLAYERS+1] = INVALID_HANDLE; 
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
 
 // Initialize zombie class index
 int gZombieNormalM08;
@@ -112,7 +112,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -135,6 +135,12 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("TESLA_SKILL_SOUNDS");
+    
+    // Models
+    PrecacheModel("materials/sprites/physbeam.vmt", true);
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -179,10 +185,12 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
 /**
  * Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex       The client index.
+ * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode)
 {
     // Delete timer
     delete Task_ZombieHallucination[clientIndex];
@@ -192,8 +200,10 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-public void ZP_OnClientHumanized(int clientIndex)
+public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode)
 {
     // Delete timer
     delete Task_ZombieHallucination[clientIndex];
@@ -219,12 +229,14 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM08)
     {
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Initialize vectors
         static float vPosition[3]; 
 
-        // Gets the client's eye position
+        // Gets the client eye position
         GetClientEyePosition(clientIndex, vPosition); vPosition[2] += 40.0;
 
         // Create hallucination task
@@ -242,7 +254,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             DispatchKeyValue(entityIndex, "m_flRadius", ZOMBIE_CLASS_EFFECT_RADIUS);  
             DispatchKeyValue(entityIndex, "m_SoundName", "DoSpark");  
             DispatchKeyValue(entityIndex, "beamcount_min", "15");  
-            DispatchKeyValue(entityIndex, "beamcount_max", "25");  PrecacheModel("materials/sprites/physbeam.vmt"); //! Prevent errors 
+            DispatchKeyValue(entityIndex, "beamcount_max", "25");
             DispatchKeyValue(entityIndex, "texture", "materials/sprites/physbeam.vmt");  
             DispatchKeyValue(entityIndex, "m_Color", "255 255 255");  
             DispatchKeyValue(entityIndex, "thick_min", "7.0");     
@@ -317,7 +329,7 @@ public Action ClientOnHallucination(Handle hTimer, const int userID)
         // Initialize vectors
         static float vEntPosition[3]; static float vVictimPosition[3];
 
-        // Gets client's origin
+        // Gets client origin
         GetClientAbsOrigin(clientIndex, vEntPosition);
 
         // i = client index
@@ -326,7 +338,7 @@ public Action ClientOnHallucination(Handle hTimer, const int userID)
             // Validate client
             if(IsPlayerExist(i) && ((ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && ZOMBIE_CLASS_SKILL_SURVIVOR)))
             {
-                // Gets victim's origin
+                // Gets victim origin
                 GetClientAbsOrigin(i, vVictimPosition);
 
                 // Calculate the distance

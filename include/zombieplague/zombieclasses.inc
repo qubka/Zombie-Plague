@@ -77,7 +77,7 @@ native void ZP_SetClientZombieClass(int clientIndex, int classID);
 /**
  * @brief Registers a custom class which will be added to the zombie classes menu of ZP.
  *
- *     Note: The returned zombie class index can be later used to identify
+ * @note The returned zombie class index can be later used to identify
  *             the class when calling the ZP_GetClientZombieClass() natives.
  *
  * @param name              Caption to display on the menu. (Only will be taken from translation file)
@@ -90,11 +90,11 @@ native void ZP_SetClientZombieClass(int clientIndex, int classID);
  * @param gravity           Gravity multiplier.
  * @param knockback         Knockback multiplier.
  * @param level             Level required to select class.
- * @param vip               Class access only for VIP players.
+ * @param group             Class access group name.
  * @param duration          Duration of skill, for your custom addons. (0.0-off)
  * @param countdown         Countdown of skill, for your custom addons. (0.0-off)
  * @param regenhealth       Regenerating health. (0-off)
- * @param regeninterval     Regenerating health's interval. (0.0-off)
+ * @param regeninterval     Regenerating health interval. (0.0-off)
  * @param death             Emits death sound from a block from 'sounds.ini' config.
  * @param hurt              Emits hurt sound from a block from 'sounds.ini' config.
  * @param idle              Emits idle sound from a block from 'sounds.ini' config.
@@ -104,12 +104,12 @@ native void ZP_SetClientZombieClass(int clientIndex, int classID);
  * @param footstep          Emits footstep sound from a block from 'sounds.ini' config.
  * @param regen             Emits regen sound from a block from 'sounds.ini' config.
  *
- *     Note: The duration and countdown must be turn off together,
+ * @note The duration and countdown must be turn off together,
  *             for disabling skill usage.
  *
  * @return                  An internal zombie class index, or -1 on failure.
  **/
-native int ZP_RegisterZombieClass(char[] name, char[] info, char[] model, char[] claw_model, char[] gren_model, int health = 100, float speed = 1.0, float gravity = 1.0, float knockback = 1.0, int level = 1, ZPSelectType vip = NO, float duration = 0.0, float countdown = 0.0, int regenhealth = 0, float regeninterval = 0.0, char[] death = "", char[] hurt = "", char[] idle = "", char[] respawn = "", char[] burn = "", char[] attack = "", char[] footstep = "", char[] regen = "");
+native int ZP_RegisterZombieClass(char[] name, char[] info, char[] model, char[] claw_model, char[] gren_model, int health = 100, float speed = 1.0, float gravity = 1.0, float knockback = 1.0, int level = 1, char[] group = "", float duration = 0.0, float countdown = 0.0, int regenhealth = 0, float regeninterval = 0.0, char[] death = "", char[] hurt = "", char[] idle = "", char[] respawn = "", char[] burn = "", char[] attack = "", char[] footstep = "", char[] regen = "");
 
 /**
  * @brief Gets the name of a zombie class at a given index.
@@ -197,12 +197,13 @@ native float ZP_GetZombieClassKnockBack(int classID);
 native int ZP_GetZombieClassLevel(int classID);
 
 /**
- * @brief Check the access of the zombie class.
+ * @brief Gets the group of a zombie class at a given index.
  *
- * @param classID           The class index.
- * @return                  True or false.
+ * @param classID            The class index.
+ * @param group              The string to return group in.
+ * @param maxlenght          The lenght of string.
  **/
-native bool ZP_IsZombieClassVIP(int classID);
+native void ZP_GetZombieClassGroup(int classID, char[] group, int maxlenght = 32);
 
 /**
  * @brief Gets the skill duration of the zombie class.

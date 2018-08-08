@@ -104,7 +104,7 @@ void DownloadsLoad(/*void*/)
                 LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sDownloadsPath);
                 
                 // Remove download from array
-                RemoveFromArray(arrayDownloads, i);
+                arrayDownloads.Erase(i);
 
                 // Subtract one from count
                 iDownloads--;
@@ -187,7 +187,7 @@ stock bool DownloadsOnPrecache(const char[] sPath)
     else if(!strcmp(sPath[iFormat], ".mdl", false))
     {
         // Precache model
-        return !ModelsPrecacheStatic(sPath) ? false : true;   
+        return ModelsPrecacheStatic(sPath) ? true : false;   
     }
     // Validate particle format 
     else if(!strcmp(sPath[iFormat], ".pcf", false))

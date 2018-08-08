@@ -43,11 +43,13 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_NAME                "Antidot" // Only will be taken from translation file     
+#define EXTRA_ITEM_NAME                "antidot" // Only will be taken from translation file    
+#define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST                20            
 #define EXTRA_ITEM_LEVEL               0
 #define EXTRA_ITEM_ONLINE              0
 #define EXTRA_ITEM_LIMIT               0
+#define EXTRA_ITEM_GROUP               ""
 /**
  * @endsection
  **/
@@ -66,7 +68,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 

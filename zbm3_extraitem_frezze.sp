@@ -44,12 +44,13 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE          "FreezeNade" // Name in weapons.ini
-#define EXTRA_ITEM_NAME               "Freeze Grenade" // Only will be taken from translation file        
+#define EXTRA_ITEM_REFERENCE          "freeze grenade" // Name in weapons.ini from translation file
+#define EXTRA_ITEM_INFO               "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST               5
-#define EXTRA_ITEM_LEVEL              0
-#define EXTRA_ITEM_ONLINE             0
+#define EXTRA_ITEM_LEVEL              1
+#define EXTRA_ITEM_ONLINE             1
 #define EXTRA_ITEM_LIMIT              0
+#define EXTRA_ITEM_GROUP              ""
 /**
  * @endsection
  **/
@@ -82,7 +83,7 @@ public Plugin myinfo =
 Handle Task_ZombieFreezed[MAXPLAYERS+1] = INVALID_HANDLE; 
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
 
 // Item index
 int gItem; int gWeapon;
@@ -104,7 +105,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 
@@ -128,6 +129,17 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("FREEZE_GRENADE_SOUNDS");
+    
+    // Models
+    PrecacheModel("models/gibs/glass_shard01.mdl", true);
+    PrecacheModel("models/gibs/glass_shard02.mdl", true);
+    PrecacheModel("models/gibs/glass_shard03.mdl", true);
+    PrecacheModel("models/gibs/glass_shard04.mdl", true);
+    PrecacheModel("models/gibs/glass_shard05.mdl", true);
+    PrecacheModel("models/gibs/glass_shard06.mdl", true);
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -171,10 +183,12 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
 /**
  * Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex       The client index.
+ * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode)
 {
     // Reset move
     SetEntityMoveType(clientIndex, MOVETYPE_WALK);
@@ -187,8 +201,10 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-public void ZP_OnClientHumanized(int clientIndex)
+public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode)
 {
     // Reset move
     SetEntityMoveType(clientIndex, MOVETYPE_WALK);
@@ -208,7 +224,7 @@ public void ZP_OnClientHumanized(int clientIndex)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -236,7 +252,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     { 
         // Give item and select it
@@ -249,10 +265,12 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
- * @param damageType        The ditfield of damage types
+ * @param damageType        The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, float &damageAmount, int damageType)
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -302,10 +320,10 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
                 // Validate client
                 if(IsPlayerExist(i) && ((ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i)) || (ZP_IsPlayerNemesis(i) && GRENADE_FREEZE_NEMESIS)))
                 {
-                    // Gets victim's origin
+                    // Gets victim origin
                     GetClientAbsOrigin(i, vVictimPosition);
 
-                    // Gets victim's origin angle
+                    // Gets victim origin angle
                     GetClientAbsAngles(i, vVictimAngle);
 
                     // Calculate the distance
@@ -318,7 +336,7 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
                         SetEntityMoveType(i, MOVETYPE_NONE);
 
                         // Create an effect
-                        FakeCreateParticle(i, _, "dynamic_smoke5", GRENADE_FREEZE_TIME+0.5);
+                        FakeCreateParticle(i, vVictimPosition, _, "dynamic_smoke5", GRENADE_FREEZE_TIME+0.5);
 
                         // Create timer for removing freezing
                         delete Task_ZombieFreezed[i];
@@ -349,7 +367,9 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
                             AcceptEntityInput(iceIndex, "FireUser1");
                             
                             // Emit freeze sound
-                            ZP_EmitSoundKeyID(iceIndex, gSound, SNDCHAN_STATIC, 1);
+                            static char sSound[PLATFORM_MAX_PATH];
+                            ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+                            EmitSoundToAll(sSound, iceIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
                         }
                     }
                 }
@@ -362,12 +382,12 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
             if(IsValidEdict(infoIndex))
             {
                 // Create an explosion effect
-                FakeCreateParticle(infoIndex, _, "explosion_hegrenade_snow", GRENADE_FREEZE_EXP_TIME);
+                FakeCreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_snow", GRENADE_FREEZE_EXP_TIME);
             }
             
             // Create sparks splash effect
             TE_SetupSparks(vEntPosition, NULL_VECTOR, 5000, 1000);
-            TE_SendToAll();
+            TE_SendToAllInRange(vEntPosition, RangeType_Visibility);
             
             // Remove grenade
             AcceptEntityInput(grenadeIndex, "Kill");
@@ -399,7 +419,9 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, const int userID)
         SetEntityMoveType(clientIndex, MOVETYPE_WALK);
         
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 2);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
 
         // Create a breaked glass effect
         static char sModel[NORMAL_LINE_LENGTH];
@@ -426,7 +448,7 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, const int userID)
                 DispatchKeyValueVector(entityIndex, "angles", vEntPosition);
                 DispatchKeyValueVector(entityIndex, "gibangles", vEntAngle);
                 DispatchKeyValue(entityIndex, "rendermode", "5");
-                DispatchKeyValue(entityIndex, "shootsounds", "0");  PrecacheModel(sModel); //! Prevent errors 
+                DispatchKeyValue(entityIndex, "shootsounds", "0");
                 DispatchKeyValue(entityIndex, "shootmodel", sModel);
                 DispatchKeyValueFloat(entityIndex, "m_iGibs", GLASS_GIBS_AMOUNT);
                 DispatchKeyValueFloat(entityIndex, "delay", GLASS_GIBS_DELAY);
@@ -468,7 +490,7 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, const int userID)
 /**
  * Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
  *  
- * @param clients           Array of client's indexes.
+ * @param clients           Array of client indexes.
  * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
  * @param sSample           Sound file name relative to the "sounds" folder.
  * @param entityIndex       Entity emitting the sound.
@@ -483,8 +505,8 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     // Validate client
     if(IsValidEdict(entityIndex))
     {
-        // Gets the entity's classname
-        static char sClassname[SMALL_LINE_LENGTH];
+        // Gets the entity classname
+        static char sClassname[PLATFORM_MAX_PATH];
         GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
 
         // Validate grenade
@@ -493,12 +515,14 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
             if(!strncmp(sSample[31], "hit", 3, false))
             {
                 // Emit a custom bounce sound
-                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 3);
+                ZP_GetSound(gSound, sClassname, sizeof(sClassname), 3);
+                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[29], "emit", 4, false))
             {
                 // Emit explosion sound
-                ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_WEAPON, 4);
+                ZP_GetSound(gSound, sClassname, sizeof(sClassname), 4);
+                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
 
             // Block sounds

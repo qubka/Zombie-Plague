@@ -149,25 +149,20 @@ void DataBaseLoad(/*void*/)
 void DataBaseOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    AddCommandListener(DataBaseHook, "exit");
-    AddCommandListener(DataBaseHook, "quit");
-    AddCommandListener(DataBaseHook, "restart");
-    AddCommandListener(DataBaseHook, "_restart");
+    AddCommandListener(DataBaseOnExit, "exit");
+    AddCommandListener(DataBaseOnExit, "quit");
+    AddCommandListener(DataBaseOnExit, "restart");
+    AddCommandListener(DataBaseOnExit, "_restart");
 }
 
 /**
- * Callback for command listeners. This is invoked whenever any command reaches the server, from the server console itself or a player.
- * 
- * Clients may be in the process of connecting when they are executing commands IsClientConnected(clientIndex is not guaranteed to return true. Other functions such as GetClientIP() may not work at this point either.
- * 
- * Returning Plugin_Handled or Plugin_Stop will prevent the original, baseline code from running.
- * -- TEXT BELOW IS IMPLEMENTATION, AND NOT GUARANTEED -- Even if returning Plugin_Handled or Plugin_Stop, some callbacks will still trigger. These are: * C++ command dispatch hooks from Metamod:Source plugins * Reg*Cmd() hooks that did not create new commands.
+ * Callback for command listener to turn off server.
  *
  * @param entityIndex       The entity index. (Client, or 0 for server)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action DataBaseHook(const int entityIndex, const char[] commandMsg, const int iArguments)
+public Action DataBaseOnExit(const int entityIndex, const char[] commandMsg, const int iArguments)
 {
     // Validate Server
     if(!entityIndex)
@@ -351,7 +346,7 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
  *
  * @param clientIndex            The client index.
  **/
-void DataBaseSaveClientInfo(int clientIndex)
+void DataBaseSaveClientInfo(const int clientIndex)
 {
     // Initialize chars
     static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH]; 

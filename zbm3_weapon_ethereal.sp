@@ -44,9 +44,10 @@ public Plugin myinfo =
 /**
  * @section Information about weapon.
  **/
-#define WEAPON_REFERANCE                "Etherial" // Models and other properties in the 'weapons.ini'
+#define WEAPON_REFERANCE                "etherial" // Name in weapons.ini from translation file
 #define WEAPON_BEAM_LIFE                0.105
 #define WEAPON_BEAM_COLOR               {0, 194, 194, 255}
+#define WEAPON_BEAM_MODEL               "materials/sprites/laserbeam.vmt"
 /**
  * @endsection
  **/
@@ -81,7 +82,7 @@ public void ZP_OnEngineExecute(/*void*/)
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
 
     // Models
-    decalBeam = PrecacheModel("materials/sprites/laserbeam.vmt");
+    decalBeam = PrecacheModel(WEAPON_BEAM_MODEL, true);
 }
 
 /**
@@ -104,22 +105,38 @@ public Action WeaponImpactBullets(Event hEvent, const char[] sName, bool iDontBr
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
         // Initialize vector variables
-        static float vEntPosition[3]; static float vBulletPosition[3];
+        static float vEntPosition[3]; static float vEntAngle[3]; static float vBulletPosition[3];
 
         // Gets hit position
         vBulletPosition[0] = hEvent.GetFloat("x");
         vBulletPosition[1] = hEvent.GetFloat("y");
         vBulletPosition[2] = hEvent.GetFloat("z");
 
-        // Gets the weapon's position
+        // Gets the weapon position
         ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vEntPosition);
         
         // Sent a beam
         TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-        TE_SendToAll();
-        
-        // Create a muzzleflesh / True for getting the custom viewmodel index
-        FakeDispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_flash_taser", "ParticleEffect", _, _, _, 1);
         TE_SendToClient(clientIndex);
+        
+        // Gets the worldmodel index
+        int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
+        
+        // Validate entity
+        if(IsValidEdict(entityIndex))
+        {
+            // Gets attachment position
+            ZP_GetAttachment(entityIndex, "muzzle_flash", vEntPosition, vEntAngle);
+            
+            // Sent a beam
+            TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+            int[] iClients = new int[MaxClients]; int iCount;
+            for (int i = 1; i <= MaxClients; i++)
+            {
+                if (!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
+                iClients[iCount++] = i;
+            }
+            TE_Send(iClients, iCount);
+        }
     }
 }

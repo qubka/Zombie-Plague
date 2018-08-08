@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "NormalF05" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "NormalF05Info" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "normalf05" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "normalf05 info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_f_05/normal_f_05.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_f_05/hand_v2/hand_normal_f_05.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/normal_f_05/grenade/grenade_normal_f_05.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.5
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              "[VIP]"
 #define ZOMBIE_CLASS_DURATION           10.0    
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       0
@@ -82,7 +82,7 @@ public Plugin myinfo =
 int decalSmoke;
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
 
 // Initialize zombie class index
 int gZombieNormalF05;
@@ -108,7 +108,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -133,7 +133,10 @@ public void ZP_OnEngineExecute(/*void*/)
     gSound = ZP_GetSoundKeyID("WITCH_SKILL_SOUNDS");
 
     // Models
-    decalSmoke = PrecacheModel("sprites/steam1.vmt");
+    decalSmoke = PrecacheModel("sprites/steam1.vmt", true);
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -158,17 +161,19 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
 
-        // Gets the client's eye position
+        // Gets the client eye position
         GetClientEyePosition(clientIndex, vPosition);
 
-        // Gets the client's eye angle
+        // Gets the client eye angle
         GetClientEyeAngles(clientIndex, vAngle);
 
-        // Gets the client's speed
+        // Gets the client speed
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a bat entity
         int entityIndex = CreateEntityByName("hegrenade_projectile");
@@ -179,7 +184,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             // Spawn the entity
             DispatchSpawn(entityIndex);
 
-            // Sets the bomb's model scale
+            // Sets the bat model scale
             SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", 9.0);
             
             // Returns vectors in the direction of an angle
@@ -200,7 +205,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             // Sets the model
             SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
             
-            // Sets an entity's color
+            // Sets an entity color
             SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
             SetEntityRenderColor(entityIndex, _, _, _, 0); 
             
@@ -270,19 +275,19 @@ public Action BatTouchHook(const int entityIndex, const int targetIndex)
                 return Plugin_Continue;
             }
             
-            // Initialize vectors
-            static float vEntPosition[3]; static float vVictimPosition[3]; static float vVictimAngle[3];
+            // Initialize variables
+            static float vEntPosition[3]; static float vVictimPosition[3]; static float vVictimAngle[3]; static char sSound[PLATFORM_MAX_PATH];
 
-            // Gets the entity's position
+            // Gets the entity position
             GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
 
             // Validate target
             if(IsPlayerExist(targetIndex))
             {
-                // Gets victim's origin
+                // Gets victim origin
                 GetClientAbsOrigin(targetIndex, vVictimPosition);
         
-                // Gets victim's origin angle
+                // Gets victim origin angle
                 GetClientAbsAngles(targetIndex, vVictimAngle);
         
                 // Create a prop_dynamic_override entity
@@ -324,7 +329,8 @@ public Action BatTouchHook(const int entityIndex, const int targetIndex)
                 }
 
                 // Emit sound
-                ZP_EmitSoundKeyID(targetIndex, gSound, SNDCHAN_VOICE, 2);
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+                EmitSoundToAll(sSound, targetIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
             }
             else
             {
@@ -335,15 +341,16 @@ public Action BatTouchHook(const int entityIndex, const int targetIndex)
                 if(IsValidEdict(infoIndex))
                 {
                     // Create an explosion effect
-                    FakeCreateParticle(infoIndex, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);
+                    FakeCreateParticle(infoIndex, vEntPosition, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);
                     
                     // Emit sound
-                    ZP_EmitSoundKeyID(infoIndex, gSound, SNDCHAN_STATIC, 3);
+                    ZP_GetSound(gSound, sSound, sizeof(sSound), 3);
+                    EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
                 }
         
                 // Create effect
                 TE_SetupSmoke(vEntPosition, decalSmoke, 130.0, 10);
-                TE_SendToAll();
+                TE_SendToAllInRange(vEntPosition, RangeType_Visibility);
             }
 
             // Remove entity from world
@@ -383,7 +390,7 @@ public Action BatAttachHook(Handle hTimer, const int referenceIndex)
             GetClientEyePosition(ownerIndex, vEntPosition);
             GetClientEyePosition(targetIndex, vTargetPosition);
 
-            // Calculate the velocity's vector
+            // Calculate the velocity vector
             SubtractVectors(vEntPosition, vTargetPosition, vEntVelocity);
 
             // Sets the vertical scale

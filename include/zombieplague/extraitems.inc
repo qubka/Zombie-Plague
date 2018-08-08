@@ -62,7 +62,7 @@ forward void ZP_OnClientBuyExtraItem(int clientIndex, int itemID);
 native bool ZP_GiveClientExtraItem(int clientIndex, int itemID);
 
 /**
- * @brief Sets the buy limit of the current player's item.
+ * @brief Sets the buy limit of the current player item.
  * 
  * @param clientIndex       The client index.
  * @param itemID            The item index.
@@ -71,7 +71,7 @@ native bool ZP_GiveClientExtraItem(int clientIndex, int itemID);
 native void ZP_SetClientExtraItemLimit(int clientIndex, int itemID, int limit);
 
 /**
- * @brief Gets the buy limit of the current player's item.
+ * @brief Gets the buy limit of the current player item.
  * 
  * @param clientIndex       The client index.
  * @param itemID            The item index.
@@ -83,19 +83,20 @@ native int ZP_GetClientExtraItemLimit(int clientIndex, int itemID);
 /**
  * @brief Registers a custom extra item which will be added to the equipment menu of ZP.
  *
- *     Note: The returned extra item index can be later used to identify
+ * @note  The returned extra item index can be later used to identify
  *             the class when calling the ZP_OnClientBuyExtraItem() forward.
  *
  * @param name              Caption to display on the menu. (Only will be taken from translation file)
+ * @param info              Caption to display in the hint. (""-off) (Only will be taken from translation file)
  * @param cost              Price of this item. (0-off any messages and ammo cost from menu)
  * @param level             The level of the player, which allow to buy item. (0-off)
  * @param online            The number of players, which allowed to buy item. (0-off)
  * @param limit             The number of purchases, which allowed to buy item. (0-off)
- *                            
+ * @param group             Item access group name.                         
  *
  * @return                  An internal extra item index, or -1 on failure.
  **/
-native int ZP_RegisterExtraItem(char[] name, int cost, int level = 0, int online = 0, int limit = 0);
+native int ZP_RegisterExtraItem(char[] name, char[] info, int cost, int level = 0, int online = 0, int limit = 0, char[] group = "");
 
 /**
  * @brief Gets the amount of all extra items.
@@ -112,6 +113,15 @@ native int ZP_GetNumberExtraItem();
  * @param maxlenght          The lenght of string.
  **/
 native void ZP_GetExtraItemName(int itemID, char[] name, int maxlenght = 32);
+
+/**
+ * @brief Gets the info of a extra item at a given index.
+ *
+ * @param itemID             The item index.
+ * @param info               The string to return info in.
+ * @param maxlenght          The lenght of string.
+ **/
+native void ZP_GetExtraItemInfo(int itemID, char[] info, int maxlenght = 32);
 
 /**
  * @brief Gets the cost of the extra item.
@@ -144,6 +154,15 @@ native int ZP_GetExtraItemOnline(int itemID);
  * @return                  The limit amount.    
  **/
 native int ZP_GetExtraItemLimit(int itemID);
+
+/**
+ * @brief Gets the group of a extra item at a given index.
+ *
+ * @param itemID             The item index.
+ * @param group              The string to return group in.
+ * @param maxlenght          The lenght of string.
+ **/
+native void ZP_GetExtraItemGroup(int itemID, char[] group, int maxlenght = 32);
 
 /**
  * @brief Print the info about the extra item.

@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "NormalM10" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "NormalM10Info" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "normalm10" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "normalm10 info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/normal_m_10/normal_m_10.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/normal_m_10/hand_v2/hand_zombie_normal_m_10.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/normal_m_10/grenade/grenade_normal_m_10.mdl"    
@@ -54,7 +54,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.0
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           2.0    
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       300
@@ -66,7 +66,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_SKILL_DISSOLVE     40  // Amount of energy which ball lose to dissolve
 #define ZOMBIE_CLASS_SKILL_DURATION     3.0 
 #define ZOMBIE_CLASS_SKILL_EXP_RADIUS   22500.0 //[squared]
-#define ZOMBIE_CLASS_SKILL_EXP_DAMAGE   50.0
+#define ZOMBIE_CLASS_SKILL_EXP_DAMAGE   100.0
 #define ZOMBIE_CLASS_SKILL_EXP_SURVIVOR false  // Can survivor blasted [false-no // true-yes]
 #define ZOMBIE_CLASS_SKILL_EXP_TIME     2.0
 #define ZOMBIE_CLASS_SOUND_DEATH        "ZOMBIE_DEATH_SOUNDS"
@@ -91,7 +91,7 @@ public Plugin myinfo =
 Handle Task_HumanBlasted[MAXPLAYERS+1] = INVALID_HANDLE;
  
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombieNormalM10;
@@ -117,7 +117,7 @@ public void OnLibraryAdded(const char[] sLibrary) // Paralizing blast
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -140,6 +140,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("BALLER_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -169,10 +172,12 @@ public void OnClientDisconnect(int clientIndex)
 /**
  * Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex       The client index.
+ * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode)
 {
     // Reset move
     SetEntityMoveType(clientIndex, MOVETYPE_WALK);
@@ -185,8 +190,10 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-public void ZP_OnClientHumanized(int clientIndex)
+public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode)
 {
     // Reset move
     SetEntityMoveType(clientIndex, MOVETYPE_WALK);
@@ -217,17 +224,19 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
         
-        // Gets the client's eye position
+        // Gets the client eye position
         GetClientEyePosition(clientIndex, vPosition);
         
-        // Gets the client's eye angle
+        // Gets the client eye angle
         GetClientEyeAngles(clientIndex, vAngle);
 
-        // Gets the client's speed
+        // Gets the client speed
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a blast entity
         int entityIndex = CreateEntityByName("hegrenade_projectile");
@@ -239,9 +248,9 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             DispatchSpawn(entityIndex);
             
             // Sets the model
-            SetEntityModel(entityIndex, "models/weapons/eminem/aura_shield/aura_shield2.mdl");
+            SetEntityModel(entityIndex, "models/player/custom_player/zombie/aura_shield/aura_shield2.mdl");
             
-            // Sets the blast's model scale
+            // Sets the blast model scale
             SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", ZOMBIE_CLASS_SKILL_SIZE);
             
             // Returns vectors in the direction of an angle
@@ -269,10 +278,11 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             SetEntPropFloat(entityIndex, Prop_Send, "m_flElasticity", ZOMBIE_CLASS_SKILL_ELASTICITY);
             
             // Emit sound
-            ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, 2);
+            ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+            EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             
             // Create an effect
-            FakeCreateParticle(entityIndex, _, "gamma_blue", ZOMBIE_CLASS_DURATION);
+            FakeCreateParticle(entityIndex, vPosition, _, "gamma_blue", ZOMBIE_CLASS_DURATION);
             
             // Put fire on it
             IgniteEntity(entityIndex, ZOMBIE_CLASS_DURATION);
@@ -305,7 +315,9 @@ public Action BlastTouchHook(const int entityIndex, const int targetIndex)
     if(IsValidEdict(entityIndex))
     {
         // Emit sound
-        ZP_EmitSoundKeyID(entityIndex, gSound, SNDCHAN_STATIC, GetRandomInt(3, 4));
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(3, 4));
+        EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
     }
 
     // Return on the success
@@ -329,7 +341,7 @@ public Action BlastExploadHook(Handle hTimer, const int referenceIndex)
         // Initialize vectors
         static float vEntPosition[3]; static float vVictimPosition[3];
 
-        // Gets the entity's position
+        // Gets the entity position
         GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
 
         // Create a info_target entity
@@ -339,49 +351,47 @@ public Action BlastExploadHook(Handle hTimer, const int referenceIndex)
         if(IsValidEdict(infoIndex))
         {
             // Create an explosion effect
-            FakeCreateParticle(infoIndex, _, "explosion_molotov_air", ZOMBIE_CLASS_SKILL_EXP_TIME);
+            FakeCreateParticle(infoIndex, vEntPosition, _, "explosion_molotov_air", ZOMBIE_CLASS_SKILL_EXP_TIME);
             
             // Emit sound
-            ZP_EmitSoundKeyID(infoIndex, gSound, SNDCHAN_STATIC, 5);
+            static char sSound[PLATFORM_MAX_PATH];
+            ZP_GetSound(gSound, sSound, sizeof(sSound), 5);
+            EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
         }
         
-        // Gets the blast's owner
+        // Gets the blast owner
         int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
         
-        // Validate owner
-        if(IsPlayerExist(ownerIndex))
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
         {
-            // i = client index
-            for(int i = 1; i <= MaxClients; i++)
+            // Validate client
+            if(IsPlayerExist(i) && ((ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && ZOMBIE_CLASS_SKILL_EXP_SURVIVOR)))
             {
-                // Validate client
-                if(IsPlayerExist(i) && ((ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && ZOMBIE_CLASS_SKILL_EXP_SURVIVOR)))
+                // Gets victim origin
+                GetClientAbsOrigin(i, vVictimPosition);
+
+                // Calculate the distance
+                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+
+                // Validate distance
+                if(flDistance <= ZOMBIE_CLASS_SKILL_EXP_RADIUS)
                 {
-                    // Gets victim's origin
-                    GetClientAbsOrigin(i, vVictimPosition);
+                    // Blaat the client
+                    SetEntityMoveType(i, MOVETYPE_NONE);
 
-                    // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                    // Create the damage for a victim
+                    ZP_TakeDamage(i, ownerIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_EXP_RADIUS)), DMG_AIRBOAT);
 
-                    // Validate distance
-                    if(flDistance <= ZOMBIE_CLASS_SKILL_EXP_RADIUS)
-                    {
-                        // Blaat the client
-                        SetEntityMoveType(i, MOVETYPE_NONE);
-
-                        // Create the damage for a victim
-                        SDKHooks_TakeDamage(i, ownerIndex, ownerIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE);
-
-                        // Create an fade
-                        FakeCreateFadeScreen(i, ZOMBIE_CLASS_EFFECT_DURATION_F, ZOMBIE_CLASS_EFFECT_TIME_F, 0x0001, ZOMBIE_CLASS_EFFECT_COLOR_F);
-                        
-                        // Create a shake
-                        FakeCreateShakeScreen(i, ZOMBIE_CLASS_EFFECT_SHAKE_AMP, ZOMBIE_CLASS_EFFECT_SHAKE_FREQUENCY, ZOMBIE_CLASS_EFFECT_SHAKE_DURATION);
-                        
-                        // Create timer for removing freezing
-                        delete Task_HumanBlasted[i];
-                        Task_HumanBlasted[i] = CreateTimer(ZOMBIE_CLASS_SKILL_DURATION, ClientRemoveBlastEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
-                    }
+                    // Create a fade
+                    FakeCreateFadeScreen(i, ZOMBIE_CLASS_EFFECT_DURATION_F, ZOMBIE_CLASS_EFFECT_TIME_F, 0x0001, ZOMBIE_CLASS_EFFECT_COLOR_F);
+                    
+                    // Create a shake
+                    FakeCreateShakeScreen(i, ZOMBIE_CLASS_EFFECT_SHAKE_AMP, ZOMBIE_CLASS_EFFECT_SHAKE_FREQUENCY, ZOMBIE_CLASS_EFFECT_SHAKE_DURATION);
+                    
+                    // Create timer for removing freezing
+                    delete Task_HumanBlasted[i];
+                    Task_HumanBlasted[i] = CreateTimer(ZOMBIE_CLASS_SKILL_DURATION, ClientRemoveBlastEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
                 }
             }
         }

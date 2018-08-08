@@ -43,8 +43,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "Fast" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "FastInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "fast" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "fast info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/police/police.mdl"
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/police/hand_v2/hand_zombie_normalhost_f.mdl"
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/police/grenade/grenade_zombie_police.mdl"    
@@ -53,7 +53,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.8
 #define ZOMBIE_CLASS_KNOCKBACK          1.2
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           5.0    
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       30
@@ -72,7 +72,7 @@ public Plugin myinfo =
  **/
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
 
 // Initialize zombie class index
 int gZombieFast;
@@ -98,7 +98,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -121,6 +121,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("FAST_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -146,10 +149,18 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", ZOMBIE_CLASS_SKILL_SPEED);
         
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        
+        // Initialize vectors
+        static float vPosition[3];
+        
+        // Gets the client origin
+        GetClientAbsOrigin(clientIndex, vPosition);
         
         // Create an effect
-        FakeCreateParticle(clientIndex, _, "viy_viy_viy", ZOMBIE_CLASS_DURATION);
+        FakeCreateParticle(clientIndex, vPosition, _, "viy_viy_viy", ZOMBIE_CLASS_DURATION);
     }
     
     // Allow usage

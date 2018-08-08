@@ -43,8 +43,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME               "MutationLight" // Only will be taken from translation file
-#define ZOMBIE_CLASS_INFO               "MutationLightInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME               "mutationlight" // Only will be taken from translation file
+#define ZOMBIE_CLASS_INFO               "mutationlight info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL              "models/player/custom_player/zombie/mutation_light/mutation_light.mdl"    
 #define ZOMBIE_CLASS_CLAW               "models/player/custom_player/zombie/mutation_light/hand_v2/hand_zombie_mutation_light.mdl"    
 #define ZOMBIE_CLASS_GRENADE            "models/player/custom_player/zombie/mutation_light/grenade/grenade_mutation_light.mdl"    
@@ -53,7 +53,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY            0.9
 #define ZOMBIE_CLASS_KNOCKBACK          1.2
 #define ZOMBIE_CLASS_LEVEL              1
-#define ZOMBIE_CLASS_VIP                NO
+#define ZOMBIE_CLASS_GROUP              ""
 #define ZOMBIE_CLASS_DURATION           4.0    
 #define ZOMBIE_CLASS_COUNTDOWN          30.0
 #define ZOMBIE_CLASS_REGEN_HEALTH       100
@@ -71,7 +71,7 @@ public Plugin myinfo =
  **/
  
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
 
 // Initialize zombie class index
 int gZombieMutationLight;
@@ -97,7 +97,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -120,15 +120,20 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("GHOST_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
  * Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex       The client index.
+ * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode)
 {
     // Reset visibility
     SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
@@ -138,8 +143,10 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-public void ZP_OnClientHumanized(int clientIndex)
+public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode)
 {
     // Reset visibility
     SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
@@ -168,7 +175,9 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 0.0);  
 
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 1);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
     }
     
     // Allow usage
@@ -195,6 +204,8 @@ public void ZP_OnClientSkillOver(int clientIndex)
         SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
 
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE, 2);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
     }
 }

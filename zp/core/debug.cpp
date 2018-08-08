@@ -31,7 +31,7 @@
 void DebugOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_debug", DebugCommandCatched, "Prints debugging dump info the log file.");
+    RegAdminCmd("zp_debug", DebugCommandCatched, ADMFLAG_GENERIC, "Prints debugging dump info the log file.");
 }
 
 /**
@@ -42,12 +42,6 @@ void DebugOnCommandsCreate(/*void*/)
  **/ 
 public Action DebugCommandCatched(const int clientIndex, const int iArguments)
 {
-    // Check if privileged, then continue
-    if (!IsPlayerHasFlag(clientIndex, Admin_Generic))
-    {
-        return Plugin_Handled;
-    }
-
     // Initialize variable
     static bool bDebug;
 

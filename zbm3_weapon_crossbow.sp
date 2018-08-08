@@ -34,7 +34,7 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: Bazooka",
+    name            = "[ZP] Weapon: CrossBow",
     author          = "qubka (Nikita Ushakov)",
     description     = "Addon of custom weapon",
     version         = "3.0",
@@ -44,9 +44,9 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE         "bazooka" // Name in weapons.ini from translation file
+#define EXTRA_ITEM_REFERENCE         "crossbow" // Name in weapons.ini from translation file  
 #define EXTRA_ITEM_INFO              "" // Only will be taken from translation file 
-#define EXTRA_ITEM_COST              20
+#define EXTRA_ITEM_COST              3
 #define EXTRA_ITEM_LEVEL             1
 #define EXTRA_ITEM_ONLINE            1
 #define EXTRA_ITEM_LIMIT             0
@@ -58,26 +58,23 @@ public Plugin myinfo =
 /**
  * @section Information about weapon.
  **/
-#define WEAPON_ROCKET_SPEED             2000.0
-#define WEAPON_ROCKET_GRAVITY           0.01
-#define WEAPON_ROCKET_RADIUS            400.0
-#define WEAPON_ROCKET_EXPLOSION         0.1
-#define WEAPON_ROCKET_SHAKE_AMP         10.0
-#define WEAPON_ROCKET_SHAKE_FREQUENCY   1.0
-#define WEAPON_ROCKET_SHAKE_DURATION    2.0
-#define WEAPON_EFFECT_TIME              5.0
-#define WEAPON_EXPLOSION_TIME           2.0
+#define WEAPON_BOW_SPEED             2000.0
+#define WEAPON_BOW_GRAVITY           0.01
+#define WEAPON_BOW_DAMAGE            50.0
+#define WEAPON_BOW_TIME              2.0
 /**
  * @endsection
  **/
- 
+
 // Animation sequences
 enum
 {
     ANIM_IDLE,
-    ANIM_SHOOT,
-    ANIM_DRAW,
-    ANIM_RELOAD
+    ANIM_SHOOT1,
+    ANIM_SHOOT2,
+    ANIM_SHOOT3,
+    ANIM_RELOAD,
+    ANIM_DRAW
 };
 
 // Item index
@@ -111,7 +108,7 @@ public void ZP_OnEngineExecute(/*void*/)
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
 
     // Sounds
-    gSound = ZP_GetSoundKeyID("BAZOOKA_SHOOT_SOUNDS");
+    gSound = ZP_GetSoundKeyID("CROSSBOW_SHOOT_SOUNDS");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
@@ -161,7 +158,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     {
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE, SLOT_PRIMARY);
-    }
+        }
 }
 
 //*********************************************************************
@@ -255,14 +252,14 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     
     // Emit sound
     static char sSound[PLATFORM_MAX_PATH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), 3);
+    ZP_GetSound(gSound, sSound, sizeof(sSound));
     EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets the attack animation
-    ZP_SetWeaponAnimation(clientIndex, ANIM_SHOOT);
-    
-    // Create a rocket
-    Weapon_OnCreateRocket(clientIndex);
+    ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_SHOOT1, ANIM_SHOOT2 });   
+
+    // Create a bow
+    Weapon_OnCreateBow(clientIndex, weaponIndex);
 
     // Initialize some variables
     static float vVelocity[3]; int iFlags = GetEntityFlags(clientIndex);
@@ -273,28 +270,20 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     // Apply kick back
     if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
     {
-        Weapon_OnKickBack(clientIndex, 10.5, 7.5, 0.225, 0.05, 10.5, 7.5, 7);
+        Weapon_OnKickBack(clientIndex, 5.5, 2.5, 0.225, 0.05, 10.5, 7.5, 7);
     }
     else if(!(iFlags & FL_ONGROUND))
     {
-        Weapon_OnKickBack(clientIndex, 14.0, 10.0, 0.5, 0.35, 14.0, 10.0, 5);
+        Weapon_OnKickBack(clientIndex, 9.0, 5.0, 0.5, 0.35, 14.0, 10.0, 5);
     }
     else if(iFlags & FL_DUCKING)
     {
-        Weapon_OnKickBack(clientIndex, 10.5, 6.5, 0.15, 0.025, 10.5, 6.5, 9);
+        Weapon_OnKickBack(clientIndex, 5.5, 1.5, 0.15, 0.025, 10.5, 6.5, 9);
     }
     else
     {
-        Weapon_OnKickBack(clientIndex, 10.75, 10.75, 0.175, 0.0375, 10.75, 10.75, 8);
+        Weapon_OnKickBack(clientIndex, 5.75, 5.75, 0.175, 0.0375, 10.75, 10.75, 8);
     }
-
-    // Gets weapon muzzleflesh
-    static char sMuzzle[SMALL_LINE_LENGTH];
-    ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
-    
-    // Create a muzzleflesh / True for getting the custom viewmodel index
-    FakeDispatchEffect(ZP_GetClientViewModel(clientIndex, true), sMuzzle, "ParticleEffect", _, _, _, 1);
-    TE_SendToClient(clientIndex);
 }
 
 /*void Weapon_OnIdle(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const float flCurrentTime)
@@ -312,7 +301,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     }
 }*/
 
-void Weapon_OnCreateRocket(const int clientIndex)
+void Weapon_OnCreateBow(const int clientIndex, const int weaponIndex)
 {
     #pragma unused clientIndex
 
@@ -320,7 +309,7 @@ void Weapon_OnCreateRocket(const int clientIndex)
     static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
 
     // Gets the weapon position
-    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, 0.0, vPosition);
+    ZP_GetPlayerGunPosition(clientIndex, 30.0, 5.0, 0.0, vPosition);
 
     // Gets the client eye angle
     GetClientEyeAngles(clientIndex, vAngle);
@@ -344,7 +333,7 @@ void Weapon_OnCreateRocket(const int clientIndex)
         NormalizeVector(vEntVelocity, vEntVelocity);
 
         // Apply the magnitude by scaling the vector
-        ScaleVector(vEntVelocity, WEAPON_ROCKET_SPEED);
+        ScaleVector(vEntVelocity, WEAPON_BOW_SPEED);
 
         // Adds two vectors
         AddVectors(vEntVelocity, vVelocity, vEntVelocity);
@@ -353,26 +342,19 @@ void Weapon_OnCreateRocket(const int clientIndex)
         TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
 
         // Sets the model
-        SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
-
-        // Create an effect
-        FakeCreateParticle(entityIndex, vPosition, _, "smoking", WEAPON_EFFECT_TIME);
+        SetEntityModel(entityIndex, "models/player/custom_player/zombie/crossbow/crossbow_w_projectile.mdl");
 
         // Sets the parent for the entity
         SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
         SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
         SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+        SetEntPropEnt(entityIndex, Prop_Send, "m_hEffectEntity", weaponIndex);
 
         // Sets the gravity
-        SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
-        
-        // Emit sound
-        static char sSound[PLATFORM_MAX_PATH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-        
+        SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_BOW_GRAVITY); 
+
         // Create touch hook
-        SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
+        SDKHook(entityIndex, SDKHook_Touch, BowTouchHook);
     }
 }
 
@@ -602,7 +584,7 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
                 _call.Holster(clientIndex, weaponIndex);
             }
         }
-        
+
         // Store the current button
         iLastButtons[clientIndex] = iButtons;
     }
@@ -616,12 +598,12 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
 //**********************************************
 
 /**
- * Rocket touch hook.
+ * Bow touch hook.
  * 
  * @param entityIndex    The entity index.        
  * @param targetIndex    The target index.               
  **/
-public Action RocketTouchHook(const int entityIndex, const int targetIndex)
+public Action BowTouchHook(const int entityIndex, const int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -631,7 +613,8 @@ public Action RocketTouchHook(const int entityIndex, const int targetIndex)
         {
             // Gets the thrower index
             int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
-
+            int weaponIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hEffectEntity");
+            
             // Validate thrower
             if(throwerIndex == targetIndex)
             {
@@ -639,59 +622,36 @@ public Action RocketTouchHook(const int entityIndex, const int targetIndex)
                 return Plugin_Continue;
             }
 
-            // Initialize vectors
-            static float vEntPosition[3]; static float vVictimPosition[3]; static float vVelocity[3];
-
-            // Gets the entity position
-            GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
-
-            // Create a info_target entity
-            int infoIndex = FakeCreateEntity(vEntPosition, WEAPON_EXPLOSION_TIME);
-            
-            // Validate entity
-            if(IsValidEdict(infoIndex))
+            // Validate client
+            if(IsPlayerExist(targetIndex))
             {
-                // Create an explosion effect
-                FakeCreateParticle(infoIndex, vEntPosition, _, "expl_coopmission_skyboom", WEAPON_EXPLOSION_TIME);
-                
-                // Emit sound
-                static char sSound[PLATFORM_MAX_PATH];
-                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-                EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-            }
-
-            // i = client index
-            for(int i = 1; i <= MaxClients; i++)
-            {
-                // Validate client
-                if((IsPlayerExist(i) && ZP_IsPlayerZombie(i)))
+                // Validate zombie
+                if(ZP_IsPlayerZombie(targetIndex)) 
                 {
-                    // Gets victim origin
-                    GetClientAbsOrigin(i, vVictimPosition);
-
-                    // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                    // Validate distance
-                    if(flDistance <= WEAPON_ROCKET_RADIUS)
-                    {
-                        // Create the damage for a victim
-                        ZP_TakeDamage(i, throwerIndex, ZP_GetWeaponDamage(gWeapon) * (1.0 - (flDistance / WEAPON_ROCKET_RADIUS)), DMG_AIRBOAT);
-
-                        // Calculate the velocity vector
-                        SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
-                
-                        // Create a knockback
-                        FakeCreateKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), WEAPON_ROCKET_RADIUS);
-                        
-                        // Create a shake
-                        FakeCreateShakeScreen(i, WEAPON_ROCKET_SHAKE_AMP, WEAPON_ROCKET_SHAKE_FREQUENCY, WEAPON_ROCKET_SHAKE_DURATION);
-                    }
+                    // Create the damage for a victim
+                    ZP_TakeDamage(targetIndex, throwerIndex, WEAPON_BOW_DAMAGE, DMG_NEVERGIB, weaponIndex);
                 }
-            }
 
-            // Remove the entity from the world
-            AcceptEntityInput(entityIndex, "Kill");
+                // Remove the entity from the world
+                AcceptEntityInput(entityIndex, "Kill");
+            }
+            else
+            {
+                // Remove a physics
+                SetEntityMoveType(entityIndex, MOVETYPE_NONE);
+
+                // Initialize char
+                static char sTime[SMALL_LINE_LENGTH];
+                Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", WEAPON_BOW_TIME);
+
+                // Sets modified flags on the entity
+                SetVariantString(sTime);
+                AcceptEntityInput(entityIndex, "AddOutput");
+                AcceptEntityInput(entityIndex, "FireUser1");
+                
+                // Destroy touch hook
+                SDKUnhook(entityIndex, SDKHook_Touch, BowTouchHook);
+            }
         }
     }
 

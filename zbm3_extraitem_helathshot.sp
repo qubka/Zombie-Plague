@@ -43,14 +43,15 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE           "MediShot" // Only will be taken from weapons.ini
-#define EXTRA_ITEM_NAME                "Medi Shot" // Only will be taken from translation file        
+#define EXTRA_ITEM_REFERENCE           "medi shot" // Name in weapons.ini from translation file   
+#define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
 #define EXTRA_ITEM_COST                1
-#define EXTRA_ITEM_LEVEL               0
-#define EXTRA_ITEM_ONLINE              0
+#define EXTRA_ITEM_LEVEL               1
+#define EXTRA_ITEM_ONLINE              1
 #define EXTRA_ITEM_LIMIT               0
+#define EXTRA_ITEM_GROUP               ""
 /**
- * @endsection
+    * @endsection
  **/
 
 // Item index
@@ -64,10 +65,10 @@ int gItem; int gWeapon;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false)) /// Use that to customize 'sm_cvar healthshot_health 10'
+    if(!strcmp(sLibrary, "zombieplague", false)) /// Use that to customize <sm_cvar healthshot_health 10>
     {
         // Initialize extra item
-        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_NAME, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT);
+        gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
 }
 
@@ -92,7 +93,7 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
 {
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Validate class
@@ -126,7 +127,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
         return;
     }
     
-    // Check the item's index
+    // Check the item index
     if(extraitemIndex == gItem)
     {
         // Give item and select it

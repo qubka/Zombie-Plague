@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_NAME                "Psyh" // Only will be taken from translation file         
-#define ZOMBIE_CLASS_INFO                "PsyhInfo" // Only will be taken from translation file ("" - disabled)
+#define ZOMBIE_CLASS_NAME                "psyh" // Only will be taken from translation file         
+#define ZOMBIE_CLASS_INFO                "psyh info" // Only will be taken from translation file ("" - disabled)
 #define ZOMBIE_CLASS_MODEL               "models/player/custom_player/zombie/normalhost/normalhost.mdl"
 #define ZOMBIE_CLASS_CLAW                "models/player/custom_player/zombie/normalhost/hand_v2/hand_zombie_normalhost.mdl"
 #define ZOMBIE_CLASS_GRENADE             "models/player/custom_player/zombie/normalhost/grenade/grenade_normalhost.mdl"    
@@ -54,13 +54,13 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_GRAVITY             0.8
 #define ZOMBIE_CLASS_KNOCKBACK           1.0
 #define ZOMBIE_CLASS_LEVEL               1
-#define ZOMBIE_CLASS_VIP                 NO
+#define ZOMBIE_CLASS_GROUP               ""
 #define ZOMBIE_CLASS_DURATION            4.0
 #define ZOMBIE_CLASS_COUNTDOWN           30.0 
 #define ZOMBIE_CLASS_REGEN_HEALTH        200
 #define ZOMBIE_CLASS_REGEN_INTERVAL      5.0
 #define ZOMBIE_CLASS_SKILL_RADIUS        62500.0 // [squared]
-#define ZOMBIE_CLASS_SKILL_DAMAGE        0.7 // 10 per second    
+#define ZOMBIE_CLASS_SKILL_DAMAGE        1.0 // 10 per second    
 #define ZOMBIE_CLASS_SKILL_COLOR         {255, 0, 0, 200}
 #define ZOMBIE_CLASS_SKILL_SURVIVOR      false
 #define ZOMBIE_CLASS_SOUND_DEATH         "ZOMBIE_DEATH_SOUNDS"
@@ -82,7 +82,7 @@ int decalTrail; int decalHalo;
 Handle Task_ZombieScream[MAXPLAYERS+1] = INVALID_HANDLE; 
 
 // Variables for the key sound block
-int gSound;
+int gSound; ConVar hSoundLevel;
  
 // Initialize zombie class index
 int gZombiePsyh;
@@ -111,7 +111,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         ZOMBIE_CLASS_GRAVITY, 
         ZOMBIE_CLASS_KNOCKBACK, 
         ZOMBIE_CLASS_LEVEL,
-        ZOMBIE_CLASS_VIP, 
+        ZOMBIE_CLASS_GROUP, 
         ZOMBIE_CLASS_DURATION, 
         ZOMBIE_CLASS_COUNTDOWN, 
         ZOMBIE_CLASS_REGEN_HEALTH, 
@@ -136,8 +136,11 @@ public void ZP_OnEngineExecute(/*void*/)
     gSound = ZP_GetSoundKeyID("PSYH_SKILL_SOUNDS");
 
     // Models
-    decalTrail = PrecacheModel("materials/sprites/laserbeam.vmt");
-    decalHalo  = PrecacheModel("materials/sprites/glow.vmt");  
+    decalTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+    decalHalo  = PrecacheModel("materials/sprites/glow.vmt", true);  
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -182,10 +185,12 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
 /**
  * Called when a client became a zombie/nemesis.
  * 
- * @param clientIndex       The client index.
+ * @param victimIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param nemesisMode       Indicates that client will be a nemesis.
+ * @param respawnMode       Indicates that infection was on spawn.
  **/
-public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
+public void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode)
 {
     // Delete timer
     delete Task_ZombieScream[clientIndex];
@@ -195,8 +200,10 @@ public void ZP_OnClientInfected(int clientIndex, int attackerIndex)
  * Called when a client became a human/survivor.
  * 
  * @param clientIndex       The client index.
+ * @param survivorMode      Indicates that client will be a survivor.
+ * @param respawnMode       Indicates that humanizing was on spawn.
  **/
-public void ZP_OnClientHumanized(int clientIndex)
+public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode)
 {
     // Delete timer
     delete Task_ZombieScream[clientIndex];
@@ -226,10 +233,18 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         Task_ZombieScream[clientIndex] = CreateTimer(0.1, ClientOnScreaming, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
         // Emit sound
-        ZP_EmitSoundKeyID(clientIndex, gSound, SNDCHAN_VOICE);
+        static char sSound[PLATFORM_MAX_PATH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound));
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        
+        // Initialize vectors
+        static float vPosition[3];
+        
+        // Gets the client origin
+        GetClientAbsOrigin(clientIndex, vPosition);
         
         // Create an effect
-        FakeCreateParticle(clientIndex, _, "hell_end", ZOMBIE_CLASS_DURATION);
+        FakeCreateParticle(clientIndex, vPosition, _, "hell_end", ZOMBIE_CLASS_DURATION);
     }
     
     // Allow usage
@@ -274,7 +289,7 @@ public Action ClientOnScreaming(Handle hTimer, const int userID)
         // Initialize vectors
         static float vEntPosition[3]; static float vVictimPosition[3];
 
-        // Gets client's origin
+        // Gets client origin
         GetClientAbsOrigin(clientIndex, vEntPosition); vEntPosition[2] += 25.0;
 
         // i = client index
@@ -283,7 +298,7 @@ public Action ClientOnScreaming(Handle hTimer, const int userID)
             // Validate client
             if(IsPlayerExist(i) && ((ZP_IsPlayerHuman(i) && !ZP_IsPlayerSurvivor(i)) || (ZP_IsPlayerSurvivor(i) && ZOMBIE_CLASS_SKILL_SURVIVOR)))
             {
-                // Gets victim's origin
+                // Gets victim origin
                 GetClientAbsOrigin(i, vVictimPosition);
 
                 // Calculate the distance
@@ -293,14 +308,14 @@ public Action ClientOnScreaming(Handle hTimer, const int userID)
                 if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
                 {            
                     // Apply damage
-                    SDKHooks_TakeDamage(i, clientIndex, clientIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_BURN);
+                    ZP_TakeDamage(i, clientIndex, ZOMBIE_CLASS_SKILL_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_RADIUS)), DMG_SONIC);
                 }
             }
         }
 
         // Create a beamring effect                                   <Diameter>
         TE_SetupBeamRingPoint(vEntPosition, 50.0, FloatMul(SquareRoot(ZOMBIE_CLASS_SKILL_RADIUS), 2.0), decalTrail, decalHalo, 1, 10, 1.0, 15.0, 0.0, ZOMBIE_CLASS_SKILL_COLOR, 50, 0);
-        TE_SendToAll();
+        TE_SendToAllInRange(vEntPosition, RangeType_Visibility);
 
         // Allow timer
         return Plugin_Continue;

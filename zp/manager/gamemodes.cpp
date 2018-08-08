@@ -122,23 +122,23 @@ public Action GameModesStart(Handle hTimer)
                         if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
                         {
                             // Show help information
-                            TranslationPrintToChatAll("General round objective");
-                            TranslationPrintToChatAll("General ammunition reminder");
-                            TranslationPrintHintTextAll("General buttons reminder");
+                            TranslationPrintToChatAll("general round objective");
+                            TranslationPrintToChatAll("general ammunition reminder");
+                            TranslationPrintHintTextAll("general buttons reminder");
                         }
 
                         // Emit round start sound
-                        SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, gServerKey[Round_Start]);
+                        SoundsInputEmitToAll(gServerKey[Round_Start], 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
                     }
             
                     // Validate counter
-                    if(SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, gServerKey[Round_Count], gServerData[Server_RoundCount]))
+                    if(SoundsInputEmitToAll(gServerKey[Round_Count], gServerData[Server_RoundCount], SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue))
                     {
                         // If help messages enabled, then proceed
                         if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
                         {
                             // Show help information
-                            TranslationPrintHintTextAll("Zombie comming", gServerData[Server_RoundCount]);
+                            TranslationPrintHintTextAll("zombie comming", gServerData[Server_RoundCount]);
                         }
                     }
                 }
@@ -198,10 +198,10 @@ void GameModesEventStart(int modeIndex = -1, const int selectedIndex = 0)
 
     // Print game mode description
     ModesGetDesc(modeIndex, sBuffer, sizeof(sBuffer));
-    TranslationPrintHintTextAll(sBuffer);
+    if(strlen(sBuffer)) TranslationPrintHintTextAll(sBuffer);
 
     // Play game mode sounds
-    SoundsInputEmit(SOUND_FROM_PLAYER, SNDCHAN_STATIC, ModesGetSoundID(modeIndex));
+    SoundsInputEmitToAll(ModesGetSoundID(modeIndex), 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
 
     // Random players should be zombie
     GameModesTurnIntoZombie(selectedIndex, nMaxZombies);
@@ -225,9 +225,9 @@ void GameModesEventStart(int modeIndex = -1, const int selectedIndex = 0)
  * Turn random players into the zombies.
  *
  * @param selectedIndex     The selected index.
- * @param nMaxZombies       The amount of zombies.
+ * @param MaxZombies        The amount of zombies.
  **/
-void GameModesTurnIntoZombie(const int selectedIndex, const int nMaxZombies)
+void GameModesTurnIntoZombie(const int selectedIndex, const int MaxZombies)
 {
     // Validate client for a given client index
     if(IsPlayerExist(selectedIndex))
@@ -247,7 +247,7 @@ void GameModesTurnIntoZombie(const int selectedIndex, const int nMaxZombies)
     }
 
     // i = zombie index
-    for(int i = 0; i < nMaxZombies; i++)
+    for(int i = 0; i < MaxZombies; i++)
     {
         // Make a zombie/nemesis
         ClassMakeZombie(fnGetRandomHuman(), _, ModesIsNemesis(gServerData[Server_RoundMode]));
@@ -283,7 +283,9 @@ void GameModesTurnIntoHuman(/*void*/)
         else
         {
             // Switch to CT
+            bool bState = ToolsGetClientDefuser(i);
             ToolsSetClientTeam(i, TEAM_HUMAN);
+            ToolsSetClientDefuser(i, bState);
 
             // Sets glowing for the zombie vision
             ToolsSetClientDetecting(i, gCvarList[CVAR_ZOMBIE_XRAY].BoolValue);
@@ -476,13 +478,18 @@ public int API_RegisterGameMode(Handle isPlugin, const int iNumParams)
             return i;
         }
     }
-    
+
     // Initialize array block
     ArrayList arrayGameMode = CreateArray(GameModesMax);
     
     // Push native data into array
     arrayGameMode.PushString(sModeBuffer);  // Index: 0 
-    GetNativeString(2, sModeBuffer,  sizeof(sModeBuffer));  
+    GetNativeString(2, sModeBuffer,  sizeof(sModeBuffer)); 
+    if(!TranslationPhraseExists(sModeBuffer) && strlen(sModeBuffer))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Couldn't cache game mode desc: \"%s\" (check translation file)", sModeBuffer);
+        return -1;
+    }
     arrayGameMode.PushString(sModeBuffer);  // Index: 1
     GetNativeString(3, sModeBuffer, sizeof(sModeBuffer)); 
     arrayGameMode.PushString(sModeBuffer);  // Index: 2

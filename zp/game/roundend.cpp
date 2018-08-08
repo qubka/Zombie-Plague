@@ -26,7 +26,7 @@
  **/
 
 /**
- * @section All round end reasons.
+ * @section Round end reasons.
  **/
 #define ROUNDEND_TARGET_BOMBED                          0        // Target Successfully Bombed!
 #define ROUNDEND_VIP_ESCAPED                            1        // The VIP has escaped!
@@ -187,6 +187,12 @@ public Action RoundEndOnRoundEnd(int &CReason)
         // Validate client
         if(IsPlayerExist(i, false))
         {
+            // Validate team
+            if(GetClientTeam(i) <= TEAM_SPECTATOR)
+            {
+                continue;
+            }
+            
             // Give ammopack bonuses
             gClientData[i][Client_AmmoPacks] += gClientData[i][Client_Zombie] ? nZombieBonus : nHumanBonus;
 
@@ -279,7 +285,7 @@ void RoundEndOnClientDisconnect(/*void*/)
     if(!nZombies && nHumans)
     {
         // Show message
-        TranslationPrintHintTextAll("Zombie Left"); 
+        TranslationPrintHintTextAll("zombie left"); 
         
         // Terminate the round with humans as the winner
         ToolsTerminateRound(ROUNDEND_CTS_WIN);
@@ -288,7 +294,7 @@ void RoundEndOnClientDisconnect(/*void*/)
     else if(nZombies && !nHumans)
     {
         // Show message
-        TranslationPrintHintTextAll("Human Left"); 
+        TranslationPrintHintTextAll("human left"); 
 
         // Terminate the round with zombies as the winner
         ToolsTerminateRound(ROUNDEND_TERRORISTS_WIN);
@@ -297,7 +303,7 @@ void RoundEndOnClientDisconnect(/*void*/)
     else if(!nZombies && !nHumans)
     {
         // Show message
-        TranslationPrintHintTextAll("Player Left"); 
+        TranslationPrintHintTextAll("player left"); 
 
         // Terminate the round with zombies as the winner
         ToolsTerminateRound(ROUNDEND_ROUND_DRAW);

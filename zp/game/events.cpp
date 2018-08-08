@@ -34,7 +34,7 @@ void EventInit(/*void*/)
     HookEvent("round_prestart",      EventRoundPreStart,    EventHookMode_Pre);
     HookEvent("round_start",         EventRoundStart,       EventHookMode_Post);
     HookEvent("round_end",           EventRoundEnd,         EventHookMode_Pre);
-    HookEvent("cs_win_panel_round",  EventBlockBroadCast,   EventHookMode_Pre);
+    HookEvent("cs_win_panel_round",  EventBlockWinPanel,    EventHookMode_Pre);
 
     // Hook player events
     HookEvent("player_spawn",        EventPlayerSpawn,      EventHookMode_Post);
@@ -42,8 +42,7 @@ void EventInit(/*void*/)
     HookEvent("player_jump",         EventPlayerJump,       EventHookMode_Post);
     HookEvent("weapon_fire",         EventPlayerFire,       EventHookMode_Pre);
     HookEvent("hostage_follows",     EventPlayerHostage,    EventHookMode_Post);
-    HookEvent("player_team",         EventBlockBroadCast,   EventHookMode_Pre);
-    
+
     // Hook temp events
     AddTempEntHook("Shotgun Shot",   EventPlayerShoot);
 }
@@ -164,11 +163,11 @@ public Action EventPlayerSpawn(Event hEvent, const char[] sName, bool dontBroadc
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(clientIndex) || GetClientTeam(clientIndex) <= TEAM_SPECTATOR)
+    if(!IsPlayerExist(clientIndex))
     {
         return;
     }
-    
+
     // Forward event to modules
     SpawnOnClientSpawn(clientIndex);
 }
@@ -193,7 +192,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
         // If the client isn't a player, a player really didn't die now. Some
         // other mods might sent this event with bad data.
         return Plugin_Handled;
-    }
+        }
 
     // Forward event to modules
     RagdollOnClientDeath(victimIndex);
@@ -310,14 +309,14 @@ public Action EventPlayerHostage(Event hEvent, const char[] sName, bool dontBroa
 }
 
 /**
- * Event callback (player_team), (cs_win_panel_round)
- * The block of the event broadcast.
+ * Event callback (cs_win_panel_round)
+ * The win panel was been created.
  * 
  * @param gEventHook        The event handle.
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventBlockBroadCast(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventBlockWinPanel(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
     // Sets whether an event broadcasting will be disabled
     if(!dontBroadcast) 

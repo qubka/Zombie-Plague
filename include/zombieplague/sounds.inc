@@ -42,15 +42,11 @@
 native int ZP_GetSoundKeyID(char[] key);
 
 /**
- * @brief Emits sound from a key id from 'sounds.ini' config.
+ * Gets sound from a key id from sounds config.
  *
- *     Note: The level will be taken from the 'zp_game_custom_sound_level' server cvar.
- *              
- * @param entityIndex       The entity index. (Can be SOUND_FROM_PLAYER, SOUND_FROM_LOCAL_PLAYER or SOUND_FROM_WORLD)
- * @param keyID             The key id.
- * @param channel           (Optional) The channel to emit with.
- * @param position          (Optional) If 0 sound will be choose randomly from the key.
- *  
- * @return                  True if the sound was emit, false otherwise. 
+ * @param keyID             The key index.
+ * @param sound             The string to return sound in.
+ * @param maxlenght         The lenght of string.
+ * @param position          (Optional) The position index.
  **/
-native bool ZP_EmitSoundKeyID(int entityIndex, int keyID, int channel = SNDCHAN_STATIC, int position = 0);
+native void ZP_GetSound(int keyID, char[] sound, int maxlenght, int position = 0);

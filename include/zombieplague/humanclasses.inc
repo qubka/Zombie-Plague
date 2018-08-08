@@ -77,7 +77,7 @@ native void ZP_SetClientHumanClass(int clientIndex, int classID);
 /**
  * @brief Registers a custom class which will be added to the human classes menu of ZP.
  *
- *     Note: The returned human class index can be later used to identify
+ * @note The returned human class index can be later used to identify
  *             the class when calling the ZP_GetClientHumanClass() natives.
  *
  * @param name               Caption to display on the menu. (Only will be taken from translation file)
@@ -88,14 +88,14 @@ native void ZP_SetClientHumanClass(int clientIndex, int classID);
  * @param gravity            Gravity multiplier.
  * @param armor              Armor on the spawn. (100-maximum)
  * @param level              Level required to select class.
- * @param vip                Class access only for VIP.
+ * @param group              Class access group name.
  * @param death              Emits death sound from a block from 'sounds.ini' config.
  * @param hurt               Emits hurt sound from a block from 'sounds.ini' config.
  * @param infect             Emits infect sound from a block from 'sounds.ini' config.
  *
  * @return                   An internal human class index, or -1 on failure.
  **/
-native int ZP_RegisterHumanClass(char[] name, char[] model, char[] arm_model, int health = 100, float speed = 1.0, float gravity = 1.0, int armor = 0, int level = 1, ZPSelectType vip = NO, char[] death = "", char[] hurt = "", char[] infect = "");
+native int ZP_RegisterHumanClass(char[] name, char[] model, char[] arm_model, int health = 100, float speed = 1.0, float gravity = 1.0, int armor = 0, int level = 1, char[] group = "", char[] death = "", char[] hurt = "", char[] infect = "");
 
 /**
  * @brief Gets the name of a human class at a given index.
@@ -165,12 +165,13 @@ native int ZP_GetHumanClassArmor(int classID);
 native int ZP_GetHumanClassLevel(int classID);
 
 /**
- * @brief Check the access of the human class.
+ * @brief Gets the group of a human class at a given index.
  *
  * @param classID            The class index.
- * @return                   True or false.
+ * @param group              The string to return group in.
+ * @param maxlenght          The lenght of string.
  **/
-native bool ZP_IsHumanClassVIP(int classID);
+native void ZP_GetHumanClassGroup(int classID, char[] group, int maxlenght = 32);
 
 /**
  * @brief Gets the death sound key of the human class.
