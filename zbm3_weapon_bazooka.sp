@@ -658,6 +658,10 @@ public Action RocketTouchHook(const int entityIndex, const int targetIndex)
                 static char sSound[PLATFORM_MAX_PATH];
                 ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
                 EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Stop sound
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue, SND_STOP); /// Bugfix
             }
 
             // i = client index

@@ -167,6 +167,9 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
                 // Extract key name
                 StrExtract(sValue, sParamString, iStartPos, iEndPos);
 
+                // Trim string
+                TrimString(sValue);
+                
                 // Check if string is empty, then stop
                 if(!strlen(sValue))
                 {

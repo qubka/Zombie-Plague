@@ -642,9 +642,17 @@ bool ToolsLookupAttachment(const int entityIndex, const char[] sAttach)
  **/
 void ToolsGetAttachment(const int entityIndex, const char[] sAttach, float vOrigin[3], float vAngle[3])
 {
-    int iAnimating = SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
-    if(iAnimating)
+    // Validate windows
+    if(GameEnginePlatform(OS_Windows))
     {
-        SDKCall(hSDKCallGetAttachment, entityIndex, iAnimating, vOrigin, vAngle); 
+        SDKCall(hSDKCallGetAttachment_Windows, entityIndex, sAttach, vOrigin, vAngle); 
+    }
+    else
+    {
+        int iAnimating = SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
+        if(iAnimating)
+        {
+            SDKCall(hSDKCallGetAttachment_Linux, entityIndex, iAnimating, vOrigin, vAngle); 
+        }
     }
 }

@@ -247,6 +247,18 @@ void ConfigLoad(/*void*/)
 }
 
 /**
+ * Unload plugin configs.
+ **/
+void ConfigUnload(/*void*/)
+{
+    // Unload the gamedata config
+    delete gServerData[Server_GameConfig][Game_Zombie];
+    delete gServerData[Server_GameConfig][Game_SDKHooks];
+    delete gServerData[Server_GameConfig][Game_SDKTools];
+    delete gServerData[Server_GameConfig][Game_CStrike];
+}
+
+/**
  * Used by modules that rely on configs to register their config file info.
  * (Don't forget to set 'loaded' to 'true' (ConfigSetConfigLoaded) in config load function)
  *

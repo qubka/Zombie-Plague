@@ -62,6 +62,21 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
             return Plugin_Handled;
         }
     }
+    
+    // Validate victim
+    if(IsPlayerExist(victimIndex))
+    {
+        // Validate attacker
+        if(IsPlayerExist(attackerIndex))
+        {
+            // Validate team
+            if(GetClientTeam(victimIndex) == GetClientTeam(attackerIndex))
+            {
+                // Stop trace
+                return Plugin_Handled;
+            }
+        }
+    }
 
     // If damage hitgroups disabled, then allow damage
     if(!gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
@@ -160,6 +175,13 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
     // Validate attacker
     if(IsPlayerExist(attackerIndex))
     {
+        // Validate team
+        if(GetClientTeam(victimIndex) == GetClientTeam(attackerIndex))
+        {
+            // Stop trace
+            return Plugin_Handled;
+        }
+            
         // Initialize additional knockback multiplier for zombie
         float knockbackAmount = ZombieGetKnockBack(gClientData[victimIndex][Client_ZombieClass]);
 

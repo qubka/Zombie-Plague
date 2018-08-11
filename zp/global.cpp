@@ -124,6 +124,7 @@ enum ServerData
     Server_RoundNumber,
     Server_RoundMode,
     Server_RoundCount,
+    EngineOS:Server_PlatForm,
     Handle:Server_GameConfig[GameData],
     String:Server_MapName[PLATFORM_MAX_PATH]
 };

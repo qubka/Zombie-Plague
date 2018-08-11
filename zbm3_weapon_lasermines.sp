@@ -217,7 +217,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     if(extraitemIndex == gItem)
     {
         // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE, SLOT_C4);
+        ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE);
     }
 }
 
@@ -367,7 +367,7 @@ bool Weapon_OnPickupMine(const int clientIndex, int entityIndex, const float flC
             if(GetEntPropEnt(entityIndex, Prop_Data, "m_pParent") == clientIndex)
             {
                 // Give item and select it
-                ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE, SLOT_C4);
+                ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE);
 
                 // Kill entity
                 AcceptEntityInput(entityIndex, "Kill");

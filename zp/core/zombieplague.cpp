@@ -24,6 +24,9 @@
  *
  * ============================================================================
  **/
+
+// Regex library
+#include <regex>
  
 /**
  * @section Engine versions.
@@ -53,6 +56,17 @@
 /**
  * @endsection
  **/
+ 
+/**
+ * List of operation systems.
+ **/
+enum EngineOS
+{
+    OS_Unknown,
+    OS_Windows,
+    OS_Linux,
+    OS_Mac
+};
  
 /*
  * Engine functions
@@ -156,8 +170,8 @@ void GameEngineInit(/*void*/)
         }
     }
 
-    // Unload the gamedata config
-    delete gServerData[Server_GameConfig];
+    // Unload the gamedata configs
+    ConfigUnload(/*void*/);
 }
 
 /**
@@ -167,6 +181,50 @@ void GameEngineLoad(/*void*/)
 {
     // Call forward
     API_OnEngineExecute();
+}
+
+/**
+ * Gets the server operating system.
+ *
+ * @param oS                The platform id.
+ *
+ * @return                  True or false.
+ **/
+bool GameEnginePlatform(EngineOS oS)
+{
+    // Validate platform
+    if(gServerData[Server_PlatForm] == OS_Unknown)
+    {
+        // Initialize char
+        char sBuffer[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
+        
+        // Extract status string
+        ServerCommandEx(sBuffer, sizeof(sBuffer), "status");
+
+        // Precompile a regular expression
+        Regex hRegex = CompileRegex("(os\\s+:\\s+\\w+)"); 
+        
+        // i = str index
+        int iCount = hRegex.Match(sBuffer); 
+        for(int i = 0; i < iCount; i++) 
+        { 
+            // Returns a matched substring from a regex handle
+            hRegex.GetSubString(i, sBuffer, sizeof(sBuffer)); 
+            
+            // Finds the first occurrence of a character in a string
+            int iSystem = FindCharInString(sBuffer, ' ', true) + 1;
+
+            // Validate operating system
+            gServerData[Server_PlatForm] = !strncmp(sBuffer[iSystem], "win", 3, false) ? OS_Windows : !strncmp(sBuffer[iSystem], "lin", 3, false) ? OS_Linux : OS_Mac;
+            break;
+        }
+        
+        // Decompile expression
+        delete hRegex;
+    }
+    
+    // Return on success
+    return (gServerData[Server_PlatForm] == oS);
 }
 
 /*

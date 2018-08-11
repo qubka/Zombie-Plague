@@ -33,7 +33,8 @@ Handle hSDKCallTerminateRound;
 Handle hSDKCallSwitchTeam;
 Handle hSDKCallRoundRespawn;
 Handle hSDKCallLookupAttachment;
-Handle hSDKCallGetAttachment;
+Handle hSDKCallGetAttachment_Linux;
+Handle hSDKCallGetAttachment_Windows;
 
 // Tools Functions (core)
 #include "zp/game/tools_functions.cpp"
@@ -167,7 +168,23 @@ void ToolsSetupGameData(/*void*/)
     PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
     
     // Validate call
-    if(!(hSDKCallGetAttachment = EndPrepSDKCall()))
+    if(!(hSDKCallGetAttachment_Linux = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
+    }
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Entity);
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Signature, "Animating_GetAttachment");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
+    PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
+    
+    // Validate call
+    if(!(hSDKCallGetAttachment_Windows = EndPrepSDKCall()))
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);

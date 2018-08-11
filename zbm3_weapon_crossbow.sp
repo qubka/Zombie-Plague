@@ -158,7 +158,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
     {
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, EXTRA_ITEM_REFERENCE, SLOT_PRIMARY);
-        }
+    }
 }
 
 //*********************************************************************
