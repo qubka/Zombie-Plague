@@ -27,7 +27,7 @@
 
 // Comment to remove a weapon attachments on the back
 #define USE_ATTACHMENTS
- 
+
 /**
  * @section Weapon addon bits.
  **/
@@ -69,6 +69,7 @@ enum WeaponAttachBitType
     BitType_DefuseKit             /** Defuse bit */
 };
 
+#if defined USE_ATTACHMENTS
 /**
  * Destoy weapon attachments.
  **/
@@ -93,7 +94,6 @@ public void WeaponAttachUnload(/*void*/)
  **/
 void WeaponAttachSetAddons(const int clientIndex)
 {
-    #if defined USE_ATTACHMENTS
     // Gets the current bits
     int iBits = GetEntData(clientIndex, g_iOffset_PlayerAddonBits); int iBitPurge; static int weaponIndex; static int iD;
     
@@ -482,12 +482,8 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Store the bits for next usage
     gClientData[clientIndex][Client_AttachmentBits] = iBits;
     SetEntData(clientIndex, g_iOffset_PlayerAddonBits, iBits &~ iBitPurge, _, true);
-    #else
-        #pragma unused clientIndex
-    #endif
 }
 
-#if defined USE_ATTACHMENTS
 /**
  * Create an attachment addons entities for the client.
  *
@@ -523,11 +519,11 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, const WeaponA
                 DispatchKeyValue(entityIndex, "solid", "0");
                
                 // Sets bodygroup of the entity
-                SetVariantInt(WeaponsGetModelBody(iD));
+                SetVariantInt(WeaponsGetModelBody(iD, ModelType_Drop));
                 AcceptEntityInput(entityIndex, "SetBodyGroup");
                 
                 // Sets skin of the entity
-                SetVariantInt(WeaponsGetModelSkin(iD));
+                SetVariantInt(WeaponsGetModelSkin(iD, ModelType_Drop));
                 AcceptEntityInput(entityIndex, "ModelSkin");
                 
                 // Spawn the entity into the world
@@ -601,7 +597,6 @@ public Action WeaponAttachmentOnTransmit(const int entityIndex, const int client
     // Allow transmitting
     return Plugin_Continue;
 }
-#endif
 
 /**
  * Remove an attachment addons entities from the client.
@@ -611,7 +606,6 @@ public Action WeaponAttachmentOnTransmit(const int entityIndex, const int client
  **/
 void WeaponAttachRemoveAddons(const int clientIndex, const WeaponAttachBitType bitType = BitType_Invalid) 
 {
-    #if defined USE_ATTACHMENTS
     // Validate all
     if(bitType == BitType_Invalid)
     {
@@ -647,7 +641,20 @@ void WeaponAttachRemoveAddons(const int clientIndex, const WeaponAttachBitType b
         gClientData[clientIndex][Client_AttachmentBits] = CSAddon_NONE;
         gClientData[clientIndex][Client_AttachmentAddons][bitType] = INVALID_ENT_REFERENCE;
     }
-    #else
-        #pragma unused clientIndex, bitType
-    #endif
 }
+#else
+/*extern*/ void WeaponAttachUnload(/*void*/)      
+{ 
+    /* empty statement */ 
+}
+/*extern*/ void WeaponAttachSetAddons(int clientIndex)    
+{ 
+    #pragma unused clientIndex  
+    /* empty statement */ 
+}
+/*extern*/ void WeaponAttachRemoveAddons(int clientIndex) 
+{ 
+    #pragma unused clientIndex  
+    /* empty statement */ 
+}
+#endif

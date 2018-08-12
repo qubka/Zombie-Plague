@@ -53,6 +53,19 @@ enum BitType
 };
 
 /**
+ * Number of valid models.
+ **/
+enum ModelType
+{
+    ModelType_Invalid = -1,        /** Used as return value when a model doens't exist. */
+    
+    ModelType_View,                /** View model */
+    ModelType_World,               /** World model */
+    ModelType_Drop,                /** Dropped model */
+    ModelType_Projectile           /** Projectile model */
+};
+
+/**
  * @brief Called after a custom weapon is created.
  *
  * @param weaponIndex       The weapon index.
@@ -297,17 +310,19 @@ native int ZP_GetWeaponModelDropID(int weaponID);
  * @brief Gets the body index of the weapon model.
  *
  * @param weaponID          The weapon ID.
- * @return                  The viewmodel body index.    
+ * @param modelType         The model type.
+ * @return                  The body index.    
  **/
-native int ZP_GetWeaponModelBody(int weaponID);
+native int ZP_GetWeaponModelBody(int weaponID, ModelType modelType);
 
 /**
  * @brief Gets the skin index of the weapon model.
  *
  * @param weaponID          The weapon ID.
- * @return                  The viewmodel skin index.    
+ * @param modelType         The model type.
+ * @return                  The skin index.    
  **/
-native int ZP_GetWeaponModelSkin(int weaponID);
+native int ZP_GetWeaponModelSkin(int weaponID, ModelType modelType);
 
 /**
  * Gets the muzzle name of a weapon at a given id.
@@ -336,10 +351,8 @@ native float ZP_GetWeaponModelHeat(int weaponID);
  **/
 stock bool ZP_IsPlayerHasWeapon(const int clientIndex, const int weaponID)
 {
-    // Gets number of all client weapons
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
-    
     // i = weapon number
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
     for (int i = 0; i < iSize; i++)
     {
         // Gets weapon index
@@ -375,7 +388,7 @@ stock bool ZP_IsPlayerHasWeapon(const int clientIndex, const int weaponID)
 stock bool ZP_IsPlayerHoldWeapon(const int clientIndex, int &weaponIndex, const int weaponID)
 {
     // Validate client
-    if (!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(clientIndex))
     {
         return false;
     }
@@ -509,7 +522,7 @@ stock int ZP_GetWeaponIndex(const int clientIndex, const char[] sWeapon)
     static char sClassname[SMALL_LINE_LENGTH];
 
     // i = weapon number
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index

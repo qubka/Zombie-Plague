@@ -133,7 +133,7 @@ public Action WeaponImpactBullets(Event hEvent, const char[] sName, bool iDontBr
             int[] iClients = new int[MaxClients]; int iCount;
             for (int i = 1; i <= MaxClients; i++)
             {
-                if (!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
+                if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
                 iClients[iCount++] = i;
             }
             TE_Send(iClients, iCount);

@@ -30,18 +30,18 @@
  **/
 enum WeaponSDKSlotType
 { 
-    SlotType_Invalid = -1,        /** Used as return value when an weapon doens't exist. */
+    SlotType_Invalid = -1,        /** Used as return value when a slot doens't exist. */
     
     SlotType_Primary,             /** Primary slot */
     SlotType_Secondary,           /** Secondary slot */
     SlotType_Melee,               /** Melee slot */
     SlotType_Equipment,           /** Equipment slot */  
     SlotType_C4,                  /** C4 slot */  
-    SlotType_Grenades = 6         /** Grenade slot */ // < Fake slot >
+    SlotType_Grenades = 6         /** Grenade slot */  /* < Fake slot > */
 };
 
 /**
- * Number of valid access.
+ * Number of valid classes.
  **/
 enum WeaponSDKClassType
 { 
@@ -51,6 +51,19 @@ enum WeaponSDKClassType
     ClassType_Survivor,          /** Survivor access */
     ClassType_Zombie,            /** Zombie access */
     ClassType_Nemesis            /** Nemesis access */
+};
+
+/**
+ * Number of valid models.
+ **/
+enum WeaponSDKModelType
+{
+    ModelType_Invalid = -1,        /** Used as return value when a model doens't exist. */
+    
+    ModelType_View,                /** View model */
+    ModelType_World,               /** World model */
+    ModelType_Drop,                /** Dropped model */
+    ModelType_Projectile           /** Projectile model */
 };
 
 /**
@@ -496,8 +509,8 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
                         SetEntityModel(grenadeIndex, sModel);
                         
                         // Sets the body/skin index for the grenade
-                        SetEntData(grenadeIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
-                        SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
+                        SetEntData(grenadeIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_Projectile), _, true);
+                        SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_Projectile), _, true);
                     }
                 }
                 
@@ -894,7 +907,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
                     
                     // Update the sequence array
                     WeaponsSetSequenceCount(iD, nSequenceCount);
-                    WeaponsSetSequenceSwap(iD, iSequences, WeaponsSequencesMax);
+                    WeaponsSetSequenceSwap(iD, iSequences, sizeof(iSequences));
                 }
                 else
                 {
@@ -914,8 +927,8 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
 
         // Sets the model/body/skin index for viewmodel
         SetEntData(viewModel2, g_iOffset_EntityModelIndex, iModel, _, true);
-        SetEntData(viewModel2, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
-        SetEntData(viewModel2, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
+        SetEntData(viewModel2, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_View), _, true);
+        SetEntData(viewModel2, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_View), _, true);
         
         //  Update the animation interval delay for second viewmodel 
         SetEntDataFloat(viewModel2, g_iOffset_ViewModelPlaybackRate, GetEntDataFloat(viewModel1, g_iOffset_ViewModelPlaybackRate), true);
@@ -935,7 +948,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     // If worldmodel exist, then apply it
     if(WeaponsGetModelWorldID(iD))
     {
-        WeaponHDRSetPlayerWorldModel(weaponIndex, WeaponsGetModelWorldID(iD), WeaponsGetModelBody(iD), WeaponsGetModelSkin(iD));
+        WeaponHDRSetPlayerWorldModel(weaponIndex, WeaponsGetModelWorldID(iD), WeaponsGetModelBody(iD, ModelType_World), WeaponsGetModelSkin(iD, ModelType_World));
     }
     // If it don't exist, then hide it
     else

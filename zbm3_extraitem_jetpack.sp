@@ -384,7 +384,7 @@ stock bool IsDelay(const int clientIndex, const float flDelay)
     float flCurrentTime = GetGameTime();
     
     // Validate delay
-    if ((flCurrentTime - flTime[clientIndex]) < flDelay)
+    if((flCurrentTime - flTime[clientIndex]) < flDelay)
     {
         // Block usage
         return true;

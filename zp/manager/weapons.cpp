@@ -26,6 +26,11 @@
  **/
  
 /**
+ * Number of max valid sequences.
+ **/
+#define WeaponsSequencesMax 32 /// Can be increase until whatever you need
+ 
+/**
  * Array handle to store weapon config data.
  **/
 ArrayList arrayWeapons;
@@ -68,8 +73,8 @@ enum
 /*
  * Load other weapons modules
  */
-#include "zp/manager/weapons/weaponhdr.cpp"
 #include "zp/manager/weapons/weaponsdk.cpp"
+#include "zp/manager/weapons/weaponhdr.cpp"
 #include "zp/manager/weapons/weaponattach.cpp"
 #include "zp/manager/weapons/zmarket.cpp"
 
@@ -189,7 +194,7 @@ void WeaponsCacheData(/*void*/)
         }
 
         // Gets array size
-        ArrayList arrayWeapon = arrayWeapons.Get(i); int swapSequences[WeaponsSequencesMax];
+        ArrayList arrayWeapon = arrayWeapons.Get(i); 
  
         // Push data into array
         kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
@@ -219,13 +224,15 @@ void WeaponsCacheData(/*void*/)
         kvWeapons.GetString("dropped", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                 // Index: 20
         arrayWeapon.Push(ModelsPrecacheStatic(sPathWeapons)); // Index: 21
-        arrayWeapon.Push(kvWeapons.GetNum("body", 0));        // Index: 22
-        arrayWeapon.Push(kvWeapons.GetNum("skin", 0));        // Index: 23
+        int iBody[4]; kvWeapons.GetColor4("body", iBody);
+        arrayWeapon.PushArray(iBody);                         // Index: 22
+        int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
+        arrayWeapon.PushArray(iSkin);                         // Index: 23
         kvWeapons.GetString("muzzle", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                 // Index: 24
         arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));    // Index: 25
-        arrayWeapon.Push(-1);                                 // Index: 26
-        arrayWeapon.PushArray(swapSequences);                 // Index: 27
+        arrayWeapon.Push(-1); int iSeq[WeaponsSequencesMax];  // Index: 26
+        arrayWeapon.PushArray(iSeq);                          // Index: 27
     }
 
     // We're done with this file now, so we can close it
@@ -445,7 +452,7 @@ public int API_GetClientAttachModel(Handle isPlugin, const int iNumParams)
     WeaponAttachBitType bitType = GetNativeCell(2);
     if(bitType == BitType_Invalid)
     {
-        //LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the bit index (%d)", bitType);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the bit index (%d)", bitType);
         return -1;
     }
     
@@ -1060,9 +1067,9 @@ public int API_GetWeaponModelDropID(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the body index of the weapon viewmodel.
+ * Gets the body index of the weapon model.
  *
- * native int ZP_GetWeaponModelBody(iD);
+ * native int ZP_GetWeaponModelBody(iD, model);
  **/
 public int API_GetWeaponModelBody(Handle isPlugin, const int iNumParams)
 {
@@ -1076,14 +1083,22 @@ public int API_GetWeaponModelBody(Handle isPlugin, const int iNumParams)
         return -1;
     }
     
+    // Validate type
+    WeaponSDKModelType modelType = GetNativeCell(2);
+    if(modelType == ModelType_Invalid)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", modelType);
+        return -1;
+    }
+    
     // Return the value
-    return WeaponsGetModelBody(iD);
+    return WeaponsGetModelBody(iD, modelType);
 }
 
 /**
- * Gets the skin index of the weapon viewmodel.
+ * Gets the skin index of the weapon model.
  *
- * native int ZP_GetWeaponModelSkin(iD);
+ * native int ZP_GetWeaponModelSkin(iD, model);
  **/
 public int API_GetWeaponModelSkin(Handle isPlugin, const int iNumParams)
 {
@@ -1096,9 +1111,17 @@ public int API_GetWeaponModelSkin(Handle isPlugin, const int iNumParams)
         LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
     }
+
+    // Validate type
+    WeaponSDKModelType modelType = GetNativeCell(2);
+    if(modelType == ModelType_Invalid)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", modelType);
+        return -1;
+    }
     
     // Return the value
-    return WeaponsGetModelSkin(iD);
+    return WeaponsGetModelSkin(iD, modelType);
 }
 
 /**
@@ -1501,30 +1524,44 @@ stock int WeaponsGetModelDropID(const int iD)
  * Gets the body index of the weapon model.
  *
  * @param iD                The weapon id.
+ * @param nModel            The position index.
  * @return                  The body index.
  **/
-stock int WeaponsGetModelBody(const int iD)
+stock int WeaponsGetModelBody(const int iD, const WeaponSDKModelType nModel)
 {
+    // Create a array
+    static int iBody[4];
+
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
-    
-    // Gets weapon viewmodel body index
-    return arrayWeapon.Get(WEAPONS_DATA_MODEL_BODY);
+
+    // Gets weapon body array
+    arrayWeapon.GetArray(WEAPONS_DATA_MODEL_BODY, iBody, sizeof(iBody));
+
+    // Gets weapon body index
+    return iBody[nModel];
 }
 
 /**
  * Gets the skin index of the weapon model.
  *
  * @param iD                The weapon id.
- * @return                  The body index.
+ * @param nModel            The position index.
+ * @return                  The skin index.
  **/
-stock int WeaponsGetModelSkin(const int iD)
+stock int WeaponsGetModelSkin(const int iD, const WeaponSDKModelType nModel)
 {
+    // Create a array
+    static int iSkin[4];
+
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
-    
-    // Gets weapon viewmodel skin index
-    return arrayWeapon.Get(WEAPONS_DATA_MODEL_SKIN);
+
+    // Gets weapon body array
+    arrayWeapon.GetArray(WEAPONS_DATA_MODEL_SKIN, iSkin, sizeof(iSkin));
+
+    // Gets weapon body index
+    return iSkin[nModel];
 }
 
 /**
@@ -1592,16 +1629,16 @@ stock int WeaponsGetSequenceCount(const int iD)
  * Sets the swap of the weapon sequences.
  *
  * @param iD                The weapon id.
- * @param iSequences        The array to return sequences in.
+ * @param iSeq              The array to return sequences in.
  * @param iMaxLen           The max length of the array.
  **/
-stock void WeaponsSetSequenceSwap(const int iD, int[] iSequences, const int iMaxLen)
+stock void WeaponsSetSequenceSwap(const int iD, int[] iSeq, const int iMaxLen)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
     
     // Sets weapon sequences swap
-    arrayWeapon.SetArray(WEAPONS_DATA_SEQUENCE_SWAP, iSequences, iMaxLen);
+    arrayWeapon.SetArray(WEAPONS_DATA_SEQUENCE_SWAP, iSeq, iMaxLen);
 }
 
 /**
@@ -1614,16 +1651,16 @@ stock void WeaponsSetSequenceSwap(const int iD, int[] iSequences, const int iMax
 stock int WeaponsGetSequenceSwap(const int iD, const int nSequence)
 {
     // Create a array
-    int iSequences[WeaponsSequencesMax];
+    static int iSeq[WeaponsSequencesMax];
 
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = arrayWeapons.Get(iD);
 
     // Gets weapon sequences swap at index
-    arrayWeapon.GetArray(WEAPONS_DATA_SEQUENCE_SWAP, iSequences, sizeof(iSequences));
+    arrayWeapon.GetArray(WEAPONS_DATA_SEQUENCE_SWAP, iSeq, sizeof(iSeq));
 
     // Gets weapon sequence
-    return iSequences[nSequence];
+    return iSeq[nSequence];
 }
 
 /**
@@ -1759,7 +1796,7 @@ stock int WeaponsGetIndex(const int clientIndex, const char[] sWeapon)
     static char sClassname[SMALL_LINE_LENGTH];
 
     // i = weapon number
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index
@@ -1797,7 +1834,7 @@ stock int WeaponsGetIndex(const int clientIndex, const char[] sWeapon)
 stock bool WeaponsIsExist(const int clientIndex, const int iD)
 {
     // i = weapon number
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index
@@ -1831,7 +1868,7 @@ stock bool WeaponsIsExist(const int clientIndex, const int iD)
 stock bool WeaponsRemoveAll(const int clientIndex, const ConVar hConVar)
 {
     // i = weapon number
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index

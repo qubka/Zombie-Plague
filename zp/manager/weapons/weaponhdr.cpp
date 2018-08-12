@@ -44,11 +44,6 @@
  * StudioHdrStruct_SequenceCount:
  *  I believe this struct is ancient, and is never expected to change.
  */
- 
-/**
- * Number of max valid sequences.
- **/
-#define WeaponsSequencesMax 32 /// Can be increase until whatever you need
 
 /**
  * Variables to store SDK calls handlers.
@@ -241,8 +236,8 @@ public void WeaponHDRSetDroppedModel(const int referenceIndex)
                 SetEntityModel(weaponIndex, sModel);
                 
                 // Sets the body/skin index for the weapon
-                SetEntData(weaponIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD), _, true);
-                SetEntData(weaponIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD), _, true);
+                SetEntData(weaponIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_Drop), _, true);
+                SetEntData(weaponIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_Drop), _, true);
             }
         }
     }
@@ -273,7 +268,7 @@ stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
     int weaponIndex1 = gClientData[clientIndex][Client_CustomWeapon];
 
     // i = weapon number
-    int iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index

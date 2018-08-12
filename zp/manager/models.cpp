@@ -414,14 +414,14 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
     static char sPath[PLATFORM_MAX_PATH]; int iChar;
 
     /// https://github.com/VSES/SourceEngine2007/blob/master/src_main/movieobjects/dmeparticlesystemdefinition.cpp
-    static const char sParticleFuncTypes[48][SMALL_LINE_LENGTH] =
+    /*static const char sParticleFuncTypes[48][SMALL_LINE_LENGTH] =
     {
         "DmeParticleSystemDefinition", "DmElement", "DmeParticleChild", "DmeParticleOperator", "particleSystemDefinitions",
         "preventNameBasedLookup", "particleSystemDefinitionDict", "snapshot", "untitled", "child", "drag", "delay", "name",
         "renderers", "operators", "initializers", "emitters", "children", "force", "constraints", "body", "duration", "DEBRIES",
         "color", "render", "radius", "lifetime", "type", "emit", "distance", "rotation", "speed", "fadeout", "DEBRIS", "size",
         "material", "function", "tint", "max", "min", "gravity", "scale", "rate", "time", "fade", "length", "definition", "thickness"
-    };
+    };*/
 
     do /// Reads a single binary char
     {
@@ -465,7 +465,7 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
                     ModelsPrecacheTextures(sPath);
                 }
             }
-            else
+            /*else
             {
                 // Initialize variable
                 bool bLookup;
@@ -487,7 +487,7 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
                     // Precache particle
                     fnPrecacheParticleEffect(sPath);
                 }
-            }
+            }*/
         }
     }
 
