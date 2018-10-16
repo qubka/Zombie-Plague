@@ -68,8 +68,9 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
 // Item index
 int gItem; int gWeapon;
@@ -92,16 +93,10 @@ public void OnLibraryAdded(const char[] sLibrary)
         
         // Hook entity events
         HookEvent("flashbang_detonate", EventEntityFlash, EventHookMode_Post);
+        
+        // Hooks server sounds
+        AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
     }
-}
-
-/**
- * Plugin is loading.
- **/
-public void OnPluginStart(/*void*/)
-{
-    // Hooks server sounds
-    AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 }
 
 /**
@@ -287,24 +282,24 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     // Validate client
     if(IsValidEdict(entityIndex))
     {
-        // Gets the entity classname
-        static char sClassname[PLATFORM_MAX_PATH];
-        GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
-
-        // Validate grenade
-        if(!strncmp(sClassname, "flashbang_", 10, false))
+        // Validate custom grenade
+        if(ZP_GetWeaponID(entityIndex) == gWeapon)
         {
+            // Initialize variable
+            static char sSound[PLATFORM_MAX_PATH];
+
+            // Validate sound
             if(!strncmp(sSample[27], "hit", 3, false))
             {
                 // Emit a custom bounce sound
-                ZP_GetSound(gSound, sClassname, sizeof(sClassname), GetRandomInt(1, 2));
-                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(1, 2));
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[29], "exp", 3, false))
             {
                // Emit explosion sound
-               ZP_GetSound(gSound, sClassname, sizeof(sClassname), 3);
-               EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+               ZP_GetSound(gSound, sSound, sizeof(sSound), 3);
+               EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
 
             // Block sounds

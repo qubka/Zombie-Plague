@@ -33,7 +33,7 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Human Class: HTank",
+    name            = "[ZP] Human Class: Balkan",
     author          = "qubka (Nikita Ushakov)",
     description     = "Addon of human classes",
     version         = "1.0",
@@ -43,15 +43,19 @@ public Plugin myinfo =
 /**
  * @section Information about human class.
  **/
-#define HUMAN_CLASS_NAME                "htank" // Only will be taken from translation file
-#define HUMAN_CLASS_MODEL               "models/player/tm_leet_variantb.mdl"    
-#define HUMAN_CLASS_ARM                 "models/weapons/t_arms_leet.mdl"    
+#define HUMAN_CLASS_NAME                "balkan" // Only will be taken from translation file
+#define HUMAN_CLASS_INFO                "" // Only will be taken from translation file ("" - disabled)
+#define HUMAN_CLASS_MODEL               "models/player/tm_balkan_variantc.mdl"    
+#define HUMAN_CLASS_ARM                 "models/player/custom_player/zombie/arms/male_arms.mdl"    
+#define HUMAN_CLASS_VIEW                {0, -1}
 #define HUMAN_CLASS_HEALTH              100
 #define HUMAN_CLASS_SPEED               1.0
 #define HUMAN_CLASS_GRAVITY             0.9
 #define HUMAN_CLASS_ARMOR               0
 #define HUMAN_CLASS_LEVEL               1
 #define HUMAN_CLASS_GROUP               ""
+#define HUMAN_CLASS_DURATION            0.0    
+#define HUMAN_CLASS_COUNTDOWN           0.0
 #define HUMAN_CLASS_SOUND_DEATH         "HUMAN_DEATH_SOUNDS"
 #define HUMAN_CLASS_SOUND_HURT          "HUMAN_HURT_SOUNDS"
 #define HUMAN_CLASS_SOUND_INFECT        "HUMAN_INFECTION_SOUNDS"
@@ -74,14 +78,18 @@ public void OnLibraryAdded(const char[] sLibrary)
     {
         // Initialize human class
         gHuman = ZP_RegisterHumanClass(HUMAN_CLASS_NAME, 
+        HUMAN_CLASS_INFO,
         HUMAN_CLASS_MODEL, 
         HUMAN_CLASS_ARM, 
+        HUMAN_CLASS_VIEW,
         HUMAN_CLASS_HEALTH, 
         HUMAN_CLASS_SPEED, 
         HUMAN_CLASS_GRAVITY, 
         HUMAN_CLASS_ARMOR,
         HUMAN_CLASS_LEVEL,
         HUMAN_CLASS_GROUP,
+        HUMAN_CLASS_DURATION,
+        HUMAN_CLASS_COUNTDOWN,
         HUMAN_CLASS_SOUND_DEATH,
         HUMAN_CLASS_SOUND_HURT,
         HUMAN_CLASS_SOUND_INFECT);

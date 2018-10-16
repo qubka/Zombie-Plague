@@ -74,12 +74,13 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
-// Initialize zombie class index
-int gZombieNormalF01;
-#pragma unused gZombieNormalF01
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -91,7 +92,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieNormalF01 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL,
         ZOMBIE_CLASS_CLAW, 
@@ -141,12 +142,6 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Validate attacker
     if(!IsPlayerExist(attackerIndex))
     {
@@ -160,7 +155,7 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictor
     if(ZP_IsPlayerZombie(clientIndex) && !ZP_IsPlayerNemesis(clientIndex))
     {
         // Validate the zombie class index
-        if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalF01)
+        if(ZP_GetClientZombieClass(clientIndex) == gZombie)
         {
             // Generate the chance
             nChanceIndex[clientIndex] = GetRandomInt(0, 999);
@@ -176,11 +171,9 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictor
                 // Create an fade
                 FakeCreateFadeScreen(attackerIndex, ZOMBIE_CLASS_EFFECT_DURATION_F, ZOMBIE_CLASS_EFFECT_TIME_F, 0x0001, ZOMBIE_CLASS_EFFECT_COLOR_F);
                 
-                // Gets attacker origin
+                // Create effect
                 static float vAttackerPosition[3];
                 GetClientAbsOrigin(attackerIndex, vAttackerPosition);
-
-                // Create an effect
                 FakeCreateParticle(attackerIndex, vAttackerPosition, _, "sila_trail_apalaal", ZOMBIE_CLASS_EFFECT_DURATION_F);
             }
         }

@@ -150,10 +150,8 @@ void VAmbienceApplyLightStyle(const bool bDisable = false)
         return;
     }
 
-    // Initialize entity index
-    int iLight = INVALID_ENT_REFERENCE;
-
     // Searching fog lights entities
+    int iLight = INVALID_ENT_REFERENCE;
     while((iLight = FindEntityByClassname(iLight, "env_cascade_light")) != -1) 
     { 
         AcceptEntityInput(iLight, "Kill");

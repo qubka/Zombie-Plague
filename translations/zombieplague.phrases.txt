@@ -21,8 +21,8 @@
 
     "general buttons reminder" // Hint
     {
-        "en"            "Press <font color='#FF0000'>E</font> for buy weapons\nPress <font color='#FF0000'>G</font> for zombie skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
-        "ru"            "Нажмите E для покупки оружия\nНажмите G для способности зомби\nНажмите F для включения фонарика"
+        "en"            "Press <font color='#FF0000'>E</font> for buy weapons\nPress <font color='#FF0000'>G/F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
+        "ru"            "Нажмите E для покупки оружия\nНажмите G/F4 для способности зомби/людей\nНажмите F для включения фонарика"
     }
     
     "general ammunition reminder" // Chat
@@ -181,6 +181,12 @@
     {
         "en"            "<font color='#00FFC5'>Survivor round start</font>!"
         "ru"            "<font color='#00FFC5'>Выживший появился</font>!"
+    }
+    
+    "mode sniper" // Hint
+    {
+        "en"            "<font color='#256D7B'>Sniper round start</font>!"
+        "ru"            "<font color='#256D7B'>Снайпер появился</font>!"
     }
 
     "mode armageddon" // Hint
@@ -533,23 +539,11 @@
         "en"            "Survivor"
         "ru"            "Выживший"
     }
-    
-    "707" // Menu
-    {
-        "en"            "707"
-        "ru"            "707"
-    }
-
-    "arctic" // Menu
-    {
-        "en"            "Arctic"
-        "ru"            "Арктик"
-    }
 
     "black" // Menu
     {
         "en"            "Black"
-        "ru"            "Нигер"
+        "ru"            "Охотник"
     }
 
     "carrie" // Menu
@@ -567,13 +561,13 @@
     "swat" // Menu
     {
         "en"            "SWAT"
-        "ru"            "SWAT"
+        "ru"            "Полицейский"
     }
 
     "ct" // Menu
     {
         "en"            "CT"
-        "ru"            "Вдвшник"
+        "ru"            "Спецназовец"
     }
 
     "anarhist" // Menu
@@ -594,24 +588,6 @@
         "ru"            "Пират"
     }
 
-    "karachenko" // Menu
-    {
-        "en"            "Karachenko"
-        "ru"            "Караченко"
-    }
-
-    "leet" // Menu
-    {
-        "en"            "Leet"
-        "ru"            "Очкарик"
-    }
-
-    "lincoln" // Menu
-    {
-        "en"            "Lincoln"
-        "ru"            "Линкольн"
-    }
-
     "lisa" // Menu
     {
         "en"            "Lisa"
@@ -624,15 +600,9 @@
         "ru"            "Мила"
     }
 
-    "sas" // Menu
+    "punisher" // Menu
     {
-        "en"            "SAS"
-        "ru"            "Спецназовец"
-    }
-
-    "sass" // Menu
-    {
-        "en"            "SASS"
+        "en"            "Punisher"
         "ru"            "Каратель"
     }
 
@@ -642,9 +612,9 @@
         "ru"            "Балкан"
     }
 
-    "htank" // Menu
+    "fat" // Menu
     {
-        "en"            "HTank"
+        "en"            "Fat"
         "ru"            "Толстяк"
     }
 
@@ -659,13 +629,57 @@
         "en"            "Phoenix"
         "ru"            "Феникс"
     }
-
-    "gign" // Menu
+    
+    "redtank" // Menu
     {
-        "en"            "Gign"
-        "ru"            "Омоновец"
+        "en"            "Red tank"
+        "ru"            "Красный танк"
     }
-
+    
+    "bluetank" // Menu
+    {
+        "en"            "Blue tank"
+        "ru"            "Синий танк"
+    }
+    
+    "redalice" // Menu
+    {
+        "en"            "Red Alice"
+        "ru"            "Красная Алиса"
+    }
+    
+    "bluealice" // Menu
+    {
+        "en"            "Blue Alice"
+        "ru"            "Синяя Алиса"
+    }
+    
+    // Info
+    
+    "redtank info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Armorup</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Бронирование</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
+    "bluetank info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Regeneration</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Регенерация</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
+    "redalice info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
+    "bluealice info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
     // ===========================
     // Weapon menu (core)
     // ===========================
@@ -712,7 +726,13 @@
         "en"            "Machineguns"
         "ru"            "Пулеметы"
     }
-
+    
+    "buy knifes" // Menu
+    {
+        "en"            "Melee"
+        "ru"            "Ножи"
+    }
+    
     // ===========================
     // Extra items (core)
     // ===========================
@@ -736,11 +756,11 @@
         "en"            "Jump Bomb"
         "ru"            "Джамп граната"
     }
-
-    "hegrenade" // Menu
+    
+    "holy grenade" // Menu 
     {
-        "en"            "Hegrenade"
-        "ru"            "Взрывная граната"
+        "en"            "Holy Grenade"
+        "ru"            "Святая граната"
     }
 
     "molotov" // Menu
@@ -785,10 +805,10 @@
         "ru"            "Базука"
     }
     
-    "crossbow" // Menu
+    "m32" // Menu
     {
-        "en"            "CrossBow"
-        "ru"            "Арбалет"
+        "en"            "M32 Milkor"
+        "ru"            "M32 Milkor"
     }
     
     "chainsaw" // Menu
@@ -808,6 +828,24 @@
         "en"            "JetPack"
         "ru"            "Джетпак"
     }
+
+    "cannon" // Menu
+    {
+        "en"            "Dragon Cannon"
+        "ru"            "Огненный дракон"
+    }
+    
+    "drillgun" // Menu
+    {
+        "en"            "Drill"
+        "ru"            "Дрель"
+    }
+    
+    "watercannon" // Menu
+    {
+        "en"            "Flamethrower"
+        "ru"            "Огнемет"
+    }
     
     // Info
     
@@ -816,7 +854,7 @@
         "en"            "Strong <font color='#7A1A0B'>slash</font> on the right mouse button"
         "ru"            "Сильный <font color='#7A1A0B'>удар</font> на правую кнопку мыши"
     }
-    
+
     "lasermine info" // Hint
     {
         "en"            "To remove <font color='#F8173E'>a mine</font>, press the button to <font color='#1CA9C9'>open the menu</font>"
@@ -844,6 +882,8 @@
     // ===========================
     // Weapons (core)
     // ===========================
+    
+    // Pistols
     
     "elite" // Menu
     {
@@ -911,6 +951,32 @@
         "ru"            "Револьвер"
     }
     
+    "janus1" // Menu
+    {
+        "en"            "Janus I"
+        "ru"            "Джанус I"
+    }
+    
+    "skull1" // Menu
+    {
+        "en"            "Skull I"
+        "ru"            "Скулл I"
+    }
+    
+    "balrog1" // Menu
+    {
+        "en"            "Balrog I"
+        "ru"            "Балрог I"
+    }
+    
+    "sfpistol" // Menu
+    {
+        "en"            "SF-PISTOL"
+        "ru"            "SF-PISTOL"
+    }
+    
+    // Shotguns
+    
     "nova" // Menu
     {
         "en"            "Benelli Nova"
@@ -934,7 +1000,33 @@
         "en"            "MAG7"
         "ru"            "MAG7"
     }
+    
+    "skull11" // Menu
+    {
+        "en"            "Skull I"
+        "ru"            "Скулл I"
+    }
+    
+    "gatling" // Menu
+    {
+        "en"            "Gatling"
+        "ru"            "Гатлинг"
+    }
+    
+    "balrog11" // Menu
+    {
+        "en"            "Balrog XI"
+        "ru"            "Балрог XI"
+    }
+    
+    "janus11" // Menu
+    {
+        "en"            "Janus XI"
+        "ru"            "Джанус XI"
+    }
 
+    // Rifles
+    
     "ak47" // Menu
     {
         "en"            "AK-47"
@@ -1025,6 +1117,50 @@
         "ru"            "Легкий зомбяк"
     }
     
+    "blaster" // Menu
+    {
+        "en"            "SFGUN-1"
+        "ru"            "Лазерный бластер"
+    }
+    
+    "tempest" // Menu
+    {
+        "en"            "SF-TEMPEST"
+        "ru"            "Лазерный тигр"
+    }
+    
+    "plasmagun" // Menu
+    {
+        "en"            "Plasmagun"
+        "ru"            "Плазма пушка"
+    }
+    
+    "cartblue" // Menu
+    {
+        "en"            "Cartblue"
+        "ru"            "Синяя машинка"
+    }
+    
+    "balrog3" // Menu
+    {
+        "en"            "Balrog III"
+        "ru"            "Балрог III"
+    }
+    
+    "janus3" // Menu
+    {
+        "en"            "Janus III"
+        "ru"            "Джанус III"
+    }
+    
+    "janus5" // Menu
+    {
+        "en"            "Janus V"
+        "ru"            "Джанус V"
+    }
+    
+    // Snipers
+    
     "awp" // Menu
     {
         "en"            "L96A1"
@@ -1048,29 +1184,69 @@
         "en"            "SCAR-20"
         "ru"            "SCAR-20"
     }
-
+    
+    "wa2000" // Menu
+    {
+        "en"            "Walther WA2000"
+        "ru"            "Walther WA2000"
+    }
+    
+    "airburster" // Menu
+    {
+        "en"            "Airburster"
+        "ru"            "Воздушная пушка"
+    }
+    
+    "skull5"
+    {
+        "en"            "Skull V"
+        "ru"            "Скулл V"
+    }
+    
+    // Machineguns
+    
     "m249" // Menu
     {
         "en"            "M249 SAW"
         "ru"            "M249 SAW"
     }
-    
+
     "negev" // Menu
     {
         "en"            "Negev"
         "ru"            "Негев"
     }
     
-    "zombie claw" // Menu
+    "m134" // Menu
     {
-        "en"            "Zombie Claw"
-        "ru"            "Зомби руки"
+        "en"            "M134 Monkey"
+        "ru"            "M134 Обезьяна"
     }
+    
+    "sgdrill" // Menu
+    {
+        "en"            "SG-DRILL"
+        "ru"            "SG-Бур"
+    }
+    
+    "balrog7" // Menu
+    {
+        "en"            "Balrog VII"
+        "ru"            "Балрог VII"
+    }
+    
+    "janus7" // Menu
+    {
+        "en"            "Janus VII"
+        "ru"            "Джанус VII"
+    }
+    
+    // Knife
     
     "knife" // Menu
     {
         "en"            "Knife"
-        "ru"            "Нож"
+        "ru"            "Обычный нож"
     }
     
     "survivor knife" // Menu
@@ -1079,16 +1255,98 @@
         "ru"            "Нож выжившего"
     }
     
+    "zombie claw" // Menu
+    {
+        "en"            "Zombie Claw"
+        "ru"            "Зомби клешни"
+    }
+    
     "nemesis claw" // Menu
     {
         "en"            "Nemesis Claw"
-        "ru"            "Немезис руки"
+        "ru"            "Немезис клешни"
     }
+    
+    // Others
 
     "etherial" // Menu
     {
         "en"            "Etherial"
         "ru"            "Эфириал"
+    }
+    
+    "sfsniper" // Menu
+    {
+        "en"            "SF-SNIPER"
+        "ru"            "Лазерная винтовка"
+    }
+    
+    // Info
+    
+    "skull1 info" // Hint
+    {
+        "en"            "Switch <font color='#E62E00'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#E62E00'>режим</font> на правую кнопку мыши"
+    }
+
+    "balrog1 info" // Hint 
+    {
+        "en"            "Fire <font color='#FF6161'>explosion</font> on the right mouse button"
+        "ru"            "Огненный <font color='#FF6161'>взрыв</font> на правую кнопку мыши"
+    }
+
+    "janus1 info" // Hint
+    {
+        "en"            "Switch <font color='#FFD9FF'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#FFD9FF'>режим</font> на правую кнопку мыши"
+    }
+
+    "balrog11 info" // Hint 
+    {
+        "en"            "Fire <font color='#CD00CD'>rain</font> on the right mouse button"
+        "ru"            "Огненный <font color='#CD00CD'>поток</font> на правую кнопку мыши"
+    }
+
+    "janus11 info" // Hint 
+    {
+        "en"            "Switch <font color='#FF33CC'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#FF33CC'>режим</font> на правую кнопку мыши"
+    }
+
+    "cartblue info" // Hint
+    {
+        "en"            "Switch <font color='#FE28A2'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#FE28A2'>режим</font> на правую кнопку мыши"
+    }
+
+    "janus3 info" // Hint 
+    {
+        "en"            "Switch <font color='#F754EA'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#F754EA'>режим</font> на правую кнопку мыши"
+    }
+
+    "janus5 info" // Hint 
+    {
+        "en"            "Switch <font color='#C154C1'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#C154C1'>режим</font> на правую кнопку мыши"
+    }
+
+    "airburster info" // Hint 
+    {
+        "en"            "Strong <font color='#BA66FF'>airburst</font> on the right mouse button"
+        "ru"            "Сильный <font color='#BA66FF'>потом</font> на правую кнопку мыши"
+    }
+
+    "sgdrill info" // Hint
+    {
+        "en"            "Strong <font color='#4B0082'>hit</font> on the right mouse button"
+        "ru"            "Сильный <font color='#4B0082'>удар</font> на правую кнопку мыши"
+    }
+
+    "janus7 info" // Hint 
+    {
+        "en"            "Switch <font color='#4F273A'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#4F273A'>режим</font> на правую кнопку мыши"
     }
     
     // ===========================
@@ -1153,6 +1411,12 @@
     {
         "en"            "Make a survivor"
         "ru"            "Сделать выжившим"
+    }
+    
+    "make sniper" // Menu
+    {
+        "en"            "Make a sniper"
+        "ru"            "Сделать снайпера"
     }
     
     "respawn" // Menu
@@ -1260,6 +1524,13 @@
         "#format"       "{1:s},{2:s}"
         "en"            "Admin: [{1}] give survivor for: [{2}]"
         "ru"            "Админ: [{1}] сделал выжившившим: [{2}]"
+    }
+    
+    "admin give a sniper to player" // DHUD
+    {
+        "#format"       "{1:s},{2:s}"
+        "en"            "Admin: [{1}] give sniper for: [{2}]"
+        "ru"            "Админ: [{1}] сделал снайпером: [{2}]"
     }
     
     "admin give 100 ammopacks to player" // DHUD

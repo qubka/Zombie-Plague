@@ -44,33 +44,18 @@ public Plugin myinfo =
 /**
  * @section Information about weapon.
  **/
-#define WEAPON_REFERANCE                "etherial" // Name in weapons.ini from translation file
-#define WEAPON_BEAM_LIFE                0.105
+#define WEAPON_ITEM_REFERENCE           "etherial" // Name in weapons.ini from translation file
 #define WEAPON_BEAM_COLOR               {0, 194, 194, 255}
 #define WEAPON_BEAM_MODEL               "materials/sprites/laserbeam.vmt"
 /**
  * @endsection
  **/
 
-// Initialize variables
+// Weapon index
 int gWeapon;
 
-// Variables for precache resources
+// Decal index
 int decalBeam;
-
-/**
- * Called after a library is added that the current plugin references optionally. 
- * A library is either a plugin name or extension name, as exposed via its include file.
- **/
-public void OnLibraryAdded(const char[] sLibrary)
-{
-    // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
-    {
-        // Hook temp entity
-        HookEvent("bullet_impact", WeaponImpactBullets, EventHookMode_Post);
-    }
-}
 
 /**
  * Called after a zombie core is loaded.
@@ -78,65 +63,85 @@ public void OnLibraryAdded(const char[] sLibrary)
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Initialize weapon
-    gWeapon = ZP_GetWeaponNameID(WEAPON_REFERANCE);
-    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_REFERANCE);
+    gWeapon = ZP_GetWeaponNameID(WEAPON_ITEM_REFERENCE);
+    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_ITEM_REFERENCE);
 
     // Models
     decalBeam = PrecacheModel(WEAPON_BEAM_MODEL, true);
 }
 
-/**
- * Event callback (bullet_impact)
- * The bullet hits something.
- * 
- * @param hEvent            The event handle.
- * @param sName             Name of the event.
- * @param iDontBroadcast    If true, event is broadcasted to all clients, false if not.
- **/
-public Action WeaponImpactBullets(Event hEvent, const char[] sName, bool iDontBroadcast) 
+//*********************************************************************
+//*          Don't modify the code below this line unless             *
+//*             you know _exactly_ what you are doing!!!              *
+//*********************************************************************
+
+void Weapon_OnBullet(const int clientIndex, const int weaponIndex, float vBulletPosition[3])
 {
-    // Initialize weapon index
-    int weaponIndex;
+    #pragma unused clientIndex, weaponIndex, vBulletPosition
 
-    // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    // Initialize vectors
+    static float vEntPosition[3]; static float vEntAngle[3];
 
-    // Validate weapon
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    // Gets the weapon position
+    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vEntPosition);
+    
+    // Gets the beam lifetime
+    float flLife = ZP_GetWeaponSpeed(gWeapon);
+    
+    // Sent a beam
+    TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+    TE_SendToClient(clientIndex);
+    
+    // Gets the worldmodel index
+    int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
+    
+    // Validate entity
+    if(IsValidEdict(entityIndex))
     {
-        // Initialize vector variables
-        static float vEntPosition[3]; static float vEntAngle[3]; static float vBulletPosition[3];
-
-        // Gets hit position
-        vBulletPosition[0] = hEvent.GetFloat("x");
-        vBulletPosition[1] = hEvent.GetFloat("y");
-        vBulletPosition[2] = hEvent.GetFloat("z");
-
-        // Gets the weapon position
-        ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vEntPosition);
+        // Gets attachment position
+        ZP_GetAttachment(entityIndex, "muzzle_flash", vEntPosition, vEntAngle);
         
         // Sent a beam
-        TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-        TE_SendToClient(clientIndex);
-        
-        // Gets the worldmodel index
-        int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
-        
-        // Validate entity
-        if(IsValidEdict(entityIndex))
+        TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+        int[] iClients = new int[MaxClients]; int iCount;
+        for (int i = 1; i <= MaxClients; i++)
         {
-            // Gets attachment position
-            ZP_GetAttachment(entityIndex, "muzzle_flash", vEntPosition, vEntAngle);
-            
-            // Sent a beam
-            TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, WEAPON_BEAM_LIFE, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-            int[] iClients = new int[MaxClients]; int iCount;
-            for (int i = 1; i <= MaxClients; i++)
-            {
-                if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
-                iClients[iCount++] = i;
-            }
-            TE_Send(iClients, iCount);
+            if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
+            iClients[iCount++] = i;
         }
+        TE_Send(iClients, iCount);
+    }
+}
+
+//**********************************************
+//* Item (weapon) hooks.                       *
+//**********************************************
+
+#define _call.%0(%1,%2,%3)      \
+                                \
+    Weapon_On%0                 \
+    (                           \
+        %1,                     \
+        %2,                     \
+        %3                      \
+    )    
+
+
+
+/**
+ * Called on bullet of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param vBulletPosition   The position of a bullet hit.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int weaponIndex, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Call event
+        _call.Bullet(clientIndex, weaponIndex, vBulletPosition);
     }
 }

@@ -24,7 +24,7 @@
  *
  * ============================================================================
  **/
- 
+
 /**
  * Array handle to store menu generator config data.
  **/
@@ -137,16 +137,7 @@ void MenusCacheData(/*void*/)
         if(!kvMenus.JumpToKey(sMenusPath))
         {
             // Log menu fatal
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sMenusPath);
-            
-            // Remove menu from array
-            kvMenus.DeleteThis();
-
-            // Subtract one from count
-            iSize--;
-
-            // Backtrack one index, because we deleted it out from under the loop
-            i--;
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sMenusPath);
             continue;
         }
         
@@ -155,16 +146,6 @@ void MenusCacheData(/*void*/)
         {
             // Log menu error
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache menu name: \"%s\" (check translation file)", sMenusPath);
-            
-            // Remove menu from array
-            kvMenus.DeleteThis();
-
-            // Subtract one from count
-            iSize--;
-
-            // Backtrack one index, because we deleted it out from under the loop
-            i--;
-            continue;
         }
 
         // Initialize array block
@@ -385,7 +366,7 @@ void MenuMain(const int clientIndex)
     // Validate handle
     if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
     {
-        // Initialize chars
+        // Initialize variables
         static char sBuffer[NORMAL_LINE_LENGTH];
         static char sName[SMALL_LINE_LENGTH];
         static char sInfo[SMALL_LINE_LENGTH];

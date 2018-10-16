@@ -643,16 +643,16 @@ void WeaponAttachRemoveAddons(const int clientIndex, const WeaponAttachBitType b
     }
 }
 #else
-/*extern*/ void WeaponAttachUnload(/*void*/)      
+/*inline*/ void WeaponAttachUnload(/*void*/)      
 { 
     /* empty statement */ 
 }
-/*extern*/ void WeaponAttachSetAddons(int clientIndex)    
+/*inline*/ void WeaponAttachSetAddons(int clientIndex)    
 { 
     #pragma unused clientIndex  
     /* empty statement */ 
 }
-/*extern*/ void WeaponAttachRemoveAddons(int clientIndex) 
+/*inline*/ void WeaponAttachRemoveAddons(int clientIndex) 
 { 
     #pragma unused clientIndex  
     /* empty statement */ 

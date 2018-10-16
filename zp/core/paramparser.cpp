@@ -101,6 +101,12 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
      *  VALIDATION OF INPUT AND BUFFERS
      */
 
+    // Cut out comments at the end of a line
+    if(StrContains(sParamString, "//") != -1)
+    {
+        SplitString(sParamString, "//", sParamString, iMaxLen);
+    } 
+     
     // Trim string
     TrimString(sParamString);
 
@@ -128,9 +134,7 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
     ParamModes iMode = ParamMode_Equal;
 
     // Buffers for temp values
-    int iStartPos;
-    int iEndPos;
-    int iEquationPos;
+    int iStartPos; int iEndPos; int iEquationPos;
     static char sValue[PARAM_VALUE_MAXLEN];
 
     // Loop through all string
@@ -191,6 +195,9 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
                 // Extract value string
                 StrExtract(sParamString, sParamString, iStartPos, iLen);
 
+                // Trim string
+                TrimString(sValue);
+                
                 // Check if string is empty, then stop
                 if(!strlen(sParamString))
                 {
@@ -207,12 +214,6 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
                     {
                         return PARAM_ERROR_MISSING_QUOTES;
                     }
-                }
-                
-                // Cut out comments at the end of a line
-                if(StrContains(sParamString, "//") != -1)
-                {
-                    SplitString(sParamString, "//", sParamString, PARAM_VALUE_MAXLEN);
                 }
 
                 // Copy value string to destination buffer
@@ -282,53 +283,4 @@ stock int StrExtract(char[] sBuffer, const char[] sSource, const int startPos, c
     
     // Extract string and store it in the buffer
     return strcopy(sBuffer, iMaxLen, sSource[startPos]);
-}
-
-/**
- * Validate a byte string.
- *
- * @param sBuffer           The string buffer.
- * @return                  .
- **/
-stock bool IsByteString(const char[] sBuffer)
-{
-    // Initialize variables
-    int iSize = strlen(sBuffer);
-
-    // Validate size
-    if(iSize < 3)
-    {
-        return true;
-    }
-    
-    // i = char index
-    for(int i = 0; i < iSize; i++)
-    {
-        // Validate byte
-        if(IsCharMB(sBuffer[i]) || IsCharSpace(sBuffer[i]))
-        {
-            return true;
-        }
-        
-        // Validate numbers
-        if(IsCharNumeric(sBuffer[i]))
-        {
-            continue;
-        }
-        
-        // Validate delimiters
-        switch(sBuffer[i])
-        {
-            case '/', '\\', '.', '_', '-' : continue;
-        }
-
-        // Validate letters
-        if(!IsCharAlpha(sBuffer[i]))
-        {
-            return true;
-        }
-    }
-
-    // Return on the unsuccess
-    return false;
 }

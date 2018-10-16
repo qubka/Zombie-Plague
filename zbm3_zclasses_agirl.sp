@@ -82,12 +82,13 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
-// Initialize zombie class index
-int gZombieGirl;
-#pragma unused gZombieGirl
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -99,7 +100,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieGirl = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW, 
@@ -138,7 +139,7 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex        The client index.
  *
@@ -147,14 +148,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-    
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieGirl)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];

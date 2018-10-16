@@ -314,7 +314,7 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
         ActivateEntity(entityIndex);
         AcceptEntityInput(entityIndex, "Start");
         
-        // Initialize char
+        // Initialize variable
         static char sTime[SMALL_LINE_LENGTH];
         Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
         
@@ -335,7 +335,7 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
  **/
 void VEffectRemoveParticle(const int clientIndex)
 {
-    // Initialize char
+    // Initialize variable
     static char sClassname[NORMAL_LINE_LENGTH];
     
     // Gets max amount of entities

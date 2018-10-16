@@ -89,7 +89,7 @@ void ZMarketMenu(const int clientIndex)
     // Sets title
     hMenu.SetTitle("%t", "buy weapons");
 
-    // Initialize char
+    // Initialize variable
     static char sBuffer[NORMAL_LINE_LENGTH];
 
     // Gets auto-rebuy setting
@@ -119,12 +119,16 @@ void ZMarketMenu(const int clientIndex)
     // Show machinegun list
     Format(sBuffer, sizeof(sBuffer), "%t", "buy machinehuns");
     hMenu.AddItem("6", sBuffer);
+    
+    // Show knife list
+    Format(sBuffer, sizeof(sBuffer), "%t", "buy knifes");
+    hMenu.AddItem("7", sBuffer);
 
     // Sets exit and back button
     hMenu.ExitBackButton = true;
 
     // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
     hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
@@ -175,7 +179,7 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, const int clientInde
                 // Weapons list
                 default: 
                 { 
-                    // Initialize chars
+                    // Initialize variables
                     static char sTitle[SMALL_LINE_LENGTH];
                     static char sInfo[SMALL_LINE_LENGTH];
                     
@@ -213,7 +217,7 @@ void ZMarketSubMenu(const int clientIndex, const char[] sTitle, const int mSlot 
         return;
     }
     
-    // Initialize chars
+    // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
@@ -311,7 +315,7 @@ void ZMarketSubMenu(const int clientIndex, const char[] sTitle, const int mSlot 
     hSubMenu.ExitBackButton = true;
 
     // Sets options and display it
-    hSubMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hSubMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
     hSubMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
@@ -353,8 +357,8 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, const int clie
                 return;
             }
 
-            // Initialize char
-            static char sWeaponName[SMALL_LINE_LENGTH];
+            // Initialize variable
+            static char sWeaponName[BIG_LINE_LENGTH];
 
             // Gets ID of the weapon
             hSubMenu.GetItem(mSlot, sWeaponName, sizeof(sWeaponName));
@@ -416,6 +420,16 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, const int clie
                 {
                     // Add weapon to list
                     arrayShoppingList[clientIndex].Push(iD);
+                    
+                    // If help messages enable, then show 
+                    if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                    {
+                        // Gets weapon info
+                        WeaponsGetInfo(iD, sWeaponName, sizeof(sWeaponName));
+                        
+                        // Show weapon personal info
+                        if(strlen(sWeaponName)) TranslationPrintHintText(clientIndex, sWeaponName);
+                    }
                 }
             }
             else

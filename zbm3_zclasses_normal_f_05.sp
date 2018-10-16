@@ -78,15 +78,16 @@ public Plugin myinfo =
  **/
 
 
-// Variables for precache resources
+// Decal index
 int decalSmoke;
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
 
-// Initialize zombie class index
-int gZombieNormalF05;
-#pragma unused gZombieNormalF05
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -98,7 +99,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieNormalF05 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -140,7 +141,7 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex       The client index.
  *
@@ -149,14 +150,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalF05)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
@@ -203,11 +198,12 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
 
             // Sets the model
-            SetEntityModel(entityIndex, "models/player/custom_player/zombie/bazooka/bazooka_w_projectile.mdl");
+            SetEntityModel(entityIndex, "models/weapons/bazooka/w_bazooka_projectile.mdl");
             
             // Sets an entity color
             SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
-            SetEntityRenderColor(entityIndex, _, _, _, 0); 
+            SetEntityRenderColor(entityIndex, _, _, _, 0);
+            DispatchKeyValue(entityIndex, "disableshadows", "1"); /// Prevents the entity from receiving shadows
             
             // Create a prop_dynamic_override entity
             int batIndex = CreateEntityByName("prop_dynamic_override");
@@ -315,7 +311,7 @@ public Action BatTouchHook(const int entityIndex, const int targetIndex)
                     SetVariantString("eholster"); 
                     AcceptEntityInput(batIndex, "SetParentAttachment", targetIndex, batIndex);
 
-                    // Initialize char
+                    // Initialize variable
                     static char sTime[SMALL_LINE_LENGTH];
                     Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", ZOMBIE_CLASS_SKILL_DURATION);
 
@@ -340,7 +336,7 @@ public Action BatTouchHook(const int entityIndex, const int targetIndex)
                 // Validate entity
                 if(IsValidEdict(infoIndex))
                 {
-                    // Create an explosion effect
+                    // Create an blood effect
                     FakeCreateParticle(infoIndex, vEntPosition, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);
                     
                     // Emit sound

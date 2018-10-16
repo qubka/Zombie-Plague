@@ -79,7 +79,7 @@ void RoundStartOnBalanceTeams(/*void*/)
     
             // Swith team
             bool bState = ToolsGetClientDefuser(i);
-            ToolsSetClientTeam(i, !(i % 2) ? TEAM_ZOMBIE : TEAM_HUMAN);
+            ToolsSetClientTeam(i, !(i % 2) ? TEAM_HUMAN : TEAM_ZOMBIE);
             ToolsSetClientDefuser(i, bState);
         }
     }
@@ -90,7 +90,7 @@ void RoundStartOnBalanceTeams(/*void*/)
  **/
 void RoundStartOnKillEntity(/*void*/)
 {
-    // Initialize char
+    // Initialize variable
     static char sClassname[NORMAL_LINE_LENGTH];
     
     // Gets max amount of entities

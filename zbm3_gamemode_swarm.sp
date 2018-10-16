@@ -57,7 +57,7 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Initialize game mode index
+// Mode index
 int gSwarm;
 #pragma unused gSwarm
 

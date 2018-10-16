@@ -45,6 +45,6 @@ void SpawnOnClientSpawn(const int clientIndex)
         case TEAM_ZOMBIE : ClassMakeZombie(clientIndex, _, ModesIsNemesis(gServerData[Server_RoundMode]), gServerData[Server_RoundStart]);
         
         // Respawn as human ?
-        case TEAM_HUMAN : ClassMakeHuman(clientIndex, ModesIsSurvivor(gServerData[Server_RoundMode]), gServerData[Server_RoundNew]);
+        case TEAM_HUMAN  : ClassMakeHuman(clientIndex, ModesIsSurvivor(gServerData[Server_RoundMode]), gServerData[Server_RoundNew]);
     }
 }

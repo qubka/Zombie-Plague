@@ -31,7 +31,8 @@
 void SkillsOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    AddCommandListener(SkillsOnUse, "drop");
+    AddCommandListener(SkillsOnUseHuman, "rebuy");
+    AddCommandListener(SkillsOnUseZombie, "drop");
 }
 
 /**
@@ -56,8 +57,8 @@ void SkillsOnClientInfected(const int clientIndex, const bool nemesisMode = fals
     }
     
     // Sets timer for restoring health
-    delete gClientData[clientIndex][Client_ZombieHealTimer];
-    gClientData[clientIndex][Client_ZombieHealTimer] = CreateTimer(flInterval, SkillsOnHealthRegen, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    delete gClientData[clientIndex][Client_HealTimer];
+    gClientData[clientIndex][Client_HealTimer] = CreateTimer(flInterval, SkillsOnHealthRegen, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
@@ -110,20 +111,33 @@ public Action SkillsOnHealthRegen(Handle hTimer, const int userID)
     }
 
     // Clear timer
-    gClientData[clientIndex][Client_ZombieHealTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_HealTimer] = INVALID_HANDLE;
     
     // Destroy timer
     return Plugin_Stop;
 }
 
 /**
- * Callback for command listener to use skill.
+ * Callback for command listener to use skill for human.
  *
  * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SkillsOnUse(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action SkillsOnUseHuman(const int clientIndex, const char[] commandMsg, const int iArguments)
+{
+    // If the client isn't human, than allow rebuy
+    return (!gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Survivor]) ? SkillsOnStart(clientIndex) : Plugin_Continue;
+}
+
+/**
+ * Callback for command listener to use skill for zombie.
+ *
+ * @param clientIndex       The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action SkillsOnUseZombie(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
     // If the client isn't zombie/survivor, than allow drop
     return (gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]) ? SkillsOnStart(clientIndex) : (gClientData[clientIndex][Client_Survivor] ? Plugin_Handled : Plugin_Continue);
@@ -136,9 +150,9 @@ public Action SkillsOnUse(const int clientIndex, const char[] commandMsg, const 
  **/
 Action SkillsOnStart(const int clientIndex)
 {
-    // Validate zombie class skill duration/countdown
-    float flInterval = ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]);
-    if(!flInterval && !ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]))
+    // Validate class skill duration/countdown
+    float flInterval = gClientData[clientIndex][Client_Zombie] ? ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]) : HumanGetSkillDuration(gClientData[clientIndex][Client_HumanClass]);
+    if(!flInterval && (gClientData[clientIndex][Client_Zombie] ? !ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]) : !HumanGetSkillCountDown(gClientData[clientIndex][Client_HumanClass])))
     {
         return Plugin_Handled;
     }
@@ -159,8 +173,8 @@ Action SkillsOnStart(const int clientIndex)
         gClientData[clientIndex][Client_Skill] = true;
         
         // Sets timer for removing skill usage
-        delete gClientData[clientIndex][Client_ZombieSkillTimer];
-        gClientData[clientIndex][Client_ZombieSkillTimer] = CreateTimer(flInterval, SkillsOnEnd, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        delete gClientData[clientIndex][Client_SkillTimer];
+        gClientData[clientIndex][Client_SkillTimer] = CreateTimer(flInterval, SkillsOnEnd, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
     }
     
     // Allow skill
@@ -179,18 +193,18 @@ public Action SkillsOnEnd(Handle hTimer, const int userID)
     int clientIndex = GetClientOfUserId(userID);
 
     // Clear timer
-    gClientData[clientIndex][Client_ZombieSkillTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_SkillTimer] = INVALID_HANDLE;
     
     // Validate client
     if(clientIndex)
     {
         // Remove skill usage and set countdown time
         gClientData[clientIndex][Client_Skill] = false;
-        gClientData[clientIndex][Client_SkillCountDown] = ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]);
+        gClientData[clientIndex][Client_SkillCountDown] = gClientData[clientIndex][Client_Zombie] ? ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]) : HumanGetSkillCountDown(gClientData[clientIndex][Client_HumanClass]);
         
         // Sets timer for countdown
-        delete gClientData[clientIndex][Client_ZombieCountDownTimer];
-        gClientData[clientIndex][Client_ZombieCountDownTimer] = CreateTimer(1.0, SkillsOnCountDown, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        delete gClientData[clientIndex][Client_CountDownTimer];
+        gClientData[clientIndex][Client_CountDownTimer] = CreateTimer(1.0, SkillsOnCountDown, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         
         // Call forward
         API_OnClientSkillOver(clientIndex);
@@ -224,7 +238,7 @@ public Action SkillsOnCountDown(Handle hTimer, const int userID)
             TranslationPrintHintText(clientIndex, "skill ready");
 
             // Clear timer
-            gClientData[clientIndex][Client_ZombieCountDownTimer] = INVALID_HANDLE;
+            gClientData[clientIndex][Client_CountDownTimer] = INVALID_HANDLE;
             
             // Destroy timer
             return Plugin_Stop;
@@ -238,7 +252,7 @@ public Action SkillsOnCountDown(Handle hTimer, const int userID)
     }
     
     // Clear timer
-    gClientData[clientIndex][Client_ZombieCountDownTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_CountDownTimer] = INVALID_HANDLE;
     
     // Destroy timer
     return Plugin_Stop;

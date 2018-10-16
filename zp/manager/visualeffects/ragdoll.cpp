@@ -127,7 +127,7 @@ void RagdollRemove(const int iRagdoll)
 }
 
 /**
- * Timer callback.  Removed a client ragdoll.
+ * Timer callback. Removed a client ragdoll.
  * 
  * @param hTimer            The timer handle. 
  * @param referenceIndex    The reference index.

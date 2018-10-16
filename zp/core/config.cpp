@@ -213,7 +213,7 @@ void ConfigLoad(/*void*/)
     // Gets current map name
     GetCurrentMap(gServerData[Server_MapName], sizeof(gServerData[Server_MapName]));
     
-    // Initialize chars
+    // Initialize variables
     static char sFile[NORMAL_LINE_LENGTH];
     static char sPath[PLATFORM_MAX_PATH];
 
@@ -538,7 +538,6 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
             
             // We're done this file, so now we can destory it from memory
             delete hFile;
-            
             return true;
         }
         
@@ -901,6 +900,7 @@ public Action Command_ReloadAllCommand(const int clientIndex, const int iArgumen
  * Load config file.
  * 
  * @param iConVar              The cvar define of the path to the file.
+ * @param sPath                The path output.
  * @return                     True if the file exists, false if not.
  **/
 stock bool ConfigGetCvarFilePath(const CvarsList iConVar, char[] sPath)
@@ -945,7 +945,7 @@ stock bool ConfigSettingToBool(const char[] sOption)
  **/
 stock void ConfigBoolToSetting(const bool bOption, char[] sOption, const int iMaxLen, const bool bYesNo = true, const int targetIndex = LANG_SERVER)
 {
-    // Initialize char
+    // Initialize variable
     static char sBuffer[10];
     
     // Sets the language to target

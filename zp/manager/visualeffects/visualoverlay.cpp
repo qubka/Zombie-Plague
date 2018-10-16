@@ -42,7 +42,7 @@ enum OverlayType
  **/
 void VOverlayLoad(/*void*/)
 {
-    // Initialize chars
+    // Initialize variables
     static char sPath[PLATFORM_MAX_PATH];
     
     //*********************************************************************
@@ -154,5 +154,5 @@ void VOverlayOnClientUpdate(const int clientIndex, OverlayType layIndex)
     // Display overlay to the client
     SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") &~ FCVAR_CHEAT); 
     ClientCommand(clientIndex, sOverlay);
-    SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") |  FCVAR_CHEAT);
+    SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") | FCVAR_CHEAT);
 }

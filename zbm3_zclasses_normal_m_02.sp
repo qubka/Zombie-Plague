@@ -94,12 +94,13 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
-// Initialize zombie class index
-int gZombieNormalM02;
-#pragma unused gZombieNormalM02
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -111,7 +112,7 @@ public void OnLibraryAdded(const char[] sLibrary) // Stamper
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieNormalM02 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -157,7 +158,7 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex       The client index.
  *
@@ -166,14 +167,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM02)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Initialize vectors
         static float vFromPosition[3];
@@ -413,7 +408,7 @@ void CoffinExpload(const int entityIndex)
             SetVariantString("1"); /// Attachment name in the coffin model
             AcceptEntityInput(gibIndex, "SetParentAttachment", entityIndex, gibIndex);
 
-            // Initialize char
+            // Initialize variable
             static char sTime[SMALL_LINE_LENGTH];
             Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", METAL_GIBS_DURATION);
 
@@ -424,7 +419,7 @@ void CoffinExpload(const int entityIndex)
         }
     }
 
-    // Initialize char
+    // Initialize variable
     static char sTime[SMALL_LINE_LENGTH];
     Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", ZOMBIE_CLASS_SKILL_EXP_TIME);
 

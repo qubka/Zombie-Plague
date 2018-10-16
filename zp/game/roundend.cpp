@@ -65,7 +65,7 @@ public Action RoundEndOnRoundEnd(int &CReason)
     gServerData[Server_RoundStart] = false;
 
     // Initialize some variables
-    int nHumanBonus; int nZombieBonus; OverlayType CType;
+    static int nHumanBonus; static int nZombieBonus; static OverlayType CType;
 
     // Switch end round reason
     switch(CReason)
@@ -178,7 +178,7 @@ public Action RoundEndOnRoundEnd(int &CReason)
     SetTeamScore(TEAM_HUMAN,  nHumanScore);
 
     //*********************************************************************
-    //*                    GIVE BONUSES AND SHOW OVERLAYS                       *
+    //*                    GIVE BONUSES AND SHOW OVERLAYS                 *
     //*********************************************************************
     
     // i = client index

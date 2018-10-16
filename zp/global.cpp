@@ -76,6 +76,7 @@ int g_iOffset_WeaponSkin;
 int g_iOffset_CharacterWeapons;
 int g_iOffset_PlayerViewModel;
 int g_iOffset_PlayerActiveWeapon;
+int g_iOffset_PlayerLastWeapon;
 int g_iOffset_PlayerObserverMode;
 int g_iOffset_PlayerObserverTarget;
 int g_iOffset_PlayerAttack;
@@ -159,6 +160,7 @@ enum ClientData
     Client_Exp,
     Client_DataID,
     Client_Costume,
+    Client_Time,
     Client_AttachmentCostume,
     Client_AttachmentBits,
     Client_AttachmentAddons[11], /* Amount of weapon back attachments */
@@ -177,10 +179,10 @@ enum ClientData
     Handle:Client_LevelTimer,
     Handle:Client_AccountTimer,
     Handle:Client_RespawnTimer,
-    Handle:Client_ZombieSkillTimer,
-    Handle:Client_ZombieCountDownTimer,
-    Handle:Client_ZombieHealTimer,
-    Handle:Client_ZombieMoanTimer
+    Handle:Client_SkillTimer,
+    Handle:Client_CountDownTimer,
+    Handle:Client_HealTimer,
+    Handle:Client_MoanTimer
 };
 
 /**

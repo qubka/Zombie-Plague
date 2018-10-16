@@ -91,7 +91,7 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     }
 
     //*********************************************************************
-    //*                    INITIALIZE LEAP JUMP PROPERTIES                        *
+    //*                    INITIALIZE LEAP JUMP PROPERTIES                *
     //*********************************************************************
     
     // Initialize variable
@@ -160,7 +160,7 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     }
     
     //*********************************************************************
-    //*                     CHECK DELAY OF THE LEAP JUMP                       *
+    //*                     CHECK DELAY OF THE LEAP JUMP                  *
     //*********************************************************************
     
     // Initialize variable
@@ -179,7 +179,7 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     flDelay[clientIndex] = flCurrentTime;
     
     //*********************************************************************
-    //*                            DO THE LEAP JUMP                               *
+    //*                        DO THE LEAP JUMP                           *
     //*********************************************************************
     
     // Initialize some floats

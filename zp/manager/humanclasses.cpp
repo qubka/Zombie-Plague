@@ -41,14 +41,18 @@ ArrayList arrayHumanClasses;
 enum
 {
     HUMANCLASSES_DATA_NAME,
+    HUMANCLASSES_DATA_INFO,
     HUMANCLASSES_DATA_MODEL,
     HUMANCLASSES_DATA_ARM,
+    HUMANCLASSES_DATA_VIEW,
     HUMANCLASSES_DATA_HEALTH,
     HUMANCLASSES_DATA_SPEED,
     HUMANCLASSES_DATA_GRAVITY,
     HUMANCLASSES_DATA_ARMOR,
     HUMANCLASSES_DATA_LEVEL,
     HUMANCLASSES_DATA_GROUP,
+    HUMANCLASSES_DATA_DURATION,
+    HUMANCLASSES_DATA_COUNTDOWN,
     HUMANCLASSES_DATA_SOUNDDEATH,
     HUMANCLASSES_DATA_SOUNDHURT,
     HUMANCLASSES_DATA_SOUNDINFECT,
@@ -56,6 +60,17 @@ enum
     HUMANCLASSES_DATA_SOUNDHURT_ID,
     HUMANCLASSES_DATA_SOUNDINFECT_ID
 }
+
+/**
+ * Number of valid views.
+ **/
+enum HumanViewType
+{
+    ViewType_Invalid = -1,         /** Used as return value when a model doens't exist. */
+    
+    ViewType_Body,                 /** Body index */
+    ViewType_Skin                  /** Skin index */
+};
 
 /**
  * Initialization of human classes. 
@@ -68,7 +83,7 @@ void HumanClassesLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Human Class Validation", "No human classes loaded");
     }
 
-    // Initialize char
+    // Initialize variable
     static char sBuffer[PLATFORM_MAX_PATH];
 
     // Precache of the human classes
@@ -237,10 +252,10 @@ public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
         return -1;
     }
 
-    // Initialize chars
-    char sHumanBuffer[PLATFORM_MAX_PATH];
-    char sHumanName[SMALL_LINE_LENGTH];
-
+    // Initialize variables
+    char sHumanBuffer[PLATFORM_MAX_PATH]; int iHumanBuffer[2];
+    char sHumanName[SMALL_LINE_LENGTH]; 
+    
     // General
     GetNativeString(1, sHumanBuffer, sizeof(sHumanBuffer));   
 
@@ -270,25 +285,36 @@ public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
     // Push native data into array
     arrayHumanClass.PushString(sHumanBuffer); // Index: 0
     GetNativeString(2, sHumanBuffer, sizeof(sHumanBuffer));
+    if(!TranslationPhraseExists(sHumanBuffer) && strlen(sHumanBuffer))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Couldn't cache human class info: \"%s\" (check translation file)", sHumanBuffer);
+        return -1;
+    }
     arrayHumanClass.PushString(sHumanBuffer); // Index: 1
-    GetNativeString(3, sHumanBuffer, sizeof(sHumanBuffer)); 
+    GetNativeString(3, sHumanBuffer, sizeof(sHumanBuffer));
     arrayHumanClass.PushString(sHumanBuffer); // Index: 2
-    arrayHumanClass.Push(GetNativeCell(4));   // Index: 3
-    arrayHumanClass.Push(GetNativeCell(5));   // Index: 4
+    GetNativeString(4, sHumanBuffer, sizeof(sHumanBuffer)); 
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 3
+    GetNativeArray(5, iHumanBuffer, sizeof(iHumanBuffer));
+    arrayHumanClass.PushArray(iHumanBuffer);  // Index: 4
     arrayHumanClass.Push(GetNativeCell(6));   // Index: 5
     arrayHumanClass.Push(GetNativeCell(7));   // Index: 6
     arrayHumanClass.Push(GetNativeCell(8));   // Index: 7
-    GetNativeString(9, sHumanBuffer, sizeof(sHumanBuffer));  
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 8
-    GetNativeString(10, sHumanBuffer, sizeof(sHumanBuffer));  
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 9
-    GetNativeString(11, sHumanBuffer, sizeof(sHumanBuffer));
+    arrayHumanClass.Push(GetNativeCell(9));   // Index: 8
+    arrayHumanClass.Push(GetNativeCell(10));  // Index: 9
+    GetNativeString(11, sHumanBuffer, sizeof(sHumanBuffer));  
     arrayHumanClass.PushString(sHumanBuffer); // Index: 10
-    GetNativeString(12, sHumanBuffer, sizeof(sHumanBuffer));
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 11
-    arrayHumanClass.Push(-1);                 // Index: 12
-    arrayHumanClass.Push(-1);                 // Index: 13
-    arrayHumanClass.Push(-1);                 // Index: 14
+    arrayHumanClass.Push(GetNativeCell(12));  // Index: 11
+    arrayHumanClass.Push(GetNativeCell(13));  // Index: 12
+    GetNativeString(14, sHumanBuffer, sizeof(sHumanBuffer));  
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 13
+    GetNativeString(15, sHumanBuffer, sizeof(sHumanBuffer));
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 14
+    GetNativeString(16, sHumanBuffer, sizeof(sHumanBuffer));
+    arrayHumanClass.PushString(sHumanBuffer); // Index: 15
+    arrayHumanClass.Push(-1);                 // Index: 16
+    arrayHumanClass.Push(-1);                 // Index: 17
+    arrayHumanClass.Push(-1);                 // Index: 18
 
     // Store this handle in the main array
     arrayHumanClasses.Push(arrayHumanClass);
@@ -330,6 +356,41 @@ public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
 
     // Return on success
     return SetNativeString(2, sName, maxLen);
+}
+
+/**
+ * Gets the info of a human class at a given index.
+ *
+ * native void ZP_GetHumanClassInfo(iD, info, maxlen);
+ **/
+public int API_GetHumanClassInfo(Handle isPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+
+    // Validate index
+    if(iD >= arrayHumanClasses.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize info char
+    static char sInfo[SMALL_LINE_LENGTH];
+    HumanGetInfo(iD, sInfo, sizeof(sInfo));
+
+    // Return on success
+    return SetNativeString(2, sInfo, maxLen);
 }
 
 /**
@@ -400,6 +461,35 @@ public int API_GetHumanClassArm(Handle isPlugin, const int iNumParams)
 
     // Return on success
     return SetNativeString(2, sModel, maxLen);
+}
+
+/**
+ * Gets the view index of the human class.
+ *
+ * native int ZP_GetHumanClassView(iD, view);
+ **/
+public int API_GetHumanClassView(Handle isPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayHumanClasses.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+    
+    // Validate type
+    HumanViewType viewType = GetNativeCell(2);
+    if(viewType == ViewType_Invalid)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the view index (%d)", viewType);
+        return -1;
+    }
+    
+    // Return the value
+    return HumanGetView(iD, viewType);
 }
 
 /**
@@ -543,6 +633,48 @@ public int API_GetHumanClassGroup(Handle isPlugin, const int iNumParams)
 }
 
 /**
+ * Gets the skill duration of the human class.
+ *
+ * native float ZP_GetHumanClassSkillDuration(iD);
+ **/
+public int API_GetHumanClassSkillDuration(Handle isPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayHumanClasses.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value (Float fix)
+    return view_as<int>(HumanGetSkillDuration(iD));
+}
+
+/**
+ * Gets the skill countdown of the human class.
+ *
+ * native float ZP_GetHumanClassSkillCountdown(iD);
+ **/
+public int API_GetHumanClassSkillCountdown(Handle isPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayHumanClasses.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value (Float fix)
+    return view_as<int>(HumanGetSkillCountDown(iD));
+}
+
+/**
  * Gets the death sound key of the human class.
  *
  * native int ZP_GetHumanClassSoundDeathID(iD);
@@ -670,6 +802,22 @@ stock void HumanGetName(const int iD, char[] sName, const int iMaxLen)
 }
 
 /**
+ * Gets the info of a human class at a given index.
+ *
+ * @param iD                The class index.
+ * @param sInfo             The string to return info in.
+ * @param iMaxLen           The max length of the string.
+ **/
+stock void HumanGetInfo(const int iD, char[] sInfo, const int iMaxLen)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human class info
+    arrayHumanClass.GetString(HUMANCLASSES_DATA_INFO, sInfo, iMaxLen);
+}
+
+/**
  * Gets the player model of a human class at a given index.
  *
  * @param iD                The class index.
@@ -699,6 +847,28 @@ stock void HumanGetArmModel(const int iD, char[] sModel, const int iMaxLen)
 
     // Gets human class arm model
     arrayHumanClass.GetString(HUMANCLASSES_DATA_ARM, sModel, iMaxLen);
+}
+
+/**
+ * Gets the view index of the human class.
+ *
+ * @param iD                The class index.
+ * @param nView             The position index.
+ * @return                  The body/skin index.   
+ **/
+stock int HumanGetView(const int iD, const HumanViewType nView)
+{
+    // Create a array
+    static int iView[2];
+
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human class view array
+    arrayHumanClass.GetArray(HUMANCLASSES_DATA_VIEW, iView, sizeof(iView));
+
+    // Gets human class view index
+    return iView[nView];
 }
 
 /**
@@ -790,6 +960,36 @@ stock void HumanGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 
     // Gets human class group
     arrayHumanClass.GetString(HUMANCLASSES_DATA_GROUP, sGroup, iMaxLen);
+}
+
+/**
+ * Gets the skill duration of the human class.
+ *
+ * @param iD                The class index.
+ * @return                  The duration amount.    
+ **/
+stock float HumanGetSkillDuration(const int iD)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human class skill duration 
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_DURATION);
+}
+
+/**
+ * Gets the skill countdown of the human class.
+ *
+ * @param iD                The class index.
+ * @return                  The countdown amount.    
+ **/
+stock float HumanGetSkillCountDown(const int iD)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human class skill countdown  
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_COUNTDOWN);
 }
 
 /**
@@ -944,7 +1144,7 @@ void HumanOnValidate(const int clientIndex)
     // Gets array size
     int iSize = arrayHumanClasses.Length;
 
-    // Choose random zombie class for the client
+    // Choose random human class for the client
     if(IsFakeClient(clientIndex) || iSize <= gClientData[clientIndex][Client_HumanClass])
     {
         gClientData[clientIndex][Client_HumanClass] = GetRandomInt(0, iSize-1);
@@ -998,16 +1198,19 @@ void HumanOnValidate(const int clientIndex)
  * Create the human class menu.
  *
  * @param clientIndex       The client index.
+ * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/
-void HumanMenu(const int clientIndex) 
+void HumanMenu(const int clientIndex, const bool bInstant = false) 
 {
+    #define MENU_TIME_INSTANT 10 /*< Menu time of the instant change >*/
+    
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
         return;
     }
 
-    // Initialize chars
+    // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
@@ -1015,7 +1218,7 @@ void HumanMenu(const int clientIndex)
     static char sGroup[SMALL_LINE_LENGTH];
     
     // Create menu handle
-    Menu hMenu = CreateMenu(HumanMenuSlots);
+    Menu hMenu = CreateMenu(bInstant ? HumanMenuSlots2 : HumanMenuSlots1);
 
     // Sets the language to target
     SetGlobalTransTarget(clientIndex);
@@ -1024,7 +1227,7 @@ void HumanMenu(const int clientIndex)
     hMenu.SetTitle("%t", "choose humanclass");
     
     // Initialize forward
-    Action resultHandle;
+    static Action resultHandle;
     
     // i = Human class number
     int iCount = arrayHumanClasses.Length;
@@ -1056,8 +1259,8 @@ void HumanMenu(const int clientIndex)
     hMenu.ExitBackButton = true;
 
     // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
-    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, bInstant ? MENU_TIME_INSTANT : MENU_TIME_FOREVER); 
 }
 
 /**
@@ -1068,7 +1271,36 @@ void HumanMenu(const int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int HumanMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int HumanMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+   // Call menu
+   HumanMenuSlots(hMenu, mAction, clientIndex, mSlot);
+}
+
+/**
+ * Called when client selects option in the human class menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int HumanMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+   // Call menu
+   HumanMenuSlots(hMenu, mAction, clientIndex, mSlot, true);
+}
+
+/**
+ * Called when client selects option in the human class menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
+ **/ 
+void HumanMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot, const bool bInstant = false)
 {
     // Switch the menu action
     switch(mAction)
@@ -1098,10 +1330,10 @@ public int HumanMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
                 return;
             }
 
-            // Initialize char
+            // Initialize variable
             static char sInfo[SMALL_LINE_LENGTH];
 
-            // Gets ID of zombie class
+            // Gets ID of human class
             hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
             int iD = StringToInt(sInfo);
             
@@ -1111,9 +1343,24 @@ public int HumanMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
             // Validate handle
             if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
             {
-                // Sets next zombie class
-                gClientData[clientIndex][Client_HumanClassNext] = iD;
-
+                // Validate instant change
+                if(bInstant)
+                {
+                    // Validate human
+                    if(gClientData[clientIndex][Client_Zombie] || gClientData[clientIndex][Client_Survivor])
+                    {
+                        return;
+                    }
+                    
+                    // Force client to switch player class
+                    ClassMakeHuman(clientIndex, _, true);
+                }
+                else
+                {
+                    // Sets next human class
+                    gClientData[clientIndex][Client_HumanClassNext] = iD;
+                }
+                
                 // Gets human name
                 HumanGetName(iD, sInfo, sizeof(sInfo));
                 

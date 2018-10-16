@@ -41,7 +41,15 @@ enum ForwardsList
     Handle:OnClientValidateCostume,
     Handle:OnClientSkillUsed,
     Handle:OnClientSkillOver,
+    Handle:OnGrenadeCreated,
     Handle:OnWeaponCreated,
+    Handle:OnWeaponRunCmd,
+    Handle:OnWeaponDeploy,
+    Handle:OnWeaponHolster,
+    Handle:OnWeaponReload,
+    Handle:OnWeaponBullet,
+    Handle:OnWeaponShoot,
+    Handle:OnWeaponFire,
     Handle:OnZombieModStarted,
     Handle:OnEngineExecute
 }
@@ -67,7 +75,15 @@ void APIForwardsInit(/*void*/)
     gForwardsList[OnClientValidateCostume] = CreateGlobalForward("ZP_OnClientValidateCostume", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientSkillUsed]       = CreateGlobalForward("ZP_OnClientSkillUsed", ET_Hook, Param_Cell);
     gForwardsList[OnClientSkillOver]       = CreateGlobalForward("ZP_OnClientSkillOver", ET_Ignore, Param_Cell);
-    gForwardsList[OnWeaponCreated]         = CreateGlobalForward("ZP_OnWeaponCreated", ET_Ignore, Param_Cell, Param_Cell);
+    gForwardsList[OnGrenadeCreated]        = CreateGlobalForward("ZP_OnGrenadeCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponCreated]         = CreateGlobalForward("ZP_OnWeaponCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponRunCmd]          = CreateGlobalForward("ZP_OnWeaponRunCmd", ET_Hook, Param_Cell, Param_CellByRef, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponDeploy]          = CreateGlobalForward("ZP_OnWeaponDeploy", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponHolster]         = CreateGlobalForward("ZP_OnWeaponHolster", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponReload]          = CreateGlobalForward("ZP_OnWeaponReload", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponBullet]          = CreateGlobalForward("ZP_OnWeaponBullet", ET_Ignore, Param_Cell, Param_Array, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponShoot]           = CreateGlobalForward("ZP_OnWeaponShoot", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnWeaponFire]            = CreateGlobalForward("ZP_OnWeaponFire", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
     gForwardsList[OnZombieModStarted]      = CreateGlobalForward("ZP_OnZombieModStarted", ET_Ignore, Param_Cell);
     gForwardsList[OnEngineExecute]         = CreateGlobalForward("ZP_OnEngineExecute", ET_Ignore);
 }
@@ -155,7 +171,7 @@ void API_OnClientDamaged(const int victimIndex, const int attackerIndex, const i
 Action API_OnClientValidateExtraItem(const int clientIndex, const int itemIndex)
 {
     // Initialize future result
-    Action resultHandle;
+    static Action resultHandle;
     
     // Start forward call
     Call_StartForward(gForwardsList[OnClientValidateItem]);
@@ -204,7 +220,7 @@ void API_OnClientBuyExtraItem(const int clientIndex, const int itemIndex)
 Action API_OnClientValidateMainMenu(const int clientIndex)
 {
     // Initialize future result
-    Action resultHandle;
+    static Action resultHandle;
     
     // Start forward call
     Call_StartForward(gForwardsList[OnClientValidateMenu]);
@@ -231,7 +247,7 @@ Action API_OnClientValidateMainMenu(const int clientIndex)
 Action API_OnClientValidateZombieClass(const int clientIndex, const int classIndex)
 {
     // Initialize future result
-    Action resultHandle;
+    static Action resultHandle;
     
     // Start forward call
     Call_StartForward(gForwardsList[OnClientValidateZombie]);
@@ -259,7 +275,7 @@ Action API_OnClientValidateZombieClass(const int clientIndex, const int classInd
 Action API_OnClientValidateHumanClass(const int clientIndex, const int classIndex)
 {
     // Initialize future result
-    Action resultHandle;
+    static Action resultHandle;
     
     // Start forward call
     Call_StartForward(gForwardsList[OnClientValidateHuman]);
@@ -287,7 +303,7 @@ Action API_OnClientValidateHumanClass(const int clientIndex, const int classInde
 Action API_OnClientValidateCostume(const int clientIndex, const int costumeIndex)
 {
     // Initialize future result
-    Action resultHandle;
+    static Action resultHandle;
     
     // Start forward call
     Call_StartForward(gForwardsList[OnClientValidateCostume]);
@@ -314,7 +330,7 @@ Action API_OnClientValidateCostume(const int clientIndex, const int costumeIndex
 Action API_OnClientSkillUsed(const int clientIndex)
 {
     // Initialize future result
-    Action resultHandle;
+    static Action resultHandle;
 
     // Start forward call
     Call_StartForward(gForwardsList[OnClientSkillUsed]);
@@ -347,17 +363,204 @@ void API_OnClientSkillOver(const int clientIndex)
 }
 
 /**
- * Called after a custom weapon is created.
+ * Called after a custom grenade is created.
  *
- * @param weaponIndex       The weapon index.
+ * @param clientIndex       The client index.
+ * @param grenadeIndex      The grenade index.
  * @param weaponID          The weapon id.
  **/
-void API_OnWeaponCreated(const int weaponIndex, const int weaponID)
+void API_OnGrenadeCreated(const int clientIndex, const int grenadeIndex, const int weaponID)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnWeaponCreated]);
 
     // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCell(grenadeIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * Called after a custom weapon is created.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+void API_OnWeaponCreated(const int clientIndex, const int weaponIndex, const int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponCreated]);
+
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * Called on each frame of a weapon holding.
+ *
+ * @param clientIndex       The client index.
+ * @param iButtons          The buttons buffer.
+ * @param iLastButtons      The last buttons buffer.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  Plugin_Continue to allow buttons. Anything else
+ *                                (like Plugin_Change) to change buttons.
+ **/
+Action API_OnWeaponRunCmd(const int clientIndex, int &iButtons, const int iLastButtons, const int weaponIndex, const int weaponID)
+{
+    // Initialize future result
+    static Action resultHandle;
+
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponRunCmd]);
+
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCellRef(iButtons);
+    Call_PushCell(iLastButtons);
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish(resultHandle);
+    
+    // Return result
+    return resultHandle;
+}
+
+/**
+ * Called on deploy of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+void API_OnWeaponDeploy(const int clientIndex, const int weaponIndex, const int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponDeploy]);
+
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * Called on holster of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+void API_OnWeaponHolster(const int clientIndex, const int weaponIndex, const int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponHolster]);
+
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * Called on reload of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+void API_OnWeaponReload(const int clientIndex, const int weaponIndex, const int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponReload]);
+
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * @brief Called on bullet of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param vBulletPosition   The position of a bullet hit.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+void API_OnWeaponBullet(const int clientIndex, const float vBulletPosition[3], const int weaponIndex, const int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponBullet]);
+    
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushArray(vBulletPosition, 3);
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * Called on shoot of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+void API_OnWeaponShoot(const int clientIndex, const int weaponIndex, const int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponShoot]);
+
+    // Push the parameters
+    Call_PushCell(clientIndex);
+    Call_PushCell(weaponIndex);
+    Call_PushCell(weaponID);
+    
+    // Finish the call
+    Call_Finish();
+}
+
+/**
+ * Called on fire of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+void API_OnWeaponFire(const int clientIndex, const int weaponIndex, const int weaponID)
+{
+    // Start forward call
+    Call_StartForward(gForwardsList[OnWeaponFire]);
+
+    // Push the parameters
+    Call_PushCell(clientIndex);
     Call_PushCell(weaponIndex);
     Call_PushCell(weaponID);
     

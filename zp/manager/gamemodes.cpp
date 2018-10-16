@@ -64,7 +64,7 @@ void GameModesLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Gamemodes, "Game Mode Validation", "No game modes loaded");
     }
 
-    // Initialize char
+    // Initialize variable
     static char sBuffer[NORMAL_LINE_LENGTH];
 
     // Precache of the game modes
@@ -167,7 +167,7 @@ public Action GameModesStart(Handle hTimer)
 void GameModesEventStart(int modeIndex = -1, const int selectedIndex = 0)
 {
     // Initalize some variables
-    static int lastMode; int defaultMode; int nAlive = fnGetAlive(); 
+    static int lastMode; static int defaultMode; int nAlive = fnGetAlive(); 
 
     // Validate random mode
     if(modeIndex == -1)
@@ -459,7 +459,7 @@ public int API_RegisterGameMode(Handle isPlugin, const int iNumParams)
         return -1;
     }
 
-    // Initialize chars
+    // Initialize variables
     char sModeBuffer[SMALL_LINE_LENGTH];
     char sModeName[SMALL_LINE_LENGTH];
 

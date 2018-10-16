@@ -34,7 +34,7 @@
 /**
  * Number of max valid sounds blocks.
  **/
-#define SoundBlocksMax 256
+#define SoundBlocksMax 1024
 
 /**
  * Array handle to store soundtable config data.
@@ -340,7 +340,7 @@ public int API_GetSound(Handle isPlugin, const int iNumParams)
         return -1;
     }
     
-    // Initialize char
+    // Initialize variable
     static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
     
     // Select sound in the array
@@ -374,7 +374,7 @@ stock void SoundsGetLine(const int iD, char[] sLine, const int iMaxLen)
     ArrayList arraySound = arraySounds.Get(iD);
     
     // Gets line
-    arraySound.GetString(view_as<int>(INVALID_HANDLE), sLine, iMaxLen);
+    arraySound.GetString(0, sLine, iMaxLen);
 }
  
 /**
@@ -437,7 +437,7 @@ stock int SoundsKeyToIndex(const char[] sKey)
  **/
 stock bool SoundsInputEmitToAll(int iKey, int iNum, const int entityIndex = SOUND_FROM_PLAYER, const int iChannel = SNDCHAN_AUTO, const int iLevel = SNDLEVEL_NORMAL, const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const int speakerIndex = INVALID_ENT_REFERENCE, const float vOrigin[3] = NULL_VECTOR, const float vDirection[3] = NULL_VECTOR, const bool updatePos = true, const float flSoundTime = 0.0)
 {
-    // Initialize char
+    // Initialize variable
     static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
     
     // Select sound in the array
@@ -474,7 +474,7 @@ stock bool SoundsInputEmitToAll(int iKey, int iNum, const int entityIndex = SOUN
  **/
 stock bool SoundsInputEmitAmbient(int iKey, int iNum, const float vOrigin[3], const int entityIndex = SOUND_FROM_WORLD, const int iLevel = SNDLEVEL_NORMAL,const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const float flDelay = 0.0)
 {
-    // Initialize char
+    // Initialize variable
     static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
     
     // Select sound in the array

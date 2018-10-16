@@ -86,7 +86,7 @@ void ZombieClassesLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Zombie Class Validation", "No zombie classes loaded");
     }
 
-    // Initialize char
+    // Initialize variable
     static char sBuffer[PLATFORM_MAX_PATH];
 
     // Precache of the zombie classes
@@ -276,7 +276,7 @@ public int API_RegisterZombieClass(Handle isPlugin, const int iNumParams)
         return -1;
     }
 
-    // Initialize chars
+    // Initialize variables
     char sZombieBuffer[PLATFORM_MAX_PATH];
     char sZombieName[SMALL_LINE_LENGTH];
 
@@ -1750,16 +1750,19 @@ void ZombieOnValidate(const int clientIndex)
  * Create the zombie class menu.
  *
  * @param clientIndex       The client index.
+ * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/
-void ZombieMenu(const int clientIndex) 
+void ZombieMenu(const int clientIndex, const bool bInstant = false) 
 {
+    #define MENU_TIME_INSTANT 10 /*< Menu time of the instant change >*/
+    
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
         return;
     }
 
-    // Initialize chars
+    // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
@@ -1767,7 +1770,7 @@ void ZombieMenu(const int clientIndex)
     static char sGroup[SMALL_LINE_LENGTH];
 
     // Create menu handle
-    Menu hMenu = CreateMenu(ZombieMenuSlots);
+    Menu hMenu = CreateMenu(bInstant ? ZombieMenuSlots2 : ZombieMenuSlots1);
 
     // Sets the language to target
     SetGlobalTransTarget(clientIndex);
@@ -1776,7 +1779,7 @@ void ZombieMenu(const int clientIndex)
     hMenu.SetTitle("%t", "choose zombieclass");
     
     // Initialize forward
-    Action resultHandle;
+    static Action resultHandle;
     
     // i = Zombie class number
     int iCount = arrayZombieClasses.Length;
@@ -1808,8 +1811,8 @@ void ZombieMenu(const int clientIndex)
     hMenu.ExitBackButton = true;
 
     // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
-    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, bInstant ? MENU_TIME_INSTANT : MENU_TIME_FOREVER); 
 }
 
 /**
@@ -1820,7 +1823,36 @@ void ZombieMenu(const int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZombieMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ZombieMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+   // Call menu
+   ZombieMenuSlots(hMenu, mAction, clientIndex, mSlot);
+}
+
+/**
+ * Called when client selects option in the zombie class menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZombieMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+   // Call menu
+   ZombieMenuSlots(hMenu, mAction, clientIndex, mSlot, true);
+}
+
+/**
+ * Called when client selects option in the zombie class menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
+ **/ 
+void ZombieMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot, const bool bInstant = false)
 {
     // Switch the menu action
     switch(mAction)
@@ -1850,7 +1882,7 @@ public int ZombieMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                 return;
             }
 
-            // Initialize char
+            // Initialize variable
             static char sInfo[SMALL_LINE_LENGTH];
 
             // Gets ID of zombie class
@@ -1863,9 +1895,24 @@ public int ZombieMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex
             // Validate handle
             if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
             {
-                // Sets next zombie class
-                gClientData[clientIndex][Client_ZombieClassNext] = iD;
-        
+                // Validate instant change
+                if(bInstant)
+                {
+                    // Validate zombie
+                    if(!gClientData[clientIndex][Client_Zombie] || gClientData[clientIndex][Client_Nemesis])
+                    {
+                        return;
+                    }
+                    
+                    // Force client to switch player class
+                    ClassMakeZombie(clientIndex, _, _, true);
+                }
+                else
+                {
+                    // Sets next zombie class
+                    gClientData[clientIndex][Client_ZombieClassNext] = iD;
+                }
+                
                 // Gets zombie name
                 ZombieGetName(iD, sInfo, sizeof(sInfo));
 

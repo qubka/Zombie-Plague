@@ -37,7 +37,7 @@ int  LevelSystemNum;
 static char LevelSystemStats[LevelSystemMax][SMALL_LINE_LENGTH];
  
 /**
- * HUD synchronization hadnle.
+ * HUD synchronization handle.
  **/
 Handle hHudLevel;
  

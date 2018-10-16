@@ -92,7 +92,7 @@ void DeathOnClientDeath(const int victimIndex, const int attackerIndex)
 }
 
 /**
- * The player is about to respawn.
+ * Timer for respawn a player.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.

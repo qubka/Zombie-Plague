@@ -57,8 +57,9 @@ public Plugin myinfo =
 // Initialize variable
 bool bArmored[MAXPLAYERS+1];
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
 // Item index
 int gItem;

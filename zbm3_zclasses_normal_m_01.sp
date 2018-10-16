@@ -74,15 +74,16 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
 
 // Initialize vectors
 float vGasPostion[MAXPLAYERS+1][3];
 
-// Initialize zombie class index
-int gZombieNormalM01;
-#pragma unused gZombieNormalM01
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -94,7 +95,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieNormalM01 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -127,10 +128,13 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
+    
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex        The client index.
  *
@@ -139,14 +143,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-    
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM01)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Emit sound
         static char sSound[PLATFORM_MAX_PATH];

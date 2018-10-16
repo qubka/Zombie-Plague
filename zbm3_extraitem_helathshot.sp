@@ -51,7 +51,7 @@ public Plugin myinfo =
 #define EXTRA_ITEM_LIMIT               0
 #define EXTRA_ITEM_GROUP               ""
 /**
-    * @endsection
+ * @endsection
  **/
 
 // Item index

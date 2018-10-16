@@ -141,7 +141,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
     }
 
     //*********************************************************************
-    //*                     VALIDATION OF THE PLAYER                           *
+    //*                     VALIDATION OF THE PLAYER                      *
     //*********************************************************************
     
     // If gamemodes disabled, then skip

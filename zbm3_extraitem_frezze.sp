@@ -79,11 +79,12 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// Initialize variables
+// Timer index
 Handle Task_ZombieFreezed[MAXPLAYERS+1] = INVALID_HANDLE; 
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
 
 // Item index
 int gItem; int gWeapon;
@@ -106,16 +107,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 
         // Initialize extra item
         gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
+    
+        // Hooks server sounds
+        AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
     }
-}
-
-/**
- * Plugin is loading.
- **/
-public void OnPluginStart(/*void*/)
-{
-    // Hooks server sounds
-    AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 }
 
 /**
@@ -272,12 +267,6 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Client was damaged by 'bullet'
     if(damageType & DMG_NEVERGIB)
     {
@@ -357,7 +346,7 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
                             DispatchSpawn(iceIndex);
                             TeleportEntity(iceIndex, vVictimPosition, vVictimAngle, NULL_VECTOR);
 
-                            // Initialize char
+                            // Initialize variable
                             static char sTime[SMALL_LINE_LENGTH];
                             Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GRENADE_FREEZE_TIME);
 
@@ -471,7 +460,7 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, const int userID)
                 SetVariantString("eholster"); 
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
 
-                // Initialize char
+                // Initialize variable
                 static char sTime[SMALL_LINE_LENGTH];
                 Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GLASS_GIBS_DURATION);
 
@@ -505,24 +494,24 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     // Validate client
     if(IsValidEdict(entityIndex))
     {
-        // Gets the entity classname
-        static char sClassname[PLATFORM_MAX_PATH];
-        GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
-
-        // Validate grenade
-        if(!strncmp(sClassname, "smokegrenade_", 13, false))
+        // Validate custom grenade
+        if(ZP_GetWeaponID(entityIndex) == gWeapon)
         {
+            // Initialize variable
+            static char sSound[PLATFORM_MAX_PATH];
+
+            // Validate sound
             if(!strncmp(sSample[31], "hit", 3, false))
             {
                 // Emit a custom bounce sound
-                ZP_GetSound(gSound, sClassname, sizeof(sClassname), 3);
-                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(4, 6));
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[29], "emit", 4, false))
             {
                 // Emit explosion sound
-                ZP_GetSound(gSound, sClassname, sizeof(sClassname), 4);
-                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 3);
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
 
             // Block sounds

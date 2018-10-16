@@ -87,15 +87,16 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Initialize variables
+// Timer index
 Handle Task_HumanBlasted[MAXPLAYERS+1] = INVALID_HANDLE;
  
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
-// Initialize zombie class index
-int gZombieNormalM10;
-#pragma unused gZombieNormalM10
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -107,7 +108,7 @@ public void OnLibraryAdded(const char[] sLibrary) // Paralizing blast
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieNormalM10 = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -203,7 +204,7 @@ public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respaw
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex        The client index.
  *
@@ -212,14 +213,8 @@ public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respaw
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-    
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieNormalM10)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];

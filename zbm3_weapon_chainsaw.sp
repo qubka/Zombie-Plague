@@ -62,19 +62,21 @@ public Plugin myinfo =
 #define WEAPON_STAB_DAMAGE             50.0
 #define WEAPON_SLASH_DISTANCE          80.0
 #define WEAPON_STAB_DISTANCE           90.0
+#define WEAPON_TIME_DELAY_STAB         1.2
+#define WEAPON_TIME_DELAY_START        0.4
+#define WEAPON_TIME_DELAY_END          1.7
 /**
  * @endsection
  **/
 
-// Initialize variables
-Handle Task_IdleUpdate[MAXPLAYERS+1] = INVALID_HANDLE; 
+// Timer index
 Handle Task_Stab[MAXPLAYERS+1] = INVALID_HANDLE; 
  
 // Item index
 int gItem; int gWeapon;
 #pragma unused gItem, gWeapon
 
-// Variables for the key sound block
+// Sound index
 int gSoundAttack; int gSoundHit; ConVar hSoundLevel;
 
 // Animation sequences
@@ -102,7 +104,7 @@ enum
 {
     STATE_BEGIN,
     STATE_ATTACK
-}
+};
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -127,7 +129,6 @@ public void OnMapEnd(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Purge timers
-        Task_IdleUpdate[i] = INVALID_HANDLE; /// with flag TIMER_FLAG_NO_MAPCHANGE
         Task_Stab[i] = INVALID_HANDLE; /// with flag TIMER_FLAG_NO_MAPCHANGE 
     }
 }
@@ -140,7 +141,6 @@ public void OnMapEnd(/*void*/)
 public void OnClientDisconnect(int clientIndex)
 {
     // Delete timers
-    delete Task_IdleUpdate[clientIndex];
     delete Task_Stab[clientIndex];
 }
 
@@ -213,9 +213,9 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iChargeReady, const float flCurrentTime)
+void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
     /// Block the real attack
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
@@ -224,19 +224,25 @@ void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));
 }
 
-void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iChargeReady, const float flCurrentTime)
+void Weapon_OnReloadStart(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
     
     // Validate mode
-    if(iChargeReady > STATE_BEGIN)
+    if(iStateMode > STATE_BEGIN)
     {
-        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
+        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
         return;
     }
 
     // Validate animation delay
     if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    {
+        return;
+    }
+    
+    // Validate ammo
+    if(!iAmmo)
     {
         return;
     }
@@ -256,47 +262,55 @@ void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iC
     }
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iChargeReady, const float flCurrentTime)
+bool Weapon_OnReloadEmulate(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
+    
+    // Validate reload
+    return !iClip && iAmmo ? true : false;
+}
+
+void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
+
+    /// Block the real attack
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
 
     // Sets the draw animation
     ZP_SetWeaponAnimation(clientIndex, !iClip ? ANIM_EMPTY_DRAW : ANIM_DRAW); 
     
-    /// Block the real attack
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-
     // Sets the attack state
-    SetEntProp(weaponIndex, Prop_Send, "m_iIronSightMode", STATE_BEGIN);
+    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
     
-    // Sets the shots counter
+    // Sets the shots count
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", 0);
 
     // Sets the next attack time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const int iChargeReady, const float flCurrentTime)
+void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
     // Validate ammo
     if(iClip <= 0)
     {
         // Validate mode
-        if(iChargeReady > STATE_BEGIN)
+        if(iStateMode > STATE_BEGIN)
         {
-            Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
+            Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
         }
         else
         {
-            Weapon_OnSecondaryAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
+            Weapon_OnSecondaryAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
         }
         return;
     }
     
-    // Resets the empty sound
-    SetEntProp(weaponIndex, Prop_Data, "m_bFireOnEmpty", false);
+    /// Block the real attack
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
 
     // Validate animation delay
     if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -307,12 +321,12 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     // Validate water
     if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
     {
-        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
+        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
         return;
     }
 
     // Switch mode
-    switch(iChargeReady)
+    switch(iStateMode)
     {
         case STATE_BEGIN :
         {
@@ -320,10 +334,14 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
             ZP_SetWeaponAnimation(clientIndex, ANIM_ATTACK_START);        
 
             // Sets the attack state
-            SetEntProp(weaponIndex, Prop_Send, "m_iIronSightMode", STATE_ATTACK);
+            SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_ATTACK);
 
+            // Adds the delay to the game tick
+            flCurrentTime += WEAPON_TIME_DELAY_START;
+            
             // Sets the next attack time
-            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.4);
+            SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);   
         }
 
         case STATE_ATTACK :
@@ -334,17 +352,21 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
             // Substract ammo
             iClip -= 1; SetEntProp(weaponIndex, Prop_Send, "m_iClip1", iClip); if(!iClip)
             {
-                Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
+                Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
                 return;
             }
 
             // Emit the attack sound
             static char sSound[PLATFORM_MAX_PATH];
             ZP_GetSound(gSoundAttack, sSound, sizeof(sSound), 1);
-            EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+            EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
 
+            // Adds the delay to the game tick
+            flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+            
             // Sets the next attack time
-            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));           
+            SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);         
 
             // Sets the shots count
             SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", GetEntProp(clientIndex, Prop_Send, "m_iShotsFired") + 1);
@@ -357,7 +379,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
             TE_SendToClient(clientIndex);
             
             // Initialize some variables
-            static float vVelocity[3]; int iFlags = GetEntityFlags(clientIndex);
+            static float vVelocity[3]; static int iFlags; iFlags = GetEntityFlags(clientIndex);
 
             // Gets the client velocity
             GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
@@ -383,9 +405,9 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     }
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iChargeReady, float flCurrentTime)
+void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
     
     // Validate animation delay
     if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -396,14 +418,14 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
     // Validate water
     if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
     {
-        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
+        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
         return;
     }
 
     // Validate mode
-    if(iChargeReady > STATE_BEGIN)
+    if(iStateMode > STATE_BEGIN)
     {
-        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime);
+        Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
         return;
     }
 
@@ -416,7 +438,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
         // Emit the attack sound
         static char sSound[PLATFORM_MAX_PATH];
         ZP_GetSound(gSoundAttack, sSound, sizeof(sSound), 4);
-        EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
     else
     {
@@ -426,38 +448,27 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
         // Emit the attack sound
         static char sSound[PLATFORM_MAX_PATH];
         ZP_GetSound(gSoundAttack, sSound, sizeof(sSound), GetRandomInt(2, 3));
-        EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+        EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
 
     // Create timer for stab
     delete Task_Stab[clientIndex];
     Task_Stab[clientIndex] = CreateTimer(0.105, Weapon_OnStab, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
     
-    // Sets the next attack time
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + 1.2);  
-}
-
-/*void Weapon_OnIdle(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const float flCurrentTime)
-{
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
+    // Adds the delay to the game tick
+    flCurrentTime += WEAPON_TIME_DELAY_STAB;
     
-    // Validate reload complete
-    if(GetEntProp(weaponIndex, Prop_Send, "m_bReloadVisuallyComplete"))
-    {
-        // Block the real attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-        
-        // Reset completing
-        SetEntProp(weaponIndex, Prop_Send, "m_bReloadVisuallyComplete", false);
-    }
-}*/
+    // Sets the next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);
+}
 
 void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
 {
     #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
 
     // Initialize some variables
-    int iDirection; int iShotsFired; static float vPunchAngle[3];
+    static int iDirection; static int iShotsFired; static float vPunchAngle[3];
     GetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
 
     // Gets a shots fired
@@ -471,7 +482,7 @@ void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, c
     // Reduce a max power
     upMax *= -1.0;
     vPunchAngle[0] -= upBase;
-
+    
     // Validate max angle
     if(upMax >= vPunchAngle[0])
     {
@@ -518,7 +529,7 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex, const float fl
 {    
     #pragma unused clientIndex, weaponIndex, flRightShift, bSlash
 
-    // Initialize variables
+    // Initialize vectors
     static float vPosition[3]; static float vEndPosition[3];  static float vPlaneNormal[3]; static char sSound[PLATFORM_MAX_PATH];
 
     // Gets the weapon position
@@ -559,7 +570,7 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex, const float fl
             ZP_GetSound(gSoundHit, sSound, sizeof(sSound), GetRandomInt(3, 4));
             EmitSoundToAll(sSound, victimIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
 
-            // Gets the weapon position
+            // Gets the center position
             ZP_GetPlayerGunPosition(victimIndex, 0.0, 0.0, -45.0, vPosition);
             
             // Create a blood effect
@@ -581,25 +592,25 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex, const float fl
     delete hTrace;
 }
 
-void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iChargeReady, const float flCurrentTime)
+void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iChargeReady, flCurrentTime
+    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
     // Validate mode
-    if(iChargeReady > STATE_BEGIN)
+    if(iStateMode > STATE_BEGIN)
     {
-        // Sets the begin animation
+        // Sets the end animation
         ZP_SetWeaponAnimation(clientIndex, ANIM_ATTACK_END);        
 
         // Sets the begin state
-        SetEntProp(weaponIndex, Prop_Send, "m_iIronSightMode", STATE_BEGIN);
+        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
 
+        // Adds the delay to the game tick
+        flCurrentTime += WEAPON_TIME_DELAY_END;
+        
         // Sets the next attack time
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + 1.7);
-
-        // Create timer for updating idle animation 
-        delete Task_IdleUpdate[clientIndex]; /// Bugfix
-        Task_IdleUpdate[clientIndex] = CreateTimer(1.5, Weapon_OnReset, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);
     }
 }
 
@@ -612,8 +623,8 @@ void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int 
 public Action Weapon_OnStab(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); int weaponIndex;
-
+    int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
+    
     // Clear timer 
     Task_Stab[clientIndex] = INVALID_HANDLE;
 
@@ -624,33 +635,8 @@ public Action Weapon_OnStab(Handle hTimer, const int userID)
         for(int i = 0; i < 15; i++)
         {
             // Do slash
-            Weapon_OnSlash(clientIndex, weaponIndex, flRightShift += 4.0, false);
+            Weapon_OnSlash(clientIndex, weaponIndex, flRightShift += 4.0, true);
         }
-    }
-
-    // Destroy timer
-    return Plugin_Stop;
-}
-
-/**
- * Timer for idle update.
- *
- * @param hTimer            The timer handle.
- * @param userID            The user id.
- **/
-public Action Weapon_OnReset(Handle hTimer, const int userID)
-{
-    // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); int weaponIndex;
-
-    // Clear timer 
-    Task_IdleUpdate[clientIndex] = INVALID_HANDLE;
-    
-    // Validate client
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
-    {    
-        // Sets the idle animation
-        ZP_SetWeaponAnimation(clientIndex, !GetEntProp(weaponIndex, Prop_Send, "m_iClip1") ? ANIM_EMPTY_IDLE : ANIM_IDLE); 
     }
 
     // Destroy timer
@@ -672,71 +658,39 @@ public Action Weapon_OnReset(Handle hTimer, const int userID)
                                 \
         GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
                                 \
-        GetEntProp(%2, Prop_Send, "m_iIronSightMode"), \
+        GetEntProp(%2, Prop_Send, "m_iClip2"), \
                                 \
         GetGameTime() \
     )
 
 /**
- * Called once a client is authorized and fully in-game, and 
- * after all post-connection authorizations have been performed.  
- *
- * This callback is gauranteed to occur on all clients, and always 
- * after each OnClientPutInServer() call.
- * 
- * @param clientIndex       The client index. 
- **/
-public void OnClientPostAdminCheck(int clientIndex)
-{
-    // Hook entity callbacks
-    SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponOnDeployPost);
-}
-
-/**
  * Called after a custom weapon is created.
  *
+ * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
+public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
 {
     // Validate custom weapon
     if(weaponID == gWeapon)
     {
-        // Hook entity callbacks
-        SDKHook(weaponIndex, SDKHook_ReloadPost, WeaponOnReloadPost);
+        // Reset variables
+        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
     }
-}
-
+} 
+    
 /**
- * Hook: WeaponSwitchPost
- * Player deploy any weapon.
+ * Called on deploy of a weapon.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
  **/
-public void WeaponOnDeployPost(const int clientIndex, const int weaponIndex) 
+public void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID) 
 {
-    // Delete timers
-    delete Task_IdleUpdate[clientIndex];
-    delete Task_Stab[clientIndex];
-    
-    // Apply fake deploy hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
-}
-
-/**
- * FakeHook: WeaponSwitchPost
- *
- * @param userID            The user id.
- **/
-public void WeaponOnFakeDeployPost(const int userID)
-{
-    // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); int weaponIndex;
-
-    // Validate weapon
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    // Validate custom weapon
+    if(weaponID == gWeapon)
     {
         // Call event
         _call.Deploy(clientIndex, weaponIndex);
@@ -744,80 +698,66 @@ public void WeaponOnFakeDeployPost(const int userID)
 }
 
 /**
- * Hook: WeaponReloadPost
- * Weapon is reloaded.
+ * Called on holster of a weapon.
  *
+ * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
  **/
-public Action WeaponOnReloadPost(const int weaponIndex) 
+public void ZP_OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID) 
 {
-    // Apply fake reload hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeReloadPost), EntIndexToEntRef(weaponIndex));
-}
-
-/**
- * FakeHook: WeaponReloadPost
- *
- * @param referenceIndex    The reference index.
- **/
-public void WeaponOnFakeReloadPost(const int referenceIndex) 
-{
-    // Get the weapon index from the reference
-    int entityIndex = EntRefToEntIndex(referenceIndex);
-
-    // Validate weapon
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    // Validate custom weapon
+    if(weaponID == gWeapon)
     {
-        // Gets the weapon owner
-        int clientIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwner");
-
-        // Validate owner
-        if(IsPlayerExist(clientIndex))
-        {
-            // Call event
-            _call.Reload(clientIndex, entityIndex);
-        }
+        // Delete timers
+        delete Task_Stab[clientIndex];
     }
 }
 
 /**
- * Event: WeaponPostFrame
- * Weapon is holding.
- *  
+ * Called on reload of a weapon.
+ *
  * @param clientIndex       The client index.
- * @param iButtons          Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
- * @param iImpulse          Copyback buffer containing the current impulse command.
- * @param flVelocity        Players desired velocity.
- * @param flAngles          Players desired view angles.    
- * @param weaponID          The entity index of the new weapon if player switches weapon, 0 otherwise.
- * @param iSubType          Weapon subtype when selected from a menu.
- * @param iCmdNum           Command number. Increments from the first command sent.
- * @param iTickCount        Tick count. A client prediction based on the server GetGameTickCount value.
- * @param iSeed             Random seed. Used to determine weapon recoil, spread, and other predicted elements.
- * @param iMouse            Mouse direction (x, y).
- **/ 
-public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponReload(int clientIndex, int weaponIndex, int weaponID)
 {
-    // Validate weapon
-    static int weaponIndex;
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    // Validate custom weapon
+    if(weaponID == gWeapon)
     {
-        // Initialize variable
-        static int iLastButtons[MAXPLAYERS+1];
-
         // Call event
-        ///_call.Idle(clientIndex, weaponIndex);
-        
+        _call.Reload(clientIndex, weaponIndex);
+    }
+}
+
+/**
+ * Called on each frame of a weapon holding.
+ *
+ * @param clientIndex       The client index.
+ * @param iButtons          The buttons buffer.
+ * @param iLastButtons      The last buttons buffer.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  Plugin_Continue to allow buttons. Anything else 
+ *                                (like Plugin_Change) to change buttons.
+ **/
+public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
         // Button primary attack press
         if(iButtons & IN_ATTACK)
         {
             // Call event
             _call.PrimaryAttack(clientIndex, weaponIndex);
-            iLastButtons[clientIndex] = iButtons; iButtons &= (~IN_ATTACK); //! Bugfix
+            iButtons &= (~IN_ATTACK); //! Bugfix
             return Plugin_Changed;
         }
         // Button primary attack release
-        else if(iLastButtons[clientIndex] & IN_ATTACK)
+        else if(iLastButtons & IN_ATTACK)
         {
             // Call event
             _call.EndAttack(clientIndex, weaponIndex);
@@ -828,7 +768,7 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
         {
             // Call event
             _call.SecondaryAttack(clientIndex, weaponIndex);
-            iLastButtons[clientIndex] = iButtons; iButtons &= (~IN_ATTACK2); //! Bugfix
+            iButtons &= (~IN_ATTACK2); //! Bugfix
             return Plugin_Changed;
         }
 
@@ -836,15 +776,21 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
         if(iButtons & IN_RELOAD)
         {
             // Validate overtransmitting
-            if(!(iLastButtons[clientIndex] & IN_RELOAD))
+            if(!(iLastButtons & IN_RELOAD))
             {
                 // Call event
-                _call.Holster(clientIndex, weaponIndex);
+                _call.ReloadStart(clientIndex, weaponIndex);
             }
         }
-        
-        // Store the current button
-        iLastButtons[clientIndex] = iButtons;
+        else
+        {
+            // Call event
+            if(_call.ReloadEmulate(clientIndex, weaponIndex))
+            {
+                iButtons |= IN_RELOAD; //! Bugfix
+                return Plugin_Changed;
+            }
+        }
     }
     
     // Allow button

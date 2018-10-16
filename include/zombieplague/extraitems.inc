@@ -92,11 +92,11 @@ native int ZP_GetClientExtraItemLimit(int clientIndex, int itemID);
  * @param level             The level of the player, which allow to buy item. (0-off)
  * @param online            The number of players, which allowed to buy item. (0-off)
  * @param limit             The number of purchases, which allowed to buy item. (0-off)
- * @param group             Item access group name.                         
+ * @param group             Item access group name. (""-off)                         
  *
  * @return                  An internal extra item index, or -1 on failure.
  **/
-native int ZP_RegisterExtraItem(char[] name, char[] info, int cost, int level = 0, int online = 0, int limit = 0, char[] group = "");
+native int ZP_RegisterExtraItem(char[] name, char[] info = "", int cost = 0, int level = 0, int online = 0, int limit = 0, char[] group = "");
 
 /**
  * @brief Gets the amount of all extra items.

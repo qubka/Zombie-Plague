@@ -97,12 +97,12 @@ void WeaponHDRInit(/*void*/)
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
     }
-
+    
     // Load other offsets
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], Animating_StudioHdr, "Animating_StudioHdr");
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], StudioHdrStruct_SequenceCount, "StudioHdrStruct_SequenceCount");
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct_SequenceVector_Size");
-
+    
     /// Info bellow
     int lightingOriginOffset;
     fnInitSendPropOffset(lightingOriginOffset, "CBaseAnimating", "m_hLightingOrigin");
@@ -304,7 +304,7 @@ stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
         // Remove an entity movetype
         SetEntityMoveType(itemIndex, MOVETYPE_NONE);
 
-        // CEconEntity: Sets the parent of a weapon
+        // Sets the parent of a weapon
         SetVariantString("!activator");
         AcceptEntityInput(itemIndex, "SetParent", clientIndex);
     }
@@ -476,24 +476,23 @@ stock int Animating_GetSequenceActivity(const int iAnimating, const int nSequenc
     return SDKCall(hSDKCallAnimatingGetSequenceActivity, iAnimating, nSequence);
 }
 
-/** DEBUG **/
 /*
-Address Animating_GetStudioHdrClass(const int iAnimating)
+stock Address Animating_GetStudioHdrClass(const int iAnimating)
 {
-    return view_as<Address>(GetEntData(animating, g_iOffset_StudioHdr));
+    return view_as<Address>(GetEntData(iAnimating, Animating_StudioHdr));
 }
 
-Address StudioHdrClass_GetStudioHdrStruct(Address studioHdrClass)
+stock Address StudioHdrClass_GetStudioHdrStruct(Address studioHdrClass)
 {
     return studioHdrClass != Address_Null ? view_as<Address>(LoadFromAddress(studioHdrClass, NumberType_Int32)) : Address_Null;
 }
 
-int StudioHdrGetSequenceCount(Address studioHdrStruct)
+stock int StudioHdrGetSequenceCount(Address studioHdrStruct)
 {
-    return LoadFromAddress(studioHdrStruct + view_as<Address>(g_iOffset_SequenceCount), NumberType_Int32);
+    return LoadFromAddress(studioHdrStruct + view_as<Address>(StudioHdrStruct_SequenceCount), NumberType_Int32);
 }
 
-int Animating_GetNumMovements(const int iAnimating, const int nSequence)
+stock int Animating_GetNumMovements(const int iAnimating, const int nSequence)
 {
     Address studioHdrStruct = StudioHdrClass_GetStudioHdrStruct(Animating_GetStudioHdrClass(iAnimating));
     
@@ -502,7 +501,7 @@ int Animating_GetNumMovements(const int iAnimating, const int nSequence)
     return StudioAnimDesc_GetValue(studioAnimDesc, StudioAnimDesc_NumMovements);
 }
 
-float Animating_GetSequenceDuration(const int iAnimating, const int nSequence)
+stock float Animating_GetSequenceDuration(const int iAnimating, const int nSequence)
 {
     Address studioHdrStruct = StudioHdrClass_GetStudioHdrStruct(Animating_GetStudioHdrClass(iAnimating));
     Address studioAnimDesc = GetLocalAnimDescription(studioHdrStruct, nSequence);
@@ -511,7 +510,7 @@ float Animating_GetSequenceDuration(const int iAnimating, const int nSequence)
     return cyclesPerSecond != 0.0 ? 1.0 / cyclesPerSecond : 0.0;
 }
 
-Address GetLocalAnimDescription(Address studioHdrStruct, const int nSequence)
+stock Address GetLocalAnimDescription(Address studioHdrStruct, int nSequence)
 {
     if(nSequence < 0 || nSequence >= StudioHdrGetSequenceCount(studioHdrStruct))
     {
@@ -522,7 +521,7 @@ Address GetLocalAnimDescription(Address studioHdrStruct, const int nSequence)
     return studioHdrStruct + view_as<Address>(LoadFromAddress(studioHdrStruct + view_as<Address>(184), NumberType_Int32) + (nSequence * 4));
 }
 
-any StudioAnimDesc_GetValue(Address studioAnimDesc, StudioAnimDesc type, NumberType size = NumberType_Int32)
+stock any StudioAnimDesc_GetValue(Address studioAnimDesc, StudioAnimDesc type, NumberType size = NumberType_Int32)
 {
     return LoadFromAddress(studioAnimDesc + view_as<Address>(type), size);
 }*/

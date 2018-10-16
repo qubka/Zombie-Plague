@@ -70,12 +70,13 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
-// Initialize zombie class index
-int gZombieTank; 
-#pragma unused gZombieTank
+// Zombie index
+int gZombie; 
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -87,7 +88,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieTank = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -126,7 +127,7 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex        The client index.
  *
@@ -135,27 +136,17 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-    
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Emit sound
         static char sSound[PLATFORM_MAX_PATH];
         ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
         EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
-        // Initialize vectors
+        // Create effect
         static float vPosition[3];
-        
-        // Gets the client origin
         GetClientAbsOrigin(clientIndex, vPosition);
-        
-        // Create an effect
         FakeCreateParticle(clientIndex, vPosition, _, "cloud", ZOMBIE_CLASS_DURATION);
     }
     
@@ -164,20 +155,14 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 }
 
 /**
- * Called when a zombie skill duration is over.
+ * Called when a skill duration is over.
  * 
  * @param clientIndex        The client index.
  **/
 public void ZP_OnClientSkillOver(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieTank)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Emit sound
         static char sSound[PLATFORM_MAX_PATH];
@@ -198,17 +183,11 @@ public void ZP_OnClientSkillOver(int clientIndex)
  **/
 public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // If client used the zombie skill, then stop appling damage
     if(ZP_IsPlayerZombie(clientIndex))
     {
         // Validate the zombie class index
-        if(ZP_GetClientZombieClass(clientIndex) == gZombieTank && ZP_IsPlayerUseZombieSkill(clientIndex))
+        if(ZP_GetClientZombieClass(clientIndex) == gZombie && ZP_IsPlayerUseZombieSkill(clientIndex))
         {
             damageAmount *= 0.1;
         }

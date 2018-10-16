@@ -89,8 +89,8 @@ native void ZP_SetClientZombieClass(int clientIndex, int classID);
  * @param speed             Maximum speed.
  * @param gravity           Gravity multiplier.
  * @param knockback         Knockback multiplier.
- * @param level             Level required to select class.
- * @param group             Class access group name.
+ * @param level             Level required to select class. (0-off)
+ * @param group             Class access group name. (""-off)
  * @param duration          Duration of skill, for your custom addons. (0.0-off)
  * @param countdown         Countdown of skill, for your custom addons. (0.0-off)
  * @param regenhealth       Regenerating health. (0-off)
@@ -109,7 +109,7 @@ native void ZP_SetClientZombieClass(int clientIndex, int classID);
  *
  * @return                  An internal zombie class index, or -1 on failure.
  **/
-native int ZP_RegisterZombieClass(char[] name, char[] info, char[] model, char[] claw_model, char[] gren_model, int health = 100, float speed = 1.0, float gravity = 1.0, float knockback = 1.0, int level = 1, char[] group = "", float duration = 0.0, float countdown = 0.0, int regenhealth = 0, float regeninterval = 0.0, char[] death = "", char[] hurt = "", char[] idle = "", char[] respawn = "", char[] burn = "", char[] attack = "", char[] footstep = "", char[] regen = "");
+native int ZP_RegisterZombieClass(char[] name, char[] info = "", char[] model, char[] claw_model, char[] gren_model, int health, float speed, float gravity, float knockback, int level = 0, char[] group = "", float duration = 0.0, float countdown = 0.0, int regenhealth = 0, float regeninterval = 0.0, char[] death = "", char[] hurt = "", char[] idle = "", char[] respawn = "", char[] burn = "", char[] attack = "", char[] footstep = "", char[] regen = "");
 
 /**
  * @brief Gets the name of a zombie class at a given index.

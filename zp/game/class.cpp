@@ -52,8 +52,8 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
         EventFakePlayerDeath(victimIndex, attackerIndex);
         
         // Increment kills and frags
-        ToolsSetClientScore(victimIndex, true, ToolsGetClientScore(victimIndex, true));
-        ToolsSetClientScore(victimIndex, false, ToolsGetClientScore(victimIndex, false));
+        ToolsSetClientScore(victimIndex, true, ToolsGetClientScore(victimIndex, true) + 1);
+        ToolsSetClientScore(victimIndex, false, ToolsGetClientScore(victimIndex, false) + 1);
         
         // Increment exp and bonuses
         ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + gCvarList[CVAR_BONUS_INFECT_HEALTH].IntValue);
@@ -143,6 +143,7 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_SECONDARY]);
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_PRIMARY]);
         }
+        
         // If help messages enable, then show 
         if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
         {
@@ -152,6 +153,13 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             
             // Show zombie personal info
             if(strlen(sInfo)) TranslationPrintHintText(victimIndex, sInfo);
+        }
+        
+        // If instant class menu enable, then show 
+        if(gCvarList[CVAR_ZOMBIE_CLASS_MENU].BoolValue)
+        {
+            // Open the zombie classes menu
+            ZombieMenu(victimIndex, true);
         }
     }
 
@@ -239,8 +247,8 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
         ToolsSetClientGravity(clientIndex, gCvarList[CVAR_SURVIVOR_GRAVITY].FloatValue);
         ToolsSetClientArmor(clientIndex, 0);
         
-        // Gets survivor model
-        gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sModel, sizeof(sModel)); sArm[0] = '\0';
+        // Gets survivor models
+        gCvarList[CVAR_SURVIVOR_ARM_MODEL].GetString(sArm, sizeof(sArm)); gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
 
         // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_MELEE])) //! Give default
@@ -272,6 +280,24 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_EQUIPMENT]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_SECONDARY]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_PRIMARY]);
+        }
+        
+        // If help messages enable, then show 
+        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+        {
+            // Gets human info
+            static char sInfo[BIG_LINE_LENGTH];
+            HumanGetInfo(gClientData[clientIndex][Client_HumanClass], sInfo, sizeof(sInfo));
+            
+            // Show human personal info
+            if(strlen(sInfo)) TranslationPrintHintText(clientIndex, sInfo);
+        }
+        
+        // If instant class menu enable, then show 
+        if(gCvarList[CVAR_HUMAN_CLASS_MENU].BoolValue)
+        {
+            // Open the human classes menu
+            HumanMenu(clientIndex, true);
         }
     }
     

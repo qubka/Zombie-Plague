@@ -66,8 +66,9 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
 
 // Item index
 int gItem; int gWeapon;
@@ -151,23 +152,24 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 }
 
 /**
- * Called after a custom weapon is created.
+ * Called after a custom grenade is created.
  *
- * @param weaponIndex       The weapon index.
+ * @param clientIndex       The client index.
+ * @param grenadeIndex      The grenade index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
+public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
 {
     // Validate custom grenade
-    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(weaponIndex) == gWeapon)*/
+    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(grenadeIndex) == gWeapon)*/
     {
         // Block grenade
-        SetEntProp(weaponIndex, Prop_Data, "m_nNextThinkTick", -1);
+        SetEntProp(grenadeIndex, Prop_Data, "m_nNextThinkTick", -1);
 
         // Emit sound
         static char sSound[PLATFORM_MAX_PATH];
         ZP_GetSound(gSound, sSound, sizeof(sSound));
-        EmitSoundToAll(sSound, weaponIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+        EmitSoundToAll(sSound, grenadeIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
 
         // Create an light_dynamic entity
         int lightIndex = CreateEntityByName("light_dynamic");
@@ -193,29 +195,29 @@ public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
 
             // Sets parent to the entity
             SetVariantString("!activator"); 
-            AcceptEntityInput(lightIndex, "SetParent", weaponIndex, lightIndex); 
-            SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", weaponIndex);
+            AcceptEntityInput(lightIndex, "SetParent", grenadeIndex, lightIndex); 
+            SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", grenadeIndex);
 
             // Initialize vector variables
             static float vPosition[3];
             
             // Gets parent position
-            GetEntPropVector(weaponIndex, Prop_Send, "m_vecOrigin", vPosition);
+            GetEntPropVector(grenadeIndex, Prop_Send, "m_vecOrigin", vPosition);
             
-            // Spawn the entity
-            DispatchKeyValueVector(lightIndex, "origin", vPosition);
+            // Teleport the entity
+            TeleportEntity(lightIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
             
             // Create an effect
-            FakeCreateParticle(weaponIndex, vPosition, _, "smoking", GRENADE_FLARE_DURATION);
+            FakeCreateParticle(grenadeIndex, vPosition, _, "smoking", GRENADE_FLARE_DURATION);
         }
 
-        // Initialize char
+        // Initialize variable
         static char sTime[SMALL_LINE_LENGTH];
         Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GRENADE_FLARE_DURATION);
 
         // Sets modified flags on the entity
         SetVariantString(sTime);
-        AcceptEntityInput(weaponIndex, "AddOutput");
-        AcceptEntityInput(weaponIndex, "FireUser1");
+        AcceptEntityInput(grenadeIndex, "AddOutput");
+        AcceptEntityInput(grenadeIndex, "FireUser1");
     }
 }

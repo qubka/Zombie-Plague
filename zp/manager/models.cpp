@@ -30,11 +30,11 @@
  **/
 void ModelsLoad(/*void*/)
 {
-    // Initialize char
+    // Initialize variable
     static char sPath[PLATFORM_MAX_PATH];
 
     //*********************************************************************
-    //*               PRECACHE OF NEMESIS PLAYER MODEL                      *
+    //*               PRECACHE OF NEMESIS PLAYER MODEL                    *
     //*********************************************************************
     
     // Validate player model
@@ -45,7 +45,7 @@ void ModelsLoad(/*void*/)
     }
     
     //*********************************************************************
-    //*               PRECACHE OF SURVIVOR PLAYER MODEL                      *
+    //*               PRECACHE OF SURVIVOR PLAYER MODEL                   *
     //*********************************************************************
     
     // Validate player model
@@ -53,6 +53,13 @@ void ModelsLoad(/*void*/)
     if(!ModelsPrecacheStatic(sPath))
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid survivor model path. File not found: \"%s\"", sPath);
+    }
+    
+    // Validate arm model
+    gCvarList[CVAR_SURVIVOR_ARM_MODEL].GetString(sPath, sizeof(sPath));
+    if(!ModelsPrecacheStatic(sPath))
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid survivor arm model path. File not found: \"%s\"", sPath);
     }
 }
 
@@ -155,8 +162,8 @@ stock void ModelsPrecacheResources(const char[] sModel)
         // Extract value string
         StrExtract(sResource, sModel, 0, iFormat);
         
-        // Format full path to file 
-        Format(sResource, sizeof(sResource), "%s%s", sResource, sTypes[i]);
+        // Concatenates one string onto another
+        StrCat(sResource, sizeof(sResource), sTypes[i]);
         
         // Validate resource
         if(FileExists(sResource)) 
@@ -175,74 +182,126 @@ stock void ModelsPrecacheResources(const char[] sModel)
  **/
 stock bool ModelsPrecacheSounds(const char[] sModel)
 {
-    // Open the file
-    File hFile = OpenFile(sModel, "rb");
-
-    // If doesn't exist stop
-    if(hFile == INVALID_HANDLE)
+    // Finds the first occurrence of a character in a string
+    int iFormat = FindCharInString(sModel, '.', true);
+    
+    // If model path is don't have format, then log, and stop
+    if(iFormat == -1)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Missing file format: %s", sModel);
         return false;
     }
     
-    // Initialize some variables
-    static char sPath[PLATFORM_MAX_PATH]; int iChar; ///int iNumSeq;
+    // Extract value string
+    static char sPath[PLATFORM_MAX_PATH];
+    StrExtract(sPath, sModel, 0, iFormat);
 
-    // Find the total sequence amount
-    /*
-        hFile.Seek(180, SEEK_SET);
-        hFile.ReadInt32(iNumSeq);
-    */
+    // Concatenates one string onto another
+    StrCat(sPath, sizeof(sPath), "_sounds.txt");
     
-    do /// Reads a single binary char
-    {
-        hFile.Seek(2, SEEK_CUR);
-        hFile.ReadInt8(iChar);
-    } 
-    while(iChar == 0);
+    // Validate if a file exists
+    bool bExists = FileExists(sPath);
+    
+    // Open/Create the file
+    File hBase = OpenFile(sPath, "at+");
 
-    // Shift the cursor a bit
-    hFile.Seek(1, SEEK_CUR);
-
-    do /// Reads a single binary char
+    // If file doesn't exist, then write it
+    if(!bExists)
     {
-        hFile.Seek(2, SEEK_CUR);
-        hFile.ReadInt8(iChar);
-    } 
-    while(iChar != 0);
+        // Open the file
+        File hFile = OpenFile(sModel, "rb");
 
-    // Loop throught the binary
-    while(!hFile.EndOfFile())
-    {
-        // Reads a UTF8 or ANSI string from a file
-        hFile.ReadString(sPath, sizeof(sPath));
-        
-        // Validate string
-        if(!IsByteString(sPath)) 
+        // If doesn't exist stop
+        if(hFile == INVALID_HANDLE)
         {
-            // Finds the first occurrence of a character in a string
-            int iFormat = FindCharInString(sPath, '.', true);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+            return false;
+        }
+        
+        // Initialize some variables
+        int iChar; ///int iNumSeq;
 
-            // If file path is don't have format, then skip
-            if(iFormat == -1) 
+        // Find the total sequence amount
+        /*
+            hFile.Seek(180, SEEK_SET);
+            hFile.ReadInt32(iNumSeq);
+        */
+        
+        do /// Reads a single binary char
+        {
+            hFile.Seek(2, SEEK_CUR);
+            hFile.ReadInt8(iChar);
+        } 
+        while(iChar == 0);
+
+        // Shift the cursor a bit
+        hFile.Seek(1, SEEK_CUR);
+
+        do /// Reads a single binary char
+        {
+            hFile.Seek(2, SEEK_CUR);
+            hFile.ReadInt8(iChar);
+        } 
+        while(iChar != 0);
+
+        // Loop throught the binary
+        while(!hFile.EndOfFile())
+        {
+            // Reads a UTF8 or ANSI string from a file
+            hFile.ReadString(sPath, sizeof(sPath));
+            
+            // Finds the first occurrence of a character in a string
+            iFormat = FindCharInString(sPath, '.', true);
+
+            // Validate format
+            if(iFormat != -1) 
+            {
+                // Validate sound format
+                if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
+                {
+                    // Format full path to file
+                    Format(sPath, sizeof(sPath), "sound/%s", sPath);
+                    
+                    // Store into the base
+                    hBase.WriteLine(sPath);
+                    
+                    // Add file to download table
+                    fnPrecacheSoundQuirk(sPath);
+                }
+            }
+        }
+
+        // Close file
+        delete hFile; 
+        ///return true;
+    }
+    else
+    {
+        // Read lines in the file
+        while(hBase.ReadLine(sPath, sizeof(sPath)))
+        {
+            // Cut out comments at the end of a line
+            if(StrContains(sPath, "//") != -1)
+            {
+                SplitString(sPath, "//", sPath, sizeof(sPath));
+            }
+            
+            // Trim off whitespace
+            TrimString(sPath);
+
+            // If line is empty, then stop
+            if(!strlen(sPath))
             {
                 continue;
             }
             
-            // Validate sound format
-            if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
-            {
-                // Format full path to file
-                Format(sPath, sizeof(sPath), "sound/%s", sPath);
-                
-                // Add file to download table
-                fnPrecacheSoundQuirk(sPath);
-            }
+            // Add file to download table
+            fnPrecacheSoundQuirk(sPath);
         }
     }
-
+    
     // Close file
-    delete hFile; 
+    delete hBase;
     return true;
 }
 
@@ -254,50 +313,60 @@ stock bool ModelsPrecacheSounds(const char[] sModel)
  **/
 stock bool ModelsPrecacheMaterials(const char[] sModel)
 {
-    // Open the file
-    File hFile = OpenFile(sModel, "rb");
-
-    // If doesn't exist stop
-    if(hFile == INVALID_HANDLE)
+    // Finds the first occurrence of a character in a string
+    int iFormat = FindCharInString(sModel, '.', true);
+    
+    // If model path is don't have format, then log, and stop
+    if(iFormat == -1)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Missing file format: %s", sModel);
         return false;
     }
     
-    // Initialize some variables
-    static char sMaterial[PLATFORM_MAX_PATH]; static char sPath[PLATFORM_MAX_PATH]; int iNumMat; int iChar;
+    // Extract value string
+    static char sPath[PLATFORM_MAX_PATH];
+    StrExtract(sPath, sModel, 0, iFormat);
 
-    // Find the total materials amount
-    hFile.Seek(204, SEEK_SET);
-    hFile.ReadInt32(iNumMat);
-    hFile.Seek(0, SEEK_END);
+    // Concatenates one string onto another
+    StrCat(sPath, sizeof(sPath), "_materials.txt");
+
+    // Validate if a file exists
+    bool bExists = FileExists(sPath);
     
-    do /// Reads a single binary char
+    // Open/Create the file
+    File hBase = OpenFile(sPath, "at+");
+
+    // If file doesn't exist, then write it
+    if(!bExists)
     {
-        hFile.Seek(-2, SEEK_CUR);
-        hFile.ReadInt8(iChar);
-    } 
-    while(iChar == 0);
+        // Open the file
+        File hFile = OpenFile(sModel, "rb");
 
-    // Shift the cursor a bit
-    hFile.Seek(1 , SEEK_CUR);
+        // If doesn't exist stop
+        if(hFile == INVALID_HANDLE)
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+            return false;
+        }
+        
+        // Initialize some variables
+        static char sMaterial[PLATFORM_MAX_PATH]; int iNumMat; int iChar;
 
-    do /// Reads a single binary char
-    {
-        hFile.Seek(-2, SEEK_CUR);
-        hFile.ReadInt8(iChar);
-    } 
-    while(iChar != 0);
+        // Find the total materials amount
+        hFile.Seek(204, SEEK_SET);
+        hFile.ReadInt32(iNumMat);
+        hFile.Seek(0, SEEK_END);
+        
+        do /// Reads a single binary char
+        {
+            hFile.Seek(-2, SEEK_CUR);
+            hFile.ReadInt8(iChar);
+        } 
+        while(iChar == 0);
 
-    // Reads a UTF8 or ANSI string from a file
-    int iPosIndex = hFile.Position;
-    hFile.ReadString(sMaterial, sizeof(sMaterial));
-    hFile.Seek(iPosIndex, SEEK_SET);
-    hFile.Seek(-1, SEEK_CUR);
+        // Shift the cursor a bit
+        hFile.Seek(1 , SEEK_CUR);
 
-    // i = material index
-    for(int i = 0; i < iNumMat; i++)
-    {
         do /// Reads a single binary char
         {
             hFile.Seek(-2, SEEK_CUR);
@@ -306,75 +375,134 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
         while(iChar != 0);
 
         // Reads a UTF8 or ANSI string from a file
-        iPosIndex = hFile.Position;
-        hFile.ReadString(sPath, sizeof(sPath));
+        int iPosIndex = hFile.Position;
+        hFile.ReadString(sMaterial, sizeof(sMaterial));
         hFile.Seek(iPosIndex, SEEK_SET);
-        
-        // Validate size
-        if(!strlen(sPath))
-        {
-            continue;
-        }
+        hFile.Seek(-1, SEEK_CUR);
 
-        // Finds the first occurrence of a character in a string
-        int iFormat = FindCharInString(sPath, '\\', true);
-
-        // Validate no format
-        if(iFormat != -1)
+        // i = material index
+        for(int i = 0; i < iNumMat; i++)
         {
-            // Format full path to directory
-            Format(sPath, sizeof(sPath), "materials\\%s", sPath);
-    
-            // Open the directory
-            DirectoryListing hDirectory = OpenDirectory(sPath);
-            
-            // If doesn't exist stop
-            if(hDirectory == INVALID_HANDLE)
+            do /// Reads a single binary char
             {
-                LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening folder: \"%s\"", sPath);
+                hFile.Seek(-2, SEEK_CUR);
+                hFile.ReadInt8(iChar);
+            } 
+            while(iChar != 0);
+
+            // Reads a UTF8 or ANSI string from a file
+            iPosIndex = hFile.Position;
+            hFile.ReadString(sPath, sizeof(sPath));
+            hFile.Seek(iPosIndex, SEEK_SET);
+            
+            // Validate size
+            if(!strlen(sPath))
+            {
                 continue;
             }
-            
-            // Initialize variables
-            static char sFile[PLATFORM_MAX_PATH];
-            
-            // Initialize types
-            FileType hType;
-            
-            // Search any files in the directory and precache them
-            while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
+
+            // Finds the first occurrence of a character in a string
+            iFormat = FindCharInString(sPath, '\\', true);
+
+            // Validate no format
+            if(iFormat != -1)
             {
-                // Validate what found
-                if(hType == FileType_File) 
+                // Format full path to directory
+                Format(sPath, sizeof(sPath), "materials\\%s", sPath);
+        
+                // Open the directory
+                DirectoryListing hDirectory = OpenDirectory(sPath);
+                
+                // If doesn't exist stop
+                if(hDirectory == INVALID_HANDLE)
                 {
-                    // Finds the first occurrence of a character in a string
-                    iFormat = FindCharInString(sFile, '.', true);
-            
-                    // If file path is don't have format, then skip
-                    if(iFormat == -1) 
+                    LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening folder: \"%s\"", sPath);
+                    continue;
+                }
+
+                // Initialize variables
+                static char sFile[PLATFORM_MAX_PATH]; FileType hType;
+                
+                // Search files in the directory
+                while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
+                {
+                    // Switch type
+                    switch(hType) 
                     {
-                        continue;
-                    }
+                        case FileType_File :
+                        {
+                            // Finds the first occurrence of a character in a string
+                            iFormat = FindCharInString(sFile, '.', true);
                     
-                    // Validate material format
-                    if(!strcmp(sFile[iFormat], ".vmt", false))
-                    {
-                        // Format full path to file
-                        Format(sFile, sizeof(sFile), "%s%s", sPath, sFile);
+                            // Validate format
+                            if(iFormat != -1) 
+                            {
+                                // Validate material format
+                                if(!strcmp(sFile[iFormat], ".vmt", false))
+                                {
+                                    // Format full path to file
+                                    Format(sFile, sizeof(sFile), "%s%s", sPath, sFile);
+                                    
+                                    // Store into the base
+                                    hBase.WriteLine(sFile);
+                                    
+                                    // Precache model textures
+                                    ModelsPrecacheTextures(sFile);
+                                }
+                            }
+                        }
                         
-                        // Precache model textures
-                        ModelsPrecacheTextures(sFile);
+                        /*case FileType_Unknown :
+                        {
+                            
+                        }
+                        
+                        case FileType_Directory : 
+                        {
+                            
+                        }*/
                     }
                 }
-            }
 
-            // Close directory
-            delete hDirectory;
+                // Close directory
+                delete hDirectory;
+            }
+            else
+            {
+                // Format full path to file
+                Format(sPath, sizeof(sPath), "materials\\%s%s.vmt", sMaterial, sPath);
+                
+                // Store into the base
+                hBase.WriteLine(sPath);
+                
+                // Precache model textures
+                ModelsPrecacheTextures(sPath);
+            }
         }
-        else
+        
+        // Close file
+        delete hFile;
+        ///return true;
+    }
+    else
+    {
+        // Read lines in the file
+        while(hBase.ReadLine(sPath, sizeof(sPath)))
         {
-            // Format full path to file
-            Format(sPath, sizeof(sPath), "materials\\%s%s.vmt", sMaterial, sPath);
+            // Cut out comments at the end of a line
+            if(StrContains(sPath, "//") != -1)
+            {
+                SplitString(sPath, "//", sPath, sizeof(sPath));
+            }
+            
+            // Trim off whitespace
+            TrimString(sPath);
+
+            // If line is empty, then stop
+            if(!strlen(sPath))
+            {
+                continue;
+            }
             
             // Precache model textures
             ModelsPrecacheTextures(sPath);
@@ -382,7 +510,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
     }
     
     // Close file
-    delete hFile; 
+    delete hBase;
     return true;
 }
 
@@ -394,25 +522,16 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
  **/
 stock bool ModelsPrecacheParticle(const char[] sModel)
 {
-    // Open the file
-    File hFile = OpenFile(sModel, "rb");
-
-    // If doesn't exist stop
-    if(hFile == INVALID_HANDLE)
+    // Finds the first occurrence of a character in a string
+    int iFormat = FindCharInString(sModel, '.', true);
+    
+    // If model path is don't have format, then log, and stop
+    if(iFormat == -1)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Missing file format: %s", sModel);
         return false;
     }
     
-    // Add file to download table
-    AddFileToDownloadsTable(sModel);
-
-    // Precache generic
-    PrecacheGeneric(sModel, true); //! Precache only here
-
-    // Initialize some variables
-    static char sPath[PLATFORM_MAX_PATH]; int iChar;
-
     /// https://github.com/VSES/SourceEngine2007/blob/master/src_main/movieobjects/dmeparticlesystemdefinition.cpp
     /*static const char sParticleFuncTypes[48][SMALL_LINE_LENGTH] =
     {
@@ -423,34 +542,66 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
         "material", "function", "tint", "max", "min", "gravity", "scale", "rate", "time", "fade", "length", "definition", "thickness"
     };*/
 
-    do /// Reads a single binary char
+    // Add file to download table
+    AddFileToDownloadsTable(sModel);
+
+    // Precache generic
+    PrecacheGeneric(sModel, true); //! Precache only here
+    
+    // Extract value string
+    static char sPath[PLATFORM_MAX_PATH];
+    StrExtract(sPath, sModel, 0, iFormat);
+
+    // Concatenates one string onto another
+    StrCat(sPath, sizeof(sPath), "_particles.txt");
+    
+    // Validate if a file exists
+    bool bExists = FileExists(sPath);
+    
+    // Open/Create the file
+    File hBase = OpenFile(sPath, "at+");
+
+    // If file doesn't exist, then write it
+    if(!bExists)
     {
-        hFile.Seek(2, SEEK_CUR);
-        hFile.ReadInt8(iChar);
-    } 
-    while(iChar == 0);
+        // Open the file
+        File hFile = OpenFile(sModel, "rb");
 
-    // Shift the cursor a bit
-    hFile.Seek(1, SEEK_CUR);
-
-    do /// Reads a single binary char
-    {
-        hFile.Seek(2, SEEK_CUR);
-        hFile.ReadInt8(iChar);
-    } 
-    while(iChar != 0);
-
-    // Loop throught the binary
-    while(!hFile.EndOfFile())
-    {
-        // Reads a UTF8 or ANSI string from a file
-        hFile.ReadString(sPath, sizeof(sPath));
-
-        // Validate string
-        if(!IsByteString(sPath)) 
+        // If doesn't exist stop
+        if(hFile == INVALID_HANDLE)
         {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+            return false;
+        }
+
+        // Initialize some variables
+        int iChar; ///int iNumMat;
+
+        do /// Reads a single binary char
+        {
+            hFile.Seek(2, SEEK_CUR);
+            hFile.ReadInt8(iChar);
+        } 
+        while(iChar == 0);
+
+        // Shift the cursor a bit
+        hFile.Seek(1, SEEK_CUR);
+
+        do /// Reads a single binary char
+        {
+            hFile.Seek(2, SEEK_CUR);
+            hFile.ReadInt8(iChar);
+        } 
+        while(iChar != 0);
+
+        // Loop throught the binary
+        while(!hFile.EndOfFile())
+        {
+            // Reads a UTF8 or ANSI string from a file
+            hFile.ReadString(sPath, sizeof(sPath));
+
             // Finds the first occurrence of a character in a string
-            int iFormat = FindCharInString(sPath, '.', true);
+            iFormat = FindCharInString(sPath, '.', true);
 
             // Validate format
             if(iFormat != -1)
@@ -461,38 +612,53 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
                     // Format full path to file
                     Format(sPath, sizeof(sPath), "materials\\%s", sPath);
                     
+                    // Store into the base
+                    hBase.WriteLine(sPath);
+                    
                     // Precache model textures
                     ModelsPrecacheTextures(sPath);
                 }
             }
-            /*else
+        }
+
+        // Close file
+        delete hFile;
+        ///return true;
+    }
+    else
+    {
+        // Read lines in the file
+        while(hBase.ReadLine(sPath, sizeof(sPath)))
+        {
+            // Cut out comments at the end of a line
+            if(StrContains(sPath, "//") != -1)
             {
-                // Initialize variable
-                bool bLookup;
-                
-                // i = type index
-                for(int i = 0; i < sizeof(sParticleFuncTypes); i++)
-                {
-                    // Validate the common structure types
-                    if(StrContains(sPath, sParticleFuncTypes[i], false) != -1)
-                    {
-                        bLookup = true; /// If was found, then stop
-                        break;
-                    }
-                }
-                
-                // Validate search
-                if(!bLookup)
-                {
-                    // Precache particle
-                    fnPrecacheParticleEffect(sPath);
-                }
-            }*/
+                SplitString(sPath, "//", sPath, sizeof(sPath));
+            }
+        
+            // Trim off whitespace
+            TrimString(sPath);
+
+            // If line is empty, then stop
+            if(!strlen(sPath))
+            {
+                continue;
+            }
+            
+            // Finds the first occurrence of a character in a string
+            iFormat = FindCharInString(sPath, '.', true);
+
+            // Validate format
+            if(iFormat != -1)
+            {
+                // Precache model textures
+                ModelsPrecacheTextures(sPath);
+            }
         }
     }
-
+    
     // Close file
-    delete hFile;
+    delete hBase;
     return true;
 }
 
@@ -512,7 +678,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
     // If doesn't exist stop
     if(!FileExists(sTexture))
     {
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid material path. File not found: \"%s\"", sPath);
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid material path. File not found: \"%s\"", sTexture);
         return false;
     }
 
@@ -520,7 +686,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
     AddFileToDownloadsTable(sTexture);
     
     // Initialize some variables
-    static const char sTypes[4][SMALL_LINE_LENGTH] = { "$baseTexture", "$bumpmap", "$lightwarptexture", "$REFRACTTINTtexture" }; bool bFound[sizeof(sTypes)]; static int iShift; int iSize = sizeof(sTypes);
+    static const char sTypes[4][SMALL_LINE_LENGTH] = { "$baseTexture", "$bumpmap", "$lightwarptexture", "$REFRACTTINTtexture" }; bool bFound[sizeof(sTypes)]; static int iShift;
     
     // Open the file
     File hFile = OpenFile(sTexture, "rt");
@@ -531,7 +697,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sTexture);
     }
     
-    // Search textures lines in the file and precache it
+    // Read lines in the file
     while(hFile.ReadLine(sTexture, sizeof(sTexture)))
     {
         // Cut out comments at the end of a line
@@ -541,6 +707,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
         }
         
         // i = texture type
+        int iSize = sizeof(sTypes);
         for(int x = 0; x < iSize; x++)
         {
             // Avoid the reoccurrence 

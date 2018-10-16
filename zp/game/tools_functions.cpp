@@ -79,7 +79,7 @@
 }
 
 /**
-    * Callback for command listeners.
+ * Callback for command listeners.
  *
  * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
@@ -113,45 +113,88 @@ public Action ToolsOnGeneric(const int clientIndex, const char[] commandMsg, con
                 switch(GetClientTeam(clientIndex))
                 {
                     // Non-playable team
-                    case TEAM_NONE, TEAM_SPECTATOR :
+                    case TEAM_NONE :
                     {
-                        // Validate no spec team
-                        if(iTeam != TEAM_SPECTATOR)
+                        // Switch new team
+                        switch(iTeam)
                         {
-                            // If game round didn't start, then respawn
-                            if(gServerData[Server_RoundMode] == -1)
+                            // Playable team
+                            case TEAM_HUMAN, TEAM_ZOMBIE :
                             {
-                                // Switch team to random
-                                ToolsSetClientTeam(clientIndex, (iTeam != TEAM_NONE) ? iTeam : GetRandomInt(TEAM_ZOMBIE, TEAM_HUMAN));
-                                
-                                // Force client to respawn
-                                ToolsForceToRespawn(clientIndex);
-                                
-                                // Block command
-                                return Plugin_Handled;
+                                // Validate last disconnection delay
+                                int iDelay = RoundToNearest(float(GetTime() - gClientData[clientIndex][Client_Time]) / 60.0);
+                                if(iDelay > gCvarList[CVAR_SERVER_ROUNDTIME_ZP].IntValue || gServerData[Server_RoundMode] == -1)
+                                {
+                                    // Switch team
+                                    ToolsSetClientTeam(clientIndex, !(clientIndex % 2) ? TEAM_HUMAN : TEAM_ZOMBIE);
+                                    
+                                    // If game round didn't start, then respawn
+                                    if(gServerData[Server_RoundMode] == -1)
+                                    {
+                                        // Force client to respawn
+                                        ToolsForceToRespawn(clientIndex);
+                                    }
+                                    else
+                                    {   
+                                        // Sets timer for respawn player
+                                        delete gClientData[clientIndex][Client_RespawnTimer];
+                                        gClientData[clientIndex][Client_RespawnTimer] = CreateTimer(gCvarList[CVAR_RESPAWN_TIME].FloatValue, DeathOnRespawn, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+                                    }
+
+                                    // Fix first connection time
+                                    if(gClientData[clientIndex][Client_Time] <= 0) gClientData[clientIndex][Client_Time] = GetTime();
+                                    
+                                    // Block command
+                                    return Plugin_Handled;
+                                }
+                            }
+                        }
+                    }
+                
+                    // Spectator team
+                    case TEAM_SPECTATOR :
+                    {
+                        // Switch new team
+                        switch(iTeam)
+                        {
+                            // Playable team
+                            case TEAM_HUMAN, TEAM_ZOMBIE :
+                            {
+                                // If game round didn't start, then respawn
+                                if(gServerData[Server_RoundMode] == -1)
+                                {
+                                    // Switch team
+                                    ToolsSetClientTeam(clientIndex, !(clientIndex % 2) ? TEAM_HUMAN : TEAM_ZOMBIE);
+                                    
+                                    // Force client to respawn
+                                    ToolsForceToRespawn(clientIndex);
+                                    
+                                    // Block command
+                                    return Plugin_Handled;
+                                }
                             }
                         }
                     }
                     
                     // T team
-                    case TEAM_ZOMBIE:
+                    case TEAM_ZOMBIE :
                     {
-                        // Validate opposite team
-                        if(iTeam == TEAM_NONE || iTeam == TEAM_HUMAN)
+                        // Switch new team
+                        switch(iTeam)
                         {
-                            // Block command    
-                            return Plugin_Handled;
+                            // Block command     
+                            case TEAM_NONE, TEAM_HUMAN : return Plugin_Handled;
                         }
                     }
                     
                     // CT team
                     case TEAM_HUMAN :
                     {
-                        // Validate opposite team
-                        if(iTeam == TEAM_NONE || iTeam == TEAM_ZOMBIE)
+                        // Switch new team
+                        switch(iTeam)
                         {
-                            // Block command    
-                            return Plugin_Handled;
+                            // Block command     
+                            case TEAM_NONE, TEAM_ZOMBIE : return Plugin_Handled;
                         }
                     }
                 }
@@ -247,6 +290,7 @@ void ToolsResetVars(const int clientIndex)
     gClientData[clientIndex][Client_Exp] = 0;
     gClientData[clientIndex][Client_DataID] = -1;
     gClientData[clientIndex][Client_Costume] = -1;
+    gClientData[clientIndex][Client_Time] = 0;
     gClientData[clientIndex][Client_AttachmentCostume] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentBits] = 0;
     gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
@@ -311,10 +355,10 @@ void ToolsResetTimers(const int clientIndex)
     delete gClientData[clientIndex][Client_LevelTimer];
     delete gClientData[clientIndex][Client_AccountTimer];
     delete gClientData[clientIndex][Client_RespawnTimer];
-    delete gClientData[clientIndex][Client_ZombieSkillTimer];
-    delete gClientData[clientIndex][Client_ZombieCountDownTimer];
-    delete gClientData[clientIndex][Client_ZombieHealTimer];
-    delete gClientData[clientIndex][Client_ZombieMoanTimer]; 
+    delete gClientData[clientIndex][Client_SkillTimer];
+    delete gClientData[clientIndex][Client_CountDownTimer];
+    delete gClientData[clientIndex][Client_HealTimer];
+    delete gClientData[clientIndex][Client_MoanTimer]; 
 }
 
 /**
@@ -327,10 +371,10 @@ void ToolsPurgeTimers(const int clientIndex)
     gClientData[clientIndex][Client_LevelTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_AccountTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_RespawnTimer] = INVALID_HANDLE;
-    gClientData[clientIndex][Client_ZombieSkillTimer] = INVALID_HANDLE;
-    gClientData[clientIndex][Client_ZombieCountDownTimer] = INVALID_HANDLE;
-    gClientData[clientIndex][Client_ZombieHealTimer] = INVALID_HANDLE;    
-    gClientData[clientIndex][Client_ZombieMoanTimer] = INVALID_HANDLE; 
+    gClientData[clientIndex][Client_SkillTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_CountDownTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_HealTimer] = INVALID_HANDLE;    
+    gClientData[clientIndex][Client_MoanTimer] = INVALID_HANDLE; 
 }
 
 /**

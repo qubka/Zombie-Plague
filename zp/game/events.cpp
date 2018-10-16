@@ -41,6 +41,7 @@ void EventInit(/*void*/)
     HookEvent("player_death",        EventPlayerDeath,      EventHookMode_Pre);
     HookEvent("player_jump",         EventPlayerJump,       EventHookMode_Post);
     HookEvent("weapon_fire",         EventPlayerFire,       EventHookMode_Pre);
+    HookEvent("bullet_impact",       EventPlayerBullet,     EventHookMode_Post);
     HookEvent("hostage_follows",     EventPlayerHostage,    EventHookMode_Post);
 
     // Hook temp events
@@ -192,7 +193,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
         // If the client isn't a player, a player really didn't die now. Some
         // other mods might sent this event with bad data.
         return Plugin_Handled;
-        }
+    }
 
     // Forward event to modules
     RagdollOnClientDeath(victimIndex);
@@ -283,6 +284,46 @@ public Action EventPlayerFire(Event hEvent, const char[] sName, bool dontBroadca
     
     // Forward event to modules
     WeaponsOnFire(clientIndex, weaponIndex);
+}
+
+/**
+ * Event callback (bullet_impact)
+ * The bullet hits something.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action EventPlayerBullet(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+
+    // Gets the active weapon index from the client
+    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
+    {
+        return;
+    }
+    
+    // Initialize vector
+    static float vBulletPosition[3];
+
+    // Gets the bullet position
+    vBulletPosition[0] = hEvent.GetFloat("x");
+    vBulletPosition[1] = hEvent.GetFloat("y");
+    vBulletPosition[2] = hEvent.GetFloat("z");
+            
+    // Forward event to modules
+    WeaponsOnBullet(clientIndex, vBulletPosition, weaponIndex);
 }
 
 /**

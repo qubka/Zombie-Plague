@@ -52,6 +52,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_SetClientLevel",                 API_SetClientLevel);
     CreateNative("ZP_GetClientExp",                   API_GetClientExp);
     CreateNative("ZP_SetClientExp",                   API_SetClientExp);
+    CreateNative("ZP_GetClientTime",                  API_GetClientTime);
     CreateNative("ZP_IsNewRound",                     API_IsNewRound);
     CreateNative("ZP_IsEndRound",                     API_IsEndRound);
     CreateNative("ZP_IsStartedRound",                 API_IsStartedRound);
@@ -74,6 +75,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_SetClientHumanClass",            API_SetClientHumanClass);
     CreateNative("ZP_RegisterHumanClass",             API_RegisterHumanClass);
     CreateNative("ZP_GetHumanClassName",              API_GetHumanClassName);
+    CreateNative("ZP_GetHumanClassInfo",              API_GetHumanClassInfo);
     CreateNative("ZP_GetHumanClassModel",             API_GetHumanClassModel);
     CreateNative("ZP_GetHumanClassArm",               API_GetHumanClassArm);
     CreateNative("ZP_GetHumanClassHealth",            API_GetHumanClassHealth);
@@ -82,6 +84,8 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetHumanClassArmor",             API_GetHumanClassArmor);
     CreateNative("ZP_GetHumanClassLevel",             API_GetHumanClassLevel);
     CreateNative("ZP_GetHumanClassGroup",             API_GetHumanClassGroup);
+    CreateNative("ZP_GetHumanClassSkillDuration",     API_GetHumanClassSkillDuration);
+    CreateNative("ZP_GetHumanClassSkillCountdown",    API_GetHumanClassSkillCountdown);
     CreateNative("ZP_GetHumanClassSoundDeathID",      API_GetHumanClassSoundDeathID);
     CreateNative("ZP_GetHumanClassSoundHurtID",       API_GetHumanClassSoundHurtID);
     CreateNative("ZP_GetHumanClassSoundInfectID",     API_GetHumanClassSoundInfectID);
@@ -140,6 +144,7 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetWeaponID",                    API_GetWeaponID);
     CreateNative("ZP_GetNumberWeapon",                API_GetNumberWeapon);
     CreateNative("ZP_GetWeaponName",                  API_GetWeaponName);
+    CreateNative("ZP_GetWeaponInfo",                  API_GetWeaponInfo);
     CreateNative("ZP_GetWeaponEntity",                API_GetWeaponEntity);
     CreateNative("ZP_GetWeaponGroup",                 API_GetWeaponGroup);
     CreateNative("ZP_GetWeaponCost",                  API_GetWeaponCost);
@@ -440,6 +445,20 @@ public int API_SetClientExp(Handle isPlugin, const int iNumParams)
 
     // Sets ammopacks for the client
     LevelSystemOnSetExp(clientIndex, GetNativeCell(2));
+}
+
+/**
+ * Gets the last player disconnected time.
+ *
+ * native int ZP_GetClientTime(clientIndex);
+ **/
+public int API_GetClientTime(Handle isPlugin, const int iNumParams)
+{
+    // Gets real player index from native cell 
+    int clientIndex = GetNativeCell(1);
+
+    // Return the value 
+    return gClientData[clientIndex][Client_Time];
 }
 
 /**

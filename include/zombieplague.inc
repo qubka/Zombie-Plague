@@ -264,7 +264,7 @@ enum /*SolidFlags_t*/
 
 
 //*********************************************************************
-//*                       CORE MAIN FORWARDS                              *
+//*                       CORE MAIN FORWARDS                          *
 //*********************************************************************
 
 /**
@@ -294,8 +294,8 @@ forward void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respa
  * @brief Called when a client take a fake damage.
  * 
  * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param attackerIndex     The attacker index. (Not validated!)
+ * @param inflictorIndex    The inflictor index. (Not validated!)
  * @param damageAmount      The amount of damage inflicted.
  * @param damageType        The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
@@ -305,7 +305,7 @@ forward void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respa
 forward void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex);
 
 /**
- * @brief Called when a client use a zombie skill.
+ * @brief Called when a client use a skill.
  * 
  * @param clientIndex       The client index.
  *
@@ -315,7 +315,7 @@ forward void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflicto
 forward Action ZP_OnClientSkillUsed(int clientIndex);
 
 /**
- * @brief Called when a zombie skill duration is over.
+ * @brief Called when a skill duration is over.
  * 
  * @param clientIndex       The client index.
  *
@@ -324,7 +324,7 @@ forward Action ZP_OnClientSkillUsed(int clientIndex);
 forward void ZP_OnClientSkillOver(int clientIndex);
 
 /**
- * @brief Called after a zombie round is started.
+ * @brief Called after a round is started.
  *
  * @param modeIndex         The mode index. 
  *
@@ -333,14 +333,14 @@ forward void ZP_OnClientSkillOver(int clientIndex);
 forward void ZP_OnZombieModStarted(int modeIndex);
 
 /**
- * @brief Called after a zombie core is loaded.
+ * @brief Called after a core is loaded.
  *
  * @noreturn
  **/
 forward void ZP_OnEngineExecute(/*void*/);
 
 //*********************************************************************
-//*                       CORE MAIN NATIVES                              *
+//*                       CORE MAIN NATIVES                           *
 //*********************************************************************
 
 /**
@@ -550,8 +550,17 @@ native int ZP_GetClientExp(int clientIndex);
  **/
 native int ZP_SetClientExp(int clientIndex, int amountExp);
 
+/**
+ * @brief Gets the last player disconnected time.
+ *
+ * @param clientIndex       The client index.
+ *  
+ * @return                  The 32bit timestamp. (Number of seconds since unix epoch)
+ **/
+native int ZP_GetClientTime(int clientIndex);
+
 //*********************************************************************
-//*                       CORE USEFUL NATIVES                              *
+//*                       CORE USEFUL NATIVES                         *
 //*********************************************************************
 
 /**
@@ -639,7 +648,7 @@ native int ZP_GetRandomSurvivor();
 native int ZP_GetRandomNemesis();
 
 //*********************************************************************
-//*                       OTHER USEFUL STOCKS                              *
+//*                       OTHER USEFUL STOCKS                         *
 //*********************************************************************
 
 /**
@@ -732,7 +741,7 @@ stock int FakeCreateParticle(const int parentIndex, const float vPosition[3] = N
         ActivateEntity(entityIndex);
         AcceptEntityInput(entityIndex, "Start");
         
-        // Initialize char
+        // Initialize variable
         static char sTime[SMALL_LINE_LENGTH];
         Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
         
@@ -767,7 +776,7 @@ stock int FakeCreateEntity(const float vPosition[3], const float flDurationTime)
         // Spawn the entity
         DispatchKeyValueVector(entityIndex, "origin", vPosition);
 
-        // Initialize char
+        // Initialize variable
         static char sTime[SMALL_LINE_LENGTH];
         Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
 

@@ -50,6 +50,7 @@ enum AdminMenu
     AdminMenu_Respawn,          /** Respawn menu slot. */
     AdminMenu_Nemesis,          /** Nemesis menu slot. */
     AdminMenu_Survivor,         /** Survivor menu slot. */
+    AdminMenu_Sniper,           /** Sniper menu slot. */
     AdminMenu_Ammopack,         /** Ammopack menu slot. */
     AdminMenu_Level,            /** Level menu slot. */
     AdminMenu_Armageddon,       /** Armageddon menu slot. */
@@ -124,7 +125,7 @@ void MenuAdmin(int clientIndex)
         return;
     }
 
-    // Initialize char
+    // Initialize variable
     static char sBuffer[NORMAL_LINE_LENGTH];
 
     // Sets the global language target
@@ -156,35 +157,39 @@ void MenuAdmin(int clientIndex)
     Format(sBuffer, sizeof(sBuffer), "%t", "make survivor");
     hMenu.AddItem("5", sBuffer);
     
+    // Make sniper
+    Format(sBuffer, sizeof(sBuffer), "%t", "make sniper");
+    hMenu.AddItem("6", sBuffer);
+    
     // Give ammopacks
     Format(sBuffer, sizeof(sBuffer), "%t", "give ammopacks");
-    hMenu.AddItem("6", sBuffer);
+    hMenu.AddItem("7", sBuffer);
     
     // Give level
     Format(sBuffer, sizeof(sBuffer), "%t", "give level");
-    hMenu.AddItem("7", sBuffer);
+    hMenu.AddItem("8", sBuffer);
     
     // Start armageddon
     Format(sBuffer, sizeof(sBuffer), "%t", "start armageddon");
-    hMenu.AddItem("8", sBuffer);
+    hMenu.AddItem("9", sBuffer);
     
     // Start multi mode
     Format(sBuffer, sizeof(sBuffer), "%t", "start multi mode");
-    hMenu.AddItem("9", sBuffer);
+    hMenu.AddItem("10", sBuffer);
     
     // Start swarm mode
     Format(sBuffer, sizeof(sBuffer), "%t", "start swarm mode");
-    hMenu.AddItem("10", sBuffer);
+    hMenu.AddItem("11", sBuffer);
 
     // Start plague mode
     Format(sBuffer, sizeof(sBuffer), "%t", "start plague mode");
-    hMenu.AddItem("11", sBuffer);
+    hMenu.AddItem("12", sBuffer);
     
     // Sets exit and back button
     hMenu.ExitBackButton = true;
     
     // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
     hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
@@ -259,6 +264,7 @@ void MenuSubAdmin(int clientIndex, AdminMenu iMode)
         case AdminMenu_Respawn  : hMenu = CreatePlayerList(AdminMakeAliveList,    "respawn",        false,        true,           false,              false,              false,                  false);    
         case AdminMenu_Nemesis  : hMenu = CreatePlayerList(AdminMakeNemesisList,  "make nemesis",   true,         false,          false,              false,              true,                   false);         
         case AdminMenu_Survivor : hMenu = CreatePlayerList(AdminMakeSurvivorList, "make survivor",  true,         false,          false,              false,              false,                  true);
+        case AdminMenu_Sniper   : hMenu = CreatePlayerList(AdminMakeSniperList,   "make survivor",  true,         false,          false,              false,              false,                  true);
         case AdminMenu_Ammopack : hMenu = CreatePlayerList(AdminMakeAmmopackList, "give ammopacks", false,        false,          false,              false,              false,                  false);
         case AdminMenu_Level    : hMenu = CreatePlayerList(AdminMakeLevelList,    "give level",     false,        false,          false,              false,              false,                  false);
         default : 
@@ -315,7 +321,7 @@ void MenuSubAdmin(int clientIndex, AdminMenu iMode)
     hMenu.ExitBackButton = true;
     
     // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
     hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
@@ -339,7 +345,7 @@ Menu CreatePlayerList(MenuHandler hHandle, char[] sTitle, bool bAlive, bool bDea
     // Initialize menu
     Menu hMenu = CreateMenu(hHandle);
     
-    // Initialize chars variables
+    // Initialize variables variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
     
@@ -507,6 +513,19 @@ public int AdminMakeSurvivorList(Menu iMenu, MenuAction mAction, int clientIndex
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
+public int AdminMakeSniperList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
+{
+    AdminCommand(iMenu, mAction, clientIndex, mSlot, AdminMenu_Sniper);
+}
+
+/**
+ * Called when client selects option in the sub admin menu, and handles it.
+ *  
+ * @param iMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
 public int AdminMakeAmmopackList(Menu iMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
     AdminCommand(iMenu, mAction, clientIndex, mSlot, AdminMenu_Ammopack);
@@ -580,7 +599,7 @@ void AdminCommand(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
              *  ADMIN VALIDATION OF MENU
              */
             
-            // Initialize char
+            // Initialize variable
             static char sInfo[SMALL_LINE_LENGTH];
 
             // Gets index of the player in the menu
@@ -758,6 +777,50 @@ void AdminCommand(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
                     }
                 }
                 
+                // Make a sniper
+                case AdminMenu_Sniper :    
+                {
+                    // Verify that the chosen client is alive
+                    if(IsPlayerAlive(selectedIndex))
+                    {
+                        // Start mode
+                        if(ZP_IsNewRound())
+                        {
+                            ZP_SetServerGameMode("sniper", selectedIndex);
+                        }
+                        else
+                        {
+                            // If last zombie
+                            if(ZP_GetZombieAmount() <= 1 && ZP_IsPlayerZombie(selectedIndex))
+                            {
+                                // Emit error sound
+                                ClientCommand(clientIndex, "play buttons/button11.wav");    
+                                return;
+                            }
+                            
+                            // Make survivor
+                            ZP_SwitchClientClass(selectedIndex, _, TYPE_SURVIVOR);
+
+                            /** NON-DYNAMIC DATA **/
+                            
+                            // Set the new health
+                            SetEntityHealth(selectedIndex, 200); 
+                            
+                            // Give item and select it
+                            ZP_GiveClientWeapon(selectedIndex, "sfsniper", SLOT_PRIMARY);
+                        }
+
+                        // Print event
+                        HUDSendToAll("admin give a sniper to player", sAdminName, sClientName);
+                    }
+                    // Player is dead
+                    else 
+                    {
+                        // Emit error sound
+                        ClientCommand(clientIndex, "play buttons/button11.wav");    
+                    }
+                }
+                
                 // Give a ammopack
                 case AdminMenu_Ammopack :    
                 {
@@ -792,7 +855,7 @@ void AdminCommand(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot, Ad
  **/
 stock void HUDSendToAll(any ...)
 {
-    // Initialize char
+    // Initialize variable
     static char sHudText[BIG_LINE_LENGTH];
     
     // i = client index

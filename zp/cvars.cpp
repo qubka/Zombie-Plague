@@ -81,6 +81,7 @@ enum CvarsList
     ConVar:CVAR_JUMPBOOST_ENABLE,
     ConVar:CVAR_JUMPBOOST_MULTIPLIER,
     ConVar:CVAR_JUMPBOOST_MAX,
+    ConVar:CVAR_HUMAN_CLASS_MENU,
     ConVar:CVAR_HUMAN_ARMOR_PROTECT,
     ConVar:CVAR_HUMAN_LAST_INFECTION,
     ConVar:CVAR_HUMAN_INF_AMMUNITION,
@@ -91,6 +92,8 @@ enum CvarsList
     ConVar:CVAR_SURVIVOR_INF_AMMUNITION,
     ConVar:CVAR_SURVIVOR_PRICE_AMMUNITION,
     ConVar:CVAR_SURVIVOR_PLAYER_MODEL,
+    ConVar:CVAR_SURVIVOR_ARM_MODEL,
+    ConVar:CVAR_ZOMBIE_CLASS_MENU,
     ConVar:CVAR_ZOMBIE_FISRT_HEALTH,
     ConVar:CVAR_ZOMBIE_NIGHT_VISION,
     ConVar:CVAR_ZOMBIE_XRAY,
@@ -340,7 +343,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_GAME_CUSTOM_ANTISTICK]       = CreateConVar("zp_game_custom_antistick",          "1",                                                               "Enable auto unstick players when stuck within each others' collision hull [0-no // 1-yes]");
     gCvarList[CVAR_GAME_CUSTOM_HITGROUPS]       = CreateConVar("zp_game_custom_hitgroups",          "1",                                                               "Enable hitgroups module, disabling this will disable hitgroup-related features. (hitgroup knockback multipliers, hitgroup damage control) [0-no // 1-yes]");
     gCvarList[CVAR_GAME_CUSTOM_COSTUMES]        = CreateConVar("zp_game_custom_costumes",           "1",                                                               "Enable costumes module, disabling this will disable costumes-related features. (hats on the players) [0-no // 1-yes]");
-    gCvarList[CVAR_GAME_CUSTOM_DATABASE]        = CreateConVar("zp_game_custom_database",           "1",                                                               "Enable auto saving of players data in the database [0-no // 1-yes]");
+    gCvarList[CVAR_GAME_CUSTOM_DATABASE]        = CreateConVar("zp_game_custom_database",           "1",                                                               "Enable auto saving of players data in the database [0-off // 1-always // 2-map]");
     gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON]     = CreateConVar("zp_game_custom_menu_button",        "5",                                                               "Index of the button for the main menu");
     gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL]     = CreateConVar("zp_game_custom_sound_level",        "75",                                                              "Index of the sound level for the modification");
 
@@ -354,7 +357,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_CONFIG_PATH_MENUS]           = CreateConVar("zp_config_path_menus",              "zombieplague/menus.ini",                                          "Path, relative to root sourcemod directory, to menus config file");
     gCvarList[CVAR_CONFIG_PATH_COSTUMES]        = CreateConVar("zp_config_path_costumes",           "zombieplague/costumes.ini",                                       "Path, relative to root sourcemod directory, to costumes config file");
     gCvarList[CVAR_CONFIG_PATH_DATABASE]        = CreateConVar("zp_config_path_database",           "zombiedatabase",                                                  "Section, relative to root sourcemod directory, to default 'database.cfg' file");
-    gCvarList[CVAR_CONFIG_NAME_DATABASE]        = CreateConVar("zp_config_name_database",           "zombieplague_database",                                           "Name of database in the section above");
+    gCvarList[CVAR_CONFIG_NAME_DATABASE]        = CreateConVar("zp_config_name_database",           "zombieplague",                                                    "Name of database in the section above");
     
     // =========================== //
     //            Logs             //
@@ -375,6 +378,7 @@ void CvarsCreate(/*void*/)
     // =========================== //
     //           Humans            //
     // =========================== //
+    gCvarList[CVAR_HUMAN_CLASS_MENU]            = CreateConVar("zp_human_class_menu",               "0",                                                               "Enable human class menu on a humanize with instant class change for 10 seconds [0-no // 1-yes]");
     gCvarList[CVAR_HUMAN_ARMOR_PROTECT]         = CreateConVar("zp_human_armor_protect",            "1",                                                               "Armor needs to be reduced completely in order to get infected ? [0-no // 1-yes]"); 
     gCvarList[CVAR_HUMAN_LAST_INFECTION]        = CreateConVar("zp_human_last_infection",           "1",                                                               "Allow last human to be infected [0-no // 1-yes]"); 
     gCvarList[CVAR_HUMAN_INF_AMMUNITION]        = CreateConVar("zp_human_inf_ammunition",           "1",                                                               "Give unlimited amount of ammunition for humans [0-disabled // 1-BP ammunition // 2-clip ammunition]");
@@ -388,11 +392,13 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SURVIVOR_HEALTH]             = CreateConVar("zp_survivor_health",                "200",                                                             "Health [player count*health ratio]"); 
     gCvarList[CVAR_SURVIVOR_INF_AMMUNITION]     = CreateConVar("zp_survivor_inf_ammunition",        "1",                                                               "Give unlimited amount of ammunition for survivors [0-disabled // 1-BP ammunition // 2-clip ammunition]");
     gCvarList[CVAR_SURVIVOR_PRICE_AMMUNITION]   = CreateConVar("zp_survivor_price_ammunition",      "1",                                                               "Clip price of the ammunition for survivors, if unlimited amount is off [0-disabled]");
-    gCvarList[CVAR_SURVIVOR_PLAYER_MODEL]       = CreateConVar("zp_survivor_model",                 "models/player/custom_player/legacy/tm_phoenix_heavy.mdl",         "Player model. This model files will be automatically precache, just add model textures files into downloads.ini");
-
+    gCvarList[CVAR_SURVIVOR_PLAYER_MODEL]       = CreateConVar("zp_survivor_model",                 "models/player/custom_player/legacy/tm_phoenix_heavy.mdl",         "Player model. This model files/textures will be automatically precache");
+    gCvarList[CVAR_SURVIVOR_ARM_MODEL]          = CreateConVar("zp_survivor_arm",                   "models/player/custom_player/zombie/arms/male_arms.mdl",           "Arm skin model for standart weapons. This model files/textures will be automatically precache");
+    
     // =========================== //
     //            Zombies          //
     // =========================== //
+    gCvarList[CVAR_ZOMBIE_CLASS_MENU]           = CreateConVar("zp_zombie_class_menu",              "0",                                                               "Enable zombie class menu on an infection with instant class change for 10 seconds [0-no // 1-yes]");
     gCvarList[CVAR_ZOMBIE_FISRT_HEALTH]         = CreateConVar("zp_zombie_additional_health",       "100",                                                             "Additional health to first zombie [player count*health ratio]"); 
     gCvarList[CVAR_ZOMBIE_NIGHT_VISION]         = CreateConVar("zp_zombie_nvg_give",                "1",                                                               "Enable custom nightvision [0-no // 1-yes]"); 
     gCvarList[CVAR_ZOMBIE_XRAY]                 = CreateConVar("zp_zombie_xray_give",               "1",                                                               "Enable custom x-ray for viewing through walls [0-no // 1-yes]"); 

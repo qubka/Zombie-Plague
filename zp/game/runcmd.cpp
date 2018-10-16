@@ -29,7 +29,7 @@
  * Called when a clients movement buttons are being processed.
  *  
  * @param clientIndex       The client index.
- * @param iButtons          Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
+ * @param iButtons          Copyback buffer containing the current commands. (as bitflags - see entity_prop_stocks.inc)
  * @param iImpulse          Copyback buffer containing the current impulse command.
  * @param flVelocity        Players desired velocity.
  * @param flAngles          Players desired view angles.    
@@ -83,6 +83,18 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
                     JumpBoostOnClientLeapJump(clientIndex);
                 }
             }
+
+            // Dublicate the button buffer
+            int iButton = iButtons; /// for forward
+            
+            // Forward event to modules
+            Action resultHandle = WeaponsOnRunCmd(clientIndex, iButtons, iLastButtons[clientIndex]);
+            
+            // Store the previous button
+            iLastButtons[clientIndex] = iButton;
+            
+            // Return on success
+            return resultHandle;
         }
         else
         {
@@ -95,6 +107,6 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
     // Store the current button
     iLastButtons[clientIndex] = iButtons;
     
-    // Allow button
+    // Return on success
     return Plugin_Continue;
 }

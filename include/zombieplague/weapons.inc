@@ -33,7 +33,7 @@
 #define _weaponlist_included
 
 /**
- * Number of valid addons.
+ * @section Number of valid addons.
  **/
 enum BitType
 {
@@ -51,9 +51,12 @@ enum BitType
     BitType_C4,                   /** C4 bit */
     BitType_DefuseKit             /** Defuse bit */
 };
-
 /**
- * Number of valid models.
+ * @endsection
+ **/
+ 
+/**
+ * @section Number of valid models.
  **/
 enum ModelType
 {
@@ -64,14 +67,108 @@ enum ModelType
     ModelType_Drop,                /** Dropped model */
     ModelType_Projectile           /** Projectile model */
 };
-
+/**
+ * @endsection
+ **/
+ 
+/**
+ * @brief Called after a custom grenade is created.
+ *
+ * @param clientIndex       The client index.
+ * @param grenadeIndex      The grenade index.
+ * @param weaponID          The weapon id.
+ **/
+forward void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID);
+ 
 /**
  * @brief Called after a custom weapon is created.
  *
+ * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  * @param weaponID          The weapon id.
  **/
-forward void ZP_OnWeaponCreated(int weaponIndex, int weaponID);
+forward void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID);
+
+/**
+ * @brief Called on each frame of a weapon holding.
+ *
+ * @param clientIndex       The client index.
+ * @param iButtons          The buttons buffer.
+ * @param iLastButtons      The last buttons buffer.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  Plugin_Continue to allow buttons. Anything else 
+ *                                (like Plugin_Change) to change buttons.
+ **/
+forward Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID);
+
+/**
+ * @brief Called on deploy of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID);
+
+/**
+ * @brief Called on holster of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID);
+
+/**
+ * @brief Called on reload of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnWeaponReload(int clientIndex, int weaponIndex, int weaponID);
+
+/**
+ * @brief Called on bullet of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param vBulletPosition   The position of a bullet hit.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int weaponIndex, int weaponID);
+
+/**
+ * @brief Called on shoot of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID)
+
+/**
+ * @brief Called on fire of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnWeaponFire(int clientIndex, int weaponIndex, int weaponID);
 
 /**
  * @brief Gives the weapon by a given name.
@@ -132,6 +229,15 @@ native int ZP_GetNumberWeapon();
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetWeaponName(int weaponID, char[] name, int maxlenght = 32);
+
+/**
+ * @brief Gets the info of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param info              The string to return info in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponInfo(int weaponID, char[] info, int maxlenght = 32);
 
 /**
  * @brief Gets the entity a weapon at a given id.
@@ -450,7 +556,7 @@ stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward 
 stock int ZP_GetWeaponAnimation(const int clientIndex)
 {
     // Gets the client viewmodel
-    int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
+    int viewModel = ZP_GetClientViewModel(clientIndex, true); /// Get anims on the custom model 
 
     // Validate viewmodel
     if(IsValidEdict(viewModel))

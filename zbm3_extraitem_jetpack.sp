@@ -55,11 +55,12 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Initialize variables
+// Timer index
 Handle Task_JetPackReload[MAXPLAYERS+1] = INVALID_HANDLE; int gItemDuration[MAXPLAYERS+1]; 
  
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
 
 // Item index
 int gItem; int gWeapon;

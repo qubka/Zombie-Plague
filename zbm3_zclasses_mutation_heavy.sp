@@ -72,15 +72,16 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Initialize variables
+// Timer index
 Handle Task_HumanTrapped[MAXPLAYERS+1] = INVALID_HANDLE;  bool bStandOnTrap[MAXPLAYERS+1];
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
-// Initialize zombie class index
-int gZombieMutationHeavy;
-#pragma unused gZombieMutationHeavy
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -95,7 +96,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
 
         // Initialize zombie class
-        gZombieMutationHeavy = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -204,7 +205,7 @@ public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respaw
     delete Task_HumanTrapped[clientIndex];
 }
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex       The client index.
  *
@@ -213,14 +214,8 @@ public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respaw
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieMutationHeavy)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Validate place
         if(bStandOnTrap[clientIndex])
@@ -329,7 +324,7 @@ public Action TrapTouchHook(const int entityIndex, const int targetIndex)
                     DispatchSpawn(trapIndex);
                     TeleportEntity(trapIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
 
-                    // Initialize char
+                    // Initialize variable
                     static char sTime[SMALL_LINE_LENGTH];
                     Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", ZOMBIE_CLASS_DURATION);
 

@@ -67,8 +67,9 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// Variables for the key sound block and XRay vision
+// Sound index and XRay vision
 int gSound; ConVar hSoundLevel; ConVar hXRay;
+#pragma unused gSound, hSoundLevel, hXRay
  
 // Item index
 int gItem; int gWeapon;
@@ -88,16 +89,10 @@ public void OnLibraryAdded(const char[] sLibrary)
         
         // Hook entity events
         HookEvent("tagrenade_detonate", EventEntityTanade, EventHookMode_Post);
+        
+        // Hooks server sounds
+        AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
     }
-}
-
-/**
- * Plugin is loading.
- **/
-public void OnPluginStart(/*void*/)
-{
-    // Hooks server sounds
-    AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 }
 
 /**
@@ -165,18 +160,19 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 }
 
 /**
- * Called after a custom weapon is created.
+ * Called after a custom grenade is created.
  *
- * @param weaponIndex       The weapon index.
+ * @param clientIndex       The client index.
+ * @param grenadeIndex      The grenade index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int weaponIndex, int weaponID)
+public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
 {
     // Validate custom grenade
-    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(weaponIndex) == gWeapon)*/
+    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(grenadeIndex) == gWeapon)*/
     {
         // Hook entity callbacks
-        SDKHook(weaponIndex, SDKHook_Touch, TanadeTouchHook);
+        SDKHook(grenadeIndex, SDKHook_Touch, TanadeTouchHook);
     }
 }
 
@@ -290,30 +286,30 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     // Validate client
     if(IsValidEdict(entityIndex))
     {
-        // Gets the entity classname
-        static char sClassname[PLATFORM_MAX_PATH];
-        GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
-
-        // Validate grenade
-        if(!strncmp(sClassname, "tagrenade_", 10, false))
+        // Validate custom grenade
+        if(ZP_GetWeaponID(entityIndex) == gWeapon)
         {
+            // Initialize variable
+            static char sSound[PLATFORM_MAX_PATH];
+
+            // Validate sound
             if(!strncmp(sSample[30], "arm", 3, false))
             {
                 // Emit a custom bounce sound
-                ZP_GetSound(gSound, sClassname, sizeof(sClassname), 1);
-                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[30], "det", 3, false))
             {
                 // Emit a custom bounce sound
-                ZP_GetSound(gSound, sClassname, sizeof(sClassname), 2);
-                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[30], "exp", 3, false))
             {
                 // Emit explosion sound
-                ZP_GetSound(gSound, sClassname, sizeof(sClassname), 3);
-                EmitSoundToAll(sClassname, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 3);
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             }
 
             // Block sounds

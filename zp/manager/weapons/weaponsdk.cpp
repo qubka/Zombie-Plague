@@ -37,7 +37,7 @@ enum WeaponSDKSlotType
     SlotType_Melee,               /** Melee slot */
     SlotType_Equipment,           /** Equipment slot */  
     SlotType_C4,                  /** C4 slot */  
-    SlotType_Grenades = 6         /** Grenade slot */  /* < Fake slot > */
+    SlotType_Grenades = 7         /** Grenade slot */  /* < Fake slot > */
 };
 
 /**
@@ -160,7 +160,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     
     /*_________________________________________________________________________________________________________________________________________*/
 
-    // Load offsets here
+    // Load offsets
     fnInitSendPropOffset(g_iOffset_EntityEffects, "CBaseEntity", "m_fEffects");
     fnInitSendPropOffset(g_iOffset_EntityModelIndex, "CBaseEntity", "m_nModelIndex");
     fnInitSendPropOffset(g_iOffset_EntityOwnerEntity, "CBaseEntity", "m_hOwnerEntity");
@@ -173,6 +173,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     fnInitSendPropOffset(g_iOffset_CharacterWeapons, "CBaseCombatCharacter", "m_hMyWeapons");
     fnInitSendPropOffset(g_iOffset_PlayerViewModel, "CBasePlayer", "m_hViewModel");
     fnInitSendPropOffset(g_iOffset_PlayerActiveWeapon, "CBasePlayer", "m_hActiveWeapon");
+    fnInitSendPropOffset(g_iOffset_PlayerLastWeapon, "CBasePlayer", "m_hLastWeapon");
     fnInitSendPropOffset(g_iOffset_PlayerObserverMode, "CBasePlayer", "m_iObserverMode");
     fnInitSendPropOffset(g_iOffset_PlayerObserverTarget, "CBasePlayer", "m_hObserverTarget");
     fnInitSendPropOffset(g_iOffset_PlayerAttack, "CBasePlayer", "m_flNextAttack");
@@ -201,7 +202,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     /*_________________________________________________________________________________________________________________________________________*/
     
     #if defined USE_DHOOKS
-    // Load offsets
+    // Load other offsets
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetMaxClip1, "Weapon_GetMaxClip1");
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetReserveAmmoMax, "Weapon_GetReserveAmmoMax");
 
@@ -341,6 +342,15 @@ public void WeaponSDKOnFakeWeaponReload(const int referenceIndex)
         int iD = WeaponsGetCustomID(weaponIndex);
         if(iD != INVALID_ENT_REFERENCE)
         {
+            // Gets the weapon owner
+            int clientIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponOwner);
+            
+            // Validate owner
+            if(!IsPlayerExist(clientIndex)) 
+            {
+                return;
+            }
+    
             // If custom reload speed exist, then apply it
             float flReload = WeaponsGetReload(iD);
             if(flReload)
@@ -349,10 +359,14 @@ public void WeaponSDKOnFakeWeaponReload(const int referenceIndex)
                 flReload += GetGameTime();
         
                 // Sets the reload time
+                ///SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flReload, true);
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flReload, true);
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flReload, true);
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flReload, true);
             }
+            
+            // Call forward
+            API_OnWeaponReload(clientIndex, weaponIndex, iD);
         }
     }
 }
@@ -515,7 +529,7 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
                 }
                 
                 // Call forward
-                API_OnWeaponCreated(grenadeIndex, iD);
+                API_OnGrenadeCreated(clientIndex, grenadeIndex, iD);
             }
         }
     }
@@ -729,6 +743,21 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
         int iD = WeaponsGetCustomID(weaponIndex);
         if(iD != INVALID_ENT_REFERENCE)
         {
+            //Gets the last weapon index from the client
+            int itemIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerLastWeapon);
+        
+            // Validate last weapon
+            if(IsValidEdict(itemIndex))
+            {
+                // Validate last index
+                int iL = WeaponsGetCustomID(itemIndex);
+                if(iL != INVALID_ENT_REFERENCE && iD != iL)
+                {
+                    // Call forward
+                    API_OnWeaponHolster(clientIndex, itemIndex, iL);
+                }
+            }
+            
             // If custom deploy speed exist, then apply it
             float flDeploy = WeaponsGetReload(iD);
             if(flDeploy)
@@ -737,6 +766,7 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
                 flDeploy += GetGameTime();
         
                 // Sets the deploy time
+                ///SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flDeploy, true);
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flDeploy, true);
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flDeploy, true);
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flDeploy, true);
@@ -762,9 +792,9 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
     gClientData[clientIndex][Client_CustomWeapon] = 0;
     gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only viewmodel identification
     
-    // Gets human arm model
+    // Gets survivor/human arm model
     static char sArm[PLATFORM_MAX_PATH];
-    HumanGetArmModel(gClientData[clientIndex][Client_HumanClass], sArm, sizeof(sArm));
+    if(gClientData[clientIndex][Client_Survivor]) gCvarList[CVAR_SURVIVOR_ARM_MODEL].GetString(sArm, sizeof(sArm)); else HumanGetArmModel(gClientData[clientIndex][Client_HumanClass], sArm, sizeof(sArm));
     
     // Apply arm model
     if(strlen(sArm)) SetEntDataString(clientIndex, g_iOffset_PlayerArms, sArm, sizeof(sArm), true);
@@ -800,6 +830,9 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     {
         return;
     }
+    
+    // Sets the last weapon index to the client
+    SetEntDataEnt2(clientIndex, g_iOffset_PlayerLastWeapon, weaponIndex, true); /// Bugfix for holster
 
     // Initialize variables
     int iModel; static char sModel[PLATFORM_MAX_PATH]; sModel[0] = '\0';
@@ -924,11 +957,18 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
                 LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to get sequence count for weapon using model \"%s\" - Animations may not work as expected", sModel);
             }
         }
-
+        
+        // Gets the body/skin index of a human class
+        int iBody = HumanGetView(gClientData[clientIndex][Client_HumanClass], ViewType_Body);
+        int iSkin = HumanGetView(gClientData[clientIndex][Client_HumanClass], ViewType_Skin);
+        
+        // Resets for survivor/zombie
+        if(gClientData[clientIndex][Client_Zombie] || gClientData[clientIndex][Client_Survivor]) { iBody = -1; iSkin = -1; }
+        
         // Sets the model/body/skin index for viewmodel
         SetEntData(viewModel2, g_iOffset_EntityModelIndex, iModel, _, true);
-        SetEntData(viewModel2, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_View), _, true);
-        SetEntData(viewModel2, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_View), _, true);
+        SetEntData(viewModel2, g_iOffset_WeaponBody, (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View), _, true);
+        SetEntData(viewModel2, g_iOffset_WeaponSkin, (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View), _, true);
         
         //  Update the animation interval delay for second viewmodel 
         SetEntDataFloat(viewModel2, g_iOffset_ViewModelPlaybackRate, GetEntDataFloat(viewModel1, g_iOffset_ViewModelPlaybackRate), true);
@@ -960,6 +1000,9 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
             if(WeaponsValidateKnife(weaponIndex)) WeaponHDRSetPlayerWorldModel(weaponIndex);
         }
     }
+    
+    // Call forward
+    API_OnWeaponDeploy(clientIndex, weaponIndex, iD);
 }
 
 /**
@@ -1130,13 +1173,13 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
                     // This value is set specifically for each weapon
                     flHeat += flDelay;
                     
-                    // Reset the heat
+                    // Reset the delay
                     if(flHeat < 0.0) flHeat = 0.0;
 
-                    // Validate heat
+                    // Validate delay
                     if(flHeat > 1.0)
                     {
-                        // Validate delay
+                        // Validate heat
                         if(flCurrentTime - flSmoke[clientIndex] > 1.0)
                         {
                             // Create a muzzle smoke
@@ -1144,7 +1187,7 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
                             flSmoke[clientIndex] = flCurrentTime;
                         }
                         
-                        // Resets then
+                        // Resets delay
                         flHeat = 0.0;
                     }
 
@@ -1153,6 +1196,9 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
                 }
             }
         }
+        
+        // Call forward
+        API_OnWeaponFire(clientIndex, weaponIndex, iD);
     }
     
     // Validate a non-knife
@@ -1169,6 +1215,47 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
 }
 
 /**
+ * Event: WeaponOnBullet
+ * The bullet hits something.
+ *
+ * @param clientIndex       The client index.
+ * @param vBulletPosition   The position of a bullet hit.
+ * @param weaponIndex       The weapon index.
+ **/
+void WeaponSDKOnBullet(const int clientIndex, const float vBulletPosition[3], const int weaponIndex) 
+{ 
+    // Validate custom index
+    int iD = WeaponsGetCustomID(weaponIndex);
+    if(iD != INVALID_ENT_REFERENCE)    
+    {
+        // Call forward
+        API_OnWeaponBullet(clientIndex, vBulletPosition, weaponIndex, iD);
+    }
+}
+/**
+ * Event: WeaponOnRunCmd
+ * Weapon is holding.
+ *
+ * @param clientIndex       The client index.
+ * @param iButtons          The button buffer.
+ * @param iLastButtons      The last button buffer.
+ * @param weaponIndex       The weapon index.
+ **/
+Action WeaponSDKOnRunCmd(const int clientIndex, int &iButtons, const int iLastButtons, const int weaponIndex)
+{
+    // Validate custom index
+    static int iD; iD = WeaponsGetCustomID(weaponIndex); /** static for runcmd **/
+    if(iD != INVALID_ENT_REFERENCE)    
+    {
+        // Call forward
+        return API_OnWeaponRunCmd(clientIndex, iButtons, iLastButtons, weaponIndex, iD);
+    }
+    
+    // Return on the unsuccess
+    return Plugin_Continue;
+}
+
+/**
  * Event: WeaponOnFire
  * Weapon has been shoot.
  *
@@ -1177,14 +1264,18 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
  **/
 Action WeaponSDKOnShoot(const int clientIndex, const int weaponIndex) 
 { 
-    #pragma unused clientIndex
-    
     // Validate custom index
     int iD = WeaponsGetCustomID(weaponIndex);
     if(iD != INVALID_ENT_REFERENCE)    
     {
         // Validate broadcast
-        return SoundsInputEmitToAll(WeaponsGetSoundID(iD), 0, weaponIndex, SNDCHAN_WEAPON, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue) ? Plugin_Stop : Plugin_Continue;
+        Action resultHandle = SoundsInputEmitToAll(WeaponsGetSoundID(iD), 0, clientIndex, SNDCHAN_WEAPON, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue) ? Plugin_Stop : Plugin_Continue;
+
+        // Call forward
+        API_OnWeaponShoot(clientIndex, weaponIndex, iD);
+
+        // Block broadcast
+        return resultHandle;
     }
     
     // Allow broadcast
@@ -1290,7 +1381,7 @@ public Action WeaponSDKOnAmmunition(const int clientIndex, const char[] commandM
             if(iAmmo < iMaxAmmo)
             {
                 // Generate amount
-                iAmmo += SDKCall(hSDKCallGetMaxClip1, weaponIndex);
+                iAmmo += SDKCall(hSDKCallGetMaxClip1, weaponIndex); if(!iAmmo) /*~*/ iAmmo++;
 
                 // Gives ammo of a certain type to a weapon
                 SetEntData(weaponIndex, g_iOffset_WeaponReserve1, (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo, _, true);
@@ -1308,7 +1399,7 @@ public Action WeaponSDKOnAmmunition(const int clientIndex, const char[] commandM
     return Plugin_Continue;
 }
 
-#if defined USE_DHOOKS
+#if defined USE_DHOOKS 
 /**
  * DHook: Sets a weapon clip when its spawned, picked, dropped or reloaded.
  * int CBaseCombatWeapon::GetMaxClip1(void *)

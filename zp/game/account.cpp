@@ -31,7 +31,7 @@
 #define ACCOUNT_CASH_MAX 65000
 
 /**
- * HUD synchronization hadnle.
+ * HUD synchronization handle.
  **/
 Handle hHudAccount;
 

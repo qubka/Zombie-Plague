@@ -234,7 +234,7 @@ public int API_RegisterExtraItem(Handle isPlugin, const int iNumParams)
         return -1;
     }
 
-    // Initialize chars
+    // Initialize variables
     char sItemBuffer[SMALL_LINE_LENGTH];
     char sItemName[SMALL_LINE_LENGTH];
 
@@ -360,7 +360,7 @@ public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
     }
     
     // Initialize info char
-    static char sInfo[SMALL_LINE_LENGTH];
+    static char sInfo[BIG_LINE_LENGTH];
     ItemsGetInfo(iD, sInfo, sizeof(sInfo));
 
     // Return on success
@@ -705,7 +705,7 @@ void ExtraItemsMenu(const int clientIndex)
         return;
     }
     
-    // Initialize chars
+    // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
@@ -724,7 +724,7 @@ void ExtraItemsMenu(const int clientIndex)
     hMenu.SetTitle("%t", "buy extraitems");
     
     // Initialize forward
-    Action resultHandle;
+    static Action resultHandle;
     
     // i = Extra item number
     int iCount = arrayExtraItems.Length;
@@ -767,7 +767,7 @@ void ExtraItemsMenu(const int clientIndex)
     hMenu.ExitBackButton = true;
     
     // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
     hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
@@ -817,7 +817,7 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                 return;
             }
 
-            // Initialize char
+            // Initialize variable
             static char sItemName[SMALL_LINE_LENGTH];
 
             // Gets ID of the extra item
@@ -840,7 +840,7 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                     ItemsGetName(iD, sItemName, sizeof(sItemName));
 
                     // Gets client name
-                    static char sInfo[SMALL_LINE_LENGTH];
+                    static char sInfo[BIG_LINE_LENGTH];
                     GetClientName(clientIndex, sInfo, sizeof(sInfo));
 
                     // Show message of successful buying

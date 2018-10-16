@@ -29,7 +29,7 @@
  * Steam ID length.
  **/
 #define STEAMID_MAX_LENGTH     32
- 
+
 /**
  * Array handle to store database.
  **/
@@ -45,6 +45,12 @@ char SteamID[MAXPLAYERS+1][STEAMID_MAX_LENGTH];
  **/
 void DataBaseLoad(/*void*/)
 {
+    // If database disabled, then stop
+    if(!gCvarList[CVAR_GAME_CUSTOM_DATABASE].IntValue)
+    {
+        return;
+    }
+    
     // Close database handle, if it was already created
     if(hDataBase != INVALID_HANDLE)
     {
@@ -62,7 +68,7 @@ void DataBaseLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Database, "Database Validation", "Missing database section: \"%s\" in \"databases.cfg\"", sDataBase);
     }
 
-    // Initialize chars
+    // Initialize variables
     static char sError[BIG_LINE_LENGTH];
     static char sDriver[SMALL_LINE_LENGTH]; 
     static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
@@ -93,7 +99,7 @@ void DataBaseLoad(/*void*/)
     gCvarList[CVAR_CONFIG_NAME_DATABASE].GetString(sDataBase, sizeof(sDataBase));
 
     // Delete existing database if dropping enable
-    if(!gCvarList[CVAR_GAME_CUSTOM_DATABASE].BoolValue)
+    if(gCvarList[CVAR_GAME_CUSTOM_DATABASE].IntValue == 2)
     {
         // Format request
         Format(sRequest, sizeof(sRequest), "DROP TABLE IF EXISTS `%s`", sDataBase);
@@ -110,18 +116,46 @@ void DataBaseLoad(/*void*/)
         else
         {
             // Log database validation info
-            LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Database Validation", "Dropped database: `%s` | Request : \"%s\"", sRequest);
+            LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Database Validation", "Dropped database: \"%s\" | Request : \"%s\"", sDataBase, sRequest);
         }
     }
 
-    // Format request
+    /// Format request
     if(MySQL)
     {
-        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (`id` int(64) NOT NULL auto_increment, `steam_id` varchar(32) NOT NULL, `money` int(64) NOT NULL, `level` int(64) NOT NULL, `exp` int(64) NOT NULL, `zclass` int(64) NOT NULL, `hclass` int(64) NOT NULL, `rebuy` int(64) NOT NULL, `costume` int(64) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `steam_id` (`steam_id`))", sDataBase);
+        /*______________________________________________________________________*/
+        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (    \
+                                           `id` int(64) NOT NULL auto_increment, \
+                                           `steam_id` varchar(32) NOT NULL,      \
+                                           `money` int(64) NOT NULL,             \
+                                           `level` int(64) NOT NULL,             \
+                                           `exp` int(64) NOT NULL,               \
+                                           `zclass` int(64) NOT NULL,            \
+                                           `hclass` int(64) NOT NULL,            \
+                                           `rebuy` int(64) NOT NULL,             \
+                                           `costume` int(64) NOT NULL,           \
+                                           `time` int(64) NOT NULL,              \
+                                            PRIMARY KEY (`id`),                  \
+                                            UNIQUE KEY `steam_id` (`steam_id`))", 
+                                            sDataBase);
+        /*______________________________________________________________________*/
     }
     else
     {
-        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (id INTEGER PRIMARY KEY AUTOINCREMENT, steam_id TEXT UNIQUE, money INTEGER, level INTEGER, exp INTEGER, zclass INTEGER, hclass INTEGER, rebuy INTEGER, costume INTEGER)", sDataBase);
+        /*_______________________________________________________________________*/
+        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (     \
+                                            id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                                            steam_id TEXT UNIQUE,                 \
+                                            money INTEGER,                        \
+                                            level INTEGER,                        \
+                                            exp INTEGER,                          \
+                                            zclass INTEGER,                       \
+                                            hclass INTEGER,                       \
+                                            rebuy INTEGER,                        \
+                                            costume INTEGER,                      \
+                                            time INTEGER)", 
+        sDataBase);
+        /*_______________________________________________________________________*/
     }
 
     // Sent a request
@@ -136,7 +170,7 @@ void DataBaseLoad(/*void*/)
     else
     {
         // Log database validation info
-        LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Database Validation", "Executed database: `%s` | Connection type: \"%s\" | Request : \"%s\"", sDataBase, MySQL ? "MySQL" : "SQlite", sRequest);
+        LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Database Validation", "Executed database: \"%s\" | Connection type: \"%s\" | Request : \"%s\"", sDataBase, MySQL ? "MySQL" : "SQlite", sRequest);
     }
 
     // Unlock base
@@ -164,13 +198,13 @@ void DataBaseOnCommandsCreate(/*void*/)
  **/
 public Action DataBaseOnExit(const int entityIndex, const char[] commandMsg, const int iArguments)
 {
-    // Validate Server
+    // Validate server
     if(!entityIndex)
     {
         // Switches server commands
         switch(commandMsg[0])
         {
-            // Exit
+            // Disabling/exit server
             case 'e', 'q', 'r', '_' : 
             {
                 //!! IMPORTANT BUG FIX !!//
@@ -216,7 +250,7 @@ void DataBaseClientInit(const int clientIndex)
     // Verify that the client is a real player
     if(!IsFakeClient(clientIndex))
     {
-        // Initialize chars
+        // Initialize variables
         static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH]; 
 
         // Gets database name
@@ -226,8 +260,20 @@ void DataBaseClientInit(const int clientIndex)
         // Validate client authentication string (SteamID)
         if(GetClientAuthId(clientIndex, AuthId_Steam2, SteamID[clientIndex], sizeof(SteamID[])))
         {
-            // Format request
-            Format(sRequest, sizeof(sRequest), "SELECT id, money, level, exp, zclass, hclass, rebuy, costume FROM `%s` WHERE steam_id = '%s'", sDataBase, SteamID[clientIndex]);
+            /// Format request
+            /*_________________________________________________*/
+            Format(sRequest, sizeof(sRequest), "SELECT id,      \
+                                                       money,   \
+                                                       level,   \
+                                                       exp,     \
+                                                       zclass,  \
+                                                       hclass,  \
+                                                       rebuy,   \
+                                                       costume, \
+                                                       time     \
+                                                FROM `%s` WHERE steam_id = '%s'", 
+            sDataBase, SteamID[clientIndex]);
+            /*_________________________________________________*/
             
             // Sent a request
             SQL_TQuery(hDataBase, SQLBaseExtract_Callback, sRequest, clientIndex);
@@ -291,13 +337,14 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
                 gClientData[clientIndex][Client_HumanClassNext] = SQL_FetchInt(hResult, 5);
                 gClientData[clientIndex][Client_AutoRebuy] = view_as<bool>(SQL_FetchInt(hResult, 6));
                 gClientData[clientIndex][Client_Costume] = SQL_FetchInt(hResult, 7);
+                gClientData[clientIndex][Client_Time] = SQL_FetchInt(hResult, 8);
 
                 // Update info in the database
                 DataBaseSaveClientInfo(clientIndex);
             }
             else
             {
-                // Initialize chars
+                // Initialize variables
                 static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH]; 
 
                 // Gets database name
@@ -313,7 +360,7 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
                 // Sent a request
                 if(!SQL_FastQuery(hDataBase, sRequest))
                 {
-                    // Initialize char
+                    // Initialize variable
                     static char sError[BIG_LINE_LENGTH];
                 
                     // Gets an error, if it exist
@@ -348,21 +395,47 @@ public void SQLBaseExtract_Callback(Handle hDriver, Handle hResult, const char[]
  **/
 void DataBaseSaveClientInfo(const int clientIndex)
 {
-    // Initialize chars
+    // Initialize variables
     static char sRequest[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH]; 
 
     // Gets database name
     static char sDataBase[SMALL_LINE_LENGTH];
     gCvarList[CVAR_CONFIG_NAME_DATABASE].GetString(sDataBase, sizeof(sDataBase));
 
-    // Format request
+    // Gets the system time as a unix timestamp
+    int bigUnix = GetTime();
+    
+    /// Format request
     if(gClientData[clientIndex][Client_DataID] < 1)
     {
-        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, level = %d, exp = %d, zclass = %d, hclass = %d, rebuy = %d, costume = %d WHERE steam_id = '%s'", sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], SteamID[clientIndex]);
+        /*_______________________________________________________________*/
+        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d,   \
+                                                            level = %d,   \
+                                                            exp = %d,     \
+                                                            zclass = %d,  \
+                                                            hclass = %d,  \
+                                                            rebuy = %d,   \
+                                                            costume = %d, \
+                                                            time = %d     \
+                                                        WHERE steam_id = '%s'", 
+                                                            
+        sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], bigUnix, SteamID[clientIndex]);
+        /*_______________________________________________________________*/
     }
     else
     {
-        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, level = %d, exp = %d, zclass = %d, hclass = %d, rebuy = %d, costume = %d WHERE id = %d", sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], gClientData[clientIndex][Client_DataID]);
+        /*_______________________________________________________________*/
+        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d,   \
+                                                            level = %d,   \
+                                                            exp = %d,     \
+                                                            zclass = %d,  \
+                                                            hclass = %d,  \
+                                                            rebuy = %d,   \
+                                                            costume = %d, \
+                                                            time = %d     \
+                                                        WHERE id = %d",   
+        sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], bigUnix, gClientData[clientIndex][Client_DataID]);
+        /*_______________________________________________________________*/
     }
 
     // Block sql base from the other requests
@@ -371,7 +444,7 @@ void DataBaseSaveClientInfo(const int clientIndex)
     // Sent a request
     if(!SQL_FastQuery(hDataBase, sRequest))
     {
-        // Initialize char
+        // Initialize variable
         static char sError[BIG_LINE_LENGTH];
     
         // Gets an error, if it exist

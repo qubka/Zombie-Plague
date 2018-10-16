@@ -239,15 +239,8 @@ LogModules LogGetModule(char[] sModuleName)
  **/
 bool LogCheckFlag(int eventType)
 {
-    // Check ifeventType is set
-    if(eventType)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    // Check if eventType is set
+    return eventType ? true : false;
 }
 
 /**
@@ -258,14 +251,8 @@ bool LogCheckFlag(int eventType)
  **/
 bool LogCheckModuleFilter(const LogModules iModule)
 {
-    if(LogModuleFilterCache[iModule])
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    // Check if filter is set
+    return LogModuleFilterCache[iModule] ? true : false;
 }
 
 /**
@@ -477,6 +464,7 @@ void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Nor
  **/
 bool LogModuleFilterAdd(const LogModules iModule)
 {
+    // Initialize some chars
     static char sModuleName[SMALL_LINE_LENGTH];
     
     // Check ifempty
@@ -508,8 +496,8 @@ bool LogModuleFilterAdd(const LogModules iModule)
  **/
 bool LogModuleFilterRemove(const LogModules iModule)
 {
-    static char sModuleName[SMALL_LINE_LENGTH];
-    int  iModuleIndex;
+    // Initialize some chars
+    static char sModuleName[SMALL_LINE_LENGTH]; int iModuleIndex;
     
     // Check ifempty
     if(!strlen(sModuleName))
@@ -539,8 +527,7 @@ bool LogModuleFilterRemove(const LogModules iModule)
  **/
 void LogModuleFilterCacheUpdate(/*void*/)
 {
-    static char sModuleName[SMALL_LINE_LENGTH];
-    LogModules iModuleType;
+    static char sModuleName[SMALL_LINE_LENGTH]; LogModules iModuleType;
     
     // Clear all entries in module cache
     int iModuleCount = sizeof(LogModuleFilterCache);
@@ -624,7 +611,7 @@ public Action Command_LogList(const int clientIndex, const int iArguments)
     sBuffer[0] = 0;
     
     // Module filtering status:
-    Format(sLineBuffer, sizeof(sLineBuffer), "%t %ы\n\n", "Log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
+    Format(sLineBuffer, sizeof(sLineBuffer), "%t %ы\n\n", "log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
     Format(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "log status");

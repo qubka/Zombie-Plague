@@ -106,17 +106,17 @@ enum
     ANIM_HOLSTER
 };
 
-// Initialize variables
+// Timer index
 Handle Task_MineCreate[MAXPLAYERS+1] = INVALID_HANDLE; 
 
 // Item index
 int gItem; int gWeapon;
 #pragma unused gItem, gWeapon
 
-// Variables for the key sound block
+// Sound index
 int gSound;  ConVar hSoundLevel;
 
-// Variables for precache resources
+// Decal index
 int decalBeam;
 #pragma unused decalBeam
 
@@ -200,7 +200,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
             return Plugin_Handled;
         }
     }
-
+    
     // Allow showing
     return Plugin_Continue;
 }
@@ -241,7 +241,7 @@ public void OnMapEnd(/*void*/)
  **/
 public void OnClientDisconnect(int clientIndex)
 {
-    // Delete timer
+    // Delete timers
     delete Task_MineCreate[clientIndex];
 }
 
@@ -253,24 +253,21 @@ public void OnClientDisconnect(int clientIndex)
 void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
-
-    // Sets the draw animation
-    ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
     
-    // Block the real attack
+    /// Block the real attack
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
 
     // Sets the next attack time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, const float flCurrentTime)
+void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
 
-    // Resets the empty sound
-    SetEntProp(weaponIndex, Prop_Data, "m_bFireOnEmpty", false);
-    
+    /// Block the real attack
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+
     // Validate animation delay
     if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
@@ -296,10 +293,14 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, const 
     // Validate collisions
     if(TR_DidHit(hTrace) && TR_GetEntityIndex(hTrace) < 1)
     {
+        // Adds the delay to the game tick
+        flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+                
         // Sets the next attack time
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
 
-        // Sets the attack animation
+        // Sets the deploy animation
         ZP_SetWeaponAnimation(clientIndex, ANIM_DEPLOY);
 
         // Create timer for mine
@@ -310,21 +311,6 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, const 
     // Close the trace
     delete hTrace;
 }
-
-/*void Weapon_OnIdle(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const float flCurrentTime)
-{
-    #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
-    
-    // Validate reload complete
-    if(GetEntProp(weaponIndex, Prop_Send, "m_bReloadVisuallyComplete"))
-    {
-        // Block the real attack
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-        
-        // Reset completing
-        SetEntProp(weaponIndex, Prop_Send, "m_bReloadVisuallyComplete", false);
-    }
-}*/
 
 bool Weapon_OnPickupMine(const int clientIndex, int entityIndex, const float flCurrentTime)
 {
@@ -392,7 +378,7 @@ bool Weapon_OnPickupMine(const int clientIndex, int entityIndex, const float flC
 public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
 {
     // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); int weaponIndex;
+    int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
 
     // Clear timer 
     Task_MineCreate[clientIndex] = INVALID_HANDLE;
@@ -400,7 +386,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
     // Validate client
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
-        // Initialize variables
+        // Initialize vectors
         static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3]; static float vEntAngle[3]; static char sSound[PLATFORM_MAX_PATH];
         
         // Gets the weapon position
@@ -557,8 +543,12 @@ public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
         }
         else
         {
+            // Adds the delay to the game tick
+            float flCurrentTime = GetGameTime() + 1.0;
+                    
             // Sets the next attack time
-            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", GetGameTime() + 1.0);
+            SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
 
             // Sets the pickup animation
             ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW);
@@ -583,48 +573,16 @@ public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
     )    
     
 /**
- * Called once a client is authorized and fully in-game, and 
- * after all post-connection authorizations have been performed.  
- *
- * This callback is gauranteed to occur on all clients, and always 
- * after each OnClientPutInServer() call.
- * 
- * @param clientIndex       The client index. 
- **/
-public void OnClientPostAdminCheck(int clientIndex)
-{
-    // Hook entity callbacks
-    SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponOnDeployPost);
-}
-
-/**
- * Hook: WeaponSwitchPost
- * Player deploy any weapon.
+ * Called on deploy of a weapon.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
  **/
-public void WeaponOnDeployPost(const int clientIndex, const int weaponIndex) 
+public void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID) 
 {
-    // Delete timer
-    delete Task_MineCreate[clientIndex];
-
-    // Apply fake deploy hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponOnFakeDeployPost), GetClientUserId(clientIndex));
-}
-
-/**
- * FakeHook: WeaponSwitchPost
- *
- * @param userID            The user id.
- **/
-public void WeaponOnFakeDeployPost(const int userID)
-{
-    // Gets the client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); int weaponIndex;
-
-    // Validate weapon
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    // Validate custom weapon
+    if(weaponID == gWeapon)
     {
         // Call event
         _call.Deploy(clientIndex, weaponIndex);
@@ -632,44 +590,47 @@ public void WeaponOnFakeDeployPost(const int userID)
 }
 
 /**
- * Event: WeaponPostFrame
- * Weapon is holding.
- *  
+ * Called on holster of a weapon.
+ *
  * @param clientIndex       The client index.
- * @param iButtons          Copyback buffer containing the current commands (as bitflags - see entity_prop_stocks.inc).
- * @param iImpulse          Copyback buffer containing the current impulse command.
- * @param flVelocity        Players desired velocity.
- * @param flAngles          Players desired view angles.    
- * @param weaponID          The entity index of the new weapon if player switches weapon, 0 otherwise.
- * @param iSubType          Weapon subtype when selected from a menu.
- * @param iCmdNum           Command number. Increments from the first command sent.
- * @param iTickCount        Tick count. A client prediction based on the server GetGameTickCount value.
- * @param iSeed             Random seed. Used to determine weapon recoil, spread, and other predicted elements.
- * @param iMouse            Mouse direction (x, y).
- **/ 
-public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID) 
 {
-    // Validate weapon
-    static int weaponIndex;
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    // Validate custom weapon
+    if(weaponID == gWeapon)
     {
-        // Initialize variable
-        static int iLastButtons[MAXPLAYERS+1];
+        // Delete timers
+        delete Task_MineCreate[clientIndex];
+    }
+}
 
-        // Call event
-        ///_call.Idle(clientIndex, weaponIndex);
-
+/**
+ * Called on each frame of a weapon holding.
+ *
+ * @param clientIndex       The client index.
+ * @param iButtons          The buttons buffer.
+ * @param iLastButtons      The last buttons buffer.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  Plugin_Continue to allow buttons. Anything else 
+ *                                (like Plugin_Change) to change buttons.
+ **/
+public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
         // Button primary attack press
         if(iButtons & IN_ATTACK)
         {
             // Call event
             _call.PrimaryAttack(clientIndex, weaponIndex); 
-            iLastButtons[clientIndex] = iButtons; iButtons &= (~IN_ATTACK); //! Bugfix
+            iButtons &= (~IN_ATTACK);
             return Plugin_Changed;
         }
-        
-        // Store the current button
-        iLastButtons[clientIndex] = iButtons;
     }
 
     // Allow button
@@ -851,7 +812,7 @@ void MineExpload(const int entityIndex)
             SetVariantString("1"); /// Attachment name in the mine model
             AcceptEntityInput(gibIndex, "SetParentAttachment", entityIndex, gibIndex);
 
-            // Initialize char
+            // Initialize variable
             static char sTime[SMALL_LINE_LENGTH];
             Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", METAL_GIBS_DURATION);
 
@@ -862,7 +823,7 @@ void MineExpload(const int entityIndex)
         }
     }
 
-    // Initialize char
+    // Initialize variable
     static char sTime[SMALL_LINE_LENGTH];
     Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", WEAPON_MINE_EXPLOSION_TIME);
 
@@ -1070,8 +1031,9 @@ public Action MineActivateHook(Handle hTimer, DataPack hPack)
         // Turn on the beam
         AcceptEntityInput(beamIndex, "TurnOn");
         
-        // Sets color for the beam model
-        SetEntityRenderColor(beamIndex, vColor[0], vColor[1], vColor[2]);
+        // Sets an entity's color
+        SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
+        SetEntityRenderColor(entityIndex, vColor[0], vColor[1], vColor[2], vColor[3]);
         
         // Gets the classname
         static char sClassname[SMALL_LINE_LENGTH]; static char sDispatch[SMALL_LINE_LENGTH];
@@ -1165,7 +1127,6 @@ stock bool IsPlayerDamageble(const int clientIndex, const float flDamageDelay)
     flDamageTime[clientIndex] = flCurrentTime;
     return true;
 }
-
 #endif
 
 //**********************************************

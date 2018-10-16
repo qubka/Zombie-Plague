@@ -34,7 +34,7 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] ExtraItem: Hegrenade",
+    name            = "[ZP] ExtraItem: HolyGrenade",
     author          = "qubka (Nikita Ushakov)",     
     description     = "Addon of extra items",
     version         = "2.0",
@@ -44,9 +44,9 @@ public Plugin myinfo =
 /**
  * @section Information about extra items.
  **/
-#define EXTRA_ITEM_REFERENCE           "hegrenade" // Name in weapons.ini from translation file  
+#define EXTRA_ITEM_REFERENCE           "holy grenade" // Name in weapons.ini from translation file  
 #define EXTRA_ITEM_INFO                "" // Only will be taken from translation file 
-#define EXTRA_ITEM_COST                1
+#define EXTRA_ITEM_COST                4
 #define EXTRA_ITEM_LEVEL               1
 #define EXTRA_ITEM_ONLINE              1
 #define EXTRA_ITEM_LIMIT               0
@@ -58,14 +58,33 @@ public Plugin myinfo =
 /**
  * @section Properties of the grenade.
  **/
-#define GRENADE_NAPALM_RADIUS            400.0         // Napalm size (radius)
-#define GRENADE_NAPALM_NEMESIS           true          // Can nemesis push [false-no // true-yes]
-#define GRENADE_NAPALM_SHAKE_AMP         2.0           // Amplutude of the shake effect
-#define GRENADE_NAPALM_SHAKE_FREQUENCY   1.0           // Frequency of the shake effect
-#define GRENADE_NAPALM_SHAKE_DURATION    3.0           // Duration of the shake effect in seconds
+#define GRENADE_HOLY_RADIUS            300.0         // Holy size (radius)
+#define GRENADE_HOLY_NEMESIS           true          // Can nemesis push [false-no // true-yes]
+#define GRENADE_HOLY_IGNITE_TIME       5.0           // Ignite duration
+#define GRENADE_HOLY_SHAKE_AMP         2.0           // Amplutude of the shake effect
+#define GRENADE_HOLY_SHAKE_FREQUENCY   1.0           // Frequency of the shake effect
+#define GRENADE_HOLY_SHAKE_DURATION    3.0           // Duration of the shake effect in seconds
+#define GRENADE_HOLY_EXP_TIME          2.0           // Duration of the explosion effect in seconds
 /**
  * @endsection
  **/
+ 
+/**
+ * @section Properties of the gibs shooter.
+ **/
+#define GLASS_GIBS_AMOUNT               5.0
+#define GLASS_GIBS_DELAY                0.05
+#define GLASS_GIBS_SPEED                500.0
+#define GLASS_GIBS_VARIENCE             1.0  
+#define GLASS_GIBS_LIFE                 1.0  
+#define GLASS_GIBS_DURATION             2.0
+/**
+ * @endsection
+ **/
+ 
+// Sound index
+int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
  
 // Item index
 int gItem; int gWeapon;
@@ -85,6 +104,9 @@ public void OnLibraryAdded(const char[] sLibrary)
     
         // Hook entity events
         HookEvent("hegrenade_detonate", EventEntityNapalm, EventHookMode_Post);
+        
+        // Hooks server sounds
+        AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
     }
 }
 
@@ -96,6 +118,12 @@ public void ZP_OnEngineExecute(/*void*/)
     // Initialize weapon
     gWeapon = ZP_GetWeaponNameID(EXTRA_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", EXTRA_ITEM_REFERENCE);
+    
+    // Sounds
+    gSound = ZP_GetSoundKeyID("HOLY_GRENADE_SOUNDS");
+
+    // Cvars
+    hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
@@ -157,17 +185,19 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Client was damaged by 'explosion'
     if(damageType & DMG_BLAST)
     {
-        // Sets explosion damage
-        damageAmount *= ZP_IsPlayerZombie(clientIndex) ? ZP_GetWeaponDamage(gWeapon) : 0.0;
+        // Validate inflictor
+        if(IsValidEdict(inflictorIndex))
+        {
+            // Validate custom grenade
+            if(ZP_GetWeaponID(inflictorIndex) == gWeapon)
+            {
+                // Remove explosion damage
+                damageAmount *= ZP_GetWeaponDamage(gWeapon);
+            }
+        }
     }
 }
 
@@ -203,7 +233,7 @@ public Action EventEntityNapalm(Event hEvent, const char[] sName, bool dontBroad
             for(int i = 1; i <= MaxClients; i++)
             {
                 // Validate client
-                if(IsPlayerExist(i) && ((ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i)) || (ZP_IsPlayerNemesis(i) && GRENADE_NAPALM_NEMESIS)))
+                if(IsPlayerExist(i) && ((ZP_IsPlayerZombie(i) && !ZP_IsPlayerNemesis(i)) || (ZP_IsPlayerNemesis(i) && GRENADE_HOLY_NEMESIS)))
                 {
                     // Gets victim origin
                     GetClientAbsOrigin(i, vVictimPosition);
@@ -212,19 +242,80 @@ public Action EventEntityNapalm(Event hEvent, const char[] sName, bool dontBroad
                     float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
                     
                     // Validate distance
-                    if(flDistance <= GRENADE_NAPALM_RADIUS)
-                    {         
+                    if(flDistance <= GRENADE_HOLY_RADIUS)
+                    {
+                        // Put the fire on
+                        IgniteEntity(i, GRENADE_HOLY_IGNITE_TIME);   
+                
                         // Calculate the velocity vector
                         SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
                 
                         // Create a knockback
-                        FakeCreateKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), GRENADE_NAPALM_RADIUS);
+                        FakeCreateKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), GRENADE_HOLY_RADIUS);
                         
                         // Create a shake
-                        FakeCreateShakeScreen(i, GRENADE_NAPALM_SHAKE_AMP, GRENADE_NAPALM_SHAKE_FREQUENCY, GRENADE_NAPALM_SHAKE_DURATION);
+                        FakeCreateShakeScreen(i, GRENADE_HOLY_SHAKE_AMP, GRENADE_HOLY_SHAKE_FREQUENCY, GRENADE_HOLY_SHAKE_DURATION);
                     }
                 }
             }
+            
+            // Create a info_target entity
+            int infoIndex = FakeCreateEntity(vEntPosition, GRENADE_HOLY_EXP_TIME);
+
+            // Validate entity
+            if(IsValidEdict(infoIndex))
+            {
+                // Create an explosion effect
+                FakeCreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
+            }
+    
         }
     }
+}
+
+/**
+ * Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
+ *  
+ * @param clients           Array of client indexes.
+ * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
+ * @param sSample           Sound file name relative to the "sounds" folder.
+ * @param entityIndex       Entity emitting the sound.
+ * @param iChannel          Channel emitting the sound.
+ * @param flVolume          The sound volume.
+ * @param iLevel            The sound level.
+ * @param iPitch            The sound pitch.
+ * @param iFlags            The sound flags.
+ **/ 
+public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
+{
+    // Validate client
+    if(IsValidEdict(entityIndex))
+    {
+        // Validate custom grenade
+        if(ZP_GetWeaponID(entityIndex) == gWeapon)
+        {
+            // Initialize variable
+            static char sSound[PLATFORM_MAX_PATH];
+
+            // Validate sound
+            if(!strncmp(sSample[23], "bounce", 6, false))
+            {
+                // Emit a custom bounce sound
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+            }
+            else if(!strncmp(sSample[20], "explode", 7, false))
+            {
+                // Emit explosion sound
+                ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
+                EmitSoundToAll(sSound, entityIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+            }
+
+            // Block sounds
+            return Plugin_Stop; 
+        }
+    }
+    
+    // Allow sounds
+    return Plugin_Continue;
 }

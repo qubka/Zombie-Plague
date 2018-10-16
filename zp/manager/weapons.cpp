@@ -41,6 +41,7 @@ ArrayList arrayWeapons;
 enum
 {
     WEAPONS_DATA_NAME,
+    WEAPONS_DATA_INFO,
     WEAPONS_DATA_ENTITY,
     WEAPONS_DATA_GROUP,
     WEAPONS_DATA_COST,
@@ -164,15 +165,6 @@ void WeaponsCacheData(/*void*/)
         {
             // Log weapon fatal
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
-            
-            // Remove weapon from array
-            kvWeapons.DeleteThis();
-
-            // Subtract one from count
-            iSize--;
-
-            // Backtrack one index, because we deleted it out from under the loop
-            i--;
             continue;
         }
         
@@ -181,58 +173,55 @@ void WeaponsCacheData(/*void*/)
         {
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sPathWeapons);
-            
-            // Remove weapon from array
-            kvWeapons.DeleteThis();
-
-            // Subtract one from count
-            iSize--;
-
-            // Backtrack one index, because we deleted it out from under the loop
-            i--;
-            continue;
         }
 
         // Gets array size
         ArrayList arrayWeapon = arrayWeapons.Get(i); 
  
         // Push data into array
-        kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
+        kvWeapons.GetString("info", sPathWeapons, sizeof(sPathWeapons), "");
+        if(!TranslationPhraseExists(sPathWeapons) && strlen(sPathWeapons))
+        {
+            // Log weapon error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sPathWeapons);
+        }
         arrayWeapon.PushString(sPathWeapons);                 // Index: 1
-        kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
+        kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                 // Index: 2
-        arrayWeapon.Push(kvWeapons.GetNum("cost", 0));        // Index: 3
-        arrayWeapon.Push(kvWeapons.GetNum("slot", 0));        // Index: 4
-        arrayWeapon.Push(kvWeapons.GetNum("level", 0));       // Index: 5
-        arrayWeapon.Push(kvWeapons.GetNum("online", 0));      // Index: 6
-        arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));  // Index: 7
-        arrayWeapon.Push(kvWeapons.GetFloat("knock", 1.0));   // Index: 8
-        arrayWeapon.Push(kvWeapons.GetNum("clip", 0));        // Index: 9
-        arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));        // Index: 10
-        arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));   // Index: 11
-        arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));  // Index: 12
-        arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));  // Index: 13
+        kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 3
+        arrayWeapon.Push(kvWeapons.GetNum("cost", 0));        // Index: 4
+        arrayWeapon.Push(kvWeapons.GetNum("slot", 0));        // Index: 5
+        arrayWeapon.Push(kvWeapons.GetNum("level", 0));       // Index: 6
+        arrayWeapon.Push(kvWeapons.GetNum("online", 0));      // Index: 7
+        arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));  // Index: 8
+        arrayWeapon.Push(kvWeapons.GetFloat("knock", 1.0));   // Index: 9
+        arrayWeapon.Push(kvWeapons.GetNum("clip", 0));        // Index: 10
+        arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));        // Index: 11
+        arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));   // Index: 12
+        arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));  // Index: 13
+        arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));  // Index: 14
         kvWeapons.GetString("sound", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));     // Index: 14
-        arrayWeapon.Push(kvWeapons.GetNum("class", 0));       // Index: 15
+        arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));     // Index: 15
+        arrayWeapon.Push(kvWeapons.GetNum("class", 0));       // Index: 16
         kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                 // Index: 16    
-        arrayWeapon.Push(ModelsPrecacheWeapon(sPathWeapons)); // Index: 17
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 17    
+        arrayWeapon.Push(ModelsPrecacheWeapon(sPathWeapons)); // Index: 18
         kvWeapons.GetString("world", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                 // Index: 18
-        arrayWeapon.Push(ModelsPrecacheStatic(sPathWeapons)); // Index: 19
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 19
+        arrayWeapon.Push(ModelsPrecacheStatic(sPathWeapons)); // Index: 20
         kvWeapons.GetString("dropped", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                 // Index: 20
-        arrayWeapon.Push(ModelsPrecacheStatic(sPathWeapons)); // Index: 21
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 21
+        arrayWeapon.Push(ModelsPrecacheStatic(sPathWeapons)); // Index: 22
         int iBody[4]; kvWeapons.GetColor4("body", iBody);
-        arrayWeapon.PushArray(iBody);                         // Index: 22
+        arrayWeapon.PushArray(iBody);                         // Index: 23
         int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
-        arrayWeapon.PushArray(iSkin);                         // Index: 23
+        arrayWeapon.PushArray(iSkin);                         // Index: 24
         kvWeapons.GetString("muzzle", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                 // Index: 24
-        arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));    // Index: 25
-        arrayWeapon.Push(-1); int iSeq[WeaponsSequencesMax];  // Index: 26
-        arrayWeapon.PushArray(iSeq);                          // Index: 27
+        arrayWeapon.PushString(sPathWeapons);                 // Index: 25
+        arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));    // Index: 26
+        arrayWeapon.Push(-1); int iSeq[WeaponsSequencesMax];  // Index: 27
+        arrayWeapon.PushArray(iSeq);                          // Index: 28
     }
 
     // We're done with this file now, so we can close it
@@ -259,7 +248,7 @@ void WeaponsUnload(/*void*/)
 }
 
 /**
-    * Creates commands for weapons module. Called when commands are created.
+ * Creates commands for weapons module. Called when commands are created.
  **/
 void WeaponsOnCommandsCreate(/*void*/)
 {
@@ -292,6 +281,18 @@ void WeaponsOnFire(const int clientIndex, const int weaponIndex)
 }
 
 /**
+ * The bullet hits something.
+ *
+ * @param clientIndex       The client index.
+ * @param vBulletPosition   The position of a bullet hit.
+ * @param weaponIndex       The weapon index.
+ **/
+void WeaponsOnBullet(const int clientIndex, const float vBulletPosition[3], const int weaponIndex) 
+{
+    // Forward event to sub-modules
+    WeaponSDKOnBullet(clientIndex, vBulletPosition, weaponIndex);
+}
+/**
  * Client has been carried hostage.
  *
  * @param clientIndex       The client index.
@@ -312,6 +313,28 @@ Action WeaponsOnShoot(const int clientIndex, const int weaponIndex)
 {
     // Forward event to sub-modules
     return WeaponSDKOnShoot(clientIndex, weaponIndex);
+}
+
+/**
+ * Called on each frame of a weapon holding.
+ * 
+ * @param clientIndex       The client index.
+ * @param iButtons          The button buffer.
+ * @param iLastButtons      The last button buffer.
+ **/
+Action WeaponsOnRunCmd(const int clientIndex, int &iButtons, const int iLastButtons)
+{
+    // Gets the active weapon index from the client
+    static int weaponIndex; weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
+    {
+        return Plugin_Continue;
+    }
+    
+    // Forward event to sub-modules
+    return WeaponSDKOnRunCmd(clientIndex, iButtons, iLastButtons, weaponIndex);
 }
 
 /**
@@ -553,6 +576,41 @@ public int API_GetWeaponName(Handle isPlugin, const int iNumParams)
 
     // Return on success
     return SetNativeString(2, sName, maxLen);
+}
+
+/**
+ * Gets the info of a weapon at a given id.
+ *
+ * native void ZP_GetWeaponInfo(iD, info, maxlen);
+ **/
+public int API_GetWeaponInfo(Handle isPlugin, const int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayWeapons.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+        return -1;
+    }
+    
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+        return -1;
+    }
+    
+    // Initialize info char
+    static char sInfo[BIG_LINE_LENGTH];
+    WeaponsGetInfo(iD, sInfo, sizeof(sInfo));
+
+    // Return on success
+    return SetNativeString(2, sInfo, maxLen);
 }
 
 /**
@@ -1201,6 +1259,22 @@ stock void WeaponsGetName(const int iD, char[] sName, const int iMaxLen)
 }
 
 /**
+ * Gets the info of a weapon at a given id.
+ *
+ * @param iD                The weapon index.
+ * @param sInfo             The string to return info in.
+ * @param iMaxLen           The max length of the string.
+ **/
+stock void WeaponsGetInfo(const int iD, char[] sInfo, const int iMaxLen)
+{
+    // Gets array handle of weapon at given index
+    ArrayList arrayWeapon = arrayWeapons.Get(iD);
+    
+    // Gets weapon info
+    arrayWeapon.GetString(WEAPONS_DATA_INFO, sInfo, iMaxLen);
+}
+
+/**
  * Gets the access group of a weapon at a given id.
  *
  * @param iD                The weapon index.
@@ -1728,7 +1802,7 @@ stock void WeaponsSetCustomID(const int weaponIndex, const int iD)
  **/
 stock int WeaponsNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOverWriteName = false)
 {
-    // Initialize char
+    // Initialize variable
     static char sWeaponName[SMALL_LINE_LENGTH];
     
     // i = weapon index
@@ -2052,7 +2126,7 @@ stock int WeaponsGive(const int clientIndex, char[] sName)
                     SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
                     
                     // Call forward
-                    API_OnWeaponCreated(weaponIndex, iD);
+                    API_OnWeaponCreated(clientIndex, weaponIndex, iD);
                 }
             }
         }

@@ -176,7 +176,7 @@ public void HitgroupsOnConfigReload(/*void*/)
  **/
 stock int HitgroupsNameToIndex(char[] sHitGroup, const int iMaxLen = 0, const bool bOverWriteName = false)
 {
-    // Initialize char
+    // Initialize variable
     static char sHitGroupName[SMALL_LINE_LENGTH];
     
     // i = box index

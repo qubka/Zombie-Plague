@@ -195,7 +195,7 @@ bool GameEnginePlatform(EngineOS oS)
     // Validate platform
     if(gServerData[Server_PlatForm] == OS_Unknown)
     {
-        // Initialize char
+        // Initialize variable
         char sBuffer[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
         
         // Extract status string

@@ -44,14 +44,18 @@ public Plugin myinfo =
  * @section Information about human class.
  **/
 #define HUMAN_CLASS_NAME                "black" // Only will be taken from translation file
+#define HUMAN_CLASS_INFO                "" // Only will be taken from translation file ("" - disabled)
 #define HUMAN_CLASS_MODEL               "models/player/ctm_idf_variantb.mdl"    
-#define HUMAN_CLASS_ARM                 "models/weapons/ct_arms_idf.mdl"    
+#define HUMAN_CLASS_ARM                 "models/player/custom_player/zombie/arms/male_arms.mdl"
+#define HUMAN_CLASS_VIEW                {0, -1}
 #define HUMAN_CLASS_HEALTH              100
 #define HUMAN_CLASS_SPEED               1.0
 #define HUMAN_CLASS_GRAVITY             1.0
 #define HUMAN_CLASS_ARMOR               0
 #define HUMAN_CLASS_LEVEL               1
 #define HUMAN_CLASS_GROUP               ""
+#define HUMAN_CLASS_DURATION            0.0    
+#define HUMAN_CLASS_COUNTDOWN           0.0
 #define HUMAN_CLASS_SOUND_DEATH         "HUMAN_DEATH_SOUNDS"
 #define HUMAN_CLASS_SOUND_HURT          "HUMAN_HURT_SOUNDS"
 #define HUMAN_CLASS_SOUND_INFECT        "HUMAN_INFECTION_SOUNDS"
@@ -74,14 +78,18 @@ public void OnLibraryAdded(const char[] sLibrary)
     {
         // Initialize human class
         gHuman = ZP_RegisterHumanClass(HUMAN_CLASS_NAME, 
+        HUMAN_CLASS_INFO,
         HUMAN_CLASS_MODEL, 
         HUMAN_CLASS_ARM, 
+        HUMAN_CLASS_VIEW,
         HUMAN_CLASS_HEALTH, 
         HUMAN_CLASS_SPEED, 
         HUMAN_CLASS_GRAVITY, 
         HUMAN_CLASS_ARMOR,
         HUMAN_CLASS_LEVEL,
         HUMAN_CLASS_GROUP,
+        HUMAN_CLASS_DURATION,
+        HUMAN_CLASS_COUNTDOWN,
         HUMAN_CLASS_SOUND_DEATH,
         HUMAN_CLASS_SOUND_HURT,
         HUMAN_CLASS_SOUND_INFECT);

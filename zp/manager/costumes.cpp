@@ -194,15 +194,6 @@ void CostumesCacheData(/*void*/)
         {
             // Log costume fatal
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sCostumesPath);
-            
-            // Remove costume from array
-            kvCostumes.DeleteThis();
-
-            // Subtract one from count
-            iSize--;
-
-            // Backtrack one index, because we deleted it out from under the loop
-            i--;
             continue;
         }
         
@@ -210,17 +201,7 @@ void CostumesCacheData(/*void*/)
         if(!TranslationPhraseExists(sCostumesPath))
         {
             // Log costume error
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sCostumesPath);
-            
-            // Remove costume from array
-            kvCostumes.DeleteThis();
-
-            // Subtract one from count
-            iSize--;
-
-            // Backtrack one index, because we deleted it out from under the loop
-            i--;
-            continue;
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sCostumesPath);
         }
 
         // Gets array size
@@ -685,7 +666,7 @@ void CostumesMenu(const int clientIndex)
         return;
     }
 
-    // Initialize chars
+    // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
     static char sInfo[SMALL_LINE_LENGTH];
@@ -702,7 +683,7 @@ void CostumesMenu(const int clientIndex)
     hMenu.SetTitle("%t", "costumes menu");
     
     // Initialize forward
-    Action resultHandle;
+    static Action resultHandle;
     
     // i = array index
     int iSize = arrayCostumes.Length;
@@ -743,7 +724,7 @@ void CostumesMenu(const int clientIndex)
     hMenu.ExitBackButton = true;
 
     // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT|MENUFLAG_BUTTON_EXITBACK;
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
     hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
@@ -785,7 +766,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, const int clientInd
                 return;
             }
             
-            // Initialize char
+            // Initialize variable
             static char sInfo[SMALL_LINE_LENGTH];
 
             // Gets ID of costume

@@ -57,10 +57,10 @@ public Action DebugCommandCatched(const int clientIndex, const int iArguments)
     else 
     {
         // Initialize path
-        char sPath[PLATFORM_MAX_PATH];
-        BuildPath(Path_SM, sPath, sizeof(sPath), "logs/debug_");
+        static char sPath[PLATFORM_MAX_PATH];
+        BuildPath(Path_SM, sPath, PLATFORM_MAX_PATH, "logs/debug_");
 
-        // Initialize chars
+        // Initialize variables
         static char sLog[PLATFORM_MAX_PATH];
         static char sLine[PLATFORM_MAX_PATH];
 

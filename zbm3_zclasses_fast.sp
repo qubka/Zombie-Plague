@@ -71,12 +71,13 @@ public Plugin myinfo =
  * @endsection
  **/
 
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
 
-// Initialize zombie class index
-int gZombieFast;
-#pragma unused gZombieFast
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -88,7 +89,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieFast = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -127,7 +128,7 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex        The client index.
  *
@@ -136,14 +137,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-    
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieFast)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Sets a new speed
         SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", ZOMBIE_CLASS_SKILL_SPEED);
@@ -153,13 +148,9 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
         EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
-        // Initialize vectors
+        // Create effect
         static float vPosition[3];
-        
-        // Gets the client origin
         GetClientAbsOrigin(clientIndex, vPosition);
-        
-        // Create an effect
         FakeCreateParticle(clientIndex, vPosition, _, "viy_viy_viy", ZOMBIE_CLASS_DURATION);
     }
     
@@ -168,22 +159,16 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 }
 
 /**
- * Called when a zombie skill duration is over.
+ * Called when a skill duration is over.
  * 
  * @param clientIndex       The client index.
  **/
 public void ZP_OnClientSkillOver(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieFast) 
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie) 
     {
         // Sets the previous speed
-        SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", ZP_GetZombieClassSpeed(gZombieFast));
+        SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", ZP_GetZombieClassSpeed(gZombie));
     }
 }

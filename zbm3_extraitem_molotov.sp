@@ -59,14 +59,14 @@ public Plugin myinfo =
 /**
  * @section Properties of the grenade.
  **/
-#define GRENADE_IGNITE_DURATION        5.0     // Burning duration in seconds
+#define GRENADE_IGNITE_DURATION        5.0     // Burning duration in seconds 
 #define GRENADE_IGNITE_SPEED_NEMESIS   false   // Can nemesis be slowed [false-no // true-yes]
 /**
  * @endsection
  **/
 
-// Initialize variables
-Handle Task_ZombieBurned[MAXPLAYERS+1] = INVALID_HANDLE; float flSpeed[MAXPLAYERS+1];
+// Timer index
+Handle Task_ZombieBurned[MAXPLAYERS+1] = INVALID_HANDLE; float flSpeed[MAXPLAYERS+1]; int iD[MAXPLAYERS+1];
  
 // Item index
 int gItem; int gWeapon; int gDublicat;
@@ -228,6 +228,19 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 }
 
 /**
+ * Called after a custom grenade is created.
+ *
+ * @param clientIndex       The client index.
+ * @param grenadeIndex      The grenade index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
+{   
+    // Sets the last grenade index
+    iD[clientIndex] = (weaponID == gDublicat || weaponID == gWeapon) ? weaponID : -1;
+}
+
+/**
  * Called when a client take a fake damage.
  * 
  * @param clientIndex       The client index.
@@ -239,12 +252,6 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  **/
 public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // Client was damaged by 'fire' or 'burn'
     if(damageType & DMG_BURN || damageType & DMG_DIRECT)
     {
@@ -269,12 +276,32 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictor
             }
             else
             {
+                // Validate custom index
+                static float flKnockBack = 1.0;
+                if(iD[clientIndex] == gDublicat)
+                {
+                    // Return damage multiplier
+                    damageAmount *= ZP_GetWeaponDamage(gDublicat);
+                    
+                    // Sets the knockback
+                    flKnockBack = ZP_GetWeaponKnockBack(gDublicat);
+                }
+                else if(iD[clientIndex] == gWeapon)
+                {
+                    // Return damage multiplier
+                    damageAmount *= ZP_GetWeaponDamage(gWeapon);
+                    
+                    // Sets the knockback
+                    flKnockBack = ZP_GetWeaponKnockBack(gWeapon);
+                }
+                else return;
+                
+                // Resets the last grenade index
+                iD[clientIndex] = -1;
+                
                 // Put the fire on
                 if(damageType & DMG_BURN) IgniteEntity(clientIndex, GRENADE_IGNITE_DURATION);
 
-                // Return damage multiplier
-                damageAmount *= ZP_GetWeaponDamage(gWeapon);
-                
                 // Validate nemesis
                 if(ZP_IsPlayerNemesis(clientIndex) && !GRENADE_IGNITE_SPEED_NEMESIS) 
                 {
@@ -286,7 +313,7 @@ public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictor
                 if(!flSpeed[clientIndex]) flSpeed[clientIndex] = GetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue");
 
                 // Sets a new speed
-                SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", flSpeed[clientIndex] / ZP_GetWeaponKnockBack(gWeapon));
+                SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", flSpeed[clientIndex] / flKnockBack);
                 
                 // Validate that timer not execute
                 if(Task_ZombieBurned[clientIndex] == INVALID_HANDLE)

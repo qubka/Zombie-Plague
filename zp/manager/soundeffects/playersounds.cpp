@@ -63,7 +63,7 @@ int gServerKey[ServerSounds];
  **/
 void PlayerSoundsOnLoad(/*void*/)
 {
-    // Initialize char
+    // Initialize variable
     static char sBuffer[PARAM_NAME_MAXLEN];
     
     // Load survivor infect sounds
@@ -260,8 +260,8 @@ void PlayerSoundsOnClientInfected(const int clientIndex, const bool respawnMode)
     }
 
     // Start repeating timer
-    delete gClientData[clientIndex][Client_ZombieMoanTimer];
-    gClientData[clientIndex][Client_ZombieMoanTimer] = CreateTimer(flInterval, PlayerSoundsMoanTimer, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    delete gClientData[clientIndex][Client_MoanTimer];
+    gClientData[clientIndex][Client_MoanTimer] = CreateTimer(flInterval, PlayerSoundsMoanTimer, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
@@ -286,7 +286,7 @@ public Action PlayerSoundsMoanTimer(Handle hTimer, const int userID)
     }
 
     // Clear timer
-    gClientData[clientIndex][Client_ZombieMoanTimer] = INVALID_HANDLE;
+    gClientData[clientIndex][Client_MoanTimer] = INVALID_HANDLE;
     
     // Destroy timer
     return Plugin_Stop;

@@ -70,12 +70,13 @@ public Plugin myinfo =
  * @endsection
  **/
  
-// Variables for the key sound block
+// Sound index
 int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel
 
-// Initialize zombie class index
-int gZombieMutationLight;
-#pragma unused gZombieMutationLight
+// Zombie index
+int gZombie;
+#pragma unused gZombie
 
 /**
  * Called after a library is added that the current plugin references optionally. 
@@ -87,7 +88,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Initialize zombie class
-        gZombieMutationLight = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
+        gZombie = ZP_RegisterZombieClass(ZOMBIE_CLASS_NAME,
         ZOMBIE_CLASS_INFO,
         ZOMBIE_CLASS_MODEL, 
         ZOMBIE_CLASS_CLAW,  
@@ -153,7 +154,7 @@ public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respaw
 }
 
 /**
- * Called when a client use a zombie skill.
+ * Called when a client use a skill.
  * 
  * @param clientIndex       The client index.
  *
@@ -162,14 +163,8 @@ public void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respaw
  **/
 public Action ZP_OnClientSkillUsed(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return Plugin_Handled;
-    }
-    
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieMutationLight)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Make model invisible
         SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 0.0);  
@@ -185,20 +180,14 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 }
 
 /**
- * Called when a zombie skill duration is over.
+ * Called when a skill duration is over.
  * 
  * @param clientIndex       The client index.
  **/
 public void ZP_OnClientSkillOver(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-
     // Validate the zombie class index
-    if(ZP_GetClientZombieClass(clientIndex) == gZombieMutationLight)
+    if(ZP_IsPlayerZombie(clientIndex) && ZP_GetClientZombieClass(clientIndex) == gZombie)
     {
         // Reset visibility
         SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  

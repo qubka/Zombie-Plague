@@ -91,14 +91,11 @@ void DownloadsLoad(/*void*/)
         // If doesn't exist, it might be directory ?
         else
         {
-            // Gets last static char in the string
-            int iLastChar = strlen(sDownloadsPath) - 1;
-            
             // Open directory
             DirectoryListing hDirectory = OpenDirectory(sDownloadsPath);
             
             // If directory doesn't exist, then log, and stop
-            if(hDirectory == INVALID_HANDLE || sDownloadsPath[iLastChar] != '/')
+            if(hDirectory == INVALID_HANDLE)
             {
                 // Log download error info
                 LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sDownloadsPath);
@@ -123,14 +120,27 @@ void DownloadsLoad(/*void*/)
             // Search any files in the directory and precache them
             while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
             {
-                // Validate what found
-                if(hType == FileType_File) 
+                // Switch type
+                switch(hType) 
                 {
-                    // Format full path to file
-                    Format(sFile, sizeof(sFile), "%s%s", sDownloadsPath, sFile);
+                    case FileType_File :
+                    {
+                        // Format full path to file
+                        Format(sFile, sizeof(sFile), "%s%s", sDownloadsPath, sFile);
+                        
+                        // Add to server precache list
+                        if(DownloadsOnPrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
+                    }
                     
-                    // Add to server precache list
-                    if(DownloadsOnPrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
+                    /*case FileType_Unknown :
+                    {
+                        
+                    }
+                    
+                    case FileType_Directory : 
+                    {
+                        
+                    }*/
                 }
             }
         
@@ -170,7 +180,7 @@ stock bool DownloadsOnPrecache(const char[] sPath)
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sPath, '.', true);
     
-    // If model path is don't have format, then log, and stop
+    // If path is don't have format, then log, and stop
     if(iFormat == -1)
     {
         LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);
