@@ -157,7 +157,7 @@ forward void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int we
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID)
+forward void ZP_OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID);
 
 /**
  * @brief Called on fire of a weapon.
