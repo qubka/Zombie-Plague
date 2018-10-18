@@ -488,7 +488,6 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
 
             // We're done this file, so now we can destory it from memory
             delete hFile;
-
             return true;
         }
 

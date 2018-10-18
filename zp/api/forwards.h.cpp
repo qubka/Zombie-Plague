@@ -372,7 +372,7 @@ void API_OnClientSkillOver(const int clientIndex)
 void API_OnGrenadeCreated(const int clientIndex, const int grenadeIndex, const int weaponID)
 {
     // Start forward call
-    Call_StartForward(gForwardsList[OnWeaponCreated]);
+    Call_StartForward(gForwardsList[OnGrenadeCreated]);
 
     // Push the parameters
     Call_PushCell(clientIndex);
