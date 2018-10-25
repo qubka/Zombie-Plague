@@ -106,6 +106,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("INFECT_GRENADE_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"INFECT_GRENADE_SOUNDS\" wasn't find");
     
     // Cvars
     hXRay = FindConVar("zp_zombie_xray_give");

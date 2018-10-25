@@ -136,6 +136,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("TESLA_SKILL_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TESLA_SKILL_SOUNDS\" wasn't find");
     
     // Models
     PrecacheModel("materials/sprites/physbeam.vmt", true);
@@ -145,7 +146,7 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * The map is ending.
+    * The map is ending.
  **/
 public void OnMapEnd(/*void*/)
 {

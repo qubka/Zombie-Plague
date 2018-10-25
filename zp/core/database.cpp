@@ -124,36 +124,36 @@ void DataBaseLoad(/*void*/)
     if(MySQL)
     {
         /*______________________________________________________________________*/
-        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (    \
+        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` ( \
                                            `id` int(64) NOT NULL auto_increment, \
-                                           `steam_id` varchar(32) NOT NULL,      \
-                                           `money` int(64) NOT NULL,             \
-                                           `level` int(64) NOT NULL,             \
-                                           `exp` int(64) NOT NULL,               \
-                                           `zclass` int(64) NOT NULL,            \
-                                           `hclass` int(64) NOT NULL,            \
-                                           `rebuy` int(64) NOT NULL,             \
-                                           `costume` int(64) NOT NULL,           \
-                                           `time` int(64) NOT NULL,              \
-                                            PRIMARY KEY (`id`),                  \
+                                           `steam_id` varchar(32) NOT NULL, \
+                                           `money` int(64) NOT NULL, \
+                                           `level` int(64) NOT NULL, \
+                                           `exp` int(64) NOT NULL, \
+                                           `zclass` int(64) NOT NULL, \
+                                           `hclass` int(64) NOT NULL, \
+                                           `rebuy` int(64) NOT NULL, \
+                                           `costume` int(64) NOT NULL, \
+                                           `time` int(64) NOT NULL, \
+                                            PRIMARY KEY (`id`), \
                                             UNIQUE KEY `steam_id` (`steam_id`))", 
-                                            sDataBase);
+        sDataBase);
         /*______________________________________________________________________*/
     }
     else
     {
         /*_______________________________________________________________________*/
-        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` (     \
+        Format(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` ( \
                                             id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                                            steam_id TEXT UNIQUE,                 \
-                                            money INTEGER,                        \
-                                            level INTEGER,                        \
-                                            exp INTEGER,                          \
-                                            zclass INTEGER,                       \
-                                            hclass INTEGER,                       \
-                                            rebuy INTEGER,                        \
-                                            costume INTEGER,                      \
-                                            time INTEGER)", 
+                                            steam_id TEXT UNIQUE, \
+                                            money INTEGER, \
+                                            level INTEGER, \
+                                            exp INTEGER, \
+                                            zclass INTEGER, \
+                                            hclass INTEGER, \
+                                            rebuy INTEGER, \
+                                            costume INTEGER, \
+                                            time INTEGER)",
         sDataBase);
         /*_______________________________________________________________________*/
     }
@@ -262,15 +262,15 @@ void DataBaseClientInit(const int clientIndex)
         {
             /// Format request
             /*_________________________________________________*/
-            Format(sRequest, sizeof(sRequest), "SELECT id,      \
-                                                       money,   \
-                                                       level,   \
-                                                       exp,     \
-                                                       zclass,  \
-                                                       hclass,  \
-                                                       rebuy,   \
+            Format(sRequest, sizeof(sRequest), "SELECT id, \
+                                                       money, \
+                                                       level, \
+                                                       exp, \
+                                                       zclass, \
+                                                       hclass, \
+                                                       rebuy, \
                                                        costume, \
-                                                       time     \
+                                                       time \
                                                 FROM `%s` WHERE steam_id = '%s'", 
             sDataBase, SteamID[clientIndex]);
             /*_________________________________________________*/
@@ -409,14 +409,14 @@ void DataBaseSaveClientInfo(const int clientIndex)
     if(gClientData[clientIndex][Client_DataID] < 1)
     {
         /*_______________________________________________________________*/
-        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d,   \
-                                                            level = %d,   \
-                                                            exp = %d,     \
-                                                            zclass = %d,  \
-                                                            hclass = %d,  \
-                                                            rebuy = %d,   \
+        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, \
+                                                            level = %d, \
+                                                            exp = %d, \
+                                                            zclass = %d, \
+                                                            hclass = %d, \
+                                                            rebuy = %d, \
                                                             costume = %d, \
-                                                            time = %d     \
+                                                            time = %d \
                                                         WHERE steam_id = '%s'", 
                                                             
         sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], bigUnix, SteamID[clientIndex]);
@@ -425,14 +425,14 @@ void DataBaseSaveClientInfo(const int clientIndex)
     else
     {
         /*_______________________________________________________________*/
-        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d,   \
-                                                            level = %d,   \
-                                                            exp = %d,     \
-                                                            zclass = %d,  \
-                                                            hclass = %d,  \
-                                                            rebuy = %d,   \
+        Format(sRequest, sizeof(sRequest), "UPDATE `%s` SET money = %d, \
+                                                            level = %d, \
+                                                            exp = %d, \
+                                                            zclass = %d, \
+                                                            hclass = %d, \
+                                                            rebuy = %d, \
                                                             costume = %d, \
-                                                            time = %d     \
+                                                            time = %d \
                                                         WHERE id = %d",   
         sDataBase, gClientData[clientIndex][Client_AmmoPacks], gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], gClientData[clientIndex][Client_ZombieClassNext], gClientData[clientIndex][Client_HumanClassNext], gClientData[clientIndex][Client_AutoRebuy], gClientData[clientIndex][Client_Costume], bigUnix, gClientData[clientIndex][Client_DataID]);
         /*_______________________________________________________________*/

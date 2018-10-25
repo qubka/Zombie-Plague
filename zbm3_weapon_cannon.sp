@@ -110,13 +110,14 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("CANNON_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"CANNON_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
 }
 
 /**
- * Called before show an extraitem in the equipment menu.
+    * Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
  * @param extraitemIndex    The index of extraitem from ZP_RegisterExtraItem() native.

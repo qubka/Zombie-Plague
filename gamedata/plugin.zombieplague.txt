@@ -64,25 +64,34 @@
         // You can update them only by yourself using tutorial in the link
         "Signatures"
         {
-            "Animating_GetSequenceActivity" // Str: "SelectWeightedSequence"
+            // Linux will rename with 'sub__'
+            // Find GetSequenceActivity(v3, a2, 0) with Str: "SelectWeightedSequence" and using it's x-ref try to find that function  
+            ///signed int __cdecl CBaseAnimating::GetSequenceActivity(CBaseAnimating *this, int a2)
+            ///{
+            ///  signed int result; // eax
+            ///  CStudioHdr *v3; // eax
+            ///
+            ///  result = -1;
+            ///  if ( a2 != -1 )
+            ///  {
+            ///    if ( !*((_DWORD *)this + 301) && CBaseEntity::GetModel(this) )
+            ///      CBaseAnimating::LockStudioHdr(this);
+            ///    v3 = (CStudioHdr *)*((_DWORD *)this + 301);
+            ///    if ( v3 && *(_DWORD *)v3 )
+            ///      result = GetSequenceActivity(v3, a2, 0); 
+            ///    else
+            ///      result = -1;
+            ///  }
+            ///  return result;
+            ///}
+            // For Windows Str : "AdvanceToIdealActivity calling SetActivityAndSequence because of change %s\n"
+            "Animating_GetSequenceActivity" // Str: "SelectWeightedSequence" 
             {
                 "library"    "server"
                 "windows"    "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
                 "linux"      "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
             }
-            "Animating_LookupAttachment" // Str: "weapon_hand_R"
-            { 
-                "library"    "server" 
-                "windows"    "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\x9C\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\x9C\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
-                "linux"      "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x8B\xB4\x04\x00\x00\x85\xC9\x74\x2A\x8B\x83\xB4\x04\x00\x00\x85\xC0\x74\x2A\x8B\x10\x85\xD2\x74\x2A\x8B\x55\x0C\x89\x04\x24" 
-            }  
-            "Animating_GetAttachment" // Str: "vehicle_driver_eyes"
-            {
-                "library"    "server" 
-                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\xF9\x83\xBF\x9C\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\x9C\x04\x00\x00\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08"
-                "linux"      "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
-            }
-
+            
             // Linux will rename with 'sub__'
             ///v10 = CBaseAnimating::LookupAttachment(this, "weapon_hand_R");
             ///if ( (v10 || (v10 = CBaseAnimating::LookupAttachment(this, "weapon_bone")) != 0)
@@ -95,6 +104,18 @@
             ///    Warning("Missing weapon hand bone attachment for player model.\n");
             ///    CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
             ///} 
+            "Animating_LookupAttachment" // Str: "weapon_hand_R"
+            { 
+                "library"    "server" 
+                "windows"    "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\x9C\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\x9C\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
+                "linux"      "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x8B\xB4\x04\x00\x00\x85\xC9\x74\x2A\x8B\x83\xB4\x04\x00\x00\x85\xC0\x74\x2A\x8B\x10\x85\xD2\x74\x2A\x8B\x55\x0C\x89\x04\x24" 
+            }  
+            "Animating_GetAttachment" // Str: "vehicle_driver_eyes"
+            {
+                "library"    "server" 
+                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\xF9\x83\xBF\x9C\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\x9C\x04\x00\x00\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08"
+                "linux"      "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
+            }
         }
     }
 }

@@ -114,7 +114,7 @@ int gItem; int gWeapon;
 #pragma unused gItem, gWeapon
 
 // Sound index
-int gSound;  ConVar hSoundLevel;
+int gSound; ConVar hSoundLevel;
 
 // Decal index
 int decalBeam;
@@ -153,6 +153,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("LASERMINE_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"LASERMINE_SHOOT_SOUNDS\" wasn't find");
     PrecacheSound(WEAPON_MINE_IMPACT);
     PrecacheSound(WEAPON_MINE_SHOOT);
     

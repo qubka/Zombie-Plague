@@ -107,6 +107,7 @@ public void ZP_OnEngineExecute(/*void*/)
     
     // Sounds
     gSound = ZP_GetSoundKeyID("JETPACK_FLY_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JETPACK_FLY_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

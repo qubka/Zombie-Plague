@@ -123,6 +123,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("DRILL_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"DRILL_SHOOT_SOUNDS\" wasn't find");
     
     // Models
     decalBeam = PrecacheModel(WEAPON_BEAM_MODEL, true);

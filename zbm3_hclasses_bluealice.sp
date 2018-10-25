@@ -106,7 +106,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
-    gSound = ZP_GetSoundKeyID("REDALICE_SKILL_SOUNDS");
+    gSound = ZP_GetSoundKeyID("BLUEALICE_SKILL_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BLUEALICE_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

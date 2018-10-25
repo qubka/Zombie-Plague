@@ -132,6 +132,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("WITCH_SKILL_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"WITCH_SKILL_SOUNDS\" wasn't find");
 
     // Models
     decalSmoke = PrecacheModel("sprites/steam1.vmt", true);

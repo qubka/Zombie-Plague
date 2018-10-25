@@ -135,6 +135,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("PSYH_SKILL_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PSYH_SKILL_SOUNDS\" wasn't find");
 
     // Models
     decalTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);

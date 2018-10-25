@@ -104,7 +104,7 @@ void Weapon_OnBullet(const int clientIndex, const int weaponIndex, float vBullet
         // Sent a beam
         TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
         int[] iClients = new int[MaxClients]; int iCount;
-        for (int i = 1; i <= MaxClients; i++)
+        for(int i = 1; i <= MaxClients; i++)
         {
             if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
             iClients[iCount++] = i;

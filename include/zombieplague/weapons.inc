@@ -72,7 +72,7 @@ enum ModelType
  **/
  
 /**
- * @brief Called after a custom grenade is created.
+ * @brief Called after a custom grenade is created. (Only for projectiles)
  *
  * @param clientIndex       The client index.
  * @param grenadeIndex      The grenade index.

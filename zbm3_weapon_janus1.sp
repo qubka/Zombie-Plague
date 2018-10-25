@@ -123,9 +123,10 @@ public void ZP_OnEngineExecute(/*void*/)
     // Initialize weapon
     gWeapon = ZP_GetWeaponNameID(WEAPON_ITEM_REFERENCE);
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"%s\" wasn't find", WEAPON_ITEM_REFERENCE);
-
+    
     // Sounds
     gSound = ZP_GetSoundKeyID("JANUSI_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JANUSI_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

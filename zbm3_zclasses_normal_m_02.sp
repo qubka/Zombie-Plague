@@ -145,6 +145,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("COFFIN_SKILL_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"COFFIN_SKILL_SOUNDS\" wasn't find");
     
     // Models
     PrecacheModel("models/gibs/metal_gib1.mdl", true);

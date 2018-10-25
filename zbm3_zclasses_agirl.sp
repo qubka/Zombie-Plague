@@ -133,6 +133,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("DEIMOS_SKILL_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"DEIMOS_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

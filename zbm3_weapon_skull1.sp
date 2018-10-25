@@ -45,30 +45,9 @@ public Plugin myinfo =
  * @section Information about weapon.
  **/
 #define WEAPON_ITEM_REFERENCE       "skull1" // Name in weapons.ini from translation file
-#define WEAPON_TIME_DELAY_ACTIVE    0.083
 /**
  * @endsection
  **/
- 
-// Animation sequences
-enum
-{
-    ANIM_IDLE,
-    ANIM_SHOOT1,
-    ANIM_SHOOT2,
-    ANIM_SHOOT3,
-    ANIM_RELOAD,
-    ANIM_DRAW,
-    ANIM_SHOOT_MODE1,
-    ANIM_SHOOT_MODE2
-};
-
-// Weapon states
-enum
-{
-    STATE_NORMAL,
-    STATE_ACTIVE
-};
 
 // Weapon index
 int gWeapon;
@@ -89,125 +68,9 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iStateMode, const float flCurrentTime)
-{
-    #pragma unused clientIndex, weaponIndex, iClip, iStateMode, flCurrentTime
-
-    // Sets the draw animation
-    ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
-}
-
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iStateMode, const float flCurrentTime)
-{
-    #pragma unused clientIndex, weaponIndex, iClip, iStateMode, flCurrentTime
-
-    // Sets the active state
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_ACTIVE);
-}
-
-void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iStateMode, const float flCurrentTime)
-{
-    #pragma unused clientIndex, weaponIndex, iClip, iStateMode, flCurrentTime
-
-    // Sets the normal state
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_NORMAL);
-}
-
-void Weapon_OnFire(const int clientIndex, const int weaponIndex, const int iClip, const int iStateMode, float flCurrentTime)
-{
-    #pragma unused clientIndex, weaponIndex, iClip, iStateMode, flCurrentTime
-    
-    // Validate clip
-    if(!iClip)
-    {
-        return;
-    }
-    
-    // Validate mode
-    if(!iStateMode)
-    {
-        return;
-    }
-    
-    
-    // Adds the delay to the game tick
-    flCurrentTime += WEAPON_TIME_DELAY_ACTIVE;
-
-    // Sets the next attack time
-    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", flCurrentTime);
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime);
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-}
-
 //**********************************************
 //* Item (weapon) hooks.                       *
 //**********************************************
-
-#define _call.%0(%1,%2)         \
-                                \
-    Weapon_On%0                 \
-    (                           \
-        %1,                     \
-        %2,                     \
-                                \
-        GetEntProp(%2, Prop_Send, "m_iClip1"), \
-                                \
-        GetEntProp(%2, Prop_Send, "m_iClip2"), \
-                                \
-        GetGameTime()           \
-    )    
-
-/**
- * Called after a custom weapon is created.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- * @param weaponID          The weapon id.
- **/
-public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
-{
-    // Validate custom weapon
-    if(weaponID == gWeapon)
-    {
-        // Reset variables
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_NORMAL);
-    }
-}   
-    
-/**
- * Called on deploy of a weapon.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- * @param weaponID          The weapon id.
- **/
-public void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID) 
-{
-    // Validate custom weapon
-    if(weaponID == gWeapon)
-    {
-        // Call event
-        _call.Deploy(clientIndex, weaponIndex);
-    }
-}
-
-/**
- * Called on fire of a weapon.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- * @param weaponID          The weapon id.
- **/
-public void ZP_OnWeaponFire(int clientIndex, int weaponIndex, int weaponID)
-{
-    // Validate custom weapon
-    if(weaponID == gWeapon)
-    {
-        // Call event
-        _call.Fire(clientIndex, weaponIndex);
-    }
-}
 
 /**
  * Called on each frame of a weapon holding.
@@ -226,30 +89,11 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
     // Validate custom weapon
     if(weaponID == gWeapon)
     {
-        // Validate state
-        if(GetEntProp(weaponIndex, Prop_Send, "m_iClip2"))
+        // Button primary attack press
+        if(iButtons & IN_ATTACK)
         {
-            // Switch animation
-            switch(ZP_GetWeaponAnimation(clientIndex))
-            {
-                case ANIM_SHOOT1, ANIM_SHOOT2, ANIM_SHOOT3 : ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_SHOOT_MODE1, ANIM_SHOOT_MODE2 });
-            }
-        }
-
-        // Button secondary attack press
-        if(iButtons & IN_ATTACK2)
-        {
-            // Call event
-            _call.SecondaryAttack(clientIndex, weaponIndex);
-            iButtons |= IN_ATTACK; iButtons &= (~IN_ATTACK2); //! Bugfix
+            iButtons &= (~IN_ATTACK); //! Bugfix
             return Plugin_Changed;
-        }
-        
-        // Button secondary attack release
-        else if(iLastButtons & IN_ATTACK2)
-        {
-            // Call event
-            _call.EndAttack(clientIndex, weaponIndex);
         }
     }
     

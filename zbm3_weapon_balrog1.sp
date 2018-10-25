@@ -52,7 +52,7 @@ public Plugin myinfo =
 #define WEAPON_EXPLOSION_SHAKE_AMP       10.0
 #define WEAPON_EXPLOSION_SHAKE_FREQUENCY 1.0
 #define WEAPON_EXPLOSION_SHAKE_DURATION  2.0
-#define WEAPON_EXPLOSION_TIME            5.0
+#define WEAPON_EXPLOSION_TIME            2.0
 /**
  * @endsection
  **/
@@ -99,6 +99,7 @@ public void ZP_OnEngineExecute(/*void*/)
     
     // Sounds
     gSound = ZP_GetSoundKeyID("BALROGI2_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGI2_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
@@ -243,7 +244,7 @@ void Weapon_OnBullet(const int clientIndex, const int weaponIndex, const int iSt
     if(IsValidEdict(infoIndex))
     {
         // Create an explosion effect
-        FakeCreateParticle(infoIndex, vBulletPosition, _, "expl_coopmission_skyboom", WEAPON_EXPLOSION_TIME);
+        FakeCreateParticle(infoIndex, vBulletPosition, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);
         
         // Emit sound
         static char sSound[PLATFORM_MAX_PATH];

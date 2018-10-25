@@ -75,7 +75,7 @@ int gSound; ConVar hSoundLevel;
 #pragma unused gSound, hSoundLevel
 
 /**
- * Called after a library is added that the current plugin references optionally. 
+    * Called after a library is added that the current plugin references optionally. 
  * A library is either a plugin name or extension name, as exposed via its include file.
  **/
 public void OnLibraryAdded(const char[] sLibrary)
@@ -99,6 +99,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("BALROGXI2_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGXI2_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

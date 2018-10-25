@@ -155,7 +155,9 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSoundAttack = ZP_GetSoundKeyID("CHAINSAW_SHOOT_SOUNDS");
+    if(gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"CHAINSAW_SHOOT_SOUNDS\" wasn't find");
     gSoundHit = ZP_GetSoundKeyID("CHAINSAW_HIT_SOUNDS");
+    if(gSoundHit == -1) SetFailState("[ZP] Custom sound key ID from name : \"CHAINSAW_HIT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

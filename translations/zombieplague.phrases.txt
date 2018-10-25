@@ -105,14 +105,14 @@
     "skill ready" // Hint
     {
         "en"            "<font color='#FF0000'>Skill ready</font>!"
-        "ru"            "<font color='#FF0000'>Ваш скилл готов</font>!"
+        "ru"            "<font color='#FF0000'>Ваша способность готов</font>!"
     }
 
     "countdown" // Hint
     {
         "#format"       "{1:d}"
         "en"            "<font color='#0EB411'>Countdown</font>: <font color='#0EB4A7'>{1}</font>"
-        "ru"            "<font color='#0EB411'>Способность через</font>: <font color='#0EB4A7'>{1}</font>"
+        "ru"            "<font color='#0EB411'>Заряд способности</font>: <font color='#0EB4A7'>{1}</font>"
     }
 
     "price" // Menu (translated)

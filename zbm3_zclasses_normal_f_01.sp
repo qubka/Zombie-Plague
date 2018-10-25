@@ -121,10 +121,11 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+ public void ZP_OnEngineExecute(/*void*/)
 {
     // Sounds
     gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SLEEPER_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

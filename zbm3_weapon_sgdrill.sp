@@ -93,7 +93,7 @@ public void OnMapEnd(/*void*/)
  *
  * @param clientIndex       The client index.
  **/
-public void OnClientDisconnect(int clientIndex)
+ public void OnClientDisconnect(int clientIndex)
 {
     // Delete timers
     delete Task_Stab[clientIndex];
@@ -110,6 +110,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("SGDRILL2_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SGDRILL2_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");

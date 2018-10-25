@@ -219,7 +219,7 @@ void VAmbienceApplySunDisable(const bool bDisable = false)
     int iSun = FindEntityByClassname(-1, "env_sun");
     
     // If sun is invalid, then stop
-    if(iSun == -1)
+    if(iSun == INVALID_ENT_REFERENCE)
     {
         return;
     }
@@ -254,7 +254,7 @@ void VAmbienceApplyFog(/*void*/)
     if(iFogControllerIndex == INVALID_ENT_REFERENCE)
     {
         iFogControllerIndex = CreateEntityByName("env_fog_controller");
-        if(iFogControllerIndex != INVALID_ENT_REFERENCE) DispatchSpawn(iFogControllerIndex);
+        if(iFogControllerIndex != INVALID_ENT_REFERENCE) DispatchSpawn(iFogControllerIndex); else return;
     }
 
     // Sets density of the fog

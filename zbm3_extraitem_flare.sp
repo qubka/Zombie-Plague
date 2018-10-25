@@ -86,7 +86,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         // Initialize extra item
         gItem = ZP_RegisterExtraItem(EXTRA_ITEM_REFERENCE, EXTRA_ITEM_INFO, EXTRA_ITEM_COST, EXTRA_ITEM_LEVEL, EXTRA_ITEM_ONLINE, EXTRA_ITEM_LIMIT, EXTRA_ITEM_GROUP);
     }
-}
+    }
 
 /**
  * Called after a zombie core is loaded.
@@ -99,6 +99,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FLARE_GRENADE_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
@@ -193,11 +194,6 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
             // Activate the entity
             AcceptEntityInput(lightIndex, "TurnOn");
 
-            // Sets parent to the entity
-            SetVariantString("!activator"); 
-            AcceptEntityInput(lightIndex, "SetParent", grenadeIndex, lightIndex); 
-            SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", grenadeIndex);
-
             // Initialize vector variables
             static float vPosition[3];
             
@@ -207,6 +203,11 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
             // Teleport the entity
             TeleportEntity(lightIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
             
+            // Sets parent to the entity
+            SetVariantString("!activator"); 
+            AcceptEntityInput(lightIndex, "SetParent", grenadeIndex, lightIndex); 
+            SetEntPropEnt(lightIndex, Prop_Data, "m_pParent", grenadeIndex);
+
             // Create an effect
             FakeCreateParticle(grenadeIndex, vPosition, _, "smoking", GRENADE_FLARE_DURATION);
         }

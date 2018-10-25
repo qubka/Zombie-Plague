@@ -124,6 +124,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("FREEZE_GRENADE_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FREEZE_GRENADE_SOUNDS\" wasn't find");
     
     // Models
     PrecacheModel("models/gibs/glass_shard01.mdl", true);

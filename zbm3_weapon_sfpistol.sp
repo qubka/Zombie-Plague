@@ -93,6 +93,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
     // Sounds
     gSound = ZP_GetSoundKeyID("SFPISTOL_SHOOT_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFPISTOL_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_game_custom_sound_level");
@@ -180,6 +181,9 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
+    /// Block the real attack
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9); // Should be here for pistols!
+    
     // Validate ammo
     if(iClip <= 0)
     {
@@ -190,9 +194,6 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
         }
         return;
     }
-    
-    /// Block the real attack
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
 
     // Validate animation delay
     if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -244,7 +245,7 @@ void Weapon_OnCreateBeam(const int clientIndex, const int weaponIndex)
     static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
     // Gets the weapon position
-    ZP_GetPlayerGunPosition(clientIndex, 20.0, 3.5, -10.0, vPosition);
+    ZP_GetPlayerGunPosition(clientIndex, 30.0, 3.5, -10.0, vPosition);
     
     // Gets the client eye angle
     GetClientEyeAngles(clientIndex, vAngle);
@@ -299,7 +300,7 @@ void Weapon_OnCreateBeam(const int clientIndex, const int weaponIndex)
         // Sent a beam
         TE_SetupBeamPoints(vPosition, vEndPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
         int[] iClients = new int[MaxClients]; int iCount;
-        for (int i = 1; i <= MaxClients; i++)
+        for(int i = 1; i <= MaxClients; i++)
         {
             if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
             iClients[iCount++] = i;
