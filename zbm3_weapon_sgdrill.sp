@@ -191,10 +191,6 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex)
         // Gets the victim index
         int victimIndex = TR_GetEntityIndex(hTrace);
 
-        // Returns the collision position/angle of a trace result
-        TR_GetEndPosition(vEndPosition, hTrace);
-        TR_GetPlaneNormal(hTrace, vPlaneNormal); 
-
         // Validate victim
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
         {    
@@ -209,6 +205,10 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex)
         }
         else
         {
+            // Returns the collision position/angle of a trace result
+            TR_GetEndPosition(vEndPosition, hTrace);
+            TR_GetPlaneNormal(hTrace, vPlaneNormal); 
+    
             // Create a sparks effect
             TE_SetupSparks(vEndPosition, vPlaneNormal, 50, 2);
             TE_SendToAllInRange(vEndPosition, RangeType_Visibility);

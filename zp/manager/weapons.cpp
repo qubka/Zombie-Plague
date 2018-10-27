@@ -2150,7 +2150,7 @@ stock bool WeaponsValidateKnife(const int weaponIndex)
     GetEdictClassname(weaponIndex, sWeapon, sizeof(sWeapon));
 
     // Return on success
-    return (!strcmp(sWeapon[7], "knife", false));
+    return (!strncmp(sWeapon[7], "knife", 5, false) || !strcmp(sWeapon[7], "bayonet"));
 }
 
 /**

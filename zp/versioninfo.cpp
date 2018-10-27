@@ -29,15 +29,15 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "8.4.1"
+#define PLUGIN_VERSION      "8.4.2"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
 #define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)"
-#define PLUGIN_BRANCH       "zp-8.4.1"
+#define PLUGIN_BRANCH       "zp-8.4.2"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "22-September-2018T02:01:10-GMT+02:00"
+#define PLUGIN_DATE         "27-September-2018T01:51:10-GMT+00:00"
 /**
  * @endsection
  **/
@@ -81,8 +81,7 @@ public Action VersionCommandCatched(const int clientIndex, const int iArguments)
     static char sLine[BIG_LINE_LENGTH];
 
     // Quick clear string buffer
-    sBuffer[0] = '\0';
-    sLine[0] = '\0';
+    sBuffer[0] = '\0'; sLine[0] = '\0';
 
     #define FORMATSTRING "%24s: %s\n"
 

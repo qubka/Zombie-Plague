@@ -296,7 +296,16 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
      *   FLAG GROUP AUTHENTICATION   *
      *                               *
      *********************************/
+
+    // Finds a group by name
+    GroupId nGroup = FindAdmGroup(sGroup);
     
+    // Validate group
+    if(nGroup == INVALID_GROUP_ID)
+    {
+        return false;
+    }
+     
     // Retrieves a client AdminId
     AdminId iD = GetUserAdmin(clientIndex);
     
@@ -305,22 +314,22 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
     {
         return false;
     }
-    
-    // Gets immunity level
-    int iImmunity = GetAdminImmunityLevel(iD);
-    
-    // Initialize variables
-    static char sGroupName[NORMAL_LINE_LENGTH]; GroupId nGroup;
 
+    // Initialize variables
+    static char sGroupName[NORMAL_LINE_LENGTH];
+
+    // Gets immunity level
+    int iImmunity = GetAdmGroupImmunityLevel(nGroup);
+    
     // i = group index
     int iSize = GetAdminGroupCount(iD);
     for(int i = 0; i < iSize; i++)
     {
         // Gets group name
         nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
-        
+
         // If names match, then return index
-        if(!strcmp(sGroup, sGroupName, false) || GetAdmGroupImmunityLevel(nGroup) <= iImmunity)
+        if(!strcmp(sGroup, sGroupName, false) || iImmunity <= GetAdmGroupImmunityLevel(nGroup))
         {
             return true;
         }

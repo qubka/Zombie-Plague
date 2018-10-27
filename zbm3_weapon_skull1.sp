@@ -92,8 +92,10 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
         // Button primary attack press
         if(iButtons & IN_ATTACK)
         {
-            iButtons &= (~IN_ATTACK); //! Bugfix
-            return Plugin_Changed;
+            // Sets the attack animation
+            ZP_SetWeaponAnimation(clientIndex, 5);  
+            ///iButtons &= (~IN_ATTACK); //! Bugfix
+            ///return Plugin_Changed;
         }
     }
     

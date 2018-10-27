@@ -225,9 +225,6 @@ void Weapon_OnCreateAirBurst(const int clientIndex, const int weaponIndex)
         // Gets the victim index
         int victimIndex = TR_GetEntityIndex(hTrace);
 
-        // Returns the collision position/angle of a trace result
-        TR_GetEndPosition(vEndPosition, hTrace);
-
         // Validate victim
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
         {    
@@ -236,6 +233,9 @@ void Weapon_OnCreateAirBurst(const int clientIndex, const int weaponIndex)
         }
         else
         {
+            // Returns the collision position/angle of a trace result
+            TR_GetEndPosition(vEndPosition, hTrace);
+    
             // Create a sparks effect
             TE_SetupSmoke(vEndPosition, decalSmoke, 10.0, 10);
             TE_SendToAllInRange(vEndPosition, RangeType_Visibility);
