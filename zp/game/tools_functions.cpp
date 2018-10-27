@@ -650,25 +650,33 @@ stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
  * @param CReason           Reason the round has ended.
  **/
 stock void ToolsTerminateRound(const int CReason)
-{
-    // Searching info map entity
-    int entityIndex = FindEntityByClassname(-1, "info_map_parameters");
-
-    // If entity isn't valid, then create it
-    if(entityIndex == INVALID_ENT_REFERENCE)
+{   
+    // Validate non windows 
+    if(!GameEnginePlatform(OS_Windows))
     {
-        entityIndex = CreateEntityByName("info_map_parameters");
-        if(entityIndex != INVALID_ENT_REFERENCE) DispatchSpawn(entityIndex); else return;
+        SDKCall(hSDKCallTerminateRound, gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CReason);
     }
+    else
+    {
+        // Searching info map entity
+        int entityIndex = FindEntityByClassname(-1, "info_map_parameters");
 
-    // Initialize variable
-    static char sTime[NORMAL_LINE_LENGTH];
-    Format(sTime, sizeof(sTime), "OnUser1 !self:FireWinCondition:%i:0.01:-1", CReason);
-    
-    // Sets modified flags on the entity
-    SetVariantString(sTime);
-    AcceptEntityInput(entityIndex, "AddOutput");
-    AcceptEntityInput(entityIndex, "FireUser1");
+        // If entity isn't valid, then create it
+        if(entityIndex == INVALID_ENT_REFERENCE)
+        {
+            entityIndex = CreateEntityByName("info_map_parameters");
+            if(entityIndex != INVALID_ENT_REFERENCE) DispatchSpawn(entityIndex); else return;
+        }
+
+        // Initialize variable
+        static char sTime[NORMAL_LINE_LENGTH];
+        Format(sTime, sizeof(sTime), "OnUser1 !self:FireWinCondition:%i:1.0:-1", CReason);
+        
+        // Sets modified flags on the entity
+        SetVariantString(sTime);
+        AcceptEntityInput(entityIndex, "AddOutput");
+        AcceptEntityInput(entityIndex, "FireUser1");
+    }
 }
 
 /**

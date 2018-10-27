@@ -30,7 +30,7 @@
  **/
 #define CvarsRoundMax 15
  
-/**
+ /**
  * List of cvars used by the plugin.
  **/
 enum CvarsList
@@ -56,6 +56,7 @@ enum CvarsList
     ConVar:CVAR_SERVER_ROUNDTIME_CS,
     ConVar:CVAR_SERVER_ROUNDTIME_DE,
     ConVar:CVAR_SERVER_ROUND_RESTART,
+    ConVar:CVAR_SERVER_RESTART_DELAY,
     ConVar:CVAR_GAME_CUSTOM_START,
     ConVar:CVAR_GAME_CUSTOM_MODELS,
     ConVar:CVAR_GAME_CUSTOM_ANTISTICK,
@@ -332,6 +333,7 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_SERVER_ROUNDTIME_CS]         = FindConVar("mp_roundtime_hostage");
     gCvarList[CVAR_SERVER_ROUNDTIME_DE]         = FindConVar("mp_roundtime_defuse");
     gCvarList[CVAR_SERVER_ROUND_RESTART]        = FindConVar("mp_restartgame");
+    gCvarList[CVAR_SERVER_RESTART_DELAY]        = FindConVar("mp_round_restart_delay");
 
     // =========================== //
     //         Game Purpose        //

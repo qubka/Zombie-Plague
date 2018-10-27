@@ -29,6 +29,7 @@
  * Variables to store SDK calls handlers.
  **/
 Handle hSDKCallEntityUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
+Handle hSDKCallTerminateRound;
 Handle hSDKCallSwitchTeam;
 Handle hSDKCallRoundRespawn;
 Handle hSDKCallLookupAttachment;
@@ -100,6 +101,21 @@ void ToolsSetupGameData(/*void*/)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::UpdateTransmitState\". Update offset in \"%s\"", PLUGIN_CONFIG);
+    }
+    
+    // Starts the preparation of an SDK call	
+    StartPrepSDKCall(SDKCall_GameRules);	
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "TerminateRound");	
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order	
+    PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);	
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);	
+    
+    // Validate call	
+    if(!(hSDKCallTerminateRound = EndPrepSDKCall()))	
+    {	
+        // Log failure	
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CGameRules::TerminateRound\". Update \"SourceMod\"");	
     }
 
     // Starts the preparation of an SDK call
