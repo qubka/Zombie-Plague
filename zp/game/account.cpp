@@ -170,7 +170,7 @@ public Action AccountOnHUD(Handle hTimer, const int userID)
     if(clientIndex)
     {
         // Print hud text to client
-        TranslationPrintHudText(hHudAccount, clientIndex, 0.02, 0.01, 1.1, gCvarList[CVAR_BONUS_HUD_ACCOUNT_R].IntValue, gCvarList[CVAR_BONUS_HUD_ACCOUNT_G].IntValue, gCvarList[CVAR_BONUS_HUD_ACCOUNT_B].IntValue, 255, 0, 0.0, 0.0, 0.0, "Account info", "Ammopack", gClientData[clientIndex][Client_AmmoPacks]);
+        TranslationPrintHudText(hHudAccount, clientIndex, 0.02, 0.01, 1.1, gCvarList[CVAR_BONUS_HUD_ACCOUNT_R].IntValue, gCvarList[CVAR_BONUS_HUD_ACCOUNT_G].IntValue, gCvarList[CVAR_BONUS_HUD_ACCOUNT_B].IntValue, 255, 0, 0.0, 0.0, 0.0, "account info", "ammopack", gClientData[clientIndex][Client_AmmoPacks]);
 
         // Allow timer
         return Plugin_Continue;
