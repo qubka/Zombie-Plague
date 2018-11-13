@@ -33,16 +33,6 @@
 #define _menulist_included
 
 /**
- * @brief Called before show a main menu.
- * 
- * @param clientIndex       The client index.
- *
- * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
- *                              (like Plugin_Continue) to allow showing.
- **/
-forward Action ZP_OnClientValidateMainMenu(int clientIndex);
-
-/**
  * @brief Gets the amount of all menus.
  **/
 native int ZP_GetNumberMenu();

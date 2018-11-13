@@ -392,6 +392,13 @@ stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex
  **/
 stock void DamageOnClientKnockBack(const int victimIndex, const int attackerIndex, const float knockbackAmount)
 {
+    // Validate amount
+    if(!knockbackAmount)
+    {
+        // Block knock
+        return;
+    }
+    
     // If nemesis knockback disabled, then stop
     if(!gCvarList[CVAR_NEMESIS_KNOCKBACK].BoolValue && gClientData[victimIndex][Client_Nemesis])
     {

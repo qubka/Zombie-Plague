@@ -201,26 +201,30 @@ bool GameEnginePlatform(EngineOS oS)
         // Extract status string
         ServerCommandEx(sBuffer, sizeof(sBuffer), "status");
 
-        // Precompile a regular expression
-        Regex hRegex = CompileRegex("(os\\s+:\\s+\\w+)"); 
-        
-        // i = str index
-        int iCount = hRegex.Match(sBuffer); 
-        for(int i = 0; i < iCount; i++) 
-        { 
-            // Returns a matched substring from a regex handle
-            hRegex.GetSubString(i, sBuffer, sizeof(sBuffer)); 
+        // Validate length
+        if(strlen(sBuffer))
+        {
+            // Precompile a regular expression
+            Regex hRegex = CompileRegex("(os\\s+:\\s+\\w+)"); 
             
-            // Finds the first occurrence of a character in a string
-            int iSystem = FindCharInString(sBuffer, ' ', true) + 1;
+            // i = str index
+            int iCount = hRegex.Match(sBuffer); 
+            for(int i = 0; i < iCount; i++) 
+            { 
+                // Returns a matched substring from a regex handle
+                hRegex.GetSubString(i, sBuffer, sizeof(sBuffer)); 
+                
+                // Finds the first occurrence of a character in a string
+                int iSystem = FindCharInString(sBuffer, ' ', true) + 1;
 
-            // Validate operating system
-            gServerData[Server_PlatForm] = !strncmp(sBuffer[iSystem], "win", 3, false) ? OS_Windows : !strncmp(sBuffer[iSystem], "lin", 3, false) ? OS_Linux : OS_Mac;
-            break;
+                // Validate operating system
+                gServerData[Server_PlatForm] = !strncmp(sBuffer[iSystem], "win", 3, false) ? OS_Windows : !strncmp(sBuffer[iSystem], "lin", 3, false) ? OS_Linux : OS_Mac;
+                break;
+            }
+            
+            // Decompile expression
+            delete hRegex;
         }
-        
-        // Decompile expression
-        delete hRegex;
     }
     
     // Return on success

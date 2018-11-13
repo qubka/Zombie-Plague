@@ -35,7 +35,6 @@ enum ForwardsList
     Handle:OnClientDamaged,
     Handle:OnClientValidateItem,
     Handle:OnClientBuyItem,
-    Handle:OnClientValidateMenu,
     Handle:OnClientValidateZombie,
     Handle:OnClientValidateHuman,
     Handle:OnClientValidateCostume,
@@ -69,7 +68,6 @@ void APIForwardsInit(/*void*/)
     gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_FloatByRef, Param_Cell, Param_Cell);
     gForwardsList[OnClientValidateItem]    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientBuyItem]         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
-    gForwardsList[OnClientValidateMenu]    = CreateGlobalForward("ZP_OnClientValidateMainMenu", ET_Hook, Param_Cell);
     gForwardsList[OnClientValidateZombie]  = CreateGlobalForward("ZP_OnClientValidateZombieClass", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientValidateHuman]   = CreateGlobalForward("ZP_OnClientValidateHumanClass", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientValidateCostume] = CreateGlobalForward("ZP_OnClientValidateCostume", ET_Hook, Param_Cell, Param_Cell);
@@ -207,32 +205,6 @@ void API_OnClientBuyExtraItem(const int clientIndex, const int itemIndex)
     
     // Finish the call
     Call_Finish();
-}
-
-/**
- * Called before show a main menu.
- * 
- * @param clientIndex       The client index.
- *
- * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
- *                              (like Plugin_Continue) to allow showing.
- **/
-Action API_OnClientValidateMainMenu(const int clientIndex)
-{
-    // Initialize future result
-    static Action resultHandle;
-    
-    // Start forward call
-    Call_StartForward(gForwardsList[OnClientValidateMenu]);
-    
-    // Push the parameters
-    Call_PushCell(clientIndex);
-    
-    // Finish the call
-    Call_Finish(resultHandle);
-    
-    // Return result
-    return resultHandle;
 }
 
 /**

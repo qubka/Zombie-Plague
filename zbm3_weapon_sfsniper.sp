@@ -204,8 +204,6 @@ public Action BeamEffectHook(Handle hThink, int referenceIndex)
         %3                      \
     )    
 
-
-
 /**
  * Called on bullet of a weapon.
  *
@@ -221,5 +219,36 @@ public void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int wea
     {
         // Call event
         _call.Bullet(clientIndex, weaponIndex, vBulletPosition);
+    }
+}
+
+/**
+ * Called when a client take a fake damage.
+ * 
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
+ * @param damageAmount      The amount of damage inflicted.
+ * @param damageType        The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
+ **/
+public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
+{
+    // Client was damaged by 'bullet'
+    if(damageType & DMG_NEVERGIB)
+    {
+        // Validate weapon
+        if(IsValidEdict(weaponIndex))
+        {
+            // Validate custom weapon
+            if(ZP_GetWeaponID(weaponIndex) == gWeapon)
+            {
+                // Reset damage for blocking knockback and damage
+                damageAmount = 0.0;
+                
+                // Create the damage to kill
+                SDKHooks_TakeDamage(clientIndex, attackerIndex, attackerIndex, ZP_GetWeaponDamage(gWeapon));
+            }
+        }
     }
 }

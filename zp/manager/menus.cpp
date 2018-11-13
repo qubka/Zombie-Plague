@@ -47,6 +47,9 @@ void MenusOnCommandsCreate(/*void*/)
 {
     // Hook commands
     RegConsoleCmd("zmainmenu", MenusCommandCatched, "Open the main menu.");
+    
+    // Hook listeners
+    AddCommandListener(MenusOnOpen);
 }
 
 /**
@@ -60,6 +63,31 @@ public Action MenusCommandCatched(const int clientIndex, const int iArguments)
     // Open the main menu
     MenuMain(clientIndex);
     return Plugin_Handled;
+}
+
+/**
+ * Callback for command listener to open the main menu.
+ *
+ * @param clientIndex       The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action MenusOnOpen(const int clientIndex, const char[] commandMsg, const int iArguments)
+{
+    // Gets command alias
+    static char sCommand[SMALL_LINE_LENGTH];
+    gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].GetString(sCommand, sizeof(sCommand));
+    
+    // Validate command
+    if(!strcmp(sCommand, commandMsg))
+    {
+        // Open the main menu
+        MenuMain(clientIndex);
+        return Plugin_Handled;
+    }
+    
+    // Allow command
+    return Plugin_Continue;
 }
 
 /**
@@ -107,6 +135,9 @@ void MenusLoad(/*void*/)
     ConfigSetConfigLoaded(File_Menus, true);
     ConfigSetConfigReloadFunc(File_Menus, GetFunctionByName(GetMyHandle(), "MenusOnConfigReload"));
     ConfigSetConfigHandle(File_Menus, arrayMenus);
+    
+    //
+    
 }
 
 /**
@@ -360,60 +391,53 @@ void MenuMain(const int clientIndex)
         return;
     }
 
-    // Call forward
-    Action resultHandle = API_OnClientValidateMainMenu(clientIndex);
+    // Initialize variables
+    static char sBuffer[NORMAL_LINE_LENGTH];
+    static char sName[SMALL_LINE_LENGTH];
+    static char sInfo[SMALL_LINE_LENGTH];
 
-    // Validate handle
-    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    // Create menu handle
+    Menu hMenu = CreateMenu(MenuMainSlots);
+    
+    // Sets the language to target
+    SetGlobalTransTarget(clientIndex);
+    
+    // Sets title
+    hMenu.SetTitle("%t", "main menu");
+    
+    // i = Array index
+    int iSize = arrayMenus.Length;
+    for(int i = 0; i < iSize; i++)
     {
-        // Initialize variables
-        static char sBuffer[NORMAL_LINE_LENGTH];
-        static char sName[SMALL_LINE_LENGTH];
-        static char sInfo[SMALL_LINE_LENGTH];
+        // Gets menu name
+        MenusGetName(i, sName, sizeof(sName));
 
-        // Create menu handle
-        Menu hMenu = CreateMenu(MenuMainSlots);
+        // Format some chars for showing in menu
+        Format(sBuffer, sizeof(sBuffer), "%t", sName);
+
+        // Gets menu group
+        MenusGetGroup(i, sName, sizeof(sName));
         
-        // Sets the language to target
-        SetGlobalTransTarget(clientIndex);
-        
-        // Sets title
-        hMenu.SetTitle("%t", "main menu");
-        
-        // i = Array index
-        int iSize = arrayMenus.Length;
-        for(int i = 0; i < iSize; i++)
-        {
-            // Gets menu name
-            MenusGetName(i, sName, sizeof(sName));
-
-            // Format some chars for showing in menu
-            Format(sBuffer, sizeof(sBuffer), "%t", sName);
-
-            // Gets menu group
-            MenusGetGroup(i, sName, sizeof(sName));
-            
-            // Show option
-            IntToString(i, sInfo, sizeof(sInfo));
-            hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((!IsPlayerInGroup(clientIndex, sName) && strlen(sName)) ? false : true));
-        }
-        
-        // If there are no cases, add an "(Empty)" line
-        if(!iSize)
-        {
-            static char sEmpty[SMALL_LINE_LENGTH];
-            Format(sEmpty, sizeof(sEmpty), "%t", "empty");
-
-            hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
-        }
-
-        // Sets exit and back button
-        hMenu.ExitButton = true;
-
-        // Sets options and display it
-        hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
-        hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+        // Show option
+        IntToString(i, sInfo, sizeof(sInfo));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((!IsPlayerInGroup(clientIndex, sName) && strlen(sName)) ? false : true));
     }
+    
+    // If there are no cases, add an "(Empty)" line
+    if(!iSize)
+    {
+        static char sEmpty[SMALL_LINE_LENGTH];
+        Format(sEmpty, sizeof(sEmpty), "%t", "empty");
+
+        hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
+    }
+
+    // Sets exit and back button
+    hMenu.ExitButton = true;
+
+    // Sets options and display it
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
 }
 
 /**

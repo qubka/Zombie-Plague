@@ -67,12 +67,12 @@
  **/
  void ToolsOnCommandsCreate(/*void*/)
 {
-    // Hook commands
+    // Hook listeners
     AddCommandListener(ToolsOnGeneric, "kill");
     AddCommandListener(ToolsOnGeneric, "explode");
     AddCommandListener(ToolsOnGeneric, "killvector");
     AddCommandListener(ToolsOnGeneric, "jointeam");
-    AddCommandListener(ToolsOnFlashlight, "+lookatweapon");
+    AddCommandListener(ToolsOnFlashlight);
     
     // Hook messages
     HookUserMessage(GetUserMessageId("TextMsg"), ToolsMessage, true);
@@ -218,25 +218,36 @@ public Action ToolsOnFlashlight(const int clientIndex, const char[] commandMsg, 
     // Validate client 
     if(IsPlayerExist(clientIndex))
     {
-        // If zombie nightvision ?
-        if(gClientData[clientIndex][Client_Zombie])
+        // Gets command alias 
+        static char sCommand[SMALL_LINE_LENGTH];
+        gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON].GetString(sCommand, sizeof(sCommand));
+        
+        // Validate command
+        if(!strcmp(sCommand, commandMsg))
         {
-            // Switch on/off nightvision
-            if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION] && !gServerData[Server_RoundEnd]) VOverlayOnClientUpdate(clientIndex, !ToolsGetClientNightVision(clientIndex, true) ? Overlay_Vision : Overlay_Reset);
-        }
-        // If human flashlight ?
-        else
-        {
-            // Switch on/off flashlight
-            ToolsSetClientFlashLight(clientIndex, true);
+            // If zombie nightvision ?
+            if(gClientData[clientIndex][Client_Zombie])
+            {
+                // Switch on/off nightvision
+                if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION] && !gServerData[Server_RoundEnd]) VOverlayOnClientUpdate(clientIndex, !ToolsGetClientNightVision(clientIndex, true) ? Overlay_Vision : Overlay_Reset);
+            }
+            // If human flashlight ?
+            else
+            {
+                // Switch on/off flashlight
+                ToolsSetClientFlashLight(clientIndex, true);
+                
+                // Forward event to modules
+                SoundsOnClientFlashLight(clientIndex);
+            }
             
-            // Forward event to modules
-            SoundsOnClientFlashLight(clientIndex);
+            // Block command
+            return Plugin_Handled;
         }
     }
     
-    // Block command
-    return Plugin_Handled;
+    // Allow command
+    return Plugin_Continue;
 }
 
 /**
@@ -652,7 +663,7 @@ stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
 stock void ToolsTerminateRound(const int CReason)
 {   
     // Validate non windows 
-    if(!GameEnginePlatform(OS_Windows))
+    if(!GameEnginePlatform(OS_Windows) && !GameEnginePlatform(OS_Unknown))
     {
         SDKCall(hSDKCallTerminateRound, gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CReason);
     }

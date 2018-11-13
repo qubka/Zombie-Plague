@@ -32,7 +32,7 @@
  */
  
 // Comment to remove a DHook module features (experimental branch)
- #define USE_DHOOKS
+#define USE_DHOOKS
 
 // Sourcemod
 #include <sourcemod>

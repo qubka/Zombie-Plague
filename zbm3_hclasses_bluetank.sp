@@ -45,7 +45,7 @@ public Plugin myinfo =
  **/
 #define HUMAN_CLASS_NAME                "bluetank" // Only will be taken from translation file
 #define HUMAN_CLASS_INFO                "bluetank info" // Only will be taken from translation file ("" - disabled)
-#define HUMAN_CLASS_MODEL               "models/player/custom_player/napas/tank_blue/zbm3_tank_blue_final4.mdl"    
+#define HUMAN_CLASS_MODEL               "models/player/custom_player/napas/tank_blue/tank_blue_fix.mdl"    
 #define HUMAN_CLASS_ARM                 "models/player/custom_player/zombie/arms/bluemale_arms.mdl"  
 #define HUMAN_CLASS_VIEW                {4, -1}
 #define HUMAN_CLASS_HEALTH              250

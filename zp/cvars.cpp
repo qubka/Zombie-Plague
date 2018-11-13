@@ -64,6 +64,8 @@ enum CvarsList
     ConVar:CVAR_GAME_CUSTOM_COSTUMES,
     ConVar:CVAR_GAME_CUSTOM_DATABASE,
     ConVar:CVAR_GAME_CUSTOM_MENU_BUTTON,
+    ConVar:CVAR_GAME_CUSTOM_SKILL_BUTTON,
+    ConVar:CVAR_GAME_CUSTOM_LIGHT_BUTTON,
     ConVar:CVAR_GAME_CUSTOM_SOUND_LEVEL,
     ConVar:CVAR_CONFIG_PATH_DOWNLOADS,
     ConVar:CVAR_CONFIG_PATH_HITGROUPS,
@@ -344,7 +346,9 @@ void CvarsCreate(/*void*/)
     gCvarList[CVAR_GAME_CUSTOM_HITGROUPS]       = CreateConVar("zp_game_custom_hitgroups",          "1",                                                               "Enable hitgroups module, disabling this will disable hitgroup-related features. (hitgroup knockback multipliers, hitgroup damage control) [0-no // 1-yes]");
     gCvarList[CVAR_GAME_CUSTOM_COSTUMES]        = CreateConVar("zp_game_custom_costumes",           "1",                                                               "Enable costumes module, disabling this will disable costumes-related features. (hats on the players) [0-no // 1-yes]");
     gCvarList[CVAR_GAME_CUSTOM_DATABASE]        = CreateConVar("zp_game_custom_database",           "1",                                                               "Enable auto saving of players data in the database [0-off // 1-always // 2-map]");
-    gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON]     = CreateConVar("zp_game_custom_menu_button",        "5",                                                               "Index of the button for the main menu");
+    gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON]     = CreateConVar("zp_game_custom_menu_button",        "autobuy",                                                         "Bind of the button for the menu open. Look here: https://www.reddit.com/r/GlobalOffensive/comments/36cjph/default_binds/");
+    gCvarList[CVAR_GAME_CUSTOM_SKILL_BUTTON]    = CreateConVar("zp_game_custom_skill_button",       "rebuy",                                                           "Bind of the button for the skill usage. Look here: https://www.reddit.com/r/GlobalOffensive/comments/36cjph/default_binds/");
+    gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON]    = CreateConVar("zp_game_custom_light_button",       "+lookatweapon",                                                   "Bind of the button for the flashlight trigger. Look here: https://www.reddit.com/r/GlobalOffensive/comments/36cjph/default_binds/");
     gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL]     = CreateConVar("zp_game_custom_sound_level",        "75",                                                              "Index of the sound level for the modification");
 
     // =========================== //

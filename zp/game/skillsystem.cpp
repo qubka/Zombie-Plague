@@ -30,9 +30,8 @@
  **/
 void SkillsOnCommandsCreate(/*void*/)
 {
-    // Hook commands
-    AddCommandListener(SkillsOnUseHuman, "rebuy");
-    AddCommandListener(SkillsOnUseZombie, "drop");
+    // Hook listeners
+    AddCommandListener(SkillsOnUse);
 }
 
 /**
@@ -118,29 +117,38 @@ public Action SkillsOnHealthRegen(Handle hTimer, const int userID)
 }
 
 /**
- * Callback for command listener to use skill for human.
+ * Callback for command listener to use skill for human/zombie.
  *
  * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SkillsOnUseHuman(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action SkillsOnUse(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
-    // If the client isn't human, than allow rebuy
-    return (!gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Survivor]) ? SkillsOnStart(clientIndex) : Plugin_Continue;
-}
-
-/**
- * Callback for command listener to use skill for zombie.
- *
- * @param clientIndex       The client index.
- * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
- * @param iArguments        Argument count.
- **/
-public Action SkillsOnUseZombie(const int clientIndex, const char[] commandMsg, const int iArguments)
-{
-    // If the client isn't zombie/survivor, than allow drop
-    return (gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]) ? SkillsOnStart(clientIndex) : (gClientData[clientIndex][Client_Survivor] ? Plugin_Handled : Plugin_Continue);
+    // Validate client 
+    if(IsPlayerExist(clientIndex))
+    {
+        // Gets command alias
+        static char sCommand[SMALL_LINE_LENGTH];
+        gCvarList[CVAR_GAME_CUSTOM_SKILL_BUTTON].GetString(sCommand, sizeof(sCommand));
+        
+        // Validate command
+        if(!strcmp(sCommand, commandMsg))
+        {
+            // Validate human/zombie
+            if(gClientData[clientIndex][Client_Nemesis] || gClientData[clientIndex][Client_Survivor])
+            {
+                return Plugin_Handled;
+            }
+            
+            // Do the skill
+            SkillsOnStart(clientIndex);
+            return Plugin_Handled;
+        }
+    }
+    
+    // Allow command
+    return Plugin_Continue;
 }
 
 /**
@@ -148,13 +156,13 @@ public Action SkillsOnUseZombie(const int clientIndex, const char[] commandMsg, 
  *
  * @param clientIndex       The client index.
  **/
-Action SkillsOnStart(const int clientIndex)
+void SkillsOnStart(const int clientIndex)
 {
     // Validate class skill duration/countdown
     float flInterval = gClientData[clientIndex][Client_Zombie] ? ZombieGetSkillDuration(gClientData[clientIndex][Client_ZombieClass]) : HumanGetSkillDuration(gClientData[clientIndex][Client_HumanClass]);
     if(!flInterval && (gClientData[clientIndex][Client_Zombie] ? !ZombieGetSkillCountDown(gClientData[clientIndex][Client_ZombieClass]) : !HumanGetSkillCountDown(gClientData[clientIndex][Client_HumanClass])))
     {
-        return Plugin_Handled;
+        return;
     }
     
     // Verify that the skills are avalible
@@ -166,7 +174,7 @@ Action SkillsOnStart(const int clientIndex)
         // Block skill usage
         if(resultHandle == Plugin_Handled || resultHandle == Plugin_Stop)
         {
-            return Plugin_Handled;
+            return;
         }
 
         // Sets skill usage
@@ -176,9 +184,6 @@ Action SkillsOnStart(const int clientIndex)
         delete gClientData[clientIndex][Client_SkillTimer];
         gClientData[clientIndex][Client_SkillTimer] = CreateTimer(flInterval, SkillsOnEnd, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
     }
-    
-    // Allow skill
-    return Plugin_Handled;
 }
 
 /**

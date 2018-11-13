@@ -44,22 +44,7 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
 {
     // Initialize variable
     static int iLastButtons[MAXPLAYERS+1];
-    
-    // Button menu hook
-    if(iButtons & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue))
-    {
-        // Validate overtransmitting
-        if(!(iLastButtons[clientIndex] & (1 << gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON].IntValue)))
-        {
-            // Validate that menu isn't open yet, then open
-            if(GetClientMenu(clientIndex, INVALID_HANDLE) == MenuSource_None) 
-            {
-                // The main menu
-                MenuMain(clientIndex);
-            }
-        }
-    }
-    
+
     // Validate client
     if(IsPlayerExist(clientIndex, false))
     {

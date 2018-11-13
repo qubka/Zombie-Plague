@@ -45,7 +45,7 @@ public Plugin myinfo =
  **/
 #define HUMAN_CLASS_NAME                "bluealice" // Only will be taken from translation file
 #define HUMAN_CLASS_INFO                "bluealice info" // Only will be taken from translation file ("" - disabled)
-#define HUMAN_CLASS_MODEL               "models/player/custom_player/napas/alice_blue/alice_blue.mdl"    
+#define HUMAN_CLASS_MODEL               "models/player/custom_player/napas/alice_blue/alice_blue_fix.mdl"    
 #define HUMAN_CLASS_ARM                 "models/player/custom_player/zombie/arms/bluefemale_arms.mdl"  
 #define HUMAN_CLASS_VIEW                {5, -1}
 #define HUMAN_CLASS_HEALTH              150

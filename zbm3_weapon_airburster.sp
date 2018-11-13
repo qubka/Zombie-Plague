@@ -57,11 +57,11 @@ public Plugin myinfo =
 enum
 {
     ANIM_IDLE,
-    ANIM_SHOOT1,
-    ANIM_SHOOT_END,
+    ANIM_SHOOT_MAIN,
     ANIM_RELOAD,
     ANIM_DRAW,
-    ANIM_SHOOT_MAIN,
+    ANIM_SHOOT1,
+    ANIM_SHOOT_END,
     ANIM_SHOOT2,
 };
 

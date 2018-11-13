@@ -283,4 +283,7 @@ void VAmbienceApplyFog(/*void*/)
     // Sets secondary color
     SetVariantString(sFogColor);
     AcceptEntityInput(iFogControllerIndex, "SetColorSecondary");
+    
+    // Turn on fog rendering
+    AcceptEntityInput(iFogControllerIndex, "TurnOn");
 }

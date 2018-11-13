@@ -361,7 +361,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  **/
 public void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex)
 {
-    // Client was damaged by 'explosion'
+    // Client was damaged by 'bullet'
     if(damageType & DMG_NEVERGIB)
     {
         // Validate weapon

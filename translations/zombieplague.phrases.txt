@@ -21,8 +21,8 @@
 
     "general buttons reminder" // Hint
     {
-        "en"            "Press <font color='#FF0000'>E</font> for buy weapons\nPress <font color='#FF0000'>G/F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
-        "ru"            "Нажмите E для покупки оружия\nНажмите G/F4 для способности зомби/людей\nНажмите F для включения фонарика"
+        "en"            "Press <font color='#FF0000'>F3</font> for open menu\nPress <font color='#FF0000'F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
+        "ru"            "Нажмите F3 для открытия меню\nНажмите F4 для способности зомби/людей\nНажмите F для включения фонарика"
     }
     
     "general ammunition reminder" // Chat
@@ -450,8 +450,8 @@
     
     "girl info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Выстрел жалом</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Выстрел жалом</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "normalf01 info" // Hint
@@ -462,38 +462,38 @@
 
     "normalf05 info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Стая летучих мышей</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Стая летучих мышей</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "normalm01 info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Toxic cloud</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Ядовитая завеса</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Toxic cloud</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ядовитая завеса</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "normalm02 info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Explosive coffin</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Взрывной гроб</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Explosive coffin</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Взрывной гроб</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "normalm08 info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Hallucination blast</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Галлюцинационный заряд</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Hallucination blast</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Галлюцинационный заряд</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "normalm09 info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Healing for ammopack rewards</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Лечение для получения аммопаков</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Healing for ammopack rewards</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Лечение для получения аммопаков</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "normalm10 info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Paralyzing ball</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Параличный шар</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Paralyzing ball</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Параличный шар</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "range info" // Hint
@@ -504,32 +504,32 @@
 
     "mutationheavy info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Traps</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Ловушки</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Traps</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ловушки</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "mutationlight info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "fast info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "tank info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Invulnerability</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Неуязвимость</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Invulnerability</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Неуязвимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     "psyh info" // Hint
     {
-        "en"            "Skill: <font color='#FF0000'>Scream</font>\nActivation on button: <font color='#FF0000'>G</font>"
-        "ru"            "Cпособность: <font color='#FF0000'>Крик</font>\nАктивация на кнопку: <font color='#FF0000'>G</font>"
+        "en"            "Skill: <font color='#FF0000'>Scream</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Крик</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
     }
 
     // Humans

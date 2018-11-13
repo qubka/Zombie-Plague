@@ -269,7 +269,7 @@ void WeaponSDKClientInit(const int clientIndex)
  **/
 void WeaponSDKOnCommandsCreate(/*void*/)
 {
-    // Hook commands
+    // Hook listeners
     AddCommandListener(WeaponSDKOnAmmunition, "buyammo1");
     AddCommandListener(WeaponSDKOnAmmunition, "buyammo2");
 }
