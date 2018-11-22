@@ -503,8 +503,8 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
                 return false;
             }
             
-            // Clear out array
-            arrayConfig.Clear();
+            // Destroy all old data
+            ConfigClearKvArray(arrayConfig);
             
             static char sLine[PLATFORM_MAX_PATH];
             
