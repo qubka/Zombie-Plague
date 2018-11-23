@@ -1115,7 +1115,7 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
     int iD = WeaponsGetCustomID(weaponIndex);
     if(iD != INVALID_ENT_REFERENCE)    
     {
-        // Returns the game time based on the game tick
+        // Gets the game time based on the game tick
         float flCurrentTime = GetGameTime();
 
         // If custom fire speed exist, then apply it

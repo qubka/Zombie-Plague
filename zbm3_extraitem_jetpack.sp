@@ -382,8 +382,8 @@ stock bool IsDelay(const int clientIndex, const float flDelay)
     // Initialize variable
     static float flTime[MAXPLAYERS+1];
     
-    // Returns the game time based on the game tick
-    float flCurrentTime = GetGameTime();
+    // Gets time value for profiling the engine
+    float flCurrentTime = GetEngineTime();
     
     // Validate delay
     if((flCurrentTime - flTime[clientIndex]) < flDelay)

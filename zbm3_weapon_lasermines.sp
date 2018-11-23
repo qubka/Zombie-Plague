@@ -546,7 +546,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
         {
             // Adds the delay to the game tick
             float flCurrentTime = GetGameTime() + 1.0;
-                    
+            
             // Sets the next attack time
             SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
             SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
@@ -1115,8 +1115,8 @@ stock bool IsPlayerDamageble(const int clientIndex, const float flDamageDelay)
     // Initialize variable
     static float flDamageTime[MAXPLAYERS+1];
     
-    // Returns the game time based on the game tick
-    float flCurrentTime = GetGameTime();
+    // Gets time value for profiling the engine
+    float flCurrentTime = GetEngineTime();
     
     // Validate delay
     if((flCurrentTime - flDamageTime[clientIndex]) < flDamageDelay)
