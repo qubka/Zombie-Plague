@@ -95,21 +95,6 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
     // Sets nemesis properties
     if(nemesisMode)
     {
-        // Sets nemesis variable
-        gClientData[victimIndex][Client_Nemesis] = true;
-        
-        // Update zombie class
-        gClientData[victimIndex][Client_ZombieClass] = 0;
-        
-        // Sets health, speed and gravity and armor
-        ToolsSetClientHealth(victimIndex, (fnGetAlive() * gCvarList[CVAR_NEMESIS_HEALTH].IntValue));
-        ToolsSetClientLMV(victimIndex, gCvarList[CVAR_NEMESIS_SPEED].FloatValue); 
-        ToolsSetClientGravity(victimIndex, gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue);
-        ToolsSetClientArmor(victimIndex, 0);
-        
-        // Gets nemesis model
-        gCvarList[CVAR_NEMESIS_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
-
         // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_MELEE])) //! Give default
         {
@@ -118,23 +103,26 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_SECONDARY]);
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_PRIMARY]);
         }
+        
+        // Sets nemesis variable
+        gClientData[victimIndex][Client_Nemesis] = true;
+        
+        // Update zombie class
+        gClientData[victimIndex][Client_ZombieClass] = 0;
+        
+        // Sets health, speed and gravity and armor
+        ToolsSetClientHealth(victimIndex, (fnGetAlive() * gCvarList[CVAR_NEMESIS_HEALTH].IntValue), true);
+        ToolsSetClientLMV(victimIndex, gCvarList[CVAR_NEMESIS_SPEED].FloatValue); 
+        ToolsSetClientGravity(victimIndex, gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue);
+        ToolsSetClientArmor(victimIndex, 0);
+        
+        // Gets nemesis model
+        gCvarList[CVAR_NEMESIS_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
     }
     
     // Sets zombie properties
     else
     {
-        // Update zombie class
-        gClientData[victimIndex][Client_ZombieClass] = gClientData[victimIndex][Client_ZombieClassNext]; ZombieOnValidate(victimIndex);
-
-        // Sets health, speed and gravity and armor
-        ToolsSetClientHealth(victimIndex, ZombieGetHealth(gClientData[victimIndex][Client_ZombieClass]) + ((fnGetZombies() <= 1) ? (fnGetAlive() * gCvarList[CVAR_ZOMBIE_FISRT_HEALTH].IntValue) : (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToFloor((gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level]))) : 0)));
-        ToolsSetClientLMV(victimIndex, ZombieGetSpeed(gClientData[victimIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level])) : 0.0));
-        ToolsSetClientGravity(victimIndex, ZombieGetGravity(gClientData[victimIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level])) : 0.0));
-        ToolsSetClientArmor(victimIndex, 0);
-        
-        // Gets zombie model
-        ZombieGetModel(gClientData[victimIndex][Client_ZombieClass], sModel, sizeof(sModel));
-
         // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_MELEE])) //! Give default
         {
@@ -144,6 +132,18 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_PRIMARY]);
         }
         
+        // Update zombie class
+        gClientData[victimIndex][Client_ZombieClass] = gClientData[victimIndex][Client_ZombieClassNext]; ZombieOnValidate(victimIndex);
+
+        // Sets health, speed and gravity and armor
+        ToolsSetClientHealth(victimIndex, ZombieGetHealth(gClientData[victimIndex][Client_ZombieClass]) + ((fnGetZombies() <= 1) ? (fnGetAlive() * gCvarList[CVAR_ZOMBIE_FISRT_HEALTH].IntValue) : (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToFloor((gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level]))) : 0)), true);
+        ToolsSetClientLMV(victimIndex, ZombieGetSpeed(gClientData[victimIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level])) : 0.0));
+        ToolsSetClientGravity(victimIndex, ZombieGetGravity(gClientData[victimIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level])) : 0.0));
+        ToolsSetClientArmor(victimIndex, 0);
+        
+        // Gets zombie model
+        ZombieGetModel(gClientData[victimIndex][Client_ZombieClass], sModel, sizeof(sModel));
+
         // If help messages enable, then show 
         if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
         {
@@ -235,21 +235,6 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
     // Sets survivor properties
     if(survivorMode)
     {
-        // Sets survivor variable
-        gClientData[clientIndex][Client_Survivor] = true;
-    
-        // Update human class
-        gClientData[clientIndex][Client_HumanClass] = 0;
-        
-        // Sets survivor health, speed, gravity and armor
-        ToolsSetClientHealth(clientIndex, (fnGetAlive() * gCvarList[CVAR_SURVIVOR_HEALTH].IntValue));
-        ToolsSetClientLMV(clientIndex, gCvarList[CVAR_SURVIVOR_SPEED].FloatValue); 
-        ToolsSetClientGravity(clientIndex, gCvarList[CVAR_SURVIVOR_GRAVITY].FloatValue);
-        ToolsSetClientArmor(clientIndex, 0);
-        
-        // Gets survivor models
-        gCvarList[CVAR_SURVIVOR_ARM_MODEL].GetString(sArm, sizeof(sArm)); gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
-
         // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_MELEE])) //! Give default
         {
@@ -258,21 +243,24 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_SECONDARY]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_PRIMARY]);
         }
+        
+        // Sets survivor variable
+        gClientData[clientIndex][Client_Survivor] = true;
+    
+        // Update human class
+        gClientData[clientIndex][Client_HumanClass] = 0;
+        
+        // Sets survivor health, speed, gravity and armor
+        ToolsSetClientHealth(clientIndex, (fnGetAlive() * gCvarList[CVAR_SURVIVOR_HEALTH].IntValue), true);
+        ToolsSetClientLMV(clientIndex, gCvarList[CVAR_SURVIVOR_SPEED].FloatValue); 
+        ToolsSetClientGravity(clientIndex, gCvarList[CVAR_SURVIVOR_GRAVITY].FloatValue);
+        ToolsSetClientArmor(clientIndex, 0); 
+        
+        // Gets survivor models
+        gCvarList[CVAR_SURVIVOR_ARM_MODEL].GetString(sArm, sizeof(sArm)); gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sModel, sizeof(sModel));
     }
     else
     {
-        // Update human class
-        gClientData[clientIndex][Client_HumanClass] = gClientData[clientIndex][Client_HumanClassNext]; HumanOnValidate(clientIndex);
-
-        // Sets health, speed, gravity and armor
-        ToolsSetClientHealth(clientIndex, HumanGetHealth(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToFloor((gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level]))) : 0));
-        ToolsSetClientLMV(clientIndex, HumanGetSpeed(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
-        ToolsSetClientGravity(clientIndex, HumanGetGravity(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
-        ToolsSetClientArmor(clientIndex, (GetClientArmor(clientIndex) < HumanGetArmor(gClientData[clientIndex][Client_HumanClass])) ? HumanGetArmor(gClientData[clientIndex][Client_HumanClass]) : GetClientArmor(clientIndex));
-
-        // Gets human models
-        HumanGetArmModel(gClientData[clientIndex][Client_HumanClass], sArm, sizeof(sArm)); HumanGetModel(gClientData[clientIndex][Client_HumanClass], sModel, sizeof(sModel));
-
         // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_MELEE])) //! Give default
         {
@@ -282,6 +270,18 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_PRIMARY]);
         }
         
+        // Update human class
+        gClientData[clientIndex][Client_HumanClass] = gClientData[clientIndex][Client_HumanClassNext]; HumanOnValidate(clientIndex);
+
+        // Sets health, speed, gravity and armor
+        ToolsSetClientHealth(clientIndex, HumanGetHealth(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToFloor((gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level]))) : 0), true);
+        ToolsSetClientLMV(clientIndex, HumanGetSpeed(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
+        ToolsSetClientGravity(clientIndex, HumanGetGravity(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
+        ToolsSetClientArmor(clientIndex, (GetClientArmor(clientIndex) < HumanGetArmor(gClientData[clientIndex][Client_HumanClass])) ? HumanGetArmor(gClientData[clientIndex][Client_HumanClass]) : GetClientArmor(clientIndex));
+        
+        // Gets human models
+        HumanGetArmModel(gClientData[clientIndex][Client_HumanClass], sArm, sizeof(sArm)); HumanGetModel(gClientData[clientIndex][Client_HumanClass], sModel, sizeof(sModel));
+
         // If help messages enable, then show 
         if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
         {

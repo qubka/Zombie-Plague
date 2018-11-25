@@ -61,7 +61,7 @@ void SkillsOnClientInfected(const int clientIndex, const bool nemesisMode = fals
 }
 
 /**
- * Timer for restore a player health.
+ * Timer callback, restore a player health.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
@@ -187,7 +187,7 @@ void SkillsOnStart(const int clientIndex)
 }
 
 /**
- * Timer for remove a skill usage.
+ * Timer callback, remove a skill usage.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
@@ -220,7 +220,7 @@ public Action SkillsOnEnd(Handle hTimer, const int userID)
 }
 
 /**
- * Timer for the skill countdown.
+ * Timer callback, the skill countdown.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.

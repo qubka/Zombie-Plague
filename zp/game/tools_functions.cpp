@@ -451,11 +451,25 @@ stock void ToolsGetClientVelocity(const int clientIndex, float vecVelocity[3])
  *
  * @param clientIndex       The client index.
  * @param iValue            The health value.
+ * @param bSet              True to set maximum value, false to modify health.  
  **/
-stock void ToolsSetClientHealth(const int clientIndex, const int iValue)
+stock void ToolsSetClientHealth(const int clientIndex, const int iValue, const bool bSet = false)
 {
     // Sets health of client
     SetEntData(clientIndex, g_iOffset_PlayerHealth, iValue, _, true);
+    
+    // If set is true, then set max health
+    if(bSet) 
+    {
+        // Find the datamap
+        if(!g_iOffset_PlayerMaxHealth)
+        {
+            g_iOffset_PlayerMaxHealth  = FindDataMapInfo(clientIndex, "m_iMaxHealth");
+        }
+
+        // Sets max health of client
+        SetEntData(clientIndex, g_iOffset_PlayerMaxHealth, iValue, _, true);
+    }
 }
 
 /**

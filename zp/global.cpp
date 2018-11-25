@@ -59,6 +59,7 @@ int g_iOffset_PlayerFlashLight;
 int g_iOffset_EntityEffects;
 int g_iOffset_PlayerArmor;
 int g_iOffset_PlayerHealth;
+int g_iOffset_PlayerMaxHealth;
 int g_iOffset_PlayerGravity;
 int g_iOffset_PlayerFrags;
 int g_iOffset_PlayerDeath;

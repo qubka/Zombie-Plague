@@ -156,7 +156,7 @@ stock void AccountSetClientCash(const int clientIndex, int nAmmoPacks)
 }
 
 /**
- * Main timer for show HUD text within information about client account value. (ammopacks)
+ * Timer callback, show HUD text within information about client account value. (ammopacks)
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.

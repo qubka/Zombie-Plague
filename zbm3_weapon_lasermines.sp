@@ -1115,8 +1115,8 @@ stock bool IsPlayerDamageble(const int clientIndex, const float flDamageDelay)
     // Initialize variable
     static float flDamageTime[MAXPLAYERS+1];
     
-    // Gets time value for profiling the engine
-    float flCurrentTime = GetEngineTime();
+    // Gets the simulated game time
+    float flCurrentTime = GetTickedTime();
     
     // Validate delay
     if((flCurrentTime - flDamageTime[clientIndex]) < flDamageDelay)

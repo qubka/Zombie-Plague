@@ -166,8 +166,8 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     // Initialize variable
     static float flDelay[MAXPLAYERS+1];
     
-    // Gets time value for profiling the engine
-    float flCurrentTime = GetEngineTime();
+    // Gets the simulated game time
+    float flCurrentTime = GetTickedTime();
     
     // Cooldown don't over yet, then stop
     if(flCurrentTime - flDelay[clientIndex] < flCountDown)

@@ -207,7 +207,7 @@ void LevelSystemOnSetExp(const int clientIndex, const int nExperience)
 }
 
 /**
- * Main timer for show HUD text within information about client level and experience.
+ * Timer callback, show HUD text within information about client level and experience.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
