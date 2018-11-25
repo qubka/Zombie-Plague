@@ -95,6 +95,12 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
     // Sets nemesis properties
     if(nemesisMode)
     {
+        // Sets nemesis variable
+        gClientData[victimIndex][Client_Nemesis] = true;
+        
+        // Update zombie class
+        gClientData[victimIndex][Client_ZombieClass] = 0;
+        
         // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_MELEE])) //! Give default
         {
@@ -103,12 +109,6 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_SECONDARY]);
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_N_DEFAULT_PRIMARY]);
         }
-        
-        // Sets nemesis variable
-        gClientData[victimIndex][Client_Nemesis] = true;
-        
-        // Update zombie class
-        gClientData[victimIndex][Client_ZombieClass] = 0;
         
         // Sets health, speed and gravity and armor
         ToolsSetClientHealth(victimIndex, (fnGetAlive() * gCvarList[CVAR_NEMESIS_HEALTH].IntValue), true);
@@ -123,6 +123,9 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
     // Sets zombie properties
     else
     {
+        // Update zombie class
+        gClientData[victimIndex][Client_ZombieClass] = gClientData[victimIndex][Client_ZombieClassNext]; ZombieOnValidate(victimIndex);
+
         // Remove player weapons
         if(WeaponsRemoveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_MELEE])) //! Give default
         {
@@ -132,9 +135,6 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             WeaponsGiveAll(victimIndex, gCvarList[CVAR_Z_DEFAULT_PRIMARY]);
         }
         
-        // Update zombie class
-        gClientData[victimIndex][Client_ZombieClass] = gClientData[victimIndex][Client_ZombieClassNext]; ZombieOnValidate(victimIndex);
-
         // Sets health, speed and gravity and armor
         ToolsSetClientHealth(victimIndex, ZombieGetHealth(gClientData[victimIndex][Client_ZombieClass]) + ((fnGetZombies() <= 1) ? (fnGetAlive() * gCvarList[CVAR_ZOMBIE_FISRT_HEALTH].IntValue) : (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToFloor((gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level]))) : 0)), true);
         ToolsSetClientLMV(victimIndex, ZombieGetSpeed(gClientData[victimIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[victimIndex][Client_Level])) : 0.0));
@@ -235,6 +235,12 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
     // Sets survivor properties
     if(survivorMode)
     {
+        // Sets survivor variable
+        gClientData[clientIndex][Client_Survivor] = true;
+    
+        // Update human class
+        gClientData[clientIndex][Client_HumanClass] = 0;
+        
         // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_MELEE])) //! Give default
         {
@@ -243,12 +249,6 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_SECONDARY]);
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_S_DEFAULT_PRIMARY]);
         }
-        
-        // Sets survivor variable
-        gClientData[clientIndex][Client_Survivor] = true;
-    
-        // Update human class
-        gClientData[clientIndex][Client_HumanClass] = 0;
         
         // Sets survivor health, speed, gravity and armor
         ToolsSetClientHealth(clientIndex, (fnGetAlive() * gCvarList[CVAR_SURVIVOR_HEALTH].IntValue), true);
@@ -261,6 +261,9 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
     }
     else
     {
+        // Update human class
+        gClientData[clientIndex][Client_HumanClass] = gClientData[clientIndex][Client_HumanClassNext]; HumanOnValidate(clientIndex);
+
         // Remove player weapons
         if(WeaponsRemoveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_MELEE])) //! Give default
         {
@@ -270,9 +273,6 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
             WeaponsGiveAll(clientIndex, gCvarList[CVAR_H_DEFAULT_PRIMARY]);
         }
         
-        // Update human class
-        gClientData[clientIndex][Client_HumanClass] = gClientData[clientIndex][Client_HumanClassNext]; HumanOnValidate(clientIndex);
-
         // Sets health, speed, gravity and armor
         ToolsSetClientHealth(clientIndex, HumanGetHealth(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToFloor((gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level]))) : 0), true);
         ToolsSetClientLMV(clientIndex, HumanGetSpeed(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
