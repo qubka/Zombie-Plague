@@ -51,10 +51,6 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
         // If the client is alive, than continue
         if(IsPlayerAlive(clientIndex))
         {
-            //!! IMPORTANT BUG FIX !!//
-            // Ladder can reset gravity, so update it each frame
-            ToolsSetClientGravity(clientIndex, gClientData[clientIndex][Client_Nemesis] ? gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue : (gClientData[clientIndex][Client_Zombie] ? ZombieGetGravity(gClientData[clientIndex][Client_ZombieClass]) : HumanGetGravity(gClientData[clientIndex][Client_HumanClass])));
-
             // Update client position on the radar
             ToolsSetClientSpot(clientIndex, !gClientData[clientIndex][Client_Zombie]);
             

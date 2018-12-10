@@ -26,6 +26,54 @@
  **/
  
 /**
+ * Client is joining the server.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void JumpBoostClientInit(const int clientIndex)
+{
+    // Hook entity callbacks
+    SDKHook(clientIndex, SDKHook_GroundEntChangedPost, JumpBoostGroundEntChangedPost);
+}
+
+/**
+ * Hook: GroundEntChangedPost
+ * Called right before the entities touching ground.
+ * 
+ * @param clientIndex       The client index.
+ **/
+public void JumpBoostGroundEntChangedPost(const int clientIndex)
+{
+    // Verify that the client is exist
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+
+    // If not on the ground, then stop
+    if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
+    {
+        return;
+    }
+    
+    // Validate movetype
+    if(GetEntityMoveType(clientIndex) != MOVETYPE_LADDER)
+    {
+        // Is zombie ?
+        if(gClientData[clientIndex][Client_Zombie])
+        {
+            // Reset gravity
+            ToolsSetClientGravity(clientIndex, gClientData[clientIndex][Client_Nemesis] ? gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue : ZombieGetGravity(gClientData[clientIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
+        }   
+        else
+        {
+            // Reset gravity
+            ToolsSetClientGravity(clientIndex, gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_SURVIVOR_GRAVITY].FloatValue : HumanGetGravity(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
+        }
+    }
+}
+
+/**
  * Client is jumping.
  * 
  * @param clientIndex       The client index.

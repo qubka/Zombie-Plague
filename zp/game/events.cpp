@@ -97,6 +97,7 @@ public void OnClientPostAdminCheck(int clientIndex)
     AntiStickClientInit(clientIndex);
     DataBaseClientInit(clientIndex);
     CostumesClientInit(clientIndex);
+    JumpBoostClientInit(clientIndex);
 }
 
 /*

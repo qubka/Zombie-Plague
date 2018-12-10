@@ -120,7 +120,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "CSWeaponDrop");
+    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "CSWeaponDropBB");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
@@ -131,7 +131,7 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     if(!(hSDKCallCSWeaponDrop = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::CSWeaponDrop\". Update \"SourceMod\"");
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::CSWeaponDropBB\". Update \"SourceMod\"");
     }
 
     // Starts the preparation of an SDK call

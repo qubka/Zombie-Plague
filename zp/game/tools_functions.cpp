@@ -105,7 +105,7 @@ public Action ToolsOnGeneric(const int clientIndex, const char[] commandMsg, con
                 // Retrieves a command argument given its index
                 static char sArg[SMALL_LINE_LENGTH];
                 GetCmdArg(1, sArg, sizeof(sArg));
-                
+
                 // Gets team index
                 int iTeam = StringToInt(sArg);
 
@@ -198,6 +198,9 @@ public Action ToolsOnGeneric(const int clientIndex, const char[] commandMsg, con
                         }
                     }
                 }
+                
+                // Forward event to modules
+                VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
             }
         }
     }
@@ -664,7 +667,7 @@ stock void ToolsSetClientHud(const int clientIndex, const bool bEnable)
 stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
 {
     // Sets value on the client
-    SetEntData(clientIndex, g_iOffset_PlayerFlashLight, bEnable ? (GetEntData(clientIndex, g_iOffset_PlayerFlashLight) ^ EF_DIMLIGHT) : 0, _, true);
+    SetEntData(clientIndex, g_iOffset_EntityEffects, bEnable ? (GetEntData(clientIndex, g_iOffset_EntityEffects) ^ EF_DIMLIGHT) : 0, _, true);
 }
 
 /*_____________________________________________________________________________________________________*/
@@ -717,25 +720,31 @@ stock void ToolsUpdateTransmitState(const int entityIndex)
 /**
  * Validate the attachment on the entity.
  *
- * @param clientIndex       The entity index.
+ * @param entityIndex       The entity index.
  * @param sAttach           The attachment name.
  * @return                  True or false.
  **/
-bool ToolsLookupAttachment(const int entityIndex, const char[] sAttach)
+stock bool ToolsLookupAttachment(const int entityIndex, const char[] sAttach)
 {
-    return SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
+    return (strlen(sAttach) && SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach));
 }
 
 /**
  * Gets the attachment of the entity.
  *
- * @param clientIndex       The entity index.
+ * @param entityIndex       The entity index.
  * @param sAttach           The attachment name.
  * @param vOrigin           The origin ouput.
  * @param vAngle            The angle ouput.
  **/
-void ToolsGetAttachment(const int entityIndex, const char[] sAttach, float vOrigin[3], float vAngle[3])
+stock void ToolsGetAttachment(const int entityIndex, const char[] sAttach, float vOrigin[3], float vAngle[3])
 {
+    // Validate length
+    if(!strlen(sAttach))
+    {
+        return;
+    }
+    
     // Validate windows
     if(GameEnginePlatform(OS_Windows))
     {

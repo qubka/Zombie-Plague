@@ -108,6 +108,22 @@ native int ZP_GetCostumeSkin(int costumeID);
 native void ZP_GetCostumeAttach(int costumeID, char[] attach, int maxlenght = 32);
 
 /**
+ * @brief Gets the position of a costume at a given index.
+ *
+ * @param costumeID         The costume index.
+ * @param position          The vector to return position in.
+ **/
+native void ZP_GetCostumePosition(int costumeID, float position[3]);
+
+/**
+ * @brief Gets the angle of a costume at a given index.
+ *
+ * @param costumeID         The costume index.
+ * @param angle             The vector to return angle in.
+ **/
+native void ZP_GetCostumeAngle(int costumeID, float angle[3]);
+
+/**
  * @brief Gets the group of a costume at a given index.
  *
  * @param costumeID         The costume index.
@@ -123,6 +139,14 @@ native void ZP_GetCostumeGroup(int costumeID, char[] group, int maxlenght = 32);
  * @return                  True if costume is hide, false if not.
  **/
 native bool ZP_IsCostumeHide(int costumeID);
+
+/**
+ * @brief Gets the merge value of the costume.
+ *
+ * @param costumeID         The costume index.
+ * @return                  True if costume is merge, false if not.
+ **/
+native bool ZP_IsCostumeMerge(int costumeID);
 
 /**
  * @brief Gets the level of the costume.

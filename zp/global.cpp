@@ -55,7 +55,6 @@ int g_iOffset_PlayerSpotted;
 int g_iOffset_PlayerDetected;
 int g_iOffset_PlayerHUD;
 int g_iOffset_PlayerHitGroup;
-int g_iOffset_PlayerFlashLight;
 int g_iOffset_EntityEffects;
 int g_iOffset_PlayerArmor;
 int g_iOffset_PlayerHealth;

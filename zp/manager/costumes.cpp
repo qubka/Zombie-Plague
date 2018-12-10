@@ -40,8 +40,11 @@ enum
     COSTUMES_DATA_BODY,
     COSTUMES_DATA_SKIN,
     COSTUMES_DATA_ATTACH,
+    COSTUMES_DATA_POSITION,
+    COSTUMES_DATA_ANGLE,
     COSTUMES_DATA_GROUP,
     COSTUMES_DATA_HIDE,
+    COSTUMES_DATA_MERGE,
     COSTUMES_DATA_LEVEL
 }
 
@@ -65,7 +68,7 @@ int DHook_SetEntityModel;
 void CostumesClientInit(const int clientIndex)
 {
     #if defined USE_DHOOKS    
-        // Hook entity callbacks
+    // Hook entity callbacks
     DHookEntity(hDHookSetEntityModel, true, clientIndex);
     #else
         #pragma unused clientIndex
@@ -209,16 +212,21 @@ void CostumesCacheData(/*void*/)
         
         // Push data into array
         kvCostumes.GetString("model", sCostumesPath, sizeof(sCostumesPath), ""); 
-        arrayCostume.PushString(sCostumesPath);          // Index: 1
+        arrayCostume.PushString(sCostumesPath);                              // Index: 1
         ModelsPrecacheStatic(sCostumesPath);
-        arrayCostume.Push(kvCostumes.GetNum("body", 0)); // Index: 2
-        arrayCostume.Push(kvCostumes.GetNum("skin", 0)); // Index: 3
+        arrayCostume.Push(kvCostumes.GetNum("body", 0));                     // Index: 2
+        arrayCostume.Push(kvCostumes.GetNum("skin", 0));                     // Index: 3
         kvCostumes.GetString("attachment", sCostumesPath, sizeof(sCostumesPath), "facemask");  
-        arrayCostume.PushString(sCostumesPath);          // Index: 4
+        arrayCostume.PushString(sCostumesPath);                              // Index: 4
+        float vPosition[3]; kvCostumes.GetVector("position", vPosition);   
+        arrayCostume.PushArray(vPosition);                                   // Index: 5        
+        float vAngle[3]; kvCostumes.GetVector("angle", vAngle);
+        arrayCostume.PushArray(vAngle);                                      // Index: 6
         kvCostumes.GetString("group", sCostumesPath, sizeof(sCostumesPath), "");  
-        arrayCostume.PushString(sCostumesPath);          // Index: 5
-        arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no")); // Index: 6
-        arrayCostume.Push(kvCostumes.GetNum("level", 0)); // Index: 7
+        arrayCostume.PushString(sCostumesPath);                              // Index: 7
+        arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no"));  // Index: 8
+        arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "merge", "no")); // Index: 9
+        arrayCostume.Push(kvCostumes.GetNum("level", 0));                    // Index: 10
     }
     
     // We're done with this file now, so we can close it
@@ -445,6 +453,56 @@ public int API_GetCostumeAttach(Handle isPlugin, const int iNumParams)
 }
 
 /**
+ * Gets the position of a costume at a given id.
+ *
+ * native void ZP_GetCostumePosition(iD, position);
+ **/
+public int API_GetCostumePosition(Handle isPlugin, const int iNumParams)
+{
+    // Gets costume index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayCostumes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+        return -1;
+    }
+    
+    // Initialize position vector
+    static float vPosition[3];
+    CostumesGetPosition(iD, vPosition);
+
+    // Return on success
+    return SetNativeArray(2, vPosition, sizeof(vPosition));
+}
+
+/**
+ * Gets the angle of a costume at a given id.
+ *
+ * native void ZP_GetCostumeAngle(iD, angle);
+ **/
+public int API_GetCostumeAngle(Handle isPlugin, const int iNumParams)
+{
+    // Gets costume index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayCostumes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+        return -1;
+    }
+    
+    // Initialize angle vector
+    static float vAngle[3];
+    CostumesGetAngle(iD, vAngle);
+
+    // Return on success
+    return SetNativeArray(2, vAngle, sizeof(vAngle));
+}
+
+/**
  * Gets the group of a costume at a given id.
  *
  * native void ZP_GetCostumeGroup(iD, group, maxlen);
@@ -498,6 +556,27 @@ public int API_IsCostumeHide(Handle isPlugin, const int iNumParams)
     
     // Return the value 
     return CostumesIsHide(iD);
+}
+
+/**
+ * Gets the merge value of the costume.
+ *
+ * native bool ZP_IsCostumeMerge(iD);
+ **/
+public int API_IsCostumeMerge(Handle isPlugin, const int iNumParams)
+{    
+    // Gets costume index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayCostumes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+        return -1;
+    }
+    
+    // Return the value 
+    return CostumesIsMerge(iD);
 }
 
 /**
@@ -601,7 +680,37 @@ stock void CostumesGetAttach(const int iD, char[] sAttach, const int iMaxLen)
     
     // Gets costume attachment
     arrayCostume.GetString(COSTUMES_DATA_ATTACH, sAttach, iMaxLen);
-} 
+}
+
+/**
+ * Gets the position of a costume at a given index.
+ *
+ * @param iD                The costume index.
+ * @param vPosition         The vector to return position in.
+ **/
+stock void CostumesGetPosition(const int iD, float vPosition[3])
+{
+    // Gets array handle of costume at given index
+    ArrayList arrayCostume = arrayCostumes.Get(iD);
+    
+    // Gets costume position
+    arrayCostume.GetArray(COSTUMES_DATA_POSITION, vPosition, sizeof(vPosition));
+}
+
+/**
+ * Gets the anlge of a costume at a given index.
+ *
+ * @param iD                The costume index.
+ * @param vAngle            The vector to return angle in.
+ **/
+stock void CostumesGetAngle(const int iD, float vAngle[3])
+{
+    // Gets array handle of costume at given index
+    ArrayList arrayCostume = arrayCostumes.Get(iD);
+    
+    // Gets costume angle
+    arrayCostume.GetArray(COSTUMES_DATA_ANGLE, vAngle, sizeof(vAngle));
+}
 
 /**
  * Gets the access group of a costume at a given index.
@@ -632,6 +741,21 @@ stock bool CostumesIsHide(const int iD)
     
     // Return true if costume is hide, false if not
     return arrayCostume.Get(COSTUMES_DATA_HIDE);
+}
+
+/**
+ * Retrieve costume merge value.
+ * 
+ * @param iD                The costume index.
+ * @return                  True if costume is merged, false if not.
+ **/
+stock bool CostumesIsMerge(const int iD)
+{
+    // Gets array handle of costume at given index
+    ArrayList arrayCostume = arrayCostumes.Get(iD);
+    
+    // Return true if costume is merged, false if not
+    return arrayCostume.Get(COSTUMES_DATA_MERGE);
 }
 
 /**
@@ -849,56 +973,88 @@ public void CostumesCreateEntity(const int clientIndex)
             return;
         }
 
-        // Gets costume attachment
-        static char sAttach[SMALL_LINE_LENGTH];
-        CostumesGetAttach(gClientData[clientIndex][Client_Costume], sAttach, sizeof(sAttach)); 
-
-        // Validate attachment
-        if(ToolsLookupAttachment(clientIndex, sAttach))
+        // Create an attach addon entity 
+        entityIndex = CreateEntityByName("prop_dynamic_override");
+        
+        // If entity isn't valid, then skip
+        if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Create an attach addon entity 
-            entityIndex = CreateEntityByName("prop_dynamic_override");
+            // Gets costume model
+            static char sModel[PLATFORM_MAX_PATH];
+            CostumesGetModel(gClientData[clientIndex][Client_Costume], sModel, sizeof(sModel)); 
+
+            // Dispatch main values of the entity
+            DispatchKeyValue(entityIndex, "model", sModel);
+            DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
+            DispatchKeyValue(entityIndex, "solid", "0");
+           
+            // Sets bodygroup of the entity
+            SetVariantInt(CostumesGetBody(gClientData[clientIndex][Client_Costume]));
+            AcceptEntityInput(entityIndex, "SetBodyGroup");
             
-            // If entity isn't valid, then skip
-            if(entityIndex != INVALID_ENT_REFERENCE)
+            // Sets skin of the entity
+            SetVariantInt(CostumesGetSkin(gClientData[clientIndex][Client_Costume]));
+            AcceptEntityInput(entityIndex, "ModelSkin");
+            
+            // Spawn the entity into the world
+            DispatchSpawn(entityIndex);
+            
+            // Sets parent to the entity
+            SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
+            
+            // Sets parent to the client
+            SetVariantString("!activator");
+            AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
+
+            // Gets costume attachment
+            static char sAttach[SMALL_LINE_LENGTH];
+            CostumesGetAttach(gClientData[clientIndex][Client_Costume], sAttach, sizeof(sAttach)); 
+
+            // Validate attachment
+            if(ToolsLookupAttachment(clientIndex, sAttach))
             {
-                // Gets costume model
-                static char sModel[PLATFORM_MAX_PATH];
-                CostumesGetModel(gClientData[clientIndex][Client_Costume], sModel, sizeof(sModel)); 
-
-                // Dispatch main values of the entity
-                DispatchKeyValue(entityIndex, "model", sModel);
-                DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
-                DispatchKeyValue(entityIndex, "solid", "0");
-               
-                // Sets bodygroup of the entity
-                SetVariantInt(CostumesGetBody(gClientData[clientIndex][Client_Costume]));
-                AcceptEntityInput(entityIndex, "SetBodyGroup");
-                
-                // Sets skin of the entity
-                SetVariantInt(CostumesGetSkin(gClientData[clientIndex][Client_Costume]));
-                AcceptEntityInput(entityIndex, "ModelSkin");
-                
-                // Spawn the entity into the world
-                DispatchSpawn(entityIndex);
-                
-                // Sets parent to the entity
-                SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
-                
-                // Sets parent to the client
-                SetVariantString("!activator");
-                AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
-
                 // Sets attachment to the client
                 SetVariantString(sAttach);
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
-                
-                // Hook entity callbacks
-                if(CostumesIsHide(gClientData[clientIndex][Client_Costume])) SDKHook(entityIndex, SDKHook_SetTransmit, CostumesOnTransmit);
-                
-                // Store the client cache
-                gClientData[clientIndex][Client_AttachmentCostume] = EntIndexToEntRef(entityIndex);
             }
+            else
+            {
+                // Initialize vector variables
+                static float vOrigin[3]; static float vAngle[3]; static float vEntOrigin[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
+
+                // Gets client position
+                GetClientAbsOrigin(clientIndex, vOrigin); 
+                GetClientAbsAngles(clientIndex, vAngle);
+                
+                // Gets costume position
+                CostumesGetPosition(gClientData[clientIndex][Client_Costume], vEntOrigin);
+                CostumesGetAngle(gClientData[clientIndex][Client_Costume], vEntAngle);
+                
+                // Gets location angles
+                vAngle[0] += vEntAngle[0];
+                vAngle[1] += vEntAngle[1];
+                vAngle[2] += vEntAngle[2];
+                
+                // Returns vectors in the direction of an angle
+                GetAngleVectors(vAngle, vForward, vRight, vVertical);
+                
+                // Calculate ends point by applying all vectors distances 
+                vOrigin[0] += (vForward[0] * vEntOrigin[0]) + (vRight[0] * vEntOrigin[1]) + (vVertical[0] * vEntOrigin[2]);
+                vOrigin[1] += (vForward[1] * vEntOrigin[0]) + (vRight[1] * vEntOrigin[1]) + (vVertical[1] * vEntOrigin[2]);
+                vOrigin[2] += (vForward[2] * vEntOrigin[0]) + (vRight[2] * vEntOrigin[1]) + (vVertical[2] * vEntOrigin[2]);
+
+                // Spawn the entity
+                TeleportEntity(entityIndex, vOrigin, vAngle, NULL_VECTOR);
+            }
+        
+            // Validate merging
+            if(CostumesIsMerge(gClientData[clientIndex][Client_Costume])) CostumesBoneMerge(entityIndex);
+
+            // Hook entity callbacks
+            if(CostumesIsHide(gClientData[clientIndex][Client_Costume])) SDKHook(entityIndex, SDKHook_SetTransmit, CostumesOnTransmit);
+            
+            // Store the client cache
+            gClientData[clientIndex][Client_AttachmentCostume] = EntIndexToEntRef(entityIndex);
         }
     }
 }
@@ -945,4 +1101,23 @@ public Action CostumesOnTransmit(const int entityIndex, const int clientIndex)
 
     // Allow transmitting
     return Plugin_Continue;
+}
+
+/**
+ * Performs bone merge on the client side.
+ *
+ * @param entityIndex       The entity index.
+ **/
+void CostumesBoneMerge(const int entityIndex)
+{
+    // Gets the current effects
+    int iEffects = GetEntData(entityIndex, g_iOffset_EntityEffects); 
+
+    // Set merging
+    iEffects &= ~EF_NODRAW;
+    iEffects |= EF_BONEMERGE;
+    iEffects |= EF_BONEMERGE_FASTCULL;
+
+    // Sets value on the entity
+    SetEntData(entityIndex, g_iOffset_EntityEffects, iEffects); 
 }

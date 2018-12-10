@@ -8,30 +8,34 @@
             // You can update them only by yourself using tutorial in the link
             "Entity_UpdateTransmitState"
             {
-                "windows"    "21"
-                "linux"      "22"
-                "mac"        "22"
+                "windows"	"22"
+                "linux"		"23"
+                "linux64"	"23"
+                "mac64"		"23"
             }
             // See https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
             "Animating_StudioHdr"
             {
-                "windows"    "68"
-                "linux"      "68"
-                "mac"        "68"
+                "windows"	"68"
+                "linux"		"68"
+                "linux64"	"68"
+                "mac64"		"68"
             }
             // See https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L2133
             "StudioHdrStruct_SequenceCount"
             {
-                "windows"    "188"
-                "linux"      "188"
-                "mac"        "188"
+                "windows"	"188"
+                "linux"		"188"
+                "linux64"	"188"
+                "mac64"		"188"
             }
             // See https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L1729
             "VirtualModelStruct_SequenceVector_Size"
             {
-                "windows"    "20"
-                "linux"      "20"
-                "mac"        "20"
+                "windows"	"20"
+                "linux"		"20"
+                "linux64"	"20"
+                "mac64"		"20"
             }
             
             // Offset from the 'Counter-Strike:Source Deathmatch' ( https://github.com/alliedmodders/cssdm )
@@ -39,24 +43,27 @@
             // Change them if the offset out of date and use the last cssdm repository
             "Weapon_RemoveAllItems"
             {
-                "windows"    "385"
-                "linux"      "386"
-                "mac"        "386"
+                "windows"	"388"
+                "linux"		"389"
+                "linux64"	"389"
+                "mac64"		"389"
             }
             
             // Offsets from the engine ( https://forums.alliedmods.net/showthread.php?t=191171 )
             // You can update them only by yourself using tutorial in the link
             "Weapon_GetMaxClip1"
             {
-                "windows"    "347"
-                "linux"      "353"
-                "mac"        "353"
+                "windows"	"350"
+                "linux"		"356"
+                "linux64"	"356"
+                "mac64"		"356"
             }
             "Weapon_GetReserveAmmoMax"
             {
-                "windows"    "351"
-                "linux"      "357"
-                "mac"        "357"
+                "windows"	"354"
+                "linux"		"360"
+                "linux64"	"360"
+                "mac64"		"360"
             }
         }
 
@@ -65,7 +72,7 @@
         "Signatures"
         {
             // Linux will rename with 'sub__'
-            // Find GetSequenceActivity(v3, a2, 0) with Str: "SelectWeightedSequence" and using it's x-ref try to find that function  
+            // Find v4 = (GetSequenceActivity(a1, 0, 0) == a2) - 1; with Str: "SelectWeightedSequence" and using it's x-ref try to find that function  
             ///signed int __cdecl CBaseAnimating::GetSequenceActivity(CBaseAnimating *this, int a2)
             ///{
             ///  signed int result; // eax
@@ -84,12 +91,29 @@
             ///  }
             ///  return result;
             ///}
-            // For Windows Str : "AdvanceToIdealActivity calling SetActivityAndSequence because of change %s\n"
+            // For Windows Str : "Need to handle the activity %d\n"
+            ///  v2 = CBaseAnimating::GetSequenceActivity(*((CBaseAnimating **)this + 7), *(_DWORD *)(*((_DWORD *)this + 7) + 1004));
+            ///  if ( v2 == 29 || v2 == 6 || v2 == 30 || v2 == 1 || v2 == 462 || v2 == 396 || v2 == 146 )
+            ///  {
+            ///    *((_DWORD *)this + 68) = 1120403456;
+            ///  }
+            ///  else if ( v2 != 31 && v2 != 10 )
+            ///  {
+            ///     if ( v2 == 45 || v2 == 12 )
+            ///     {
+            ///         *((_DWORD *)this + 68) = 1118437376;
+            ///     }
+            ///     else
+            ///     {
+            ///         DevMsg("Need to handle the activity %d\n", v2);
+            ///     }
             "Animating_GetSequenceActivity" // Str: "SelectWeightedSequence" 
             {
                 "library"    "server"
                 "windows"    "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
                 "linux"      "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
+                //"linux64"  "" ~ Will be updated in future
+                //"mac64"    ""	~ Will be updated in future
             }
             
             // Linux will rename with 'sub__'
@@ -104,17 +128,21 @@
             ///    Warning("Missing weapon hand bone attachment for player model.\n");
             ///    CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
             ///} 
-            "Animating_LookupAttachment" // Str: "weapon_hand_R"
+            "Animating_LookupAttachment" // Str: "weapon_bone"
             { 
                 "library"    "server" 
-                "windows"    "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\x9C\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\x9C\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
-                "linux"      "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x8B\xB4\x04\x00\x00\x85\xC9\x74\x2A\x8B\x83\xB4\x04\x00\x00\x85\xC0\x74\x2A\x8B\x10\x85\xD2\x74\x2A\x8B\x55\x0C\x89\x04\x24" 
+                "windows"    "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
+                "linux"      "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x18\x85\xDB" 
+                //"linux64"  ""
+                //"mac64"    ""
             }  
-            "Animating_GetAttachment" // Str: "vehicle_driver_eyes"
+            "Animating_GetAttachment" // Str: "weapon_bone"
             {
-                "library"    "server" 
-                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\xF9\x83\xBF\x9C\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\x9C\x04\x00\x00\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08"
+                "library"    "server"            
+                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
                 "linux"      "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
+                //"linux64"  "" ~ Will be updated in future
+                //"mac64"    ""	~ Will be updated in future
             }
         }
     }

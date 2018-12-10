@@ -209,8 +209,11 @@ void APINativesInit(/*void*/)
     CreateNative("ZP_GetCostumeBody",                 API_GetCostumeBody);
     CreateNative("ZP_GetCostumeSkin",                 API_GetCostumeSkin);
     CreateNative("ZP_GetCostumeAttach",               API_GetCostumeAttach);
+    CreateNative("ZP_GetCostumePosition",             API_GetCostumePosition);
+    CreateNative("ZP_GetCostumeAngle",                API_GetCostumeAngle);
     CreateNative("ZP_GetCostumeGroup",                API_GetCostumeGroup);
     CreateNative("ZP_IsCostumeHide",                  API_IsCostumeHide);
+    CreateNative("ZP_IsCostumeMerge",                 API_IsCostumeMerge);
     CreateNative("ZP_GetCostumeLevel",                API_GetCostumeLevel);
 }
 
