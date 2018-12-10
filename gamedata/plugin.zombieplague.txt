@@ -8,34 +8,34 @@
             // You can update them only by yourself using tutorial in the link
             "Entity_UpdateTransmitState"
             {
-                "windows"	"22"
-                "linux"		"23"
-                "linux64"	"23"
-                "mac64"		"23"
+                "windows"    "22"
+                "linux"      "23"
+                "linux64"    "23"
+                "mac64"      "23"
             }
             // See https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
             "Animating_StudioHdr"
             {
-                "windows"	"68"
-                "linux"		"68"
-                "linux64"	"68"
-                "mac64"		"68"
+                "windows"    "68"
+                "linux"      "68"
+                "linux64"    "68"
+                "mac64"      "68"
             }
             // See https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L2133
             "StudioHdrStruct_SequenceCount"
             {
-                "windows"	"188"
-                "linux"		"188"
-                "linux64"	"188"
-                "mac64"		"188"
+                "windows"    "188"
+                "linux"      "188"
+                "linux64"    "188"
+                "mac64"      "188"
             }
             // See https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L1729
             "VirtualModelStruct_SequenceVector_Size"
             {
-                "windows"	"20"
-                "linux"		"20"
-                "linux64"	"20"
-                "mac64"		"20"
+                "windows"    "20"
+                "linux"      "20"
+                "linux64"    "20"
+                "mac64"      "20"
             }
             
             // Offset from the 'Counter-Strike:Source Deathmatch' ( https://github.com/alliedmodders/cssdm )
@@ -43,27 +43,27 @@
             // Change them if the offset out of date and use the last cssdm repository
             "Weapon_RemoveAllItems"
             {
-                "windows"	"388"
-                "linux"		"389"
-                "linux64"	"389"
-                "mac64"		"389"
+                "windows"    "388"
+                "linux"      "389"
+                "linux64"    "389"
+                "mac64"      "389"
             }
             
             // Offsets from the engine ( https://forums.alliedmods.net/showthread.php?t=191171 )
             // You can update them only by yourself using tutorial in the link
             "Weapon_GetMaxClip1"
             {
-                "windows"	"350"
-                "linux"		"356"
-                "linux64"	"356"
-                "mac64"		"356"
+                "windows"    "350"
+                "linux"      "356"
+                "linux64"    "356"
+                "mac64"      "356"
             }
             "Weapon_GetReserveAmmoMax"
             {
-                "windows"	"354"
-                "linux"		"360"
-                "linux64"	"360"
-                "mac64"		"360"
+                "windows"    "354"
+                "linux"      "360"
+                "linux64"    "360"
+                "mac64"      "360"
             }
         }
 
@@ -107,13 +107,14 @@
             ///     {
             ///         DevMsg("Need to handle the activity %d\n", v2);
             ///     }
+            ///  }
             "Animating_GetSequenceActivity" // Str: "SelectWeightedSequence" 
             {
                 "library"    "server"
                 "windows"    "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
                 "linux"      "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
                 //"linux64"  "" ~ Will be updated in future
-                //"mac64"    ""	~ Will be updated in future
+                //"mac64"    "" ~ Will be updated in future
             }
             
             // Linux will rename with 'sub__'
@@ -142,7 +143,7 @@
                 "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
                 "linux"      "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
                 //"linux64"  "" ~ Will be updated in future
-                //"mac64"    ""	~ Will be updated in future
+                //"mac64"    "" ~ Will be updated in future
             }
         }
     }
