@@ -43,7 +43,8 @@ void DamageClientInit(const int clientIndex)
 void DamageOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_NEMESIS_KNOCKBACK]           = FindConVar("zp_nemesis_knockback"); 
+    gCvarList[CVAR_JUMPBOOST_KNOCKBACK]         = FindConVar("zp_jumpboost_knockback");
+    gCvarList[CVAR_NEMESIS_KNOCKBACK]           = FindConVar("zp_nemesis_knockback");
     
     // Create server cvars
     gCvarList[CVAR_SERVER_FRIENDLY_FIRE]        = FindConVar("mp_friendlyfire");
@@ -420,8 +421,15 @@ stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex
  * @param attackerIndex     The attacker index.
  * @param knockbackAmount   The knockback multiplier.
  **/
-stock void DamageOnClientKnockBack(const int victimIndex, const int attackerIndex, const float knockbackAmount)
+stock void DamageOnClientKnockBack(const int victimIndex, const int attackerIndex, float knockbackAmount)
 {
+    // If victim is not on the ground, then apply it
+    if(!(GetEntityFlags(victimIndex) & FL_ONGROUND))
+    {
+        // Apply knockback jumpboost multiplier
+        knockbackAmount *= gCvarList[CVAR_JUMPBOOST_KNOCKBACK].FloatValue;
+    }
+    
     // Validate amount
     if(!knockbackAmount)
     {

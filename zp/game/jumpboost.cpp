@@ -50,7 +50,7 @@ void JumpBoostOnCvarInit(/*void*/)
     // Create boost cvars
     gCvarList[CVAR_JUMPBOOST_ENABLE]            = FindConVar("zp_jumpboost_enable");
     gCvarList[CVAR_JUMPBOOST_MULTIPLIER]        = FindConVar("zp_jumpboost_multiplier");
-    gCvarList[CVAR_JUMPBOOST_MAX]               = FindConVar("zp_jumpboost_max");
+    gCvarList[CVAR_JUMPBOOST_MAX]               = FindConVar("zp_jumpboost_max"); 
     
     // Create leap cvars
     gCvarList[CVAR_LEAP_ZOMBIE]                 = FindConVar("zp_leap_zombies");
