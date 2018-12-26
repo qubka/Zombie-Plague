@@ -62,16 +62,9 @@ void JumpBoostOnCvarInit(/*void*/)
     gCvarList[CVAR_LEAP_SURVIVOR]               = FindConVar("zp_leap_survivor");
     gCvarList[CVAR_LEAP_SURVIVOR_FORCE]         = FindConVar("zp_leap_survivor_force");
     gCvarList[CVAR_LEAP_SURVIVOR_COUNTDOWN]     = FindConVar("zp_leap_survivor_cooldown");
-    
-    // Create server cvars
-    gCvarList[CVAR_SERVER_CLAMP]                = FindConVar("sv_clamp_unsafe_velocities");
-    
-    // Sets locked cvars to their locked value
-    gCvarList[CVAR_SERVER_CLAMP].IntValue = 0;
-    
+
     // Hook cvars
     HookConVarChange(gCvarList[CVAR_JUMPBOOST_ENABLE],            JumpBoostCvarsHookEnable);
-    HookConVarChange(gCvarList[CVAR_SERVER_CLAMP],                CvarsHookLocked);
 }
 
 /**

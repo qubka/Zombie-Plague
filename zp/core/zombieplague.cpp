@@ -738,3 +738,16 @@ stock void RemoveCommandListener2(CommandListener hCallBack, const char[] sComma
     AddCommandListener(hCallBack, sCommand);
     RemoveCommandListener(hCallBack, sCommand);
 }
+
+/**
+ * Removes a hook for when a console variable's value is changed.
+ *
+ * @param hConVar           The handle to the convar.
+ * @param hCallBack		    An OnConVarChanged function pointer.
+ * @error				    No errors..
+ **/
+stock void UnhookConVarChange2(ConVar hConVar, ConVarChanged hCallBack)
+{
+    HookConVarChange(hConVar, hCallBack);
+    UnhookConVarChange(hConVar, hCallBack);
+}

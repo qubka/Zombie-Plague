@@ -716,8 +716,8 @@ public void ClassCvarsHookZombieVision(ConVar hConVar, const char[] oldValue, co
         gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS].IntValue = 0;
         
         // Remove hooks
-        UnhookConVarChange(gCvarList[CVAR_SERVER_OCCULUSE],             CvarsHookLocked);
-        UnhookConVarChange(gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS],     CvarsHookUnlocked);
+        UnhookConVarChange2(gCvarList[CVAR_SERVER_OCCULUSE],             CvarsHookLocked);
+        UnhookConVarChange2(gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS],     CvarsHookUnlocked);
         return;
     }
     
