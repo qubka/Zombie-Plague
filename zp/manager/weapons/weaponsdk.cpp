@@ -725,9 +725,13 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
         return;
     }
     
-    // Make the first viewmodel visible
-    WeaponHDRSetEntityVisibility(viewModel1, true);
+    // Make the first viewmodel invisible
+    WeaponHDRSetEntityVisibility(viewModel1, false);
     ToolsUpdateTransmitState(viewModel1);
+    
+    // Make the second viewmodel invisible
+    WeaponHDRSetEntityVisibility(viewModel2, false);
+    ToolsUpdateTransmitState(viewModel2);
 
     // Validate weapon
     if(IsValidEdict(weaponIndex))
