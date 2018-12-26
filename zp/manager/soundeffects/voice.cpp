@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          voice.cpp
  *  Type:          Module 
  *  Description:   Alter listening/speaking states of humans/zombies.
  *
- *  Copyright (C) 2015-2018  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,17 @@
  * Updates every round with the value of the cvar.
  **/
 bool g_bVoice;
+
+/**
+ * Hook voice cvar changes.
+ **/
+void VoiceOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_SEFFECTS_ALLTALK]            = FindConVar("sv_alltalk");
+    gCvarList[CVAR_SEFFECTS_VOICE]              = FindConVar("zp_seffects_voice");
+    gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE] = FindConVar("zp_seffects_voice_zombies_mute");
+}
 
 /**
  * The round is starting.

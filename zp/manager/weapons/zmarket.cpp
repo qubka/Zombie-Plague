@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          zmarket.cpp
  *  Type:          Module
  *  Description:   ZMarket module, provides menu of weapons to buy from.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,23 +31,22 @@
 ArrayList arrayShoppingList[MAXPLAYERS+1];
 
 /**
- * Create commands specific to ZMarket. Called when commands are created.
+ * Creates commands for market module.
  **/
 void ZMarketOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zweaponmenu", ZMarketCommandCatched, "Open the weapons menu.");
+    RegConsoleCmd("zp_weapon_menu", ZMarketCommandCatched, "Open the weapons menu.");
 }
 
 /**
- * Handles the <!zweaponmenu> command. Open the weapons menu.
+ * Handles the <!zp_weapon_menu> command. Open the weapons menu.
  * 
  * @param clientIndex        The client index.
  * @param iArguments         The number of arguments that were in the argument string.
  **/ 
 public Action ZMarketCommandCatched(const int clientIndex, const int iArguments)
 {
-    // Open the weapon menu
     ZMarketMenu(clientIndex);
     return Plugin_Handled;
 }
@@ -273,11 +272,11 @@ void ZMarketSubMenu(const int clientIndex, const char[] sTitle, const int mSlot 
             // Format some chars for showing in menu
             Format(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(i));
             Format(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(i));      
-            Format(sBuffer, sizeof(sBuffer), (WeaponsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, strlen(sGroup) ? sGroup : (gClientData[clientIndex][Client_Level] < WeaponsGetLevel(i)) ? sLevel : (fnGetPlaying() < WeaponsGetOnline(i)) ? sOnline : "", "price", WeaponsGetCost(i), "ammopack");
+            Format(sBuffer, sizeof(sBuffer), (WeaponsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, hasLength(sGroup) ? sGroup : (gClientData[clientIndex][Client_Level] < WeaponsGetLevel(i)) ? sLevel : (fnGetPlaying() < WeaponsGetOnline(i)) ? sOnline : "", "price", WeaponsGetCost(i), "ammopack");
    
             // Show option
             IntToString(i, sInfo, sizeof(sInfo));
-            hSubMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || (WeaponsIsExist(clientIndex, i) || gClientData[clientIndex][Client_Level] < WeaponsGetLevel(i) || fnGetPlaying() < WeaponsGetOnline(i) || gClientData[clientIndex][Client_AmmoPacks] < WeaponsGetCost(i)) ? false : true));
+            hSubMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw((!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) || (WeaponsIsExist(clientIndex, i) || gClientData[clientIndex][Client_Level] < WeaponsGetLevel(i) || fnGetPlaying() < WeaponsGetOnline(i) || gClientData[clientIndex][Client_AmmoPacks] < WeaponsGetCost(i)) ? false : true));
         }
     }
     // Otherwise open rebuy menu
@@ -395,10 +394,10 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, const int clie
             }
 
             // Validate primary/secondary weapon
-            if(!!strcmp(sWeaponName[7], "taser", false)) 
+            if(!!strcmp(sWeaponName[7], "taser", false))
             {
                 // Drop weapon
-                WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == 1) ? view_as<int>(SlotType_Secondary) : view_as<int>(SlotType_Primary)));
+                WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == 1) ? view_as<int>(SlotType_Secondary) : ((WeaponsGetSlot(iD) == 6) ? view_as<int>(SlotType_Melee) : view_as<int>(SlotType_Primary))));
             }
             
             // Gets weapon name
@@ -428,7 +427,7 @@ public int ZMarketMenuSubSlots(Menu hSubMenu, MenuAction mAction, const int clie
                         WeaponsGetInfo(iD, sWeaponName, sizeof(sWeaponName));
                         
                         // Show weapon personal info
-                        if(strlen(sWeaponName)) TranslationPrintHintText(clientIndex, sWeaponName);
+                        if(hasLength(sWeaponName)) TranslationPrintHintText(clientIndex, sWeaponName);
                     }
                 }
             }

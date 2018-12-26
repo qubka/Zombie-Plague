@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          weaponsdk.cpp
  *  Type:          Module
  *  Description:   Weapon alpha functions, and alpha updating on drop/pickup.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin). Regards to Andersso
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin). Regards to Andersso
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -250,6 +250,16 @@ void WeaponSDKUnload(/*void*/)
 }
 
 /**
+ * Creates commands for sdk module.
+ **/
+void WeaponSDKOnCommandsCreate(/*void*/)
+{
+    // Hook listeners
+    AddCommandListener(WeaponSDKOnAmmunition, "buyammo1");
+    AddCommandListener(WeaponSDKOnAmmunition, "buyammo2");
+}
+
+/**
  * Client is joining the server.
  * 
  * @param clientIndex       The client index.  
@@ -262,16 +272,6 @@ void WeaponSDKClientInit(const int clientIndex)
     SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponSDKOnDeployPost);
     SDKHook(clientIndex, SDKHook_WeaponDrop , WeaponSDKOnDrop);
     SDKHook(clientIndex, SDKHook_PostThinkPost, WeaponSDKOnAnimationFix);
-}
-
-/**
- * Hook commands specific to buy ammunition. Called when commands are created.
- **/
-void WeaponSDKOnCommandsCreate(/*void*/)
-{
-    // Hook listeners
-    AddCommandListener(WeaponSDKOnAmmunition, "buyammo1");
-    AddCommandListener(WeaponSDKOnAmmunition, "buyammo2");
 }
 
 /**
@@ -377,7 +377,7 @@ public void WeaponSDKOnFakeWeaponReload(const int referenceIndex)
  *
  * @param itemIndex         The item index.
  **/
-public void WeaponSDKOnItemSpawn(const int itemIndex)
+void WeaponSDKOnItemSpawn(const int itemIndex)
 {
     // Validate item
     if(IsValidEdict(itemIndex)) 
@@ -393,7 +393,7 @@ public void WeaponSDKOnItemSpawn(const int itemIndex)
  *
  * @param weaponIndex       The weapon index.
  **/
-public void WeaponSDKOnWeaponSpawn(const int weaponIndex)
+void WeaponSDKOnWeaponSpawn(const int weaponIndex)
 {
     // Validate weapon
     if(IsValidEdict(weaponIndex)) 
@@ -509,23 +509,19 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
                 // Duplicate index to the projectile for future use
                 WeaponsSetCustomID(grenadeIndex, iD);
 
-                // If custom weapons models disabled, then skip
-                if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
+                // If dropmodel exist, then apply it
+                if(WeaponsGetModelDropID(iD))
                 {
-                    // If dropmodel exist, then apply it
-                    if(WeaponsGetModelDropID(iD))
-                    {
-                        // Gets weapon dropmodel
-                        static char sModel[PLATFORM_MAX_PATH];
-                        WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
+                    // Gets weapon dropmodel
+                    static char sModel[PLATFORM_MAX_PATH];
+                    WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
 
-                        // Sets the model entity for the grenade
-                        SetEntityModel(grenadeIndex, sModel);
-                        
-                        // Sets the body/skin index for the grenade
-                        SetEntData(grenadeIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_Projectile), _, true);
-                        SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_Projectile), _, true);
-                    }
+                    // Sets the model entity for the grenade
+                    SetEntityModel(grenadeIndex, sModel);
+                    
+                    // Sets the body/skin index for the grenade
+                    SetEntData(grenadeIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_Projectile), _, true);
+                    SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_Projectile), _, true);
                 }
                 
                 // Call forward
@@ -544,15 +540,11 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
  **/
 public Action WeaponSDKOnDrop(const int clientIndex, const int weaponIndex)
 {
-    // If custom weapons models disabled, then skip
-    if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
+    // Validate weapon
+    if(IsValidEdict(weaponIndex))
     {
-        // Validate weapon
-        if(IsValidEdict(weaponIndex))
-        {
-            // Apply dropped model on the next frame
-            RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), EntIndexToEntRef(weaponIndex));
-        }
+        // Apply dropped model on the next frame
+        RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), EntIndexToEntRef(weaponIndex));
     }
     
     // Allow drop
@@ -608,16 +600,17 @@ public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
                 return Plugin_Handled;
             }
             
-            // Validate bomb
-            if(WeaponsValidateBomb(weaponIndex))
+            // Validate knife
+            if(WeaponsValidateKnife(weaponIndex))
             {
-                // Gets weapon name
-                static char sName[SMALL_LINE_LENGTH];
-                WeaponsGetName(iD, sName, sizeof(sName));
- 
-                // Give the new bomb
-                AcceptEntityInput(weaponIndex, "Kill"); //! Destroy
-                WeaponsGive(clientIndex, sName);
+                // If the slot is empty, then pick up
+                WeaponsPickUp(clientIndex, weaponIndex, iD, SlotType_Melee);
+            }
+            // Validate bomb
+            else if(WeaponsValidateBomb(weaponIndex))
+            {
+                // If the slot is empty, then pick up
+                WeaponsPickUp(clientIndex, weaponIndex, iD, SlotType_C4);
             }
         }
     }
@@ -772,18 +765,14 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
                 SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flDeploy, true);
             }
     
-            // If custom weapons models disabled, then skip
-            if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
+            // If view/world model exist, then set them
+            if(WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || ((WeaponsValidateKnife(weaponIndex) || WeaponsValidateGrenade(weaponIndex)) && gClientData[clientIndex][Client_Zombie]))
             {
-                // If view/world model exist, then set them
-                if(WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || ((WeaponsValidateKnife(weaponIndex) || WeaponsValidateGrenade(weaponIndex)) && gClientData[clientIndex][Client_Zombie]))
-                {
-                    // Client has swapped to a custom weapon
-                    gClientData[clientIndex][Client_SwapWeapon] = INVALID_ENT_REFERENCE;
-                    gClientData[clientIndex][Client_CustomWeapon] = weaponIndex;
-                    gClientData[clientIndex][Client_WeaponIndex] = iD; /// Only viewmodel identification
-                    return;
-                }
+                // Client has swapped to a custom weapon
+                gClientData[clientIndex][Client_SwapWeapon] = INVALID_ENT_REFERENCE;
+                gClientData[clientIndex][Client_CustomWeapon] = weaponIndex;
+                gClientData[clientIndex][Client_WeaponIndex] = iD; /// Only viewmodel identification
+                return;
             }
         }
     }
@@ -797,7 +786,7 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
     if(gClientData[clientIndex][Client_Survivor]) gCvarList[CVAR_SURVIVOR_ARM_MODEL].GetString(sArm, sizeof(sArm)); else HumanGetArmModel(gClientData[clientIndex][Client_HumanClass], sArm, sizeof(sArm));
     
     // Apply arm model
-    if(strlen(sArm)) SetEntDataString(clientIndex, g_iOffset_PlayerArms, sArm, sizeof(sArm), true);
+    if(hasLength(sArm)) SetEntDataString(clientIndex, g_iOffset_PlayerArms, sArm, sizeof(sArm), true);
 }
 
 /**
@@ -863,7 +852,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
         }
 
         // Resets if model wasn't found 
-        if(!iModel || !strlen(sModel))
+        if(!iModel || !hasLength(sModel))
         {
             // Clear the custom id cache
             gClientData[clientIndex][Client_CustomWeapon] = 0; iD = INVALID_ENT_REFERENCE; /// (Bug fix for zombie)
@@ -894,7 +883,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     if(!iModel) iModel = WeaponsGetModelViewID(iD);
     
     // Gets the weapon viewmodel
-    if(!strlen(sModel)) WeaponsGetModelView(iD, sModel, sizeof(sModel));   
+    if(!hasLength(sModel)) WeaponsGetModelView(iD, sModel, sizeof(sModel));   
 
     // If viewmodel exist, then apply it
     if(iModel)
@@ -959,8 +948,8 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
         }
         
         // Gets the body/skin index of a human class
-        int iBody = HumanGetView(gClientData[clientIndex][Client_HumanClass], ViewType_Body);
-        int iSkin = HumanGetView(gClientData[clientIndex][Client_HumanClass], ViewType_Skin);
+        int iBody = HumanGetBody(gClientData[clientIndex][Client_HumanClass]);
+        int iSkin = HumanGetSkin(gClientData[clientIndex][Client_HumanClass]);
         
         // Resets for survivor/zombie
         if(gClientData[clientIndex][Client_Zombie] || gClientData[clientIndex][Client_Survivor]) { iBody = -1; iSkin = -1; }
@@ -1131,69 +1120,65 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
             SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flSpeed, true);
             SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flSpeed, true);
         }
-        
-        // If custom weapons models disabled, then skip
-        if(gCvarList[CVAR_GAME_CUSTOM_MODELS].BoolValue)
+
+        // If viewmodel exist, then create muzzle smoke
+        if(WeaponsGetModelViewID(iD))
         {
-            // If viewmodel exist, then create muzzle smoke
-            if(WeaponsGetModelViewID(iD))
+            // Gets the entity index from the reference
+            int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
+
+            // Validate secondary viewmodel
+            if(viewModel2 == INVALID_ENT_REFERENCE)
             {
-                // Gets the entity index from the reference
-                int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
+                return;
+            }
 
-                // Validate secondary viewmodel
-                if(viewModel2 == INVALID_ENT_REFERENCE)
-                {
-                    return;
-                }
+            // If weapon without any type of ammo, then stop
+            if(GetEntData(weaponIndex, g_iOffset_WeaponAmmoType) == -1)
+            {
+                return;
+            }
+            
+            // Get weapon muzzle
+            static char sMuzzle[SMALL_LINE_LENGTH];
+            WeaponsGetModelMuzzle(iD, sMuzzle, sizeof(sMuzzle));
 
-                // If weapon without any type of ammo, then stop
-                if(GetEntData(weaponIndex, g_iOffset_WeaponAmmoType) == -1)
-                {
-                    return;
-                }
+            // Create a muzzle
+            if(hasLength(sMuzzle)) VEffectSpawnMuzzle(clientIndex, viewModel2, sMuzzle);
+
+            // Validate weapon heat delay
+            float flDelay = WeaponsGetModelHeat(iD);
+            if(flDelay)
+            {
+                // Initialize variables
+                static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
+
+                // Calculate the expected heat amount
+                float flHeat = ((flCurrentTime - GetEntDataFloat(weaponIndex, g_iOffset_LastShotTime)) * -0.5) + flHeatDelay[clientIndex];
+
+                // This value is set specifically for each weapon
+                flHeat += flDelay;
                 
-                // Get weapon muzzle
-                static char sMuzzle[SMALL_LINE_LENGTH];
-                WeaponsGetModelMuzzle(iD, sMuzzle, sizeof(sMuzzle));
+                // Reset the delay
+                if(flHeat < 0.0) flHeat = 0.0;
 
-                // Create a muzzle
-                if(strlen(sMuzzle)) VEffectSpawnMuzzle(clientIndex, viewModel2, sMuzzle);
-
-                // Validate weapon heat delay
-                float flDelay = WeaponsGetModelHeat(iD);
-                if(flDelay)
+                // Validate delay
+                if(flHeat > 1.0)
                 {
-                    // Initialize variables
-                    static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
-
-                    // Calculate the expected heat amount
-                    float flHeat = ((flCurrentTime - GetEntDataFloat(weaponIndex, g_iOffset_LastShotTime)) * -0.5) + flHeatDelay[clientIndex];
-
-                    // This value is set specifically for each weapon
-                    flHeat += flDelay;
-                    
-                    // Reset the delay
-                    if(flHeat < 0.0) flHeat = 0.0;
-
-                    // Validate delay
-                    if(flHeat > 1.0)
+                    // Validate heat
+                    if(flCurrentTime - flSmoke[clientIndex] > 1.0)
                     {
-                        // Validate heat
-                        if(flCurrentTime - flSmoke[clientIndex] > 1.0)
-                        {
-                            // Create a muzzle smoke
-                            VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
-                            flSmoke[clientIndex] = flCurrentTime;
-                        }
-                        
-                        // Resets delay
-                        flHeat = 0.0;
+                        // Create a muzzle smoke
+                        VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
+                        flSmoke[clientIndex] = flCurrentTime;
                     }
-
-                    // Update the heat delay
-                    flHeatDelay[clientIndex] = flHeat;
+                    
+                    // Resets delay
+                    flHeat = 0.0;
                 }
+
+                // Update the heat delay
+                flHeatDelay[clientIndex] = flHeat;
             }
         }
         

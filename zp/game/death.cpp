@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          death.cpp
  *  Type:          Game 
  *  Description:   Death event.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,66 @@
  *
  * ============================================================================
  **/
+ 
+/**
+ * Death module init function.
+ **/
+void DeathInit(/*void*/)
+{
+    // Hook player events
+    HookEvent("player_death", DeathOnClient, EventHookMode_Pre);
+}
+
+/**
+ * Hook death cvar changes.
+ **/
+void DeathOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_RESPAWN_DEATHMATCH]          = FindConVar("zp_deathmatch");
+    gCvarList[CVAR_RESPAWN_SUICIDE]             = FindConVar("zp_suicide");
+    gCvarList[CVAR_RESPAWN_AMOUNT]              = FindConVar("zp_respawn_amount"); 
+    gCvarList[CVAR_RESPAWN_TIME]                = FindConVar("zp_respawn_time"); 
+    gCvarList[CVAR_RESPAWN_WORLD]               = FindConVar("zp_respawn_on_suicide");
+    gCvarList[CVAR_RESPAWN_LAST]                = FindConVar("zp_respawn_after_last_human"); 
+    gCvarList[CVAR_RESPAWN_ZOMBIE]              = FindConVar("zp_respawn_zombies");
+    gCvarList[CVAR_RESPAWN_HUMAN]               = FindConVar("zp_respawn_humans"); 
+    gCvarList[CVAR_RESPAWN_NEMESIS]             = FindConVar("zp_respawn_nemesis"); 
+    gCvarList[CVAR_RESPAWN_SURVIVOR]            = FindConVar("zp_respawn_survivor");
+}
+
+/**
+ * Event callback (player_death)
+ * Client has been killed.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action DeathOnClient(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets all required event info
+    int victimIndex   = GetClientOfUserId(hEvent.GetInt("userid"));
+    int attackerIndex = GetClientOfUserId(hEvent.GetInt("attacker"));
+    
+    // Validate client
+    if(!IsPlayerExist(victimIndex, false))
+    {
+        // If the client isn't a player, a player really didn't die now. Some
+        // other mods might sent this event with bad data.
+        return Plugin_Handled;
+    }
+
+    // Forward event to modules
+    RagdollOnClientDeath(victimIndex);
+    SoundsOnClientDeath(victimIndex);
+    VEffectOnClientDeath(victimIndex);
+    WeaponsOnClientDeath(victimIndex);
+    DeathOnClientDeath(victimIndex, attackerIndex);
+    
+    // Allow death
+    return Plugin_Continue;
+}
  
 /**
  * Client has been killed.
@@ -130,4 +190,35 @@ public Action DeathOnRespawn(Handle hTimer, const int userID)
     
     // Destroy timer
     return Plugin_Stop;
+}
+
+/**
+ * Event creation (player_death)
+ * Client has been killed. (Fake)
+ * 
+ * @param victimIndex       The victim index.
+ * @param attackerIndex     The attacker index.
+ **/
+public void DeathOnHUD(const int victimIndex, const int attackerIndex)
+{
+    // Create and send custom death icon
+    Event hEvent = CreateEvent("player_death");
+    if(hEvent != INVALID_HANDLE)
+    {
+        // Sets event properties
+        hEvent.SetInt("userid", GetClientUserId(victimIndex));
+        hEvent.SetInt("attacker", GetClientUserId(attackerIndex));
+        hEvent.SetString("weapon", "weapon_claws");
+        hEvent.SetBool("headshot", true);
+        
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Send fake event
+            if(IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
+        }
+        
+        // Close it
+        hEvent.Close();
+    }
 }

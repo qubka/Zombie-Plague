@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          commands.cpp
  *  Type:          Game 
  *  Description:   Console command initilization and hooking.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,16 +30,14 @@
  **/
 void CommandsInit(/*void*/)
 {
-    // Forward event to modules
+    // Forward event to sub-modules
     DebugOnCommandsCreate();
     ConfigOnCommandsCreate();
-    DataBaseOnCommandsCreate();
     LogOnCommandsCreate();
     MenusOnCommandsCreate();
     ToolsOnCommandsCreate();
     HumanOnCommandsCreate();
     ZombieOnCommandsCreate();
-    SkillsOnCommandsCreate();
     WeaponsOnCommandsCreate();
     ExtraItemsOnCommandsCreate();
     CostumesOnCommandsCreate();

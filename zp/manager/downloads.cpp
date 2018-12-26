@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          downloads.cpp
  *  Type:          Manager 
  *  Description:   Downloads table generator.
  *
- *  Copyright (C) 2015-2018 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2019 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 ArrayList arrayDownloads;
 
 /**
- * Prepare all model/download data.
+ * Prepare all download data.
  **/
 void DownloadsLoad(/*void*/)
 {
@@ -39,18 +39,18 @@ void DownloadsLoad(/*void*/)
     ConfigRegisterConfig(File_Downloads, Structure_List, CONFIG_FILE_ALIAS_DOWNLOADS);
 
     // Gets downloads file path
-    static char sDownloadsPath[PLATFORM_MAX_PATH];
-    bool bExists = ConfigGetCvarFilePath(CVAR_CONFIG_PATH_DOWNLOADS, sDownloadsPath);
+    static char sPathDownloads[PLATFORM_MAX_PATH];
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_DOWNLOADS, sPathDownloads);
 
     // If file doesn't exist, then log and stop
     if(!bExists)
     {
         // Log failure and stop plugin
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sDownloadsPath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sPathDownloads);
     }
 
     // Sets the path to the config file
-    ConfigSetConfigPath(File_Downloads, sDownloadsPath);
+    ConfigSetConfigPath(File_Downloads, sPathDownloads);
 
     // Load config from file and create array structure
     bool bSuccess = ConfigLoadConfig(File_Downloads, arrayDownloads, PLATFORM_MAX_PATH);
@@ -58,11 +58,30 @@ void DownloadsLoad(/*void*/)
     // Unexpected error, stop plugin
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Unexpected error encountered loading: %s", sDownloadsPath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Unexpected error encountered loading: %s", sPathDownloads);
     }
+    
+    // Now copy data to array structure
+    DownloadsCacheData();
+    
+    // Sets config data
+    ConfigSetConfigLoaded(File_Downloads, true);
+    ConfigSetConfigReloadFunc(File_Downloads, GetFunctionByName(GetMyHandle(), "DownloadsOnConfigReload"));
+    ConfigSetConfigHandle(File_Downloads, arrayDownloads);
+}
 
+/**
+ * Caches download data from file into arrays.
+ * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ **/
+void DownloadsCacheData(/*void*/)
+{
+    // Gets config file path
+    static char sPathDownloads[PLATFORM_MAX_PATH];
+    ConfigGetConfigPath(File_Downloads, sPathDownloads, sizeof(sPathDownloads));
+    
     // Log what download file that is loaded
-    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Loading downloads from file \"%s\"", sDownloadsPath);
+    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Loading downloads from file \"%s\"", sPathDownloads);
 
     // Initialize numbers of downloads
     int iDownloadCount;
@@ -73,32 +92,32 @@ void DownloadsLoad(/*void*/)
     int iDownloads = iDownloadCount = arrayDownloads.Length;
     if(!iDownloads)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sDownloadsPath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sPathDownloads);
     }
 
     // i = download array index
     for(int i = 0; i < iDownloads; i++)
     {
         // Gets download path
-        sDownloadsPath[0] = '\0'; arrayDownloads.GetString(i, sDownloadsPath, sizeof(sDownloadsPath));
+        sPathDownloads[0] = '\0'; arrayDownloads.GetString(i, sPathDownloads, sizeof(sPathDownloads));
 
         // If file exist
-        if(FileExists(sDownloadsPath) || FindCharInString(sDownloadsPath, '@', true) != -1) //! Fix for particles
+        if(FileExists(sPathDownloads) || FindCharInString(sPathDownloads, '@', true) != -1) //! Fix for particles
         {
             // Add to server precache list
-            if(DownloadsOnPrecache(sDownloadsPath)) iDownloadValidCount++; else iDownloadUnValidCount++;
+            if(DownloadsOnPrecache(sPathDownloads)) iDownloadValidCount++; else iDownloadUnValidCount++;
         }
         // If doesn't exist, it might be directory ?
         else
         {
             // Open directory
-            DirectoryListing hDirectory = OpenDirectory(sDownloadsPath);
+            DirectoryListing hDirectory = OpenDirectory(sPathDownloads);
             
             // If directory doesn't exist, then log, and stop
             if(hDirectory == INVALID_HANDLE)
             {
                 // Log download error info
-                LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sDownloadsPath);
+                LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sPathDownloads);
                 
                 // Remove download from array
                 arrayDownloads.Erase(i);
@@ -126,7 +145,7 @@ void DownloadsLoad(/*void*/)
                     case FileType_File :
                     {
                         // Format full path to file
-                        Format(sFile, sizeof(sFile), "%s%s", sDownloadsPath, sFile);
+                        Format(sFile, sizeof(sFile), "%s%s", sPathDownloads, sFile);
                         
                         // Add to server precache list
                         if(DownloadsOnPrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
@@ -151,11 +170,6 @@ void DownloadsLoad(/*void*/)
     
     // Log download validation info
     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Total blocks: %d | Unsuccessful blocks: %d | Total: %d | Successful: %d | Unsuccessful: %d", iDownloadCount, iDownloadCount - iDownloads, iDownloadValidCount + iDownloadUnValidCount, iDownloadValidCount, iDownloadUnValidCount);
-    
-    // Sets config data
-    ConfigSetConfigLoaded(File_Downloads, true);
-    ConfigSetConfigReloadFunc(File_Downloads, GetFunctionByName(GetMyHandle(), "DownloadsOnConfigReload"));
-    ConfigSetConfigHandle(File_Downloads, arrayDownloads);
 }
 
 /**

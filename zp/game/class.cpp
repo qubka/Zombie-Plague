@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          class.cpp
  *  Type:          Game 
  *  Description:   Provides functions for managing classes.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,103 @@
  * ============================================================================
  **/
 
+/**
+ * Hook class cvar changes.
+ **/
+void ClassOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_HUMAN_CLASS_MENU]            = FindConVar("zp_human_class_menu");
+    gCvarList[CVAR_HUMAN_ARMOR_PROTECT]         = FindConVar("zp_human_armor_protect");
+    gCvarList[CVAR_HUMAN_LAST_INFECTION]        = FindConVar("zp_human_last_infection");
+    gCvarList[CVAR_HUMAN_INF_AMMUNITION]        = FindConVar("zp_human_inf_ammunition");
+    gCvarList[CVAR_HUMAN_PRICE_AMMUNITION]      = FindConVar("zp_human_price_ammunition");
+    gCvarList[CVAR_SURVIVOR_SPEED]              = FindConVar("zp_survivor_speed");   
+    gCvarList[CVAR_SURVIVOR_GRAVITY]            = FindConVar("zp_survivor_gravity"); 
+    gCvarList[CVAR_SURVIVOR_HEALTH]             = FindConVar("zp_survivor_health"); 
+    gCvarList[CVAR_SURVIVOR_INF_AMMUNITION]     = FindConVar("zp_survivor_inf_ammunition");
+    gCvarList[CVAR_SURVIVOR_PRICE_AMMUNITION]   = FindConVar("zp_survivor_price_ammunition");
+    gCvarList[CVAR_SURVIVOR_PLAYER_MODEL]       = FindConVar("zp_survivor_model");            
+    gCvarList[CVAR_SURVIVOR_ARM_MODEL]          = FindConVar("zp_survivor_arm");             
+    gCvarList[CVAR_ZOMBIE_CLASS_MENU]           = FindConVar("zp_zombie_class_menu");
+    gCvarList[CVAR_ZOMBIE_FISRT_HEALTH]         = FindConVar("zp_zombie_additional_health");
+    gCvarList[CVAR_ZOMBIE_NIGHT_VISION]         = FindConVar("zp_zombie_nvg_give");
+    gCvarList[CVAR_ZOMBIE_XRAY]                 = FindConVar("zp_zombie_xray_give");          
+    gCvarList[CVAR_ZOMBIE_CROSSHAIR]            = FindConVar("zp_zombie_crosshair_give");
+    gCvarList[CVAR_NEMESIS_SPEED]               = FindConVar("zp_nemesis_speed");             
+    gCvarList[CVAR_NEMESIS_GRAVITY]             = FindConVar("zp_nemesis_gravity");           
+    gCvarList[CVAR_NEMESIS_HEALTH]              = FindConVar("zp_nemesis_health_ratio");      
+    gCvarList[CVAR_NEMESIS_PLAYER_MODEL]        = FindConVar("zp_nemesis_model");             
+    gCvarList[CVAR_CT_DEFAULT_GRENADES]         = FindConVar("mp_ct_default_grenades");
+    gCvarList[CVAR_CT_DEFAULT_MELEE]            = FindConVar("mp_ct_default_melee");
+    gCvarList[CVAR_CT_DEFAULT_SECONDARY]        = FindConVar("mp_ct_default_secondary");
+    gCvarList[CVAR_CT_DEFAULT_PRIMARY]          = FindConVar("mp_ct_default_primary");
+    gCvarList[CVAR_T_DEFAULT_GRENADES]          = FindConVar("mp_t_default_grenades");
+    gCvarList[CVAR_T_DEFAULT_MELEE]             = FindConVar("mp_t_default_melee");
+    gCvarList[CVAR_T_DEFAULT_SECONDARY]         = FindConVar("mp_t_default_secondary");
+    gCvarList[CVAR_T_DEFAULT_PRIMARY]           = FindConVar("mp_t_default_primary");
+    gCvarList[CVAR_H_DEFAULT_EQUIPMENT]         = FindConVar("zp_human_default_equipment");
+    gCvarList[CVAR_H_DEFAULT_MELEE]             = FindConVar("zp_human_default_melee");
+    gCvarList[CVAR_H_DEFAULT_SECONDARY]         = FindConVar("zp_human_default_secondary");
+    gCvarList[CVAR_H_DEFAULT_PRIMARY]           = FindConVar("zp_human_default_primary");
+    gCvarList[CVAR_Z_DEFAULT_EQUIPMENT]         = FindConVar("zp_zombie_default_equipment");
+    gCvarList[CVAR_Z_DEFAULT_MELEE]             = FindConVar("zp_zombie_default_melee");
+    gCvarList[CVAR_Z_DEFAULT_SECONDARY]         = FindConVar("zp_zombie_default_secondary");
+    gCvarList[CVAR_Z_DEFAULT_PRIMARY]           = FindConVar("zp_zombie_default_primary");
+    gCvarList[CVAR_N_DEFAULT_EQUIPMENT]         = FindConVar("zp_nemesis_default_equipment");
+    gCvarList[CVAR_N_DEFAULT_MELEE]             = FindConVar("zp_nemesis_default_melee");
+    gCvarList[CVAR_N_DEFAULT_SECONDARY]         = FindConVar("zp_nemesis_default_secondary");
+    gCvarList[CVAR_N_DEFAULT_PRIMARY]           = FindConVar("zp_nemesis_default_primary");
+    gCvarList[CVAR_S_DEFAULT_EQUIPMENT]         = FindConVar("zp_survivor_default_equipment");
+    gCvarList[CVAR_S_DEFAULT_MELEE]             = FindConVar("zp_survivor_default_melee");
+    gCvarList[CVAR_S_DEFAULT_SECONDARY]         = FindConVar("zp_survivor_default_secondary");
+    gCvarList[CVAR_S_DEFAULT_PRIMARY]           = FindConVar("zp_survivor_default_primary");
+    
+    // Create server cvars
+    gCvarList[CVAR_SERVER_OCCULUSE]             = FindConVar("sv_occlude_players");
+    gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS]     = FindConVar("sv_force_transmit_players");
+    
+    // Sets locked cvars to their locked value
+    gCvarList[CVAR_CT_DEFAULT_GRENADES].SetString("");
+    gCvarList[CVAR_CT_DEFAULT_MELEE].SetString("");
+    gCvarList[CVAR_CT_DEFAULT_SECONDARY].SetString("");
+    gCvarList[CVAR_CT_DEFAULT_PRIMARY].SetString("");
+    gCvarList[CVAR_T_DEFAULT_GRENADES].SetString("");
+    gCvarList[CVAR_T_DEFAULT_MELEE].SetString("");
+    gCvarList[CVAR_T_DEFAULT_SECONDARY].SetString("");
+    gCvarList[CVAR_T_DEFAULT_PRIMARY].SetString("");
+    
+    // Hook survivor cvars
+    HookConVarChange(gCvarList[CVAR_SURVIVOR_SPEED],              ClassCvarsHookSurvivorSpeed);
+    HookConVarChange(gCvarList[CVAR_SURVIVOR_GRAVITY],            ClassCvarsHookSurvivorGravity);
+    HookConVarChange(gCvarList[CVAR_SURVIVOR_HEALTH],             ClassCvarsHookSurvivorHealth);
+    
+    // Hook zombie cvars
+    HookConVarChange(gCvarList[CVAR_ZOMBIE_NIGHT_VISION],         ClassCvarsHookZombieNvg);
+    HookConVarChange(gCvarList[CVAR_ZOMBIE_XRAY],                 ClassCvarsHookZombieVision);
+    HookConVarChange(gCvarList[CVAR_ZOMBIE_CROSSHAIR],            ClassCvarsHookZombieCross);
+    
+    // Hook nemesis cvars
+    HookConVarChange(gCvarList[CVAR_NEMESIS_SPEED],               ClassCvarsHookNemesisSpeed);
+    HookConVarChange(gCvarList[CVAR_NEMESIS_GRAVITY],             ClassCvarsHookNemesisGravity);
+    HookConVarChange(gCvarList[CVAR_NEMESIS_HEALTH],              ClassCvarsHookNemesisHealthR);
+    
+    // Hook weapon cvars
+    HookConVarChange(gCvarList[CVAR_CT_DEFAULT_GRENADES],         ClassCvarsHookWeapons);
+    HookConVarChange(gCvarList[CVAR_CT_DEFAULT_MELEE],            ClassCvarsHookWeapons);
+    HookConVarChange(gCvarList[CVAR_CT_DEFAULT_SECONDARY],        ClassCvarsHookWeapons);
+    HookConVarChange(gCvarList[CVAR_CT_DEFAULT_PRIMARY],          ClassCvarsHookWeapons);
+    HookConVarChange(gCvarList[CVAR_T_DEFAULT_GRENADES],          ClassCvarsHookWeapons);
+    HookConVarChange(gCvarList[CVAR_T_DEFAULT_MELEE],             ClassCvarsHookWeapons);
+    HookConVarChange(gCvarList[CVAR_T_DEFAULT_SECONDARY],         ClassCvarsHookWeapons);
+    HookConVarChange(gCvarList[CVAR_T_DEFAULT_PRIMARY],           ClassCvarsHookWeapons);
+    
+    // Hook model cvars
+    HookConVarChange(gCvarList[CVAR_SURVIVOR_PLAYER_MODEL],       ClassCvarsHookModels);  
+    HookConVarChange(gCvarList[CVAR_SURVIVOR_ARM_MODEL],          ClassCvarsHookModels);
+    HookConVarChange(gCvarList[CVAR_NEMESIS_PLAYER_MODEL],        ClassCvarsHookModels);
+}
+ 
 /**
  * Infects a client.
  *
@@ -49,7 +146,7 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
     if(IsPlayerExist(attackerIndex)) 
     {
         // Create a fake event
-        EventFakePlayerDeath(victimIndex, attackerIndex);
+        DeathOnHUD(victimIndex, attackerIndex);
         
         // Increment kills and frags
         ToolsSetClientScore(victimIndex, true, ToolsGetClientScore(victimIndex, true) + 1);
@@ -152,7 +249,7 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
             ZombieGetInfo(gClientData[victimIndex][Client_ZombieClass], sInfo, sizeof(sInfo));
             
             // Show zombie personal info
-            if(strlen(sInfo)) TranslationPrintHintText(victimIndex, sInfo);
+            if(hasLength(sInfo)) TranslationPrintHintText(victimIndex, sInfo);
         }
         
         // If instant class menu enable, then show 
@@ -164,7 +261,7 @@ void ClassMakeZombie(const int victimIndex, const int attackerIndex = 0, const b
     }
 
     // Apply model
-    if(strlen(sModel)) SetEntityModel(victimIndex, sModel);
+    if(hasLength(sModel)) SetEntityModel(victimIndex, sModel);
 
     // Forward event to modules
     SkillsOnClientInfected(victimIndex, nemesisMode);
@@ -290,7 +387,7 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
             HumanGetInfo(gClientData[clientIndex][Client_HumanClass], sInfo, sizeof(sInfo));
             
             // Show human personal info
-            if(strlen(sInfo)) TranslationPrintHintText(clientIndex, sInfo);
+            if(hasLength(sInfo)) TranslationPrintHintText(clientIndex, sInfo);
         }
         
         // If instant class menu enable, then show 
@@ -302,8 +399,8 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
     }
     
     // Apply models
-    if(strlen(sModel)) SetEntityModel(clientIndex, sModel);
-    if(strlen(sArm)) SetEntDataString(clientIndex, g_iOffset_PlayerArms, sArm, sizeof(sArm), true);
+    if(hasLength(sModel)) SetEntityModel(clientIndex, sModel);
+    if(hasLength(sArm)) SetEntDataString(clientIndex, g_iOffset_PlayerArms, sArm, sizeof(sArm), true);
 
     // Forward event to modules
     SoundsOnClientHumanized(clientIndex);
@@ -322,4 +419,371 @@ void ClassMakeHuman(const int clientIndex, const bool survivorMode = false, cons
 
     // Call forward
     API_OnClientHumanized(clientIndex, survivorMode, respawnMode);
+}
+
+/**
+ * Cvar hook callback (zp_survivor_speed)
+ * Reload the speed variable on survivors.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookSurvivorSpeed(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate survivor
+            if(IsPlayerExist(i) && gClientData[i][Client_Survivor])
+            {
+                // Update variable
+                ToolsSetClientLMV(i, gCvarList[CVAR_SURVIVOR_SPEED].FloatValue);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_survivor_gravity)
+ * Reload the gravity variable on survivors.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookSurvivorGravity(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate survivor
+            if(IsPlayerExist(i) && gClientData[i][Client_Survivor])
+            {
+                // Update variable
+                ToolsSetClientGravity(i, gCvarList[CVAR_SURVIVOR_GRAVITY].FloatValue);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_survivor_gravity)
+ * Reload the health variable on survivors.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookSurvivorHealth(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate survivor
+            if(IsPlayerExist(i) && gClientData[i][Client_Survivor])
+            {
+                // Update variable
+                ToolsSetClientHealth(i, gCvarList[CVAR_SURVIVOR_HEALTH].IntValue, true);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_nemesis_speed)
+ * Reload the speed variable on nemesis.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookNemesisSpeed(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate nemesis
+            if(IsPlayerExist(i) && gClientData[i][Client_Nemesis])
+            {
+                // Update variable
+                ToolsSetClientLMV(i, gCvarList[CVAR_NEMESIS_SPEED].FloatValue);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_nemesis_gravity)
+ * Reload the gravity variable on nemesis.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookNemesisGravity(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate nemesis
+            if(IsPlayerExist(i) && gClientData[i][Client_Nemesis])
+            {
+                // Update variable
+                ToolsSetClientGravity(i, gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_nemesis_health_ratio)
+ * Reload the gravity variable on nemesis.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookNemesisHealthR(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate nemesis
+            if(IsPlayerExist(i) && gClientData[i][Client_Nemesis])
+            {
+                // Update variable
+                ToolsSetClientHealth(i, (fnGetAlive() * gCvarList[CVAR_NEMESIS_HEALTH].IntValue), true);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_zombie_crosshair_give)
+ * Reload the crosshair variable on zombies.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookZombieCross(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate zombie
+            if(IsPlayerExist(i) && gClientData[i][Client_Zombie])
+            {
+                // Update variable
+                ToolsSetClientHud(i, gCvarList[CVAR_ZOMBIE_CROSSHAIR].BoolValue);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_zombie_nvg_give)
+ * Reload the nightvision variable on zombies.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookZombieNvg(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate zombie
+            if(IsPlayerExist(i) && gClientData[i][Client_Zombie])
+            {
+                // Update variable
+                VOverlayOnClientUpdate(i, gCvarList[CVAR_ZOMBIE_NIGHT_VISION].BoolValue ? Overlay_Vision : Overlay_Reset);
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_zombie_xray_give)
+ * Enable or disable wall hack feature due to the x-ray vision.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookZombieVision(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // If feature is disabled, then stop
+    if(!gCvarList[CVAR_ZOMBIE_XRAY].BoolValue)
+    {
+        // Validate loaded map
+        if(IsMapLoaded())
+        {
+            // i = client index
+            for(int i = 1; i <= MaxClients; i++)
+            {
+                // Validate client
+                if(IsPlayerExist(i))
+                {
+                    // Update variable
+                    ToolsSetClientDetecting(i, false);
+                }
+            }
+        }
+
+        // Sets locked cvars to their default value
+        gCvarList[CVAR_SERVER_OCCULUSE].IntValue = 1;
+        gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS].IntValue = 0;
+        
+        // Remove hooks
+        UnhookConVarChange(gCvarList[CVAR_SERVER_OCCULUSE],             CvarsHookLocked);
+        UnhookConVarChange(gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS],     CvarsHookUnlocked);
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate human
+            if(IsPlayerExist(i) && !gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
+            {
+                // Update variable
+                ToolsSetClientDetecting(i, true);
+            }
+        }
+    }
+    
+    // Sets locked cvars to their locked value
+    gCvarList[CVAR_SERVER_OCCULUSE].IntValue = 0;
+    gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS].IntValue = 1;
+    
+    // Hook locked cvars to prevent it from changing
+    HookConVarChange(gCvarList[CVAR_SERVER_OCCULUSE],             CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_TRANSMIT_PLAYERS],     CvarsHookUnlocked);
+}
+
+/**
+ * Cvar hook callback. (mp_ct_default_*, mp_t_default_*)
+ * Prevents changes of default cvars.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookWeapons(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Revert to locked value
+    hConVar.SetString("");
+}
+
+/**
+ * Cvar hook callback (zp_survivor_model, zp_survivor_arm, zp_nemesis_model)
+ * Precache player models.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ClassCvarsHookModels(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // Validate player model
+        static char sPath[PLATFORM_MAX_PATH];
+        hConVar.GetString(sPath, sizeof(sPath));
+        if(!ModelsPrecacheStatic(sPath))
+        {
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid model path. File not found: \"%s\"", sPath);
+        }
+    }
 }

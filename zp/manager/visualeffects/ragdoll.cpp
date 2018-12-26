@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          ragdoll.cpp
  *  Type:          Module
  *  Description:   Remove ragdolls with optional effects.
  *
- *  Copyright (C) 2015-2018  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,6 +39,17 @@
  **/
 
 /**
+ * Hook ragdoll cvar changes.
+ **/
+void RagdollOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE]     = FindConVar("zp_veffects_ragdoll_remove");
+    gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE]   = FindConVar("zp_veffects_ragdoll_dissolve");
+    gCvarList[CVAR_VEFFECTS_RAGDOLL_DELAY]      = FindConVar("zp_veffects_ragdoll_delay");
+}
+ 
+/**
  * Client has been killed.
  * 
  * @param clientIndex       The client index.
@@ -46,10 +57,10 @@
 void RagdollOnClientDeath(const int clientIndex)
 {
     // If true, the stop
-    bool iRagDollRemove = gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue;
+    bool bRagDollRemove = gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue;
 
     // If ragdoll removal is disabled, then stop
-    if(!iRagDollRemove)
+    if(!bRagDollRemove)
     {
         return;
     }

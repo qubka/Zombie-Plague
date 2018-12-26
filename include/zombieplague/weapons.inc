@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -176,6 +176,7 @@ forward void ZP_OnWeaponFire(int clientIndex, int weaponIndex, int weaponID);
  * @param clientIndex       The client index.
  * @param name              The weapon name.
  * @param slot              The slot index (mod specific).
+ *
  * @return                  The weapon index.
  **/
 native int ZP_GiveClientWeapon(int clientIndex, char[] name, int slot = -1);
@@ -184,7 +185,8 @@ native int ZP_GiveClientWeapon(int clientIndex, char[] name, int slot = -1);
  * @brief Gets the client viewmodel. 
  *
  * @param clientIndex       The client index.
- * @param custom            True to gets the custom viewmodel, false the original.           
+ * @param custom            True to gets the custom viewmodel, false the original.
+ *           
  * @return                  The viewmodel index.
  **/
 native int ZP_GetClientViewModel(int clientIndex, bool custom);
@@ -193,7 +195,8 @@ native int ZP_GetClientViewModel(int clientIndex, bool custom);
  * @brief Gets the client attachmodel. (On the player's backpack)
  *
  * @param clientIndex       The client index.
- * @param bitType           The bit type.         
+ * @param bitType           The bit type.
+ *         
  * @return                  The attachmodel index.
  **/
 native int ZP_GetClientAttachModel(int clientIndex, BitType bitType);
@@ -202,6 +205,7 @@ native int ZP_GetClientAttachModel(int clientIndex, BitType bitType);
  * @brief Gets the custom weapon id from a given weapon index. 
  *
  * @param weaponIndex       The weapon index.
+ *
  * @return                  The weapon ID or -1 if no weapon was found.
  **/
 native int ZP_GetWeaponID(int weaponIndex);
@@ -210,6 +214,7 @@ native int ZP_GetWeaponID(int weaponIndex);
  * @brief Gets the custom weapon id from a given name.
  *
  * @param name              The weapon name.
+ *
  * @return                  The weapon ID or -1 if no weapon was found.
  **/
 native int ZP_GetWeaponNameID(char[] name);
@@ -261,6 +266,7 @@ native void ZP_GetWeaponGroup(int weaponID, char[] group, int maxlenght = 32);
  * @brief Gets the cost of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The cost amount.    
  **/
 native int ZP_GetWeaponCost(int weaponID);
@@ -269,6 +275,7 @@ native int ZP_GetWeaponCost(int weaponID);
  * @brief Gets the slot of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The weapon slot.    
  **/
 native int ZP_GetWeaponSlot(int weaponID);
@@ -277,6 +284,7 @@ native int ZP_GetWeaponSlot(int weaponID);
  * @brief Gets the level of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The level amount.    
  **/
 native int ZP_GetWeaponLevel(int weaponID);
@@ -285,6 +293,7 @@ native int ZP_GetWeaponLevel(int weaponID);
  * @brief Gets the online of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The online amount.    
  **/
 native int ZP_GetWeaponOnline(int weaponID);
@@ -293,6 +302,7 @@ native int ZP_GetWeaponOnline(int weaponID);
  * @brief Gets the damage of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The damage amount.    
  **/
 native float ZP_GetWeaponDamage(int weaponID);
@@ -301,6 +311,7 @@ native float ZP_GetWeaponDamage(int weaponID);
  * @brief Gets the knockback of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The knockback amount.    
  **/
 native float ZP_GetWeaponKnockBack(int weaponID);
@@ -309,6 +320,7 @@ native float ZP_GetWeaponKnockBack(int weaponID);
  * @brief Gets the clip ammo of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The clip ammo amount.
  **/
 native int ZP_GetWeaponClip(int weaponID);
@@ -317,6 +329,7 @@ native int ZP_GetWeaponClip(int weaponID);
  * @brief Gets the reserve clip of the weapon.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The reserve ammo amount.    
  **/
 native int ZP_GetWeaponAmmo(int weaponID);
@@ -325,6 +338,7 @@ native int ZP_GetWeaponAmmo(int weaponID);
  * @brief Gets the shoot delay of the weapon.
  *
  * @param weaponID          The weapon ID.
+ *
  * @return                  The delay amount.    
  **/
 native float ZP_GetWeaponSpeed(int weaponID);
@@ -333,6 +347,7 @@ native float ZP_GetWeaponSpeed(int weaponID);
  * @brief Gets the reload duration of the weapon.
  *
  * @param weaponID          The weapon ID.
+ *
  * @return                  The duration amount.    
  **/
 native float ZP_GetWeaponReload(int weaponID);
@@ -341,6 +356,7 @@ native float ZP_GetWeaponReload(int weaponID);
  * @brief Gets the delpoy duration of the weapon.
  *
  * @param weaponID          The weapon ID.
+ *
  * @return                  The duration amount.    
  **/
 native float ZP_GetWeaponDeploy(int weaponID);
@@ -349,6 +365,7 @@ native float ZP_GetWeaponDeploy(int weaponID);
  * @brief Gets the sound key of the weapon.
  *
  * @param weaponID          The weapon ID.
+ *
  * @return                  The key index.
  **/
 native int ZP_GetWeaponSoundID(int weaponID);
@@ -357,6 +374,7 @@ native int ZP_GetWeaponSoundID(int weaponID);
  * @brief Gets the class access of the weapon.
  *
  * @param iD                The weapon id.
+ *
  * @return                  The class access index.
  **/
 native int ZP_GetWeaponClass(int weaponID);
@@ -374,6 +392,7 @@ native void ZP_GetWeaponModelView(int weaponID, char[] model, int maxlenght = 25
 * @brief Gets the index of the weapon viewmodel.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The viewmodel index.    
  **/
 native int ZP_GetWeaponModelViewID(int weaponID);
@@ -391,6 +410,7 @@ native void ZP_GetWeaponModelWorld(int weaponID, char[] model, int maxlenght = 2
  * @brief Gets the index of the weapon worldmodel.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The worldmodel index.    
  **/
 native int ZP_GetWeaponModelWorldID(int weaponID);
@@ -408,6 +428,7 @@ native void ZP_GetWeaponModelDrop(int weaponID, char[] model, int maxlenght = 25
  * @brief Gets the index of the weapon dropmodel.
  * 
  * @param weaponID          The weapon ID.
+ *
  * @return                  The dropmodel index.    
  **/
 native int ZP_GetWeaponModelDropID(int weaponID);
@@ -417,6 +438,7 @@ native int ZP_GetWeaponModelDropID(int weaponID);
  *
  * @param weaponID          The weapon ID.
  * @param modelType         The model type.
+ *
  * @return                  The body index.    
  **/
 native int ZP_GetWeaponModelBody(int weaponID, ModelType modelType);
@@ -426,6 +448,7 @@ native int ZP_GetWeaponModelBody(int weaponID, ModelType modelType);
  *
  * @param weaponID          The weapon ID.
  * @param modelType         The model type.
+ *
  * @return                  The skin index.    
  **/
 native int ZP_GetWeaponModelSkin(int weaponID, ModelType modelType);
@@ -443,6 +466,7 @@ native void ZP_GetWeaponModelMuzzle(int weaponID, char[] muzzle, int maxlenght =
  * @brief Gets the heat amount of the weapon model.
  *
  * @param weaponID          The weapon ID.
+ *
  * @return                  The heat amount.    
  **/
 native float ZP_GetWeaponModelHeat(int weaponID);
@@ -551,6 +575,7 @@ stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward 
  * @brief Gets the weapon animating index.
  *
  * @param clientIndex       The client index.
+ *
  * @return                  The sequence index.
  **/
 stock int ZP_GetWeaponAnimation(const int clientIndex)

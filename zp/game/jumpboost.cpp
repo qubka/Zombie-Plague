@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          jumpboost.cpp
  *  Type:          Game 
@@ -24,6 +24,92 @@
  *
  * ============================================================================
  **/
+ 
+/**
+ * Jumpboost module init function.
+ **/
+void JumpBoostInit(/*void*/)
+{
+    // If jump boost disabled, then unhook
+    if(!gCvarList[CVAR_JUMPBOOST_ENABLE].BoolValue)
+    {
+        // Unhook player events
+        UnhookEvent2("player_jump", JumpBoostOnClientJump, EventHookMode_Post);
+        return;
+    }
+    
+    // Hook player events
+    HookEvent("player_jump", JumpBoostOnClientJump, EventHookMode_Post);
+}
+
+/**
+ * Hook jump boost cvar changes.
+ **/
+void JumpBoostOnCvarInit(/*void*/)
+{
+    // Create boost cvars
+    gCvarList[CVAR_JUMPBOOST_ENABLE]            = FindConVar("zp_jumpboost_enable");
+    gCvarList[CVAR_JUMPBOOST_MULTIPLIER]        = FindConVar("zp_jumpboost_multiplier");
+    gCvarList[CVAR_JUMPBOOST_MAX]               = FindConVar("zp_jumpboost_max");
+    
+    // Create leap cvars
+    gCvarList[CVAR_LEAP_ZOMBIE]                 = FindConVar("zp_leap_zombies");
+    gCvarList[CVAR_LEAP_ZOMBIE_FORCE]           = FindConVar("zp_leap_zombies_force");
+    gCvarList[CVAR_LEAP_ZOMBIE_COUNTDOWN]       = FindConVar("zp_leap_zombies_cooldown");
+    gCvarList[CVAR_LEAP_NEMESIS]                = FindConVar("zp_leap_nemesis");
+    gCvarList[CVAR_LEAP_NEMESIS_FORCE]          = FindConVar("zp_leap_nemesis_force");
+    gCvarList[CVAR_LEAP_NEMESIS_COUNTDOWN]      = FindConVar("zp_leap_nemesis_cooldown");
+    gCvarList[CVAR_LEAP_SURVIVOR]               = FindConVar("zp_leap_survivor");
+    gCvarList[CVAR_LEAP_SURVIVOR_FORCE]         = FindConVar("zp_leap_survivor_force");
+    gCvarList[CVAR_LEAP_SURVIVOR_COUNTDOWN]     = FindConVar("zp_leap_survivor_cooldown");
+    
+    // Create server cvars
+    gCvarList[CVAR_SERVER_CLAMP]                = FindConVar("sv_clamp_unsafe_velocities");
+    
+    // Sets locked cvars to their locked value
+    gCvarList[CVAR_SERVER_CLAMP].IntValue = 0;
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_JUMPBOOST_ENABLE],            JumpBoostCvarsHookEnable);
+    HookConVarChange(gCvarList[CVAR_SERVER_CLAMP],                CvarsHookLocked);
+}
+
+/**
+ * Cvar hook callback (zp_jumpboost_enable)
+ * Jumpboost module initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void JumpBoostCvarsHookEnable(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    JumpBoostInit();
+}
+
+/**
+ * Event callback (player_jump)
+ * Client has been jumped.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action JumpBoostOnClientJump(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Creates a single use next frame hook
+    RequestFrame(view_as<RequestFrameCallback>(JumpBoostOnClientJumpPost), GetClientUserId(clientIndex));
+}
  
 /**
  * Client is joining the server.
@@ -72,23 +158,6 @@ public void JumpBoostGroundEntChangedPost(const int clientIndex)
         }
     }
 }
-
-/**
- * Client is jumping.
- * 
- * @param clientIndex       The client index.
- **/
-void JumpBoostOnClientJump(const int clientIndex)
-{ 
-    // If jump boost disabled, then stop
-    if(!gCvarList[CVAR_JUMPBOOST_ENABLE].BoolValue)
-    {
-        return;
-    }
-
-    // Creates a single use next frame hook
-    RequestFrame(view_as<RequestFrameCallback>(JumpBoostOnClientJumpPost), GetClientUserId(clientIndex));
-}  
 
 /**
  * Client is jumping. *(Post)

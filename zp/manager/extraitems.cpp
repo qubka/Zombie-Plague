@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          extraitems.cpp
  *  Type:          Manager 
  *  Description:   Extra Items generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,11 +24,6 @@
  *
  * ============================================================================
  **/
-
-/**
- * Number of max valid extra items.
- **/
-#define ExtraItemMax 128
 
 /**
  * Array handle to store extra item native data.
@@ -52,38 +47,154 @@ enum
 /**
  * Array to store the item limit to player.
  **/
-int gExtraBuyLimit[MAXPLAYERS+1][ExtraItemMax];
+int gExtraBuyLimit[MAXPLAYERS+1][2048];
 
 /**
- * Initialization of extra items. 
+ * Extraitems module init function.
  **/
-void ExtraItemsLoad(/*void*/)
+void ExtraItemsInit(/*void*/)
 {
-    // No extra items?
-    if(arrayExtraItems == INVALID_HANDLE)
-    {
-        LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Extraitems, "Extra Items Validation", "No extra items loaded");
-    }
+    // Prepare all extraitem data
+    ExtraItemsLoad();
 }
 
 /**
- * Creates commands for extra items module. Called when commands are created.
+ * Prepare all extraitem data.
+ **/
+void ExtraItemsLoad(/*void*/)
+{
+    // Register config file
+    ConfigRegisterConfig(File_ExtraItems, Structure_Keyvalue, CONFIG_FILE_ALIAS_EXTRAITEMS);
+
+    // Gets extraitems config path
+    static char sPathItems[PLATFORM_MAX_PATH];
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_EXTRAITEMS, sPathItems);
+
+    // If file doesn't exist, then log and stop
+    if(!bExists)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
+    }
+
+    // Sets the path to the config file
+    ConfigSetConfigPath(File_ExtraItems, sPathItems);
+
+    // Load config from file and create array structure
+    bool bSuccess = ConfigLoadConfig(File_ExtraItems, arrayExtraItems);
+
+    // Unexpected error, stop plugin
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathItems);
+    }
+
+    // Validate extraitems config
+    int iSize = arrayExtraItems.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
+    }
+
+    // Now copy data to array structure
+    ExtraItemsCacheData();
+
+    // Sets config data
+    ConfigSetConfigLoaded(File_ExtraItems, true);
+    ConfigSetConfigReloadFunc(File_ExtraItems, GetFunctionByName(GetMyHandle(), "ExtraItemsOnConfigReload"));
+    ConfigSetConfigHandle(File_ExtraItems, arrayExtraItems);
+}
+
+/**
+ * Caches extraitem data from file into arrays.
+ * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ **/
+void ExtraItemsCacheData(/*void*/)
+{
+    // Gets config file path
+    static char sPathItems[PLATFORM_MAX_PATH];
+    ConfigGetConfigPath(File_ExtraItems, sPathItems, sizeof(sPathItems));
+
+    // Open config
+    KeyValues kvExtraItems;
+    bool bSuccess = ConfigOpenConfigFile(File_ExtraItems, kvExtraItems);
+
+    // Validate config
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
+    }
+
+    // i = array index
+    int iSize = arrayExtraItems.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // General
+        ItemsGetName(i, sPathItems, sizeof(sPathItems)); // Index: 0
+        kvExtraItems.Rewind();
+        if(!kvExtraItems.JumpToKey(sPathItems))
+        {
+            // Log extraitem fatal
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sPathItems);
+            continue;
+        }
+        
+        // Validate translation
+        if(!TranslationPhraseExists(sPathItems))
+        {
+            // Log extraitem error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sPathItems);
+        }
+
+        // Initialize array block
+        ArrayList arrayExtraItem = arrayExtraItems.Get(i);
+
+        // Push data into array
+        kvExtraItems.GetString("info", sPathItems, sizeof(sPathItems), ""); 
+        if(!TranslationPhraseExists(sPathItems) && hasLength(sPathItems))
+        {
+            // Log extraitem error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sPathItems);
+        }
+        arrayExtraItem.PushString(sPathItems);            // Index: 1
+        arrayExtraItem.Push(kvExtraItems.GetNum("cost", 0));   // Index: 2
+        arrayExtraItem.Push(kvExtraItems.GetNum("level", 0));  // Index: 3
+        arrayExtraItem.Push(kvExtraItems.GetNum("online", 0)); // Index: 4
+        arrayExtraItem.Push(kvExtraItems.GetNum("limit", 0));  // Index: 5
+        kvExtraItems.GetString("group", sPathItems, sizeof(sPathItems), ""); 
+        arrayExtraItem.PushString(sPathItems);            // Index: 6
+    }
+
+    // We're done with this file now, so we can close it
+    delete kvExtraItems;
+}
+
+/**
+ * Called when configs are being reloaded.
+ **/
+public void ExtraItemsOnConfigReload(/*void*/)
+{
+    // Reload extraitems config
+    ExtraItemsLoad();
+}
+
+/**
+ * Creates commands for extra items module.
  **/
 void ExtraItemsOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zitemmenu", ExtraItemsCommandCatched, "Open the extra items menu.");
+    RegConsoleCmd("zp_item_menu", ExtraItemsCommandCatched, "Open the extra items menu.");
 }
 
 /**
- * Handles the <!zitemmenu> command. Open the extra items menu.
+ * Handles the <!zp_item_menu> command. Open the extra items menu.
  * 
  * @param clientIndex        The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
 public Action ExtraItemsCommandCatched(const int clientIndex, const int iArguments)
 {
-    // Open the extra items menu
     ExtraItemsMenu(clientIndex);
     return Plugin_Handled;
 }
@@ -91,6 +202,26 @@ public Action ExtraItemsCommandCatched(const int clientIndex, const int iArgumen
 /*
  * Extra items natives API.
  */
+
+/**
+ * Sets up natives for library.
+ **/
+void ExtraItemsAPI(/*void*/)
+{
+    CreateNative("ZP_GiveClientExtraItem",            API_GiveClientExtraItem); 
+    CreateNative("ZP_SetClientExtraItemLimit",        API_SetClientExtraItemLimit); 
+    CreateNative("ZP_GetClientExtraItemLimit",        API_GetClientExtraItemLimit); 
+    CreateNative("ZP_GetNumberExtraItem",             API_GetNumberExtraItem); 
+    CreateNative("ZP_GetExtraItemNameID",             API_GetExtraItemNameID);
+    CreateNative("ZP_GetExtraItemName",               API_GetExtraItemName); 
+    CreateNative("ZP_GetExtraItemInfo",               API_GetExtraItemInfo); 
+    CreateNative("ZP_GetExtraItemCost",               API_GetExtraItemCost); 
+    CreateNative("ZP_GetExtraItemLevel",              API_GetExtraItemLevel); 
+    CreateNative("ZP_GetExtraItemOnline",             API_GetExtraItemOnline); 
+    CreateNative("ZP_GetExtraItemLimit",              API_GetExtraItemLimit); 
+    CreateNative("ZP_GetExtraItemGroup",              API_GetExtraItemGroup); 
+    CreateNative("ZP_PrintExtraItemInfo",             API_PrintExtraItemInfo); 
+}
 
 /**
  * Give the extra item to the client.
@@ -105,7 +236,7 @@ public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -115,7 +246,7 @@ public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
 
@@ -147,7 +278,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -157,7 +288,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -181,7 +312,7 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -191,100 +322,12 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
     // Return buy limit of the current player item
     return ItemsGetLimits(clientIndex, iD);
-}
- 
-/**
- * Load extra items from other plugin.
- *
- * native int ZP_RegisterExtraItem(name, info, cost, team, level, online, limit)
- **/
-public int API_RegisterExtraItem(Handle isPlugin, const int iNumParams)
-{
-    // If array hasn't been created, then create
-    if(arrayExtraItems == INVALID_HANDLE)
-    {
-        // Create array in handle
-        arrayExtraItems = CreateArray(ExtraItemMax);
-    }
-
-    // Retrieves the string length from a native parameter string
-    int maxLen;
-    GetNativeStringLength(1, maxLen);
-    
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Can't register extra item with an empty name");
-        return -1;
-    }
-    
-    // Gets extra items amount
-    int iCount = arrayExtraItems.Length;
-
-    // Maximum amout of extra items
-    if(iCount >= ExtraItemMax)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "ExtraItems Validation",  "Maximum number of extra items reached (%d). Skipping other items.", ExtraItemMax);
-        return -1;
-    }
-
-    // Initialize variables
-    char sItemBuffer[SMALL_LINE_LENGTH];
-    char sItemName[SMALL_LINE_LENGTH];
-
-    // General
-    GetNativeString(1, sItemBuffer, sizeof(sItemBuffer)); 
-    
-    // i = item number
-    for(int i = 0; i < iCount; i++)
-    {
-        // Gets the name of an item at a given index
-        ItemsGetName(i, sItemName, sizeof(sItemName));
-    
-        // If names match, then stop
-        if(!strcmp(sItemBuffer, sItemName, false))
-        {
-            return i;
-        }
-    }
-    
-    // Validate translation
-    if(!TranslationPhraseExists(sItemBuffer))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Couldn't cache extra item name: \"%s\" (check translation file)", sItemBuffer);
-        return -1;
-    }
-    
-    // Initialize array block
-    ArrayList arrayExtraItem = CreateArray(ExtraItemMax);
-    
-    // Push native data into array
-    arrayExtraItem.PushString(sItemBuffer); // Index: 0
-    GetNativeString(2, sItemBuffer, sizeof(sItemBuffer));
-    if(!TranslationPhraseExists(sItemBuffer) && strlen(sItemBuffer))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Couldn't cache extra item info: \"%s\" (check translation file)", sItemBuffer);
-        return -1;
-    }
-    arrayExtraItem.PushString(sItemBuffer); // Index: 1
-    arrayExtraItem.Push(GetNativeCell(3));  // Index: 2
-    arrayExtraItem.Push(GetNativeCell(4));  // Index: 3
-    arrayExtraItem.Push(GetNativeCell(5));  // Index: 4
-    arrayExtraItem.Push(GetNativeCell(6));  // Index: 5
-    GetNativeString(7, sItemBuffer, sizeof(sItemBuffer)); 
-    arrayExtraItem.PushString(sItemBuffer); // Index: 6
-    
-    // Store this handle in the main array
-    arrayExtraItems.Push(arrayExtraItem);
-    
-    // Return id under which we registered the item
-    return arrayExtraItems.Length-1;
 }
 
 /**
@@ -295,6 +338,49 @@ public int API_RegisterExtraItem(Handle isPlugin, const int iNumParams)
 public int API_GetNumberExtraItem(Handle isPlugin, const int iNumParams)
 {
     return arrayExtraItems.Length;
+}
+
+/**
+ * Gets the index of a extra item at a given name.
+ *
+ * native int ZP_GetExtraItemNameID(name);
+ **/
+public int API_GetExtraItemNameID(Handle hPlugin, const int iNumParams)
+{
+    // Retrieves the string length from a native parameter string
+    int maxLen;
+    GetNativeStringLength(1, maxLen);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Can't find item with an empty name");
+        return -1;
+    }
+    
+    // Gets native data
+    static char sName[SMALL_LINE_LENGTH];
+
+    // General
+    GetNativeString(1, sName, sizeof(sName));
+
+    // i = item number
+    int iCount = arrayExtraItems.Length;
+    for(int i = 0; i < iCount; i++)
+    {
+        // Gets the name of a extra item at a given index
+        static char sItemName[SMALL_LINE_LENGTH];
+        ItemsGetName(i, sItemName, sizeof(sItemName));
+
+        // If names match, then return index
+        if(!strcmp(sName, sItemName, false))
+        {
+            return i;
+        }
+    }
+
+    // Return on the unsuccess
+    return -1;
 }
 
 /**
@@ -310,7 +396,7 @@ public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -320,7 +406,7 @@ public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -345,7 +431,7 @@ public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -355,7 +441,7 @@ public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -380,7 +466,7 @@ public int API_GetExtraItemCost(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -401,7 +487,7 @@ public int API_GetExtraItemLevel(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -422,7 +508,7 @@ public int API_GetExtraItemOnline(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -443,7 +529,7 @@ public int API_GetExtraItemLimit(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -464,7 +550,7 @@ public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -474,7 +560,7 @@ public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -505,7 +591,7 @@ public int API_PrintExtraItemInfo(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -515,7 +601,7 @@ public int API_PrintExtraItemInfo(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Extraitems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     

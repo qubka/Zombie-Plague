@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          log.cpp
  *  Type:          Core 
  *  Description:   Logging API.
  *
- *  Copyright (C) 2015-2018 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2019 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -64,8 +64,8 @@ enum LogTypes
     LogType_Fatal,            /** Fatal error. Stops the plugin with the specified message. */
     LogType_Native,           /** Throws an error in the calling plugin of a native, instead of your own plugin. */
     LogType_Command           /** Command log message. Printed in SourceMod logs and in chat to all. */
-}
-
+};
+    
 /**
  * List of modules that write log events. Add new modules if needed (in
  * alphabetical order).
@@ -90,13 +90,13 @@ enum LogModules
     bool:LogModule_Weapons,
     bool:LogModule_Effects,
     bool:LogModule_Menus,
-    bool:LogModule_Hitgroups,
-    bool:LogModule_Antistick,
-    bool:LogModule_Zombieclasses,
-    bool:LogModule_Humanclasses,
-    bool:LogModule_Extraitems,
+    bool:LogModule_HitGroups,
+    bool:LogModule_AntiStick,
+    bool:LogModule_ZombieClasses,
+    bool:LogModule_HumanClasses,
+    bool:LogModule_ExtraItems,
     bool:LogModule_Costumes,
-    bool:LogModule_Gamemodes,
+    bool:LogModule_GameModes,
     bool:LogModule_Admin,
     bool:LogModule_Native
 }
@@ -111,17 +111,6 @@ ArrayList arrayLogModuleFilter;
  **/
 int LogModuleFilterCache[LogModules];
 
-
-/**
- * Creates commands for logging module. Called when commands are created.
- **/
-void LogOnCommandsCreate(/*void*/)
-{
-    RegAdminCmd("zp_log_list", Command_LogList, ADMFLAG_CONFIG, "List available logging flags and modules with their status values.");
-    RegAdminCmd("zp_log_add_module", Command_LogAddModule, ADMFLAG_CONFIG, "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...");
-    RegAdminCmd("zp_log_remove_module", Command_LogRemoveModule, ADMFLAG_CONFIG, "Remove one or more modules from the module filter. Usage: zp_log_remove_module <module> [module] ...");
-}
-
 /**
  * List of modules that write log events. 
  **/
@@ -135,6 +124,30 @@ void LogInit(/*void*/)
     
     // Initialize module filter array
     arrayLogModuleFilter = CreateArray(32);
+}
+
+/**
+ * Creates commands for log module.
+ **/
+void LogOnCommandsCreate(/*void*/)
+{
+    // Create config admin commands
+    RegAdminCmd("zp_log_list", LogListCommandCatched, ADMFLAG_CONFIG, "List available logging flags and modules with their status values.");
+    RegAdminCmd("zp_log_add_module", LogAddModuleCommandCatched, ADMFLAG_CONFIG, "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...");
+    RegAdminCmd("zp_log_remove_module", LogRemoveModuleCommandCatched, ADMFLAG_CONFIG, "Remove one or more modules from the module filter. Usage: zp_log_remove_module <module> [module] ...");
+}
+
+/**
+ * Hook log cvar changes.
+ **/
+void LogOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_LOG]                         = FindConVar("zp_log");
+    gCvarList[CVAR_LOG_MODULE_FILTER]           = FindConVar("zp_log_module_filter");
+    gCvarList[CVAR_LOG_IGNORE_CONSOLE]          = FindConVar("zp_log_ignore_console");
+    gCvarList[CVAR_LOG_ERROR_OVERRIDE]          = FindConVar("zp_log_error_override");
+    gCvarList[CVAR_LOG_PRINT_CHAT]              = FindConVar("zp_log_print_chat");
 }
 
 /**
@@ -192,23 +205,23 @@ LogModules LogGetModule(char[] sModuleName)
     }
     else if(!strcmp(sModuleName, "hitgroups", false))
     {
-        return LogModule_Hitgroups;
+        return LogModule_HitGroups;
     }
     else if(!strcmp(sModuleName, "antistick", false))
     {
-        return LogModule_Antistick;
+        return LogModule_AntiStick;
     }
     else if(!strcmp(sModuleName, "zombieclasses", false))
     {
-        return LogModule_Zombieclasses;
+        return LogModule_ZombieClasses;
     }
     else if(!strcmp(sModuleName, "humanclasses", false))
     {
-        return LogModule_Humanclasses;
+        return LogModule_HumanClasses;
     }
     else if(!strcmp(sModuleName, "extraitems", false))
     {
-        return LogModule_Extraitems;
+        return LogModule_ExtraItems;
     }
     else if(!strcmp(sModuleName, "costumes", false))
     {
@@ -216,7 +229,7 @@ LogModules LogGetModule(char[] sModuleName)
     }
     else if(!strcmp(sModuleName, "gamemodes", false))
     {
-        return LogModule_Gamemodes;
+        return LogModule_GameModes;
     }
     else if(!strcmp(sModuleName, "admin", false))
     {
@@ -313,23 +326,23 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules i
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "menus") : strcopy(sBuffer, iMaxLen, "Menus");
         }
-        case LogModule_Hitgroups:
+        case LogModule_HitGroups:
         {
-            return shortName ? strcopy(sBuffer, iMaxLen, "hitgroups") : strcopy(sBuffer, iMaxLen, "Hitgroups");
+            return shortName ? strcopy(sBuffer, iMaxLen, "hitgroups") : strcopy(sBuffer, iMaxLen, "HitGroups");
         }
-        case LogModule_Antistick:
+        case LogModule_AntiStick:
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "antistick") : strcopy(sBuffer, iMaxLen, "Antistick");
         }
-        case LogModule_Zombieclasses :
+        case LogModule_ZombieClasses :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "zombieclasses") : strcopy(sBuffer, iMaxLen, "Zombie Classes");
         }
-        case LogModule_Humanclasses :
+        case LogModule_HumanClasses :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "humanclasses") : strcopy(sBuffer, iMaxLen, "Human Classes");
         }
-        case LogModule_Extraitems :
+        case LogModule_ExtraItems :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "extraitems") : strcopy(sBuffer, iMaxLen, "Extra Items");
         }
@@ -337,7 +350,7 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules i
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "costumes") : strcopy(sBuffer, iMaxLen, "Costumes");
         }
-        case LogModule_Gamemodes :
+        case LogModule_GameModes :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "gamemodes") : strcopy(sBuffer, iMaxLen, "Game Modes");
         }
@@ -371,7 +384,7 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules i
  * @param sMessage          Log message. Can be formatted.
  * @param ...               Formatting parameters.
  **/
-void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Normal, const int eventType = LOG_CORE_EVENTS, const LogModules iModule, const char[] sDescription, const char[] sMessage, any ...)
+void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Normal, const int eventType = LOG_CORE_EVENTS, const LogModules iModule = LogModule_Config, const char[] sDescription, const char[] sMessage, any ...)
 {    
     // Check filter overrides. Always log fatal errors, and check error override setting on error log types
     if((logType != LogType_Fatal && logType != LogType_Error) || (logType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
@@ -468,7 +481,7 @@ bool LogModuleFilterAdd(const LogModules iModule)
     static char sModuleName[SMALL_LINE_LENGTH];
     
     // Check ifempty
-    if(!strlen(sModuleName))
+    if(!hasLength(sModuleName))
     {
         return false;
     }
@@ -500,7 +513,7 @@ bool LogModuleFilterRemove(const LogModules iModule)
     static char sModuleName[SMALL_LINE_LENGTH]; int iModuleIndex;
     
     // Check ifempty
-    if(!strlen(sModuleName))
+    if(!hasLength(sModuleName))
     {
         return false;
     }
@@ -561,7 +574,7 @@ void LogModuleFilterCacheUpdate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action Command_LogList(const int clientIndex, const int iArguments)
+public Action LogListCommandCatched(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sBuffer[LOG_MAX_LENGTH_FILE];
@@ -639,7 +652,7 @@ public Action Command_LogList(const int clientIndex, const int iArguments)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action Command_LogAddModule(const int clientIndex, const int iArguments)
+public Action LogAddModuleCommandCatched(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];
@@ -691,7 +704,7 @@ public Action Command_LogAddModule(const int clientIndex, const int iArguments)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action Command_LogRemoveModule(const int clientIndex, const int iArguments)
+public Action LogRemoveModuleCommandCatched(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];

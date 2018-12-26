@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          tools.cpp
  *  Type:          Game 
  *  Description:   Find offsets and signatures.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,9 +29,6 @@
  * Variables to store SDK calls handlers.
  **/
 Handle hSDKCallEntityUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
-Handle hSDKCallTerminateRound;
-Handle hSDKCallSwitchTeam;
-Handle hSDKCallRoundRespawn;
 Handle hSDKCallLookupAttachment;
 Handle hSDKCallGetAttachment_Linux;
 Handle hSDKCallGetAttachment_Windows;
@@ -44,6 +41,9 @@ Handle hSDKCallGetAttachment_Windows;
  **/
 void ToolsInit(/*void*/)
 {
+    // Forward event to sub-modules
+    ToolsFInit();
+    
     // Find offsets
     ToolsFindOffsets();
 
@@ -62,6 +62,9 @@ void ToolsPurge(/*void*/)
         // Purge player timers
         ToolsPurgeTimers(i); /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
+    
+    // Clear string
+    gServerData[Server_MapName] = '\0'; 
 }
 
 /**
@@ -100,46 +103,6 @@ void ToolsSetupGameData(/*void*/)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::UpdateTransmitState\". Update offset in \"%s\"", PLUGIN_CONFIG);
-    }
-    
-    // Starts the preparation of an SDK call	
-    StartPrepSDKCall(SDKCall_GameRules);	
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "TerminateRound");	
-    
-    // Adds a parameter to the calling convention. This should be called in normal ascending order	
-    PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);	
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);	
-    
-    // Validate call	
-    if(!(hSDKCallTerminateRound = EndPrepSDKCall()))	
-    {	
-        // Log failure	
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CGameRules::TerminateRound\". Update \"SourceMod\"");	
-    }
-
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "SwitchTeam");
-
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-
-    // Validate call
-    if(!(hSDKCallSwitchTeam = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBasePlayer::SwitchTeam\". Update \"SourceMod\"");
-    }
-
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_CStrike], SDKConf_Signature, "RoundRespawn");
-
-    //  Validate call
-    if(!(hSDKCallRoundRespawn = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RoundRespawn\". Update \"SourceMod\"");
     }
     
     // Starts the preparation of an SDK call
@@ -195,22 +158,22 @@ void ToolsSetupGameData(/*void*/)
  */
 
 /**
- * Set a round termination.
- *
- * native void ZP_TerminateRound(reason);
+ * Sets up natives for library.
  **/
-public int API_TerminateRound(Handle isPlugin, const int iNumParams)
+void ToolsAPI(/*void*/)
 {
-    // Terminate round
-    ToolsTerminateRound(GetNativeCell(1));
+    CreateNative("ZP_TakeDamage",                     API_TakeDamage);
+    CreateNative("ZP_UpdateTransmitState",            API_UpdateTransmitState);
+    CreateNative("ZP_LookupAttachment",               API_LookupAttachment);
+    CreateNative("ZP_GetAttachment",                  API_GetAttachment);
 }
-
+ 
 /**
  * Update a entity transmit state.
  *
  * native void ZP_UpdateTransmitState(entityIndex);
  **/
-public int API_UpdateTransmitState(Handle isPlugin, const int iNumParams)
+public int API_UpdateTransmitState(Handle hPlugin, const int iNumParams)
 {
     // Gets entity index from native cell 
     int entityIndex = GetNativeCell(1);
@@ -234,7 +197,7 @@ public int API_UpdateTransmitState(Handle isPlugin, const int iNumParams)
  *
  * native bool ZP_LookupAttachment(entityIndex, attach);
  **/
-public int API_LookupAttachment(Handle isPlugin, const int iNumParams)
+public int API_LookupAttachment(Handle hPlugin, const int iNumParams)
 {
     // Gets entity index from native cell 
     int entityIndex = GetNativeCell(1);
@@ -271,7 +234,7 @@ public int API_LookupAttachment(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetAttachment(entityIndex, attach, origin, angles);
  **/
-public int API_GetAttachment(Handle isPlugin, const int iNumParams)
+public int API_GetAttachment(Handle hPlugin, const int iNumParams)
 {
     // Gets entity index from native cell 
     int entityIndex = GetNativeCell(1);

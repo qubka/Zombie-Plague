@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.

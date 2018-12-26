@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          debug.cpp
  *  Type:          Core
  *  Description:   Description: Place to put custom functions and test stuff.
  *
- *  Copyright (C) 2015-2018  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  **/
 
 /**
- * Creates commands for debug module. Called when commands are created.
+ * Creates commands for debug module.
  **/
 void DebugOnCommandsCreate(/*void*/)
 {
@@ -42,10 +42,8 @@ void DebugOnCommandsCreate(/*void*/)
  **/ 
 public Action DebugCommandCatched(const int clientIndex, const int iArguments)
 {
-    // Initialize variable
-    static bool bDebug;
-
     // Validate mode
+    static bool bDebug;
     if(!bDebug)
     {
         // Start the dump

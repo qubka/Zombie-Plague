@@ -245,6 +245,19 @@
     // Config (core)
     // ===========================
 
+    "config menu" // Menu
+    {
+        "en"            "Сonfigs"
+        "ru"            "Конфиги"
+    }
+    
+    "config menu reload" // Menu
+    {
+        "#format"       "{1:s}"
+        "en"            "Reload: \"{1}\""
+        "ru"            "Загрузить: \"{1}\""
+    }
+    
     "config reload" // Console
     {
         "en"            "Syntax: zp_reloadconfig <file alias1> [file alias2] ... - Reloads a config file."
@@ -259,9 +272,9 @@
 
     "config reload commands aliases" // Console
     {
-        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s},{6:s}"
-        "en"            "File Aliases:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\""
-        "ru"            "Алиасы файла:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\""
+        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s},{11:s}"
+        "en"            "File Aliases:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
+        "ru"            "Алиасы файла:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
     }
 
     "config reload invalid" // Console
@@ -780,6 +793,12 @@
         "en"            "Medi Shot"
         "ru"            "Мед. Шприц"
     }
+    
+    "drone gun" // Menu
+    {
+        "en"            "Auto Turret"
+        "ru"            "Авто турель"
+    }
 
     "freeze grenade" // Menu
     {
@@ -1243,10 +1262,10 @@
     
     // Knife
     
-    "knife" // Menu
+    "fists" // Menu
     {
-        "en"            "Knife"
-        "ru"            "Обычный нож"
+        "en"            "Fists"
+        "ru"            "Кулаки"
     }
     
     "survivor knife" // Menu
@@ -1265,6 +1284,36 @@
     {
         "en"            "Nemesis Claw"
         "ru"            "Немезис клешни"
+    }
+    
+    "knife" // Menu
+    {
+        "en"            "Classic Knife"
+        "ru"            "Обычный нож"
+    }
+    
+    "knife t" // Menu
+    {
+        "en"            "Knife T"
+        "ru"            "Нож террориста"
+    }
+    
+    "spanner" // Menu
+    {
+        "en"            "Spanner"
+        "ru"            "Гаечный ключ"
+    }
+    
+    "axe" // Menu
+    {
+        "en"            "Axe"
+        "ru"            "Топор"
+    }
+    
+    "hammer" // Menu
+    {
+        "en"            "Hammer"
+        "ru"            "Молот"
     }
     
     // Others

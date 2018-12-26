@@ -71,27 +71,6 @@
         // You can update them only by yourself using tutorial in the link
         "Signatures"
         {
-            // Linux will rename with 'sub__'
-            // Find v4 = (GetSequenceActivity(a1, 0, 0) == a2) - 1; with Str: "SelectWeightedSequence" and using it's x-ref try to find that function  
-            ///signed int __cdecl CBaseAnimating::GetSequenceActivity(CBaseAnimating *this, int a2)
-            ///{
-            ///  signed int result; // eax
-            ///  CStudioHdr *v3; // eax
-            ///
-            ///  result = -1;
-            ///  if ( a2 != -1 )
-            ///  {
-            ///    if ( !*((_DWORD *)this + 301) && CBaseEntity::GetModel(this) )
-            ///      CBaseAnimating::LockStudioHdr(this);
-            ///    v3 = (CStudioHdr *)*((_DWORD *)this + 301);
-            ///    if ( v3 && *(_DWORD *)v3 )
-            ///      result = GetSequenceActivity(v3, a2, 0); 
-            ///    else
-            ///      result = -1;
-            ///  }
-            ///  return result;
-            ///}
-            // For Windows Str : "Need to handle the activity %d\n"
             ///  v2 = CBaseAnimating::GetSequenceActivity(*((CBaseAnimating **)this + 7), *(_DWORD *)(*((_DWORD *)this + 7) + 1004));
             ///  if ( v2 == 29 || v2 == 6 || v2 == 30 || v2 == 1 || v2 == 462 || v2 == 396 || v2 == 146 )
             ///  {
@@ -108,16 +87,15 @@
             ///         DevMsg("Need to handle the activity %d\n", v2);
             ///     }
             ///  }
-            "Animating_GetSequenceActivity" // Str: "SelectWeightedSequence" 
+            "Animating_GetSequenceActivity" // Str: "Need to handle the activity %d\n" 
             {
                 "library"    "server"
                 "windows"    "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
                 "linux"      "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
-                //"linux64"  "" ~ Will be updated in future
-                //"mac64"    "" ~ Will be updated in future
+                "linux64"    "\x83\xFE\xFF\x74\x2A\x55\x48\x89\xE5\x53\x48\x89\xFB\x48\x83\xEC\x18\x48\x8B\xBF\x28\x06\x00\x00\x48\x85\xFF\x74\x2A\x48\x83\x3F\x00\x74\x2A\x48\x83\xC4\x18\x31\xD2"
+                //"mac64"      ""
             }
             
-            // Linux will rename with 'sub__'
             ///v10 = CBaseAnimating::LookupAttachment(this, "weapon_hand_R");
             ///if ( (v10 || (v10 = CBaseAnimating::LookupAttachment(this, "weapon_bone")) != 0)
             ///&& (unsigned __int8)CBaseAnimating::GetAttachment(this, v10, &v69, &v75) )
@@ -134,16 +112,16 @@
                 "library"    "server" 
                 "windows"    "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
                 "linux"      "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x18\x85\xDB" 
-                //"linux64"  ""
-                //"mac64"    ""
+                "linux64"    "\x55\x48\x89\xE5\x53\x48\x89\xFB\x48\x83\xEC\x18\x48\x8B\xBF\x28\x06\x00\x00\x48\x85\xFF\x74\x2A\x48\x83\x3F\x00\x74\x2A\xE8\x2A\x2A\x2A\x2A"
+                //"mac64"      ""
             }  
             "Animating_GetAttachment" // Str: "weapon_bone"
             {
                 "library"    "server"            
                 "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
                 "linux"      "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
-                //"linux64"  "" ~ Will be updated in future
-                //"mac64"    "" ~ Will be updated in future
+                "linux64"    "\x55\x48\x89\xE5\x41\x56\x49\x89\xCE\x41\x55\x41\x54\x4C\x8D\x65\xB0\x53\x48\x89\xD3\x4C\x89\xE2\x48\x83\xEC\x30\x48\x8B\x07"
+                //"mac64"      ""
             }
         }
     }

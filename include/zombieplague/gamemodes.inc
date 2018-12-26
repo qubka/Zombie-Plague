@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -66,28 +66,6 @@ native int ZP_GetServerGameMode(char[] name);
 native int ZP_SetServerGameMode(char[] name, int clientIndex = 0);
 
 /**
- * @brief Registers a custom game mode which will be added to the core of ZP.
- *
- * @note The returned game mode index can be later used to identify
- *             the mode when calling the ZP_GetServerGameMode() natives.
- *
- * @param name              Caption/name to analyse the mode.
- * @param desc              Description has taken from translation file.
- * @param sound             Emits sound to all from a block from 'sounds.ini' config.
- * @param chance            Chance in 1 in X. (If value has 0, mode will be taken like a default)    
- * @param min               Minimum players required to the start.
- * @param ratio             Infect ratio. (zombie count = ratio*player count) (0.0-single zombie) (1.0-all zombies except one player)
- * @param infect            Allow infection during round?
- * @param respawn           Allow respawning during round?
- * @param survivor          Will be make survivor? (for all players)
- * @param nemesis           Will be make nemesis? (for all players)
- *                            
- *
- * @return                  An internal game mode index, or -1 on failure.
- **/
-native int ZP_RegisterGameMode(char[] name, char[] desc, char[] sound, int chance, int min, float ratio, bool infect, bool respawn, bool survivor, bool nemesis);
-
-/**
  * @brief Gets the name of a game mode at a given index.
  *
  * @param modeID            The mode index.
@@ -109,6 +87,7 @@ native void ZP_GetGameModeDesc(int modeID, char[] desc, int maxlenght = 32);
  * @brief Gets the sound key of the game mode.
  *
  * @param modeID            The mode index.
+ *
  * @return                  The key id.
  **/
 native int ZP_GetGameModeSoundID(int modeID);
@@ -117,6 +96,7 @@ native int ZP_GetGameModeSoundID(int modeID);
  * @brief Gets the chance of the game mode.
  * 
  * @param modeID            The mode index.
+ *
  * @return                  The chance amount.    
  **/
 native int ZP_GetGameModeChance(int modeID);
@@ -125,6 +105,7 @@ native int ZP_GetGameModeChance(int modeID);
  * @brief Gets the min players of the game mode.
  * 
  * @param modeID            The mode index.
+ *
  * @return                  The min players amount.    
  **/
 native int ZP_GetGameModeMinPlayers(int modeID);
@@ -133,6 +114,7 @@ native int ZP_GetGameModeMinPlayers(int modeID);
  * @brief Gets the ratio of the game mode.
  * 
  * @param modeID            The mode index.
+ *
  * @return                  The ratio amount.    
  **/
 native float ZP_GetGameModeRatio(int modeID);
@@ -141,6 +123,7 @@ native float ZP_GetGameModeRatio(int modeID);
  * @brief Check the infection type of the game mode.
  * 
  * @param modeID            The mode index.
+ *
  * @return                  True or false.    
  **/
 native bool ZP_IsGameModeInfect(int modeID);
@@ -149,6 +132,7 @@ native bool ZP_IsGameModeInfect(int modeID);
  * @brief Check the respawn type of the game mode.
  * 
  * @param modeID            The mode index.
+ *
  * @return                  True or false.    
  **/
 native bool ZP_IsGameModeRespawn(int modeID);
@@ -157,6 +141,7 @@ native bool ZP_IsGameModeRespawn(int modeID);
  * @brief Check the survivor type of the game mode.
  * 
  * @param modeID            The mode index.
+ *
  * @return                  True or false.    
  **/
 native bool ZP_IsGameModeSurvivor(int modeID);
@@ -165,6 +150,7 @@ native bool ZP_IsGameModeSurvivor(int modeID);
  * @brief Check the nemesis type of the game mode.
  * 
  * @param modeID            The mode index.
+ *
  * @return                  True or false.    
  **/
 native bool ZP_IsGameModeNemesis(int modeID);

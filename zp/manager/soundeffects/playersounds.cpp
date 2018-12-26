@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          playersounds.cpp
  *  Type:          Module 
  *  Description:   Player sound effects.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -140,19 +140,52 @@ void PlayerSoundsOnLoad(/*void*/)
 }
 
 /**
+ * Hook player sounds cvar changes.
+ **/
+void PlayerSoundsOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_SEFFECTS_INFECT]             = FindConVar("zp_seffects_infect");
+    gCvarList[CVAR_SEFFECTS_MOAN]               = FindConVar("zp_seffects_moan");
+    gCvarList[CVAR_SEFFECTS_GROAN]              = FindConVar("zp_seffects_groan");
+    gCvarList[CVAR_SEFFECTS_BURN]               = FindConVar("zp_seffects_burn");
+    gCvarList[CVAR_SEFFECTS_DEATH]              = FindConVar("zp_seffects_death");
+    gCvarList[CVAR_SEFFECTS_FOOTSTEPS]          = FindConVar("zp_seffects_footsteps");
+    gCvarList[CVAR_SEFFECTS_CLAWS]              = FindConVar("zp_seffects_claws");
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_INFECT]    = FindConVar("zp_seffects_survivor_infect");
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_HURT]      = FindConVar("zp_seffects_survivor_hurt");
+    gCvarList[CVAR_SEFFECTS_SURVIVOR_DEATH]     = FindConVar("zp_seffects_survivor_death");
+    gCvarList[CVAR_SEFFECTS_NEMESIS_IDLE]       = FindConVar("zp_seffects_nemesis_idle"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_HURT]       = FindConVar("zp_seffects_nemesis_hurt");  
+    gCvarList[CVAR_SEFFECTS_NEMESIS_DEATH]      = FindConVar("zp_seffects_nemesis_death"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_BURN]       = FindConVar("zp_seffects_nemesis_burn");
+    gCvarList[CVAR_SEFFECTS_NEMESIS_FOOTSTEP]   = FindConVar("zp_seffects_nemesis_footstep"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_RESPAWN]    = FindConVar("zp_seffects_nemesis_respawn"); 
+    gCvarList[CVAR_SEFFECTS_NEMESIS_ATTACK]     = FindConVar("zp_seffects_nemesis_attack");
+    gCvarList[CVAR_SEFFECTS_PLAYER_FLASHLIGHT]  = FindConVar("zp_seffects_player_flashlight");  
+    gCvarList[CVAR_SEFFECTS_PLAYER_AMMUNITION]  = FindConVar("zp_seffects_player_ammunition");
+    gCvarList[CVAR_SEFFECTS_PLAYER_LEVEL]       = FindConVar("zp_seffects_player_level");
+    gCvarList[CVAR_SEFFECTS_ROUND_START]        = FindConVar("zp_seffects_round_start");   
+    gCvarList[CVAR_SEFFECTS_ROUND_COUNT]        = FindConVar("zp_seffects_round_count");   
+    gCvarList[CVAR_SEFFECTS_ROUND_ZOMBIE]       = FindConVar("zp_seffects_round_zombie");
+    gCvarList[CVAR_SEFFECTS_ROUND_HUMAN]        = FindConVar("zp_seffects_round_human");  
+    gCvarList[CVAR_SEFFECTS_ROUND_DRAW]         = FindConVar("zp_seffects_round_draw");  
+}
+
+/**
  * The round is ending. (Post)
  *
  * @param CReason           Reason the round has ended.
  **/
-public Action PlayerSoundsOnRoundEnd(Handle hTimer, const int CReason)
+public Action PlayerSoundsOnRoundEnd(Handle hTimer, const CSRoundEndReason CReason)
 {
     // Switch end round reason
     switch(CReason)
     {
         // Emit sounds
-        case ROUNDEND_TERRORISTS_WIN : SoundsInputEmitToAll(gServerKey[Round_Zombie], 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);   
-        case ROUNDEND_CTS_WIN :        SoundsInputEmitToAll(gServerKey[Round_Human], 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
-        case ROUNDEND_ROUND_DRAW :     SoundsInputEmitToAll(gServerKey[Round_Draw], 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
+        case CSRoundEnd_TerroristWin : SoundsInputEmitToAll(gServerKey[Round_Zombie], 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);   
+        case CSRoundEnd_CTWin :        SoundsInputEmitToAll(gServerKey[Round_Human], 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
+        case CSRoundEnd_Draw :     SoundsInputEmitToAll(gServerKey[Round_Draw], 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
     }
 }
 

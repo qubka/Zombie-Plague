@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          config.inc
  *  Type:          Core
  *  Description:   Config API and executing.
  *
- *  Copyright (C) 2015-2018  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -108,16 +108,39 @@
 /**
  * @section Config file reference aliases.
  **/
+#define CONFIG_FILE_ALIAS_CVARS         "cvars"
 #define CONFIG_FILE_ALIAS_DOWNLOADS     "downloads"
 #define CONFIG_FILE_ALIAS_WEAPONS       "weapons"
 #define CONFIG_FILE_ALIAS_SOUNDS        "sounds"
 #define CONFIG_FILE_ALIAS_MENUS         "menus"
 #define CONFIG_FILE_ALIAS_HITGROUPS     "hitgroups"
 #define CONFIG_FILE_ALIAS_COSTUMES      "costumes"
+#define CONFIG_FILE_ALIAS_EXTRAITEMS    "extraitems"    
+#define CONFIG_FILE_ALIAS_GAMEMODES     "gamemodes"
+#define CONFIG_FILE_ALIAS_HUMANCLASSES  "humanclasses"
+#define CONFIG_FILE_ALIAS_ZOMBIECLASSES "zombieclasses"
 /**
  * @endsection
  **/
 
+/**
+ * @section Config file pathes.
+ **/
+#define CONFIG_PATH_CVARS               "cfg/sourcemod/zombieplague.cfg"
+#define CONFIG_PATH_DOWNLOADS           "zombieplague/downloads.ini"
+#define CONFIG_PATH_SOUNDS              "zombieplague/sounds.ini" 
+#define CONFIG_PATH_WEAPONS             "zombieplague/weapons.ini"
+#define CONFIG_PATH_MENUS               "zombieplague/menus.ini"
+#define CONFIG_PATH_HITGROUPS           "zombieplague/hitgroups.ini"
+#define CONFIG_PATH_COSTUMES            "zombieplague/costumes.ini"
+#define CONFIG_PATH_EXTRAITEMS          "zombieplague/extraitems.ini"    
+#define CONFIG_PATH_GAMEMODES           "zombieplague/gamemodes.ini"
+#define CONFIG_PATH_HUMANCLASSES        "zombieplague/humanclasses.ini"
+#define CONFIG_PATH_ZOMBIECLASSES       "zombieplague/zombieclasses.ini"
+/**
+ * @endsection
+ **/
+ 
 /**
  * List of config formats used by the plugin.
  **/
@@ -134,12 +157,17 @@ enum ConfigStructure
 enum ConfigFile
 {
     File_Invalid = -1,      /** Invalid config file. */
+    File_Cvars,             /** <game root>cfg/sourcemod/zombieplague.cfg (default) */
     File_Downloads,         /** <sourcemod root>/zombieplague/downloads.ini (default) */
     File_Weapons,           /** <sourcemod root>/zombieplague/weapons.ini (default) */
     File_Sounds,            /** <sourcemod root>/zombieplague/sounds.ini (default) */
     File_Menus,             /** <sourcemod root>/zombieplague/menus.ini (default) */
-    File_Hitgroups,         /** <sourcemod root>/zombieplague/hitgroups.ini (default) */
-    File_Costumes           /** <sourcemod root>/zombieplague/costumes.ini (default) */
+    File_HitGroups,         /** <sourcemod root>/zombieplague/hitgroups.ini (default) */
+    File_Costumes,          /** <sourcemod root>/zombieplague/costumes.ini (default) */
+    File_ExtraItems,        /** <sourcemod root>/zombieplague/extraitems.ini (default) */
+    File_GameModes,         /** <sourcemod root>/zombieplague/gamemodes.ini (default) */
+    File_HumanClasses,      /** <sourcemod root>/zombieplague/humanclasses.ini (default) */
+    File_ZombieClasses      /** <sourcemod root>/zombieplague/zombieclasses.ini (default) */
 }
 
 /**
@@ -172,90 +200,26 @@ enum ConfigKvAction
 }
 
 /**
- * Create commands related to config here.
- **/
-void ConfigOnCommandsCreate(/*void*/)
-{
-    // Create config admin commands
-    RegAdminCmd("zp_config_reload", Command_ReloadCommand, ADMFLAG_CONFIG, "Reloads a config file. Usage: zp_config_reload <file alias>");
-    RegAdminCmd("zp_config_reloadall", Command_ReloadAllCommand, ADMFLAG_CONFIG, "Reloads all config files. Usage: zp_config_reloadall");
-}
-
-/**
  * Config module init function.
  */
 void ConfigInit(/*void*/)
 {
     // Loads a gamedata configs file
-    gServerData[Server_GameConfig][Game_Zombie] = LoadGameConfigFile(PLUGIN_CONFIG);
-
-    // Validate config
-    if(gServerData[Server_GameConfig][Game_Zombie] == INVALID_HANDLE)
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Config, "Config Validation", "Missing gamedata config file: \"%s\"", PLUGIN_CONFIG);
-    }
-    
-    // Load others standart sourcemod configs
+    gServerData[Server_GameConfig][Game_Zombie]   = LoadGameConfigFile(PLUGIN_CONFIG);
     gServerData[Server_GameConfig][Game_SDKHooks] = LoadGameConfigFile("sdkhooks.games");
     gServerData[Server_GameConfig][Game_SDKTools] = LoadGameConfigFile("sdktools.games");
-    gServerData[Server_GameConfig][Game_CStrike] = LoadGameConfigFile("sm-cstrike.games");
+    gServerData[Server_GameConfig][Game_CStrike]  = LoadGameConfigFile("sm-cstrike.games");
 }
 
 /**
- * Load plugin configs. Executes map configs.
+ * Creates commands for config module.
  **/
-void ConfigLoad(/*void*/)
+void ConfigOnCommandsCreate(/*void*/)
 {
-    // Resets number of rounds
-    gServerData[Server_RoundNumber] = 0;
-    
-    // Gets current map name
-    GetCurrentMap(gServerData[Server_MapName], sizeof(gServerData[Server_MapName]));
-    
-    // Initialize variables
-    static char sFile[NORMAL_LINE_LENGTH];
-    static char sPath[PLATFORM_MAX_PATH];
-
-    // Format full path to main config
-    Format(sFile, sizeof(sFile), "sourcemod/zombieplague.cfg"); 
-    Format(sPath, sizeof(sPath), "cfg/%s", sFile); 
-    
-    // Check if the file exist
-    if(FileExists(sPath))
-    {
-        // Execute config file
-        ServerCommand("exec %s", sFile);
-        
-        // Log action
-        LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Config, "Map Configs", "Executed main config file: \"%s\"", sPath);
-    }
-
-    // Format full path to map config
-    Format(sFile, sizeof(sFile), "sourcemod/zombieplague/%s.cfg", gServerData[Server_MapName]); 
-    Format(sPath, sizeof(sPath), "cfg/%s", sFile); 
-    
-    // Check if the file exist
-    if(FileExists(sPath))
-    {
-        // Execute config file
-        ServerCommand("exec %s", sFile);
-
-        // Log action
-        LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Config, "Map Configs", "Executed map config file: \"%s\"", sPath);
-    }
-}
-
-/**
- * Unload plugin configs.
- **/
-void ConfigUnload(/*void*/)
-{
-    // Unload the gamedata config
-    delete gServerData[Server_GameConfig][Game_Zombie];
-    delete gServerData[Server_GameConfig][Game_SDKHooks];
-    delete gServerData[Server_GameConfig][Game_SDKTools];
-    delete gServerData[Server_GameConfig][Game_CStrike];
+    // Create config admin commands
+    RegAdminCmd("zp_config_menu", ConfigCommandCatched, ADMFLAG_CONFIG, "Open the config menu.");
+    RegAdminCmd("zp_config_reload", ConfigReloadCommandCatched, ADMFLAG_CONFIG, "Reloads a config file. Usage: zp_config_reload <file alias>");
+    RegAdminCmd("zp_config_reloadall", ConfigReloadAllCommandCatched, ADMFLAG_CONFIG, "Reloads all config files. Usage: zp_config_reloadall");
 }
 
 /**
@@ -428,30 +392,26 @@ stock void ConfigGetConfigAlias(const ConfigFile iConfig, char[] sAlias, const i
  **/
 stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, const int blockSize = CONFIG_MAX_LENGTH)
 {
-    // Gets config structure
-    ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
-
-    // Gets config alias
-    static char sConfigAlias[CONFIG_MAX_LENGTH];
-    ConfigGetConfigAlias(iConfig, sConfigAlias, sizeof(sConfigAlias));
-
-    // Gets config file path
-    static char sConfigPath[PLATFORM_MAX_PATH];
-    ConfigGetConfigPath(iConfig, sConfigPath, sizeof(sConfigPath));
-
     // If array hasn't been created, then create
     if(arrayConfig == INVALID_HANDLE)
     {
         // Create array in handle
         arrayConfig = CreateArray(blockSize);
     }
+    
+    // Initialize variables
+    static char sLine[PLATFORM_MAX_PATH];
+    
+    // Gets config structure
+    ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
 
+    // Switch structure
     switch(iStructure)
     {
         case Structure_List :
         {
             // Open file
-            Handle hFile;
+            File hFile;
             bool bSuccess = ConfigOpenConfigFile(iConfig, hFile);
 
             // If config file failed to open, then stop
@@ -463,9 +423,8 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
             // Clear out array
             arrayConfig.Clear();
 
-            static char sLine[PLATFORM_MAX_PATH];
-
-            while(ReadFileLine(hFile, sLine, sizeof(sLine)))
+            // Read lines in the file
+            while(hFile.ReadLine(sLine, sizeof(sLine)))
             {
                 // Cut out comments at the end of a line
                 if(StrContains(sLine, "//") != -1)
@@ -477,7 +436,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
                 TrimString(sLine);
 
                 // If line is empty, then stop
-                if(!strlen(sLine))
+                if(!hasLength(sLine))
                 {
                     continue;
                 }
@@ -494,7 +453,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
         case Structure_ArrayList :
         {
             // Open file
-            Handle hFile;
+            File hFile;
             bool bSuccess = ConfigOpenConfigFile(iConfig, hFile);
             
             // If config file failed to open, then stop
@@ -505,10 +464,9 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
             
             // Destroy all old data
             ConfigClearKvArray(arrayConfig);
-            
-            static char sLine[PLATFORM_MAX_PATH];
-            
-            while(ReadFileLine(hFile, sLine, sizeof(sLine)))
+
+            // Read lines in the file
+            while(hFile.ReadLine(sLine, sizeof(sLine)))
             {
                 // Cut out comments at the end of a line
                 if(StrContains(sLine, "//") != -1)
@@ -520,7 +478,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
                 TrimString(sLine);
 
                 // If line is empty, then stop
-                if(!strlen(sLine))
+                if(!hasLength(sLine))
                 {
                     continue;
                 }
@@ -555,6 +513,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
             // Destroy all old data
             ConfigClearKvArray(arrayConfig);
             
+            // Read keys in the file
             if(hKeyvalue.GotoFirstSubKey())
             {
                 do
@@ -566,6 +525,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
                     static char sKeyName[CONFIG_MAX_LENGTH];
                     hKeyvalue.GetSectionName(sKeyName, sizeof(sKeyName));
                     
+                    // Push data into array
                     arrayConfigEntry.PushString(sKeyName); // Index: 0
                     
                     // Store this handle in the main array
@@ -580,6 +540,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
         }
     }
 
+    // Return on fail
     return false;
 }
 
@@ -604,7 +565,7 @@ stock bool ConfigReloadConfig(const ConfigFile iConfig)
     // Call reload function
     Call_StartFunction(GetMyHandle(), iReloadfunc);
     Call_Finish();
-    
+
     // Return on the success
     return true;
 }
@@ -648,10 +609,12 @@ stock bool ConfigOpenConfigFile(const ConfigFile iConfig, Handle &hConfig)
                 return false;
             }
             
+            // Return on success
             return true;
         }
     }
     
+    // Return on fail
     return false;
 }
 
@@ -681,7 +644,7 @@ stock bool ConfigKeyvalueTreeSetting(const ConfigFile iConfig, const ConfigKvAct
     }
     
     // Retrieve handle of the keyvalue tree
-    Handle hConfig;
+    KeyValues hConfig;
     bool bSuccess = ConfigOpenConfigFile(iConfig, hConfig);
     
     // If the file couldn't be opened, then stop
@@ -691,20 +654,20 @@ stock bool ConfigKeyvalueTreeSetting(const ConfigFile iConfig, const ConfigKvAct
     }
     
     // Rewind keyvalue tree
-    KvRewind(hConfig);
+    hConfig.Rewind();
     
     // i = keys index.
     // Traverse into the keygroup, stop if it fails
     for(int i = 0; i < keysMax; v++)
     {
         // If key is empty, then break the loop
-        if(!strlen(sKeys[i]))
+        if(!hasLength(sKeys[i]))
         {
             break;
         }
         
         // Try to jump to next level in the transversal stack, create key if specified
-        bool bExists = KvJumpToKey(hConfig, sKeys[i], (iAction == KvAction_Create));
+        bool bExists = hConfig.JumpToKey(sKeys[i], (iAction == KvAction_Create));
         
         // If exists is false, then stop
         if(!bExists)
@@ -718,29 +681,29 @@ stock bool ConfigKeyvalueTreeSetting(const ConfigFile iConfig, const ConfigKvAct
     {
         case KvAction_Create :
         {
-            if(!strlen(sSetting) || !strlen(sValue))
+            if(!hasLength(sSetting) || !hasLength(sValue))
             {
                 // We created the key already, so return true
                 return true;
             }
             
             // Sets new value
-            KvSetString(hConfig, sSetting, sValue);
+            hConfig.SetString(sSetting, sValue);
         }
         case KvAction_Delete :
         {
             // Return deletion result
-            return KvDeleteKey(hConfig, sSetting);
+            return hConfig.DeleteKey(sSetting);
         }
         case KvAction_Set :
         {
             // Sets new value
-            KvSetString(hConfig, sSetting, sValue);
+            hConfig.SetString(sSetting, sValue);
         }
         case KvAction_Get:
         {
             // Gets current value
-            KvGetString(hConfig, sSetting, sValue, iMaxLen);
+            hConfig.GetString(sSetting, sValue, iMaxLen);
         }
     }
     
@@ -798,133 +761,41 @@ stock ConfigFile ConfigAliasToConfigFile(const char[] sAlias)
 }
 
 /**
- * Command callback <!zp_config_reload>
- * Reloads a config file and forwards event to modules.
- * 
- * @param clientIndex        The client index.
- * @param iArguments         The number of arguments that were in the argument string.
- **/
-public Action Command_ReloadCommand(const int clientIndex, const int iArguments)
-{
-    // If not enough arguments given, then stop
-    if(iArguments < 1)
-    {
-        TranslationReplyToCommand(clientIndex, "config reload");
-        TranslationReplyToCommand(clientIndex, "config reload commands");
-        TranslationReplyToCommand(clientIndex, "config reload commands aliases", CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES);
-        return Plugin_Handled;
-    }
-
-    static char sFileAlias[CONFIG_MAX_LENGTH];
-    static char sPath[PLATFORM_MAX_PATH];
-    static char sLogMessage[PLATFORM_MAX_PATH];
-
-    int iArgs = GetCmdArgs();
-    for(int i = 1; i <= iArgs; i++)
-    {
-        // Gets alias to restrict
-        GetCmdArg(i, sFileAlias, sizeof(sFileAlias));
-
-        // If alias is invalid, then stop
-        ConfigFile iConfig = ConfigAliasToConfigFile(sFileAlias);
-        if(iConfig == File_Invalid)
-        {
-            TranslationReplyToCommand(clientIndex, "config reload invalid");
-            return Plugin_Handled;
-        }
-
-        // Reload config file
-        bool bLoaded = ConfigReloadConfig(iConfig);
-
-        // Gets config file path
-        ConfigGetConfigPath(iConfig, sPath, sizeof(sPath));
-
-        // Format log message
-        Format(sLogMessage, sizeof(sLogMessage), "[%N] reloaded config file \"%s\". (zp_config_reload)", clientIndex, sPath);
-
-        // If file isn't loaded then tell client, then stop
-        if(!bLoaded)
-        {
-            TranslationReplyToCommand(clientIndex, "config reload not load");
-
-            // Format a failed attempt string to the end of the log message
-            Format(sLogMessage, sizeof(sLogMessage), "\"%s\" -- attempt failed, config file not loaded", sLogMessage);
-        }
-
-        // Log action to game events
-        LogEvent(true, LogType_Command, LOG_GAME_EVENTS, LogModule_Admin, "Admin Command", sLogMessage);
-    }
-    return Plugin_Handled;
-}
-
-/**
- * Command callback <!zp_config_reloadall>
- * Reloads all config files and forwards event to all modules.
- * 
- * @param clientIndex        The client index.
- * @param iArguments         The number of arguments that were in the argument string.
- **/
-public Action Command_ReloadAllCommand(const int clientIndex, const int iArguments)
-{
-    // Begin statistics
-    TranslationReplyToCommand(clientIndex, "config reload begin");
-
-    static char sConfigAlias[CONFIG_MAX_LENGTH];
-
-    // i = config file entry index
-    for(int i = 0; i < sizeof(gConfigData); i++)
-    {
-        // Reload config file
-        bool bSuccessful = ConfigReloadConfig(view_as<ConfigFile>(i));
-
-        // Gets config alias
-        ConfigGetConfigAlias(view_as<ConfigFile>(i), sConfigAlias, sizeof(sConfigAlias));
-
-        if(bSuccessful)
-        {
-            TranslationReplyToCommand(clientIndex, "config reload finish");
-        }
-        else
-        {
-            TranslationReplyToCommand(clientIndex, "config reload falied");
-        }
-    }
-
-    // Log action to game events
-    LogEvent(true, LogType_Command, LOG_GAME_EVENTS, LogModule_Admin, "Admin Command", "[%N] reloaded all config files", clientIndex);
-    return Plugin_Handled;
-}
-
-/**
  * Load config file.
  * 
- * @param iConVar              The cvar define of the path to the file.
+ * @param sFolder              The path input.
  * @param sPath                The path output.
+ * @param bRoot                This should be used instead of directly referencing to sourcemod root.
  * @return                     True if the file exists, false if not.
  **/
-stock bool ConfigGetCvarFilePath(const CvarsList iConVar, char[] sPath)
+stock bool ConfigGetFullPath(const char[] sFolder, char[] sPath, bool bRoot = true)
 {
-    // Gets cvar path
-    static char sFilePath[PLATFORM_MAX_PATH];
-    gCvarList[iConVar].GetString(sFilePath, sizeof(sFilePath));
-
-    // Build full path in return string
-    BuildPath(Path_SM, sPath, PLATFORM_MAX_PATH, sFilePath);
-
+    // Validate root
+    if(bRoot)
+    {
+        // Build full path in return string
+        BuildPath(Path_SM, sPath, PLATFORM_MAX_PATH, sFolder);
+    }
+    else
+    {
+        // Copy folder to path buffer
+        strcopy(sPath, PLATFORM_MAX_PATH, sFolder);
+    }
+    
     // If file is exist, then return true
     return FileExists(sPath);
 }
 
 /**
- * Converts string of "yes/on" or "no/off" to a boolean value.  Always uses english as yes/no/on/off language.
+ * Converts string of "yes/on", "no/off", "false/true", "1/0" to a boolean value.  Always uses english as main language.
  * 
- * @param sOption           "yes/on" or "no/off" string to be converted.
+ * @param sOption           The string to be converted.
  * @return                  True if string is "yes", false otherwise.
  **/
 stock bool ConfigSettingToBool(const char[] sOption)
 {
     // If option is equal to "yes", then return true
-    if(!strcmp(sOption, "yes", false) || !strcmp(sOption, "on", false) || !strcmp(sOption, "1", false))
+    if(!strcmp(sOption, "yes", false) || !strcmp(sOption, "on", false) || !strcmp(sOption, "true", false) || !strcmp(sOption, "1", false))
     {
         return true;
     }
@@ -997,4 +868,241 @@ stock bool ConfigKvGetStringBool(const KeyValues kv, const char[] sKey, const ch
     
     // Convert string to bool
     return ConfigSettingToBool(sValue);
+}
+
+/**
+ * Handles the <!zp_config_menu> command. Open the config menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action ConfigCommandCatched(const int clientIndex, const int iArguments)
+{
+    ConfigMenu(clientIndex);
+    return Plugin_Handled;
+}
+
+/**
+ * Handles the <!zp_config_reload> command. Reloads a config file and forwards event to modules.
+ * 
+ * @param clientIndex       The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action ConfigReloadCommandCatched(const int clientIndex, const int iArguments)
+{
+    // If not enough arguments given, then stop
+    if(iArguments < 1)
+    {
+        TranslationReplyToCommand(clientIndex, "config reload");
+        TranslationReplyToCommand(clientIndex, "config reload commands");
+        TranslationReplyToCommand(clientIndex, "config reload commands aliases", CONFIG_FILE_ALIAS_CVARS, CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES, CONFIG_FILE_ALIAS_EXTRAITEMS, CONFIG_FILE_ALIAS_GAMEMODES, CONFIG_FILE_ALIAS_HUMANCLASSES, CONFIG_FILE_ALIAS_ZOMBIECLASSES);
+
+        return Plugin_Handled;
+    }
+
+    // Initialize variable
+    static char sAlias[CONFIG_MAX_LENGTH];
+    static char sPath[PLATFORM_MAX_PATH];
+    static char sMessage[PLATFORM_MAX_PATH];
+
+    // i = config file entry index
+    int iArgs = GetCmdArgs();
+    for(int i = 1; i <= iArgs; i++)
+    {
+        // Gets alias to restrict
+        GetCmdArg(i, sAlias, sizeof(sAlias));
+
+        // If alias is invalid, then stop
+        ConfigFile iConfig = ConfigAliasToConfigFile(sAlias);
+        if(iConfig == File_Invalid)
+        {
+            TranslationReplyToCommand(clientIndex, "config reload invalid", sAlias);
+            return Plugin_Handled;
+        }
+
+        // Reload config file
+        bool bLoaded = ConfigReloadConfig(iConfig);
+
+        // Gets config file path
+        ConfigGetConfigPath(iConfig, sPath, sizeof(sPath));
+
+        // Format log message
+        Format(sMessage, sizeof(sMessage), "[%N] reloaded config file \"%s\". (zp_config_reload)", clientIndex, sPath);
+
+        // If file isn't loaded then tell client, then stop
+        if(!bLoaded)
+        {
+            TranslationReplyToCommand(clientIndex, "config reload not load", sAlias);
+
+            // Format a failed attempt string to the end of the log message
+            Format(sMessage, sizeof(sMessage), "\"%s\" -- attempt failed, config file not loaded", sMessage);
+        }
+        
+        // Log action to game events
+        LogEvent(true, _, _, _, "Admin Command", sMessage);
+    }
+    
+    // Reload core
+    GameEngineLoad();
+
+    // Return on success
+    return Plugin_Handled;
+}
+
+/**
+ * Handles the <!zp_config_reloadall> command. Reloads all config files and forwards event to all modules.
+ * 
+ * @param clientIndex       The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action ConfigReloadAllCommandCatched(const int clientIndex, const int iArguments)
+{
+    // Begin statistics
+    TranslationReplyToCommand(clientIndex, "config reload begin");
+
+    // Initialize variable
+    static char sAlias[CONFIG_MAX_LENGTH];
+
+    // i = config file entry index
+    for(int i = 0; i < sizeof(gConfigData); i++)
+    {
+        // Reload config file
+        bool bSuccessful = ConfigReloadConfig(view_as<ConfigFile>(i));
+
+        // Gets config alias
+        ConfigGetConfigAlias(view_as<ConfigFile>(i), sAlias, sizeof(sAlias));
+
+        // Validate load
+        if(bSuccessful)
+        {
+            TranslationReplyToCommand(clientIndex, "config reload finish", sAlias);
+        }
+        else
+        {
+            TranslationReplyToCommand(clientIndex, "config reload falied", sAlias);
+        }
+    }
+    
+    // Log action to game events
+    LogEvent(true, _, _, _, "Admin Command", "[%N] reloaded all config files", clientIndex);
+    
+    // Reload core
+    GameEngineLoad();
+
+    // Return on success
+    return Plugin_Handled;
+}
+
+/**
+ * Create the reload config menu.
+ *
+ * @param clientIndex       The client index.
+ **/
+void ConfigMenu(const int clientIndex) 
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        return;
+    }
+
+    // Initialize variables
+    static char sBuffer[NORMAL_LINE_LENGTH];
+    static char sAlias[SMALL_LINE_LENGTH];
+    static char sInfo[SMALL_LINE_LENGTH];
+
+    // Create menu handle
+    Menu hMenu = CreateMenu(ConfigMenuSlots);
+
+    // Sets the language to target
+    SetGlobalTransTarget(clientIndex);
+    
+    // Sets title
+    hMenu.SetTitle("%t", "config menu");
+    
+    // i = config file entry index
+    for(int i = 0; i < sizeof(gConfigData); i++)
+    {
+        // Gets config alias
+        ConfigGetConfigAlias(view_as<ConfigFile>(i), sAlias, sizeof(sAlias));
+        
+        // Format some chars for showing in menu
+        Format(sBuffer, sizeof(sBuffer), "%t", "config menu reload", sAlias);
+        
+        // Show option
+        IntToString(i, sInfo, sizeof(sInfo));
+        hMenu.AddItem(sInfo, sBuffer);
+    }
+    
+    // Sets exit and back button
+    hMenu.ExitBackButton = true;
+
+    // Sets options and display it
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+}
+
+/**
+ * Called when client selects option in the config menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Open main menu back
+                MenuMain(clientIndex);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(clientIndex, false))
+            {
+                return;
+            }
+
+            // Initialize variable
+            static char sAlias[SMALL_LINE_LENGTH];
+            static char sInfo[SMALL_LINE_LENGTH];
+
+            // Gets ID of config
+            hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
+            ConfigFile iD = view_as<ConfigFile>(StringToInt(sInfo));
+            
+            // Gets config alias
+            ConfigGetConfigAlias(iD, sAlias, sizeof(sAlias));
+            
+            // Reload config file
+            bool bSuccessful = ConfigReloadConfig(iD);
+            
+            // Validate load
+            if(bSuccessful)
+            {
+                TranslationPrintToChat(clientIndex, "config reload finish", sAlias);
+            }
+            else
+            {
+                TranslationPrintToChat(clientIndex, "config reload falied", sAlias);
+            }
+        }
+    }
 }

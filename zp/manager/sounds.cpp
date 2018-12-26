@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          sounds.cpp
  *  Type:          Manager 
  *  Description:   Sound table generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,11 +30,6 @@
  */
 #include "zp/manager/soundeffects/voice.cpp"
 #include "zp/manager/soundeffects/playersounds.cpp"
- 
-/**
- * Number of max valid sounds blocks.
- **/
-#define SoundBlocksMax 1024
 
 /**
  * Array handle to store soundtable config data.
@@ -44,7 +39,7 @@ ArrayList arraySounds;
 /**
  * Array for parsing strings.
  **/
-int SoundBuffer[SoundBlocksMax][ParamParseResult];
+int SoundBuffer[2048][ParamParseResult];
 
 /**
  * Sounds module init function.
@@ -56,7 +51,7 @@ void SoundsInit(/*void*/)
 }
 
 /**
- * Prepare all sound/download data.
+ * Prepare all sound data.
  **/
 void SoundsLoad(/*void*/)
 {
@@ -64,18 +59,18 @@ void SoundsLoad(/*void*/)
     ConfigRegisterConfig(File_Sounds, Structure_ArrayList, CONFIG_FILE_ALIAS_SOUNDS);
 
     // Gets sounds file path
-    static char sSoundsPath[PLATFORM_MAX_PATH];
-    bool bExists = ConfigGetCvarFilePath(CVAR_CONFIG_PATH_SOUNDS, sSoundsPath);
+    static char sPathSounds[PLATFORM_MAX_PATH];
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_SOUNDS, sPathSounds);
 
     // If file doesn't exist, then log and stop
     if(!bExists)
     {
         // Log failure and stop plugin
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sSoundsPath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
     }
 
     // Sets the path to the config file
-    ConfigSetConfigPath(File_Sounds, sSoundsPath);
+    ConfigSetConfigPath(File_Sounds, sPathSounds);
 
     // Load config from file and create array structure
     bool bSuccess = ConfigLoadConfig(File_Sounds, arraySounds, PLATFORM_MAX_PATH);
@@ -83,11 +78,33 @@ void SoundsLoad(/*void*/)
     // Unexpected error, stop plugin
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sSoundsPath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathSounds);
     }
     
+    // Now copy data to array structure
+    SoundsCacheData();
+    
+    // Sets config data
+    ConfigSetConfigLoaded(File_Sounds, true);
+    ConfigSetConfigReloadFunc(File_Sounds, GetFunctionByName(GetMyHandle(), "SoundsOnConfigReload"));
+    ConfigSetConfigHandle(File_Sounds, arraySounds);
+
+    // Forward event to sub-modules
+    PlayerSoundsOnLoad();
+}
+
+/**
+ * Caches sound data from file into arrays.
+ * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ **/
+void SoundsCacheData(/*void*/)
+{
+    // Gets config file path
+    static char sPathSounds[PLATFORM_MAX_PATH];
+    ConfigGetConfigPath(File_Sounds, sPathSounds, sizeof(sPathSounds));
+    
     // Log what sounds file that is loaded
-    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sSoundsPath);
+    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sPathSounds);
 
     // Initialize numbers of sounds
     int iSoundCount;
@@ -98,21 +115,21 @@ void SoundsLoad(/*void*/)
     int iSounds = iSoundCount = arraySounds.Length;
     if(!iSounds)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sSoundsPath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sPathSounds);
     }
     
     // i = sound array index
     for(int i = 0; i < iSounds; i++)
     {
         // Gets array line
-        sSoundsPath[0] = '\0'; SoundsGetLine(i, sSoundsPath, sizeof(sSoundsPath));
+        sPathSounds[0] = '\0'; SoundsGetLine(i, sPathSounds, sizeof(sPathSounds));
 
         // Parses a parameter string in key="value" format and store the result in a ParamParseResult array
-        if(ParamParseString(SoundBuffer, sSoundsPath, sizeof(sSoundsPath), i) == PARAM_ERROR_NO)
+        if(ParamParseString(SoundBuffer, sPathSounds, sizeof(sPathSounds), '=', i) == PARAM_ERROR_NO)
         {
             // Count number of parts inside of string
             static char sSound[PARAM_VALUE_MAXPARTS][PLATFORM_MAX_PATH];
-            int nSounds = ExplodeString(sSoundsPath, ",", sSound, sizeof(sSound), sizeof(sSound[]));
+            int nSounds = ExplodeString(sPathSounds, ",", sSound, sizeof(sSound), sizeof(sSound[]));
             
             // Gets array size
             ArrayList arraySound = arraySounds.Get(i);
@@ -130,16 +147,16 @@ void SoundsLoad(/*void*/)
                 arraySound.PushString(sSound[x]);
                 
                 // Format the full path
-                Format(sSoundsPath, sizeof(sSoundsPath), "sound/%s", sSound[x]);
+                Format(sPathSounds, sizeof(sPathSounds), "sound/%s", sSound[x]);
 
                 // Add to server precache list
-                if(DownloadsOnPrecache(sSoundsPath)) iSoundValidCount++; else iSoundUnValidCount++;
+                if(DownloadsOnPrecache(sPathSounds)) iSoundValidCount++; else iSoundUnValidCount++;
             }
         }
         else
         {
             // Log sound error info
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of sound block: %d", i + 1);
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of sound block: %d = \"%s\"", i + 1, sPathSounds);
             
             // Remove sound block from array
             arraySounds.Erase(i);
@@ -155,14 +172,19 @@ void SoundsLoad(/*void*/)
     
     // Log sound validation info
     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Total blocks: %d | Unsuccessful blocks: %d | Total: %d | Successful: %d | Unsuccessful: %d", iSoundCount, iSoundCount - iSounds, iSoundValidCount + iSoundUnValidCount, iSoundValidCount, iSoundUnValidCount);
-    
-    // Sets config data
-    ConfigSetConfigLoaded(File_Sounds, true);
-    ConfigSetConfigReloadFunc(File_Sounds, GetFunctionByName(GetMyHandle(), "SoundsOnConfigReload"));
-    ConfigSetConfigHandle(File_Sounds, arraySounds);
+}
 
+/**
+ * Hook sounds cvar changes.
+ **/
+void SoundsOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL]     = FindConVar("zp_game_custom_sound_level");
+    
     // Forward event to sub-modules
-    PlayerSoundsOnLoad();
+    VoiceOnCvarInit();
+    PlayerSoundsOnCvarInit();
 }
 
 /**
@@ -190,14 +212,14 @@ void SoundsOnRoundStart(/*void*/)
  *
  * @param CReason           Reason the round has ended.
  **/
-void SoundsOnRoundEnd(const int CReason)
+void SoundsOnRoundEnd(const CSRoundEndReason CReason)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
     SoundsInputStop();
     
     // Create timer for emit sounds 
-    CreateTimer(0.1, PlayerSoundsOnRoundEnd, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+    CreateTimer(0.2, PlayerSoundsOnRoundEnd, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
 }
 
 /**
@@ -296,11 +318,20 @@ void SoundsOnClientLevelUp(const int clientIndex)
  */
 
 /**
+ * Sets up natives for library.
+ **/
+void SoundsAPI(/*void*/) 
+{
+    CreateNative("ZP_GetSoundKeyID",                  API_GetSoundKeyID);
+    CreateNative("ZP_GetSound",                       API_GetSound);
+}
+ 
+/**
  * Gets the key id from a given name.
  *
  * native int ZP_GetSoundKeyID(name);
  **/
-public int API_GetSoundKeyID(Handle isPlugin, const int iNumParams)
+public int API_GetSoundKeyID(Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -328,7 +359,7 @@ public int API_GetSoundKeyID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetSound(keyID, sound, maxlenght, position);
  **/
-public int API_GetSound(Handle isPlugin, const int iNumParams)
+public int API_GetSound(Handle hPlugin, const int iNumParams)
 {
     // Gets string size from native cell
     int maxLen = GetNativeCell(3);
@@ -347,7 +378,7 @@ public int API_GetSound(Handle isPlugin, const int iNumParams)
     SoundsGetSound(sSound, sizeof(sSound), GetNativeCell(1), GetNativeCell(4));
     
     // Validate sound
-    if(strlen(sSound))
+    if(hasLength(sSound))
     {
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);
@@ -444,7 +475,7 @@ stock bool SoundsInputEmitToAll(int iKey, int iNum, const int entityIndex = SOUN
     SoundsGetSound(sSound, sizeof(sSound), iKey, iNum);
     
     // Validate sound
-    if(strlen(sSound))
+    if(hasLength(sSound))
     {
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);
@@ -481,7 +512,7 @@ stock bool SoundsInputEmitAmbient(int iKey, int iNum, const float vOrigin[3], co
     SoundsGetSound(sSound, sizeof(sSound), iKey, iNum);
     
     // Validate sound
-    if(strlen(sSound))
+    if(hasLength(sSound))
     {
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);

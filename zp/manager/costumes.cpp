@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          costumes.cpp
  *  Type:          Manager 
  *  Description:   Costumes table generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -67,7 +67,15 @@ int DHook_SetEntityModel;
  **/
 void CostumesClientInit(const int clientIndex)
 {
-    #if defined USE_DHOOKS    
+    #if defined USE_DHOOKS
+    // If module is disabled, then stop
+    if(!gCvarList[CVAR_GAME_CUSTOM_COSTUMES].BoolValue)
+    {
+        // Unhook entity callbacks
+        //DHookRemoveHookID();
+        return;
+    }
+    
     // Hook entity callbacks
     DHookEntity(hDHookSetEntityModel, true, clientIndex);
     #else
@@ -76,32 +84,41 @@ void CostumesClientInit(const int clientIndex)
 }
 
 /**
- * Creates commands for costumes module. Called when commands are created.
- **/
-void CostumesOnCommandsCreate(/*void*/)
-{
-    // Hook commands
-    RegConsoleCmd("zhatmenu", CostumesCommandCatched, "Open the costumes menu.");
-}
-
-/**
- * Handles the <!zhatmenu> command. Open the costumes menu.
- * 
- * @param clientIndex       The client index.
- * @param iArguments        The number of arguments that were in the argument string.
- **/ 
-public Action CostumesCommandCatched(const int clientIndex, const int iArguments)
-{
-    // Open the costumes menu
-    CostumesMenu(clientIndex);
-    return Plugin_Handled;
-}
-
-/**
  * Сostumes module init function.
  **/
 void CostumesInit(/*void*/)
 {
+    // If module is disabled, then purge
+    if(!gCvarList[CVAR_GAME_CUSTOM_COSTUMES].BoolValue)
+    {
+        // Validate loaded map
+        if(IsMapLoaded())
+        {
+            // Is costumes was load
+            if(arrayCostumes != INVALID_HANDLE)
+            {
+                // Destroy costumes
+                CostumesUnload();
+            }
+        }
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // No costumes?
+        if(arrayCostumes == INVALID_HANDLE)
+        {
+            // Reset value
+            gCvarList[CVAR_GAME_CUSTOM_COSTUMES].BoolValue = false;
+        
+            // Log failure
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "You can't enable costume module after map start!");
+            return;
+        }
+    }
+    
     #if defined USE_DHOOKS
     // Load offsets
     fnInitGameConfOffset(gServerData[Server_GameConfig][Game_SDKTools], DHook_SetEntityModel, "SetEntityModel");
@@ -110,6 +127,76 @@ void CostumesInit(/*void*/)
     hDHookSetEntityModel = DHookCreate(DHook_SetEntityModel, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, CostumesDhookOnSetEntityModel);
     DHookAddParam(hDHookSetEntityModel, HookParamType_CharPtr);
     #endif
+}
+
+/**
+ * Creates commands for costumes module.
+ **/
+void CostumesOnCommandsCreate(/*void*/)
+{
+    // Hook commands
+    RegConsoleCmd("zp_costume_menu", CostumesCommandCatched, "Open the costumes menu.");
+}
+
+/**
+ * Hook costumes cvar changes.
+ **/
+void CostumesOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_GAME_CUSTOM_COSTUMES]        = FindConVar("zp_game_custom_costumes");
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_COSTUMES],        CostumesCvarsHookEnable);
+}
+
+/**
+ * Handles the <!zp_costume_menu> command. Open the costumes menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action CostumesCommandCatched(const int clientIndex, const int iArguments)
+{
+    CostumesMenu(clientIndex);
+    return Plugin_Handled;
+}
+
+/**
+ * Cvar hook callback (zp_game_custom_costumes)
+ * Costumes module initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void CostumesCvarsHookEnable(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    CostumesInit();
+}
+
+/**
+ * Destroy costumes attachments.
+ **/
+void CostumesUnload(/*void*/) 
+{
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++) 
+    {
+        // Validate client
+        if(IsPlayerExist(i, false)) 
+        {
+            // Remove current costume
+            CostumesRemove(i);
+        }
+    }
 }
 
 /**
@@ -127,19 +214,19 @@ void CostumesLoad(/*void*/)
     }
 
     // Gets costumes config path
-    char sCostumePath[PLATFORM_MAX_PATH];
-    bool bExists = ConfigGetCvarFilePath(CVAR_CONFIG_PATH_COSTUMES, sCostumePath);
+    char sPathCostumes[PLATFORM_MAX_PATH];
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_COSTUMES, sPathCostumes);
 
     // If file doesn't exist, then log and stop
     if(!bExists)
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Missing costumes config file: %s", sCostumePath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Missing costumes config file: %s", sPathCostumes);
         return;
     }
 
     // Sets the path to the config file
-    ConfigSetConfigPath(File_Costumes, sCostumePath);
+    ConfigSetConfigPath(File_Costumes, sPathCostumes);
 
     // Load config from file and create array structure
     bool bSuccess = ConfigLoadConfig(File_Costumes, arrayCostumes);
@@ -147,7 +234,7 @@ void CostumesLoad(/*void*/)
     // Unexpected error, stop plugin
     if(!bSuccess)
     {
-        ///LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sCostumePath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sPathCostumes);
         return;
     }
 
@@ -155,7 +242,7 @@ void CostumesLoad(/*void*/)
     int iSize = arrayCostumes.Length;
     if(!iSize)
     {
-        ///LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sCostumePath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sPathCostumes);
         return;
     }
 
@@ -175,15 +262,17 @@ void CostumesLoad(/*void*/)
 void CostumesCacheData(/*void*/)
 {
     // Gets config file path
-    char sCostumesPath[PLATFORM_MAX_PATH];
-    ConfigGetConfigPath(File_Costumes, sCostumesPath, sizeof(sCostumesPath)); 
+    char sPathCostumes[PLATFORM_MAX_PATH];
+    ConfigGetConfigPath(File_Costumes, sPathCostumes, sizeof(sPathCostumes)); 
     
+    // Open config
     KeyValues kvCostumes;
     bool bSuccess = ConfigOpenConfigFile(File_Costumes, kvCostumes);
 
+    // Validate config
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error caching data from costumes config file: %s", sCostumesPath);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error caching data from costumes config file: %s", sPathCostumes);
     }
 
     // i = array index
@@ -191,39 +280,39 @@ void CostumesCacheData(/*void*/)
     for(int i = 0; i < iSize; i++)
     {
         // General
-        CostumesGetName(i, sCostumesPath, sizeof(sCostumesPath)); // Index: 0
+        CostumesGetName(i, sPathCostumes, sizeof(sPathCostumes)); // Index: 0
         kvCostumes.Rewind();
-        if(!kvCostumes.JumpToKey(sCostumesPath))
+        if(!kvCostumes.JumpToKey(sPathCostumes))
         {
             // Log costume fatal
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sCostumesPath);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sPathCostumes);
             continue;
         }
         
         // Validate translation
-        if(!TranslationPhraseExists(sCostumesPath))
+        if(!TranslationPhraseExists(sPathCostumes))
         {
             // Log costume error
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sCostumesPath);
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sPathCostumes);
         }
 
         // Gets array size
         ArrayList arrayCostume = arrayCostumes.Get(i);
         
         // Push data into array
-        kvCostumes.GetString("model", sCostumesPath, sizeof(sCostumesPath), ""); 
-        arrayCostume.PushString(sCostumesPath);                              // Index: 1
-        ModelsPrecacheStatic(sCostumesPath);
+        kvCostumes.GetString("model", sPathCostumes, sizeof(sPathCostumes), ""); 
+        arrayCostume.PushString(sPathCostumes);                              // Index: 1
+        ModelsPrecacheStatic(sPathCostumes);
         arrayCostume.Push(kvCostumes.GetNum("body", 0));                     // Index: 2
         arrayCostume.Push(kvCostumes.GetNum("skin", 0));                     // Index: 3
-        kvCostumes.GetString("attachment", sCostumesPath, sizeof(sCostumesPath), "facemask");  
-        arrayCostume.PushString(sCostumesPath);                              // Index: 4
+        kvCostumes.GetString("attachment", sPathCostumes, sizeof(sPathCostumes), "facemask");  
+        arrayCostume.PushString(sPathCostumes);                              // Index: 4
         float vPosition[3]; kvCostumes.GetVector("position", vPosition);   
         arrayCostume.PushArray(vPosition);                                   // Index: 5        
         float vAngle[3]; kvCostumes.GetVector("angle", vAngle);
         arrayCostume.PushArray(vAngle);                                      // Index: 6
-        kvCostumes.GetString("group", sCostumesPath, sizeof(sCostumesPath), "");  
-        arrayCostume.PushString(sCostumesPath);                              // Index: 7
+        kvCostumes.GetString("group", sPathCostumes, sizeof(sPathCostumes), "");  
+        arrayCostume.PushString(sPathCostumes);                              // Index: 7
         arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no"));  // Index: 8
         arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "merge", "no")); // Index: 9
         arrayCostume.Push(kvCostumes.GetNum("level", 0));                    // Index: 10
@@ -247,11 +336,32 @@ public void CostumesOnConfigReload(/*void*/)
  */
 
 /**
+ * Sets up natives for library.
+ **/
+void CostumesAPI(/*void*/) 
+{
+    CreateNative("ZP_GetNumberCostumes",              API_GetNumberCostumes);
+    CreateNative("ZP_GetClientCostume",               API_GetClientCostume);
+    CreateNative("ZP_SetClientCostume",               API_SetClientCostume);
+    CreateNative("ZP_GetCostumeName",                 API_GetCostumeName);
+    CreateNative("ZP_GetCostumeModel",                API_GetCostumeModel);
+    CreateNative("ZP_GetCostumeBody",                 API_GetCostumeBody);
+    CreateNative("ZP_GetCostumeSkin",                 API_GetCostumeSkin);
+    CreateNative("ZP_GetCostumeAttach",               API_GetCostumeAttach);
+    CreateNative("ZP_GetCostumePosition",             API_GetCostumePosition);
+    CreateNative("ZP_GetCostumeAngle",                API_GetCostumeAngle);
+    CreateNative("ZP_GetCostumeGroup",                API_GetCostumeGroup);
+    CreateNative("ZP_IsCostumeHide",                  API_IsCostumeHide);
+    CreateNative("ZP_IsCostumeMerge",                 API_IsCostumeMerge);
+    CreateNative("ZP_GetCostumeLevel",                API_GetCostumeLevel);
+}
+ 
+/**
  * Gets the amount of all costumes.
  *
  * native int ZP_GetNumberCostumes();
  **/
-public int API_GetNumberCostumes(Handle isPlugin, const int iNumParams)
+public int API_GetNumberCostumes(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayCostumes.Length;
@@ -262,7 +372,7 @@ public int API_GetNumberCostumes(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetClientCostume(clientIndex);
  **/
-public int API_GetClientCostume(Handle isPlugin, const int iNumParams)
+public int API_GetClientCostume(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -276,7 +386,7 @@ public int API_GetClientCostume(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_SetClientCostume(clientIndex, iD);
  **/
-public int API_SetClientCostume(Handle isPlugin, const int iNumParams)
+public int API_SetClientCostume(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -287,7 +397,7 @@ public int API_SetClientCostume(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayCostumes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the costume index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
     }
     
@@ -310,7 +420,7 @@ public int API_SetClientCostume(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetCostumeName(iD, name, maxlen);
  **/
-public int API_GetCostumeName(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeName(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -345,7 +455,7 @@ public int API_GetCostumeName(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetCostumeModel(iD, model, maxlen);
  **/
-public int API_GetCostumeModel(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeModel(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -380,7 +490,7 @@ public int API_GetCostumeModel(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetCostumeBody(iD);
  **/
-public int API_GetCostumeBody(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeBody(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -401,7 +511,7 @@ public int API_GetCostumeBody(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetCostumeSkin(iD);
  **/
-public int API_GetCostumeSkin(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeSkin(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -422,7 +532,7 @@ public int API_GetCostumeSkin(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetCostumeAttach(iD, attach, maxlen);
  **/
-public int API_GetCostumeAttach(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeAttach(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -457,7 +567,7 @@ public int API_GetCostumeAttach(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetCostumePosition(iD, position);
  **/
-public int API_GetCostumePosition(Handle isPlugin, const int iNumParams)
+public int API_GetCostumePosition(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -482,7 +592,7 @@ public int API_GetCostumePosition(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetCostumeAngle(iD, angle);
  **/
-public int API_GetCostumeAngle(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeAngle(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -507,7 +617,7 @@ public int API_GetCostumeAngle(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetCostumeGroup(iD, group, maxlen);
  **/
-public int API_GetCostumeGroup(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeGroup(Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -542,7 +652,7 @@ public int API_GetCostumeGroup(Handle isPlugin, const int iNumParams)
  *
  * native bool ZP_IsCostumeHide(iD);
  **/
-public int API_IsCostumeHide(Handle isPlugin, const int iNumParams)
+public int API_IsCostumeHide(Handle hPlugin, const int iNumParams)
 {    
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -563,7 +673,7 @@ public int API_IsCostumeHide(Handle isPlugin, const int iNumParams)
  *
  * native bool ZP_IsCostumeMerge(iD);
  **/
-public int API_IsCostumeMerge(Handle isPlugin, const int iNumParams)
+public int API_IsCostumeMerge(Handle hPlugin, const int iNumParams)
 {    
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -584,7 +694,7 @@ public int API_IsCostumeMerge(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetCostumeLevel(iD);
  **/
-public int API_GetCostumeLevel(Handle isPlugin, const int iNumParams)
+public int API_GetCostumeLevel(Handle hPlugin, const int iNumParams)
 {    
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -784,6 +894,12 @@ stock int CostumesGetLevel(const int iD)
  **/
 void CostumesMenu(const int clientIndex)
 {
+    // If module is disabled, then stop
+    if(!gCvarList[CVAR_GAME_CUSTOM_COSTUMES].BoolValue)
+    {
+        return;
+    }
+    
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
@@ -828,11 +944,11 @@ void CostumesMenu(const int clientIndex)
         
         // Format some chars for showing in menu
         Format(sLevel, sizeof(sLevel), "%t", "level", CostumesGetLevel(i));
-        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < CostumesGetLevel(i)) ? sLevel : "");
+        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < CostumesGetLevel(i)) ? sLevel : "");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < CostumesGetLevel(i) || gClientData[clientIndex][Client_Costume] == i) ? false : true);
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || (!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) || gClientData[clientIndex][Client_Level] < CostumesGetLevel(i) || gClientData[clientIndex][Client_Costume] == i) ? false : true);
     }
     
     // If there are no cases, add an "(Empty)" line
@@ -932,19 +1048,13 @@ public MRESReturn CostumesDhookOnSetEntityModel(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-public void CostumesCreateEntity(const int clientIndex)
+void CostumesCreateEntity(const int clientIndex)
 {
     // Validate client
     if(IsPlayerExist(clientIndex))
     {
-        // Gets the current costume from the client reference
-        int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentCostume]);
-
-        // Validate costume
-        if(entityIndex != INVALID_ENT_REFERENCE) 
-        {
-            AcceptEntityInput(entityIndex, "Kill"); //! Destroy
-        }
+        // Remove current costume
+        CostumesRemove(clientIndex);
 
         // Validate zombie
         if(gClientData[clientIndex][Client_Zombie])
@@ -967,14 +1077,14 @@ public void CostumesCreateEntity(const int clientIndex)
         CostumesGetGroup(gClientData[clientIndex][Client_Costume], sGroup, sizeof(sGroup));
         
         // Validate access
-        if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
+        if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
         {
             gClientData[clientIndex][Client_Costume] = -1;
             return;
         }
 
         // Create an attach addon entity 
-        entityIndex = CreateEntityByName("prop_dynamic_override");
+        int entityIndex = CreateEntityByName("prop_dynamic_override");
         
         // If entity isn't valid, then skip
         if(entityIndex != INVALID_ENT_REFERENCE)
@@ -1120,4 +1230,21 @@ void CostumesBoneMerge(const int entityIndex)
 
     // Sets value on the entity
     SetEntData(entityIndex, g_iOffset_EntityEffects, iEffects); 
+}
+
+/**
+ * Remove a costume entities from the client.
+ *
+ * @param clientIndex       The client index.
+ **/
+void CostumesRemove(int clientIndex)
+{
+    // Gets the current costume from the client reference
+    int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentCostume]);
+
+    // Validate costume
+    if(entityIndex != INVALID_ENT_REFERENCE) 
+    {
+        AcceptEntityInput(entityIndex, "Kill"); //! Destroy
+    }
 }

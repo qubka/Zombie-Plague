@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          levelsystem.cpp
  *  Type:          Game 
  *  Description:   Provides functions for level system.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -46,6 +46,33 @@ Handle hHudLevel;
  **/
 void LevelSystemInit(/*void*/)
 {
+    // If level system disabled, then purge
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        // Validate loaded map
+        if(IsMapLoaded())
+        {
+            // Validate sync
+            if(hHudLevel != INVALID_HANDLE)
+            {
+                // i = client index
+                for(int i = 1; i <= MaxClients; i++)
+                {
+                    // Validate client
+                    if(IsPlayerExist(i))
+                    {
+                        // Remove timer
+                        delete gClientData[i][Client_LevelTimer];
+                    }
+                }
+                
+                // Remove sync
+                delete hHudLevel;
+            }
+        }
+        return;
+    }
+    
     /*
      * Creates a HUD synchronization object. This object is used to automatically assign and re-use channels for a set of messages.
      * The HUD has a hardcoded number of channels (usually 6) for displaying text. You can use any channel for any area of the screen. 
@@ -58,33 +85,71 @@ void LevelSystemInit(/*void*/)
      * These are particularly useful for displaying repeating or refreshing HUD text, in addition to displaying multiple message sets in one area of the screen 
      * (for example, center-say messages that may pop up randomly that you don't want to overlap each other).
      */
+    delete hHudLevel;
     hHudLevel = CreateHudSynchronizer();
-}
-
-/**
- * Prepare all level data.
- **/
-void LevelSystemLoad(/*void*/)
-{
+    
     // Resets level data
     LevelSystemNum = 0;
-
-    // If level system disabled, then stop
-    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
-    {
-        return;
-    }
 
     // Initialize level list
     static char sList[PLATFORM_MAX_PATH];
     gCvarList[CVAR_LEVEL_STATISTICS].GetString(sList, sizeof(sList));
 
     // Check if list is empty, then skip
-    if(strlen(sList))
+    if(hasLength(sList))
     {
         // Convert list string to pieces
         LevelSystemNum = ExplodeString(sList, " ", LevelSystemStats, sizeof(LevelSystemStats), sizeof(LevelSystemStats[])) - 1;
     }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate client
+            if(IsPlayerExist(i))
+            {
+                // Enable level system
+                LevelSystemOnClientUpdate(i);
+            }
+        }
+    }
+}
+
+/**
+ * Hook level system cvar changes.
+ **/
+void LevelSystemOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_LEVEL_SYSTEM]                = FindConVar("zp_level_system");
+    gCvarList[CVAR_LEVEL_STATISTICS]            = FindConVar("zp_level_statistics"); 
+    gCvarList[CVAR_LEVEL_HEALTH_RATIO]          = FindConVar("zp_level_health_ratio");
+    gCvarList[CVAR_LEVEL_SPEED_RATIO]           = FindConVar("zp_level_speed_ratio");
+    gCvarList[CVAR_LEVEL_GRAVITY_RATIO]         = FindConVar("zp_level_gravity_ratio");
+    gCvarList[CVAR_LEVEL_DAMAGE_RATIO]          = FindConVar("zp_level_damage_ratio");
+    gCvarList[CVAR_LEVEL_DAMAGE_HUMAN]          = FindConVar("zp_level_damage_human");
+    gCvarList[CVAR_LEVEL_DAMAGE_ZOMBIE]         = FindConVar("zp_level_damage_zombie");
+    gCvarList[CVAR_LEVEL_DAMAGE_SURVIVOR]       = FindConVar("zp_level_damage_survivor");
+    gCvarList[CVAR_LEVEL_INFECT]                = FindConVar("zp_level_infect");
+    gCvarList[CVAR_LEVEL_KILL_HUMAN]            = FindConVar("zp_level_kill_human");
+    gCvarList[CVAR_LEVEL_KILL_ZOMBIE]           = FindConVar("zp_level_kill_zombie");
+    gCvarList[CVAR_LEVEL_KILL_NEMESIS]          = FindConVar("zp_level_kill_nemesis");
+    gCvarList[CVAR_LEVEL_KILL_SURVIVOR]         = FindConVar("zp_level_kill_survivor");
+    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R]          = FindConVar("zp_level_hud_zombie_R");
+    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_G]          = FindConVar("zp_level_hud_zombie_G");
+    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B]          = FindConVar("zp_level_hud_zombie_B");
+    gCvarList[CVAR_LEVEL_HUD_HUMAN_R]           = FindConVar("zp_level_hud_human_R");
+    gCvarList[CVAR_LEVEL_HUD_HUMAN_G]           = FindConVar("zp_level_hud_human_G");
+    gCvarList[CVAR_LEVEL_HUD_HUMAN_B]           = FindConVar("zp_level_hud_human_B");
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_LEVEL_SYSTEM],                LevelSystemCvarsHookEnable);       
+    HookConVarChange(gCvarList[CVAR_LEVEL_HEALTH_RATIO],          LevelSystemCvarsHookHealth);         
+    HookConVarChange(gCvarList[CVAR_LEVEL_SPEED_RATIO],           LevelSystemCvarsHookSpeed);           
+    HookConVarChange(gCvarList[CVAR_LEVEL_GRAVITY_RATIO],         LevelSystemCvarsHookGravity); 
 }
 
 /**
@@ -273,4 +338,169 @@ public Action LevelSystemOnHUD(Handle hTimer, const int userID)
     
     // Destroy timer
     return Plugin_Stop;
+}
+
+/**
+ * Cvar hook callback (zp_level_system)
+ * Levelsystem module initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void LevelSystemCvarsHookEnable(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    LevelSystemInit();
+}
+
+/**
+ * Cvar hook callback (zp_level_health_ratio)
+ * Reload the health variable on zombie/human.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void LevelSystemCvarsHookHealth(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{    
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+    
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate client
+            if(IsPlayerExist(i))
+            {
+                // Validate zombie
+                if(gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
+                {
+                    // Update variable
+                    ToolsSetClientHealth(i, ZombieGetHealth(gClientData[i][Client_ZombieClass]) + (RoundToFloor(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i][Client_Level]))), true);
+                }
+                // Validate human
+                else if(!gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
+                {
+                    // Update variable
+                    ToolsSetClientHealth(i, HumanGetHealth(gClientData[i][Client_HumanClass]) + (RoundToFloor(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i][Client_Level]))), true);
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_level_speed_ratio)
+ * Reload the speed variable on zombie/human.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void LevelSystemCvarsHookSpeed(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+    
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate client
+            if(IsPlayerExist(i))
+            {
+                // Validate zombie
+                if(gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
+                {
+                    // Update variable
+                    ToolsSetClientLMV(i, ZombieGetSpeed(gClientData[i][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i][Client_Level])));
+                    
+                }
+                // Validate human
+                else if(!gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
+                {
+                    // Update variable
+                    ToolsSetClientLMV(i, HumanGetSpeed(gClientData[i][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i][Client_Level])));
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Cvar hook callback (zp_level_gravity_ratio)
+ * Reload the gravity variable on zombie/human.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void LevelSystemCvarsHookGravity(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        return;
+    }
+    
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate client
+            if(IsPlayerExist(i))
+            {
+                // Validate zombie
+                if(gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
+                {
+                    // Update variable
+                    ToolsSetClientGravity(i, ZombieGetGravity(gClientData[i][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i][Client_Level])));
+                }
+                // Validate human
+                else if(!gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
+                {
+                    // Update variable
+                    ToolsSetClientGravity(i, HumanGetGravity(gClientData[i][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i][Client_Level])));
+                }
+            }
+        }
+    }
 }

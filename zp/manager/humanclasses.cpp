@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          humanclasses.cpp
  *  Type:          Manager 
  *  Description:   Human classes generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,6 @@
  **/
  
 /**
- * Number of max valid human classes.
- **/
-#define HumanClassMax 64
-
-/**
  * Array handle to store human class native data.
  **/
 ArrayList arrayHumanClasses;
@@ -44,7 +39,8 @@ enum
     HUMANCLASSES_DATA_INFO,
     HUMANCLASSES_DATA_MODEL,
     HUMANCLASSES_DATA_ARM,
-    HUMANCLASSES_DATA_VIEW,
+    HUMANCLASSES_DATA_BODY,
+    HUMANCLASSES_DATA_SKIN,
     HUMANCLASSES_DATA_HEALTH,
     HUMANCLASSES_DATA_SPEED,
     HUMANCLASSES_DATA_GRAVITY,
@@ -55,87 +51,165 @@ enum
     HUMANCLASSES_DATA_COUNTDOWN,
     HUMANCLASSES_DATA_SOUNDDEATH,
     HUMANCLASSES_DATA_SOUNDHURT,
-    HUMANCLASSES_DATA_SOUNDINFECT,
-    HUMANCLASSES_DATA_SOUNDDEATH_ID,
-    HUMANCLASSES_DATA_SOUNDHURT_ID,
-    HUMANCLASSES_DATA_SOUNDINFECT_ID
+    HUMANCLASSES_DATA_SOUNDINFECT
 }
 
 /**
- * Number of valid views.
- **/
-enum HumanViewType
-{
-    ViewType_Invalid = -1,         /** Used as return value when a model doens't exist. */
-    
-    ViewType_Body,                 /** Body index */
-    ViewType_Skin                  /** Skin index */
-};
-
-/**
- * Initialization of human classes. 
+ * Prepare all humanclass data.
  **/
 void HumanClassesLoad(/*void*/)
 {
-    // No human classes?
-    if(arrayHumanClasses == INVALID_HANDLE)
+    // Register config file
+    ConfigRegisterConfig(File_HumanClasses, Structure_Keyvalue, CONFIG_FILE_ALIAS_HUMANCLASSES);
+
+    // Gets humanclasses config path
+    static char sHumanClassPath[PLATFORM_MAX_PATH];
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_HUMANCLASSES, sHumanClassPath);
+
+    // If file doesn't exist, then log and stop
+    if(!bExists)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Human Class Validation", "No human classes loaded");
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HumanClasses, "Config Validation", "Missing humanclasses config file: \"%s\"", sHumanClassPath);
     }
 
-    // Initialize variable
-    static char sBuffer[PLATFORM_MAX_PATH];
+    // Sets the path to the config file
+    ConfigSetConfigPath(File_HumanClasses, sHumanClassPath);
 
-    // Precache of the human classes
+    // Load config from file and create array structure
+    bool bSuccess = ConfigLoadConfig(File_HumanClasses, arrayHumanClasses);
+
+    // Unexpected error, stop plugin
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HumanClasses, "Config Validation", "Unexpected error encountered loading: \"%s\"", sHumanClassPath);
+    }
+
+    // Validate humanclasses config
     int iSize = arrayHumanClasses.Length;
-    for(int i = 0; i < iSize; i++)
+    if(!iSize)
     {
-        // Validate player model
-        HumanGetModel(i, sBuffer, sizeof(sBuffer));
-        if(!ModelsPrecacheStatic(sBuffer))
-        {
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
-        }
-
-        // Validate arm model
-        HumanGetArmModel(i, sBuffer, sizeof(sBuffer));
-        if(!ModelsPrecacheStatic(sBuffer))
-        {
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Humanclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
-        }
-
-        // Load death sounds
-        HumanGetSoundDeath(i, sBuffer, sizeof(sBuffer));
-        HumanSetSoundDeathID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load hurt sounds
-        HumanGetSoundHurt(i, sBuffer, sizeof(sBuffer));
-        HumanSetSoundHurtID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load infect sounds
-        HumanGetSoundInfect(i, sBuffer, sizeof(sBuffer));
-        HumanSetSoundInfectID(i, SoundsKeyToIndex(sBuffer));
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HumanClasses, "Config Validation", "No usable data found in humanclasses config file: \"%s\"", sHumanClassPath);
     }
+
+    // Now copy data to array structure
+    HumanClassesCacheData();
+
+    // Sets config data
+    ConfigSetConfigLoaded(File_HumanClasses, true);
+    ConfigSetConfigReloadFunc(File_HumanClasses, GetFunctionByName(GetMyHandle(), "HumanClassesOnConfigReload"));
+    ConfigSetConfigHandle(File_HumanClasses, arrayHumanClasses);
 }
 
 /**
- * Creates commands for human classes module. Called when commands are created.
+ * Caches humanclass data from file into arrays.
+ * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ **/
+void HumanClassesCacheData(/*void*/)
+{
+    // Gets config file path
+    static char sPathHumans[PLATFORM_MAX_PATH];
+    ConfigGetConfigPath(File_HumanClasses, sPathHumans, sizeof(sPathHumans));
+
+    // Open config
+    KeyValues kvHumanClasses;
+    bool bSuccess = ConfigOpenConfigFile(File_HumanClasses, kvHumanClasses);
+
+    // Validate config
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HumanClasses, "Config Validation", "Unexpected error caching data from humanclasses config file: \"%s\"", sPathHumans);
+    }
+
+    // i = array index
+    int iSize = arrayHumanClasses.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // General
+        HumanGetName(i, sPathHumans, sizeof(sPathHumans)); // Index: 0
+        kvHumanClasses.Rewind();
+        if(!kvHumanClasses.JumpToKey(sPathHumans))
+        {
+            // Log humanclass fatal
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HumanClasses, "Config Validation", "Couldn't cache humanclass data for: \"%s\" (check humanclasses config)", sPathHumans);
+            continue;
+        }
+        
+        // Validate translation
+        if(!TranslationPhraseExists(sPathHumans))
+        {
+            // Log humanclass error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_HumanClasses, "Config Validation", "Couldn't cache humanclass name: \"%s\" (check translation file)", sPathHumans);
+        }
+
+        // Initialize array block
+        ArrayList arrayHumanClass = arrayHumanClasses.Get(i);
+
+        // Push data into array
+        kvHumanClasses.GetString("info", sPathHumans, sizeof(sPathHumans), "");
+        if(!TranslationPhraseExists(sPathHumans) && hasLength(sPathHumans))
+        {
+            // Log humanclass error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Couldn't cache humanclass info: \"%s\" (check translation file)", sPathHumans);
+        }
+        arrayHumanClass.PushString(sPathHumans);                                  // Index: 1
+        kvHumanClasses.GetString("model", sPathHumans, sizeof(sPathHumans), "");
+        arrayHumanClass.PushString(sPathHumans);                                  // Index: 2
+        ModelsPrecacheStatic(sPathHumans);
+        kvHumanClasses.GetString("arm_model", sPathHumans, sizeof(sPathHumans), "");
+        arrayHumanClass.PushString(sPathHumans);                                  // Index: 3
+        ModelsPrecacheStatic(sPathHumans);
+        arrayHumanClass.Push(kvHumanClasses.GetNum("body", -1));                  // Index: 4
+        arrayHumanClass.Push(kvHumanClasses.GetNum("skin", -1));                  // Index: 5
+        arrayHumanClass.Push(kvHumanClasses.GetNum("health", 0));                 // Index: 6
+        arrayHumanClass.Push(kvHumanClasses.GetFloat("speed", 0.0));              // Index: 7
+        arrayHumanClass.Push(kvHumanClasses.GetFloat("gravity", 0.0));            // Index: 8
+        arrayHumanClass.Push(kvHumanClasses.GetNum("armor", 0));                  // Index: 9
+        arrayHumanClass.Push(kvHumanClasses.GetNum("level", 0));                  // Index: 10
+        kvHumanClasses.GetString("group", sPathHumans, sizeof(sPathHumans), "");
+        arrayHumanClass.PushString(sPathHumans);                                  // Index: 11  
+        arrayHumanClass.Push(kvHumanClasses.GetFloat("duration", 0.0));           // Index: 12
+        arrayHumanClass.Push(kvHumanClasses.GetFloat("countdown", 0.0));          // Index: 13
+        kvHumanClasses.GetString("death", sPathHumans, sizeof(sPathHumans), "");
+        arrayHumanClass.Push(SoundsKeyToIndex(sPathHumans));                      // Index: 14
+        kvHumanClasses.GetString("hurt", sPathHumans, sizeof(sPathHumans), "");
+        arrayHumanClass.Push(SoundsKeyToIndex(sPathHumans));                      // Index: 15
+        kvHumanClasses.GetString("infect", sPathHumans, sizeof(sPathHumans), "");
+        arrayHumanClass.Push(SoundsKeyToIndex(sPathHumans));                      // Index: 16
+    }
+
+    // We're done with this file now, so we can close it
+    delete kvHumanClasses;
+}
+
+/**
+ * Called when configs are being reloaded.
+ * 
+ * @param iConfig           The config being reloaded. (only if 'all' is false)
+ **/
+public void HumanClassesOnConfigReload(ConfigFile iConfig)
+{
+    // Reload humanclass config
+    HumanClassesLoad();
+}
+
+/**
+ * Creates commands for human classes module.
  **/
 void HumanOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zhumanclassmenu",  HumanCommandCatched,  "Open the human classes menu.");
+    RegConsoleCmd("zp_human_menu",  HumanCommandCatched, "Open the human classes menu.");
 }
 
 /**
- * Handles the <!zhumanclassmenu> command. Open the human classes menu.
+ * Handles the <!zp_human_menu> command. Open the human classes menu.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
 public Action HumanCommandCatched(const int clientIndex, const int iArguments)
 {
-    // Open the human classes menu
     HumanMenu(clientIndex);
     return Plugin_Handled;
 }
@@ -143,13 +217,43 @@ public Action HumanCommandCatched(const int clientIndex, const int iArguments)
 /*
  * Human classes natives API.
  */
+ 
+/**
+ * Sets up natives for library.
+ **/
+void HumanClassesAPI(/*void*/)
+{
+    CreateNative("ZP_GetNumberHumanClass",            API_GetNumberHumanClass);
+    CreateNative("ZP_GetClientHumanClass",            API_GetClientHumanClass);
+    CreateNative("ZP_GetClientHumanClassNext",        API_GetClientHumanClassNext);
+    CreateNative("ZP_SetClientHumanClass",            API_SetClientHumanClass);
+    CreateNative("ZP_GetHumanClassNameID",            API_GetHumanClassNameID);
+    CreateNative("ZP_GetHumanClassName",              API_GetHumanClassName);
+    CreateNative("ZP_GetHumanClassInfo",              API_GetHumanClassInfo);
+    CreateNative("ZP_GetHumanClassModel",             API_GetHumanClassModel);
+    CreateNative("ZP_GetHumanClassArm",               API_GetHumanClassArm);
+    CreateNative("ZP_GetHumanClassBody",              API_GetHumanClassBody);
+    CreateNative("ZP_GetHumanClassSkin",              API_GetHumanClassSkin);
+    CreateNative("ZP_GetHumanClassHealth",            API_GetHumanClassHealth);
+    CreateNative("ZP_GetHumanClassSpeed",             API_GetHumanClassSpeed);
+    CreateNative("ZP_GetHumanClassGravity",           API_GetHumanClassGravity);
+    CreateNative("ZP_GetHumanClassArmor",             API_GetHumanClassArmor);
+    CreateNative("ZP_GetHumanClassLevel",             API_GetHumanClassLevel);
+    CreateNative("ZP_GetHumanClassGroup",             API_GetHumanClassGroup);
+    CreateNative("ZP_GetHumanClassSkillDuration",     API_GetHumanClassSkillDuration);
+    CreateNative("ZP_GetHumanClassSkillCountdown",    API_GetHumanClassSkillCountdown);
+    CreateNative("ZP_GetHumanClassSoundDeathID",      API_GetHumanClassSoundDeathID);
+    CreateNative("ZP_GetHumanClassSoundHurtID",       API_GetHumanClassSoundHurtID);
+    CreateNative("ZP_GetHumanClassSoundInfectID",     API_GetHumanClassSoundInfectID);
+    CreateNative("ZP_PrintHumanClassInfo",            API_PrintHumanClassInfo);
+}
 
 /**
  * Gets the amount of all human classes.
  *
  * native int ZP_GetNumberHumanClass();
  **/
-public int API_GetNumberHumanClass(Handle isPlugin, const int iNumParams)
+public int API_GetNumberHumanClass(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayHumanClasses.Length;
@@ -160,7 +264,7 @@ public int API_GetNumberHumanClass(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetClientHumanClass(clientIndex);
  **/
-public int API_GetClientHumanClass(Handle isPlugin, const int iNumParams)
+public int API_GetClientHumanClass(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -174,7 +278,7 @@ public int API_GetClientHumanClass(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetClientHumanClassNext(clientIndex);
  **/
-public int API_GetClientHumanClassNext(Handle isPlugin, const int iNumParams)
+public int API_GetClientHumanClassNext(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -188,7 +292,7 @@ public int API_GetClientHumanClassNext(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_SetClientHumanClass(clientIndex, iD);
  **/
-public int API_SetClientHumanClass(Handle isPlugin, const int iNumParams)
+public int API_SetClientHumanClass(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -199,7 +303,7 @@ public int API_SetClientHumanClass(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -218,109 +322,46 @@ public int API_SetClientHumanClass(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Registers a custom class which will be added to the human classes menu of ZP.
+ * Gets the index of a human class at a given name.
  *
- * native int ZP_RegisterHumanClass(name, model, arm_model, health, speed, gravity, armor, level, vip, death, hurt, infect);
+ * native int ZP_GetHumanClassNameID(name);
  **/
-public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassNameID(Handle hPlugin, const int iNumParams)
 {
-    // If array hasn't been created, then create
-    if(arrayHumanClasses == INVALID_HANDLE)
-    {
-        // Create array in handle
-        arrayHumanClasses = CreateArray(HumanClassMax);
-    }
-
     // Retrieves the string length from a native parameter string
     int maxLen;
     GetNativeStringLength(1, maxLen);
-    
+
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Can't register human class with an empty name");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Can't find class with an empty name");
         return -1;
     }
     
-    // Gets human classes amount
-    int iCount = arrayHumanClasses.Length;
-    
-    // Maximum amout reached ?
-    if(iCount >= HumanClassMax)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Maximum number of human classes reached (%d). Skipping other classes.", HumanClassMax);
-        return -1;
-    }
+    // Gets native data
+    static char sName[SMALL_LINE_LENGTH];
 
-    // Initialize variables
-    char sHumanBuffer[PLATFORM_MAX_PATH]; int iHumanBuffer[2];
-    char sHumanName[SMALL_LINE_LENGTH]; 
-    
     // General
-    GetNativeString(1, sHumanBuffer, sizeof(sHumanBuffer));   
+    GetNativeString(1, sName, sizeof(sName));
 
-    // i = human class number
+    // i = class number
+    int iCount = arrayHumanClasses.Length;
     for(int i = 0; i < iCount; i++)
     {
         // Gets the name of a human class at a given index
+        static char sHumanName[SMALL_LINE_LENGTH];
         HumanGetName(i, sHumanName, sizeof(sHumanName));
-    
-        // If names match, then stop
-        if(!strcmp(sHumanBuffer, sHumanName, false))
+
+        // If names match, then return index
+        if(!strcmp(sName, sHumanName, false))
         {
             return i;
         }
     }
-    
-    // Validate translation
-    if(!TranslationPhraseExists(sHumanBuffer))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Couldn't cache human class name: \"%s\" (check translation file)", sHumanBuffer);
-        return -1;
-    }
-    
-    // Initialize array block
-    ArrayList arrayHumanClass = CreateArray(HumanClassMax);
-    
-    // Push native data into array
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 0
-    GetNativeString(2, sHumanBuffer, sizeof(sHumanBuffer));
-    if(!TranslationPhraseExists(sHumanBuffer) && strlen(sHumanBuffer))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Couldn't cache human class info: \"%s\" (check translation file)", sHumanBuffer);
-        return -1;
-    }
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 1
-    GetNativeString(3, sHumanBuffer, sizeof(sHumanBuffer));
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 2
-    GetNativeString(4, sHumanBuffer, sizeof(sHumanBuffer)); 
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 3
-    GetNativeArray(5, iHumanBuffer, sizeof(iHumanBuffer));
-    arrayHumanClass.PushArray(iHumanBuffer);  // Index: 4
-    arrayHumanClass.Push(GetNativeCell(6));   // Index: 5
-    arrayHumanClass.Push(GetNativeCell(7));   // Index: 6
-    arrayHumanClass.Push(GetNativeCell(8));   // Index: 7
-    arrayHumanClass.Push(GetNativeCell(9));   // Index: 8
-    arrayHumanClass.Push(GetNativeCell(10));  // Index: 9
-    GetNativeString(11, sHumanBuffer, sizeof(sHumanBuffer));  
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 10
-    arrayHumanClass.Push(GetNativeCell(12));  // Index: 11
-    arrayHumanClass.Push(GetNativeCell(13));  // Index: 12
-    GetNativeString(14, sHumanBuffer, sizeof(sHumanBuffer));  
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 13
-    GetNativeString(15, sHumanBuffer, sizeof(sHumanBuffer));
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 14
-    GetNativeString(16, sHumanBuffer, sizeof(sHumanBuffer));
-    arrayHumanClass.PushString(sHumanBuffer); // Index: 15
-    arrayHumanClass.Push(-1);                 // Index: 16
-    arrayHumanClass.Push(-1);                 // Index: 17
-    arrayHumanClass.Push(-1);                 // Index: 18
 
-    // Store this handle in the main array
-    arrayHumanClasses.Push(arrayHumanClass);
-
-    // Return id under which we registered the class
-    return arrayHumanClasses.Length-1;
+    // Return on the unsuccess
+    return -1;
 }
 
 /**
@@ -328,7 +369,7 @@ public int API_RegisterHumanClass(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetHumanClassName(iD, name, maxlen);
  **/
-public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassName(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -336,7 +377,7 @@ public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -346,7 +387,7 @@ public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -363,7 +404,7 @@ public int API_GetHumanClassName(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetHumanClassInfo(iD, info, maxlen);
  **/
-public int API_GetHumanClassInfo(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassInfo(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -371,7 +412,7 @@ public int API_GetHumanClassInfo(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -381,7 +422,7 @@ public int API_GetHumanClassInfo(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -398,7 +439,7 @@ public int API_GetHumanClassInfo(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetHumanClassModel(iD, model, maxlen);
  **/
-public int API_GetHumanClassModel(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassModel(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -406,7 +447,7 @@ public int API_GetHumanClassModel(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -416,7 +457,7 @@ public int API_GetHumanClassModel(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -433,7 +474,7 @@ public int API_GetHumanClassModel(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetHumanClassArm(iD, model, maxlen);
  **/
-public int API_GetHumanClassArm(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassArm(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -441,7 +482,7 @@ public int API_GetHumanClassArm(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -451,7 +492,7 @@ public int API_GetHumanClassArm(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -464,11 +505,11 @@ public int API_GetHumanClassArm(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the view index of the human class.
+ * Gets the body index of the human class.
  *
- * native int ZP_GetHumanClassView(iD, view);
+ * native int ZP_GetHumanClassBody(iD, view);
  **/
-public int API_GetHumanClassView(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassBody(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -476,20 +517,33 @@ public int API_GetHumanClassView(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
-    
-    // Validate type
-    HumanViewType viewType = GetNativeCell(2);
-    if(viewType == ViewType_Invalid)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the view index (%d)", viewType);
-        return -1;
-    }
-    
+
     // Return the value
-    return HumanGetView(iD, viewType);
+    return HumanGetBody(iD);
+}
+
+/**
+ * Gets the skin index of the human class.
+ *
+ * native int ZP_GetHumanClassSkin(iD, view);
+ **/
+public int API_GetHumanClassSkin(Handle hPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= arrayHumanClasses.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+
+    // Return the value
+    return HumanGetSkin(iD);
 }
 
 /**
@@ -497,7 +551,7 @@ public int API_GetHumanClassView(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetHumanClassHealth(iD);
  **/
-public int API_GetHumanClassHealth(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassHealth(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -505,7 +559,7 @@ public int API_GetHumanClassHealth(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -518,7 +572,7 @@ public int API_GetHumanClassHealth(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetHumanClassSpeed(iD);
  **/
-public int API_GetHumanClassSpeed(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassSpeed(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -526,7 +580,7 @@ public int API_GetHumanClassSpeed(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -539,7 +593,7 @@ public int API_GetHumanClassSpeed(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetHumanClassGravity(iD);
  **/
-public int API_GetHumanClassGravity(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassGravity(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -547,7 +601,7 @@ public int API_GetHumanClassGravity(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -560,7 +614,7 @@ public int API_GetHumanClassGravity(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetHumanClassArmor(iD);
  **/
-public int API_GetHumanClassArmor(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassArmor(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -568,7 +622,7 @@ public int API_GetHumanClassArmor(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -581,7 +635,7 @@ public int API_GetHumanClassArmor(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetHumanClassLevel(iD);
  **/
-public int API_GetHumanClassLevel(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassLevel(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -589,7 +643,7 @@ public int API_GetHumanClassLevel(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -602,7 +656,7 @@ public int API_GetHumanClassLevel(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetHumanClassGroup(iD, group, maxlen);
  **/
-public int API_GetHumanClassGroup(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassGroup(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -610,7 +664,7 @@ public int API_GetHumanClassGroup(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -620,7 +674,7 @@ public int API_GetHumanClassGroup(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -637,7 +691,7 @@ public int API_GetHumanClassGroup(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetHumanClassSkillDuration(iD);
  **/
-public int API_GetHumanClassSkillDuration(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassSkillDuration(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -645,7 +699,7 @@ public int API_GetHumanClassSkillDuration(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -658,7 +712,7 @@ public int API_GetHumanClassSkillDuration(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetHumanClassSkillCountdown(iD);
  **/
-public int API_GetHumanClassSkillCountdown(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassSkillCountdown(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -666,7 +720,7 @@ public int API_GetHumanClassSkillCountdown(Handle isPlugin, const int iNumParams
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -679,7 +733,7 @@ public int API_GetHumanClassSkillCountdown(Handle isPlugin, const int iNumParams
  *
  * native int ZP_GetHumanClassSoundDeathID(iD);
  **/
-public int API_GetHumanClassSoundDeathID(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassSoundDeathID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -687,7 +741,7 @@ public int API_GetHumanClassSoundDeathID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -700,7 +754,7 @@ public int API_GetHumanClassSoundDeathID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetHumanClassSoundHurtID(iD);
  **/
-public int API_GetHumanClassSoundHurtID(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassSoundHurtID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -708,7 +762,7 @@ public int API_GetHumanClassSoundHurtID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -721,7 +775,7 @@ public int API_GetHumanClassSoundHurtID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetHumanClassSoundInfectID(iD);
  **/
-public int API_GetHumanClassSoundInfectID(Handle isPlugin, const int iNumParams)
+public int API_GetHumanClassSoundInfectID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -729,7 +783,7 @@ public int API_GetHumanClassSoundInfectID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
    
@@ -742,7 +796,7 @@ public int API_GetHumanClassSoundInfectID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_PrintHumanClassInfo(clientIndex, iD);
  **/
-public int API_PrintHumanClassInfo(Handle isPlugin, const int iNumParams)
+public int API_PrintHumanClassInfo(Handle hPlugin, const int iNumParams)
 {
     // If help messages disable, then stop 
     if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
@@ -756,7 +810,7 @@ public int API_PrintHumanClassInfo(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -766,7 +820,7 @@ public int API_PrintHumanClassInfo(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayHumanClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Humanclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HumanClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -850,25 +904,33 @@ stock void HumanGetArmModel(const int iD, char[] sModel, const int iMaxLen)
 }
 
 /**
- * Gets the view index of the human class.
+ * Gets the body index of the human class.
  *
  * @param iD                The class index.
- * @param nView             The position index.
- * @return                  The body/skin index.   
+ * @return                  The body index.   
  **/
-stock int HumanGetView(const int iD, const HumanViewType nView)
+stock int HumanGetBody(const int iD)
 {
-    // Create a array
-    static int iView[2];
-
     // Gets array handle of human class at given index
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
 
-    // Gets human class view array
-    arrayHumanClass.GetArray(HUMANCLASSES_DATA_VIEW, iView, sizeof(iView));
+    // Gets human skin index
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_BODY);
+}
 
-    // Gets human class view index
-    return iView[nView];
+/**
+ * Gets the skin index of the human class.
+ *
+ * @param iD                The class index.
+ * @return                  The skin index.   
+ **/
+stock int HumanGetSkin(const int iD)
+{
+    // Gets array handle of human class at given index
+    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
+
+    // Gets human skin index
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_SKIN);
 }
 
 /**
@@ -993,22 +1055,6 @@ stock float HumanGetSkillCountDown(const int iD)
 }
 
 /**
- * Gets the death sound of a human class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void HumanGetSoundDeath(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of human class at given index
-    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
-
-    // Gets human class death sound
-    arrayHumanClass.GetString(HUMANCLASSES_DATA_SOUNDDEATH, sSound, iMaxLen);
-}
-
-/**
  * Gets the death sound key of the human class. 
  *
  * @param iD                The class index.
@@ -1020,38 +1066,7 @@ stock int HumanGetSoundDeathID(const int iD)
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
 
     // Gets human class death sound key
-    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDDEATH_ID);
-}
-
-/**
- * Sets the death sound key of the human class. 
- *
- * @param iD                The class index.
- * @return                  The key index.
- **/
-stock void HumanSetSoundDeathID(const int iD, const int iKey)
-{
-    // Gets array handle of human class at given index
-    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
-
-    // Sets human class death sound key
-    arrayHumanClass.Set(HUMANCLASSES_DATA_SOUNDDEATH_ID, iKey);
-}
-
-/**
- * Gets the hurt sound of a human class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void HumanGetSoundHurt(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of human class at given index
-    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
-
-    // Gets human class hurt sound
-    arrayHumanClass.GetString(HUMANCLASSES_DATA_SOUNDHURT, sSound, iMaxLen);
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDDEATH);
 }
 
 /**
@@ -1066,38 +1081,7 @@ stock int HumanGetSoundHurtID(const int iD)
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
 
     // Gets human class hurt sound key
-    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDHURT_ID);
-}
-
-/**
- * Sets the hurt sound key of the human class.
- *
- * @param iD                The class index.
- * @return                  The key index.
- **/
-stock void HumanSetSoundHurtID(const int iD, const int iKey)
-{
-    // Gets array handle of human class at given index
-    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
-
-    // Sets human class hurt sound key
-    arrayHumanClass.Set(HUMANCLASSES_DATA_SOUNDHURT_ID, iKey);
-}
-
-/**
- * Gets the infect sound of a human class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void HumanGetSoundInfect(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of human class at given index
-    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
-
-    // Gets human class infect sound
-    arrayHumanClass.GetString(HUMANCLASSES_DATA_SOUNDINFECT, sSound, iMaxLen);
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDHURT);
 }
 
 /**
@@ -1112,22 +1096,7 @@ stock int HumanGetSoundInfectID(const int iD)
     ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
 
     // Gets human class infect sound key
-    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDINFECT_ID);
-}
-
-/**
- * Sets the infect sound key of the human class.
- *
- * @param iD                The class index.
- * @return                  The key index.
- **/
-stock void HumanSetSoundInfectID(const int iD, const int iKey)
-{
-    // Gets array handle of human class at given index
-    ArrayList arrayHumanClass = arrayHumanClasses.Get(iD);
-
-    // Sets human class infect sound key
-    arrayHumanClass.Set(HUMANCLASSES_DATA_SOUNDINFECT_ID, iKey);
+    return arrayHumanClass.Get(HUMANCLASSES_DATA_SOUNDINFECT);
 }
 
 /*
@@ -1155,14 +1124,14 @@ void HumanOnValidate(const int clientIndex)
     HumanGetGroup(gClientData[clientIndex][Client_HumanClass], sGroup, sizeof(sGroup));
 
     // Validate that user does not have VIP flag to play it
-    if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
+    if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
     {
         // Choose any accessable human class
         for(int i = 0; i < iSize; i++)
         {
             // Skip all non-accessable human classes
             HumanGetGroup(i, sGroup, sizeof(sGroup));
-            if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
+            if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
             {
                 continue;
             }
@@ -1248,11 +1217,11 @@ void HumanMenu(const int clientIndex, const bool bInstant = false)
         
         // Format some chars for showing in menu
         Format(sLevel, sizeof(sLevel), "%t", "level", HumanGetLevel(i));
-        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < HumanGetLevel(i)) ? sLevel : "");
+        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < HumanGetLevel(i)) ? sLevel : "");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < HumanGetLevel(i) || gClientData[clientIndex][Client_HumanClassNext] == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) || gClientData[clientIndex][Client_Level] < HumanGetLevel(i) || gClientData[clientIndex][Client_HumanClassNext] == i) ? false : true));
     }
 
     // Sets exit and back button

@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          weaponhdr.cpp
  *  Type:          Module
  *  Description:   Weapon view/world models functions.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin), Andersso
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin), Andersso
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -116,7 +116,7 @@ void WeaponHDRInit(/*void*/)
  *
  * @param clientIndex       The cleint index.
  * @param viewIndex         The view index.
- * @param iD                The weapon index.
+ * @param iD                The weapon id.
  **/
 stock void WeaponHDRToggleViewModel(const int clientIndex, const int viewIndex, const int iD)
 {

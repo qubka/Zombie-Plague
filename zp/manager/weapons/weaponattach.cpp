@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          weaponattach.cpp
  *  Type:          Module
  *  Description:   Weapon attachment functions.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin), Mitchell
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin), Mitchell
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -71,9 +71,9 @@ enum WeaponAttachBitType
 
 #if defined USE_ATTACHMENTS
 /**
- * Destoy weapon attachments.
+ * Destroy weapon attachments.
  **/
-public void WeaponAttachUnload(/*void*/) 
+void WeaponAttachUnload(/*void*/) 
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++) 

@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          damage.cpp
  *  Type:          Game 
  *  Description:   Modify damage values here.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,36 @@ void DamageClientInit(const int clientIndex)
     // Hook damage callbacks
     SDKHook(clientIndex, SDKHook_TraceAttack,  DamageOnTraceAttack);
     SDKHook(clientIndex, SDKHook_OnTakeDamage, DamageOnTakeDamage);
+}
+
+/**
+ * Hook damage cvar changes.
+ **/
+void DamageOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_NEMESIS_KNOCKBACK]           = FindConVar("zp_nemesis_knockback"); 
+    
+    // Create server cvars
+    gCvarList[CVAR_SERVER_FRIENDLY_FIRE]        = FindConVar("mp_friendlyfire");
+    gCvarList[CVAR_SERVER_FRIENDLY_GRENADE]     = FindConVar("ff_damage_reduction_grenade");
+    gCvarList[CVAR_SERVER_FRIENDLY_BULLETS]     = FindConVar("ff_damage_reduction_bullets");
+    gCvarList[CVAR_SERVER_FRIENDLY_OTHER]       = FindConVar("ff_damage_reduction_other");
+    gCvarList[CVAR_SERVER_FRIENDLY_SELF]        = FindConVar("ff_damage_reduction_grenade_self");
+    
+    // Sets locked cvars to their locked value
+    gCvarList[CVAR_SERVER_FRIENDLY_FIRE].IntValue = 0;
+    CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_GRENADE], 0);
+    CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_BULLETS], 0);
+    CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_OTHER],   0);
+    CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_SELF],    0);
+    
+    // Hook locked cvars to prevent it from changing
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_FIRE],        CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_GRENADE],     CvarsHookLocked2);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_BULLETS],     CvarsHookLocked2);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_OTHER],       CvarsHookLocked2);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_SELF],        CvarsHookLocked2);
 }
  
 /**
@@ -86,7 +116,7 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
     }
 
     // Gets hitgroup index
-    int iIndex = HitgroupToIndex(hitgroupIndex);
+    int iIndex = HitGroupToIndex(hitgroupIndex);
 
     // If index can't be found, then allow damage
     if(iIndex == -1)
@@ -96,7 +126,7 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
     }
 
     // If damage is disabled for this hitgroup, then stop
-    if(!HitgroupsCanDamage(iIndex))
+    if(!HitGroupsCanDamage(iIndex))
     {
         // Stop trace
         return Plugin_Handled;
@@ -183,7 +213,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
         }
             
         // Initialize additional knockback multiplier for zombie
-        float knockbackAmount = ZombieGetKnockBack(gClientData[victimIndex][Client_ZombieClass]);
+        float knockbackAmount = gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_NEMESIS_KNOCKBACK].FloatValue : ZombieGetKnockBack(gClientData[victimIndex][Client_ZombieClass]);
 
         // Validate weapon
         if(IsValidEdict(weaponIndex))
@@ -210,10 +240,10 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
             if(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
             {
                 // Validate hitgroup index
-                int iHitIndex = HitgroupToIndex(GetEntData(victimIndex, g_iOffset_PlayerHitGroup));
+                int iHitIndex = HitGroupToIndex(GetEntData(victimIndex, g_iOffset_PlayerHitGroup));
                 if(iHitIndex != -1)
                 {
-                    knockbackAmount *= HitgroupsGetKnockback(iHitIndex);
+                    knockbackAmount *= HitGroupsGetKnockback(iHitIndex);
                 }
             }
     
@@ -263,7 +293,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
  *
  * native void ZP_TakeDamage(clientIndex, attackerIndex, damageAmount, damageType, weaponIndex);
  **/
-public int API_TakeDamage(Handle isPlugin, const int iNumParams)
+public int API_TakeDamage(Handle hPlugin, const int iNumParams)
 {
     // Gets data from native cells
     int clientIndex = GetNativeCell(1);
@@ -396,12 +426,6 @@ stock void DamageOnClientKnockBack(const int victimIndex, const int attackerInde
     if(!knockbackAmount)
     {
         // Block knock
-        return;
-    }
-    
-    // If nemesis knockback disabled, then stop
-    if(!gCvarList[CVAR_NEMESIS_KNOCKBACK].BoolValue && gClientData[victimIndex][Client_Nemesis])
-    {
         return;
     }
 

@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          playereffects.cpp
  *  Type:          Module 
  *  Description:   Player visual effects.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,43 @@
  *
  * ============================================================================
  **/
+
+/**
+ * Hook player effects cvar changes.
+ **/
+void PlayerVEffectsOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_VEFFECTS_PARTICLES]          = FindConVar("zp_veffects_particles"); 
+    gCvarList[CVAR_VEFFECTS_RESPAWN]            = FindConVar("zp_veffects_respawn"); 
+    gCvarList[CVAR_VEFFECTS_RESPAWN_NAME]       = FindConVar("zp_veffects_respawn_name");
+    gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH]     = FindConVar("zp_veffects_respawn_attachment"); 
+    gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION]   = FindConVar("zp_veffects_respawn_duration");
+    gCvarList[CVAR_VEFFECTS_INFECT]             = FindConVar("zp_veffects_infect"); 
+    gCvarList[CVAR_VEFFECTS_INFECT_NAME]        = FindConVar("zp_veffects_infect_name");
+    gCvarList[CVAR_VEFFECTS_INFECT_ATTACH]      = FindConVar("zp_veffects_infect_attachment"); 
+    gCvarList[CVAR_VEFFECTS_INFECT_DURATION]    = FindConVar("zp_veffects_infect_duration");
+    gCvarList[CVAR_VEFFECTS_ANTIDOT]            = FindConVar("zp_veffects_antidot"); 
+    gCvarList[CVAR_VEFFECTS_ANTIDOT_NAME]       = FindConVar("zp_veffects_antidot_name");
+    gCvarList[CVAR_VEFFECTS_ANTIDOT_ATTACH]     = FindConVar("zp_veffects_antidot_attachment"); 
+    gCvarList[CVAR_VEFFECTS_ANTIDOT_DURATION]   = FindConVar("zp_veffects_antidot_duration");
+    gCvarList[CVAR_VEFFECTS_HEAL]               = FindConVar("zp_veffects_heal"); 
+    gCvarList[CVAR_VEFFECTS_HEAL_NAME]          = FindConVar("zp_veffects_heal_name");
+    gCvarList[CVAR_VEFFECTS_HEAL_ATTACH]        = FindConVar("zp_veffects_heal_attachment"); 
+    gCvarList[CVAR_VEFFECTS_HEAL_DURATION]      = FindConVar("zp_veffects_heal_duration");
+    gCvarList[CVAR_VEFFECTS_NEMESIS]            = FindConVar("zp_veffects_nemesis"); 
+    gCvarList[CVAR_VEFFECTS_NEMESIS_NAME]       = FindConVar("zp_veffects_nemesis_name");
+    gCvarList[CVAR_VEFFECTS_NEMESIS_ATTACH]     = FindConVar("zp_veffects_nemesis_attachment"); 
+    gCvarList[CVAR_VEFFECTS_NEMESIS_DURATION]   = FindConVar("zp_veffects_nemesis_duration");
+    gCvarList[CVAR_VEFFECTS_SURVIVOR]           = FindConVar("zp_veffects_survivor"); 
+    gCvarList[CVAR_VEFFECTS_SURVIVOR_NAME]      = FindConVar("zp_veffects_survivor_name");
+    gCvarList[CVAR_VEFFECTS_SURVIVOR_ATTACH]    = FindConVar("zp_veffects_survivor_attachment"); 
+    gCvarList[CVAR_VEFFECTS_SURVIVOR_DURATION]  = FindConVar("zp_veffects_survivor_duration");
+    gCvarList[CVAR_VEFFECTS_LEAP]               = FindConVar("zp_veffects_leap"); 
+    gCvarList[CVAR_VEFFECTS_LEAP_NAME]          = FindConVar("zp_veffects_leap_name");
+    gCvarList[CVAR_VEFFECTS_LEAP_ATTACH]        = FindConVar("zp_veffects_leap_attachment"); 
+    gCvarList[CVAR_VEFFECTS_LEAP_DURATION]      = FindConVar("zp_veffects_leap_duration");
+}
 
 /**
  * Client has been infected.

@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          gamemodes.cpp
  *  Type:          Manager 
  *  Description:   Game Modes generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,6 @@
  **/
 
 /**
- * Number of max valid game modes.
- **/
-#define GameModesMax 32
-
-/**
  * Array handle to store game mode native data.
  **/
 ArrayList arrayGameModes;
@@ -43,7 +38,6 @@ enum
     GAMEMODES_DATA_NAME,
     GAMEMODES_DATA_DESCRIPTION,
     GAMEMODES_DATA_SOUND,
-    GAMEMODES_DATA_SOUND_ID,
     GAMEMODES_DATA_CHANCE,
     GAMEMODES_DATA_MINPLAYERS,
     GAMEMODES_DATA_RATIO,
@@ -54,34 +48,131 @@ enum
 }
 
 /**
- * Initialization of game modes. 
+ * Prepare all gamemode data.
  **/
 void GameModesLoad(/*void*/)
 {
-    // No game modes?
-    if(arrayGameModes == INVALID_HANDLE)
-    {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Gamemodes, "Game Mode Validation", "No game modes loaded");
-    }
+    // Register config file
+    ConfigRegisterConfig(File_GameModes, Structure_Keyvalue, CONFIG_FILE_ALIAS_GAMEMODES);
 
-    // Initialize variable
-    static char sBuffer[NORMAL_LINE_LENGTH];
+    // Gets gamemodes config path
+    static char sPathModes[PLATFORM_MAX_PATH];
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_GAMEMODES, sPathModes);
 
-    // Precache of the game modes
-    int iSize = arrayGameModes.Length;
-    for(int i = 0; i < iSize; i++)
+    // If file doesn't exist, then log and stop
+    if(!bExists)
     {
-        // Load sounds
-        ModesGetSound(i, sBuffer, sizeof(sBuffer));
-        ModesSetSoundID(i, SoundsKeyToIndex(sBuffer));
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Missing gamemodes config file: \"%s\"", sPathModes);
     }
     
-    // Forward event to modules (FakeHook)
-    RoundStartOnRoundPreStart();
-    RoundStartOnRoundStart();
+    // Sets the path to the config file
+    ConfigSetConfigPath(File_GameModes, sPathModes);
+
+    // Load config from file and create array structure
+    bool bSuccess = ConfigLoadConfig(File_GameModes, arrayGameModes);
+
+    // Unexpected error, stop plugin
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathModes);
+    }
+
+    // Validate gamemodes config
+    int iSize = arrayGameModes.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "No usable data found in gamemodes config file: \"%s\"", sPathModes);
+    }
+
+    // Now copy data to array structure
+    GameModesCacheData();
+
+    // Sets config data
+    ConfigSetConfigLoaded(File_GameModes, true);
+    ConfigSetConfigReloadFunc(File_GameModes, GetFunctionByName(GetMyHandle(), "GameModesOnConfigReload"));
+    ConfigSetConfigHandle(File_GameModes, arrayGameModes);
     
     // Create timer for starting game mode
     CreateTimer(1.0, GameModesStart, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+}
+
+/**
+ * Caches gamemode data from file into arrays.
+ * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ **/
+void GameModesCacheData(/*void*/)
+{
+    // Gets config file path
+    static char sPathModes[PLATFORM_MAX_PATH];
+    ConfigGetConfigPath(File_GameModes, sPathModes, sizeof(sPathModes));
+
+    // Open config
+    KeyValues kvGameModes;
+    bool bSuccess = ConfigOpenConfigFile(File_GameModes, kvGameModes);
+
+    // Validate config
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error caching data from gamemodes config file: \"%s\"", sPathModes);
+    }
+
+    // i = array index
+    int iSize = arrayGameModes.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // General
+        ModesGetName(i, sPathModes, sizeof(sPathModes)); // Index: 0
+        kvGameModes.Rewind();
+        if(!kvGameModes.JumpToKey(sPathModes))
+        {
+            // Log gamemode fatal
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode data for: \"%s\" (check gamemodes config)", sPathModes);
+            continue;
+        }
+
+        // Initialize array block
+        ArrayList arrayGameMode = arrayGameModes.Get(i);
+
+        // Push data into array
+        kvGameModes.GetString("desc", sPathModes, sizeof(sPathModes), "");
+        if(!TranslationPhraseExists(sPathModes) && hasLength(sPathModes))
+        {
+            // Log gamemode error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode description: \"%s\" (check translation file)", sPathModes);
+        }
+        arrayGameMode.PushString(sPathModes);                                     // Index: 1
+        kvGameModes.GetString("sound", sPathModes, sizeof(sPathModes), "");
+        arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                         // Index: 2
+        arrayGameMode.Push(kvGameModes.GetNum("chance", 0));                      // Index: 3
+        arrayGameMode.Push(kvGameModes.GetNum("min", 0));                         // Index: 4
+        arrayGameMode.Push(kvGameModes.GetFloat("ratio", 0.0));                   // Index: 5
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));  // Index: 6
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes")); // Index: 7
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "survivor", "no")); // Index: 8
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "nemesis", "no"));  // Index: 9
+    }
+
+    // We're done with this file now, so we can close it
+    delete kvGameModes;
+}
+
+/**
+ * Called when configs are being reloaded.
+ **/
+public void GameModesOnConfigReload(/*void*/)
+{
+    // Reload gamemodes config
+    GameModesLoad();
+}
+
+/**
+ * Hook gamemodes cvar changes.
+ **/
+void GameModesOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_GAME_CUSTOM_START]           = FindConVar("zp_game_custom_time");
 }
 
 /**
@@ -140,7 +231,7 @@ public Action GameModesStart(Handle hTimer)
                             // Show help information
                             TranslationPrintHintTextAll("zombie comming", gServerData[Server_RoundCount]);
                         }
-                    }
+                        }
                 }
                 // If else, than start game
                 else 
@@ -198,7 +289,7 @@ void GameModesEventStart(int modeIndex = -1, const int selectedIndex = 0)
 
     // Print game mode description
     ModesGetDesc(modeIndex, sBuffer, sizeof(sBuffer));
-    if(strlen(sBuffer)) TranslationPrintHintTextAll(sBuffer);
+    if(hasLength(sBuffer)) TranslationPrintHintTextAll(sBuffer);
 
     // Play game mode sounds
     SoundsInputEmitToAll(ModesGetSoundID(modeIndex), 0, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL].IntValue);
@@ -296,13 +387,34 @@ void GameModesTurnIntoHuman(/*void*/)
 /*
  * Game modes natives API.
  */
+
+/**
+ * Sets up natives for library.
+ **/
+void GameModesAPI(/*void*/) 
+{
+    CreateNative("ZP_GetCurrentGameMode",             API_GetCurrentGameMode);
+    CreateNative("ZP_GetNumberGameMode",              API_GetNumberGameMode);
+    CreateNative("ZP_GetServerGameMode",              API_GetServerGameMode);
+    CreateNative("ZP_SetServerGameMode",              API_SetServerGameMode);
+    CreateNative("ZP_GetGameModeName",                API_GetGameModeName);
+    CreateNative("ZP_GetGameModeDesc",                API_GetGameModeDesc);
+    CreateNative("ZP_GetGameModeSoundID",             API_GetGameModeSoundID);
+    CreateNative("ZP_GetGameModeChance",              API_GetGameModeChance);
+    CreateNative("ZP_GetGameModeMinPlayers",          API_GetGameModeMinPlayers);
+    CreateNative("ZP_GetGameModeRatio",               API_GetGameModeRatio);
+    CreateNative("ZP_IsGameModeInfect",               API_IsGameModeInfect);
+    CreateNative("ZP_IsGameModeRespawn",              API_IsGameModeRespawn);
+    CreateNative("ZP_IsGameModeSurvivor",             API_IsGameModeSurvivor);
+    CreateNative("ZP_IsGameModeNemesis",              API_IsGameModeNemesis);
+}
  
 /**
  * Gets the current game mode.
  *
  * native int ZP_GetCurrentGameMode();
  **/
-public int API_GetCurrentGameMode(Handle isPlugin, const int iNumParams)
+public int API_GetCurrentGameMode(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData[Server_RoundMode];
@@ -313,7 +425,7 @@ public int API_GetCurrentGameMode(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetNumberGameMode();
  **/
-public int API_GetNumberGameMode(Handle isPlugin, const int iNumParams)
+public int API_GetNumberGameMode(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayGameModes.Length;
@@ -324,7 +436,7 @@ public int API_GetNumberGameMode(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetServerGameMode(name);
  **/
-public int API_GetServerGameMode(Handle isPlugin, const int iNumParams)
+public int API_GetServerGameMode(Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -333,7 +445,7 @@ public int API_GetServerGameMode(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Can't find mode with an empty name");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Can't find mode with an empty name");
         return -1;
     }
     
@@ -367,12 +479,12 @@ public int API_GetServerGameMode(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_SetServerGameMode(name, client);
  **/
-public int API_SetServerGameMode(Handle isPlugin, const int iNumParams)
+public int API_SetServerGameMode(Handle hPlugin, const int iNumParams)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData[Server_RoundNew])
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Can't start game mode during the round");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Can't start game mode during the round");
         return -1;
     }
     
@@ -383,7 +495,7 @@ public int API_SetServerGameMode(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Can't find mode with an empty name");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Can't find mode with an empty name");
         return -1;
     }
 
@@ -399,7 +511,7 @@ public int API_SetServerGameMode(Handle isPlugin, const int iNumParams)
     // Validate client
     if(clientIndex && !IsPlayerExist(clientIndex))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the client index (%d)", clientIndex);
         return -1;
     }
 
@@ -423,98 +535,13 @@ public int API_SetServerGameMode(Handle isPlugin, const int iNumParams)
     // Return on the unsuccess
     return -1;
 }
- 
-/**
- * Load game modes from other plugin.
- *
- * native int ZP_RegisterGameMode(name, desc, sound, chance, min, ratio, infect, respawn, survivor, nemesis)
- **/
-public int API_RegisterGameMode(Handle isPlugin, const int iNumParams)
-{
-    // If array hasn't been created, then create
-    if(arrayGameModes == INVALID_HANDLE)
-    {
-        // Create array in handle
-        arrayGameModes = CreateArray(GameModesMax);
-    }
-
-    // Retrieves the string length from a native parameter string
-    int maxLen;
-    GetNativeStringLength(1, maxLen);
-    
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Can't register game mode with an empty name");
-        return -1;
-    }
-    
-    // Gets game modes amount
-    int iCount = arrayGameModes.Length;
-    
-    // Maximum amout of game modes
-    if(iCount >= GameModesMax)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation",  "Maximum number of game modes reached (%d). Skipping other modes.", GameModesMax);
-        return -1;
-    }
-
-    // Initialize variables
-    char sModeBuffer[SMALL_LINE_LENGTH];
-    char sModeName[SMALL_LINE_LENGTH];
-
-    // General
-    GetNativeString(1, sModeBuffer,  sizeof(sModeBuffer)); 
-    
-    // i = mode number
-    for(int i = 0; i < iCount; i++)
-    {
-        // Gets the name of a game mode at a given index
-        ModesGetName(i, sModeName, sizeof(sModeName));
-    
-        // If names match, then stop
-        if(!strcmp(sModeBuffer, sModeName, false))
-        {
-            return i;
-        }
-    }
-
-    // Initialize array block
-    ArrayList arrayGameMode = CreateArray(GameModesMax);
-    
-    // Push native data into array
-    arrayGameMode.PushString(sModeBuffer);  // Index: 0 
-    GetNativeString(2, sModeBuffer,  sizeof(sModeBuffer)); 
-    if(!TranslationPhraseExists(sModeBuffer) && strlen(sModeBuffer))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Couldn't cache game mode desc: \"%s\" (check translation file)", sModeBuffer);
-        return -1;
-    }
-    arrayGameMode.PushString(sModeBuffer);  // Index: 1
-    GetNativeString(3, sModeBuffer, sizeof(sModeBuffer)); 
-    arrayGameMode.PushString(sModeBuffer);  // Index: 2
-    arrayGameMode.Push(-1);                 // Index: 3
-    arrayGameMode.Push(GetNativeCell(4));   // Index: 4
-    arrayGameMode.Push(GetNativeCell(5));   // Index: 5
-    arrayGameMode.Push(GetNativeCell(6));   // Index: 6
-    arrayGameMode.Push(GetNativeCell(7));   // Index: 7
-    arrayGameMode.Push(GetNativeCell(8));   // Index: 8
-    arrayGameMode.Push(GetNativeCell(9));   // Index: 9
-    arrayGameMode.Push(GetNativeCell(10));  // Index: 10
-
-    // Store this handle in the main array
-    arrayGameModes.Push(arrayGameMode);
-    
-    // Return id under which we registered the item
-    return arrayGameModes.Length-1;
-}
 
 /**
  * Gets the name of a game mode at a given index.
  *
  * native void ZP_GetGameModeName(iD, sName, maxLen);
  **/
-public int API_GetGameModeName(Handle isPlugin, const int iNumParams)
+public int API_GetGameModeName(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -528,7 +555,7 @@ public int API_GetGameModeName(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -538,7 +565,7 @@ public int API_GetGameModeName(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -555,7 +582,7 @@ public int API_GetGameModeName(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetGameModeDesc(iD, sName, maxLen);
  **/
-public int API_GetGameModeDesc(Handle isPlugin, const int iNumParams)
+public int API_GetGameModeDesc(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -569,7 +596,7 @@ public int API_GetGameModeDesc(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -579,7 +606,7 @@ public int API_GetGameModeDesc(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -596,7 +623,7 @@ public int API_GetGameModeDesc(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetGameModeSoundID(iD);
  **/
-public int API_GetGameModeSoundID(Handle isPlugin, const int iNumParams)
+public int API_GetGameModeSoundID(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -610,7 +637,7 @@ public int API_GetGameModeSoundID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
 
@@ -623,7 +650,7 @@ public int API_GetGameModeSoundID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetGameModeChance(iD);
  **/
-public int API_GetGameModeChance(Handle isPlugin, const int iNumParams)
+public int API_GetGameModeChance(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -637,7 +664,7 @@ public int API_GetGameModeChance(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -650,7 +677,7 @@ public int API_GetGameModeChance(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetGameModeMinPlayers(iD);
  **/
-public int API_GetGameModeMinPlayers(Handle isPlugin, const int iNumParams)
+public int API_GetGameModeMinPlayers(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -664,7 +691,7 @@ public int API_GetGameModeMinPlayers(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -677,7 +704,7 @@ public int API_GetGameModeMinPlayers(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetGameModeRatio(iD);
  **/
-public int API_GetGameModeRatio(Handle isPlugin, const int iNumParams)
+public int API_GetGameModeRatio(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -691,7 +718,7 @@ public int API_GetGameModeRatio(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -704,7 +731,7 @@ public int API_GetGameModeRatio(Handle isPlugin, const int iNumParams)
  *
  * native bool ZP_IsGameModeInfect(iD);
  **/
-public int API_IsGameModeInfect(Handle isPlugin, const int iNumParams)
+public int API_IsGameModeInfect(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -718,7 +745,7 @@ public int API_IsGameModeInfect(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -731,7 +758,7 @@ public int API_IsGameModeInfect(Handle isPlugin, const int iNumParams)
  *
  * native bool ZP_IsGameModeRespawn(iD);
  **/
-public int API_IsGameModeRespawn(Handle isPlugin, const int iNumParams)
+public int API_IsGameModeRespawn(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -745,7 +772,7 @@ public int API_IsGameModeRespawn(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -758,7 +785,7 @@ public int API_IsGameModeRespawn(Handle isPlugin, const int iNumParams)
  *
  * native bool ZP_IsGameModeSurvivor(iD);
  **/
-public int API_IsGameModeSurvivor(Handle isPlugin, const int iNumParams)
+public int API_IsGameModeSurvivor(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -772,7 +799,7 @@ public int API_IsGameModeSurvivor(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -785,7 +812,7 @@ public int API_IsGameModeSurvivor(Handle isPlugin, const int iNumParams)
  *
  * native bool ZP_IsGameModeNemesis(iD);
  **/
-public int API_IsGameModeNemesis(Handle isPlugin, const int iNumParams)
+public int API_IsGameModeNemesis(Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -799,7 +826,7 @@ public int API_IsGameModeNemesis(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayGameModes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Gamemodes, "Native Validation", "Invalid the mode index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
         return -1;
     }
     
@@ -844,22 +871,6 @@ stock void ModesGetDesc(const int iD, char[] sDesc, const int iMaxLen)
 }
 
 /**
- * Gets the sound of a game mode at a given index.
- *
- * @param iD                The game mode index.
- * @param sDesc             The string to return name in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ModesGetSound(const int iD, char[] sDesc, const int iMaxLen)
-{
-    // Gets array handle of game mode at given index
-    ArrayList arrayGameMode = arrayGameModes.Get(iD);
-    
-    // Gets game mode sound
-    arrayGameMode.GetString(GAMEMODES_DATA_SOUND, sDesc, iMaxLen);
-}
-
-/**
  * Gets the sound key of the game mode.
  *
  * @param iD                The game mode index.
@@ -871,22 +882,7 @@ stock int ModesGetSoundID(const int iD)
     ArrayList arrayGameMode = arrayGameModes.Get(iD);
     
     // Gets game mode sound key
-    return arrayGameMode.Get(GAMEMODES_DATA_SOUND_ID);
-}
-
-/**
- * Sets the sound key of the game mode.
- *
- * @param iD                The game mode index.
- * @param iKey              The key index.
- **/
-stock int ModesSetSoundID(const int iD, const int iKey)
-{
-    // Gets array handle of game mode at given index
-    ArrayList arrayGameMode = arrayGameModes.Get(iD);
-    
-    // Sets game mode sound key
-    arrayGameMode.Set(GAMEMODES_DATA_SOUND_ID, iKey);
+    return arrayGameMode.Get(GAMEMODES_DATA_SOUND);
 }
 
 /**

@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:           paramparser.cpp
  *  Type:           Core 
@@ -15,7 +15,7 @@
  *                  key3 = "value4", "value5", "value6"
  *                  key4 = "value7"
  *
- *  Copyright (C) 2015-2018  Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019  Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,24 +50,38 @@
 #define PARAM_ERROR_EMPTY               0   /** Source string is empty. */
 #define PARAM_ERROR_UNEXPECTED_KEY      1   /** Unexpected key name. */
 #define PARAM_ERROR_UNEXPECTED_END      2   /** Unexpected end of source string. */
-#define PARAM_ERROR_MISSING_EQUATION    3   /** Could not find a equation sign (=) after previous key name. */
+#define PARAM_ERROR_MISSING_SEPARATOR   3   /** Could not find a separator sign after key name. */
 #define PARAM_ERROR_MISSING_QUOTES      4   /** Could not find a quotes sign (") after key name. */
 #define PARAM_ERROR_UNKNOWN             5   /** Unknown error. The parser got a invalid result from a search function it couldn't handle. */
 #define PARAM_ERROR_FULL                6   /** Destination array is full. */
 /**
  * @endsection
  **/
-
+ 
+/**
+ * Errors description for a codes.
+ **/
+static const char sParamError[7][PARAM_VALUE_MAXLEN] = {
+    /*"No errors",*/
+    "Source string is empty",
+    "Unexpected key name",
+    "Unexpected end of source string",
+    "Could not find a separator sign after key name",
+    "Could not find a quotes sign (\") after key name",
+    "Unknown error. The parser got a invalid result from a search function it couldn't handle",
+    "Destination array is full"
+};
+   
 /**
  * Modes for what to do and expect when parsing. White space characters between
  * modes are ignored.
  **/
 enum ParamModes
 {
-    ParamMode_Equal,    /** Expect a equation sign. */
-    ParamMode_Key,      /** Expect a key name. */
-    ParamMode_Value,    /** Expect a value string. */
-    ParamMode_Finish    /** Finish parsing. */
+    ParamMode_Sep,    /** Expect a separator sign. */
+    ParamMode_Key,    /** Expect a key name. */
+    ParamMode_Value,  /** Expect a value string. */
+    ParamMode_Finish  /** Finish parsing. */
 }
 
 /**
@@ -90,12 +104,13 @@ enum ParamParseResult
  * Parses a parameter string in key = "value" format and store the result in a ParamParseResult array.
  *
  * @param iBuffer           A ParamParseResult array to store results.
- * @param sParamString      The source string to parse. String is trimmed before parsing.
+ * @param sParamString      The source string to parse. Error message output.
  * @param iMaxLen           Maximum number of keys that can be stored (first dimension of buffer).
- * @param iKeys             Opional output: Number of array.
- * @return                  Returns error code ifparsing error.
+ * @param cSeparator        The separator character.
+ * @param iKeys             Optional output: Number of array.
+ * @return                  Returns error code if parsing error.
  **/
-stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, const int iMaxLen, int &iKeys = 0)
+stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, const int iMaxLen, char cSeparator, int &iKeys = 0)
 {
     /*
      *  VALIDATION OF INPUT AND BUFFERS
@@ -112,10 +127,11 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
 
     // Gets string length
     int iLen = strlen(sParamString);
-
+    
     // Check if string is empty
     if(!iLen)
     {
+        strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_EMPTY]);
         return PARAM_ERROR_EMPTY;
     }
 
@@ -123,6 +139,7 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
     if(iMaxLen > PARAM_VALUE_MAXLEN || iLen > PARAM_VALUE_MAXLEN)
     {
         // Exit loop. No more parameters can be parsed
+        strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_FULL]);
         return PARAM_ERROR_FULL;
     }
     
@@ -130,11 +147,11 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
      *  PARSE LOOP
      */
 
-    // Initialize. Expect a equation sign
-    ParamModes iMode = ParamMode_Equal;
+    // Initialize. Expect a separator sign
+    ParamModes iMode = ParamMode_Sep;
 
     // Buffers for temp values
-    int iStartPos; int iEndPos; int iEquationPos;
+    int iStartPos; int iEndPos; int iSeparatorPos;
     static char sValue[PARAM_VALUE_MAXLEN];
 
     // Loop through all string
@@ -147,21 +164,22 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
         // Check mode for deciding what to do
         switch(iMode)
         {
-            case ParamMode_Equal :
+            case ParamMode_Sep :
             {
-                // Position of equal character
-                iEquationPos = FindCharInString(sParamString, '=', false);
+                // Position of separator character
+                iSeparatorPos = FindCharInString(sParamString, cSeparator, false);
 
                 // Parse error
-                if(iEquationPos == -1)
+                if(iSeparatorPos == -1)
                 {
-                    return PARAM_ERROR_MISSING_EQUATION;
+                    strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_MISSING_SEPARATOR]);
+                    return PARAM_ERROR_MISSING_SEPARATOR;
                 }
 
                 // Update end position of key character. Substract by one to include 
                 // the current character in next mode
-                iEndPos = iEquationPos - 1;
-
+                iEndPos = iSeparatorPos;
+                    
                 // Expect a key name
                 iMode = ParamMode_Key;
             }
@@ -175,8 +193,9 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
                 TrimString(sValue);
                 
                 // Check if string is empty, then stop
-                if(!strlen(sValue))
+                if(!hasLength(sValue))
                 {
+                    strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_UNEXPECTED_KEY]);
                     return PARAM_ERROR_UNEXPECTED_KEY;
                 }
 
@@ -190,17 +209,18 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
             case ParamMode_Value :
             {
                 // Find start position of first non white space character
-                iStartPos = iEquationPos + 1;
+                iStartPos = iSeparatorPos + 1;
 
                 // Extract value string
                 StrExtract(sParamString, sParamString, iStartPos, iLen);
 
                 // Trim string
-                TrimString(sValue);
+                TrimString(sParamString);
                 
                 // Check if string is empty, then stop
-                if(!strlen(sParamString))
+                if(!hasLength(sParamString))
                 {
+                    strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_UNEXPECTED_END]);
                     return PARAM_ERROR_UNEXPECTED_END;
                 }
                 else
@@ -212,6 +232,7 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
                     // Check if string without quote, then stop
                     if(iQuote1 == -1 || iQuote2 == -1 || iQuote1 == iQuote2)
                     {
+                        strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_MISSING_QUOTES]);
                         return PARAM_ERROR_MISSING_QUOTES;
                     }
                 }

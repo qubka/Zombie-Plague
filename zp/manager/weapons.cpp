@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          weapons.cpp
  *  Type:          Manager
  *  Description:   Weapons generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -84,6 +84,14 @@ enum
  **/
 void WeaponsInit(/*void*/)
 {
+    // Hook player events
+    HookEvent("weapon_fire",       WeaponsOnFire,    EventHookMode_Pre);
+    HookEvent("bullet_impact",     WeaponsOnBullet,  EventHookMode_Post);
+    HookEvent("hostage_follows",   WeaponsOnHostage, EventHookMode_Post);
+    
+    // Hook temp events
+    AddTempEntHook("Shotgun Shot", WeaponsOnShoot);
+    
     // Forward event to sub-modules
     WeaponSDKInit();
     WeaponHDRInit();
@@ -99,7 +107,7 @@ void WeaponsLoad(/*void*/)
 
     // Gets weapons config path
     static char sPathWeapons[PLATFORM_MAX_PATH];
-    bool bExists = ConfigGetCvarFilePath(CVAR_CONFIG_PATH_WEAPONS, sPathWeapons);
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_WEAPONS, sPathWeapons);
 
     // If file doesn't exist, then log and stop
     if(!bExists)
@@ -142,13 +150,15 @@ void WeaponsLoad(/*void*/)
  **/
 void WeaponsCacheData(/*void*/)
 {
-    // Gets config file path.
+    // Gets config file path
     static char sPathWeapons[PLATFORM_MAX_PATH];
     ConfigGetConfigPath(File_Weapons, sPathWeapons, sizeof(sPathWeapons));
 
+    // Open config
     KeyValues kvWeapons;
     bool bSuccess = ConfigOpenConfigFile(File_Weapons, kvWeapons);
 
+    // Validate config
     if(!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sPathWeapons);
@@ -164,7 +174,7 @@ void WeaponsCacheData(/*void*/)
         if(!kvWeapons.JumpToKey(sPathWeapons))
         {
             // Log weapon fatal
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
             continue;
         }
         
@@ -174,16 +184,16 @@ void WeaponsCacheData(/*void*/)
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sPathWeapons);
         }
-
+        
         // Gets array size
         ArrayList arrayWeapon = arrayWeapons.Get(i); 
  
         // Push data into array
         kvWeapons.GetString("info", sPathWeapons, sizeof(sPathWeapons), "");
-        if(!TranslationPhraseExists(sPathWeapons) && strlen(sPathWeapons))
+        if(!TranslationPhraseExists(sPathWeapons) && hasLength(sPathWeapons))
         {
             // Log weapon error
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sPathWeapons);
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sPathWeapons);
         }
         arrayWeapon.PushString(sPathWeapons);                 // Index: 1
         kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
@@ -238,6 +248,16 @@ public void WeaponsOnConfigReload(/*void*/)
 }
 
 /**
+ * Creates commands for weapons module.
+ **/
+void WeaponsOnCommandsCreate(/*void*/)
+{
+    // Forward event to sub-modules
+    ZMarketOnCommandsCreate();
+    WeaponSDKOnCommandsCreate();
+}
+
+/**
  * Purge weapon SDK data.
  **/
 void WeaponsUnload(/*void*/)
@@ -245,16 +265,6 @@ void WeaponsUnload(/*void*/)
     // Forward event to sub-modules
     WeaponAttachUnload();
     WeaponSDKUnload();
-}
-
-/**
- * Creates commands for weapons module. Called when commands are created.
- **/
-void WeaponsOnCommandsCreate(/*void*/)
-{
-    // Forward event to sub-modules
-    ZMarketOnCommandsCreate();
-    WeaponSDKOnCommandsCreate();
 }
 
 /**
@@ -269,48 +279,150 @@ void WeaponsClientInit(const int clientIndex)
 }
 
 /**
- * Client has been fired.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * Hook weapons cvar changes.
  **/
-void WeaponsOnFire(const int clientIndex, const int weaponIndex) 
+void WeaponsOnCvarInit(/*void*/)
 {
+    // Create cvars
+    gCvarList[CVAR_SERVER_GIVE_WEAPON]          = FindConVar("mp_weapons_allow_map_placed");
+    gCvarList[CVAR_SERVER_GIVE_TASER]           = FindConVar("mp_weapons_allow_zeus");
+    gCvarList[CVAR_SERVER_GIVE_BOMB]            = FindConVar("mp_give_player_c4");
+    
+    // Sets locked cvars to their locked value
+    gCvarList[CVAR_SERVER_GIVE_WEAPON].IntValue = 0;
+    gCvarList[CVAR_SERVER_GIVE_TASER].IntValue  = 1;
+    gCvarList[CVAR_SERVER_GIVE_BOMB].IntValue   = 1;
+    
+    // Hook locked cvars to prevent it from changing
+    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_WEAPON],          CvarsHookLocked);    
+    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_TASER],           CvarsHookUnlocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_GIVE_BOMB],            CvarsHookUnlocked);
+}
+
+/**
+ * Event callback (weapon_fire)
+ * Client has been shooted.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action WeaponsOnFire(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+
+    // Gets the active weapon index from the client
+    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
+    {
+        return;
+    }
+    
     // Forward event to sub-modules
     WeaponSDKOnFire(clientIndex, weaponIndex);
 }
 
 /**
+ * Event callback (bullet_impact)
  * The bullet hits something.
- *
- * @param clientIndex       The client index.
- * @param vBulletPosition   The position of a bullet hit.
- * @param weaponIndex       The weapon index.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-void WeaponsOnBullet(const int clientIndex, const float vBulletPosition[3], const int weaponIndex) 
+public Action WeaponsOnBullet(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+
+    // Gets the active weapon index from the client
+    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
+    {
+        return;
+    }
+    
+    // Initialize vector
+    static float vBulletPosition[3];
+
+    // Gets the bullet position
+    vBulletPosition[0] = hEvent.GetFloat("x");
+    vBulletPosition[1] = hEvent.GetFloat("y");
+    vBulletPosition[2] = hEvent.GetFloat("z");
+    
     // Forward event to sub-modules
     WeaponSDKOnBullet(clientIndex, vBulletPosition, weaponIndex);
 }
+
 /**
+ * Event callback (hostage_follows)
  * Client has been carried hostage.
- *
- * @param clientIndex       The client index.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-void WeaponsOnHostage(const int clientIndex) 
+public Action WeaponsOnHostage(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
     // Forward event to sub-modules
     WeaponSDKOnHostage(clientIndex);
 }
 
 /**
- * Client has been shoot.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- **/
-Action WeaponsOnShoot(const int clientIndex, const int weaponIndex) 
-{
+ * Event callback (Shotgun Shot)
+ * The bullet was been created.
+ * 
+ * @param sTEName           The temp name.
+ * @param iPlayers          Array containing target player indexes.
+ * @param numClients        Number of players in the array.
+ * @param flDelay           Delay in seconds to send the TE.
+ **/ 
+public Action WeaponsOnShoot(const char[] sTEName, const int[] iPlayers, int numClients, float flDelay) 
+{ 
+    // Gets all required event info
+    int clientIndex = TE_ReadNum("m_iPlayer") + 1;
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return Plugin_Continue;
+    }
+
+    // Gets the active weapon index from the client
+    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex))
+    {
+        return Plugin_Continue;
+    }
+    
     // Forward event to sub-modules
     return WeaponSDKOnShoot(clientIndex, weaponIndex);
 }
@@ -361,7 +473,7 @@ public void WeaponsOnClientUpdate(const int userID)
  *
  * @param clientIndex       The client index.
  **/
-public void WeaponsOnClientDeath(const int clientIndex)
+void WeaponsOnClientDeath(const int clientIndex)
 {
     // Forward event to sub-modules
     WeaponSDKOnClientDeath(clientIndex);
@@ -388,11 +500,51 @@ public void OnEntityCreated(int entityIndex, const char[] sClassname)
  */
 
 /**
+ * Sets up natives for library.
+ **/
+void WeaponsAPI(/*void*/) 
+{
+    CreateNative("ZP_GiveClientWeapon",               API_GiveClientWeapon);
+    CreateNative("ZP_GetClientViewModel",             API_GetClientViewModel);
+    CreateNative("ZP_GetClientAttachModel",           API_GetClientAttachModel);
+    CreateNative("ZP_GetWeaponNameID",                API_GetWeaponNameID);
+    CreateNative("ZP_GetWeaponID",                    API_GetWeaponID);
+    CreateNative("ZP_GetNumberWeapon",                API_GetNumberWeapon);
+    CreateNative("ZP_GetWeaponName",                  API_GetWeaponName);
+    CreateNative("ZP_GetWeaponInfo",                  API_GetWeaponInfo);
+    CreateNative("ZP_GetWeaponEntity",                API_GetWeaponEntity);
+    CreateNative("ZP_GetWeaponGroup",                 API_GetWeaponGroup);
+    CreateNative("ZP_GetWeaponCost",                  API_GetWeaponCost);
+    CreateNative("ZP_GetWeaponSlot",                  API_GetWeaponSlot);
+    CreateNative("ZP_GetWeaponLevel",                 API_GetWeaponLevel);
+    CreateNative("ZP_GetWeaponOnline",                API_GetWeaponOnline);
+    CreateNative("ZP_GetWeaponDamage",                API_GetWeaponDamage);
+    CreateNative("ZP_GetWeaponKnockBack",             API_GetWeaponKnockBack);
+    CreateNative("ZP_GetWeaponClip",                  API_GetWeaponClip);
+    CreateNative("ZP_GetWeaponAmmo",                  API_GetWeaponAmmo);
+    CreateNative("ZP_GetWeaponSpeed",                 API_GetWeaponSpeed);
+    CreateNative("ZP_GetWeaponReload",                API_GetWeaponReload);
+    CreateNative("ZP_GetWeaponDeploy",                API_GetWeaponDeploy);
+    CreateNative("ZP_GetWeaponSoundID",               API_GetWeaponSoundID);
+    CreateNative("ZP_GetWeaponClass",                 API_GetWeaponClass);
+    CreateNative("ZP_GetWeaponModelView",             API_GetWeaponModelView);
+    CreateNative("ZP_GetWeaponModelViewID",           API_GetWeaponModelViewID);
+    CreateNative("ZP_GetWeaponModelWorld",            API_GetWeaponModelWorld);    
+    CreateNative("ZP_GetWeaponModelWorldID",          API_GetWeaponModelWorldID); 
+    CreateNative("ZP_GetWeaponModelDrop",             API_GetWeaponModelDrop);    
+    CreateNative("ZP_GetWeaponModelDropID",           API_GetWeaponModelDropID); 
+    CreateNative("ZP_GetWeaponModelBody",             API_GetWeaponModelBody); 
+    CreateNative("ZP_GetWeaponModelSkin",             API_GetWeaponModelSkin); 
+    CreateNative("ZP_GetWeaponModelMuzzle",           API_GetWeaponModelMuzzle);
+    CreateNative("ZP_GetWeaponModelHeat",             API_GetWeaponModelHeat); 
+}
+ 
+/**
  * Gives the weapon by a given name.
  *
  * native int ZP_GiveClientWeapon(client, name, slot);
  **/
-public int API_GiveClientWeapon(Handle isPlugin, const int iNumParams)
+public int API_GiveClientWeapon(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -438,7 +590,7 @@ public int API_GiveClientWeapon(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetClientViewModel(clientIndex, custom);
  **/
-public int API_GetClientViewModel(Handle isPlugin, const int iNumParams)
+public int API_GetClientViewModel(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -459,7 +611,7 @@ public int API_GetClientViewModel(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetClientAttachModel(clientIndex, bit);
  **/
-public int API_GetClientAttachModel(Handle isPlugin, const int iNumParams)
+public int API_GetClientAttachModel(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -488,7 +640,7 @@ public int API_GetClientAttachModel(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponID(weaponIndex);
  **/
-public int API_GetWeaponID(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponID(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell 
     int weaponIndex = GetNativeCell(1);
@@ -509,7 +661,7 @@ public int API_GetWeaponID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponNameID(name);
  **/
-public int API_GetWeaponNameID(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponNameID(Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -537,7 +689,7 @@ public int API_GetWeaponNameID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetNumberWeapon();
  **/
-public int API_GetNumberWeapon(Handle isPlugin, const int iNumParams)
+public int API_GetNumberWeapon(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayWeapons.Length;
@@ -548,7 +700,7 @@ public int API_GetNumberWeapon(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponName(iD, name, maxlen);
  **/
-public int API_GetWeaponName(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponName(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -583,7 +735,7 @@ public int API_GetWeaponName(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponInfo(iD, info, maxlen);
  **/
-public int API_GetWeaponInfo(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponInfo(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -618,7 +770,7 @@ public int API_GetWeaponInfo(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponGroup(iD, group, maxlen);
  **/
-public int API_GetWeaponGroup(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponGroup(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -653,7 +805,7 @@ public int API_GetWeaponGroup(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponEntity(iD, entity, maxlen);
  **/
-public int API_GetWeaponEntity(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponEntity(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -688,7 +840,7 @@ public int API_GetWeaponEntity(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponCost(iD);
  **/
-public int API_GetWeaponCost(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponCost(Handle hPlugin, const int iNumParams)
 {    
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -709,7 +861,7 @@ public int API_GetWeaponCost(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponSlot(iD);
  **/
-public int API_GetWeaponSlot(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponSlot(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -730,7 +882,7 @@ public int API_GetWeaponSlot(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponLevel(iD);
  **/
-public int API_GetWeaponLevel(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponLevel(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -751,7 +903,7 @@ public int API_GetWeaponLevel(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponOnline(iD);
  **/
-public int API_GetWeaponOnline(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponOnline(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -772,7 +924,7 @@ public int API_GetWeaponOnline(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetWeaponDamage(iD);
  **/
-public int API_GetWeaponDamage(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponDamage(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -793,7 +945,7 @@ public int API_GetWeaponDamage(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetWeaponKnockBack(iD);
  **/
-public int API_GetWeaponKnockBack(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponKnockBack(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -814,7 +966,7 @@ public int API_GetWeaponKnockBack(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponClip(iD);
  **/
-public int API_GetWeaponClip(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponClip(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -835,7 +987,7 @@ public int API_GetWeaponClip(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponAmmo(iD);
  **/
-public int API_GetWeaponAmmo(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponAmmo(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -856,7 +1008,7 @@ public int API_GetWeaponAmmo(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetWeaponSpeed(iD);
  **/
-public int API_GetWeaponSpeed(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponSpeed(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -877,7 +1029,7 @@ public int API_GetWeaponSpeed(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetWeaponReload(iD);
  **/
-public int API_GetWeaponReload(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponReload(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -898,7 +1050,7 @@ public int API_GetWeaponReload(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetWeaponDeploy(iD);
  **/
-public int API_GetWeaponDeploy(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponDeploy(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -919,7 +1071,7 @@ public int API_GetWeaponDeploy(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponSoundID(iD);
  **/
-public int API_GetWeaponSoundID(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponSoundID(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -940,7 +1092,7 @@ public int API_GetWeaponSoundID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponClass(iD);
  **/
-public int API_GetWeaponClass(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponClass(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -961,7 +1113,7 @@ public int API_GetWeaponClass(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponModelView(iD, model, maxlen);
  **/
-public int API_GetWeaponModelView(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelView(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -996,7 +1148,7 @@ public int API_GetWeaponModelView(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponModelViewID(iD);
  **/
-public int API_GetWeaponModelViewID(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelViewID(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1017,7 +1169,7 @@ public int API_GetWeaponModelViewID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponModelWorld(iD, model, maxlen);
  **/
-public int API_GetWeaponModelWorld(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelWorld(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1052,7 +1204,7 @@ public int API_GetWeaponModelWorld(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponModelWorldID(iD);
  **/
-public int API_GetWeaponModelWorldID(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelWorldID(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1073,7 +1225,7 @@ public int API_GetWeaponModelWorldID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponModelDrop(iD, model, maxlen);
  **/
-public int API_GetWeaponModelDrop(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelDrop(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1108,7 +1260,7 @@ public int API_GetWeaponModelDrop(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponModelDropID(iD);
  **/
-public int API_GetWeaponModelDropID(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelDropID(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1129,7 +1281,7 @@ public int API_GetWeaponModelDropID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponModelBody(iD, model);
  **/
-public int API_GetWeaponModelBody(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelBody(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1158,7 +1310,7 @@ public int API_GetWeaponModelBody(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetWeaponModelSkin(iD, model);
  **/
-public int API_GetWeaponModelSkin(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelSkin(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1187,7 +1339,7 @@ public int API_GetWeaponModelSkin(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetWeaponModelMuzzle(iD, muzzle, maxlen);
  **/
-public int API_GetWeaponModelMuzzle(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelMuzzle(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1222,7 +1374,7 @@ public int API_GetWeaponModelMuzzle(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetWeaponModelHeat(iD);
  **/
-public int API_GetWeaponModelHeat(Handle isPlugin, const int iNumParams)
+public int API_GetWeaponModelHeat(Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1857,6 +2009,32 @@ stock void WeaponsDrop(const int clientIndex, const int weaponIndex)
 }
 
 /**
+ * Pick up weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param iD                The weapon id.
+ * @param CSlot             The slot index.
+ **/
+stock void WeaponsPickUp(const int clientIndex, const int weaponIndex, const int iD, const WeaponSDKSlotType CSlot)
+{
+    // Gets weapon index
+    int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(CSlot));
+    
+    // Validate weapon
+    if(!IsValidEdict(weaponIndex2))
+    {
+        // Gets weapon name
+        static char sName[SMALL_LINE_LENGTH];
+        WeaponsGetName(iD, sName, sizeof(sName));
+
+        // Give the new weapon
+        AcceptEntityInput(weaponIndex, "Kill"); //! Destroy
+        WeaponsGive(clientIndex, sName);
+    }
+}
+
+/**
  * Returns index if the player has a weapon.
  *
  * @param clientIndex       The client index.
@@ -1936,10 +2114,10 @@ stock bool WeaponsIsExist(const int clientIndex, const int iD)
  * Remove all weapons and give default weapon.
  *
  * @param clientIndex       The client index.
- * @param hConVar           The cvar handler.
+ * @param hCVar             The cvar handler.
  * @return                  True on success, false if weapon already exist. 
  **/
-stock bool WeaponsRemoveAll(const int clientIndex, const ConVar hConVar)
+stock bool WeaponsRemoveAll(const int clientIndex, const ConVar hCVar)
 {
     // i = weapon number
     static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
@@ -1979,7 +2157,7 @@ stock bool WeaponsRemoveAll(const int clientIndex, const ConVar hConVar)
 
     // Gets weapon name from a convar handler
     static char sName[SMALL_LINE_LENGTH];
-    hConVar.GetString(sName, sizeof(sName));
+    hCVar.GetString(sName, sizeof(sName));
     
     // Give weapon
     return (WeaponsGive(clientIndex, sName) != INVALID_ENT_REFERENCE) ? true : false;
@@ -1989,16 +2167,16 @@ stock bool WeaponsRemoveAll(const int clientIndex, const ConVar hConVar)
  * Give weapons.
  *
  * @param clientIndex       The client index.
- * @param hConVar           The cvar handler.
+ * @param hCVar             The cvar handler.
  **/
-stock void WeaponsGiveAll(const int clientIndex, const ConVar hConVar)
+stock void WeaponsGiveAll(const int clientIndex, const ConVar hCVar)
 {
     // Gets weapons' list name from a convar handler
     static char sList[BIG_LINE_LENGTH];
-    hConVar.GetString(sList, sizeof(sList));
+    hCVar.GetString(sList, sizeof(sList));
 
     // Validate length
-    if(strlen(sList))
+    if(hasLength(sList))
     {
         // Convert list string to pieces
         static char sName[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH];
@@ -2034,7 +2212,7 @@ stock int WeaponsGive(const int clientIndex, char[] sName)
      */
     
     // Validate length
-    if(strlen(sName)) 
+    if(hasLength(sName)) 
     {
         // Validate weapon index
         int iD = WeaponsNameToIndex(sName);
@@ -2070,7 +2248,7 @@ stock int WeaponsGive(const int clientIndex, char[] sName)
             }
 
             // Validate exceptions
-            if(!strcmp(sName[7], "c4", false) || !strcmp(sName[7], "knife_t", false))
+            if(!strcmp(sName[7], "c4", false) || !strcmp(sName[7], "knife_t", false) || !strcmp(sName[7], "fists", false) || !strcmp(sName[7], "knife_ghost", false) || !strcmp(sName[7], "axe", false) || !strcmp(sName[7], "hammer", false) || !strcmp(sName[7], "spanner", false))
             {
                 // Create a weapon entity
                 weaponIndex = CreateEntityByName(sName);
@@ -2150,7 +2328,7 @@ stock bool WeaponsValidateKnife(const int weaponIndex)
     GetEdictClassname(weaponIndex, sWeapon, sizeof(sWeapon));
 
     // Return on success
-    return (!strncmp(sWeapon[7], "knife", 5, false) || !strcmp(sWeapon[7], "bayonet"));
+    return (!strncmp(sWeapon[7], "knife", 5, false) || !strcmp(sWeapon[7], "bayonet") || !strcmp(sWeapon[7], "melee"));
 }
 
 /**

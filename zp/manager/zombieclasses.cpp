@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          zombieclases.cpp
  *  Type:          Manager 
  *  Description:   Zombie classes generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,6 @@
  **/
  
 /**
- * Number of max valid zombie classes.
- **/
-#define ZombieClassMax 64
- 
-/**
  * Array handle to store zombie class native data.
  **/
 ArrayList arrayZombieClasses;
@@ -44,7 +39,9 @@ enum
     ZOMBIECLASSES_DATA_INFO,
     ZOMBIECLASSES_DATA_MODEL,
     ZOMBIECLASSES_DATA_CLAW,
+    ZOMBIECLASSES_DATA_CLAW_ID,
     ZOMBIECLASSES_DATA_GRENADE,
+    ZOMBIECLASSES_DATA_GRENADE_ID,
     ZOMBIECLASSES_DATA_HEALTH,
     ZOMBIECLASSES_DATA_SPEED,
     ZOMBIECLASSES_DATA_GRAVITY,
@@ -55,8 +52,6 @@ enum
     ZOMBIECLASSES_DATA_COUNTDOWN,
     ZOMBIECLASSES_DATA_REGENHEALTH,
     ZOMBIECLASSES_DATA_REGENINTERVAL,
-    ZOMBIECLASSES_DATA_CLAW_ID,
-    ZOMBIECLASSES_DATA_GRENADE_ID,
     ZOMBIECLASSES_DATA_SOUNDDEATH,
     ZOMBIECLASSES_DATA_SOUNDHURT,
     ZOMBIECLASSES_DATA_SOUNDIDLE,
@@ -64,102 +59,178 @@ enum
     ZOMBIECLASSES_DATA_SOUNDBURN,
     ZOMBIECLASSES_DATA_SOUNDATTACK,
     ZOMBIECLASSES_DATA_SOUNDFOOTSTEP,
-    ZOMBIECLASSES_DATA_SOUNDREGEN,
-    ZOMBIECLASSES_DATA_SOUNDDEATH_ID,
-    ZOMBIECLASSES_DATA_SOUNDHURT_ID,
-    ZOMBIECLASSES_DATA_SOUNDIDLE_ID,
-    ZOMBIECLASSES_DATA_SOUNDRESPAWN_ID,
-    ZOMBIECLASSES_DATA_SOUNDBURN_ID,
-    ZOMBIECLASSES_DATA_SOUNDATTACK_ID,
-    ZOMBIECLASSES_DATA_SOUNDFOOTSTEP_ID,
-    ZOMBIECLASSES_DATA_SOUNDREGEN_ID
+    ZOMBIECLASSES_DATA_SOUNDREGEN
 }
 
 /**
- * Initialization of zombie classes. 
+ * Prepare all zombieclass data.
  **/
 void ZombieClassesLoad(/*void*/)
 {
-    // No zombie classes?
-    if(arrayZombieClasses == INVALID_HANDLE)
+    // Register config file
+    ConfigRegisterConfig(File_ZombieClasses, Structure_Keyvalue, CONFIG_FILE_ALIAS_ZOMBIECLASSES);
+
+    // Gets zombieclasses config path
+    static char sZombieClassPath[PLATFORM_MAX_PATH];
+    bool bExists = ConfigGetFullPath(CONFIG_PATH_ZOMBIECLASSES, sZombieClassPath);
+
+    // If file doesn't exist, then log and stop
+    if(!bExists)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Zombie Class Validation", "No zombie classes loaded");
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Config Validation", "Missing zombieclasses config file: \"%s\"", sZombieClassPath);
     }
 
-    // Initialize variable
-    static char sBuffer[PLATFORM_MAX_PATH];
+    // Sets the path to the config file
+    ConfigSetConfigPath(File_ZombieClasses, sZombieClassPath);
 
-    // Precache of the zombie classes
+    // Load config from file and create array structure
+    bool bSuccess = ConfigLoadConfig(File_ZombieClasses, arrayZombieClasses);
+
+    // Unexpected error, stop plugin
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Config Validation", "Unexpected error encountered loading: \"%s\"", sZombieClassPath);
+    }
+
+    // Validate zombieclasses config
     int iSize = arrayZombieClasses.Length;
-    for(int i = 0; i < iSize; i++)
+    if(!iSize)
     {
-        // Validate player model
-        ZombieGetModel(i, sBuffer, sizeof(sBuffer));
-        if(!ModelsPrecacheStatic(sBuffer))
-        {
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Model Validation", "Invalid model path. File not found: \"%s\"", sBuffer);
-        }
-
-        // Validate claw model
-        ZombieGetClawModel(i, sBuffer, sizeof(sBuffer));
-        ZombieSetClawID(i, ModelsPrecacheWeapon(sBuffer));
-        
-        // Validate grenade model
-        ZombieGetGrenadeModel(i, sBuffer, sizeof(sBuffer));
-        ZombieSetGrenadeID(i, ModelsPrecacheWeapon(sBuffer));
-
-        // Load death sounds
-        ZombieGetSoundDeath(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundDeathID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load hurt sounds
-        ZombieGetSoundHurt(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundHurtID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load idle sounds
-        ZombieGetSoundIdle(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundIdleID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load respawn sounds
-        ZombieGetSoundRespawn(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundRespawnID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load burn sounds
-        ZombieGetSoundBurn(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundBurnID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load attack sounds    
-        ZombieGetSoundAttack(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundAttackID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load footstep sounds
-        ZombieGetSoundFoot(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundFootID(i, SoundsKeyToIndex(sBuffer));
-
-        // Load regen sounds
-        ZombieGetSoundRegen(i, sBuffer, sizeof(sBuffer));
-        ZombieSetSoundRegenID(i, SoundsKeyToIndex(sBuffer));
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Config Validation", "No usable data found in zombieclasses config file: \"%s\"", sZombieClassPath);
     }
+
+    // Now copy data to array structure
+    ZombieClassesCacheData();
+
+    // Sets config data
+    ConfigSetConfigLoaded(File_ZombieClasses, true);
+    ConfigSetConfigReloadFunc(File_ZombieClasses, GetFunctionByName(GetMyHandle(), "ZombieClassesOnConfigReload"));
+    ConfigSetConfigHandle(File_ZombieClasses, arrayZombieClasses);
 }
 
 /**
- * Creates commands for zombie classes module. Called when commands are created.
+ * Caches zombieclass data from file into arrays.
+ * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ **/
+void ZombieClassesCacheData(/*void*/)
+{
+    // Gets config file path
+    static char sPathZombies[PLATFORM_MAX_PATH];
+    ConfigGetConfigPath(File_ZombieClasses, sPathZombies, sizeof(sPathZombies));
+
+    // Open config
+    KeyValues kvZombieClasses;
+    bool bSuccess = ConfigOpenConfigFile(File_ZombieClasses, kvZombieClasses);
+
+    // Validate config
+    if(!bSuccess)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Config Validation", "Unexpected error caching data from zombieclasses config file: \"%s\"", sPathZombies);
+    }
+
+    // i = array index
+    int iSize = arrayZombieClasses.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // General
+        ZombieGetName(i, sPathZombies, sizeof(sPathZombies)); // Index: 0
+        kvZombieClasses.Rewind();
+        if(!kvZombieClasses.JumpToKey(sPathZombies))
+        {
+            // Log zombieclass fatal
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Config Validation", "Couldn't cache zombieclass data for: \"%s\" (check zombieclasses config)", sPathZombies);
+            continue;
+        }
+        
+        // Validate translation
+        if(!TranslationPhraseExists(sPathZombies))
+        {
+            // Log zombieclass error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Config Validation", "Couldn't cache zombieclass name: \"%s\" (check translation file)", sPathZombies);
+        }
+
+        // Initialize array block
+        ArrayList arrayZombieClass = arrayZombieClasses.Get(i);
+
+        // Push data into array
+        kvZombieClasses.GetString("info", sPathZombies, sizeof(sPathZombies), "");
+        if(!TranslationPhraseExists(sPathZombies) && hasLength(sPathZombies))
+        {
+            // Log zombieclass error
+            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Couldn't cache zombieclass info: \"%s\" (check translation file)", sPathZombies);
+        }
+        arrayZombieClass.PushString(sPathZombies);                                  // Index: 1
+        kvZombieClasses.GetString("model", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.PushString(sPathZombies);                                  // Index: 2
+        ModelsPrecacheStatic(sPathZombies);
+        kvZombieClasses.GetString("claw_model", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.PushString(sPathZombies);                                  // Index: 3
+        arrayZombieClass.Push(ModelsPrecacheWeapon(sPathZombies));                  // Index: 4
+        kvZombieClasses.GetString("gren_model", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.PushString(sPathZombies);                                  // Index: 5
+        arrayZombieClass.Push(ModelsPrecacheWeapon(sPathZombies));                  // Index: 6
+        arrayZombieClass.Push(kvZombieClasses.GetNum("health", 0));                 // Index: 7 
+        arrayZombieClass.Push(kvZombieClasses.GetFloat("speed", 0.0));              // Index: 8
+        arrayZombieClass.Push(kvZombieClasses.GetFloat("gravity", 0.0));            // Index: 9
+        arrayZombieClass.Push(kvZombieClasses.GetFloat("knockback", 0.0));          // Index: 10
+        arrayZombieClass.Push(kvZombieClasses.GetNum("level", 0));                  // Index: 11
+        kvZombieClasses.GetString("group", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.PushString(sPathZombies);                                  // Index: 12
+        arrayZombieClass.Push(kvZombieClasses.GetFloat("duration", 0.0));           // Index: 13
+        arrayZombieClass.Push(kvZombieClasses.GetFloat("countdown", 0.0));          // Index: 14
+        arrayZombieClass.Push(kvZombieClasses.GetNum("regenhealth", 0));            // Index: 15
+        arrayZombieClass.Push(kvZombieClasses.GetFloat("regeninterval", 0.0));      // Index: 16
+        kvZombieClasses.GetString("death", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 17
+        kvZombieClasses.GetString("hurt", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 18
+        kvZombieClasses.GetString("idle", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 19
+        kvZombieClasses.GetString("respawn", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 20
+        kvZombieClasses.GetString("burn", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 21
+        kvZombieClasses.GetString("attack", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 22
+        kvZombieClasses.GetString("footstep", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 23
+        kvZombieClasses.GetString("regen", sPathZombies, sizeof(sPathZombies), "");
+        arrayZombieClass.Push(SoundsKeyToIndex(sPathZombies));                      // Index: 24
+    }
+
+    // We're done with this file now, so we can close it
+    delete kvZombieClasses;
+}
+
+/**
+ * Called when configs are being reloaded.
+ * 
+ * @param iConfig           The config being reloaded. (only if 'all' is false)
+ **/
+public void ZombieClassesOnConfigReload(ConfigFile iConfig)
+{
+    // Reload zombieclass config
+    ZombieClassesLoad();
+}
+
+/**
+ * Creates commands for zombie classes module.
  **/
 void ZombieOnCommandsCreate(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zzombieclassmenu", ZombieCommandCatched, "Open the zombie classes menu.");
+    RegConsoleCmd("zp_zombie_menu", ZombieCommandCatched, "Open the zombie classes menu.");
 }
 
 /**
- * Handles the <!zzombieclassmenu> command. Open the zombie classes menu.
+ * Handles the <!zp_zombie_menu> command. Open the zombie classes menu.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
 public Action ZombieCommandCatched(const int clientIndex, const int iArguments)
 {
-    // Open the zombie classes menu
     ZombieMenu(clientIndex);
     return Plugin_Handled;
 }
@@ -169,11 +240,49 @@ public Action ZombieCommandCatched(const int clientIndex, const int iArguments)
  */
 
 /**
+ * Sets up natives for library.
+ **/
+void ZombieClassesAPI(/*void*/)
+{
+    CreateNative("ZP_GetNumberZombieClass",           API_GetNumberZombieClass);
+    CreateNative("ZP_GetClientZombieClass",           API_GetClientZombieClass);
+    CreateNative("ZP_GetClientZombieClassNext",       API_GetClientZombieClassNext);
+    CreateNative("ZP_SetClientZombieClass",           API_SetClientZombieClass);
+    CreateNative("ZP_GetZombieClassNameID",           API_GetZombieClassNameID);
+    CreateNative("ZP_GetZombieClassName",             API_GetZombieClassName);
+    CreateNative("ZP_GetZombieClassInfo",             API_GetZombieClassInfo);
+    CreateNative("ZP_GetZombieClassModel",            API_GetZombieClassModel);
+    CreateNative("ZP_GetZombieClassClaw",             API_GetZombieClassClaw);
+    CreateNative("ZP_GetZombieClassGrenade",          API_GetZombieClassGrenade);
+    CreateNative("ZP_GetZombieClassHealth",           API_GetZombieClassHealth);
+    CreateNative("ZP_GetZombieClassSpeed",            API_GetZombieClassSpeed);
+    CreateNative("ZP_GetZombieClassGravity",          API_GetZombieClassGravity);
+    CreateNative("ZP_GetZombieClassKnockBack",        API_GetZombieClassKnockBack);
+    CreateNative("ZP_GetZombieClassLevel",            API_GetZombieClassLevel);    
+    CreateNative("ZP_GetZombieClassGroup",            API_GetZombieClassGroup);
+    CreateNative("ZP_GetZombieClassSkillDuration",    API_GetZombieClassSkillDuration);
+    CreateNative("ZP_GetZombieClassSkillCountdown",   API_GetZombieClassSkillCountdown);
+    CreateNative("ZP_GetZombieClassRegen",            API_GetZombieClassRegen);
+    CreateNative("ZP_GetZombieClassRegenInterval",    API_GetZombieClassRegenInterval);
+    CreateNative("ZP_GetZombieClassClawID",           API_GetZombieClassClawID);
+    CreateNative("ZP_GetZombieClassGrenadeID",        API_GetZombieClassGrenadeID);
+    CreateNative("ZP_GetZombieClassSoundDeathID",     API_GetZombieClassSoundDeathID);
+    CreateNative("ZP_GetZombieClassSoundHurtID",      API_GetZombieClassSoundHurtID);
+    CreateNative("ZP_GetZombieClassSoundIdleID",      API_GetZombieClassSoundIdleID);
+    CreateNative("ZP_GetZombieClassSoundRespawnID",   API_GetZombieClassSoundRespawnID);
+    CreateNative("ZP_GetZombieClassSoundBurnID",      API_GetZombieClassSoundBurnID);
+    CreateNative("ZP_GetZombieClassSoundAttackID",    API_GetZombieClassSoundAttackID);
+    CreateNative("ZP_GetZombieClassSoundFootID",      API_GetZombieClassSoundFootID);
+    CreateNative("ZP_GetZombieClassSoundRegenID",     API_GetZombieClassSoundRegenID);
+    CreateNative("ZP_PrintZombieClassInfo",           API_PrintZombieClassInfo);
+}
+ 
+/**
  * Gets the amount of all zombie classes.
  *
  * native int ZP_GetNumberZombieClass();
  **/
-public int API_GetNumberZombieClass(Handle isPlugin, const int iNumParams)
+public int API_GetNumberZombieClass(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return arrayZombieClasses.Length;
@@ -184,7 +293,7 @@ public int API_GetNumberZombieClass(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetClientZombieClass(clientIndex);
  **/
-public int API_GetClientZombieClass(Handle isPlugin, const int iNumParams)
+public int API_GetClientZombieClass(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -198,7 +307,7 @@ public int API_GetClientZombieClass(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetClientZombieClassNext(clientIndex);
  **/
-public int API_GetClientZombieClassNext(Handle isPlugin, const int iNumParams)
+public int API_GetClientZombieClassNext(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -212,7 +321,7 @@ public int API_GetClientZombieClassNext(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_SetClientZombieClass(clientIndex, iD);
  **/
-public int API_SetClientZombieClass(Handle isPlugin, const int iNumParams)
+public int API_SetClientZombieClass(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -223,7 +332,7 @@ public int API_SetClientZombieClass(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -242,128 +351,46 @@ public int API_SetClientZombieClass(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Load zombie class from other plugin.
+ * Gets the index of a zombie class at a given name.
  *
- * native int ZP_RegisterZombieClass(name, model, claw_model, gren_model, health, speed, gravity, vip, duration, countdown, death, hurt, idle, respawn, burn, attack, foot, regen)
+ * native int ZP_GetZombieClassNameID(name);
  **/
-public int API_RegisterZombieClass(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassNameID(Handle hPlugin, const int iNumParams)
 {
-    // If array hasn't been created, then create
-    if(arrayZombieClasses == INVALID_HANDLE)
-    {
-        // Create array in handle
-        arrayZombieClasses = CreateArray(ZombieClassMax);
-    }
-
     // Retrieves the string length from a native parameter string
     int maxLen;
     GetNativeStringLength(1, maxLen);
-    
+
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Can't register zombie class with an empty name");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Can't find class with an empty name");
         return -1;
     }
     
-    // Gets zombie classes amount
-    int iCount = arrayZombieClasses.Length;
-    
-    // Maximum amout reached ?
-    if(iCount >= ZombieClassMax)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Maximum number of zombie classes reached (%d). Skipping other classes.", ZombieClassMax);
-        return -1;
-    }
-
-    // Initialize variables
-    char sZombieBuffer[PLATFORM_MAX_PATH];
-    char sZombieName[SMALL_LINE_LENGTH];
+    // Gets native data
+    static char sName[SMALL_LINE_LENGTH];
 
     // General
-    GetNativeString(1, sZombieBuffer, sizeof(sZombieBuffer)); 
-    
-    // i = zombie class number
+    GetNativeString(1, sName, sizeof(sName));
+
+    // i = class number
+    int iCount = arrayZombieClasses.Length;
     for(int i = 0; i < iCount; i++)
     {
         // Gets the name of a zombie class at a given index
+        static char sZombieName[SMALL_LINE_LENGTH];
         ZombieGetName(i, sZombieName, sizeof(sZombieName));
-    
-        // If names match, then stop
-        if(!strcmp(sZombieBuffer, sZombieName, false))
+
+        // If names match, then return index
+        if(!strcmp(sName, sZombieName, false))
         {
             return i;
         }
     }
-    
-    // Validate translation
-    if(!TranslationPhraseExists(sZombieBuffer))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Couldn't cache zombie class name: \"%s\" (check translation file)", sZombieBuffer);
-        return -1;
-    }
-    
-    // Initialize array block
-    ArrayList arrayZombieClass = CreateArray(ZombieClassMax);
-    
-    // Push native data into array
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 0
-    GetNativeString(2, sZombieBuffer, sizeof(sZombieBuffer));
-    if(!TranslationPhraseExists(sZombieBuffer) && strlen(sZombieBuffer))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Couldn't cache zombie class info: \"%s\" (check translation file)", sZombieBuffer);
-        return -1;
-    }
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 1
-    GetNativeString(3, sZombieBuffer, sizeof(sZombieBuffer));  
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 2
-    GetNativeString(4, sZombieBuffer, sizeof(sZombieBuffer));   
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 3
-    GetNativeString(5, sZombieBuffer, sizeof(sZombieBuffer)); 
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 4
-    arrayZombieClass.Push(GetNativeCell(6));    // Index: 5
-    arrayZombieClass.Push(GetNativeCell(7));    // Index: 6
-    arrayZombieClass.Push(GetNativeCell(8));    // Index: 7
-    arrayZombieClass.Push(GetNativeCell(9));    // Index: 8
-    arrayZombieClass.Push(GetNativeCell(10));   // Index: 9
-    GetNativeString(11, sZombieBuffer, sizeof(sZombieBuffer));   
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 10
-    arrayZombieClass.Push(GetNativeCell(12));   // Index: 11
-    arrayZombieClass.Push(GetNativeCell(13));   // Index: 12
-    arrayZombieClass.Push(GetNativeCell(14));   // Index: 13
-    arrayZombieClass.Push(GetNativeCell(15));   // Index: 14
-    arrayZombieClass.Push(0);                   // Index: 15
-    arrayZombieClass.Push(0);                   // Index: 16
-    GetNativeString(16, sZombieBuffer, sizeof(sZombieBuffer));   
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 17
-    GetNativeString(17, sZombieBuffer, sizeof(sZombieBuffer)); 
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 18
-    GetNativeString(18, sZombieBuffer, sizeof(sZombieBuffer)); 
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 19
-    GetNativeString(19, sZombieBuffer, sizeof(sZombieBuffer));
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 20
-    GetNativeString(20, sZombieBuffer, sizeof(sZombieBuffer)); 
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 21
-    GetNativeString(21, sZombieBuffer, sizeof(sZombieBuffer));  
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 22
-    GetNativeString(22, sZombieBuffer, sizeof(sZombieBuffer)); 
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 23
-    GetNativeString(23, sZombieBuffer, sizeof(sZombieBuffer));   
-    arrayZombieClass.PushString(sZombieBuffer); // Index: 24
-    arrayZombieClass.Push(-1);                  // Index: 25
-    arrayZombieClass.Push(-1);                  // Index: 26
-    arrayZombieClass.Push(-1);                  // Index: 27
-    arrayZombieClass.Push(-1);                  // Index: 28
-    arrayZombieClass.Push(-1);                  // Index: 29
-    arrayZombieClass.Push(-1);                  // Index: 30
-    arrayZombieClass.Push(-1);                  // Index: 31
-    arrayZombieClass.Push(-1);                  // Index: 32
 
-    // Store this handle in the main array
-    arrayZombieClasses.Push(arrayZombieClass);
-
-    // Return id under which we registered the class
-    return arrayZombieClasses.Length-1;
+    // Return on the unsuccess
+    return -1;
 }
 
 /**
@@ -371,7 +398,7 @@ public int API_RegisterZombieClass(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassName(iD, name, maxlen);
  **/
-public int API_GetZombieClassName(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassName(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -379,7 +406,7 @@ public int API_GetZombieClassName(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -389,7 +416,7 @@ public int API_GetZombieClassName(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -406,7 +433,7 @@ public int API_GetZombieClassName(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassInfo(iD, info, maxlen);
  **/
-public int API_GetZombieClassInfo(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassInfo(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -414,7 +441,7 @@ public int API_GetZombieClassInfo(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -424,7 +451,7 @@ public int API_GetZombieClassInfo(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -441,7 +468,7 @@ public int API_GetZombieClassInfo(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassModel(iD, model, maxlen);
  **/
-public int API_GetZombieClassModel(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassModel(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -449,7 +476,7 @@ public int API_GetZombieClassModel(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -459,7 +486,7 @@ public int API_GetZombieClassModel(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -476,7 +503,7 @@ public int API_GetZombieClassModel(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassClaw(iD, model, maxlen);
  **/
-public int API_GetZombieClassClaw(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassClaw(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -484,7 +511,7 @@ public int API_GetZombieClassClaw(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -494,7 +521,7 @@ public int API_GetZombieClassClaw(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -511,7 +538,7 @@ public int API_GetZombieClassClaw(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassGrenade(iD, model, maxlen);
  **/
-public int API_GetZombieClassGrenade(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassGrenade(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -519,7 +546,7 @@ public int API_GetZombieClassGrenade(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -529,7 +556,7 @@ public int API_GetZombieClassGrenade(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -546,7 +573,7 @@ public int API_GetZombieClassGrenade(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetZombieClassHealth(iD);
  **/
-public int API_GetZombieClassHealth(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassHealth(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -554,7 +581,7 @@ public int API_GetZombieClassHealth(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -567,7 +594,7 @@ public int API_GetZombieClassHealth(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetZombieClassSpeed(iD);
  **/
-public int API_GetZombieClassSpeed(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSpeed(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -575,7 +602,7 @@ public int API_GetZombieClassSpeed(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -588,7 +615,7 @@ public int API_GetZombieClassSpeed(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetZombieClassGravity(iD);
  **/
-public int API_GetZombieClassGravity(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassGravity(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -596,7 +623,7 @@ public int API_GetZombieClassGravity(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -609,7 +636,7 @@ public int API_GetZombieClassGravity(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetZombieClassKnockBack(iD);
  **/
-public int API_GetZombieClassKnockBack(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassKnockBack(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -617,7 +644,7 @@ public int API_GetZombieClassKnockBack(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -630,7 +657,7 @@ public int API_GetZombieClassKnockBack(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetZombieClassLevel(iD);
  **/
-public int API_GetZombieClassLevel(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassLevel(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -638,7 +665,7 @@ public int API_GetZombieClassLevel(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -651,7 +678,7 @@ public int API_GetZombieClassLevel(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassGroup(iD, group, maxlen);
  **/
-public int API_GetZombieClassGroup(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassGroup(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -659,7 +686,7 @@ public int API_GetZombieClassGroup(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -669,7 +696,7 @@ public int API_GetZombieClassGroup(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -686,7 +713,7 @@ public int API_GetZombieClassGroup(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetZombieClassSkillDuration(iD);
  **/
-public int API_GetZombieClassSkillDuration(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSkillDuration(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -694,7 +721,7 @@ public int API_GetZombieClassSkillDuration(Handle isPlugin, const int iNumParams
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -707,7 +734,7 @@ public int API_GetZombieClassSkillDuration(Handle isPlugin, const int iNumParams
  *
  * native float ZP_GetZombieClassSkillCountdown(iD);
  **/
-public int API_GetZombieClassSkillCountdown(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSkillCountdown(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -715,7 +742,7 @@ public int API_GetZombieClassSkillCountdown(Handle isPlugin, const int iNumParam
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -728,7 +755,7 @@ public int API_GetZombieClassSkillCountdown(Handle isPlugin, const int iNumParam
  *
  * native int ZP_GetZombieClassRegen(iD);
  **/
-public int API_GetZombieClassRegen(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassRegen(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -736,7 +763,7 @@ public int API_GetZombieClassRegen(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -749,7 +776,7 @@ public int API_GetZombieClassRegen(Handle isPlugin, const int iNumParams)
  *
  * native float ZP_GetZombieClassRegenInterval(iD);
  **/
-public int API_GetZombieClassRegenInterval(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassRegenInterval(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -757,7 +784,7 @@ public int API_GetZombieClassRegenInterval(Handle isPlugin, const int iNumParams
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -770,7 +797,7 @@ public int API_GetZombieClassRegenInterval(Handle isPlugin, const int iNumParams
  *
  * native int ZP_GetZombieClassClawID(iD);
  **/
-public int API_GetZombieClassClawID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassClawID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -778,7 +805,7 @@ public int API_GetZombieClassClawID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -791,7 +818,7 @@ public int API_GetZombieClassClawID(Handle isPlugin, const int iNumParams)
  *
  * native int ZP_GetZombieClassGrenadeID(iD);
  **/
-public int API_GetZombieClassGrenadeID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassGrenadeID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -799,7 +826,7 @@ public int API_GetZombieClassGrenadeID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -812,7 +839,7 @@ public int API_GetZombieClassGrenadeID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassSoundDeathID(iD);
  **/
-public int API_GetZombieClassSoundDeathID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundDeathID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -820,7 +847,7 @@ public int API_GetZombieClassSoundDeathID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -833,7 +860,7 @@ public int API_GetZombieClassSoundDeathID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassSoundHurtID(iD);
  **/
-public int API_GetZombieClassSoundHurtID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundHurtID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -841,7 +868,7 @@ public int API_GetZombieClassSoundHurtID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -854,7 +881,7 @@ public int API_GetZombieClassSoundHurtID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassSoundIdleID(iD);
  **/
-public int API_GetZombieClassSoundIdleID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundIdleID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -862,7 +889,7 @@ public int API_GetZombieClassSoundIdleID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -875,7 +902,7 @@ public int API_GetZombieClassSoundIdleID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassSoundRespawnID(iD);
  **/
-public int API_GetZombieClassSoundRespawnID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundRespawnID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -883,7 +910,7 @@ public int API_GetZombieClassSoundRespawnID(Handle isPlugin, const int iNumParam
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -896,7 +923,7 @@ public int API_GetZombieClassSoundRespawnID(Handle isPlugin, const int iNumParam
  *
  * native void ZP_GetZombieClassSoundBurnID(iD);
  **/
-public int API_GetZombieClassSoundBurnID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundBurnID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -904,7 +931,7 @@ public int API_GetZombieClassSoundBurnID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -917,7 +944,7 @@ public int API_GetZombieClassSoundBurnID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassSoundAttackID(iD);
  **/
-public int API_GetZombieClassSoundAttackID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundAttackID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -925,7 +952,7 @@ public int API_GetZombieClassSoundAttackID(Handle isPlugin, const int iNumParams
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -938,7 +965,7 @@ public int API_GetZombieClassSoundAttackID(Handle isPlugin, const int iNumParams
  *
  * native void ZP_GetZombieClassSoundFootID(iD);
  **/
-public int API_GetZombieClassSoundFootID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundFootID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -946,7 +973,7 @@ public int API_GetZombieClassSoundFootID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -959,7 +986,7 @@ public int API_GetZombieClassSoundFootID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_GetZombieClassSoundRegenID(iD);
  **/
-public int API_GetZombieClassSoundRegenID(Handle isPlugin, const int iNumParams)
+public int API_GetZombieClassSoundRegenID(Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -967,7 +994,7 @@ public int API_GetZombieClassSoundRegenID(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -980,7 +1007,7 @@ public int API_GetZombieClassSoundRegenID(Handle isPlugin, const int iNumParams)
  *
  * native void ZP_PrintZombieClassInfo(clientIndex, iD);
  **/
-public int API_PrintZombieClassInfo(Handle isPlugin, const int iNumParams)
+public int API_PrintZombieClassInfo(Handle hPlugin, const int iNumParams)
 {
     // If help messages disable, then stop 
     if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
@@ -994,7 +1021,7 @@ public int API_PrintZombieClassInfo(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -1004,7 +1031,7 @@ public int API_PrintZombieClassInfo(Handle isPlugin, const int iNumParams)
     // Validate index
     if(iD >= arrayZombieClasses.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Zombieclasses, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ZombieClasses, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1315,22 +1342,6 @@ stock void ZombieSetGrenadeID(const int iD, const int modelIndex)
 }
 
 /**
- * Gets the death sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundDeath(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class death sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDDEATH, sSound, iMaxLen);
-}
-
-/**
  * Gets the death sound key of the zombie class.
  *
  * @param iD                The class index.
@@ -1342,38 +1353,7 @@ stock int ZombieGetSoundDeathID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class death sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDDEATH_ID);
-}
-
-/**
- * Sets the death sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundDeathID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class death sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDDEATH_ID, iKey);
-}
-
-/**
- * Gets the hurt sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundHurt(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class hurt sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDHURT, sSound, iMaxLen);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDDEATH);
 }
 
 /**
@@ -1388,38 +1368,7 @@ stock int ZombieGetSoundHurtID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class hurt sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDHURT_ID);
-}
-
-/**
- * Sets the hurt sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundHurtID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class hurt sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDHURT_ID, iKey);
-}
-
-/**
- * Gets the idle sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundIdle(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class idle sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDIDLE, sSound, iMaxLen);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDHURT);
 }
 
 /**
@@ -1434,38 +1383,7 @@ stock int ZombieGetSoundIdleID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class idle sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDIDLE_ID);
-}
-
-/**
- * Sets the idle sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundIdleID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class idle sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDIDLE_ID, iKey);
-}
-
-/**
- * Gets the respawn sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundRespawn(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class respawn sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDRESPAWN, sSound, iMaxLen);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDIDLE);
 }
 
 /**
@@ -1480,38 +1398,7 @@ stock int ZombieGetSoundRespawnID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class respawn sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDRESPAWN_ID);
-}
-
-/**
- * Sets the respawn sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundRespawnID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class respawn sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDRESPAWN_ID, iKey);
-}
-
-/**
- * Gets the burn sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundBurn(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class idle sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDBURN, sSound, iMaxLen);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDRESPAWN);
 }
 
 /**
@@ -1526,38 +1413,7 @@ stock int ZombieGetSoundBurnID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class idle sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDBURN_ID);
-}
-
-/**
- * Sets the burn sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundBurnID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class idle sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDBURN_ID, iKey);
-}
-
-/**
- * Gets the attack sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundAttack(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class idle sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDATTACK, sSound, iMaxLen);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDBURN);
 }
 
 /**
@@ -1572,38 +1428,7 @@ stock int ZombieGetSoundAttackID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class idle sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDATTACK_ID);
-}
-
-/**
- * Sets the attack sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundAttackID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class idle sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDATTACK_ID, iKey);
-}
-
-/**
- * Gets the footstep sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundFoot(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class footstep sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDFOOTSTEP, sSound, iMaxLen);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDATTACK);
 }
 
 /**
@@ -1618,38 +1443,7 @@ stock int ZombieGetSoundFootID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class footstep sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDFOOTSTEP_ID);
-}
-
-/**
- * Sets the footstep sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundFootID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class footstep sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDFOOTSTEP_ID, iKey);
-}
-
-/**
- * Gets the regeneration sound of a zombie class at a given index.
- *
- * @param iD                The class index.
- * @param sSound            The string to return sound in.
- * @param iMaxLen           The max length of the string.
- **/
-stock void ZombieGetSoundRegen(const int iD, char[] sSound, const int iMaxLen)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Gets zombie class regeneration sound
-    arrayZombieClass.GetString(ZOMBIECLASSES_DATA_SOUNDREGEN, sSound, iMaxLen);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDFOOTSTEP);
 }
 
 /**
@@ -1664,22 +1458,7 @@ stock int ZombieGetSoundRegenID(const int iD)
     ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
 
     // Gets zombie class regeneration sound key
-    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDREGEN_ID);
-}
-
-/**
- * Sets the regeneration sound key of the zombie class.
- *
- * @param iD                The class index.
- * @param iKey              The key index.
- **/
-stock void ZombieSetSoundRegenID(const int iD, const int iKey)
-{
-    // Gets array handle of zombie class at given index
-    ArrayList arrayZombieClass = arrayZombieClasses.Get(iD);
-
-    // Sets zombie class regeneration sound key
-    arrayZombieClass.Set(ZOMBIECLASSES_DATA_SOUNDREGEN_ID, iKey);
+    return arrayZombieClass.Get(ZOMBIECLASSES_DATA_SOUNDREGEN);
 }
 
 /*
@@ -1707,14 +1486,14 @@ void ZombieOnValidate(const int clientIndex)
     ZombieGetGroup(gClientData[clientIndex][Client_ZombieClass], sGroup, sizeof(sGroup));
     
     // Validate that user does not have VIP flag to play it
-    if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
+    if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
     {
         // Choose any accessable zombie class
         for(int i = 0; i < iSize; i++)
         {
             // Skip all non-accessable zombie classes
             ZombieGetGroup(i, sGroup, sizeof(sGroup));
-            if(!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup))
+            if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
             {
                 continue;
             }
@@ -1800,11 +1579,11 @@ void ZombieMenu(const int clientIndex, const bool bInstant = false)
 
         // Format some chars for showing in menu
         Format(sLevel, sizeof(sLevel), "%t", "level", ZombieGetLevel(i));
-        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < ZombieGetLevel(i)) ? sLevel : "");
+        Format(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < ZombieGetLevel(i)) ? sLevel : "");
         
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < ZombieGetLevel(i) || gClientData[clientIndex][Client_ZombieClassNext] == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) || gClientData[clientIndex][Client_Level] < ZombieGetLevel(i) || gClientData[clientIndex][Client_ZombieClassNext] == i) ? false : true));
     }
 
     // Sets exit and back button

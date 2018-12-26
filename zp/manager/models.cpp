@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          models.cpp
  *  Type:          Manager
  *  Description:   Models table generator.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ void ModelsLoad(/*void*/)
 stock int ModelsPrecacheStatic(const char[] sModel)
 {
     // If model path is empty, then stop
-    if(!strlen(sModel))
+    if(!hasLength(sModel))
     {
         return 0;
     }
@@ -109,7 +109,7 @@ stock int ModelsPrecacheStatic(const char[] sModel)
 stock int ModelsPrecacheWeapon(const char[] sModel)
 {
     // If model path is empty, then stop
-    if(!strlen(sModel))
+    if(!hasLength(sModel))
     {
         return 0;
     }
@@ -214,6 +214,7 @@ stock bool ModelsPrecacheSounds(const char[] sModel)
         // If doesn't exist stop
         if(hFile == INVALID_HANDLE)
         {
+            DeleteFile(sPath);
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
             return false;
         }
@@ -290,7 +291,7 @@ stock bool ModelsPrecacheSounds(const char[] sModel)
             TrimString(sPath);
 
             // If line is empty, then stop
-            if(!strlen(sPath))
+            if(!hasLength(sPath))
             {
                 continue;
             }
@@ -345,6 +346,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
         // If doesn't exist stop
         if(hFile == INVALID_HANDLE)
         {
+            DeleteFile(sPath);
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
             return false;
         }
@@ -396,7 +398,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
             hFile.Seek(iPosIndex, SEEK_SET);
             
             // Validate size
-            if(!strlen(sPath))
+            if(!hasLength(sPath))
             {
                 continue;
             }
@@ -499,7 +501,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
             TrimString(sPath);
 
             // If line is empty, then stop
-            if(!strlen(sPath))
+            if(!hasLength(sPath))
             {
                 continue;
             }
@@ -570,6 +572,7 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
         // If doesn't exist stop
         if(hFile == INVALID_HANDLE)
         {
+            DeleteFile(sPath);
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
             return false;
         }
@@ -640,7 +643,7 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
             TrimString(sPath);
 
             // If line is empty, then stop
-            if(!strlen(sPath))
+            if(!hasLength(sPath))
             {
                 continue;
             }
@@ -729,7 +732,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
                 // Check if string without quote, then stop
                 if(iQuote1 == -1 || iQuote2 == -1 || iQuote1 == iQuote2)
                 {
-                    LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error with parsing \"%s\" in file: \"%s\"", sTypes[x], sPath);
+                    LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error with parsing \"%s\" in file: \"%s\"", sTypes[x], sPath);
                 }
                 else
                 {
@@ -743,7 +746,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
                     Format(sTexture, sizeof(sTexture), "materials\\%s.vtf", sTexture);
                     
                     // Validate size
-                    if(!strlen(sTexture))
+                    if(!hasLength(sTexture))
                     {
                         continue;
                     }
@@ -756,7 +759,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
                     }
                     else
                     {
-                        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid texture path. File not found: \"%s\"", sTexture);
+                        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid texture path. File not found: \"%s\"", sTexture);
                     }
                 }
             }
@@ -802,7 +805,7 @@ stock int ModelsPrecacheStandart(const char[] sModel)
     else if(!strncmp(sModel, "models/weapons/", 15, true))
     {
         // If path contains standart path
-        if(!strncmp(sModel[15], "ct_arms_", 8, true) || !strncmp(sModel[15], "t_arms_", 7, true))
+        if(!strncmp(sModel[15], "ct_arms_", 8, true) || !strncmp(sModel[15], "t_arms_", 7, true) || !strncmp(sModel[15], "w_knife_ghost", 13, true))
         {
             // Precache model
             return PrecacheModel(sModel, true);

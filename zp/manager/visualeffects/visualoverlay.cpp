@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          visualoverlay.cpp
  *  Type:          Module
  *  Description:   Show overlays with optional effects.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ void VOverlayLoad(/*void*/)
     
     // Validate zombie win overlay
     gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE].GetString(sPath, sizeof(sPath));
-    if(strlen(sPath))
+    if(hasLength(sPath))
     {
         Format(sPath, sizeof(sPath), "materials/%s", sPath);
         if(!ModelsPrecacheTextures(sPath))
@@ -62,7 +62,7 @@ void VOverlayLoad(/*void*/)
     
     // Validate human win overlay
     gCvarList[CVAR_VEFFECTS_HUD_HUMAN].GetString(sPath, sizeof(sPath));
-    if(strlen(sPath))
+    if(hasLength(sPath))
     {
         Format(sPath, sizeof(sPath), "materials/%s", sPath);
         if(!ModelsPrecacheTextures(sPath))
@@ -73,7 +73,7 @@ void VOverlayLoad(/*void*/)
     
     // Validate draw overlay
     gCvarList[CVAR_VEFFECTS_HUD_DRAW].GetString(sPath, sizeof(sPath));
-    if(strlen(sPath))
+    if(hasLength(sPath))
     {
         Format(sPath, sizeof(sPath), "materials/%s", sPath);
         if(!ModelsPrecacheTextures(sPath))
@@ -84,7 +84,7 @@ void VOverlayLoad(/*void*/)
     
     // Validate vision overlay
     gCvarList[CVAR_VEFFECTS_HUD_VISION].GetString(sPath, sizeof(sPath));
-    if(strlen(sPath))
+    if(hasLength(sPath))
     {
         Format(sPath, sizeof(sPath), "materials/%s", sPath);
         if(!ModelsPrecacheTextures(sPath)) 
@@ -93,6 +93,58 @@ void VOverlayLoad(/*void*/)
         }
     }
 }
+
+/**
+ * Hook overlays cvar changes.
+ **/
+void VOverlayOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE]         = FindConVar("zp_veffects_hud_zombie");       
+    gCvarList[CVAR_VEFFECTS_HUD_HUMAN]          = FindConVar("zp_veffects_hud_human");        
+    gCvarList[CVAR_VEFFECTS_HUD_DRAW]           = FindConVar("zp_veffects_hud_draw");         
+    gCvarList[CVAR_VEFFECTS_HUD_VISION]         = FindConVar("zp_veffects_hud_vision");       
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE],         VOverlayCvarsHookHUD);       
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_HUD_HUMAN],          VOverlayCvarsHookHUD);         
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_HUD_DRAW],           VOverlayCvarsHookHUD);           
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_HUD_VISION],         VOverlayCvarsHookHUD); 
+}
+
+/**
+ * Cvar hook callback (zp_veffects_hud_zombie, zp_veffects_hud_human, zp_veffects_hud_draw, zp_veffects_hud_vision)
+ * Precache overlay textures.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void VOverlayCvarsHookHUD(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // Validate overlay
+        static char sPath[PLATFORM_MAX_PATH];
+        hConVar.GetString(sPath, sizeof(sPath));
+        if(hasLength(sPath))
+        {
+            Format(sPath, sizeof(sPath), "materials/%s", sPath);
+            if(!ModelsPrecacheTextures(sPath))
+            {
+                LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Effects, "Config Validation", "Invalid overlay path. File not found: \"%s\"", sPath);
+            }
+        }
+    }
+}
+
 
 /**
  * Client has been changed overlay state.
@@ -120,21 +172,21 @@ void VOverlayOnClientUpdate(const int clientIndex, OverlayType layIndex)
         case Overlay_HumanWin : 
         { 
             gCvarList[CVAR_VEFFECTS_HUD_HUMAN].GetString(sOverlay, sizeof(sOverlay));
-            if(!strlen(sOverlay)) return; // Stop here if the path empty
+            if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }    
 
         // Show zombie win overlay on the screen
         case Overlay_ZombieWin : 
         { 
             gCvarList[CVAR_VEFFECTS_HUD_ZOMBIE].GetString(sOverlay, sizeof(sOverlay)); 
-            if(!strlen(sOverlay)) return; // Stop here if the path empty
+            if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }
         
         // Show draw overlay on the screen
         case Overlay_Draw : 
         { 
             gCvarList[CVAR_VEFFECTS_HUD_DRAW].GetString(sOverlay, sizeof(sOverlay)); 
-            if(!strlen(sOverlay)) return; // Stop here if the path empty
+            if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }  
         
         // Show vision overlay on the screen
@@ -144,7 +196,7 @@ void VOverlayOnClientUpdate(const int clientIndex, OverlayType layIndex)
             gCvarList[CVAR_VEFFECTS_HUD_VISION].GetString(sOverlay, sizeof(sOverlay)); 
             ToolsSetClientNightVision(clientIndex, bState, bState); /// Create ngv ownership
             ToolsSetClientNightVision(clientIndex, bState); /// Enable ngv
-            if(!strlen(sOverlay)) return; // Stop here if the path empty
+            if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }                        
     }
 

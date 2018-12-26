@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          natives.h.cpp
  *  Type:          API 
  *  Description:   Forwards handlers for the ZP API.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ void APIForwardsInit(/*void*/)
 {
     gForwardsList[OnClientInfected]        = CreateGlobalForward("ZP_OnClientInfected", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     gForwardsList[OnClientHumanized]       = CreateGlobalForward("ZP_OnClientHumanized", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
-    gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_FloatByRef, Param_Cell, Param_Cell);
+    gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_CellByRef, Param_CellByRef, Param_FloatByRef, Param_CellByRef, Param_CellByRef);
     gForwardsList[OnClientValidateItem]    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientBuyItem]         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
     gForwardsList[OnClientValidateZombie]  = CreateGlobalForward("ZP_OnClientValidateZombieClass", ET_Hook, Param_Cell, Param_Cell);
@@ -140,18 +140,18 @@ void API_OnClientHumanized(const int clientIndex, const bool survivorMode = fals
  * @param damageType        The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-void API_OnClientDamaged(const int victimIndex, const int attackerIndex, const int inflictorIndex, float &damageAmount, const int damageType, const int weaponIndex)
+void API_OnClientDamaged(const int victimIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientDamaged]);
 
     // Push the parameters
     Call_PushCell(victimIndex);
-    Call_PushCell(attackerIndex);
-    Call_PushCell(inflictorIndex);
+    Call_PushCellRef(attackerIndex);
+    Call_PushCellRef(inflictorIndex);
     Call_PushFloatRef(damageAmount);
-    Call_PushCell(damageType);
-    Call_PushCell(weaponIndex);
+    Call_PushCellRef(damageType);
+    Call_PushCellRef(weaponIndex);
     
     // Finish the call
     Call_Finish();

@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -54,6 +54,15 @@ native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32);
  * @param maxlenght         The max length of the string.
  **/
 native void ZP_GetMenuGroup(int menuID, char[] group, int maxlenght = 32);
+
+/**
+ * @brief Gets the hide value of the menu.
+ *
+ * @param menuID            The menu index.
+ *
+ * @return                  True if menu is hide, false if not.
+ **/
+native bool ZP_IsMenuHide(int costumeID);
 
 /**
  * @brief Gets the command of a menu at a given index.

@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -52,6 +52,7 @@ native int ZP_GetNumberCostume();
  * @brief Gets the costume index of the client.
  *
  * @param clientIndex       The client index.
+ *
  * @return                  The costume index.  
  **/
 native int ZP_GetClientCostume(int clientIndex);
@@ -86,6 +87,7 @@ native void ZP_GetCostumeModel(int costumeID, char[] model, int maxlenght = 256)
  * @brief Gets the body index of the costume.
  *
  * @param costumeID         The costume index.
+ *
  * @return                  The body index. 
  **/
 native int ZP_GetCostumeBody(int costumeID);
@@ -94,6 +96,7 @@ native int ZP_GetCostumeBody(int costumeID);
  * @brief Gets the skin index of the costume.
  *
  * @param costumeID         The costume index.
+ *
  * @return                  The skin index. 
  **/
 native int ZP_GetCostumeSkin(int costumeID);
@@ -136,6 +139,7 @@ native void ZP_GetCostumeGroup(int costumeID, char[] group, int maxlenght = 32);
  * @brief Gets the hide value of the costume.
  *
  * @param costumeID         The costume index.
+ *
  * @return                  True if costume is hide, false if not.
  **/
 native bool ZP_IsCostumeHide(int costumeID);
@@ -144,6 +148,7 @@ native bool ZP_IsCostumeHide(int costumeID);
  * @brief Gets the merge value of the costume.
  *
  * @param costumeID         The costume index.
+ *
  * @return                  True if costume is merge, false if not.
  **/
 native bool ZP_IsCostumeMerge(int costumeID);
@@ -152,6 +157,7 @@ native bool ZP_IsCostumeMerge(int costumeID);
  * @brief Gets the level of the costume.
  *
  * @param classID           The costume index.
+ *
  * @return                  The level amount.    
  **/
 native int ZP_GetCostumeLevel(int costumeID);

@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          global.cpp
  *  Type:          Main 
  *  Description:   General plugin functions.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -130,6 +130,15 @@ enum ServerData
     String:Server_MapName[PLATFORM_MAX_PATH]
 };
 
+/**
+ * @section: Core useful stocks.
+ **/
+#define hasLength(%0) (%0[0] != '\0') 
+#define IsMapLoaded() hasLength(gServerData[Server_MapName])
+/**
+ * @endsection
+ **/
+ 
 /**
  * Arrays to store the server data.
  **/

@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          spawn.cpp
  *  Type:          Game 
  *  Description:   Spawn event.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,12 +26,33 @@
  **/
 
 /**
- * Client has been spawned.
- *
- * @param clientIndex       The client index.
+ * Spawn module init function.
  **/
-void SpawnOnClientSpawn(const int clientIndex)
+void SpawnInit(/*void*/)
 {
+    // Hook player events
+    HookEvent("player_spawn", SpawnOnClientSpawn, EventHookMode_Post);
+}
+ 
+/**
+ * Event callback (player_spawn)
+ * Client has been spawned.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action SpawnOnClientSpawn(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        return;
+    }
+    
     // If mode doesn't started yet, then reset type
     if(gServerData[Server_RoundNew])
     {

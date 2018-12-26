@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          skillsystem.cpp
  *  Type:          Game 
  *  Description:   Provides functions for zombie skills system.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,12 +26,113 @@
  **/
 
 /**
- * Creates commands for skills module. Called when commands are created.
+ * Skill module init function.
  **/
-void SkillsOnCommandsCreate(/*void*/)
+void SkillsInit(/*void*/)
 {
+    // Initialize variable
+    static char sCommand[SMALL_LINE_LENGTH];
+    
+    // Validate alias
+    if(hasLength(sCommand))
+    {
+        // Unhook listeners
+        RemoveCommandListener2(SkillsOnUse, sCommand);
+    }
+    
+    // Gets menu command alias
+    gCvarList[CVAR_GAME_CUSTOM_SKILL_BUTTON].GetString(sCommand, sizeof(sCommand));
+    
+    // Validate alias
+    if(!hasLength(sCommand))
+    {
+        // Unhook listeners
+        RemoveCommandListener2(SkillsOnUse, sCommand);
+        return;
+    }
+    
     // Hook listeners
-    AddCommandListener(SkillsOnUse);
+    AddCommandListener(SkillsOnUse, sCommand);
+}
+
+/**
+ * Hook skills cvar changes.
+ **/
+void SkillsOnCvarInit(/*void*/)
+{    
+    // Create cvars
+    gCvarList[CVAR_GAME_CUSTOM_SKILL_BUTTON]    = FindConVar("zp_game_custom_skill_button");  
+    gCvarList[CVAR_ZOMBIE_RESTORE]              = FindConVar("zp_zombie_restore");
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_SKILL_BUTTON],    SkillsCvarsHookEnable);
+    HookConVarChange(gCvarList[CVAR_ZOMBIE_RESTORE],              SkillsCvarsHookRestore);
+}
+
+/**
+ * Cvar hook callback (zp_game_custom_skill_button)
+ * Skills module initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void SkillsCvarsHookEnable(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    SkillsInit();
+}
+
+/**
+ * Cvar hook callback (zp_zombie_restore)
+ * Enable or disable restore feature for zombies.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void SkillsCvarsHookRestore(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate zombie
+            if(IsPlayerExist(i) && gClientData[i][Client_Zombie])
+            {
+                // Clear timer
+                delete gClientData[i][Client_HealTimer];
+        
+                // Validate enabling
+                if(gCvarList[CVAR_ZOMBIE_RESTORE].BoolValue)
+                {
+                    // Validate zombie class regen interval/amount
+                    float flInterval = ZombieGetRegenInterval(gClientData[i][Client_ZombieClass]);
+                    if(!flInterval || !ZombieGetRegenHealth(gClientData[i][Client_ZombieClass]))
+                    {
+                        return;
+                    }
+                    
+                    // Sets timer for restoring health
+                    gClientData[i][Client_HealTimer] = CreateTimer(flInterval, SkillsOnHealthRegen, GetClientUserId(i), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -128,23 +229,15 @@ public Action SkillsOnUse(const int clientIndex, const char[] commandMsg, const 
     // Validate client 
     if(IsPlayerExist(clientIndex))
     {
-        // Gets command alias
-        static char sCommand[SMALL_LINE_LENGTH];
-        gCvarList[CVAR_GAME_CUSTOM_SKILL_BUTTON].GetString(sCommand, sizeof(sCommand));
-        
-        // Validate command
-        if(!strcmp(sCommand, commandMsg))
+        // Validate human/zombie
+        if(gClientData[clientIndex][Client_Nemesis] || gClientData[clientIndex][Client_Survivor])
         {
-            // Validate human/zombie
-            if(gClientData[clientIndex][Client_Nemesis] || gClientData[clientIndex][Client_Survivor])
-            {
-                return Plugin_Handled;
-            }
-            
-            // Do the skill
-            SkillsOnStart(clientIndex);
             return Plugin_Handled;
         }
+        
+        // Do the skill
+        SkillsOnStart(clientIndex);
+        return Plugin_Handled;
     }
     
     // Allow command

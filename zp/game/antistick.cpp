@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          antistick.cpp
  *  Type:          Game
@@ -51,7 +51,7 @@
 #define ANTISTICK_COLLISIONS_OFF COLLISION_GROUP_DEBRIS_TRIGGER
 #define ANTISTICK_COLLISIONS_ON COLLISION_GROUP_PLAYER
 /**
- * @endsection
+    * @endsection
  **/
 
 /**
@@ -88,8 +88,61 @@ enum AntiStickBoxBound
  **/
 void AntiStickClientInit(const int clientIndex)
 {
+    // If antistick is disabled, then stop.
+    bool bAntiStick = gCvarList[CVAR_GAME_CUSTOM_ANTISTICK].BoolValue;
+    if(!bAntiStick)
+    {
+        // Unhook entity callbacks
+        SDKUnhook(clientIndex, SDKHook_StartTouch, AntiStickStartTouch);
+        return;
+    }
+    
     // Hook entity callbacks
     SDKHook(clientIndex, SDKHook_StartTouch, AntiStickStartTouch);
+}
+
+/**
+ * Hook antistick cvar changes.
+ **/
+void AntiStickOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_GAME_CUSTOM_ANTISTICK]       = FindConVar("zp_game_custom_antistick");
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_ANTISTICK],       AntiStickCvarsHookEnable);
+}
+
+/**
+ * Cvar hook callback (zp_game_custom_antistick)
+ * Antistick module initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void AntiStickCvarsHookEnable(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(oldValue[0] == newValue[0])
+    {
+        return;
+    }
+    
+    // Validate loaded map
+    if(IsMapLoaded())
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate client
+            if(IsPlayerExist(i, false))
+            {
+                // Update the client data
+                AntiStickClientInit(i);
+            }
+        }
+    } 
 }
 
 /**
@@ -101,13 +154,6 @@ void AntiStickClientInit(const int clientIndex)
  **/
 public void AntiStickStartTouch(const int clientIndex, const int entityIndex)
 {
-    // If antistick is disabled, then stop.
-    bool bAntiStick = gCvarList[CVAR_GAME_CUSTOM_ANTISTICK].BoolValue;
-    if(!bAntiStick)
-    {
-        return;
-    }
-
     // Verify that the client is exist
     if(!IsPlayerExist(clientIndex))
     {
@@ -133,7 +179,7 @@ public void AntiStickStartTouch(const int clientIndex, const int entityIndex)
     }
 
     // From this point we know that client and entity is more or less within eachother
-    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Antistick, "Collision", "Player \"%N\" and \"%N\" are intersecting. Removing collisions.", clientIndex, entityIndex);
+    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" and \"%N\" are intersecting. Removing collisions.", clientIndex, entityIndex);
 
     // Gets current collision groups of client and entity
     int collisionGroup = AntiStickGetCollisionGroup(clientIndex);
@@ -200,7 +246,7 @@ public Action AntiStickSolidifyTimer(Handle hTimer, const int userID)
     AntiStickSetCollisionGroup(clientIndex, ANTISTICK_COLLISIONS_ON);
 
     // Debug message. May be useful when calibrating antistick
-    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Antistick, "Collision", "Player \"%N\" is no longer intersecting anyone. Applying normal collisions.", clientIndex);
+    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" is no longer intersecting anyone. Applying normal collisions.", clientIndex);
     return Plugin_Stop;
 }
 

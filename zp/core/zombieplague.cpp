@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          zombieplague.cpp
  *  Type:          Main 
  *  Description:   General plugin functions and defines.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -169,9 +169,6 @@ void GameEngineInit(/*void*/)
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_CONTAGION);
         }
     }
-
-    // Unload the gamedata configs
-    ConfigUnload(/*void*/);
 }
 
 /**
@@ -202,7 +199,7 @@ bool GameEnginePlatform(EngineOS oS)
         ServerCommandEx(sBuffer, sizeof(sBuffer), "status");
 
         // Validate length
-        if(strlen(sBuffer))
+        if(hasLength(sBuffer))
         {
             // Precompile a regular expression
             Regex hRegex = CompileRegex("(os\\s+:\\s+\\w+)"); 
@@ -712,4 +709,32 @@ stock bool fnPrecacheSoundQuirk(const char[] sPath)
     
     // Return on the success
     return true;
+}
+
+/**
+ * Removes a hook for when a game event is fired. (Avoid errors)
+ *
+ * @param sName             The name of the event.
+ * @param hCallBack         An EventHook function pointer.
+ * @param eMode             (Optional) EventHookMode determining the type of hook.
+ * @error                   No errors.
+ **/
+stock void UnhookEvent2(const char[] sName, EventHook hCallBack, EventHookMode eMode = EventHookMode_Post)
+{
+    HookEvent(sName, hCallBack, eMode);
+    UnhookEvent(sName, hCallBack, eMode);
+}
+
+/**
+ * Removes a previously added command listener, in reverse order of being added.
+ *
+ * @param hCallBack         The callback.
+ * @param sCommand          The command, or if not specified, a global listener.
+ *                          The command is case insensitive.
+ * @error                   No errors..
+ **/
+stock void RemoveCommandListener2(CommandListener hCallBack, const char[] sCommand = "")
+{
+    AddCommandListener(hCallBack, sCommand);
+    RemoveCommandListener(hCallBack, sCommand);
 }

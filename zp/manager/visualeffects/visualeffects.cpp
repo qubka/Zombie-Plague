@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          visualeffects.cpp
  *  Type:          Module 
  *  Description:   Visual effects.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -64,12 +64,24 @@ void VEffectsLoad(/*void*/)
 }
 
 /**
- * Plugin has just finished creating/hooking cvars.
+ * Hook effects cvar changes.
  **/
- void VEffectsOnCvarInit(/*void*/)
+void VEffectsOnCvarInit(/*void*/)
 {
-    // Hook zp_veffects_* cvars
-    VAmbienceCvarsHook();
+    // Create cvars
+    gCvarList[CVAR_VEFFECTS_SHAKE]              = FindConVar("zp_veffects_shake"); 
+    gCvarList[CVAR_VEFFECTS_SHAKE_AMP]          = FindConVar("zp_veffects_shake_amp");
+    gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY]    = FindConVar("zp_veffects_shake_frequency");
+    gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]     = FindConVar("zp_veffects_shake_duration"); 
+    gCvarList[CVAR_VEFFECTS_FADE]               = FindConVar("zp_veffects_fade"); 
+    gCvarList[CVAR_VEFFECTS_FADE_TIME]          = FindConVar("zp_veffects_fade_time"); 
+    gCvarList[CVAR_VEFFECTS_FADE_DURATION]      = FindConVar("zp_veffects_fade_duration"); 
+    
+    // Forward event to sub-modules
+    VAmbienceOnCvarInit();
+    VOverlayOnCvarInit();
+    RagdollOnCvarInit();
+    PlayerVEffectsOnCvarInit();
 }
 
 /**
@@ -293,7 +305,7 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
         SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
         
         // Sets attachment to the entity
-        if(strlen(sAttach))
+        if(hasLength(sAttach))
         { 
             SetVariantString(sAttach); 
             AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
@@ -436,8 +448,8 @@ void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", con
 {
     // Dispatch effect
     TE_Start("EffectDispatch");
-    if(strlen(sParticle)) TE_WriteNum("m_nHitBox", fnGetParticleEffectIndex(sParticle)); 
-    if(strlen(sIndex)) TE_WriteNum("m_iEffectName", fnGetEffectIndex(sIndex));
+    if(hasLength(sParticle)) TE_WriteNum("m_nHitBox", fnGetParticleEffectIndex(sParticle)); 
+    if(hasLength(sIndex)) TE_WriteNum("m_iEffectName", fnGetEffectIndex(sIndex));
     TE_WriteFloat("m_vOrigin.x", vEnd[0]);
     TE_WriteFloat("m_vOrigin.y", vEnd[1]);
     TE_WriteFloat("m_vOrigin.z", vEnd[2]);

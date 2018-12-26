@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          versioninfo.cpp
  *  Type:          Main 
  *  Description:   Version information.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,34 +29,25 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "8.5.0"
+#define PLUGIN_VERSION      "X"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
-#define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)"
-#define PLUGIN_BRANCH       "zp-8.5.0"
+#define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)"
+#define PLUGIN_BRANCH       "zp-X"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "10-December-2018T02:40:00-GMT+01:00"
+#define PLUGIN_DATE         "26-December-2018T19:49:00-GMT+01:00"
 /**
  * @endsection
  **/
 
 /**
- * Creates commands for plugin version. Called when commands are created.
+ * Creates commands for version module.
  **/
 void VersionOnCommandsCreate(/*void*/)
 {
     RegConsoleCmd("zp_version", VersionCommandCatched, "Prints version info about this plugin.");
-}
-
-/**
- * Adds an informational string to the server public "tags".
- **/
-void VersionOnCvarInit(/*void*/)
-{
-    // Adds core tag
-    FindConVar("sv_tags").SetString(PLUGIN_TAG, true);
 }
 
 /**

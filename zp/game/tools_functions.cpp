@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          tools_functions.cpp
  *  Type:          Game 
  *  Description:   API for offsets/signatures exposed in tools.cpp
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -63,21 +63,84 @@
  **/
  
 /**
- * Creates commands for tools module. Called when commands are created.
+ * Tools flashlight function module init function.
  **/
- void ToolsOnCommandsCreate(/*void*/)
+void ToolsFInit(/*void*/)
+{
+    // Initialize variable
+    static char sCommand[SMALL_LINE_LENGTH];
+    
+    // Validate alias
+    if(hasLength(sCommand))
+    {
+        // Unhook listeners
+        RemoveCommandListener2(ToolsOnFlashlight, sCommand);
+    }
+    
+    // Gets menu command alias
+    gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON].GetString(sCommand, sizeof(sCommand));
+    
+    // Validate alias
+    if(!hasLength(sCommand))
+    {
+        // Unhook listeners
+        RemoveCommandListener2(ToolsOnFlashlight, sCommand);
+        return;
+    }
+    
+    // Hook listeners
+    AddCommandListener(ToolsOnFlashlight, sCommand);
+}
+
+/**
+ * Creates commands for tools module.
+ **/
+void ToolsOnCommandsCreate(/*void*/)
 {
     // Hook listeners
     AddCommandListener(ToolsOnGeneric, "kill");
     AddCommandListener(ToolsOnGeneric, "explode");
     AddCommandListener(ToolsOnGeneric, "killvector");
     AddCommandListener(ToolsOnGeneric, "jointeam");
-    AddCommandListener(ToolsOnFlashlight);
     
     // Hook messages
     HookUserMessage(GetUserMessageId("TextMsg"), ToolsMessage, true);
 }
 
+/**
+ * Hook tools cvar changes.
+ **/
+void ToolsOnCvarInit(/*void*/)
+{
+    // Create cvars
+    gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON]    = FindConVar("zp_game_custom_light_button");  
+    gCvarList[CVAR_MESSAGES_HELP]               = FindConVar("zp_messages_help");
+    gCvarList[CVAR_MESSAGES_BLOCK]              = FindConVar("zp_messages_block");
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON],    ToolsFCvarsHookEnable);
+}
+
+/**
+ * Cvar hook callback (zp_game_custom_light_button)
+ * Flashlight module initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ToolsFCvarsHookEnable(ConVar hConVar, const char[] oldValue, const char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    ToolsFInit();
+}
+    
 /**
  * Callback for command listeners.
  *
@@ -221,32 +284,24 @@ public Action ToolsOnFlashlight(const int clientIndex, const char[] commandMsg, 
     // Validate client 
     if(IsPlayerExist(clientIndex))
     {
-        // Gets command alias 
-        static char sCommand[SMALL_LINE_LENGTH];
-        gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON].GetString(sCommand, sizeof(sCommand));
-        
-        // Validate command
-        if(!strcmp(sCommand, commandMsg))
+        // If zombie nightvision ?
+        if(gClientData[clientIndex][Client_Zombie])
         {
-            // If zombie nightvision ?
-            if(gClientData[clientIndex][Client_Zombie])
-            {
-                // Switch on/off nightvision
-                if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION] && !gServerData[Server_RoundEnd]) VOverlayOnClientUpdate(clientIndex, !ToolsGetClientNightVision(clientIndex, true) ? Overlay_Vision : Overlay_Reset);
-            }
-            // If human flashlight ?
-            else
-            {
-                // Switch on/off flashlight
-                ToolsSetClientFlashLight(clientIndex, true);
-                
-                // Forward event to modules
-                SoundsOnClientFlashLight(clientIndex);
-            }
-            
-            // Block command
-            return Plugin_Handled;
+            // Switch on/off nightvision
+            if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION] && !gServerData[Server_RoundEnd]) VOverlayOnClientUpdate(clientIndex, !ToolsGetClientNightVision(clientIndex, true) ? Overlay_Vision : Overlay_Reset);
         }
+        // If human flashlight ?
+        else
+        {
+            // Switch on/off flashlight
+            ToolsSetClientFlashLight(clientIndex, true);
+            
+            // Forward event to modules
+            SoundsOnClientFlashLight(clientIndex);
+        }
+        
+        // Block command
+        return Plugin_Handled;
     }
     
     // Allow command
@@ -356,7 +411,7 @@ void ToolsForceToRespawn(const int clientIndex)
     else if(ModesIsNemesis(gServerData[Server_RoundMode]) && !ModesIsSurvivor(gServerData[Server_RoundMode])) gClientData[clientIndex][Client_Respawn] = TEAM_HUMAN;
     
     // Respawn a player
-    SDKCall(hSDKCallRoundRespawn, clientIndex);
+    CS_RespawnPlayer(clientIndex);
 }
 
 /**
@@ -515,7 +570,7 @@ stock void ToolsSetClientTeam(const int clientIndex, const int nTeam)
     else
     {
         // Switch team of client
-        SDKCall(hSDKCallSwitchTeam, clientIndex, nTeam); 
+        CS_SwitchTeam(clientIndex, nTeam); 
     }
 }
 
@@ -673,41 +728,6 @@ stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
 /*_____________________________________________________________________________________________________*/
 
 /**
- * Set a round termination.
- * 
- * @param CReason           Reason the round has ended.
- **/
-stock void ToolsTerminateRound(const int CReason)
-{   
-    // Validate non windows 
-    if(!GameEnginePlatform(OS_Windows) && !GameEnginePlatform(OS_Unknown))
-    {
-        SDKCall(hSDKCallTerminateRound, gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CReason);
-    }
-    else
-    {
-        // Searching info map entity
-        int entityIndex = FindEntityByClassname(-1, "info_map_parameters");
-
-        // If entity isn't valid, then create it
-        if(entityIndex == INVALID_ENT_REFERENCE)
-        {
-            entityIndex = CreateEntityByName("info_map_parameters");
-            if(entityIndex != INVALID_ENT_REFERENCE) DispatchSpawn(entityIndex); else return;
-        }
-
-        // Initialize variable
-        static char sTime[NORMAL_LINE_LENGTH];
-        Format(sTime, sizeof(sTime), "OnUser1 !self:FireWinCondition:%i:1.0:-1", CReason);
-        
-        // Sets modified flags on the entity
-        SetVariantString(sTime);
-        AcceptEntityInput(entityIndex, "AddOutput");
-        AcceptEntityInput(entityIndex, "FireUser1");
-    }
-}
-
-/**
  * Update a entity transmit state.
  * 
  * @param entityIndex       The entity index.
@@ -726,7 +746,7 @@ stock void ToolsUpdateTransmitState(const int entityIndex)
  **/
 stock bool ToolsLookupAttachment(const int entityIndex, const char[] sAttach)
 {
-    return (strlen(sAttach) && SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach));
+    return (hasLength(sAttach) && SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach));
 }
 
 /**
@@ -740,7 +760,7 @@ stock bool ToolsLookupAttachment(const int entityIndex, const char[] sAttach)
 stock void ToolsGetAttachment(const int entityIndex, const char[] sAttach, float vOrigin[3], float vAngle[3])
 {
     // Validate length
-    if(!strlen(sAttach))
+    if(!hasLength(sAttach))
     {
         return;
     }

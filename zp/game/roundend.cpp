@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  *
- *  Zombie Plague Mod #3 Generation
+ *  Zombie Plague
  *
  *  File:          roundend.cpp
  *  Type:          Game 
  *  Description:   Round end event.
  *
- *  Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,39 +26,22 @@
  **/
 
 /**
- * @section Round end reasons.
+ * Round module init function.
  **/
-#define ROUNDEND_TARGET_BOMBED                          0        // Target Successfully Bombed!
-#define ROUNDEND_VIP_ESCAPED                            1        // The VIP has escaped!
-#define ROUNDEND_VIP_ASSASSINATED                       2        // VIP has been assassinated!
-#define ROUNDEND_TERRORISTS_ESCAPED                     3        // The terrorists have escaped!
-#define ROUNDEND_CTS_PREVENTESCAPE                      4        // The CT have prevented most of the terrorists from escaping!
-#define ROUNDEND_ESCAPING_TERRORISTS_NEUTRALIZED        5        // Escaping terrorists have all been neutralized!
-#define ROUNDEND_BOMB_DEFUSED                           6        // The bomb has been defused!
-#define ROUNDEND_CTS_WIN                                7        // Counter-Terrorists Win!
-#define ROUNDEND_TERRORISTS_WIN                         8        // Terrorists Win!
-#define ROUNDEND_ROUND_DRAW                             9        // Round Draw!
-#define ROUNDEND_ALL_HOSTAGES_RESCUED                   10       // All Hostages have been rescued!
-#define ROUNDEND_TARGET_SAVED                           11       // Target has been saved!
-#define ROUNDEND_HOSTAGES_NOT_RESCUED                   12       // Hostages have not been rescued!
-#define ROUNDEND_TERRORISTS_NOT_ESCAPED                 13       // Terrorists have not escaped!
-#define ROUNDEND_VIP_NOT_ESCAPED                        14       // VIP has not escaped!
-#define ROUNDEND_GAME_COMMENCING                        15       // Game Commencing!
-/**
- * @endsection
- **/
-
-/**
- * The round is ending.
- *
- * @param CReason           Reason the round has ended.
- **/
-public Action RoundEndOnRoundEnd(int &CReason)
+void RoundEndInit(/*void*/)
 {
-    // Initialize team scores
-    int nZombieScore = GetTeamScore(TEAM_ZOMBIE);
-    int nHumanScore = GetTeamScore(TEAM_HUMAN);
+    // Hook server events
+    HookEvent("cs_win_panel_round", RoundEndOnPanel,    EventHookMode_Pre);
+}
 
+/**
+ * Called when TerminateRound is called.
+ * 
+ * @param flDelay           Time (in seconds) until new round starts
+ * @param CReason           Reason for round end
+ **/
+public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& CReason)
+{
     // Resets server grobal variables
     gServerData[Server_RoundNew] = false;
     gServerData[Server_RoundEnd] = true;
@@ -70,52 +53,8 @@ public Action RoundEndOnRoundEnd(int &CReason)
     // Switch end round reason
     switch(CReason)
     {
-        /// Counter-Terrorists Win!
-        case ROUNDEND_CTS_WIN :
-        {
-            // Increment CT score
-            nHumanScore++;
-            
-            // Calculate bonuses
-            nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_FAIL].IntValue;
-            nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_WIN].IntValue;
-            
-            // Sets the overlay
-            CType = Overlay_HumanWin;
-        }
-    
-        /// Terrorists Win!
-        case ROUNDEND_TERRORISTS_WIN :     
-        {    
-            // Increment T score
-            nZombieScore++;
-            
-            // Calculate bonuses
-            nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_WIN].IntValue;
-            nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_FAIL].IntValue;
-            
-            // Sets the overlay
-            CType = Overlay_ZombieWin;
-        }
+        case CSRoundEnd_GameStart : return Plugin_Continue;
 
-        /// Round Draw!
-        case ROUNDEND_ROUND_DRAW :
-        {
-            // Increment <> score
-            /** skip **/
-            
-            // Calculate bonuses
-            nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_DRAW].IntValue;
-            nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_DRAW].IntValue;
-            
-            // Sets the overlay
-            CType = Overlay_Draw;
-        }
-
-        /// Game Commencing!
-        case ROUNDEND_GAME_COMMENCING : return;
-        
-        /// Other Results!
         default : 
         {
             // Gets amount of total humans and zombies
@@ -125,9 +64,6 @@ public Action RoundEndOnRoundEnd(int &CReason)
             // If there are no zombies, that means there must be humans, they win the round
             if(!nZombies && nHumans)
             {
-                // Increment CT score
-                nHumanScore++;
-                
                 // Calculate bonuses
                 nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_FAIL].IntValue;
                 nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_WIN].IntValue;
@@ -136,14 +72,11 @@ public Action RoundEndOnRoundEnd(int &CReason)
                 CType = Overlay_HumanWin;
                 
                 // Set the reason
-                CReason = ROUNDEND_CTS_WIN;
+                CReason = CSRoundEnd_CTWin;
             }
             // If there are zombies, then zombies win the round
             else if(nZombies && !nHumans)
             {
-                // Increment T score
-                nZombieScore++;
-                
                 // Calculate bonuses
                 nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_WIN].IntValue;
                 nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_FAIL].IntValue;
@@ -152,14 +85,11 @@ public Action RoundEndOnRoundEnd(int &CReason)
                 CType = Overlay_ZombieWin;
                 
                 // Set the reason
-                CReason = ROUNDEND_TERRORISTS_WIN;
+                CReason = CSRoundEnd_TerroristWin;
             }
             // We know here, that either zombies or humans is 0 (not both)
             else
             {
-                // Increment <> score
-                /** skip **/
-                
                 // Calculate bonuses
                 nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_DRAW].IntValue;
                 nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_DRAW].IntValue;
@@ -168,14 +98,10 @@ public Action RoundEndOnRoundEnd(int &CReason)
                 CType = Overlay_Draw;
                 
                 // Set the reason
-                CReason = ROUNDEND_ROUND_DRAW;
+                CReason = CSRoundEnd_Draw;
             }
         }
     }
-
-    // Sets score in the scoreboard
-    SetTeamScore(TEAM_ZOMBIE, nZombieScore);
-    SetTeamScore(TEAM_HUMAN,  nHumanScore);
 
     //*********************************************************************
     //*                    GIVE BONUSES AND SHOW OVERLAYS                 *
@@ -200,6 +126,12 @@ public Action RoundEndOnRoundEnd(int &CReason)
             VOverlayOnClientUpdate(i, CType);
         }
     }
+    
+    // Forward event to modules
+    SoundsOnRoundEnd(CReason);
+    
+    // Return on success
+    return Plugin_Changed;
 }
 
 /**
@@ -241,17 +173,17 @@ bool RoundEndOnValidate(const bool validateRound = true)
     // If there are no zombies, that means there must be humans, they win the round
     if(!nZombies && nHumans)
     {
-        ToolsTerminateRound(ROUNDEND_CTS_WIN);
+        CS_TerminateRound(gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CSRoundEnd_CTWin, false);
     }
     // If there are zombies, then zombies win the round
     else if(nZombies && !nHumans)
     {
-        ToolsTerminateRound(ROUNDEND_TERRORISTS_WIN);
+        CS_TerminateRound(gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CSRoundEnd_TerroristWin, false);
     }
     // We know here, that either zombies or humans is 0 (not both)
     else
     {
-        ToolsTerminateRound(ROUNDEND_ROUND_DRAW);
+        CS_TerminateRound(gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CSRoundEnd_Draw, false);
     }
 
     // Round is over
@@ -288,7 +220,7 @@ void RoundEndOnClientDisconnect(/*void*/)
         TranslationPrintHintTextAll("zombie left"); 
         
         // Terminate the round with humans as the winner
-        ToolsTerminateRound(ROUNDEND_CTS_WIN);
+        CS_TerminateRound(gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CSRoundEnd_CTWin, false);
     }
     // If the last human disconnecting, then terminate round
     else if(nZombies && !nHumans)
@@ -297,7 +229,7 @@ void RoundEndOnClientDisconnect(/*void*/)
         TranslationPrintHintTextAll("human left"); 
 
         // Terminate the round with zombies as the winner
-        ToolsTerminateRound(ROUNDEND_TERRORISTS_WIN);
+        CS_TerminateRound(gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CSRoundEnd_TerroristWin, false);
     }
     // If the last player disconnecting, then terminate round
     else if(!nZombies && !nHumans)
@@ -306,6 +238,24 @@ void RoundEndOnClientDisconnect(/*void*/)
         TranslationPrintHintTextAll("player left"); 
 
         // Terminate the round with zombies as the winner
-        ToolsTerminateRound(ROUNDEND_ROUND_DRAW);
+        CS_TerminateRound(gCvarList[CVAR_SERVER_RESTART_DELAY].FloatValue, CSRoundEnd_Draw, false);
+    }
+}
+
+/**
+ * Event callback (cs_win_panel_round)
+ * The win panel was been created.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action RoundEndOnPanel(Event hEvent, const char[] sName, bool dontBroadcast) 
+{
+    // Sets whether an event broadcasting will be disabled
+    if(!dontBroadcast) 
+    {
+        // Disable broadcasting
+        hEvent.BroadcastDisabled = true;
     }
 }

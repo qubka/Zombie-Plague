@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague 8.x Copyright (C) 2015-2018 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -251,7 +251,7 @@ enum /*SolidFlags_t*/
 /**
  * @endsection
  **/
- 
+
 #include "zombieplague/menus.inc"
 #include "zombieplague/sounds.inc"
 #include "zombieplague/weapons.inc"
@@ -302,7 +302,7 @@ forward void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respa
  *
  * @noreturn
  **/
-forward void ZP_OnClientDamaged(int clientIndex, int attackerIndex, int inflictorIndex, float &damageAmount, int damageType, int weaponIndex);
+forward void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex);
 
 /**
  * @brief Called when a client use a skill.
@@ -358,15 +358,6 @@ forward void ZP_OnEngineExecute(/*void*/);
  * @noreturn
  **/
 native void ZP_TakeDamage(int clientIndex, int attackerIndex, float damageAmount, int damageType = DMG_GENERIC, int weaponIndex = INVALID_ENT_REFERENCE);
-
-/**
- * @brief Set a round termination.
- *
- * @param reason            Reason the round has ended.
- * 
- * @noreturn
- **/
-native void ZP_TerminateRound(int reason);
 
 /**
  * Update a entity transmit state.
@@ -703,6 +694,7 @@ stock bool IsPlayerExist(const int clientIndex, const bool aliveness = true)
  * @param sAttach           (Optional) The attachment name.
  * @param sType             The type of the particle.
  * @param flDurationTime    The duration of light.
+ *
  * @return                  The entity index.
  **/
 stock int FakeCreateParticle(const int parentIndex, const float vPosition[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sType, const float flDurationTime)
@@ -760,6 +752,7 @@ stock int FakeCreateParticle(const int parentIndex, const float vPosition[3] = N
  * 
  * @param vPosition         The origin of the entity.
  * @param flDurationTime    The duration of life.
+ *
  * @return                  The entity index.
  **/
 stock int FakeCreateEntity(const float vPosition[3], const float flDurationTime)
@@ -909,6 +902,7 @@ stock void FakeDispatchEffect(const int entityIndex = 0, const char[] sParticle 
  * @brief Searches for the index of a given string in a dispatch table.
  *
  * @param sEffect           The effect name.
+ *
  * @return                  The item index.
  **/
 stock int GetEffectIndex(const char[] sEffect)
@@ -940,6 +934,7 @@ stock int GetEffectIndex(const char[] sEffect)
  * @brief Searches for the index of a given string in an effect table.
  *
  * @param sEffect           The effect name.
+ *
  * @return                  The item index.
  **/
 stock int GetParticleEffectIndex(const char[] sEffect)
