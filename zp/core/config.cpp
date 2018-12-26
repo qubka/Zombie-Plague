@@ -1103,6 +1103,9 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex
             {
                 TranslationPrintToChat(clientIndex, "config reload falied", sAlias);
             }
+            
+            // Open config menu back
+            ConfigMenu(clientIndex);
         }
     }
 }
