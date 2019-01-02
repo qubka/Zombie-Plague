@@ -42,7 +42,7 @@
  **/ 
 public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
 {
-    // Initialize variable
+    // Initialize index
     static int iLastButtons[MAXPLAYERS+1];
 
     // Validate client

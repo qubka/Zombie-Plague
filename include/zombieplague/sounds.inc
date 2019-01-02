@@ -47,6 +47,6 @@ native int ZP_GetSoundKeyID(char[] key);
  * @param keyID             The key index.
  * @param sound             The string to return sound in.
  * @param maxlenght         The lenght of string.
- * @param position          (Optional) The position index.
+ * @param position          (Optional) The position index. (for not random sound)
  **/
-native void ZP_GetSound(int keyID, char[] sound, int maxlenght, int position = 0);
+native void ZP_GetSound(int keyID, char[] sound, int maxlenght = 256, int position = 0);

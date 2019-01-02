@@ -28,7 +28,7 @@
 /**
  * Number of max rounds during map.
  **/
-#define RoundMax 15
+#define ROUND_AMOUNT_MAX 15
 
 /**
  * Round module init function.
@@ -51,8 +51,8 @@ void RoundStartLoad(/*void*/)
     gServerData[Server_RoundStart] = false;
     
     // Update server grobal variables
-    gServerData[Server_RoundMode] = -1;
     gServerData[Server_RoundNumber] = 0;
+    gServerData[Server_RoundMode] = gServerData[Server_RoundLast] = -1;    
     gServerData[Server_RoundCount] = gCvarList[CVAR_GAME_CUSTOM_START].IntValue;
     
     // Gets current map name
@@ -65,15 +65,15 @@ void RoundStartLoad(/*void*/)
 void RoundStartOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_SERVER_TEAM_BALANCE]         = FindConVar("mp_autoteambalance"); 
-    gCvarList[CVAR_SERVER_LIMIT_TEAMS]          = FindConVar("mp_limitteams");
-    gCvarList[CVAR_SERVER_WARMUP_TIME]          = FindConVar("mp_warmuptime");
-    gCvarList[CVAR_SERVER_WARMUP_PERIOD]        = FindConVar("mp_do_warmup_period");
-    gCvarList[CVAR_SERVER_ROUNDTIME_ZP]         = FindConVar("mp_roundtime");
-    gCvarList[CVAR_SERVER_ROUNDTIME_CS]         = FindConVar("mp_roundtime_hostage");
-    gCvarList[CVAR_SERVER_ROUNDTIME_DE]         = FindConVar("mp_roundtime_defuse");
-    gCvarList[CVAR_SERVER_ROUND_RESTART]        = FindConVar("mp_restartgame");
-    gCvarList[CVAR_SERVER_RESTART_DELAY]        = FindConVar("mp_round_restart_delay");
+    gCvarList[CVAR_SERVER_TEAM_BALANCE]  = FindConVar("mp_autoteambalance"); 
+    gCvarList[CVAR_SERVER_LIMIT_TEAMS]   = FindConVar("mp_limitteams");
+    gCvarList[CVAR_SERVER_WARMUP_TIME]   = FindConVar("mp_warmuptime");
+    gCvarList[CVAR_SERVER_WARMUP_PERIOD] = FindConVar("mp_do_warmup_period");
+    gCvarList[CVAR_SERVER_ROUNDTIME_ZP]  = FindConVar("mp_roundtime");
+    gCvarList[CVAR_SERVER_ROUNDTIME_CS]  = FindConVar("mp_roundtime_hostage");
+    gCvarList[CVAR_SERVER_ROUNDTIME_DE]  = FindConVar("mp_roundtime_defuse");
+    gCvarList[CVAR_SERVER_ROUND_RESTART] = FindConVar("mp_restartgame");
+    gCvarList[CVAR_SERVER_RESTART_DELAY] = FindConVar("mp_round_restart_delay");
     
     // Sets locked cvars to their locked value
     gCvarList[CVAR_SERVER_TEAM_BALANCE].IntValue  = 0;
@@ -82,14 +82,18 @@ void RoundStartOnCvarInit(/*void*/)
     gCvarList[CVAR_SERVER_WARMUP_PERIOD].IntValue = 0;
     
     // Hook locked cvars to prevent it from changing
-    HookConVarChange(gCvarList[CVAR_SERVER_TEAM_BALANCE],         CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_LIMIT_TEAMS],          CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_TIME],          CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_PERIOD],        CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_ROUNDTIME_ZP],         RoundStartHookTime);
-    HookConVarChange(gCvarList[CVAR_SERVER_ROUNDTIME_CS],         RoundStartHookTime);
-    HookConVarChange(gCvarList[CVAR_SERVER_ROUNDTIME_DE],         RoundStartHookTime);
-    HookConVarChange(gCvarList[CVAR_SERVER_ROUND_RESTART],        RoundStartHookRestart);
+    HookConVarChange(gCvarList[CVAR_SERVER_TEAM_BALANCE],  CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_LIMIT_TEAMS],   CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_TIME],   CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_WARMUP_PERIOD], CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_ROUNDTIME_ZP],  RoundStartHookTime);
+    HookConVarChange(gCvarList[CVAR_SERVER_ROUNDTIME_CS],  RoundStartHookTime);
+    HookConVarChange(gCvarList[CVAR_SERVER_ROUNDTIME_DE],  RoundStartHookTime);
+    HookConVarChange(gCvarList[CVAR_SERVER_ROUND_RESTART], RoundStartHookRestart);
+
+    // Hook listeners
+    AddCommandListener(RoundStartOnWarmUp, "mp_warmup_start");
+    ///AddCommandListener(RoundStartOnWarmUp, "mp_warmup_end");
 }
 
 /**
@@ -163,7 +167,7 @@ void RoundStartOnBalanceTeams(/*void*/)
  **/
 void RoundStartOnKillEntity(/*void*/)
 {
-    // Initialize some variables
+    // Initialize variables
     static char sClassname[NORMAL_LINE_LENGTH];
     static const char sObjective[NORMAL_LINE_LENGTH+1] = "func_bomb_target_hostage_entity_func_hostage_rescue_func_buyzone";
 
@@ -180,14 +184,14 @@ void RoundStartOnKillEntity(/*void*/)
             GetEdictClassname(x, sClassname, sizeof(sClassname));
             
             // Validate objectives
-            if(StrContains(sObjective, sClassname) != -1) 
+            if(StrContains(sObjective, sClassname, false) != -1) 
             {
                 AcceptEntityInput(x, "Kill"); //! Destroy
             }
             // Validate weapon
             else if(!strncmp(sClassname, "weapon_", 7, false))
             {
-                // Gets the weapon owner
+                // Gets weapon owner
                 int clientIndex = GetEntDataEnt2(x, g_iOffset_WeaponOwner);
                 
                 // Validate owner
@@ -219,13 +223,13 @@ public void RoundStartHookTime(ConVar hConVar, const char[] oldValue, const char
     
     // If value was invalid, then stop
     int iDelay = StringToInt(newValue);
-    if(iDelay <= RoundMax)
+    if(iDelay <= ROUND_AMOUNT_MAX)
     {
         return;
     }
     
     // Revert to minimum value
-    hConVar.SetInt(RoundMax);
+    hConVar.SetInt(ROUND_AMOUNT_MAX);
 }
 
 /**
@@ -257,4 +261,25 @@ public void RoundStartHookRestart(ConVar hConVar, const char[] oldValue, const c
 
     // Terminate the round with restart time as delay
     CS_TerminateRound(1.0, CSRoundEnd_GameStart, true);
+}
+
+/**
+ * Callback for command listener to block warm up.
+ *
+ * @param entityIndex       The entity index. (Client, or 0 for server)
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action RoundStartOnWarmUp(const int entityIndex, const char[] commandMsg, const int iArguments)
+{
+    // Validate server
+    if(!entityIndex)
+    {
+        // Block warmup
+        GameRules_SetProp("m_bWarmupPeriod", false, 1); 
+        GameRules_SetPropFloat("m_fWarmupPeriodStart", 0.0);
+    }
+    
+    // Block commands
+    return Plugin_Handled;
 }

@@ -38,13 +38,23 @@
 native int ZP_GetNumberMenu();
 
 /**
+ * Gets the index of a menu at a given name.
+ *
+ * @param name              The menu name.
+ *
+ * @return                  The menu index, or -1 on failure.
+ **/
+native int ZP_GetMenuNameID(char[] name);
+
+/**
  * @brief Gets the name of a menu at a given index.
  *
  * @param menuID            The menu index.
  * @param name              The string to return name in.
  * @param maxlenght         The max length of the string.
+ * @param iSub              (Optional) The submenu index. (Loop += 4)
  **/
-native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32);
+native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32, int iSub = 0);
 
 /**
  * @brief Gets the group of a menu at a given index.
@@ -52,17 +62,19 @@ native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32);
  * @param menuID            The menu index.
  * @param group             The string to return group in.
  * @param maxlenght         The max length of the string.
+ * @param iSub              (Optional) The submenu index. (Loop += 4)
  **/
-native void ZP_GetMenuGroup(int menuID, char[] group, int maxlenght = 32);
+native void ZP_GetMenuGroup(int menuID, char[] group, int maxlenght = 32, int iSub = 0);
 
 /**
  * @brief Gets the hide value of the menu.
  *
  * @param menuID            The menu index.
+ * @param iSub              (Optional) The submenu index. (Loop += 4)
  *
  * @return                  True if menu is hide, false if not.
  **/
-native bool ZP_IsMenuHide(int costumeID);
+native bool ZP_IsMenuHide(int costumeID, int iSub = 0);
 
 /**
  * @brief Gets the command of a menu at a given index.
@@ -70,5 +82,14 @@ native bool ZP_IsMenuHide(int costumeID);
  * @param menuID            The menu index.
  * @param command           The string to return command in.
  * @param maxlenght         The max length of the string.
+ * @param iSub              (Optional) The submenu index. (Loop += 4)
  **/
-native void ZP_GetMenuCommand(int menuID, char[] command, int maxlenght = 32);
+native void ZP_GetMenuCommand(int menuID, char[] command, int maxlenght = 32, int iSub = 0);
+
+/**
+ * Opens the submenu of the menu.
+ *
+ * @param clientIndex       The client index.
+ * @param menuID            The menu index.
+ **/
+native void ZP_OpenMenuSub(int clientIndex, int menuID);

@@ -81,7 +81,7 @@ void VoiceOnRoundEnd(/*void*/)
 void VoiceOnClientInfected(const int clientIndex)
 {
     // Give client proper verbal permissions
-    VoiceUpdateClient(clientIndex);
+    VoiceOnClientUpdate(clientIndex);
 }
 
 /**
@@ -92,7 +92,7 @@ void VoiceOnClientInfected(const int clientIndex)
 void VoiceOnClientHumanized(const int clientIndex)
 {
     // Give client proper verbal permissions
-    VoiceUpdateClient(clientIndex);
+    VoiceOnClientUpdate(clientIndex);
 }
 
 /**
@@ -112,7 +112,7 @@ stock bool VoiceSetClientListening(const int iReceiver, const int iSender, const
         return false;
     }
     
-    // Sets the overide
+    // Sets overide
     ListenOverride override = bListen ? Listen_Yes : Listen_No;
     return SetListenOverride(iReceiver, iSender, override);
 }
@@ -198,7 +198,7 @@ stock void VoiceSetClientTeam(const int clientIndex, const bool bInfected)
  * @param clientIndex       The client index.
  * @param bInfected         True to permit verbal communication to zombies only, false for humans only.
  **/
-stock void VoiceUpdateClient(const int clientIndex)
+stock void VoiceOnClientUpdate(const int clientIndex)
 {
     // If voice module is disabled, then stop
     if(!g_bVoice)
@@ -206,7 +206,7 @@ stock void VoiceUpdateClient(const int clientIndex)
         return;
     }
     
-    // Sets the client listening/speaking status to their current team
+    // Sets client listening/speaking status to their current team
     VoiceSetClientTeam(clientIndex, gClientData[clientIndex][Client_Zombie]);
 }
 

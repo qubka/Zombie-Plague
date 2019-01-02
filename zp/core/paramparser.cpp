@@ -71,10 +71,9 @@ static const char sParamError[7][PARAM_VALUE_MAXLEN] = {
     "Unknown error. The parser got a invalid result from a search function it couldn't handle",
     "Destination array is full"
 };
-   
+
 /**
- * Modes for what to do and expect when parsing. White space characters between
- * modes are ignored.
+ * @section Modes for what to do and expect when parsing. White space characters between modes are ignored.
  **/
 enum ParamModes
 {
@@ -82,16 +81,22 @@ enum ParamModes
     ParamMode_Key,    /** Expect a key name. */
     ParamMode_Value,  /** Expect a value string. */
     ParamMode_Finish  /** Finish parsing. */
-}
-
+};
 /**
- * Structure for storing a key/value pair.
+ * @endsection
+ **/
+ 
+/**
+ * @section Structure for storing a key/value pair.
  **/
 enum ParamParseResult
 {
     String:Param_Name[PARAM_NAME_MAXLEN],   /** Key or flag name. */
     String:Param_Value[PARAM_VALUE_MAXLEN]  /** Value. Only used if a key. */
-}
+};
+/**
+ * @endsection
+ **/
 
 /**************************************
  *                                    *
@@ -117,7 +122,7 @@ stock int ParamParseString(iBuffer[][ParamParseResult], char[] sParamString, con
      */
 
     // Cut out comments at the end of a line
-    if(StrContains(sParamString, "//") != -1)
+    if(StrContains(sParamString, "//", false) != -1)
     {
         SplitString(sParamString, "//", sParamString, iMaxLen);
     } 
@@ -272,7 +277,7 @@ stock int ParamFindKey(const iBuffer[][ParamParseResult], const int iMaxKeys, co
         }
     }
     
-    // Return on unsuccess
+    // Key doesn't exist
     return -1;
 }
 

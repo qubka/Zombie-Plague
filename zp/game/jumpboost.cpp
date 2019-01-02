@@ -31,7 +31,7 @@
 void JumpBoostInit(/*void*/)
 {
     // If jump boost disabled, then unhook
-    if(!gCvarList[CVAR_JUMPBOOST_ENABLE].BoolValue)
+    if(!gCvarList[CVAR_JUMPBOOST].BoolValue)
     {
         // Unhook player events
         UnhookEvent2("player_jump", JumpBoostOnClientJump, EventHookMode_Post);
@@ -43,32 +43,22 @@ void JumpBoostInit(/*void*/)
 }
 
 /**
- * Hook jump boost cvar changes.
+ * Hook jumpboost cvar changes.
  **/
 void JumpBoostOnCvarInit(/*void*/)
 {
-    // Create boost cvars
-    gCvarList[CVAR_JUMPBOOST_ENABLE]            = FindConVar("zp_jumpboost_enable");
-    gCvarList[CVAR_JUMPBOOST_MULTIPLIER]        = FindConVar("zp_jumpboost_multiplier");
-    gCvarList[CVAR_JUMPBOOST_MAX]               = FindConVar("zp_jumpboost_max"); 
-    
-    // Create leap cvars
-    gCvarList[CVAR_LEAP_ZOMBIE]                 = FindConVar("zp_leap_zombies");
-    gCvarList[CVAR_LEAP_ZOMBIE_FORCE]           = FindConVar("zp_leap_zombies_force");
-    gCvarList[CVAR_LEAP_ZOMBIE_COUNTDOWN]       = FindConVar("zp_leap_zombies_cooldown");
-    gCvarList[CVAR_LEAP_NEMESIS]                = FindConVar("zp_leap_nemesis");
-    gCvarList[CVAR_LEAP_NEMESIS_FORCE]          = FindConVar("zp_leap_nemesis_force");
-    gCvarList[CVAR_LEAP_NEMESIS_COUNTDOWN]      = FindConVar("zp_leap_nemesis_cooldown");
-    gCvarList[CVAR_LEAP_SURVIVOR]               = FindConVar("zp_leap_survivor");
-    gCvarList[CVAR_LEAP_SURVIVOR_FORCE]         = FindConVar("zp_leap_survivor_force");
-    gCvarList[CVAR_LEAP_SURVIVOR_COUNTDOWN]     = FindConVar("zp_leap_survivor_cooldown");
+    // Create cvars
+    gCvarList[CVAR_JUMPBOOST]            = FindConVar("zp_jumpboost");
+    gCvarList[CVAR_JUMPBOOST_MULTIPLIER] = FindConVar("zp_jumpboost_multiplier");
+    gCvarList[CVAR_JUMPBOOST_MAX]        = FindConVar("zp_jumpboost_max"); 
+    gCvarList[CVAR_JUMPBOOST_KNOCKBACK]  = FindConVar("zp_jumpboost_knockback");
 
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_JUMPBOOST_ENABLE],            JumpBoostCvarsHookEnable);
+    HookConVarChange(gCvarList[CVAR_JUMPBOOST], JumpBoostCvarsHookEnable);
 }
 
 /**
- * Cvar hook callback (zp_jumpboost_enable)
+ * Cvar hook callback (zp_jumpboost)
  * Jumpboost module initialization.
  * 
  * @param hConVar           The cvar handle.
@@ -117,7 +107,7 @@ void JumpBoostClientInit(const int clientIndex)
 
 /**
  * Hook: GroundEntChangedPost
- * Called right before the entities touching ground.
+ * Called right after the entities touching ground.
  * 
  * @param clientIndex       The client index.
  **/
@@ -138,17 +128,8 @@ public void JumpBoostGroundEntChangedPost(const int clientIndex)
     // Validate movetype
     if(GetEntityMoveType(clientIndex) != MOVETYPE_LADDER)
     {
-        // Is zombie ?
-        if(gClientData[clientIndex][Client_Zombie])
-        {
-            // Reset gravity
-            ToolsSetClientGravity(clientIndex, gClientData[clientIndex][Client_Nemesis] ? gCvarList[CVAR_NEMESIS_GRAVITY].FloatValue : ZombieGetGravity(gClientData[clientIndex][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
-        }   
-        else
-        {
-            // Reset gravity
-            ToolsSetClientGravity(clientIndex, gClientData[clientIndex][Client_Survivor] ? gCvarList[CVAR_SURVIVOR_GRAVITY].FloatValue : HumanGetGravity(gClientData[clientIndex][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
-        }
+        // Reset gravity
+        ToolsSetClientGravity(clientIndex, ClassGetGravity(gClientData[clientIndex][Client_Class]) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex][Client_Level])) : 0.0));
     }
 }
 
@@ -159,7 +140,7 @@ public void JumpBoostGroundEntChangedPost(const int clientIndex)
  **/
 public void JumpBoostOnClientJumpPost(const int userID)
 {
-    // Gets the client index from the user ID
+    // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
     // Validate client
@@ -168,7 +149,7 @@ public void JumpBoostOnClientJumpPost(const int userID)
         // Initialize velocity vector
         static float vVelocity[3];
         
-        // Gets the client velocity
+        // Gets client velocity
         ToolsGetClientVelocity(clientIndex, vVelocity);
         
         // Only apply horizontal multiplier if it not a bhop
@@ -199,12 +180,18 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     {
         return;
     }
+    
+    // Validate access
+    if(!ModesIsLeapJump(gServerData[Server_RoundMode]))
+    {
+        return;
+    }
 
     //*********************************************************************
     //*                    INITIALIZE LEAP JUMP PROPERTIES                *
     //*********************************************************************
     
-    // Initialize variable
+    // Initialize counter
     static float flCountDown;
     
     // Verify that the client is zombie
@@ -273,10 +260,10 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     //*                     CHECK DELAY OF THE LEAP JUMP                  *
     //*********************************************************************
     
-    // Initialize variable
+    // Initialize delay
     static float flDelay[MAXPLAYERS+1];
     
-    // Gets the simulated game time
+    // Gets simulated game time
     float flCurrentTime = GetTickedTime();
     
     // Cooldown don't over yet, then stop

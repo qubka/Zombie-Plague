@@ -31,45 +31,29 @@
 void PlayerVEffectsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_VEFFECTS_PARTICLES]          = FindConVar("zp_veffects_particles"); 
-    gCvarList[CVAR_VEFFECTS_RESPAWN]            = FindConVar("zp_veffects_respawn"); 
-    gCvarList[CVAR_VEFFECTS_RESPAWN_NAME]       = FindConVar("zp_veffects_respawn_name");
-    gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH]     = FindConVar("zp_veffects_respawn_attachment"); 
-    gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION]   = FindConVar("zp_veffects_respawn_duration");
-    gCvarList[CVAR_VEFFECTS_INFECT]             = FindConVar("zp_veffects_infect"); 
-    gCvarList[CVAR_VEFFECTS_INFECT_NAME]        = FindConVar("zp_veffects_infect_name");
-    gCvarList[CVAR_VEFFECTS_INFECT_ATTACH]      = FindConVar("zp_veffects_infect_attachment"); 
-    gCvarList[CVAR_VEFFECTS_INFECT_DURATION]    = FindConVar("zp_veffects_infect_duration");
-    gCvarList[CVAR_VEFFECTS_ANTIDOT]            = FindConVar("zp_veffects_antidot"); 
-    gCvarList[CVAR_VEFFECTS_ANTIDOT_NAME]       = FindConVar("zp_veffects_antidot_name");
-    gCvarList[CVAR_VEFFECTS_ANTIDOT_ATTACH]     = FindConVar("zp_veffects_antidot_attachment"); 
-    gCvarList[CVAR_VEFFECTS_ANTIDOT_DURATION]   = FindConVar("zp_veffects_antidot_duration");
-    gCvarList[CVAR_VEFFECTS_HEAL]               = FindConVar("zp_veffects_heal"); 
-    gCvarList[CVAR_VEFFECTS_HEAL_NAME]          = FindConVar("zp_veffects_heal_name");
-    gCvarList[CVAR_VEFFECTS_HEAL_ATTACH]        = FindConVar("zp_veffects_heal_attachment"); 
-    gCvarList[CVAR_VEFFECTS_HEAL_DURATION]      = FindConVar("zp_veffects_heal_duration");
-    gCvarList[CVAR_VEFFECTS_NEMESIS]            = FindConVar("zp_veffects_nemesis"); 
-    gCvarList[CVAR_VEFFECTS_NEMESIS_NAME]       = FindConVar("zp_veffects_nemesis_name");
-    gCvarList[CVAR_VEFFECTS_NEMESIS_ATTACH]     = FindConVar("zp_veffects_nemesis_attachment"); 
-    gCvarList[CVAR_VEFFECTS_NEMESIS_DURATION]   = FindConVar("zp_veffects_nemesis_duration");
-    gCvarList[CVAR_VEFFECTS_SURVIVOR]           = FindConVar("zp_veffects_survivor"); 
-    gCvarList[CVAR_VEFFECTS_SURVIVOR_NAME]      = FindConVar("zp_veffects_survivor_name");
-    gCvarList[CVAR_VEFFECTS_SURVIVOR_ATTACH]    = FindConVar("zp_veffects_survivor_attachment"); 
-    gCvarList[CVAR_VEFFECTS_SURVIVOR_DURATION]  = FindConVar("zp_veffects_survivor_duration");
-    gCvarList[CVAR_VEFFECTS_LEAP]               = FindConVar("zp_veffects_leap"); 
-    gCvarList[CVAR_VEFFECTS_LEAP_NAME]          = FindConVar("zp_veffects_leap_name");
-    gCvarList[CVAR_VEFFECTS_LEAP_ATTACH]        = FindConVar("zp_veffects_leap_attachment"); 
-    gCvarList[CVAR_VEFFECTS_LEAP_DURATION]      = FindConVar("zp_veffects_leap_duration");
+    gCvarList[CVAR_VEFFECTS_PARTICLES]        = FindConVar("zp_veffects_particles"); 
+    gCvarList[CVAR_VEFFECTS_INFECT]           = FindConVar("zp_veffects_infect"); 
+    gCvarList[CVAR_VEFFECTS_HUMANIZE]         = FindConVar("zp_veffects_humanize"); 
+    gCvarList[CVAR_VEFFECTS_RESPAWN]          = FindConVar("zp_veffects_respawn"); 
+    gCvarList[CVAR_VEFFECTS_RESPAWN_NAME]     = FindConVar("zp_veffects_respawn_name");
+    gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH]   = FindConVar("zp_veffects_respawn_attachment"); 
+    gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION] = FindConVar("zp_veffects_respawn_duration");
+    gCvarList[CVAR_VEFFECTS_HEAL]             = FindConVar("zp_veffects_heal"); 
+    gCvarList[CVAR_VEFFECTS_HEAL_NAME]        = FindConVar("zp_veffects_heal_name");
+    gCvarList[CVAR_VEFFECTS_HEAL_ATTACH]      = FindConVar("zp_veffects_heal_attachment"); 
+    gCvarList[CVAR_VEFFECTS_HEAL_DURATION]    = FindConVar("zp_veffects_heal_duration");
+    gCvarList[CVAR_VEFFECTS_LEAP]             = FindConVar("zp_veffects_leap"); 
+    gCvarList[CVAR_VEFFECTS_LEAP_NAME]        = FindConVar("zp_veffects_leap_name");
+    gCvarList[CVAR_VEFFECTS_LEAP_ATTACH]      = FindConVar("zp_veffects_leap_attachment"); 
+    gCvarList[CVAR_VEFFECTS_LEAP_DURATION]    = FindConVar("zp_veffects_leap_duration");
 }
 
 /**
  * Client has been infected.
  * 
  * @param clientIndex       The client index.
- * @param nemesisMode       (Optional) Indicates that client will be a nemesis.
- * @param respawnMode       (Optional) Indicates that infection was on spawn.
  **/
-void PlayerVEffectsOnClientInfected(const int clientIndex, const bool nemesisMode = false, const bool respawnMode = false)
+void PlayerVEffectsOnClientInfected(const int clientIndex)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -147,44 +131,11 @@ void PlayerVEffectsOnClientInfected(const int clientIndex, const bool nemesisMod
 }
 
 /**
- * Client has been regenerating.
- * 
- * @param clientIndex       The client index.
- **/
-void PlayerVEffectsOnClientRegen(const int clientIndex)
-{
-    // If regeneration effect disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
-    {
-        return;
-    }
-    
-    // If the duration is zero, then stop
-    float flDuration = gCvarList[CVAR_VEFFECTS_HEAL_DURATION].FloatValue;
-    if(!flDuration)
-    {
-        return;
-    }
-    
-    // Initialize particles char
-    static char sParticle[SMALL_LINE_LENGTH];
-    static char sAttachment[SMALL_LINE_LENGTH];
-    
-    // Gets healing particle
-    gCvarList[CVAR_VEFFECTS_HEAL_NAME].GetString(sParticle, sizeof(sParticle));
-    gCvarList[CVAR_VEFFECTS_HEAL_ATTACH].GetString(sAttachment, sizeof(sAttachment));
-    
-    // Emit heal effect
-    VEffectSpawnParticle(clientIndex, sAttachment, sParticle, flDuration);
-}
-
-/**
  * Client has been humanized.
  * 
  * @param clientIndex       The client index.
- * @param survivorMode      (Optional) Indicates that client will be a survivor.
  **/
-void PlayerVEffectsOnClientHumanized(const int clientIndex, const bool survivorMode = false)
+void PlayerVEffectsOnClientHumanized(const int clientIndex)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -236,6 +187,39 @@ void PlayerVEffectsOnClientHumanized(const int clientIndex, const bool survivorM
     // Emit effect
     VEffectSpawnParticle(clientIndex, sAttachment, sParticle, flDuration);
 }
+
+/**
+ * Client has been regenerating.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void PlayerVEffectsOnClientRegen(const int clientIndex)
+{
+    // If regeneration effect disabled, then stop
+    if(!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
+    {
+        return;
+    }
+    
+    // If the duration is zero, then stop
+    float flDuration = gCvarList[CVAR_VEFFECTS_HEAL_DURATION].FloatValue;
+    if(!flDuration)
+    {
+        return;
+    }
+    
+    // Initialize particles char
+    static char sParticle[SMALL_LINE_LENGTH];
+    static char sAttachment[SMALL_LINE_LENGTH];
+    
+    // Gets healing particle
+    gCvarList[CVAR_VEFFECTS_HEAL_NAME].GetString(sParticle, sizeof(sParticle));
+    gCvarList[CVAR_VEFFECTS_HEAL_ATTACH].GetString(sAttachment, sizeof(sAttachment));
+    
+    // Emit heal effect
+    VEffectSpawnParticle(clientIndex, sAttachment, sParticle, flDuration);
+}
+
 
 /**
  * Client has been leap jump.

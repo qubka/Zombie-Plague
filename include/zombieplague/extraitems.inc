@@ -112,7 +112,7 @@ native void ZP_GetExtraItemName(int itemID, char[] name, int maxlenght = 32);
  * @param info               The string to return info in.
  * @param maxlenght          The lenght of string.
  **/
-native void ZP_GetExtraItemInfo(int itemID, char[] info, int maxlenght = 32);
+native void ZP_GetExtraItemInfo(int itemID, char[] info, int maxlenght = 128);
 
 /**
  * @brief Gets the cost of the extra item.

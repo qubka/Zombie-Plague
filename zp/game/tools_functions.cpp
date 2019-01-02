@@ -67,7 +67,7 @@
  **/
 void ToolsFInit(/*void*/)
 {
-    // Initialize variable
+    // Initialize command char
     static char sCommand[SMALL_LINE_LENGTH];
     
     // Validate alias
@@ -113,12 +113,12 @@ void ToolsOnCommandsCreate(/*void*/)
 void ToolsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON]    = FindConVar("zp_game_custom_light_button");  
-    gCvarList[CVAR_MESSAGES_HELP]               = FindConVar("zp_messages_help");
-    gCvarList[CVAR_MESSAGES_BLOCK]              = FindConVar("zp_messages_block");
+    gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON] = FindConVar("zp_game_custom_light_button");  
+    gCvarList[CVAR_MESSAGES_HELP]            = FindConVar("zp_messages_help");
+    gCvarList[CVAR_MESSAGES_BLOCK]           = FindConVar("zp_messages_block");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON],    ToolsFCvarsHookEnable);
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_LIGHT_BUTTON], ToolsFCvarsHookEnable);
 }
 
 /**
@@ -159,7 +159,7 @@ public Action ToolsOnGeneric(const int clientIndex, const char[] commandMsg, con
             // Suicide
             case 'k', 'e' : 
             {
-                return gCvarList[CVAR_RESPAWN_SUICIDE].BoolValue ? Plugin_Continue : Plugin_Handled;
+                return Plugin_Handled;
             }
             
             // Jointeam
@@ -201,7 +201,7 @@ public Action ToolsOnGeneric(const int clientIndex, const char[] commandMsg, con
                                     {   
                                         // Sets timer for respawn player
                                         delete gClientData[clientIndex][Client_RespawnTimer];
-                                        gClientData[clientIndex][Client_RespawnTimer] = CreateTimer(gCvarList[CVAR_RESPAWN_TIME].FloatValue, DeathOnRespawn, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+                                        gClientData[clientIndex][Client_RespawnTimer] = CreateTimer(ModesGetDelay(gServerData[Server_RoundMode]), DeathOnRespawn, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
                                     }
 
                                     // Fix first connection time
@@ -273,7 +273,7 @@ public Action ToolsOnGeneric(const int clientIndex, const char[] commandMsg, con
 }
 
 /**
- * Callback for command listener to on/off flashlight.
+ * Callback for command listener to on/off flashlight/nvgs.
  *
  * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
@@ -284,13 +284,26 @@ public Action ToolsOnFlashlight(const int clientIndex, const char[] commandMsg, 
     // Validate client 
     if(IsPlayerExist(clientIndex))
     {
-        // If zombie nightvision ?
-        if(gClientData[clientIndex][Client_Zombie])
+        // Gets class overlay
+        static char sOverlay[PLATFORM_MAX_PATH];
+        ClassGetOverlay(gClientData[clientIndex][Client_Class], sOverlay, sizeof(sOverlay));
+
+        // Validate nvgs
+        if(ClassIsNvgs(gClientData[clientIndex][Client_Class]) || hasLength(sOverlay)) 
         {
-            // Switch on/off nightvision
-            if(gCvarList[CVAR_ZOMBIE_NIGHT_VISION] && !gServerData[Server_RoundEnd]) VOverlayOnClientUpdate(clientIndex, !ToolsGetClientNightVision(clientIndex, true) ? Overlay_Vision : Overlay_Reset);
+            // If round didn't end yet, then stop
+            if(gServerData[Server_RoundEnd]) //! Avoid reset round end overlays
+            {
+                // Block command
+                return Plugin_Handled;
+            }
+            
+            // Switch on/off nightvision  
+            VOverlayOnClientUpdate(clientIndex, ToolsGetClientNightVision(clientIndex, true) ? Overlay_Reset : Overlay_Vision);
+            
+            // Forward event to modules
+            SoundsOnClientNvgs(clientIndex);
         }
-        // If human flashlight ?
         else
         {
             // Switch on/off flashlight
@@ -329,7 +342,7 @@ public Action ToolsMessage(UserMsg iMessage, BfRead hBuffer, const int[] iPlayer
     gCvarList[CVAR_MESSAGES_BLOCK].GetString(sBlockMsg, sizeof(sBlockMsg)); 
 
     // Block messages on the matching
-    return (StrContains(sBlockMsg, sTxtMsg) != -1) ? Plugin_Handled : Plugin_Continue; 
+    return (StrContains(sBlockMsg, sTxtMsg, false) != -1) ? Plugin_Handled : Plugin_Continue; 
 }
 
 /**
@@ -341,25 +354,23 @@ void ToolsResetVars(const int clientIndex)
 {
     // Resets all variables
     gClientData[clientIndex][Client_Zombie] = false;
-    gClientData[clientIndex][Client_Survivor] = false;
-    gClientData[clientIndex][Client_Nemesis] = false;
     gClientData[clientIndex][Client_Skill] = false;
     gClientData[clientIndex][Client_Loaded] = false;
     gClientData[clientIndex][Client_AutoRebuy] = false;
     gClientData[clientIndex][Client_SkillCountDown] = 0.0;
-    gClientData[clientIndex][Client_ZombieClass] = 0;
-    gClientData[clientIndex][Client_ZombieClassNext] = 0;
-    gClientData[clientIndex][Client_HumanClass] = 0;
+    gClientData[clientIndex][Client_Class] = 0;
     gClientData[clientIndex][Client_HumanClassNext] = 0;
+    gClientData[clientIndex][Client_ZombieClassNext] = 0;
     gClientData[clientIndex][Client_Respawn] = TEAM_HUMAN;
     gClientData[clientIndex][Client_RespawnTimes] = 0;
-    gClientData[clientIndex][Client_AmmoPacks] = 0;
+    gClientData[clientIndex][Client_Money] = 0;
     gClientData[clientIndex][Client_LastBoughtAmount] = 0;
     gClientData[clientIndex][Client_Level] = 1;
     gClientData[clientIndex][Client_Exp] = 0;
     gClientData[clientIndex][Client_DataID] = -1;
     gClientData[clientIndex][Client_Costume] = -1;
     gClientData[clientIndex][Client_Time] = 0;
+    gClientData[clientIndex][Client_Spawn] = NULL_VECTOR;
     gClientData[clientIndex][Client_AttachmentCostume] = INVALID_ENT_REFERENCE;
     gClientData[clientIndex][Client_AttachmentBits] = 0;
     gClientData[clientIndex][Client_AttachmentAddons] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
@@ -396,7 +407,8 @@ void ToolsForceToRespawn(const int clientIndex)
     }
     
     // Respawn as human ?
-    if(gCvarList[CVAR_RESPAWN_DEATHMATCH].IntValue == 1 || (gCvarList[CVAR_RESPAWN_DEATHMATCH].IntValue == 2 && GetRandomInt(0, 1)) || (gCvarList[CVAR_RESPAWN_DEATHMATCH].IntValue == 3 && fnGetHumans() < fnGetAlive() / 2))
+    int iDeathMatch = ModesGetMatch(gServerData[Server_RoundMode]);
+    if(iDeathMatch == 1 || (iDeathMatch == 2 && GetRandomInt(0, 1)) || (iDeathMatch == 3 && fnGetHumans() < fnGetAlive() / 2))
     {
         gClientData[clientIndex][Client_Respawn] = TEAM_HUMAN;
     }
@@ -405,11 +417,7 @@ void ToolsForceToRespawn(const int clientIndex)
     {
         gClientData[clientIndex][Client_Respawn] = TEAM_ZOMBIE;
     }
-    
-    // Override respawn as zombie setting on nemesis and survivor rounds
-    if(ModesIsSurvivor(gServerData[Server_RoundMode]) && !ModesIsNemesis(gServerData[Server_RoundMode])) gClientData[clientIndex][Client_Respawn] = TEAM_ZOMBIE;
-    else if(ModesIsNemesis(gServerData[Server_RoundMode]) && !ModesIsSurvivor(gServerData[Server_RoundMode])) gClientData[clientIndex][Client_Respawn] = TEAM_HUMAN;
-    
+
     // Respawn a player
     CS_RespawnPlayer(clientIndex);
 }
@@ -427,7 +435,8 @@ void ToolsResetTimers(const int clientIndex)
     delete gClientData[clientIndex][Client_SkillTimer];
     delete gClientData[clientIndex][Client_CountDownTimer];
     delete gClientData[clientIndex][Client_HealTimer];
-    delete gClientData[clientIndex][Client_MoanTimer]; 
+    delete gClientData[clientIndex][Client_MoanTimer];
+    delete gClientData[clientIndex][Client_AmbientTimer];
 }
 
 /**
@@ -444,6 +453,7 @@ void ToolsPurgeTimers(const int clientIndex)
     gClientData[clientIndex][Client_CountDownTimer] = INVALID_HANDLE;
     gClientData[clientIndex][Client_HealTimer] = INVALID_HANDLE;    
     gClientData[clientIndex][Client_MoanTimer] = INVALID_HANDLE; 
+    gClientData[clientIndex][Client_AmbientTimer] = INVALID_HANDLE; 
 }
 
 /**
@@ -723,6 +733,19 @@ stock void ToolsSetClientFlashLight(const int clientIndex, const bool bEnable)
 {
     // Sets value on the client
     SetEntData(clientIndex, g_iOffset_EntityEffects, bEnable ? (GetEntData(clientIndex, g_iOffset_EntityEffects) ^ EF_DIMLIGHT) : 0, _, true);
+}
+
+/**
+ * Set a client fov.
+ * 
+ * @param clientIndex       The client index.
+ * @param iFov              (Optional) The fov amount.
+ **/
+stock void ToolsSetClientFov(const int clientIndex, const int iFov = 90)
+{
+    // Sets value on the client
+    SetEntData(clientIndex, g_iOffset_PlayerFov, iFov, _, true);
+    SetEntData(clientIndex, g_iOffset_PlayerDefaultFOV, iFov, _, true);
 }
 
 /*_____________________________________________________________________________________________________*/

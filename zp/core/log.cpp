@@ -55,7 +55,7 @@
  **/
  
 /**
- * Log format types.
+ * @section Log format types.
  **/
 enum LogTypes
 {
@@ -65,10 +65,12 @@ enum LogTypes
     LogType_Native,           /** Throws an error in the calling plugin of a native, instead of your own plugin. */
     LogType_Command           /** Command log message. Printed in SourceMod logs and in chat to all. */
 };
-    
 /**
- * List of modules that write log events. Add new modules if needed (in
- * alphabetical order).
+ * @endsection
+ **/
+ 
+/**
+ * @section List of modules that write log events. Add new modules if needed (in alphabetical order).
  * 
  * Update following when adding modules:
  * - Admin log flag menu
@@ -92,15 +94,17 @@ enum LogModules
     bool:LogModule_Menus,
     bool:LogModule_HitGroups,
     bool:LogModule_AntiStick,
-    bool:LogModule_ZombieClasses,
-    bool:LogModule_HumanClasses,
+    bool:LogModule_Classes,
     bool:LogModule_ExtraItems,
     bool:LogModule_Costumes,
     bool:LogModule_GameModes,
     bool:LogModule_Admin,
     bool:LogModule_Native
-}
-
+};
+/**
+ * @endsection
+ **/
+ 
 /**
  * Dynamic string array for module filtering.
  **/
@@ -143,11 +147,11 @@ void LogOnCommandsCreate(/*void*/)
 void LogOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_LOG]                         = FindConVar("zp_log");
-    gCvarList[CVAR_LOG_MODULE_FILTER]           = FindConVar("zp_log_module_filter");
-    gCvarList[CVAR_LOG_IGNORE_CONSOLE]          = FindConVar("zp_log_ignore_console");
-    gCvarList[CVAR_LOG_ERROR_OVERRIDE]          = FindConVar("zp_log_error_override");
-    gCvarList[CVAR_LOG_PRINT_CHAT]              = FindConVar("zp_log_print_chat");
+    gCvarList[CVAR_LOG]                = FindConVar("zp_log");
+    gCvarList[CVAR_LOG_MODULE_FILTER]  = FindConVar("zp_log_module_filter");
+    gCvarList[CVAR_LOG_IGNORE_CONSOLE] = FindConVar("zp_log_ignore_console");
+    gCvarList[CVAR_LOG_ERROR_OVERRIDE] = FindConVar("zp_log_error_override");
+    gCvarList[CVAR_LOG_PRINT_CHAT]     = FindConVar("zp_log_print_chat");
 }
 
 /**
@@ -211,13 +215,9 @@ LogModules LogGetModule(char[] sModuleName)
     {
         return LogModule_AntiStick;
     }
-    else if(!strcmp(sModuleName, "zombieclasses", false))
+    else if(!strcmp(sModuleName, "classes", false))
     {
-        return LogModule_ZombieClasses;
-    }
-    else if(!strcmp(sModuleName, "humanclasses", false))
-    {
-        return LogModule_HumanClasses;
+        return LogModule_Classes;
     }
     else if(!strcmp(sModuleName, "extraitems", false))
     {
@@ -334,13 +334,9 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules i
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "antistick") : strcopy(sBuffer, iMaxLen, "Antistick");
         }
-        case LogModule_ZombieClasses :
+        case LogModule_Classes :
         {
-            return shortName ? strcopy(sBuffer, iMaxLen, "zombieclasses") : strcopy(sBuffer, iMaxLen, "Zombie Classes");
-        }
-        case LogModule_HumanClasses :
-        {
-            return shortName ? strcopy(sBuffer, iMaxLen, "humanclasses") : strcopy(sBuffer, iMaxLen, "Human Classes");
+            return shortName ? strcopy(sBuffer, iMaxLen, "classes") : strcopy(sBuffer, iMaxLen, "Classes");
         }
         case LogModule_ExtraItems :
         {
@@ -521,7 +517,7 @@ bool LogModuleFilterRemove(const LogModules iModule)
     // Convert module name
     LogGetModuleNameString(sModuleName, sizeof(sModuleName), iModule, true);
     
-    // Gets the module index
+    // Gets module index
     iModuleIndex = arrayLogModuleFilter.FindString(sModuleName);
     
     // Check if successful
@@ -553,7 +549,7 @@ void LogModuleFilterCacheUpdate(/*void*/)
     int iSize = arrayLogModuleFilter.Length;
     for(int i = 0; i < iSize; i++)
     {
-        // Gets the module name
+        // Gets module name
         arrayLogModuleFilter.GetString(i, sModuleName, sizeof(sModuleName));
         
         // Convert to type
@@ -595,39 +591,39 @@ public Action LogListCommandCatched(const int clientIndex, const int iArguments)
     SetGlobalTransTarget(!clientIndex ? LANG_SERVER : clientIndex);
     
     // Gets phrases
-    Format(sPhraseGenericFlag, sizeof(sPhraseGenericFlag), "%t", "log generic flag");
-    Format(sPhraseValue, sizeof(sPhraseValue), "%t", "log value");
-    Format(sPhraseModule, sizeof(sPhraseModule), "%t", "log module");
-    Format(sPhraseShortName, sizeof(sPhraseShortName), "%t", "log module short name");
+    FormatEx(sPhraseGenericFlag, sizeof(sPhraseGenericFlag), "%t", "log generic flag");
+    FormatEx(sPhraseValue, sizeof(sPhraseValue), "%t", "log value");
+    FormatEx(sPhraseModule, sizeof(sPhraseModule), "%t", "log module");
+    FormatEx(sPhraseShortName, sizeof(sPhraseShortName), "%t", "log module short name");
     
     // Log flags:
-    Format(sLineBuffer, sizeof(sLineBuffer), "%-19s %-7s %t\n", sPhraseGenericFlag, sPhraseValue, "log status");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-19s %-7s %t\n", sPhraseGenericFlag, sPhraseValue, "log status");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     StrCat(sBuffer, sizeof(sBuffer), "--------------------------------------------------------------------------------\n");
     
-    Format(sLineBuffer, sizeof(sLineBuffer), "LOG_CORE_EVENTS     1       %s\n", LogCheckFlag(LOG_CORE_EVENTS) ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_CORE_EVENTS     1       %s\n", LogCheckFlag(LOG_CORE_EVENTS) ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
-    Format(sLineBuffer, sizeof(sLineBuffer), "LOG_GAME_EVENTS     2       %s\n", LogCheckFlag(LOG_GAME_EVENTS) ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_GAME_EVENTS     2       %s\n", LogCheckFlag(LOG_GAME_EVENTS) ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
-    Format(sLineBuffer, sizeof(sLineBuffer), "LOG_PLAYER_COMMANDS 4       %s\n", LogCheckFlag(LOG_PLAYER_COMMANDS) ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_PLAYER_COMMANDS 4       %s\n", LogCheckFlag(LOG_PLAYER_COMMANDS) ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
-    Format(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG           8       %s\n", LogCheckFlag(LOG_DEBUG) ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG           8       %s\n", LogCheckFlag(LOG_DEBUG) ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
-    Format(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG_DETAIL    16      %s\n", LogCheckFlag(LOG_DEBUG_DETAIL) ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG_DETAIL    16      %s\n", LogCheckFlag(LOG_DEBUG_DETAIL) ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
     ReplyToCommand(clientIndex, sBuffer);
     sBuffer[0] = 0;
     
     // Module filtering status:
-    Format(sLineBuffer, sizeof(sLineBuffer), "%t %ы\n\n", "log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "%t %ы\n\n", "log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
-    Format(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "log status");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "log status");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     StrCat(sBuffer, sizeof(sBuffer), "--------------------------------------------------------------------------------");
     
@@ -640,7 +636,7 @@ public Action LogListCommandCatched(const int clientIndex, const int iArguments)
     {
         LogGetModuleNameString(sModuleName, sizeof(sModuleName), view_as<LogModules>(i));
         LogGetModuleNameString(sPhraseShortName, sizeof(sPhraseShortName), view_as<LogModules>(i), true);
-        Format(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[view_as<LogModules>(i)] ? "On" : "Off");
+        FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[view_as<LogModules>(i)] ? "On" : "Off");
         ReplyToCommand(clientIndex, sLineBuffer);
     }
     return Plugin_Handled;

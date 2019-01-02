@@ -28,13 +28,13 @@
 /**
  * Number of max valid levels.
  **/
-#define LevelSystemMax 100
+#define LEVEL_SYSTEM_MAX 100
 
 /**
  * Arrays to store the level data.
  **/
-int  LevelSystemNum;
-static char LevelSystemStats[LevelSystemMax][SMALL_LINE_LENGTH];
+int LevelSystemNum;
+static char LevelSystemStats[LEVEL_SYSTEM_MAX][SMALL_LINE_LENGTH];
  
 /**
  * HUD synchronization handle.
@@ -46,8 +46,26 @@ Handle hHudLevel;
  **/
 void LevelSystemInit(/*void*/)
 {
-    // If level system disabled, then purge
-    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    // Resets level data
+    LevelSystemNum = 0; 
+ 
+    // If level system disabled, then skip
+    if(gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    {
+        // Gets level list
+        static char sList[PLATFORM_MAX_PATH];
+        gCvarList[CVAR_LEVEL_STATISTICS].GetString(sList, sizeof(sList));
+
+        // Validate list
+        if(hasLength(sList))
+        {
+            // Split list into pieces
+            LevelSystemNum = ExplodeString(sList, " ", LevelSystemStats, sizeof(LevelSystemStats), sizeof(LevelSystemStats[])) - 1;
+        }
+    }
+    
+    // If level hud disable, then stop
+    if(!gCvarList[CVAR_LEVEL_HUD].BoolValue)
     {
         // Validate loaded map
         if(IsMapLoaded())
@@ -85,21 +103,9 @@ void LevelSystemInit(/*void*/)
      * These are particularly useful for displaying repeating or refreshing HUD text, in addition to displaying multiple message sets in one area of the screen 
      * (for example, center-say messages that may pop up randomly that you don't want to overlap each other).
      */
-    delete hHudLevel;
-    hHudLevel = CreateHudSynchronizer();
-    
-    // Resets level data
-    LevelSystemNum = 0;
-
-    // Initialize level list
-    static char sList[PLATFORM_MAX_PATH];
-    gCvarList[CVAR_LEVEL_STATISTICS].GetString(sList, sizeof(sList));
-
-    // Check if list is empty, then skip
-    if(hasLength(sList))
+    if(hHudLevel == INVALID_HANDLE)
     {
-        // Convert list string to pieces
-        LevelSystemNum = ExplodeString(sList, " ", LevelSystemStats, sizeof(LevelSystemStats), sizeof(LevelSystemStats[])) - 1;
+        hHudLevel = CreateHudSynchronizer();
     }
     
     // Validate loaded map
@@ -124,32 +130,28 @@ void LevelSystemInit(/*void*/)
 void LevelSystemOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_LEVEL_SYSTEM]                = FindConVar("zp_level_system");
-    gCvarList[CVAR_LEVEL_STATISTICS]            = FindConVar("zp_level_statistics"); 
-    gCvarList[CVAR_LEVEL_HEALTH_RATIO]          = FindConVar("zp_level_health_ratio");
-    gCvarList[CVAR_LEVEL_SPEED_RATIO]           = FindConVar("zp_level_speed_ratio");
-    gCvarList[CVAR_LEVEL_GRAVITY_RATIO]         = FindConVar("zp_level_gravity_ratio");
-    gCvarList[CVAR_LEVEL_DAMAGE_RATIO]          = FindConVar("zp_level_damage_ratio");
-    gCvarList[CVAR_LEVEL_DAMAGE_HUMAN]          = FindConVar("zp_level_damage_human");
-    gCvarList[CVAR_LEVEL_DAMAGE_ZOMBIE]         = FindConVar("zp_level_damage_zombie");
-    gCvarList[CVAR_LEVEL_DAMAGE_SURVIVOR]       = FindConVar("zp_level_damage_survivor");
-    gCvarList[CVAR_LEVEL_INFECT]                = FindConVar("zp_level_infect");
-    gCvarList[CVAR_LEVEL_KILL_HUMAN]            = FindConVar("zp_level_kill_human");
-    gCvarList[CVAR_LEVEL_KILL_ZOMBIE]           = FindConVar("zp_level_kill_zombie");
-    gCvarList[CVAR_LEVEL_KILL_NEMESIS]          = FindConVar("zp_level_kill_nemesis");
-    gCvarList[CVAR_LEVEL_KILL_SURVIVOR]         = FindConVar("zp_level_kill_survivor");
-    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R]          = FindConVar("zp_level_hud_zombie_R");
-    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_G]          = FindConVar("zp_level_hud_zombie_G");
-    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B]          = FindConVar("zp_level_hud_zombie_B");
-    gCvarList[CVAR_LEVEL_HUD_HUMAN_R]           = FindConVar("zp_level_hud_human_R");
-    gCvarList[CVAR_LEVEL_HUD_HUMAN_G]           = FindConVar("zp_level_hud_human_G");
-    gCvarList[CVAR_LEVEL_HUD_HUMAN_B]           = FindConVar("zp_level_hud_human_B");
+    gCvarList[CVAR_LEVEL_SYSTEM]          = FindConVar("zp_level_system");
+    gCvarList[CVAR_LEVEL_STATISTICS]      = FindConVar("zp_level_statistics"); 
+    gCvarList[CVAR_LEVEL_HEALTH_RATIO]    = FindConVar("zp_level_health_ratio");
+    gCvarList[CVAR_LEVEL_SPEED_RATIO]     = FindConVar("zp_level_speed_ratio");
+    gCvarList[CVAR_LEVEL_GRAVITY_RATIO]   = FindConVar("zp_level_gravity_ratio");
+    gCvarList[CVAR_LEVEL_DAMAGE_RATIO]    = FindConVar("zp_level_damage_ratio");
+    gCvarList[CVAR_LEVEL_HUD]             = FindConVar("zp_level_hud");
+    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R]    = FindConVar("zp_level_hud_zombie_R");
+    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_G]    = FindConVar("zp_level_hud_zombie_G");
+    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B]    = FindConVar("zp_level_hud_zombie_B");
+    gCvarList[CVAR_LEVEL_HUD_HUMAN_R]     = FindConVar("zp_level_hud_human_R");
+    gCvarList[CVAR_LEVEL_HUD_HUMAN_G]     = FindConVar("zp_level_hud_human_G");
+    gCvarList[CVAR_LEVEL_HUD_HUMAN_B]     = FindConVar("zp_level_hud_human_B");
+    gCvarList[CVAR_LEVEL_HUD_X]           = FindConVar("zp_level_hud_X");
+    gCvarList[CVAR_LEVEL_HUD_Y]           = FindConVar("zp_level_hud_Y");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_LEVEL_SYSTEM],                LevelSystemCvarsHookEnable);       
-    HookConVarChange(gCvarList[CVAR_LEVEL_HEALTH_RATIO],          LevelSystemCvarsHookHealth);         
-    HookConVarChange(gCvarList[CVAR_LEVEL_SPEED_RATIO],           LevelSystemCvarsHookSpeed);           
-    HookConVarChange(gCvarList[CVAR_LEVEL_GRAVITY_RATIO],         LevelSystemCvarsHookGravity); 
+    HookConVarChange(gCvarList[CVAR_LEVEL_SYSTEM],        LevelSystemCvarsHookEnable);       
+    HookConVarChange(gCvarList[CVAR_LEVEL_HUD],           LevelSystemCvarsHookEnable); 
+    HookConVarChange(gCvarList[CVAR_LEVEL_HEALTH_RATIO],  LevelSystemCvarsHookChange);         
+    HookConVarChange(gCvarList[CVAR_LEVEL_SPEED_RATIO],   LevelSystemCvarsHookChange);           
+    HookConVarChange(gCvarList[CVAR_LEVEL_GRAVITY_RATIO], LevelSystemCvarsHookChange); 
 }
 
 /**
@@ -159,18 +161,12 @@ void LevelSystemOnCvarInit(/*void*/)
  **/
 void LevelSystemOnClientUpdate(const int clientIndex)
 {
-    // If level system disabled, then stop
-    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    // If level hud disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_HUD].BoolValue)
     {
         return;
     }
     
-    // Validate level amount
-    if(!LevelSystemNum)
-    {
-        return;
-    }
-
     // Validate real client
     if(!IsFakeClient(clientIndex))
     {
@@ -206,7 +202,7 @@ void LevelSystemOnSetLvl(const int clientIndex, const int nLevel)
         return;
     }
 
-    // Sets the level
+    // Sets level
     gClientData[clientIndex][Client_Level] = nLevel;
 
     // Validate level
@@ -252,7 +248,7 @@ void LevelSystemOnSetExp(const int clientIndex, const int nExperience)
         return;
     }
 
-    // Sets the experience
+    // Sets experience
     gClientData[clientIndex][Client_Exp] = nExperience;
 
     // Give experience to the player
@@ -279,56 +275,45 @@ void LevelSystemOnSetExp(const int clientIndex, const int nExperience)
  **/
 public Action LevelSystemOnHUD(Handle hTimer, const int userID)
 {
-    // Gets the client index from the user ID
+    // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
     // Validate client
     if(clientIndex)
     {
-        // Initialize variables
+        // Gets class name
         static char sInfo[SMALL_LINE_LENGTH]; static int iRed, iGreen, iBlue;
-    
+        ClassGetName(gClientData[clientIndex][Client_Class], sInfo, sizeof(sInfo));
+        
         // Validate zombie hud
         if(gClientData[clientIndex][Client_Zombie])
         {
-            // Validate nemesis hud
-            if(gClientData[clientIndex][Client_Nemesis])
-            {
-                strcopy(sInfo, sizeof(sInfo), "nemesis");
-            }
-            else
-            {
-                // Gets zombie name
-                ZombieGetName(gClientData[clientIndex][Client_ZombieClass], sInfo, sizeof(sInfo));
-            }
-            
             // Gets colors 
-            iRed = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R].IntValue;
+            iRed   = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R].IntValue;
             iGreen = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_G].IntValue;
-            iBlue = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B].IntValue;
+            iBlue  = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B].IntValue;
         }
         // Otherwise, show human hud
         else
         {
-            // Validate survivor hud
-            if(gClientData[clientIndex][Client_Survivor])
-            {
-                strcopy(sInfo, sizeof(sInfo), "survivor");
-            }
-            else
-            {
-                // Gets human name
-                HumanGetName(gClientData[clientIndex][Client_HumanClass], sInfo, sizeof(sInfo));
-            }
             // Gets colors 
-            iRed = gCvarList[CVAR_LEVEL_HUD_HUMAN_R].IntValue;
+            iRed   = gCvarList[CVAR_LEVEL_HUD_HUMAN_R].IntValue;
             iGreen = gCvarList[CVAR_LEVEL_HUD_HUMAN_G].IntValue;
-            iBlue = gCvarList[CVAR_LEVEL_HUD_HUMAN_B].IntValue;
+            iBlue  = gCvarList[CVAR_LEVEL_HUD_HUMAN_B].IntValue;
         }
 
-        // Print hud text to client
-        TranslationPrintHudText(hHudLevel, clientIndex, 0.02, 0.885, 1.1, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "level info", GetClientArmor(clientIndex), sInfo, gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], LevelSystemStats[gClientData[clientIndex][Client_Level]]);
-    
+        // If level system disabled, then format differently
+        if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !LevelSystemNum)
+        {
+            // Print hud text to the client
+            TranslationPrintHudText(hHudLevel, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "class info", GetClientArmor(clientIndex), sInfo);
+        }
+        else
+        {
+            // Print hud text to the client
+            TranslationPrintHudText(hHudLevel, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iRed, iGreen, iBlue, 255, 0, 0.0, 0.0, 0.0, "level info", GetClientArmor(clientIndex), sInfo, gClientData[clientIndex][Client_Level], gClientData[clientIndex][Client_Exp], LevelSystemStats[gClientData[clientIndex][Client_Level]]);
+        }
+
         // Allow timer
         return Plugin_Continue;
     }
@@ -361,14 +346,14 @@ public void LevelSystemCvarsHookEnable(ConVar hConVar, const char[] oldValue, co
 }
 
 /**
- * Cvar hook callback (zp_level_health_ratio)
+ * Cvar hook callback (zp_level_*_ratio)
  * Reload the health variable on zombie/human.
  * 
  * @param hConVar           The cvar handle.
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void LevelSystemCvarsHookHealth(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void LevelSystemCvarsHookChange(ConVar hConVar, const char[] oldValue, const char[] newValue)
 {    
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -391,115 +376,10 @@ public void LevelSystemCvarsHookHealth(ConVar hConVar, const char[] oldValue, co
             // Validate client
             if(IsPlayerExist(i))
             {
-                // Validate zombie
-                if(gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
-                {
-                    // Update variable
-                    ToolsSetClientHealth(i, ZombieGetHealth(gClientData[i][Client_ZombieClass]) + (RoundToFloor(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i][Client_Level]))), true);
-                }
-                // Validate human
-                else if(!gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
-                {
-                    // Update variable
-                    ToolsSetClientHealth(i, HumanGetHealth(gClientData[i][Client_HumanClass]) + (RoundToFloor(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i][Client_Level]))), true);
-                }
-            }
-        }
-    }
-}
-
-/**
- * Cvar hook callback (zp_level_speed_ratio)
- * Reload the speed variable on zombie/human.
- * 
- * @param hConVar           The cvar handle.
- * @param oldValue          The value before the attempted change.
- * @param newValue          The new value.
- **/
-public void LevelSystemCvarsHookSpeed(ConVar hConVar, const char[] oldValue, const char[] newValue)
-{
-    // If level system disabled, then stop
-    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
-    {
-        return;
-    }
-    
-    // Validate new value
-    if(!strcmp(oldValue, newValue, false))
-    {
-        return;
-    }
-    
-    // Validate loaded map
-    if(IsMapLoaded())
-    {
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            // Validate client
-            if(IsPlayerExist(i))
-            {
-                // Validate zombie
-                if(gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
-                {
-                    // Update variable
-                    ToolsSetClientLMV(i, ZombieGetSpeed(gClientData[i][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i][Client_Level])));
-                    
-                }
-                // Validate human
-                else if(!gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
-                {
-                    // Update variable
-                    ToolsSetClientLMV(i, HumanGetSpeed(gClientData[i][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i][Client_Level])));
-                }
-            }
-        }
-    }
-}
-
-/**
- * Cvar hook callback (zp_level_gravity_ratio)
- * Reload the gravity variable on zombie/human.
- * 
- * @param hConVar           The cvar handle.
- * @param oldValue          The value before the attempted change.
- * @param newValue          The new value.
- **/
-public void LevelSystemCvarsHookGravity(ConVar hConVar, const char[] oldValue, const char[] newValue)
-{
-    // If level system disabled, then stop
-    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
-    {
-        return;
-    }
-    
-    // Validate new value
-    if(!strcmp(oldValue, newValue, false))
-    {
-        return;
-    }
-    
-    // Validate loaded map
-    if(IsMapLoaded())
-    {
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            // Validate client
-            if(IsPlayerExist(i))
-            {
-                // Validate zombie
-                if(gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
-                {
-                    // Update variable
-                    ToolsSetClientGravity(i, ZombieGetGravity(gClientData[i][Client_ZombieClass]) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i][Client_Level])));
-                }
-                // Validate human
-                else if(!gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
-                {
-                    // Update variable
-                    ToolsSetClientGravity(i, HumanGetGravity(gClientData[i][Client_HumanClass]) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i][Client_Level])));
-                }
+                // Update variables
+                ToolsSetClientHealth(i, ClassGetHealth(gClientData[i][Client_Class]) + (RoundToFloor(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i][Client_Level]))), true);
+                ToolsSetClientLMV(i, ClassGetSpeed(gClientData[i][Client_Class]) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i][Client_Level])));
+                ToolsSetClientGravity(i, ClassGetGravity(gClientData[i][Client_Class]) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i][Client_Level])));
             }
         }
     }

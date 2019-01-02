@@ -51,7 +51,7 @@
 #define ANTISTICK_COLLISIONS_OFF COLLISION_GROUP_DEBRIS_TRIGGER
 #define ANTISTICK_COLLISIONS_ON COLLISION_GROUP_PLAYER
 /**
-    * @endsection
+ * @endsection
  **/
 
 /**
@@ -60,7 +60,7 @@
 #define ANTISTICK_DEFAULT_HULL_WIDTH 32.0
 
 /**
- * List of components that make up the model rectangular boundaries.
+ * @section List of components that make up the model rectangular boundaries.
  * 
  * F = Front
  * B = Back
@@ -79,8 +79,11 @@ enum AntiStickBoxBound
     BoxBound_BUL,
     BoxBound_BDR,
     BoxBound_BDL,
-}
-
+};
+/**
+ * @endsection
+ **/
+ 
 /**
  * Client is joining the server.
  * 
@@ -107,10 +110,10 @@ void AntiStickClientInit(const int clientIndex)
 void AntiStickOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_GAME_CUSTOM_ANTISTICK]       = FindConVar("zp_game_custom_antistick");
+    gCvarList[CVAR_GAME_CUSTOM_ANTISTICK] = FindConVar("zp_game_custom_antistick");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_ANTISTICK],       AntiStickCvarsHookEnable);
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_ANTISTICK], AntiStickCvarsHookEnable);
 }
 
 /**
@@ -193,19 +196,19 @@ public void AntiStickStartTouch(const int clientIndex, const int entityIndex)
     {
         // Disable collisions to unstick, and start timers to re-solidify
         AntiStickSetCollisionGroup(clientIndex, ANTISTICK_COLLISIONS_OFF);
-        CreateTimer(0.0, AntiStickSolidifyTimer, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+        CreateTimer(0.0, AntiStickOnSolidify, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
     }
 }
 
 /**
- * Callback for solidify timer.
+ * Timer callback, checks solidify on a client.
  * 
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AntiStickSolidifyTimer(Handle hTimer, const int userID)
+public Action AntiStickOnSolidify(Handle hTimer, const int userID)
 {
-    // Gets the client index from the user ID
+    // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
     // Verify that the client is exist
@@ -268,7 +271,7 @@ stock void AntiStickBuildModelBox(const int clientIndex, float boundaries[AntiSt
     // Gets needed vector info
     GetClientAbsOrigin(clientIndex, vClientLoc);
 
-    // Sets the pitch to 0
+    // Sets pitch to 0
     vTwistAngle[1] = 90.0;
     vCornerAngle[1] = 0.0;
 

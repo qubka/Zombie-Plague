@@ -43,36 +43,33 @@ void DamageClientInit(const int clientIndex)
 void DamageOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_JUMPBOOST_KNOCKBACK]         = FindConVar("zp_jumpboost_knockback");
-    gCvarList[CVAR_NEMESIS_KNOCKBACK]           = FindConVar("zp_nemesis_knockback");
-    
-    // Create server cvars
-    gCvarList[CVAR_SERVER_FRIENDLY_FIRE]        = FindConVar("mp_friendlyfire");
-    gCvarList[CVAR_SERVER_FRIENDLY_GRENADE]     = FindConVar("ff_damage_reduction_grenade");
-    gCvarList[CVAR_SERVER_FRIENDLY_BULLETS]     = FindConVar("ff_damage_reduction_bullets");
-    gCvarList[CVAR_SERVER_FRIENDLY_OTHER]       = FindConVar("ff_damage_reduction_other");
-    gCvarList[CVAR_SERVER_FRIENDLY_SELF]        = FindConVar("ff_damage_reduction_grenade_self");
+    gCvarList[CVAR_GAME_CUSTOM_ARMOR_PROTECT] = FindConVar("zp_game_custom_armor_protect");
+    gCvarList[CVAR_SERVER_FRIENDLY_FIRE]      = FindConVar("mp_friendlyfire");
+    gCvarList[CVAR_SERVER_FRIENDLY_GRENADE]   = FindConVar("ff_damage_reduction_grenade");
+    gCvarList[CVAR_SERVER_FRIENDLY_BULLETS]   = FindConVar("ff_damage_reduction_bullets");
+    gCvarList[CVAR_SERVER_FRIENDLY_OTHER]     = FindConVar("ff_damage_reduction_other");
+    gCvarList[CVAR_SERVER_FRIENDLY_SELF]      = FindConVar("ff_damage_reduction_grenade_self");
     
     // Sets locked cvars to their locked value
-    gCvarList[CVAR_SERVER_FRIENDLY_FIRE].IntValue = 0;
+    gCvarList[CVAR_SERVER_FRIENDLY_FIRE].IntValue          = 0;
     CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_GRENADE], 0);
     CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_BULLETS], 0);
     CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_OTHER],   0);
     CvarsOnCheatSet(gCvarList[CVAR_SERVER_FRIENDLY_SELF],    0);
     
     // Hook locked cvars to prevent it from changing
-    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_FIRE],        CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_GRENADE],     CvarsHookLocked2);
-    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_BULLETS],     CvarsHookLocked2);
-    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_OTHER],       CvarsHookLocked2);
-    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_SELF],        CvarsHookLocked2);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_FIRE],    CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_GRENADE], CvarsHookLocked2);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_BULLETS], CvarsHookLocked2);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_OTHER],   CvarsHookLocked2);
+    HookConVarChange(gCvarList[CVAR_SERVER_FRIENDLY_SELF],    CvarsHookLocked2);
 }
  
 /**
  * Hook: OnTraceAttack
  * Called right before the bullet enters a client.
  * 
- * @param victimIndex       The victim index.
+ * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
  * @param inflicterIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
@@ -81,7 +78,7 @@ void DamageOnCvarInit(/*void*/)
  * @param hitgroupBox       The hitbox index.  
  * @param hitgroupIndex     The hitgroup index.  
  **/
-public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageType, int &ammoType, int hitgroupBox, int hitgroupIndex)
+public Action DamageOnTraceAttack(const int clientIndex, int &attackerIndex, int &inflicterIndex, float &damageAmount, int &damageType, int &ammoType, int hitgroupBox, int hitgroupIndex)
 {
     // If gamemodes enable, then check round
     if(gCvarList[CVAR_GAME_CUSTOM_START].IntValue)
@@ -95,13 +92,13 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
     }
     
     // Validate victim
-    if(IsPlayerExist(victimIndex))
+    if(IsPlayerExist(clientIndex))
     {
         // Validate attacker
         if(IsPlayerExist(attackerIndex))
         {
             // Validate team
-            if(GetClientTeam(victimIndex) == GetClientTeam(attackerIndex))
+            if(GetClientTeam(clientIndex) == GetClientTeam(attackerIndex))
             {
                 // Stop trace
                 return Plugin_Handled;
@@ -141,7 +138,7 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
  * Hook: OnTakeDamage
  * Called right before damage is done.
  * 
- * @param victimIndex       The victim index.
+ * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
  * @param inflictorIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
@@ -150,7 +147,7 @@ public Action DamageOnTraceAttack(const int victimIndex, int &attackerIndex, int
  * @param damageForce       The velocity of damage force.
  * @param damagePosition    The origin of damage.
  **/
-public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex, const float damageForce[3], const float damagePosition[3]/*, int damagecustom*/)
+public Action DamageOnTakeDamage(const int clientIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex, const float damageForce[3], const float damagePosition[3]/*, int damagecustom*/)
 {
     //*********************************************************************
     //*                   VALIDATION OF THE INFLICTOR                     *
@@ -164,7 +161,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
         GetEdictClassname(inflictorIndex, sClassname, sizeof(sClassname));
 
         // If entity is a trigger, then allow damage (Map is damaging client)
-        if(StrContains(sClassname, "trigger") > -1)
+        if(StrContains(sClassname, "trigger", false) > -1)
         {
             // Allow damage
             return Plugin_Continue;
@@ -190,10 +187,21 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
     }
 
     // Validate victim
-    if(!IsPlayerExist(victimIndex))
+    if(!IsPlayerExist(clientIndex))
     {
         // Block damage
         return Plugin_Handled;
+    }
+    
+    // Client was damaged by 'fall'
+    if(damageType & DMG_FALL)
+    {
+        // If fall damage is blocked, then stop
+        if(ClassIsNoFall(gClientData[clientIndex][Client_Class]))
+        {
+            // Block damage
+            return Plugin_Handled;
+        }
     }
 
     //*********************************************************************
@@ -201,20 +209,20 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
     //*********************************************************************
 
     // Call forward
-    API_OnClientDamaged(victimIndex, attackerIndex, inflictorIndex, damageAmount, damageType, weaponIndex);
-    
+    API_OnClientDamaged(clientIndex, attackerIndex, inflictorIndex, damageAmount, damageType, weaponIndex);
+
     // Validate attacker
     if(IsPlayerExist(attackerIndex))
     {
         // Validate team
-        if(GetClientTeam(victimIndex) == GetClientTeam(attackerIndex))
+        if(GetClientTeam(clientIndex) == GetClientTeam(attackerIndex))
         {
             // Stop trace
             return Plugin_Handled;
         }
             
         // Initialize additional knockback multiplier for zombie
-        float knockbackAmount = gClientData[victimIndex][Client_Nemesis] ? gCvarList[CVAR_NEMESIS_KNOCKBACK].FloatValue : ZombieGetKnockBack(gClientData[victimIndex][Client_ZombieClass]);
+        float knockbackAmount = ClassGetKnockBack(gClientData[clientIndex][Client_Class]);
 
         // Validate weapon
         if(IsValidEdict(weaponIndex))
@@ -241,7 +249,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
             if(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS].BoolValue)
             {
                 // Validate hitgroup index
-                int iHitIndex = HitGroupToIndex(GetEntData(victimIndex, g_iOffset_PlayerHitGroup));
+                int iHitIndex = HitGroupToIndex(GetEntData(clientIndex, g_iOffset_PlayerHitGroup));
                 if(iHitIndex != -1)
                 {
                     knockbackAmount *= HitGroupsGetKnockback(iHitIndex);
@@ -252,7 +260,7 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
             if(gClientData[attackerIndex][Client_Zombie])
             {
                 // If victim is zombie, then stop
-                if(gClientData[victimIndex][Client_Zombie])
+                if(gClientData[clientIndex][Client_Zombie])
                 {
                     // Block damage
                     return Plugin_Handled;
@@ -262,14 +270,14 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
                 if(ModesIsInfection(gServerData[Server_RoundMode]))
                 {
                     // Infect victim
-                    return DamageOnClientInfect(victimIndex, attackerIndex, damageAmount);
+                    return DamageOnClientInfect(clientIndex, attackerIndex, damageAmount);
                 }
             }
             // Verify that the attacker is human 
             else
             {
                 // Apply knockback
-                DamageOnClientKnockBack(victimIndex, attackerIndex, damageAmount * knockbackAmount);
+                DamageOnClientKnockBack(clientIndex, attackerIndex, damageAmount * knockbackAmount);
             }
         }
         
@@ -278,11 +286,11 @@ public Action DamageOnTakeDamage(const int victimIndex, int &attackerIndex, int 
         DamageOnClientExp(attackerIndex, damageAmount);
         
         // If help messages enabled, show info
-        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "damage info", GetClientHealth(victimIndex));
+        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "damage info", GetClientHealth(clientIndex));
     }
     
     // Apply fake damage
-    return DamageOnClientFakeDamage(victimIndex, damageAmount, damageType);
+    return DamageOnClientFakeDamage(clientIndex, damageAmount, damageType);
 }
 
 /*
@@ -374,14 +382,14 @@ stock Action DamageOnClientFakeDamage(const int clientIndex, const float damageA
 /**
  * Reducing armor and infect the victim.
  *
- * @param victimIndex       The victim index.
+ * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
  * @param damageAmount      The amount of damage inflicted. 
  **/
-stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex, const float damageAmount)
+stock Action DamageOnClientInfect(const int clientIndex, const int attackerIndex, const float damageAmount)
 {
     // Last human need to be killed ?
-    if(!gCvarList[CVAR_HUMAN_LAST_INFECTION].BoolValue && fnGetHumans() <= 1)
+    if(!gCvarList[CVAR_GAME_CUSTOM_ARMOR_PROTECT].BoolValue && fnGetHumans() <= 1)
     {
         // Allow damage
         return Plugin_Changed;
@@ -391,7 +399,7 @@ stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex
     if(gCvarList[CVAR_HUMAN_ARMOR_PROTECT].BoolValue)
     {
         // Gets armor
-        int armorAmount = GetClientArmor(victimIndex);
+        int armorAmount = GetClientArmor(clientIndex);
 
         // Verify that the victim has an armor
         if(armorAmount)
@@ -400,7 +408,7 @@ stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex
             armorAmount -= RoundFloat(damageAmount);
 
             // Sets a new armor amount
-            ToolsSetClientArmor(victimIndex, armorAmount < 0 ? 0 : armorAmount);
+            ToolsSetClientArmor(clientIndex, armorAmount < 0 ? 0 : armorAmount);
             
             // Block infection
             return Plugin_Handled;
@@ -408,7 +416,7 @@ stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex
     }
 
     // Make a zombie
-    ClassMakeZombie(victimIndex, attackerIndex);
+    ClassMakeZombie(clientIndex, attackerIndex);
 
     // Block damage
     return Plugin_Handled;
@@ -417,14 +425,14 @@ stock Action DamageOnClientInfect(const int victimIndex, const int attackerIndex
 /** 
  * Set velocity knockback for applied damage.
  *
- * @param victimIndex       The client index.
+ * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
  * @param knockbackAmount   The knockback multiplier.
  **/
-stock void DamageOnClientKnockBack(const int victimIndex, const int attackerIndex, float knockbackAmount)
+stock void DamageOnClientKnockBack(const int clientIndex, const int attackerIndex, float knockbackAmount)
 {
     // If victim is not on the ground, then apply it
-    if(!(GetEntityFlags(victimIndex) & FL_ONGROUND))
+    if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
     {
         // Apply knockback jumpboost multiplier
         knockbackAmount *= gCvarList[CVAR_JUMPBOOST_KNOCKBACK].FloatValue;
@@ -440,7 +448,7 @@ stock void DamageOnClientKnockBack(const int victimIndex, const int attackerInde
     // Initialize vectors
     static float vEntAngle[3]; static float vEntPosition[3]; static float vBulletPosition[3]; static float vVelocity[3]; 
 
-    // Gets the attacker position
+    // Gets attacker position
     GetClientEyeAngles(attackerIndex, vEntAngle);
     GetClientEyePosition(attackerIndex, vEntPosition);
 
@@ -448,9 +456,9 @@ stock void DamageOnClientKnockBack(const int victimIndex, const int attackerInde
     Handle hTrace = TR_TraceRayFilterEx(vEntPosition, vEntAngle, MASK_SHOT, RayType_Infinite, TraceFilter, attackerIndex);
 
     // Validate trace
-    if(TR_GetEntityIndex(hTrace) == victimIndex)
+    if(TR_GetEntityIndex(hTrace) == clientIndex)
     {
-        // Gets the hit point
+        // Gets hit point
         TR_GetEndPosition(vBulletPosition, hTrace);
 
         // Gets vector from the given starting and ending points
@@ -463,7 +471,7 @@ stock void DamageOnClientKnockBack(const int victimIndex, const int attackerInde
         ScaleVector(vVelocity, knockbackAmount);
 
         // Adds the given vector to the client current velocity
-        ToolsClientVelocity(victimIndex, vVelocity);
+        ToolsClientVelocity(clientIndex, vVelocity);
     }
     
     // Close the trace
@@ -471,7 +479,7 @@ stock void DamageOnClientKnockBack(const int victimIndex, const int attackerInde
 }
 
 /**
- * Reward ammopacks for applied damage.
+ * Reward money for applied damage.
  *
  * @param clientIndex       The client index.
  * @param damageAmount      The amount of damage inflicted. 
@@ -502,8 +510,8 @@ stock void DamageOnClientAmmo(const int clientIndex, const float damageAmount)
         return;
     }
     
-    // Give ammopacks for the attacker
-    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] + nMultipler);
+    // Give money for the attacker
+    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_Money] + nMultipler);
     
     // Resets damage filter
     nAppliedDamage[clientIndex] -= nMultipler * nBonus;

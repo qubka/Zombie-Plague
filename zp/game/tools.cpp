@@ -82,7 +82,8 @@ void ToolsFindOffsets(/*void*/) //IClientUnknown, IClientRenderable, IClientNetw
     fnInitSendPropOffset(g_iOffset_PlayerDetected, "CCSPlayer", "m_flDetectedByEnemySensorTime");
     fnInitSendPropOffset(g_iOffset_PlayerHUD, "CBasePlayer", "m_iHideHUD");
     fnInitSendPropOffset(g_iOffset_PlayerHitGroup, "CBasePlayer", "m_LastHitGroup");
-    fnInitSendPropOffset(g_iOffset_PlayerDefaultFOV, "CBasePlayer", "m_iDefaultFOV");
+    fnInitSendPropOffset(g_iOffset_PlayerFov, "CCSPlayer", "m_iFOV");
+    fnInitSendPropOffset(g_iOffset_PlayerDefaultFOV, "CCSPlayer", "m_iDefaultFOV");
     fnInitSendPropOffset(g_iOffset_PlayerArmor, "CCSPlayer", "m_ArmorValue");
     fnInitSendPropOffset(g_iOffset_PlayerHealth, "CBasePlayer", "m_iHealth");
     fnInitSendPropOffset(g_iOffset_PlayerCollision, "CCSPlayer", "m_CollisionGroup");
@@ -162,10 +163,10 @@ void ToolsSetupGameData(/*void*/)
  **/
 void ToolsAPI(/*void*/)
 {
-    CreateNative("ZP_TakeDamage",                     API_TakeDamage);
-    CreateNative("ZP_UpdateTransmitState",            API_UpdateTransmitState);
-    CreateNative("ZP_LookupAttachment",               API_LookupAttachment);
-    CreateNative("ZP_GetAttachment",                  API_GetAttachment);
+    CreateNative("ZP_TakeDamage",           API_TakeDamage);
+    CreateNative("ZP_UpdateTransmitState",  API_UpdateTransmitState);
+    CreateNative("ZP_LookupAttachment",     API_LookupAttachment);
+    CreateNative("ZP_GetAttachment",        API_GetAttachment);
 }
  
 /**
@@ -188,7 +189,7 @@ public int API_UpdateTransmitState(Handle hPlugin, const int iNumParams)
     // Update state
     ToolsUpdateTransmitState(entityIndex);
     
-    // Return on the success
+    // Return on success
     return 1;
 }
 
@@ -219,13 +220,11 @@ public int API_LookupAttachment(Handle hPlugin, const int iNumParams)
         return -1;
     }
     
-    // Initialize variables
+    // Initialize attach char
     static char sAttach[SMALL_LINE_LENGTH];
-
-    // General
     GetNativeString(2, sAttach, sizeof(sAttach));
     
-    // Return on the success
+    // Return on success
     return ToolsLookupAttachment(entityIndex, sAttach);
 }
 
@@ -265,6 +264,6 @@ public int API_GetAttachment(Handle hPlugin, const int iNumParams)
     // Extract data
     ToolsGetAttachment(entityIndex, sAttach, vOrigin, vAngle);
     
-    // Return on the success
+    // Return on success
     SetNativeArray(3, vOrigin, sizeof(vOrigin)); return SetNativeArray(4, vAngle, sizeof(vAngle));
 }

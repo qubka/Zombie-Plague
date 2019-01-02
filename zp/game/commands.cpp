@@ -36,9 +36,7 @@ void CommandsInit(/*void*/)
     LogOnCommandsCreate();
     MenusOnCommandsCreate();
     ToolsOnCommandsCreate();
-    HumanOnCommandsCreate();
-    ZombieOnCommandsCreate();
-    WeaponsOnCommandsCreate();
+    ClassesOnCommandsCreate();
     ExtraItemsOnCommandsCreate();
     CostumesOnCommandsCreate();
     VersionOnCommandsCreate();

@@ -5,7 +5,7 @@
  *
  *  File:          weaponhdr.cpp
  *  Type:          Module
- *  Description:   Weapon view/world models functions.
+ *  Description:   Weapon HDR models functions.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin), Andersso
  *
@@ -46,6 +46,11 @@
  */
 
 /**
+ * Sequence paired address.
+ **/
+#define SWAP_SEQ_PAIRED (1<<31)
+ 
+/**
  * Variables to store SDK calls handlers.
  **/
 Handle hSDKCallAnimatingGetSequenceActivity;
@@ -58,17 +63,20 @@ int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
  
 /**
- * StudioHdr structure.
+ * @section StudioHdr structure.
  * https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L2371
  **/ 
 enum StudioHdrClass
 {
     StudioHdrClass_StudioHdrStruct = 0,
     StudioHdrClass_VirualModelStruct = 4
-}
-
+};
 /**
- * StudioHdr structure.
+ * @endsection
+ **/
+ 
+/**
+ * @section StudioAnim structure.
  * https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L690
  **/ 
 enum StudioAnimDesc
@@ -76,7 +84,10 @@ enum StudioAnimDesc
     StudioAnimDesc_Fps = 8,
     StudioAnimDesc_NumFrames = 16,
     StudioAnimDesc_NumMovements = 20,
-}
+};
+/**
+ * @endsection
+ **/
  
 /**
  * Initialize the main virtual offsets for the weapon HDR system.
@@ -120,13 +131,13 @@ void WeaponHDRInit(/*void*/)
  **/
 stock void WeaponHDRToggleViewModel(const int clientIndex, const int viewIndex, const int iD)
 {
-    // Initialize variable
+    // Initialize index
     static int weaponIndex;
 
     // Resets toggle
     if((gClientData[clientIndex][Client_ToggleSequence] = !gClientData[clientIndex][Client_ToggleSequence]))
     {
-        // Gets the swapped weapon index from the reference
+        // Gets swapped weapon index from the reference
         weaponIndex = EntRefToEntIndex(gClientData[clientIndex][Client_SwapWeapon]);
 
         // Validate no weapon, then create a swaped pair 
@@ -138,7 +149,7 @@ stock void WeaponHDRToggleViewModel(const int clientIndex, const int viewIndex, 
     }
     else
     {
-        // Gets the weapon index from the reference
+        // Gets weapon index from the reference
         weaponIndex = gClientData[clientIndex][Client_CustomWeapon];
     }
 
@@ -215,7 +226,7 @@ stock void WeaponHDRSetPlayerWorldModel(const int weaponIndex, const int modelIn
  **/
 public void WeaponHDRSetDroppedModel(const int referenceIndex)
 {
-    // Gets the weapon index from the reference
+    // Gets weapon index from the reference
     int weaponIndex = EntRefToEntIndex(referenceIndex);
     
     // Validate weapon
@@ -235,7 +246,7 @@ public void WeaponHDRSetDroppedModel(const int referenceIndex)
                 // Sets dropped model for the weapon
                 SetEntityModel(weaponIndex, sModel);
                 
-                // Sets the body/skin index for the weapon
+                // Sets body/skin index for the weapon
                 SetEntData(weaponIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_Drop), _, true);
                 SetEntData(weaponIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_Drop), _, true);
             }
@@ -264,7 +275,7 @@ stock void WeaponHDRSetEntityVisibility(const int entityIndex, const bool bInvis
  **/
 stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
 {
-    // Gets the weapon index from the reference
+    // Gets weapon index from the reference
     int weaponIndex1 = gClientData[clientIndex][Client_CustomWeapon];
 
     // i = weapon number
@@ -282,11 +293,11 @@ stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
     }
     
     // Gets weapon classname
-    static char sWeapon[SMALL_LINE_LENGTH];
-    WeaponsGetEntity(iD, sWeapon, sizeof(sWeapon)); 
+    static char sClassname[SMALL_LINE_LENGTH];
+    WeaponsGetEntity(iD, sClassname, sizeof(sClassname)); 
     
     // Create an attach swapped entity
-    int itemIndex = CreateEntityByName(sWeapon);
+    int itemIndex = CreateEntityByName(sClassname);
 
     // If entity isn't valid, then log
     if(itemIndex != INVALID_ENT_REFERENCE)
@@ -294,7 +305,7 @@ stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
         // Spawn the entity into the world
         DispatchSpawn(itemIndex);
 
-        // Sets the weapon id
+        // Sets weapon id
         WeaponsSetCustomID(itemIndex, iD);
         
         // Sets parent to the entity
@@ -304,17 +315,17 @@ stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
         // Remove an entity movetype
         SetEntityMoveType(itemIndex, MOVETYPE_NONE);
 
-        // Sets the parent of a weapon
+        // Sets parent of a weapon
         SetVariantString("!activator");
         AcceptEntityInput(itemIndex, "SetParent", clientIndex);
     }
     else
     {
         // Unexpected error, log it
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Failed to create swap weapon entity: \"%s\"", sWeapon);
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Failed to create swap weapon entity: \"%s\"", sClassname);
     }
 
-    // Return on the success
+    // Return on success
     return itemIndex;
 }
 
@@ -328,10 +339,8 @@ stock int WeaponHDRCreateSwapWeapon(const int iD, const int clientIndex)
  * @param iIndex            The sequence cell.
  * @return                  The sequence index.
  **/
-stock int WeaponHDRBuildSwapSequenceArray(int iSequences[WeaponsSequencesMax], const int nSequenceCount, const int weaponIndex, int iIndex = 0)
+stock int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], const int nSequenceCount, const int weaponIndex, int iIndex = 0)
 {
-    #define SWAP_SEQ_PAIRED (1 << 31)
-    
     // Initialize variables
     int iValue = iSequences[iIndex]; int swapIndex = -1;
 
@@ -367,7 +376,7 @@ stock int WeaponHDRBuildSwapSequenceArray(int iSequences[WeaponsSequencesMax], c
     // Validate equality
     else if(iValue & SWAP_SEQ_PAIRED)
     {
-        // Gets the index
+        // Gets index
         swapIndex = (iValue & ~SWAP_SEQ_PAIRED) >> 16;
 
         // Gets activity value

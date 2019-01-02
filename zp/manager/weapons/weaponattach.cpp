@@ -5,7 +5,7 @@
  *
  *  File:          weaponattach.cpp
  *  Type:          Module
- *  Description:   Weapon attachment functions.
+ *  Description:   Weapon attachments functions.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin), Mitchell
  *
@@ -50,9 +50,9 @@
  **/
  
 /**
- * Number of valid addons.
+ * @section Number of valid addons.
  **/
-enum WeaponAttachBitType
+enum BitType
 {
     BitType_Invalid = -1,         /** Used as return value when an bit doens't exist. */
     
@@ -68,7 +68,10 @@ enum WeaponAttachBitType
     BitType_C4,                   /** C4 bit */
     BitType_DefuseKit             /** Defuse bit */
 };
-
+/**
+ * @endsection
+ **/
+ 
 #if defined USE_ATTACHMENTS
 /**
  * Destroy weapon attachments.
@@ -94,7 +97,7 @@ void WeaponAttachUnload(/*void*/)
  **/
 void WeaponAttachSetAddons(const int clientIndex)
 {
-    // Gets the current bits
+    // Gets current bits
     int iBits = GetEntData(clientIndex, g_iOffset_PlayerAddonBits); int iBitPurge; static int weaponIndex; static int iD;
     
     /*____________________________________________________________________________________________*/
@@ -102,7 +105,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate primary bits
     if(iBits & CSAddon_PrimaryWeapon)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_PrimaryWeapon))
         {
             // Gets weapon index
@@ -132,7 +135,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate secondary bits
     if(iBits & CSAddon_SecondaryWeapon)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SecondaryWeapon))
         {
             // Gets weapon index
@@ -169,7 +172,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate flashbang1 bits
     if(iBits & CSAddon_Flashbang1)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang1))
         {
             // Gets weapon index
@@ -199,7 +202,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate flashbang2 bits
     if(iBits & CSAddon_Flashbang2)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang2))
         {
             // Gets weapon index
@@ -229,7 +232,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate hegrenade bits
     if(iBits & CSAddon_HEGrenade)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_HEGrenade))
         {
             // Gets weapon index
@@ -259,7 +262,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate smokegrenade bits
     if(iBits & CSAddon_SmokeGrenade)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SmokeGrenade))
         {
             // Gets weapon index
@@ -289,7 +292,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate decoy bits
     if(iBits & CSAddon_Decoy)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Decoy))
         {
             // Gets weapon index
@@ -319,7 +322,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate knife bits
     if(iBits & CSAddon_Knife)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Knife))
         {
             // Gets weapon index
@@ -349,7 +352,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate tagrenade bits
     if(iBits & CSAddon_TaGrenade)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_TaGrenade))
         {
             // Gets weapon index
@@ -379,7 +382,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate c4 bits 
     if(iBits & CSAddon_C4)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_C4))
         {
             // Gets weapon index
@@ -409,7 +412,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     // Validate defuser bits 
     if(iBits & CSAddon_DefuseKit)
     {
-        // Gets the client bits
+        // Gets client bits
         if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_DefuseKit))
         {
             // Validate defuser
@@ -462,7 +465,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     {
         iBitPurge |= CSAddon_Decoy;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_Knife]) != INVALID_ENT_REFERENCE || (gClientData[clientIndex][Client_Zombie] && !gClientData[clientIndex][Client_Nemesis]))
+    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_Knife]) != INVALID_ENT_REFERENCE || (gClientData[clientIndex][Client_Zombie]))
     {
         iBitPurge |= CSAddon_Knife; iBitPurge |= CSAddon_Holster;
     }
@@ -492,7 +495,7 @@ void WeaponAttachSetAddons(const int clientIndex)
  * @param bitType           The bit type.
  * @param sAttach           The attachment name.
  **/
-void WeaponAttachCreateAddons(const int clientIndex, const int iD, const WeaponAttachBitType bitType, const char[] sAttach)
+void WeaponAttachCreateAddons(const int clientIndex, const int iD, const BitType bitType, const char[] sAttach)
 {
     // Remove current addons
     WeaponAttachRemoveAddons(clientIndex, bitType);
@@ -560,7 +563,7 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, const WeaponA
 public Action WeaponAttachmentOnTransmit(const int entityIndex, const int clientIndex)
 {
     // i = slot index
-    for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
+    for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
     {
         // Validate addons
         if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]) == entityIndex)
@@ -604,15 +607,15 @@ public Action WeaponAttachmentOnTransmit(const int entityIndex, const int client
  * @param clientIndex       The client index.
  * @param bitType           The bit type.
  **/
-void WeaponAttachRemoveAddons(const int clientIndex, const WeaponAttachBitType bitType = BitType_Invalid) 
+void WeaponAttachRemoveAddons(const int clientIndex, const BitType bitType = BitType_Invalid) 
 {
     // Validate all
     if(bitType == BitType_Invalid)
     {
         // i = slot index
-        for(WeaponAttachBitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
+        for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
         {
-            // Gets the current addon from the client reference
+            // Gets current addon from the client reference
             int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]);
     
             // Validate addon
@@ -628,7 +631,7 @@ void WeaponAttachRemoveAddons(const int clientIndex, const WeaponAttachBitType b
     }
     else
     {
-        // Gets the current addon from the client reference
+        // Gets current addon from the client reference
         int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][bitType]);
 
         // Validate addon

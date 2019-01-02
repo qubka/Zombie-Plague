@@ -58,7 +58,7 @@
  **/
  
 /**
- * List of operation systems.
+ * @section List of operation systems.
  **/
 enum EngineOS
 {
@@ -67,6 +67,9 @@ enum EngineOS
     OS_Linux,
     OS_Mac
 };
+/**
+ * @endsection
+ **/
  
 /*
  * Engine functions
@@ -192,7 +195,7 @@ bool GameEnginePlatform(EngineOS oS)
     // Validate platform
     if(gServerData[Server_PlatForm] == OS_Unknown)
     {
-        // Initialize variable
+        // Initialize buffer char
         char sBuffer[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
         
         // Extract status string
@@ -316,7 +319,7 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
         return false;
     }
 
-    // Initialize variables
+    // Initialize group char
     static char sGroupName[NORMAL_LINE_LENGTH];
 
     // Gets immunity level
@@ -351,7 +354,7 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
  **/
 stock int fnGetHumans(/*void*/)
 {
-    // Initialize variables
+    // Initialize index
     int nHumans;
     
     // i = client index
@@ -376,7 +379,7 @@ stock int fnGetHumans(/*void*/)
  **/
 stock int fnGetZombies(/*void*/)
 {
-    // Initialize variables
+    // Initialize index
     int nZombies;
     
     // i = client index
@@ -401,7 +404,7 @@ stock int fnGetZombies(/*void*/)
  **/
 stock int fnGetAlive(/*void*/)
 {
-    // Initialize variables
+    // Initialize index
     int nAlive;
 
     // i = client index
@@ -433,7 +436,7 @@ stock int fnGetRandomHuman(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Validate human
-        if(IsPlayerExist(i) && !gClientData[i][Client_Zombie] && !gClientData[i][Client_Survivor])
+        if(IsPlayerExist(i) && !gClientData[i][Client_Zombie])
         {
             // Increment amount
             clientIndex[nRandom++] = i;
@@ -458,57 +461,7 @@ stock int fnGetRandomZombie(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Validate zombie
-        if(IsPlayerExist(i) && gClientData[i][Client_Zombie] && !gClientData[i][Client_Nemesis])
-        {
-            // Increment amount
-            clientIndex[nRandom++] = i;
-        }
-    }
-
-    // Return amount
-    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
-}
-
-/**
- * Gets index of the random survivor.
- *
- * @return                  The index of random survivor.
- **/
-stock int fnGetRandomSurvivor(/*void*/)
-{
-    // Initialize variables
-    int nRandom; static int clientIndex[MAXPLAYERS+1];
-
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate survivor
-        if(IsPlayerExist(i) && gClientData[i][Client_Survivor])
-        {
-            // Increment amount
-            clientIndex[nRandom++] = i;
-        }
-    }
-
-    // Return amount
-    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
-}
-
-/**
- * Gets index of the random nemesis.
- *
- * @return                  The index of random nemesis.
- **/
-stock int fnGetRandomNemesis(/*void*/)
-{
-    // Initialize variables
-    int nRandom; static int clientIndex[MAXPLAYERS+1];
-
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate nemesis
-        if(IsPlayerExist(i) && gClientData[i][Client_Nemesis])
+        if(IsPlayerExist(i) && gClientData[i][Client_Zombie])
         {
             // Increment amount
             clientIndex[nRandom++] = i;
@@ -526,7 +479,7 @@ stock int fnGetRandomNemesis(/*void*/)
  **/
 stock int fnGetPlaying(/*void*/)
 {
-    // Initialize variables
+    // Initialize index
     int nPlaying;
 
     // i = client index
@@ -672,9 +625,9 @@ stock void fnPrecacheParticleEffect(const char[] sEffect)
  **/
 stock bool fnPrecacheSoundQuirk(const char[] sPath)
 {
-    // Extract value string
+    // Dublicate value string
     static char sSound[PLATFORM_MAX_PATH];
-    StrExtract(sSound, sPath, 0, PLATFORM_MAX_PATH);
+    strcopy(sSound, sizeof(sSound), sPath);
 
     /// Look here: https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
     if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
@@ -707,7 +660,7 @@ stock bool fnPrecacheSoundQuirk(const char[] sPath)
         return false;
     }
     
-    // Return on the success
+    // Return on success
     return true;
 }
 

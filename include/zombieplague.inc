@@ -45,20 +45,6 @@
 /**
  * @endsection
  **/
- 
-/**
- * @section Number of player classes.
- **/
-enum ZPClassType
-{
-    TYPE_ZOMBIE,            /**< Make a zombie */
-    TYPE_NEMESIS,           /**< Make a nemesis */
-    TYPE_SURVIVOR,          /**< Make a survivor */
-    TYPE_HUMAN              /**< Make a human */
-};
-/**
- * @endsection
- **/
 
 /**
  * @section Damage type values.
@@ -161,23 +147,6 @@ enum ZPClassType
  **/
 
 /**
- * @section Weapon slots.
- **/
-enum
-{ 
-    SLOT_INVALID = -1,        /** Used as return value when an weapon doens't exist. */
-    
-    SLOT_PRIMARY,             /** Primary slot */
-    SLOT_SECONDARY,           /** Secondary slot */
-    SLOT_MELEE,               /** Melee slot */
-    SLOT_EQUIPMENT,           /** Equipment slot */  
-    SLOT_C4                   /** C4 slot */  
-};
-/**
- * @endsection
- **/
- 
-/**
  * @section Solid types.
  **/
 enum /*SolidType_t*/
@@ -268,27 +237,14 @@ enum /*SolidFlags_t*/
 //*********************************************************************
 
 /**
- * @brief Called when a client became a zombie/nemesis.
- * 
- * @param victimIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param nemesisMode       Indicates that client will be a nemesis.
- * @param respawnMode       Indicates that infection was on spawn.
- *
- * @noreturn
- **/
-forward void ZP_OnClientInfected(int clientIndex, int attackerIndex, bool nemesisMode, bool respawnMode);
-
-/**
- * @brief Called when a client became a human/survivor.
+ * @brief Called when a client became a zombie/human.
  * 
  * @param clientIndex       The client index.
- * @param survivorMode      Indicates that client will be a survivor.
- * @param respawnMode       Indicates that humanizing was on spawn.
+ * @param attackerIndex     The attacker index.
  *
  * @noreturn
  **/
-forward void ZP_OnClientHumanized(int clientIndex, bool survivorMode, bool respawnMode);
+forward void ZP_OnClientUpdated(int clientIndex, int attackerIndex);
 
 /**
  * @brief Called when a client take a fake damage.
@@ -419,85 +375,67 @@ native bool ZP_IsPlayerZombie(int clientIndex);
 native bool ZP_IsPlayerHuman(int clientIndex);
 
 /**
- * @brief Returns true if the player is a nemesis, false if not. (In addition, Nemesis always have ZP_IsPlayerZombie() native)
+ * @brief Returns true if the player use a skill, false if not. 
  *
  * @param clientIndex       The client index.
  *  
  * @return                  True or false.
  **/
-native bool ZP_IsPlayerNemesis(int clientIndex);
+native bool ZP_IsPlayerUseSkill(int clientIndex);
 
 /**
- * @brief Returns true if the player is a survivor, false if not.
+ * @brief Respawn a player.
  *
  * @param clientIndex       The client index.
  *  
  * @return                  True or false.
  **/
-native bool ZP_IsPlayerSurvivor(int clientIndex);
+native void ZP_RespawnClient(int clientIndex);
 
 /**
- * @brief Returns true if the player use a zombie skill, false if not. 
+ * @brief Infect/humanize a player.
  *
  * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param class             The class name. (human/zombie - default)
  *  
  * @return                  True or false.
  **/
-native bool ZP_IsPlayerUseZombieSkill(int clientIndex);
+native void ZP_ChangeClient(int clientIndex, int attackerIndex = 0, char[] class);
 
 /**
- * @brief Force to respawn a player.
+ * @brief Gets the player amount of money.
  *
  * @param clientIndex       The client index.
+ *  
+ * @return                  The number of money.
+ **/
+native int ZP_GetClientMoney(int clientIndex);
+
+/**
+ * @brief Sets the player amount of money.
+ *
+ * @param clientIndex       The client index.
+ * @param amountAmmo        The number of money.
  *  
  * @noreturn
  **/
-native void ZP_ForceClientRespawn(int clientIndex);
+native void ZP_SetClientMoney(int clientIndex, int amountAmmo);
 
 /**
- * @brief Force to switch a player class.
- *
- * @param clientIndex       The client index.
- * @param attackerIndex     (Optional) The attacker index.
- * @param typeIndex         The class type. See enum ZPClassType.
- *  
- * @noreturn
- **/
-native void ZP_SwitchClientClass(int clientIndex, int attackerIndex = 0, ZPClassType typeIndex);
-
-/**
- * @brief Gets the player amount of ammopacks.
+ * @brief Gets the player amount of previous money spended.
  *
  * @param clientIndex       The client index.
  *  
- * @return                  The number of ammopacks.
- **/
-native int ZP_GetClientAmmoPack(int clientIndex);
-
-/**
- * @brief Sets the player amount of ammopacks.
- *
- * @param clientIndex       The client index.
- * @param amountAmmo        The number of ammopacks.
- *  
- * @noreturn
- **/
-native void ZP_SetClientAmmoPack(int clientIndex, int amountAmmo);
-
-/**
- * @brief Gets the player amount of previous ammopacks spended.
- *
- * @param clientIndex       The client index.
- *  
- * @return                  The number of ammopacks.
+ * @return                  The number of money.
  **/
 native int ZP_GetClientLastBought(int clientIndex);
 
 /**
- * @brief Sets the player amount of ammopacks spending.
+ * @brief Sets the player amount of money spending.
  *
  * @param clientIndex       The client index.
- * @param amountAmmo        The number of ammopacks.
+ * @param amountAmmo        The number of money.
  *  
  * @noreturn
  **/
@@ -624,20 +562,6 @@ native int ZP_GetRandomHuman();
  **/
 native int ZP_GetRandomZombie();
 
-/**
- * @brief Gets index of the random survivor.
- *
- * @return                  The index of random survivor.
- **/
-native int ZP_GetRandomSurvivor();
-
-/**
- * @brief Gets index of the random nemesis.
- *
- * @return                  The index of random nemesis.
- **/
-native int ZP_GetRandomNemesis();
-
 //*********************************************************************
 //*                       OTHER USEFUL STOCKS                         *
 //*********************************************************************
@@ -733,9 +657,9 @@ stock int FakeCreateParticle(const int parentIndex, const float vPosition[3] = N
         ActivateEntity(entityIndex);
         AcceptEntityInput(entityIndex, "Start");
         
-        // Initialize variable
+        // Initialize time char
         static char sTime[SMALL_LINE_LENGTH];
-        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
+        FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
         
         // Sets modified flags on the entity
         SetVariantString(sTime);
@@ -769,9 +693,9 @@ stock int FakeCreateEntity(const float vPosition[3], const float flDurationTime)
         // Spawn the entity
         DispatchKeyValueVector(entityIndex, "origin", vPosition);
 
-        // Initialize variable
+        // Initialize time char
         static char sTime[SMALL_LINE_LENGTH];
-        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
+        FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
 
         // Sets modified flags on the entity
         SetVariantString(sTime);
@@ -805,7 +729,7 @@ stock void FakeCreateShakeScreen(const int clientIndex, const float flAmplitude,
         PbSetFloat(hShake, "frequency", flFrequency);
         PbSetFloat(hShake, "duration", flDuration);
 
-        // End usermsg and send to client
+        // End usermsg and send to the client
         EndMessage();
     }
 }
@@ -833,7 +757,7 @@ stock void FakeCreateFadeScreen(const int clientIndex, const float flDuration, c
         PbSetInt(hFade, "flags", iFlags); 
         PbSetColor(hFade, "clr", vColor); 
 
-        // End usermsg and send to client
+        // End usermsg and send to the client
         EndMessage();
     }
 }

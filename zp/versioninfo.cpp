@@ -77,25 +77,25 @@ public Action VersionCommandCatched(const int clientIndex, const int iArguments)
     #define FORMATSTRING "%24s: %s\n"
 
     // Format strings
-    Format(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
+    FormatEx(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-    Format(sLine, sizeof(sLine), "%s\n\n", PLUGIN_COPYRIGHT);
+    FormatEx(sLine, sizeof(sLine), "%s\n\n", PLUGIN_COPYRIGHT);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-    Format(sLine, sizeof(sLine), FORMATSTRING, "Version", PLUGIN_VERSION);
+    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Version", PLUGIN_VERSION);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-    Format(sLine, sizeof(sLine), FORMATSTRING, "Last edit", PLUGIN_DATE);
+    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Last edit", PLUGIN_DATE);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-    Format(sLine, sizeof(sLine), FORMATSTRING, "License", PLUGIN_LICENSE);
+    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "License", PLUGIN_LICENSE);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-    Format(sLine, sizeof(sLine), FORMATSTRING, "Link+", PLUGIN_LINK);
+    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Link+", PLUGIN_LINK);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-    Format(sLine, sizeof(sLine), FORMATSTRING, "Branch", PLUGIN_BRANCH);
+    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Branch", PLUGIN_BRANCH);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
     // Send information into the console

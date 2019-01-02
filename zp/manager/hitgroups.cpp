@@ -5,7 +5,7 @@
  *
  *  File:          hitgroup.cpp
  *  Type:          Manager 
- *  Description:   HitGroups table generator.
+ *  Description:   API for loading hitgroup specific settings.
  *
  *  Copyright (C) 2015-2019 Greyscale, Richard Helgeby
  *
@@ -47,7 +47,7 @@
 ArrayList arrayHitGroups;
 
 /**
- * HitGroup config data indexes.
+ * @section Group config data indexes.
  **/
 enum
 {
@@ -56,9 +56,12 @@ enum
     HITGROUPS_DATA_DAMAGE,
     HITGROUPS_DATA_KNOCKBACK,
 }
-
 /**
- * Hitgroups module init function.
+ * @endsection
+ **/
+ 
+/**
+ * Hit groups module init function.
  **/ 
 void HitGroupsInit(/*void*/)
 {
@@ -93,7 +96,7 @@ void HitGroupsLoad(/*void*/)
         return;
     }
 
-    // Sets the path to the config file
+    // Sets path to the config file
     ConfigSetConfigPath(File_HitGroups, sPathGroups);
 
     // Load config from file and create array structure
@@ -159,9 +162,9 @@ void HitGroupsCacheData(/*void*/)
         ArrayList arrayHitGroup = arrayHitGroups.Get(i);
         
         // Push data into array
-        arrayHitGroup.Push(kvHitGroups.GetNum("index", -1));                     // Index: 1
-        arrayHitGroup.Push(ConfigKvGetStringBool(kvHitGroups, "damage", "yes")); // Index: 2
-        arrayHitGroup.Push(kvHitGroups.GetFloat("knockback", 1.0));              // Index: 3
+        arrayHitGroup.Push(kvHitGroups.GetNum("index", -1));                    // Index: 1
+        arrayHitGroup.Push(ConfigKvGetStringBool(kvHitGroups, "damage", "on")); // Index: 2
+        arrayHitGroup.Push(kvHitGroups.GetFloat("knockback", 1.0));             // Index: 3
     }
     
     // We're done with this file now, so we can close it
@@ -183,15 +186,15 @@ public void HitGroupsOnConfigReload(/*void*/)
 void HitGroupsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_GAME_CUSTOM_HITGROUPS]       = FindConVar("zp_game_custom_hitgroups"); 
+    gCvarList[CVAR_GAME_CUSTOM_HITGROUPS] = FindConVar("zp_game_custom_hitgroups"); 
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS],       HitGroupsCvarsHookEnable);
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_HITGROUPS], HitGroupsCvarsHookEnable);
 }
 
 /**
  * Cvar hook callback (zp_game_custom_hitgroups)
- * Hitgroups module initialization.
+ * Hit groups module initialization.
  * 
  * @param hConVar           The cvar handle.
  * @param oldValue          The value before the attempted change.
@@ -209,71 +212,6 @@ public void HitGroupsCvarsHookEnable(ConVar hConVar, const char[] oldValue, cons
     HitGroupsInit();
 }
 
-/**
- * Find the index at which the hitgroup name is at.
- * 
- * @param sHitGroup         The higroup name.
- * @param iMaxLen           (Only if 'overwritename' is true) The max length of the hitgroup name. 
- * @param bOverWriteName    (Optional) If true, the hitgroup given will be overwritten with the name from the config.
- * @return                  The array index containing the given hitgroup name.
- **/
-stock int HitGroupsNameToIndex(char[] sHitGroup, const int iMaxLen = 0, const bool bOverWriteName = false)
-{
-    // Initialize variable
-    static char sHitGroupName[SMALL_LINE_LENGTH];
-    
-    // i = box index
-    int iSize = arrayHitGroups.Length;
-    for(int i = 0; i < iSize; i++)
-    {
-        // Gets hitbox name 
-        HitGroupsGetName(i, sHitGroupName, sizeof(sHitGroupName));
-        
-        // If names match, then return index
-        if(!strcmp(sHitGroup, sHitGroupName, false))
-        {
-            // If 'overwrite' name is true, then overwrite the old string with new
-            if(bOverWriteName)
-            {
-                // Copy config name to return string
-                StrExtract(sHitGroup, sHitGroupName, 0, iMaxLen);
-            }
-            
-            // Return this index
-            return i;
-        }
-    }
-    
-    // Name doesn't exist
-    return -1;
-}
-
-/**
- * Find the array index at which the hitgroup index is at.
- * 
- * @param iHitGroup         The hitgroup index to search for.
- * @return                  The array index that contains the given hitgroup index.
- **/
-stock int HitGroupToIndex(const int iHitGroup)
-{
-    // i = box index
-    int iSize = arrayHitGroups.Length;
-    for(int i = 0; i < iSize; i++)
-    {
-        // Gets hitgroup index at this array index
-        int iIndex = HitGroupsGetIndex(i);
-        
-        // If hitgroup indexes match, then return array index
-        if(iHitGroup == iIndex)
-        {
-            return i;
-        }
-    }
-    
-    // HitGroup index doesn't exist
-    return -1;
-}
-
 /*
  * Weapons natives API.
  */
@@ -283,14 +221,15 @@ stock int HitGroupToIndex(const int iHitGroup)
  **/
 void HitGroupsAPI(/*void*/) 
 {
-    CreateNative("ZP_GetNumberHitGroup",              API_GetNumberHitGroup);
-    CreateNative("ZP_GetHitGroupID",                  API_GetHitGroupID);
-    CreateNative("ZP_GetHitGroupName",                API_GetHitGroupName);
-    CreateNative("ZP_GetHitGroupIndex",               API_GetHitGroupIndex);
-    CreateNative("ZP_IsHitGroupDamage",               API_IsHitGroupDamage);
-    CreateNative("ZP_SetHitGroupDamage",              API_SetHitGroupDamage);
-    CreateNative("ZP_GetHitGroupKnockback",           API_GetHitGroupKnockback);
-    CreateNative("ZP_SetHitGroupKnockback",           API_SetHitGroupKnockback);
+    CreateNative("ZP_GetNumberHitGroup",    API_GetNumberHitGroup);
+    CreateNative("ZP_GetHitGroupID",        API_GetHitGroupID);
+    CreateNative("ZP_GetHitGroupNameID",    API_GetHitGroupNameID);
+    CreateNative("ZP_GetHitGroupName",      API_GetHitGroupName);
+    CreateNative("ZP_GetHitGroupIndex",     API_GetHitGroupIndex);
+    CreateNative("ZP_IsHitGroupDamage",     API_IsHitGroupDamage);
+    CreateNative("ZP_SetHitGroupDamage",    API_SetHitGroupDamage);
+    CreateNative("ZP_GetHitGroupKnockback", API_GetHitGroupKnockback);
+    CreateNative("ZP_SetHitGroupKnockback", API_SetHitGroupKnockback);
 }
  
 /**
@@ -313,6 +252,34 @@ public int API_GetHitGroupID(Handle hPlugin, const int iNumParams)
 {
     // Return the value
     return HitGroupToIndex(GetNativeCell(1));
+}
+
+/**
+ * Gets the index of a higroup at a given name.
+ *
+ * native int ZP_GetHitGroupNameID(name);
+ **/
+public int API_GetHitGroupNameID(Handle hPlugin, const int iNumParams)
+{
+    // Retrieves the string length from a native parameter string
+    int maxLen;
+    GetNativeStringLength(1, maxLen);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Can't find hitgroup with an empty name");
+        return -1;
+    }
+    
+    // Gets native data
+    static char sName[SMALL_LINE_LENGTH];
+
+    // General
+    GetNativeString(1, sName, sizeof(sName));
+
+    // Return the value
+    return HitGroupsNameToIndex(sName);  
 }
 
 /**
@@ -409,7 +376,7 @@ public int API_SetHitGroupDamage(Handle hPlugin, const int iNumParams)
         return;
     }
     
-    // Sets the value 
+    // Sets value 
     HitGroupsSetDamage(iD, GetNativeCell(2));
 }
 
@@ -451,12 +418,12 @@ public int API_SetHitGroupKnockback(Handle hPlugin, const int iNumParams)
         return;
     }
     
-    // Sets the value 
+    // Sets value 
     HitGroupsSetKnockback(iD, GetNativeCell(2));
 }
 
 /*
- * HitGroups data reading API.
+ * Hit groups data reading API.
  */
 
 /**
@@ -548,4 +515,73 @@ stock float HitGroupsGetKnockback(const int iD)
     
     // Return the knockback multiplier for the hitgroup
     return arrayHitGroup.Get(HITGROUPS_DATA_KNOCKBACK);
+}
+
+/*
+ * Stocks hitgroups API.
+ */
+
+/**
+ * Find the index at which the hitgroup name is at.
+ * 
+ * @param sName             The hitgroup name.
+ * @param iMaxLen           (Only if 'overwritename' is true) The max length of the hitgroup name. 
+ * @param bOverWriteName    (Optional) If true, the hitgroup given will be overwritten with the name from the config.
+ * @return                  The array index containing the given hitgroup name.
+ **/
+stock int HitGroupsNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOverWriteName = false)
+{
+    // Initialize name char
+    static char sHitGroupName[SMALL_LINE_LENGTH];
+    
+    // i = box index
+    int iSize = arrayHitGroups.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets hitbox name 
+        HitGroupsGetName(i, sHitGroupName, sizeof(sHitGroupName));
+        
+        // If names match, then return index
+        if(!strcmp(sName, sHitGroupName, false))
+        {
+            // If 'overwrite' name is true, then overwrite the old string with new
+            if(bOverWriteName)
+            {
+                // Copy config name to return string
+                strcopy(sName, iMaxLen, sHitGroupName);
+            }
+            
+            // Return this index
+            return i;
+        }
+    }
+    
+    // Name doesn't exist
+    return -1;
+}
+
+/**
+ * Find the array index at which the hitgroup index is at.
+ * 
+ * @param iHitGroup         The hitgroup index to search for.
+ * @return                  The array index that contains the given hitgroup index.
+ **/
+stock int HitGroupToIndex(const int iHitGroup)
+{
+    // i = box index
+    int iSize = arrayHitGroups.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets hitgroup index at this array index
+        int iIndex = HitGroupsGetIndex(i);
+        
+        // If hitgroup indexes match, then return array index
+        if(iHitGroup == iIndex)
+        {
+            return i;
+        }
+    }
+    
+    // Hitgroup index doesn't exist
+    return -1;
 }

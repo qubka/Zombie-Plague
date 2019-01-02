@@ -26,12 +26,11 @@
  **/
 
 /**
- * List of forwards used by the plugin.
+ * @section List of forwards used by the plugin.
  **/
 enum ForwardsList
 {
-    Handle:OnClientInfected,
-    Handle:OnClientHumanized,
+    Handle:OnClientUpdated,
     Handle:OnClientDamaged,
     Handle:OnClientValidateItem,
     Handle:OnClientBuyItem,
@@ -51,8 +50,11 @@ enum ForwardsList
     Handle:OnWeaponFire,
     Handle:OnZombieModStarted,
     Handle:OnEngineExecute
-}
-
+};
+/**
+ * @endsection
+ **/
+ 
 /**
  * Array to store forward data in.
  **/
@@ -63,8 +65,7 @@ Handle gForwardsList[ForwardsList];
  **/
 void APIForwardsInit(/*void*/)
 {
-    gForwardsList[OnClientInfected]        = CreateGlobalForward("ZP_OnClientInfected", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-    gForwardsList[OnClientHumanized]       = CreateGlobalForward("ZP_OnClientHumanized", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    gForwardsList[OnClientUpdated]         = CreateGlobalForward("ZP_OnClientUpdated", ET_Ignore, Param_Cell, Param_Cell);
     gForwardsList[OnClientDamaged]         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_CellByRef, Param_CellByRef, Param_FloatByRef, Param_CellByRef, Param_CellByRef);
     gForwardsList[OnClientValidateItem]    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
     gForwardsList[OnClientBuyItem]         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
@@ -87,45 +88,20 @@ void APIForwardsInit(/*void*/)
 }
 
 /**
- * Called when a client became a zombie/nemesis.
- * 
- * @param victimIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param nemesisMode       Indicates that client will be a nemesis.
- * @param respawnMode       Indicates that infection was on spawn.
- **/
-void API_OnClientInfected(const int victimIndex, const int attackerIndex, const bool nemesisMode = false, const bool respawnMode = false)
-{
-    // Start forward call
-    Call_StartForward(gForwardsList[OnClientInfected]);
-
-    // Push the parameters
-    Call_PushCell(victimIndex);
-    Call_PushCell(attackerIndex);
-    Call_PushCell(nemesisMode);
-    Call_PushCell(respawnMode);
-    
-    // Finish the call
-    Call_Finish();
-}
-
-/**
- * Called when a client became a human/survivor.
+ * Called when a client became a zombie/human.
  * 
  * @param clientIndex       The client index.
- * @param survivorMode      Indicates that client will be a survivor.
- * @param respawnMode       Indicates that humanizing was on spawn.
+ * @param attackerIndex     The attacker index.
  **/
-void API_OnClientHumanized(const int clientIndex, const bool survivorMode = false, const bool respawnMode = false)
+void API_OnClientUpdated(const int clientIndex, const int attackerIndex)
 {
     // Start forward call
-    Call_StartForward(gForwardsList[OnClientHumanized]);
+    Call_StartForward(gForwardsList[OnClientUpdated]);
 
     // Push the parameters
     Call_PushCell(clientIndex);
-    Call_PushCell(survivorMode);
-    Call_PushCell(respawnMode);
-
+    Call_PushCell(attackerIndex);
+    
     // Finish the call
     Call_Finish();
 }
@@ -133,20 +109,20 @@ void API_OnClientHumanized(const int clientIndex, const bool survivorMode = fals
 /**
  * Called when a client take a fake damage.
  * 
- * @param victimIndex       The client index.
+ * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
  * @param inflictorIndex    The inflictor index.
  * @param damageAmount      The amount of damage inflicted.
  * @param damageType        The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-void API_OnClientDamaged(const int victimIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex)
+void API_OnClientDamaged(const int clientIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex)
 {
     // Start forward call
     Call_StartForward(gForwardsList[OnClientDamaged]);
 
     // Push the parameters
-    Call_PushCell(victimIndex);
+    Call_PushCell(clientIndex);
     Call_PushCellRef(attackerIndex);
     Call_PushCellRef(inflictorIndex);
     Call_PushFloatRef(damageAmount);
@@ -161,7 +137,7 @@ void API_OnClientDamaged(const int victimIndex, int &attackerIndex, int &inflict
  * Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param itemID            The index of extraitem from ZP_RegisterExtraItem() native.
+ * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
@@ -189,10 +165,10 @@ Action API_OnClientValidateExtraItem(const int clientIndex, const int itemIndex)
  * Called after select an extraitem in equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param itemIndex         The index of extra item from ZP_RegisterExtraItem() native.
+ * @param itemIndex         The item index.
  *
  * @return                  Plugin_Handled or Plugin_Stop to block purhase. Anything else
- *                                 (like Plugin_Continue) to allow purhase and withdraw ammopacks.
+ *                                 (like Plugin_Continue) to allow purhase and withdraw money.
  **/
 void API_OnClientBuyExtraItem(const int clientIndex, const int itemIndex)
 {
@@ -211,7 +187,7 @@ void API_OnClientBuyExtraItem(const int clientIndex, const int itemIndex)
  * Called before show a zombie class in the zombie class menu.
  * 
  * @param clientIndex       The client index.
- * @param classIndex        The index of class from ZP_RegisterZombieClass() native.
+ * @param classIndex        The class index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
@@ -239,7 +215,7 @@ Action API_OnClientValidateZombieClass(const int clientIndex, const int classInd
  * Called before show a human class in the human class menu.
  * 
  * @param clientIndex       The client index.
- * @param classIndex        The index of class from ZP_RegisterHumanClass() native.
+ * @param classIndex        The class index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.

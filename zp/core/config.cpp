@@ -117,8 +117,7 @@
 #define CONFIG_FILE_ALIAS_COSTUMES      "costumes"
 #define CONFIG_FILE_ALIAS_EXTRAITEMS    "extraitems"    
 #define CONFIG_FILE_ALIAS_GAMEMODES     "gamemodes"
-#define CONFIG_FILE_ALIAS_HUMANCLASSES  "humanclasses"
-#define CONFIG_FILE_ALIAS_ZOMBIECLASSES "zombieclasses"
+#define CONFIG_FILE_ALIAS_CLASSES       "classes"
 /**
  * @endsection
  **/
@@ -135,24 +134,26 @@
 #define CONFIG_PATH_COSTUMES            "zombieplague/costumes.ini"
 #define CONFIG_PATH_EXTRAITEMS          "zombieplague/extraitems.ini"    
 #define CONFIG_PATH_GAMEMODES           "zombieplague/gamemodes.ini"
-#define CONFIG_PATH_HUMANCLASSES        "zombieplague/humanclasses.ini"
-#define CONFIG_PATH_ZOMBIECLASSES       "zombieplague/zombieclasses.ini"
+#define CONFIG_PATH_CLASSES             "zombieplague/classes.ini"
 /**
  * @endsection
  **/
  
 /**
- * List of config formats used by the plugin.
+ * @section List of config formats used by the plugin.
  **/
 enum ConfigStructure
 {
     Structure_List,         /** Config is structured as a simple list of strings. */
     Structure_ArrayList,    /** Config is structured as an array list of strings. */
     Structure_Keyvalue,     /** Config is a keyvalue structure */
-}
-
+};
 /**
- * List of config files used by the plugin.
+ * @endsection
+ **/
+ 
+/**
+ * @section List of config files used by the plugin.
  **/
 enum ConfigFile
 {
@@ -166,12 +167,14 @@ enum ConfigFile
     File_Costumes,          /** <sourcemod root>/zombieplague/costumes.ini (default) */
     File_ExtraItems,        /** <sourcemod root>/zombieplague/extraitems.ini (default) */
     File_GameModes,         /** <sourcemod root>/zombieplague/gamemodes.ini (default) */
-    File_HumanClasses,      /** <sourcemod root>/zombieplague/humanclasses.ini (default) */
-    File_ZombieClasses      /** <sourcemod root>/zombieplague/zombieclasses.ini (default) */
-}
+    File_Classes            /** <sourcemod root>/zombieplague/classes.ini (default) */
+};
+/**
+ * @endsection
+ **/
 
 /**
- * Data container for each config file.
+ * @section Data container for each config file.
  **/
 enum ConfigData
 {
@@ -181,15 +184,18 @@ enum ConfigData
     Handle:Data_Handle,                     /** Handle of the config file. */
     String:Data_Path[PLATFORM_MAX_PATH],    /** Full path to config file. */
     String:Data_Alias[CONFIG_MAX_LENGTH],   /** Config file alias, used for client interaction. */
-}
-
+};
+/**
+ * @endsection
+ **/
+ 
 /**
  * Stores all config data.
  **/
 int gConfigData[ConfigFile][ConfigData];
 
 /**
- * Actions to use when working on key/values.
+ * @section Actions to use when working on key/values.
  **/
 enum ConfigKvAction
 {
@@ -197,8 +203,11 @@ enum ConfigKvAction
     KvAction_KVDelete,  /** Delete a key. */
     KvAction_KVSet,     /** Modify setting of a key. */
     KvAction_KVGet,     /** Get setting of a key. */
-}
-
+};
+/**
+ * @endsection
+ **/
+ 
 /**
  * Config module init function.
  */
@@ -399,7 +408,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
         arrayConfig = CreateArray(blockSize);
     }
     
-    // Initialize variables
+    // Initialize buffer char
     static char sLine[PLATFORM_MAX_PATH];
     
     // Gets config structure
@@ -427,7 +436,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
             while(hFile.ReadLine(sLine, sizeof(sLine)))
             {
                 // Cut out comments at the end of a line
-                if(StrContains(sLine, "//") != -1)
+                if(StrContains(sLine, "//", false) != -1)
                 {
                     SplitString(sLine, "//", sLine, sizeof(sLine));
                 }
@@ -469,7 +478,7 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
             while(hFile.ReadLine(sLine, sizeof(sLine)))
             {
                 // Cut out comments at the end of a line
-                if(StrContains(sLine, "//") != -1)
+                if(StrContains(sLine, "//", false) != -1)
                 {
                     SplitString(sLine, "//", sLine, sizeof(sLine));
                 }
@@ -566,7 +575,7 @@ stock bool ConfigReloadConfig(const ConfigFile iConfig)
     Call_StartFunction(GetMyHandle(), iReloadfunc);
     Call_Finish();
 
-    // Return on the success
+    // Return on success
     return true;
 }
 
@@ -815,39 +824,39 @@ stock bool ConfigSettingToBool(const char[] sOption)
  **/
 stock void ConfigBoolToSetting(const bool bOption, char[] sOption, const int iMaxLen, const bool bYesNo = true, const int targetIndex = LANG_SERVER)
 {
-    // Initialize variable
+    // Initialize buffer char
     static char sBuffer[10];
     
-    // Sets the language to target
+    // Sets language to target
     SetGlobalTransTarget(targetIndex);
     
     // If option is true, then copy "yes" to return string
     if(bOption)
     {
-        // Gets the yes/no translations for the target
+        // Gets yes/no translations for the target
         if(bYesNo)
         {
-            Format(sBuffer, sizeof(sBuffer), "%t", "Yes");  
+            FormatEx(sBuffer, sizeof(sBuffer), "%t", "Yes");  
             strcopy(sOption, iMaxLen, sBuffer);
         }
         else
         {
-            Format(sBuffer, sizeof(sBuffer), "%t", "On");
+            FormatEx(sBuffer, sizeof(sBuffer), "%t", "On");
             strcopy(sOption, iMaxLen, sBuffer);
         }
     }
     // If option is false, then copy "no" to return string
     else
     {
-        // Gets the yes/no translations for the target
+        // Gets yes/no translations for the target
         if(bYesNo)
         {
-            Format(sBuffer, sizeof(sBuffer), "%t", "No");     
+            FormatEx(sBuffer, sizeof(sBuffer), "%t", "No");     
             strcopy(sOption, iMaxLen, sBuffer);
         }
         else
         {
-            Format(sBuffer, sizeof(sBuffer), "%t", "Off");
+            FormatEx(sBuffer, sizeof(sBuffer), "%t", "Off");
             strcopy(sOption, iMaxLen, sBuffer);
         }
     }
@@ -895,12 +904,12 @@ public Action ConfigReloadCommandCatched(const int clientIndex, const int iArgum
     {
         TranslationReplyToCommand(clientIndex, "config reload");
         TranslationReplyToCommand(clientIndex, "config reload commands");
-        TranslationReplyToCommand(clientIndex, "config reload commands aliases", CONFIG_FILE_ALIAS_CVARS, CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES, CONFIG_FILE_ALIAS_EXTRAITEMS, CONFIG_FILE_ALIAS_GAMEMODES, CONFIG_FILE_ALIAS_HUMANCLASSES, CONFIG_FILE_ALIAS_ZOMBIECLASSES);
+        TranslationReplyToCommand(clientIndex, "config reload commands aliases", CONFIG_FILE_ALIAS_CVARS, CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES, CONFIG_FILE_ALIAS_EXTRAITEMS, CONFIG_FILE_ALIAS_GAMEMODES, CONFIG_PATH_CLASSES);
 
         return Plugin_Handled;
     }
 
-    // Initialize variable
+    // Initialize variables
     static char sAlias[CONFIG_MAX_LENGTH];
     static char sPath[PLATFORM_MAX_PATH];
     static char sMessage[PLATFORM_MAX_PATH];
@@ -927,7 +936,7 @@ public Action ConfigReloadCommandCatched(const int clientIndex, const int iArgum
         ConfigGetConfigPath(iConfig, sPath, sizeof(sPath));
 
         // Format log message
-        Format(sMessage, sizeof(sMessage), "[%N] reloaded config file \"%s\". (zp_config_reload)", clientIndex, sPath);
+        FormatEx(sMessage, sizeof(sMessage), "[%N] reloaded config file \"%s\". (zp_config_reload)", clientIndex, sPath);
 
         // If file isn't loaded then tell client, then stop
         if(!bLoaded)
@@ -960,7 +969,7 @@ public Action ConfigReloadAllCommandCatched(const int clientIndex, const int iAr
     // Begin statistics
     TranslationReplyToCommand(clientIndex, "config reload begin");
 
-    // Initialize variable
+    // Initialize alias char
     static char sAlias[CONFIG_MAX_LENGTH];
 
     // i = config file entry index
@@ -1014,7 +1023,7 @@ void ConfigMenu(const int clientIndex)
     // Create menu handle
     Menu hMenu = CreateMenu(ConfigMenuSlots);
 
-    // Sets the language to target
+    // Sets language to target
     SetGlobalTransTarget(clientIndex);
     
     // Sets title
@@ -1027,7 +1036,7 @@ void ConfigMenu(const int clientIndex)
         ConfigGetConfigAlias(view_as<ConfigFile>(i), sAlias, sizeof(sAlias));
         
         // Format some chars for showing in menu
-        Format(sBuffer, sizeof(sBuffer), "%t", "config menu reload", sAlias);
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", "config menu reload", sAlias);
         
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
@@ -1080,11 +1089,11 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                 return;
             }
 
-            // Initialize variable
+            // Initialize variables
             static char sAlias[SMALL_LINE_LENGTH];
             static char sInfo[SMALL_LINE_LENGTH];
 
-            // Gets ID of config
+            // Gets menu info
             hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
             ConfigFile iD = view_as<ConfigFile>(StringToInt(sInfo));
             

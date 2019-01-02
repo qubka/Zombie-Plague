@@ -25,14 +25,14 @@
  * ============================================================================
  **/
 
- /*
-  * Load other visual effect modules
-  */
+/*
+ * Load other visual effect modules
+ */
 #include "zp/manager/visualeffects/visualambience.cpp"
+#include "zp/manager/visualeffects/visualoverlays.cpp"
 #include "zp/manager/visualeffects/playereffects.cpp"
-#include "zp/manager/visualeffects/visualoverlay.cpp"
 #include "zp/manager/visualeffects/ragdoll.cpp"
- 
+
 /**
  * @section Explosion flags.
  **/
@@ -54,13 +54,21 @@
  **/
 
 /**
+ * @section Particle flags.
+ **/
+#define PARTICLE_WORLDORIGIN          5
+#define PARTICLE_DISPATCH_FROM_ENTITY (1<<0)
+/**
+ * @endsection
+ **/
+ 
+/**
  * Load visual effects data.
  **/
 void VEffectsLoad(/*void*/)
 {
     // Forward event to sub-modules
     VAmbienceLoad();
-    VOverlayLoad();
 }
 
 /**
@@ -69,17 +77,16 @@ void VEffectsLoad(/*void*/)
 void VEffectsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_VEFFECTS_SHAKE]              = FindConVar("zp_veffects_shake"); 
-    gCvarList[CVAR_VEFFECTS_SHAKE_AMP]          = FindConVar("zp_veffects_shake_amp");
-    gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY]    = FindConVar("zp_veffects_shake_frequency");
-    gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]     = FindConVar("zp_veffects_shake_duration"); 
-    gCvarList[CVAR_VEFFECTS_FADE]               = FindConVar("zp_veffects_fade"); 
-    gCvarList[CVAR_VEFFECTS_FADE_TIME]          = FindConVar("zp_veffects_fade_time"); 
-    gCvarList[CVAR_VEFFECTS_FADE_DURATION]      = FindConVar("zp_veffects_fade_duration"); 
+    gCvarList[CVAR_VEFFECTS_SHAKE]           = FindConVar("zp_veffects_shake"); 
+    gCvarList[CVAR_VEFFECTS_SHAKE_AMP]       = FindConVar("zp_veffects_shake_amp");
+    gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY] = FindConVar("zp_veffects_shake_frequency");
+    gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]  = FindConVar("zp_veffects_shake_duration"); 
+    gCvarList[CVAR_VEFFECTS_FADE]            = FindConVar("zp_veffects_fade"); 
+    gCvarList[CVAR_VEFFECTS_FADE_TIME]       = FindConVar("zp_veffects_fade_time"); 
+    gCvarList[CVAR_VEFFECTS_FADE_DURATION]   = FindConVar("zp_veffects_fade_duration"); 
     
     // Forward event to sub-modules
     VAmbienceOnCvarInit();
-    VOverlayOnCvarInit();
     RagdollOnCvarInit();
     PlayerVEffectsOnCvarInit();
 }
@@ -96,23 +103,17 @@ void VEffectOnClientDeath(const int clientIndex)
     {
         return;
     }
-    
-    // Validate round state 
-    if(gServerData[Server_RoundStart]) //! [Optimized]
-    {
-        // Forward event to sub-modules
-        VEffectRemoveParticle(clientIndex);
-    }
+
+    // Forward event to sub-modules
+    VEffectRemoveParticle(clientIndex);
 }
 
 /**
  * Client has been infected.
  * 
  * @param clientIndex       The client index.
- * @param nemesisMode       (Optional) Indicates that client will be a nemesis.
- * @param respawnMode       (Optional) Indicates that infection was on spawn.
  **/
-void VEffectsOnClientInfected(const int clientIndex, const bool nemesisMode = false, const bool respawnMode = false)
+void VEffectsOnClientInfected(const int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -121,20 +122,18 @@ void VEffectsOnClientInfected(const int clientIndex, const bool nemesisMode = fa
     }
 
     // Forward event to sub-modules
-    if(!respawnMode) VEffectRemoveParticle(clientIndex);
+    VEffectRemoveParticle(clientIndex);
     VEffectsShakeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_SHAKE_AMP], gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY], gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]);
     VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {255, 0, 0, 50});
-    PlayerVEffectsOnClientInfected(clientIndex, nemesisMode, respawnMode);
+    PlayerVEffectsOnClientInfected(clientIndex);
 }
 
 /**
  * Client has been humanized.
  * 
  * @param clientIndex       The client index.
- * @param survivorMode      (Optional) Indicates that client will be a survivor.
- * @param respawnMode       (Optional) Indicates that humanized was on spawn.
  **/
-void VEffectsOnClientHumanized(const int clientIndex, const bool survivorMode = false, const bool respawnMode = false)
+void VEffectsOnClientHumanized(const int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -143,8 +142,8 @@ void VEffectsOnClientHumanized(const int clientIndex, const bool survivorMode = 
     }
 
     // Forward event to sub-modules
-    if(!respawnMode) VEffectRemoveParticle(clientIndex);
-    PlayerVEffectsOnClientHumanized(clientIndex, survivorMode);
+    VEffectRemoveParticle(clientIndex);
+    PlayerVEffectsOnClientHumanized(clientIndex);
 }
 
 /**
@@ -214,7 +213,7 @@ void VEffectsShakeClientScreen(const int clientIndex, const ConVar hAmplitude, c
         PbSetFloat(hShake, "frequency", hFrequency.FloatValue);
         PbSetFloat(hShake, "duration", hDuration.FloatValue);
 
-        // End usermsg and send to client
+        // End usermsg and send to the client
         EndMessage();
     }
 }
@@ -248,13 +247,13 @@ void VEffectsFadeClientScreen(const int clientIndex, const ConVar hDuration, con
         PbSetInt(hFade, "flags", iFlags); 
         PbSetColor(hFade, "clr", vColor); 
 
-        // End usermsg and send to client
+        // End usermsg and send to the client
         EndMessage();
     }
 }
 
 /**
- * Send a hint message to client screen with specific parameters.
+ * Send a hint message to the client screen with specific parameters.
  * 
  * @param clientIndex       The client index.
  * @param sMessage          The message to send.
@@ -270,7 +269,7 @@ void VEffectsHintClientScreen(const int clientIndex, const char[] sMessage)
         // Write shake information to message handle
         PbSetString(hMessage, "text", sMessage);
 
-        // End usermsg and send to client
+        // End usermsg and send to the client
         EndMessage();
     }
 }
@@ -326,9 +325,9 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
         ActivateEntity(entityIndex);
         AcceptEntityInput(entityIndex, "Start");
         
-        // Initialize variable
+        // Initialize time char
         static char sTime[SMALL_LINE_LENGTH];
-        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
+        FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
         
         // Sets modified flags on the entity
         SetVariantString(sTime);
@@ -336,7 +335,7 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
         AcceptEntityInput(entityIndex, "FireUser1");
     }
     
-    // Return on the success
+    // Return on success
     return entityIndex;
 }
 
@@ -347,7 +346,13 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
  **/
 void VEffectRemoveParticle(const int clientIndex)
 {
-    // Initialize variable
+    // If round didn't start yet, then stop
+    if(gServerData[Server_RoundNew])
+    {
+        return;
+    }
+    
+    // Initialize classname char
     static char sClassname[NORMAL_LINE_LENGTH];
     
     // Gets max amount of entities
@@ -460,10 +465,7 @@ void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", con
     TE_WriteNum("entindex", entityIndex);
     if(iAttachment) 
     {
-        #define PATTACH_WORLDORIGIN 5
-        #define PARTICLE_DISPATCH_FROM_ENTITY (1 << 0)
-    
-        TE_WriteNum("m_nDamageType", PATTACH_WORLDORIGIN);
+        TE_WriteNum("m_nDamageType", PARTICLE_WORLDORIGIN);
         TE_WriteNum("m_fFlags", PARTICLE_DISPATCH_FROM_ENTITY); /// https://developer.valvesoftware.com/wiki/SDK_Known_Issues_List_Fixed#Server%20Dispatching%20an%20Attached%20Particle%20Effect
         TE_WriteNum("m_nAttachmentIndex", iAttachment);
     }

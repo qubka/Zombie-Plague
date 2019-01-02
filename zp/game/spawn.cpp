@@ -53,13 +53,16 @@ public Action SpawnOnClientSpawn(Event hEvent, const char[] sName, bool dontBroa
         return;
     }
     
-    // If mode doesn't started yet, then reset type
+    // If mode doesn't started yet, then reset respawn
     if(gServerData[Server_RoundNew])
     {
         gClientData[clientIndex][Client_Respawn] = TEAM_HUMAN;
     }
     
-    // Switch respawn types
+    // Gets client spawn position
+    GetClientAbsOrigin(clientIndex, gClientData[clientIndex][Client_Spawn]);
+    
+    // Switch respawn
     switch(gClientData[clientIndex][Client_Respawn])
     {
         // Respawn as zombie?

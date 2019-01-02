@@ -5,7 +5,7 @@
  *
  *  File:          sounds.cpp
  *  Type:          Manager 
- *  Description:   Sound table generator.
+ *  Description:   Basic sound-management API.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
@@ -29,6 +29,8 @@
  * Load other sound effect modules
  */
 #include "zp/manager/soundeffects/voice.cpp"
+#include "zp/manager/soundeffects/ambientsounds.cpp"
+#include "zp/manager/soundeffects/soundeffects.cpp"
 #include "zp/manager/soundeffects/playersounds.cpp"
 
 /**
@@ -69,7 +71,7 @@ void SoundsLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
     }
 
-    // Sets the path to the config file
+    // Sets path to the config file
     ConfigSetConfigPath(File_Sounds, sPathSounds);
 
     // Load config from file and create array structure
@@ -147,7 +149,7 @@ void SoundsCacheData(/*void*/)
                 arraySound.PushString(sSound[x]);
                 
                 // Format the full path
-                Format(sPathSounds, sizeof(sPathSounds), "sound/%s", sSound[x]);
+                FormatEx(sPathSounds, sizeof(sPathSounds), "sound/%s", sSound[x]);
 
                 // Add to server precache list
                 if(DownloadsOnPrecache(sPathSounds)) iSoundValidCount++; else iSoundUnValidCount++;
@@ -180,7 +182,7 @@ void SoundsCacheData(/*void*/)
 void SoundsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL]     = FindConVar("zp_game_custom_sound_level");
+    gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL] = FindConVar("zp_game_custom_sound_level");
     
     // Forward event to sub-modules
     VoiceOnCvarInit();
@@ -208,6 +210,15 @@ void SoundsOnRoundStart(/*void*/)
 }
 
 /**
+ * The counter is begin.
+ **/
+void SoundsOnCounterStart(/*void*/)   
+{
+    // Forward event to sub-modules
+    PlayerSoundsOnCounterStart();
+}
+
+/**
  * The round is ending.
  *
  * @param CReason           Reason the round has ended.
@@ -216,10 +227,30 @@ void SoundsOnRoundEnd(const CSRoundEndReason CReason)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
-    SoundsInputStop();
     
-    // Create timer for emit sounds 
-    CreateTimer(0.2, PlayerSoundsOnRoundEnd, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+    // Create timer for emit sounds
+    SEffectsInputStopAll(); CreateTimer(0.2, PlayerSoundsOnRoundEndPost, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+}
+
+/**
+ * The counter is working.
+ *
+ * @return                  True or false.
+ **/
+bool SoundsOnCounter(/*void*/)
+{
+    // Forward event to sub-modules
+    return PlayerSoundsOnCounter();
+}
+
+/**
+ * The gamemode is starting.
+ **/
+void SoundsOnGameModeStart(/*void*/)
+{
+    // Forward event to sub-modules
+    PlayerSoundsOnGameModeStart();
+    AmbientSoundsOnGameModeStart();
 }
 
 /**
@@ -249,13 +280,14 @@ void SoundsOnClientHurt(const int clientIndex, const int damageType)
  * Client has been infected.
  * 
  * @param clientIndex       The client index.
- * @param respawnMode       (Optional) Indicates that infection was on spawn.
+ * @param attackerIndex     The attacker index.
  **/
-void SoundsOnClientInfected(const int clientIndex, const bool respawnMode)
+void SoundsOnClientInfected(const int clientIndex, const int attackerIndex)
 {
     // Forward event to sub-modules
     VoiceOnClientInfected(clientIndex);
-    PlayerSoundsOnClientInfected(clientIndex, respawnMode);
+    PlayerSoundsOnClientInfected(clientIndex, attackerIndex);
+    AmbientSoundsOnClientUpdate(clientIndex);
 }
 
 /**
@@ -267,6 +299,7 @@ void SoundsOnClientHumanized(const int clientIndex)
 {
     // Forward event to sub-modules
     VoiceOnClientHumanized(clientIndex);
+    AmbientSoundsOnClientUpdate(clientIndex);
 }
 
 /**
@@ -278,6 +311,17 @@ void SoundsOnClientRegen(const int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientRegen(clientIndex);
+}
+
+/**
+ * Client has been swith nightvision.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void SoundsOnClientNvgs(const int clientIndex)
+{
+    // Forward event to sub-modules
+    PlayerSoundsOnClientNvgs(clientIndex);
 }
 
 /**
@@ -313,6 +357,18 @@ void SoundsOnClientLevelUp(const int clientIndex)
     PlayerSoundsOnClientLevelUp(clientIndex);
 }
 
+/**
+ * Client has been shoot.
+ * 
+ * @param clientIndex       The client index.
+ * @param iD                The weapon id.
+ **/
+Action SoundsOnClientShoot(const int clientIndex, const int iD)
+{
+    // Forward event to sub-modules
+    return PlayerSoundsOnClientShoot(clientIndex, iD) ? Plugin_Stop : Plugin_Continue;
+}
+
 /*
  * Sounds natives API.
  */
@@ -322,8 +378,8 @@ void SoundsOnClientLevelUp(const int clientIndex)
  **/
 void SoundsAPI(/*void*/) 
 {
-    CreateNative("ZP_GetSoundKeyID",                  API_GetSoundKeyID);
-    CreateNative("ZP_GetSound",                       API_GetSound);
+    CreateNative("ZP_GetSoundKeyID", API_GetSoundKeyID);
+    CreateNative("ZP_GetSound",      API_GetSound);
 }
  
 /**
@@ -371,7 +427,7 @@ public int API_GetSound(Handle hPlugin, const int iNumParams)
         return -1;
     }
     
-    // Initialize variable
+    // Initialize sound char
     static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
     
     // Select sound in the array
@@ -446,99 +502,4 @@ stock int SoundsKeyToIndex(const char[] sKey)
 {
     // Find key index
     return ParamFindKey(SoundBuffer, arraySounds.Length, sKey);
-}
-
-/**
- * Emits a sound to all clients.
- *
- * @param iKey              The key array.
- * @param iNum              The position index.
- * @param entityIndex       (Optional) The entity to emit from.
- * @param iChannel          (Optional) The channel to emit with.
- * @param iLevel            (Optional) The sound level.
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The sound volume.
- * @param iPitch            (Optional) The sound pitch.
- * @param speakerIndex      (Optional) Unknown.
- * @param vOrigin           (Optional) The sound origin.
- * @param vDirection        (Optional) The sound direction.
- * @param updatePos         (Optional) Unknown (updates positions?)
- * @param flSoundTime       (Optional) Alternate time to play sound for.
- * @return                  True if the sound was emit, false otherwise.
- **/
-stock bool SoundsInputEmitToAll(int iKey, int iNum, const int entityIndex = SOUND_FROM_PLAYER, const int iChannel = SNDCHAN_AUTO, const int iLevel = SNDLEVEL_NORMAL, const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const int speakerIndex = INVALID_ENT_REFERENCE, const float vOrigin[3] = NULL_VECTOR, const float vDirection[3] = NULL_VECTOR, const bool updatePos = true, const float flSoundTime = 0.0)
-{
-    // Initialize variable
-    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
-    
-    // Select sound in the array
-    SoundsGetSound(sSound, sizeof(sSound), iKey, iNum);
-    
-    // Validate sound
-    if(hasLength(sSound))
-    {
-        // Format sound
-        Format(sSound, sizeof(sSound), "*/%s", sSound);
-
-        // Emit normal sound
-        EmitSoundToAll(sSound, entityIndex, iChannel, iLevel, iFlags, flVolume, iPitch, speakerIndex, vOrigin, vDirection, updatePos, flSoundTime);
-        return true;
-    }
-
-    // Return on unsuccess
-    return false;
-}
-
-/**
- * Emits an ambient sound to all clients.
- *
- * @param iKey              The key array.
- * @param iNum              The position index.
- * @param vOrigin           The origin of sound.
- * @param entityIndex       (Optional) The entity index to associate sound with.
- * @param iLevel            (Optional) The sound level (from 0 to 255).
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The volume (from 0.0 to 1.0).
- * @param iPitch            (Optional) The pitch (from 0 to 255).
- * @param flDelay           (Optional) The play delay.
- * @return                  True if the sound was emit, false otherwise.
- **/
-stock bool SoundsInputEmitAmbient(int iKey, int iNum, const float vOrigin[3], const int entityIndex = SOUND_FROM_WORLD, const int iLevel = SNDLEVEL_NORMAL,const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const float flDelay = 0.0)
-{
-    // Initialize variable
-    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
-    
-    // Select sound in the array
-    SoundsGetSound(sSound, sizeof(sSound), iKey, iNum);
-    
-    // Validate sound
-    if(hasLength(sSound))
-    {
-        // Format sound
-        Format(sSound, sizeof(sSound), "*/%s", sSound);
-
-        // Emit ambient sound
-        EmitAmbientSound(sSound, vOrigin, entityIndex, iLevel, iFlags, flVolume, iPitch, flDelay);
-        return true;
-    }
-
-    // Return on unsuccess
-    return false;
-}
-
-/**
- * Stop sounds.
- **/
-stock void SoundsInputStop(/*void*/)
-{
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate real client
-        if(IsPlayerExist(i, false) && !IsFakeClient(i))
-        {
-            // Stop sound
-            ClientCommand(i, "playgamesound Music.StopAllExceptMusic");
-        }
-    }
 }

@@ -42,9 +42,18 @@ native int ZP_GetNumberHitGroup();
  *
  * @param hitgroup          The real hitgroup index.
  *
- * @return                  The hitgroup index.
+ * @return                  The hitgroup index, or -1 on failure.
  **/
 native int ZP_GetHitGroupID(int hitgroup);
+
+/**
+ * Gets the index of a higroup at a given name.
+ *
+ * @param name              The higroup name.
+ *
+ * @return                  The higroup index, or -1 on failure.
+ **/
+native int ZP_GetHitGroupNameID(char[] name);
 
 /**
  * @brief Gets the name of a hitgroup at a given index.

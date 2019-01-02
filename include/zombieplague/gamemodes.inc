@@ -40,11 +40,26 @@
 native int ZP_GetCurrentGameMode();
 
 /**
+ * @brief Gets the last game mode.
+ *
+ * @return                  The mode index.    
+ **/
+native int ZP_GetLastGameMode();
+
+/**
  * @brief Gets the amount of all game modes.
  *
  * @return                  The mode amount.    
  **/
 native int ZP_GetNumberGameMode();
+
+/**
+ * @brief Start the game mode.
+ * 
+ * @param name              The mode index.
+ * @param clientIndex       (Optional) The client index. (Which need to be infected/herozied, if value has 0, mode will be choose players itself)    
+ **/
+native void ZP_StartGameMode(int modeID, int clientIndex = 0);
 
 /**
  * @brief Gets the index of a game mode at a given name.
@@ -53,17 +68,7 @@ native int ZP_GetNumberGameMode();
  *
  * @return                  The mode index, or -1 on failure.
  **/
-native int ZP_GetServerGameMode(char[] name);
-
-/**
- * @brief Sets the index of a game mode at a given name.
- * 
- * @param name              The mode name.
- * @param clientIndex       (Optional) The client index. (Which need to be infected/herozied, if value has 0, mode will be choose random players)    
- *
- * @return                  The game mode index, or -1 on failure.
- **/
-native int ZP_SetServerGameMode(char[] name, int clientIndex = 0);
+native int ZP_GetGameModeNameID(char[] name);
 
 /**
  * @brief Gets the name of a game mode at a given index.
@@ -82,15 +87,6 @@ native void ZP_GetGameModeName(int modeID, char[] name, int maxlenght = 32);
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetGameModeDesc(int modeID, char[] desc, int maxlenght = 32);
-
-/**
- * @brief Gets the sound key of the game mode.
- *
- * @param modeID            The mode index.
- *
- * @return                  The key id.
- **/
-native int ZP_GetGameModeSoundID(int modeID);
 
 /**
  * @brief Gets the chance of the game mode.
@@ -120,6 +116,42 @@ native int ZP_GetGameModeMinPlayers(int modeID);
 native float ZP_GetGameModeRatio(int modeID);
 
 /**
+ * @brief Gets the start sound key of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The key id.
+ **/
+native int ZP_GetGameModeSoundStartID(int modeID);
+
+/**
+ * @brief Gets the ambient sound key of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The key id.
+ **/
+native int ZP_GetGameModeSoundAmbientID(int modeID);
+
+/**
+ * @brief Gets the ambient sound duration of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The duration amount.
+ **/
+native float ZP_GetGameModeSoundDuration(int modeID);
+
+/**
+ * @brief Gets the ambient sound volume of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The volume amount.
+ **/
+native float ZP_GetGameModeSoundVolume(int modeID);
+
+/**
  * @brief Check the infection type of the game mode.
  * 
  * @param modeID            The mode index.
@@ -138,19 +170,127 @@ native bool ZP_IsGameModeInfect(int modeID);
 native bool ZP_IsGameModeRespawn(int modeID);
 
 /**
- * @brief Check the survivor type of the game mode.
+ * @brief Check the human class of the game mode.
  * 
  * @param modeID            The mode index.
- *
- * @return                  True or false.    
+ * @param class             The string to return class in.
+ * @param maxlenght         The lenght of string.
  **/
-native bool ZP_IsGameModeSurvivor(int modeID);
+native void ZP_GetGameModeHuman(int modeID, char[] class, int maxlenght = 32);
 
 /**
- * @brief Check the nemesis type of the game mode.
+ * @brief Check the zombie class of the game mode.
  * 
  * @param modeID            The mode index.
- *
- * @return                  True or false.    
+ * @param class             The string to return class in.
+ * @param maxlenght         The lenght of string.
  **/
-native bool ZP_IsGameModeNemesis(int modeID);
+native void ZP_GetGameModeZombie(int modeID, char[] class, int maxlenght = 32);
+
+/**
+ * @brief Gets the deathmatch mode of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The deathmatch mode. 
+ **/
+native int ZP_GetGameModeMatch(int modeID);
+
+/**
+ * @brief Gets the amount of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The amount. 
+ **/
+native int ZP_GetGameModeAmount(int modeID);
+
+/**
+ * @brief Gets the delay of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The delay. 
+ **/
+native float ZP_GetGameModeDelay(int modeID);
+
+/**
+ * @brief Gets the last amount of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The last amount. 
+ **/
+native int ZP_GetGameModeLast(int modeID);
+
+/**
+ * @brief Check the suicide mode of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false.  
+ **/
+native bool ZP_IsGameModeSuicide(int modeID);
+
+/**
+ * @brief Check the escape mode of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false.  
+ **/
+native bool ZP_IsGameModeEscape(int modeID);
+
+/**
+ * @brief Check the xray access of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsGameModeXRay(int modeID);
+
+/**
+ * @brief Check the regen access of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsGameModeRegen(int modeID);
+
+/**
+ * @brief Check the skill access of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsGameModeSkill(int modeID);
+
+/**
+ * @brief Check the leapjump access of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsGameModeLeapJump(int modeID);
+
+/**
+ * @brief Check the weapon access of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsGameModeWeapon(int modeID);
+
+/**
+ * @brief Check the extraitem access of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsGameModeExtraItem(int modeID);

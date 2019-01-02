@@ -42,13 +42,17 @@ void RoundEndInit(/*void*/)
  **/
 public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& CReason)
 {
+    // Gets team scores
+    int nZombieScore = GetTeamScore(TEAM_ZOMBIE);
+    int nHumanScore = GetTeamScore(TEAM_HUMAN);
+    
     // Resets server grobal variables
     gServerData[Server_RoundNew] = false;
     gServerData[Server_RoundEnd] = true;
     gServerData[Server_RoundStart] = false;
 
-    // Initialize some variables
-    static int nHumanBonus; static int nZombieBonus; static OverlayType CType;
+    // Initialize variable
+    static OverlayType CType;
 
     // Switch end round reason
     switch(CReason)
@@ -64,11 +68,10 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& CReason)
             // If there are no zombies, that means there must be humans, they win the round
             if(!nZombies && nHumans)
             {
-                // Calculate bonuses
-                nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_FAIL].IntValue;
-                nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_WIN].IntValue;
-                
-                // Sets the overlay
+                // Increment CT score
+                nHumanScore++;
+
+                // Sets overlay
                 CType = Overlay_HumanWin;
                 
                 // Set the reason
@@ -77,11 +80,10 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& CReason)
             // If there are zombies, then zombies win the round
             else if(nZombies && !nHumans)
             {
-                // Calculate bonuses
-                nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_WIN].IntValue;
-                nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_FAIL].IntValue;
-                
-                // Sets the overlay
+                // Increment T score
+                nZombieScore++;
+
+                // Sets overlay
                 CType = Overlay_ZombieWin;
                 
                 // Set the reason
@@ -90,11 +92,10 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& CReason)
             // We know here, that either zombies or humans is 0 (not both)
             else
             {
-                // Calculate bonuses
-                nZombieBonus = gCvarList[CVAR_BONUS_ZOMBIE_DRAW].IntValue;
-                nHumanBonus  = gCvarList[CVAR_BONUS_HUMAN_DRAW].IntValue;
-                
-                // Sets the overlay
+                // Increment <> score
+                /** skip **/
+
+                // Sets overlay
                 CType = Overlay_Draw;
                 
                 // Set the reason
@@ -102,6 +103,10 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& CReason)
             }
         }
     }
+    
+    // Sets score in the scoreboard
+    SetTeamScore(TEAM_ZOMBIE, nZombieScore);
+    SetTeamScore(TEAM_HUMAN,  nHumanScore);
 
     //*********************************************************************
     //*                    GIVE BONUSES AND SHOW OVERLAYS                 *
@@ -119,10 +124,10 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& CReason)
                 continue;
             }
             
-            // Give ammopack bonuses
-            gClientData[i][Client_AmmoPacks] += gClientData[i][Client_Zombie] ? nZombieBonus : nHumanBonus;
+            // Give money bonus
+            gClientData[i][Client_Money] += gClientData[i][Client_Zombie] ? nZombieBonus : nHumanBonus;
 
-            // Display overlay to client
+            // Display overlay to the client
             VOverlayOnClientUpdate(i, CType);
         }
     }

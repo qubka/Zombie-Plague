@@ -5,7 +5,7 @@
  *
  *  File:          downloads.cpp
  *  Type:          Manager 
- *  Description:   Downloads table generator.
+ *  Description:   Downloads validation.
  *
  *  Copyright (C) 2015-2019 Greyscale, Richard Helgeby
  *
@@ -49,7 +49,7 @@ void DownloadsLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sPathDownloads);
     }
 
-    // Sets the path to the config file
+    // Sets path to the config file
     ConfigSetConfigPath(File_Downloads, sPathDownloads);
 
     // Load config from file and create array structure
@@ -131,10 +131,7 @@ void DownloadsCacheData(/*void*/)
             }
     
             // Initialize variables
-            static char sFile[PLATFORM_MAX_PATH];
-            
-            // Initialize types
-            FileType hType;
+            static char sFile[PLATFORM_MAX_PATH]; FileType hType;
             
             // Search any files in the directory and precache them
             while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 

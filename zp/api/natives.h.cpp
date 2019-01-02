@@ -31,40 +31,35 @@
 void APINativesInit(/*void*/)
 {
     // Create main natives
-    CreateNative("ZP_IsPlayerInGroup",                API_IsPlayerInGroup);
-    CreateNative("ZP_IsPlayerZombie",                 API_IsPlayerZombie);
-    CreateNative("ZP_IsPlayerHuman",                  API_IsPlayerHuman);
-    CreateNative("ZP_IsPlayerNemesis",                API_IsPlayerNemesis);
-    CreateNative("ZP_IsPlayerSurvivor",               API_IsPlayerSurvivor);
-    CreateNative("ZP_IsPlayerUseZombieSkill",         API_IsPlayerUseZombieSkill);
-    CreateNative("ZP_ForceClientRespawn",             API_ForceClientRespawn);
-    CreateNative("ZP_SwitchClientClass",              API_SwitchClientClass);
-    CreateNative("ZP_GetClientAmmoPack",              API_GetClientAmmoPack);
-    CreateNative("ZP_SetClientAmmoPack",              API_SetClientAmmoPack);
-    CreateNative("ZP_GetClientLastBought",            API_GetClientLastBought);
-    CreateNative("ZP_SetClientLastBought",            API_SetClientLastBought);
-    CreateNative("ZP_GetClientLevel",                 API_GetClientLevel);
-    CreateNative("ZP_SetClientLevel",                 API_SetClientLevel);
-    CreateNative("ZP_GetClientExp",                   API_GetClientExp);
-    CreateNative("ZP_SetClientExp",                   API_SetClientExp);
-    CreateNative("ZP_GetClientTime",                  API_GetClientTime);
-    CreateNative("ZP_IsNewRound",                     API_IsNewRound);
-    CreateNative("ZP_IsEndRound",                     API_IsEndRound);
-    CreateNative("ZP_IsStartedRound",                 API_IsStartedRound);
-    CreateNative("ZP_GetNumberRound",                 API_GetNumberRound);
-    CreateNative("ZP_GetHumanAmount",                 API_GetHumanAmount);
-    CreateNative("ZP_GetZombieAmount",                API_GetZombieAmount);
-    CreateNative("ZP_GetAliveAmount",                 API_GetAliveAmount);
-    CreateNative("ZP_GetPlayingAmount",               API_GetPlayingAmount);
-    CreateNative("ZP_GetRandomHuman",                 API_GetRandomHuman);
-    CreateNative("ZP_GetRandomZombie",                API_GetRandomZombie);  
-    CreateNative("ZP_GetRandomSurvivor",              API_GetRandomSurvivor);
-    CreateNative("ZP_GetRandomNemesis",               API_GetRandomNemesis);
-    
+    CreateNative("ZP_IsPlayerInGroup",      API_IsPlayerInGroup);
+    CreateNative("ZP_IsPlayerZombie",       API_IsPlayerZombie);
+    CreateNative("ZP_IsPlayerHuman",        API_IsPlayerHuman);
+    CreateNative("ZP_IsPlayerUseSkill",     API_IsPlayerUseSkill);
+    CreateNative("ZP_RespawnClient",        API_RespawnClient);
+    CreateNative("ZP_ChangeClient",         API_ChangeClient); 
+    CreateNative("ZP_GetClientMoney",       API_GetClientMoney);
+    CreateNative("ZP_SetClientMoney",       API_SetClientMoney);
+    CreateNative("ZP_GetClientLastBought",  API_GetClientLastBought);
+    CreateNative("ZP_SetClientLastBought",  API_SetClientLastBought);
+    CreateNative("ZP_GetClientLevel",       API_GetClientLevel);
+    CreateNative("ZP_SetClientLevel",       API_SetClientLevel);
+    CreateNative("ZP_GetClientExp",         API_GetClientExp);
+    CreateNative("ZP_SetClientExp",         API_SetClientExp);
+    CreateNative("ZP_GetClientTime",        API_GetClientTime);
+    CreateNative("ZP_IsNewRound",           API_IsNewRound);
+    CreateNative("ZP_IsEndRound",           API_IsEndRound);
+    CreateNative("ZP_IsStartedRound",       API_IsStartedRound);
+    CreateNative("ZP_GetNumberRound",       API_GetNumberRound);
+    CreateNative("ZP_GetHumanAmount",       API_GetHumanAmount);
+    CreateNative("ZP_GetZombieAmount",      API_GetZombieAmount);
+    CreateNative("ZP_GetAliveAmount",       API_GetAliveAmount);
+    CreateNative("ZP_GetPlayingAmount",     API_GetPlayingAmount);
+    CreateNative("ZP_GetRandomHuman",       API_GetRandomHuman);
+    CreateNative("ZP_GetRandomZombie",      API_GetRandomZombie);  
+
     // Forward event to sub-modules
     ToolsAPI();
-    HumanClassesAPI();
-    ZombieClassesAPI();
+    ClassesAPI();
     ExtraItemsAPI();
     WeaponsAPI();
     SoundsAPI();
@@ -84,10 +79,8 @@ public int API_IsPlayerInGroup(Handle hPlugin, const int iNumParams)
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
-    // Initialize variables
+    // Initialize group char
     static char sGroup[SMALL_LINE_LENGTH];
-
-    // General
     GetNativeString(2, sGroup, sizeof(sGroup));
     
     // Return the value
@@ -123,39 +116,11 @@ public int API_IsPlayerHuman(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Returns true if the player is a nemesis, false if not. (Nemesis always have ZP_IsPlayerZombie() native)
+ * Returns true if the player use a skill, false if not. 
  *
- * native bool ZP_IsPlayerNemesis(clientIndex);
+ * native bool ZP_IsPlayerUseSkill(clientIndex);
  **/
-public int API_IsPlayerNemesis(Handle hPlugin, const int iNumParams)
-{
-    // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
-
-    // Return the value
-    return gClientData[clientIndex][Client_Nemesis];
-}
-
-/**
- * Returns true if the player is a survivor, false if not.
- *
- * native bool ZP_IsPlayerSurvivor(clientIndex);
- **/
-public int API_IsPlayerSurvivor(Handle hPlugin, const int iNumParams)
-{
-    // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
-
-    // Return the value
-    return gClientData[clientIndex][Client_Survivor];
-}
-
-/**
- * Returns true if the player use a zombie skill, false if not. 
- *
- * native bool ZP_IsPlayerUseZombieSkill(clientIndex);
- **/
-public int API_IsPlayerUseZombieSkill(Handle hPlugin, const int iNumParams)
+public int API_IsPlayerUseSkill(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -165,11 +130,11 @@ public int API_IsPlayerUseZombieSkill(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Force to respawn a player.
+ * Respawn a player.
  *
- * native void ZP_ForceClientRespawn(clientIndex, iD);
+ * native void ZP_RespawnClient(clientIndex, iD);
  **/
-public int API_ForceClientRespawn(Handle hPlugin, const int iNumParams)
+public int API_RespawnClient(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -179,52 +144,52 @@ public int API_ForceClientRespawn(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Force to switch a player class.
+ * Infect/humanize a player.
  *
- * native void ZP_SwitchClientClass(clientIndex, attackerIndex, iD);
+ * native void ZP_ChangeClient(clientIndex, attackerIndex, class);
  **/
-public int API_SwitchClientClass(Handle hPlugin, const int iNumParams)
+public int API_ChangeClient(Handle hPlugin, const int iNumParams)
 {
     // Force client to switch player class
     switch(GetNativeCell(3))
     {
-        case 0 /*TYPE_ZOMBIE*/  : ClassMakeZombie(GetNativeCell(1), GetNativeCell(2));       /**< Make a zombie */
-        case 1 /*TYPE_NEMESIS*/ : ClassMakeZombie(GetNativeCell(1), GetNativeCell(2), true); /**< Make a nemesis */
-        case 2 /*TYPE_SURVIVOR*/: ClassMakeHuman(GetNativeCell(1), true);                    /**< Make a survivor */
-        case 3 /*TYPE_HUMAN*/   : ClassMakeHuman(GetNativeCell(1));                          /**< Make a human */
+        case ClassType_Zombie   : ClassMakeZombie(GetNativeCell(1), GetNativeCell(2));       /**< Make a zombie */
+        case ClassType_Nemesis  : ClassMakeZombie(GetNativeCell(1), GetNativeCell(2), true); /**< Make a nemesis */
+        case ClassType_Survivor : ClassMakeHuman(GetNativeCell(1), true);                    /**< Make a survivor */
+        case ClassType_Human    : ClassMakeHuman(GetNativeCell(1));                          /**< Make a human */
     }
 }
 
 /**
- * Gets the player amount of ammopacks.
+ * Gets the player amount of money.
  *
- * native int ZP_GetClientAmmoPack(clientIndex);
+ * native int ZP_GetClientMoney(clientIndex);
  **/
-public int API_GetClientAmmoPack(Handle hPlugin, const int iNumParams)
+public int API_GetClientMoney(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex][Client_AmmoPacks];
+    return gClientData[clientIndex][Client_Money];
 }
 
 /**
- * Sets the player amount of ammopacks.
+ * Sets the player amount of money.
  *
- * native void ZP_SetClientAmmoPack(clientIndex, iD);
+ * native void ZP_SetClientMoney(clientIndex, iD);
  **/
-public int API_SetClientAmmoPack(Handle hPlugin, const int iNumParams)
+public int API_SetClientMoney(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
-    // Sets ammopacks for the client
+    // Sets money for the client
     AccountSetClientCash(clientIndex, GetNativeCell(2));
 }
 
 /**
- * Gets the player amount of previous ammopacks spended.
+ * Gets the player amount of previous money spended.
  *
  * native int ZP_GetClientLastBought(clientIndex);
  **/
@@ -238,7 +203,7 @@ public int API_GetClientLastBought(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Sets the player amount of ammopacks spending.
+ * Sets the player amount of money spending.
  *
  * native void ZP_SetClientLastBoughtv(clientIndex, iD);
  **/
@@ -247,7 +212,7 @@ public int API_SetClientLastBought(Handle hPlugin, const int iNumParams)
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
-    // Sets ammopacks for the client
+    // Sets money for the client
     gClientData[clientIndex][Client_LastBoughtAmount] = GetNativeCell(2);
 }
 
@@ -275,7 +240,7 @@ public int API_SetClientLevel(Handle hPlugin, const int iNumParams)
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
-    // Sets ammopacks for the client
+    // Sets level for the client
     LevelSystemOnSetLvl(clientIndex, GetNativeCell(2));
 }
 
@@ -303,7 +268,7 @@ public int API_SetClientExp(Handle hPlugin, const int iNumParams)
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
-    // Sets ammopacks for the client
+    // Sets exp for the client
     LevelSystemOnSetExp(clientIndex, GetNativeCell(2));
 }
 
@@ -429,26 +394,4 @@ public int API_GetRandomZombie(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetRandomZombie();
-}
-
-/**
- * Gets index of the random survivor.
- *
- * native int ZP_GetRandomSurvivor();
- **/
-public int API_GetRandomSurvivor(Handle hPlugin, const int iNumParams)
-{
-    // Return the value 
-    return fnGetRandomSurvivor();
-}
-
-/**
- * Gets index of the random nemesis.
- *
- * native int ZP_GetRandomNemesis();
- **/
-public int API_GetRandomNemesis(Handle hPlugin, const int iNumParams)
-{
-    // Return the value 
-    return fnGetRandomNemesis();
 }

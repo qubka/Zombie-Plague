@@ -5,7 +5,7 @@
  *
  *  File:          models.cpp
  *  Type:          Manager
- *  Description:   Models table generator.
+ *  Description:   Models decryptor.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
@@ -24,44 +24,6 @@
  *
  * ============================================================================
  **/
- 
-/**
- * Prepare all model/download data.
- **/
-void ModelsLoad(/*void*/)
-{
-    // Initialize variable
-    static char sPath[PLATFORM_MAX_PATH];
-
-    //*********************************************************************
-    //*               PRECACHE OF NEMESIS PLAYER MODEL                    *
-    //*********************************************************************
-    
-    // Validate player model
-    gCvarList[CVAR_NEMESIS_PLAYER_MODEL].GetString(sPath, sizeof(sPath));
-    if(!ModelsPrecacheStatic(sPath))
-    {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid nemesis model path. File not found: \"%s\"", sPath);
-    }
-    
-    //*********************************************************************
-    //*               PRECACHE OF SURVIVOR PLAYER MODEL                   *
-    //*********************************************************************
-    
-    // Validate player model
-    gCvarList[CVAR_SURVIVOR_PLAYER_MODEL].GetString(sPath, sizeof(sPath));
-    if(!ModelsPrecacheStatic(sPath))
-    {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid survivor model path. File not found: \"%s\"", sPath);
-    }
-    
-    // Validate arm model
-    gCvarList[CVAR_SURVIVOR_ARM_MODEL].GetString(sPath, sizeof(sPath));
-    if(!ModelsPrecacheStatic(sPath))
-    {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid survivor arm model path. File not found: \"%s\"", sPath);
-    }
-}
 
 /**
  * Precache models and return model index.
@@ -96,7 +58,7 @@ stock int ModelsPrecacheStatic(const char[] sModel)
         ModelsPrecacheResources(sModel);
     }
     
-    // Return on the success
+    // Return on success
     return PrecacheModel(sModel, true);
 }
 
@@ -148,7 +110,7 @@ stock void ModelsPrecacheResources(const char[] sModel)
     // Add file to download table
     AddFileToDownloadsTable(sModel);
 
-    // Initialize some variables
+    // Initialize variables
     static char sResource[PLATFORM_MAX_PATH];
     static const char sTypes[3][SMALL_LINE_LENGTH] = { ".dx90.vtx", ".phy", ".vvd" };
 
@@ -219,7 +181,7 @@ stock bool ModelsPrecacheSounds(const char[] sModel)
             return false;
         }
         
-        // Initialize some variables
+        // Initialize variables
         int iChar; ///int iNumSeq;
 
         // Find the total sequence amount
@@ -282,7 +244,7 @@ stock bool ModelsPrecacheSounds(const char[] sModel)
         while(hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
-            if(StrContains(sPath, "//") != -1)
+            if(StrContains(sPath, "//", false) != -1)
             {
                 SplitString(sPath, "//", sPath, sizeof(sPath));
             }
@@ -351,7 +313,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
             return false;
         }
         
-        // Initialize some variables
+        // Initialize variables
         static char sMaterial[PLATFORM_MAX_PATH]; int iNumMat; int iChar;
 
         // Find the total materials amount
@@ -367,7 +329,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
         while(iChar == 0);
 
         // Shift the cursor a bit
-        hFile.Seek(1 , SEEK_CUR);
+        hFile.Seek(-1, SEEK_CUR);
 
         do /// Reads a single binary char
         {
@@ -381,9 +343,12 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
         hFile.ReadString(sMaterial, sizeof(sMaterial));
         hFile.Seek(iPosIndex, SEEK_SET);
         hFile.Seek(-1, SEEK_CUR);
+        
+        // Creates a hash map
+        StringMap hTrie = new StringMap();
 
-        // i = material index
-        for(int i = 0; i < iNumMat; i++)
+        // Reverse loop throught the binary
+        while(hFile.Position > 1 && hTrie.Size < iNumMat)
         {
             do /// Reads a single binary char
             {
@@ -396,7 +361,8 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
             iPosIndex = hFile.Position;
             hFile.ReadString(sPath, sizeof(sPath));
             hFile.Seek(iPosIndex, SEEK_SET);
-            
+            hFile.Seek(-1, SEEK_CUR);
+
             // Validate size
             if(!hasLength(sPath))
             {
@@ -442,12 +408,15 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
                                 // Validate material format
                                 if(!strcmp(sFile[iFormat], ".vmt", false))
                                 {
+                                    // Sets a unique key in a hash map
+                                    hTrie.SetValue(sFile, INVALID_HANDLE, false);
+                            
                                     // Format full path to file
                                     Format(sFile, sizeof(sFile), "%s%s", sPath, sFile);
                                     
                                     // Store into the base
                                     hBase.WriteLine(sFile);
-                                    
+ 
                                     // Precache model textures
                                     ModelsPrecacheTextures(sFile);
                                 }
@@ -471,8 +440,14 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
             }
             else
             {
+                // Format format of file
+                Format(sPath, sizeof(sPath), "%s.vmt", sPath);
+        
+                // Sets a unique key in a hash map
+                hTrie.SetValue(sPath, INVALID_HANDLE, false);
+                                    
                 // Format full path to file
-                Format(sPath, sizeof(sPath), "materials\\%s%s.vmt", sMaterial, sPath);
+                Format(sPath, sizeof(sPath), "materials\\%s%s", sMaterial, sPath);
                 
                 // Store into the base
                 hBase.WriteLine(sPath);
@@ -481,9 +456,10 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
                 ModelsPrecacheTextures(sPath);
             }
         }
-        
+
         // Close file
         delete hFile;
+        delete hTrie;
         ///return true;
     }
     else
@@ -492,7 +468,7 @@ stock bool ModelsPrecacheMaterials(const char[] sModel)
         while(hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
-            if(StrContains(sPath, "//") != -1)
+            if(StrContains(sPath, "//", false) != -1)
             {
                 SplitString(sPath, "//", sPath, sizeof(sPath));
             }
@@ -577,7 +553,7 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
             return false;
         }
 
-        // Initialize some variables
+        // Initialize variables
         int iChar; ///int iNumMat;
 
         do /// Reads a single binary char
@@ -634,7 +610,7 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
         while(hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
-            if(StrContains(sPath, "//") != -1)
+            if(StrContains(sPath, "//", false) != -1)
             {
                 SplitString(sPath, "//", sPath, sizeof(sPath));
             }
@@ -674,9 +650,9 @@ stock bool ModelsPrecacheParticle(const char[] sModel)
  **/
 stock bool ModelsPrecacheTextures(const char[] sPath)
 {
-    // Extract value string
+    // Dublicate value string
     static char sTexture[PLATFORM_MAX_PATH];
-    StrExtract(sTexture, sPath, 0, PLATFORM_MAX_PATH);
+    strcopy(sTexture, sizeof(sTexture), sPath);
 
     // If doesn't exist stop
     if(!FileExists(sTexture))
@@ -688,7 +664,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
     // Add file to download table
     AddFileToDownloadsTable(sTexture);
     
-    // Initialize some variables
+    // Initialize variables
     static const char sTypes[4][SMALL_LINE_LENGTH] = { "$baseTexture", "$bumpmap", "$lightwarptexture", "$REFRACTTINTtexture" }; bool bFound[sizeof(sTypes)]; static int iShift;
     
     // Open the file
@@ -704,7 +680,7 @@ stock bool ModelsPrecacheTextures(const char[] sPath)
     while(hFile.ReadLine(sTexture, sizeof(sTexture)))
     {
         // Cut out comments at the end of a line
-        if(StrContains(sTexture, "//") != -1)
+        if(StrContains(sTexture, "//", false) != -1)
         {
             SplitString(sTexture, "//", sTexture, sizeof(sTexture));
         }

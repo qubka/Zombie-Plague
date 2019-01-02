@@ -74,15 +74,14 @@
 #include "zp/game/roundstart.cpp"
 #include "zp/game/jumpboost.cpp"
 #include "zp/game/roundend.cpp"
-#include "zp/game/class.cpp"
 #include "zp/game/skillsystem.cpp"
 #include "zp/game/runcmd.cpp"
 #include "zp/game/levelsystem.cpp"
 #include "zp/game/commands.cpp"
 
 // Manager
-#include "zp/manager/zombieclasses.cpp"
-#include "zp/manager/humanclasses.cpp"
+#include "zp/manager/menus.cpp"
+#include "zp/manager/classes.cpp"
 #include "zp/manager/extraitems.cpp"
 #include "zp/manager/downloads.cpp"
 #include "zp/manager/hitgroups.cpp"
@@ -90,7 +89,6 @@
 #include "zp/manager/weapons.cpp"
 #include "zp/manager/models.cpp"
 #include "zp/manager/sounds.cpp"
-#include "zp/manager/menus.cpp"
 #include "zp/manager/gamemodes.cpp"
 
 // API

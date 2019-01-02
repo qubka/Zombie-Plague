@@ -62,9 +62,9 @@ public Action DebugCommandCatched(const int clientIndex, const int iArguments)
         static char sLog[PLATFORM_MAX_PATH];
         static char sLine[PLATFORM_MAX_PATH];
 
-        // Gets the path to log file
+        // Gets path to log file
         FindConVar("con_logfile").GetString(sLog, sizeof(sLog));
-        Format(sLine, sizeof(sLine), "%s%d.txt", sPath, GetTime());
+        FormatEx(sLine, sizeof(sLine), "%s%d.txt", sPath, GetTime());
 
         // Stop the dump
         ServerCommand("sm prof stop; con_logfile \"%s\"; sm prof dump vprof; con_logfile \"%s\";", sLine, sLog);

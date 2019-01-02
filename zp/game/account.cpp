@@ -25,8 +25,8 @@
  * ============================================================================
  **/
  
- /**
- * Maximum limit for cash in CS:GO.
+/**
+ * Maximum cash limit in CS:GO.
  **/
 #define ACCOUNT_CASH_MAX 65000
 
@@ -82,8 +82,10 @@ void AccountInit(/*void*/)
      * These are particularly useful for displaying repeating or refreshing HUD text, in addition to displaying multiple message sets in one area of the screen 
      * (for example, center-say messages that may pop up randomly that you don't want to overlap each other).
      */
-    delete hHudAccount;
-    hHudAccount = CreateHudSynchronizer();
+    if(hHudAccount == INVALID_HANDLE)
+    {
+        hHudAccount = CreateHudSynchronizer();
+    }
     
     // Validate loaded map
     if(IsMapLoaded())
@@ -105,42 +107,19 @@ void AccountInit(/*void*/)
  **/
 void AccountOnCvarInit(/*void*/)
 {
-    // Create money cvars
-    gCvarList[CVAR_GAME_CUSTOM_MONEY]           = FindConVar("zp_game_custom_money");
-
-    // Create bonus cvars
-    gCvarList[CVAR_BONUS_CONNECT]               = FindConVar("zp_bonus_connection");
-    gCvarList[CVAR_BONUS_INFECT]                = FindConVar("zp_bonus_infect");
-    gCvarList[CVAR_BONUS_INFECT_HEALTH]         = FindConVar("zp_bonus_infect_health");
-    gCvarList[CVAR_BONUS_KILL_HUMAN]            = FindConVar("zp_bonus_kill_human");
-    gCvarList[CVAR_BONUS_KILL_ZOMBIE]           = FindConVar("zp_bonus_kill_zombie");
-    gCvarList[CVAR_BONUS_KILL_NEMESIS]          = FindConVar("zp_bonus_kill_nemesis");
-    gCvarList[CVAR_BONUS_KILL_SURVIVOR]         = FindConVar("zp_bonus_kill_survivor"); 
-    gCvarList[CVAR_BONUS_DAMAGE_HUMAN]          = FindConVar("zp_bonus_damage_human");
-    gCvarList[CVAR_BONUS_DAMAGE_ZOMBIE]         = FindConVar("zp_bonus_damage_zombie");
-    gCvarList[CVAR_BONUS_DAMAGE_SURVIVOR]       = FindConVar("zp_bonus_damage_survivor");
-    gCvarList[CVAR_BONUS_ZOMBIE_WIN]            = FindConVar("zp_bonus_zombie_win");
-    gCvarList[CVAR_BONUS_ZOMBIE_FAIL]           = FindConVar("zp_bonus_zombie_fail");
-    gCvarList[CVAR_BONUS_ZOMBIE_DRAW]           = FindConVar("zp_bonus_zombie_draw");
-    gCvarList[CVAR_BONUS_HUMAN_WIN]             = FindConVar("zp_bonus_human_win");
-    gCvarList[CVAR_BONUS_HUMAN_FAIL]            = FindConVar("zp_bonus_human_fail");
-    gCvarList[CVAR_BONUS_HUMAN_DRAW]            = FindConVar("zp_bonus_human_draw");
-    gCvarList[CVAR_BONUS_HUD_ACCOUNT_R]         = FindConVar("zp_bonus_hud_account_R");
-    gCvarList[CVAR_BONUS_HUD_ACCOUNT_G]         = FindConVar("zp_bonus_hud_account_G");
-    gCvarList[CVAR_BONUS_HUD_ACCOUNT_B]         = FindConVar("zp_bonus_hud_account_B");
-    
-    // Create server cvars
-    gCvarList[CVAR_SERVER_CASH_AWARD]           = FindConVar("mp_playercashawards");
-    gCvarList[CVAR_SERVER_BUY_ANYWHERE]         = FindConVar("mp_buy_anywhere");
+    // Create cvars
+    gCvarList[CVAR_GAME_CUSTOM_MONEY]     = FindConVar("zp_game_custom_money");
+    gCvarList[CVAR_SERVER_CASH_AWARD]     = FindConVar("mp_playercashawards");
+    gCvarList[CVAR_SERVER_BUY_ANYWHERE]   = FindConVar("mp_buy_anywhere");
     
     // Sets locked cvars to their locked values
     gCvarList[CVAR_SERVER_CASH_AWARD].IntValue   = 0;
     gCvarList[CVAR_SERVER_BUY_ANYWHERE].IntValue = 0;
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_MONEY],           AccountCvarsHookEnable); 
-    HookConVarChange(gCvarList[CVAR_SERVER_CASH_AWARD],           CvarsHookLocked);
-    HookConVarChange(gCvarList[CVAR_SERVER_BUY_ANYWHERE],         CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_MONEY],   AccountCvarsHookEnable); 
+    HookConVarChange(gCvarList[CVAR_SERVER_CASH_AWARD],   CvarsHookLocked);
+    HookConVarChange(gCvarList[CVAR_SERVER_BUY_ANYWHERE], CvarsHookLocked);
 }
 
 /**
@@ -185,7 +164,7 @@ public void AccountOnClientUpdate(const int userID)
         return;
     }
     
-    // Gets the client index from the user ID
+    // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
     // Validate client
@@ -195,9 +174,9 @@ public void AccountOnClientUpdate(const int userID)
         if(!IsFakeClient(clientIndex))
         {
             // If value higher, then create custom HUD
-            if(gClientData[clientIndex][Client_AmmoPacks] > ACCOUNT_CASH_MAX)
+            if(gClientData[clientIndex][Client_Money] > ACCOUNT_CASH_MAX)
             {
-                // Send a convar to client
+                // Send a convar to the client
                 gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "0");
 
                 // Sets timer for player account HUD
@@ -206,32 +185,32 @@ public void AccountOnClientUpdate(const int userID)
             }
             else
             {
-                // Send a convar to client
+                // Send a convar to the client
                 gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "1");
                 
                 // Update client cash
-                SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_AmmoPacks], 4, true);
+                SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_Money], 4, true);
             }
         }
     }
 }
 
 /**
- * Set a client account value. (ammopacks)
+ * Set a client account value.
  * 
  * @param clientIndex       The client index.
- * @param nAmmoPacks        The ammopacks amount.
+ * @param nMoney            The money amount.
  **/
-stock void AccountSetClientCash(const int clientIndex, int nAmmoPacks)
+stock void AccountSetClientCash(const int clientIndex, int nMoney)
 {
     // If value below 0, then set to 0
-    if(nAmmoPacks < 0)
+    if(nMoney < 0)
     {
-        nAmmoPacks = 0;
+        nMoney = 0;
     }
 
-    // Sets the ammopacks
-    gClientData[clientIndex][Client_AmmoPacks] = nAmmoPacks;
+    // Sets money
+    gClientData[clientIndex][Client_Money] = nMoney;
 
     // If account disabled, then stop
     if(!gCvarList[CVAR_GAME_CUSTOM_MONEY].BoolValue)
@@ -240,12 +219,12 @@ stock void AccountSetClientCash(const int clientIndex, int nAmmoPacks)
     }
     
     // If value higher, then create custom HUD
-    if(nAmmoPacks > ACCOUNT_CASH_MAX)
+    if(nMoney > ACCOUNT_CASH_MAX)
     {
         // Validate timer
         if(gClientData[clientIndex][Client_AccountTimer] == INVALID_HANDLE)
         {
-            // Send a convar to client
+            // Send a convar to the client
             gCvarList[CVAR_SERVER_CASH_AWARD].ReplicateToClient(clientIndex, "0");
   
             // Sets timer for player account HUD
@@ -256,26 +235,26 @@ stock void AccountSetClientCash(const int clientIndex, int nAmmoPacks)
     else
     {
         // Update client cash
-        SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_AmmoPacks], 4, true);
+        SetEntData(clientIndex, g_iOffset_PlayerAccount, gClientData[clientIndex][Client_Money], 4, true);
     }
 }
 
 /**
- * Timer callback, show HUD text within information about client account value. (ammopacks)
+ * Timer callback, show HUD text within information about client account value. (money)
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
 public Action AccountOnHUD(Handle hTimer, const int userID)
 {
-    // Gets the client index from the user ID
+    // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
     // Validate client
     if(clientIndex)
     {
-        // Print hud text to client
-        TranslationPrintHudText(hHudAccount, clientIndex, 0.02, 0.01, 1.1, gCvarList[CVAR_BONUS_HUD_ACCOUNT_R].IntValue, gCvarList[CVAR_BONUS_HUD_ACCOUNT_G].IntValue, gCvarList[CVAR_BONUS_HUD_ACCOUNT_B].IntValue, 255, 0, 0.0, 0.0, 0.0, "account info", "ammopack", gClientData[clientIndex][Client_AmmoPacks]);
+        // Print hud text to the client
+        TranslationPrintHudText(hHudAccount, clientIndex, 0.02, 0.01, 1.1, 255, 255, 255, 255, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[clientIndex][Client_Money]);
 
         // Allow timer
         return Plugin_Continue;

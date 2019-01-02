@@ -5,7 +5,7 @@
  *
  *  File:          extraitems.cpp
  *  Type:          Manager 
- *  Description:   Extra Items generator.
+ *  Description:   API for loading extraitems specific variables.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
@@ -45,7 +45,7 @@ enum
 }
 
 /**
- * Array to store the item limit to player.
+ * Array to store the item limit to the client.
  **/
 int gExtraBuyLimit[MAXPLAYERS+1][2048];
 
@@ -77,7 +77,7 @@ void ExtraItemsLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
     }
 
-    // Sets the path to the config file
+    // Sets path to the config file
     ConfigSetConfigPath(File_ExtraItems, sPathItems);
 
     // Load config from file and create array structure
@@ -195,7 +195,7 @@ void ExtraItemsOnCommandsCreate(/*void*/)
  **/ 
 public Action ExtraItemsCommandCatched(const int clientIndex, const int iArguments)
 {
-    ExtraItemsMenu(clientIndex);
+    ItemsMenu(clientIndex);
     return Plugin_Handled;
 }
 
@@ -208,19 +208,19 @@ public Action ExtraItemsCommandCatched(const int clientIndex, const int iArgumen
  **/
 void ExtraItemsAPI(/*void*/)
 {
-    CreateNative("ZP_GiveClientExtraItem",            API_GiveClientExtraItem); 
-    CreateNative("ZP_SetClientExtraItemLimit",        API_SetClientExtraItemLimit); 
-    CreateNative("ZP_GetClientExtraItemLimit",        API_GetClientExtraItemLimit); 
-    CreateNative("ZP_GetNumberExtraItem",             API_GetNumberExtraItem); 
-    CreateNative("ZP_GetExtraItemNameID",             API_GetExtraItemNameID);
-    CreateNative("ZP_GetExtraItemName",               API_GetExtraItemName); 
-    CreateNative("ZP_GetExtraItemInfo",               API_GetExtraItemInfo); 
-    CreateNative("ZP_GetExtraItemCost",               API_GetExtraItemCost); 
-    CreateNative("ZP_GetExtraItemLevel",              API_GetExtraItemLevel); 
-    CreateNative("ZP_GetExtraItemOnline",             API_GetExtraItemOnline); 
-    CreateNative("ZP_GetExtraItemLimit",              API_GetExtraItemLimit); 
-    CreateNative("ZP_GetExtraItemGroup",              API_GetExtraItemGroup); 
-    CreateNative("ZP_PrintExtraItemInfo",             API_PrintExtraItemInfo); 
+    CreateNative("ZP_GiveClientExtraItem",      API_GiveClientExtraItem); 
+    CreateNative("ZP_SetClientExtraItemLimit",  API_SetClientExtraItemLimit); 
+    CreateNative("ZP_GetClientExtraItemLimit",  API_GetClientExtraItemLimit); 
+    CreateNative("ZP_GetNumberExtraItem",       API_GetNumberExtraItem); 
+    CreateNative("ZP_GetExtraItemNameID",       API_GetExtraItemNameID);
+    CreateNative("ZP_GetExtraItemName",         API_GetExtraItemName); 
+    CreateNative("ZP_GetExtraItemInfo",         API_GetExtraItemInfo); 
+    CreateNative("ZP_GetExtraItemCost",         API_GetExtraItemCost); 
+    CreateNative("ZP_GetExtraItemLevel",        API_GetExtraItemLevel); 
+    CreateNative("ZP_GetExtraItemOnline",       API_GetExtraItemOnline); 
+    CreateNative("ZP_GetExtraItemLimit",        API_GetExtraItemLimit); 
+    CreateNative("ZP_GetExtraItemGroup",        API_GetExtraItemGroup); 
+    CreateNative("ZP_PrintExtraItemInfo",       API_PrintExtraItemInfo); 
 }
 
 /**
@@ -364,23 +364,8 @@ public int API_GetExtraItemNameID(Handle hPlugin, const int iNumParams)
     // General
     GetNativeString(1, sName, sizeof(sName));
 
-    // i = item number
-    int iCount = arrayExtraItems.Length;
-    for(int i = 0; i < iCount; i++)
-    {
-        // Gets the name of a extra item at a given index
-        static char sItemName[SMALL_LINE_LENGTH];
-        ItemsGetName(i, sItemName, sizeof(sItemName));
-
-        // If names match, then return index
-        if(!strcmp(sName, sItemName, false))
-        {
-            return i;
-        }
-    }
-
-    // Return on the unsuccess
-    return -1;
+    // Return the value
+    return ItemsNameToIndex(sName); 
 }
 
 /**
@@ -777,17 +762,67 @@ stock void ItemsGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 /*
  * Stocks extra items API.
  */
+
+/**
+ * Find the index at which the extraitem name is at.
+ * 
+ * @param sName             The item name.
+ * @param iMaxLen           (Only if 'overwritename' is true) The max length of the item name. 
+ * @param bOverWriteName    (Optional) If true, the item given will be overwritten with the name from the config.
+ * @return                  The array index containing the given item name.
+ **/
+stock int ItemsNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOverWriteName = false)
+{
+    // Initialize name char
+    static char sItemName[SMALL_LINE_LENGTH];
+    
+    // i = item index
+    int iSize = arrayExtraItems.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets item name 
+        ItemsGetName(i, sItemName, sizeof(sItemName));
+        
+        // If names match, then return index
+        if(!strcmp(sName, sItemName, false))
+        {
+            // If 'overwrite' name is true, then overwrite the old string with new
+            if(bOverWriteName)
+            {
+                // Copy config name to return string
+                strcopy(sName, iMaxLen, sItemName);
+            }
+            
+            // Return this index
+            return i;
+        }
+    }
+    
+    // Name doesn't exist
+    return -1;
+}
  
 /**
  * Create the extra items menu.
  *  
  * @param clientIndex        The client index.
  **/ 
-void ExtraItemsMenu(const int clientIndex)
+void ItemsMenu(const int clientIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
     {
+        return;
+    }
+    
+    // Validate access
+    if(gServerData[Server_RoundStart] && !ModesIsExtraItem(gServerData[Server_RoundMode]))
+    {
+        // Show block info
+        TranslationPrintHintText(clientIndex, "round block");     
+
+        // Emit error sound
+        ClientCommand(clientIndex, "play buttons/button11.wav");
         return;
     }
     
@@ -801,9 +836,9 @@ void ExtraItemsMenu(const int clientIndex)
     static char sGroup[SMALL_LINE_LENGTH];
     
     // Create extra items menu handle
-    Menu hMenu = CreateMenu(ExtraItemsSlots);
+    Menu hMenu = CreateMenu(ItemsMenuSlots);
 
-    // Sets the language to target
+    // Sets language to target
     SetGlobalTransTarget(clientIndex);
     
     // Sets title
@@ -812,7 +847,7 @@ void ExtraItemsMenu(const int clientIndex)
     // Initialize forward
     static Action resultHandle;
     
-    // i = Extra item number
+    // i = extraitem index
     int iCount = arrayExtraItems.Length;
     for(int i = 0; i < iCount; i++)
     {
@@ -830,21 +865,21 @@ void ExtraItemsMenu(const int clientIndex)
         ItemsGetGroup(i, sGroup, sizeof(sGroup));
 
         // Format some chars for showing in menu
-        Format(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
-        Format(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
-        Format(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
-        Format(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "ammopack");
+        FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
+        FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
+        FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
+        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex][Client_AmmoPacks] < ItemsGetCost(i)) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex][Client_Money] < ItemsGetCost(i)) ? false : true));
     }
     
     // If there are no cases, add an "(Empty)" line
     if(!iCount)
     {
         static char sEmpty[SMALL_LINE_LENGTH];
-        Format(sEmpty, sizeof(sEmpty), "%t", "empty");
+        FormatEx(sEmpty, sizeof(sEmpty), "%t", "empty");
 
         hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
     }
@@ -865,7 +900,7 @@ void ExtraItemsMenu(const int clientIndex)
  * @param clientIndex        The client index.
  * @param mSlot              The slot index selected (starting from 0).
  **/ 
-public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -895,20 +930,26 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                 return;
             }
             
-            // If round ended, then stop
-            if(gServerData[Server_RoundEnd])
+            // Validate access
+            if((gServerData[Server_RoundStart] && !ModesIsExtraItem(gServerData[Server_RoundMode])) || gServerData[Server_RoundEnd])
             {
+                // Show block info
+                TranslationPrintHintText(clientIndex, "round block");
+
                 // Emit error sound
                 ClientCommand(clientIndex, "play buttons/button11.wav");    
                 return;
             }
 
-            // Initialize variable
+            // Initialize name char
             static char sItemName[SMALL_LINE_LENGTH];
 
-            // Gets ID of the extra item
+            // Gets menu info
             hMenu.GetItem(mSlot, sItemName, sizeof(sItemName));
             int iD = StringToInt(sItemName);
+            
+            // Gets extra item name
+            ItemsGetName(iD, sItemName, sizeof(sItemName));
             
             // Call forward
             Action resultHandle = API_OnClientValidateExtraItem(clientIndex, iD);
@@ -922,9 +963,6 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                 // If help messages enable, then show 
                 if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
                 {
-                    // Gets extra item name
-                    ItemsGetName(iD, sItemName, sizeof(sItemName));
-
                     // Gets client name
                     static char sInfo[BIG_LINE_LENGTH];
                     GetClientName(clientIndex, sInfo, sizeof(sInfo));
@@ -942,8 +980,8 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex
                 // If item has a cost
                 if(ItemsGetCost(iD))
                 {
-                    // Remove ammopacks and store it for returning if player will be first zombie
-                    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_AmmoPacks] - ItemsGetCost(iD));
+                    // Remove money and store it for returning if player will be first zombie
+                    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_Money] - ItemsGetCost(iD));
                     gClientData[clientIndex][Client_LastBoughtAmount] += ItemsGetCost(iD);
                     
                     // If item has a limit
@@ -956,6 +994,9 @@ public int ExtraItemsSlots(Menu hMenu, MenuAction mAction, const int clientIndex
             }
             else
             {
+                // Show item block info
+                TranslationPrintHintText(clientIndex, "buying block", sItemName);
+        
                 // Emit error sound
                 ClientCommand(clientIndex, "play buttons/button11.wav");    
             }

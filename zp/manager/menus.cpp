@@ -5,7 +5,7 @@
  *
  *  File:          menus.cpp
  *  Type:          Manager 
- *  Description:   Menus table generator.
+ *  Description:   Menus constructor.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
  *
@@ -26,27 +26,36 @@
  **/
 
 /**
+ * Menu duration of the instant change.
+ **/
+#define MENU_TIME_INSTANT 10
+ 
+/**
  * Array handle to store menu generator config data.
  **/
 ArrayList arrayMenus;
 
 /**
- * Menu config data indexes.
+ * @section Menu config data indexes.
  **/
 enum
 {
     MENUS_DATA_NAME,
     MENUS_DATA_GROUP,
     MENUS_DATA_HIDE,
-    MENUS_DATA_COMMAND
+    MENUS_DATA_COMMAND,
+    MENUS_DATA_SUBMENU
 }
-
+/**
+ * @endsection
+ **/
+ 
 /**
  * Menus module init function.
  **/
 void MenusInit(/*void*/)
 {
-    // Initialize variable
+    // Initialize command char
     static char sCommand[SMALL_LINE_LENGTH];
     
     // Validate alias
@@ -89,10 +98,10 @@ void MenusOnCommandsCreate(/*void*/)
 void MenusOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON]     = FindConVar("zp_game_custom_menu_button");
+    gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON] = FindConVar("zp_game_custom_menu_button");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON],     MenusCvarsHookEnable);
+    HookConVarChange(gCvarList[CVAR_GAME_CUSTOM_MENU_BUTTON], MenusCvarsHookEnable);
 }
 
 /**
@@ -116,7 +125,6 @@ public Action MenusCommandCatched(const int clientIndex, const int iArguments)
  **/
 public Action MenusOnOpen(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
-    // Open the main menu
     MenuMain(clientIndex);
     return Plugin_Handled;
 }
@@ -160,7 +168,7 @@ void MenusLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Missing menus config file: \"%s\"", sPathMenus);
     }
 
-    // Sets the path to the config file
+    // Sets path to the config file
     ConfigSetConfigPath(File_Menus, sPathMenus);
 
     // Load config from file and create array structure
@@ -238,6 +246,38 @@ void MenusCacheData(/*void*/)
         arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: 2
         kvMenus.GetString("command", sPathMenus, sizeof(sPathMenus), "");
         arrayMenu.PushString(sPathMenus);                             // Index: 3
+        if(!hasLength(sPathMenus) && kvMenus.JumpToKey("submenu"))    // Index: 4
+        {
+            // Read keys in the file
+            if(kvMenus.GotoFirstSubKey())
+            {
+                do
+                {
+                    // Retrieves the sub section name
+                    kvMenus.GetSectionName(sPathMenus, sizeof(sPathMenus));
+                    
+                    // Validate translation
+                    if(!TranslationPhraseExists(sPathMenus))
+                    {
+                        // Log menu error
+                        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache submenu name: \"%s\" (check translation file)", sPathMenus);
+                    }
+
+                    // Push data into array ~ (i = submenu index)
+                    arrayMenu.PushString(sPathMenus);                                // Index: i + 0
+                    kvMenus.GetString("group", sPathMenus, sizeof(sPathMenus), "");  
+                    arrayMenu.PushString(sPathMenus);                                // Index: i + 1
+                    arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no"));    // Index: i + 2
+                    kvMenus.GetString("command", sPathMenus, sizeof(sPathMenus), "");
+                    arrayMenu.PushString(sPathMenus);                                // Index: i + 3
+                }
+                while(kvMenus.GotoNextKey());
+            }
+            
+            // Jumps back to the main section
+            kvMenus.GoBack();
+            kvMenus.GoBack();
+        }
     }
 
     // We're done with this file now, so we can close it
@@ -262,11 +302,13 @@ public void MenusOnConfigReload(/*void*/)
  **/
 void MenusAPI(/*void*/) 
 {
-    CreateNative("ZP_GetNumberMenu",                  API_GetNumberMenu);
-    CreateNative("ZP_GetMenuName",                    API_GetMenuName);
-    CreateNative("ZP_GetMenuGroup",                   API_GetMenuGroup);
-    CreateNative("ZP_IsMenuHide",                     API_IsMenuHide);
-    CreateNative("ZP_GetMenuCommand",                 API_GetMenuCommand);
+    CreateNative("ZP_GetNumberMenu",    API_GetNumberMenu);
+    CreateNative("ZP_GetMenuNameID",    API_GetMenuNameID);
+    CreateNative("ZP_GetMenuName",      API_GetMenuName);
+    CreateNative("ZP_GetMenuGroup",     API_GetMenuGroup);
+    CreateNative("ZP_IsMenuHide",       API_IsMenuHide);
+    CreateNative("ZP_GetMenuCommand",   API_GetMenuCommand);
+    CreateNative("ZP_OpenMenuSub",      API_OpenMenuSub);
 }
  
 /**
@@ -281,13 +323,41 @@ public int API_GetNumberMenu(Handle hPlugin, const int iNumParams)
 }
 
 /**
+ * Gets the index of a menu at a given name.
+ *
+ * native int ZP_GetMenuNameID(name);
+ **/
+public int API_GetMenuNameID(Handle hPlugin, const int iNumParams)
+{
+    // Retrieves the string length from a native parameter string
+    int maxLen;
+    GetNativeStringLength(1, maxLen);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Can't find menu with an empty name");
+        return -1;
+    }
+    
+    // Gets native data
+    static char sName[SMALL_LINE_LENGTH];
+
+    // General
+    GetNativeString(1, sName, sizeof(sName));
+
+    // Return the value
+    return MenusNameToIndex(sName);  
+}
+
+/**
  * Gets the name of a menu at a given id.
  *
- * native void ZP_GetMenuName(iD, name, maxlen);
+ * native void ZP_GetMenuName(iD, name, maxlen, sub);
  **/
 public int API_GetMenuName(Handle hPlugin, const int iNumParams)
 {
-    // Gets weapon index from native cell
+    // Gets menu index from native cell
     int iD = GetNativeCell(1);
     
     // Validate index
@@ -309,7 +379,7 @@ public int API_GetMenuName(Handle hPlugin, const int iNumParams)
     
     // Initialize name char
     static char sName[SMALL_LINE_LENGTH];
-    MenusGetName(iD, sName, sizeof(sName));
+    MenusGetName(iD, sName, sizeof(sName), GetNativeCell(4));
 
     // Return on success
     return SetNativeString(2, sName, maxLen);
@@ -318,11 +388,11 @@ public int API_GetMenuName(Handle hPlugin, const int iNumParams)
 /**
  * Gets the group of a menu at a given id.
  *
- * native void ZP_GetMenuGroup(iD, group, maxlen);
+ * native void ZP_GetMenuGroup(iD, group, maxlen, sub);
  **/
 public int API_GetMenuGroup(Handle hPlugin, const int iNumParams)
 {
-    // Gets weapon index from native cell
+    // Gets menu index from native cell
     int iD = GetNativeCell(1);
     
     // Validate index
@@ -344,20 +414,20 @@ public int API_GetMenuGroup(Handle hPlugin, const int iNumParams)
     
     // Initialize group char
     static char sGroup[SMALL_LINE_LENGTH];
-    MenusGetGroup(iD, sGroup, sizeof(sGroup));
+    MenusGetGroup(iD, sGroup, sizeof(sGroup), GetNativeCell(4));
 
     // Return on success
     return SetNativeString(2, sGroup, maxLen);
 }
 
 /**
- * Gets the menu value of the costume.
+ * Gets the menu value of the menu.
  *
- * native bool ZP_IsMenuHide(iD);
+ * native bool ZP_IsMenuHide(iD, sub);
  **/
 public int API_IsMenuHide(Handle hPlugin, const int iNumParams)
 {    
-    // Gets costume index from native cell
+    // Gets menu index from native cell
     int iD = GetNativeCell(1);
     
     // Validate index
@@ -368,17 +438,17 @@ public int API_IsMenuHide(Handle hPlugin, const int iNumParams)
     }
     
     // Return the value 
-    return MenusIsHide(iD);
+    return MenusIsHide(iD, GetNativeCell(2));
 }
 
 /**
  * Gets the command of a menu at a given id.
  *
- * native void ZP_GetMenuCommand(iD, command, maxlen);
+ * native void ZP_GetMenuCommand(iD, command, maxlen, sub);
  **/
 public int API_GetMenuCommand(Handle hPlugin, const int iNumParams)
 {
-    // Gets weapon index from native cell
+    // Gets menu index from native cell
     int iD = GetNativeCell(1);
     
     // Validate index
@@ -400,10 +470,44 @@ public int API_GetMenuCommand(Handle hPlugin, const int iNumParams)
     
     // Initialize command char
     static char sCommand[SMALL_LINE_LENGTH];
-    MenusGetCommand(iD, sCommand, sizeof(sCommand));
+    MenusGetCommand(iD, sCommand, sizeof(sCommand), GetNativeCell(4));
 
     // Return on success
     return SetNativeString(2, sCommand, maxLen);
+}
+
+/**
+ * Opens the submenu of the menu.
+ *
+ * native void ZP_OpenMenuSub(clientIndex, iD);
+ **/
+public int API_OpenMenuSub(Handle hPlugin, const int iNumParams)
+{
+    // Gets real player index from native cell 
+    int clientIndex = GetNativeCell(1);
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        return -1;
+    }
+    
+    // Gets menu index from native cell
+    int iD = GetNativeCell(2);
+    
+    // Validate index
+    if(iD >= arrayMenus.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+        return -1;
+    }
+    
+    // Open sub menu
+    MenuSub(clientIndex, iD);
+    
+    // Return on success
+    return iD;
 }
 
 /*
@@ -416,14 +520,15 @@ public int API_GetMenuCommand(Handle hPlugin, const int iNumParams)
  * @param iD                The menu index.
  * @param sName             The string to return name in.
  * @param iMaxLen           The max length of the string.
+ * @param iSubMenu          (Optional) The submenu index. (Loop += 4)
  **/
-stock void MenusGetName(const int iD, char[] sName, const int iMaxLen)
+stock void MenusGetName(const int iD, char[] sName, const int iMaxLen, const int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
     
     // Gets menu name
-    arrayMenu.GetString(MENUS_DATA_NAME, sName, iMaxLen);
+    arrayMenu.GetString(MENUS_DATA_NAME + iSubMenu, sName, iMaxLen);
 }
 
 /**
@@ -432,29 +537,31 @@ stock void MenusGetName(const int iD, char[] sName, const int iMaxLen)
  * @param iD                The menu index.
  * @param sGroup            The string to return group in.
  * @param iMaxLen           The max length of the string.
+ * @param iSubMenu          (Optional) The submenu index. (Loop += 4)
  **/
-stock void MenusGetGroup(const int iD, char[] sGroup, const int iMaxLen)
+stock void MenusGetGroup(const int iD, char[] sGroup, const int iMaxLen, const int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
 
     // Gets menu group
-    arrayMenu.GetString(MENUS_DATA_GROUP, sGroup, iMaxLen);
+    arrayMenu.GetString(MENUS_DATA_GROUP + iSubMenu, sGroup, iMaxLen);
 }
 
 /**
  * Retrieve menu hide value.
  * 
  * @param iD                The menu index.
+ * @param iSubMenu          (Optional) The submenu index. (Loop += 4)
  * @return                  True if menu is hided, false if not.
  **/
-stock bool MenusIsHide(const int iD)
+stock bool MenusIsHide(const int iD, const int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
     
     // Return true if menu is hide, false if not
-    return arrayMenu.Get(MENUS_DATA_HIDE);
+    return arrayMenu.Get(MENUS_DATA_HIDE + iSubMenu);
 }
 
 /**
@@ -463,19 +570,59 @@ stock bool MenusIsHide(const int iD)
  * @param iD                The menu index.
  * @param sCommand          The string to return command in.
  * @param iMaxLen           The max length of the string.
+ * @param iSubMenu          (Optional) The submenu index. (Loop += 4)
  **/
-stock void MenusGetCommand(const int iD, char[] sCommand, const int iMaxLen)
+stock void MenusGetCommand(const int iD, char[] sCommand, const int iMaxLen, const int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = arrayMenus.Get(iD);
     
     // Gets menu command
-    arrayMenu.GetString(MENUS_DATA_COMMAND, sCommand, iMaxLen);
+    arrayMenu.GetString(MENUS_DATA_COMMAND + iSubMenu, sCommand, iMaxLen);
 }
 
 /*
  * Stocks menus API.
  */
+ 
+/**
+ * Find the index at which the menu name is at.
+ * 
+ * @param sName             The menu name.
+ * @param iMaxLen           (Only if 'overwritename' is true) The max length of the menu name. 
+ * @param bOverWriteName    (Optional) If true, the menu given will be overwritten with the name from the config.
+ * @return                  The array index containing the given menu name.
+ **/
+stock int MenusNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOverWriteName = false)
+{
+    // Initialize name char
+    static char sMenuName[SMALL_LINE_LENGTH];
+    
+    // i = menu index
+    int iSize = arrayMenus.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets menu name 
+        MenusGetName(i, sMenuName, sizeof(sMenuName));
+        
+        // If names match, then return index
+        if(!strcmp(sName, sMenuName, false))
+        {
+            // If 'overwrite' name is true, then overwrite the old string with new
+            if(bOverWriteName)
+            {
+                // Copy config name to return string
+                strcopy(sName, iMaxLen, sMenuName);
+            }
+            
+            // Return this index
+            return i;
+        }
+    }
+    
+    // Name doesn't exist
+    return -1;
+}
  
 /**
  * Create a main menu.
@@ -498,13 +645,13 @@ void MenuMain(const int clientIndex)
     // Create menu handle
     Menu hMenu = CreateMenu(MenuMainSlots);
     
-    // Sets the language to target
+    // Sets language to target
     SetGlobalTransTarget(clientIndex);
     
     // Sets title
     hMenu.SetTitle("%t", "main menu");
     
-    // i = Array index
+    // i = menu index
     int iSize = arrayMenus.Length;
     for(int i = 0; i < iSize; i++)
     {
@@ -524,7 +671,7 @@ void MenuMain(const int clientIndex)
         MenusGetName(i, sName, sizeof(sName));
 
         // Format some chars for showing in menu
-        Format(sBuffer, sizeof(sBuffer), "%t", sName);
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
@@ -535,7 +682,7 @@ void MenuMain(const int clientIndex)
     if(!iSize)
     {
         static char sEmpty[SMALL_LINE_LENGTH];
-        Format(sEmpty, sizeof(sEmpty), "%t", "empty");
+        FormatEx(sEmpty, sizeof(sEmpty), "%t", "empty");
 
         hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
     }
@@ -579,15 +726,173 @@ public int MenuMainSlots(Menu hMenu, MenuAction mAction, const int clientIndex, 
             // Initialize command char
             static char sCommand[SMALL_LINE_LENGTH];
 
-            // Gets ID of menu
+            // Gets menu info
             hMenu.GetItem(mSlot, sCommand, sizeof(sCommand));
             int iD = StringToInt(sCommand);
             
             // Gets menu command
             MenusGetCommand(iD, sCommand, sizeof(sCommand));
             
-            // Run the command
-            FakeClientCommand(clientIndex, sCommand);
+            // Validate command
+            if(hasLength(sCommand))
+            {
+                // Run the command
+                FakeClientCommand(clientIndex, sCommand);
+            }
+            else
+            {
+                // Open sub menu
+                MenuSub(clientIndex, iD);
+            }
+        }
+    }
+}
+
+/**
+ * Create a sub menu.
+ *
+ * @param clientIndex       The client index.
+ * @param iD                The menu index.
+ **/
+void MenuSub(const int clientIndex, const int iD)
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        return;
+    }
+    
+    // Gets array handle of menu at given index
+    ArrayList arrayMenu = arrayMenus.Get(iD);
+
+    // Initialize variables
+    static char sBuffer[NORMAL_LINE_LENGTH];
+    static char sName[SMALL_LINE_LENGTH];
+    static char sInfo[SMALL_LINE_LENGTH];
+    
+    // Gets menu name
+    MenusGetName(iD, sBuffer, sizeof(sBuffer));
+
+    // Validate size
+    int iSize = arrayMenu.Length;
+    if(!(iSize - MENUS_DATA_SUBMENU))
+    {
+        // Log menu error
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu command for: \"%s\" (check menus config)", sBuffer);
+        return;
+    }
+    
+    // Create menu handle
+    Menu hMenu = CreateMenu(MenuSubSlots);
+    
+    // Sets language to target
+    SetGlobalTransTarget(clientIndex);
+    
+    // Sets title
+    hMenu.SetTitle("%t", sBuffer);
+    
+    // i = menu index
+    for(int i = MENUS_DATA_SUBMENU; i < iSize; i += 4)
+    {
+        // Gets menu group
+        MenusGetGroup(iD, sName, sizeof(sName), i);
+
+        // Validate access
+        bool bHide = (!IsPlayerInGroup(clientIndex, sName) && hasLength(sName));
+
+        // Skip, if menu is hided
+        if(bHide && MenusIsHide(iD, i))
+        {
+            continue;
+        }
+
+        // Gets menu name
+        MenusGetName(iD, sName, sizeof(sName), i);
+
+        // Validate auto-rebuy formatting
+        if(!strcmp(sName, "auto rebuy", false))
+        {
+            // Gets auto-rebuy setting
+            ConfigBoolToSetting(gClientData[clientIndex][Client_AutoRebuy], sInfo, sizeof(sInfo), false, clientIndex);
+    
+            // Format some chars for showing in menu
+            FormatEx(sBuffer, sizeof(sBuffer), "%t", sName, sInfo);
+        }
+        else
+        {
+            // Format some chars for showing in menu
+            FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+        }
+
+        // Show option
+        FormatEx(sInfo, sizeof(sInfo), "%i %i", iD, i);
+        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(bHide ? false : true));
+    }
+    
+    // Sets exit and back button
+    hMenu.ExitBackButton = true;
+
+    // Sets options and display it
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+}
+
+/**
+ * Called when client selects option in the sub menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int MenuSubSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Open main menu back
+                MenuMain(clientIndex);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(clientIndex, false))
+            {
+                return;
+            }
+            
+            // Initialize command char
+            static char sCommand[SMALL_LINE_LENGTH];
+
+            // Gets menu info
+            hMenu.GetItem(mSlot, sCommand, sizeof(sCommand));
+            static char sInfo[2][SMALL_LINE_LENGTH];
+            ExplodeString(sCommand, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
+            
+            // Gets menu command
+            MenusGetCommand(iD, sCommand, sizeof(sCommand), i);
+            
+            // Validate command
+            if(hasLength(sCommand))
+            {
+                // Run the command
+                FakeClientCommand(clientIndex, sCommand);
+            }
         }
     }
 }

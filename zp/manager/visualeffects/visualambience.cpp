@@ -30,38 +30,38 @@
  **/
 void VAmbienceOnCvarInit(/*void*/)
 {
-    // Create effects cvars
-    gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE]   = FindConVar("zp_veffects_lightstyle_value");
-    gCvarList[CVAR_VEFFECTS_LIGHTSTYLE]         = FindConVar("zp_veffects_lightstyle");       
-    gCvarList[CVAR_VEFFECTS_SKY_PATH]           = FindConVar("zp_veffects_sky_path");
-    gCvarList[CVAR_VEFFECTS_SKY]                = FindConVar("zp_veffects_sky");              
-    gCvarList[CVAR_VEFFECTS_SKYNAME]            = FindConVar("sv_skyname");
-    gCvarList[CVAR_VEFFECTS_SUN_DISABLE]        = FindConVar("zp_veffects_sun_disable");      
-    gCvarList[CVAR_VEFFECTS_FOG_COLOR]          = FindConVar("zp_veffects_fog_color");
-    gCvarList[CVAR_VEFFECTS_FOG_DENSITY]        = FindConVar("zp_veffects_fog_density");
-    gCvarList[CVAR_VEFFECTS_FOG_STARTDIST]      = FindConVar("zp_veffects_fog_startdist");
-    gCvarList[CVAR_VEFFECTS_FOG_ENDDIST]        = FindConVar("zp_veffects_fog_enddist");
-    gCvarList[CVAR_VEFFECTS_FOG_FARZ]           = FindConVar("zp_veffects_fog_farz");
-    gCvarList[CVAR_VEFFECTS_FOG]                = FindConVar("zp_veffects_fog");   
+    // Create cvars
+    gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE] = FindConVar("zp_veffects_lightstyle_value");
+    gCvarList[CVAR_VEFFECTS_LIGHTSTYLE]       = FindConVar("zp_veffects_lightstyle");       
+    gCvarList[CVAR_VEFFECTS_SKY_PATH]         = FindConVar("zp_veffects_sky_path");
+    gCvarList[CVAR_VEFFECTS_SKY]              = FindConVar("zp_veffects_sky");              
+    gCvarList[CVAR_VEFFECTS_SKYNAME]          = FindConVar("sv_skyname");
+    gCvarList[CVAR_VEFFECTS_SUN_DISABLE]      = FindConVar("zp_veffects_sun_disable");      
+    gCvarList[CVAR_VEFFECTS_FOG_COLOR]        = FindConVar("zp_veffects_fog_color");
+    gCvarList[CVAR_VEFFECTS_FOG_DENSITY]      = FindConVar("zp_veffects_fog_density");
+    gCvarList[CVAR_VEFFECTS_FOG_STARTDIST]    = FindConVar("zp_veffects_fog_startdist");
+    gCvarList[CVAR_VEFFECTS_FOG_ENDDIST]      = FindConVar("zp_veffects_fog_enddist");
+    gCvarList[CVAR_VEFFECTS_FOG_FARZ]         = FindConVar("zp_veffects_fog_farz");
+    gCvarList[CVAR_VEFFECTS_FOG]              = FindConVar("zp_veffects_fog");   
     
     // Hook lightstyle cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE],         VAmbienceCvarsHookLightStyle);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE],   VAmbienceCvarsHookLightStyle);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE],       VAmbienceCvarsHookLightStyle);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE], VAmbienceCvarsHookLightStyle);
     
     // Hook sky cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY],                VAmbienceCvarsHookSky);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY_PATH],           VAmbienceCvarsHookSky);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY],              VAmbienceCvarsHookSky);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY_PATH],         VAmbienceCvarsHookSky);
     
     // Hook sun cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SUN_DISABLE],        VAmbienceCvarsHookSunDisable);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_SUN_DISABLE],      VAmbienceCvarsHookSunDisable);
     
     // Hook fog cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG],                VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_COLOR],          VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_DENSITY],        VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_STARTDIST],      VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST],        VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_FARZ],           VAmbienceCvarsHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG],              VAmbienceCvarsHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_COLOR],        VAmbienceCvarsHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_DENSITY],      VAmbienceCvarsHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_STARTDIST],    VAmbienceCvarsHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST],      VAmbienceCvarsHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_FARZ],         VAmbienceCvarsHookFog);
 }
  
 /**
@@ -181,7 +181,7 @@ void VAmbienceApplyLightStyle(const bool bDisable = false)
     gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE].GetString(sLightStyleValue, sizeof(sLightStyleValue));
 
     // If light value contants 'a', render of textures will be remove
-    if(StrContains(sLightStyleValue, "a") != -1)
+    if(StrContains(sLightStyleValue, "a", true) != -1)
     {
         // Sets darkest light style
         SetLightStyle(0, "b");

@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *  File:          global.cpp
- *  Type:          Main 
+ *  Type:          Main
  *  Description:   General plugin functions.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
@@ -26,7 +26,7 @@
  **/
 
 /**
- * @section: Core static macroses.
+ * @section Core static macroses.
  **/
 #define SMALL_LINE_LENGTH   32
 #define NORMAL_LINE_LENGTH  64
@@ -49,6 +49,7 @@ int g_iOffset_PlayerLMV;
 int g_iOffset_PlayerNightVisionOn;
 int g_iOffset_PlayerHasNightVision;
 int g_iOffset_PlayerHasDefuser;
+int g_iOffset_PlayerFov;
 int g_iOffset_PlayerDefaultFOV;
 int g_iOffset_PlayerAccount;
 int g_iOffset_PlayerSpotted;
@@ -104,7 +105,7 @@ int g_iOffset_GrenadeThrower;
  **/
 
 /**
- * List of operation types for gamedata config.
+ * @section List of operation types for gamedata config.
  **/
 enum GameData
 {
@@ -113,9 +114,12 @@ enum GameData
     Handle:Game_SDKTools,
     Handle:Game_CStrike
 };
+/**
+ * @endsection
+ **/
  
 /**
- * List of operation types for global array.
+ * @section List of operation types for global array.
  **/
 enum ServerData
 {
@@ -124,14 +128,18 @@ enum ServerData
     bool:Server_RoundStart,
     Server_RoundNumber,
     Server_RoundMode,
+    Server_RoundLast,
     Server_RoundCount,
     EngineOS:Server_PlatForm,
     Handle:Server_GameConfig[GameData],
     String:Server_MapName[PLATFORM_MAX_PATH]
 };
-
 /**
- * @section: Core useful stocks.
+ * @endsection
+ **/
+ 
+/**
+ * @section Core useful functions.
  **/
 #define hasLength(%0) (%0[0] != '\0') 
 #define IsMapLoaded() hasLength(gServerData[Server_MapName])
@@ -145,31 +153,29 @@ enum ServerData
 int gServerData[ServerData];
 
 /**
- * List of operation types for clients arrays.
+ * @section List of operation types for clients arrays.
  **/
 enum ClientData
 {
     /* Global */
     bool:Client_Zombie,
-    bool:Client_Survivor,
-    bool:Client_Nemesis,
     bool:Client_Skill,
     bool:Client_Loaded,
     bool:Client_AutoRebuy,
     Float:Client_SkillCountDown,
-    Client_ZombieClass,
-    Client_ZombieClassNext,
-    Client_HumanClass,
+    Client_Class,
     Client_HumanClassNext,
+    Client_ZombieClassNext,
     Client_Respawn,
     Client_RespawnTimes,
-    Client_AmmoPacks,
+    Client_Money,
     Client_LastBoughtAmount,
     Client_Level,
     Client_Exp,
     Client_DataID,
     Client_Costume,
     Client_Time,
+    Float:Client_Spawn[3],
     Client_AttachmentCostume,
     Client_AttachmentBits,
     Client_AttachmentAddons[11], /* Amount of weapon back attachments */
@@ -191,9 +197,13 @@ enum ClientData
     Handle:Client_SkillTimer,
     Handle:Client_CountDownTimer,
     Handle:Client_HealTimer,
-    Handle:Client_MoanTimer
+    Handle:Client_MoanTimer,
+    Handle:Client_AmbientTimer
 };
-
+/**
+ * @endsection
+ **/
+ 
 /**
  * Arrays to store the clients' data.
  **/

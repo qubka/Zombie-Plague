@@ -66,6 +66,15 @@ native int ZP_GetClientCostume(int clientIndex);
 native void ZP_SetClientCostume(int clientIndex, int costumeID);
 
 /**
+ * Gets the index of a costume at a given name.
+ *
+ * @param name              The costume name.
+ *
+ * @return                  The costume index, or -1 on failure.
+ **/
+native int ZP_GetCostumeNameID(char[] name);
+
+/**
  * @brief Gets the name of a costume at a given index.
  *
  * @param costumeID         The costume index.
