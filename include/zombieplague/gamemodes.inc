@@ -32,6 +32,8 @@
 #endif
 #define _gamemodes_included
 
+#include <cstrike>
+
 /**
  * @brief Called after a round is started.
  *
