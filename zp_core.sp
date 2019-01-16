@@ -116,11 +116,11 @@ public void OnPluginStart(/*void*/)
     TranslationOnInit();  
     ConfigOnInit();
     CvarsOnInit();
+    CommandsOnInit();
     LogOnInit();
     ClassesOnInit();
     CostumesOnInit(); 
     HitGroupsOnInit();
-    CommandsOnInit();
     SoundsOnInit();
     DataBaseOnInit();
     GameModesOnInit();
