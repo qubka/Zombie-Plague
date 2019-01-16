@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  *
- *   Plague
+ *  Zombie Plague
  *
  *  File:          clases.cpp
  *  Type:          Manager 
@@ -24,19 +24,9 @@
  *
  * ============================================================================
  **/
- 
-/**
- * Number of max valid weapons.
- **/
-#define CLASSES_WEAPON_MAX 16
- 
-/**
- * Array handle to store class native data.
- **/
-ArrayList arrayClasses;
 
 /**
- * @section  native data indexes.
+ * @section Class config data indexes.
  **/
 enum
 {
@@ -61,10 +51,12 @@ enum
     CLASSES_DATA_GROUP,
     CLASSES_DATA_SKILLDURATION,
     CLASSES_DATA_SKILLCOUNTDOWN,
+    CLASSES_DATA_SKILLBAR,
     CLASSES_DATA_REGENHEALTH,
     CLASSES_DATA_REGENINTERVAL,
+    CLASSES_DATA_FALL,
+    CLASSES_DATA_SPOTTED,
     CLASSES_DATA_FOV,
-    CLASSES_DATA_NOFALL,
     CLASSES_DATA_CROSSHAIR,
     CLASSES_DATA_NVGS,
     CLASSES_DATA_OVERLAY,
@@ -88,87 +80,154 @@ enum
     CLASSES_DATA_SOUNDATTACK,
     CLASSES_DATA_SOUNDFOOTSTEP,
     CLASSES_DATA_SOUNDREGEN
-}
+};
 /**
  * @endsection
  **/
  
- /*
+/**
+ * @section Number of valid bonuses.
+ **/
+enum /*BonusType*/
+{
+    BonusType_Invalid = -1,       /** Used as return value when a bonus doens't exist. */
+    
+    BonusType_Kill,               /** Kill bonus */
+    BonusType_Damage,             /** Damage bonus */
+    BonusType_Infect,             /** Infect or humanize bonus */  
+    BonusType_Win,                /** Win bonus */ 
+    BonusType_Lose,               /** Lose bonus */    
+    BonusType_Draw                /** Draw bonus */ 
+};
+/**
+ * @endsection
+ **/
+ 
+/*
  * Load other classes modules
  */
+#include "zp/manager/playerclasses/jumpboost.cpp"
+#include "zp/manager/playerclasses/skillsystem.cpp"
+#include "zp/manager/playerclasses/levelsystem.cpp"
+#include "zp/manager/playerclasses/runcmd.cpp"
+#include "zp/manager/playerclasses/antistick.cpp"
+#include "zp/manager/playerclasses/account.cpp"
+#include "zp/manager/playerclasses/spawn.cpp"
+#include "zp/manager/playerclasses/death.cpp"
 #include "zp/manager/playerclasses/apply.cpp"
 #include "zp/manager/playerclasses/classmenus.cpp"
-#include "zp/manager/playerclasses/classcomands.cpp"
+#include "zp/manager/playerclasses/classcommands.cpp"
+#include "zp/manager/playerclasses/tools.cpp" /// player helpers
 
 /**
- * Prepare all class data.
+ * @brief Classes module init function.
  **/
-void ClassesLoad(/*void*/)
+void ClassesOnInit(/*void*/)
 {
+    // Forward event to sub-modules
+    ToolsOnInit();
+    SpawnOnInit();
+    DeathOnInit();
+    LevelSystemOnInit();
+    SkillSystemOnInit();
+    JumpBoostOnInit();
+    AccountOnInit();
+}
+
+/**
+ * @brief Classes module purge function.
+ **/
+void ClassesOnPurge(/*void*/)
+{
+    // Forward event to sub-modules
+    ToolsOnPurge();
+}
+
+/**
+ * @brief Prepare all class data.
+ **/
+void ClassesOnLoad(/*void*/)
+{
+    // Load spawns
+    SpawnOnLoad();
+    
     // Register config file
     ConfigRegisterConfig(File_Classes, Structure_Keyvalue, CONFIG_FILE_ALIAS_CLASSES);
 
     // Gets classes config path
-    static char sPathClasses[PLATFORM_MAX_PATH];
+    static char sPathClasses[PLATFORM_LINE_LENGTH];
     bool bExists = ConfigGetFullPath(CONFIG_PATH_CLASSES, sPathClasses);
 
     // If file doesn't exist, then log and stop
     if(!bExists)
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Missing classes config file: \"%s\"", sPathClasses);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Missing classes config file: \"%s\"", sPathClasses);
+        return;
     }
 
     // Sets path to the config file
     ConfigSetConfigPath(File_Classes, sPathClasses);
 
     // Load config from file and create array structure
-    bool bSuccess = ConfigLoadConfig(File_Classes, arrayClasses);
+    bool bSuccess = ConfigLoadConfig(File_Classes, gServerData.Classes);
 
     // Unexpected error, stop plugin
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathClasses);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathClasses);
+        return;
     }
 
     // Validate classes config
-    int iSize = arrayClasses.Length;
+    int iSize = gServerData.Classes.Length;
     if(!iSize)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sPathClasses);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sPathClasses);
+        return;
     }
 
     // Now copy data to array structure
-    ClassesCacheData();
+    ClassesOnCacheData();
 
     // Sets config data
     ConfigSetConfigLoaded(File_Classes, true);
     ConfigSetConfigReloadFunc(File_Classes, GetFunctionByName(GetMyHandle(), "ClassesOnConfigReload"));
-    ConfigSetConfigHandle(File_Classes, arrayClasses);
+    ConfigSetConfigHandle(File_Classes, gServerData.Classes);
 }
 
 /**
- * Caches class data from file into arrays.
- * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ * @brief Caches class data from file into arrays.
  **/
-void ClassesCacheData(/*void*/)
+void ClassesOnCacheData(/*void*/)
 {
     // Gets config file path
-    static char sPathClasses[PLATFORM_MAX_PATH];
+    static char sPathClasses[PLATFORM_LINE_LENGTH];
     ConfigGetConfigPath(File_Classes, sPathClasses, sizeof(sPathClasses));
 
-    // Open config
+    // Opens config
     KeyValues kvClasses;
     bool bSuccess = ConfigOpenConfigFile(File_Classes, kvClasses);
 
     // Validate config
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error caching data from classes config file: \"%s\"", sPathClasses);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error caching data from classes config file: \"%s\"", sPathClasses);
+        return;
     }
-
+    
+    // If array hasn't been created, then create
+    if(gServerData.Types == null)
+    {
+        // Initialize a type list array
+        gServerData.Types = CreateArray(SMALL_LINE_LENGTH);
+    }
+    
+    // Clear out the array of all data
+    gServerData.Types.Clear();
+    
     // i = array index
-    int iSize = arrayClasses.Length;
+    int iSize = gServerData.Classes.Length;
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -177,7 +236,7 @@ void ClassesCacheData(/*void*/)
         if(!kvClasses.JumpToKey(sPathClasses))
         {
             // Log class fatal
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class data for: \"%s\" (check classes config)", sPathClasses);
+            LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class data for: \"%s\" (check classes config)", sPathClasses);
             continue;
         }
         
@@ -185,34 +244,45 @@ void ClassesCacheData(/*void*/)
         if(!TranslationPhraseExists(sPathClasses))
         {
             // Log class error
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class name: \"%s\" (check translation file)", sPathClasses);
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class name: \"%s\" (check translation file)", sPathClasses);
+            continue;
         }
 
         // Initialize array block
-        ArrayList arrayClass = arrayClasses.Get(i);
+        ArrayList arrayClass = gServerData.Classes.Get(i);
 
         // Push data into array
         kvClasses.GetString("info", sPathClasses, sizeof(sPathClasses), "");
         if(!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
         {
             // Log class error
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Couldn't cache class info: \"%s\" (check translation file)", sPathClasses);
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class info: \"%s\" (check translation file)", sPathClasses);
         }
         arrayClass.PushString(sPathClasses);                                    // Index: 1
         kvClasses.GetString("type", sPathClasses, sizeof(sPathClasses), "");
+        if(!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
+        {
+            // Log class error
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\" (check translation file)", sPathClasses);
+        }
         arrayClass.PushString(sPathClasses);                                    // Index: 2
+        if(gServerData.Types.FindString(sPathClasses) == -1)
+        {
+            gServerData.Types.PushString(sPathClasses); //! Unique type catched
+        }
         arrayClass.Push(ConfigKvGetStringBool(kvClasses, "zombie", "no"));      // Index: 3
         kvClasses.GetString("model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 4
         ModelsPrecacheStatic(sPathClasses);
         kvClasses.GetString("claw_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 5
-        arrayClass.Push(ModelsPrecacheWeapon(sPathClasses));                    // Index: 7
+        arrayClass.Push(ModelsPrecacheWeapon(sPathClasses));                    // Index: 6
         kvClasses.GetString("gren_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 7
+        arrayClass.Push(ModelsPrecacheWeapon(sPathClasses));                    // Index: 8
         kvClasses.GetString("arm_model", sPathClasses, sizeof(sPathClasses), "");
-        arrayClass.PushString(sPathClasses);                                    // Index: 8
-        arrayClass.Push(ModelsPrecacheWeapon(sPathClasses));                    // Index: 9
+        arrayClass.PushString(sPathClasses);                                    // Index: 9
+        ModelsPrecacheStatic(sPathClasses);
         arrayClass.Push(kvClasses.GetNum("body", -1));                          // Index: 10 
         arrayClass.Push(kvClasses.GetNum("skin", -1));                          // Index: 11 
         arrayClass.Push(kvClasses.GetNum("health", 0));                         // Index: 12 
@@ -225,66 +295,80 @@ void ClassesCacheData(/*void*/)
         arrayClass.PushString(sPathClasses);                                    // Index: 18
         arrayClass.Push(kvClasses.GetFloat("duration", 0.0));                   // Index: 19
         arrayClass.Push(kvClasses.GetFloat("countdown", 0.0));                  // Index: 20
-        arrayClass.Push(kvClasses.GetNum("regenerate", 0));                     // Index: 21
-        arrayClass.Push(kvClasses.GetFloat("interval", 0.0));                   // Index: 22
-        arrayClass.Push(kvClasses.GetNum("fov", 90));                           // Index: 23
-        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "no_fall", "off"));    // Index: 24
-        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "crosshair", "yes"));  // Index: 25
-        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "nvgs", "no"));        // Index: 26
+        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "bar", "off"));        // Index: 21
+        arrayClass.Push(kvClasses.GetNum("regenerate", 0));                     // Index: 22
+        arrayClass.Push(kvClasses.GetFloat("interval", 0.0));                   // Index: 23
+        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "fall", "on"));        // Index: 24
+        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "spotted", "on"));     // Index: 25
+        arrayClass.Push(kvClasses.GetNum("fov", 90));                           // Index: 26
+        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "crosshair", "yes"));  // Index: 27
+        arrayClass.Push(ConfigKvGetStringBool(kvClasses, "nvgs", "no"));        // Index: 28
         kvClasses.GetString("overlay", sPathClasses, sizeof(sPathClasses), "");
-        arrayClass.PushString(sPathClasses);                                    // Index: 27
+        arrayClass.PushString(sPathClasses);                                    // Index: 29
         kvClasses.GetString("weapon", sPathClasses, sizeof(sPathClasses), "");
-        static char sWeapon[CLASSES_WEAPON_MAX][SMALL_LINE_LENGTH]; int iWeapon[CLASSES_WEAPON_MAX] = { -1, ... };
-        int nWeapons = ExplodeString(sPathClasses, ",", sWeapon, sizeof(sWeapon), sizeof(sWeapon[]));
-        for(int x = 0; x < nWeapons; x++)
+        static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH]; int iWeapon[SMALL_LINE_LENGTH] = { -1, ... };
+        int nWeapon = ExplodeString(sPathClasses, ",", sWeapon, sizeof(sWeapon), sizeof(sWeapon[]));
+        for(int x = 0; x < nWeapon; x++)
         {
+            // Trim string
+            TrimString(sWeapon[x]);
+
+            // Push data into array
             iWeapon[x] = WeaponsNameToIndex(sWeapon[x]);
         } 
-        arrayClass.PushArray(iWeapon, sizeof(iWeapon));                         // Index: 28
+        arrayClass.PushArray(iWeapon, sizeof(iWeapon));                         // Index: 30
         kvClasses.GetString("money", sPathClasses, sizeof(sPathClasses), "");
-        static char sMoney[3][SMALL_LINE_LENGTH]; int iMoney[3];
-        int nMoney = ExplodeString(sPathClasses, " ", sMoney, sizeof(sMoney), sizeof(sMoney[]));
+        static char sMoney[6][SMALL_LINE_LENGTH]; int iMoney[6];
+        int nMoney = ExplodeString(sPathClasses, ",", sMoney, sizeof(sMoney), sizeof(sMoney[]));
         for(int x = 0; x < nMoney; x++)
         {
+            // Trim string
+            TrimString(sWeapon[x]);
+
+            // Push data into array
             iMoney[x] = StringToInt(sMoney[x]);
         }
-        arrayClass.PushArray(iMoney, sizeof(iMoney));                           // Index: 29
+        arrayClass.PushArray(iMoney, sizeof(iMoney));                           // Index: 31
         kvClasses.GetString("experience", sPathClasses, sizeof(sPathClasses), "");
-        static char sExp[3][SMALL_LINE_LENGTH]; int iExp[3];
-        int nExp = ExplodeString(sPathClasses, " ", sExp, sizeof(sExp), sizeof(sExp[]));
+        static char sExp[6][SMALL_LINE_LENGTH]; int iExp[6];
+        int nExp = ExplodeString(sPathClasses, ",", sExp, sizeof(sExp), sizeof(sExp[]));
         for(int x = 0; x < nExp; x++)
         {
+            // Trim string
+            TrimString(sWeapon[x]);
+
+            // Push data into array
             iExp[x] = StringToInt(sExp[x]);
         }
-        arrayClass.PushArray(iExp, sizeof(iExp));                               // Index: 30
-        arrayClass.Push(kvClasses.GetNum("lifesteal", 0));                      // Index: 31
-        arrayClass.Push(kvClasses.GetNum("ammunition", 0));                     // Index: 32
-        arrayClass.Push(kvClasses.GetNum("leap", 0));                           // Index: 33
-        arrayClass.Push(kvClasses.GetFloat("force", 0.0));                      // Index: 34
-        arrayClass.Push(kvClasses.GetFloat("cooldown", 0.0));                   // Index: 35
+        arrayClass.PushArray(iExp, sizeof(iExp));                               // Index: 32
+        arrayClass.Push(kvClasses.GetNum("lifesteal", 0));                      // Index: 33
+        arrayClass.Push(kvClasses.GetNum("ammunition", 0));                     // Index: 34
+        arrayClass.Push(kvClasses.GetNum("leap", 0));                           // Index: 35
+        arrayClass.Push(kvClasses.GetFloat("force", 0.0));                      // Index: 36
+        arrayClass.Push(kvClasses.GetFloat("cooldown", 0.0));                   // Index: 37
         kvClasses.GetString("effect", sPathClasses, sizeof(sPathClasses), "");
-        arrayClass.PushString(sPathClasses);                                    // Index: 36
+        arrayClass.PushString(sPathClasses);                                    // Index: 38
         kvClasses.GetString("attachment", sPathClasses, sizeof(sPathClasses), "");
-        arrayClass.PushString(sPathClasses);                                    // Index: 37
-        arrayClass.Push(kvClasses.GetFloat("time", 1.0));                       // Index: 38
+        arrayClass.PushString(sPathClasses);                                    // Index: 39
+        arrayClass.Push(kvClasses.GetFloat("time", 1.0));                       // Index: 40
         kvClasses.GetString("death", sPathClasses, sizeof(sPathClasses), "");
-        arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 39
-        kvClasses.GetString("hurt", sPathClasses, sizeof(sPathClasses), "");
-        arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 40
-        kvClasses.GetString("idle", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 41
-        kvClasses.GetString("infect", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("hurt", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 42
-        kvClasses.GetString("respawn", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("idle", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 43
-        kvClasses.GetString("burn", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("infect", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 44
-        kvClasses.GetString("attack", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("respawn", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 45
-        kvClasses.GetString("footstep", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("burn", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 46
-        kvClasses.GetString("regen", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("attack", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 47
+        kvClasses.GetString("footstep", sPathClasses, sizeof(sPathClasses), "");
+        arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 48
+        kvClasses.GetString("regen", sPathClasses, sizeof(sPathClasses), "");
+        arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 49
     }
 
     // We're done with this file now, so we can close it
@@ -292,34 +376,81 @@ void ClassesCacheData(/*void*/)
 }
 
 /**
- * Called when configs are being reloaded.
+ * @brief Called when configs are being reloaded.
  * 
  * @param iConfig           The config being reloaded. (only if 'all' is false)
  **/
 public void ClassesOnConfigReload(ConfigFile iConfig)
 {
-    // Reload class config
-    ClassesLoad();
+    // Reloads class config
+    ClassesOnLoad();
 }
 
 /**
- * Creates commands for classes module.
+ * @brief Creates commands for classes module.
  **/
-void ClassesOnCommandsCreate(/*void*/)
+void ClassesOnCommandInit(/*void*/)
 {
     // Forward event to sub-modules
-    ClassMenusOnCommandsCreate();
-    ClassComandsOnCommandsCreate();
+    AccountOnCommandInit();
+    AntiStickOnCommandInit();
+    ClassMenusOnCommandInit();
+    LevelSystemOnCommandInit();
+    ClassCommandsOnCommandInit();
 }
 
 /**
- * Hook classes cvar changes.
+ * @brief Hook classes cvar changes.
  **/
 void ClassesOnCvarInit(/*void*/)
 {
-    // Create cvars
-    gCvarList[CVAR_GAME_CUSTOM_HUMAN_MENU]  = FindConVar("zp_game_custom_human_menu");
-    gCvarList[CVAR_GAME_CUSTOM_ZOMBIE_MENU] = FindConVar("zp_game_custom_zombie_menu");
+    // Forward event to sub-modules
+    JumpBoostOnCvarInit();
+    LevelSystemOnCvarInit();
+    AccountOnCvarInit();
+    SkillSystemOnCvarInit();
+    ToolsOnCvarInit();
+    DeathOnCvarInit();
+    AntiStickOnCvarInit();
+    
+    // Creates cvars
+    gCvarList[CVAR_HUMAN_MENU]  = FindConVar("zp_human_menu");
+    gCvarList[CVAR_ZOMBIE_MENU] = FindConVar("zp_zombie_menu");
+}
+
+/**
+ * @brief Client is joining the server.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void ClassesOnClientInit(const int clientIndex)
+{
+    // Forward event to sub-modules
+    AntiStickOnClientInit(clientIndex);
+    JumpBoostOnClientInit(clientIndex);
+}
+
+/**
+ * @brief Called once a client successfully connects.
+ *
+ * @param clientIndex       The client index.
+ **/
+void ClassesOnClientConnect(const int clientIndex)
+{
+    // Forward event to sub-modules
+    ToolsOnClientConnect(clientIndex);
+}
+
+/**
+ * @brief Called when a client is disconnected from the server.
+ *
+ * @param clientIndex       The client index.
+ **/
+void ClassesOnClientDisconnectPost(const int clientIndex)
+{
+    // Forward event to sub-modules
+    ToolsOnClientDisconnectPost(clientIndex);
+    GameModesOnClientDisconnectPost(clientIndex);
 }
 
 /*
@@ -327,10 +458,11 @@ void ClassesOnCvarInit(/*void*/)
  */
 
 /**
- * Sets up natives for library.
+ * @brief Sets up natives for library.
  **/
-void ClassesAPI(/*void*/)
+void ClassesOnNativeInit(/*void*/)
 {
+    CreateNative("ZP_ChangeClient",             API_ChangeClient); 
     CreateNative("ZP_GetNumberClass",           API_GetNumberClass);
     CreateNative("ZP_GetClientClass",           API_GetClientClass);
     CreateNative("ZP_GetClientHumanClassNext",  API_GetClientHumanClassNext);
@@ -340,6 +472,7 @@ void ClassesAPI(/*void*/)
     CreateNative("ZP_GetClassNameID",           API_GetClassNameID);
     CreateNative("ZP_GetClassName",             API_GetClassName);
     CreateNative("ZP_GetClassInfo",             API_GetClassInfo);
+    CreateNative("ZP_GetClassTypeID",           API_GetClassTypeID);
     CreateNative("ZP_GetClassType",             API_GetClassType);
     CreateNative("ZP_IsClassZombie",            API_IsClassZombie);
     CreateNative("ZP_GetClassModel",            API_GetClassModel);
@@ -357,10 +490,12 @@ void ClassesAPI(/*void*/)
     CreateNative("ZP_GetClassGroup",            API_GetClassGroup);
     CreateNative("ZP_GetClassSkillDuration",    API_GetClassSkillDuration);
     CreateNative("ZP_GetClassSkillCountdown",   API_GetClassSkillCountdown);
+    CreateNative("ZP_IsClassSkillBar",          API_IsClassSkillBar);
     CreateNative("ZP_GetClassRegenHealth",      API_GetClassRegenHealth);
     CreateNative("ZP_GetClassRegenInterval",    API_GetClassRegenInterval);
+    CreateNative("ZP_IsClassFall",              API_IsClassFall);
+    CreateNative("ZP_IsClassSpot",              API_IsClassSpot);
     CreateNative("ZP_GetClassFov",              API_GetClassFov);
-    CreateNative("ZP_IsClassNoFall",            API_IsClassNoFall);
     CreateNative("ZP_IsClassCross",             API_IsClassCross);
     CreateNative("ZP_IsClassNvgs",              API_IsClassNvgs); 
     CreateNative("ZP_GetClassOverlay",          API_GetClassOverlay);
@@ -386,24 +521,76 @@ void ClassesAPI(/*void*/)
     CreateNative("ZP_GetClassSoundAttackID",    API_GetClassSoundAttackID);
     CreateNative("ZP_GetClassSoundFootID",      API_GetClassSoundFootID);
     CreateNative("ZP_GetClassSoundRegenID",     API_GetClassSoundRegenID);
-    CreateNative("ZP_PrintClassInfo",           API_PrintClassInfo);
+
+    // Forward event to sub-modules
+    SkillSystemOnNativeInit();
+    LevelSystemOnNativeInit();
+    AccountOnNativeInit();
+}
+
+/**
+ * @brief Infect/humanize a player.
+ *
+ * @note native bool ZP_ChangeClient(clientIndex, attackerIndex, type);
+ **/
+public int API_ChangeClient(Handle hPlugin, const int iNumParams)
+{
+    // Gets real player index from native cell 
+    int clientIndex = GetNativeCell(1);
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        return false;
+    }
+    
+    // Gets real player index from native cell 
+    int attackerIndex = GetNativeCell(2);
+
+    // Validate attacker
+    if(attackerIndex && !IsPlayerExist(attackerIndex))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the attacker index (%d)", attackerIndex);
+        return false;
+    }
+    
+    // Retrieves the string length from a native parameter string
+    int maxLen;
+    GetNativeStringLength(3, maxLen);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty name");
+        return false;
+    }
+    
+    // Gets native data
+    static char sType[SMALL_LINE_LENGTH];
+
+    // General
+    GetNativeString(3, sType, sizeof(sType));
+    
+    // Force client to update
+    return ApplyOnClientUpdate(clientIndex, attackerIndex, sType);
 }
  
 /**
- * Gets the amount of all classes.
+ * @brief Gets the amount of all classes.
  *
- * native int ZP_GetNumberClass();
+ * @note native int ZP_GetNumberClass();
  **/
 public int API_GetNumberClass(Handle hPlugin, const int iNumParams)
 {
     // Return the value 
-    return arrayClasses.Length;
+    return gServerData.Classes.Length;
 }
 
 /**
- * Gets the current class index of the client.
+ * @brief Gets the current class index of the client.
  *
- * native int ZP_GetClientClass(clientIndex);
+ * @note native int ZP_GetClientClass(clientIndex);
  **/
 public int API_GetClientClass(Handle hPlugin, const int iNumParams)
 {
@@ -411,13 +598,13 @@ public int API_GetClientClass(Handle hPlugin, const int iNumParams)
     int clientIndex = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex][Client_Class];
+    return gClientData[clientIndex].Class;
 }
 
 /**
- * Gets the human next class index of the client.
+ * @brief Gets the human next class index of the client.
  *
- * native int ZP_GetClientHumanClassNext(clientIndex);
+ * @note native int ZP_GetClientHumanClassNext(clientIndex);
  **/
 public int API_GetClientHumanClassNext(Handle hPlugin, const int iNumParams)
 {
@@ -425,13 +612,13 @@ public int API_GetClientHumanClassNext(Handle hPlugin, const int iNumParams)
     int clientIndex = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex][Client_HumanClassNext];
+    return gClientData[clientIndex].HumanClassNext;
 }
 
 /**
- * Gets the zombie next class index of the client.
+ * @brief Gets the zombie next class index of the client.
  *
- * native int ZP_GetClientZombieClassNext(clientIndex);
+ * @note native int ZP_GetClientZombieClassNext(clientIndex);
  **/
 public int API_GetClientZombieClassNext(Handle hPlugin, const int iNumParams)
 {
@@ -439,13 +626,13 @@ public int API_GetClientZombieClassNext(Handle hPlugin, const int iNumParams)
     int clientIndex = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex][Client_ZombieClassNext];
+    return gClientData[clientIndex].ZombieClassNext;
 }
 
 /**
- * Sets the human next class index to the client.
+ * @brief Sets the human next class index to the client.
  *
- * native void ZP_SetClientHumanClassNext(clientIndex, iD);
+ * @note native void ZP_SetClientHumanClassNext(clientIndex, iD);
  **/
 public int API_SetClientHumanClassNext(Handle hPlugin, const int iNumParams)
 {
@@ -456,20 +643,21 @@ public int API_SetClientHumanClassNext(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(2);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
     // Call forward
-    Action resultHandle = API_OnClientValidateHumanClass(clientIndex, iD);
+    static Action resultHandle;
+    gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
 
     // Validate handle
     if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
     {
         // Sets next human class to the client
-        gClientData[clientIndex][Client_HumanClassNext] = iD;
+        gClientData[clientIndex].HumanClassNext = iD;
     }
 
     // Return on success
@@ -477,9 +665,9 @@ public int API_SetClientHumanClassNext(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Sets the zombie next class index to the client.
+ * @brief Sets the zombie next class index to the client.
  *
- * native void ZP_SetClientZombieClassNext(clientIndex, iD);
+ * @note native void ZP_SetClientZombieClassNext(clientIndex, iD);
  **/
 public int API_SetClientZombieClassNext(Handle hPlugin, const int iNumParams)
 {
@@ -490,20 +678,21 @@ public int API_SetClientZombieClassNext(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(2);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
     // Call forward
-    Action resultHandle = API_OnClientValidateZombieClass(clientIndex, iD);
+    static Action resultHandle;
+    gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
 
     // Validate handle
     if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
     {
         // Sets next zombie class to the client
-        gClientData[clientIndex][Client_ZombieClassNext] = iD;
+        gClientData[clientIndex].ZombieClassNext = iD;
     }
 
     // Return on success
@@ -511,9 +700,9 @@ public int API_SetClientZombieClassNext(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the index of a class at a given name.
+ * @brief Gets the index of a class at a given name.
  *
- * native int ZP_GetClassNameID(name);
+ * @note native int ZP_GetClassNameID(name);
  **/
 public int API_GetClassNameID(Handle hPlugin, const int iNumParams)
 {
@@ -524,7 +713,7 @@ public int API_GetClassNameID(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty name");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty name");
         return -1;
     }
     
@@ -539,9 +728,9 @@ public int API_GetClassNameID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the name of a class at a given index.
+ * @brief Gets the name of a class at a given index.
  *
- * native void ZP_GetClassName(iD, name, maxlen);
+ * @note native void ZP_GetClassName(iD, name, maxlen);
  **/
 public int API_GetClassName(Handle hPlugin, const int iNumParams)
 {
@@ -549,9 +738,9 @@ public int API_GetClassName(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -561,7 +750,7 @@ public int API_GetClassName(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -574,9 +763,9 @@ public int API_GetClassName(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the info of a class at a given index.
+ * @brief Gets the info of a class at a given index.
  *
- * native void ZP_GetClassInfo(iD, info, maxlen);
+ * @note native void ZP_GetClassInfo(iD, info, maxlen);
  **/
 public int API_GetClassInfo(Handle hPlugin, const int iNumParams)
 {
@@ -584,9 +773,9 @@ public int API_GetClassInfo(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -596,7 +785,7 @@ public int API_GetClassInfo(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -609,9 +798,37 @@ public int API_GetClassInfo(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the type of a class at a given index.
+ * @brief Gets the index of a class at a given type.
  *
- * native void ZP_GetClassType(iD, type, maxlen);
+ * @note native int ZP_GetClassTypeID(type);
+ **/
+public int API_GetClassTypeID(Handle hPlugin, const int iNumParams)
+{
+    // Retrieves the string length from a native parameter string
+    int maxLen;
+    GetNativeStringLength(1, maxLen);
+
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty type");
+        return -1;
+    }
+    
+    // Gets native data
+    static char sType[SMALL_LINE_LENGTH];
+
+    // General
+    GetNativeString(1, sType, sizeof(sType));
+    
+    // Return the value
+    return ClassTypeToIndex(sType); 
+}
+
+/**
+ * @brief Gets the type of a class at a given index.
+ *
+ * @note native void ZP_GetClassType(iD, type, maxlen);
  **/
 public int API_GetClassType(Handle hPlugin, const int iNumParams)
 {
@@ -619,9 +836,9 @@ public int API_GetClassType(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -631,7 +848,7 @@ public int API_GetClassType(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -644,9 +861,9 @@ public int API_GetClassType(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Checks the zombie type of the class.
+ * @brief Checks the zombie type of the class.
  *
- * native bool ZP_IsClassZombie(iD);
+ * @note native bool ZP_IsClassZombie(iD);
  **/
 public int API_IsClassZombie(Handle hPlugin, const int iNumParams)
 {
@@ -654,9 +871,9 @@ public int API_IsClassZombie(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -665,9 +882,9 @@ public int API_IsClassZombie(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the player model of a class at a given index.
+ * @brief Gets the player model of a class at a given index.
  *
- * native void ZP_GetClassModel(iD, model, maxlen);
+ * @note native void ZP_GetClassModel(iD, model, maxlen);
  **/
 public int API_GetClassModel(Handle hPlugin, const int iNumParams)
 {
@@ -675,9 +892,9 @@ public int API_GetClassModel(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -687,12 +904,12 @@ public int API_GetClassModel(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize model char
-    static char sModel[PLATFORM_MAX_PATH];
+    static char sModel[PLATFORM_LINE_LENGTH];
     ClassGetModel(iD, sModel, sizeof(sModel));
 
     // Return on success
@@ -700,9 +917,9 @@ public int API_GetClassModel(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the knife model of a class at a given index.
+ * @brief Gets the knife model of a class at a given index.
  *
- * native void ZP_GetClassClaw(iD, model, maxlen);
+ * @note native void ZP_GetClassClaw(iD, model, maxlen);
  **/
 public int API_GetClassClaw(Handle hPlugin, const int iNumParams)
 {
@@ -710,9 +927,9 @@ public int API_GetClassClaw(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -722,12 +939,12 @@ public int API_GetClassClaw(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize model char
-    static char sModel[PLATFORM_MAX_PATH];
+    static char sModel[PLATFORM_LINE_LENGTH];
     ClassGetClawModel(iD, sModel, sizeof(sModel));
 
     // Return on success
@@ -735,9 +952,9 @@ public int API_GetClassClaw(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the grenade model of a class at a given index.
+ * @brief Gets the grenade model of a class at a given index.
  *
- * native void ZP_GetClassGrenade(iD, model, maxlen);
+ * @note native void ZP_GetClassGrenade(iD, model, maxlen);
  **/
 public int API_GetClassGrenade(Handle hPlugin, const int iNumParams)
 {
@@ -745,9 +962,9 @@ public int API_GetClassGrenade(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -757,12 +974,12 @@ public int API_GetClassGrenade(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize model char
-    static char sModel[PLATFORM_MAX_PATH];
+    static char sModel[PLATFORM_LINE_LENGTH];
     ClassGetGrenadeModel(iD, sModel, sizeof(sModel));
 
     // Return on success
@@ -770,9 +987,9 @@ public int API_GetClassGrenade(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the arm model of a class at a given index.
+ * @brief Gets the arm model of a class at a given index.
  *
- * native void ZP_GetClassArm(iD, model, maxlen);
+ * @note native void ZP_GetClassArm(iD, model, maxlen);
  **/
 public int API_GetClassArm(Handle hPlugin, const int iNumParams)
 {
@@ -780,9 +997,9 @@ public int API_GetClassArm(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -792,12 +1009,12 @@ public int API_GetClassArm(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize model char
-    static char sModel[PLATFORM_MAX_PATH];
+    static char sModel[PLATFORM_LINE_LENGTH];
     ClassGetArmModel(iD, sModel, sizeof(sModel));
 
     // Return on success
@@ -805,9 +1022,9 @@ public int API_GetClassArm(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the body of the class.
+ * @brief Gets the body of the class.
  *
- * native int ZP_GetClassBody(iD);
+ * @note native int ZP_GetClassBody(iD);
  **/
 public int API_GetClassBody(Handle hPlugin, const int iNumParams)
 {
@@ -815,9 +1032,9 @@ public int API_GetClassBody(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -826,9 +1043,9 @@ public int API_GetClassBody(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the skin of the class.
+ * @brief Gets the skin of the class.
  *
- * native int ZP_GetClassSkin(iD);
+ * @note native int ZP_GetClassSkin(iD);
  **/
 public int API_GetClassSkin(Handle hPlugin, const int iNumParams)
 {
@@ -836,9 +1053,9 @@ public int API_GetClassSkin(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -847,9 +1064,9 @@ public int API_GetClassSkin(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the health of the class.
+ * @brief Gets the health of the class.
  *
- * native int ZP_GetClassHealth(iD);
+ * @note native int ZP_GetClassHealth(iD);
  **/
 public int API_GetClassHealth(Handle hPlugin, const int iNumParams)
 {
@@ -857,9 +1074,9 @@ public int API_GetClassHealth(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -868,9 +1085,9 @@ public int API_GetClassHealth(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the speed of the class.
+ * @brief Gets the speed of the class.
  *
- * native float ZP_GetClassSpeed(iD);
+ * @note native float ZP_GetClassSpeed(iD);
  **/
 public int API_GetClassSpeed(Handle hPlugin, const int iNumParams)
 {
@@ -878,9 +1095,9 @@ public int API_GetClassSpeed(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -889,9 +1106,9 @@ public int API_GetClassSpeed(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the gravity of the class.
+ * @brief Gets the gravity of the class.
  *
- * native float ZP_GetClassGravity(iD);
+ * @note native float ZP_GetClassGravity(iD);
  **/
 public int API_GetClassGravity(Handle hPlugin, const int iNumParams)
 {
@@ -899,9 +1116,9 @@ public int API_GetClassGravity(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -910,9 +1127,9 @@ public int API_GetClassGravity(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the knockback of the class.
+ * @brief Gets the knockback of the class.
  *
- * native float ZP_GetClassKnockBack(iD);
+ * @note native float ZP_GetClassKnockBack(iD);
  **/
 public int API_GetClassKnockBack(Handle hPlugin, const int iNumParams)
 {
@@ -920,9 +1137,9 @@ public int API_GetClassKnockBack(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -931,9 +1148,9 @@ public int API_GetClassKnockBack(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the armor of the class.
+ * @brief Gets the armor of the class.
  *
- * native int ZP_GetClassArmor(iD);
+ * @note native int ZP_GetClassArmor(iD);
  **/
 public int API_GetClassArmor(Handle hPlugin, const int iNumParams)
 {
@@ -941,9 +1158,9 @@ public int API_GetClassArmor(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -952,9 +1169,9 @@ public int API_GetClassArmor(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the level of the class.
+ * @brief Gets the level of the class.
  *
- * native int ZP_GetClassLevel(iD);
+ * @note native int ZP_GetClassLevel(iD);
  **/
 public int API_GetClassLevel(Handle hPlugin, const int iNumParams)
 {
@@ -962,9 +1179,9 @@ public int API_GetClassLevel(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -973,9 +1190,9 @@ public int API_GetClassLevel(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the group of a class at a given index.
+ * @brief Gets the group of a class at a given index.
  *
- * native void ZP_GetClassGroup(iD, group, maxlen);
+ * @note native void ZP_GetClassGroup(iD, group, maxlen);
  **/
 public int API_GetClassGroup(Handle hPlugin, const int iNumParams)
 {
@@ -983,9 +1200,9 @@ public int API_GetClassGroup(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -995,7 +1212,7 @@ public int API_GetClassGroup(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -1008,9 +1225,9 @@ public int API_GetClassGroup(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the skill duration of the class.
+ * @brief Gets the skill duration of the class.
  *
- * native float ZP_GetClassSkillDuration(iD);
+ * @note native float ZP_GetClassSkillDuration(iD);
  **/
 public int API_GetClassSkillDuration(Handle hPlugin, const int iNumParams)
 {
@@ -1018,9 +1235,9 @@ public int API_GetClassSkillDuration(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1029,9 +1246,9 @@ public int API_GetClassSkillDuration(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the skill countdown of the class.
+ * @brief Gets the skill countdown of the class.
  *
- * native float ZP_GetClassSkillCountdown(iD);
+ * @note native float ZP_GetClassSkillCountdown(iD);
  **/
 public int API_GetClassSkillCountdown(Handle hPlugin, const int iNumParams)
 {
@@ -1039,20 +1256,41 @@ public int API_GetClassSkillCountdown(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
     // Return value (Float fix)
-    return view_as<int>(ClassGetSkillCountDown(iD));
+    return view_as<int>(ClassGetSkillCountdown(iD));
 }
 
 /**
- * Gets the regen health of the class.
+ * @brief Checks the skill bar of the class.
  *
- * native int ZP_GetClassRegenHealth(iD);
+ * @note native bool ZP_IsClassSkillBar(iD);
+ **/
+public int API_IsClassSkillBar(Handle hPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= gServerData.Classes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ClassIsSkillBar(iD);
+}
+
+/**
+ * @brief Gets the regen health of the class.
+ *
+ * @note native int ZP_GetClassRegenHealth(iD);
  **/
 public int API_GetClassRegenHealth(Handle hPlugin, const int iNumParams)
 {
@@ -1060,9 +1298,9 @@ public int API_GetClassRegenHealth(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1071,9 +1309,9 @@ public int API_GetClassRegenHealth(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the regen interval of the class.
+ * @brief Gets the regen interval of the class.
  *
- * native float ZP_GetClassRegenInterval(iD);
+ * @note native float ZP_GetClassRegenInterval(iD);
  **/
 public int API_GetClassRegenInterval(Handle hPlugin, const int iNumParams)
 {
@@ -1081,9 +1319,9 @@ public int API_GetClassRegenInterval(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1092,9 +1330,51 @@ public int API_GetClassRegenInterval(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the fov of the class.
+ * @brief Checks the fall state of the class.
  *
- * native int ZP_GetClassFov(iD);
+ * @note native bool ZP_IsClassFall(iD);
+ **/
+public int API_IsClassFall(Handle hPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= gServerData.Classes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ClassIsFall(iD);
+}
+
+/**
+ * @brief Checks the spot state of the class.
+ *
+ * @note native bool ZP_IsClassSpot(iD);
+ **/
+public int API_IsClassSpot(Handle hPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= gServerData.Classes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ClassIsSpot(iD);
+}
+
+/**
+ * @brief Gets the fov of the class.
+ *
+ * @note native int ZP_GetClassFov(iD);
  **/
 public int API_GetClassFov(Handle hPlugin, const int iNumParams)
 {
@@ -1102,9 +1382,9 @@ public int API_GetClassFov(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1113,30 +1393,9 @@ public int API_GetClassFov(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Checks the no fall of the class.
+ * @brief Checks the crosshair of the class.
  *
- * native bool ZP_IsClassNoFall(iD);
- **/
-public int API_IsClassNoFall(Handle hPlugin, const int iNumParams)
-{
-    // Gets class index from native cell
-    int iD = GetNativeCell(1);
-    
-    // Validate index
-    if(iD >= arrayClasses.Length)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
-        return -1;
-    }
-    
-    // Return value
-    return ClassIsNoFall(iD);
-}
-
-/**
- * Checks the crosshair of the class.
- *
- * native bool ZP_IsClassCross(iD);
+ * @note native bool ZP_IsClassCross(iD);
  **/
 public int API_IsClassCross(Handle hPlugin, const int iNumParams)
 {
@@ -1144,9 +1403,9 @@ public int API_IsClassCross(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1155,9 +1414,9 @@ public int API_IsClassCross(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Checks the nightvision of the class.
+ * @brief Checks the nightvision of the class.
  *
- * native bool ZP_IsClassNvgs(iD);
+ * @note native bool ZP_IsClassNvgs(iD);
  **/
 public int API_IsClassNvgs(Handle hPlugin, const int iNumParams)
 {
@@ -1165,9 +1424,9 @@ public int API_IsClassNvgs(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1176,9 +1435,9 @@ public int API_IsClassNvgs(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the overlay of a class at a given index.
+ * @brief Gets the overlay of a class at a given index.
  *
- * native void ZP_GetClassOverlay(iD, overlay, maxlen);
+ * @note native void ZP_GetClassOverlay(iD, overlay, maxlen);
  **/
 public int API_GetClassOverlay(Handle hPlugin, const int iNumParams)
 {
@@ -1186,9 +1445,9 @@ public int API_GetClassOverlay(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1198,12 +1457,12 @@ public int API_GetClassOverlay(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize overlay char
-    static char sOverlay[PLATFORM_MAX_PATH];
+    static char sOverlay[PLATFORM_LINE_LENGTH];
     ClassGetOverlay(iD, sOverlay, sizeof(sOverlay));
 
     // Return on success
@@ -1211,9 +1470,9 @@ public int API_GetClassOverlay(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the weapon of a class at a given index.
+ * @brief Gets the weapon of a class at a given index.
  *
- * native void ZP_GetClassWeapon(iD, weapon, maxlen);
+ * @note native void ZP_GetClassWeapon(iD, weapon, maxlen);
  **/
 public int API_GetClassWeapon(Handle hPlugin, const int iNumParams)
 {
@@ -1221,9 +1480,9 @@ public int API_GetClassWeapon(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1233,12 +1492,12 @@ public int API_GetClassWeapon(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize weapon array
-    static int iWeapon[CLASSES_WEAPON_MAX];
+    static int iWeapon[SMALL_LINE_LENGTH];
     ClassGetWeapon(iD, iWeapon, sizeof(iWeapon));
 
     // Return on success
@@ -1246,9 +1505,9 @@ public int API_GetClassWeapon(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the money of a class at a given index.
+ * @brief Gets the money of a class at a given index.
  *
- * native void ZP_GetClassMoney(iD, money, maxlen);
+ * @note native void ZP_GetClassMoney(iD, money, maxlen);
  **/
 public int API_GetClassMoney(Handle hPlugin, const int iNumParams)
 {
@@ -1256,9 +1515,9 @@ public int API_GetClassMoney(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1268,12 +1527,12 @@ public int API_GetClassMoney(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize money array
-    static int iMoney[3];
+    static int iMoney[6];
     ClassGetMoney(iD, iMoney, sizeof(iMoney));
 
     // Return on success
@@ -1281,9 +1540,9 @@ public int API_GetClassMoney(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the experience of a class at a given index.
+ * @brief Gets the experience of a class at a given index.
  *
- * native void ZP_GetClassExperience(iD, experience, maxlen);
+ * @note native void ZP_GetClassExperience(iD, experience, maxlen);
  **/
 public int API_GetClassExperience(Handle hPlugin, const int iNumParams)
 {
@@ -1291,9 +1550,9 @@ public int API_GetClassExperience(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1303,12 +1562,12 @@ public int API_GetClassExperience(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize experience array
-    static int iExp[3];
+    static int iExp[6];
     ClassGetExp(iD, iExp, sizeof(iExp));
 
     // Return on success
@@ -1316,9 +1575,9 @@ public int API_GetClassExperience(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the lifesteal of the class.
+ * @brief Gets the lifesteal of the class.
  *
- * native int ZP_GetClassLifeSteal(iD);
+ * @note native int ZP_GetClassLifeSteal(iD);
  **/
 public int API_GetClassLifeSteal(Handle hPlugin, const int iNumParams)
 {
@@ -1326,9 +1585,9 @@ public int API_GetClassLifeSteal(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1337,9 +1596,9 @@ public int API_GetClassLifeSteal(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the ammunition of the class.
+ * @brief Gets the ammunition of the class.
  *
- * native int ZP_GetClassLifeAmmunition(iD);
+ * @note native int ZP_GetClassLifeAmmunition(iD);
  **/
 public int API_GetClassAmmunition(Handle hPlugin, const int iNumParams)
 {
@@ -1347,9 +1606,9 @@ public int API_GetClassAmmunition(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1358,9 +1617,9 @@ public int API_GetClassAmmunition(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the leap jump of the class.
+ * @brief Gets the leap jump of the class.
  *
- * native int ZP_GetClassLeapJump(iD);
+ * @note native int ZP_GetClassLeapJump(iD);
  **/
 public int API_GetClassLeapJump(Handle hPlugin, const int iNumParams)
 {
@@ -1368,9 +1627,9 @@ public int API_GetClassLeapJump(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1379,9 +1638,9 @@ public int API_GetClassLeapJump(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the leap force of the class.
+ * @brief Gets the leap force of the class.
  *
- * native float ZP_GetClassLeapForce(iD);
+ * @note native float ZP_GetClassLeapForce(iD);
  **/
 public int API_GetClassLeapForce(Handle hPlugin, const int iNumParams)
 {
@@ -1389,9 +1648,9 @@ public int API_GetClassLeapForce(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1400,9 +1659,9 @@ public int API_GetClassLeapForce(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the leap countdown of the class.
+ * @brief Gets the leap countdown of the class.
  *
- * native float ZP_GetClassLeapCountdown(iD);
+ * @note native float ZP_GetClassLeapCountdown(iD);
  **/
 public int API_GetClassLeapCountdown(Handle hPlugin, const int iNumParams)
 {
@@ -1410,9 +1669,9 @@ public int API_GetClassLeapCountdown(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1421,9 +1680,9 @@ public int API_GetClassLeapCountdown(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the effect name of a class at a given index.
+ * @brief Gets the effect name of a class at a given index.
  *
- * native void ZP_GetClassEffectName(iD, name, maxlen);
+ * @note native void ZP_GetClassEffectName(iD, name, maxlen);
  **/
 public int API_GetClassEffectName(Handle hPlugin, const int iNumParams)
 {
@@ -1431,9 +1690,9 @@ public int API_GetClassEffectName(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1443,7 +1702,7 @@ public int API_GetClassEffectName(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -1456,9 +1715,9 @@ public int API_GetClassEffectName(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the effect attachment of a class at a given index.
+ * @brief Gets the effect attachment of a class at a given index.
  *
- * native void ZP_GetClassEffectAttach(iD, attach, maxlen);
+ * @note native void ZP_GetClassEffectAttach(iD, attach, maxlen);
  **/
 public int API_GetClassEffectAttach(Handle hPlugin, const int iNumParams)
 {
@@ -1466,9 +1725,9 @@ public int API_GetClassEffectAttach(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1478,7 +1737,7 @@ public int API_GetClassEffectAttach(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -1491,9 +1750,9 @@ public int API_GetClassEffectAttach(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the effect time of the class.
+ * @brief Gets the effect time of the class.
  *
- * native float ZP_GetClassEffectTime(iD);
+ * @note native float ZP_GetClassEffectTime(iD);
  **/
 public int API_GetClassEffectTime(Handle hPlugin, const int iNumParams)
 {
@@ -1501,9 +1760,9 @@ public int API_GetClassEffectTime(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1512,9 +1771,9 @@ public int API_GetClassEffectTime(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the index of the class.
+ * @brief Gets the index of the class.
  *
- * native int ZP_GetClassClawID(iD);
+ * @note native int ZP_GetClassClawID(iD);
  **/
 public int API_GetClassClawID(Handle hPlugin, const int iNumParams)
 {
@@ -1522,9 +1781,9 @@ public int API_GetClassClawID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1533,9 +1792,9 @@ public int API_GetClassClawID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the index of the class grenade model.
+ * @brief Gets the index of the class grenade model.
  *
- * native int ZP_GetClassGrenadeID(iD);
+ * @note native int ZP_GetClassGrenadeID(iD);
  **/
 public int API_GetClassGrenadeID(Handle hPlugin, const int iNumParams)
 {
@@ -1543,9 +1802,9 @@ public int API_GetClassGrenadeID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
     
@@ -1554,9 +1813,9 @@ public int API_GetClassGrenadeID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the death sound key of the class.
+ * @brief Gets the death sound key of the class.
  *
- * native void ZP_GetClassSoundDeathID(iD);
+ * @note native void ZP_GetClassSoundDeathID(iD);
  **/
 public int API_GetClassSoundDeathID(Handle hPlugin, const int iNumParams)
 {
@@ -1564,9 +1823,9 @@ public int API_GetClassSoundDeathID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1575,9 +1834,9 @@ public int API_GetClassSoundDeathID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the hurt sound key of the class.
+ * @brief Gets the hurt sound key of the class.
  *
- * native void ZP_GetClassSoundHurtID(iD);
+ * @note native void ZP_GetClassSoundHurtID(iD);
  **/
 public int API_GetClassSoundHurtID(Handle hPlugin, const int iNumParams)
 {
@@ -1585,9 +1844,9 @@ public int API_GetClassSoundHurtID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1596,9 +1855,9 @@ public int API_GetClassSoundHurtID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the idle sound key of the class.
+ * @brief Gets the idle sound key of the class.
  *
- * native void ZP_GetClassSoundIdleID(iD);
+ * @note native void ZP_GetClassSoundIdleID(iD);
  **/
 public int API_GetClassSoundIdleID(Handle hPlugin, const int iNumParams)
 {
@@ -1606,9 +1865,9 @@ public int API_GetClassSoundIdleID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1617,9 +1876,9 @@ public int API_GetClassSoundIdleID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the infect sound key of the class.
+ * @brief Gets the infect sound key of the class.
  *
- * native void ZP_GetClassSoundInfectID(iD);
+ * @note native void ZP_GetClassSoundInfectID(iD);
  **/
 public int API_GetClassSoundInfectID(Handle hPlugin, const int iNumParams)
 {
@@ -1627,9 +1886,9 @@ public int API_GetClassSoundInfectID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1638,9 +1897,9 @@ public int API_GetClassSoundInfectID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the respawn sound key of the class.
+ * @brief Gets the respawn sound key of the class.
  *
- * native void ZP_GetClassSoundRespawnID(iD);
+ * @note native void ZP_GetClassSoundRespawnID(iD);
  **/
 public int API_GetClassSoundRespawnID(Handle hPlugin, const int iNumParams)
 {
@@ -1648,9 +1907,9 @@ public int API_GetClassSoundRespawnID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1659,9 +1918,9 @@ public int API_GetClassSoundRespawnID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the burn sound key of the class.
+ * @brief Gets the burn sound key of the class.
  *
- * native void ZP_GetClassSoundBurnID(iD);
+ * @note native void ZP_GetClassSoundBurnID(iD);
  **/
 public int API_GetClassSoundBurnID(Handle hPlugin, const int iNumParams)
 {
@@ -1669,9 +1928,9 @@ public int API_GetClassSoundBurnID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1680,9 +1939,9 @@ public int API_GetClassSoundBurnID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the attack sound key of the class.
+ * @brief Gets the attack sound key of the class.
  *
- * native void ZP_GetClassSoundAttackID(iD);
+ * @note native void ZP_GetClassSoundAttackID(iD);
  **/
 public int API_GetClassSoundAttackID(Handle hPlugin, const int iNumParams)
 {
@@ -1690,9 +1949,9 @@ public int API_GetClassSoundAttackID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1701,9 +1960,9 @@ public int API_GetClassSoundAttackID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the footstep sound key of the class.
+ * @brief Gets the footstep sound key of the class.
  *
- * native void ZP_GetClassSoundFootID(iD);
+ * @note native void ZP_GetClassSoundFootID(iD);
  **/
 public int API_GetClassSoundFootID(Handle hPlugin, const int iNumParams)
 {
@@ -1711,9 +1970,9 @@ public int API_GetClassSoundFootID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1722,9 +1981,9 @@ public int API_GetClassSoundFootID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the regeneration sound key of the class.
+ * @brief Gets the regeneration sound key of the class.
  *
- * native void ZP_GetClassSoundRegenID(iD);
+ * @note native void ZP_GetClassSoundRegenID(iD);
  **/
 public int API_GetClassSoundRegenID(Handle hPlugin, const int iNumParams)
 {
@@ -1732,9 +1991,9 @@ public int API_GetClassSoundRegenID(Handle hPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayClasses.Length)
+    if(iD >= gServerData.Classes.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
     }
 
@@ -1742,783 +2001,769 @@ public int API_GetClassSoundRegenID(Handle hPlugin, const int iNumParams)
     return ClassGetSoundRegenID(iD);
 }
 
-/**
- * Print the info about the class.
- *
- * native void ZP_PrintClassInfo(clientIndex, iD);
- **/
-public int API_PrintClassInfo(Handle hPlugin, const int iNumParams)
-{
-    // If help messages disable, then stop 
-    if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
-    {
-        return -1;
-    }
-    
-    // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
-    
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Player doens't exist (%d)", clientIndex);
-        return -1;
-    }
-    
-    // Gets class index from native cell
-    int iD = GetNativeCell(2);
-    
-    // Validate index
-    if(iD >= arrayClasses.Length)
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
-        return -1;
-    }
-
-    // Gets  name
-    static char sName[SMALL_LINE_LENGTH];
-    ClassGetName(iD, sName, sizeof(sName));
-
-    // If help messages enabled, show info
-    TranslationPrintToChat(clientIndex, " info", sName, ClassGetHealth(iD), ClassGetSpeed(iD), ClassGetGravity(iD));
-    
-    // Return on success
-    return sizeof(sName);
-}
-
 /*
  * Classes data reading API.
  */
 
 /**
- * Gets the name of a class at a given index.
+ * @brief Gets the name of a class at a given index.
  *
  * @param iD                The class index.
  * @param sName             The string to return name in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetName(const int iD, char[] sName, const int iMaxLen)
+void ClassGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class name
     arrayClass.GetString(CLASSES_DATA_NAME, sName, iMaxLen);
 }
 
 /**
- * Gets the info of a class at a given index.
+ * @brief Gets the info of a class at a given index.
  *
  * @param iD                The class index.
  * @param sInfo             The string to return info in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetInfo(const int iD, char[] sInfo, const int iMaxLen)
+void ClassGetInfo(const int iD, char[] sInfo, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class info
     arrayClass.GetString(CLASSES_DATA_INFO, sInfo, iMaxLen);
 }
 
 /**
- * Gets the type of a class at a given index.
+ * @brief Gets the type of a class at a given index.
  *
  * @param iD                The class index.
  * @param sType             The string to return type in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetType(const int iD, char[] sType, const int iMaxLen)
+void ClassGetType(const int iD, char[] sType, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class type
     arrayClass.GetString(CLASSES_DATA_TYPE, sType, iMaxLen);
 }
 
 /**
- * Checks the zombie type of the class.
+ * @brief Checks the zombie type of the class.
  *
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-stock bool ClassIsZombie(const int iD)
+bool ClassIsZombie(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class zombie type
     return arrayClass.Get(CLASSES_DATA_ZOMBIE);
 }
 
 /**
- * Gets the player model of a class at a given index.
+ * @brief Gets the player model of a class at a given index.
  *
  * @param iD                The class index.
  * @param sModel            The string to return model in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class model
     arrayClass.GetString(CLASSES_DATA_MODEL, sModel, iMaxLen);
 }
 
 /**
- * Gets the knife model of a class at a given index.
+ * @brief Gets the knife model of a class at a given index.
  *
  * @param iD                The class index.
  * @param sModel            The string to return model in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetClawModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetClawModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class claw model
     arrayClass.GetString(CLASSES_DATA_CLAW, sModel, iMaxLen);
 }
 
 /**
- * Gets the grenade model of a class at a given index.
+ * @brief Gets the grenade model of a class at a given index.
  *
  * @param iD                The class index.
  * @param sModel            The string to return model in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetGrenadeModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetGrenadeModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class grenade model
     arrayClass.GetString(CLASSES_DATA_GRENADE, sModel, iMaxLen);
 }
 
 /**
- * Gets the arm model of a class at a given index.
+ * @brief Gets the arm model of a class at a given index.
  *
  * @param iD                The class index.
  * @param sModel            The string to return model in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetArmModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetArmModel(const int iD, char[] sModel, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class arm model
     arrayClass.GetString(CLASSES_DATA_ARM, sModel, iMaxLen);
 }
 
 /**
- * Gets the body of the class.
+ * @brief Gets the body of the class.
  *
  * @param iD                The class index.
  * @return                  The body index.    
  **/
-stock int ClassGetBody(const int iD)
+int ClassGetBody(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class body
     return arrayClass.Get(CLASSES_DATA_BODY);
 }
 
 /**
- * Gets the skin of the class.
+ * @brief Gets the skin of the class.
  *
  * @param iD                The class index.
  * @return                  The skin index.    
  **/
-stock int ClassGetSkin(const int iD)
+int ClassGetSkin(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class skin
     return arrayClass.Get(CLASSES_DATA_SKIN);
 }
 
 /**
- * Gets the health of the class.
+ * @brief Gets the health of the class.
  *
  * @param iD                The class index.
  * @return                  The health amount.    
  **/
-stock int ClassGetHealth(const int iD)
+int ClassGetHealth(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class health
     return arrayClass.Get(CLASSES_DATA_HEALTH);
 }
 
 /**
- * Gets the speed of the class.
+ * @brief Gets the speed of the class.
  *
  * @param iD                The class index.
  * @return                  The speed amount.    
  **/
-stock float ClassGetSpeed(const int iD)
+float ClassGetSpeed(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class speed 
     return arrayClass.Get(CLASSES_DATA_SPEED);
 }
 
 /**
- * Gets the gravity of the class.
+ * @brief Gets the gravity of the class.
  *
  * @param iD                The class index.
  * @return                  The gravity amount.    
  **/
-stock float ClassGetGravity(const int iD)
+float ClassGetGravity(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class speed 
     return arrayClass.Get(CLASSES_DATA_GRAVITY);
 }
 
 /**
- * Gets the knockback of the class.
+ * @brief Gets the knockback of the class.
  *
  * @param iD                The class index.
  * @return                  The knockback amount.    
  **/
-stock float ClassGetKnockBack(const int iD)
+float ClassGetKnockBack(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class knockback 
     return arrayClass.Get(CLASSES_DATA_KNOCKBACK);
 }
 
 /**
- * Gets the armor of the class.
+ * @brief Gets the armor of the class.
  *
  * @param iD                The class index.
  * @return                  The armor amount.    
  **/
-stock int ClassGetArmor(const int iD)
+int ClassGetArmor(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class armor 
     return arrayClass.Get(CLASSES_DATA_ARMOR);
 }
 
 /**
- * Gets the level of the class.
+ * @brief Gets the level of the class.
  *
  * @param iD                The class index.
  * @return                  The level amount.    
  **/
-stock int ClassGetLevel(const int iD)
+int ClassGetLevel(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class level 
     return arrayClass.Get(CLASSES_DATA_LEVEL);
 }
 
 /**
- * Gets the access group of a class at a given index.
+ * @brief Gets the access group of a class at a given index.
  *
  * @param iD                The class index.
  * @param sGroup            The string to return group in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetGroup(const int iD, char[] sGroup, const int iMaxLen)
+void ClassGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class group
     arrayClass.GetString(CLASSES_DATA_GROUP, sGroup, iMaxLen);
 }
 
 /**
- * Gets the skill duration of the class.
+ * @brief Gets the skill duration of the class.
  *
  * @param iD                The class index.
  * @return                  The duration amount.    
  **/
-stock float ClassGetSkillDuration(const int iD)
+float ClassGetSkillDuration(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class skill duration 
     return arrayClass.Get(CLASSES_DATA_SKILLDURATION);
 }
 
 /**
- * Gets the skill countdown of the class.
+ * @brief Gets the skill countdown of the class.
  *
  * @param iD                The class index.
  * @return                  The countdown amount.    
  **/
-stock float ClassGetSkillCountDown(const int iD)
+float ClassGetSkillCountdown(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class skill countdown  
     return arrayClass.Get(CLASSES_DATA_SKILLCOUNTDOWN);
 }
 
 /**
- * Gets the regen health of the class.
+ * @brief Gets the skill bar of the class.
+ *
+ * @param iD                The class index.
+ * @return                  True or false.
+ **/
+bool ClassIsSkillBar(const int iD)
+{
+    // Gets array handle of class at given index
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
+
+    // Gets class skill bar  
+    return arrayClass.Get(CLASSES_DATA_SKILLBAR);
+}
+
+/**
+ * @brief Gets the regen health of the class.
  *
  * @param iD                The class index.
  * @return                  The health amount.    
  **/
-stock int ClassGetRegenHealth(const int iD)
+int ClassGetRegenHealth(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class regen health
     return arrayClass.Get(CLASSES_DATA_REGENHEALTH);
 }
 
 /**
- * Gets the regen interval of the class.
+ * @brief Gets the regen interval of the class.
  *
  * @param iD                The class index.
  * @return                  The interval amount.    
  **/
-stock float ClassGetRegenInterval(const int iD)
+float ClassGetRegenInterval(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class regen interval
     return arrayClass.Get(CLASSES_DATA_REGENINTERVAL);
 }
 
 /**
- * Gets the fov of the class.
+ * @brief Checks the fall state of the class.
+ *
+ * @param iD                The class index.
+ * @return                  True or false.    
+ **/
+bool ClassIsFall(const int iD)
+{
+    // Gets array handle of class at given index
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
+
+    // Gets class fall state
+    return arrayClass.Get(CLASSES_DATA_FALL);
+}
+
+/**
+ * @brief Checks the spot state of the class.
+ *
+ * @param iD                The class index.
+ * @return                  True or false.    
+ **/
+bool ClassIsSpot(const int iD)
+{
+    // Gets array handle of class at given index
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
+
+    // Gets class spot state
+    return arrayClass.Get(CLASSES_DATA_SPOTTED);
+}
+
+/**
+ * @brief Gets the fov of the class.
  *
  * @param iD                The class index.
  * @return                  The fov amount.    
  **/
-stock int ClassGetFov(const int iD)
+int ClassGetFov(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class fov amount
     return arrayClass.Get(CLASSES_DATA_FOV);
 }
 
 /**
- * Checks the no fall of the class.
+ * @brief Checks the crosshair of the class.
  *
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-stock bool ClassIsNoFall(const int iD)
+bool ClassIsCross(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
-
-    // Gets class no fall state
-    return arrayClass.Get(CLASSES_DATA_NOFALL);
-}
-
-/**
- * Checks the crosshair of the class.
- *
- * @param iD                The class index.
- * @return                  True or false.    
- **/
-stock bool ClassIsCross(const int iD)
-{
-    // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class crosshair state
     return arrayClass.Get(CLASSES_DATA_CROSSHAIR);
 }
 
 /**
- * Checks the nightvision of the class.
+ * @brief Checks the nightvision of the class.
  *
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-stock bool ClassIsNvgs(const int iD)
+bool ClassIsNvgs(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class nightvision state
     return arrayClass.Get(CLASSES_DATA_NVGS);
 }
 
 /**
- * Gets the overlay of a class at a given index.
+ * @brief Gets the overlay of a class at a given index.
  *
  * @param iD                The class index.
  * @param sOverlay          The string to return overlay in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetOverlay(const int iD, char[] sOverlay, const int iMaxLen)
+void ClassGetOverlay(const int iD, char[] sOverlay, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class overlay
     arrayClass.GetString(CLASSES_DATA_OVERLAY, sOverlay, iMaxLen);
 }
 
 /**
- * Gets the weapon of a class at a given index.
+ * @brief Gets the weapon of a class at a given index.
  *
  * @param iD                The class index.
  * @param iWeapon           The array to return weapon in.
  * @param iMaxLen           The max length of the array.
  **/
-stock void ClassGetWeapon(const int iD, int[] iWeapon, const int iMaxLen)
+void ClassGetWeapon(const int iD, int[] iWeapon, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class weapon
     arrayClass.GetArray(CLASSES_DATA_WEAPON, iWeapon, iMaxLen);
 }
 
 /**
- * Gets the money of a class at a given index.
+ * @brief Gets the money of a class at a given index.
  *
  * @param iD                The class index.
  * @param iMoney            The array to return money in.
  * @param iMaxLen           The max length of the array.
  **/
-stock void ClassGetMoney(const int iD, int[] iMoney, const int iMaxLen)
+void ClassGetMoney(const int iD, int[] iMoney, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class money
     arrayClass.GetArray(CLASSES_DATA_MONEY, iMoney, iMaxLen);
 }
 
 /**
- * Gets the experience of a class at a given index.
+ * @brief Gets the experience of a class at a given index.
  *
  * @param iD                The class index.
  * @param iExp              The array to return experience in.
  * @param iMaxLen           The max length of the array.
  **/
-stock void ClassGetExp(const int iD, int[] iExp, const int iMaxLen)
+void ClassGetExp(const int iD, int[] iExp, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class experience
     arrayClass.GetArray(CLASSES_DATA_EXP, iExp, iMaxLen);
 }
 
 /**
- * Gets the lifesteal of the class.
+ * @brief Gets the lifesteal of the class.
  *
  * @param iD                The class index.
  * @return                  The steal amount.    
  **/
-stock int ClassGetLifeSteal(const int iD)
+int ClassGetLifeSteal(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class lifesteal amount
     return arrayClass.Get(CLASSES_DATA_LIFESTEAL);
 }
 
 /**
- * Gets the ammunition of the class.
+ * @brief Gets the ammunition of the class.
  *
  * @param iD                The class index.
  * @return                  The ammunition type.    
  **/
-stock int ClassGetAmmunition(const int iD)
+int ClassGetAmmunition(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class ammunition type
     return arrayClass.Get(CLASSES_DATA_AMMUNITION);
 }
 
 /**
- * Gets the leap jump of the class.
+ * @brief Gets the leap jump of the class.
  *
  * @param iD                The class index.
  * @return                  The leap jump.    
  **/
-stock int ClassGetLeapJump(const int iD)
+int ClassGetLeapJump(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class leap jump
     return arrayClass.Get(CLASSES_DATA_LEAPJUMP);
 }
 
 /**
- * Gets the leap force of the class.
+ * @brief Gets the leap force of the class.
  *
  * @param iD                The class index.
  * @return                  The leap force.    
  **/
-stock float ClassGetLeapForce(const int iD)
+float ClassGetLeapForce(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class leap force
     return arrayClass.Get(CLASSES_DATA_LEAPFORCE);
 }
 
 /**
- * Gets the leap countdown of the class.
+ * @brief Gets the leap countdown of the class.
  *
  * @param iD                The class index.
  * @return                  The leap countdown.    
  **/
-stock float ClassGetLeapCountdown(const int iD)
+float ClassGetLeapCountdown(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class leap countdown
     return arrayClass.Get(CLASSES_DATA_LEAPCOUNTDOWN);
 }
 
 /**
- * Gets the effect name of a class at a given index.
+ * @brief Gets the effect name of a class at a given index.
  *
  * @param iD                The class index.
  * @param sName             The string to return name in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetEffectName(const int iD, char[] sName, const int iMaxLen)
+void ClassGetEffectName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class effect name
     arrayClass.GetString(CLASSES_DATA_EFFECTNAME, sName, iMaxLen);
 }
 
 /**
- * Gets the effect attachment of a class at a given index.
+ * @brief Gets the effect attachment of a class at a given index.
  *
  * @param iD                The class index.
  * @param sAttach           The string to return attach in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ClassGetEffectAttach(const int iD, char[] sAttach, const int iMaxLen)
+void ClassGetEffectAttach(const int iD, char[] sAttach, const int iMaxLen)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class effect attach
     arrayClass.GetString(CLASSES_DATA_EFFECTATTACH, sAttach, iMaxLen);
 }
 
 /**
- * Gets the effect time of the class.
+ * @brief Gets the effect time of the class.
  *
  * @param iD                The class index.
  * @return                  The effect time.    
  **/
-stock float ClassGetEffectTime(const int iD)
+float ClassGetEffectTime(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class effect time
     return arrayClass.Get(CLASSES_DATA_EFFECTTIME);
 }
 
 /**
- * Gets the index of the class claw model.
+ * @brief Gets the index of the class claw model.
  *
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-stock int ClassGetClawID(const int iD)
+int ClassGetClawID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class claw model index
     return arrayClass.Get(CLASSES_DATA_CLAW_);
 }
 
 /**
- * Gets the index of the class grenade model.
+ * @brief Gets the index of the class grenade model.
  *
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-stock int ClassGetGrenadeID(const int iD)
+int ClassGetGrenadeID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class grenade model index
     return arrayClass.Get(CLASSES_DATA_GRENADE_);
 }
 
 /**
- * Gets the death sound key of the class.
+ * @brief Gets the death sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundDeathID(const int iD)
+int ClassGetSoundDeathID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class death sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDDEATH);
 }
 
 /**
- * Gets the hurt sound key of the class.
+ * @brief Gets the hurt sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundHurtID(const int iD)
+int ClassGetSoundHurtID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class hurt sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDHURT);
 }
 
 /**
- * Gets the idle sound key of the class.
+ * @brief Gets the idle sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundIdleID(const int iD)
+int ClassGetSoundIdleID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class idle sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDIDLE);
 }
 
 /**
- * Gets the infect sound key of the class.
+ * @brief Gets the infect sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundInfectID(const int iD)
+int ClassGetSoundInfectID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class infect sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDINFECT);
 }
 
 /**
- * Gets the respawn sound key of the class.
+ * @brief Gets the respawn sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundRespawnID(const int iD)
+int ClassGetSoundRespawnID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class respawn sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDRESPAWN);
 }
 
 /**
- * Gets the burn sound key of the class.
+ * @brief Gets the burn sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundBurnID(const int iD)
+int ClassGetSoundBurnID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class idle sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDBURN);
 }
 
 /**
- * Gets the attack sound key of the class.
+ * @brief Gets the attack sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundAttackID(const int iD)
+int ClassGetSoundAttackID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class idle sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDATTACK);
 }
 
 /**
- * Gets the footstep sound key of the class.
+ * @brief Gets the footstep sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundFootID(const int iD)
+int ClassGetSoundFootID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class footstep sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDFOOTSTEP);
 }
 
 /**
- * Gets the regeneration sound key of the class.
+ * @brief Gets the regeneration sound key of the class.
  *
  * @param iD                The class index.
  * @return                  The key index.
  **/
-stock int ClassGetSoundRegenID(const int iD)
+int ClassGetSoundRegenID(const int iD)
 {
     // Gets array handle of class at given index
-    ArrayList arrayClass = arrayClasses.Get(iD);
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
 
     // Gets class regeneration sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDREGEN);
@@ -2529,20 +2774,18 @@ stock int ClassGetSoundRegenID(const int iD)
  */
 
 /**
- * Find the index at which the class name is at.
+ * @brief Find the index at which the class name is at.
  * 
  * @param sName             The class name.
- * @param iMaxLen           (Only if 'overwritename' is true) The max length of the class name. 
- * @param bOverWriteName    (Optional) If true, the class given will be overwritten with the name from the config.
  * @return                  The array index containing the given class name.
  **/
-stock int ClassNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOverWriteName = false)
+int ClassNameToIndex(const char[] sName)
 {
     // Initialize name char
     static char sClassName[SMALL_LINE_LENGTH];
     
     // i = class index
-    int iSize = arrayClasses.Length;
+    int iSize = gServerData.Classes.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Gets class name 
@@ -2551,13 +2794,6 @@ stock int ClassNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOver
         // If names match, then return index
         if(!strcmp(sName, sClassName, false))
         {
-            // If 'overwrite' name is true, then overwrite the old string with new
-            if(bOverWriteName)
-            {
-                // Copy config name to return string
-                strcopy(sName, iMaxLen, sClassName);
-            }
-            
             // Return this index
             return i;
         }
@@ -2568,34 +2804,31 @@ stock int ClassNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOver
 }
 
 /**
- * Dump class data into a string. String buffer length should be at about 2048 cells.
- *
- * @param iD                The class index.
- * @param sBuffer           The string to return buffer in.
- * @param iMaxLen           The max length of the string.
- * @return                  The number of cells written.
- */
-/*void ClassDumpData(const int iD, char[] sBuffer, const int iMaxLen)
+ * @brief Find the random index at which the class type is at.
+ * 
+ * @param sType             The class type.
+ * @return                  The array index containing the given class type.
+ **/
+int ClassTypeToIndex(const char[] sType)
 {
-    int iCellCount;
-    static char sAttribute[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
-    static char sFormat[PLATFORM_MAX_PATH];
-
-    if(!iMaxLen)
-    {
-        return 0;
-    }
-
-    FormatEx(sFormat, sizeof(sFormat), "Class data at index %d:\n", index);
-    iCellCount += StrCat(sBuffer, iMaxLen, sFormat);
-    iCellCount += StrCat(sBuffer, iMaxLen, "-------------------------------------------------------------------------------\n");
-
-    FormatEx(sAttribute, sizeof(sAttribute), "enabled:             \"%d\"\n", ClassIsEnabled(index));
-    iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
+    // Initialize type char
+    static char sClassType[SMALL_LINE_LENGTH]; 
     
-    ClassGetGroup(iD, format_buffer, sizeof(format_buffer));
-    Format(sAttribute, sizeof(sAttribute), "group:                 \"%s\"\n", format_buffer);
-    iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
-
-    return iCellCount;
-}*/
+    // i = class index
+    int iSize = gServerData.Classes.Length; int iRandom; static int classIndex[MAXPLAYERS+1];
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets class type 
+        ClassGetType(i, sClassType, sizeof(sClassType));
+        
+        // If types match, then store index
+        if(!strcmp(sClassType, sType, false))
+        {
+            // Increment amount
+            classIndex[iRandom++] = i;
+        }
+    }
+    
+    // Return index
+    return (iRandom) ? classIndex[GetRandomInt(0, iRandom-1)] : -1;
+}

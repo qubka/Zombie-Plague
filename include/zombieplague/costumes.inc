@@ -66,7 +66,7 @@ native int ZP_GetClientCostume(int clientIndex);
 native void ZP_SetClientCostume(int clientIndex, int costumeID);
 
 /**
- * Gets the index of a costume at a given name.
+ * @brief Gets the index of a costume at a given name.
  *
  * @param name              The costume name.
  *
@@ -79,7 +79,7 @@ native int ZP_GetCostumeNameID(char[] name);
  *
  * @param costumeID         The costume index.
  * @param name              The string to return name in.
- * @param maxlenght         The max length of the string.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetCostumeName(int costumeID, char[] name, int maxlenght = 32);
 
@@ -88,7 +88,7 @@ native void ZP_GetCostumeName(int costumeID, char[] name, int maxlenght = 32);
  *
  * @param costumeID         The costume index.
  * @param model             The string to return model in.
- * @param maxlenght         The max length of the string.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetCostumeModel(int costumeID, char[] model, int maxlenght = 256);
 
@@ -115,7 +115,7 @@ native int ZP_GetCostumeSkin(int costumeID);
  *
  * @param costumeID         The costume index.
  * @param attach            The string to return attachment in.
- * @param maxlenght         The max length of the string.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetCostumeAttach(int costumeID, char[] attach, int maxlenght = 32);
 
@@ -140,7 +140,7 @@ native void ZP_GetCostumeAngle(int costumeID, float angle[3]);
  *
  * @param costumeID         The costume index.
  * @param group             The string to return group in.
- * @param maxlenght         The max length of the string.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetCostumeGroup(int costumeID, char[] group, int maxlenght = 32);
 

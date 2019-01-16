@@ -33,16 +33,18 @@
 #define _soundlist_included
 
 /**
- * @brief Gets the key id from a given name.
+ * @brief Gets the key id from a given key.
  *
  * @param key               The key name.
  *  
- * @return                  The key id containing the given key.
+ * @return                  The key id containing the given key. 
+ *
+ * @note                    Can return a random index for multiple same unique keys!
  **/
 native int ZP_GetSoundKeyID(char[] key);
 
 /**
- * Gets sound from a key id from sounds config.
+ * @brief Gets sound from a key id from sounds config.
  *
  * @param keyID             The key index.
  * @param sound             The string to return sound in.

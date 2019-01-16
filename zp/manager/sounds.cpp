@@ -25,6 +25,18 @@
  * ============================================================================
  **/
 
+/**
+ * @section Sound config data indexes.
+ **/
+enum
+{
+    SOUNDS_DATA_KEY,
+    SOUNDS_DATA_VALUE
+};
+/**
+ * @endsection
+ **/
+ 
 /*
  * Load other sound effect modules
  */
@@ -34,79 +46,70 @@
 #include "zp/manager/soundeffects/playersounds.cpp"
 
 /**
- * Array handle to store soundtable config data.
+ * @brief Sounds module init function.
  **/
-ArrayList arraySounds;
-
-/**
- * Array for parsing strings.
- **/
-int SoundBuffer[2048][ParamParseResult];
-
-/**
- * Sounds module init function.
- **/
-void SoundsInit(/*void*/)
+void SoundsOnInit(/*void*/)
 {
     // Hooks server sounds
     AddNormalSoundHook(view_as<NormalSHook>(PlayerSoundsNormalHook));
 }
 
 /**
- * Prepare all sound data.
+ * @brief Prepare all sound data.
  **/
-void SoundsLoad(/*void*/)
+void SoundsOnLoad(/*void*/)
 {
     // Register config file
     ConfigRegisterConfig(File_Sounds, Structure_ArrayList, CONFIG_FILE_ALIAS_SOUNDS);
 
     // Gets sounds file path
-    static char sPathSounds[PLATFORM_MAX_PATH];
+    static char sPathSounds[PLATFORM_LINE_LENGTH];
     bool bExists = ConfigGetFullPath(CONFIG_PATH_SOUNDS, sPathSounds);
 
     // If file doesn't exist, then log and stop
     if(!bExists)
     {
         // Log failure and stop plugin
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
+        return;
     }
 
     // Sets path to the config file
     ConfigSetConfigPath(File_Sounds, sPathSounds);
 
     // Load config from file and create array structure
-    bool bSuccess = ConfigLoadConfig(File_Sounds, arraySounds, PLATFORM_MAX_PATH);
+    bool bSuccess = ConfigLoadConfig(File_Sounds, gServerData.Sounds, PLATFORM_LINE_LENGTH);
 
     // Unexpected error, stop plugin
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathSounds);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathSounds);
+        return;
     }
     
     // Now copy data to array structure
-    SoundsCacheData();
+    SoundsOnCacheData();
     
     // Sets config data
     ConfigSetConfigLoaded(File_Sounds, true);
     ConfigSetConfigReloadFunc(File_Sounds, GetFunctionByName(GetMyHandle(), "SoundsOnConfigReload"));
-    ConfigSetConfigHandle(File_Sounds, arraySounds);
+    ConfigSetConfigHandle(File_Sounds, gServerData.Sounds);
 
     // Forward event to sub-modules
-    PlayerSoundsOnLoad();
+    PlayerSoundsOnOnLoad();
 }
 
 /**
- * Caches sound data from file into arrays.
- * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ * @brief Caches sound data from file into arrays.
  **/
-void SoundsCacheData(/*void*/)
+void SoundsOnCacheData(/*void*/)
 {
     // Gets config file path
-    static char sPathSounds[PLATFORM_MAX_PATH];
+    static char sPathSounds[PLATFORM_LINE_LENGTH];
     ConfigGetConfigPath(File_Sounds, sPathSounds, sizeof(sPathSounds));
     
     // Log what sounds file that is loaded
-    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sPathSounds);
+    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sPathSounds);
 
     // Initialize numbers of sounds
     int iSoundCount;
@@ -114,42 +117,31 @@ void SoundsCacheData(/*void*/)
     int iSoundUnValidCount;
     
     // Validate sound config
-    int iSounds = iSoundCount = arraySounds.Length;
+    int iSounds = iSoundCount = gServerData.Sounds.Length;
     if(!iSounds)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sPathSounds);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sPathSounds);
+        return;
     }
     
     // i = sound array index
     for(int i = 0; i < iSounds; i++)
     {
         // Gets array line
-        sPathSounds[0] = '\0'; SoundsGetLine(i, sPathSounds, sizeof(sPathSounds));
+        ArrayList arraySound = SoundsGetKey(i, sPathSounds, sizeof(sPathSounds), true);
 
-        // Parses a parameter string in key="value" format and store the result in a ParamParseResult array
-        if(ParamParseString(SoundBuffer, sPathSounds, sizeof(sPathSounds), '=', i) == PARAM_ERROR_NO)
+        // Parses a parameter string in key="value" format
+        if(ParamParseString(arraySound, sPathSounds, sizeof(sPathSounds), '=') == PARAM_ERROR_NO)
         {
-            // Count number of parts inside of string
-            static char sSound[PARAM_VALUE_MAXPARTS][PLATFORM_MAX_PATH];
-            int nSounds = ExplodeString(sPathSounds, ",", sSound, sizeof(sSound), sizeof(sSound[]));
-            
-            // Gets array size
-            ArrayList arraySound = arraySounds.Get(i);
-            
-            // Breaks a string into pieces and stores each piece into an array of buffers
-            for(int x = 0; x < nSounds; x++)
+            // i = block index
+            int iSize = arraySound.Length;
+            for(int x = 1; x < iSize; x++)
             {
-                // Trim string
-                TrimString(sSound[x]);
-                
-                // Strips a quote pair off a string 
-                StripQuotes(sSound[x]);
+                // Gets sound path
+                arraySound.GetString(x, sPathSounds, sizeof(sPathSounds));
 
-                // Push data into array
-                arraySound.PushString(sSound[x]);
-                
                 // Format the full path
-                FormatEx(sPathSounds, sizeof(sPathSounds), "sound/%s", sSound[x]);
+                Format(sPathSounds, sizeof(sPathSounds), "sound/%s", sPathSounds);
 
                 // Add to server precache list
                 if(DownloadsOnPrecache(sPathSounds)) iSoundValidCount++; else iSoundUnValidCount++;
@@ -158,50 +150,53 @@ void SoundsCacheData(/*void*/)
         else
         {
             // Log sound error info
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of sound block: %d = \"%s\"", i + 1, sPathSounds);
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of the sound block: \"%d\" = \"%s\"", i + 1, sPathSounds);
             
             // Remove sound block from array
-            arraySounds.Erase(i);
+            gServerData.Sounds.Erase(i);
 
             // Subtract one from count
             iSounds--;
 
             // Backtrack one index, because we deleted it out from under the loop
             i--;
-            continue;
         }
     }
     
     // Log sound validation info
-    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Total blocks: %d | Unsuccessful blocks: %d | Total: %d | Successful: %d | Unsuccessful: %d", iSoundCount, iSoundCount - iSounds, iSoundValidCount + iSoundUnValidCount, iSoundValidCount, iSoundUnValidCount);
+    LogEvent(true, LogType_Normal, LOG_DEBUG_DETAIL, LogModule_Sounds, "Config Validation", "Total blocks: \"%d\" | Unsuccessful blocks: \"%d\" | Total: %d | Successful: \"%d\" | Unsuccessful: \"%d\"", iSoundCount, iSoundCount - iSounds, iSoundValidCount + iSoundUnValidCount, iSoundValidCount, iSoundUnValidCount);
 }
 
 /**
- * Hook sounds cvar changes.
+ * @brief Called when configs are being reloaded.
+ * 
+ * @param iConfig           The config being reloaded. (only if 'all' is false)
+ **/
+public void SoundsOnConfigReload(ConfigFile iConfig)
+{
+    // Reloads download config
+    SoundsOnLoad();
+}
+
+/**
+ * @brief Hook sounds cvar changes.
  **/
 void SoundsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_GAME_CUSTOM_SOUND_LEVEL] = FindConVar("zp_game_custom_sound_level");
+    gCvarList[CVAR_SEFFECTS_LEVEL] = FindConVar("zp_seffects_level");
     
     // Forward event to sub-modules
     VoiceOnCvarInit();
     PlayerSoundsOnCvarInit();
 }
 
-/**
- * Called when configs are being reloaded.
- * 
- * @param iConfig           The config being reloaded. (only if 'all' is false)
- **/
-public void SoundsOnConfigReload(ConfigFile iConfig)
-{
-    // Reload download config
-    SoundsLoad();
-}
+/*
+ * Sounds main functions.
+ */
 
 /**
- * The round is starting.
+ * @brief The round is starting.
  **/
 void SoundsOnRoundStart(/*void*/)
 {
@@ -210,7 +205,7 @@ void SoundsOnRoundStart(/*void*/)
 }
 
 /**
- * The counter is begin.
+ * @brief The counter is begin.
  **/
 void SoundsOnCounterStart(/*void*/)   
 {
@@ -219,21 +214,21 @@ void SoundsOnCounterStart(/*void*/)
 }
 
 /**
- * The round is ending.
+ * @brief The round is ending.
  *
- * @param CReason           Reason the round has ended.
+ * @param reasonIndex       The reason index.
  **/
-void SoundsOnRoundEnd(const CSRoundEndReason CReason)
+void SoundsOnRoundEnd(const CSRoundEndReason reasonIndex)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
     
     // Create timer for emit sounds
-    SEffectsInputStopAll(); CreateTimer(0.2, PlayerSoundsOnRoundEndPost, CReason, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+    SEffectsInputStopAll(); CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reasonIndex, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
 }
 
 /**
- * The counter is working.
+ * @brief The counter is working.
  *
  * @return                  True or false.
  **/
@@ -244,7 +239,7 @@ bool SoundsOnCounter(/*void*/)
 }
 
 /**
- * The gamemode is starting.
+ * @brief The gamemode is starting.
  **/
 void SoundsOnGameModeStart(/*void*/)
 {
@@ -254,7 +249,7 @@ void SoundsOnGameModeStart(/*void*/)
 }
 
 /**
- * Client has been killed.
+ * @brief Client has been killed.
  * 
  * @param clientIndex       The client index.
  **/
@@ -265,19 +260,19 @@ void SoundsOnClientDeath(const int clientIndex)
 }
 
 /**
- * Client has been hurt.
+ * @brief Client has been hurt.
  * 
  * @param clientIndex       The client index.
- * @param damageType        The type of damage inflicted.
+ * @param iBits             The type of damage inflicted.
  **/
-void SoundsOnClientHurt(const int clientIndex, const int damageType)
+void SoundsOnClientHurt(const int clientIndex, const int iBits)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientHurt(clientIndex, (damageType & DMG_BURN || damageType & DMG_DIRECT));
+    PlayerSoundsOnClientHurt(clientIndex, ((iBits & DMG_BURN) || (iBits & DMG_DIRECT)));
 }
 
 /**
- * Client has been infected.
+ * @brief Client has been infected.
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
@@ -285,25 +280,23 @@ void SoundsOnClientHurt(const int clientIndex, const int damageType)
 void SoundsOnClientInfected(const int clientIndex, const int attackerIndex)
 {
     // Forward event to sub-modules
-    VoiceOnClientInfected(clientIndex);
     PlayerSoundsOnClientInfected(clientIndex, attackerIndex);
-    AmbientSoundsOnClientUpdate(clientIndex);
 }
 
 /**
- * Client has been humanized.
+ * @brief Client has been changed class state.
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientHumanized(const int clientIndex)
+void SoundsOnClientUpdate(const int clientIndex)
 {
     // Forward event to sub-modules
-    VoiceOnClientHumanized(clientIndex);
+    VoiceOnClientUpdate(clientIndex);
     AmbientSoundsOnClientUpdate(clientIndex);
 }
 
 /**
- * Client has been regenerating.
+ * @brief Client has been regenerating.
  * 
  * @param clientIndex       The client index.
  **/
@@ -314,7 +307,7 @@ void SoundsOnClientRegen(const int clientIndex)
 }
 
 /**
- * Client has been swith nightvision.
+ * @brief Client has been swith nightvision.
  * 
  * @param clientIndex       The client index.
  **/
@@ -325,7 +318,7 @@ void SoundsOnClientNvgs(const int clientIndex)
 }
 
 /**
- * Client has been swith flashlight.
+ * @brief Client has been swith flashlight.
  * 
  * @param clientIndex       The client index.
  **/
@@ -336,7 +329,7 @@ void SoundsOnClientFlashLight(const int clientIndex)
 }
 
 /**
- * Client has been buy ammunition.
+ * @brief Client has been buy ammunition.
  * 
  * @param clientIndex       The client index.
  **/
@@ -347,7 +340,7 @@ void SoundsOnClientAmmunition(const int clientIndex)
 }
 
 /**
- * Client has been level up.
+ * @brief Client has been level up.
  * 
  * @param clientIndex       The client index.
  **/
@@ -358,7 +351,7 @@ void SoundsOnClientLevelUp(const int clientIndex)
 }
 
 /**
- * Client has been shoot.
+ * @brief Client has been shoot.
  * 
  * @param clientIndex       The client index.
  * @param iD                The weapon id.
@@ -374,18 +367,18 @@ Action SoundsOnClientShoot(const int clientIndex, const int iD)
  */
 
 /**
- * Sets up natives for library.
+ * @brief Sets up natives for library.
  **/
-void SoundsAPI(/*void*/) 
+void SoundsOnNativeInit(/*void*/) 
 {
     CreateNative("ZP_GetSoundKeyID", API_GetSoundKeyID);
     CreateNative("ZP_GetSound",      API_GetSound);
 }
  
 /**
- * Gets the key id from a given name.
+ * @brief Gets the key id from a given key.
  *
- * native int ZP_GetSoundKeyID(name);
+ * @note native int ZP_GetSoundKeyID(name);
  **/
 public int API_GetSoundKeyID(Handle hPlugin, const int iNumParams)
 {
@@ -396,12 +389,12 @@ public int API_GetSoundKeyID(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "Can't find key with an empty name");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Sounds, "Native Validation", "Can't find key with an empty name");
         return -1;
     }
 
     // Gets native data
-    static char sName[PARAM_NAME_MAXLEN];
+    static char sName[SMALL_LINE_LENGTH];
 
     // General                                            
     GetNativeString(1, sName, sizeof(sName));
@@ -411,9 +404,9 @@ public int API_GetSoundKeyID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets sound from a key id from sounds config.
+ * @brief Gets sound from a key id from sounds config.
  *
- * native void ZP_GetSound(keyID, sound, maxlenght, position);
+ * @note native void ZP_GetSound(keyID, sound, maxlenght, position);
  **/
 public int API_GetSound(Handle hPlugin, const int iNumParams)
 {
@@ -423,15 +416,15 @@ public int API_GetSound(Handle hPlugin, const int iNumParams)
     // Validate s
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Sounds, "Native Validation", "No buffer size");
         return -1;
     }
     
     // Initialize sound char
-    static char sSound[PLATFORM_MAX_PATH]; sSound[0] = '\0';
+    static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = '\0';
     
-    // Select sound in the array
-    SoundsGetSound(sSound, sizeof(sSound), GetNativeCell(1), GetNativeCell(4));
+    // Gets sound path
+    SoundsGetPath(GetNativeCell(1), sSound, sizeof(sSound), GetNativeCell(4));
     
     // Validate sound
     if(hasLength(sSound))
@@ -445,61 +438,141 @@ public int API_GetSound(Handle hPlugin, const int iNumParams)
 }
  
 /*
- * Sounds data reading API.
+ * Sounds data reading API. 
  */
 
 /**
- * Gets the line from a sound list.
+ * @brief Gets the key of a sound list at a given key.
  * 
- * @param iD                The sound array index.
- * @param sLine             The string to return name in.
- * @param iMaxLen           The max length of the string.
+ * @param iKey              The sound array index.
+ * @param sKey              The string to return key in.
+ * @param iMaxLen           The lenght of string.
+ * @param bDelete           (Optional) Clear the array key position.
  **/
-stock void SoundsGetLine(const int iD, char[] sLine, const int iMaxLen)
+ArrayList SoundsGetKey(const int iKey, char[] sKey, const int iMaxLen, const bool bDelete = false)
 {
     // Gets array handle of sound at given index
-    ArrayList arraySound = arraySounds.Get(iD);
+    ArrayList arraySound = gServerData.Sounds.Get(iKey);
     
-    // Gets line
-    arraySound.GetString(0, sLine, iMaxLen);
+    // Gets sound key
+    arraySound.GetString(SOUNDS_DATA_KEY, sKey, iMaxLen);
+    
+    // Shifting array value
+    if(bDelete) arraySound.Erase(SOUNDS_DATA_KEY);
+    
+    // Return array list
+    return arraySound;
 }
  
 /**
- * Gets the current sound from a 2D array.
+ * @brief Gets the path of a sound list at a given key.
  * 
- * @param sLine             The string to return name in.
- * @param iMaxLen           The max length of the string.
- * @param iKey              The key index.
- * @param iNum              The position index.
+ * @param iKey              The sound array index.
+ * @param sPath             The string to return name in.
+ * @param iMaxLen           The lenght of string.
+ * @param iNum              (Optional) The position index. (for not random sound)
  **/
-stock void SoundsGetSound(char[] sLine, const int iMaxLen, const int iKey, const int iNum)
+void SoundsGetPath(const int iKey, char[] sPath, const int iMaxLen, const int iNum = 0)
 {
     // Validate key
-    if(iKey != -1)
+    if(iKey == -1)
     {
-        // Gets array handle of sound at given index
-        ArrayList arraySound = arraySounds.Get(iKey);
+        return;
+    }
+    
+    // Gets array handle of sound at given index
+    ArrayList arraySound = gServerData.Sounds.Get(iKey);
 
-        // Gets size of array handle
-        int iSize = arraySound.Length;
-        
-        // Validate size
-        if(iNum < iSize)
-        {
-            // Gets sound name
-            arraySound.GetString(iNum ? iNum : GetRandomInt(1, iSize - 1), sLine, iMaxLen);
-        }
+    // Validate size
+    int iSize = arraySound.Length;
+    if(iNum < iSize)
+    {
+        // Gets sound path
+        arraySound.GetString(iNum ? iNum : GetRandomInt(SOUNDS_DATA_VALUE, iSize - 1), sPath, iMaxLen);
     }
 }
 
 /**
- * Find the index at which the key is at.
+ * @brief Stops a sound list at a given key.
+ * 
+ * @param iKey              The sound array index.
+ * @param clientIndex       (Optional) The client index.
+ * @param iChannel          (Optional) The channel to emit with.
+ **/
+void SoundsStopAll(const int iKey, const int clientIndex = -1, const int iChannel = SNDCHAN_AUTO)
+{
+    // Initialize sound char
+    static char sSound[PLATFORM_LINE_LENGTH];
+    
+    // Gets array handle of sound at given index
+    ArrayList arraySound = gServerData.Sounds.Get(iKey);
+
+    // i = sound index
+    int iSize = arraySound.Length;
+    for(int i = 1; i < iSize; i++)
+    {
+        // Gets sound path
+        arraySound.GetString(i, sSound, sizeof(sSound));
+        
+        // Validate sound
+        if(hasLength(sSound))
+        {
+            // Format sound
+            Format(sSound, sizeof(sSound), "*/%s", sSound);
+            
+            // Validate client
+            if(IsPlayerExist(clientIndex, false) && !IsFakeClient(clientIndex))
+            {
+                // Stop sound
+                StopSound(clientIndex, iChannel, sSound);
+            }
+            else
+            {
+                // x = client index
+                for(int x = 1; x <= MaxClients; x++)
+                {
+                    // Validate real client
+                    if(IsPlayerExist(x, false) && !IsFakeClient(x))
+                    {
+                        // Stop sound
+                        StopSound(x, iChannel, sSound);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+ * Stocks sounds API.
+ */
+
+/**
+ * @brief Find the random index at which the sound key is at.
  * 
  * @param sKey              The key name.
- * @return                  The array index containing the given key.
+ * @return                  The array index containing the given sound key.
  **/
-stock int SoundsKeyToIndex(const char[] sKey)
+int SoundsKeyToIndex(const char[] sKey)
 {
-    // Find key index
-    return ParamFindKey(SoundBuffer, arraySounds.Length, sKey);
+    // Initialize key char
+    static char sSoundKey[SMALL_LINE_LENGTH]; 
+    
+    // i = block index
+    int iSize = gServerData.Sounds.Length; int iRandom; static int keyIndex[MAXPLAYERS+1];
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets sound key 
+        SoundsGetKey(i, sSoundKey, sizeof(sSoundKey));
+        
+        // If keys match, then store index
+        if(!strcmp(sSoundKey, sKey, false))
+        {
+            // Increment amount
+            keyIndex[iRandom++] = i;
+        }
+    }
+    
+    // Return index
+    return (iRandom) ? keyIndex[GetRandomInt(0, iRandom-1)] : -1;
 }

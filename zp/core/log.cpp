@@ -26,15 +26,6 @@
  **/
 
 /**
- * @section Log message max lengths.
- **/
-#define LOG_MAX_LENGTH_FILE 2048
-#define LOG_MAX_LENGTH_CHAT 192
-/**
- * @endsection
- **/
- 
-/**
  * @section Custrom log file.
  **/
 #define LOG_FILE "addons/sourcemod/logs/zombieplague.log"
@@ -57,13 +48,13 @@
 /**
  * @section Log format types.
  **/
-enum LogTypes
+enum LogType
 {
-    LogType_Normal,           /** Normal log message. Printed in SourceMod logs. */
-    LogType_Error,            /** Error message. Printed in SourceMod error logs. */
-    LogType_Fatal,            /** Fatal error. Stops the plugin with the specified message. */
-    LogType_Native,           /** Throws an error in the calling plugin of a native, instead of your own plugin. */
-    LogType_Command           /** Command log message. Printed in SourceMod logs and in chat to all. */
+    LogType_Normal,               /** Normal log message. Printed in SourceMod logs. */
+    LogType_Error,                /** Error message. Printed in SourceMod error logs. */
+    LogType_Fatal,                /** Fatal error. Stops the plugin with the specified message. */
+    LogType_Native,               /** Throws an error in the calling plugin of a native, instead of your own plugin. */
+    LogType_Command               /** Command log message. Printed in SourceMod logs and in chat to all. */
 };
 /**
  * @endsection
@@ -77,7 +68,7 @@ enum LogTypes
  * - LogGetModuleNameString
  * - LogGetModule
  **/
-enum LogModules
+enum LogModule
 {
     bool:LogModule_Invalid,            /** Used as return value when an error occoured.*/
 
@@ -104,41 +95,30 @@ enum LogModules
 /**
  * @endsection
  **/
- 
-/**
- * Dynamic string array for module filtering.
- **/
-ArrayList arrayLogModuleFilter;
 
 /**
  * Cache of current module filter settings. For fast and easy access.
  **/
-int LogModuleFilterCache[LogModules];
+int LogModuleFilterCache[LogModule];
 
 /**
- * List of modules that write log events. 
+ * @brief List of modules that write log events. 
  **/
-void LogInit(/*void*/)
+void LogOnInit(/*void*/)
 {
-    // Destroy existing handle to prevent memory leak
-    if(arrayLogModuleFilter != INVALID_HANDLE)
-    {
-        delete arrayLogModuleFilter;
-    }
-    
-    // Initialize module filter array
-    arrayLogModuleFilter = CreateArray(32);
+    // Initialize a module filter array
+    gServerData.Logs = CreateArray(SMALL_LINE_LENGTH);
 }
 
 /**
- * Creates commands for log module.
+ * @brief Creates commands for log module.
  **/
-void LogOnCommandsCreate(/*void*/)
+void LogOnCommandInit(/*void*/)
 {
     // Create config admin commands
-    RegAdminCmd("zp_log_list", LogListCommandCatched, ADMFLAG_CONFIG, "List available logging flags and modules with their status values.");
-    RegAdminCmd("zp_log_add_module", LogAddModuleCommandCatched, ADMFLAG_CONFIG, "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...");
-    RegAdminCmd("zp_log_remove_module", LogRemoveModuleCommandCatched, ADMFLAG_CONFIG, "Remove one or more modules from the module filter. Usage: zp_log_remove_module <module> [module] ...");
+    RegAdminCmd("zp_log_list", LogListOnCommandCatched, ADMFLAG_CONFIG, "List available logging flags and modules with their status values.");
+    RegAdminCmd("zp_log_add_module", LogAddModuleOnCommandCatched, ADMFLAG_CONFIG, "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...");
+    RegAdminCmd("zp_log_remove_module", LogRemoveModuleOnCommandCatched, ADMFLAG_CONFIG, "Remove one or more modules from the module filter. Usage: zp_log_remove_module <module> [module] ...");
 }
 
 /**
@@ -154,14 +134,18 @@ void LogOnCvarInit(/*void*/)
     gCvarList[CVAR_LOG_PRINT_CHAT]     = FindConVar("zp_log_print_chat");
 }
 
+/*
+ * Stocks log API.
+ */
+
 /**
- * Converts a string module name into a module type.
+ * @brief Converts a string module name into a module type.
  *
  * @param sModuleName       A string with the short module name. Case insensitive,
  *                          but not trimmed for white space.
- * @return                  The matcing module type or LogModules_Invalid if failed.
+ * @return                  The matcing module type or LogModule_Invalid if failed.
  **/
-LogModules LogGetModule(char[] sModuleName)
+LogModule LogGetModule(char[] sModuleName)
 {
     if(!strcmp(sModuleName, "engine", false))
     {
@@ -245,7 +229,7 @@ LogModules LogGetModule(char[] sModuleName)
 }
 
 /**
- * Check if the specified log flag is set.
+ * @brief Check if the specified log flag is set.
  *
  * @param eventType         The log flag to check.
  * @return                  True if set, false otherwise.
@@ -257,28 +241,28 @@ bool LogCheckFlag(int eventType)
 }
 
 /**
- * Check if the specified module is enabled in the LOG_MODULE filter cache.
+ * @brief Check if the specified module is enabled in the LOG_MODULE filter cache.
  *
  * @param iModule           Module to check.
  * @return                  True ifenabled, false otherwise. 
  **/
-bool LogCheckModuleFilter(const LogModules iModule)
+bool LogCheckModuleFilter(const LogModule iModule)
 {
     // Check if filter is set
     return LogModuleFilterCache[iModule] ? true : false;
 }
 
 /**
- * Convert module type to a string.
+ * @brief Convert module type to a string.
  *
- * @param sBuffer            Destination string buffer.
- * @param iMaxLen            Size of destination buffer.
- * @param iModule            Module type to convert.
- * @param shortName          Optional. Use short name instead of human readable names. Default is false
+ * @param sBuffer           Destination string buffer.
+ * @param iMaxLen           The lenght of string.
+ * @param iModule           Module type to convert.
+ * @param shortName         Optional. Use short name instead of human readable names. Default is false
  *
- * @return                   Number of cells written.
+ * @return                  Number of cells written.
  **/
-int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules iModule, const bool shortName = false)
+int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModule iModule, const bool shortName = false)
 {
     switch(iModule)
     {
@@ -365,12 +349,12 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules i
 }
 
 /**
- * Print a formatted message to logs depending on log settings.
+ * @brief Print a formatted message to logs depending on log settings.
  *
  * @param isConsole         Optional. Specifies whether the log event came from
  *                          client 0. Used in console commands, do not mix with
  *                          regular log events. Default is false.
- * @param logType           Optional. Log type and action. Default is
+ * @param iType             Optional. Log type and action. Default is
  *                          LogType_Normal.
  * @param eventType         Optional. A log flag describing What kind of log event
  *                          it is. Default is LOG_CORE_EVENTS.
@@ -380,10 +364,10 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModules i
  * @param sMessage          Log message. Can be formatted.
  * @param ...               Formatting parameters.
  **/
-void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Normal, const int eventType = LOG_CORE_EVENTS, const LogModules iModule = LogModule_Config, const char[] sDescription, const char[] sMessage, any ...)
+void LogEvent(const bool isConsole = false, const LogType iType = LogType_Normal, const int eventType = LOG_CORE_EVENTS, const LogModule iModule = LogModule_Config, const char[] sDescription, const char[] sMessage, any ...)
 {    
     // Check filter overrides. Always log fatal errors, and check error override setting on error log types
-    if((logType != LogType_Fatal && logType != LogType_Error) || (logType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
+    if((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
     {
         // Check iflogging is disabled
         if(!gCvarList[CVAR_LOG].BoolValue)
@@ -415,7 +399,7 @@ void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Nor
     }
 
     // Format extra parameters into the log buffer
-    static char sLogBuffer[LOG_MAX_LENGTH_FILE];
+    static char sLogBuffer[FILE_LINE_LENGTH];
     VFormat(sLogBuffer, sizeof(sLogBuffer), sMessage, 7);
 
     // Gets human readable module name
@@ -426,29 +410,28 @@ void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Nor
     Format(sLogBuffer, sizeof(sLogBuffer), "[%s] [%s] %s", sModule, sDescription, sLogBuffer);
 
     // Format other parameters onto the log text
-    switch(logType)
+    switch(iType)
     {
-        // Log type is normal
         case LogType_Normal:
         {
             LogMessage(sLogBuffer);
         }
-        // Log type is error
+
         case LogType_Error:
         {
             LogError(sLogBuffer);
         }
-        // Log type is fatal error
+
         case LogType_Fatal:
         {
             SetFailState(sLogBuffer);
         }
-        // Log type is native error
+
         case LogType_Native:
         {
             ThrowNativeError(SP_ERROR_NATIVE, sLogBuffer);
         }
-        // Log type is command
+
         case LogType_Command:
         {
             LogToFile(LOG_FILE, sLogBuffer);
@@ -463,15 +446,14 @@ void LogEvent(const bool isConsole = false, const LogTypes logType = LogType_Nor
     }
 }
 
-
 /**
- * Adds a module to the module filter and updates the cache. If it already
- * exist the command is ignored.
+ * @brief Adds a module to the module filter and updates the cache. If it already
+ *        exist the command is ignored.
  *
  * @param iModule           The module to add.
  * @return                  True if added, false otherwise.
  **/
-bool LogModuleFilterAdd(const LogModules iModule)
+bool LogModuleFilterAdd(const LogModule iModule)
 {
     // Initialize some chars
     static char sModuleName[SMALL_LINE_LENGTH];
@@ -486,10 +468,10 @@ bool LogModuleFilterAdd(const LogModules iModule)
     LogGetModuleNameString(sModuleName, sizeof(sModuleName), iModule, true);
     
     // Check if the module isn't already is listed
-    if(arrayLogModuleFilter.FindString(sModuleName) == -1)
+    if(gServerData.Logs.FindString(sModuleName) == -1)
     {
         // Add module to filter
-        arrayLogModuleFilter.PushString(sModuleName);
+        gServerData.Logs.PushString(sModuleName);
         return true;
     }
     
@@ -497,13 +479,13 @@ bool LogModuleFilterAdd(const LogModules iModule)
 }
 
 /**
- * Removes a module to the module filter and updates the cache. If it doesn't
- * exist the command is ignored.
+ * @brief Removes a module to the module filter and updates the cache. If it doesn't
+ *        exist the command is ignored.
  *
- * @param iModule            The module to remove.
- * @return                   True ifremoved, false otherwise.
+ * @param iModule           The module to remove.
+ * @return                  True ifremoved, false otherwise.
  **/
-bool LogModuleFilterRemove(const LogModules iModule)
+bool LogModuleFilterRemove(const LogModule iModule)
 {
     // Initialize some chars
     static char sModuleName[SMALL_LINE_LENGTH]; int iModuleIndex;
@@ -518,13 +500,13 @@ bool LogModuleFilterRemove(const LogModules iModule)
     LogGetModuleNameString(sModuleName, sizeof(sModuleName), iModule, true);
     
     // Gets module index
-    iModuleIndex = arrayLogModuleFilter.FindString(sModuleName);
+    iModuleIndex = gServerData.Logs.FindString(sModuleName);
     
     // Check if successful
     if(iModuleIndex)
     {
         // Remove module from filter
-        arrayLogModuleFilter.Erase(iModuleIndex);
+        gServerData.Logs.Erase(iModuleIndex);
         return true;
     }
     
@@ -532,25 +514,25 @@ bool LogModuleFilterRemove(const LogModules iModule)
 }
 
 /**
- * Update module filter cache.
+ * @brief Update module filter cache.
  **/
 void LogModuleFilterCacheUpdate(/*void*/)
 {
-    static char sModuleName[SMALL_LINE_LENGTH]; LogModules iModuleType;
+    static char sModuleName[SMALL_LINE_LENGTH]; LogModule iModuleType;
     
     // Clear all entries in module cache
     int iModuleCount = sizeof(LogModuleFilterCache);
     for(int i = 1; i < iModuleCount; i++)
     {
-        LogModuleFilterCache[view_as<LogModules>(i)] = false;
+        LogModuleFilterCache[view_as<LogModule>(i)] = false;
     }
     
     // Loop through the module array
-    int iSize = arrayLogModuleFilter.Length;
+    int iSize = gServerData.Logs.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Gets module name
-        arrayLogModuleFilter.GetString(i, sModuleName, sizeof(sModuleName));
+        gServerData.Logs.GetString(i, sModuleName, sizeof(sModuleName));
         
         // Convert to type
         iModuleType = LogGetModule(sModuleName);
@@ -565,15 +547,16 @@ void LogModuleFilterCacheUpdate(/*void*/)
 }
 
 /**
- * Handles the <!zp_log_list> command. Displays flags and module filter cache.
+ * Console command callback (zp_log_list)
+ * @brief Displays flags and module filter cache.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action LogListCommandCatched(const int clientIndex, const int iArguments)
+public Action LogListOnCommandCatched(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
-    static char sBuffer[LOG_MAX_LENGTH_FILE];
+    static char sBuffer[FILE_LINE_LENGTH];
     static char sLineBuffer[NORMAL_LINE_LENGTH];
     static char sModuleName[SMALL_LINE_LENGTH];
     
@@ -620,7 +603,7 @@ public Action LogListCommandCatched(const int clientIndex, const int iArguments)
     sBuffer[0] = 0;
     
     // Module filtering status:
-    FormatEx(sLineBuffer, sizeof(sLineBuffer), "%t %ы\n\n", "log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "%t %s\n\n", "log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
     FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "log status");
@@ -634,37 +617,34 @@ public Action LogListCommandCatched(const int clientIndex, const int iArguments)
     int iModulecount = sizeof(LogModuleFilterCache);
     for(int i = 1; i < iModulecount; i++)
     {
-        LogGetModuleNameString(sModuleName, sizeof(sModuleName), view_as<LogModules>(i));
-        LogGetModuleNameString(sPhraseShortName, sizeof(sPhraseShortName), view_as<LogModules>(i), true);
-        FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[view_as<LogModules>(i)] ? "On" : "Off");
+        LogGetModuleNameString(sModuleName, sizeof(sModuleName), view_as<LogModule>(i));
+        LogGetModuleNameString(sPhraseShortName, sizeof(sPhraseShortName), view_as<LogModule>(i), true);
+        FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[view_as<LogModule>(i)] ? "On" : "Off");
         ReplyToCommand(clientIndex, sLineBuffer);
     }
     return Plugin_Handled;
 }
 
 /**
- * Handles the <!zp_log_add_module> command. Add one or modules to module filter.
+ * Console command callback (zp_log_add_module)
+ * @brief Add one or modules to module filter.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action LogAddModuleCommandCatched(const int clientIndex, const int iArguments)
+public Action LogAddModuleOnCommandCatched(const int clientIndex, const int iArguments)
 {
-    // Initialize some chars
+    // Initialize argument char
     static char sArgument[SMALL_LINE_LENGTH];
 
     // Module
-    LogModules iModule;
+    LogModule iModule;
 
     // Check if no arguments
     if(iArguments < 1)
     {
         // Display syntax info
-        static char sBuffer[PLATFORM_MAX_PATH];
-        sBuffer[0] = 0;
-        StrCat(sBuffer, sizeof(sBuffer), "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...\n");
-        StrCat(sBuffer, sizeof(sBuffer), "See zp_log_list to list available module names (short names).");
-        ReplyToCommand(clientIndex, sBuffer);
+        TranslationReplyToCommand(clientIndex, "log module invalid args");
     }
 
     // Loop through each argument
@@ -679,14 +659,14 @@ public Action LogAddModuleCommandCatched(const int clientIndex, const int iArgum
         // Check ifinvalid
         if(iModule == LogModule_Invalid)
         {
-            ReplyToCommand(clientIndex, "Invalid module name: \"%s\"", sArgument);
-
             // Skip to next argument
+            TranslationReplyToCommand(clientIndex, "log module invalid name", sArgument);
             continue;
         }
 
+        // Add filter
         LogModuleFilterAdd(iModule);
-        ReplyToCommand(clientIndex, "Added \"%s\" to module filter.", sArgument);
+        TranslationReplyToCommand(clientIndex, "log module filter added", sArgument);
     }
 
     // Update cache
@@ -695,28 +675,25 @@ public Action LogAddModuleCommandCatched(const int clientIndex, const int iArgum
 }
 
 /**
- * Handles the <!zp_log_add_module> command. Remove one or modules to module filter.
+ * Console command callback (zp_log_remove_module)
+ * @brief Remove one or modules to module filter.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action LogRemoveModuleCommandCatched(const int clientIndex, const int iArguments)
+public Action LogRemoveModuleOnCommandCatched(const int clientIndex, const int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];
 
     // Module
-    LogModules iModule;
+    LogModule iModule;
     
     // Check if no arguments
     if(iArguments < 1)
     {
         // Display syntax info
-        static char sBuffer[PLATFORM_MAX_PATH];
-        sBuffer[0] = 0;
-        StrCat(sBuffer, sizeof(sBuffer), "Remove one or more modules to the module filter. Usage: zp_log_remove_module <module> [module] ...\n");
-        StrCat(sBuffer, sizeof(sBuffer), "See zp_log_list to list available module names (short names).");
-        ReplyToCommand(clientIndex, sBuffer);
+        TranslationReplyToCommand(clientIndex, "log module invalid args");
     }
     
     // Loop through each argument
@@ -731,14 +708,14 @@ public Action LogRemoveModuleCommandCatched(const int clientIndex, const int iAr
         // Check ifinvalid
         if(iModule == LogModule_Invalid)
         {
-            ReplyToCommand(clientIndex, "Invalid module name: \"%s\"", sArgument);
-            
             // Skip to next argument
+            TranslationReplyToCommand(clientIndex, "log module invalid name", sArgument);
             continue;
         }
         
+        // Remove filter
         LogModuleFilterRemove(iModule);
-        ReplyToCommand(clientIndex, "Removed \"%s\" from module filter.", sArgument);
+        TranslationReplyToCommand(clientIndex, "log module filter removed", sArgument);
     }
     
     // Update cache.

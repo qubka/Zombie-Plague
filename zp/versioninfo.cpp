@@ -37,46 +37,44 @@
 #define PLUGIN_BRANCH       "zp-X"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "26-December-2018T19:49:00-GMT+01:00"
+#define PLUGIN_DATE         "16-January-2019T20:30:00-GMT+01:00"
 /**
  * @endsection
  **/
 
 /**
- * Creates commands for version module.
+ * @brief Creates commands for version module.
  **/
-void VersionOnCommandsCreate(/*void*/)
+void VersionOnCommandInit(/*void*/)
 {
-    RegConsoleCmd("zp_version", VersionCommandCatched, "Prints version info about this plugin.");
+    RegConsoleCmd("zp_version", VersionOnCommandCatched, "Prints version info about this plugin.");
 }
 
 /**
- * Load version info data.
+ * @brief Version module load function.
  **/
-void VersionLoad(/*void*/)
+void VersionOnLoad(/*void*/)
 {
     // Print a version into the console
-    VersionCommandCatched(LANG_SERVER, LANG_SERVER);
+    VersionOnCommandCatched(LANG_SERVER, LANG_SERVER);
 }
 
 /**
- * Handles the <!zp_version> command. Called when a generic console command is invoked.
+ * Console command callback (zp_version)
+ * @brief Prints version info about this plugin.
  * 
- * @param clientIndex      The client index.
- * @param iArguments       The number of arguments that were in the argument string.
+ * @param clientIndex       The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action VersionCommandCatched(const int clientIndex, const int iArguments)
+public Action VersionOnCommandCatched(const int clientIndex, const int iArguments)
 {
     // Initialize variables
-    static char sBuffer[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
-    static char sLine[BIG_LINE_LENGTH];
-
-    // Quick clear string buffer
-    sBuffer[0] = '\0'; sLine[0] = '\0';
+    static char sBuffer[HUGE_LINE_LENGTH]; sBuffer[0] = '\0';
+    static char sLine[BIG_LINE_LENGTH]; sLine[0] = '\0';
 
     #define FORMATSTRING "%24s: %s\n"
 
-    // Format strings
+    /// Format strings
     FormatEx(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 

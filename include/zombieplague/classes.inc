@@ -33,7 +33,39 @@
 #define _classes_included
 
 /**
- * @brief Called before show a human class in the class menu.
+ * @section Number of valid bonuses.
+ **/
+enum /*BonusType*/
+{
+    BonusType_Invalid = -1,       /** Used as return value when a bonus doens't exist. */
+    
+    BonusType_Kill,               /** Kill bonus */
+    BonusType_Damage,             /** Damage bonus */
+    BonusType_Infect,             /** Infect or humanize bonus */  
+    BonusType_Win,                /** Win bonus */ 
+    BonusType_Lose,               /** Lose bonus */    
+    BonusType_Draw                /** Draw bonus */ 
+};
+/**
+ * @endsection
+ **/
+
+#include "zombieplague/classes/account.inc"
+#include "zombieplague/classes/skillsystem.inc"
+#include "zombieplague/classes/levelsystem.inc" 
+ 
+/**
+ * @brief Called when a client became a zombie/human.
+ * 
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnClientUpdated(int clientIndex, int attackerIndex); 
+ 
+/**
+ * @brief Called before show a class in the class menu.
  * 
  * @param clientIndex       The client index.
  * @param classID           The class index.
@@ -41,24 +73,24 @@
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-forward Action ZP_OnClientValidateHumanClass(int clientIndex, int classID);
+forward Action ZP_OnClientValidateClass(int clientIndex, int classID);
 
 /**
- * @brief Called before show a zombie class in the class menu.
- * 
- * @param clientIndex       The client index.
- * @param classID           The class index.
+ * @brief Infect/humanize a player.
  *
- * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
- *                              (like Plugin_Continue) to allow showing and selecting.
+ * @param clientIndex       The client index.
+ * @param attackerIndex     (Optional) The attacker index.
+ * @param type              (Optional) The class type. (human/zombie - default)
+ *  
+ * @return                  True or false.
  **/
-forward Action ZP_OnClientValidateZombieClass(int clientIndex, int classID);
+native bool ZP_ChangeClient(int clientIndex, int attackerIndex = 0, char[] type = "zombie");
 
 /**
  * @brief Gets the amount of all classes.
  *
  * @return                  The class amount.    
- */
+ **/
 native int ZP_GetNumberClass();
 
 /**
@@ -67,7 +99,7 @@ native int ZP_GetNumberClass();
  * @param clientIndex       The client index.
  *
  * @return                  The class index.    
- */
+ **/
 native int ZP_GetClientClass(int clientIndex);
 
 /**
@@ -76,7 +108,7 @@ native int ZP_GetClientClass(int clientIndex);
  * @param clientIndex       The client index.
  *
  * @return                  The class index.    
- */
+ **/
 native int ZP_GetClientHumanClassNext(int clientIndex);
 
 /**
@@ -85,15 +117,15 @@ native int ZP_GetClientHumanClassNext(int clientIndex);
  * @param clientIndex       The client index.
  *
  * @return                  The class index.    
- */
-native int API_GetClientZombieClassNext(int clientIndex);
+ **/
+native int ZP_GetClientZombieClassNext(int clientIndex);
 
 /**
  * @brief Sets the human next class index to the client.
  * 
  * @param clientIndex       The client index.
  * @param classID           The class index.    
- */
+ **/
 native void ZP_SetClientHumanClassNext(int clientIndex, int classID);
 
 /**
@@ -101,7 +133,7 @@ native void ZP_SetClientHumanClassNext(int clientIndex, int classID);
  * 
  * @param clientIndex       The client index.
  * @param classID           The class index.    
- */
+ **/
 native void ZP_SetClientZombieClassNext(int clientIndex, int classID);
 
 /**
@@ -130,6 +162,17 @@ native void ZP_GetClassName(int classID, char[] name, int maxlenght = 32);
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetClassInfo(int classID, char[] info, int maxlenght = 128);
+
+/**
+ * @brief Gets the index of a class at a given type.
+ * 
+ * @param type              The class type.
+ *
+ * @return                  The class index, or -1 on failure.
+ *
+ * @note                    Can return a random index for multiple same unique types!
+ **/
+native int ZP_GetClassTypeID(char[] type);
 
 /**
  * @brief Gets the type of a class at a given index.
@@ -260,9 +303,9 @@ native int ZP_GetClassLevel(int classID);
 /**
  * @brief Gets the group of a class at a given index.
  *
- * @param classID            The class index.
- * @param group              The string to return group in.
- * @param maxlenght          The lenght of string.
+ * @param classID           The class index.
+ * @param group             The string to return group in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetClassGroup(int classID, char[] group, int maxlenght = 32);
 
@@ -285,6 +328,15 @@ native float ZP_GetClassSkillDuration(int classID);
 native float ZP_GetClassSkillCountdown(int classID);
 
 /**
+ * @brief Checks the skill bar of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsClassSkillBar(int classID);
+
+/**
  * @brief Gets the regen health of the class.
  *
  * @param classID           The class index.
@@ -303,6 +355,24 @@ native int ZP_GetClassRegenHealth(int classID);
 native float ZP_GetClassRegenInterval(int classID);
 
 /**
+ * @brief Checks the fall state of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsClassFall(int classID);
+
+/**
+ * @brief Checks the spot state of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsClassSpot(int classID);
+
+/**
  * @brief Gets the fov of the class.
  *
  * @param classID           The class index.
@@ -310,15 +380,6 @@ native float ZP_GetClassRegenInterval(int classID);
  * @return                  The fov amount. 
  **/
 native int ZP_GetClassFov(int classID);
-
-/**
- * @brief Checks the no fall of the class.
- *
- * @param classID           The class index.
- *
- * @return                  True or false. 
-**/
-native bool ZP_IsClassNoFall(int classID);
 
 /**
  * @brief Checks the crosshair of the class.
@@ -350,29 +411,29 @@ native void ZP_GetClassOverlay(int classID, char[] overlay, int maxlenght = 256)
 /**
  * @brief Gets the weapon of a class at a given index.
  *
- * @param classID            The class index.
- * @param weapon             The array to return weapon in.
- * @param maxlenght          The lenght of array.
+ * @param classID           The class index.
+ * @param weapon            The array to return weapon in.
+ * @param maxlenght         The lenght of array.
  **/
 native void ZP_GetClassWeapon(int classID, int[] weapon, int maxlenght = 16);
 
 /**
  * @brief Gets the money of a class at a given index.
  *
- * @param classID            The class index.
- * @param money              The array to return money in.
- * @param maxlenght          The lenght of array.
+ * @param classID           The class index.
+ * @param money             The array to return money in.
+ * @param maxlenght         The lenght of array.
  **/
-native void ZP_GetClassMoney(int classID, int[] money, int maxlenght = 3);
+native void ZP_GetClassMoney(int classID, int[] money, int maxlenght = 6);
 
 /**
  * @brief Gets the experience of a class at a given index.
  *
- * @param classID            The class index.
- * @param experience         The array to return experience in.
- * @param maxlenght          The lenght of array.
+ * @param classID           The class index.
+ * @param experience        The array to return experience in.
+ * @param maxlenght         The lenght of array.
  **/
-native void ZP_GetClassExperience(int classID, int[] experience, int maxlenght = 3);
+native void ZP_GetClassExperience(int classID, int[] experience, int maxlenght = 6);
 
 /**
  * @brief Gets the lifesteal of the class.
@@ -422,18 +483,18 @@ native float ZP_GetClassLeapCountdown(int classID);
 /**
  * @brief Gets the effect name of a class at a given index.
  *
- * @param classID            The class index.
- * @param name               The string to return name in.
- * @param maxlenght          The lenght of string.
+ * @param classID           The class index.
+ * @param name              The string to return name in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetClassEffectName(int classID, char[] name, int maxlenght = 32);
 
 /**
  * @brief Gets the effect attachment of a class at a given index.
  *
- * @param classID            The class index.
- * @param attach             The string to return attach in.
- * @param maxlenght          The lenght of string.
+ * @param classID           The class index.
+ * @param attach            The string to return attach in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetClassEffectAttach(int classID, char[] attach, int maxlenght = 32);
 
@@ -546,9 +607,19 @@ native int ZP_GetClassSoundFootID(int classID);
 native int ZP_GetClassSoundRegenID(int classID);
 
 /**
- * @brief Print the info about the class.
- * 
- * @param clientIndex        The client index.
- * @param classID            The class index.    
- */
-native void ZP_PrintClassInfo(int clientIndex, int classID);
+ * @brief Returns true if the player is a type, false if not.
+ *
+ * @param clientIndex       The class index.
+ * @param sType             The type name.
+ *
+ * @return                  True or false.
+ **/
+stock bool ZP_IsPlayerType(const int clientIndex, const char[] sType)
+{
+    // Gets class type
+    static char sClassType[SMALL_LINE_LENGTH];
+    ZP_GetClassType(ZP_GetClientClass(clientIndex), sClassType, sizeof(sClassType));
+    
+    // Return on success
+    return (!strcmp(sClassType, sType, false));
+}

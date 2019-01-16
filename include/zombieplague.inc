@@ -39,9 +39,22 @@
 /**
  * @section Lenth of usual strings.
  **/
-#define SMALL_LINE_LENGTH   32
-#define NORMAL_LINE_LENGTH  64
-#define BIG_LINE_LENGTH     128
+#define SMALL_LINE_LENGTH       32
+#define NORMAL_LINE_LENGTH      64
+#define BIG_LINE_LENGTH         128
+#define CHAT_LINE_LENGTH        192
+#define PLATFORM_LINE_LENGTH    256
+#define HUGE_LINE_LENGTH        512
+#define CONSOLE_LINE_LENGTH     1024
+#define FILE_LINE_LENGTH        2048
+#define TEAM_NONE               0    /**< No team yet */
+#define TEAM_SPECTATOR          1    /**< Spectators */
+#define TEAM_ZOMBIE             2    /**< Zombies */
+#define TEAM_HUMAN              3    /**< Humans */
+#define SPECMODE_NONE           0
+#define SPECMODE_FIRSTPERSON    4
+#define SPECMODE_3RDPERSON      5
+#define SPECMODE_FREELOOK       6
 /**
  * @endsection
  **/
@@ -224,69 +237,15 @@ enum /*SolidFlags_t*/
 #include "zombieplague/menus.inc"
 #include "zombieplague/sounds.inc"
 #include "zombieplague/weapons.inc"
+#include "zombieplague/classes.inc"
 #include "zombieplague/costumes.inc"
 #include "zombieplague/gamemodes.inc"
 #include "zombieplague/hitgroups.inc"
-#include "zombieplague/extraitems.inc"
-#include "zombieplague/humanclasses.inc" 
-#include "zombieplague/zombieclasses.inc"
-
+#include "zombieplague/extraitems.inc" 
 
 //*********************************************************************
 //*                       CORE MAIN FORWARDS                          *
 //*********************************************************************
-
-/**
- * @brief Called when a client became a zombie/human.
- * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
- *
- * @noreturn
- **/
-forward void ZP_OnClientUpdated(int clientIndex, int attackerIndex);
-
-/**
- * @brief Called when a client take a fake damage.
- * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index. (Not validated!)
- * @param inflictorIndex    The inflictor index. (Not validated!)
- * @param damageAmount      The amount of damage inflicted.
- * @param damageType        The ditfield of damage types.
- * @param weaponIndex       The weapon index or -1 for unspecified.
- *
- * @noreturn
- **/
-forward void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &damageAmount, int &damageType, int &weaponIndex);
-
-/**
- * @brief Called when a client use a skill.
- * 
- * @param clientIndex       The client index.
- *
- * @return                  Plugin_Handled or Plugin_Stop to block using skill. Anything else
- *                              (like Plugin_Continue) to allow use.
- **/
-forward Action ZP_OnClientSkillUsed(int clientIndex);
-
-/**
- * @brief Called when a skill duration is over.
- * 
- * @param clientIndex       The client index.
- *
- * @noreturn
- **/
-forward void ZP_OnClientSkillOver(int clientIndex);
-
-/**
- * @brief Called after a round is started.
- *
- * @param modeIndex         The mode index. 
- *
- * @noreturn
- **/
-forward void ZP_OnZombieModStarted(int modeIndex);
 
 /**
  * @brief Called after a core is loaded.
@@ -298,22 +257,6 @@ forward void ZP_OnEngineExecute(/*void*/);
 //*********************************************************************
 //*                       CORE MAIN NATIVES                           *
 //*********************************************************************
-
-/**
- * @brief Applies fake damage to an entity. 
- *
- * @note Apply trace knockback of the attacker weapon id only with DMG_NEVERGIB and weaponIndex,
- *             for other custom knockback use FakeCreateKnockBack() native.
- *
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param damageAmount      The amount of damage inflicted.
- * @param damageType        (Optional) The ditfield of damage types.
- * @param weaponIndex       (Optional) The weapon index or -1 for unspecified.
- *
- * @noreturn
- **/
-native void ZP_TakeDamage(int clientIndex, int attackerIndex, float damageAmount, int damageType = DMG_GENERIC, int weaponIndex = INVALID_ENT_REFERENCE);
 
 /**
  * Update a entity transmit state.
@@ -347,6 +290,15 @@ native bool ZP_LookupAttachment(int entityIndex, char[] attach);
 native void ZP_GetAttachment(int entityIndex, char[] attach, float origin[3], float angles[3]);
 
 /**
+ * @brief Respawn a player.
+ *
+ * @param clientIndex       The client index.
+ *  
+ * @return                  True or false.
+ **/
+native bool ZP_RespawnClient(int clientIndex);
+
+/**
  * @brief Returns whether a player is in group or not.
  *
  * @param clientIndex       The client index.
@@ -373,111 +325,6 @@ native bool ZP_IsPlayerZombie(int clientIndex);
  * @return                  True or false.
  **/
 native bool ZP_IsPlayerHuman(int clientIndex);
-
-/**
- * @brief Returns true if the player use a skill, false if not. 
- *
- * @param clientIndex       The client index.
- *  
- * @return                  True or false.
- **/
-native bool ZP_IsPlayerUseSkill(int clientIndex);
-
-/**
- * @brief Respawn a player.
- *
- * @param clientIndex       The client index.
- *  
- * @return                  True or false.
- **/
-native void ZP_RespawnClient(int clientIndex);
-
-/**
- * @brief Infect/humanize a player.
- *
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param class             The class name. (human/zombie - default)
- *  
- * @return                  True or false.
- **/
-native void ZP_ChangeClient(int clientIndex, int attackerIndex = 0, char[] class);
-
-/**
- * @brief Gets the player amount of money.
- *
- * @param clientIndex       The client index.
- *  
- * @return                  The number of money.
- **/
-native int ZP_GetClientMoney(int clientIndex);
-
-/**
- * @brief Sets the player amount of money.
- *
- * @param clientIndex       The client index.
- * @param amountAmmo        The number of money.
- *  
- * @noreturn
- **/
-native void ZP_SetClientMoney(int clientIndex, int amountAmmo);
-
-/**
- * @brief Gets the player amount of previous money spended.
- *
- * @param clientIndex       The client index.
- *  
- * @return                  The number of money.
- **/
-native int ZP_GetClientLastBought(int clientIndex);
-
-/**
- * @brief Sets the player amount of money spending.
- *
- * @param clientIndex       The client index.
- * @param amountAmmo        The number of money.
- *  
- * @noreturn
- **/
-native void ZP_SetClientLastBought(int clientIndex, int amountAmmo);
-
-/**
- * @brief Gets the player level.
- *
- * @param clientIndex       The client index.
- *  
- * @return                  The number of level.
- **/
-native int ZP_GetClientLevel(int clientIndex);
-
-/**
- * @brief Sets the player level.
- *
- * @param clientIndex       The client index.
- * @param amountLevel       The number of level.
- *  
- * @noreturn
- **/
-native int ZP_SetClientLevel(int clientIndex, int amountLevel);
-
-/**
- * @brief Gets the player exp.
- *
- * @param clientIndex       The client index.
- *  
- * @return                  The number of exp.
- **/
-native int ZP_GetClientExp(int clientIndex);
-
-/**
- * @brief Sets the player exp.
- *
- * @param clientIndex       The client index.
- * @param amountExp         The number of exp.
- *  
- * @noreturn
- **/
-native int ZP_SetClientExp(int clientIndex, int amountExp);
 
 /**
  * @brief Gets the last player disconnected time.
@@ -570,11 +417,11 @@ native int ZP_GetRandomZombie();
  * @brief Returns true if the player is connected and alive, false if not.
  *
  * @param clientIndex       The client index.
- * @param aliveness         (Optional) Set to true to validate that the client is alive, false to ignore.
+ * @param bAlive            (Optional) Set to true to validate that the client is alive, false to ignore.
  *  
  * @return                  True or false.
  **/
-stock bool IsPlayerExist(const int clientIndex, const bool aliveness = true)
+stock bool IsPlayerExist(const int clientIndex, const bool bAlive = true)
 {
     // If client isn't valid, then stop
     if(clientIndex <= 0 || clientIndex > MaxClients)
@@ -601,7 +448,7 @@ stock bool IsPlayerExist(const int clientIndex, const bool aliveness = true)
     }
 
     // If client isn't alive, then stop
-    if(aliveness && !IsPlayerAlive(clientIndex))
+    if(bAlive && !IsPlayerAlive(clientIndex))
     {
         return false;
     }
@@ -621,7 +468,7 @@ stock bool IsPlayerExist(const int clientIndex, const bool aliveness = true)
  *
  * @return                  The entity index.
  **/
-stock int FakeCreateParticle(const int parentIndex, const float vPosition[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sType, const float flDurationTime)
+stock int ZP_CreateParticle(const int parentIndex, const float vPosition[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sType, const float flDurationTime)
 {
     // Create an attach particle entity
     int entityIndex = CreateEntityByName("info_particle_system");
@@ -679,7 +526,7 @@ stock int FakeCreateParticle(const int parentIndex, const float vPosition[3] = N
  *
  * @return                  The entity index.
  **/
-stock int FakeCreateEntity(const float vPosition[3], const float flDurationTime)
+stock int ZP_CreateEntity(const float vPosition[3], const float flDurationTime)
 {
     // Create an fake info entity
     int entityIndex = CreateEntityByName("info_target");
@@ -715,13 +562,13 @@ stock int FakeCreateEntity(const float vPosition[3], const float flDurationTime)
  * @param flFrequency       The frequency of shake.
  * @param flDuration        The duration of shake in the seconds.
  **/
-stock void FakeCreateShakeScreen(const int clientIndex, const float flAmplitude, const float flFrequency, const float flDuration)
+stock void ZP_CreateShakeScreen(const int clientIndex, const float flAmplitude, const float flFrequency, const float flDuration)
 {
     // Create message
     Handle hShake = StartMessageOne("Shake", clientIndex);
 
     // Validate message
-    if(hShake != INVALID_HANDLE)
+    if(hShake != null)
     {
         // Write shake information to message handle
         PbSetInt(hShake,   "command", 0);
@@ -743,13 +590,13 @@ stock void FakeCreateShakeScreen(const int clientIndex, const float flAmplitude,
  * @param iFlags            The flags.
  * @param vColor            The array with RGB color.
  **/
-stock void FakeCreateFadeScreen(const int clientIndex, const float flDuration, const float flHoldTime, const int iFlags, const int vColor[4])
+stock void ZP_CreateFadeScreen(const int clientIndex, const float flDuration, const float flHoldTime, const int iFlags, const int vColor[4])
 {
     // Create message
     Handle hFade = StartMessageOne("Fade", clientIndex);
 
     // Validate message
-    if(hFade != INVALID_HANDLE)
+    if(hFade != null)
     {
         // Write shake information to message handle
         PbSetInt(hFade, "duration", RoundToNearest(flDuration * 1000.0)); 
@@ -771,7 +618,7 @@ stock void FakeCreateFadeScreen(const int clientIndex, const float flDuration, c
  * @param flPower           The power amount.
  * @param flRadius          The radius amount.
 **/
-stock void FakeCreateKnockBack(const int clientIndex, float vVelocity[3], const float flDistance, const float flPower, const float flRadius)
+stock void ZP_CreateRadiusKnockBack(const int clientIndex, float vVelocity[3], const float flDistance, const float flPower, const float flRadius)
 {
     // Calculate the push power
     float flKnockBack = flPower * (1.0 - (flDistance / flRadius));
@@ -797,7 +644,7 @@ stock void FakeCreateKnockBack(const int clientIndex, float vVelocity[3], const 
  * @param vAngle            (Optional) The angle vector.
  * @param iAttachment       (Optional) The attachment index.
  **/
-stock void FakeDispatchEffect(const int entityIndex = 0, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
+stock void ZP_DispatchEffect(const int entityIndex = 0, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
 {
     // Dispatch effect
     TE_Start("EffectDispatch");

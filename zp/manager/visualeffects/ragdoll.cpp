@@ -39,7 +39,7 @@
  **/
 
 /**
- * Hook ragdoll cvar changes.
+ * @brief Hook ragdoll cvar changes.
  **/
 void RagdollOnCvarInit(/*void*/)
 {
@@ -50,7 +50,7 @@ void RagdollOnCvarInit(/*void*/)
 }
  
 /**
- * Client has been killed.
+ * @brief Client has been killed.
  * 
  * @param clientIndex       The client index.
  **/
@@ -66,7 +66,7 @@ void RagdollOnClientDeath(const int clientIndex)
     }
 
     // Gets ragdoll index
-    int iRagdoll = GetEntDataEnt2(clientIndex, g_iOffset_PlayerRagdool);
+    int iRagdoll = RagdollGetIndex(clientIndex);
 
     // If the ragdoll is invalid, then stop
     if(iRagdoll == INVALID_ENT_REFERENCE)
@@ -78,74 +78,23 @@ void RagdollOnClientDeath(const int clientIndex)
     float flDissolveDelay = gCvarList[CVAR_VEFFECTS_RAGDOLL_DELAY].FloatValue;
     if(!flDissolveDelay)
     {
-        RagdollOnRemove(INVALID_HANDLE, iRagdoll);
+        RagdollOnEntityRemove(null, EntIndexToEntRef(iRagdoll));
         return;
     }
 
     // Create a timer to remove/dissolve ragdoll
-    CreateTimer(flDissolveDelay, RagdollOnRemove, EntIndexToEntRef(iRagdoll), TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(flDissolveDelay, RagdollOnEntityRemove, EntIndexToEntRef(iRagdoll), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
- * Removed a ragdoll from the game following plugin settings.
- * 
- * @param iRagdoll          The ragdoll index.
- **/
-void RagdollRemove(const int iRagdoll)
-{
-    // Gets dissolve type
-    int iRagDollType = gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE].IntValue;
-
-    // Check the dissolve type
-    if(iRagDollType == VEFFECTS_RAGDOLL_DISSOLVE_EFFECTLESS)
-    {
-        // Remove entity from world
-        AcceptEntityInput(iRagdoll, "Kill");
-        return;
-    }
-
-    // If random, set value to any between "energy" effect and "core" effect
-    if(iRagDollType == VEFFECTS_RAGDOLL_DISSOLVE_RANDOM)
-    {
-        iRagDollType = GetRandomInt(VEFFECTS_RAGDOLL_DISSOLVE_ENERGY, VEFFECTS_RAGDOLL_DISSOLVE_CORE);
-    }
-
-    // Prep the ragdoll for dissolving
-    static char sTarget[SMALL_LINE_LENGTH];
-    FormatEx(sTarget, sizeof(sTarget), "zp_dissolve_%d", iRagdoll);
-    DispatchKeyValue(iRagdoll, "targetname", sTarget);
-
-    // Prep the dissolve entity
-    int iDissolver = CreateEntityByName("env_entity_dissolver");
-    
-    // If dissolve entity isn't valid, then stop
-    if(iDissolver != INVALID_ENT_REFERENCE)
-    {
-        // Sets target to the ragdoll
-        DispatchKeyValue(iDissolver, "target", sTarget);
-
-        // Sets dissolve type
-        static char sDissolveType[SMALL_LINE_LENGTH];
-        FormatEx(sDissolveType, sizeof(sDissolveType), "%d", iRagDollType);
-        DispatchKeyValue(iDissolver, "dissolvetype", sDissolveType);
-
-        // Tell the entity to dissolve the ragdoll
-        AcceptEntityInput(iDissolver, "Dissolve");
-
-        // Remove the dissolver
-        AcceptEntityInput(iDissolver, "Kill");
-    }
-}
-
-/**
- * Timer callback, removed a client ragdoll.
+ * @brief Timer callback, removed a client ragdoll.
  * 
  * @param hTimer            The timer handle. 
  * @param referenceIndex    The reference index.
  **/
-public Action RagdollOnRemove(Handle hTimer, const int referenceIndex)
+public Action RagdollOnEntityRemove(Handle hTimer, const int referenceIndex)
 {
-    // Get the ragdoll index from the reference
+    // Gets the ragdoll index from the reference
     int iRagdoll = EntRefToEntIndex(referenceIndex);
 
     // If the ragdoll is already gone, then stop
@@ -158,8 +107,59 @@ public Action RagdollOnRemove(Handle hTimer, const int referenceIndex)
         // Validate classname
         if(!strcmp(sClassname, "cs_ragdoll", false))
         {
-            // Remove the ragdoll
-            RagdollRemove(iRagdoll);
+            // Gets dissolve type
+            int iRagDollType = gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE].IntValue;
+
+            // Check the dissolve type
+            if(iRagDollType == VEFFECTS_RAGDOLL_DISSOLVE_EFFECTLESS)
+            {
+                // Remove entity from world
+                AcceptEntityInput(iRagdoll, "Kill");
+                return;
+            }
+
+            // If random, set value to any between "energy" effect and "core" effect
+            if(iRagDollType == VEFFECTS_RAGDOLL_DISSOLVE_RANDOM)
+            {
+                iRagDollType = GetRandomInt(VEFFECTS_RAGDOLL_DISSOLVE_ENERGY, VEFFECTS_RAGDOLL_DISSOLVE_CORE);
+            }
+
+            // Prep the ragdoll for dissolving
+            static char sTarget[SMALL_LINE_LENGTH];
+            FormatEx(sTarget, sizeof(sTarget), "zp_dissolve_%d", iRagdoll);
+            DispatchKeyValue(iRagdoll, "targetname", sTarget);
+
+            // Prep the dissolve entity
+            int iDissolver = CreateEntityByName("env_entity_dissolver");
+            
+            // If dissolve entity isn't valid, then stop
+            if(iDissolver != INVALID_ENT_REFERENCE)
+            {
+                // Sets target to the ragdoll
+                DispatchKeyValue(iDissolver, "target", sTarget);
+
+                // Sets dissolve type
+                static char sDissolveType[SMALL_LINE_LENGTH];
+                FormatEx(sDissolveType, sizeof(sDissolveType), "%d", iRagDollType);
+                DispatchKeyValue(iDissolver, "dissolvetype", sDissolveType);
+
+                // Tell the entity to dissolve the ragdoll
+                AcceptEntityInput(iDissolver, "Dissolve");
+
+                // Remove the dissolver
+                AcceptEntityInput(iDissolver, "Kill");
+            }
         }
     }
+}
+
+/**
+ * @brief Gets the ragdoll index on a client.
+ *
+ * @param clientIndex       The client index.
+ * @return                  The ragdoll index.
+ **/
+int RagdollGetIndex(const int clientIndex)
+{
+    return GetEntDataEnt2(clientIndex, g_iOffset_PlayerRagdoll);
 }

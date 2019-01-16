@@ -1,0 +1,1764 @@
+﻿"Phrases"
+{
+    // ===========================
+    // Color prefixes (Chat only)
+    // ===========================
+
+    // @default     "\x01"
+    // @red         "\x02"
+    // @lgreen      "\x03"
+    // @green       "\x04"
+    // \n \n        "double line"
+
+    // ===========================
+    // General (base)
+    // ===========================
+
+    "general round objective" // Chat
+    {
+        "en"            "The game is @redHumans @greenvs. @redZombies@default, the goal for zombies is to infect all humans by knifing them."
+        "ru"            "Битва @redлюдей @greenпротив @redзомби@default, цель для зомби — инфицировать всех людей, используя нож."
+    }
+
+    "general buttons reminder" // Hint
+    {
+        "en"            "Press <font color='#FF0000'>F3</font> for open menu\nPress <font color='#FF0000'F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
+        "ru"            "Нажмите F3 для открытия меню\nНажмите F4 для способности зомби/людей\nНажмите F для включения фонарика"
+    }
+    
+    "general ammunition reminder" // Chat
+    {
+        "en"            "Press @red,@default @greenor @red.@default to purchase ammunition."
+        "ru"            "Нажмите @red,@default @greenили @red.@default для покупки патронов."
+    }
+
+    // ===========================
+    // Generic (base)
+    // ===========================
+
+    "zombie comming" // Hint
+    {
+        "#format"       "{1:d}"
+        "en"            "<font color='#FFFF00'>Zombie comming</font>: <font color='#0000FF'>{1}</font>"
+        "ru"            "<font color='#FFFF00'>Заражение начнется</font>: <font color='#0000FF'>{1}</font>"
+    }
+
+    "zombie left" // Hint
+    {
+        "#format"       "{1:s}"
+        "en"            "<font color='#B422A6'>The last zombie has left,</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>is the new zombie!</font>"
+        "ru"            "<font color='#B422A6'>Последний зомби вышел, теперь</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>зомби!</font>"
+    }
+
+    "human left" // Hint
+    {
+        "#format"       "{1:s}"
+        "en"            "<font color='#B422A6'>The last human has left,</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>is the new human!</font>"
+        "ru"            "<font color='#B422A6'>Последний человек вышел, теперь</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>человек!</font>"
+    }
+    
+    "player left" // Hint
+    {
+        "en"            "<font color='#D67E76'>The last player has left the game</font>!"
+        "ru"            "<font color='#D67E76'>Последний игрок вышел</font>!"
+    }
+
+    "level info" // DHUD (translated)
+    {
+        "#format"       "{1:d},{2:t},{3:d},{4:d},{5:s}"
+        "en"            "ARMOR:[{1}] CLASS:[{2}]\nLVL:[{3}] EXP:[{4}/{5}]"    
+        "ru"            "БРОНЯ:[{1}] КЛАСС:[{2}]\nУРОВЕНЬ:[{3}] ОПЫТ:[{4}/{5}]"    
+    }
+    
+    "short info" // DHUD (translated)
+    {
+        "#format"       "{1:d},{2:t}"
+        "en"            "ARMOR:[{1}] CLASS:[{2}]"    
+        "ru"            "БРОНЯ:[{1}] КЛАСС:[{2}]"    
+    }
+    
+    "account info" // DHUD (translated)
+    {
+        "#format"       "{1:t},{2:d}"
+        "en"            "{1}{2}"    
+        "ru"            "{1}{2}"   
+    }
+
+    "class info" // Chat (translated)
+    {
+        "#format"       "{1:t},{2:d},{3:d},{4:.1f}"
+        "en"            "Class: @red[{1}] @defaultHP: @red[{2}] @defaultArmor: @red[{3}] @defaultSpeed: @red[{4}]" 
+        "ru"            "Класс: @red[{1}] @defaultЗдоровье: @red[{2}] @defaultБроня: @red[{3}] @defaultСкорость: @red[{4}]" 
+    }
+    
+    "damage info" // Hint
+    {
+        "#format"       "{1:d}"
+        "en"            "<font color='#FFFFFF'>HP</font>: <font color='#FF0000'>{1}</font>"
+        "ru"            "<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>"    
+    }
+    
+    "extraitem info" // Chat (translated)
+    {
+        "#format"       "{1:s},{2:t}"
+        "en"            "Player: @red[{1}] @defaultbuy: @red[{2}]"
+        "ru"            "Игрок: @red[{1}] @defaultкупил: @red[{2}]"    
+    }
+
+    "donate info" // Chat (translated)
+    {
+        "#format"       "{1:s},{2:d},{3:t},{4:s}"
+        "en"            "Player: @red[{1}] @defaultdonate: @red[{2}{3}] @defaultto player: @red[{4}]"
+        "ru"            "Игрок: @red[{1}] @defaultперевел: @red[{2}{3}] @defaultигроку: @red[{4}]"  
+    }
+    
+    // ===========================
+    // Basics (core)
+    // ===========================
+    
+    "skill ready" // Hint
+    {
+        "en"            "<font color='#FF0000'>Skill ready</font>!"
+        "ru"            "<font color='#FF0000'>Ваша способность готов</font>!"
+    }
+
+    "countdown" // Hint
+    {
+        "#format"       "{1:d}"
+        "en"            "<font color='#0EB411'>Countdown</font>: <font color='#0EB4A7'>{1}</font>"
+        "ru"            "<font color='#0EB411'>Заряд способности</font>: <font color='#0EB4A7'>{1}</font>"
+    }
+
+    "price" // Menu (translated)
+    {
+        "#format"       "{1:d},{2:t}"
+        "en"            "[{1}{2}]"
+        "ru"            "[{1}{2}]"
+    }
+    
+    "level" // Menu
+    {
+        "#format"       "{1:d}"
+        "en"            "[LVL:{1}]"
+        "ru"            "[УРВ:{1}]"
+    }
+    
+    "online" // Menu
+    {
+        "#format"       "{1:d}"
+        "en"            "[ONL:{1}]"
+        "ru"            "[ОНЛ:{1}]"
+    }
+    
+    "limit" // Menu
+    {
+        "#format"       "{1:d}"
+        "en"            "[LMT:{1}]"
+        "ru"            "[ЛМТ:{1}]"
+    }
+    
+    "money" // Universal
+    {
+        "en"            "$"
+        "ru"            "$"
+    }
+    
+    "donate" // Menu (translated)
+    {
+        "#format"       "{1:d},{2:t}"
+        "en"            "Donate: [{1}{2}]"
+        "ru"            "Переслать: [{1}{2}]"
+    }
+    
+    "commision" // Menu (translated)
+    {
+        "#format"       "{1:d},{2:t},{3:s}"
+        "en"            "Amount: [{1}{2}] | Commision: [{3}]"
+        "ru"            "Сумма: [{1}{2}] | Комиссия: [{3}]"
+    }
+    
+    "empty" // Menu
+    {
+        "en"            "(Empty)"
+        "ru"            "(Пусто)"
+    }
+    
+    "increase" // Menu
+    {
+        "en"            "Increase"
+        "ru"            "Увеличить"
+    }
+    
+    "decrease" // Menu
+    {
+        "en"            "Decrease\n \n"
+        "ru"            "Уменьшить\n \n"
+    }
+    
+    // ===========================
+    // Validations (core)
+    // ===========================
+    
+    "using menu block" // Hint
+    {
+        "en"            "You can't use menu!"
+        "ru"            "Вы не можете использовать меню!"
+    }
+
+    "buying item block" // Hint (translated)
+    {
+        "#format"       "{1:t}"
+        "en"            "You can't buy: <font color='#FF0000'>{1}</font>"
+        "ru"            "Вы не можете купить: <font color='#FF0000'>{1}</font>"  
+    }
+    
+    "buying ammunition block" // Hint
+    {
+        "en"            "You can't buy ammunition!"
+        "ru"            "Вы не можете купить патроны!"
+    }
+    
+    "selecting target block" // Hint
+    {
+        "en"            "Invalid target!"
+        "ru"            "Неверная цель!"
+    }
+    
+    "unstucking prop block" // Hint
+    {
+        "en"            "You aren't stuck in an another prop!"
+        "ru"            "Вы не застряли в другом обьекте!"
+    }
+    
+    "buying round block" // Hint
+    {
+        "en"            "You can't buy during this round!"
+        "ru"            "Вы не можете купить в течении этого раунда!"
+    }
+
+    "starting round block" // Hint
+    {
+        "en"            "You can't start gamemode, because it already begin!"
+        "ru"            "Вы не можете начать раунд, потому что он уже запущен!"
+    }
+    
+    "classes round block" // Hint
+    {
+        "en"            "You can't change class, because round didn't started yet!"
+        "ru"            "Вы не можете поменять класс, потому что раунд не начат!"
+    }
+    
+    // ===========================
+    // Gamemodes (core)
+    // ===========================
+
+    "classes menu" // Menu
+    {
+        "en"            "Change classes"
+        "ru"            "Меню классов"
+    }
+    
+    "modes menu" // Menu
+    {
+        "en"            "Game modes"
+        "ru"            "Игровые режимы"
+    }
+    
+    "modes option" // Menu
+    {
+        "en"            "Player options"
+        "ru"            "Игровые опции"
+    }
+    
+    "normal mode" // Menu
+    {
+        "en"            "Normal infection"
+        "ru"            "Обычная инфекция"
+    }
+    
+    "plague mode" // Menu
+    {
+        "en"            "Plague mode"
+        "ru"            "Чума"
+    }
+    
+    "sniper mode" // Menu
+    {
+        "en"            "Sniper round"
+        "ru"            "Снайпер раунд"
+    }
+    
+    "survivor mode" // Menu
+    {
+        "en"            "Survivor round"
+        "ru"            "Выживший раунд"
+    }
+    
+    "swarm mode" // Menu
+    {
+        "en"            "Swarm mode"
+        "ru"            "Куча на кучу"
+    }
+    
+    "armageddon mode" // Menu
+    {
+        "en"            "Armageddon"
+        "ru"            "Армагеддон"
+    }
+    
+    "multi mode" // Menu
+    {
+        "en"            "Multi infection"
+        "ru"            "Мульти инфекция"
+    }
+    
+    "nemesis mode" // Menu
+    {
+        "en"            "Nemesis round"
+        "ru"            "Немезис раунд"
+    }
+    
+    "mode multi" // DHUD
+    {
+        "en"            "Multi round start!"
+        "ru"            "Мульти заражение!"
+    }
+
+    "mode swarm" // DHUD
+    {
+        "en"            "Swarm round start!"
+        "ru"            "Куча на кучу!"
+    }
+    
+    "mode plague" // DHUD
+    {
+        "en"            "Plague round start!"
+        "ru"            "Чума!"
+    }
+
+    "mode nemesis" // DHUD
+    {
+        "en"            "Nemesis round start!"
+        "ru"            "Немезис появился!"
+    }
+
+    "mode survivor" // DHUD
+    {
+        "en"            "Survivor round start!"
+        "ru"            "Выживший появился!"
+    }
+    
+    "mode sniper" // DHUD
+    {
+        "en"            "Sniper round start!"
+        "ru"            "Снайпер появился!"
+    }
+
+    "mode armageddon" // DHUD
+    {
+        "en"            "Armageddon round start!"
+        "ru"            "Армагеддон!"
+    }
+
+    "mode normal" // DHUD
+    {
+        "en"            "Normal infection!"
+        "ru"            "Обычное заражение!"
+    }
+
+    // ===========================
+    // Log (core)
+    // ===========================
+
+    "log generic flag" // Console
+    {
+        "en"            "Generic flag:"
+        "ru"            "Осн.флаг:"
+    }
+
+    "log value" // Console
+    {
+        "en"            "Value:"
+        "ru"            "3нaч:"
+    }
+
+    "log module" // Console
+    {
+        "en"            "Module:"
+        "ru"            "Модуль:"
+    }
+
+    "log status" // Console
+    {
+        "en"            "Filter status:"
+        "ru"            "Статус фильтра:"
+    }
+
+    "log module filter" // Console
+    {
+        "en"            "Module filtering:"
+        "ru"            "Фильтрация модуля:"
+    }
+
+    "log module short name" // Console
+    {
+        "en"            "Short name:"
+        "ru"            "Краткое имя:"
+    }
+    
+    "log module invalid args" // Console
+    {
+        "en"            "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...\nSee zp_log_list to list available module names (short names)."
+        "ru"            "Добавьте один или несколько модулей в фильтр модулей. Использование: zp_log_add_module <module> [module] ...\nСмотрите zp_log_list в списке доступных имен модуля (короткие имена)."
+    }
+    
+    "log module invalid name" // Console
+    {
+        "#format"       "{1:s}"    
+        "en"            "Invalid module name: \"%s\""
+        "ru"            "Неправильное имя модуля: \"{1}\""
+    }
+    
+    "log module filter added" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "Added \"{1}\" to module filter."
+        "en"            "Модуль \"{1}\" добавлен в фильтр."
+    }
+    
+    "log module filter removed" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "Removed \"{1}\" from module filter."
+        "en"            "Модуль \"{1}\" убран из фильтра."
+    }
+
+    // ===========================
+    // Config (core)
+    // ===========================
+
+    "configs menu" // Menu
+    {
+        "en"            "Сonfigs"
+        "ru"            "Конфиги"
+    }
+    
+    "config menu reload" // Menu
+    {
+        "#format"       "{1:s}"
+        "en"            "Reload: \"{1}\""
+        "ru"            "Загрузить: \"{1}\""
+    }
+    
+    "config reload" // Console
+    {
+        "en"            "Syntax: zp_reloadconfig <file alias1> [file alias2] ... - Reloads a config file."
+        "ru"            "Синтаксис: zp_reloadconfig <алиас файла1> [алиас файла2] ... - Перезагрузить файл конфигурации."
+    }
+
+    "config reload commands" // Console
+    {
+        "en"            "Related command(s): zp_config_reloadall"
+        "ru"            "Связанные команды: zp_config_reloadall"
+    }
+
+    "config reload commands aliases" // Console
+    {
+        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s}"
+        "en"            "File aliases:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\""
+        "ru"            "Алиасы файла:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\""
+    }
+
+    "config reload invalid" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "Invalid file alias: \"{1}\""
+        "ru"            "Неправильный алиас файла: \"{1}\""
+    }
+
+    "config reload not load" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "Config file \"{1}\" failed to load. (Either disabled or invalid file content.)"
+        "ru"            "Не удалось загрузить файл конфигурации \"{1}\". (Отключен или неверное содержимое файла.)"
+    }
+
+    "config reload begin" // Console
+    {
+        "en"            "Reloading all Zombie Plague config files...\n------------------------------------------------"
+        "ru"            "Перезагрузка всех файлов конфигурации Zombie Plague...\n------------------------------------------------"
+    }
+
+    "config reload finish" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "\"{1}\" - Successful."
+        "ru"            "\"{1}\" - Готово."
+    }
+
+    "config reload falied" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "\"{1}\" - Failed. (Either disabled or invalid file content.)"
+        "ru"            "\"{1}\" - Ошибка. (Отключен или неверное содержимое файла.)"
+    }
+    
+    "config dump class" // Console
+    {
+        "en"            "Dumps class data at a specified index. Usage: zp_class_dump <index|name>\n\n"
+        "ru"            "Сброс информации о классе. Использование: zp_class_dump <index|name>\n\n"
+    }
+    
+    "config dump class invalid" // Console
+    {
+        "#format"       "{1:d}"
+        "en"            "Invalid the class index ({1})"
+        "ru"            "Неверный индекс класса ({1})"
+    }
+    
+    "config dump class start" // Console
+    {
+        "#format"       "{1:d}"
+        "en"            "DUMPING CACHE: {1} classes total\n========================================\n"
+        "ru"            "СБРОС КЭША: {1} классов надено\n========================================\n"
+    }
+    
+    // ===========================
+    // Other (core)
+    // ===========================
+    
+    "account give invalid args" // Console
+    {
+        "en"            "Gives the money. Usage: zp_money_give <name> [amount]\n\n"
+        "ru"            "Выдача денег. Использование: zp_money_give <name> [amount]\n\n"
+    }
+    
+    "account give invalid amount" // Console
+    {
+        "#format"       "{1:d}"
+        "en"            "Invalid money amount ({1})"
+        "ru"            "Недействительная денежная сумма ({1})"
+    }
+
+    "level give invalid args" // Console
+    {
+        "en"            "Gives the level. Usage: zp_level_give <name> [amount]\n\n"
+        "ru"            "Выдача уровня. Использование: zp_level_give <name> [amount]\n\n"
+    }
+    
+    "level give invalid amount" // Console
+    {
+        "#format"       "{1:d}"
+        "en"            "Invalid level amount ({1})"
+        "ru"            "Недействительный уровень ({1})"
+    }
+    
+    "experience give invalid args" // Console
+    {
+        "en"            "Gives the experience. Usage: zp_exp_give <name> [amount]\n\n"
+        "ru"            "Выдача опыта. Использование: zp_exp_give <name> [amount]\n\n"
+    }
+    
+    "experience give invalid amount" // Console
+    {
+        "#format"       "{1:d}"
+        "en"            "Invalid experience amount ({1})"
+        "ru"            "Недействительный опыт ({1})"
+    }
+    
+    // ===========================
+    // Main menu (core)
+    // ===========================
+
+    "main menu" // Menu
+    {
+        "en"            "Main menu"
+        "ru"            "Главное меню"
+    }
+
+    "buy weapons" // Menu
+    {
+        "en"            "Buy weapons"
+        "ru"            "Купить оружие"
+    }
+
+    "buy extraitems" // Menu
+    {
+        "en"            "Buy extra items"
+        "ru"            "Купить extra предметы"
+    }
+
+    "choose zombieclass" // Menu
+    {
+        "en"            "Zombie classes"
+        "ru"            "Зомби классы"
+    }
+
+    "choose humanclass" // Menu
+    {
+        "en"            "Human classes"
+        "ru"            "Классы людей"
+    }
+
+    "costumes menu" // Menu
+    {
+        "en"            "Hats/Costumes"
+        "ru"            "Шапки/Костюмы"
+    }
+    
+    "unstucks menu" // Menu
+    {
+        "en"            "Unstuck!"
+        "ru"            "Застрял!"
+    }
+    
+    "donates menu" // Menu
+    {
+        "en"            "Transactions"
+        "ru"            "Транзакции"
+    }
+
+    "admin menu" // Menu
+    {
+        "en"            "Admin menu"
+        "ru"            "Админ меню"
+    }
+
+    // ===========================
+    // Classes (core)
+    // ===========================
+
+    // General
+
+    "dead" // Menu
+    {
+        "en"            "Dead"
+        "ru"            "Мертв"
+    }
+    
+    // Zombie
+
+    "nemesis" // Menu
+    {
+        "en"            "Nemesis"
+        "ru"            "Немезис"
+    }
+    
+    "girl" // Menu
+    {
+        "en"            "Deimos"
+        "ru"            "Десмос"
+    }
+
+    "sleeper" // Menu
+    {
+        "en"            "Sleeper"
+        "ru"            "Слепая"
+    }
+
+    "witch" // Menu
+    {
+        "en"            "Witch"
+        "ru"            "Ведьма"
+    }
+
+    "smoker" // Menu
+    {
+        "en"            "Smoker"
+        "ru"            "Дымовой"
+    }
+
+    "stamper" // Menu
+    {
+        "en"            "Stamper"
+        "ru"            "Стампер"
+    }
+
+    "tesla" // Menu
+    {
+        "en"            "Tesla"
+        "ru"            "Тесла"
+    }
+
+    "healer" // Menu
+    {
+        "en"            "Healer"
+        "ru"            "Лекарь"
+    }
+
+    "baller" // Menu
+    {
+        "en"            "Baller"
+        "ru"            "Шаровой"
+    }
+
+    "range" // Menu
+    {
+        "en"            "Explosive"
+        "ru"            "Взрывной"
+    }
+
+    "mutationheavy" // Menu
+    {
+        "en"            "Heavy"
+        "ru"            "Тяжелый"
+    }
+
+    "mutationlight" // Menu
+    {
+        "en"            "Ghost"
+        "ru"            "Призрак"
+    }
+
+    "fast" // Menu
+    {
+        "en"            "Fast"
+        "ru"            "Быстрая"
+    }
+
+    "tank" // Menu
+    {
+        "en"            "Tank"
+        "ru"            "Большой"
+    }
+
+    "psyh" // Menu
+    {
+        "en"            "Psyh"
+        "ru"            "Псих"
+    }
+    
+    // Info
+    
+    "girl info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Выстрел жалом</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "sleeper info" // Hint
+    {
+        "en"            "Passive skill: <font color='#FF0000'>Randomly dazzles the assailant</font>"
+        "ru"            "Пассивная способность: <font color='#FF0000'>Случайно ослепляет нападавшего</font>"
+    }
+
+    "witch info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Стая летучих мышей</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "smoker info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Toxic cloud</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ядовитая завеса</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "stamper info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Explosive coffin</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Взрывной гроб</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "tesla info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Hallucination blast</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Галлюцинационный заряд</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "healer info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Healing for money rewards</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Лечение для получения денег</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "baller info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Paralyzing ball</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Параличный шар</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "range info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Infection gas</font>\nActivation on <font color='#FF0000'>death</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Заражение</font>\nАктивация при <font color='#FF0000'>смерти</font>"
+    }
+
+    "mutationheavy info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Traping for money rewards</font>\nPress button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ловушки c получением денег</font>\nЗадержите кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "mutationheavy set" // Hint (no color)
+    {
+        "en"            "Trap installation in progress!"
+        "ru"            "Идет установка ловушки!"
+    }
+    
+    "mutationheavy success" // Hint (no color)
+    {
+        "en"            "The trap has been set!"
+        "ru"            "Ловушка установлена!"
+    }
+    
+    "mutationheavy catch" // Hint (no color)
+    {
+        "en"            "You've been trapped!"
+        "ru"            "Вы были пойманы в ловушку!"
+    }
+    
+    "mutationheavy cancel" // Hint (no color)
+    {
+        "en"            "Cancel the installation!"
+        "ru"            "Отмена установки!"
+    }
+    
+    "mutationheavy catched" // Hint (no color)
+    {
+        "#format"       "{1:s}"
+        "en"            "Player: {1} - trapped!"
+        "ru"            "Игрок: {1} - попал в ловушку!"
+    }
+    
+    "mutationlight info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "fast info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "tank info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Invulnerability</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Неуязвимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    "psyh info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Scream</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Крик</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+
+    // Humans
+
+    "human" // Menu
+    {
+        "en"            "Human"
+        "ru"            "Человек"
+    }
+    
+    "zombie" // Menu
+    {
+        "en"            "Zombie"
+        "ru"            "Зомби"
+    }
+    
+    "survivor" // Menu
+    {
+        "en"            "Survivor"
+        "ru"            "Выживший"
+    }
+    
+    "sniper" // Menu
+    {
+        "en"            "Sniper"
+        "ru"            "Снайпер"
+    }
+
+    "black" // Menu
+    {
+        "en"            "Black"
+        "ru"            "Охотник"
+    }
+
+    "carrie" // Menu
+    {
+        "en"            "Carrie"
+        "ru"            "Кэри"
+    }
+
+    "choi" // Menu
+    {
+        "en"            "Choi"
+        "ru"            "Чои"
+    }
+
+    "swat" // Menu
+    {
+        "en"            "SWAT"
+        "ru"            "Полицейский"
+    }
+
+    "ct" // Menu
+    {
+        "en"            "CT"
+        "ru"            "Спецназовец"
+    }
+
+    "anarhist" // Menu
+    {
+        "en"            "Anarhist"
+        "ru"            "Анархист"
+    }
+
+    "emma" // Menu
+    {
+        "en"            "Emma"
+        "ru"            "Эмма"
+    }
+
+    "pirate" // Menu
+    {
+        "en"            "Pirate"
+        "ru"            "Пират"
+    }
+
+    "lisa" // Menu
+    {
+        "en"            "Lisa"
+        "ru"            "Лиза"
+    }
+
+    "mila" // Menu
+    {
+        "en"            "Mila"
+        "ru"            "Мила"
+    }
+
+    "punisher" // Menu
+    {
+        "en"            "Punisher"
+        "ru"            "Каратель"
+    }
+
+    "balkan" // Menu
+    {
+        "en"            "Balkan"
+        "ru"            "Балкан"
+    }
+
+    "fat" // Menu
+    {
+        "en"            "Fat"
+        "ru"            "Толстяк"
+    }
+
+    "strong" // Menu
+    {
+        "en"            "Strong"
+        "ru"            "Силач"
+    }
+
+    "phoenix" // Menu
+    {
+        "en"            "Phoenix"
+        "ru"            "Феникс"
+    }
+    
+    "redtank" // Menu
+    {
+        "en"            "Red tank"
+        "ru"            "Красный танк"
+    }
+    
+    "bluetank" // Menu
+    {
+        "en"            "Blue tank"
+        "ru"            "Синий танк"
+    }
+    
+    "redalice" // Menu
+    {
+        "en"            "Red Alice"
+        "ru"            "Красная Алиса"
+    }
+    
+    "bluealice" // Menu
+    {
+        "en"            "Blue Alice"
+        "ru"            "Синяя Алиса"
+    }
+    
+    // Info
+    
+    "redtank info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Armorup</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Бронирование</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
+    "bluetank info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Regeneration</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Регенерация</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
+    "redalice info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
+    "bluealice info" // Hint
+    {
+        "en"            "Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+        "ru"            "Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+    }
+    
+    // ===========================
+    // Weapon menu (core)
+    // ===========================
+
+    "rebuy" // Menu
+    {
+        "en"            "Auto-rebuy"
+        "ru"            "Авто-покупка"
+    }
+    
+    "auto rebuy" // Menu
+    {
+        "#format"       "{1:s}"
+        "en"            "Auto-rebuy: {1}"
+        "ru"            "Авто-покупка: {1}"
+    }
+    
+    "buy pistols" // Menu
+    {
+        "en"            "Pistols"
+        "ru"            "Пистолеты"
+    }
+
+    "buy shotguns" // Menu
+    {
+        "en"            "Shotguns"
+        "ru"            "Дробовики"
+    }
+
+    "buy rifles" // Menu
+    {
+        "en"            "Rifles"
+        "ru"            "Автоматы"
+    }
+
+    "buy snipers" // Menu
+    {
+        "en"            "Snipers"
+        "ru"            "Винтовки"
+    }
+
+    "buy machineguns" // Menu
+    {
+        "en"            "Machineguns"
+        "ru"            "Пулеметы"
+    }
+    
+    "buy knifes" // Menu
+    {
+        "en"            "Melee"
+        "ru"            "Ножи"
+    }
+    
+    // ===========================
+    // Extra items (core)
+    // ===========================
+
+    // Items
+    
+    "antidot" // Menu
+    {
+        "en"            "Antidot"
+        "ru"            "Антидот"
+    }
+
+    "infect bomb" // Menu
+    {
+        "en"            "Infection bomb"
+        "ru"            "Заражающая граната"
+    }
+    
+    "jump bomb" // Menu
+    {
+        "en"            "Jump bomb"
+        "ru"            "Джамп граната"
+    }
+    
+    "holy grenade" // Menu 
+    {
+        "en"            "Holy grenade"
+        "ru"            "Святая граната"
+    }
+
+    "molotov" // Menu
+    {
+        "en"            "Molotov"
+        "ru"            "Молотов"
+    }
+
+    "inc grenade" // Menu
+    {
+        "en"            "Inc grenade"
+        "ru"            "Поджигающая"
+    }
+
+    "medi shot" // Menu
+    {
+        "en"            "Medi shot"
+        "ru"            "Мед. Шприц"
+    }
+    
+    "drone gun" // Menu
+    {
+        "en"            "Auto turret"
+        "ru"            "Авто турель"
+    }
+
+    "freeze grenade" // Menu
+    {
+        "en"            "Freeze grenade"
+        "ru"            "Заморозка"
+    }
+
+    "flare grenade" // Menu
+    {
+        "en"            "Flare grenade"
+        "ru"            "Световая граната"
+    }
+
+    "kevlar" // Menu
+    {
+        "en"            "Armor"
+        "ru"            "Броня"
+    }
+    
+    "assaultsuit" // Menu
+    {
+        "en"            "Armor/Helmet"
+        "ru"            "Броня/Шлем"
+    }
+    
+    "heavysuit" // Menu
+    {
+        "en"            "Heavy suit"
+        "ru"            "Тяжелая броня"
+    }
+    
+    "bazooka" // Menu
+    {
+        "en"            "Bazooka"
+        "ru"            "Базука"
+    }
+    
+    "m32" // Menu
+    {
+        "en"            "M32 Milkor"
+        "ru"            "M32 Milkor"
+    }
+    
+    "chainsaw" // Menu
+    {
+        "en"            "Chainsaw"
+        "ru"            "Бензопила"
+    }
+
+    "lasermine" // Menu
+    {
+        "en"            "Lasermine"
+        "ru"            "Лазермина"
+    }
+    
+    "jetpack" // Menu
+    {
+        "en"            "Jetpack"
+        "ru"            "Джетпак"
+    }
+
+    "cannon" // Menu
+    {
+        "en"            "Dragon cannon"
+        "ru"            "Огненный дракон"
+    }
+    
+    "drillgun" // Menu
+    {
+        "en"            "Drill"
+        "ru"            "Дрель"
+    }
+    
+    "watercannon" // Menu
+    {
+        "en"            "Flamethrower"
+        "ru"            "Огнемет"
+    }
+    
+    // Info
+    
+    "chainsaw info" // Hint
+    {
+        "en"            "Strong <font color='#7A1A0B'>slash</font> on the right mouse button"
+        "ru"            "Сильный <font color='#7A1A0B'>удар</font> на правую кнопку мыши"
+    }
+
+    "lasermine info" // Hint
+    {
+        "en"            "To remove <font color='#F8173E'>a mine</font>, press the button to <font color='#1CA9C9'>open the menu</font>"
+        "ru"            "Чтобы снять <font color='#F8173E'>мину</font> нажмите кнопку для <font color='#1CA9C9'>открытия меню</font>"
+    }
+    
+    "jetpack info" // Hint
+    {
+        "en"            "Press <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>SPACE</font> to use <font color='#FF033E'>jetpack</font>" 
+        "ru"            "Нажмите <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>SPACE</font> чтобы использовать <font color='#FF033E'>джетпак</font>" 
+    }
+    
+    "jetpack empty" // Hint (no color)
+    {
+        "en"            "Jetpack is empty. Wait please"
+        "ru"            "Джетпак перегрелся. Подождите"
+    }
+    
+    "jetpack reloaded" // Hint (no color)
+    {
+        "en"            "Jetpack reloaded"
+        "ru"            "Джетпак остыл"
+    }
+    
+    // ===========================
+    // Weapons (core)
+    // ===========================
+    
+    // Pistols
+    
+    "elite" // Menu
+    {
+        "en"            "Dual elite"
+        "ru"            "Dual elite"
+    }
+    
+    "deagle" // Menu
+    {
+        "en"            "Desert eagle"
+        "ru"            "Пустынный орел"
+    }
+    
+    "glock" // Menu
+    {
+        "en"            "Glock 18"
+        "ru"            "Glock 18"
+    }
+    
+    "usp" // Menu
+    {
+        "en"            "HK USP"
+        "ru"            "HK USP"
+    }
+    
+    "hpk" // Menu
+    {
+        "en"            "Heckler & Koch P2000"
+        "ru"            "Heckler & Koch P2000"
+    }
+    
+    "fiveseven" // Menu
+    {
+        "en"            "FN Five-seveN"
+        "ru"            "FN Five-seveN"
+    }
+    
+    "tec9" // Menu
+    {
+        "en"            "Intratec TEC-DC9"
+        "ru"            "Intratec TEC-DC9"
+    }
+    
+    "cz75a" // Menu
+    {
+        "en"            "CZ75A"
+        "ru"            "CZ75A"
+    }
+    
+    "p250" // Menu
+    {
+        "en"            "SIG Sauer P250"
+        "ru"            "SIG Sauer P250"
+    }
+    
+    "taser" // Menu
+    {
+        "en"            "Taser"
+        "ru"            "Тасер"
+    }
+    
+    "revolver" // Menu
+    {
+        "en"            "Revolver"
+        "ru"            "Револьвер"
+    }
+    
+    "janus1" // Menu
+    {
+        "en"            "Janus I"
+        "ru"            "Джанус I"
+    }
+    
+    "skull1" // Menu
+    {
+        "en"            "Skull I"
+        "ru"            "Скулл I"
+    }
+    
+    "balrog1" // Menu
+    {
+        "en"            "Balrog I"
+        "ru"            "Балрог I"
+    }
+    
+    "sfpistol" // Menu
+    {
+        "en"            "SF-PISTOL"
+        "ru"            "SF-PISTOL"
+    }
+    
+    // Shotguns
+    
+    "nova" // Menu
+    {
+        "en"            "Benelli Nova"
+        "ru"            "Benelli Nova"
+    }
+    
+    "sawedoff" // Menu
+    {
+        "en"            "Sawed-Off"
+        "ru"            "Sawed-Off"
+    }
+    
+    "xm1014" // Menu
+    {
+        "en"            "XM1014"
+        "ru"            "XM1014"
+    }
+    
+    "mag7" // Menu
+    {
+        "en"            "MAG7"
+        "ru"            "MAG7"
+    }
+    
+    "skull11" // Menu
+    {
+        "en"            "Skull I"
+        "ru"            "Скулл I"
+    }
+    
+    "gatling" // Menu
+    {
+        "en"            "Gatling"
+        "ru"            "Гатлинг"
+    }
+    
+    "balrog11" // Menu
+    {
+        "en"            "Balrog XI"
+        "ru"            "Балрог XI"
+    }
+    
+    "janus11" // Menu
+    {
+        "en"            "Janus XI"
+        "ru"            "Джанус XI"
+    }
+
+    // Rifles
+    
+    "ak47" // Menu
+    {
+        "en"            "AK-47"
+        "ru"            "AK-47"
+    }
+    
+    "sg556" // Menu
+    {
+        "en"            "SIG SG 556"
+        "ru"            "SIG SG 556"  
+    }
+    
+    "aug" // Menu
+    {
+        "en"            "Steyr AUG"
+        "ru"            "Steyr AUG"
+    }
+    
+    "m4a4" // Menu
+    {
+        "en"            "M4A4"
+        "ru"            "M4A4"
+    }
+    
+    "m4a1" // Menu
+    {
+        "en"            "M4A1"
+        "ru"            "M4A1"
+    }
+    
+    "bizon" // Menu
+    {
+        "en"            "Bizon"
+        "ru"            "ПП-19"
+    }
+    
+    "famas" // Menu
+    {
+        "en"            "FAMAS"
+        "ru"            "FAMAS"
+    }
+    
+    "mac10" // Menu
+    {
+        "en"            "Ingram MAC-10"
+        "ru"            "Ingram MAC-10"
+    }
+    
+    "mp7" // Menu
+    {
+        "en"            "HK MP7"
+        "ru"            "HK MP7"
+    }
+    
+    "mp9" // Menu
+    {
+        "en"            "HK MP9"
+        "ru"            "HK MP9"
+    }
+    
+    "p90" // Menu
+    {
+        "en"            "FN P90"
+        "ru"            "FN P90"
+    }
+    
+    "ump45" // Menu
+    {
+        "en"            "HK UMP"
+        "ru"            "HK UMP"
+    }
+    
+    "galilar" // Menu
+    {
+        "en"            "Galil AR"
+        "ru"            "Гагиль"
+    }
+    
+    "lightninghz" // Menu
+    {
+        "en"            "Lightning HZ"
+        "ru"            "Тяжелый зомбяк"
+    }
+    
+    "lightninglz" // Menu
+    {
+        "en"            "Lightning LZ"
+        "ru"            "Легкий зомбяк"
+    }
+    
+    "blaster" // Menu
+    {
+        "en"            "SFGUN-1"
+        "ru"            "Лазерный бластер"
+    }
+    
+    "tempest" // Menu
+    {
+        "en"            "SF-TEMPEST"
+        "ru"            "Лазерный тигр"
+    }
+    
+    "plasmagun" // Menu
+    {
+        "en"            "Plasmagun"
+        "ru"            "Плазма пушка"
+    }
+    
+    "cartblue" // Menu
+    {
+        "en"            "Cartblue"
+        "ru"            "Синяя машинка"
+    }
+    
+    "balrog3" // Menu
+    {
+        "en"            "Balrog III"
+        "ru"            "Балрог III"
+    }
+    
+    "janus3" // Menu
+    {
+        "en"            "Janus III"
+        "ru"            "Джанус III"
+    }
+    
+    "janus5" // Menu
+    {
+        "en"            "Janus V"
+        "ru"            "Джанус V"
+    }
+    
+    // Snipers
+    
+    "awp" // Menu
+    {
+        "en"            "L96A1"
+        "ru"            "L96A1"
+    }
+    
+    "ssg08" // Menu
+    {
+        "en"            "SSG 08"
+        "ru"            "SSG 08"
+    }
+    
+    "g3sg1" // Menu
+    {
+        "en"            "G3SG1"
+        "ru"            "G3SG1"
+    }
+    
+    "scar20" // Menu
+    {
+        "en"            "SCAR-20"
+        "ru"            "SCAR-20"
+    }
+    
+    "wa2000" // Menu
+    {
+        "en"            "Walther WA2000"
+        "ru"            "Walther WA2000"
+    }
+    
+    "airburster" // Menu
+    {
+        "en"            "Airburster"
+        "ru"            "Воздушная пушка"
+    }
+    
+    "skull5" // Menu
+    {
+        "en"            "Skull V"
+        "ru"            "Скулл V"
+    }
+    
+    // Machineguns
+    
+    "m249" // Menu
+    {
+        "en"            "M249 SAW"
+        "ru"            "M249 SAW"
+    }
+
+    "negev" // Menu
+    {
+        "en"            "Negev"
+        "ru"            "Негев"
+    }
+    
+    "m134" // Menu
+    {
+        "en"            "M134 Monkey"
+        "ru"            "M134 Обезьяна"
+    }
+    
+    "sgdrill" // Menu
+    {
+        "en"            "SG-DRILL"
+        "ru"            "SG-Бур"
+    }
+    
+    "balrog7" // Menu
+    {
+        "en"            "Balrog VII"
+        "ru"            "Балрог VII"
+    }
+    
+    "janus7" // Menu
+    {
+        "en"            "Janus VII"
+        "ru"            "Джанус VII"
+    }
+    
+    // Knife
+    
+    "fists" // Menu
+    {
+        "en"            "Fists"
+        "ru"            "Кулаки"
+    }
+    
+    "ghost knife" // Menu
+    {
+        "en"            "Ghost Knife"
+        "ru"            "Нож призрака"
+    }
+    
+    "zombie claw" // Menu
+    {
+        "en"            "Zombie Claw"
+        "ru"            "Зомби клешни"
+    }
+    
+    "nemesis claw" // Menu
+    {
+        "en"            "Nemesis Claw"
+        "ru"            "Немезис клешни"
+    }
+    
+    "knife" // Menu
+    {
+        "en"            "Classic Knife"
+        "ru"            "Обычный нож"
+    }
+    
+    "knife t" // Menu
+    {
+        "en"            "Knife T"
+        "ru"            "Нож террориста"
+    }
+    
+    "spanner" // Menu
+    {
+        "en"            "Spanner"
+        "ru"            "Гаечный ключ"
+    }
+    
+    "axe" // Menu
+    {
+        "en"            "Axe"
+        "ru"            "Топор"
+    }
+    
+    "hammer" // Menu
+    {
+        "en"            "Hammer"
+        "ru"            "Молот"
+    }
+    
+    // Others
+
+    "etherial" // Menu
+    {
+        "en"            "Etherial"
+        "ru"            "Эфириал"
+    }
+    
+    "sfsniper" // Menu
+    {
+        "en"            "SF-SNIPER"
+        "ru"            "Лазерная винтовка"
+    }
+    
+    // Info
+    
+    "skull1 info" // Hint
+    {
+        "en"            "Switch <font color='#E62E00'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#E62E00'>режим</font> на правую кнопку мыши"
+    }
+
+    "balrog1 info" // Hint 
+    {
+        "en"            "Fire <font color='#FF6161'>explosion</font> on the right mouse button"
+        "ru"            "Огненный <font color='#FF6161'>взрыв</font> на правую кнопку мыши"
+    }
+
+    "janus1 info" // Hint
+    {
+        "en"            "Switch <font color='#FFD9FF'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#FFD9FF'>режим</font> на правую кнопку мыши"
+    }
+
+    "balrog11 info" // Hint 
+    {
+        "en"            "Fire <font color='#CD00CD'>rain</font> on the right mouse button"
+        "ru"            "Огненный <font color='#CD00CD'>поток</font> на правую кнопку мыши"
+    }
+
+    "janus11 info" // Hint 
+    {
+        "en"            "Switch <font color='#FF33CC'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#FF33CC'>режим</font> на правую кнопку мыши"
+    }
+
+    "cartblue info" // Hint
+    {
+        "en"            "Switch <font color='#FE28A2'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#FE28A2'>режим</font> на правую кнопку мыши"
+    }
+
+    "janus3 info" // Hint 
+    {
+        "en"            "Switch <font color='#F754EA'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#F754EA'>режим</font> на правую кнопку мыши"
+    }
+
+    "janus5 info" // Hint 
+    {
+        "en"            "Switch <font color='#C154C1'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#C154C1'>режим</font> на правую кнопку мыши"
+    }
+
+    "airburster info" // Hint 
+    {
+        "en"            "Strong <font color='#BA66FF'>airburst</font> on the right mouse button"
+        "ru"            "Сильный <font color='#BA66FF'>потом</font> на правую кнопку мыши"
+    }
+
+    "sgdrill info" // Hint
+    {
+        "en"            "Strong <font color='#4B0082'>hit</font> on the right mouse button"
+        "ru"            "Сильный <font color='#4B0082'>удар</font> на правую кнопку мыши"
+    }
+
+    "janus7 info" // Hint 
+    {
+        "en"            "Switch <font color='#4F273A'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#4F273A'>режим</font> на правую кнопку мыши"
+    }
+    
+    // ===========================
+    // Costumes (core)
+    // ===========================
+    
+    "pig head" // Menu
+    {
+        "en"            "Pig head"
+        "ru"            "Свинная голова"
+    }
+    
+    "horse head" // Menu
+    {
+        "en"            "Horse head"
+        "ru"            "Лошадиная голова"
+    }
+    
+    "head crab" // Menu
+    {
+        "en"            "Head crab"
+        "ru"            "ХедКраб"
+    }
+    
+    "cow boy" // Menu
+    {
+        "en"            "Cow boy"
+        "ru"            "Ковбой"
+    }
+    
+    "chicken" // Menu
+    {
+        "en"            "Chicken"
+        "ru"            "Куриная голова"
+    }  
+}

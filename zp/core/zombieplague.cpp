@@ -57,28 +57,14 @@
  * @endsection
  **/
  
-/**
- * @section List of operation systems.
- **/
-enum EngineOS
-{
-    OS_Unknown,
-    OS_Windows,
-    OS_Linux,
-    OS_Mac
-};
-/**
- * @endsection
- **/
- 
 /*
- * Engine functions
+ * Stocks engine API.
  */
  
 /**
- * Called once when server is started. Will log a warning if a unsupported game is detected.
+ * @brief Called once when server is started. Will log a warning if a unsupported game is detected.
  **/
-void GameEngineInit(/*void*/)
+void GameEngineOnInit(/*void*/)
 {
     // Gets engine of the game
     switch(GetEngineVersion(/*void*/))
@@ -175,28 +161,40 @@ void GameEngineInit(/*void*/)
 }
 
 /**
- * Called when core is loaded.
+ * @brief Core module load function.
  **/
-void GameEngineLoad(/*void*/)
+void GameEngineOnLoad(/*void*/)
 {
     // Call forward
-    API_OnEngineExecute();
+    gForwardData._OnEngineExecute();
+    
+    // Map is load
+    gServerData.MapLoaded = true;
 }
 
 /**
- * Gets the server operating system.
+ * @brief Core module purge function.
+ **/
+void GameEngineOnPurge(/*void*/)
+{
+    // Clear map bool
+    gServerData.MapLoaded = false;
+}
+
+/**
+ * @brief Gets the server operating system.
  *
  * @param oS                The platform id.
  *
  * @return                  True or false.
  **/
-bool GameEnginePlatform(EngineOS oS)
+bool GameEngineGetPlatform(EngineOS oS)
 {
     // Validate platform
-    if(gServerData[Server_PlatForm] == OS_Unknown)
+    if(gServerData.Platform == OS_Unknown)
     {
-        // Initialize buffer char
-        char sBuffer[PLATFORM_MAX_PATH+PLATFORM_MAX_PATH];
+        // Initialize variable
+        char sBuffer[CONSOLE_LINE_LENGTH];
         
         // Extract status string
         ServerCommandEx(sBuffer, sizeof(sBuffer), "status");
@@ -218,7 +216,7 @@ bool GameEnginePlatform(EngineOS oS)
                 int iSystem = FindCharInString(sBuffer, ' ', true) + 1;
 
                 // Validate operating system
-                gServerData[Server_PlatForm] = !strncmp(sBuffer[iSystem], "win", 3, false) ? OS_Windows : !strncmp(sBuffer[iSystem], "lin", 3, false) ? OS_Linux : OS_Mac;
+                gServerData.Platform = !strncmp(sBuffer[iSystem], "win", 3, false) ? OS_Windows : !strncmp(sBuffer[iSystem], "lin", 3, false) ? OS_Linux : OS_Mac;
                 break;
             }
             
@@ -228,22 +226,22 @@ bool GameEnginePlatform(EngineOS oS)
     }
     
     // Return on success
-    return (gServerData[Server_PlatForm] == oS);
+    return (gServerData.Platform == oS);
 }
 
 /*
- * Player functions
+ * Stocks core API.
  */
 
 /**
- * Returns true if the player is connected and alive, false if not.
+ * @brief Returns true if the player is connected and alive, false if not.
  *
  * @param clientIndex       The client index.
  * @param clientAlive       (Optional) Set to true to validate that the client is alive, false to ignore.
  *
  * @return                  True or false.
  **/
-stock bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
+bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
 {
     // If client isn't valid, then stop
     if(clientIndex <= 0 || clientIndex > MaxClients)
@@ -258,7 +256,7 @@ stock bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
     }
 
     // If client isn't in game, then stop
-    if(!IsClientInGame(clientIndex) || IsClientInKickQueue(clientIndex)) //! Improved, thanks to fl0wer!
+    if(!IsClientInGame(clientIndex) || IsClientInKickQueue(clientIndex)) /// Improved, thanks to fl0wer!
     {
         return false;
     }
@@ -280,14 +278,14 @@ stock bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
 }
 
 /**
- * Returns whether a player is in a spesific group or not.
+ * @brief Returns whether a player is in a spesific group or not.
  *
  * @param clientIndex       The client index.
  * @param sGroup            The SourceMod group name to check.
  *
  * @return                  True or false.
  **/
-stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
+bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -320,7 +318,7 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
     }
 
     // Initialize group char
-    static char sGroupName[NORMAL_LINE_LENGTH];
+    static char sGroupName[SMALL_LINE_LENGTH];
 
     // Gets immunity level
     int iImmunity = GetAdmGroupImmunityLevel(nGroup);
@@ -332,7 +330,7 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
         // Gets group name
         nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
 
-        // If names match, then return index
+        // Validate groups
         if(!strcmp(sGroup, sGroupName, false) || iImmunity <= GetAdmGroupImmunityLevel(nGroup))
         {
             return true;
@@ -343,144 +341,15 @@ stock bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
     return false;
 }
 
-/*
- * Server functions
- */
- 
 /**
- * Gets amount of total humans.
- * 
- * @return                  The amount of total humans.
- **/
-stock int fnGetHumans(/*void*/)
-{
-    // Initialize index
-    int nHumans;
-    
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate human
-        if(IsPlayerExist(i) && !gClientData[i][Client_Zombie])
-        {
-            // Increment amount
-            nHumans++;
-        }
-    }
-    
-    // Return amount
-    return nHumans;
-}
-
-/**
- * Gets amount of total zombies.
- *
- * @return                  The amount of total zombies.
- **/
-stock int fnGetZombies(/*void*/)
-{
-    // Initialize index
-    int nZombies;
-    
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate zombie
-        if(IsPlayerExist(i) && gClientData[i][Client_Zombie])
-        {
-            // Increment amount    
-            nZombies++;
-        }
-    }
-    
-    // Return amount
-    return nZombies;
-}
-
-/**
- * Gets amount of total alive players.
- *
- * @return                  The amount of total alive players.
- **/
-stock int fnGetAlive(/*void*/)
-{
-    // Initialize index
-    int nAlive;
-
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate client
-        if(IsPlayerExist(i))
-        {
-            // Increment amount
-            nAlive++;
-        }
-    }
-    
-    // Return amount
-    return nAlive;
-}
-
-/**
- * Gets index of the random human.
- *
- * @return                  The index of random human.
- **/
-stock int fnGetRandomHuman(/*void*/)
-{
-    // Initialize variables
-    int nRandom; static int clientIndex[MAXPLAYERS+1];
-
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate human
-        if(IsPlayerExist(i) && !gClientData[i][Client_Zombie])
-        {
-            // Increment amount
-            clientIndex[nRandom++] = i;
-        }
-    }
-
-    // Return amount
-    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
-}
-
-/**
- * Gets index of the random zombie.
- *
- * @return      The index of random zombie.
- **/
-stock int fnGetRandomZombie(/*void*/)
-{
-    // Initialize variables
-    int nRandom; static int clientIndex[MAXPLAYERS+1];
-
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
-    {
-        // Validate zombie
-        if(IsPlayerExist(i) && gClientData[i][Client_Zombie])
-        {
-            // Increment amount
-            clientIndex[nRandom++] = i;
-        }
-    }
-
-    // Return amount
-    return (nRandom) ? clientIndex[GetRandomInt(0, nRandom-1)] : -1;
-}
-
-/**
- * Gets amount of total playing players.
+ * @brief Gets amount of total playing players.
  *
  * @return                  The amount of total playing players.
  **/
 stock int fnGetPlaying(/*void*/)
 {
     // Initialize index
-    int nPlaying;
+    int iPlaying;
 
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -489,16 +358,198 @@ stock int fnGetPlaying(/*void*/)
         if(IsPlayerExist(i, false))
         {
             // Increment amount
-            nPlaying++;
+            iPlaying++;
         }
     }
     
     // Return amount
-    return nPlaying;
+    return iPlaying;
+}
+ 
+/**
+ * @brief Gets amount of total humans.
+ * 
+ * @return                  The amount of total humans.
+ **/
+stock int fnGetHumans(/*void*/)
+{
+    // Initialize index
+    int iHumans;
+    
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate human
+        if(IsPlayerExist(i) && !gClientData[i].Zombie)
+        {
+            // Increment amount
+            iHumans++;
+        }
+    }
+    
+    // Return amount
+    return iHumans;
 }
 
 /**
- * Returns an offset value from a given config.
+ * @brief Gets amount of total zombies.
+ *
+ * @return                  The amount of total zombies.
+ **/
+stock int fnGetZombies(/*void*/)
+{
+    // Initialize index
+    int iZombies;
+    
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate zombie
+        if(IsPlayerExist(i) && gClientData[i].Zombie)
+        {
+            // Increment amount    
+            iZombies++;
+        }
+    }
+    
+    // Return amount
+    return iZombies;
+}
+
+/**
+ * @brief Gets amount of total alive players.
+ *
+ * @return                  The amount of total alive players.
+ **/
+stock int fnGetAlive(/*void*/)
+{
+    // Initialize index
+    int iAlive;
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate client
+        if(IsPlayerExist(i))
+        {
+            // Increment amount
+            iAlive++;
+        }
+    }
+    
+    // Return amount
+    return iAlive;
+}
+
+/**
+ * @brief Gets index of the random human.
+ *
+ * @return                  The index of random human.
+ **/
+stock int fnGetRandomHuman(/*void*/)
+{
+    // Initialize variables
+    int iRandom; static int clientIndex[MAXPLAYERS+1];
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate human
+        if(IsPlayerExist(i) && !gClientData[i].Zombie)
+        {
+            // Increment amount
+            clientIndex[iRandom++] = i;
+        }
+    }
+
+    // Return index
+    return (iRandom) ? clientIndex[GetRandomInt(0, iRandom-1)] : -1;
+}
+
+/**
+ * @brief Gets index of the random zombie.
+ *
+ * @return                  The index of random zombie.
+ **/
+stock int fnGetRandomZombie(/*void*/)
+{
+    // Initialize variables
+    int iRandom; static int clientIndex[MAXPLAYERS+1];
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate zombie
+        if(IsPlayerExist(i) && gClientData[i].Zombie)
+        {
+            // Increment amount
+            clientIndex[iRandom++] = i;
+        }
+    }
+
+    // Return index
+    return (iRandom) ? clientIndex[GetRandomInt(0, iRandom-1)] : -1;
+}
+
+/**
+ * @brief Gets random array of total alive players.
+ *
+ * @param targetIndex       (Optional) The target index.
+ * @param bZombie           (Optional) True to state infection, false for humanize on the target index.
+ * @return                  The random array of total alive players.
+ **/
+stock int[] fnGetRandomAlive(const int targetIndex = -1, const bool bZombie = false)
+{
+    // Initialize variables
+    int iAmount; static int clientIndex[MAXPLAYERS+1];
+
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate client
+        if(IsPlayerExist(i))
+        {
+            // Increment amount
+            clientIndex[iAmount++] = i;
+        }
+    }
+
+    // i = client index
+    for(int i = iAmount - 1; i > 0; i--)
+    {
+        // Gets random index
+        int x = GetRandomInt(0, i);
+
+        // Simple swap
+        int y = clientIndex[x];
+        clientIndex[x] = clientIndex[i];
+        clientIndex[i] = y;
+    }
+    
+    // Validate target
+    if(targetIndex != -1)
+    {
+        // i = client index
+        int x = bZombie ? 0 : iAmount - 1; int y = clientIndex[x];
+        for(int i = 0; i < iAmount; i++)
+        {
+            // Find index
+            if(clientIndex[i] == targetIndex)
+            {
+                // Simple swap
+                clientIndex[x] = targetIndex;
+                clientIndex[i] = y;
+                break;
+            }    
+        }
+    }
+
+    // Return shuffled array
+    return clientIndex;
+}
+
+/**
+ * @brief Returns an offset value from a given config.
  *
  * @param gameConf          The game config handle.
  * @param iOffset           An offset, or -1 on failure. (Destanation)
@@ -514,7 +565,7 @@ stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, const char[] sKey
 }
 
 /**
- * Given a server classname, finds a networkable send property offset.
+ * @brief Given a server classname, finds a networkable send property offset.
  *
  * @param iOffset           An offset, or -1 on failure. (Destanation) 
  * @param sServerClass      The classname.
@@ -530,7 +581,7 @@ stock void fnInitSendPropOffset(int &iOffset, const char[] sServerClass, const c
 }
 
 /**
- * Searches for the index of a given string in a dispatch table.
+ * @brief Searches for the index of a given string in a dispatch table.
  *
  * @param sEffect           The effect name.
  * @return                  The item index.
@@ -561,7 +612,7 @@ stock int fnGetEffectIndex(const char[] sEffect)
 }
 
 /**
- * Searches for the index of a given string in an effect table.
+ * @brief Searches for the index of a given string in an effect table.
  *
  * @param sEffect           The effect name.
  * @return                  The item index.
@@ -592,7 +643,7 @@ stock int fnGetParticleEffectIndex(const char[] sEffect)
 }
 
 /**
- * Precache the particle in the effect table.
+ * @brief Precache the particle in the effect table.
  *
  * @param sEffect           The effect name.
  **/
@@ -618,7 +669,7 @@ stock void fnPrecacheParticleEffect(const char[] sEffect)
 }
 
 /**
- * Precache the sound in the sounds table.
+ * @brief Precache the sound in the sounds table.
  *
  * @param sPath             The sound path.
  * @return                  True if was precached, false otherwise.
@@ -626,10 +677,10 @@ stock void fnPrecacheParticleEffect(const char[] sEffect)
 stock bool fnPrecacheSoundQuirk(const char[] sPath)
 {
     // Dublicate value string
-    static char sSound[PLATFORM_MAX_PATH];
+    static char sSound[PLATFORM_LINE_LENGTH];
     strcopy(sSound, sizeof(sSound), sPath);
 
-    /// Look here: https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
+    /// @link https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
     if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
     {
         // Initialize the table index
@@ -665,7 +716,7 @@ stock bool fnPrecacheSoundQuirk(const char[] sPath)
 }
 
 /**
- * Removes a hook for when a game event is fired. (Avoid errors)
+ * @brief Removes a hook for when a game event is fired. (Avoid errors)
  *
  * @param sName             The name of the event.
  * @param hCallBack         An EventHook function pointer.
@@ -679,7 +730,7 @@ stock void UnhookEvent2(const char[] sName, EventHook hCallBack, EventHookMode e
 }
 
 /**
- * Removes a previously added command listener, in reverse order of being added.
+ * @brief Removes a previously added command listener, in reverse order of being added.
  *
  * @param hCallBack         The callback.
  * @param sCommand          The command, or if not specified, a global listener.
@@ -693,11 +744,11 @@ stock void RemoveCommandListener2(CommandListener hCallBack, const char[] sComma
 }
 
 /**
- * Removes a hook for when a console variable's value is changed.
+ * @brief Removes a hook for when a console variable's value is changed.
  *
  * @param hConVar           The handle to the convar.
- * @param hCallBack		    An OnConVarChanged function pointer.
- * @error				    No errors..
+ * @param hCallBack         An OnConVarChanged function pointer.
+ * @error                   No errors..
  **/
 stock void UnhookConVarChange2(ConVar hConVar, ConVarChanged hCallBack)
 {

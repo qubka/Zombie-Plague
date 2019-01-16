@@ -31,18 +31,18 @@
 bool g_bVoice;
 
 /**
- * Hook voice cvar changes.
+ * @brief Hook voice cvar changes.
  **/
 void VoiceOnCvarInit(/*void*/)
 {
-    // Create cvars
+    // Creates cvars
     gCvarList[CVAR_SEFFECTS_ALLTALK]            = FindConVar("sv_alltalk");
     gCvarList[CVAR_SEFFECTS_VOICE]              = FindConVar("zp_seffects_voice");
     gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE] = FindConVar("zp_seffects_voice_zombies_mute");
 }
 
 /**
- * The round is starting.
+ * @brief The round is starting.
  **/
 void VoiceOnRoundStart(/*void*/)
 {
@@ -59,7 +59,7 @@ void VoiceOnRoundStart(/*void*/)
 }
 
 /**
- * The round is ending.
+ * @brief The round is ending.
  **/
 void VoiceOnRoundEnd(/*void*/)
 {
@@ -74,29 +74,28 @@ void VoiceOnRoundEnd(/*void*/)
 }
 
 /**
- * Client has been infected.
+ * @brief Client has been changed class state.
  * 
  * @param clientIndex       The client index.
  **/
-void VoiceOnClientInfected(const int clientIndex)
+void VoiceOnClientUpdate(const int clientIndex)
 {
-    // Give client proper verbal permissions
-    VoiceOnClientUpdate(clientIndex);
+    // If voice module is disabled, then stop
+    if(!g_bVoice)
+    {
+        return;
+    }
+    
+    // Sets client listening/speaking status to their current team
+    VoiceSetClientTeam(clientIndex, gClientData[clientIndex].Zombie);
 }
 
-/**
- * Client has been humanized.
- * 
- * @param clientIndex       The client index.
- **/
-void VoiceOnClientHumanized(const int clientIndex)
-{
-    // Give client proper verbal permissions
-    VoiceOnClientUpdate(clientIndex);
-}
+/*
+ * Stocks voice API.
+ */
 
 /**
- * Set the receiver ability to listen to the sender.
+ * @brief Sets the receiver ability to listen to the sender.
  *
  * @note  This function is from sdktools_voice, it fails if iSender is muted.
  *
@@ -104,7 +103,7 @@ void VoiceOnClientHumanized(const int clientIndex)
  * @param iSender           The sender index.
  * @return                  True if successful otherwise false.
  **/
-stock bool VoiceSetClientListening(const int iReceiver, const int iSender, const bool bListen)
+bool VoiceSetClientListening(const int iReceiver, const int iSender, const bool bListen)
 {
     // If the sender is muted, then return false
     if(VoiceIsClientMuted(iSender))
@@ -118,9 +117,9 @@ stock bool VoiceSetClientListening(const int iReceiver, const int iSender, const
 }
 
 /**
- * Allow all clients to listen and speak with each other.
+ * @brief Allow all clients to listen and speak with each other.
  **/
-stock void VoiceAllTalk(/*void*/)
+void VoiceAllTalk(/*void*/)
 {
     // i = receiver index
     for(int i = 1; i <= MaxClients; i++)
@@ -153,19 +152,19 @@ stock void VoiceAllTalk(/*void*/)
 }
 
 /**
- * Set which team the client is allowed to listen/speak with.
+ * @brief Sets which team the client is allowed to listen/speak with.
  * 
  * @param clientIndex       The client index.
- * @param bInfected         True to permit verbal communication to zombies only, false for humans only.
+ * @param bZombie           True to permit verbal communication to zombies only, false for humans only.
  **/
-stock void VoiceSetClientTeam(const int clientIndex, const bool bInfected)
+void VoiceSetClientTeam(const int clientIndex, const bool bZombie)
 {
     // If zombie mute is disabled, then skip
     bool bVoiceZombieMute = gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE].BoolValue;
     if(bVoiceZombieMute)
     {
         // Apply new voice flags
-        SetClientListeningFlags(clientIndex, bInfected ? VOICE_MUTED : VOICE_NORMAL);
+        SetClientListeningFlags(clientIndex, bZombie ? VOICE_MUTED : VOICE_NORMAL);
     }
     
     // i = client index
@@ -184,7 +183,7 @@ stock void VoiceSetClientTeam(const int clientIndex, const bool bInfected)
         }
         
         // Client can only listen/speak if the sender is on their team
-        bool bCanListen = (bInfected == gClientData[i][Client_Zombie]);
+        bool bCanListen = (bZombie == gClientData[i].Zombie);
         
         // (Dis)allow clients to listen/speak with each other, don't touch if the sender is muted
         VoiceSetClientListening(clientIndex, i, bCanListen);
@@ -193,39 +192,21 @@ stock void VoiceSetClientTeam(const int clientIndex, const bool bInfected)
 }
 
 /**
- * Update a client listening/speaking status.
+ * @brief This function returns if the client is muted.
  * 
  * @param clientIndex       The client index.
- * @param bInfected         True to permit verbal communication to zombies only, false for humans only.
+ * @return                  True if the client is muted, false if not.
  **/
-stock void VoiceOnClientUpdate(const int clientIndex)
-{
-    // If voice module is disabled, then stop
-    if(!g_bVoice)
-    {
-        return;
-    }
-    
-    // Sets client listening/speaking status to their current team
-    VoiceSetClientTeam(clientIndex, gClientData[clientIndex][Client_Zombie]);
-}
-
-/**
- * This function returns if the client is muted.
- * 
- * @param clientIndex    The client index.
- * @return               True if the client is muted, false if not.
- **/
-stock bool VoiceIsClientMuted(const int clientIndex)
+bool VoiceIsClientMuted(const int clientIndex)
 {
     // Return true if the mute flag isn't on the client
     return view_as<bool>(GetClientListeningFlags(clientIndex) & VOICE_MUTED);
 }
 
 /**
- * Reset voice listening/speaking permissions back to normal according to sv_alltalk.
+ * @brief Reset voice listening/speaking permissions back to normal according to sv_alltalk.
  **/
-stock void VoiceReset(/*void*/)
+void VoiceReset(/*void*/)
 {
     // Is alltalk enabled?
     bool bAllTalk = gCvarList[CVAR_SEFFECTS_ALLTALK].BoolValue;

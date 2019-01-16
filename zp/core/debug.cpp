@@ -5,7 +5,7 @@
  *
  *  File:          debug.cpp
  *  Type:          Core
- *  Description:   Description: Place to put custom functions and test stuff.
+ *  Description:   Place to put custom functions and test stuff.
  *
  *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
  *
@@ -26,21 +26,22 @@
  **/
 
 /**
- * Creates commands for debug module.
+ * @brief Creates commands for debug module.
  **/
-void DebugOnCommandsCreate(/*void*/)
+void DebugOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegAdminCmd("zp_debug", DebugCommandCatched, ADMFLAG_GENERIC, "Prints debugging dump info the log file.");
+    RegAdminCmd("zp_debug", DebugOnCommandCatched, ADMFLAG_GENERIC, "Prints debugging dump info the log file.");
 }
 
 /**
- * Handles the <!zp_debug> command. Create the debug log.
+ * Console command callback (zp_debug)
+ * @brief Creates the debug log.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action DebugCommandCatched(const int clientIndex, const int iArguments)
+public Action DebugOnCommandCatched(const int clientIndex, const int iArguments)
 {
     // Validate mode
     static bool bDebug;
@@ -55,12 +56,12 @@ public Action DebugCommandCatched(const int clientIndex, const int iArguments)
     else 
     {
         // Initialize path
-        static char sPath[PLATFORM_MAX_PATH];
-        BuildPath(Path_SM, sPath, PLATFORM_MAX_PATH, "logs/debug_");
+        static char sPath[PLATFORM_LINE_LENGTH];
+        BuildPath(Path_SM, sPath, PLATFORM_LINE_LENGTH, "logs/debug_");
 
         // Initialize variables
-        static char sLog[PLATFORM_MAX_PATH];
-        static char sLine[PLATFORM_MAX_PATH];
+        static char sLog[PLATFORM_LINE_LENGTH];
+        static char sLine[PLATFORM_LINE_LENGTH];
 
         // Gets path to log file
         FindConVar("con_logfile").GetString(sLog, sizeof(sLog));

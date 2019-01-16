@@ -33,6 +33,35 @@
 #define _higrouplist_included
 
 /**
+ * @brief Called when a client take a fake damage.
+ * 
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index. (Not validated!)
+ * @param inflictorIndex    The inflictor index. (Not validated!)
+ * @param damage            The amount of damage inflicted.
+ * @param bits              The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &damage, int &bits, int &weaponIndex);
+
+/**
+ * @brief Applies core damage to an entity. 
+ *
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param damage            The amount of damage inflicted.
+ * @param bits              (Optional) The ditfield of damage types. 
+ * @param weaponIndex       (Optional) The weapon index or -1 for unspecified.
+ *
+ * @note Knockback will apply only on 'DMG_NEVERGIB' from the class and if the weapon index is state.
+ *
+ * @noreturn
+ **/
+native void ZP_TakeDamage(int clientIndex, int attackerIndex, float damage, int bits = DMG_GENERIC, int weaponIndex = INVALID_ENT_REFERENCE);
+
+/**
  * @brief Gets the amount of all hitgrups.
  **/
 native int ZP_GetNumberHitGroup();
@@ -47,7 +76,7 @@ native int ZP_GetNumberHitGroup();
 native int ZP_GetHitGroupID(int hitgroup);
 
 /**
- * Gets the index of a higroup at a given name.
+ * @brief Gets the index of a higroup at a given name.
  *
  * @param name              The higroup name.
  *
@@ -60,7 +89,7 @@ native int ZP_GetHitGroupNameID(char[] name);
  *
  * @param hitID             The hitgroup index.
  * @param name              The string to return name in.
- * @param maxlenght         The max length of the string.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetHitGroupName(int hitID, char[] name, int maxlenght = 32);
 
@@ -74,7 +103,7 @@ native void ZP_GetHitGroupName(int hitID, char[] name, int maxlenght = 32);
 native int ZP_GetHitGroupIndex(int hitID);
 
 /**
- * @brief Gets the damage value of the hitgroup.
+ * @brief Checks the damage value of the hitgroup.
  *
  * @param hitID             The hitgroup index.
  *
@@ -83,26 +112,46 @@ native int ZP_GetHitGroupIndex(int hitID);
 native bool ZP_IsHitGroupDamage(int hitID);
 
 /**
- * @brief Sets the damage value of the hitgroup.
- *
- * @param hitID             The hitgroup index.
- * @param damage            True to allow damage to hitgroup, false to block damage.
- **/
-native void ZP_SetHitGroupDamage(int hitID, bool damage);
-
-/**
  * @brief Gets the knockback value of the hitgroup.
  *
  * @param hitID             The hitgroup index.
  *
  * @return                  The knockback multiplier of the hitgroup.
  **/
-native float ZP_GetHitGroupKnockback(int hitID);
+native float ZP_GetHitGroupKnockBack(int hitID);
 
 /**
- * @brief Sets the knockback value of the hitgroup.
+ * @brief Gets the armor value of the hitgroup.
  *
  * @param hitID             The hitgroup index.
- * @param knockback         The knockback multiplier for the hitgroup.
+ *
+ * @return                  The armor multiplier of the hitgroup.
  **/
-native void ZP_SetHitGroupKnockback(int hitID, float knockback);
+native float ZP_GetHitGroupArmor(int hitID);
+
+/**
+ * @brief Gets the bonus value of the hitgroup.
+ *
+ * @param hitID             The hitgroup index.
+ *
+ * @return                  The bonus multiplier of the hitgroup.
+ **/
+native float ZP_GetHitGroupBonus(int hitID);
+
+/**
+ * @brief Gets the heavy value of the hitgroup.
+ *
+ * @param hitID             The hitgroup index.
+ *
+ * @return                  The heavy multiplier of the hitgroup.
+ **/
+native float ZP_GetHitGroupHeavy(int hitID);
+
+/**
+ * @brief Checks the protect value of the hitgroup.
+ *
+ * @param hitID             The hitgroup index.
+ *
+ * @return                  True if hitgroup can be protected, false if not.
+ **/
+native bool ZP_IsHitGroupProtect(int hitID);

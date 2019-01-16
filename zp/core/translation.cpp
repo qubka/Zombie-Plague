@@ -28,8 +28,8 @@
 /**
  * @section Max length of different message formats.
  **/
-#define TRANSLATION_MAX_LENGTH_CHAT 192
-#define TRANSLATION_MAX_LENGTH_CONSOLE 1024
+#define CHAT_LINE_LENGTH 192
+#define CONSOLE_LINE_LENGTH 1024
 /**
  * @endsection
  **/
@@ -51,9 +51,9 @@
  **/
  
 /**
- * Load translations file here.
+ * @brief Load translations file here.
  **/
-void TranslationInit(/*void*/)
+void TranslationOnInit(/*void*/)
 {
     // Load translations phrases used by plugin
     LoadTranslations("common.phrases");
@@ -61,8 +61,12 @@ void TranslationInit(/*void*/)
     LoadTranslations("zombieplague.phrases");
 }
 
+/*
+ * Stocks translation API.
+ */
+
 /**
- * Format the string to the plugin style.
+ * @brief Format the string to the plugin style.
  * 
  * @param sText             Text to format.
  * @param iMaxlen           Maximum length of the formatted text.
@@ -88,7 +92,7 @@ stock void TranslationPluginFormatString(char[] sText, const int iMaxlen, const 
 }
 
 /**
- * Print console text to the client. (with style)
+ * @brief Print console text to the client. (with style)
  * 
  * @param clientIndex       The client index.
  * @param ...               Translation formatting parameters.  
@@ -102,7 +106,7 @@ stock void TranslationPrintToConsole(const int clientIndex, any ...)
         SetGlobalTransTarget(clientIndex);
         
         // Translate phrase
-        static char sTranslation[TRANSLATION_MAX_LENGTH_CONSOLE];
+        static char sTranslation[CONSOLE_LINE_LENGTH];
         VFormat(sTranslation, sizeof(sTranslation), "%t", 2);
         
         // Format string to create plugin style
@@ -114,14 +118,14 @@ stock void TranslationPrintToConsole(const int clientIndex, any ...)
 }
 
 /**
- * Print console text to all players or server. (with style)
+ * @brief Print console text to all players or server. (with style)
  * 
  * @param bServer           True to also print text to server console, false just to the clients.
  * @param ...               Translation formatting parameters.
  **/
 stock void TranslationPrintToConsoleAll(const bool bServer, any ...)
 {
-    static char sTranslation[TRANSLATION_MAX_LENGTH_CONSOLE];
+    static char sTranslation[CONSOLE_LINE_LENGTH];
 
     // Validate server
     if(bServer)
@@ -167,7 +171,7 @@ stock void TranslationPrintToConsoleAll(const bool bServer, any ...)
 }
 
 /**
- * Print hint center text to the client.
+ * @brief Print hint center text to the client.
  * 
  * @param clientIndex       The client index.
  * @param ...               Formatting parameters.
@@ -181,8 +185,8 @@ stock void TranslationPrintHintText(const int clientIndex, any ...)
         SetGlobalTransTarget(clientIndex);
 
         // Translate phrase
-        static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-        VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 2);
+        static char sTranslation[CHAT_LINE_LENGTH];
+        VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 2);
 
         // Print translated phrase to the client screen
         VEffectsHintClientScreen(clientIndex, sTranslation);
@@ -190,7 +194,7 @@ stock void TranslationPrintHintText(const int clientIndex, any ...)
 }
 
 /**
- * Print hint center text to all clients.
+ * @brief Print hint center text to all clients.
  *
  * @param ...               Formatting parameters.
  **/
@@ -212,8 +216,8 @@ stock void TranslationPrintHintTextAll(any ...)
             SetGlobalTransTarget(i);
             
             // Translate phrase
-            static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-            VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 1);
+            static char sTranslation[CHAT_LINE_LENGTH];
+            VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 1);
             
             // Print translated phrase to the client screen
             VEffectsHintClientScreen(i, sTranslation);
@@ -222,7 +226,7 @@ stock void TranslationPrintHintTextAll(any ...)
 }
 
 /**
- * Print hud text to the client.
+ * @brief Print hud text to the client.
  * 
  * @param hSync             New HUD synchronization object.
  * @param clientIndex       The client index.
@@ -248,19 +252,16 @@ stock void TranslationPrintHudText(Handle hSync, const int clientIndex, const fl
         SetGlobalTransTarget(clientIndex);
 
         // Translate phrase
-        static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-        VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 14);
+        static char sTranslation[CHAT_LINE_LENGTH];
+        VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 14);
 
-        // Sets HUD parameters for drawing text
-        SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
-        
         // Print translated phrase to the client screen
-        ShowSyncHudText(clientIndex, hSync, sTranslation);
+        VEffectsHudClientScreen(hSync, clientIndex, x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut, sTranslation);
     }
 }
 
 /**
- * Print hud text to all clients.
+ * @brief Print hud text to all clients.
  *
  * @param hSync             New HUD synchronization object.
  * @param x                 x coordinate, from 0 to 1. -1.0 is the center.
@@ -294,20 +295,17 @@ stock void TranslationPrintHudTextAll(Handle hSync, const float x, const float y
             SetGlobalTransTarget(i);
             
             // Translate phrase
-            static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-            VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 13);
-            
-            // Sets HUD parameters for drawing text
-            SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
+            static char sTranslation[CHAT_LINE_LENGTH];
+            VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 13);
 
             // Print translated phrase to the client screen
-            ShowSyncHudText(i, hSync, sTranslation);
+            VEffectsHudClientScreen(hSync, i, x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut, sTranslation);
         }
     }
 }
 
 /**
- * Print chat text to the client.
+ * @brief Print chat text to the client.
  * 
  * @param clientIndex       The client index.
  * @param ...               Formatting parameters. 
@@ -321,11 +319,11 @@ stock void TranslationPrintToChat(const int clientIndex, any ...)
         SetGlobalTransTarget(clientIndex);
 
         // Translate phrase
-        static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-        VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 2);
+        static char sTranslation[CHAT_LINE_LENGTH];
+        VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 2);
 
         // Format string to create plugin style
-        TranslationPluginFormatString(sTranslation, TRANSLATION_MAX_LENGTH_CHAT);
+        TranslationPluginFormatString(sTranslation, CHAT_LINE_LENGTH);
 
         // Print translated phrase to the client chat
         PrintToChat(clientIndex, sTranslation);
@@ -333,7 +331,7 @@ stock void TranslationPrintToChat(const int clientIndex, any ...)
 }
 
 /**
- * Print center text to all clients.
+ * @brief Print center text to all clients.
  *
  * @param ...                  Formatting parameters.
  **/
@@ -355,11 +353,11 @@ stock void TranslationPrintToChatAll(any ...)
             SetGlobalTransTarget(i);
             
             // Translate phrase
-            static char sTranslation[TRANSLATION_MAX_LENGTH_CHAT];
-            VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CHAT, "%t", 1);
+            static char sTranslation[CHAT_LINE_LENGTH];
+            VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 1);
             
             // Format string to create plugin style
-            TranslationPluginFormatString(sTranslation, TRANSLATION_MAX_LENGTH_CHAT);
+            TranslationPluginFormatString(sTranslation, CHAT_LINE_LENGTH);
             
             // Print translated phrase to the client chat
             PrintToChat(i, sTranslation);
@@ -368,7 +366,7 @@ stock void TranslationPrintToChatAll(any ...)
 }
 
 /**
- * Print text to server. (with style)
+ * @brief Print text to server. (with style)
  * 
  * @param ...               Translation formatting parameters.  
  **/
@@ -378,7 +376,7 @@ stock void TranslationPrintToServer(any:...)
     SetGlobalTransTarget(LANG_SERVER);
 
     // Translate phrase
-    static char sTranslation[TRANSLATION_MAX_LENGTH_CONSOLE];
+    static char sTranslation[CONSOLE_LINE_LENGTH];
     VFormat(sTranslation, sizeof(sTranslation), "%t", 1);
 
     // Format string to create plugin style
@@ -389,7 +387,7 @@ stock void TranslationPrintToServer(any:...)
 }
 
 /**
- * Print into console for client. (with style)
+ * @brief Print into console for client. (with style)
  * 
  * @param clientIndex       The client index.
  * @param ...               Formatting parameters. 
@@ -406,11 +404,11 @@ stock void TranslationReplyToCommand(const int clientIndex, any ...)
     SetGlobalTransTarget(clientIndex);
     
     // Translate phrase
-    static char sTranslation[TRANSLATION_MAX_LENGTH_CONSOLE];
-    VFormat(sTranslation, TRANSLATION_MAX_LENGTH_CONSOLE, "%t", 2);
+    static char sTranslation[CONSOLE_LINE_LENGTH];
+    VFormat(sTranslation, CONSOLE_LINE_LENGTH, "%t", 2);
 
     // Format string to create plugin style
-    TranslationPluginFormatString(sTranslation, TRANSLATION_MAX_LENGTH_CONSOLE, false);
+    TranslationPluginFormatString(sTranslation, CONSOLE_LINE_LENGTH, false);
 
     // Print translated phrase to the client console
     ReplyToCommand(clientIndex, sTranslation);

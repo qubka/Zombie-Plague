@@ -99,18 +99,18 @@ native int ZP_GetExtraItemNameID(char[] name);
 /**
  * @brief Gets the name of a extra item at a given index.
  *
- * @param itemID             The item index.
- * @param name               The string to return name in.
- * @param maxlenght          The lenght of string.
+ * @param itemID            The item index.
+ * @param name              The string to return name in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetExtraItemName(int itemID, char[] name, int maxlenght = 32);
 
 /**
  * @brief Gets the info of a extra item at a given index.
  *
- * @param itemID             The item index.
- * @param info               The string to return info in.
- * @param maxlenght          The lenght of string.
+ * @param itemID            The item index.
+ * @param info              The string to return info in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetExtraItemInfo(int itemID, char[] info, int maxlenght = 128);
 
@@ -153,16 +153,17 @@ native int ZP_GetExtraItemLimit(int itemID);
 /**
  * @brief Gets the group of a extra item at a given index.
  *
- * @param itemID             The item index.
- * @param group              The string to return group in.
- * @param maxlenght          The lenght of string.
+ * @param itemID            The item index.
+ * @param group             The string to return group in.
+ * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetExtraItemGroup(int itemID, char[] group, int maxlenght = 32);
 
 /**
- * @brief Print the info about the extra item.
- * 
- * @param clientIndex       The client index.
+ * @brief Gets the class of a extra item at a given index.
+ *
  * @param itemID            The item index.
+ * @param class             The string to return class in.
+ * @param maxlenght         The lenght of string.
  **/
-native void ZP_PrintExtraItemInfo(int clientIndex, int itemID);
+native void ZP_GetExtraItemClass(int itemID, char[] class, int maxlenght = 128);

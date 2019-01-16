@@ -25,9 +25,6 @@
  * ============================================================================
  **/
 
-// Comment to remove a weapon attachments on the back
-#define USE_ATTACHMENTS
-
 /**
  * @section Weapon addon bits.
  **/
@@ -71,12 +68,11 @@ enum BitType
 /**
  * @endsection
  **/
- 
-#if defined USE_ATTACHMENTS
+
 /**
- * Destroy weapon attachments.
+ * @brief Destroy weapon attachments.
  **/
-void WeaponAttachUnload(/*void*/) 
+void WeaponAttachOnUnload(/*void*/) 
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++) 
@@ -91,14 +87,66 @@ void WeaponAttachUnload(/*void*/)
 }
 
 /**
- * Set addons attachment.
+ * Hook: SetTransmit
+ * @brief Called right before the entity transmitting to other entities.
+ *
+ * @param entityIndex       The entity index.
+ * @param clientIndex       The client index.
+ **/
+public Action WeaponAttachOnTransmit(const int entityIndex, const int clientIndex)
+{
+    // i = slot index
+    for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
+    {
+        // Validate addons
+        if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[i]) == entityIndex)
+        {
+            // Validate observer mode
+            if(ToolsGetClientObserverMode(clientIndex))
+            {
+                // Allow transmitting    
+                return Plugin_Continue;
+            }
+
+            // Block transmitting
+            return Plugin_Handled;
+        }
+    }
+    
+    // Gets the owner of the entity
+    int ownerIndex = ToolsGetEntityOwner(entityIndex);
+
+    // Validate dead owner
+    if(!IsPlayerAlive(ownerIndex))
+    {
+        // Block transmitting
+        return Plugin_Handled;
+    }
+    
+    // Validate observer mode
+    if(ToolsGetClientObserverMode(clientIndex) == SPECMODE_FIRSTPERSON && ownerIndex == ToolsGetClientObserverTarget(clientIndex))
+    {
+        // Block transmitting
+        return Plugin_Handled;
+    }
+
+    // Allow transmitting
+    return Plugin_Continue;
+}
+
+/*
+ * Stocks attachment API.
+ */
+
+/**
+ * @brief Sets addons attachment.
  *
  * @param clientIndex       The client index.
  **/
 void WeaponAttachSetAddons(const int clientIndex)
 {
     // Gets current bits
-    int iBits = GetEntData(clientIndex, g_iOffset_PlayerAddonBits); int iBitPurge; static int weaponIndex; static int iD;
+    int iBits = ToolsGetClientAddonBits(clientIndex); int iBitPurge; static int weaponIndex; static int iD;
     
     /*____________________________________________________________________________________________*/
     
@@ -106,7 +154,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_PrimaryWeapon)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_PrimaryWeapon))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_PrimaryWeapon))
         {
             // Gets weapon index
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Primary));
@@ -124,7 +172,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_PrimaryWeapon)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_PrimaryWeapon)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_PrimaryWeapon);
@@ -136,13 +184,13 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_SecondaryWeapon)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SecondaryWeapon))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_SecondaryWeapon))
         {
             // Gets weapon index
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Secondary));
 
             // Validate taser slot
-            if(weaponIndex == GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon))
+            if(weaponIndex == ToolsGetClientActiveWeapon(clientIndex))
             {
                 // Gets weapon index
                 weaponIndex = WeaponsGetIndex(clientIndex, "weapon_taser");
@@ -160,8 +208,8 @@ void WeaponAttachSetAddons(const int clientIndex)
                 }
             }
         }
-    }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SecondaryWeapon)
+        }
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_SecondaryWeapon)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_SecondaryWeapon);
@@ -173,7 +221,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_Flashbang1)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang1))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_Flashbang1))
         {
             // Gets weapon index
             weaponIndex = WeaponsGetIndex(clientIndex, "weapon_flashbang");
@@ -191,7 +239,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang1)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_Flashbang1)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_Flashbang1);
@@ -203,7 +251,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_Flashbang2)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang2))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_Flashbang2))
         {
             // Gets weapon index
             weaponIndex = WeaponsGetIndex(clientIndex, "weapon_flashbang");
@@ -221,7 +269,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Flashbang2)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_Flashbang2)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_Flashbang2);
@@ -233,7 +281,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_HEGrenade)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_HEGrenade))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_HEGrenade))
         {
             // Gets weapon index
             weaponIndex = WeaponsGetIndex(clientIndex, "weapon_hegrenade");
@@ -251,7 +299,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_HEGrenade)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_HEGrenade)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_HEGrenade);
@@ -263,7 +311,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_SmokeGrenade)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SmokeGrenade))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_SmokeGrenade))
         {
             // Gets weapon index
             weaponIndex = WeaponsGetIndex(clientIndex, "weapon_smokegrenade");
@@ -281,7 +329,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_SmokeGrenade)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_SmokeGrenade)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_SmokeGrenade);
@@ -293,7 +341,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_Decoy)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Decoy))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_Decoy))
         {
             // Gets weapon index
             weaponIndex = WeaponsGetIndex(clientIndex, "weapon_decoy");
@@ -311,7 +359,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Decoy)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_Decoy)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_Decoy);
@@ -323,7 +371,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_Knife)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Knife))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_Knife))
         {
             // Gets weapon index
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Melee));
@@ -341,7 +389,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_Knife)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_Knife)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_Knife);
@@ -353,7 +401,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_TaGrenade)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_TaGrenade))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_TaGrenade))
         {
             // Gets weapon index
             weaponIndex = WeaponsGetIndex(clientIndex, "weapon_tagrenade");
@@ -371,7 +419,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_TaGrenade)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_TaGrenade)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_TaGrenade);
@@ -383,7 +431,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_C4)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_C4))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_C4))
         {
             // Gets weapon index
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_C4));
@@ -401,7 +449,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_C4)
+    else if(gClientData[clientIndex].AttachmentBits & CSAddon_C4)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_C4);
@@ -413,7 +461,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     if(iBits & CSAddon_DefuseKit)
     {
         // Gets client bits
-        if(!(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_DefuseKit))
+        if(!(gClientData[clientIndex].AttachmentBits & CSAddon_DefuseKit))
         {
             // Validate defuser
             if(ToolsGetClientDefuser(clientIndex))
@@ -428,7 +476,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             }
         }
     }
-    /*else if(gClientData[clientIndex][Client_AttachmentBits] & CSAddon_DefuseKit)
+    /*else if(gClientData[clientIndex].AttachmentBits & CSAddon_DefuseKit)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(clientIndex, BitType_DefuseKit);
@@ -437,58 +485,58 @@ void WeaponAttachSetAddons(const int clientIndex)
     /*____________________________________________________________________________________________*/
     
     // Validate addons
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_PrimaryWeapon]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_PrimaryWeapon]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_PrimaryWeapon;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_SecondaryWeapon]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_SecondaryWeapon]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_SecondaryWeapon;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_Flashbang1]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_Flashbang1]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_Flashbang1;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_Flashbang2]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_Flashbang2]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_Flashbang2;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_HEGrenade]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_HEGrenade]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_HEGrenade;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_SmokeGrenade]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_SmokeGrenade]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_SmokeGrenade;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_Decoy]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_Decoy]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_Decoy;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_Knife]) != INVALID_ENT_REFERENCE || (gClientData[clientIndex][Client_Zombie]))
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_Knife]) != INVALID_ENT_REFERENCE || (gClientData[clientIndex].Zombie))
     {
         iBitPurge |= CSAddon_Knife; iBitPurge |= CSAddon_Holster;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_TaGrenade]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_TaGrenade]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_TaGrenade;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_C4]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_C4]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_C4;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][BitType_DefuseKit]) != INVALID_ENT_REFERENCE)
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_DefuseKit]) != INVALID_ENT_REFERENCE)
     {
         iBitPurge |= CSAddon_DefuseKit; if(!ToolsGetClientDefuser(clientIndex)) WeaponAttachRemoveAddons(clientIndex, BitType_DefuseKit);
     }
     
     // Store the bits for next usage
-    gClientData[clientIndex][Client_AttachmentBits] = iBits;
-    SetEntData(clientIndex, g_iOffset_PlayerAddonBits, iBits &~ iBitPurge, _, true);
+    gClientData[clientIndex].AttachmentBits = iBits;
+    ToolsSetClientAddonBits(clientIndex, iBits &~ iBitPurge);
 }
 
 /**
- * Create an attachment addons entities for the client.
+ * @brief Create an attachment addons entities for the client.
  *
  * @param clientIndex       The client index.
  * @param iD                The weapon id.
@@ -513,7 +561,7 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, const BitType
             if(entityIndex != INVALID_ENT_REFERENCE)
             {
                 // Gets weapon dropmodel
-                static char sModel[PLATFORM_MAX_PATH];
+                static char sModel[PLATFORM_LINE_LENGTH];
                 WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 
 
                 // Dispatch main values of the entity
@@ -533,7 +581,7 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, const BitType
                 DispatchSpawn(entityIndex);
                 
                 // Sets parent to the entity
-                SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, clientIndex, true);
+                ToolsSetEntityOwner(entityIndex, clientIndex);
                 
                 // Sets parent to the client
                 SetVariantString("!activator");
@@ -544,65 +592,17 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, const BitType
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
                 
                 // Hook entity callbacks
-                SDKHook(entityIndex, SDKHook_SetTransmit, WeaponAttachmentOnTransmit);
+                SDKHook(entityIndex, SDKHook_SetTransmit, WeaponAttachOnTransmit);
                 
                 // Store the client cache
-                gClientData[clientIndex][Client_AttachmentAddons][bitType] = EntIndexToEntRef(entityIndex);
+                gClientData[clientIndex].AttachmentAddons[bitType] = EntIndexToEntRef(entityIndex);
             }
         }
     }
 }
 
 /**
- * Hook: SetTransmit
- * Called right before the entity transmitting to other entities.
- *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
- **/
-public Action WeaponAttachmentOnTransmit(const int entityIndex, const int clientIndex)
-{
-    // i = slot index
-    for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
-    {
-        // Validate addons
-        if(EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]) == entityIndex)
-        {
-            // Validate observer mode
-            if(GetEntData(clientIndex, g_iOffset_PlayerObserverMode))
-            {
-                // Allow transmitting    
-                return Plugin_Continue;
-            }
-
-            // Block transmitting
-            return Plugin_Handled;
-        }
-    }
-    
-    // Get the owner of the entity
-    int ownerIndex = GetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity);
-
-    // Validate dead owner
-    if(!IsPlayerAlive(ownerIndex))
-    {
-        // Block transmitting
-        return Plugin_Handled;
-    }
-    
-    // Validate observer mode
-    if(GetEntData(clientIndex, g_iOffset_PlayerObserverMode) == TEAM_OBSERVER && ownerIndex == GetEntDataEnt2(clientIndex, g_iOffset_PlayerObserverTarget))
-    {
-        // Block transmitting
-        return Plugin_Handled;
-    }
-
-    // Allow transmitting
-    return Plugin_Continue;
-}
-
-/**
- * Remove an attachment addons entities from the client.
+ * @brief Remove an attachment addons entities from the client.
  *
  * @param clientIndex       The client index.
  * @param bitType           The bit type.
@@ -616,7 +616,7 @@ void WeaponAttachRemoveAddons(const int clientIndex, const BitType bitType = Bit
         for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
         {
             // Gets current addon from the client reference
-            int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][i]);
+            int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[i]);
     
             // Validate addon
             if(entityIndex != INVALID_ENT_REFERENCE) 
@@ -625,14 +625,14 @@ void WeaponAttachRemoveAddons(const int clientIndex, const BitType bitType = Bit
             }
 
             // Clear the client cache
-            gClientData[clientIndex][Client_AttachmentBits] = CSAddon_NONE;
-            gClientData[clientIndex][Client_AttachmentAddons][i] = INVALID_ENT_REFERENCE;
+            gClientData[clientIndex].AttachmentBits = CSAddon_NONE;
+            gClientData[clientIndex].AttachmentAddons[i] = INVALID_ENT_REFERENCE;
         }
     }
     else
     {
         // Gets current addon from the client reference
-        int entityIndex = EntRefToEntIndex(gClientData[clientIndex][Client_AttachmentAddons][bitType]);
+        int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[bitType]);
 
         // Validate addon
         if(entityIndex != INVALID_ENT_REFERENCE) 
@@ -641,23 +641,7 @@ void WeaponAttachRemoveAddons(const int clientIndex, const BitType bitType = Bit
         }
 
         // Clear the client cache
-        gClientData[clientIndex][Client_AttachmentBits] = CSAddon_NONE;
-        gClientData[clientIndex][Client_AttachmentAddons][bitType] = INVALID_ENT_REFERENCE;
+        gClientData[clientIndex].AttachmentBits = CSAddon_NONE;
+        gClientData[clientIndex].AttachmentAddons[bitType] = INVALID_ENT_REFERENCE;
     }
 }
-#else
-/*inline*/ void WeaponAttachUnload(/*void*/)      
-{ 
-    /* empty statement */ 
-}
-/*inline*/ void WeaponAttachSetAddons(int clientIndex)    
-{ 
-    #pragma unused clientIndex  
-    /* empty statement */ 
-}
-/*inline*/ void WeaponAttachRemoveAddons(int clientIndex) 
-{ 
-    #pragma unused clientIndex  
-    /* empty statement */ 
-}
-#endif

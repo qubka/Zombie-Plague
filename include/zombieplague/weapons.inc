@@ -54,15 +54,14 @@ enum SlotType
  **/
 enum MenuType
 {
-     MenuType_Invisible,           /**  Used as return value when a menu doens't exist. */
+     MenuType_Invisible,          /**  Used as return value when a menu doens't exist. */
      
-     MenuType_Pistols,             /**  Pistol menu */
-     MenuType_Shotguns,            /**  Shotgun menu */
-     MenuType_Rifles,              /**  Rifle menu */
-     MenuType_Snipers,             /**  Sniper menu */
-     MenuType_Machineguns,         /**  Machineguns menu */
-     MenuType_Knifes,              /**  Knife menu */
-     MenuType_Grenades             /**  Grenade menu */
+     MenuType_Pistols,            /**  Pistol menu */
+     MenuType_Shotguns,           /**  Shotgun menu */
+     MenuType_Rifles,             /**  Rifle menu */
+     MenuType_Snipers,            /**  Sniper menu */
+     MenuType_Machineguns,        /**  Machineguns menu */
+     MenuType_Knifes              /**  Knife menu */
 };
 /**
  * @endsection
@@ -108,6 +107,17 @@ enum ModelType
  **/
  
 /**
+ * @brief Called before show a weapon in the weapons menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param weaponID          The weapon index.
+ *
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and selecting.
+ **/
+forward Action ZP_OnClientValidateWeapon(int clientIndex, int weaponID);
+ 
+/**
  * @brief Called after a custom grenade is created. (Only for projectiles)
  *
  * @param clientIndex       The client index.
@@ -135,7 +145,7 @@ forward void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID);
  * @param weaponID          The weapon id.
  *
  * @return                  Plugin_Continue to allow buttons. Anything else 
- *                                (like Plugin_Change) to change buttons.
+ *                                (like Plugin_Changed) to change buttons.
  **/
 forward Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID);
 
@@ -300,6 +310,15 @@ native void ZP_GetWeaponEntity(int weaponID, char[] entity, int maxlenght = 32);
 native void ZP_GetWeaponGroup(int weaponID, char[] group, int maxlenght = 32);
 
 /**
+ * @brief Gets the class of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param class             The string to return class in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponClass(int weaponID, char[] class, int maxlenght = 128);
+
+/**
  * @brief Gets the cost of the weapon.
  * 
  * @param weaponID          The weapon ID.
@@ -381,6 +400,15 @@ native int ZP_GetWeaponAmmo(int weaponID);
 native int ZP_GetWeaponAmmunition(int weaponID);
 
 /**
+ * @brief Checks the drop state of the weapon.
+ *
+ * @param weaponID          The weapon ID.
+ *
+ * @return                  True or false.   
+ **/
+native bool ZP_IsWeaponDrop(int weaponID);
+
+/**
  * @brief Gets the shoot delay of the weapon.
  *
  * @param weaponID          The weapon ID.
@@ -415,15 +443,6 @@ native float ZP_GetWeaponDeploy(int weaponID);
  * @return                  The key index.
  **/
 native int ZP_GetWeaponSoundID(int weaponID);
-
-/**
- * @brief Gets the class of a weapon at a given id.
- *
- * @param weaponID          The weapon ID.
- * @param class             The string to return class in.
- * @param maxlenght         The lenght of string.
- **/
-native void ZP_GetWeaponClass(int weaponID, char[] class, int maxlenght = 32);
 
 /**
  * @brief Gets the viewmodel path a weapon at a given id.
@@ -500,7 +519,7 @@ native int ZP_GetWeaponModelBody(int weaponID, ModelType modelType);
 native int ZP_GetWeaponModelSkin(int weaponID, ModelType modelType);
 
 /**
- * Gets the muzzle name of a weapon at a given id.
+ * @brief Gets the muzzle name of a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
  * @param muzzle            The string to return model in.
@@ -627,7 +646,7 @@ stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward 
 stock int ZP_GetWeaponAnimation(const int clientIndex)
 {
     // Gets client viewmodel
-    int viewModel = ZP_GetClientViewModel(clientIndex, true); /// Get anims on the custom model 
+    int viewModel = ZP_GetClientViewModel(clientIndex, true); /// Gets anims on the custom model 
 
     // Validate viewmodel
     if(IsValidEdict(viewModel))
@@ -674,7 +693,7 @@ stock void ZP_SetWeaponAnimationPair(const int clientIndex, const int weaponInde
     // Validate viewmodel
     if(IsValidEdict(viewModel))
     {
-        // Get the current played state of animation
+        // Gets the current played state of animation
         bool bPrevAnim = view_as<bool>(GetEntProp(weaponIndex, Prop_Send, "m_bSilencerOn"));
         
         // Sets animation
@@ -689,11 +708,11 @@ stock void ZP_SetWeaponAnimationPair(const int clientIndex, const int weaponInde
  * Returns index if the player has a weapon.
  *
  * @param clientIndex       The client index.
- * @param sWeapon           The weapon entity.
+ * @param sType             The weapon entity.
  *
  * @return                  The weapon index.
  **/
-stock int ZP_GetWeaponIndex(const int clientIndex, const char[] sWeapon)
+stock int ZP_GetWeaponIndex(const int clientIndex, const char[] sType)
 {
     // Initialize classname char
     static char sClassname[SMALL_LINE_LENGTH];
@@ -712,16 +731,13 @@ stock int ZP_GetWeaponIndex(const int clientIndex, const char[] sWeapon)
             GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
 
             // If weapon find, then return
-            if(!strcmp(sClassname[7], sWeapon[7], false))
+            if(!strcmp(sClassname[7], sType[7], false))
             {
                 return weaponIndex;
             }
         }
-
-        // Go to next weapon
-        continue;
     }
 
-    // If wasn't found
-    return INVALID_ENT_REFERENCE;
+    // Weapon wasn't found
+    return -1;
 }

@@ -52,34 +52,20 @@
 #include "zp/versioninfo.cpp"  
 
 // Core
+#include "zp/core/api.cpp"
 #include "zp/core/paramparser.cpp" 
 #include "zp/core/config.cpp"
 #include "zp/core/cvars.cpp"  
 #include "zp/core/log.cpp"
 #include "zp/core/zombieplague.cpp" 
 #include "zp/core/debug.cpp" 
+#include "zp/core/commands.cpp"
 #include "zp/core/database.cpp"
-#include "zp/core/translation.cpp"    
-
-// Visual effects 
-#include "zp/manager/visualeffects/visualeffects.cpp" //!(Module)
-
-// Game
-#include "zp/game/antistick.cpp"
-#include "zp/game/account.cpp"
-#include "zp/game/tools.cpp"
-#include "zp/game/spawn.cpp"
-#include "zp/game/death.cpp"
-#include "zp/game/damage.cpp"
-#include "zp/game/roundstart.cpp"
-#include "zp/game/jumpboost.cpp"
-#include "zp/game/roundend.cpp"
-#include "zp/game/skillsystem.cpp"
-#include "zp/game/runcmd.cpp"
-#include "zp/game/levelsystem.cpp"
-#include "zp/game/commands.cpp"
+#include "zp/core/translation.cpp"   
+#include "zp/core/models.cpp"
 
 // Manager
+#include "zp/manager/visualeffects.cpp"
 #include "zp/manager/menus.cpp"
 #include "zp/manager/classes.cpp"
 #include "zp/manager/extraitems.cpp"
@@ -87,19 +73,16 @@
 #include "zp/manager/hitgroups.cpp"
 #include "zp/manager/costumes.cpp"
 #include "zp/manager/weapons.cpp"
-#include "zp/manager/models.cpp"
 #include "zp/manager/sounds.cpp"
 #include "zp/manager/gamemodes.cpp"
 
-// API
-#include "zp/api/api.cpp"
 
 /* 
  * Thanks for code and ideas to Greyscale, Richard Helgeby and AlliedMods community :)
  */
 
 /**
- * Record plugin info.
+ * @brief Record plugin info.
  **/
 public Plugin myinfo =
 {
@@ -116,128 +99,115 @@ public Plugin myinfo =
 //*********************************************************************
 
 /**
- * Called before plugin is loaded.
+ * @brief Called before plugin is loaded.
  **/
 public APLRes AskPluginLoad2(Handle iMyself, bool bLate, char[] sError, int iErrorMax)
 {
     // Load API
-    return APIInit();
+    return APIOnInit();
 }
 
 /**
- * Plugin is loading.
+ * @brief Plugin is loading.
  **/
 public void OnPluginStart(/*void*/)
 {
     // Forward event to modules
-    TranslationInit();  
-    ConfigInit();
-    CvarsInit();
-    LogInit();
-    ToolsInit();
-    MenusInit();
-    CostumesInit(); 
-    HitGroupsInit();
-    CommandsInit();
-    SoundsInit();
-    SpawnInit();
-    DeathInit();
-    JumpBoostInit();
-    SkillsInit();
-    AccountInit();
-    DataBaseInit();
-    LevelSystemInit();
-    RoundStartInit();
-    RoundEndInit();
-    WeaponsInit();
-    ExtraItemsInit();
-    GameEngineInit();
+    TranslationOnInit();  
+    ConfigOnInit();
+    CvarsOnInit();
+    LogOnInit();
+    ClassesOnInit();
+    CostumesOnInit(); 
+    HitGroupsOnInit();
+    CommandsOnInit();
+    SoundsOnInit();
+    DataBaseOnInit();
+    GameModesOnInit();
+    WeaponsOnInit();
+    ExtraItemsOnInit();
+    GameEngineOnInit();
 }
 
 /**
- * The map is starting.
+ * @brief The map is starting.
  **/
 public void OnMapStart(/*void*/)
 {
     // Forward event to modules
-    ModelsLoad();
-    SoundsLoad();
-    WeaponsLoad();
-    DownloadsLoad();
-    ZombieClassesLoad();
-    HumanClassesLoad();
-    CostumesLoad();
-    VEffectsLoad();
-    GameModesLoad();
-    VersionLoad();
-    GameEngineLoad();
-    RoundStartLoad();
+    SoundsOnLoad();
+    WeaponsOnLoad();
+    DownloadsOnLoad();
+    ClassesOnLoad();
+    CostumesOnLoad();
+    VEffectsOnLoad();
+    GameModesOnLoad();
+    VersionOnLoad();
+    GameEngineOnLoad();
 }
 
 /**
- * The map is ending.
+ * @brief The map is ending.
  **/
 public void OnMapEnd(/*void*/)
 {
     // Forward event to modules
-    ToolsPurge();
+    ClassesOnPurge();
+    GameModesOnPurge();
+    GameEngineOnPurge();
 }
 
 /**
- * Plugin is unload.
+ * @brief Plugin is unload.
  **/
 public void OnPluginEnd(/*void*/)
 {
     // Forward event to modules
-    WeaponsUnload();
-    DataBaseUnload();
-    CostumesUnload();
+    WeaponsOnUnload();
+    DataBaseOnUnload();
+    CostumesOnUnload();
+    ///ConfigOnUnload();
 }
 
 /**
- * Called once a client successfully connects.
+ * @brief Called once a client successfully connects.
  *
  * @param clientIndex       The client index.
  **/
 public void OnClientConnected(int clientIndex)
 {
-    #define ToolsOnClientConnect ToolsResetVars
-    
     // Forward event to modules
-    ToolsOnClientConnect(clientIndex);
+    ClassesOnClientConnect(clientIndex);
+    DataBaseOnClientConnect(clientIndex);
 }
 
 /**
- * Called when a client is disconnected from the server.
+ * @brief Called when a client is disconnected from the server.
  *
  * @param clientIndex       The client index.
  **/
 public void OnClientDisconnect_Post(int clientIndex)
 {
-    #define ToolsOnClientDisconnect ToolsResetVars
-    
     // Forward event to modules
-    DataBaseOnClientDisconnect(clientIndex);
-    ToolsOnClientDisconnect(clientIndex);
-    RoundEndOnClientDisconnect();
+    DataBaseOnClientDisconnectPost(clientIndex);
+    ClassesOnClientDisconnectPost(clientIndex);
 }
 
 /**
- * Called once a client is authorized and fully in-game, and 
- * after all post-connection authorizations have been performed.  
+ * @brief Called once a client is authorized and fully in-game, and 
+ *        after all post-connection authorizations have been performed.  
  *
- * This callback is gauranteed to occur on all clients, and always 
- * after each OnClientPutInServer() call.
+ * @note  This callback is gauranteed to occur on all clients, and always 
+ *        after each OnClientPutInServer() call.
  * 
  * @param clientIndex       The client index. 
  **/
 public void OnClientPostAdminCheck(int clientIndex)
 {
     // Forward event to modules
-    DamageClientInit(clientIndex);
-    WeaponsClientInit(clientIndex);
-    AntiStickClientInit(clientIndex);
-    DataBaseClientInit(clientIndex);
-    CostumesClientInit(clientIndex);
-    JumpBoostClientInit(clientIndex);
+    HitGroupsOnClientInit(clientIndex);
+    WeaponsOnClientInit(clientIndex);
+    ClassesOnClientInit(clientIndex);
+    DataBaseOnClientInit(clientIndex);
+    CostumesOnClientInit(clientIndex);
 }

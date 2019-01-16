@@ -33,26 +33,29 @@
 #define _menulist_included
 
 /**
+ * @brief Called before show a slot in the main/sub menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param menuID            The slot index.
+ * @param iSub              The submenu index.
+ *
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and selecting.
+ **/
+forward Action ZP_OnClientValidateMenu(int clientIndex, int menuID, int iSub);
+
+/**
  * @brief Gets the amount of all menus.
  **/
 native int ZP_GetNumberMenu();
-
-/**
- * Gets the index of a menu at a given name.
- *
- * @param name              The menu name.
- *
- * @return                  The menu index, or -1 on failure.
- **/
-native int ZP_GetMenuNameID(char[] name);
 
 /**
  * @brief Gets the name of a menu at a given index.
  *
  * @param menuID            The menu index.
  * @param name              The string to return name in.
- * @param maxlenght         The max length of the string.
- * @param iSub              (Optional) The submenu index. (Loop += 4)
+ * @param maxlenght         The lenght of string.
+ * @param iSub              (Optional) The submenu index.
  **/
 native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32, int iSub = 0);
 
@@ -61,28 +64,49 @@ native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32, int iSub
  *
  * @param menuID            The menu index.
  * @param group             The string to return group in.
- * @param maxlenght         The max length of the string.
- * @param iSub              (Optional) The submenu index. (Loop += 4)
+ * @param maxlenght         The lenght of string.
+ * @param iSub              (Optional) The submenu index.
  **/
 native void ZP_GetMenuGroup(int menuID, char[] group, int maxlenght = 32, int iSub = 0);
+
+/**
+ * @brief Gets the class of a menu at a given index.
+ *
+ * @param menuID            The menu index.
+ * @param class             The string to return class in.
+ * @param maxlenght         The lenght of string.
+ * @param iSub              (Optional) The submenu index.
+ **/
+native void ZP_GetMenuClass(int menuID, char[] class, int maxlenght = 128, int iSub = 0);
 
 /**
  * @brief Gets the hide value of the menu.
  *
  * @param menuID            The menu index.
- * @param iSub              (Optional) The submenu index. (Loop += 4)
+ * @param iSub              (Optional) The submenu index.
  *
  * @return                  True if menu is hide, false if not.
  **/
 native bool ZP_IsMenuHide(int costumeID, int iSub = 0);
 
 /**
+ * @brief Gets the array of a menu at a given command.
+ *
+ * @param command           The menu command.
+ * @param index             The array to return indexes in.
+ * @param maxlenght         The lenght of array.
+ *
+ * @note Array contains the menu index and the submenu index.
+ **/
+native void ZP_GetMenuCommandID(char[] command, int[] index, int maxlenght = 2);
+
+/**
  * @brief Gets the command of a menu at a given index.
  *
  * @param menuID            The menu index.
  * @param command           The string to return command in.
- * @param maxlenght         The max length of the string.
- * @param iSub              (Optional) The submenu index. (Loop += 4)
+ * @param maxlenght         The lenght of string.
+ * @param iSub              (Optional) The submenu index.
  **/
 native void ZP_GetMenuCommand(int menuID, char[] command, int maxlenght = 32, int iSub = 0);
 
@@ -91,5 +115,7 @@ native void ZP_GetMenuCommand(int menuID, char[] command, int maxlenght = 32, in
  *
  * @param clientIndex       The client index.
  * @param menuID            The menu index.
+ *
+ * @note If a submenu is not exist will open the main menu instead.
  **/
 native void ZP_OpenMenuSub(int clientIndex, int menuID);

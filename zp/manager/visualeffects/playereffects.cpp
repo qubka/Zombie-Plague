@@ -26,7 +26,7 @@
  **/
 
 /**
- * Hook player effects cvar changes.
+ * @brief Hook player effects cvar changes.
  **/
 void PlayerVEffectsOnCvarInit(/*void*/)
 {
@@ -49,11 +49,12 @@ void PlayerVEffectsOnCvarInit(/*void*/)
 }
 
 /**
- * Client has been infected.
+ * @brief Client has been infected.
  * 
  * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
  **/
-void PlayerVEffectsOnClientInfected(const int clientIndex)
+void PlayerVEffectsOnClientInfected(const int clientIndex, const int attackerIndex)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -63,7 +64,7 @@ void PlayerVEffectsOnClientInfected(const int clientIndex)
     static float flDuration;
 
     // Validate respawn
-    if(respawnMode)
+    if(gServerData.RoundStart && !attackerIndex)
     {
         // If respawn effect disabled, then stop
         if(!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
@@ -84,54 +85,30 @@ void PlayerVEffectsOnClientInfected(const int clientIndex)
     }
     else
     {
-        // Validate nemesis
-        if(nemesisMode)
+        // If infect effect disabled, then stop
+        if(!gCvarList[CVAR_VEFFECTS_INFECT].BoolValue) 
         {
-            // If nemesis effect disabled, then stop
-            if(!gCvarList[CVAR_VEFFECTS_NEMESIS].BoolValue) 
-            {
-                return;
-            }
-            
-            // If the duration is zero, then stop
-            flDuration = gCvarList[CVAR_VEFFECTS_NEMESIS_DURATION].FloatValue;
-            if(!flDuration)
-            {
-                return;
-            }
-
-            // Gets nemesis particle
-            gCvarList[CVAR_VEFFECTS_NEMESIS_NAME].GetString(sParticle, sizeof(sParticle)); 
-            gCvarList[CVAR_VEFFECTS_NEMESIS_ATTACH].GetString(sAttachment, sizeof(sAttachment));
+            return;
         }
-        // Validate zombie
-        else
+        
+        // If the duration is zero, then stop
+        flDuration = ClassGetEffectTime(gClientData[clientIndex].Class);
+        if(!flDuration)
         {
-            // If infect effect disabled, then stop
-            if(!gCvarList[CVAR_VEFFECTS_INFECT].BoolValue) 
-            {
-                return;
-            }
-            
-            // If the duration is zero, then stop
-            flDuration = gCvarList[CVAR_VEFFECTS_INFECT_DURATION].FloatValue;
-            if(!flDuration)
-            {
-                return;
-            }
-
-            // Gets infect particle
-            gCvarList[CVAR_VEFFECTS_INFECT_NAME].GetString(sParticle, sizeof(sParticle)); 
-            gCvarList[CVAR_VEFFECTS_INFECT_ATTACH].GetString(sAttachment, sizeof(sAttachment));
+            return;
         }
+
+        // Gets infect particle
+        ClassGetEffectName(gClientData[clientIndex].Class, sParticle, sizeof(sParticle)); 
+        ClassGetEffectAttach(gClientData[clientIndex].Class, sAttachment, sizeof(sAttachment));
     }
 
-    // Emit effect
+    // Emit a infect effect
     VEffectSpawnParticle(clientIndex, sAttachment, sParticle, flDuration);
 }
 
 /**
- * Client has been humanized.
+ * @brief Client has been humanized.
  * 
  * @param clientIndex       The client index.
  **/
@@ -144,52 +121,52 @@ void PlayerVEffectsOnClientHumanized(const int clientIndex)
     // Initialize duration variable
     static float flDuration;
     
-    // Validate survivor
-    if(survivorMode)
+    // Validate respawn
+    if(gServerData.RoundNew)
     {
-        // If survivor effect disabled, then stop
-        if(!gCvarList[CVAR_VEFFECTS_SURVIVOR].BoolValue) 
+        // If respawn effect disabled, then stop
+        if(!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
-        flDuration = gCvarList[CVAR_VEFFECTS_SURVIVOR_DURATION].FloatValue;
+        flDuration = gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION].FloatValue;
         if(!flDuration)
         {
             return;
         }
 
-        // Gets survivor particle
-        gCvarList[CVAR_VEFFECTS_SURVIVOR_NAME].GetString(sParticle, sizeof(sParticle)); 
-        gCvarList[CVAR_VEFFECTS_SURVIVOR_ATTACH].GetString(sAttachment, sizeof(sAttachment)); 
+        // Gets respawn particle
+        gCvarList[CVAR_VEFFECTS_RESPAWN_NAME].GetString(sParticle, sizeof(sParticle));
+        gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     }
     else
     {
-        // If antidot effect disabled, then stop
-        if(!gCvarList[CVAR_VEFFECTS_ANTIDOT].BoolValue) 
+        // If humanize effect disabled, then stop
+        if(!gCvarList[CVAR_VEFFECTS_HUMANIZE].BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
-        flDuration = gCvarList[CVAR_VEFFECTS_ANTIDOT_DURATION].FloatValue;
+        flDuration = ClassGetEffectTime(gClientData[clientIndex].Class);
         if(!flDuration)
         {
             return;
         }
 
-        // Gets antidot particle
-        gCvarList[CVAR_VEFFECTS_ANTIDOT_NAME].GetString(sParticle, sizeof(sParticle)); 
-        gCvarList[CVAR_VEFFECTS_ANTIDOT_ATTACH].GetString(sAttachment, sizeof(sAttachment)); 
+        // Gets humanize particle
+        ClassGetEffectName(gClientData[clientIndex].Class, sParticle, sizeof(sParticle)); 
+        ClassGetEffectAttach(gClientData[clientIndex].Class, sAttachment, sizeof(sAttachment));
     }
     
-    // Emit effect
+    // Emit a humanize effect
     VEffectSpawnParticle(clientIndex, sAttachment, sParticle, flDuration);
 }
 
 /**
- * Client has been regenerating.
+ * @brief Client has been regenerating.
  * 
  * @param clientIndex       The client index.
  **/
@@ -216,13 +193,12 @@ void PlayerVEffectsOnClientRegen(const int clientIndex)
     gCvarList[CVAR_VEFFECTS_HEAL_NAME].GetString(sParticle, sizeof(sParticle));
     gCvarList[CVAR_VEFFECTS_HEAL_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     
-    // Emit heal effect
+    // Emit a heal effect
     VEffectSpawnParticle(clientIndex, sAttachment, sParticle, flDuration);
 }
 
-
 /**
- * Client has been leap jump.
+ * @brief Client has been leap jump.
  * 
  * @param clientIndex       The client index.
  **/
@@ -249,6 +225,6 @@ void PlayerVEffectsOnClientJump(const int clientIndex)
     gCvarList[CVAR_VEFFECTS_LEAP_NAME].GetString(sParticle, sizeof(sParticle)); 
     gCvarList[CVAR_VEFFECTS_LEAP_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     
-    // Emit jump effect
+    // Emit a jump effect
     VEffectSpawnParticle(clientIndex, sAttachment, sParticle, flDuration);
 }

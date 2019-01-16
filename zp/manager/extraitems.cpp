@@ -26,12 +26,7 @@
  **/
 
 /**
- * Array handle to store extra item native data.
- **/
-ArrayList arrayExtraItems;
- 
-/**
- * Item native data indexes.
+ * @section Item native data indexes.
  **/
 enum
 {
@@ -41,92 +36,94 @@ enum
     EXTRAITEMS_DATA_LEVEL,
     EXTRAITEMS_DATA_ONLINE,
     EXTRAITEMS_DATA_LIMIT,
-    EXTRAITEMS_DATA_GROUP
-}
-
+    EXTRAITEMS_DATA_GROUP,
+    EXTRAITEMS_DATA_CLASS
+};
 /**
- * Array to store the item limit to the client.
+ * @endsection
  **/
-int gExtraBuyLimit[MAXPLAYERS+1][2048];
-
+ 
 /**
- * Extraitems module init function.
+ * @brief Extraitems module init function.
  **/
-void ExtraItemsInit(/*void*/)
+void ExtraItemsOnInit(/*void*/)
 {
     // Prepare all extraitem data
-    ExtraItemsLoad();
+    ExtraItemsOnLoad();
 }
 
 /**
- * Prepare all extraitem data.
+ * @brief Prepare all extraitem data.
  **/
-void ExtraItemsLoad(/*void*/)
+void ExtraItemsOnLoad(/*void*/)
 {
     // Register config file
     ConfigRegisterConfig(File_ExtraItems, Structure_Keyvalue, CONFIG_FILE_ALIAS_EXTRAITEMS);
 
     // Gets extraitems config path
-    static char sPathItems[PLATFORM_MAX_PATH];
+    static char sPathItems[PLATFORM_LINE_LENGTH];
     bool bExists = ConfigGetFullPath(CONFIG_PATH_EXTRAITEMS, sPathItems);
 
     // If file doesn't exist, then log and stop
     if(!bExists)
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
+        return;
     }
 
     // Sets path to the config file
     ConfigSetConfigPath(File_ExtraItems, sPathItems);
 
     // Load config from file and create array structure
-    bool bSuccess = ConfigLoadConfig(File_ExtraItems, arrayExtraItems);
+    bool bSuccess = ConfigLoadConfig(File_ExtraItems, gServerData.ExtraItems);
 
     // Unexpected error, stop plugin
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathItems);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathItems);
+        return;
     }
 
     // Validate extraitems config
-    int iSize = arrayExtraItems.Length;
+    int iSize = gServerData.ExtraItems.Length;
     if(!iSize)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
+        return;
     }
 
     // Now copy data to array structure
-    ExtraItemsCacheData();
+    ExtraItemsOnCacheData();
 
     // Sets config data
     ConfigSetConfigLoaded(File_ExtraItems, true);
     ConfigSetConfigReloadFunc(File_ExtraItems, GetFunctionByName(GetMyHandle(), "ExtraItemsOnConfigReload"));
-    ConfigSetConfigHandle(File_ExtraItems, arrayExtraItems);
+    ConfigSetConfigHandle(File_ExtraItems, gServerData.ExtraItems);
 }
 
 /**
- * Caches extraitem data from file into arrays.
- * Make sure the file is loaded before (ConfigLoadConfig) to prep array structure.
+ * @brief Caches extraitem data from file into arrays.
  **/
-void ExtraItemsCacheData(/*void*/)
+void ExtraItemsOnCacheData(/*void*/)
 {
     // Gets config file path
-    static char sPathItems[PLATFORM_MAX_PATH];
+    static char sPathItems[PLATFORM_LINE_LENGTH];
     ConfigGetConfigPath(File_ExtraItems, sPathItems, sizeof(sPathItems));
 
-    // Open config
+    // Opens config
     KeyValues kvExtraItems;
     bool bSuccess = ConfigOpenConfigFile(File_ExtraItems, kvExtraItems);
 
     // Validate config
     if(!bSuccess)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
+        return;
     }
 
     // i = array index
-    int iSize = arrayExtraItems.Length;
+    int iSize = gServerData.ExtraItems.Length;
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -135,7 +132,7 @@ void ExtraItemsCacheData(/*void*/)
         if(!kvExtraItems.JumpToKey(sPathItems))
         {
             // Log extraitem fatal
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sPathItems);
+            LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sPathItems);
             continue;
         }
         
@@ -143,26 +140,29 @@ void ExtraItemsCacheData(/*void*/)
         if(!TranslationPhraseExists(sPathItems))
         {
             // Log extraitem error
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sPathItems);
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sPathItems);
+            continue;
         }
 
         // Initialize array block
-        ArrayList arrayExtraItem = arrayExtraItems.Get(i);
+        ArrayList arrayExtraItem = gServerData.ExtraItems.Get(i);
 
         // Push data into array
         kvExtraItems.GetString("info", sPathItems, sizeof(sPathItems), ""); 
         if(!TranslationPhraseExists(sPathItems) && hasLength(sPathItems))
         {
             // Log extraitem error
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sPathItems);
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sPathItems);
         }
-        arrayExtraItem.PushString(sPathItems);            // Index: 1
+        arrayExtraItem.PushString(sPathItems);                 // Index: 1
         arrayExtraItem.Push(kvExtraItems.GetNum("cost", 0));   // Index: 2
         arrayExtraItem.Push(kvExtraItems.GetNum("level", 0));  // Index: 3
         arrayExtraItem.Push(kvExtraItems.GetNum("online", 0)); // Index: 4
         arrayExtraItem.Push(kvExtraItems.GetNum("limit", 0));  // Index: 5
         kvExtraItems.GetString("group", sPathItems, sizeof(sPathItems), ""); 
-        arrayExtraItem.PushString(sPathItems);            // Index: 6
+        arrayExtraItem.PushString(sPathItems);                 // Index: 6
+        kvExtraItems.GetString("class", sPathItems, sizeof(sPathItems), ""); 
+        arrayExtraItem.PushString(sPathItems);                 // Index: 7
     }
 
     // We're done with this file now, so we can close it
@@ -170,30 +170,31 @@ void ExtraItemsCacheData(/*void*/)
 }
 
 /**
- * Called when configs are being reloaded.
+ * @brief Called when configs are being reloaded.
  **/
 public void ExtraItemsOnConfigReload(/*void*/)
 {
-    // Reload extraitems config
-    ExtraItemsLoad();
+    // Reloads extraitems config
+    ExtraItemsOnLoad();
 }
 
 /**
- * Creates commands for extra items module.
+ * @brief Creates commands for extra items module.
  **/
-void ExtraItemsOnCommandsCreate(/*void*/)
+void ExtraItemsOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_item_menu", ExtraItemsCommandCatched, "Open the extra items menu.");
+    RegConsoleCmd("zp_item_menu", ExtraItemsOnCommandCatched, "Opens the extra items menu.");
 }
 
 /**
- * Handles the <!zp_item_menu> command. Open the extra items menu.
+ * Console command callback (zp_item_menu)
+ * @brief Opens the extra items menu.
  * 
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ExtraItemsCommandCatched(const int clientIndex, const int iArguments)
+public Action ExtraItemsOnCommandCatched(const int clientIndex, const int iArguments)
 {
     ItemsMenu(clientIndex);
     return Plugin_Handled;
@@ -204,9 +205,9 @@ public Action ExtraItemsCommandCatched(const int clientIndex, const int iArgumen
  */
 
 /**
- * Sets up natives for library.
+ * @brief Sets up natives for library.
  **/
-void ExtraItemsAPI(/*void*/)
+void ExtraItemsOnNativeInit(/*void*/)
 {
     CreateNative("ZP_GiveClientExtraItem",      API_GiveClientExtraItem); 
     CreateNative("ZP_SetClientExtraItemLimit",  API_SetClientExtraItemLimit); 
@@ -220,13 +221,13 @@ void ExtraItemsAPI(/*void*/)
     CreateNative("ZP_GetExtraItemOnline",       API_GetExtraItemOnline); 
     CreateNative("ZP_GetExtraItemLimit",        API_GetExtraItemLimit); 
     CreateNative("ZP_GetExtraItemGroup",        API_GetExtraItemGroup); 
-    CreateNative("ZP_PrintExtraItemInfo",       API_PrintExtraItemInfo); 
+    CreateNative("ZP_GetExtraItemClass",        API_GetExtraItemClass);
 }
 
 /**
- * Give the extra item to the client.
+ * @brief Give the extra item to the client.
  *
- * native bool ZP_GiveClientExtraItem(clientIndex, iD);
+ * @note native bool ZP_GiveClientExtraItem(clientIndex, iD);
  **/
 public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
 {
@@ -236,7 +237,7 @@ public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -244,20 +245,21 @@ public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
 
     // Call forward
-    Action resultHandle = API_OnClientValidateExtraItem(clientIndex, iD);
+    static Action resultHandle;
+    gForwardData._OnClientValidateExtraItem(clientIndex, iD, resultHandle);
 
     // Validate handle
     if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
     {
         // Call forward
-        API_OnClientBuyExtraItem(clientIndex, iD); /// Buy item
+        gForwardData._OnClientBuyExtraItem(clientIndex, iD); /// Buy item
         return true;
     }
     
@@ -266,9 +268,9 @@ public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Sets the buy limit of the current player item.
+ * @brief Sets the buy limit of the current player item.
  *
- * native void ZP_SetClientExtraItemLimit(clientIndex, iD, limit);
+ * @note native void ZP_SetClientExtraItemLimit(clientIndex, iD, limit);
  **/
 public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
 {
@@ -278,7 +280,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -286,9 +288,9 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -300,9 +302,9 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the buy limit of the current player item.
+ * @brief Gets the buy limit of the current player item.
  *
- * native int ZP_GetClientExtraItemLimit(clientIndex, iD);
+ * @note native int ZP_GetClientExtraItemLimit(clientIndex, iD);
  **/
 public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
 {
@@ -312,7 +314,7 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
         return -1;
     }
     
@@ -320,9 +322,9 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -331,19 +333,19 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the amount of all extra items.
+ * @brief Gets the amount of all extra items.
  *
- * native int ZP_GetNumberExtraItem();
+ * @note native int ZP_GetNumberExtraItem();
  **/
 public int API_GetNumberExtraItem(Handle isPlugin, const int iNumParams)
 {
-    return arrayExtraItems.Length;
+    return gServerData.ExtraItems.Length;
 }
 
 /**
- * Gets the index of a extra item at a given name.
+ * @brief Gets the index of a extra item at a given name.
  *
- * native int ZP_GetExtraItemNameID(name);
+ * @note native int ZP_GetExtraItemNameID(name);
  **/
 public int API_GetExtraItemNameID(Handle hPlugin, const int iNumParams)
 {
@@ -354,7 +356,7 @@ public int API_GetExtraItemNameID(Handle hPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Can't find item with an empty name");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Can't find item with an empty name");
         return -1;
     }
     
@@ -369,9 +371,9 @@ public int API_GetExtraItemNameID(Handle hPlugin, const int iNumParams)
 }
 
 /**
- * Gets the name of a extra item at a given index.
+ * @brief Gets the name of a extra item at a given index.
  *
- * native void ZP_GetExtraItemName(iD, name, maxlen);
+ * @note native void ZP_GetExtraItemName(iD, name, maxlen);
  **/
 public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
 {
@@ -379,9 +381,9 @@ public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -391,7 +393,7 @@ public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -404,9 +406,9 @@ public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the info of a extra item at a given index.
+ * @brief Gets the info of a extra item at a given index.
  *
- * native void ZP_GetExtraItemInfo(iD, info, maxlen);
+ * @note native void ZP_GetExtraItemInfo(iD, info, maxlen);
  **/
 public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
 {
@@ -414,9 +416,9 @@ public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -426,7 +428,7 @@ public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -439,9 +441,9 @@ public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the cost of the extra item.
+ * @brief Gets the cost of the extra item.
  *
- * native int ZP_GetExtraItemCost(iD);
+ * @note native int ZP_GetExtraItemCost(iD);
  **/
 public int API_GetExtraItemCost(Handle isPlugin, const int iNumParams)
 {
@@ -449,9 +451,9 @@ public int API_GetExtraItemCost(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -460,9 +462,9 @@ public int API_GetExtraItemCost(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the level of the extra item.
+ * @brief Gets the level of the extra item.
  *
- * native int ZP_GetExtraItemLevel(iD);
+ * @note native int ZP_GetExtraItemLevel(iD);
  **/
 public int API_GetExtraItemLevel(Handle isPlugin, const int iNumParams)
 {
@@ -470,9 +472,9 @@ public int API_GetExtraItemLevel(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -481,9 +483,9 @@ public int API_GetExtraItemLevel(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the online of the extra item.
+ * @brief Gets the online of the extra item.
  *
- * native int ZP_GetExtraItemOnline(iD);
+ * @note native int ZP_GetExtraItemOnline(iD);
  **/
 public int API_GetExtraItemOnline(Handle isPlugin, const int iNumParams)
 {
@@ -491,9 +493,9 @@ public int API_GetExtraItemOnline(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -502,9 +504,9 @@ public int API_GetExtraItemOnline(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the limit of the extra item.
+ * @brief Gets the limit of the extra item.
  *
- * native int ZP_GetExtraItemLimit(iD);
+ * @note native int ZP_GetExtraItemLimit(iD);
  **/
 public int API_GetExtraItemLimit(Handle isPlugin, const int iNumParams)
 {
@@ -512,9 +514,9 @@ public int API_GetExtraItemLimit(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -523,9 +525,9 @@ public int API_GetExtraItemLimit(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Gets the group of a extra item at a given index.
+ * @brief Gets the group of a extra item at a given index.
  *
- * native void ZP_GetExtraItemGroup(iD, group, maxlen);
+ * @note native void ZP_GetExtraItemGroup(iD, group, maxlen);
  **/
 public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
 {
@@ -533,9 +535,9 @@ public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
@@ -545,7 +547,7 @@ public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
     // Validate size
     if(!maxLen)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
     }
     
@@ -558,51 +560,38 @@ public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
 }
 
 /**
- * Print the info about the extra item.
+ * @brief Gets the class of a extra item at a given index.
  *
- * native void ZP_PrintExtraItemInfo(clientIndex, iD);
+ * @note native void ZP_GetExtraItemClass(iD, class, maxlen);
  **/
-public int API_PrintExtraItemInfo(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemClass(Handle isPlugin, const int iNumParams)
 {
-    // If help messages disable, then stop 
-    if(!gCvarList[CVAR_MESSAGES_HELP].BoolValue)
-    {
-        return -1;
-    }
-    
-    // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
-    
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
-        return -1;
-    }
-    
     // Gets item index from native cell
-    int iD = GetNativeCell(2);
-    
+    int iD = GetNativeCell(1);
+
     // Validate index
-    if(iD >= arrayExtraItems.Length)
+    if(iD >= gServerData.ExtraItems.Length)
     {
-        LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
     }
     
-    // Gets extra item name
-    static char sItemName[SMALL_LINE_LENGTH];
-    ItemsGetName(iD, sItemName, sizeof(sItemName));
+    // Gets string size from native cell
+    int maxLen = GetNativeCell(3);
 
-    // Gets client name
-    static char sClientName[SMALL_LINE_LENGTH];
-    GetClientName(clientIndex, sClientName, sizeof(sClientName));
+    // Validate size
+    if(!maxLen)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+        return -1;
+    }
     
-    // Show message of successful buying
-    TranslationPrintToChatAll("buy extraitem", sClientName, sItemName);
-    
+    // Initialize class char
+    static char sClass[BIG_LINE_LENGTH];
+    ItemsGetClass(iD, sClass, sizeof(sClass));
+
     // Return on success
-    return sizeof(sClientName);
+    return SetNativeString(2, sClass, maxLen);
 }
 
 /*
@@ -610,153 +599,192 @@ public int API_PrintExtraItemInfo(Handle isPlugin, const int iNumParams)
  */
 
 /**
- * Gets the name of a item at a given index.
+ * @brief Gets the name of a item at a given index.
  *
  * @param iD                The item index.
  * @param sName             The string to return name in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ItemsGetName(const int iD, char[] sName, const int iMaxLen)
+void ItemsGetName(const int iD, char[] sName, const int iMaxLen)
 {
     // Gets array handle of extra item at given index
-    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
     // Gets extra item name
     arrayExtraItem.GetString(EXTRAITEMS_DATA_NAME, sName, iMaxLen);
 }
 
 /**
- * Gets the info of a item at a given index.
+ * @brief Gets the info of a item at a given index.
  *
  * @param iD                The item index.
  * @param sInfo             The string to return info in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ItemsGetInfo(const int iD, char[] sInfo, const int iMaxLen)
+void ItemsGetInfo(const int iD, char[] sInfo, const int iMaxLen)
 {
     // Gets array handle of extra item at given index
-    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
     // Gets extra item info
     arrayExtraItem.GetString(EXTRAITEMS_DATA_INFO, sInfo, iMaxLen);
 }
 
 /**
- * Gets the price of ammo for the item.
+ * @brief Gets the price of ammo for the item.
  *
  * @param iD                The item index.
  * @return                  The ammo price.    
  **/
-stock int ItemsGetCost(const int iD)
+int ItemsGetCost(const int iD)
 {
     // Gets array handle of extra item at given index
-    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
     // Gets extra item cost
     return arrayExtraItem.Get(EXTRAITEMS_DATA_COST);
 }
 
 /**
- * Gets the level for the item.
+ * @brief Gets the level for the item.
  *
  * @param iD                The item index.
  * @return                  The level value.    
  **/
-stock int ItemsGetLevel(const int iD)
+int ItemsGetLevel(const int iD)
 {
     // Gets array handle of extra item at given index
-    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
     // Gets extra item level
     return arrayExtraItem.Get(EXTRAITEMS_DATA_LEVEL);
 }
 
 /**
- * Gets the online for the item.
+ * @brief Gets the online for the item.
  *
  * @param iD                The item index.
  * @return                  The online value.    
  **/
-stock int ItemsGetOnline(const int iD)
+int ItemsGetOnline(const int iD)
 {
     // Gets array handle of extra item at given index
-    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
     // Gets extra item online
     return arrayExtraItem.Get(EXTRAITEMS_DATA_ONLINE);
 }
 
 /**
- * Gets the limit for the item.
+ * @brief Gets the limit for the item.
  * @param iD                The item index.
  * @return                  The limit value.    
  **/
-stock int ItemsGetLimit(const int iD)
+int ItemsGetLimit(const int iD)
 {
     // Gets array handle of extra item at given index
-    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
     // Gets extra item limit
     return arrayExtraItem.Get(EXTRAITEMS_DATA_LIMIT);
 }
 
 /**
- * Remove the buy limit of the all client items.
+ * @brief Remove the buy limit of the all client items.
  *
  * @param clientIndex       The client index.
  **/
-stock void ItemsRemoveLimits(const int clientIndex)
+void ItemsRemoveLimits(const int clientIndex)
 {
-    // If array hasn't been created, then skip
-    if(arrayExtraItems != INVALID_HANDLE)
+    // If array hasn't been created, then create
+    if(gClientData[clientIndex].ItemLimit == null)
     {
-        // Remove all extraitems limit
-        for(int i = 0; i < arrayExtraItems.Length; i++)
-        {
-            gExtraBuyLimit[clientIndex][i] = 0;
-        }
+        // Initialize a buy limit array
+        gClientData[clientIndex].ItemLimit = new StringMap();
     }
+
+    // Clear out the array of all data
+    gClientData[clientIndex].ItemLimit.Clear();
 }
 
 /**
- * Sets the buy limit of the current client item.
+ * @brief Sets the buy limit of the current client item.
  *
  * @param clientIndex       The client index.
  * @param iD                The item index.
- * @param nLimit            The limit value.    
+ * @param iLimit            The limit value.    
  **/
-stock void ItemsSetLimits(const int clientIndex, const int iD, const int nLimit)
+void ItemsSetLimits(const int clientIndex, const int iD, const int iLimit)
 {
+    // If array hasn't been created, then create
+    if(gClientData[clientIndex].ItemLimit == null)
+    {
+        // Initialize a buy limit array
+        gClientData[clientIndex].ItemLimit = new StringMap();
+    }
+
+    // Initialize key char
+    static char sKey[SMALL_LINE_LENGTH];
+    IntToString(iD, sKey, sizeof(sKey));
+    
     // Sets buy limit for the client
-    gExtraBuyLimit[clientIndex][iD] = nLimit;
+    gClientData[clientIndex].ItemLimit.SetValue(sKey, iLimit);
 }
 
 /**
- * Gets the buy limit of the current client item.
+ * @brief Gets the buy limit of the current client item.
  *
  * @param clientIndex       The client index.
  * @param iD                The item index.
  **/
-stock int ItemsGetLimits(const int clientIndex, const int iD)
+int ItemsGetLimits(const int clientIndex, const int iD)
 {
+    // If array hasn't been created, then create
+    if(gClientData[clientIndex].ItemLimit == null)
+    {
+        // Initialize a buy limit array
+        gClientData[clientIndex].ItemLimit = new StringMap();
+    }
+    
+    // Initialize key char
+    static char sKey[SMALL_LINE_LENGTH];
+    IntToString(iD, sKey, sizeof(sKey));
+    
     // Gets buy limit for the client
-    return gExtraBuyLimit[clientIndex][iD];
+    int iLimit; gClientData[clientIndex].ItemLimit.GetValue(sKey, iLimit);
+    return iLimit;
 }
 
 /**
- * Gets the access group of a item at a given index.
+ * @brief Gets the group of a item at a given index.
  *
  * @param iD                The item index.
  * @param sGroup            The string to return group in.
- * @param iMaxLen           The max length of the string.
+ * @param iMaxLen           The lenght of string.
  **/
-stock void ItemsGetGroup(const int iD, char[] sGroup, const int iMaxLen)
+void ItemsGetGroup(const int iD, char[] sGroup, const int iMaxLen)
 {
     // Gets array handle of extra item at given index
-    ArrayList arrayExtraItem = arrayExtraItems.Get(iD);
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
     // Gets extra item group
     arrayExtraItem.GetString(EXTRAITEMS_DATA_GROUP, sGroup, iMaxLen);
+}
+
+/**
+ * @brief Gets the class of a item at a given index.
+ *
+ * @param iD                The item index.
+ * @param sClass            The string to return class in.
+ * @param iMaxLen           The lenght of string.
+ **/
+void ItemsGetClass(const int iD, char[] sClass, const int iMaxLen)
+{
+    // Gets array handle of extra item at given index
+    ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
+
+    // Gets extra item class
+    arrayExtraItem.GetString(EXTRAITEMS_DATA_CLASS, sClass, iMaxLen);
 }
 
 /*
@@ -764,20 +792,18 @@ stock void ItemsGetGroup(const int iD, char[] sGroup, const int iMaxLen)
  */
 
 /**
- * Find the index at which the extraitem name is at.
+ * @brief Find the index at which the extraitem name is at.
  * 
  * @param sName             The item name.
- * @param iMaxLen           (Only if 'overwritename' is true) The max length of the item name. 
- * @param bOverWriteName    (Optional) If true, the item given will be overwritten with the name from the config.
  * @return                  The array index containing the given item name.
  **/
-stock int ItemsNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOverWriteName = false)
+int ItemsNameToIndex(const char[] sName)
 {
     // Initialize name char
     static char sItemName[SMALL_LINE_LENGTH];
     
     // i = item index
-    int iSize = arrayExtraItems.Length;
+    int iSize = gServerData.ExtraItems.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Gets item name 
@@ -786,13 +812,6 @@ stock int ItemsNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOver
         // If names match, then return index
         if(!strcmp(sName, sItemName, false))
         {
-            // If 'overwrite' name is true, then overwrite the old string with new
-            if(bOverWriteName)
-            {
-                // Copy config name to return string
-                strcopy(sName, iMaxLen, sItemName);
-            }
-            
             // Return this index
             return i;
         }
@@ -801,11 +820,44 @@ stock int ItemsNameToIndex(char[] sName, const int iMaxLen = 0, const bool bOver
     // Name doesn't exist
     return -1;
 }
- 
+
 /**
- * Create the extra items menu.
+ * @brief Returns true if the player has an access by the class to the item id, false if not.
+ *
+ * @param clientIndex       The client index.
+ * @param iD                The item id.
+ *
+ * @return                  True or false.    
+ **/
+bool ItemsValidateClass(const int clientIndex, const int iD)
+{
+    // Gets item class
+    static char sClass[BIG_LINE_LENGTH];
+    ItemsGetClass(iD, sClass, sizeof(sClass));
+    
+    // Validate length
+    if(hasLength(sClass))
+    {
+        // Gets class type 
+        static char sType[SMALL_LINE_LENGTH];
+        ClassGetType(gClientData[clientIndex].Class, sType, sizeof(sType));
+        
+        // If class find, then return
+        return (hasLength(sType) && StrContain(sType, sClass, ','));
+    }
+    
+    // Return on success
+    return true;
+}
+
+/*
+ * Menu extra items API.
+ */
+
+/**
+ * @brief Creates the extra items menu.
  *  
- * @param clientIndex        The client index.
+ * @param clientIndex       The client index.
  **/ 
 void ItemsMenu(const int clientIndex)
 {
@@ -814,18 +866,18 @@ void ItemsMenu(const int clientIndex)
     {
         return;
     }
-    
+
     // Validate access
-    if(gServerData[Server_RoundStart] && !ModesIsExtraItem(gServerData[Server_RoundMode]))
+    if(gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode))
     {
         // Show block info
-        TranslationPrintHintText(clientIndex, "round block");     
+        TranslationPrintHintText(clientIndex, "buying round block");     
 
         // Emit error sound
         ClientCommand(clientIndex, "play buttons/button11.wav");
         return;
     }
-    
+
     // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
@@ -835,7 +887,7 @@ void ItemsMenu(const int clientIndex)
     static char sOnline[SMALL_LINE_LENGTH];
     static char sGroup[SMALL_LINE_LENGTH];
     
-    // Create extra items menu handle
+    // Creates extra items menu handle
     Menu hMenu = CreateMenu(ItemsMenuSlots);
 
     // Sets language to target
@@ -848,14 +900,20 @@ void ItemsMenu(const int clientIndex)
     static Action resultHandle;
     
     // i = extraitem index
-    int iCount = arrayExtraItems.Length;
-    for(int i = 0; i < iCount; i++)
+    int iSize = gServerData.ExtraItems.Length;
+    for(int i = 0; i < iSize; i++)
     {
         // Call forward
-        resultHandle = API_OnClientValidateExtraItem(clientIndex, i);
+        gForwardData._OnClientValidateExtraItem(clientIndex, i, resultHandle);
         
         // Skip, if item is disabled
         if(resultHandle == Plugin_Stop)
+        {
+            continue;
+        }
+        
+        // Skip some item, if class isn't equal
+        if(!ItemsValidateClass(clientIndex, i)) 
         {
             continue;
         }
@@ -868,20 +926,19 @@ void ItemsMenu(const int clientIndex)
         FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
         FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
         FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
-        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
+        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || (!IsPlayerInGroup(clientIndex, sGroup) && strlen(sGroup)) || gClientData[clientIndex][Client_Level] < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex][Client_Money] < ItemsGetCost(i)) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex].Money < ItemsGetCost(i)) ? false : true));
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iCount)
+    if(!iSize)
     {
-        static char sEmpty[SMALL_LINE_LENGTH];
-        FormatEx(sEmpty, sizeof(sEmpty), "%t", "empty");
-
-        hMenu.AddItem("empty", sEmpty, ITEMDRAW_DISABLED);
+        // Format some chars for showing in menu
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+        hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
     }
     
     // Sets exit and back button
@@ -893,12 +950,12 @@ void ItemsMenu(const int clientIndex)
 }
 
 /**
- * Called when client selects option in the extra items menu, and handles it.
+ * @brief Called when client selects option in the extra items menu, and handles it.
  *  
- * @param hMenu              The handle of the menu being used.
- * @param mAction            The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex        The client index.
- * @param mSlot              The slot index selected (starting from 0).
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
  **/ 
 public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
@@ -916,8 +973,9 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
         {
             if(mSlot == MenuCancel_ExitBack)
             {
-                // Open main menu back
-                MenuMain(clientIndex);
+                // Opens menu back
+                int iD[2]; iD = MenusCommandToArray("zp_item_menu");
+                if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
             }
         }
         
@@ -930,11 +988,11 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
                 return;
             }
             
-            // Validate access
-            if((gServerData[Server_RoundStart] && !ModesIsExtraItem(gServerData[Server_RoundMode])) || gServerData[Server_RoundEnd])
+            // If mode doesn't ended yet, then stop
+            if((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode)) || gServerData.RoundEnd)
             {
                 // Show block info
-                TranslationPrintHintText(clientIndex, "round block");
+                TranslationPrintHintText(clientIndex, "buying round block");
 
                 // Emit error sound
                 ClientCommand(clientIndex, "play buttons/button11.wav");    
@@ -952,54 +1010,60 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
             ItemsGetName(iD, sItemName, sizeof(sItemName));
             
             // Call forward
-            Action resultHandle = API_OnClientValidateExtraItem(clientIndex, iD);
+            static Action resultHandle;
+            gForwardData._OnClientValidateExtraItem(clientIndex, iD, resultHandle);
 
             // Validate handle
             if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
             {
-                // Call forward
-                API_OnClientBuyExtraItem(clientIndex, iD); /// Buy item
-        
-                // If help messages enable, then show 
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                // Validate access
+                if(ItemsValidateClass(clientIndex, iD)) 
                 {
-                    // Gets client name
-                    static char sInfo[BIG_LINE_LENGTH];
-                    GetClientName(clientIndex, sInfo, sizeof(sInfo));
-
-                    // Show message of successful buying
-                    TranslationPrintToChatAll("buy extraitem", sInfo, sItemName);
-                    
-                    // Gets item info
-                    ItemsGetInfo(iD, sInfo, sizeof(sInfo));
-                    
-                    // Show item personal info
-                    if(strlen(sInfo)) TranslationPrintHintText(clientIndex, sInfo);
-                }
-                
-                // If item has a cost
-                if(ItemsGetCost(iD))
-                {
-                    // Remove money and store it for returning if player will be first zombie
-                    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_Money] - ItemsGetCost(iD));
-                    gClientData[clientIndex][Client_LastBoughtAmount] += ItemsGetCost(iD);
-                    
-                    // If item has a limit
-                    if(ItemsGetLimit(iD))
+                    // Call forward
+                    gForwardData._OnClientBuyExtraItem(clientIndex, iD); /// Buy item
+            
+                    // If help messages enabled, then show info
+                    if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
                     {
-                        // Increment count
-                        ItemsSetLimits(clientIndex, iD, ItemsGetLimits(clientIndex, iD) + 1);
+                        // Gets client name
+                        static char sItemInfo[BIG_LINE_LENGTH];
+                        GetClientName(clientIndex, sItemInfo, sizeof(sItemInfo));
+
+                        // Show item buying info
+                        TranslationPrintToChatAll("extraitem info", sItemInfo, sItemName);
+                        
+                        // Gets item info
+                        ItemsGetInfo(iD, sItemInfo, sizeof(sItemInfo));
+                        
+                        // Show item personal info
+                        if(hasLength(sItemInfo)) TranslationPrintHintText(clientIndex, sItemInfo);
                     }
+                    
+                    // If item has a cost
+                    if(ItemsGetCost(iD))
+                    {
+                        // Remove money and store it for returning if player will be first zombie
+                        AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - ItemsGetCost(iD));
+                        gClientData[clientIndex].LastBoughtAmount += ItemsGetCost(iD);
+                        
+                        // If item has a limit
+                        if(ItemsGetLimit(iD))
+                        {
+                            // Increment count
+                            ItemsSetLimits(clientIndex, iD, ItemsGetLimits(clientIndex, iD) + 1);
+                        }
+                    }
+                    
+                    // Return on success
+                    return;
                 }
             }
-            else
-            {
-                // Show item block info
-                TranslationPrintHintText(clientIndex, "buying block", sItemName);
-        
-                // Emit error sound
-                ClientCommand(clientIndex, "play buttons/button11.wav");    
-            }
+
+            // Show block info
+            TranslationPrintHintText(clientIndex, "buying item block", sItemName);
+    
+            // Emit error sound
+            ClientCommand(clientIndex, "play buttons/button11.wav");    
         }
     }
 }

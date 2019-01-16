@@ -26,11 +26,11 @@
  **/
 
 /**
- * Hook ambience cvar changes.
+ * @brief Hook ambience cvar changes.
  **/
 void VAmbienceOnCvarInit(/*void*/)
 {
-    // Create cvars
+    // Creates cvars
     gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE] = FindConVar("zp_veffects_lightstyle_value");
     gCvarList[CVAR_VEFFECTS_LIGHTSTYLE]       = FindConVar("zp_veffects_lightstyle");       
     gCvarList[CVAR_VEFFECTS_SKY_PATH]         = FindConVar("zp_veffects_sky_path");
@@ -45,34 +45,34 @@ void VAmbienceOnCvarInit(/*void*/)
     gCvarList[CVAR_VEFFECTS_FOG]              = FindConVar("zp_veffects_fog");   
     
     // Hook lightstyle cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE],       VAmbienceCvarsHookLightStyle);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE], VAmbienceCvarsHookLightStyle);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE],       VAmbienceOnCvarHookLightStyle);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE], VAmbienceOnCvarHookLightStyle);
     
     // Hook sky cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY],              VAmbienceCvarsHookSky);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY_PATH],         VAmbienceCvarsHookSky);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY],              VAmbienceOnCvarHookSky);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY_PATH],         VAmbienceOnCvarHookSky);
     
     // Hook sun cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SUN_DISABLE],      VAmbienceCvarsHookSunDisable);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_SUN_DISABLE],      VAmbienceOnCvarHookSunDisable);
     
     // Hook fog cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG],              VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_COLOR],        VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_DENSITY],      VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_STARTDIST],    VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST],      VAmbienceCvarsHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_FARZ],         VAmbienceCvarsHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG],              VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_COLOR],        VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_DENSITY],      VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_STARTDIST],    VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST],      VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_FARZ],         VAmbienceOnCvarHookFog);
 }
  
 /**
  * Cvar hook callback (zp_veffects_lightstyle, zp_veffects_lightstyle_value)
- * Enable or disable light feature on the server.
+ * @brief Enable or disable light feature on the server.
  * 
  * @param convar            The cvar handle.
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceCvarsHookLightStyle(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookLightStyle(ConVar iConVar, const char[] oldValue, const char[] newValue)
 {
     // If lightstyle is disabled, then disable
     bool bLightStyle = gCvarList[CVAR_VEFFECTS_LIGHTSTYLE].BoolValue;
@@ -83,13 +83,13 @@ public void VAmbienceCvarsHookLightStyle(ConVar iConVar, const char[] oldValue, 
 
 /**
  * Cvar hook callback (zp_veffects_sky, zp_veffects_sky_path)
- * Enable or disable sun feature on the server.
+ * @brief Enable or disable sun feature on the server.
  * 
  * @param convar            The cvar handle.
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceCvarsHookSky(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookSky(ConVar iConVar, const char[] oldValue, const char[] newValue)
 {
     // If sky is disabled, then disable
     bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue;
@@ -100,13 +100,13 @@ public void VAmbienceCvarsHookSky(ConVar iConVar, const char[] oldValue, const c
 
 /**
  * Cvar hook callback (zp_veffects_sun_disable)
- * Enable or disable sun feature on the server.
+ * @brief Enable or disable sun feature on the server.
  * 
  * @param convar            The cvar handle.
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceCvarsHookSunDisable(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, const char[] oldValue, const char[] newValue)
 {
     // If sun is disabled, then disable
     bool bSun = gCvarList[CVAR_VEFFECTS_SUN_DISABLE].BoolValue;
@@ -117,13 +117,13 @@ public void VAmbienceCvarsHookSunDisable(ConVar iConVar, const char[] oldValue, 
 
 /**
  * Cvar hook callback (zp_veffects_fog_*)
- * Enable or disable fog feature on the server.
+ * @brief Enable or disable fog feature on the server.
  * 
  * @param convar            The cvar handle.
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceCvarsHookFog(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookFog(ConVar iConVar, const char[] oldValue, const char[] newValue)
 {
     // If fog is disabled, then disable
     bool bFog = gCvarList[CVAR_VEFFECTS_FOG].BoolValue;
@@ -133,9 +133,9 @@ public void VAmbienceCvarsHookFog(ConVar iConVar, const char[] oldValue, const c
 }
 
 /**
- * Apply all cvar values on server.
+ * @brief Apply all cvar values on server.
  **/
-void VAmbienceLoad(/*void*/)
+void VAmbienceOnLoad(/*void*/)
 {
     // If lightstyle is disabled, then disable
     bool bLightstyle = gCvarList[CVAR_VEFFECTS_LIGHTSTYLE].BoolValue;
@@ -156,8 +156,12 @@ void VAmbienceLoad(/*void*/)
     VAmbienceApplyFog(!bFog);
 }
 
+/*
+ * Stocks ambient API.
+ */
+
 /**
- * Apply light style on server.
+ * @brief Apply light style on server.
  **/
 void VAmbienceApplyLightStyle(const bool bDisable = false)
 {
@@ -193,19 +197,19 @@ void VAmbienceApplyLightStyle(const bool bDisable = false)
 }
 
 /**
- * Apply sky on server.
+ * @brief Apply sky on server.
  **/
 void VAmbienceApplySky(const bool bDisable = false)
 {
     // If we can't find the sv_skyname cvar, then stop
     ConVar hSkyname = gCvarList[CVAR_VEFFECTS_SKYNAME];
-    if(hSkyname == INVALID_HANDLE)
+    if(hSkyname == null)
     {
         return;
     }
 
     // Default sky of current map
-    static char VAmbienceDefaultSky[PLATFORM_MAX_PATH];
+    static char VAmbienceDefaultSky[PLATFORM_LINE_LENGTH];
 
     // Store map default sky before applying new one
     hSkyname.GetString(VAmbienceDefaultSky, sizeof(VAmbienceDefaultSky));
@@ -222,7 +226,7 @@ void VAmbienceApplySky(const bool bDisable = false)
     }
 
     // Gets sky path
-    static char sSkyPath[PLATFORM_MAX_PATH];
+    static char sSkyPath[PLATFORM_LINE_LENGTH];
     gCvarList[CVAR_VEFFECTS_SKY_PATH].GetString(sSkyPath, sizeof(sSkyPath));
 
     // Sets new sky on all clients
@@ -230,7 +234,7 @@ void VAmbienceApplySky(const bool bDisable = false)
 }
 
 /**
- * Apply sun on server.
+ * @brief Apply sun on server.
  **/
 void VAmbienceApplySunDisable(const bool bDisable = false)
 {
@@ -256,7 +260,7 @@ void VAmbienceApplySunDisable(const bool bDisable = false)
 }
 
 /**
- * Apply fog on server.
+ * @brief Apply fog on server.
  **/
 void VAmbienceApplyFog(bool bDisable = false)
 {

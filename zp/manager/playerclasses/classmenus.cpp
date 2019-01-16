@@ -4,7 +4,7 @@
  *   Plague
  *
  *  File:          classmenus.cpp
- *  Type:          Manager 
+ *  Type:          Module 
  *  Description:   Provides functions for managing class menus.
  *
  *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
@@ -26,106 +26,202 @@
  **/
 
 /**
- * Creates commands for classes module.
+ * Menu duration of the instant change.
  **/
-void ClassMenusOnCommandsCreate(/*void*/)
+#define MENU_TIME_INSTANT 10 
+
+/**
+ * @brief Creates commands for classes module.
+ **/
+void ClassMenusOnCommandInit(/*void*/)
 {
     // Hook commands
-    //RegConsoleCmd("zp_human_menu", ClassHumanCommandCatched, "Open the human classes menu.");
-    //RegConsoleCmd("zp_zombie_menu", ClassZombieCommandCatched, "Open the zombie classes menu.");
+    RegConsoleCmd("zp_human_menu", ClassHumanOnCommandCatched, "Opens the human classes menu.");
+    RegConsoleCmd("zp_zombie_menu", ClassZombieOnCommandCatched, "Opens the zombie classes menu.");
+    RegConsoleCmd("zp_class_menu", ClassesOnCommandCatched, "Opens the classes menu.");
 }
 
 /**
- * Handles the <!zp_human_menu> command. Open the human classes menu.
+ * Console command callback (zp_human_menu)
+ * @brief Opens the human classes menu.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-/*public Action ClassHumanCommandCatched(const int clientIndex, const int iArguments)
+public Action ClassHumanOnCommandCatched(const int clientIndex, const int iArguments)
 {
-    Menu(clientIndex);
+    ClassMenu(clientIndex, "choose humanclass", "human", gClientData[clientIndex].HumanClassNext);
     return Plugin_Handled;
-}*/
+}
 
 /**
- * Handles the <!zp_zombie_menu> command. Open the zombie classes menu.
+ * Console command callback (zp_zombie_menu)
+ * @brief Opens the zombie classes menu.
  * 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-/*public Action ClassZombieCommandCatched(const int clientIndex, const int iArguments)
+public Action ClassZombieOnCommandCatched(const int clientIndex, const int iArguments)
 {
-    Menu(clientIndex);
+    ClassMenu(clientIndex, "choose zombieclass", "zombie", gClientData[clientIndex].ZombieClassNext);
     return Plugin_Handled;
-}*/
+}
 
 /**
- * Validate zombie class for client availability.
+ * Console command callback (zp_class_menu)
+ * @brief Opens the classes menu.
+ * 
+ * @param clientIndex       The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action ClassesOnCommandCatched(const int clientIndex, const int iArguments)
+{
+    ClassesMenu(clientIndex);
+    return Plugin_Handled;
+}
+
+/*
+ * Stocks class API.
+ */
+
+/**
+ * @brief Validate zombie class for client availability.
  *
  * @param clientIndex       The client index.
  **/
-/*void ZombieOnValidate(const int clientIndex)
+void ZombieValidateClass(const int clientIndex)
+{
+    // Validate class
+    int iClass = ClassValidateIndex(clientIndex, "zombie");
+    switch(iClass)
+    {
+        case -2 : LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"zombie\" class");
+        
+        case -1 : { /* < empty statement > */ }
+        
+        default :
+        {
+            // Update zombie class
+            gClientData[clientIndex].ZombieClassNext  = iClass;
+            gClientData[clientIndex].Class = iClass;
+            
+            // Update class in the database
+            DataBaseOnClientUpdate(clientIndex, ColumnType_Zombie);
+        }
+    }
+}
+
+/**
+ * @brief Validate human class for client availability.
+ *
+ * @param clientIndex       The client index.
+ **/
+void HumanValidateClass(const int clientIndex)
+{
+    // Validate class
+    int iClass = ClassValidateIndex(clientIndex, "human");
+    switch(iClass)
+    {
+        case -2 : LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"human\" class");
+        
+        case -1 : { /* < empty statement > */ }
+        
+        default :
+        {
+            // Update human class
+            gClientData[clientIndex].HumanClassNext  = iClass;
+            gClientData[clientIndex].Class = iClass;
+            
+            // Update class in the database
+            DataBaseOnClientUpdate(clientIndex, ColumnType_Human);
+        }
+    }
+}
+
+/**
+ * @brief Validate class for client availability.
+ *
+ * @param clientIndex       The client index.
+ * @return                  The class index. 
+ **/
+int ClassValidateIndex(const int clientIndex, const char[] sType)
 {
     // Gets array size
-    int iSize = arrayZombieClasses.Length;
+    int iSize = gServerData.Classes.Length;
 
-    // Choose random zombie class for the client
-    if(IsFakeClient(clientIndex) || iSize <= gClientData[clientIndex][Client_Class])
+    // Choose random class for the bot
+    if(IsFakeClient(clientIndex) || iSize <= gClientData[clientIndex].Class)
     {
-        gClientData[clientIndex][Client_Class] = GetRandomInt(0, iSize-1);
+        // Validate class index
+        int iD = ClassTypeToIndex(sType);
+        if(iD == -1)
+        {
+            return -2;
+        }
+        
+        // Update class
+        gClientData[clientIndex].Class = iD;
     }
     
     // Gets class group
-    static char sGroup[SMALL_LINE_LENGTH];
-    ZombieGetGroup(gClientData[clientIndex][Client_Class], sGroup, sizeof(sGroup));
+    static char sClassGroup[SMALL_LINE_LENGTH];
+    ClassGetGroup(gClientData[clientIndex].Class, sClassGroup, sizeof(sClassGroup));
     
-    // Validate that user does not have VIP flag to play it
-    if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
+    // Gets class type
+    static char sClassType[SMALL_LINE_LENGTH];
+    ClassGetType(gClientData[clientIndex].Class, sClassType, sizeof(sClassType));
+    
+    // Find any accessable class 
+    if((hasLength(sClassGroup) && !IsPlayerInGroup(clientIndex, sClassGroup)) || ClassGetLevel(gClientData[clientIndex].Class) > gClientData[clientIndex].Level || strcmp(sClassType, sType) != 0)
     {
-        // Choose any accessable zombie class
+        // Choose any accessable class
         for(int i = 0; i < iSize; i++)
         {
-            // Skip all non-accessable zombie classes
-            ZombieGetGroup(i, sGroup, sizeof(sGroup));
-            if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
+            // Skip some classes, if group isn't accessable
+            ClassGetGroup(i, sClassGroup, sizeof(sClassGroup));
+            if(hasLength(sClassGroup) && !IsPlayerInGroup(clientIndex, sClassGroup))
             {
                 continue;
             }
             
-            // Update zombie class
-            gClientData[clientIndex][Client_ZombieClassNext]  = i;
-            gClientData[clientIndex][Client_Class] = i;
-            break;
-        }
-    }
-    
-    // Validate that user does not have level to play it
-    if(ZombieGetLevel(gClientData[clientIndex][Client_Class]) > gClientData[clientIndex][Client_Level])
-    {
-        // Choose any accessable zombie class
-        for(int i = 0; i < iSize; i++)
-        {
-            // Skip all non-accessable zombie classes
-            if(ZombieGetLevel(i) > gClientData[clientIndex][Client_Level])
+            // Skip some classes, if types isn't equal
+            ClassGetType(i, sClassType, sizeof(sClassType));
+            if(strcmp(sClassType, sType) != 0)
             {
                 continue;
             }
             
-            // Update zombie class
-            gClientData[clientIndex][Client_ZombieClassNext]  = i;
-            gClientData[clientIndex][Client_Class] = i;
-            break;
+            // Skip some classes, if level too low
+            if(ClassGetLevel(i) > gClientData[clientIndex].Level)
+            {
+                continue;
+            }
+            
+            // Return this index
+            return i;
         }
     }
-}*/
+    // Client already had accessable class
+    else return -1;
+    
+    // Class doesn't exist
+    return -2;
+}
+
+/*
+ * Menu classes API.
+ */
 
 /**
- * Create the zombie class menu.
+ * @brief Creates the class menu.
  *
  * @param clientIndex       The client index.
+ * @param sTitle            The menu title.
+ * @param sType             The class type.
+ * @param iClass            The current class.
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/
-/*void ZombieMenu(const int clientIndex, const bool bInstant = false) 
+void ClassMenu(const int clientIndex, const char[] sTitle, const char[] sType, const int iClass, const bool bInstant = false) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -140,24 +236,24 @@ void ClassMenusOnCommandsCreate(/*void*/)
     static char sLevel[SMALL_LINE_LENGTH];
     static char sGroup[SMALL_LINE_LENGTH];
 
-    // Create menu handle
-    Menu hMenu = CreateMenu(bInstant ? ZombieMenuSlots2 : ZombieMenuSlots1);
+    // Creates menu handle
+    Menu hMenu = CreateMenu((!strcmp(sType, "zombie")) ? (bInstant ? ClassZombieMenuSlots2 : ClassZombieMenuSlots1) : (bInstant ? ClassHumanMenuSlots2 : ClassHumanMenuSlots1));
 
     // Sets language to target
     SetGlobalTransTarget(clientIndex);
     
     // Sets title
-    hMenu.SetTitle("%t", "choose zombieclass");
+    hMenu.SetTitle("%t", sTitle);
     
     // Initialize forward
     static Action resultHandle;
     
-    // i = zombieclass index
-    int iCount = arrayZombieClasses.Length;
-    for(int i = 0; i < iCount; i++)
+    // i = class index
+    int iSize = gServerData.Classes.Length;
+    for(int i = 0; i < iSize; i++)
     {
         // Call forward
-        resultHandle = API_OnClientValidateZombieClass(clientIndex, i);
+        gForwardData._OnClientValidateClass(clientIndex, i, resultHandle);
         
         // Skip, if class is disabled
         if(resultHandle == Plugin_Stop)
@@ -165,17 +261,34 @@ void ClassMenusOnCommandsCreate(/*void*/)
             continue;
         }
         
-        // Gets zombie class data
-        ZombieGetName(i, sName, sizeof(sName));
-        ZombieGetGroup(i, sGroup, sizeof(sGroup));
-
-        // Format some chars for showing in menu
-        FormatEx(sLevel, sizeof(sLevel), "%t", "level", ZombieGetLevel(i));
-        FormatEx(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < ZombieGetLevel(i)) ? sLevel : "");
+        // Gets class type
+        ClassGetType(i, sName, sizeof(sName));
         
+        // Skip some classes, if types isn't equal
+        if(strcmp(sName, sType) != 0)
+        {
+            continue;
+        }
+        
+        // Gets general class data
+        ClassGetName(i, sName, sizeof(sName));
+        ClassGetGroup(i, sGroup, sizeof(sGroup));
+        
+        // Format some chars for showing in menu
+        FormatEx(sLevel, sizeof(sLevel), "%t", "level", ClassGetLevel(i));
+        FormatEx(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ClassGetLevel(i)) ? sLevel : "");
+
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) || gClientData[clientIndex][Client_Level] < ZombieGetLevel(i) || gClientData[clientIndex][Client_ZombieClassNext] == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || ((hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < ClassGetLevel(i) || iClass == i) ? false : true));
+    }
+    
+    // If there are no cases, add an "(Empty)" line
+    if(!iSize)
+    {
+        // Format some chars for showing in menu
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+        hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
     }
 
     // Sets exit and back button
@@ -184,46 +297,75 @@ void ClassMenusOnCommandsCreate(/*void*/)
     // Sets options and display it
     hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
     hMenu.Display(clientIndex, bInstant ? MENU_TIME_INSTANT : MENU_TIME_FOREVER); 
-}*/
+}
 
 /**
- * Called when client selects option in the zombie class menu, and handles it.
+ * @brief Called when client selects option in the zombie class menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-/*public int ZombieMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
    // Call menu
-   ZombieMenuSlots(hMenu, mAction, clientIndex, mSlot);
-}*/
+   ClassMenuSlots(hMenu, mAction, "zp_zombie_menu", clientIndex, mSlot);
+}
 
 /**
- * Called when client selects option in the zombie class menu, and handles it.
+ * @brief Called when client selects option in the zombie class menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-/*public int ZombieMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
 {
    // Call menu
-   ZombieMenuSlots(hMenu, mAction, clientIndex, mSlot, true);
-}*/
+   ClassMenuSlots(hMenu, mAction, "zp_zombie_menu", clientIndex, mSlot, true);
+}
 
 /**
- * Called when client selects option in the zombie class menu, and handles it.
+ * @brief Called when client selects option in the human class menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+   // Call menu
+   ClassMenuSlots(hMenu, mAction, "zp_human_menu", clientIndex, mSlot);
+}
+
+/**
+ * @brief Called when client selects option in the human class menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{
+   // Call menu
+   ClassMenuSlots(hMenu, mAction, "zp_human_menu", clientIndex, mSlot, true);
+}
+
+/**
+ * @brief Called when client selects option in the class menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param sCommand          The menu command.
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/ 
-/*void ZombieMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot, const bool bInstant = false)
+void ClassMenuSlots(Menu hMenu, MenuAction mAction, const char[] sCommand, const int clientIndex, const int mSlot, const bool bInstant = false)
 {
     // Switch the menu action
     switch(mAction)
@@ -239,239 +381,9 @@ void ClassMenusOnCommandsCreate(/*void*/)
         {
             if(mSlot == MenuCancel_ExitBack)
             {
-                // Open main menu back
-                MenuMain(clientIndex);
-            }
-        }
-        
-        // Client selected an option
-        case MenuAction_Select :
-        {
-            // Validate client
-            if(!IsPlayerExist(clientIndex, false))
-            {
-                return;
-            }
-
-            // Initialize info char
-            static char sZombieName[SMALL_LINE_LENGTH];
-
-            // Gets menu info
-            hMenu.GetItem(mSlot, sZombieName, sizeof(sZombieName));
-            int iD = StringToInt(sZombieName);
-            
-            // Call forward
-            Action resultHandle = API_OnClientValidateZombieClass(clientIndex, iD);
-
-            // Validate handle
-            if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
-            {
-                // Validate instant change
-                if(bInstant)
-                {
-                    // Force client to switch player class
-                    ClassMakeZombie(clientIndex, _, _, true);
-                }
-                else
-                {
-                    // Sets next zombie class
-                    gClientData[clientIndex][Client_ZombieClassNext] = iD;
-                }
-                
-                // Gets zombie name
-                ZombieGetName(iD, sZombieName, sizeof(sZombieName));
-
-                // If help messages enabled, show info
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "zombie info", sZombieName, ZombieGetHealth(iD), ZombieGetSpeed(iD), ZombieGetGravity(iD));
-            }
-        }
-    }
-}
-*/
-
-/**
- * Validate human class for client availability.
- *
- * @param clientIndex       The client index.
- **/
-/*void HumanOnValidate(const int clientIndex)
-{
-    // Gets array size
-    int iSize = arrayHumanClasses.Length;
-
-    // Choose random human class for the client
-    if(IsFakeClient(clientIndex) || iSize <= gClientData[clientIndex][Client_Class])
-    {
-        gClientData[clientIndex][Client_Class] = GetRandomInt(0, iSize-1);
-    }
-
-    // Gets class group
-    static char sGroup[SMALL_LINE_LENGTH];
-    HumanGetGroup(gClientData[clientIndex][Client_Class], sGroup, sizeof(sGroup));
-
-    // Validate that user does not have VIP flag to play it
-    if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
-    {
-        // Choose any accessable human class
-        for(int i = 0; i < iSize; i++)
-        {
-            // Skip all non-accessable human classes
-            HumanGetGroup(i, sGroup, sizeof(sGroup));
-            if(!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup))
-            {
-                continue;
-            }
-            
-            // Update human class
-            gClientData[clientIndex][Client_HumanClassNext] = i;
-            gClientData[clientIndex][Client_Class] = i;
-            break;
-        }
-    }
-    
-    // Validate that user does not have level to play it
-    if(HumanGetLevel(gClientData[clientIndex][Client_Class]) > gClientData[clientIndex][Client_Level])
-    {
-        // Choose any accessable human class
-        for(int i = 0; i < iSize; i++)
-        {
-            // Skip all non-accessable human classes
-            if(HumanGetLevel(i) > gClientData[clientIndex][Client_Level])
-            {
-                continue;
-            }
-            
-            // Update human class
-            gClientData[clientIndex][Client_HumanClassNext] = i;
-            gClientData[clientIndex][Client_Class] = i;
-            break;
-        }
-    }
-}
-*/
-
-/**
- * Create the human class menu.
- *
- * @param clientIndex       The client index.
- * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
- **/
-/*void HumanMenu(const int clientIndex, const bool bInstant = false) 
-{
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        return;
-    }
-
-    // Initialize variables
-    static char sBuffer[NORMAL_LINE_LENGTH];
-    static char sName[SMALL_LINE_LENGTH];
-    static char sInfo[SMALL_LINE_LENGTH];
-    static char sLevel[SMALL_LINE_LENGTH];
-    static char sGroup[SMALL_LINE_LENGTH];
-    
-    // Create menu handle
-    Menu hMenu = CreateMenu(bInstant ? HumanMenuSlots2 : HumanMenuSlots1);
-
-    // Sets language to target
-    SetGlobalTransTarget(clientIndex);
-    
-    // Sets title
-    hMenu.SetTitle("%t", "choose humanclass");
-    
-    // Initialize forward
-    static Action resultHandle;
-    
-    // i = humanclass index
-    int iCount = arrayHumanClasses.Length;
-    for(int i = 0; i < iCount; i++)
-    {
-        // Call forward
-        resultHandle = API_OnClientValidateHumanClass(clientIndex, i);
-        
-        // Skip, if class is disabled
-        if(resultHandle == Plugin_Stop)
-        {
-            continue;
-        }
-        
-        // Gets human class data
-        HumanGetName(i, sName, sizeof(sName));
-        HumanGetGroup(i, sGroup, sizeof(sGroup));
-        
-        // Format some chars for showing in menu
-        FormatEx(sLevel, sizeof(sLevel), "%t", "level", HumanGetLevel(i));
-        FormatEx(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) ? sGroup : (gClientData[clientIndex][Client_Level] < HumanGetLevel(i)) ? sLevel : "");
-
-        // Show option
-        IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenuGetItemDraw(resultHandle == Plugin_Handled || ((!IsPlayerInGroup(clientIndex, sGroup) && hasLength(sGroup)) || gClientData[clientIndex][Client_Level] < HumanGetLevel(i) || gClientData[clientIndex][Client_HumanClassNext] == i) ? false : true));
-    }
-
-    // Sets exit and back button
-    hMenu.ExitBackButton = true;
-
-    // Sets options and display it
-    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-    hMenu.Display(clientIndex, bInstant ? MENU_TIME_INSTANT : MENU_TIME_FOREVER); 
-}*/
-
-/**
- * Called when client selects option in the human class menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-/*public int HumanMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
-{
-   // Call menu
-   HumanMenuSlots(hMenu, mAction, clientIndex, mSlot);
-}*/
-
-/**
- * Called when client selects option in the human class menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-/*public int HumanMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
-{
-   // Call menu
-   HumanMenuSlots(hMenu, mAction, clientIndex, mSlot, true);
-}*/
-
-/**
- * Called when client selects option in the human class menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
- * @param mSlot             The slot index selected (starting from 0).
- * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
- **/ 
-/*void HumanMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot, const bool bInstant = false)
-{
-    // Switch the menu action
-    switch(mAction)
-    {
-        // Client hit 'Exit' button
-        case MenuAction_End :
-        {
-            delete hMenu;
-        }
-        
-        // Client hit 'Back' button
-        case MenuAction_Cancel :
-        {
-            if(mSlot == MenuCancel_ExitBack)
-            {
-                // Open main menu back
-                MenuMain(clientIndex);
+                // Opens menu back
+                int iD[2]; iD = MenusCommandToArray(sCommand);
+                if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
             }
         }
         
@@ -485,36 +397,365 @@ void ClassMenusOnCommandsCreate(/*void*/)
             }
 
             // Initialize name char
-            static char sHumanName[SMALL_LINE_LENGTH];
+            static char sClassName[SMALL_LINE_LENGTH];
 
             // Gets menu info
-            hMenu.GetItem(mSlot, sHumanName, sizeof(sHumanName));
-            int iD = StringToInt(sHumanName);
+            hMenu.GetItem(mSlot, sClassName, sizeof(sClassName));
+            int iD = StringToInt(sClassName);
             
             // Call forward
-            Action resultHandle = API_OnClientValidateHumanClass(clientIndex, iD);
+            static Action resultHandle;
+            gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
 
             // Validate handle
             if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
             {
-                // Validate instant change
-                if(bInstant)
-                {
-                    // Force client to switch player class
-                    ClassMakeHuman(clientIndex, _, true);
-                }
-                else
+                // Gets class type
+                ClassGetType(iD, sClassName, sizeof(sClassName));
+                
+                // Validate human
+                if(!strcmp(sClassName, "human", false))
                 {
                     // Sets next human class
-                    gClientData[clientIndex][Client_HumanClassNext] = iD;
+                    gClientData[clientIndex].HumanClassNext = iD;
+                    
+                    // Update class in the database
+                    DataBaseOnClientUpdate(clientIndex, ColumnType_Human);
+                        
+                    // Validate instant change
+                    if(bInstant)
+                    {
+                        // Make human
+                        ApplyOnClientUpdate(clientIndex, _, "human");
+                    }
+                }
+                // Validate zombie
+                else if(!strcmp(sClassName, "zombie", false))
+                {
+                    // Sets next zombie class
+                    gClientData[clientIndex].ZombieClassNext = iD;
+                    
+                    // Update class in the database
+                    DataBaseOnClientUpdate(clientIndex, ColumnType_Zombie);
+                    
+                    // Validate instant change
+                    if(bInstant)
+                    {
+                        // Make zombie
+                        ApplyOnClientUpdate(clientIndex, _, "zombie");
+                    }
+                }
+                else 
+                {
+                    // Emit error sound
+                    ClientCommand(clientIndex, "play buttons/button11.wav");
+                    return;
                 }
                 
-                // Gets human name
-                HumanGetName(iD, sHumanName, sizeof(sHumanName));
+                // Gets class name
+                ClassGetName(iD, sClassName, sizeof(sClassName));
                 
-                // If help messages enabled, show info
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "human info", sHumanName, HumanGetHealth(iD), HumanGetSpeed(iD), HumanGetGravity(iD));
+                // If help messages enabled, then show info
+                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "class info", sClassName, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
             }
         }
     }
-}*/
+}
+
+/**
+ * @brief Creates the classes menu. (admin)
+ *
+ * @param clientIndex       The client index.
+ **/
+void ClassesMenu(const int clientIndex) 
+{
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        return;
+    }
+
+    // Validate access
+    if(!gServerData.RoundStart)
+    {
+        // Show block info
+        TranslationPrintHintText(clientIndex, "classes round block"); 
+
+        // Emit error sound
+        ClientCommand(clientIndex, "play buttons/button11.wav");
+        return;
+    }
+    
+    // Initialize variables
+    static char sBuffer[NORMAL_LINE_LENGTH];
+    static char sType[SMALL_LINE_LENGTH];
+    static char sInfo[SMALL_LINE_LENGTH];
+    
+    // Creates menu handle
+    Menu hMenu = CreateMenu(ClassesMenuSlots);
+
+    // Sets title
+    hMenu.SetTitle("%t", "classes menu");
+
+    // i = client index
+    int iCount;
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate client
+        if(!IsPlayerExist(i, false))
+        {
+            continue;
+        }
+
+        // Gets class data
+        ClassGetType(gClientData[i].Class, sType, sizeof(sType));
+        
+        // Format some chars for showing in menu
+        FormatEx(sBuffer, sizeof(sBuffer), "%N [%t]", i, IsPlayerAlive(i) ? sType : "dead");
+
+        // Show option
+        IntToString(i, sInfo, sizeof(sInfo));
+        hMenu.AddItem(sInfo, sBuffer);
+
+        // Increment count
+        iCount++;
+    }
+    
+    // If there are no clients, add an "(Empty)" line
+    if(!iCount)
+    {
+        // Format some chars for showing in menu
+        Format(sBuffer, sizeof(sBuffer), "%t", "empty");
+        hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
+    }
+    
+    // Sets exit and back button
+    hMenu.ExitBackButton = true;
+
+    // Sets options and display it
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+}
+
+/**
+ * @brief Called when client selects option in the classes menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{   
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Opens menu back
+                int iD[2]; iD = MenusCommandToArray("zp_class_menu");
+                if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(clientIndex, false))
+            {
+                return;
+            }
+            
+            // If mode doesn't started yet, then stop
+            if(!gServerData.RoundStart)
+            {
+                // Show block info
+                TranslationPrintHintText(clientIndex, "using menu block");
+        
+                // Emit error sound
+                ClientCommand(clientIndex, "play buttons/button11.wav");    
+                return;
+            }
+            
+            // Initialize key char
+            static char sKey[SMALL_LINE_LENGTH];
+
+            // Gets menu info
+            hMenu.GetItem(mSlot, sKey, sizeof(sKey));
+            int targetIndex = StringToInt(sKey);
+            
+            // Validate target
+            if(IsPlayerExist(targetIndex, false))
+            {
+                // Validate dead
+                if(!IsPlayerAlive(targetIndex))
+                {
+                    // Force client to respawn
+                    ToolsForceToRespawn(targetIndex);
+                }
+                else
+                {
+                    // Creates a option menu
+                    ClassesOptionMenu(clientIndex, targetIndex);
+                    return;
+                }
+            }
+            else
+            {
+                // Show block info
+                TranslationPrintHintText(clientIndex, "selecting target block");
+                    
+                // Emit error sound
+                ClientCommand(clientIndex, "play buttons/button11.wav"); 
+            }
+
+            // Opens classes menu back
+            ClassesMenu(clientIndex);
+        }
+    }
+}
+
+/**
+ * @brief Creates a classes option menu.
+ *
+ * @param clientIndex       The client index.
+ * @param targetIndex       The target index.
+ **/
+void ClassesOptionMenu(const int clientIndex, const int targetIndex)
+{
+    // Initialize variables
+    static char sBuffer[NORMAL_LINE_LENGTH]; 
+    static char sType[SMALL_LINE_LENGTH];
+    static char sInfo[SMALL_LINE_LENGTH];
+    
+    // Creates menu handle
+    Menu hMenu = CreateMenu(ClassesListMenuSlots);
+    
+    // Sets language to target
+    SetGlobalTransTarget(clientIndex);
+    
+    // Sets title
+    hMenu.SetTitle("%N", targetIndex);
+    
+    // i = array index
+    int iSize = gServerData.Types.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets type data
+        gServerData.Types.GetString(i, sType, sizeof(sType));
+        
+        // Format some chars for showing in menu
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", sType);
+        
+        // Show option
+        FormatEx(sInfo, sizeof(sInfo), "%s:%d", sType, targetIndex);
+        hMenu.AddItem(sInfo, sBuffer);
+    }
+    
+    // If there are no cases, add an "(Empty)" line
+    if(!iSize)
+    {
+        // Format some chars for showing in menu
+        Format(sBuffer, sizeof(sBuffer), "%t", "empty");
+        hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
+    }
+    
+    // Sets exit and back button
+    hMenu.ExitBackButton = true;
+
+    // Sets options and display it
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+}   
+
+/**
+ * @brief Called when client selects option in the classes option menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+{   
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Opens classes menu back
+                ClassesMenu(clientIndex);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(clientIndex, false))
+            {
+                return;
+            }
+            
+            // If mode doesn't started yet, then stop
+            if(!gServerData.RoundStart)
+            {
+                // Show block info
+                TranslationPrintHintText(clientIndex, "using menu block");
+        
+                // Emit error sound
+                ClientCommand(clientIndex, "play buttons/button11.wav");    
+                return;
+            }
+            
+            // Initialize type char
+            static char sClassType[SMALL_LINE_LENGTH];
+        
+            // Gets menu info
+            hMenu.GetItem(mSlot, sClassType, sizeof(sClassType));
+            static char sInfo[2][SMALL_LINE_LENGTH];
+            ExplodeString(sClassType, ":", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            int targetIndex = StringToInt(sInfo[1]);
+
+            // Validate target
+            if(IsPlayerExist(targetIndex))
+            {
+                // Force client to update
+                ApplyOnClientUpdate(targetIndex, _, sInfo[0]);
+                
+                // Log action to game events
+                LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_GameModes, "Command", "Admin \"%N\" changed a class for Player \"%N\" to \"%s\"", clientIndex, targetIndex, sInfo[0]);
+            }
+            else
+            {
+                // Show block info
+                TranslationPrintHintText(clientIndex, "selecting target block");
+                    
+                // Emit error sound
+                ClientCommand(clientIndex, "play buttons/button11.wav");  
+            }
+            
+            // Opens classes menu back
+            ClassesMenu(clientIndex);
+        }
+    }
+}

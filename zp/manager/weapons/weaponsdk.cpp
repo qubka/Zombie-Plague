@@ -47,15 +47,14 @@ enum SlotType
  **/
 enum MenuType
 {
-     MenuType_Invisible,           /**  Used as return value when a menu doens't exist. */
+     MenuType_Invisible,          /**  Used as return value when a menu doens't exist. */
      
-     MenuType_Pistols,             /**  Pistol menu */
-     MenuType_Shotguns,            /**  Shotgun menu */
-     MenuType_Rifles,              /**  Rifle menu */
-     MenuType_Snipers,             /**  Sniper menu */
-     MenuType_Machineguns,         /**  Machineguns menu */
-     MenuType_Knifes,              /**  Knife menu */
-     MenuType_Grenades             /**  Grenade menu */
+     MenuType_Pistols,            /**  Pistol menu */
+     MenuType_Shotguns,           /**  Shotgun menu */
+     MenuType_Rifles,             /**  Rifle menu */
+     MenuType_Snipers,            /**  Sniper menu */
+     MenuType_Machineguns,        /**  Machineguns menu */
+     MenuType_Knifes,             /**  Knife menu */
 };
 /**
  * @endsection
@@ -66,12 +65,12 @@ enum MenuType
  **/
 enum ModelType
 {
-    ModelType_Invalid = -1,        /** Used as return value when a model doens't exist. */
+    ModelType_Invalid = -1,       /** Used as return value when a model doens't exist. */
     
-    ModelType_View,                /** View model */
-    ModelType_World,               /** World model */
-    ModelType_Drop,                /** Dropped model */
-    ModelType_Projectile           /** Projectile model */
+    ModelType_View,               /** View model */
+    ModelType_World,              /** World model */
+    ModelType_Drop,               /** Dropped model */
+    ModelType_Projectile          /** Projectile model */
 };
 /**
  * @endsection
@@ -100,27 +99,32 @@ int DHook_GetReserveAmmoMax;
 #endif
 
 /**
-    * Initialize the main virtual/dynamic offsets for the weapon SDK/DHook system.
+ * @brief Initialize the main virtual/dynamic offsets for the weapon SDK/DHook system.
  **/
-void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrike-global-offensive/152722-dumping-datamap_t.html
+void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/counterstrike-global-offensive/152722-dumping-datamap_t.html
 {                             // C_BaseFlex -> C_EconEntity -> C_BaseCombatWeapon -> C_WeaponCSBase -> C_BaseCSGrenade
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Weapon_RemoveAllItems");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Weapon_RemoveAllItems");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
+    PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
     
     // Validate call
     if(!(hSDKCallRemoveAllItems = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RemoveAllItems\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RemoveAllItems\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
     }
+    
+    /*_________________________________________________________________________________________________________________________________________*/
 
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_SDKHooks], SDKConf_Virtual, "Weapon_Switch");
+    PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, "Weapon_Switch");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
@@ -128,54 +132,61 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     if(!(hSDKCallWeaponSwitch = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update \"SourceMod\"");
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update \"SourceMod\"");
+        return;
     }
 
+    /*_________________________________________________________________________________________________________________________________________*/
+    
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Weapon_GetMaxClip1");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Weapon_GetMaxClip1");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
     
     // Validate call
     if(!(hSDKCallGetMaxClip1 = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
     }
+    
+    /*_________________________________________________________________________________________________________________________________________*/
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData[Server_GameConfig][Game_Zombie], SDKConf_Virtual, "Weapon_GetReserveAmmoMax");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Weapon_GetReserveAmmoMax");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
     
     // Validate call
     if(!(hSDKCallGetReserveAmmoMax = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
     }
     
     /*_________________________________________________________________________________________________________________________________________*/
 
-    // Load offsets
-    fnInitSendPropOffset(g_iOffset_EntityEffects, "CBaseEntity", "m_fEffects");
-    fnInitSendPropOffset(g_iOffset_EntityModelIndex, "CBaseEntity", "m_nModelIndex");
-    fnInitSendPropOffset(g_iOffset_EntityOwnerEntity, "CBaseEntity", "m_hOwnerEntity");
-    fnInitSendPropOffset(g_iOffset_EntityTeam, "CBaseEntity", "m_iTeamNum");
+    // Load weapon offsets
     fnInitSendPropOffset(g_iOffset_WeaponOwner, "CBaseCombatWeapon", "m_hOwner");
-    fnInitSendPropOffset(g_iOffset_WeaponWorldModel, "CBaseCombatWeapon", "m_hWeaponWorldModel"); /**"m_iWorldModelIndex" not flexible**/
+    fnInitSendPropOffset(g_iOffset_WeaponWorldModel, "CBaseCombatWeapon", "m_hWeaponWorldModel");
     fnInitSendPropOffset(g_iOffset_WeaponBody, "CBaseCombatWeapon", "m_nBody");
     fnInitSendPropOffset(g_iOffset_WeaponSkin, "CBaseCombatWeapon", "m_nSkin");
-    ///fnInitSendPropOffset(g_iOffset_WeaponParent, "CBaseWeaponWorldModel", "m_hCombatWeaponParent");
+    fnInitSendPropOffset(g_iOffset_WeaponAmmoType, "CBaseCombatWeapon", "m_iPrimaryAmmoType");
+    fnInitSendPropOffset(g_iOffset_WeaponClip1, "CBaseCombatWeapon", "m_iClip1");
+    fnInitSendPropOffset(g_iOffset_WeaponReserve1, "CBaseCombatWeapon", "m_iPrimaryReserveAmmoCount");
+    fnInitSendPropOffset(g_iOffset_WeaponReserve2, "CBaseCombatWeapon", "m_iSecondaryReserveAmmoCount");
+    fnInitSendPropOffset(g_iOffset_WeaponPrimaryAttack, "CBaseCombatWeapon", "m_flNextPrimaryAttack");
+    fnInitSendPropOffset(g_iOffset_WeaponSecondaryAttack, "CBaseCombatWeapon", "m_flNextSecondaryAttack");
+    fnInitSendPropOffset(g_iOffset_WeaponIdle, "CBaseCombatWeapon", "m_flTimeWeaponIdle");
     fnInitSendPropOffset(g_iOffset_CharacterWeapons, "CBaseCombatCharacter", "m_hMyWeapons");
+    fnInitSendPropOffset(g_iOffset_GrenadeThrower, "CBaseGrenade", "m_hThrower");
     fnInitSendPropOffset(g_iOffset_PlayerViewModel, "CBasePlayer", "m_hViewModel");
-    fnInitSendPropOffset(g_iOffset_PlayerActiveWeapon, "CBasePlayer", "m_hActiveWeapon");
-    fnInitSendPropOffset(g_iOffset_PlayerLastWeapon, "CBasePlayer", "m_hLastWeapon");
-    fnInitSendPropOffset(g_iOffset_PlayerObserverMode, "CBasePlayer", "m_iObserverMode");
-    fnInitSendPropOffset(g_iOffset_PlayerObserverTarget, "CBasePlayer", "m_hObserverTarget");
-    fnInitSendPropOffset(g_iOffset_PlayerAttack, "CBasePlayer", "m_flNextAttack");
-    fnInitSendPropOffset(g_iOffset_PlayerArms, "CCSPlayer", "m_szArmsModel");
-    fnInitSendPropOffset(g_iOffset_PlayerAddonBits, "CCSPlayer", "m_iAddonBits");
     fnInitSendPropOffset(g_iOffset_ViewModelOwner, "CBaseViewModel", "m_hOwner");
     fnInitSendPropOffset(g_iOffset_ViewModelWeapon, "CBaseViewModel", "m_hWeapon");
     fnInitSendPropOffset(g_iOffset_ViewModelSequence, "CBaseViewModel", "m_nSequence");
@@ -185,23 +196,13 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
     fnInitSendPropOffset(g_iOffset_EconItemDefinitionIndex, "CEconEntity", "m_iItemDefinitionIndex");
     fnInitSendPropOffset(g_iOffset_NewSequenceParity, "CBaseAnimating", "m_nNewSequenceParity");
     fnInitSendPropOffset(g_iOffset_LastShotTime, "CWeaponCSBase", "m_fLastShotTime");
-    ///fnInitSendPropOffset(g_iOffset_PlayerAmmo, "CBasePlayer", "m_iAmmo"); 
-    fnInitSendPropOffset(g_iOffset_WeaponAmmoType, "CBaseCombatWeapon", "m_iPrimaryAmmoType");
-    fnInitSendPropOffset(g_iOffset_WeaponClip1, "CBaseCombatWeapon", "m_iClip1");
-    ///fnInitSendPropOffset(g_iOffset_WeaponClip2, "CBaseCombatWeapon", "m_iClip2");
-    fnInitSendPropOffset(g_iOffset_WeaponReserve1, "CBaseCombatWeapon", "m_iPrimaryReserveAmmoCount");
-    fnInitSendPropOffset(g_iOffset_WeaponReserve2, "CBaseCombatWeapon", "m_iSecondaryReserveAmmoCount");
-    fnInitSendPropOffset(g_iOffset_WeaponPrimaryAttack, "CBaseCombatWeapon", "m_flNextPrimaryAttack");
-    fnInitSendPropOffset(g_iOffset_WeaponSecondaryAttack, "CBaseCombatWeapon", "m_flNextSecondaryAttack");
-    fnInitSendPropOffset(g_iOffset_WeaponIdle, "CBaseCombatWeapon", "m_flTimeWeaponIdle");
-    fnInitSendPropOffset(g_iOffset_GrenadeThrower, "CBaseGrenade", "m_hThrower");
 
     /*_________________________________________________________________________________________________________________________________________*/
     
     #if defined USE_DHOOKS
     // Load other offsets
-    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetMaxClip1, "Weapon_GetMaxClip1");
-    fnInitGameConfOffset(gServerData[Server_GameConfig][Game_Zombie], DHook_GetReserveAmmoMax, "Weapon_GetReserveAmmoMax");
+    fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "Weapon_GetMaxClip1");
+    fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "Weapon_GetReserveAmmoMax");
 
     /// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
     hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
@@ -213,83 +214,91 @@ void WeaponSDKInit(/*void*/) /// https://www.unknowncheats.me/forum/counterstrik
 }
 
 /**
- * Restore weapon models during the unloading.
+ * @brief Restore weapon models during the unloading.
  **/
-void WeaponSDKUnload(/*void*/)
+void WeaponSDKOnUnload(/*void*/)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(IsPlayerExist(i) && gClientData[i][Client_CustomWeapon])
+        if(IsPlayerExist(i))
         {
-            // Gets entity index from the reference
-            int viewModel1 = EntRefToEntIndex(gClientData[i][Client_ViewModels][0]);
-            int viewModel2 = EntRefToEntIndex(gClientData[i][Client_ViewModels][1]);
-
-            // Validate fist viewmodel
-            if(viewModel1 != INVALID_ENT_REFERENCE)
+            // Validate weapon
+            if(gClientData[i].CustomWeapon != INVALID_ENT_REFERENCE)
             {
-                // Make the first viewmodel visible
-                WeaponHDRSetEntityVisibility(viewModel1, true);
-                ToolsUpdateTransmitState(viewModel1);
-            }
+                // Gets entity index from the reference
+                int viewModel1 = EntRefToEntIndex(gClientData[i].ViewModels[0]);
+                int viewModel2 = EntRefToEntIndex(gClientData[i].ViewModels[1]);
 
-            // Validate secondary viewmodel
-            if(viewModel2 != INVALID_ENT_REFERENCE)
-            {
-                // Make the second viewmodel visible
-                WeaponHDRSetEntityVisibility(viewModel2, false);
-                ToolsUpdateTransmitState(viewModel2);
+                // Validate fist viewmodel
+                if(viewModel1 != INVALID_ENT_REFERENCE)
+                {
+                    // Make the first viewmodel visible
+                    WeaponHDRSetEntityVisibility(viewModel1, true);
+                    ToolsUpdateTransmitState(viewModel1);
+                }
+
+                // Validate secondary viewmodel
+                if(viewModel2 != INVALID_ENT_REFERENCE)
+                {
+                    // Make the second viewmodel visible
+                    WeaponHDRSetEntityVisibility(viewModel2, false);
+                    ToolsUpdateTransmitState(viewModel2);
+                }
             }
         }
     }
 }
 
 /**
- * Creates commands for sdk module.
+ * @brief Creates commands for sdk module.
  **/
-void WeaponSDKOnCommandsCreate(/*void*/)
+void WeaponSDKOnCommandInit(/*void*/)
 {
     // Hook listeners
-    AddCommandListener(WeaponSDKOnAmmunition, "buyammo1");
-    AddCommandListener(WeaponSDKOnAmmunition, "buyammo2");
+    AddCommandListener(WeaponSDKOnCommandListened, "buyammo1");
+    AddCommandListener(WeaponSDKOnCommandListened, "buyammo2");
 }
 
 /**
- * Client is joining the server.
+ * @brief Client is joining the server.
  * 
  * @param clientIndex       The client index.  
  **/
-void WeaponSDKClientInit(const int clientIndex)
+void WeaponSDKOnClientInit(const int clientIndex)
 {
     // Hook entity callbacks
-    SDKHook(clientIndex, SDKHook_WeaponCanUse, WeaponSDKOnCanUse);
-    SDKHook(clientIndex, SDKHook_WeaponSwitch, WeaponSDKOnDeploy);
-    SDKHook(clientIndex, SDKHook_WeaponSwitchPost, WeaponSDKOnDeployPost);
-    SDKHook(clientIndex, SDKHook_PostThinkPost, WeaponSDKOnAnimationFix);
+    SDKHook(clientIndex, SDKHook_WeaponCanUse,      WeaponSDKOnCanUse);
+    SDKHook(clientIndex, SDKHook_WeaponSwitch,      WeaponSDKOnDeploy);
+    SDKHook(clientIndex, SDKHook_WeaponSwitchPost,  WeaponSDKOnDeployPost);
+    SDKHook(clientIndex, SDKHook_PostThinkPost,     WeaponSDKOnAnimationFix);
 }
 
+/*
+ * Weapons main functions.
+ */
+
 /**
- * Called, when an weapon is created.
+ * @brief Called when a weapon is created.
  *
- * @param entityIndex       The entity index.
+ * @param weaponIndex       The weapon index.
  * @param sClassname        The weapon entity.
  **/
-void WeaponSDKOnCreated(const int entityIndex, const char[] sClassname)
+void WeaponSDKOnEntityCreated(const int weaponIndex, const char[] sClassname)
 {
     // Validate weapon
-    if(!strncmp(sClassname, "weapon_", 7, false))
+    if(sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_')
     {
         // Hook weapon callbacks
-        SDKHook(entityIndex, SDKHook_ReloadPost, WeaponSDKOnWeaponReload);
-        SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnWeaponSpawn);
+        SDKHook(weaponIndex, SDKHook_ReloadPost, WeaponSDKOnWeaponReload);
+        SDKHook(weaponIndex, SDKHook_SpawnPost,  WeaponSDKOnWeaponSpawn);
     }
     // Validate item
-    else if(!strncmp(sClassname, "item_", 5, false))
+    else if(sClassname[0] == 'i' && sClassname[1] == 't')
     {
         // Hook item callbacks
-        SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnItemSpawn);
+        SDKHook(weaponIndex, SDKHook_SpawnPost, WeaponSDKOnItemSpawn);
     }
     else
     {
@@ -303,7 +312,7 @@ void WeaponSDKOnCreated(const int entityIndex, const char[] sClassname)
             if(!strncmp(sClassname[iLen], "_proj", 5, false))
             {
                 // Hook grenade callbacks
-                SDKHook(entityIndex, SDKHook_SpawnPost, WeaponSDKOnGrenadeSpawn);
+                SDKHook(weaponIndex, SDKHook_SpawnPost, WeaponSDKOnGrenadeSpawn);
             }
         }
     }
@@ -311,24 +320,25 @@ void WeaponSDKOnCreated(const int entityIndex, const char[] sClassname)
 
 /**
  * Hook: WeaponReloadPost
- * Weapon is reloaded.
+ * @brief Weapon is reloaded.
  *
  * @param weaponIndex       The weapon index.
  **/
 public Action WeaponSDKOnWeaponReload(const int weaponIndex) 
 {
     // Apply fake reload hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeWeaponReload), weaponIndex);
+    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnWeaponReloadPost), EntIndexToEntRef(weaponIndex));
 }
 
 /**
- * FakeHook: WeaponReloadPost
+ * Hook: WeaponReloadPost
+ * @brief Weapon is reloaded. *(Post)
  *
  * @param referenceIndex    The reference index.
  **/
-public void WeaponSDKOnFakeWeaponReload(const int referenceIndex) 
+public void WeaponSDKOnWeaponReloadPost(const int referenceIndex) 
 {
-    // Get the weapon index from the reference
+    // Gets the weapon index from the reference
     int weaponIndex = EntRefToEntIndex(referenceIndex);
 
     // Validate weapon
@@ -339,7 +349,7 @@ public void WeaponSDKOnFakeWeaponReload(const int referenceIndex)
         if(iD != INVALID_ENT_REFERENCE)
         {
             // Gets weapon owner
-            int clientIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponOwner);
+            int clientIndex = WeaponsGetOwner(weaponIndex);
             
             // Validate owner
             if(!IsPlayerExist(clientIndex)) 
@@ -355,25 +365,22 @@ public void WeaponSDKOnFakeWeaponReload(const int referenceIndex)
                 flReload += GetGameTime();
         
                 // Sets reload time
-                ///SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flReload, true);
-                SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flReload, true);
-                SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flReload, true);
-                SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flReload, true);
+                WeaponsSetAnimating(weaponIndex, flReload);
             }
             
             // Call forward
-            API_OnWeaponReload(clientIndex, weaponIndex, iD);
+            gForwardData._OnWeaponReload(clientIndex, weaponIndex, iD);
         }
     }
 }
 
 /**
  * Hook: ItemSpawnPost
- * Item is spawned.
+ * @brief Item is spawned.
  *
  * @param itemIndex         The item index.
  **/
-void WeaponSDKOnItemSpawn(const int itemIndex)
+public void WeaponSDKOnItemSpawn(const int itemIndex)
 {
     // Validate item
     if(IsValidEdict(itemIndex)) 
@@ -385,11 +392,11 @@ void WeaponSDKOnItemSpawn(const int itemIndex)
 
 /**
  * Hook: WeaponSpawnPost
- * Weapon is spawned.
+ * @brief Weapon is spawned.
  *
  * @param weaponIndex       The weapon index.
  **/
-void WeaponSDKOnWeaponSpawn(const int weaponIndex)
+public void WeaponSDKOnWeaponSpawn(const int weaponIndex)
 {
     // Validate weapon
     if(IsValidEdict(weaponIndex)) 
@@ -400,19 +407,20 @@ void WeaponSDKOnWeaponSpawn(const int weaponIndex)
     
     #if defined USE_DHOOKS
         // Apply fake spawn hook on the next frame
-        RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeSpawnPost), EntIndexToEntRef(weaponIndex));
+        RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnWeaponSpawnPost), EntIndexToEntRef(weaponIndex));
     #endif
 }
 
 /**
- * FakeHook: WeaponSpawnPost
+ * Hook: WeaponSpawnPost
+ * @brief Weapon is spawned. *(Post)
  *
  * @param referenceIndex    The reference index.
  **/
 #if defined USE_DHOOKS
-public void WeaponSDKOnFakeSpawnPost(const int referenceIndex) 
+public void WeaponSDKOnWeaponSpawnPost(const int referenceIndex) 
 {
-    // Get the weapon index from the reference
+    // Gets the weapon index from the reference
     int weaponIndex = EntRefToEntIndex(referenceIndex);
 
     // Validate weapon
@@ -444,9 +452,9 @@ public void WeaponSDKOnFakeSpawnPost(const int referenceIndex)
 
 /**
  * Hook: WeaponSpawnPost
- * Grenade is spawned.
+ * @brief Grenade is spawned.
  *
- * @param grenadeIndex       The grenade index.
+ * @param grenadeIndex      The grenade index.
  **/
 public void WeaponSDKOnGrenadeSpawn(const int grenadeIndex)
 {
@@ -458,17 +466,18 @@ public void WeaponSDKOnGrenadeSpawn(const int grenadeIndex)
     }
     
     // Apply fake throw hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeGrenadeSpawn), EntIndexToEntRef(grenadeIndex));
+    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnGrenadeSpawnPost), EntIndexToEntRef(grenadeIndex));
 }
 
 /**
- * FakeHook: WeaponSpawnPost
+ * Hook: WeaponSpawnPost
+ * @brief Grenade is spawned. *(Post)
  *
  * @param referenceIndex    The reference index.
  **/
-public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex) 
+public void WeaponSDKOnGrenadeSpawnPost(const int referenceIndex) 
 {
-    // Get the grenade index from the reference
+    // Gets the grenade index from the reference
     int grenadeIndex = EntRefToEntIndex(referenceIndex);
 
     // Validate grenade for the prop
@@ -484,13 +493,19 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
         }
         
         // Sets team index
-        SetEntData(grenadeIndex, g_iOffset_EntityTeam, GetClientTeam(clientIndex));
+        ToolsSetEntityTeam(grenadeIndex, GetClientTeam(clientIndex));
         
         // Gets active weapon index from the client
-        int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+        int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
         
         // Validate weapon
         if(!IsValidEdict(weaponIndex))
+        {
+            return;
+        }
+
+        // Validate grenade
+        if(!WeaponsValidateGrenade(weaponIndex))
         {
             return;
         }
@@ -499,37 +514,32 @@ public void WeaponSDKOnFakeGrenadeSpawn(const int referenceIndex)
         int iD = WeaponsGetCustomID(weaponIndex);
         if(iD != INVALID_ENT_REFERENCE)
         {
-            // Validate grenade slot
-            if(WeaponsGetSlot(iD) == MenuType_Grenades) /// (Bug fix for other addons)
+            // Duplicate index to the projectile for future use
+            WeaponsSetCustomID(grenadeIndex, iD);
+
+            // If dropmodel exist, then apply it
+            if(WeaponsGetModelDropID(iD))
             {
-                // Duplicate index to the projectile for future use
-                WeaponsSetCustomID(grenadeIndex, iD);
+                // Gets weapon dropmodel
+                static char sModel[PLATFORM_LINE_LENGTH];
+                WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
 
-                // If dropmodel exist, then apply it
-                if(WeaponsGetModelDropID(iD))
-                {
-                    // Gets weapon dropmodel
-                    static char sModel[PLATFORM_MAX_PATH];
-                    WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
-
-                    // Sets model entity for the grenade
-                    SetEntityModel(grenadeIndex, sModel);
-                    
-                    // Sets body/skin index for the grenade
-                    SetEntData(grenadeIndex, g_iOffset_WeaponBody, WeaponsGetModelBody(iD, ModelType_Projectile), _, true);
-                    SetEntData(grenadeIndex, g_iOffset_WeaponSkin, WeaponsGetModelSkin(iD, ModelType_Projectile), _, true);
-                }
+                // Sets model entity for the grenade
+                SetEntityModel(grenadeIndex, sModel);
                 
-                // Call forward
-                API_OnGrenadeCreated(clientIndex, grenadeIndex, iD);
+                // Sets body/skin index for the grenade
+                WeaponHDRSetTextures(grenadeIndex, WeaponsGetModelBody(iD, ModelType_Projectile),  WeaponsGetModelSkin(iD, ModelType_Projectile));
             }
+            
+            // Call forward
+            gForwardData._OnGrenadeCreated(clientIndex, grenadeIndex, iD);
         }
     }
 }
 
 /**
  * Hook: WeaponDrop
- * Player drop any weapon.
+ * @brief Player drop any weapon.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -539,6 +549,17 @@ public Action CS_OnCSWeaponDrop(int clientIndex, int weaponIndex)
     // Validate weapon
     if(IsValidEdict(weaponIndex))
     {
+        // Validate custom index
+        int iD = WeaponsGetCustomID(weaponIndex);
+        if(iD != INVALID_ENT_REFERENCE)
+        {
+            // Block drop, if not available
+            if(!WeaponsIsDrop(iD)) 
+            {
+                return Plugin_Handled;
+            }
+        }
+
         // Apply dropped model on the next frame
         RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), EntIndexToEntRef(weaponIndex));
     }
@@ -549,7 +570,7 @@ public Action CS_OnCSWeaponDrop(int clientIndex, int weaponIndex)
 
 /**
  * Hook: WeaponCanUse
- * Player pick-up any weapon.
+ * @brief Player pick-up any weapon.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -568,7 +589,7 @@ public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
             {
                 return Plugin_Handled;
             }
-            
+
             /** Comment bellow, if you want to check the client level/online access **/
             
             // Block pickup it, if online too low
@@ -578,7 +599,7 @@ public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
             }
 
             // Block pickup it, if level too low
-            if(gClientData[clientIndex][Client_Level] < WeaponsGetLevel(iD))
+            if(gClientData[clientIndex].Level < WeaponsGetLevel(iD))
             {
                 return Plugin_Handled;
             }
@@ -603,14 +624,15 @@ public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
 }
 
 /**
- * Client has been changed class state. (Post)
+ * @brief Client has been changed class state. *(Post)
  *
  * @param clientIndex       The client index.
  **/
 void WeaponSDKOnClientUpdate(const int clientIndex)
 {
-    // Clear the weapon index of the reference
-    gClientData[clientIndex][Client_CustomWeapon] = 0;
+    // Client has swapped to a regular weapon
+    gClientData[clientIndex].CustomWeapon = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex].IndexWeapon  = INVALID_ENT_REFERENCE; /// Only viewmodel identification
 
     // Remove current addons
     WeaponAttachRemoveAddons(clientIndex);
@@ -626,7 +648,7 @@ void WeaponSDKOnClientUpdate(const int clientIndex)
         if((viewModel2 = CreateEntityByName("predicted_viewmodel")) == INVALID_ENT_REFERENCE)
         {
             // Unexpected error, log it
-            LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to create secondary viewmodel");
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to create secondary viewmodel");
             return;
         }
 
@@ -645,11 +667,11 @@ void WeaponSDKOnClientUpdate(const int clientIndex)
     }
 
     // Sets entity index to the reference
-    gClientData[clientIndex][Client_ViewModels][0] = EntIndexToEntRef(viewModel1);
-    gClientData[clientIndex][Client_ViewModels][1] = EntIndexToEntRef(viewModel2);
+    gClientData[clientIndex].ViewModels[0] = EntIndexToEntRef(viewModel1);
+    gClientData[clientIndex].ViewModels[1] = EntIndexToEntRef(viewModel2);
 
     // Gets active weapon index from the client
-    int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+    int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
 
     // Validate weapon
     if(IsValidEdict(weaponIndex))
@@ -660,21 +682,21 @@ void WeaponSDKOnClientUpdate(const int clientIndex)
 
         // Update the weapon
         FakeClientCommand(clientIndex, "use %s", sClassname);
-        SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
+        ToolsSetClientActiveWeapon(clientIndex, weaponIndex);
         SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
     }
 }
 
 /**
  * Event: PlayerDeath
- * Update a weapon model when player died.
+ * @brief Update a weapon model when player died.
  *
  * @param clientIndex       The client index.
  **/
 void WeaponSDKOnClientDeath(const int clientIndex)
 {
     // Gets entity index from the reference
-    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
+    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
 
     // Validate secondary viewmodel
     if(viewModel2 != INVALID_ENT_REFERENCE)
@@ -684,14 +706,16 @@ void WeaponSDKOnClientDeath(const int clientIndex)
         ToolsUpdateTransmitState(viewModel2);
     }
 
-    // Clear the data
-    gClientData[clientIndex][Client_ViewModels] = { INVALID_ENT_REFERENCE, INVALID_ENT_REFERENCE };
-    gClientData[clientIndex][Client_CustomWeapon] = 0;
+    // Client has swapped to a regular weapon
+    gClientData[clientIndex].ViewModels[0] = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex].ViewModels[1] = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex].CustomWeapon  = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex].IndexWeapon   = INVALID_ENT_REFERENCE; /// Only viewmodel identification
 }
 
 /**
  * Hook: WeaponSwitch
- * Player deploy any weapon.
+ * @brief Player deploy any weapon.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -699,8 +723,8 @@ void WeaponSDKOnClientDeath(const int clientIndex)
 public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex) 
 {
     // Gets entity index from the reference
-    int viewModel1 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][0]);
-    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
+    int viewModel1 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[0]);
+    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
 
     // Validate viewmodels
     if(viewModel1 == INVALID_ENT_REFERENCE || viewModel2 == INVALID_ENT_REFERENCE)
@@ -724,7 +748,7 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
         if(iD != INVALID_ENT_REFERENCE)
         {
             //Gets the last weapon index from the client
-            int itemIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerLastWeapon);
+            int itemIndex = ToolsGetClientLastWeapon(clientIndex);
         
             // Validate last weapon
             if(IsValidEdict(itemIndex))
@@ -734,7 +758,7 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
                 if(iL != INVALID_ENT_REFERENCE && iD != iL)
                 {
                     // Call forward
-                    API_OnWeaponHolster(clientIndex, itemIndex, iL);
+                    gForwardData._OnWeaponHolster(clientIndex, itemIndex, iL);
                 }
             }
             
@@ -746,39 +770,36 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
                 flDeploy += GetGameTime();
         
                 // Sets deploy time
-                ///SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flDeploy, true);
-                SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flDeploy, true);
-                SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flDeploy, true);
-                SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flDeploy, true);
+                WeaponsSetAnimating(weaponIndex, flDeploy);
             }
     
             // If view/world model exist, then set them
-            if(WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || ((WeaponsValidateKnife(weaponIndex) || WeaponsValidateGrenade(weaponIndex)) && gClientData[clientIndex][Client_Zombie]))
+            if(WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || ((WeaponsValidateKnife(weaponIndex) || WeaponsValidateGrenade(weaponIndex)) && gClientData[clientIndex].Zombie))
             {
                 // Client has swapped to a custom weapon
-                gClientData[clientIndex][Client_SwapWeapon] = INVALID_ENT_REFERENCE;
-                gClientData[clientIndex][Client_CustomWeapon] = weaponIndex;
-                gClientData[clientIndex][Client_WeaponIndex] = iD; /// Only viewmodel identification
+                gClientData[clientIndex].SwapWeapon   = INVALID_ENT_REFERENCE;
+                gClientData[clientIndex].CustomWeapon = weaponIndex;
+                gClientData[clientIndex].IndexWeapon  = iD; /// Only viewmodel identification
                 return;
             }
         }
     }
 
     // Client has swapped to a regular weapon
-    gClientData[clientIndex][Client_CustomWeapon] = 0;
-    gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only viewmodel identification
+    gClientData[clientIndex].CustomWeapon = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex].IndexWeapon  = INVALID_ENT_REFERENCE; /// Only viewmodel identification
     
     // Gets class arm model
-    static char sArm[PLATFORM_MAX_PATH];
-    ClassGetArmModel(gClientData[clientIndex][Client_Class], sArm, sizeof(sArm));
+    static char sArm[PLATFORM_LINE_LENGTH];
+    ClassGetArmModel(gClientData[clientIndex].Class, sArm, sizeof(sArm));
     
     // Apply arm model
-    if(hasLength(sArm)) SetEntDataString(clientIndex, g_iOffset_PlayerArms, sArm, sizeof(sArm), true);
+    if(hasLength(sArm)) ToolsSetClientArm(clientIndex, sArm, sizeof(sArm));
 }
 
 /**
  * Hook: WeaponSwitchPost
- * Player deploy any weapon.
+ * @brief Player deploy any weapon.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -792,8 +813,8 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     }
 
     // Gets entity index from the reference
-    int viewModel1 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][0]);
-    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
+    int viewModel1 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[0]);
+    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
 
     // Validate viewmodels
     if(viewModel1 == INVALID_ENT_REFERENCE || viewModel2 == INVALID_ENT_REFERENCE)
@@ -808,34 +829,34 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     }
     
     // Sets last weapon index to the client
-    SetEntDataEnt2(clientIndex, g_iOffset_PlayerLastWeapon, weaponIndex, true); /// Bugfix for holster
+    ToolsSetClientLastWeapon(clientIndex, weaponIndex); /// Bugfix for holster
 
     // Weapon has not changed since last pre hook
-    if(weaponIndex == gClientData[clientIndex][Client_CustomWeapon])
+    if(weaponIndex == gClientData[clientIndex].CustomWeapon)
     {
         // Initialize variables
-        int iModel; static char sModel[PLATFORM_MAX_PATH]; sModel[0] = '\0';
+        int iModel; static char sModel[PLATFORM_LINE_LENGTH]; sModel[0] = '\0';
 
         // Gets weapon id from the reference
-        int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only viewmodel identification
+        int iD = gClientData[clientIndex].IndexWeapon; /// Only viewmodel identification
         
         // Validate knife
         if(WeaponsValidateKnife(weaponIndex))
         {
             // Gets claw model
-            ClassGetClawModel(gClientData[clientIndex][Client_Class], sModel, sizeof(sModel));
+            ClassGetClawModel(gClientData[clientIndex].Class, sModel, sizeof(sModel));
             
             // Update model index
-            iModel = ClassGetClawID(gClientData[clientIndex][Client_Class]);
+            iModel = ClassGetClawID(gClientData[clientIndex].Class);
         }
         // Validate grenade
         else if(WeaponsValidateGrenade(weaponIndex))
         {
             // Gets grenade model
-            ClassGetGrenadeModel(gClientData[clientIndex][Client_Class], sModel, sizeof(sModel));
+            ClassGetGrenadeModel(gClientData[clientIndex].Class, sModel, sizeof(sModel));
             
             // Update model index
-            iModel = ClassGetGrenadeID(gClientData[clientIndex][Client_Class]);
+            iModel = ClassGetGrenadeID(gClientData[clientIndex].Class);
         }
 
          // Gets model index
@@ -859,7 +880,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
             VEffectRemoveMuzzle(clientIndex, viewModel2);
 
             // Gets draw animation sequence
-            gClientData[clientIndex][Client_DrawSequence] = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
+            gClientData[clientIndex].DrawSequence = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
             
             // Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
             SetEntData(viewModel1, g_iOffset_ViewModelSequence, -1, _, true);
@@ -872,28 +893,28 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
             if(WeaponsGetSequenceCount(iD) == -1)
             {
                 // Gets sequence amount from a weapon entity
-                int nSequenceCount = Animating_GetSequenceCount(weaponIndex);
+                int iSequenceCount = Animating_GetSequenceCount(weaponIndex);
 
                 // Validate count
-                if(nSequenceCount)
+                if(iSequenceCount)
                 {
                     // Initialize the sequence array
                     int iSequences[WEAPONS_SEQUENCE_MAX];
 
                     // Validate amount
-                    if(nSequenceCount < WEAPONS_SEQUENCE_MAX)
+                    if(iSequenceCount < WEAPONS_SEQUENCE_MAX)
                     {
                         // Build the sequence array
-                        WeaponHDRBuildSwapSequenceArray(iSequences, nSequenceCount, weaponIndex);
+                        WeaponHDRBuildSwapSequenceArray(iSequences, iSequenceCount, weaponIndex);
                         
                         // Update the sequence array
-                        WeaponsSetSequenceCount(iD, nSequenceCount);
+                        WeaponsSetSequenceCount(iD, iSequenceCount);
                         WeaponsSetSequenceSwap(iD, iSequences, sizeof(iSequences));
                     }
                     else
                     {
                         // Unexpected error, log it
-                        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons HDR", "View model \"%s\" is having too many sequences! (Max %i, is %i) - Increase value of WEAPONS_SEQUENCE_MAX in plugin", sModel, WEAPONS_SEQUENCE_MAX, nSequenceCount);
+                        LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "View model \"%s\" is having too many sequences! (Max %d, is %d) - Increase value of WEAPONS_SEQUENCE_MAX in plugin", sModel, WEAPONS_SEQUENCE_MAX, iSequenceCount);
                     }
                 }
                 else
@@ -902,27 +923,26 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
                     WeaponsClearSequenceSwap(iD);
                     
                     // Unexpected error, log it
-                    LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to get sequence count for weapon using model \"%s\" - Animations may not work as expected", sModel);
+                    LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to get sequence count for weapon using model \"%s\" - Animations may not work as expected", sModel);
                 }
             }
             
             // Gets body/skin index of a class
-            int iBody = ClassGetBody(gClientData[clientIndex][Client_Class]);
-            int iSkin = ClassGetSkin(gClientData[clientIndex][Client_Class]);
+            int iBody = ClassGetBody(gClientData[clientIndex].Class);
+            int iSkin = ClassGetSkin(gClientData[clientIndex].Class);
 
             // Sets model/body/skin index for viewmodel
-            SetEntData(viewModel2, g_iOffset_EntityModelIndex, iModel, _, true);
-            SetEntData(viewModel2, g_iOffset_WeaponBody, (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View), _, true);
-            SetEntData(viewModel2, g_iOffset_WeaponSkin, (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View), _, true);
+            ToolsSetEntityModelIndex(viewModel2, iModel);
+            WeaponHDRSetTextures(viewModel2, (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View), (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View));
             
             //  Update the animation interval delay for second viewmodel 
             SetEntDataFloat(viewModel2, g_iOffset_ViewModelPlaybackRate, GetEntDataFloat(viewModel1, g_iOffset_ViewModelPlaybackRate), true);
 
-            // Create a toggle model
+            // Creates a toggle model
             WeaponHDRToggleViewModel(clientIndex, viewModel2, iD);
             
             // Resets the sequence parity
-            gClientData[clientIndex][Client_LastSequenceParity] = -1;
+            gClientData[clientIndex].LastSequenceParity = -1;
         }
     
         // If worldmodel exist, then apply it
@@ -934,7 +954,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
         else
         {
             // Verify that the client is zombie
-            if(gClientData[clientIndex][Client_Zombie])
+            if(gClientData[clientIndex].Zombie)
             {
                 // Validate a knife
                 if(WeaponsValidateKnife(weaponIndex)) WeaponHDRSetPlayerWorldModel(weaponIndex);
@@ -942,7 +962,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
         }
         
         // Call forward
-        API_OnWeaponDeploy(clientIndex, weaponIndex, iD);
+        gForwardData._OnWeaponDeploy(clientIndex, weaponIndex, iD);
         
         // If model was found, then stop
         if(iModel && hasLength(sModel))
@@ -960,13 +980,13 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     ToolsUpdateTransmitState(viewModel2);
 
     // Client has swapped to a regular weapon
-    gClientData[clientIndex][Client_CustomWeapon] = 0;
-    gClientData[clientIndex][Client_WeaponIndex] = INVALID_ENT_REFERENCE; /// Only viewmodel identification
+    gClientData[clientIndex].CustomWeapon = INVALID_ENT_REFERENCE;
+    gClientData[clientIndex].IndexWeapon  = INVALID_ENT_REFERENCE; /// Only viewmodel identification
 }
 
 /**
  * Hook: PostThinkPost
- * Player hold any weapon.
+ * @brief Player hold any weapon.
  *
  * @param clientIndex       The client index.
  **/
@@ -978,18 +998,18 @@ public void WeaponSDKOnAnimationFix(const int clientIndex)
         return;
     }
 
-    // Set current addons
+    // Sets current addons
     WeaponAttachSetAddons(clientIndex); /// Back weapon models
     
     // Validate weapon
-    if(!gClientData[clientIndex][Client_CustomWeapon]) /// Optimization for frame check
+    if(gClientData[clientIndex].CustomWeapon == INVALID_ENT_REFERENCE) /// Optimization for frame check
     {
         return;
     }
 
     // Gets entity index from the reference
-    int viewModel1 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][0]);
-    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
+    int viewModel1 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[0]);
+    int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
 
     // Validate viewmodels
     if(viewModel1 == INVALID_ENT_REFERENCE || viewModel2 == INVALID_ENT_REFERENCE)
@@ -998,33 +1018,33 @@ public void WeaponSDKOnAnimationFix(const int clientIndex)
     }
 
     // Gets sequence number and it draw animation sequence
-    int nSequence = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
-    int drawSequence = gClientData[clientIndex][Client_DrawSequence];
+    int iSequence = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
+    int drawSequence = gClientData[clientIndex].DrawSequence;
     
     // Validate sequence
-    if(nSequence == -1)
+    if(iSequence == -1)
     {
-        nSequence = drawSequence; /// Play the draw animation
+        iSequence = drawSequence; /// Play the draw animation
     }
     
     // Gets sequence parity index
     int sequenceParity = GetEntData(viewModel1, g_iOffset_NewSequenceParity);
 
     // Sequence has not changed since last post hook
-    if(nSequence == gClientData[clientIndex][Client_LastSequence])
+    if(iSequence == gClientData[clientIndex].LastSequence)
     {
         // Skip on weapon switch
-        if(gClientData[clientIndex][Client_LastSequenceParity] != -1)
+        if(gClientData[clientIndex].LastSequenceParity != -1)
         {
             // Skip if sequence hasn't finished
-            if(sequenceParity == gClientData[clientIndex][Client_LastSequenceParity])
+            if(sequenceParity == gClientData[clientIndex].LastSequenceParity)
             {
                 return;
             }
 
             // Gets weapon id from the reference
-            int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only viewmodel identification
-            int swapSequence = WeaponsGetSequenceSwap(iD, nSequence);
+            int iD = gClientData[clientIndex].IndexWeapon; /// Only viewmodel identification
+            int swapSequence = WeaponsGetSequenceSwap(iD, iSequence);
             
             // Validate swap sequence
             if(swapSequence != -1)
@@ -1034,11 +1054,11 @@ public void WeaponSDKOnAnimationFix(const int clientIndex)
                 SetEntData(viewModel2, g_iOffset_ViewModelSequence, swapSequence, _, true);
 
                 // Update the sequence for next check
-                gClientData[clientIndex][Client_LastSequence] = swapSequence;
+                gClientData[clientIndex].LastSequence = swapSequence;
             }
             else
             {
-                // Create a toggle model
+                // Creates a toggle model
                 WeaponHDRToggleViewModel(clientIndex, viewModel2, iD);
             }
         }
@@ -1046,24 +1066,24 @@ public void WeaponSDKOnAnimationFix(const int clientIndex)
     else
     {
         // Validate sequence
-        if(drawSequence != -1 && nSequence != drawSequence)
+        if(drawSequence != -1 && iSequence != drawSequence)
         {
             ToolsUpdateTransmitState(viewModel1); /// Update!
-            gClientData[clientIndex][Client_DrawSequence] = -1;
+            gClientData[clientIndex].DrawSequence = -1;
         }
         
         // Sets new sequence
-        SetEntData(viewModel2, g_iOffset_ViewModelSequence, nSequence, _, true);
-        gClientData[clientIndex][Client_LastSequence] = nSequence;
+        SetEntData(viewModel2, g_iOffset_ViewModelSequence, iSequence, _, true);
+        gClientData[clientIndex].LastSequence = iSequence;
     }
     
     // Update the sequence parity for next check
-    gClientData[clientIndex][Client_LastSequenceParity] = sequenceParity;
+    gClientData[clientIndex].LastSequenceParity = sequenceParity;
 }
 
 /**
  * Event: WeaponOnFire
- * Weapon has been fired.
+ * @brief Weapon has been fired.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -1085,17 +1105,17 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
             flSpeed += flCurrentTime;
     
             // Sets next attack time
-            SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flSpeed, true);
-            SetEntDataFloat(weaponIndex, g_iOffset_WeaponPrimaryAttack, flSpeed, true);
-            SetEntDataFloat(weaponIndex, g_iOffset_WeaponSecondaryAttack, flSpeed, true);
-            SetEntDataFloat(weaponIndex, g_iOffset_WeaponIdle, flSpeed, true);
+            WeaponsSetAnimating(weaponIndex, flSpeed);
+            
+            // Block client attack
+            ToolsSetClientAttack(clientIndex, flSpeed);
         }
 
         // If viewmodel exist, then create muzzle smoke
         if(WeaponsGetModelViewID(iD))
         {
             // Gets entity index from the reference
-            int viewModel2 = EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]);
+            int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
 
             // Validate secondary viewmodel
             if(viewModel2 == INVALID_ENT_REFERENCE)
@@ -1109,11 +1129,11 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
                 return;
             }
             
-            // Get weapon muzzle
+            // Gets weapon muzzle
             static char sMuzzle[SMALL_LINE_LENGTH];
             WeaponsGetModelMuzzle(iD, sMuzzle, sizeof(sMuzzle));
 
-            // Create a muzzle
+            // Creates a muzzle
             if(hasLength(sMuzzle)) VEffectSpawnMuzzle(clientIndex, viewModel2, sMuzzle);
 
             // Validate weapon heat delay
@@ -1138,7 +1158,7 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
                     // Validate heat
                     if(flCurrentTime - flSmoke[clientIndex] > 1.0)
                     {
-                        // Create a muzzle smoke
+                        // Creates a muzzle smoke
                         VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
                         flSmoke[clientIndex] = flCurrentTime;
                     }
@@ -1153,14 +1173,14 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
         }
         
         // Call forward
-        API_OnWeaponFire(clientIndex, weaponIndex, iD);
+        gForwardData._OnWeaponFire(clientIndex, weaponIndex, iD);
     }
     
     // Validate a non-knife
     if(!WeaponsValidateKnife(weaponIndex) && !WeaponsValidateTaser(weaponIndex)) 
     {
         // Validate class ammunition mode
-        switch(ClassGetAmmunition(gClientData[Client_Class]))
+        switch(ClassGetAmmunition(gClientData[clientIndex].Class))
         {
             case 0 : return;
             case 1 : { SetEntData(weaponIndex, g_iOffset_WeaponReserve1, GetEntData(weaponIndex, g_iOffset_WeaponReserve2), _, true); }
@@ -1171,7 +1191,7 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
 
 /**
  * Event: WeaponOnBullet
- * The bullet hits something.
+ * @brief The bullet hits something.
  *
  * @param clientIndex       The client index.
  * @param vBulletPosition   The position of a bullet hit.
@@ -1184,12 +1204,12 @@ void WeaponSDKOnBullet(const int clientIndex, const float vBulletPosition[3], co
     if(iD != INVALID_ENT_REFERENCE)    
     {
         // Call forward
-        API_OnWeaponBullet(clientIndex, vBulletPosition, weaponIndex, iD);
+        gForwardData._OnWeaponBullet(clientIndex, vBulletPosition, weaponIndex, iD);
     }
 }
 /**
  * Event: WeaponOnRunCmd
- * Weapon is holding.
+ * @brief Weapon is holding.
  *
  * @param clientIndex       The client index.
  * @param iButtons          The button buffer.
@@ -1203,7 +1223,9 @@ Action WeaponSDKOnRunCmd(const int clientIndex, int &iButtons, const int iLastBu
     if(iD != INVALID_ENT_REFERENCE)    
     {
         // Call forward
-        return API_OnWeaponRunCmd(clientIndex, iButtons, iLastButtons, weaponIndex, iD);
+        static Action resultHandle;
+        gForwardData._OnWeaponRunCmd(clientIndex, iButtons, iLastButtons, weaponIndex, iD, resultHandle);
+        return resultHandle;
     }
     
     // Return on the unsuccess
@@ -1212,7 +1234,7 @@ Action WeaponSDKOnRunCmd(const int clientIndex, int &iButtons, const int iLastBu
 
 /**
  * Event: WeaponOnFire
- * Weapon has been shoot.
+ * @brief Weapon has been shoot.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -1227,7 +1249,7 @@ Action WeaponSDKOnShoot(const int clientIndex, const int weaponIndex)
         Action resultHandle = SoundsOnClientShoot(clientIndex, iD);
 
         // Call forward
-        API_OnWeaponShoot(clientIndex, weaponIndex, iD);
+        gForwardData._OnWeaponShoot(clientIndex, weaponIndex, iD);
 
         // Block broadcast
         return resultHandle;
@@ -1239,7 +1261,7 @@ Action WeaponSDKOnShoot(const int clientIndex, const int weaponIndex)
 
 /**
  * Event: WeaponOnHostage
- * Weapon has been switch by hostage.
+ * @brief Weapon has been switch by hostage.
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -1250,15 +1272,16 @@ void WeaponSDKOnHostage(const int clientIndex)
     WeaponHDRSetPlayerViewModel(clientIndex, 1, INVALID_ENT_REFERENCE);
 
     // Apply fake hostage follow hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnFakeHostage), GetClientUserId(clientIndex));
+    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnHostagePost), GetClientUserId(clientIndex));
 }
     
 /**
- * FakeEvent: WeaponOnFakeHostage
+ * Event: WeaponOnHostagePost
+ * @brief Weapon has been switch by hostage. *(Post)
  *
  * @param userID            The user id.
  **/
-public void WeaponSDKOnFakeHostage(const int userID) 
+public void WeaponSDKOnHostagePost(const int userID) 
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -1267,7 +1290,7 @@ public void WeaponSDKOnFakeHostage(const int userID)
     if(clientIndex)
     {
         // Gets weapon id from the reference
-        int iD = gClientData[clientIndex][Client_WeaponIndex]; /// Only viewmodel identification
+        int iD = gClientData[clientIndex].IndexWeapon; /// Only viewmodel identification
 
         // Validate id
         if(iD != INVALID_ENT_REFERENCE)
@@ -1278,36 +1301,37 @@ public void WeaponSDKOnFakeHostage(const int userID)
             // Remove the viewmodel created by the game
             if(IsValidEdict(viewModel2))
             {
-                AcceptEntityInput(viewModel2, "Kill"); //! Destroy
+                AcceptEntityInput(viewModel2, "Kill"); /// Destroy
             }
 
             // Resets the viewmodel
-            WeaponHDRSetPlayerViewModel(clientIndex, 1, EntRefToEntIndex(gClientData[clientIndex][Client_ViewModels][1]));
+            WeaponHDRSetPlayerViewModel(clientIndex, 1, EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]));
         }
     }
 }
 
 /**
- * Callback for command listener to buy ammunition.
+ * Listener command callback(buyammo1, buyammo2)
+ * @brief Buying of the ammunition.
  *
  * @param clientIndex       The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action WeaponSDKOnAmmunition(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action WeaponSDKOnCommandListened(const int clientIndex, const char[] commandMsg, const int iArguments)
 {
     // Validate client
     if(IsPlayerExist(clientIndex))
     {
         // Validate class ammunition mode
-        switch(ClassGetAmmunition(gClientData[Client_Class]))
+        switch(ClassGetAmmunition(gClientData[clientIndex].Class))
         {
-            case 0 : { /* empty statement */ }
-            default: return Plugin_Continue;
+            case 0  : { /* < empty statement > */ }
+            default : return Plugin_Continue;
         }
 
         // Gets active weapon index from the client
-        int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
+        int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
 
         // Validate weapon
         if(IsValidEdict(weaponIndex))
@@ -1330,10 +1354,10 @@ public Action WeaponSDKOnAmmunition(const int clientIndex, const char[] commandM
                 }
                 
                 // Validate ammunition cost
-                if(gClientData[clientIndex][Client_Money] < iCost)
+                if(gClientData[clientIndex].Money < iCost)
                 {
-                    // Show weapon block info
-                    TranslationPrintHintText(clientIndex, "ammunition block");
+                    // Show block info
+                    TranslationPrintHintText(clientIndex, "buying ammunition block");
                     
                     // Emit error sound
                     ClientCommand(clientIndex, "play buttons/button11.wav");    
@@ -1357,7 +1381,7 @@ public Action WeaponSDKOnAmmunition(const int clientIndex, const char[] commandM
                     SetEntData(weaponIndex, g_iOffset_WeaponReserve1, (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo, _, true);
 
                     // Remove money
-                    AccountSetClientCash(clientIndex, gClientData[clientIndex][Client_Money] - iCost);
+                    AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - iCost);
 
                     // Forward event to modules
                     SoundsOnClientAmmunition(clientIndex);
@@ -1373,7 +1397,7 @@ public Action WeaponSDKOnAmmunition(const int clientIndex, const char[] commandM
 #if defined USE_DHOOKS 
 /**
  * DHook: Sets a weapon clip when its spawned, picked, dropped or reloaded.
- * int CBaseCombatWeapon::GetMaxClip1(void *)
+ * @note int CBaseCombatWeapon::GetMaxClip1(void *)
  *
  * @param weaponIndex       The weapon index.
  * @param hReturn           Handle to return structure.
@@ -1399,7 +1423,7 @@ public MRESReturn WeaponDHookOnGetMaxClip1(const int weaponIndex, Handle hReturn
 
 /**
  * DHook: Sets a weapon reserved ammunition when its spawned, picked, dropped or reloaded. 
- * int CBaseCombatWeapon::GetReserveAmmoMax(AmmoPosition_t)
+ * @note    int CBaseCombatWeapon::GetReserveAmmoMax(AmmoPosition_t)
  *
  * @param weaponIndex       The weapon index.
  * @param hReturn           Handle to return structure.
