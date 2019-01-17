@@ -370,7 +370,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
         // Initialize vectors
-        static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3]; static float vEntAngle[3]; static char sSound[PLATFORM_LINE_LENGTH];
+        static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3]; static float vEntAngle[3]; static char sBuffer[PLATFORM_LINE_LENGTH];
         
         // Gets weapon position
         ZP_GetPlayerGunPosition(clientIndex, 0.0, 0.0, 0.0, vPosition);
@@ -507,22 +507,32 @@ public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
                     CreateTimer(WEAPON_MINE_ACTIVATION, MineActivateHook, hPack, TIMER_FLAG_NO_MAPCHANGE | TIMER_HNDL_CLOSE);
                     
                     // Emit sound
-                    ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-                    EmitSoundToAll(sSound, beamIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                    ZP_GetSound(gSound, sBuffer, sizeof(sBuffer), 2);
+                    EmitSoundToAll(sBuffer, beamIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
                 }
                 #endif
 
                 // Emit sound
-                ZP_GetSound(gSound, sSound, sizeof(sSound), 3);
-                EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                ZP_GetSound(gSound, sBuffer, sizeof(sBuffer), 3);
+                EmitSoundToAll(sBuffer, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
             
             // Forces a player to remove weapon
             RemovePlayerItem(clientIndex, weaponIndex);
             AcceptEntityInput(weaponIndex, "Kill");
             
-            // Switch the weapon
-            FakeClientCommand(clientIndex, "use weapon_knife");
+            // Gets weapon index
+            int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Melee)); // Switch to knife
+            
+            // Validate weapon
+            if(IsValidEdict(weaponIndex2))
+            {
+                // Gets weapon classname
+                GetEdictClassname(weaponIndex2, sBuffer, sizeof(sBuffer));
+                
+                // Switch the weapon
+                FakeClientCommand(clientIndex, "use %s", sBuffer);
+            }
         }
         else
         {

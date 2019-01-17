@@ -37,7 +37,7 @@
 #define PLUGIN_BRANCH       "zp-X"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "16-January-2019T20:30:00-GMT+01:00"
+#define PLUGIN_DATE         "17-January-2019T20:30:00-GMT+01:00"
 /**
  * @endsection
  **/

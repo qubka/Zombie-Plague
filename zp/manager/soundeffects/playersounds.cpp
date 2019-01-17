@@ -58,6 +58,10 @@ void PlayerSoundsOnOnLoad(/*void*/)
     gCvarList[CVAR_SEFFECTS_PLAYER_FLASHLIGHT].GetString(sBuffer, sizeof(sBuffer));
     gSoundData.Flashlight = SoundsKeyToIndex(sBuffer);
 
+    // Load player nightvision sounds
+    gCvarList[CVAR_SEFFECTS_PLAYER_NVGS].GetString(sBuffer, sizeof(sBuffer));
+    gSoundData.Nvgs = SoundsKeyToIndex(sBuffer);
+    
     // Load player ammunition sounds
     gCvarList[CVAR_SEFFECTS_PLAYER_AMMUNITION].GetString(sBuffer, sizeof(sBuffer));
     gSoundData.Ammunition = SoundsKeyToIndex(sBuffer);
