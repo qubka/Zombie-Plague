@@ -103,6 +103,7 @@ void AccountOnCvarInit(/*void*/)
     gCvarList[CVAR_ACCOUNT_CASH_AWARD]   = FindConVar("mp_playercashawards");
     gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE] = FindConVar("mp_buy_anywhere");
     gCvarList[CVAR_ACCOUNT_MONEY]        = FindConVar("zp_account_money");
+    gCvarList[CVAR_ACCOUNT_CONNECT]      = FindConVar("zp_account_connect");
     gCvarList[CVAR_ACCOUNT_BET]          = FindConVar("zp_account_bet");
     gCvarList[CVAR_ACCOUNT_COMMISION]    = FindConVar("zp_account_commision");
     gCvarList[CVAR_ACCOUNT_DECREASE]     = FindConVar("zp_account_decrease");

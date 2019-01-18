@@ -35,7 +35,6 @@
  **/ 
 #define DATABASE_SECTION     "zombiedatabase"
 #define DATABASE_NAME        "zombieplague" 
-#define DATABASE_CONNECTION  50
 /**
  * @endsection
  **/
@@ -577,7 +576,7 @@ public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, cons
         {
             // Sets client data
             gClientData[clientIndex].DataID = hResult.InsertId;
-            gClientData[clientIndex].Money  = DATABASE_CONNECTION;
+            gClientData[clientIndex].Money  = gCvarList[CVAR_ACCOUNT_CONNECT].IntValue;
         }
     } 
 }
