@@ -1057,7 +1057,7 @@ void CostumesMenu(const int clientIndex)
         
         // Format some chars for showing in menu
         FormatEx(sLevel, sizeof(sLevel), "%t", "level", CostumesGetLevel(i));
-        FormatEx(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < CostumesGetLevel(i)) ? sLevel : "");
+        FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < CostumesGetLevel(i)) ? sLevel : "");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));

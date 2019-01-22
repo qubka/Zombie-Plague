@@ -241,7 +241,7 @@ void ZMarketMenu(const int clientIndex, const char[] sTitle, const MenuType mSlo
             // Format some chars for showing in menu
             FormatEx(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(i));
             FormatEx(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(i));      
-            FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, hasLength(sGroup) ? sGroup : (gClientData[clientIndex].Level < WeaponsGetLevel(i)) ? sLevel : (fnGetPlaying() < WeaponsGetOnline(i)) ? sOnline : "", "price", WeaponsGetCost(i), "money");
+            FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[clientIndex].Level < WeaponsGetLevel(i)) ? sLevel : (fnGetPlaying() < WeaponsGetOnline(i)) ? sOnline : "", "price", WeaponsGetCost(i), "money");
    
             // Show option
             IntToString(i, sInfo, sizeof(sInfo));
@@ -277,7 +277,7 @@ void ZMarketMenu(const int clientIndex, const char[] sTitle, const MenuType mSlo
             WeaponsGetName(iD, sName, sizeof(sName));
 
             // Format some chars for showing in menu
-            FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%t\t%t" : "%s", sName, "price", WeaponsGetCost(iD), "money");
+            FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%t  %t" : "%s", sName, "price", WeaponsGetCost(iD), "money");
 
             // Show option
             IntToString(iD, sInfo, sizeof(sInfo));

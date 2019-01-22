@@ -3340,7 +3340,7 @@ void ModesMenu(const int clientIndex, const int targetIndex = -1)
         
         // Format some chars for showing in menu
         FormatEx(sOnline, sizeof(sOnline), "%t", "online", ModesGetMinPlayers(i));
-        FormatEx(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (iAlive < ModesGetMinPlayers(i)) ? sOnline : "");
+        FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (iAlive < ModesGetMinPlayers(i)) ? sOnline : "");
 
         // Show option
         FormatEx(sInfo, sizeof(sInfo), "%d %d", i, targetIndex);

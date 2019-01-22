@@ -276,7 +276,7 @@ void ClassMenu(const int clientIndex, const char[] sTitle, const char[] sType, c
         
         // Format some chars for showing in menu
         FormatEx(sLevel, sizeof(sLevel), "%t", "level", ClassGetLevel(i));
-        FormatEx(sBuffer, sizeof(sBuffer), "%t\t%s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ClassGetLevel(i)) ? sLevel : "");
+        FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ClassGetLevel(i)) ? sLevel : "");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));

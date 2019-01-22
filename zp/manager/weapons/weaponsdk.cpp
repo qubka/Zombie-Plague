@@ -361,11 +361,17 @@ public void WeaponSDKOnWeaponReloadPost(const int referenceIndex)
             float flReload = WeaponsGetReload(iD);
             if(flReload)
             {
+                // Resets the instant value 
+                if(flReload < 0.0) flReload = 0.0;
+            
                 // Adds the game time based on the game tick
                 flReload += GetGameTime();
         
-                // Sets reload time
+                // Sets weapon reload time
                 WeaponsSetAnimating(weaponIndex, flReload);
+                
+                // Sets client reload time
+                ToolsSetClientAttack(clientIndex, flReload);
             }
             
             // Call forward
@@ -766,11 +772,17 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
             float flDeploy = WeaponsGetDeploy(iD);
             if(flDeploy)
             {
+                // Resets the instant value 
+                if(flDeploy < 0.0) flDeploy = 0.0;
+        
                 // Adds the game time based on the game tick
                 flDeploy += GetGameTime();
         
-                // Sets deploy time
+                // Sets weapon deploy time
                 WeaponsSetAnimating(weaponIndex, flDeploy);
+                
+                // Sets client deploy time
+                ToolsSetClientAttack(clientIndex, flDeploy);
             }
     
             // If view/world model exist, then set them
@@ -1101,13 +1113,16 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
         float flSpeed = WeaponsGetSpeed(iD);
         if(flSpeed)
         {
+            // Resets the instant value
+            if(flSpeed < 0.0) flSpeed = 0.0;
+                
             // Adds the game time based on the game tick
             flSpeed += flCurrentTime;
     
-            // Sets next attack time
+            // Sets weapon attack time
             WeaponsSetAnimating(weaponIndex, flSpeed);
             
-            // Block client attack
+            // Sets client attack time
             ToolsSetClientAttack(clientIndex, flSpeed);
         }
 

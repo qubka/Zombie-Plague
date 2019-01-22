@@ -705,29 +705,29 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
             MySQL ? 
               "(`id` int(64) NOT NULL auto_increment, \
                 `steam_id` varchar(32) NOT NULL, \
-                `money` int(64) NOT NULL, \
-                `level` int(64) NOT NULL, \
-                `exp` int(64) NOT NULL, \
-                `zclass` int(64) NOT NULL, \
-                `hclass` int(64) NOT NULL, \
-                `rebuy` int(64) NOT NULL, \
-                `costume` int(64) NOT NULL, \
-                `vision` int(64) NOT NULL, \
-                `time` int(64) NOT NULL, \
+                `money` int(64) NOT NULL DEFAULT 0, \
+                `level` int(64) NOT NULL DEFAULT 1, \
+                `exp` int(64) NOT NULL DEFAULT 0, \
+                `zclass` int(64) NOT NULL DEFAULT 0, \
+                `hclass` int(64) NOT NULL DEFAULT 0, \
+                `rebuy` int(64) NOT NULL DEFAULT 1, \
+                `costume` int(64) NOT NULL DEFAULT -1, \
+                `vision` int(64) NOT NULL DEFAULT 1, \
+                `time` int(64) NOT NULL DEFAULT 0, \
                 PRIMARY KEY (`id`), \
                 UNIQUE KEY `steam_id` (`steam_id`));"            
             :
-              "(`id` INTEGER PRIMARY KEY AUTOINCREMENT, \
-                `steam_id` TEXT UNIQUE, \
-                `money` INTEGER, \
-                `level` INTEGER, \
-                `exp` INTEGER, \
-                `zclass` INTEGER, \
-                `hclass` INTEGER, \
-                `rebuy` INTEGER, \
-                `costume` INTEGER, \
-                `vision` INTEGER, \
-                `time` INTEGER);");
+              "(`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+                `steam_id` TEXT UNIQUE NOT NULL, \
+                `money` INTEGER DEFAULT 0, \
+                `level` INTEGER DEFAULT 1, \
+                `exp` INTEGER DEFAULT 0, \
+                `zclass` INTEGER DEFAULT 0, \
+                `hclass` INTEGER DEFAULT 0, \
+                `rebuy` INTEGER DEFAULT 1, \
+                `costume` INTEGER DEFAULT -1, \
+                `vision` INTEGER DEFAULT 1, \
+                `time` INTEGER DEFAULT 0);");
             
             // Log database creation info
             LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Table \"%s\" was created/loaded. \"%s\" - \"%s\"", DATABASE_NAME, MySQL ? "MySQL" : "SQlite", sRequest);
@@ -759,7 +759,7 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
             {
                 case ColumnType_ID :
                 {
-                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `id` int(64) NOT NULL auto_increment, ADD PRIMARY KEY (`id`);" : "ADD COLUMN `id` INTEGER PRIMARY KEY AUTOINCREMENT;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `id` int(64) NOT NULL auto_increment, ADD PRIMARY KEY (`id`);" : "ADD COLUMN `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"id\" was added. \"%s\"", sRequest);
@@ -767,7 +767,7 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 
                 case ColumnType_SteamID :
                 {
-                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `steam_id` varchar(32) NOT NULL, ADD UNIQUE `steam_id` (`steam_id`);" : "ADD COLUMN `steam_id` TEXT UNIQUE;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `steam_id` varchar(32) NOT NULL, ADD UNIQUE `steam_id` (`steam_id`);" : "ADD COLUMN `steam_id` TEXT UNIQUE NOT NULL;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"steam_id\" was added. \"%s\"", sRequest);
@@ -776,7 +776,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Money :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `money` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"money\" was added. \"%s\"", sRequest);
@@ -785,7 +786,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Level :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `level` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 1;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"level\" was added. \"%s\"", sRequest);
@@ -794,7 +796,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Exp :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `exp` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"exp\" was added. \"%s\"", sRequest);
@@ -803,7 +806,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Zombie :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `zclass` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"zclass\" was added. \"%s\"", sRequest);
@@ -812,7 +816,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Human :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `hclass` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"hclass\" was added. \"%s\"", sRequest);
@@ -821,7 +826,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Rebuy :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `rebuy` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 1;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"rebuy\" was added. \"%s\"", sRequest);
@@ -830,7 +836,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Costume :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `costume` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT -1;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"costume\" was added. \"%s\"", sRequest);
@@ -839,8 +846,9 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Vision :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `vision` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
-
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 1;");
+                    
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"vision\" was added. \"%s\"", sRequest);
                 }
@@ -848,7 +856,8 @@ void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxL
                 case ColumnType_Time :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `time` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER ");
+                    StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"time\" was added. \"%s\"", sRequest);

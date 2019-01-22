@@ -927,7 +927,7 @@ void ItemsMenu(const int clientIndex)
         FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
         FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
         FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
-        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t\t%s\t%t" : "%t\t%s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
+        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
