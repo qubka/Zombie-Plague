@@ -68,7 +68,7 @@ public void OnLibraryAdded(const char[] sLibrary)
     if(!strcmp(sLibrary, "zombieplague", false))
     {
         // Hook events
-        HookEvent("player_death", EventPlayerDeath, EventHookMode_Post);
+        HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
     }
 }
 
@@ -106,12 +106,6 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
     // Validate the zombie class index
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
-        // Validate zombie amount
-        if(ZP_GetZombieAmount() <= 0)
-        {
-            return;
-        }
-
         // Initialize vectors
         static float vEntPosition[3]; static float vVictimPosition[3];
 

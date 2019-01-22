@@ -157,6 +157,17 @@ void LevelSystemOnCvarInit(/*void*/)
 }
 
 /**
+ * @brief Client has been spawned.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void LevelSystemOnClientSpawn(const int clientIndex)
+{
+    // Reset HUD on the team change
+    LevelSystemOnClientUpdate(clientIndex);
+}
+
+/**
  * @brief Client has been killed.
  * 
  * @param clientIndex       The client index.

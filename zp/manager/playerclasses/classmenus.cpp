@@ -493,6 +493,9 @@ void ClassesMenu(const int clientIndex)
     
     // Creates menu handle
     Menu hMenu = CreateMenu(ClassesMenuSlots);
+    
+    // Sets language to target
+    SetGlobalTransTarget(clientIndex);
 
     // Sets title
     hMenu.SetTitle("%t", "classes menu");

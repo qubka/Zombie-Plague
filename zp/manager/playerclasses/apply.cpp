@@ -189,7 +189,7 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate attacker
-    if(IsPlayerExist(attackerIndex)) 
+    if(IsPlayerExist(attackerIndex, false)) 
     {
         // Create a fake event
         DeathOnClientHUD(clientIndex, attackerIndex);
@@ -203,10 +203,16 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
         ClassGetExp(gClientData[attackerIndex].Class, iExp, sizeof(iExp));
         ClassGetMoney(gClientData[attackerIndex].Class, iMoney, sizeof(iMoney));
         
-        // Increment money/exp/health
+        // Increment money/exp
         LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex].Exp + iExp[BonusType_Infect]);
         AccountSetClientCash(attackerIndex, gClientData[attackerIndex].Money + iMoney[BonusType_Infect]);
-        ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+        
+        // If attacker is alive, then give lifesteal 
+        if(IsPlayerAlive(attackerIndex)) 
+        {
+            // Add lifesteal health
+            ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+        }
     }
     // If infection was done by server
     else if(!attackerIndex)
@@ -247,7 +253,7 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
     SkillSystemOnClientUpdate(clientIndex);
     LevelSystemOnClientUpdate(clientIndex);
     VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
-    VOverlayOnClientUpdate(clientIndex, Overlay_Vision);
+    if(gClientData[clientIndex].Vision) VOverlayOnClientUpdate(clientIndex, Overlay_Vision);
     RequestFrame(view_as<RequestFrameCallback>(AccountOnClientUpdate), GetClientUserId(clientIndex));
     RequestFrame(view_as<RequestFrameCallback>(WeaponsOnClientUpdate), GetClientUserId(clientIndex));
     

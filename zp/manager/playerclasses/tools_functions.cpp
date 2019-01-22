@@ -166,6 +166,10 @@ public Action ToolsOnCommandListened(const int clientIndex, const char[] command
                 return Plugin_Handled;
             }
             
+            // Update nvgs in the database
+            gClientData[clientIndex].Vision = !gClientData[clientIndex].Vision;
+            DataBaseOnClientUpdate(clientIndex, ColumnType_Vision);
+            
             // Switch on/off nightvision  
             VOverlayOnClientNvgs(clientIndex);
             

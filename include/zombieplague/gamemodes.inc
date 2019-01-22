@@ -381,6 +381,15 @@ native bool ZP_IsGameModeSuicide(int modeID);
 native bool ZP_IsGameModeEscape(int modeID);
 
 /**
+ * @brief Checks the blast mode of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsGameModeBlast(int modeID);
+
+/**
  * @brief Checks the xray access of the game mode.
  *
  * @param modeID            The mode index.

@@ -262,7 +262,7 @@ void WeaponSDKOnCommandInit(/*void*/)
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.  
  **/
@@ -935,7 +935,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
             ToolsSetEntityModelIndex(viewModel2, iModel);
             WeaponHDRSetTextures(viewModel2, (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View), (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View));
             
-            //  Update the animation interval delay for second viewmodel 
+            // Update the animation interval delay for second viewmodel 
             SetEntDataFloat(viewModel2, g_iOffset_ViewModelPlaybackRate, GetEntDataFloat(viewModel1, g_iOffset_ViewModelPlaybackRate), true);
 
             // Creates a toggle model

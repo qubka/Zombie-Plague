@@ -41,6 +41,28 @@ enum OverlayType
  **/
  
 /**
+ * @brief Client has been spawn.
+ *
+ * @param clientIndex       The client index.
+ **/
+void VOverlayOnClientSpawn(const int clientIndex)
+{
+    // Reset overlay on the team change
+    VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
+} 
+
+/**
+ * @brief Client has been death.
+ *
+ * @param clientIndex       The client index.
+ **/
+void VOverlayOnClientDeath(const int clientIndex)
+{
+    // Reset overlay on the death
+    VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
+} 
+ 
+/**
  * @brief Client has been changed class state.
  *
  * @param clientIndex       The client index.
@@ -56,29 +78,35 @@ void VOverlayOnClientUpdate(const int clientIndex, const OverlayType overlayType
     {
         // Remove 'Any' overlay
         case Overlay_Reset : 
-        { 
+        {
+            // Reset overlay path
             sOverlay[0] = '\0'; 
-            ToolsSetClientNightVision(clientIndex, false); /// Disable ngv 
-            ToolsSetClientNightVision(clientIndex, false, true); /// Remove ngv ownership
+            
+            // Disable ngv and remove ngv ownership
+            ToolsSetClientNightVision(clientIndex, false);
+            ToolsSetClientNightVision(clientIndex, false, true);
         }
   
         // Sets 'Human Win' overlay
         case Overlay_HumanWin : 
-        { 
+        {
+            // Gets overlay path
             ModesGetOverlayHuman(gServerData.RoundMode, sOverlay, sizeof(sOverlay)); 
             if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }    
 
         // Sets 'Zombie Win' overlay
         case Overlay_ZombieWin : 
-        { 
+        {
+            // Gets overlay path
             ModesGetOverlayZombie(gServerData.RoundMode, sOverlay, sizeof(sOverlay)); 
             if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }
         
         // Sets 'Draw' overlay
         case Overlay_Draw : 
-        { 
+        {
+            // Gets overlay path
             ModesGetOverlayDraw(gServerData.RoundMode, sOverlay, sizeof(sOverlay)); 
             if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }  
@@ -86,8 +114,11 @@ void VOverlayOnClientUpdate(const int clientIndex, const OverlayType overlayType
         // Sets 'Vision' overlay
         case Overlay_Vision : 
         {
-            ToolsSetClientNightVision(clientIndex, true, true); /// Create ngv ownership
-            ToolsSetClientNightVision(clientIndex, ClassIsNvgs(gClientData[clientIndex].Class)); /// Enable ngv
+            // Create ngv ownership and enable ngv 
+            ToolsSetClientNightVision(clientIndex, true, true);
+            ToolsSetClientNightVision(clientIndex, ClassIsNvgs(gClientData[clientIndex].Class));
+
+            // Gets overlay path
             ClassGetOverlay(gClientData[clientIndex].Class, sOverlay, sizeof(sOverlay)); 
             if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }                        

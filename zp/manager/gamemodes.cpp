@@ -66,6 +66,7 @@ enum
     GAMEMODES_DATA_LAST,
     GAMEMODES_DATA_SUICIDE,
     GAMEMODES_DATA_ESCAPE,
+    GAMEMODES_DATA_BLAST,
     GAMEMODES_DATA_XRAY,
     GAMEMODES_DATA_REGEN,
     GAMEMODES_DATA_SKILL,
@@ -83,9 +84,9 @@ enum
 void GameModesOnInit(/*void*/)
 {
     // Hook server events
-    HookEvent("round_prestart",     GameModesOnPreStart,  EventHookMode_Pre);
+    HookEvent("round_prestart",     GameModesOnStartPre,  EventHookMode_Pre);
     HookEvent("round_start",        GameModesOnStart,     EventHookMode_Post);
-    ///HookEvent("round_poststart", GameModesOnPostStart, EventHookMode_Post);
+    ///HookEvent("round_poststart", GameModesOnStartPost, EventHookMode_Post);
     HookEvent("cs_win_panel_round", GameModesOnPanel,     EventHookMode_Pre);
     
     // Creates a HUD synchronization object
@@ -97,8 +98,8 @@ void GameModesOnInit(/*void*/)
  **/
 void GameModesOnPurge(/*void*/)
 {
-    // Purge server timer
-    gServerData.CounterTimer = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
+    // Purge server timers
+    gServerData.PurgeTimers();
 }
 
 /**
@@ -151,7 +152,7 @@ void GameModesOnLoad(/*void*/)
     ConfigSetConfigHandle(File_GameModes, gServerData.GameModes);
     
     // Call server events *(Fake)
-    GameModesOnPreStart(view_as<Event>(null), "", false); 
+    GameModesOnStartPre(view_as<Event>(null), "", false); 
     ///GameModesOnStart(view_as<Event>(null), "", false); 
 }
 
@@ -190,6 +191,7 @@ void GameModesOnCacheData(/*void*/)
         }
         
         // Validate translation
+        StringToLower(sPathModes);
         if(!TranslationPhraseExists(sPathModes))
         {
             // Log weapon error
@@ -201,7 +203,7 @@ void GameModesOnCacheData(/*void*/)
         ArrayList arrayGameMode = gServerData.GameModes.Get(i);
 
         // Push data into array
-        kvGameModes.GetString("desc", sPathModes, sizeof(sPathModes), "");
+        kvGameModes.GetString("desc", sPathModes, sizeof(sPathModes), ""); StringToLower(sPathModes);
         if(!TranslationPhraseExists(sPathModes) && hasLength(sPathModes))
         {
             // Log gamemode error
@@ -249,12 +251,13 @@ void GameModesOnCacheData(/*void*/)
         arrayGameMode.Push(kvGameModes.GetNum("last", 0));                          // Index: 28
         arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "suicide", "no"));    // Index: 29
         arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "escape", "off"));    // Index: 30
-        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 31
-        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 32
-        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 33
-        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 34
-        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "weapon", "yes"));    // Index: 35
-        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "extraitem", "yes")); // Index: 36
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "blast", "on"));      // Index: 31
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 32
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 33
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 34
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 35
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "weapon", "yes"));    // Index: 36
+        arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "extraitem", "yes")); // Index: 37
     }
 
     // We're done with this file now, so we can close it
@@ -277,6 +280,7 @@ void GameModesOnCvarInit(/*void*/)
 {
     // Creates cvars
     gCvarList[CVAR_GAMEMODE]               = FindConVar("zp_gamemode");
+    gCvarList[CVAR_GAMEMODE_BLAST_TIME]    = FindConVar("zp_blast_time");
     gCvarList[CVAR_GAMEMODE_TEAM_BALANCE]  = FindConVar("mp_autoteambalance"); 
     gCvarList[CVAR_GAMEMODE_LIMIT_TEAMS]   = FindConVar("mp_limitteams");
     gCvarList[CVAR_GAMEMODE_WARMUP_TIME]   = FindConVar("mp_warmuptime");
@@ -626,7 +630,7 @@ void GameModesOnBegin(int modeIndex = -1, const int targetIndex = -1)
     // Validate counter
     if(gServerData.CounterTimer != null)
     {
-        // Reset server timer 
+        // Reset server counter 
         delete gServerData.CounterTimer;
     }
 
@@ -645,7 +649,7 @@ void GameModesOnBegin(int modeIndex = -1, const int targetIndex = -1)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action GameModesOnPreStart(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action GameModesOnStartPre(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
     // Resets server global variables
     gServerData.RoundNew   = true;
@@ -656,12 +660,18 @@ public Action GameModesOnPreStart(Event hEvent, const char[] sName, bool dontBro
     gServerData.RoundMode  = -1;
     gServerData.RoundNumber++;
     gServerData.RoundCount = gCvarList[CVAR_GAMEMODE].IntValue;
+    
+    // Clear server counter
+    delete gServerData.CounterTimer;
     if(gServerData.RoundCount)
     {
         // Creates timer for starting gamemodes
-        delete gServerData.CounterTimer;
         gServerData.CounterTimer = CreateTimer(1.0, GameModesOnCounter, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
+    
+    // Clear server sounds
+    delete gServerData.EndTimer;
+    delete gServerData.BlastTimer;
     
     // Forward event to modules
     ModesBalanceTeams();
@@ -690,7 +700,7 @@ public Action GameModesOnStart(Event hEvent, const char[] sName, bool dontBroadc
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-/*public Action GameModesOnPostStart(Event hEvent, const char[] sName, bool dontBroadcast) 
+/*public Action GameModesOnStartPost(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
 }*/
 
@@ -713,24 +723,61 @@ public Action GameModesOnPanel(Event hEvent, const char[] sName, bool dontBroadc
 }
 
 /**
+ * @brief Timer callback, the blast is started. *(Post)
+ **/
+public Action GameModesOnBlast(Handle hTimer)
+{
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate zombie
+        if(IsPlayerExist(i) && gClientData[i].Zombie)
+        {
+            // Forward event to modules
+            VEffectOnBlast(i);
+    
+            // Forces a player to commit suicide
+            SDKHooks_TakeDamage(i, i, i, float(GetClientHealth(i)) + 1.0, DMG_BLAST_SURFACE);
+        }
+    }
+}
+
+/**
  * @brief Called when TerminateRound is called.
  * 
- * @param flDelay           Time (in seconds) until new round starts
+ * @param flDelay           Time (in seconds) until new round starts.
  * @param iReason           The reason index.
  **/
 public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& reasonIndex)
 {
+    // Validate time
+    int iRoundTimeLeft = (RoundToNearest(GameRules_GetPropFloat("m_fRoundStartTime")) + GameRules_GetProp("m_iRoundTime")) - RoundToNearest(GetGameTime());
+    if(iRoundTimeLeft > 0)
+    {
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate any respawning
+            if(gClientData[i].RespawnTimer != null)
+            {
+                // Block end
+                return Plugin_Handled;
+            }
+        }
+    }
+    
     // Resets server grobal variables
     gServerData.RoundNew   = false;
     gServerData.RoundEnd   = true;
     gServerData.RoundStart = false;
     
-    // Reset server timer
+    // Reset server counter
     delete gServerData.CounterTimer;
 
     // If restart, then stop
     if(reasonIndex == CSRoundEnd_GameStart)
     {
+        // Allow end
         return Plugin_Continue;
     }
 
@@ -777,6 +824,9 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& reasonIndex)
 
         // Sets the reason
         reasonIndex = CSRoundEnd_Draw;
+        
+        // Create a round blast
+        if(iZombies) ModesBlast(flDelay);
     }
     
     // Sets score in the scoreboard
@@ -789,7 +839,7 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& reasonIndex)
     // Call forward
     gForwardData._OnGameModeEnd(reasonIndex);
     
-    // Return on success
+    // Allow end
     return Plugin_Changed;
 }
 
@@ -838,6 +888,7 @@ void GameModesOnNativeInit(/*void*/)
     CreateNative("ZP_GetGameModeLast",             API_GetGameModeLast);
     CreateNative("ZP_IsGameModeSuicide",           API_IsGameModeSuicide);
     CreateNative("ZP_IsGameModeEscape",            API_IsGameModeEscape);
+    CreateNative("ZP_IsGameModeBlast",             API_IsGameModeBlast);
     CreateNative("ZP_IsGameModeXRay",              API_IsGameModeXRay);
     CreateNative("ZP_IsGameModeRegen",             API_IsGameModeRegen);
     CreateNative("ZP_IsGameModeSkill",             API_IsGameModeSkill);
@@ -1912,6 +1963,33 @@ public int API_IsGameModeEscape(Handle hPlugin, const int iNumParams)
 }
 
 /**
+ * @brief Checks the blast mode of the game mode.
+ *
+ * @note native bool ZP_IsGameModeBlast(iD);
+ **/
+public int API_IsGameModeBlast(Handle hPlugin, const int iNumParams)
+{
+    // Gets mode index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate no game mode
+    if(iD == -1)
+    {
+        return false;
+    }
+    
+    // Validate index
+    if(iD >= gServerData.GameModes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+        return -1;
+    }
+    
+    // Return value
+    return ModesIsBlast(iD);
+}
+
+/**
  * @brief Checks the xray access of the game mode.
  *
  * @note native bool ZP_IsGameModeXRay(iD);
@@ -2746,6 +2824,27 @@ bool ModesIsEscape(const int iD)
 }
 
 /**
+ * @brief Checks the blast mode of the game mode.
+ *
+ * @param iD                The mode index.
+ * @return                  True or false.
+ **/
+bool ModesIsBlast(const int iD)
+{
+    // Validate no game mode
+    if(iD == -1)
+    {
+        return false;
+    }
+    
+    // Gets array handle of game mode at given index
+    ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
+
+    // Gets game mode blast mode
+    return arrayGameMode.Get(GAMEMODES_DATA_BLAST);
+}
+
+/**
  * @brief Checks the xray access of the game mode.
  *
  * @param iD                The mode index.
@@ -3123,6 +3222,38 @@ void ModesReward(const int zombieType, const int humanType, const OverlayType ov
         }
     }
 }
+
+/**
+ * @brief Create the round blast to kill all zombies.
+ *
+ * @param flDelay           Time (in seconds) until new round starts.
+ **/
+void ModesBlast(const float flDelay)
+{
+    // Validate blast mode
+    if(!ModesIsBlast(gServerData.RoundMode))
+    {
+        return;
+    }
+
+    // Validate blast time
+    float flTime = gCvarList[CVAR_GAMEMODE_BLAST_TIME].FloatValue;
+    if(flTime < flDelay)
+    {
+        // Forward event to modules
+        SoundsOnBlast();
+        
+        // If help messages enabled, then show info
+        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+        {
+            // Show help information
+            TranslationPrintHintTextAll("general blast reminder");
+        }
+
+        // Create timer for emit sounds
+        CreateTimer(flTime, GameModesOnBlast, _, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+    }
+} 
 
 /*
  * Menu game modes API.

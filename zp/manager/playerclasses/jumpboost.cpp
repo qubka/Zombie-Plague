@@ -94,7 +94,7 @@ public void JumpBoostOnCvarHook(ConVar hConVar, const char[] oldValue, const cha
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.
  **/
@@ -159,7 +159,7 @@ public Action JumpBoostOnClientJump(Event hEvent, const char[] sName, bool dontB
 }
 
 /**
- * @brief Client is jumping. *(Post)
+ * @brief Client has been jumped. *(Post)
  *
  * @param userID            The user id.
  **/

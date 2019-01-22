@@ -126,6 +126,7 @@ void MenusOnCacheData(/*void*/)
         }
         
         // Validate translation
+        StringToLower(sPathMenus);
         if(!TranslationPhraseExists(sPathMenus))
         {
             // Log menu error
@@ -158,6 +159,7 @@ void MenusOnCacheData(/*void*/)
                     kvMenus.GetSectionName(sPathMenus, sizeof(sPathMenus));
                     
                     // Validate translation
+                    StringToLower(sPathMenus);
                     if(!TranslationPhraseExists(sPathMenus))
                     {
                         // Log menu error

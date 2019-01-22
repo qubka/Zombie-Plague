@@ -100,7 +100,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
-    //  Validate call
+    // Validate call
     if(!(hSDKCallLookupAttachment = EndPrepSDKCall()))
     {
         // Log failure

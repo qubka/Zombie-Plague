@@ -36,6 +36,7 @@ enum struct SoundData
     int Nvgs;
     int Start;
     int Count;
+    int Blast;
 };
 /**
  * @endsection
@@ -77,6 +78,10 @@ void PlayerSoundsOnOnLoad(/*void*/)
     // Load round count sounds
     gCvarList[CVAR_SEFFECTS_ROUND_COUNT].GetString(sBuffer, sizeof(sBuffer));
     gSoundData.Count = SoundsKeyToIndex(sBuffer);
+    
+    // Load round blast sounds
+    gCvarList[CVAR_SEFFECTS_ROUND_BLAST].GetString(sBuffer, sizeof(sBuffer));
+    gSoundData.Blast = SoundsKeyToIndex(sBuffer);
 }
 
 /**
@@ -98,6 +103,7 @@ void PlayerSoundsOnCvarInit(/*void*/)
     gCvarList[CVAR_SEFFECTS_PLAYER_LEVEL]      = FindConVar("zp_seffects_player_level");
     gCvarList[CVAR_SEFFECTS_ROUND_START]       = FindConVar("zp_seffects_round_start");   
     gCvarList[CVAR_SEFFECTS_ROUND_COUNT]       = FindConVar("zp_seffects_round_count");   
+    gCvarList[CVAR_SEFFECTS_ROUND_BLAST]       = FindConVar("zp_seffects_round_blast");
     
     // Hook cvars
     HookConVarChange(gCvarList[CVAR_SEFFECTS_PLAYER_FLASHLIGHT], PlayerSoundsOnCvarHook);
@@ -106,6 +112,7 @@ void PlayerSoundsOnCvarInit(/*void*/)
     HookConVarChange(gCvarList[CVAR_SEFFECTS_PLAYER_LEVEL],      PlayerSoundsOnCvarHook);
     HookConVarChange(gCvarList[CVAR_SEFFECTS_ROUND_START],       PlayerSoundsOnCvarHook);
     HookConVarChange(gCvarList[CVAR_SEFFECTS_ROUND_COUNT],       PlayerSoundsOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_SEFFECTS_ROUND_BLAST],       PlayerSoundsOnCvarHook);
 }
 
 /**
@@ -124,6 +131,9 @@ void PlayerSoundsOnCounterStart(/*void*/)
  **/
 public Action PlayerSoundsOnRoundEndPost(Handle hTimer, const CSRoundEndReason reasonIndex)
 {
+    // Clear timer
+    gServerData.EndTimer = null;
+    
     // Gets reason
     switch(reasonIndex)
     {
@@ -132,6 +142,9 @@ public Action PlayerSoundsOnRoundEndPost(Handle hTimer, const CSRoundEndReason r
         case CSRoundEnd_CTWin :        SEffectsInputEmitToAll(ModesGetSoundEndHumanID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
         case CSRoundEnd_Draw :         SEffectsInputEmitToAll(ModesGetSoundEndDrawID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
     }
+    
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 /**
@@ -143,6 +156,21 @@ bool PlayerSoundsOnCounter(/*void*/)
 {
     // Emit counter sound
     return SEffectsInputEmitToAll(gSoundData.Count, gServerData.RoundCount, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
+}
+
+/**
+ * @brief Timer callback, the blast is started. *(Post)
+ **/
+public Action PlayerSoundsOnBlastPost(Handle hTimer)
+{
+    // Clear timer
+    gServerData.BlastTimer = null;
+    
+    // Emit blast sound
+    SEffectsInputEmitToAll(gSoundData.Blast, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
+
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 /**

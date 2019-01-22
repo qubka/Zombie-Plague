@@ -108,6 +108,17 @@ void VEffectsOnCvarInit(/*void*/)
  */
 
 /**
+ * @brief The blast is started.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void VEffectOnBlast(const int clientIndex)
+{
+    // Forward event to sub-modules
+    VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 255, 255, 255});
+}
+ 
+/**
  * @brief Client has been killed.
  * 
  * @param clientIndex       The client index.
@@ -172,6 +183,9 @@ void VEffectsOnClientHumanized(const int clientIndex)
  **/
 void VEffectsOnClientRegen(const int clientIndex)
 {
+    // Forward event to sub-modules
+    VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {0, 255, 0, 25});
+    
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
     {
@@ -179,7 +193,6 @@ void VEffectsOnClientRegen(const int clientIndex)
     }
     
     // Forward event to sub-modules
-    VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {0, 255, 0, 25});
     PlayerVEffectsOnClientRegen(clientIndex);
 }
 
@@ -221,16 +234,16 @@ void VEffectsShakeClientScreen(const int clientIndex, const ConVar hAmplitude, c
     }
     
     // Create message
-    Handle hShake = StartMessageOne("Shake", clientIndex);
+    Protobuf hShake = view_as<Protobuf>(StartMessageOne("Shake", clientIndex));
 
     // Validate message
     if(hShake != null)
     {
         // Write shake information to message handle
-        PbSetInt(hShake,   "command", 0);
-        PbSetFloat(hShake, "local_amplitude", hAmplitude.FloatValue);
-        PbSetFloat(hShake, "frequency", hFrequency.FloatValue);
-        PbSetFloat(hShake, "duration", hDuration.FloatValue);
+        hShake.SetInt("command", 0);
+        hShake.SetFloat("local_amplitude", hAmplitude.FloatValue);
+        hShake.SetFloat("frequency", hFrequency.FloatValue);
+        hShake.SetFloat("duration", hDuration.FloatValue);
 
         // End usermsg and send to the client
         EndMessage();
@@ -255,16 +268,16 @@ void VEffectsFadeClientScreen(const int clientIndex, const ConVar hDuration, con
     }
     
     // Create message
-    Handle hFade = StartMessageOne("Fade", clientIndex);
+    Protobuf hFade = view_as<Protobuf>(StartMessageOne("Fade", clientIndex));
 
     // Validate message
     if(hFade != null)
     {
         // Write shake information to message handle
-        PbSetInt(hFade, "duration", RoundToNearest(hDuration.FloatValue * 1000.0)); 
-        PbSetInt(hFade, "hold_time", RoundToNearest(hHoldTime.FloatValue * 1000.0)); 
-        PbSetInt(hFade, "flags", iFlags); 
-        PbSetColor(hFade, "clr", vColor); 
+        hFade.SetInt("duration", RoundToNearest(hDuration.FloatValue * 1000.0)); 
+        hFade.SetInt("hold_time", RoundToNearest(hHoldTime.FloatValue * 1000.0)); 
+        hFade.SetInt("flags", iFlags); 
+        hFade.SetColor("clr", vColor); 
 
         // End usermsg and send to the client
         EndMessage();
@@ -280,13 +293,13 @@ void VEffectsFadeClientScreen(const int clientIndex, const ConVar hDuration, con
 void VEffectsHintClientScreen(const int clientIndex, const char[] sMessage)
 {
     // Create message
-    Handle hMessage = StartMessageOne("HintText", clientIndex);
+    Protobuf hMessage = view_as<Protobuf>(StartMessageOne("HintText", clientIndex));
 
     // Validate message
     if(hMessage != null)
     {
         // Write shake information to message handle
-        PbSetString(hMessage, "text", sMessage);
+        hMessage.SetString("text", sMessage);
 
         // End usermsg and send to the client
         EndMessage();

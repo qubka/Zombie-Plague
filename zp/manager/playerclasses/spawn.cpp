@@ -31,7 +31,7 @@
 void SpawnOnInit(/*void*/)
 {
     // Hook player events
-    HookEvent("player_spawn", SpawnOnClient, EventHookMode_Post);
+    HookEvent("player_spawn", SpawnOnClientSpawn, EventHookMode_Post);
     
     // Initialize a spawn position array
     gServerData.Spawns = CreateArray(3); 
@@ -140,8 +140,8 @@ public Action SpawnOnCommandListened(const int clientIndex, const char[] command
                             }
                             else
                             {   
-                                // Emit fake death
-                                DeathOnClientRespawn(null, GetClientUserId(clientIndex));
+                                // Call respawning
+                                DeathOnClientRespawn(clientIndex, _, false);
                             }
 
                             // Validate first connection
@@ -206,9 +206,9 @@ public Action SpawnOnCommandListened(const int clientIndex, const char[] command
         }
         
         // Forward event to modules
-        LevelSystemOnClientUpdate(clientIndex);
-        AccountOnClientUpdate(GetClientUserId(clientIndex));
-        VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
+        LevelSystemOnClientSpawn(clientIndex);
+        AccountOnClientSpawn(GetClientUserId(clientIndex));
+        VOverlayOnClientSpawn(clientIndex);
     }
     
     // Allow command
@@ -217,13 +217,13 @@ public Action SpawnOnCommandListened(const int clientIndex, const char[] command
  
 /**
  * Event callback (player_spawn)
- * @brief Client has been spawned.
+ * @brief Client has ben spawned.
  * 
  * @param gEventHook        The event handle.
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action SpawnOnClient(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action SpawnOnClientSpawn(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));

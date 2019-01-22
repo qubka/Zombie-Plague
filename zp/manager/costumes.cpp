@@ -195,6 +195,7 @@ void CostumesOnCacheData(/*void*/)
         }
         
         // Validate translation
+        StringToLower(sPathCostumes);
         if(!TranslationPhraseExists(sPathCostumes))
         {
             // Log costume error
@@ -276,7 +277,7 @@ void CostumesOnCvarInit(/*void*/)
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.  
  **/

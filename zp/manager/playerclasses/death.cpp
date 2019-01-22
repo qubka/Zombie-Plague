@@ -31,7 +31,7 @@
 void DeathOnInit(/*void*/)
 {
     // Hook player events
-    HookEvent("player_death", DeathOnClient, EventHookMode_Pre);
+    HookEvent("player_death", DeathOnClientDeath, EventHookMode_Post);
 }
 
 /**
@@ -83,7 +83,7 @@ public Action DeathOnCommandListened(const int clientIndex, const char[] command
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action DeathOnClient(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action DeathOnClientDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex   = GetClientOfUserId(hEvent.GetInt("userid"));
@@ -92,32 +92,9 @@ public Action DeathOnClient(Event hEvent, const char[] sName, bool dontBroadcast
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
     {
-        // If the client isn't a player, a player really didn't die now. Some
-        // other mods might sent this event with bad data.
-        return Plugin_Handled;
+        return;
     }
-
-    // Forward event to modules
-    RagdollOnClientDeath(clientIndex);
-    SoundsOnClientDeath(clientIndex);
-    VEffectOnClientDeath(clientIndex);
-    WeaponsOnClientDeath(clientIndex);
-    DeathOnClientKill(clientIndex, attackerIndex);
-    LevelSystemOnClientDeath(clientIndex);
-    AccountOnClientDeath(clientIndex);
     
-    // Allow death
-    return Plugin_Continue;
-}
- 
-/**
- * @brief Client has been killed.
- * 
- * @param clientIndex       The victim index.
- * @param attackerIndex     The attacker index.
- **/
-void DeathOnClientKill(const int clientIndex, const int attackerIndex)
-{
     // Delete player timers
     gClientData[clientIndex].ResetTimers();
     
@@ -126,55 +103,102 @@ void DeathOnClientKill(const int clientIndex, const int attackerIndex)
     ToolsSetClientFlashLight(clientIndex, false);
     ToolsSetClientHud(clientIndex, true);
     ToolsSetClientFov(clientIndex);
-
-    // Validate round
-    if(!ModesValidateRound())
+    
+    // Forward event to modules
+    RagdollOnClientDeath(clientIndex);
+    SoundsOnClientDeath(clientIndex);
+    VEffectOnClientDeath(clientIndex);
+    WeaponsOnClientDeath(clientIndex);
+    VOverlayOnClientDeath(clientIndex);
+    LevelSystemOnClientDeath(clientIndex);
+    AccountOnClientDeath(clientIndex);
+    if(!DeathOnClientRespawn(clientIndex, attackerIndex))
     {
-        // Player was killed by other ?
-        if(clientIndex != attackerIndex) 
-        {
-            // If respawn amount more, than limit, stop
-            if(gClientData[clientIndex].RespawnTimes > ModesGetAmount(gServerData.RoundMode))
-            {
-                return;
-            }
-            
-            // Verify that the attacker is exist
-            if(IsPlayerExist(attackerIndex))
-            {
-                // Gets class exp and money bonuses
-                static int iExp[6]; static int iMoney[6];
-                ClassGetExp(gClientData[attackerIndex].Class, iExp, sizeof(iExp));
-                ClassGetMoney(gClientData[attackerIndex].Class, iMoney, sizeof(iMoney));
-        
-                // Increment money/exp/health
-                LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex].Exp + iExp[BonusType_Kill]);
-                AccountSetClientCash(attackerIndex, gClientData[attackerIndex].Money + iMoney[BonusType_Kill]);
-                ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
-            }
-        }
-        // If player was killed by world, respawn on suicide?
-        else if(!ModesIsSuicide(gServerData.RoundMode))
-        {
-            return;
-        }
+        // Terminate the round
+        ModesValidateRound();
+    }
+}
+/**
+ * @brief 
+ *
+ * @param clientIndex       The client index.
+ * @param attackerIndex     (Optional) The attacker index.
+ * @param bTimer            If true, run the respawning timer, false to respawn instantly.
+ **/
+bool DeathOnClientRespawn(const int clientIndex, const int attackerIndex = 0,  const bool bTimer = true)
+{
+    // If mode doesn't started yet, then stop
+    if(!gServerData.RoundStart)
+    {
+        return true; //! Avoid double check in 'ModesValidateRound'
+    }
 
+    // If respawn disabled on the current game mode, then stop
+    if(!ModesIsRespawn(gServerData.RoundMode))
+    {
+        return false;
+    }
+    
+    // If any last humans/zombies are left, then stop
+    int iLast = ModesGetLast(gServerData.RoundMode);
+    if(fnGetHumans() < iLast || fnGetZombies() < iLast)
+    {
+        return false;
+    }
+        
+    // If player was killed by world, then stop
+    if(clientIndex == attackerIndex && !ModesIsSuicide(gServerData.RoundMode)) 
+    {
+        return false;
+    }
+
+    // If respawn amount exceed limit, the stop
+    if(gClientData[clientIndex].RespawnTimes >= ModesGetAmount(gServerData.RoundMode))
+    {
+        return false;
+    }
+
+    // Verify that the attacker is exist
+    if(IsPlayerExist(attackerIndex))
+    {
+        // Gets class exp and money bonuses
+        static int iExp[6]; static int iMoney[6];
+        ClassGetExp(gClientData[attackerIndex].Class, iExp, sizeof(iExp));
+        ClassGetMoney(gClientData[attackerIndex].Class, iMoney, sizeof(iMoney));
+
+        // Increment money/exp/health
+        LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex].Exp + iExp[BonusType_Kill]);
+        AccountSetClientCash(attackerIndex, gClientData[attackerIndex].Money + iMoney[BonusType_Kill]);
+        ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+    }
+        
+    // Validate timer
+    if(bTimer)
+    {
         // Increment count
         gClientData[clientIndex].RespawnTimes++;
-        
+    
         // Sets timer for respawn player
         delete gClientData[clientIndex].RespawnTimer;
-        gClientData[clientIndex].RespawnTimer = CreateTimer(ModesGetDelay(gServerData.RoundMode), DeathOnClientRespawn, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        gClientData[clientIndex].RespawnTimer = CreateTimer(ModesGetDelay(gServerData.RoundMode), DeathOnClientRespawning, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
     }
+    else
+    {
+        // Respawn a player
+        ToolsForceToRespawn(clientIndex);
+    }
+    
+    // Return on success
+    return true;
 }
 
 /**
- * @brief Timer callback, respawn a player.
+ * @brief Timer callback, respawning a player.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action DeathOnClientRespawn(Handle hTimer, const int userID)
+public Action DeathOnClientRespawning(Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -185,25 +209,8 @@ public Action DeathOnClientRespawn(Handle hTimer, const int userID)
     // Validate client
     if(clientIndex)
     {
-        // If mode doesn't started yet, then stop
-        if(!gServerData.RoundStart)
-        {
-            return Plugin_Stop;
-        }
-
-        // Respawn player automatically, if allowed on the current game mode
-        if(ModesIsRespawn(gServerData.RoundMode))
-        {
-            // Respawn if only the last humans/zombies are left?
-            int iLast = ModesGetLast(gServerData.RoundMode);
-            if(fnGetHumans() <= iLast || fnGetZombies() <= iLast)
-            {
-                return Plugin_Stop;
-            }
-
-            // Respawn a player
-            ToolsForceToRespawn(clientIndex);
-        }
+        // Call respawning
+        DeathOnClientRespawn(clientIndex, _, false);
     }
     
     // Destroy timer

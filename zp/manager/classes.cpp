@@ -241,6 +241,7 @@ void ClassesOnCacheData(/*void*/)
         }
         
         // Validate translation
+        StringToLower(sPathClasses);
         if(!TranslationPhraseExists(sPathClasses))
         {
             // Log class error
@@ -252,14 +253,14 @@ void ClassesOnCacheData(/*void*/)
         ArrayList arrayClass = gServerData.Classes.Get(i);
 
         // Push data into array
-        kvClasses.GetString("info", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("info", sPathClasses, sizeof(sPathClasses), ""); StringToLower(sPathClasses);
         if(!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
         {
             // Log class error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class info: \"%s\" (check translation file)", sPathClasses);
         }
         arrayClass.PushString(sPathClasses);                                    // Index: 1
-        kvClasses.GetString("type", sPathClasses, sizeof(sPathClasses), "");
+        kvClasses.GetString("type", sPathClasses, sizeof(sPathClasses), ""); StringToLower(sPathClasses);
         if(!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
         {
             // Log class error
@@ -419,7 +420,7 @@ void ClassesOnCvarInit(/*void*/)
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.
  **/
@@ -549,7 +550,7 @@ public int API_ChangeClient(Handle hPlugin, const int iNumParams)
     int attackerIndex = GetNativeCell(2);
 
     // Validate attacker
-    if(attackerIndex && !IsPlayerExist(attackerIndex))
+    if(attackerIndex && !IsPlayerExist(attackerIndex, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the attacker index (%d)", attackerIndex);
         return false;

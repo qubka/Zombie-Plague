@@ -222,9 +222,11 @@ void SoundsOnRoundEnd(const CSRoundEndReason reasonIndex)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
+    SEffectsInputStopAll();
     
     // Create timer for emit sounds
-    SEffectsInputStopAll(); CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reasonIndex, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+    delete gServerData.EndTimer;
+    gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reasonIndex, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
 }
 
 /**
@@ -236,6 +238,16 @@ bool SoundsOnCounter(/*void*/)
 {
     // Forward event to sub-modules
     return PlayerSoundsOnCounter();
+}
+
+/**
+ * @brief The blast is started.
+ **/
+void SoundsOnBlast(/*void*/)
+{
+    // Create timer for emit sounds
+    delete gServerData.BlastTimer;
+    gServerData.BlastTimer = CreateTimer(0.3, PlayerSoundsOnBlastPost, _, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
 }
 
 /**

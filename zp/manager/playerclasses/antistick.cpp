@@ -106,7 +106,7 @@ void AntiStickOnInit(/*void*/)
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.
  **/

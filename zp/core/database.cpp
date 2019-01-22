@@ -44,9 +44,8 @@
  **/
 enum ColumnType
 {
-     ColumnType_All = -1,         /** Used as a value when all colums are needed.*/
-    
      ColumnType_ID,
+     ColumnType_SteamID,
      ColumnType_Money,
      ColumnType_Level,
      ColumnType_Exp,
@@ -54,11 +53,45 @@ enum ColumnType
      ColumnType_Human,
      ColumnType_Rebuy,
      ColumnType_Costume,
-     ColumnType_Time
+     ColumnType_Vision,
+     ColumnType_Time,
+     ColumnType_All,
 };
 /**
  * @endsection
  **/
+ 
+/**
+ * @section Database transaction types.
+ **/ 
+enum TransactionType
+{
+    TransactionType_Create,
+    TransactionType_Load,
+    TransactionType_Unload,
+    TransactionType_Info,
+    TransactionType_Describe
+}
+/**
+ * @endsection
+ **/
+ 
+ /**
+ * @section Database factories types.
+ **/ 
+enum FactoryType
+{
+    FactoryType_Create,
+    FactoryType_Drop,
+    FactoryType_Dump,
+    FactoryType_Add,
+    FactoryType_Select,
+    FactoryType_Update,
+    FactoryType_Insert
+}
+/**
+ * @endsection
+ **/ 
  
 /**
  * Arrays for storing ID in the SQL base.
@@ -139,14 +172,14 @@ void DataBaseOnLoad(/*void*/)
         }
         
         // Generate request
-        SQLBaseFactory__(i, sRequest, sizeof(sRequest), ColumnType_All, true);
+        SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Select, i);
         
         // Adds a query to the transaction
         hTxn.AddQuery(sRequest, i);
     }
     
     // Sent a transaction 
-    gServerData.DataBase.Execute(hTxn, SQLTxnSuccess_Callback, SQLTxnFailure_Callback, true, DBPrio_Low); 
+    gServerData.DataBase.Execute(hTxn, SQLTxnSuccess_Callback, SQLTxnFailure_Callback, TransactionType_Load, DBPrio_Low); 
 }
 
 /**
@@ -176,7 +209,7 @@ void DataBaseOnUnload(/*void*/)
         }
     
         // Generate request
-        SQLBaseFactory__(i, sRequest, sizeof(sRequest), ColumnType_All, false);
+        SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Update, i);
         
         // Adds a query to the transaction
         hTxn.AddQuery(sRequest, i);
@@ -188,7 +221,7 @@ void DataBaseOnUnload(/*void*/)
     }
 
     // Sent a transaction 
-    gServerData.DataBase.Execute(hTxn, SQLTxnSuccess_Callback, SQLTxnFailure_Callback, false, DBPrio_High); 
+    gServerData.DataBase.Execute(hTxn, SQLTxnSuccess_Callback, SQLTxnFailure_Callback, TransactionType_Unload, DBPrio_High); 
 }
 
 /**
@@ -253,7 +286,7 @@ public void DataBaseOnCvarHook(ConVar hConVar, const char[] oldValue, const char
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index. 
  **/
@@ -275,7 +308,7 @@ void DataBaseOnClientInit(const int clientIndex)
         if(GetClientAuthId(clientIndex, AuthId_Steam2, SteamID[clientIndex], sizeof(SteamID[])))
         {
             // Generate request
-            SQLBaseFactory__(clientIndex, sRequest, sizeof(sRequest), ColumnType_All, true);
+            SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Select, clientIndex);
             
             // Sent a request
             gServerData.DataBase.Query(SQLBaseSelect_Callback, sRequest, clientIndex, DBPrio_High);
@@ -332,37 +365,59 @@ void DataBaseOnClientUpdate(const int clientIndex, const ColumnType columnType)
     static char sRequest[HUGE_LINE_LENGTH]; 
     
     // Generate request
-    SQLBaseFactory__(clientIndex, sRequest, sizeof(sRequest), columnType, false);
+    SQLBaseFactory__(_, sRequest, sizeof(sRequest), columnType, FactoryType_Update, clientIndex);
     
     // Sent a request
-    gServerData.DataBase.Query(SQLBaseQuery_Callback, sRequest, _, DBPrio_Low);
+    gServerData.DataBase.Query(SQLBaseUpdate_Callback, sRequest, clientIndex, DBPrio_Low);
 }
 
 /*
- * Stocks database API.
+ * Callbacks database API.
  */
  
 /**
  * @brief Callback for a successful transaction.
  * 
  * @param hDatabase         Handle to the database connection.
- * @param bSelect           Data passed in via the original threaded invocation.
+ * @param transactionType   Data passed in via the original threaded invocation.
  * @param numQueries        Number of queries executed in the transaction.
  * @param hResults          An array of DBResultSet results, one for each of numQueries. They are closed automatically.
  * @param clientIndex       An array of each data value passed.
  **/
-public void SQLTxnSuccess_Callback(Database hDatabase, const bool bSelect, const int numQueries, DBResultSet[] hResults, const int[] clientIndex)
+public void SQLTxnSuccess_Callback(Database hDatabase, const TransactionType transactionType, const int numQueries, DBResultSet[] hResults, const int[] clientIndex)
 {
-    // If not a select callback, then stop
-    if(!bSelect)
+    // Gets transaction type
+    switch(transactionType)
     {
-        return;
-    }
-    
-    // i = client index
-    for(int i = 0; i < numQueries; i++)
-    {
-        SQLBaseSelect_Callback(hDatabase, hResults[i], "", clientIndex[i]);
+        // Database was 'Loaded' during map
+        case TransactionType_Load :
+        {
+            // i = client index
+            for(int i = 0; i < numQueries; i++)
+            {
+                SQLBaseSelect_Callback(hDatabase, hResults[i], "", clientIndex[i]);
+            }
+        }
+        
+        // Database 'SQlite' pragma info request
+        case TransactionType_Info :
+        {
+            // Validate request
+            if(numQueries == 2)
+            {
+                SQLBaseAdd_Callback(hDatabase, hResults[1], false);
+            }
+        }
+        
+        // Database 'MySQL' describe request
+        case TransactionType_Describe :
+        {
+            // Validate request
+            if(numQueries == 2)
+            {
+                SQLBaseAdd_Callback(hDatabase, hResults[1], true);
+            }
+        }
     }
 }
 
@@ -374,9 +429,9 @@ public void SQLTxnSuccess_Callback(Database hDatabase, const bool bSelect, const
  * @param numQueries        Number of queries executed in the transaction.
  * @param sError            Error string if there was an error.
  * @param failIndex         Index of the query that failed, or -1 if something else.
- * @param queryData         An array of each data value passed.
+ * @param clientIndex       An array of each data value passed.
  **/
-public void SQLTxnFailure_Callback(Database hDatabase, const any data, const int numQueries, const char[] sError, const int failIndex, const any[] queryData)
+public void SQLTxnFailure_Callback(Database hDatabase, const TransactionType transactionType, const int numQueries, const char[] sError, const int failIndex, const any[] clientIndex)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hasLength(sError))
@@ -394,7 +449,7 @@ public void SQLTxnFailure_Callback(Database hDatabase, const any data, const int
  * @param sError            Error string if there was an error.
  * @param bDropping         Data passed in via the original threaded invocation.
  **/
-public void SQLBaseConnect_Callback(Database hDatabase, const char[] sError, bool bDropping)
+public void SQLBaseConnect_Callback(Database hDatabase, const char[] sError, const bool bDropping)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hasLength(sError))
@@ -419,6 +474,11 @@ public void SQLBaseConnect_Callback(Database hDatabase, const char[] sError, boo
 
         // Store into a global database handler
         gServerData.DataBase = hDatabase;
+        
+        /*______________________________________________________________________________*/
+        
+        // Creates a new transaction object
+        Transaction hTxn = new Transaction();
 
         // Initialize request char
         static char sRequest[HUGE_LINE_LENGTH]; 
@@ -426,73 +486,93 @@ public void SQLBaseConnect_Callback(Database hDatabase, const char[] sError, boo
         // Drop existing database
         if(bDropping)
         {
-            // Format request
-            FormatEx(sRequest, sizeof(sRequest), "DROP TABLE IF EXISTS `%s`", DATABASE_NAME);
+            // Generate request
+            SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Drop);
 
-            // Sent a request
-            gServerData.DataBase.Query(SQLBaseQuery_Callback, sRequest, _, DBPrio_High);
-            
-            // Log database validation info
-            LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Dropped table: \"%s\" | Request : \"%s\"", DATABASE_NAME, sRequest);
+            // Adds a query to the transaction
+            hTxn.AddQuery(sRequest);
         }
         
         // Gets the driver for this connection
         DBDriver hDriver = gServerData.DataBase.Driver;
-        
-        // Find identification string
         static char sDriver[SMALL_LINE_LENGTH]; 
         hDriver.GetIdentifier(sDriver, sizeof(sDriver));
-
-        // If driver is a MySQL
-        bool MySQL = (sDriver[0] == 'm'); 
-        
-        // Remove handler
         delete hDriver;
 
-        /// Format request
-        if(MySQL)
-        {
-        /*______________________________________________________________________*/
-            FormatEx(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` ( \
-                                                 `id` int(64) NOT NULL auto_increment, \
-                                                 `steam_id` varchar(32) NOT NULL, \
-                                                 `money` int(64) NOT NULL, \
-                                                 `level` int(64) NOT NULL, \
-                                                 `exp` int(64) NOT NULL, \
-                                                 `zclass` int(64) NOT NULL, \
-                                                 `hclass` int(64) NOT NULL, \
-                                                 `rebuy` int(64) NOT NULL, \
-                                                 `costume` int(64) NOT NULL, \
-                                                 `time` int(64) NOT NULL, \
-                                                  PRIMARY KEY (`id`), \
-                                                  UNIQUE KEY `steam_id` (`steam_id`))", 
-            DATABASE_NAME);
-        /*______________________________________________________________________*/
-        }
-        else
-        {
-        /*______________________________________________________________________*/
-            FormatEx(sRequest, sizeof(sRequest), "CREATE TABLE IF NOT EXISTS `%s` ( \
-                                                 `id` INTEGER PRIMARY KEY AUTOINCREMENT, \
-                                                 `steam_id` TEXT UNIQUE, \
-                                                 `money` INTEGER, \
-                                                 `level` INTEGER, \
-                                                 `exp` INTEGER, \
-                                                 `zclass` INTEGER, \
-                                                 `hclass` INTEGER, \
-                                                 `rebuy` INTEGER, \
-                                                 `costume` INTEGER, \
-                                                 `time` INTEGER)",
-            DATABASE_NAME);
-        /*______________________________________________________________________*/
-        }
+        // Validate MySQL connection
+        bool MySQL = (sDriver[0] == 'm'); 
 
-        // Sent a request
-        gServerData.DataBase.Query(SQLBaseQuery_Callback, sRequest, _, DBPrio_Normal);
+        // Generate request
+        SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Create);
         
-        // Log database validation info
-        LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Executed table: \"%s\" | Connection type: \"%s\" | Request : \"%s\"", DATABASE_NAME, MySQL ? "MySQL" : "SQlite", sRequest);
+        // Adds a query to the transaction
+        hTxn.AddQuery(sRequest);
+        
+        // Generate request
+        SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Dump);
+        
+        // Adds a query to the transaction
+        hTxn.AddQuery(sRequest);
+
+        // Sent a transaction 
+        gServerData.DataBase.Execute(hTxn, SQLTxnSuccess_Callback, SQLTxnFailure_Callback, MySQL ? TransactionType_Describe : TransactionType_Info, DBPrio_High); 
     }
+}
+
+/**
+ * SQL: INFO, DESCRIBE
+ * @brief Callback for receiving asynchronous database information.
+ *
+ * @param hDatabase         Parent object of the handle.
+ * @param hResult           Handle to the child object.
+ * @param MySQL             The type of connection. 
+ **/
+public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, const bool MySQL)
+{
+    // Initialize a column existance array
+    ArrayList hColumn = CreateArray(SMALL_LINE_LENGTH);
+
+    // Info was found, get name from the rows
+    while(hResult.FetchRow())
+    {
+        // Extract row name
+        static char sColumn[SMALL_LINE_LENGTH];
+        hResult.FetchString(!MySQL, sColumn, sizeof(sColumn));
+
+        // Validate unique column
+        if(hColumn.FindString(sColumn) == -1)
+        {
+            // Push data into array
+            hColumn.PushString(sColumn);
+        }
+    }
+    
+    // Creates a new transaction object
+    Transaction hTxn = new Transaction();
+
+    // Initialize request char
+    static char sRequest[HUGE_LINE_LENGTH]; 
+    
+    // Find any column which not exist in the table
+    static const char sColumn[11][SMALL_LINE_LENGTH] = { "id", "steam_id", "money", "level", "exp", "zclass", "hclass", "rebuy", "costume", "vision", "time" };
+    for(int i = 0; i < sizeof(sColumn); i++)
+    {
+        // Validate unique column
+        if(hColumn.FindString(sColumn[i]) == -1)
+        {
+            // Generate request
+            SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), view_as<ColumnType>(i), FactoryType_Add);
+            
+            // Adds a query to the transaction
+            hTxn.AddQuery(sRequest);
+        }
+    }
+
+    // Sent a transaction 
+    gServerData.DataBase.Execute(hTxn, SQLTxnSuccess_Callback, SQLTxnFailure_Callback, TransactionType_Create, DBPrio_Normal); 
+    
+    // Close list
+    delete hColumn;
 }
 
 /**
@@ -529,6 +609,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, cons
                 gClientData[clientIndex].HumanClassNext  = hResult.FetchInt(view_as<int>(ColumnType_Human));
                 gClientData[clientIndex].AutoRebuy       = view_as<bool>(hResult.FetchInt(view_as<int>(ColumnType_Rebuy)));
                 gClientData[clientIndex].Costume         = hResult.FetchInt(view_as<int>(ColumnType_Costume));
+                gClientData[clientIndex].Vision          = view_as<bool>(hResult.FetchInt(view_as<int>(ColumnType_Vision)));
                 gClientData[clientIndex].Time            = hResult.FetchInt(view_as<int>(ColumnType_Time));
             }
             else
@@ -536,14 +617,11 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, cons
                 // Initialize request char
                 static char sRequest[HUGE_LINE_LENGTH]; 
 
-                // Format request
-                FormatEx(sRequest, sizeof(sRequest), "INSERT INTO `%s` (`steam_id`) VALUES ('%s')", DATABASE_NAME, SteamID[clientIndex]);
-
+                // Generate request
+                SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_SteamID, FactoryType_Insert);
+                
                 // Sent a request
                 gServerData.DataBase.Query(SQLBaseInsert_Callback, sRequest, clientIndex, DBPrio_High);    
-            
-                // Log database updation info
-                LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was inserted. \"%s\"", clientIndex, sRequest);
             }
             
             // Client was loaded
@@ -582,15 +660,15 @@ public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, cons
 }
  
 /**
- * SQL: ANY
+ * SQL: UPDATE
  * @brief Callback for receiving asynchronous database query results.
  *
  * @param hDatabase         Parent object of the handle.
  * @param hResult           Handle to the child object.
  * @param sError            Error string if there was an error.
- * @param data              Data passed in via the original threaded invocation.
+ * @param clientIndex       Data passed in via the original threaded invocation.
  **/
-public void SQLBaseQuery_Callback(Database hDatabase, DBResultSet hResult, const char[] sError, const any data)
+public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, const char[] sError, const int clientIndex)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hResult == null || hasLength(sError))
@@ -600,161 +678,349 @@ public void SQLBaseQuery_Callback(Database hDatabase, DBResultSet hResult, const
     }
 }
 
+/*
+ * Stocks database API.
+ */
+ 
 /**
- * @brief Function for build a SQL request.
+ * @brief Function for building any SQL request.
  *
- * @param clientIndex       The client index.
- * @param sRequest          
- * @param iMaxLen           
+ * @param MySQL             (Optional) The type of connection. 
+ * @param sRequest          The request output.
+ * @param iMaxLen           The lenght of string.
  * @param columnType        The column type.
- * @param bSelecting        (Optional)
+ * @param factoryType       The request type.
+ * @param clientIndex       (Optional) The client index. (for data)
  **/
-public void SQLBaseFactory__(const int clientIndex, char[] sRequest, const int iMaxLen, const ColumnType columnType, const bool bSelecting)
+void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxLen, const ColumnType columnType, const FactoryType factoryType, const int clientIndex = 0)
 {   
-    // Validate select command
-    if(bSelecting)
+    // Gets factory mode
+    switch(factoryType)
     {
-        /// Format request
-        FormatEx(sRequest, iMaxLen, "SELECT ");    
-        switch(columnType)
+        case FactoryType_Create :
         {
-            case ColumnType_All :
-            {
-                /*_________________________________________________*/
-                StrCat(sRequest, iMaxLen, "`id`, \
-                                           `money`, \
-                                           `level`, \
-                                           `exp`, \
-                                           `zclass`, \
-                                           `hclass`, \
-                                           `rebuy`, \
-                                           `costume`, \
-                                           `time`");
-                /*_________________________________________________*/
+            /// Format request
+            FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `%s` ", DATABASE_NAME);
+            StrCat(sRequest, iMaxLen, 
+            MySQL ? 
+              "(`id` int(64) NOT NULL auto_increment, \
+                `steam_id` varchar(32) NOT NULL, \
+                `money` int(64) NOT NULL, \
+                `level` int(64) NOT NULL, \
+                `exp` int(64) NOT NULL, \
+                `zclass` int(64) NOT NULL, \
+                `hclass` int(64) NOT NULL, \
+                `rebuy` int(64) NOT NULL, \
+                `costume` int(64) NOT NULL, \
+                `vision` int(64) NOT NULL, \
+                `time` int(64) NOT NULL, \
+                PRIMARY KEY (`id`), \
+                UNIQUE KEY `steam_id` (`steam_id`));"            
+            :
+              "(`id` INTEGER PRIMARY KEY AUTOINCREMENT, \
+                `steam_id` TEXT UNIQUE, \
+                `money` INTEGER, \
+                `level` INTEGER, \
+                `exp` INTEGER, \
+                `zclass` INTEGER, \
+                `hclass` INTEGER, \
+                `rebuy` INTEGER, \
+                `costume` INTEGER, \
+                `vision` INTEGER, \
+                `time` INTEGER);");
             
-                // Log database updation info
-                LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was found. \"%s\"", clientIndex, sRequest);
-            }
-            
-            case ColumnType_Money :
-            {
-                StrCat(sRequest, iMaxLen, "`money`");
-            }
-            
-            case ColumnType_Level :
-            {
-                StrCat(sRequest, iMaxLen, "`level`");
-            }
-            
-            case ColumnType_Exp :
-            {
-                StrCat(sRequest, iMaxLen, "`exp`");
-            }
-            
-            case ColumnType_Zombie :
-            {
-                StrCat(sRequest, iMaxLen, "`zclass`");
-            }
-            
-            case ColumnType_Human :
-            {
-                StrCat(sRequest, iMaxLen, "`hclass`");
-            }
-            
-            case ColumnType_Rebuy :
-            {
-                StrCat(sRequest, iMaxLen, "`rebuy`");
-            }
-            
-            case ColumnType_Costume :
-            {
-                StrCat(sRequest, iMaxLen, "`costume`");
-            }
-
-            case ColumnType_Time :
-            {
-                StrCat(sRequest, iMaxLen, "`time`");
-            }
-            
-            default : return;
+            // Log database creation info
+            LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Table \"%s\" was created/loaded. \"%s\" - \"%s\"", DATABASE_NAME, MySQL ? "MySQL" : "SQlite", sRequest);
         }
-        Format(sRequest, iMaxLen, "%s FROM `%s`", sRequest, DATABASE_NAME);
-    }
-    else
-    {
-        /// Format request
-        FormatEx(sRequest, iMaxLen, "UPDATE `%s` SET", DATABASE_NAME);    
-        switch(columnType)
+        
+        case FactoryType_Drop :
         {
-            case ColumnType_All :
-            {
-                /*_______________________________________________________________*/
-                Format(sRequest, iMaxLen, "%s `money` = %d, \
-                                              `level` = %d, \
-                                              `exp` = %d, \
-                                              `zclass` = %d, \
-                                              `hclass` = %d, \
-                                              `rebuy` = %d, \
-                                              `costume` = %d, \
-                                              `time` = %d",
-                sRequest, gClientData[clientIndex].Money, gClientData[clientIndex].Level, gClientData[clientIndex].Exp, gClientData[clientIndex].ZombieClassNext, gClientData[clientIndex].HumanClassNext, gClientData[clientIndex].AutoRebuy, gClientData[clientIndex].Costume, GetTime());
-                /*_______________________________________________________________*/
-
-                // Log database updation info
-                LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was stored. \"%s\"", clientIndex, sRequest); 
-            }
+            /// Format request
+            FormatEx(sRequest, iMaxLen, "DROP TABLE IF EXISTS `%s`;", DATABASE_NAME);
             
-            case ColumnType_Money :
-            {
-                Format(sRequest, iMaxLen, "%s `money` = %d", sRequest, gClientData[clientIndex].Money);
-            }
-            
-            case ColumnType_Level :
-            {
-                Format(sRequest, iMaxLen, "%s `level` = %d", sRequest, gClientData[clientIndex].Level);
-            }
-            
-            case ColumnType_Exp :
-            {
-                Format(sRequest, iMaxLen, "%s `exp` = %d", sRequest, gClientData[clientIndex].Exp);
-            }
-            
-            case ColumnType_Zombie :
-            {
-                Format(sRequest, iMaxLen, "%s `zclass` = %d", sRequest, gClientData[clientIndex].ZombieClassNext);
-            }
-            
-            case ColumnType_Human :
-            {
-                Format(sRequest, iMaxLen, "%s `hclass` = %d", sRequest, gClientData[clientIndex].HumanClassNext);
-            }
-            
-            case ColumnType_Rebuy :
-            {
-                Format(sRequest, iMaxLen, "%s `rebuy` = %d", sRequest, gClientData[clientIndex].AutoRebuy);
-            }
-            
-            case ColumnType_Costume :
-            {
-                Format(sRequest, iMaxLen, "%s `costume` = %d", sRequest, gClientData[clientIndex].Costume);
-            }
-
-            case ColumnType_Time :
-            {
-                Format(sRequest, iMaxLen, "%s `time` = %d", sRequest, GetTime()); //! Gets system time as a unix timestamp
-            }
-            
-            default : return;
+            // Log database dropping info
+            LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Table \"%s\" was dropped. \"%s\"", DATABASE_NAME, sRequest);
         }
-    }
-    
-    // Validate row id
-    if(gClientData[clientIndex].DataID < 1)
-    {
-        Format(sRequest, iMaxLen, "%s WHERE `steam_id` = '%s'", sRequest, SteamID[clientIndex]);
-    }
-    else
-    {
-        Format(sRequest, iMaxLen, "%s WHERE `id` = %d", sRequest, gClientData[clientIndex].DataID);
+        
+        case FactoryType_Dump :
+        {
+            /// Format request
+            FormatEx(sRequest, iMaxLen, MySQL ? "DESCRIBE `%s`;" : "PRAGMA table_info(`%s`);", DATABASE_NAME);
+            
+            // Log database dumping info
+            LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Table \"%s\" was dumped. \"%s\"", DATABASE_NAME, sRequest);
+        }
+        
+        case FactoryType_Add :
+        {
+            /// Format request
+            FormatEx(sRequest, iMaxLen, "ALTER TABLE `%s` ", DATABASE_NAME);
+            switch(columnType)
+            {
+                case ColumnType_ID :
+                {
+                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `id` int(64) NOT NULL auto_increment, ADD PRIMARY KEY (`id`);" : "ADD COLUMN `id` INTEGER PRIMARY KEY AUTOINCREMENT;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"id\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_SteamID :
+                {
+                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `steam_id` varchar(32) NOT NULL, ADD UNIQUE `steam_id` (`steam_id`);" : "ADD COLUMN `steam_id` TEXT UNIQUE;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"steam_id\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Money :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `money` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"money\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Level :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `level` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"level\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Exp :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `exp` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"exp\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Zombie :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `zclass` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"zclass\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Human :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `hclass` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"hclass\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Rebuy :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `rebuy` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"rebuy\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Costume :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `costume` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"costume\" was added. \"%s\"", sRequest);
+                }
+                
+                case ColumnType_Vision :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `vision` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"vision\" was added. \"%s\"", sRequest);
+                }
+
+                case ColumnType_Time :
+                {
+                    StrCat(sRequest, iMaxLen, "ADD COLUMN `time` ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL;" : "INTEGER;");
+                    
+                    // Log database adding info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"time\" was added. \"%s\"", sRequest);
+                }
+            }
+        }
+
+        case FactoryType_Select :
+        {
+            /// Format request
+            FormatEx(sRequest, iMaxLen, "SELECT ");    
+            switch(columnType)
+            {
+                case ColumnType_All :
+                {
+                    StrCat(sRequest, iMaxLen, "*");
+                
+                    // Log database updation info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was found. \"%s\"", clientIndex, sRequest);
+                }
+                
+                case ColumnType_Money :
+                {
+                    StrCat(sRequest, iMaxLen, "`money`");
+                }
+                
+                case ColumnType_Level :
+                {
+                    StrCat(sRequest, iMaxLen, "`level`");
+                }
+                
+                case ColumnType_Exp :
+                {
+                    StrCat(sRequest, iMaxLen, "`exp`");
+                }
+                
+                case ColumnType_Zombie :
+                {
+                    StrCat(sRequest, iMaxLen, "`zclass`");
+                }
+                
+                case ColumnType_Human :
+                {
+                    StrCat(sRequest, iMaxLen, "`hclass`");
+                }
+                
+                case ColumnType_Rebuy :
+                {
+                    StrCat(sRequest, iMaxLen, "`rebuy`");
+                }
+                
+                case ColumnType_Costume :
+                {
+                    StrCat(sRequest, iMaxLen, "`costume`");
+                }
+                
+                case ColumnType_Vision :
+                {
+                    StrCat(sRequest, iMaxLen, "`vision`");
+                }
+
+                case ColumnType_Time :
+                {
+                    StrCat(sRequest, iMaxLen, "`time`");
+                }
+            }
+            Format(sRequest, iMaxLen, "%s FROM `%s`", sRequest, DATABASE_NAME);
+            
+            // Validate row id
+            if(gClientData[clientIndex].DataID < 1)
+            {
+                Format(sRequest, iMaxLen, "%s WHERE `steam_id` = '%s';", sRequest, SteamID[clientIndex]);
+            }
+            else
+            {
+                Format(sRequest, iMaxLen, "%s WHERE `id` = %d;", sRequest, gClientData[clientIndex].DataID);
+            }
+        }
+        
+        case FactoryType_Update :
+        {
+            /// Format request
+            FormatEx(sRequest, iMaxLen, "UPDATE `%s` SET", DATABASE_NAME);    
+            switch(columnType)
+            {
+                case ColumnType_All :
+                {
+                    Format(sRequest, iMaxLen, "%s `money` = %d, \
+                                                  `level` = %d, \
+                                                  `exp` = %d, \
+                                                  `zclass` = %d, \
+                                                  `hclass` = %d, \
+                                                  `rebuy` = %d, \
+                                                  `costume` = %d, \
+                                                  `vision` = %d, \
+                                                  `time` = %d",
+                    sRequest, gClientData[clientIndex].Money, gClientData[clientIndex].Level, gClientData[clientIndex].Exp, gClientData[clientIndex].ZombieClassNext, gClientData[clientIndex].HumanClassNext, gClientData[clientIndex].AutoRebuy, gClientData[clientIndex].Costume, gClientData[clientIndex].Vision, GetTime());
+
+                    // Log database updation info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was stored. \"%s\"", clientIndex, sRequest); 
+                }
+                
+                case ColumnType_Money :
+                {
+                    Format(sRequest, iMaxLen, "%s `money` = %d", sRequest, gClientData[clientIndex].Money);
+                }
+                
+                case ColumnType_Level :
+                {
+                    Format(sRequest, iMaxLen, "%s `level` = %d", sRequest, gClientData[clientIndex].Level);
+                }
+                
+                case ColumnType_Exp :
+                {
+                    Format(sRequest, iMaxLen, "%s `exp` = %d", sRequest, gClientData[clientIndex].Exp);
+                }
+                
+                case ColumnType_Zombie :
+                {
+                    Format(sRequest, iMaxLen, "%s `zclass` = %d", sRequest, gClientData[clientIndex].ZombieClassNext);
+                }
+                
+                case ColumnType_Human :
+                {
+                    Format(sRequest, iMaxLen, "%s `hclass` = %d", sRequest, gClientData[clientIndex].HumanClassNext);
+                }
+                
+                case ColumnType_Rebuy :
+                {
+                    Format(sRequest, iMaxLen, "%s `rebuy` = %d", sRequest, gClientData[clientIndex].AutoRebuy);
+                }
+                
+                case ColumnType_Costume :
+                {
+                    Format(sRequest, iMaxLen, "%s `costume` = %d", sRequest, gClientData[clientIndex].Costume);
+                }
+                
+                case ColumnType_Vision :
+                {
+                    Format(sRequest, iMaxLen, "%s `vision` = %d", sRequest, gClientData[clientIndex].Vision);
+                }
+
+                case ColumnType_Time :
+                {
+                    Format(sRequest, iMaxLen, "%s `time` = %d", sRequest, GetTime()); //! Gets system time as a unix timestamp
+                }
+            }
+            
+            // Validate row id
+            if(gClientData[clientIndex].DataID < 1)
+            {
+                Format(sRequest, iMaxLen, "%s WHERE `steam_id` = '%s';", sRequest, SteamID[clientIndex]);
+            }
+            else
+            {
+                Format(sRequest, iMaxLen, "%s WHERE `id` = %d;", sRequest, gClientData[clientIndex].DataID);
+            }
+        }
+        
+        case FactoryType_Insert :
+        {
+            /// Format request  
+            switch(columnType)
+            {
+                case ColumnType_SteamID :
+                {
+                    FormatEx(sRequest, iMaxLen, "INSERT INTO `%s` (`steam_id`) VALUES ('%s');", DATABASE_NAME, SteamID[clientIndex]);
+                    
+                    // Log database insertion info
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was inserted. \"%s\"", clientIndex, sRequest);
+                }
+            }
+        }    
     }
 }

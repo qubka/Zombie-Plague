@@ -31,6 +31,12 @@
         "en"            "Press @red,@default @greenor @red.@default to purchase ammunition."
         "ru"            "Нажмите @red,@default @greenили @red.@default для покупки патронов."
     }
+    
+    "general blast reminder" // Hint
+    {
+        "en"            "<font color='#D41114'>Warning!</font> Humans has launched a nuke over the infected area!"
+        "ru"            "<font color='#D41114'>Внимание!</font> Люди запустил нюк по зараженной площади!"
+    }
 
     // ===========================
     // Generic (base)

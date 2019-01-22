@@ -558,6 +558,9 @@ stock bool ConfigLoadConfig(const ConfigFile iConfig, ArrayList &arrayConfig, co
                     // Push the key name into the config entry array
                     static char sKeyName[NORMAL_LINE_LENGTH];
                     hKeyvalue.GetSectionName(sKeyName, sizeof(sKeyName));
+
+                    // Converts uppercase chars
+                    StringToLower(sKeyName);
                     
                     // Push data into array
                     arrayConfigEntry.PushString(sKeyName); // Index: 0
@@ -756,7 +759,7 @@ stock bool ConfigKeyvalueTreeSetting(const ConfigFile iConfig, const ConfigKvAct
  **/
 stock void ConfigClearKvArray(const ArrayList arrayKv)
 {
-    //  i = array index
+    // i = array index
     int iSize = arrayKv.Length;
     for(int i = 0; i < iSize; i++)
     {

@@ -182,6 +182,7 @@ void WeaponsOnCacheData(/*void*/)
         }
         
         // Validate translation
+        StringToLower(sPathWeapons);
         if(!TranslationPhraseExists(sPathWeapons))
         {
             // Log weapon error
@@ -193,7 +194,7 @@ void WeaponsOnCacheData(/*void*/)
         ArrayList arrayWeapon = gServerData.Weapons.Get(i); 
  
         // Push data into array
-        kvWeapons.GetString("info", sPathWeapons, sizeof(sPathWeapons), "");
+        kvWeapons.GetString("info", sPathWeapons, sizeof(sPathWeapons), ""); StringToLower(sPathWeapons);
         if(!TranslationPhraseExists(sPathWeapons) && hasLength(sPathWeapons))
         {
             // Log weapon error
@@ -275,7 +276,7 @@ void WeaponsOnCommandInit(/*void*/)
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.  
  **/

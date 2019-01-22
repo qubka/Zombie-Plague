@@ -137,6 +137,7 @@ void ExtraItemsOnCacheData(/*void*/)
         }
         
         // Validate translation
+        StringToLower(sPathItems);
         if(!TranslationPhraseExists(sPathItems))
         {
             // Log extraitem error
@@ -148,7 +149,7 @@ void ExtraItemsOnCacheData(/*void*/)
         ArrayList arrayExtraItem = gServerData.ExtraItems.Get(i);
 
         // Push data into array
-        kvExtraItems.GetString("info", sPathItems, sizeof(sPathItems), ""); 
+        kvExtraItems.GetString("info", sPathItems, sizeof(sPathItems), ""); StringToLower(sPathItems);
         if(!TranslationPhraseExists(sPathItems) && hasLength(sPathItems))
         {
             // Log extraitem error

@@ -206,6 +206,9 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, float 
             SetEntProp(entityIndex, Prop_Data, "m_iHealth", WEAPON_DRONE_HEALTH);
             SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", WEAPON_DRONE_HEALTH);
             
+             // Sets collision
+            SetEntProp(entityIndex, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PUSHAWAY);
+            
             // Create damage hook
             SDKHook(entityIndex, SDKHook_OnTakeDamage, DroneDamageHook);
         }

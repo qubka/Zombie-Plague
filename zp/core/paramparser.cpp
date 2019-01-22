@@ -313,3 +313,19 @@ int CountCharInString(const char[] sBuffer, const char cSymbol)
     // Return amount
     return iAmount ? iAmount : -1;
 }
+
+/**
+ * @brief Converts uppercase chars in the string to lowercase chars.
+ *
+ * @param sBuffer           Input string buffer.
+ */
+void StringToLower(char[] sBuffer)
+{
+    // i = char index
+    int iLen = strlen(sBuffer);
+    for(int i = 0; i < iLen; i++) 
+    {
+        // Character to convert
+        sBuffer[i] = CharToLower(sBuffer[i]);
+    }
+}

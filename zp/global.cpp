@@ -153,6 +153,10 @@ enum struct ServerData
     /* Timer */
     Handle CounterTimer;
     
+    /// Sounds 
+    Handle EndTimer; 
+    Handle BlastTimer;
+    
     /* Gamedata */
     Handle Config;
     Handle SDKHooks;
@@ -181,6 +185,16 @@ enum struct ServerData
     ArrayList Weapons;
     ArrayList Downloads;
     ArrayList Sounds;
+    
+    /**
+     * @brief Clear all timers.
+     **/
+    void PurgeTimers(/*void*/)
+    {
+        this.CounterTimer = null;
+        this.EndTimer     = null;
+        this.BlastTimer   = null;
+    }
 };
 /**
  * @endsection
@@ -213,6 +227,7 @@ enum struct ClientData
     int Exp;
     int DataID;
     int Costume;
+    bool Vision;
     int Time;
     int AttachmentCostume;
     int AttachmentBits;
@@ -264,6 +279,7 @@ enum struct ClientData
         this.Exp                  = 0;
         this.DataID               = -1;
         this.Costume              = -1;
+        this.Vision               = true;
         this.Time                 = 0;
         this.AttachmentCostume    = INVALID_ENT_REFERENCE;
         this.AttachmentBits       = 0;

@@ -230,7 +230,7 @@ void HitGroupsOnCvarInit(/*void*/)
 }
 
 /**
- * @brief Client is joining the server.
+ * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.  
  **/
@@ -507,7 +507,7 @@ bool HitGroupsOnCalculateDamage(const int clientIndex, int &attackerIndex, int &
     if(iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsValidateArmor(clientIndex, iHitGroup))
     {
         // Calculate reduced amount
-        float flReduce =  flDamage * flArmorRatio;
+        float flReduce = flDamage * flArmorRatio;
         int iHit = RoundToNearest((flDamage - flReduce) * flBonusRatio);
 
         // Does this use more armor than we have?

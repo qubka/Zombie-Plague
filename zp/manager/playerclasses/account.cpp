@@ -145,6 +145,17 @@ public void AccountOnCvarHook(ConVar hConVar, const char[] oldValue, const char[
 }
 
 /**
+ * @brief Client has been spawned.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void AccountOnClientSpawn(const int clientIndex)
+{
+    // Reset HUD on the team change
+    AccountOnClientUpdate(GetClientUserId(clientIndex));
+}
+
+/**
  * @brief Client has been killed.
  * 
  * @param clientIndex       The client index.
