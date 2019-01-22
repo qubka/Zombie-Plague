@@ -57,9 +57,16 @@
  * @endsection
  **/
  
-/*
- * Stocks engine API.
- */
+/**
+ * Variables to store SDK calls handlers.
+ **/
+//Handle hSDKCallGetParticleSystemCount;
+//Handle hSDKCallGetParticleSystemNameFromIndex;
+
+/**
+ * Variables to store virtual SDK adresses.
+ **/
+//Address ParticleSystemMgr;
  
 /**
  * @brief Called once when server is started. Will log a warning if a unsupported game is detected.
@@ -158,6 +165,44 @@ void GameEngineOnInit(/*void*/)
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_CONTAGION);
         }
     }
+    
+    /*_________________________________________________________________________________________________________________________________________*/
+    
+    // Starts the preparation of an SDK call
+    /*StartPrepSDKCall(SDKCall_Raw);
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemMgr_GetParticleSystemCount");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+
+    // Validate call
+    if(!(hSDKCallGetParticleSystemCount = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to load SDK call \"CParticleSystemMgr::GetParticleSystemCount\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Raw);
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemMgr_GetParticleSystemNameFromIndex");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_SetReturnInfo(SDKType_String, SDKPass_Pointer);
+
+    // Validate call
+    if(!(hSDKCallGetParticleSystemNameFromIndex = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to load SDK call \"CParticleSystemMgr::GetParticleSystemNameFromIndex\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }*/
+    
+    /*_________________________________________________________________________________________________________________________________________*/
+    
+    // Load other addresses 
+    ///fnInitGameConfAddress(gServerData.Config, ParticleSystemMgr, "ParticleSystemMgr");
 }
 
 /**
@@ -552,7 +597,7 @@ stock int[] fnGetRandomAlive(const int targetIndex = -1, const bool bZombie = fa
  * @brief Returns an offset value from a given config.
  *
  * @param gameConf          The game config handle.
- * @param iOffset           An offset, or -1 on failure. (Destanation)
+ * @param iOffset           An offset, or -1 on failure.
  * @param sKey              Key to retrieve from the offset section.
  **/
 stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, const char[] sKey)
@@ -565,9 +610,25 @@ stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, const char[] sKey
 }
 
 /**
+ * @brief Returns an address value from a given config.
+ *
+ * @param gameConf          The game config handle.
+ * @param iAddress          An adress, or null on failure.
+ * @param sKey              Key to retrieve from the address section.
+ **/
+stock void fnInitGameConfAddress(Handle gameConf, Address &iAddress, const char[] sKey)
+{
+    // Validate adress
+    if((iAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get adress: \"%s\"", sKey);
+    }
+}
+
+/**
  * @brief Given a server classname, finds a networkable send property offset.
  *
- * @param iOffset           An offset, or -1 on failure. (Destanation) 
+ * @param iOffset           An offset, or -1 on failure.
  * @param sServerClass      The classname.
  * @param sProp             The property name.
  **/
@@ -666,6 +727,17 @@ stock void fnPrecacheParticleEffect(const char[] sEffect)
     bool bSave = LockStringTables(false);
     AddToStringTable(tableIndex, sEffect);
     LockStringTables(bSave);
+    
+    /// Test particles amount
+    /*char sParticle[SMALL_LINE_LENGTH];
+    int mgr = LoadFromAddress(ParticleSystemMgr, NumberType_Int32);
+    int iCount = SDKCall(hSDKCallGetParticleSystemCount, mgr);
+    PrintToServer("hSDKCallGetParticleSystemCount = %i", iCount);
+    for(int i = 0; i < iCount; i++)
+    {
+        SDKCall(hSDKCallGetParticleSystemNameFromIndex, mgr, i, sParticle, sizeof(sParticle)); 
+        if(hasLength(sParticle)) PrintToServer(sParticle);
+    }*/
 }
 
 /**

@@ -763,7 +763,7 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
             }
             
             // If custom deploy speed exist, then apply it
-            float flDeploy = WeaponsGetReload(iD);
+            float flDeploy = WeaponsGetDeploy(iD);
             if(flDeploy)
             {
                 // Adds the game time based on the game tick

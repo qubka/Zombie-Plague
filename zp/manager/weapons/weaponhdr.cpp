@@ -445,7 +445,7 @@ int Animating_GetSequenceCount(const int iAnimating)
     // Load some bytes from a memory address
     Address studioHdrClass = view_as<Address>(GetEntData(iAnimating, Animating_StudioHdr));
     
-    // Validate adress
+    // Validate address
     if(studioHdrClass == Address_Null)
     {
         return -1;
@@ -454,7 +454,7 @@ int Animating_GetSequenceCount(const int iAnimating)
     // Load some bytes from a memory address
     Address studioHdrStruct = view_as<Address>(LoadFromAddress(studioHdrClass + view_as<Address>(StudioHdrClass_StudioHdrStruct), NumberType_Int32));
     
-    // Validate adress
+    // Validate address
     if(studioHdrStruct != Address_Null)
     {
         int localSequenceCount = LoadFromAddress(studioHdrStruct + view_as<Address>(StudioHdrStruct_SequenceCount), NumberType_Int32);
@@ -468,7 +468,7 @@ int Animating_GetSequenceCount(const int iAnimating)
     // Load some bytes from a memory address
     Address virtualModelStruct = view_as<Address>(LoadFromAddress(studioHdrClass + view_as<Address>(StudioHdrClass_VirualModelStruct), NumberType_Int32));
     
-    // Validate adress
+    // Validate address
     if(virtualModelStruct != Address_Null)
     {
         return LoadFromAddress(virtualModelStruct + view_as<Address>(VirtualModelStruct_SequenceVector_Size), NumberType_Int32);

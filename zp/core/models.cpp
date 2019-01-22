@@ -521,6 +521,7 @@ bool ModelsPrecacheParticle(const char[] sModel)
 
     // Precache generic
     PrecacheGeneric(sModel, true); /// Precache only here
+    //fnPrecacheParticleEffect(sModel);
     
     // Extract value string
     static char sPath[PLATFORM_LINE_LENGTH];
