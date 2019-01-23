@@ -241,7 +241,7 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     float flCurrentTime = GetTickedTime();
     
     // Cooldown don't over yet, then stop
-    if(flCurrentTime - flDelay[clientIndex] < ClassGetLeapCountdown(gClientData[clientIndex].Zombie))
+    if(flCurrentTime - flDelay[clientIndex] < ClassGetLeapCountdown(gClientData[clientIndex].Class))
     {
         return;
     }
@@ -266,7 +266,7 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
     
     // Scale vector for the boost
-    ScaleVector(vVelocity, ClassGetLeapForce(gClientData[clientIndex].Zombie));
+    ScaleVector(vVelocity, ClassGetLeapForce(gClientData[clientIndex].Class));
     
     // Restore eye angle
     vAngle[0] = flAngleZero;

@@ -513,7 +513,7 @@ void WeaponAttachSetAddons(const int clientIndex)
     {
         iBitPurge |= CSAddon_Decoy;
     }
-    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_Knife]) != INVALID_ENT_REFERENCE || (gClientData[clientIndex].Zombie))
+    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_Knife]) != INVALID_ENT_REFERENCE || gClientData[clientIndex].Zombie)
     {
         iBitPurge |= CSAddon_Knife; iBitPurge |= CSAddon_Holster;
     }

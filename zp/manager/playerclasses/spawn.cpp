@@ -207,7 +207,7 @@ public Action SpawnOnCommandListened(const int clientIndex, const char[] command
         
         // Forward event to modules
         LevelSystemOnClientSpawn(clientIndex);
-        AccountOnClientSpawn(GetClientUserId(clientIndex));
+        AccountOnClientSpawn(clientIndex);
         VOverlayOnClientSpawn(clientIndex);
     }
     

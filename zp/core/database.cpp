@@ -170,12 +170,20 @@ void DataBaseOnLoad(/*void*/)
         {
             continue;
         }
-        
-        // Generate request
-        SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Select, i);
-        
-        // Adds a query to the transaction
-        hTxn.AddQuery(sRequest, i);
+
+        // Verify that the client is a real player
+        if(IsPlayerExist(i, false) && !IsFakeClient(i))
+        {
+            // Validate client authentication string (SteamID)
+            if(GetClientAuthId(i, AuthId_Steam2, SteamID[i], sizeof(SteamID[])))
+            {
+                // Generate request
+                SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_All, FactoryType_Select, i);
+                
+                // Adds a query to the transaction
+                hTxn.AddQuery(sRequest, i);
+            }
+        }
     }
     
     // Sent a transaction 
@@ -618,7 +626,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, cons
                 static char sRequest[HUGE_LINE_LENGTH]; 
 
                 // Generate request
-                SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_SteamID, FactoryType_Insert);
+                SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_SteamID, FactoryType_Insert, clientIndex);
                 
                 // Sent a request
                 gServerData.DataBase.Query(SQLBaseInsert_Callback, sRequest, clientIndex, DBPrio_High);    
