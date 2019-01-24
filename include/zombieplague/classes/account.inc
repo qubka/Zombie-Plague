@@ -68,7 +68,7 @@ native void ZP_SetClientMoney(int clientIndex, int money);
  *  
  * @return                  The money amount.
  **/
-native int ZP_GetClientLastBought(int clientIndex);
+native int ZP_GetClientLastPurchase(int clientIndex);
 
 /**
  * @brief Sets the player amount of money spending.
@@ -78,4 +78,4 @@ native int ZP_GetClientLastBought(int clientIndex);
  *  
  * @noreturn
  **/
-native void ZP_SetClientLastBought(int clientIndex, int money);
+native void ZP_SetClientLastPurchase(int clientIndex, int money);
