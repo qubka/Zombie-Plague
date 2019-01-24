@@ -319,6 +319,17 @@ void SoundsOnClientRegen(const int clientIndex)
 }
 
 /**
+ * @brief Client has been leap jumped.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void SoundsOnClientJump(const int clientIndex)
+{
+    // Forward event to sub-modules
+    PlayerSoundsOnClientJump(clientIndex);
+}
+
+/**
  * @brief Client has been swith nightvision.
  * 
  * @param clientIndex       The client index.
@@ -513,6 +524,12 @@ void SoundsGetPath(const int iKey, char[] sPath, const int iMaxLen, const int iN
  **/
 void SoundsStopAll(const int iKey, const int clientIndex = -1, const int iChannel = SNDCHAN_AUTO)
 {
+    // Validate key
+    if(iKey == -1)
+    {
+        return;
+    }
+    
     // Initialize sound char
     static char sSound[PLATFORM_LINE_LENGTH];
     

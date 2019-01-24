@@ -198,7 +198,7 @@ void PlayerVEffectsOnClientRegen(const int clientIndex)
 }
 
 /**
- * @brief Client has been leap jump.
+ * @brief Client has been leap jumped.
  * 
  * @param clientIndex       The client index.
  **/

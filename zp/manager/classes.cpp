@@ -79,7 +79,8 @@ enum
     CLASSES_DATA_SOUNDBURN,
     CLASSES_DATA_SOUNDATTACK,
     CLASSES_DATA_SOUNDFOOTSTEP,
-    CLASSES_DATA_SOUNDREGEN
+    CLASSES_DATA_SOUNDREGEN,
+    CLASSES_DATA_SOUNDJUMP
 };
 /**
  * @endsection
@@ -370,6 +371,8 @@ void ClassesOnCacheData(/*void*/)
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 48
         kvClasses.GetString("regen", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 49
+        kvClasses.GetString("jump", sPathClasses, sizeof(sPathClasses), "");
+        arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 50
     }
 
     // We're done with this file now, so we can close it
@@ -522,7 +525,8 @@ void ClassesOnNativeInit(/*void*/)
     CreateNative("ZP_GetClassSoundAttackID",    API_GetClassSoundAttackID);
     CreateNative("ZP_GetClassSoundFootID",      API_GetClassSoundFootID);
     CreateNative("ZP_GetClassSoundRegenID",     API_GetClassSoundRegenID);
-
+    CreateNative("ZP_GetClassSoundJumpID",      API_GetClassSoundJumpID);
+    
     // Forward event to sub-modules
     SkillSystemOnNativeInit();
     LevelSystemOnNativeInit();
@@ -2002,6 +2006,27 @@ public int API_GetClassSoundRegenID(Handle hPlugin, const int iNumParams)
     return ClassGetSoundRegenID(iD);
 }
 
+/**
+ * @brief Gets the leap jump sound key of the class.
+ *
+ * @note native void ZP_GetClassSoundJumpID(iD);
+ **/
+public int API_GetClassSoundJumpID(Handle hPlugin, const int iNumParams)
+{
+    // Gets class index from native cell
+    int iD = GetNativeCell(1);
+
+    // Validate index
+    if(iD >= gServerData.Classes.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+        return -1;
+    }
+
+    // Return value
+    return ClassGetSoundJumpID(iD);
+}
+
 /*
  * Classes data reading API.
  */
@@ -2768,6 +2793,21 @@ int ClassGetSoundRegenID(const int iD)
 
     // Gets class regeneration sound key
     return arrayClass.Get(CLASSES_DATA_SOUNDREGEN);
+}
+
+/**
+ * @brief Gets the leap jump sound key of the class.
+ *
+ * @param iD                The class index.
+ * @return                  The key index.
+ **/
+int ClassGetSoundJumpID(const int iD)
+{
+    // Gets array handle of class at given index
+    ArrayList arrayClass = gServerData.Classes.Get(iD);
+
+    // Gets class leap jump sound key
+    return arrayClass.Get(CLASSES_DATA_SOUNDJUMP);
 }
 
 /*

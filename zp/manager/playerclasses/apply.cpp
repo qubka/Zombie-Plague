@@ -164,7 +164,7 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
     ToolsSetClientHud(clientIndex, ClassIsCross(gClientData[clientIndex].Class));
     ToolsSetClientSpot(clientIndex, ClassIsSpot(gClientData[clientIndex].Class));
     ToolsSetClientFov(clientIndex, ClassGetFov(gClientData[clientIndex].Class));
-    
+
     // Initialize model char
     static char sModel[PLATFORM_LINE_LENGTH];
     

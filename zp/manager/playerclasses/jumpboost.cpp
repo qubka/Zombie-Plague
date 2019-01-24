@@ -275,5 +275,6 @@ void JumpBoostOnClientLeapJump(const int clientIndex)
     TeleportEntity(clientIndex, vOrigin, vAngle, vVelocity);
     
     // Forward event to modules
+    SoundsOnClientJump(clientIndex);
     VEffectsOnClientJump(clientIndex);
 }

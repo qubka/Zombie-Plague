@@ -311,6 +311,17 @@ void PlayerSoundsOnClientRegen(const int clientIndex)
 }
 
 /**
+ * @brief Client has been leap jumped.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void PlayerSoundsOnClientJump(const int clientIndex)
+{
+    // Emit jump sound
+    SEffectsInputEmitToAll(ClassGetSoundJumpID(gClientData[clientIndex].Class), _, clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
+}
+
+/**
  * @brief Client has been switch nightvision.
  * 
  * @param clientIndex       The client index.

@@ -607,6 +607,15 @@ native int ZP_GetClassSoundFootID(int classID);
 native int ZP_GetClassSoundRegenID(int classID);
 
 /**
+ * @brief Gets the leap jump sound key of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  The key id.   
+ **/
+native int ZP_GetClassSoundJumpID(int classID);
+
+/**
  * @brief Returns true if the player is a type, false if not.
  *
  * @param clientIndex       The class index.
