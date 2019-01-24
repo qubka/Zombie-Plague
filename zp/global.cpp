@@ -222,7 +222,7 @@ enum struct ClientData
     int Respawn;
     int RespawnTimes;
     int Money;
-    int LastBoughtAmount;
+    int LastPurchase;
     int Level;
     int Exp;
     int DataID;
@@ -274,7 +274,7 @@ enum struct ClientData
         this.Respawn              = TEAM_HUMAN;
         this.RespawnTimes         = 0;
         this.Money                = 0;
-        this.LastBoughtAmount     = 0;
+        this.LastPurchase         = 0;
         this.Level                = 1;
         this.Exp                  = 0;
         this.DataID               = -1;

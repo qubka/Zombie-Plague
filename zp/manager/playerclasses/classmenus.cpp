@@ -475,7 +475,7 @@ void ClassesMenu(const int clientIndex)
         return;
     }
 
-    // Validate access
+    // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
     {
         // Show block info

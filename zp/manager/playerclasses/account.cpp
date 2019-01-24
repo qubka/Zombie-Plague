@@ -336,10 +336,10 @@ public Action AccountMenuOnCommandCatched(const int clientIndex, const int iArgu
  **/
 void AccountOnNativeInit(/*void*/)
 {
-    CreateNative("ZP_GetClientMoney",       API_GetClientMoney);
-    CreateNative("ZP_SetClientMoney",       API_SetClientMoney);
-    CreateNative("ZP_GetClientLastBought",  API_GetClientLastBought);
-    CreateNative("ZP_SetClientLastBought",  API_SetClientLastBought);
+    CreateNative("ZP_GetClientMoney",        API_GetClientMoney);
+    CreateNative("ZP_SetClientMoney",        API_SetClientMoney);
+    CreateNative("ZP_GetClientLastPurchase", API_GetClientLastPurchase);
+    CreateNative("ZP_SetClientLastPurchase", API_SetClientLastPurchase);
 }
 
 /**
@@ -373,29 +373,29 @@ public int API_SetClientMoney(Handle hPlugin, const int iNumParams)
 /**
  * @brief Gets the player amount of previous money spended.
  *
- * @note native int ZP_GetClientLastBought(clientIndex);
+ * @note native int ZP_GetClientLastPurchase(clientIndex);
  **/
-public int API_GetClientLastBought(Handle hPlugin, const int iNumParams)
+public int API_GetClientLastPurchase(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].LastBoughtAmount;
+    return gClientData[clientIndex].LastPurchase;
 }
 
 /**
  * @brief Sets the player amount of money spending.
  *
- * @note native void ZP_SetClientLastBoughtv(clientIndex, iD);
+ * @note native void ZP_SetClientLastPurchase(clientIndex, iD);
  **/
-public int API_SetClientLastBought(Handle hPlugin, const int iNumParams)
+public int API_SetClientLastPurchase(Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
 
-    // Sets money for the client
-    gClientData[clientIndex].LastBoughtAmount = GetNativeCell(2);
+    // Sets purchase for the client
+    gClientData[clientIndex].LastPurchase = GetNativeCell(2);
 }
 
 /*

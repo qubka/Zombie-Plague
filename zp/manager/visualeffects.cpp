@@ -411,12 +411,6 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
  **/
 void VEffectRemoveParticle(const int clientIndex)
 {
-    // If mode doesn't started yet, then stop
-    if(gServerData.RoundNew)
-    {
-        return;
-    }
-    
     // Initialize classname char
     static char sClassname[SMALL_LINE_LENGTH];
 

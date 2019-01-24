@@ -3273,7 +3273,7 @@ void ModesMenu(const int clientIndex, const int targetIndex = -1)
         return;
     }
 
-    // Validate access
+    // If mode already started, then stop 
     if(!gServerData.RoundNew)
     {
         // Show block info

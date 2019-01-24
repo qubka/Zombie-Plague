@@ -868,7 +868,7 @@ void ItemsMenu(const int clientIndex)
         return;
     }
 
-    // Validate access
+    // If mode already started, then stop
     if(gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode))
     {
         // Show block info
@@ -989,7 +989,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
                 return;
             }
             
-            // If mode doesn't ended yet, then stop
+            // If mode already started, then stop
             if((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode)) || gServerData.RoundEnd)
             {
                 // Show block info
@@ -1045,7 +1045,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
                     {
                         // Remove money and store it for returning if player will be first zombie
                         AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - ItemsGetCost(iD));
-                        gClientData[clientIndex].LastBoughtAmount += ItemsGetCost(iD);
+                        gClientData[clientIndex].LastPurchase += ItemsGetCost(iD);
                         
                         // If item has a limit
                         if(ItemsGetLimit(iD))

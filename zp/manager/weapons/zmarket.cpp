@@ -172,7 +172,7 @@ void ZMarketMenu(const int clientIndex, const char[] sTitle, const MenuType mSlo
         return;
     }
 
-    // Validate access
+    // If mode already started, then stop
     if(gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode))
     {
         // Show block info
@@ -340,7 +340,7 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, const int clientInde
                 return;
             }
             
-            // If mode doesn't ended yet, then stop
+            // If mode already started, then stop
             if((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
             {
                 // Show block info
@@ -386,7 +386,7 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, const int clientInde
                         {
                             // Remove money and store it for returning if player will be first zombie
                             AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - WeaponsGetCost(iD));
-                            gClientData[clientIndex].LastBoughtAmount += WeaponsGetCost(iD);
+                            gClientData[clientIndex].LastPurchase += WeaponsGetCost(iD);
                         }
 
                         // Validate unique id

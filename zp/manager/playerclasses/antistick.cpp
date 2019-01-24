@@ -205,7 +205,7 @@ public void AntiStickOnStartTouch(const int clientIndex, const int entityIndex)
     // Gets current collision groups of client and entity
     int collisionGroup = AntiStickGetCollisionGroup(clientIndex);
 
-    // Note: If zombies get stuck on infection or stuck in a teleport, they'll
+    // Note: If players get stuck on change or stuck in a teleport, they'll
     //       get the COLLISION_GROUP_PUSHAWAY collision group, so check this
     //       one too.
 

@@ -540,7 +540,7 @@ stock int fnGetRandomZombie(/*void*/)
  * @brief Gets random array of total alive players.
  *
  * @param targetIndex       (Optional) The target index.
- * @param bZombie           (Optional) True to state infection, false for humanize on the target index.
+ * @param bZombie           (Optional) True to state zombie, false for human on the target index.
  * @return                  The random array of total alive players.
  **/
 stock int[] fnGetRandomAlive(const int targetIndex = -1, const bool bZombie = false)

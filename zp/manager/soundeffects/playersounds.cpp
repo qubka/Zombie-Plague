@@ -246,7 +246,7 @@ void PlayerSoundsOnClientInfected(const int clientIndex, const int attackerIndex
     // If infect sound cvar is disabled, then skip
     if(gCvarList[CVAR_SEFFECTS_INFECT].BoolValue) 
     {
-        // If infection was done by server
+        // If change was done by server
         if(!attackerIndex)
         {
             // Emit respawn sound

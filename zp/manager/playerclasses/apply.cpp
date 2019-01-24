@@ -33,9 +33,17 @@
  **/
 void ApplyOnClientSpawn(const int clientIndex)
 { 
-    // If mode doesn't started yet, then reset respawn
-    if(gServerData.RoundNew) gClientData[clientIndex].Respawn = TEAM_HUMAN;
-
+    // If mode doesn't started yet, then reset
+    if(gServerData.RoundNew) 
+    {
+        // Resets some variables
+        gClientData[clientIndex].RespawnTimes = 0;
+        gClientData[clientIndex].Respawn = TEAM_HUMAN;
+        
+        // Resets limit of extraitems
+        ItemsRemoveLimits(clientIndex);
+    }
+    
     // Initialize type char
     static char sType[SMALL_LINE_LENGTH];
     
@@ -214,14 +222,13 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
             ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
         }
     }
-    // If infection was done by server
+    // If change was done by server
     else if(!attackerIndex)
     {
-        // Return money, which was spent before server infection
-        AccountSetClientCash(clientIndex, gClientData[clientIndex].Money + gClientData[clientIndex].LastBoughtAmount);
-        gClientData[clientIndex].LastBoughtAmount = 0;
+        // Return money, which was spent before server change
+        AccountSetClientCash(clientIndex, gClientData[clientIndex].Money + gClientData[clientIndex].LastPurchase);
         
-        // Validate respawn on the infection
+        // Validate respawn on the change
         if(ModesIsEscape(gServerData.RoundMode))
         {
             // Gets spawn position
@@ -231,7 +238,7 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
             // Teleport player back on the spawn point
             TeleportEntity(clientIndex, vOrigin, NULL_VECTOR, NULL_VECTOR);
         }
-    }
+    } gClientData[clientIndex].LastPurchase = 0; /// Reset purhase amount
     
     /*_________________________________________________________________________________________________________________________________________*/
     
@@ -257,17 +264,8 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
     RequestFrame(view_as<RequestFrameCallback>(AccountOnClientUpdate), GetClientUserId(clientIndex));
     RequestFrame(view_as<RequestFrameCallback>(WeaponsOnClientUpdate), GetClientUserId(clientIndex));
     
-    // If mode doesn't started yet, then reset
-    if(gServerData.RoundNew)
-    {
-        // Resets some variables
-        gClientData[clientIndex].LastBoughtAmount = 0;
-        gClientData[clientIndex].RespawnTimes = 0;
-        
-        // Resets limit of extraitems
-        ItemsRemoveLimits(clientIndex);
-    }
-    else
+    // If mode already started, then change team
+    if(!gServerData.RoundNew)
     {
         // Validate zombie
         if(gClientData[clientIndex].Zombie)
