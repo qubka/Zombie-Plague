@@ -62,7 +62,7 @@
 #include "zp/core/commands.cpp"
 #include "zp/core/database.cpp"
 #include "zp/core/translation.cpp"   
-#include "zp/core/models.cpp"
+#include "zp/core/decryptor.cpp"
 
 // Manager
 #include "zp/manager/visualeffects.cpp"
@@ -101,7 +101,7 @@ public Plugin myinfo =
 /**
  * @brief Called before plugin is loaded.
  **/
-public APLRes AskPluginLoad2(Handle iMyself, bool bLate, char[] sError, int iErrorMax)
+public APLRes AskPluginLoad2(Handle hMySelf, bool bLate, char[] sError, int iErrorMax)
 {
     // Load API
     return APIOnInit();
@@ -118,6 +118,7 @@ public void OnPluginStart(/*void*/)
     CvarsOnInit();
     CommandsOnInit();
     LogOnInit();
+    GameEngineOnInit();
     ClassesOnInit();
     CostumesOnInit(); 
     HitGroupsOnInit();
@@ -125,8 +126,8 @@ public void OnPluginStart(/*void*/)
     DataBaseOnInit();
     GameModesOnInit();
     WeaponsOnInit();
+    VEffectsOnInit();
     ExtraItemsOnInit();
-    GameEngineOnInit();
 }
 
 /**
@@ -137,10 +138,10 @@ public void OnMapStart(/*void*/)
     // Forward event to modules
     SoundsOnLoad();
     WeaponsOnLoad();
+    VEffectsOnLoad();
     DownloadsOnLoad();
     ClassesOnLoad();
     CostumesOnLoad();
-    VEffectsOnLoad();
     GameModesOnLoad();
     VersionOnLoad();
     GameEngineOnLoad();
@@ -153,6 +154,7 @@ public void OnMapEnd(/*void*/)
 {
     // Forward event to modules
     ClassesOnPurge();
+    VEffectsOnPurge();
     GameModesOnPurge();
     GameEngineOnPurge();
 }

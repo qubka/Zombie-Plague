@@ -44,7 +44,7 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_SKILL_RADIUS       40000.0 // [squared]
+#define ZOMBIE_CLASS_SKILL_RADIUS       200.0
 #define ZOMBIE_CLASS_SKILL_DAMAGE       1.0  // 10 damage per sec
 /**
  * @endsection
@@ -117,7 +117,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action ClientOnToxicGas(Handle hTimer, const int referenceIndex)
+public Action ClientOnToxicGas(const Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -144,7 +144,7 @@ public Action ClientOnToxicGas(Handle hTimer, const int referenceIndex)
                     GetClientAbsOrigin(i, vVictimPosition);
 
                     // Calculate the distance
-                    float flDistance = GetVectorDistance(vGasPostion[ownerIndex], vVictimPosition, true);
+                    float flDistance = GetVectorDistance(vGasPostion[ownerIndex], vVictimPosition);
 
                     // Validate distance
                     if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)

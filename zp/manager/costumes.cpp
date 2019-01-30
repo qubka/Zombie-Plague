@@ -96,9 +96,9 @@ void CostumesOnInit(/*void*/)
     
     #if defined USE_DHOOKS
     // Load offsets
-    fnInitGameConfOffset(gServerData.SDKTools, DHook_SetEntityModel, "SetEntityModel");
+    fnInitGameConfOffset(gServerData.SDKTools, DHook_SetEntityModel, /*CBasePlayer::*/"SetEntityModel");
 
-    /// CCSPlayer::SetModel(char const*)
+    /// CCSPlayer::SetModel(CBasePlayer *this, char const*)
     hDHookSetEntityModel = DHookCreate(DHook_SetEntityModel, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, CostumesDhookOnSetEntityModel);
     DHookAddParam(hDHookSetEntityModel, HookParamType_CharPtr);
     #endif
@@ -209,7 +209,7 @@ void CostumesOnCacheData(/*void*/)
         // Push data into array
         kvCostumes.GetString("model", sPathCostumes, sizeof(sPathCostumes), ""); 
         arrayCostume.PushString(sPathCostumes);                               // Index: 1
-        ModelsPrecacheStatic(sPathCostumes); 
+        DecryptPrecacheModel(sPathCostumes); 
         arrayCostume.Push(kvCostumes.GetNum("body", 0));                      // Index: 2
         arrayCostume.Push(kvCostumes.GetNum("skin", 0));                      // Index: 3
         kvCostumes.GetString("attachment", sPathCostumes, sizeof(sPathCostumes), "facemask");  
@@ -415,7 +415,7 @@ void CostumesOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetNumberCostumes();
  **/
-public int API_GetNumberCostumes(Handle hPlugin, const int iNumParams)
+public int API_GetNumberCostumes(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.Costumes.Length;
@@ -426,7 +426,7 @@ public int API_GetNumberCostumes(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientCostume(clientIndex);
  **/
-public int API_GetClientCostume(Handle hPlugin, const int iNumParams)
+public int API_GetClientCostume(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -440,7 +440,7 @@ public int API_GetClientCostume(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientCostume(clientIndex, iD);
  **/
-public int API_SetClientCostume(Handle hPlugin, const int iNumParams)
+public int API_SetClientCostume(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -475,7 +475,7 @@ public int API_SetClientCostume(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetCostumeNameID(name);
  **/
-public int API_GetCostumeNameID(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeNameID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -503,7 +503,7 @@ public int API_GetCostumeNameID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetCostumeName(iD, name, maxlen);
  **/
-public int API_GetCostumeName(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeName(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -538,7 +538,7 @@ public int API_GetCostumeName(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetCostumeModel(iD, model, maxlen);
  **/
-public int API_GetCostumeModel(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeModel(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -573,7 +573,7 @@ public int API_GetCostumeModel(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetCostumeBody(iD);
  **/
-public int API_GetCostumeBody(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeBody(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -594,7 +594,7 @@ public int API_GetCostumeBody(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetCostumeSkin(iD);
  **/
-public int API_GetCostumeSkin(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeSkin(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -615,7 +615,7 @@ public int API_GetCostumeSkin(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetCostumeAttach(iD, attach, maxlen);
  **/
-public int API_GetCostumeAttach(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeAttach(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -650,7 +650,7 @@ public int API_GetCostumeAttach(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetCostumePosition(iD, position);
  **/
-public int API_GetCostumePosition(Handle hPlugin, const int iNumParams)
+public int API_GetCostumePosition(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -675,7 +675,7 @@ public int API_GetCostumePosition(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetCostumeAngle(iD, angle);
  **/
-public int API_GetCostumeAngle(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeAngle(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -700,7 +700,7 @@ public int API_GetCostumeAngle(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetCostumeGroup(iD, group, maxlen);
  **/
-public int API_GetCostumeGroup(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeGroup(const Handle hPlugin, const int iNumParams)
 {
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -735,7 +735,7 @@ public int API_GetCostumeGroup(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsCostumeHide(iD);
  **/
-public int API_IsCostumeHide(Handle hPlugin, const int iNumParams)
+public int API_IsCostumeHide(const Handle hPlugin, const int iNumParams)
 {    
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -756,7 +756,7 @@ public int API_IsCostumeHide(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsCostumeMerge(iD);
  **/
-public int API_IsCostumeMerge(Handle hPlugin, const int iNumParams)
+public int API_IsCostumeMerge(const Handle hPlugin, const int iNumParams)
 {    
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -777,7 +777,7 @@ public int API_IsCostumeMerge(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetCostumeLevel(iD);
  **/
-public int API_GetCostumeLevel(Handle hPlugin, const int iNumParams)
+public int API_GetCostumeLevel(const Handle hPlugin, const int iNumParams)
 {    
     // Gets costume index from native cell
     int iD = GetNativeCell(1);
@@ -1148,8 +1148,8 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, const int clientInd
 
 #if defined USE_DHOOKS
 /**
- * DHook: Sets the model to a given entity.
- * @note void CCSPlayer::SetModel(char const*)
+ * DHook: Sets the model to a given player.
+ * @note void CBasePlayer::SetModel(char const*)
  *
  * @param clientIndex       The client index.
  **/

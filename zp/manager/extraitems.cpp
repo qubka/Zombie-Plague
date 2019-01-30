@@ -230,7 +230,7 @@ void ExtraItemsOnNativeInit(/*void*/)
  *
  * @note native bool ZP_GiveClientExtraItem(clientIndex, iD);
  **/
-public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
+public int API_GiveClientExtraItem(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -273,7 +273,7 @@ public int API_GiveClientExtraItem(Handle isPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientExtraItemLimit(clientIndex, iD, limit);
  **/
-public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
+public int API_SetClientExtraItemLimit(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -307,7 +307,7 @@ public int API_SetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientExtraItemLimit(clientIndex, iD);
  **/
-public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
+public int API_GetClientExtraItemLimit(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -338,7 +338,7 @@ public int API_GetClientExtraItemLimit(Handle isPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberExtraItem();
  **/
-public int API_GetNumberExtraItem(Handle isPlugin, const int iNumParams)
+public int API_GetNumberExtraItem(const Handle hPlugin, const int iNumParams)
 {
     return gServerData.ExtraItems.Length;
 }
@@ -348,7 +348,7 @@ public int API_GetNumberExtraItem(Handle isPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemNameID(name);
  **/
-public int API_GetExtraItemNameID(Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemNameID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -376,7 +376,7 @@ public int API_GetExtraItemNameID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemName(iD, name, maxlen);
  **/
-public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemName(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -411,7 +411,7 @@ public int API_GetExtraItemName(Handle isPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemInfo(iD, info, maxlen);
  **/
-public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemInfo(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -446,7 +446,7 @@ public int API_GetExtraItemInfo(Handle isPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemCost(iD);
  **/
-public int API_GetExtraItemCost(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemCost(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -467,7 +467,7 @@ public int API_GetExtraItemCost(Handle isPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemLevel(iD);
  **/
-public int API_GetExtraItemLevel(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemLevel(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -488,7 +488,7 @@ public int API_GetExtraItemLevel(Handle isPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemOnline(iD);
  **/
-public int API_GetExtraItemOnline(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemOnline(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -509,7 +509,7 @@ public int API_GetExtraItemOnline(Handle isPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemLimit(iD);
  **/
-public int API_GetExtraItemLimit(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemLimit(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -530,7 +530,7 @@ public int API_GetExtraItemLimit(Handle isPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemGroup(iD, group, maxlen);
  **/
-public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemGroup(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -565,7 +565,7 @@ public int API_GetExtraItemGroup(Handle isPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemClass(iD, class, maxlen);
  **/
-public int API_GetExtraItemClass(Handle isPlugin, const int iNumParams)
+public int API_GetExtraItemClass(const Handle hPlugin, const int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -927,11 +927,11 @@ void ItemsMenu(const int clientIndex)
         FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
         FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
         FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
-        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
+        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) != 0 && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex].Money < ItemsGetCost(i)) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex].Money < ItemsGetCost(i)) ? false : true));
     }
     
     // If there are no cases, add an "(Empty)" line

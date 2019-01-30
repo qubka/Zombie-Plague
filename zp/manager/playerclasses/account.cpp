@@ -216,7 +216,7 @@ public void AccountOnClientUpdate(const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AccountOnClientHUD(Handle hTimer, const int userID)
+public Action AccountOnClientHUD(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -347,7 +347,7 @@ void AccountOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetClientMoney(clientIndex);
  **/
-public int API_GetClientMoney(Handle hPlugin, const int iNumParams)
+public int API_GetClientMoney(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -361,7 +361,7 @@ public int API_GetClientMoney(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientMoney(clientIndex, iD);
  **/
-public int API_SetClientMoney(Handle hPlugin, const int iNumParams)
+public int API_SetClientMoney(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -375,7 +375,7 @@ public int API_SetClientMoney(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientLastPurchase(clientIndex);
  **/
-public int API_GetClientLastPurchase(Handle hPlugin, const int iNumParams)
+public int API_GetClientLastPurchase(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -389,7 +389,7 @@ public int API_GetClientLastPurchase(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientLastPurchase(clientIndex, iD);
  **/
-public int API_SetClientLastPurchase(Handle hPlugin, const int iNumParams)
+public int API_SetClientLastPurchase(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

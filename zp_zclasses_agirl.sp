@@ -46,7 +46,7 @@ public Plugin myinfo =
  **/
 #define ZOMBIE_CLASS_SKILL_SPEED        3000.0
 #define ZOMBIE_CLASS_SKILL_GRAVITY      0.01
-#define ZOMBIE_CLASS_SKILL_EXP_RADIUS   22500.0 //[squared]
+#define ZOMBIE_CLASS_SKILL_EXP_RADIUS   150.0
 #define ZOMBIE_CLASS_SKILL_EXP_TIME     2.0
 #define ZOMBIE_CLASS_SKILL_WIDTH        3.0
 #define ZOMBIE_CLASS_SKILL_WIDTH_END    1.0
@@ -221,7 +221,7 @@ public Action BombTouchHook(const int entityIndex, const int targetIndex)
                     GetClientAbsOrigin(i, vVictimPosition);
 
                     // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
                     // Validate distance
                     if(flDistance <= ZOMBIE_CLASS_SKILL_EXP_RADIUS)

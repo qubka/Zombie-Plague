@@ -28,10 +28,13 @@
 /**
  * Variables to store SDK calls handlers.
  **/
-Handle hSDKCallEntityUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
 Handle hSDKCallLookupAttachment;
-Handle hSDKCallGetAttachmentW;
-Handle hSDKCallGetAttachmentL;
+Handle hSDKCallGetAttachment;
+
+/**
+ * Variables to store virtual SDK adresses.
+ **/
+int Player_CanBeSpotted;
 
 // Tools Functions (header)
 #include "zp/manager/playerclasses/tools_functions.cpp"
@@ -76,25 +79,15 @@ void ToolsOnInit(/*void*/)
     fnInitSendPropOffset(g_iOffset_EntityTeam, "CBaseEntity", "m_iTeamNum");
     fnInitSendPropOffset(g_iOffset_EntityOrigin, "CBaseEntity", "m_vecOrigin");
 
-    /*_________________________________________________________________________________________________________________________________________*/
-    
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Entity_UpdateTransmitState");
-
-    // Validate call
-    if(!(hSDKCallEntityUpdateTransmitState = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::UpdateTransmitState\". Update offset in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }
+    // Load other offsets
+    fnInitGameConfOffset(gServerData.Config, Player_CanBeSpotted, "CBasePlayer::CanBeSpotted");
+    g_iOffset_PlayerCanBeSpotted = g_iOffset_PlayerSpotted - Player_CanBeSpotted;
     
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "Animating_LookupAttachment");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupAttachment");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
@@ -112,38 +105,28 @@ void ToolsOnInit(/*void*/)
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "Animating_GetAttachment");
-    
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-    PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-    
-    // Validate call
-    if(!(hSDKCallGetAttachmentL = EndPrepSDKCall()))
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetAttachment");
+
+    // Validate windows
+    if(gServerData.Platform == OS_Windows)
     {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-        return;
+        PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+    }
+    else
+    {
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
     }
     
-    /*_________________________________________________________________________________________________________________________________________*/
-    
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "Animating_GetAttachment");
-    
     // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
     PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
     PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
     
     // Validate call
-    if(!(hSDKCallGetAttachmentW = EndPrepSDKCall()))
+    if(!(hSDKCallGetAttachment = EndPrepSDKCall()))
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-        ///return;
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        return;
     }
 }
 
@@ -193,34 +176,9 @@ void ToolsOnClientDisconnectPost(const int clientIndex)
  **/
 void ToolsOnNativeInit(/*void*/)
 {
-    CreateNative("ZP_UpdateTransmitState",  API_UpdateTransmitState);
     CreateNative("ZP_LookupAttachment",     API_LookupAttachment);
     CreateNative("ZP_GetAttachment",        API_GetAttachment);
     CreateNative("ZP_RespawnClient",        API_RespawnClient);
-}
- 
-/**
- * @brief Update a entity transmit state.
- *
- * @note native void ZP_UpdateTransmitState(entityIndex);
- **/
-public int API_UpdateTransmitState(Handle hPlugin, const int iNumParams)
-{
-    // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
-    
-    // Validate entity
-    if(!IsValidEdict(entityIndex))
-    {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
-        return -1;
-    }
-    
-    // Update state
-    ToolsUpdateTransmitState(entityIndex);
-    
-    // Return on success
-    return 1;
 }
 
 /**
@@ -228,7 +186,7 @@ public int API_UpdateTransmitState(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_LookupAttachment(entityIndex, attach);
  **/
-public int API_LookupAttachment(Handle hPlugin, const int iNumParams)
+public int API_LookupAttachment(const Handle hPlugin, const int iNumParams)
 {
     // Gets entity index from native cell 
     int entityIndex = GetNativeCell(1);
@@ -263,7 +221,7 @@ public int API_LookupAttachment(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetAttachment(entityIndex, attach, origin, angles);
  **/
-public int API_GetAttachment(Handle hPlugin, const int iNumParams)
+public int API_GetAttachment(const Handle hPlugin, const int iNumParams)
 {
     // Gets entity index from native cell 
     int entityIndex = GetNativeCell(1);
@@ -303,7 +261,7 @@ public int API_GetAttachment(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_RespawnClient(clientIndex);
  **/
-public int API_RespawnClient(Handle hPlugin, const int iNumParams)
+public int API_RespawnClient(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

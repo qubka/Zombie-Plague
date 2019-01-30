@@ -275,16 +275,16 @@ void ClassesOnCacheData(/*void*/)
         arrayClass.Push(ConfigKvGetStringBool(kvClasses, "zombie", "no"));      // Index: 3
         kvClasses.GetString("model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 4
-        ModelsPrecacheStatic(sPathClasses);
+        DecryptPrecacheModel(sPathClasses);
         kvClasses.GetString("claw_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 5
-        arrayClass.Push(ModelsPrecacheWeapon(sPathClasses));                    // Index: 6
+        arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                    // Index: 6
         kvClasses.GetString("gren_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 7
-        arrayClass.Push(ModelsPrecacheWeapon(sPathClasses));                    // Index: 8
+        arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                    // Index: 8
         kvClasses.GetString("arm_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 9
-        ModelsPrecacheStatic(sPathClasses);
+        DecryptPrecacheModel(sPathClasses);
         arrayClass.Push(kvClasses.GetNum("body", -1));                          // Index: 10 
         arrayClass.Push(kvClasses.GetNum("skin", -1));                          // Index: 11 
         arrayClass.Push(kvClasses.GetNum("health", 0));                         // Index: 12 
@@ -430,6 +430,7 @@ void ClassesOnCvarInit(/*void*/)
 void ClassesOnClientInit(const int clientIndex)
 {
     // Forward event to sub-modules
+    DeathOnClientInit(clientIndex);
     AntiStickOnClientInit(clientIndex);
     JumpBoostOnClientInit(clientIndex);
 }
@@ -538,7 +539,7 @@ void ClassesOnNativeInit(/*void*/)
  *
  * @note native bool ZP_ChangeClient(clientIndex, attackerIndex, type);
  **/
-public int API_ChangeClient(Handle hPlugin, const int iNumParams)
+public int API_ChangeClient(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -586,7 +587,7 @@ public int API_ChangeClient(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberClass();
  **/
-public int API_GetNumberClass(Handle hPlugin, const int iNumParams)
+public int API_GetNumberClass(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.Classes.Length;
@@ -597,7 +598,7 @@ public int API_GetNumberClass(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientClass(clientIndex);
  **/
-public int API_GetClientClass(Handle hPlugin, const int iNumParams)
+public int API_GetClientClass(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -611,7 +612,7 @@ public int API_GetClientClass(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientHumanClassNext(clientIndex);
  **/
-public int API_GetClientHumanClassNext(Handle hPlugin, const int iNumParams)
+public int API_GetClientHumanClassNext(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -625,7 +626,7 @@ public int API_GetClientHumanClassNext(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientZombieClassNext(clientIndex);
  **/
-public int API_GetClientZombieClassNext(Handle hPlugin, const int iNumParams)
+public int API_GetClientZombieClassNext(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -639,7 +640,7 @@ public int API_GetClientZombieClassNext(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientHumanClassNext(clientIndex, iD);
  **/
-public int API_SetClientHumanClassNext(Handle hPlugin, const int iNumParams)
+public int API_SetClientHumanClassNext(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -674,7 +675,7 @@ public int API_SetClientHumanClassNext(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientZombieClassNext(clientIndex, iD);
  **/
-public int API_SetClientZombieClassNext(Handle hPlugin, const int iNumParams)
+public int API_SetClientZombieClassNext(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -709,7 +710,7 @@ public int API_SetClientZombieClassNext(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassNameID(name);
  **/
-public int API_GetClassNameID(Handle hPlugin, const int iNumParams)
+public int API_GetClassNameID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -737,7 +738,7 @@ public int API_GetClassNameID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassName(iD, name, maxlen);
  **/
-public int API_GetClassName(Handle hPlugin, const int iNumParams)
+public int API_GetClassName(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -772,7 +773,7 @@ public int API_GetClassName(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassInfo(iD, info, maxlen);
  **/
-public int API_GetClassInfo(Handle hPlugin, const int iNumParams)
+public int API_GetClassInfo(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -807,7 +808,7 @@ public int API_GetClassInfo(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassTypeID(type);
  **/
-public int API_GetClassTypeID(Handle hPlugin, const int iNumParams)
+public int API_GetClassTypeID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -835,7 +836,7 @@ public int API_GetClassTypeID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassType(iD, type, maxlen);
  **/
-public int API_GetClassType(Handle hPlugin, const int iNumParams)
+public int API_GetClassType(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -870,7 +871,7 @@ public int API_GetClassType(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassZombie(iD);
  **/
-public int API_IsClassZombie(Handle hPlugin, const int iNumParams)
+public int API_IsClassZombie(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -891,7 +892,7 @@ public int API_IsClassZombie(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassModel(iD, model, maxlen);
  **/
-public int API_GetClassModel(Handle hPlugin, const int iNumParams)
+public int API_GetClassModel(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -926,7 +927,7 @@ public int API_GetClassModel(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassClaw(iD, model, maxlen);
  **/
-public int API_GetClassClaw(Handle hPlugin, const int iNumParams)
+public int API_GetClassClaw(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -961,7 +962,7 @@ public int API_GetClassClaw(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassGrenade(iD, model, maxlen);
  **/
-public int API_GetClassGrenade(Handle hPlugin, const int iNumParams)
+public int API_GetClassGrenade(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -996,7 +997,7 @@ public int API_GetClassGrenade(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassArm(iD, model, maxlen);
  **/
-public int API_GetClassArm(Handle hPlugin, const int iNumParams)
+public int API_GetClassArm(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1031,7 +1032,7 @@ public int API_GetClassArm(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassBody(iD);
  **/
-public int API_GetClassBody(Handle hPlugin, const int iNumParams)
+public int API_GetClassBody(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1052,7 +1053,7 @@ public int API_GetClassBody(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassSkin(iD);
  **/
-public int API_GetClassSkin(Handle hPlugin, const int iNumParams)
+public int API_GetClassSkin(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1073,7 +1074,7 @@ public int API_GetClassSkin(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassHealth(iD);
  **/
-public int API_GetClassHealth(Handle hPlugin, const int iNumParams)
+public int API_GetClassHealth(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1094,7 +1095,7 @@ public int API_GetClassHealth(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassSpeed(iD);
  **/
-public int API_GetClassSpeed(Handle hPlugin, const int iNumParams)
+public int API_GetClassSpeed(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1115,7 +1116,7 @@ public int API_GetClassSpeed(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassGravity(iD);
  **/
-public int API_GetClassGravity(Handle hPlugin, const int iNumParams)
+public int API_GetClassGravity(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1136,7 +1137,7 @@ public int API_GetClassGravity(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassKnockBack(iD);
  **/
-public int API_GetClassKnockBack(Handle hPlugin, const int iNumParams)
+public int API_GetClassKnockBack(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1157,7 +1158,7 @@ public int API_GetClassKnockBack(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassArmor(iD);
  **/
-public int API_GetClassArmor(Handle hPlugin, const int iNumParams)
+public int API_GetClassArmor(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1178,7 +1179,7 @@ public int API_GetClassArmor(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLevel(iD);
  **/
-public int API_GetClassLevel(Handle hPlugin, const int iNumParams)
+public int API_GetClassLevel(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1199,7 +1200,7 @@ public int API_GetClassLevel(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassGroup(iD, group, maxlen);
  **/
-public int API_GetClassGroup(Handle hPlugin, const int iNumParams)
+public int API_GetClassGroup(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1234,7 +1235,7 @@ public int API_GetClassGroup(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassSkillDuration(iD);
  **/
-public int API_GetClassSkillDuration(Handle hPlugin, const int iNumParams)
+public int API_GetClassSkillDuration(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1255,7 +1256,7 @@ public int API_GetClassSkillDuration(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassSkillCountdown(iD);
  **/
-public int API_GetClassSkillCountdown(Handle hPlugin, const int iNumParams)
+public int API_GetClassSkillCountdown(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1276,7 +1277,7 @@ public int API_GetClassSkillCountdown(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassSkillBar(iD);
  **/
-public int API_IsClassSkillBar(Handle hPlugin, const int iNumParams)
+public int API_IsClassSkillBar(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1297,7 +1298,7 @@ public int API_IsClassSkillBar(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassRegenHealth(iD);
  **/
-public int API_GetClassRegenHealth(Handle hPlugin, const int iNumParams)
+public int API_GetClassRegenHealth(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1318,7 +1319,7 @@ public int API_GetClassRegenHealth(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassRegenInterval(iD);
  **/
-public int API_GetClassRegenInterval(Handle hPlugin, const int iNumParams)
+public int API_GetClassRegenInterval(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1339,7 +1340,7 @@ public int API_GetClassRegenInterval(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassFall(iD);
  **/
-public int API_IsClassFall(Handle hPlugin, const int iNumParams)
+public int API_IsClassFall(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1360,7 +1361,7 @@ public int API_IsClassFall(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassSpot(iD);
  **/
-public int API_IsClassSpot(Handle hPlugin, const int iNumParams)
+public int API_IsClassSpot(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1381,7 +1382,7 @@ public int API_IsClassSpot(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassFov(iD);
  **/
-public int API_GetClassFov(Handle hPlugin, const int iNumParams)
+public int API_GetClassFov(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1402,7 +1403,7 @@ public int API_GetClassFov(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassCross(iD);
  **/
-public int API_IsClassCross(Handle hPlugin, const int iNumParams)
+public int API_IsClassCross(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1423,7 +1424,7 @@ public int API_IsClassCross(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassNvgs(iD);
  **/
-public int API_IsClassNvgs(Handle hPlugin, const int iNumParams)
+public int API_IsClassNvgs(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1444,7 +1445,7 @@ public int API_IsClassNvgs(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassOverlay(iD, overlay, maxlen);
  **/
-public int API_GetClassOverlay(Handle hPlugin, const int iNumParams)
+public int API_GetClassOverlay(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1479,7 +1480,7 @@ public int API_GetClassOverlay(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassWeapon(iD, weapon, maxlen);
  **/
-public int API_GetClassWeapon(Handle hPlugin, const int iNumParams)
+public int API_GetClassWeapon(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1514,7 +1515,7 @@ public int API_GetClassWeapon(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassMoney(iD, money, maxlen);
  **/
-public int API_GetClassMoney(Handle hPlugin, const int iNumParams)
+public int API_GetClassMoney(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1549,7 +1550,7 @@ public int API_GetClassMoney(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassExperience(iD, experience, maxlen);
  **/
-public int API_GetClassExperience(Handle hPlugin, const int iNumParams)
+public int API_GetClassExperience(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1584,7 +1585,7 @@ public int API_GetClassExperience(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLifeSteal(iD);
  **/
-public int API_GetClassLifeSteal(Handle hPlugin, const int iNumParams)
+public int API_GetClassLifeSteal(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1605,7 +1606,7 @@ public int API_GetClassLifeSteal(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLifeAmmunition(iD);
  **/
-public int API_GetClassAmmunition(Handle hPlugin, const int iNumParams)
+public int API_GetClassAmmunition(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1626,7 +1627,7 @@ public int API_GetClassAmmunition(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLeapJump(iD);
  **/
-public int API_GetClassLeapJump(Handle hPlugin, const int iNumParams)
+public int API_GetClassLeapJump(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1647,7 +1648,7 @@ public int API_GetClassLeapJump(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassLeapForce(iD);
  **/
-public int API_GetClassLeapForce(Handle hPlugin, const int iNumParams)
+public int API_GetClassLeapForce(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1668,7 +1669,7 @@ public int API_GetClassLeapForce(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassLeapCountdown(iD);
  **/
-public int API_GetClassLeapCountdown(Handle hPlugin, const int iNumParams)
+public int API_GetClassLeapCountdown(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1689,7 +1690,7 @@ public int API_GetClassLeapCountdown(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassEffectName(iD, name, maxlen);
  **/
-public int API_GetClassEffectName(Handle hPlugin, const int iNumParams)
+public int API_GetClassEffectName(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1724,7 +1725,7 @@ public int API_GetClassEffectName(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassEffectAttach(iD, attach, maxlen);
  **/
-public int API_GetClassEffectAttach(Handle hPlugin, const int iNumParams)
+public int API_GetClassEffectAttach(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1759,7 +1760,7 @@ public int API_GetClassEffectAttach(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassEffectTime(iD);
  **/
-public int API_GetClassEffectTime(Handle hPlugin, const int iNumParams)
+public int API_GetClassEffectTime(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1780,7 +1781,7 @@ public int API_GetClassEffectTime(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassClawID(iD);
  **/
-public int API_GetClassClawID(Handle hPlugin, const int iNumParams)
+public int API_GetClassClawID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1801,7 +1802,7 @@ public int API_GetClassClawID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassGrenadeID(iD);
  **/
-public int API_GetClassGrenadeID(Handle hPlugin, const int iNumParams)
+public int API_GetClassGrenadeID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1822,7 +1823,7 @@ public int API_GetClassGrenadeID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundDeathID(iD);
  **/
-public int API_GetClassSoundDeathID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundDeathID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1843,7 +1844,7 @@ public int API_GetClassSoundDeathID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundHurtID(iD);
  **/
-public int API_GetClassSoundHurtID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundHurtID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1864,7 +1865,7 @@ public int API_GetClassSoundHurtID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundIdleID(iD);
  **/
-public int API_GetClassSoundIdleID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundIdleID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1885,7 +1886,7 @@ public int API_GetClassSoundIdleID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundInfectID(iD);
  **/
-public int API_GetClassSoundInfectID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundInfectID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1906,7 +1907,7 @@ public int API_GetClassSoundInfectID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundRespawnID(iD);
  **/
-public int API_GetClassSoundRespawnID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundRespawnID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1927,7 +1928,7 @@ public int API_GetClassSoundRespawnID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundBurnID(iD);
  **/
-public int API_GetClassSoundBurnID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundBurnID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1948,7 +1949,7 @@ public int API_GetClassSoundBurnID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundAttackID(iD);
  **/
-public int API_GetClassSoundAttackID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundAttackID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1969,7 +1970,7 @@ public int API_GetClassSoundAttackID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundFootID(iD);
  **/
-public int API_GetClassSoundFootID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundFootID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1990,7 +1991,7 @@ public int API_GetClassSoundFootID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundRegenID(iD);
  **/
-public int API_GetClassSoundRegenID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundRegenID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -2011,7 +2012,7 @@ public int API_GetClassSoundRegenID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundJumpID(iD);
  **/
-public int API_GetClassSoundJumpID(Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundJumpID(const Handle hPlugin, const int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);

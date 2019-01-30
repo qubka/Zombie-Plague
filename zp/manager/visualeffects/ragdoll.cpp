@@ -92,7 +92,7 @@ void RagdollOnClientDeath(const int clientIndex)
  * @param hTimer            The timer handle. 
  * @param referenceIndex    The reference index.
  **/
-public Action RagdollOnEntityRemove(Handle hTimer, const int referenceIndex)
+public Action RagdollOnEntityRemove(const Handle hTimer, const int referenceIndex)
 {
     // Gets the ragdoll index from the reference
     int iRagdoll = EntRefToEntIndex(referenceIndex);

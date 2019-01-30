@@ -54,6 +54,7 @@
  * Variables to store SDK calls handlers.
  **/
 Handle hSDKCallAnimatingGetSequenceActivity;
+Handle hSDKCallViewUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
 
 /**
  * Variables to store virtual SDK adresses.
@@ -96,7 +97,7 @@ void WeaponHDROnInit(/*void*/)
 {
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "Animating_GetSequenceActivity");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetSequenceActivity");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
@@ -112,10 +113,24 @@ void WeaponHDROnInit(/*void*/)
     
     /*_________________________________________________________________________________________________________________________________________*/
     
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Entity);
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseViewModel::UpdateTransmitState");
+
+    // Validate call
+    if(!(hSDKCallViewUpdateTransmitState = EndPrepSDKCall()))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseViewModel::UpdateTransmitState\". Update offset in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
+    /*_________________________________________________________________________________________________________________________________________*/
+    
     // Load other offsets
-    fnInitGameConfOffset(gServerData.Config, Animating_StudioHdr, "Animating_StudioHdr");
-    fnInitGameConfOffset(gServerData.Config, StudioHdrStruct_SequenceCount, "StudioHdrStruct_SequenceCount");
-    fnInitGameConfOffset(gServerData.Config, VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct_SequenceVector_Size");
+    fnInitGameConfOffset(gServerData.Config, Animating_StudioHdr, "CBaseAnimating::StudioHdr");
+    fnInitGameConfOffset(gServerData.Config, StudioHdrStruct_SequenceCount, "StudioHdrStruct::SequenceCount");
+    fnInitGameConfOffset(gServerData.Config, VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct::SequenceVectorSize");
     
     /// Info bellow
     int lightingOriginOffset;
@@ -364,7 +379,7 @@ int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], const 
     if(!iValue)
     {
         // Continue to next if sequence wasn't an activity
-        if((iValue = iSequences[iIndex] = Animating_GetSequenceActivity(weaponIndex, iIndex)) == -1)
+        if((iValue = iSequences[iIndex] = WeaponHDRGetSequenceActivity(weaponIndex, iIndex)) == -1)
         {
             // Validate not a filled sequence
             if(++iIndex < iSequenceCount)
@@ -440,7 +455,7 @@ int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], const 
  * @param iAnimating        The animating index.
  * @return                  The sequence count.
  **/
-int Animating_GetSequenceCount(const int iAnimating)
+int WeaponHDRGetSequenceCount(const int iAnimating)
 {
     // Load some bytes from a memory address
     Address studioHdrClass = view_as<Address>(GetEntData(iAnimating, Animating_StudioHdr));
@@ -458,8 +473,7 @@ int Animating_GetSequenceCount(const int iAnimating)
     if(studioHdrStruct != Address_Null)
     {
         int localSequenceCount = LoadFromAddress(studioHdrStruct + view_as<Address>(StudioHdrStruct_SequenceCount), NumberType_Int32);
-        
-        if(localSequenceCount != 0)
+        if(localSequenceCount)
         {
             return localSequenceCount;
         }
@@ -496,10 +510,29 @@ int Animating_GetSequenceCount(const int iAnimating)
  * @param iSequence         The sequence index.
  * @return                  The activity index.
  **/
-int Animating_GetSequenceActivity(const int iAnimating, const int iSequence)
+int WeaponHDRGetSequenceActivity(const int iAnimating, const int iSequence)
 {
     return SDKCall(hSDKCallAnimatingGetSequenceActivity, iAnimating, iSequence);
 }
+
+/**
+ * @brief Update a viewmodel transmit state.
+ * 
+ * @param iAnimating        The animating index.
+ **/
+void WeaponHDRUpdateTransmitState(const int iAnimating)
+{
+    SDKCall(hSDKCallViewUpdateTransmitState, iAnimating);
+}
+
+
+
+
+
+
+
+
+
 
 /*
 Address Animating_GetStudioHdrClass(const int iAnimating)
@@ -520,9 +553,7 @@ int StudioHdrGetSequenceCount(Address studioHdrStruct)
 int Animating_GetNumMovements(const int iAnimating, const int iSequence)
 {
     Address studioHdrStruct = StudioHdrClass_GetStudioHdrStruct(Animating_GetStudioHdrClass(iAnimating));
-    
     Address studioAnimDesc = GetLocalAnimDescription(studioHdrStruct, iSequence);
-    
     return StudioAnimDesc_GetValue(studioAnimDesc, StudioAnimDesc_NumMovements);
 }
 
@@ -535,7 +566,7 @@ float Animating_GetSequenceDuration(const int iAnimating, const int iSequence)
     return cyclesPerSecond != 0.0 ? 1.0 / cyclesPerSecond : 0.0;
 }
 
-Address GetLocalAnimDescription(Address studioHdrStruct, int iSequence)
+Address GetLocalAnimDescription(Address studioHdrStruct, int &iSequence)
 {
     if(iSequence < 0 || iSequence >= StudioHdrGetSequenceCount(studioHdrStruct))
     {

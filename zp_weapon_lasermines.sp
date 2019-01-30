@@ -358,7 +358,7 @@ bool Weapon_OnPickupMine(const int clientIndex, int entityIndex, const float flC
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action Weapon_OnCreateMine(Handle hTimer, const int userID)
+public Action Weapon_OnCreateMine(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
@@ -833,7 +833,7 @@ void MineExpload(const int entityIndex)
  * @param referenceIndex    The reference index.
  **/
 #if defined WEAPON_MINE_IMPULSE
-public Action MineActivateHook(Handle hTimer, const int referenceIndex)
+public Action MineActivateHook(const Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -863,7 +863,7 @@ public Action MineActivateHook(Handle hTimer, const int referenceIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action MineUpdateHook(Handle hTimer, const int referenceIndex)
+public Action MineUpdateHook(const Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -995,7 +995,7 @@ void CreateGlowableModel(const int entityIndex)
     }
 }
 #else
-public Action MineActivateHook(Handle hTimer, DataPack hPack)
+public Action MineActivateHook(const Handle hTimer, DataPack hPack)
 {
     // Resets the position in a data pack
     hPack.Reset();

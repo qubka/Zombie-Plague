@@ -549,7 +549,7 @@ bool HitGroupsOnCalculateDamage(const int clientIndex, int &attackerIndex, int &
         HitGroupsGiveExp(attackerIndex, iDamage);
         
         // If help messages enabled, then show info
-        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "damage info", iHealth);
+        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "damage info", (iHealth > 0) ? iHealth : 0);
 
         // Client was damaged by 'bullet' or 'knife'
         if(iBits & DMG_NEVERGIB)
@@ -638,7 +638,7 @@ void HitGroupsOnNativeInit(/*void*/)
  *
  * @note native void ZP_TakeDamage(clientIndex, attackerIndex, flDamage, iBits, weaponIndex);
  **/
-public int API_TakeDamage(Handle hPlugin, const int iNumParams)
+public int API_TakeDamage(const Handle hPlugin, const int iNumParams)
 {
     // Gets data from native cells
     int clientIndex = GetNativeCell(1);
@@ -666,7 +666,7 @@ public int API_TakeDamage(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberHitGroup();
  **/
-public int API_GetNumberHitGroup(Handle hPlugin, const int iNumParams)
+public int API_GetNumberHitGroup(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.HitGroups.Length;
@@ -677,7 +677,7 @@ public int API_GetNumberHitGroup(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetHitGroupID(hitgroup);
  **/
-public int API_GetHitGroupID(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupID(const Handle hPlugin, const int iNumParams)
 {
     // Return the value
     return HitGroupToIndex(GetNativeCell(1));
@@ -688,7 +688,7 @@ public int API_GetHitGroupID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetHitGroupNameID(name);
  **/
-public int API_GetHitGroupNameID(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupNameID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -716,7 +716,7 @@ public int API_GetHitGroupNameID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetHitGroupName(iD, name, maxlen);
  **/
-public int API_GetHitGroupName(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupName(const Handle hPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -751,7 +751,7 @@ public int API_GetHitGroupName(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetHitGroupIndex(iD);
  **/
-public int API_GetHitGroupIndex(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupIndex(const Handle hPlugin, const int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -772,7 +772,7 @@ public int API_GetHitGroupIndex(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsHitGroupDamage(iD);
  **/
-public int API_IsHitGroupDamage(Handle hPlugin, const int iNumParams)
+public int API_IsHitGroupDamage(const Handle hPlugin, const int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -793,7 +793,7 @@ public int API_IsHitGroupDamage(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupKnockBack(iD);
  **/
-public int API_GetHitGroupKnockBack(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupKnockBack(const Handle hPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -814,7 +814,7 @@ public int API_GetHitGroupKnockBack(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupArmor(iD);
  **/
-public int API_GetHitGroupArmor(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupArmor(const Handle hPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -835,7 +835,7 @@ public int API_GetHitGroupArmor(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupBonus(iD);
  **/
-public int API_GetHitGroupBonus(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupBonus(const Handle hPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -856,7 +856,7 @@ public int API_GetHitGroupBonus(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupHeavy(iD);
  **/
-public int API_GetHitGroupHeavy(Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupHeavy(const Handle hPlugin, const int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -877,7 +877,7 @@ public int API_GetHitGroupHeavy(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsHitGroupProtect(iD);
  **/
-public int API_IsHitGroupProtect(Handle hPlugin, const int iNumParams)
+public int API_IsHitGroupProtect(const Handle hPlugin, const int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);

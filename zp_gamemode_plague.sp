@@ -63,7 +63,7 @@ public void ZP_OnGameModeStart(int modeIndex)
     if(modeIndex == gGameMode) /* OR if(ZP_GetCurrentGameMode() == ZP_GetGameModeNameID("plague mode"))*/
     {
         // Make a random nemesis/survivor
-        ZP_ChangeClient(ZP_GetRandomHuman(), _, "nemesis");
-        ZP_ChangeClient(ZP_GetRandomZombie(), _, "survivor");
+        ZP_ChangeClient(ZP_GetRandomZombie(), _, "nemesis");
+        ZP_ChangeClient(ZP_GetRandomHuman(), _, "survivor");
     }
 }

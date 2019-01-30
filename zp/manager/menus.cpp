@@ -369,7 +369,7 @@ void MenusOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetNumberMenu();
  **/
-public int API_GetNumberMenu(Handle hPlugin, const int iNumParams)
+public int API_GetNumberMenu(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.Menus.Length;
@@ -380,7 +380,7 @@ public int API_GetNumberMenu(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuName(iD, name, maxlen, sub);
  **/
-public int API_GetMenuName(Handle hPlugin, const int iNumParams)
+public int API_GetMenuName(const Handle hPlugin, const int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -415,7 +415,7 @@ public int API_GetMenuName(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuGroup(iD, group, maxlen, sub);
  **/
-public int API_GetMenuGroup(Handle hPlugin, const int iNumParams)
+public int API_GetMenuGroup(const Handle hPlugin, const int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -450,7 +450,7 @@ public int API_GetMenuGroup(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuClass(iD, class, maxlen, sub);
  **/
-public int API_GetMenuClass(Handle hPlugin, const int iNumParams)
+public int API_GetMenuClass(const Handle hPlugin, const int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -485,7 +485,7 @@ public int API_GetMenuClass(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsMenuHide(iD, sub);
  **/
-public int API_IsMenuHide(Handle hPlugin, const int iNumParams)
+public int API_IsMenuHide(const Handle hPlugin, const int iNumParams)
 {    
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -506,7 +506,7 @@ public int API_IsMenuHide(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeNameID(command, index, maxlen);
  **/
-public int API_GetMenuCommandID(Handle hPlugin, const int iNumParams)
+public int API_GetMenuCommandID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -538,7 +538,7 @@ public int API_GetMenuCommandID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuCommand(iD, command, maxlen, sub);
  **/
-public int API_GetMenuCommand(Handle hPlugin, const int iNumParams)
+public int API_GetMenuCommand(const Handle hPlugin, const int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -573,7 +573,7 @@ public int API_GetMenuCommand(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_OpenMenuSub(clientIndex, iD);
  **/
-public int API_OpenMenuSub(Handle hPlugin, const int iNumParams)
+public int API_OpenMenuSub(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

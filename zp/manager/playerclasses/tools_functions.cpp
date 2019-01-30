@@ -46,7 +46,7 @@
  * @endsection
  **/
  
- /**
+/**
  * @section Entity effects flags.
  **/
 #define EF_BONEMERGE                (1<<0)     // Performs bone merge on client side
@@ -665,13 +665,13 @@ void ToolsSetClientSpot(const int clientIndex, const bool bEnable)
         // Sets value on the client
         SetEntData(clientIndex, g_iOffset_PlayerSpotted, false, 1, true);
         SetEntData(clientIndex, g_iOffset_PlayerSpottedByMask, false, _, true);
-        SetEntData(clientIndex, g_iOffset_PlayerSpottedByMask + 4, false, _, true);
-        SetEntData(clientIndex, g_iOffset_PlayerSpotted - 4, 0, _, true);
+        SetEntData(clientIndex, g_iOffset_PlayerSpottedByMask + 4, false, _, true); /// That is table
+        SetEntData(clientIndex, g_iOffset_PlayerCanBeSpotted, 0, _, true);
     }
     else
     {
         // Sets value on the client
-        SetEntData(clientIndex, g_iOffset_PlayerSpotted - 4, 9, _, true);
+        SetEntData(clientIndex, g_iOffset_PlayerCanBeSpotted, 9, _, true);
     }
 }
 
@@ -839,16 +839,6 @@ void ToolsGetEntityOrigin(const int entityIndex, float vOrigin[3])
 /*_____________________________________________________________________________________________________*/
 
 /**
- * @brief Update a entity transmit state.
- * 
- * @param entityIndex       The entity index.
- **/
-void ToolsUpdateTransmitState(const int entityIndex)
-{
-    SDKCall(hSDKCallEntityUpdateTransmitState, entityIndex);
-}
-
-/**
  * @brief Validate the attachment on the entity.
  *
  * @param entityIndex       The entity index.
@@ -877,16 +867,16 @@ void ToolsGetAttachment(const int entityIndex, const char[] sAttach, float vOrig
     }
     
     // Validate windows
-    if(GameEngineGetPlatform(OS_Windows))
+    if(gServerData.Platform == OS_Windows)
     {
-        SDKCall(hSDKCallGetAttachmentW, entityIndex, sAttach, vOrigin, vAngle); 
+        SDKCall(hSDKCallGetAttachment, entityIndex, sAttach, vOrigin, vAngle); 
     }
     else
     {
         int iAnimating = SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
         if(iAnimating)
         {
-            SDKCall(hSDKCallGetAttachmentL, entityIndex, iAnimating, vOrigin, vAngle); 
+            SDKCall(hSDKCallGetAttachment, entityIndex, iAnimating, vOrigin, vAngle); 
         }
     }
 }

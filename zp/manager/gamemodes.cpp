@@ -458,7 +458,7 @@ public Action GameModesOnCommandListened(const int entityIndex, const char[] com
  *
  * @param hTimer            The timer handle.
  **/
-public Action GameModesOnCounter(Handle hTimer)
+public Action GameModesOnCounter(const Handle hTimer)
 {
     // Gets amount of total alive players
     int iAlive = fnGetAlive();
@@ -725,7 +725,7 @@ public Action GameModesOnPanel(Event hEvent, const char[] sName, bool dontBroadc
 /**
  * @brief Timer callback, the blast is started. *(Post)
  **/
-public Action GameModesOnBlast(Handle hTimer)
+public Action GameModesOnBlast(const Handle hTimer)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -737,7 +737,7 @@ public Action GameModesOnBlast(Handle hTimer)
             VEffectOnBlast(i);
     
             // Forces a player to commit suicide
-            SDKHooks_TakeDamage(i, i, i, float(GetClientHealth(i)) + 1.0, DMG_BLAST_SURFACE);
+            ForcePlayerSuicide(i);
         }
     }
 }
@@ -902,7 +902,7 @@ void GameModesOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetCurrentGameMode();
  **/
-public int API_GetCurrentGameMode(Handle hPlugin, const int iNumParams)
+public int API_GetCurrentGameMode(const Handle hPlugin, const int iNumParams)
 {
     // Return the value
     return gServerData.RoundMode;
@@ -913,7 +913,7 @@ public int API_GetCurrentGameMode(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetLastGameMode();
  **/
-public int API_GetLastGameMode(Handle hPlugin, const int iNumParams)
+public int API_GetLastGameMode(const Handle hPlugin, const int iNumParams)
 {
     // Return the value
     return gServerData.RoundLast;
@@ -924,7 +924,7 @@ public int API_GetLastGameMode(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberGameMode();
  **/
-public int API_GetNumberGameMode(Handle hPlugin, const int iNumParams)
+public int API_GetNumberGameMode(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.GameModes.Length;
@@ -935,7 +935,7 @@ public int API_GetNumberGameMode(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_StartGameMode(iD, targetIndex);
  **/
-public int API_StartGameMode(Handle hPlugin, const int iNumParams)
+public int API_StartGameMode(const Handle hPlugin, const int iNumParams)
 {
     // If mode already started, then stop
     if(!gServerData.RoundNew)
@@ -976,7 +976,7 @@ public int API_StartGameMode(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeNameID(name);
  **/
-public int API_GetGameModeNameID(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeNameID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -1004,7 +1004,7 @@ public int API_GetGameModeNameID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeName(iD, name, maxlen);
  **/
-public int API_GetGameModeName(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeName(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1045,7 +1045,7 @@ public int API_GetGameModeName(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeDesc(iD, name, maxlen);
  **/
-public int API_GetGameModeDesc(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeDesc(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1086,7 +1086,7 @@ public int API_GetGameModeDesc(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeDescColor(iD, color, maxlen);
  **/
-public int API_GetGameModeDescColor(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeDescColor(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1127,7 +1127,7 @@ public int API_GetGameModeDescColor(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetGameModeDescPosX(iD);
  **/
-public int API_GetGameModeDescPosX(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeDescPosX(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1154,7 +1154,7 @@ public int API_GetGameModeDescPosX(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetGameModeDescPosY(iD);
  **/
-public int API_GetGameModeDescPosY(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeDescPosY(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1181,7 +1181,7 @@ public int API_GetGameModeDescPosY(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetGameModeDescTime(iD);
  **/
-public int API_GetGameModeDescTime(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeDescTime(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1208,7 +1208,7 @@ public int API_GetGameModeDescTime(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeChance(iD);
  **/
-public int API_GetGameModeChance(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeChance(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1235,7 +1235,7 @@ public int API_GetGameModeChance(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeMinPlayers(iD);
  **/
-public int API_GetGameModeMinPlayers(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeMinPlayers(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1262,7 +1262,7 @@ public int API_GetGameModeMinPlayers(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetGameModeRatio(iD);
  **/
-public int API_GetGameModeRatio(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeRatio(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1289,7 +1289,7 @@ public int API_GetGameModeRatio(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeHealth(iD);
  **/
-public int API_GetGameModeHealth(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeHealth(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1316,7 +1316,7 @@ public int API_GetGameModeHealth(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeGroup(iD, group, maxlen);
  **/
-public int API_GetGameModeGroup(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeGroup(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1357,7 +1357,7 @@ public int API_GetGameModeGroup(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeSoundStartID(iD);
  **/
-public int API_GetGameModeSoundStartID(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeSoundStartID(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1384,7 +1384,7 @@ public int API_GetGameModeSoundStartID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeSoundEndHumanID(iD);
  **/
-public int API_GetGameModeSoundEndHumanID(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeSoundEndHumanID(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1411,7 +1411,7 @@ public int API_GetGameModeSoundEndHumanID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeSoundEndZombieID(iD);
  **/
-public int API_GetGameModeSoundEndZombieID(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeSoundEndZombieID(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1438,7 +1438,7 @@ public int API_GetGameModeSoundEndZombieID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeSoundEndDrawID(iD);
  **/
-public int API_GetGameModeSoundEndDrawID(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeSoundEndDrawID(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1465,7 +1465,7 @@ public int API_GetGameModeSoundEndDrawID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeSoundAmbientID(iD);
  **/
-public int API_GetGameModeSoundAmbientID(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeSoundAmbientID(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1492,7 +1492,7 @@ public int API_GetGameModeSoundAmbientID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeSoundDuration(iD);
  **/
-public int API_GetGameModeSoundDuration(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeSoundDuration(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1519,7 +1519,7 @@ public int API_GetGameModeSoundDuration(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeSoundVolume(iD);
  **/
-public int API_GetGameModeSoundVolume(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeSoundVolume(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1546,7 +1546,7 @@ public int API_GetGameModeSoundVolume(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeInfect(iD);
  **/
-public int API_IsGameModeInfect(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeInfect(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1573,7 +1573,7 @@ public int API_IsGameModeInfect(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeRespawn(iD);
  **/
-public int API_IsGameModeRespawn(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeRespawn(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1600,7 +1600,7 @@ public int API_IsGameModeRespawn(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeNameClass(iD, type, maxlen);
  **/
-public int API_GetGameModeHumanClass(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeHumanClass(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1641,7 +1641,7 @@ public int API_GetGameModeHumanClass(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeZombieClass(iD, type, maxlen);
  **/
-public int API_GetGameModeZombieClass(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeZombieClass(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1682,7 +1682,7 @@ public int API_GetGameModeZombieClass(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeOverlayHuman(iD, overlay, maxlen);
  **/
-public int API_GetGameModeOverlayHuman(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeOverlayHuman(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1723,7 +1723,7 @@ public int API_GetGameModeOverlayHuman(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeOverlayZombie(iD, overlay, maxlen);
  **/
-public int API_GetGameModeOverlayZombie(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeOverlayZombie(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1764,7 +1764,7 @@ public int API_GetGameModeOverlayZombie(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeOverlayDraw(iD, overlay, maxlen);
  **/
-public int API_GetGameModeOverlayDraw(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeOverlayDraw(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1805,7 +1805,7 @@ public int API_GetGameModeOverlayDraw(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeMatch(iD);
  **/
-public int API_GetGameModeMatch(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeMatch(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1832,7 +1832,7 @@ public int API_GetGameModeMatch(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeAmount(iD);
  **/
-public int API_GetGameModeAmount(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeAmount(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1859,7 +1859,7 @@ public int API_GetGameModeAmount(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetGameModeDelay(iD);
  **/
-public int API_GetGameModeDelay(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeDelay(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1886,7 +1886,7 @@ public int API_GetGameModeDelay(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetGameModeLast(iD);
  **/
-public int API_GetGameModeLast(Handle hPlugin, const int iNumParams)
+public int API_GetGameModeLast(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1913,7 +1913,7 @@ public int API_GetGameModeLast(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeSuicide(iD);
  **/
-public int API_IsGameModeSuicide(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeSuicide(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1940,7 +1940,7 @@ public int API_IsGameModeSuicide(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeEscape(iD);
  **/
-public int API_IsGameModeEscape(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeEscape(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1967,7 +1967,7 @@ public int API_IsGameModeEscape(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeBlast(iD);
  **/
-public int API_IsGameModeBlast(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeBlast(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -1994,7 +1994,7 @@ public int API_IsGameModeBlast(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeXRay(iD);
  **/
-public int API_IsGameModeXRay(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeXRay(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -2021,7 +2021,7 @@ public int API_IsGameModeXRay(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeRegen(iD);
  **/
-public int API_IsGameModeRegen(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeRegen(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -2048,7 +2048,7 @@ public int API_IsGameModeRegen(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeSkill(iD);
  **/
-public int API_IsGameModeSkill(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeSkill(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -2075,7 +2075,7 @@ public int API_IsGameModeSkill(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeLeapJump(iD);
  **/
-public int API_IsGameModeLeapJump(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeLeapJump(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -2102,7 +2102,7 @@ public int API_IsGameModeLeapJump(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeWeapon(iD);
  **/
-public int API_IsGameModeWeapon(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeWeapon(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -2129,7 +2129,7 @@ public int API_IsGameModeWeapon(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsGameModeExtraItem(iD);
  **/
-public int API_IsGameModeExtraItem(Handle hPlugin, const int iNumParams)
+public int API_IsGameModeExtraItem(const Handle hPlugin, const int iNumParams)
 {
     // Gets mode index from native cell
     int iD = GetNativeCell(1);
@@ -3251,7 +3251,7 @@ void ModesBlast(const float flDelay)
         }
 
         // Create timer for emit sounds
-        CreateTimer(flTime, GameModesOnBlast, _, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+        CreateTimer(flTime, GameModesOnBlast, _, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
     }
 } 
 

@@ -44,7 +44,7 @@ public Plugin myinfo =
 /**
  * @section Properties of the grenade.
  **/
-#define GRENADE_INFECT_RADIUS          40000.0      // Infection size (radius) [squared]
+#define GRENADE_INFECT_RADIUS          200.0        // Infection size (radius)
 #define GRENADE_INFECT_LAST            false        // Can last human infect [false-no // true-yes]
 #define GRENADE_INFECT_EXP_TIME        2.0          // Duration of the explosion effect in seconds
 #define GRENADE_INFECT_ATTACH          false        // If true, will be attached to the wall, false to bounce from wall
@@ -197,27 +197,31 @@ public Action EventEntityTanade(Event hEvent, const char[] sName, bool dontBroad
         // Validate custom grenade
         if(ZP_GetWeaponID(grenadeIndex) == gWeapon)
         {
-            // i = client index
-            for(int i = 1; i <= MaxClients; i++)
+            // Validate infection round
+            if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
             {
-                // Validate human
-                if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                // i = client index
+                for(int i = 1; i <= MaxClients; i++)
                 {
-                    // Gets victim origin
-                    GetClientAbsOrigin(i, vVictimPosition);
+                    // Validate human
+                    if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                    {
+                        // Gets victim origin
+                        GetClientAbsOrigin(i, vVictimPosition);
 
-                    // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                        // Calculate the distance
+                        float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
-                    // Validate distance
-                    if(flDistance <= GRENADE_INFECT_RADIUS)
-                    {            
-                        // Change class to zombie
-                        if(ZP_GetHumanAmount() > 1 || GRENADE_INFECT_LAST) ZP_ChangeClient(i, ownerIndex, "zombie");
+                        // Validate distance
+                        if(flDistance <= GRENADE_INFECT_RADIUS)
+                        {            
+                            // Change class to zombie
+                            if(ZP_GetHumanAmount() > 1 || GRENADE_INFECT_LAST) ZP_ChangeClient(i, ownerIndex, "zombie");
+                        }
+                        
+                        // Reset glow on the next frame
+                        RequestFrame(view_as<RequestFrameCallback>(EventEntityTanadePost), i);
                     }
-                    
-                    // Reset glow on the next frame
-                    RequestFrame(view_as<RequestFrameCallback>(EventEntityTanadePost), i);
                 }
             }
 

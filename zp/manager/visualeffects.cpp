@@ -32,6 +32,7 @@
 #include "zp/manager/visualeffects/visualoverlays.cpp"
 #include "zp/manager/visualeffects/playereffects.cpp"
 #include "zp/manager/visualeffects/ragdoll.cpp"
+#include "zp/manager/visualeffects/particles.cpp"
 
 /**
  * @section Explosion flags.
@@ -75,12 +76,51 @@
  **/
  
 /**
- * @brief Load visual effects data.
+ * @brief Effects module init function.
  **/
+void VEffectsOnInit(/*void*/)
+{
+    // If windows, then stop
+    if(gServerData.Platform == OS_Windows)
+    {
+        return;
+    }
+    
+    // Forward event to sub-modules
+    ParticlesOnInit();
+}
+
+/**
+ * @brief Effects module load function.
+ **/         
 void VEffectsOnLoad(/*void*/)
 {
     // Forward event to sub-modules
     VAmbienceOnLoad();
+    
+    // If windows, then stop
+    if(gServerData.Platform == OS_Windows)
+    {
+        return;
+    }
+    
+    // Forward event to sub-modules
+    ParticlesOnLoad();
+}
+
+/**
+ * @brief Effects module purge function.
+ **/
+void VEffectsOnPurge(/*void*/)
+{
+    // If windows, then stop
+    if(gServerData.Platform == OS_Windows)
+    {
+        return;
+    }
+    
+    // Forward event to sub-modules
+    ParticlesOnPurge();
 }
 
 /**
@@ -324,7 +364,7 @@ void VEffectsHintClientScreen(const int clientIndex, const char[] sMessage)
  * @param fadeOut           Number of seconds to spend fading out.
  * @param sMessage          The message to send.
  **/
-void VEffectsHudClientScreen(Handle hSync, const int clientIndex, const float x, const float y, const float holdTime, const int r, const int g, const int b, const int a, const int effect, const float fxTime, const float fadeIn, const float fadeOut, const char[] sMessage)
+void VEffectsHudClientScreen(const Handle hSync, const int clientIndex, const float x, const float y, const float holdTime, const int r, const int g, const int b, const int a, const int effect, const float fxTime, const float fadeIn, const float fadeOut, const char[] sMessage)
 {
     // Sets HUD parameters for drawing text
     SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
@@ -510,8 +550,8 @@ void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", con
 {
     // Dispatch effect
     TE_Start("EffectDispatch");
-    if(hasLength(sParticle)) TE_WriteNum("m_nHitBox", fnGetParticleEffectIndex(sParticle)); 
-    if(hasLength(sIndex)) TE_WriteNum("m_iEffectName", fnGetEffectIndex(sIndex));
+    if(hasLength(sParticle)) TE_WriteNum("m_nHitBox", VEffectGetParticleEffectIndex(sParticle)); 
+    if(hasLength(sIndex)) TE_WriteNum("m_iEffectName", VEffectGetEffectIndex(sIndex));
     TE_WriteFloat("m_vOrigin.x", vEnd[0]);
     TE_WriteFloat("m_vOrigin.y", vEnd[1]);
     TE_WriteFloat("m_vOrigin.z", vEnd[2]);
@@ -526,4 +566,66 @@ void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", con
         TE_WriteNum("m_fFlags", PARTICLE_DISPATCH_FROM_ENTITY); /// @link https://developer.valvesoftware.com/wiki/SDK_Known_Issues_List_Fixed#Server%20Dispatching%20an%20Attached%20Particle%20Effect
         TE_WriteNum("m_nAttachmentIndex", iAttachment);
     }
+}
+
+/**
+ * @brief Searches for the index of a given string in a dispatch table.
+ *
+ * @param sEffect           The effect name.
+ * @return                  The item index.
+ **/
+int VEffectGetEffectIndex(const char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("EffectDispatch");
+    }
+
+    // Searches for the index of a given string in a string table
+    int itemIndex = FindStringIndex(tableIndex, sEffect);
+
+    // Validate item
+    if(itemIndex != INVALID_STRING_INDEX)
+    {
+        return itemIndex;
+    }
+
+    // Return on the unsuccess
+    return 0;
+}
+
+/**
+ * @brief Searches for the index of a given string in an effect table.
+ *
+ * @param sEffect           The effect name.
+ * @return                  The item index.
+ **/
+int VEffectGetParticleEffectIndex(const char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ParticleEffectNames");
+    }
+
+    // Searches for the index of a given string in a string table
+    int itemIndex = FindStringIndex(tableIndex, sEffect);
+
+    // Validate item
+    if(itemIndex != INVALID_STRING_INDEX)
+    {
+        return itemIndex;
+    }
+
+    // Return on the unsuccess
+    return 0;
 }

@@ -4,70 +4,67 @@
     {
         "Offsets"
         {
-            // Offsets from the engine ( https://forums.alliedmods.net/showthread.php?t=191171 )
+            // Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
             // You can update them only by yourself using tutorial in the link
-            "Entity_UpdateTransmitState"
+            "CBaseViewModel::UpdateTransmitState"
             {
-                "windows"    "22"
-                "linux"      "23"
-                "linux64"    "23"
-                "mac64"      "23"
+                "windows"   "22"
+                "linux"     "23"
             }
-            // @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
-            "Animating_StudioHdr"
+            "CBaseCombatWeapon::GetMaxClip1"
             {
-                "windows"    "68"
-                "linux"      "68"
-                "linux64"    "68"
-                "mac64"      "68"
+                "windows"   "350"
+                "linux"     "356"
+            }
+            "CBaseCombatWeapon::GetReserveAmmoMax"
+            {
+                "windows"   "354"
+                "linux"     "360"
+            }
+            "CBasePlayer::RemoveAllItems"
+            {
+                "windows"   "388"
+                "linux"     "389"
+            }
+            "CBasePlayer::CanBeSpotted"
+            {
+                "windows"   "4"
+                "linux"     "4"
+            }
+            "CServer::OS"
+            {
+                "windows"   "1"
+                "linux"     "2"
+            }
+            
+            
+            // @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
+            "CBaseAnimating::StudioHdr"
+            {
+                "windows"   "68"
+                "linux"     "68"
             }
             // @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L2133
-            "StudioHdrStruct_SequenceCount"
+            "StudioHdrStruct::SequenceCount"
             {
-                "windows"    "188"
-                "linux"      "188"
-                "linux64"    "188"
-                "mac64"      "188"
+                "windows"   "188"
+                "linux"     "188"
             }
             // @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L1729
-            "VirtualModelStruct_SequenceVector_Size"
+            "VirtualModelStruct::SequenceVectorSize"
             {
-                "windows"    "20"
-                "linux"      "20"
-                "linux64"    "20"
-                "mac64"      "20"
+                "windows"   "20"
+                "linux"     "20"
             }
-            
-            // Offset from the 'Counter-Strike:Source Deathmatch' ( https://github.com/alliedmodders/cssdm )
-            // You can update it from that file "../sourcemod/gamedata/cssdm.games"
-            // Change them if the offset out of date and use the last cssdm repository
-            "Weapon_RemoveAllItems"
+            // @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L2659
+            "CNetworkStringTableContainer::FindTable"
             {
-                "windows"    "388"
-                "linux"      "389"
-                "linux64"    "389"
-                "mac64"      "389"
-            }
-            
-            // Offsets from the engine ( https://forums.alliedmods.net/showthread.php?t=191171 )
-            // You can update them only by yourself using tutorial in the link
-            "Weapon_GetMaxClip1"
-            {
-                "windows"    "350"
-                "linux"      "356"
-                "linux64"    "356"
-                "mac64"      "356"
-            }
-            "Weapon_GetReserveAmmoMax"
-            {
-                "windows"    "354"
-                "linux"      "360"
-                "linux64"    "360"
-                "mac64"      "360"
+                "windows"   "3"
+                "linux"     "4"
             }
         }
 
-        // Signature from the engine ( https://forums.alliedmods.net/showthread.php?t=309074 )
+        // Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
         // You can update them only by yourself using tutorial in the link
         "Signatures"
         {
@@ -87,15 +84,12 @@
             ///         DevMsg("Need to handle the activity %d\n", v2);
             ///     }
             ///  }
-            "Animating_GetSequenceActivity" // Str: "Need to handle the activity %d\n" 
+            "CBaseAnimating::GetSequenceActivity" // Str: "Need to handle the activity %d\n" 
             {
-                "library"    "server"
-                "windows"    "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
-                "linux"      "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
-                "linux64"    "\x83\xFE\xFF\x74\x2A\x55\x48\x89\xE5\x53\x48\x89\xFB\x48\x83\xEC\x18\x48\x8B\xBF\x28\x06\x00\x00\x48\x85\xFF\x74\x2A\x48\x83\x3F\x00\x74\x2A\x48\x83\xC4\x18\x31\xD2"
-                //"mac64"      ""
+                "library"   "server"
+                "windows"   "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
+                "linux"     "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
             }
-            
             ///v10 = CBaseAnimating::LookupAttachment(this, "weapon_hand_R");
             ///if ( (v10 || (v10 = CBaseAnimating::LookupAttachment(this, "weapon_bone")) != 0)
             ///&& (unsigned __int8)CBaseAnimating::GetAttachment(this, v10, &v69, &v75) )
@@ -107,21 +101,100 @@
             ///    Warning("Missing weapon hand bone attachment for player model.\n");
             ///    CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
             ///} 
-            "Animating_LookupAttachment" // Str: "weapon_bone"
+            "CBaseAnimating::LookupAttachment" // Str: "weapon_bone"
             { 
-                "library"    "server" 
-                "windows"    "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
-                "linux"      "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x18\x85\xDB" 
-                "linux64"    "\x55\x48\x89\xE5\x53\x48\x89\xFB\x48\x83\xEC\x18\x48\x8B\xBF\x28\x06\x00\x00\x48\x85\xFF\x74\x2A\x48\x83\x3F\x00\x74\x2A\xE8\x2A\x2A\x2A\x2A"
-                //"mac64"      ""
+                "library"   "server" 
+                "windows"   "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
+                "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x18\x85\xDB" 
             }  
-            "Animating_GetAttachment" // Str: "weapon_bone"
+            "CBaseAnimating::GetAttachment" // Str: "weapon_bone"
             {
-                "library"    "server"            
-                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
-                "linux"      "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
-                "linux64"    "\x55\x48\x89\xE5\x41\x56\x49\x89\xCE\x41\x55\x41\x54\x4C\x8D\x65\xB0\x53\x48\x89\xD3\x4C\x89\xE2\x48\x83\xEC\x30\x48\x8B\x07"
-                //"mac64"      ""
+                "library"   "server"            
+                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
+                "linux"     "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
+            }
+            
+            /*___________________________________________________________________________________________*/
+            
+            /*
+             * Fix: ~Linux only, because Windows doenst use uncache system!
+             * Desc: Every custom particle precached during a map is not removed from precache table on the map end. 
+             *       Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
+             *       and the custom particles used on the next maps will not show right but erros will appear in their place.
+             */
+            "CParticleSystemMgr::GetParticleSystemCount"
+            {
+                "library"   "server"
+                "linux"     "\x55\x89\xE5\x8B\x45\x08\x5D\x8B\x80\x8C\x00\x00\x00"
+            }
+            "CParticleSystemMgr::UncacheAllParticleSystems" // Sig: "CParticleSystemMgr::~CParticleSystemMgr" -> Flush xref
+            {
+                "library"   "server"
+                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x1C\x8B\x75\x08\xC7\x86\x20\x01\x00\x00\x00\x00\x00\x00"
+            }
+            "CParticleSystemDictionary::FindParticleSystem" // Str: "CParticleCollection::InitializeNewParticles" + 68 above
+            {
+                "library"   "server"
+                "linux"     "\x55\x31\xC0\x89\xE5\x53\x8B\x55\x0C\x8B\x4D\x08\x81\xFA\xFF\xFF\x00\x00"
+            }
+            "CParticleSystemDictionary::~CParticleSystemDictionary" 
+            {
+                "library"   "server"
+                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x7D\x08\x8B\x47\x58\x85\xC0"
+            }
+            "CParticleSystemDefinition::ParseChildren" // Str: "DmeParticleSystemDefinition" and "children" and "preventNameBasedLookup"
+			{
+                "library"	"server"
+                "linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x45\x0C\xC7\x44\x24\x04"
+			}
+            "CParticleSystemDefinition::~CParticleSystemDefinition"
+            {
+                "library"   "server"
+                "linux"     "\x55\x89\xE5\x57\x56\x31\xF6\x53\x83\xEC\x3C\x8B\x5D\x08\x89\x1C\x24\xE8\x2A\x2A\x2A\x2A\x8D\x83\x44\x01\x00\x00"
+            }
+            "SV_ActivateServer" // Str: "SV_ActivateServer"
+            {
+                "library"   "engine"
+                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A"
+            }
+            "CNetworkStringTable::DeleteAllStrings" // Str: "___clientsideitemsplaceholder0___"
+            {
+                "library"   "engine"
+                "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x43\x40"
+            }
+        }
+       
+        // Addr from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
+        // You can update them only by yourself using tutorial in the link
+        "Addresses"
+        {
+            "g_pParticleSystemMgr" 
+            { 
+                "linux"
+                {
+                    "signature"     "CParticleSystemDefinition::ParseChildren"
+                    "read"          "375"
+                    "read"          "0"
+                }
+            }
+            "m_pParticleSystemDictionary"
+            {
+                "linux"
+                {
+                    "signature"     "CParticleSystemDefinition::ParseChildren"
+                    "read"          "375"
+                    "read"          "0"
+                    "read"          "140"
+                }
+            }
+            "s_NetworkStringTable"
+            {
+                "linux"
+                {
+                    "signature"     "SV_ActivateServer"
+                    "read"          "34"
+                    "read"          "0"
+                }
             }
         }
     }

@@ -61,6 +61,7 @@ int g_iOffset_PlayerDefaultFOV;
 int g_iOffset_PlayerAccount;
 int g_iOffset_PlayerSpotted;
 int g_iOffset_PlayerSpottedByMask;
+int g_iOffset_PlayerCanBeSpotted;
 int g_iOffset_PlayerDetected;
 int g_iOffset_PlayerHUD;
 int g_iOffset_PlayerHitGroup;
@@ -122,8 +123,7 @@ enum EngineOS
 {
     OS_Unknown,
     OS_Windows,
-    OS_Linux,
-    OS_Mac
+    OS_Linux
 };
 /**
  * @endsection
@@ -146,6 +146,7 @@ enum struct ServerData
     /* Map */
     bool MapLoaded;
     ArrayList Spawns;
+    ArrayList Particles;
     
     /* OS */
     EngineOS Platform;

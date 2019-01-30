@@ -77,7 +77,7 @@ enum LogModule
     bool:LogModule_Debug,
     bool:LogModule_Tools,
     bool:LogModule_Database,
-    bool:LogModule_Models,
+    bool:LogModule_Decrypt,
     bool:LogModule_Sounds,
     bool:LogModule_Downloads,
     bool:LogModule_Weapons,
@@ -169,9 +169,9 @@ LogModule LogGetModule(char[] sModuleName)
     }
     else if(!strcmp(sModuleName, "models", false))
     {
-        return LogModule_Models;
+        return LogModule_Decrypt;
     }
-    else if(!strcmp(sModuleName, "sounds", false))
+    else if(!strcmp(sModuleName, "decrypt", false))
     {
         return LogModule_Sounds;
     }
@@ -286,9 +286,9 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModule iM
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "database") : strcopy(sBuffer, iMaxLen, "Database");
         }
-        case LogModule_Models :
+        case LogModule_Decrypt :
         {
-            return shortName ? strcopy(sBuffer, iMaxLen, "models") : strcopy(sBuffer, iMaxLen, "Models");
+            return shortName ? strcopy(sBuffer, iMaxLen, "decrypt") : strcopy(sBuffer, iMaxLen, "Decrypt");
         }
         case LogModule_Sounds :
         {

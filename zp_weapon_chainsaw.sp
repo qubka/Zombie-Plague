@@ -593,7 +593,7 @@ void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int 
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action Weapon_OnStab(Handle hTimer, const int userID)
+public Action Weapon_OnStab(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); static int weaponIndex;

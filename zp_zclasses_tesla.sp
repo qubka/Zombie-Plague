@@ -50,7 +50,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_SKILL_SHAKE_AMP         2.0           
 #define ZOMBIE_CLASS_SKILL_SHAKE_FREQUENCY   1.0           
 #define ZOMBIE_CLASS_SKILL_SHAKE_DURATION    0.1
-#define ZOMBIE_CLASS_SKILL_RADIUS            90000.0 // [squared]
+#define ZOMBIE_CLASS_SKILL_RADIUS            300.0
 /**
  * @endsection
  **/
@@ -249,7 +249,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientOnHallucination(Handle hTimer, const int userID)
+public Action ClientOnHallucination(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -273,7 +273,7 @@ public Action ClientOnHallucination(Handle hTimer, const int userID)
                 GetClientAbsOrigin(i, vVictimPosition);
 
                 // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
                 // Validate distance
                 if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)

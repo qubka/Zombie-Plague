@@ -56,7 +56,7 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_SKILL_ELASTICITY       10.0
 #define ZOMBIE_CLASS_SKILL_DISSOLVE         40  // Amount of energy which ball lose to dissolve
 #define ZOMBIE_CLASS_SKILL_DURATION         3.0 
-#define ZOMBIE_CLASS_SKILL_EXP_RADIUS       22500.0 //[squared]
+#define ZOMBIE_CLASS_SKILL_EXP_RADIUS       150.0
 #define ZOMBIE_CLASS_SKILL_EXP_DAMAGE       100.0
 #define ZOMBIE_CLASS_SKILL_EXP_TIME         2.0
 /**
@@ -253,7 +253,7 @@ public Action BlastTouchHook(const int entityIndex, const int targetIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.                    
  **/
-public Action BlastExploadHook(Handle hTimer, const int referenceIndex)
+public Action BlastExploadHook(const Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -295,7 +295,7 @@ public Action BlastExploadHook(Handle hTimer, const int referenceIndex)
                 GetClientAbsOrigin(i, vVictimPosition);
 
                 // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
                 // Validate distance
                 if(flDistance <= ZOMBIE_CLASS_SKILL_EXP_RADIUS)
@@ -330,7 +330,7 @@ public Action BlastExploadHook(Handle hTimer, const int referenceIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveBlastEffect(Handle hTimer, const int userID)
+public Action ClientRemoveBlastEffect(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

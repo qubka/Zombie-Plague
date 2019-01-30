@@ -44,8 +44,8 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/    
-#define ZOMBIE_CLASS_SKILL_RADIUS        62500.0 // [squared]
-#define ZOMBIE_CLASS_SKILL_DAMAGE        1.0 // 10 per second    
+#define ZOMBIE_CLASS_SKILL_RADIUS        250.0
+#define ZOMBIE_CLASS_SKILL_DAMAGE        1.0   // 10 per second    
 #define ZOMBIE_CLASS_SKILL_COLOR         {255, 0, 0, 200}
 /**
  * @endsection
@@ -205,7 +205,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientOnScreaming(Handle hTimer, const int userID)
+public Action ClientOnScreaming(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -229,7 +229,7 @@ public Action ClientOnScreaming(Handle hTimer, const int userID)
                 GetClientAbsOrigin(i, vVictimPosition);
 
                 // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
                 // Validate distance
                 if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
@@ -240,8 +240,8 @@ public Action ClientOnScreaming(Handle hTimer, const int userID)
             }
         }
 
-        // Create a beamring effect                                   <Diameter>
-        TE_SetupBeamRingPoint(vEntPosition, 50.0, SquareRoot(ZOMBIE_CLASS_SKILL_RADIUS) * 2.0, decalTrail, decalHalo, 1, 10, 1.0, 15.0, 0.0, ZOMBIE_CLASS_SKILL_COLOR, 50, 0);
+        // Create a beamring effect               <Diameter>
+        TE_SetupBeamRingPoint(vEntPosition, 50.0, ZOMBIE_CLASS_SKILL_RADIUS * 2.0, decalTrail, decalHalo, 1, 10, 1.0, 15.0, 0.0, ZOMBIE_CLASS_SKILL_COLOR, 50, 0);
         TE_SendToAllInRange(vEntPosition, RangeType_Visibility);
 
         // Allow timer

@@ -172,7 +172,7 @@ int ClassValidateIndex(const int clientIndex, const char[] sType)
     ClassGetType(gClientData[clientIndex].Class, sClassType, sizeof(sClassType));
     
     // Find any accessable class 
-    if((hasLength(sClassGroup) && !IsPlayerInGroup(clientIndex, sClassGroup)) || ClassGetLevel(gClientData[clientIndex].Class) > gClientData[clientIndex].Level || strcmp(sClassType, sType) != 0)
+    if((hasLength(sClassGroup) && !IsPlayerInGroup(clientIndex, sClassGroup)) || ClassGetLevel(gClientData[clientIndex].Class) > gClientData[clientIndex].Level || strcmp(sClassType, sType))
     {
         // Choose any accessable class
         for(int i = 0; i < iSize; i++)
@@ -186,7 +186,7 @@ int ClassValidateIndex(const int clientIndex, const char[] sType)
             
             // Skip some classes, if types isn't equal
             ClassGetType(i, sClassType, sizeof(sClassType));
-            if(strcmp(sClassType, sType) != 0)
+            if(strcmp(sClassType, sType))
             {
                 continue;
             }
@@ -265,7 +265,7 @@ void ClassMenu(const int clientIndex, const char[] sTitle, const char[] sType, c
         ClassGetType(i, sName, sizeof(sName));
         
         // Skip some classes, if types isn't equal
-        if(strcmp(sName, sType) != 0)
+        if(strcmp(sName, sType))
         {
             continue;
         }

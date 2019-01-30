@@ -309,7 +309,7 @@ void LevelSystemOnSetExp(const int clientIndex, int iExp)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action LevelSystemOnClientHUD(Handle hTimer, const int userID)
+public Action LevelSystemOnClientHUD(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); 
@@ -581,7 +581,7 @@ void LevelSystemOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetClientLevel(clientIndex);
  **/
-public int API_GetClientLevel(Handle hPlugin, const int iNumParams)
+public int API_GetClientLevel(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -595,7 +595,7 @@ public int API_GetClientLevel(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientLevel(clientIndex, iD);
  **/
-public int API_SetClientLevel(Handle hPlugin, const int iNumParams)
+public int API_SetClientLevel(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -609,7 +609,7 @@ public int API_SetClientLevel(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientExp(clientIndex);
  **/
-public int API_GetClientExp(Handle hPlugin, const int iNumParams)
+public int API_GetClientExp(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -623,7 +623,7 @@ public int API_GetClientExp(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientExp(clientIndex, iD);
  **/
-public int API_SetClientExp(Handle hPlugin, const int iNumParams)
+public int API_SetClientExp(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

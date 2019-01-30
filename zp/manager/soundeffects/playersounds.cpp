@@ -129,7 +129,7 @@ void PlayerSoundsOnCounterStart(/*void*/)
  *
  * @param reasonIndex       The reason index.
  **/
-public Action PlayerSoundsOnRoundEndPost(Handle hTimer, const CSRoundEndReason reasonIndex)
+public Action PlayerSoundsOnRoundEndPost(const Handle hTimer, const CSRoundEndReason reasonIndex)
 {
     // Clear timer
     gServerData.EndTimer = null;
@@ -161,7 +161,7 @@ bool PlayerSoundsOnCounter(/*void*/)
 /**
  * @brief Timer callback, the blast is started. *(Post)
  **/
-public Action PlayerSoundsOnBlastPost(Handle hTimer)
+public Action PlayerSoundsOnBlastPost(const Handle hTimer)
 {
     // Clear timer
     gServerData.BlastTimer = null;
@@ -277,7 +277,7 @@ void PlayerSoundsOnClientInfected(const int clientIndex, const int attackerIndex
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action PlayerSoundsOnMoanRepeat(Handle hTimer, const int userID)
+public Action PlayerSoundsOnMoanRepeat(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

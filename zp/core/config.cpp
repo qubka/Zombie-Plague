@@ -176,7 +176,7 @@ enum struct ConfigData
     bool Loaded;                     /** True if config is loaded, false if not. */
     ConfigStructure Structure;       /** Format of the config */
     Function ReloadFunc;             /** Function to call to reload config. */
-    Handle Handler;                  /** Handle of the config file. */
+    ArrayList Handler;               /** Handle of the config file. */
     char Path[PLATFORM_LINE_LENGTH]; /** Full path to config file. */
     char Alias[NORMAL_LINE_LENGTH];  /** Config file alias, used for client interaction. */
 };
@@ -313,7 +313,7 @@ stock void ConfigSetConfigReloadFunc(const ConfigFile iConfig, const Function iR
  * @param iConfig           Config file to set handle of.
  * @param iFile             Config file handle.
 **/
-stock void ConfigSetConfigHandle(const ConfigFile iConfig, Handle iFile)
+stock void ConfigSetConfigHandle(const ConfigFile iConfig, const ArrayList iFile)
 {
     // Sets file handle
     gConfigData[iConfig].Handler = iFile;
@@ -385,7 +385,7 @@ stock Function ConfigGetConfigReloadFunc(const ConfigFile iConfig)
  * @param iConfig           Config file to get file handle of.
  * @return                  Config file handle.
  **/
-stock Handle ConfigGetConfigHandle(const ConfigFile iConfig)
+stock ArrayList ConfigGetConfigHandle(const ConfigFile iConfig)
 {
     // Return load status
     return gConfigData[iConfig].Handler;

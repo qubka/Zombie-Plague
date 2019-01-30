@@ -268,7 +268,7 @@ void Item_OnActivate(const int clientIndex)
  * @param hTimer            The timer handle.
  * @param clientIndex       The user id.
  **/
-public Action ItemOnReload(Handle hTimer, const int userID)
+public Action ItemOnReload(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

@@ -372,7 +372,7 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, const int clientInde
                     WeaponsGetEntity(iD, sWeaponName, sizeof(sWeaponName));
 
                     // Validate primary/secondary weapon
-                    if(strncmp(sWeaponName[7], "tas", 3, false) != 0)
+                    if(strncmp(sWeaponName[7], "tas", 3, false))
                     {
                         // Drop weapon
                         WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == MenuType_Pistols) ? view_as<int>(SlotType_Secondary) : ((WeaponsGetSlot(iD) == MenuType_Knifes) ? view_as<int>(SlotType_Melee) : view_as<int>(SlotType_Primary))));

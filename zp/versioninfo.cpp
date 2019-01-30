@@ -29,7 +29,7 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "X.007"
+#define PLUGIN_VERSION      "X.008"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
@@ -37,7 +37,7 @@
 #define PLUGIN_BRANCH       "master"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "24-January-2019T16:14:00-GMT+01:00"
+#define PLUGIN_DATE         "30-January-2019T22:49:00-GMT+01:00"
 /**
  * @endsection
  **/
@@ -72,28 +72,20 @@ public Action VersionOnCommandCatched(const int clientIndex, const int iArgument
     static char sBuffer[HUGE_LINE_LENGTH]; sBuffer[0] = '\0';
     static char sLine[BIG_LINE_LENGTH]; sLine[0] = '\0';
 
-    #define FORMATSTRING "%24s: %s\n"
-
     /// Format strings
     FormatEx(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
-
     FormatEx(sLine, sizeof(sLine), "%s\n\n", PLUGIN_COPYRIGHT);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
-
-    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Version", PLUGIN_VERSION);
+    FormatEx(sLine, sizeof(sLine), "%24s: %s\n", "Version", PLUGIN_VERSION);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
-
-    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Last edit", PLUGIN_DATE);
+    FormatEx(sLine, sizeof(sLine), "%24s: %s\n", "Last edit", PLUGIN_DATE);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
-
-    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "License", PLUGIN_LICENSE);
+    FormatEx(sLine, sizeof(sLine), "%24s: %s\n", "License", PLUGIN_LICENSE);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
-
-    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Link+", PLUGIN_LINK);
+    FormatEx(sLine, sizeof(sLine), "%24s: %s\n", "Link+", PLUGIN_LINK);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
-
-    FormatEx(sLine, sizeof(sLine), FORMATSTRING, "Branch", PLUGIN_BRANCH);
+    FormatEx(sLine, sizeof(sLine), "%23s: %s\n", "Branch", PLUGIN_BRANCH);
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
     // Send information into the console

@@ -310,7 +310,7 @@ public Action BatTouchHook(const int entityIndex, const int targetIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action BatAttachHook(Handle hTimer, const int referenceIndex)
+public Action BatAttachHook(const Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);

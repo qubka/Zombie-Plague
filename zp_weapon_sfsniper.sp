@@ -155,7 +155,7 @@ void Weapon_OnBullet(const int clientIndex, const int weaponIndex, float vBullet
  * @param hThink            The think handle.    
  * @param referenceIndex    The reference index.    
  **/
-public Action BeamEffectHook(Handle hThink, int referenceIndex)
+public Action BeamEffectHook(const Handle hTimer, int referenceIndex)
 {
     // Gets entity index from the reference
     int entityIndex = EntRefToEntIndex(referenceIndex);

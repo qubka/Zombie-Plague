@@ -259,15 +259,6 @@ forward void ZP_OnEngineExecute(/*void*/);
 //*********************************************************************
 
 /**
- * Update a entity transmit state.
- *
- * @param entityIndex       The entity index.
- *
- * @noreturn
- **/
-native void ZP_UpdateTransmitState(int entityIndex);
-
-/**
  * Validate the attachment on the entity.
  *
  * @param entityIndex       The entity index.

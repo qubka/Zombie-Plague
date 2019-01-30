@@ -45,7 +45,7 @@ public Plugin myinfo =
  * @section Properties of the grenade.
  **/
 #define GRENADE_FREEZE_TIME           4.0     // Freeze duration in seconds
-#define GRENADE_FREEZE_RADIUS         40000.0 // Freeze size (radius) [squared]
+#define GRENADE_FREEZE_RADIUS         200.0   // Freeze size (radius)
 #define GRENADE_FREEZE_EXP_TIME       2.0     // Duration of the explosion effect in seconds
 /**
  * @endsection
@@ -280,7 +280,7 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
                     GetClientAbsAngles(i, vVictimAngle);
 
                     // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
                     // Validate distance
                     if(flDistance <= GRENADE_FREEZE_RADIUS)
@@ -354,7 +354,7 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveFreezeEffect(Handle hTimer, const int userID)
+public Action ClientRemoveFreezeEffect(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

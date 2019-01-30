@@ -201,25 +201,25 @@ bool DownloadsOnPrecache(const char[] sPath)
     if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
     {
         // Precache sound
-        return fnPrecacheSoundQuirk(sPath);
+        return SoundsPrecacheQuirk(sPath);
     }
     // Validate model format
     else if(!strcmp(sPath[iFormat], ".mdl", false))
     {
         // Precache model
-        return ModelsPrecacheStatic(sPath) ? true : false;   
+        return DecryptPrecacheModel(sPath) ? true : false;   
     }
     // Validate particle format 
     else if(!strcmp(sPath[iFormat], ".pcf", false))
     {
         // Precache paricle
-        return ModelsPrecacheParticle(sPath);
+        return DecryptPrecacheParticle(sPath) ? true : false; 
     }
     // Validate meterial format
     else if(!strcmp(sPath[iFormat], ".vmt", false))
     {
         // Precache textures
-        return ModelsPrecacheTextures(sPath);
+        return DecryptPrecacheTextures(sPath);
     }
     
     // Return on success

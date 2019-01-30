@@ -105,7 +105,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 {                             // C_BaseFlex -> C_EconEntity -> C_BaseCombatWeapon -> C_WeaponCSBase -> C_BaseCSGrenade
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Weapon_RemoveAllItems");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBasePlayer::RemoveAllItems");
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
@@ -122,7 +122,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, "Weapon_Switch");
+    PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, /*CBasePlayer::*/"Weapon_Switch");
     
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
@@ -140,7 +140,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Weapon_GetMaxClip1");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseCombatWeapon::GetMaxClip1");
     
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
@@ -157,7 +157,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Weapon_GetReserveAmmoMax");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseCombatWeapon::GetReserveAmmoMax");
     
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
@@ -201,8 +201,9 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     
     #if defined USE_DHOOKS
     // Load other offsets
-    fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "Weapon_GetMaxClip1");
-    fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "Weapon_GetReserveAmmoMax");
+    fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
+    fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
+    //fnInitGameConfOffset(gServerData.Config, DHook_GetMaxSpeed, "CBasePlayer::GetPlayerMaxSpeed");
 
     /// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
     hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
@@ -236,7 +237,7 @@ void WeaponSDKOnUnload(/*void*/)
                 {
                     // Make the first viewmodel visible
                     WeaponHDRSetEntityVisibility(viewModel1, true);
-                    ToolsUpdateTransmitState(viewModel1);
+                    WeaponHDRUpdateTransmitState(viewModel1);
                 }
 
                 // Validate secondary viewmodel
@@ -244,7 +245,7 @@ void WeaponSDKOnUnload(/*void*/)
                 {
                     // Make the second viewmodel visible
                     WeaponHDRSetEntityVisibility(viewModel2, false);
-                    ToolsUpdateTransmitState(viewModel2);
+                    WeaponHDRUpdateTransmitState(viewModel2);
                 }
             }
         }
@@ -709,7 +710,7 @@ void WeaponSDKOnClientDeath(const int clientIndex)
     {
         // Hide the custom viewmodel if the player dies
         WeaponHDRSetEntityVisibility(viewModel2, false);
-        ToolsUpdateTransmitState(viewModel2);
+        WeaponHDRUpdateTransmitState(viewModel2);
     }
 
     // Client has swapped to a regular weapon
@@ -740,11 +741,11 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
     
     // Make the first viewmodel invisible
     WeaponHDRSetEntityVisibility(viewModel1, false);
-    ToolsUpdateTransmitState(viewModel1);
+    WeaponHDRUpdateTransmitState(viewModel1);
     
     // Make the second viewmodel invisible
     WeaponHDRSetEntityVisibility(viewModel2, false);
-    ToolsUpdateTransmitState(viewModel2);
+    WeaponHDRUpdateTransmitState(viewModel2);
 
     // Validate weapon
     if(IsValidEdict(weaponIndex))
@@ -841,7 +842,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
     }
     
     // Sets last weapon index to the client
-    ToolsSetClientLastWeapon(clientIndex, weaponIndex); /// Bugfix for holster
+    ToolsSetClientLastWeapon(clientIndex, weaponIndex); /// HACK~HACK
 
     // Weapon has not changed since last pre hook
     if(weaponIndex == gClientData[clientIndex].CustomWeapon)
@@ -882,11 +883,11 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
         {
             // Make the first viewmodel invisible
             WeaponHDRSetEntityVisibility(viewModel1, false);
-            ToolsUpdateTransmitState(viewModel1);
+            WeaponHDRUpdateTransmitState(viewModel1);
             
             // Make the second viewmodel visible
             WeaponHDRSetEntityVisibility(viewModel2, true);
-            ///ToolsUpdateTransmitState(viewModel2); //-> transport a bit below
+            ///WeaponHDRUpdateTransmitState(viewModel2); //-> transport a bit below
             
             // Remove the muzzle on the switch
             VEffectRemoveMuzzle(clientIndex, viewModel2);
@@ -896,7 +897,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
             
             // Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
             SetEntData(viewModel1, g_iOffset_ViewModelSequence, -1, _, true);
-            ToolsUpdateTransmitState(viewModel2);
+            WeaponHDRUpdateTransmitState(viewModel2);
             
             // Sets model entity for the weapon
             SetEntityModel(weaponIndex, sModel);
@@ -905,7 +906,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
             if(WeaponsGetSequenceCount(iD) == -1)
             {
                 // Gets sequence amount from a weapon entity
-                int iSequenceCount = Animating_GetSequenceCount(weaponIndex);
+                int iSequenceCount = WeaponHDRGetSequenceCount(weaponIndex);
 
                 // Validate count
                 if(iSequenceCount)
@@ -985,11 +986,11 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
 
     // Make the first viewmodel visible
     WeaponHDRSetEntityVisibility(viewModel1, true);
-    ToolsUpdateTransmitState(viewModel1);
+    WeaponHDRUpdateTransmitState(viewModel1);
 
     // Make the second viewmodel invisible
     WeaponHDRSetEntityVisibility(viewModel2, false);
-    ToolsUpdateTransmitState(viewModel2);
+    WeaponHDRUpdateTransmitState(viewModel2);
 
     // Client has swapped to a regular weapon
     gClientData[clientIndex].CustomWeapon = INVALID_ENT_REFERENCE;
@@ -1080,7 +1081,7 @@ public void WeaponSDKOnAnimationFix(const int clientIndex)
         // Validate sequence
         if(drawSequence != -1 && iSequence != drawSequence)
         {
-            ToolsUpdateTransmitState(viewModel1); /// Update!
+            WeaponHDRUpdateTransmitState(viewModel1); /// Update!
             gClientData[clientIndex].DrawSequence = -1;
         }
         
@@ -1384,7 +1385,7 @@ public Action WeaponSDKOnCommandListened(const int clientIndex, const char[] com
                 int iMaxAmmo = SDKCall(hSDKCallGetReserveAmmoMax, weaponIndex);
                 
                 // Reset ammomax for standart weapons
-                if(!iMaxAmmo) iMaxAmmo = GetEntData(weaponIndex, g_iOffset_WeaponReserve2); /// Bug fix for standart weapons
+                if(!iMaxAmmo) iMaxAmmo = GetEntData(weaponIndex, g_iOffset_WeaponReserve2); /// HACK~HACK
                 
                 // Validate amount
                 if(iAmmo < iMaxAmmo)
@@ -1438,7 +1439,7 @@ public MRESReturn WeaponDHookOnGetMaxClip1(const int weaponIndex, Handle hReturn
 
 /**
  * DHook: Sets a weapon reserved ammunition when its spawned, picked, dropped or reloaded. 
- * @note    int CBaseCombatWeapon::GetReserveAmmoMax(AmmoPosition_t)
+ * @note int CBaseCombatWeapon::GetReserveAmmoMax(AmmoPosition_t *)
  *
  * @param weaponIndex       The weapon index.
  * @param hReturn           Handle to return structure.

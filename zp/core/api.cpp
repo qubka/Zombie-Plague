@@ -577,7 +577,7 @@ void APIOnNativeInit(/*void*/)
  *
  * @note native bool ZP_IsPlayerInGroup(clientIndex, group);
  **/
-public int API_IsPlayerInGroup(Handle hPlugin, const int iNumParams)
+public int API_IsPlayerInGroup(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -595,7 +595,7 @@ public int API_IsPlayerInGroup(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsPlayerZombie(clientIndex);
  **/
-public int API_IsPlayerZombie(Handle hPlugin, const int iNumParams)
+public int API_IsPlayerZombie(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -609,7 +609,7 @@ public int API_IsPlayerZombie(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsPlayerHuman(clientIndex);
  **/
-public int API_IsPlayerHuman(Handle hPlugin, const int iNumParams)
+public int API_IsPlayerHuman(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -623,7 +623,7 @@ public int API_IsPlayerHuman(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientTime(clientIndex);
  **/
-public int API_GetClientTime(Handle isPlugin, const int iNumParams)
+public int API_GetClientTime(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -640,7 +640,7 @@ public int API_GetClientTime(Handle isPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsNewRound();
  **/
-public int API_IsNewRound(Handle hPlugin, const int iNumParams)
+public int API_IsNewRound(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.RoundNew;
@@ -651,7 +651,7 @@ public int API_IsNewRound(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsEndRound();
  **/
-public int API_IsEndRound(Handle hPlugin, const int iNumParams)
+public int API_IsEndRound(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.RoundEnd;
@@ -662,7 +662,7 @@ public int API_IsEndRound(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsStartedRound();
  **/
-public int API_IsStartedRound(Handle hPlugin, const int iNumParams)
+public int API_IsStartedRound(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.RoundStart;
@@ -673,7 +673,7 @@ public int API_IsStartedRound(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberRound();
  **/
-public int API_GetNumberRound(Handle hPlugin, const int iNumParams)
+public int API_GetNumberRound(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.RoundNumber;
@@ -684,7 +684,7 @@ public int API_GetNumberRound(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetHumanAmount();
  **/
-public int API_GetHumanAmount(Handle hPlugin, const int iNumParams)
+public int API_GetHumanAmount(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetHumans();
@@ -695,7 +695,7 @@ public int API_GetHumanAmount(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetZombieAmount();
  **/
-public int API_GetZombieAmount(Handle hPlugin, const int iNumParams)
+public int API_GetZombieAmount(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetZombies();
@@ -706,7 +706,7 @@ public int API_GetZombieAmount(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetAliveAmount();
  **/
-public int API_GetAliveAmount(Handle hPlugin, const int iNumParams)
+public int API_GetAliveAmount(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetAlive();
@@ -717,7 +717,7 @@ public int API_GetAliveAmount(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetPlayingAmount();
  **/
-public int API_GetPlayingAmount(Handle hPlugin, const int iNumParams)
+public int API_GetPlayingAmount(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetPlaying();
@@ -728,7 +728,7 @@ public int API_GetPlayingAmount(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetRandomHuman();
  **/
-public int API_GetRandomHuman(Handle hPlugin, const int iNumParams)
+public int API_GetRandomHuman(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetRandomHuman();
@@ -739,7 +739,7 @@ public int API_GetRandomHuman(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetRandomZombie();
  **/
-public int API_GetRandomZombie(Handle hPlugin, const int iNumParams)
+public int API_GetRandomZombie(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return fnGetRandomZombie();

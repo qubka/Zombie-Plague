@@ -380,7 +380,7 @@ public Action TrapOnTransmit(const int entityIndex, const int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveTrapEffect(Handle hTimer, const int userID)
+public Action ClientRemoveTrapEffect(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -423,7 +423,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
 
         // If the zombie move, then reset skill
-        if((SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))) != 0)
+        if((SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
         {
             // Reset skill
             ZP_ResetClientSkill(clientIndex);

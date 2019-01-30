@@ -25,6 +25,18 @@
  * ============================================================================
  **/
  
+#if defined USE_DHOOKS
+/**
+ * Variables to store DHook calls handlers.
+ **/
+Handle hDHookCommitSuicide;
+
+/**
+ * Variables to store dynamic DHook offsets.
+ **/
+int DHook_CommitSuicide;
+#endif 
+ 
 /**
  * @brief Death module init function.
  **/
@@ -32,6 +44,16 @@ void DeathOnInit(/*void*/)
 {
     // Hook player events
     HookEvent("player_death", DeathOnClientDeath, EventHookMode_Post);
+    
+    #if defined USE_DHOOKS
+    // Load offsets
+    fnInitGameConfOffset(gServerData.SDKTools, DHook_CommitSuicide, /*CBasePlayer::*/"CommitSuicide");
+    
+    /// CBasePlayer::CommitSuicide(CBasePlayer *this, bool a2, bool a3)
+    hDHookCommitSuicide = DHookCreate(DHook_CommitSuicide, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, DeathDhookOnCommitSuicide);
+    DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
+    DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
+    #endif
 }
 
 /**
@@ -52,6 +74,21 @@ void DeathOnCvarInit(/*void*/)
 {
     // Creates cvars
     gCvarList[CVAR_INFECT_ICON] = FindConVar("zp_infect_icon");
+}
+
+/**
+ * @brief Client has been joined.
+ * 
+ * @param clientIndex       The client index.  
+ **/
+void DeathOnClientInit(const int clientIndex)
+{
+    #if defined USE_DHOOKS
+    // Hook entity callbacks
+    DHookEntity(hDHookCommitSuicide, true, clientIndex);
+    #else
+        #pragma unused clientIndex
+    #endif
 }
 
 /**
@@ -198,7 +235,7 @@ bool DeathOnClientRespawn(const int clientIndex, const int attackerIndex = 0,  c
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action DeathOnClientRespawning(Handle hTimer, const int userID)
+public Action DeathOnClientRespawning(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -251,3 +288,24 @@ public void DeathOnClientHUD(const int clientIndex, const int attackerIndex)
         hEvent.Close();
     }
 }
+
+#if defined USE_DHOOKS
+/**
+ * DHook: Suicide the current player.
+ * @note void CBasePlayer::CommitSuicide(bool, bool)
+ *
+ * @param clientIndex       The client index.
+ **/
+public MRESReturn DeathDhookOnCommitSuicide(const int clientIndex)
+{
+    // Validate client
+    if(IsPlayerExist(clientIndex, false))
+    {
+        // Reset any respawning 
+        delete gClientData[clientIndex].RespawnTimer;
+        
+        // Terminate the round
+        ModesValidateRound();
+    }
+}
+#endif

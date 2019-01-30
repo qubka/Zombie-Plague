@@ -383,7 +383,7 @@ void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, c
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action FireFlyHook(Handle hTimer, const int referenceIndex)
+public Action FireFlyHook(const Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -410,7 +410,7 @@ public Action FireFlyHook(Handle hTimer, const int referenceIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action FireRemoveHook(Handle hTimer, const int referenceIndex)
+public Action FireRemoveHook(const Handle hTimer, const int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);

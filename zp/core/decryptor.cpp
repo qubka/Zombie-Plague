@@ -3,7 +3,7 @@
  *
  *  Zombie Plague
  *
- *  File:          models.cpp
+ *  File:          decryptor.cpp
  *  Type:          Core
  *  Description:   Models decryptor.
  *
@@ -33,7 +33,7 @@
  * @param sModel            The model path.
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int ModelsPrecacheStatic(const char[] sModel)
+int DecryptPrecacheModel(const char[] sModel)
 {
     // If model path is empty, then stop
     if(!hasLength(sModel))
@@ -45,17 +45,17 @@ int ModelsPrecacheStatic(const char[] sModel)
     if(!FileExists(sModel))
     {
         // Try to find model in game folder by name
-        return ModelsPrecacheStandart(sModel);
+        return DecryptPrecacheStandart(sModel);
     }
     
     // If model doesn't precache yet, then continue
     if(!IsModelPrecached(sModel))
     {
         // Precache model materails
-        ModelsPrecacheMaterials(sModel);
+        DecryptPrecacheMaterials(sModel);
 
         // Precache model resources
-        ModelsPrecacheResources(sModel);
+        DecryptPrecacheResources(sModel);
     }
     
     // Return on success
@@ -68,7 +68,7 @@ int ModelsPrecacheStatic(const char[] sModel)
  * @param sModel            The model path. 
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int ModelsPrecacheWeapon(const char[] sModel)
+int DecryptPrecacheWeapon(const char[] sModel)
 {
     // If model path is empty, then stop
     if(!hasLength(sModel))
@@ -80,7 +80,7 @@ int ModelsPrecacheWeapon(const char[] sModel)
     if(!FileExists(sModel))
     {
         // Return error
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
         return 0;
     }
 
@@ -88,13 +88,13 @@ int ModelsPrecacheWeapon(const char[] sModel)
     if(!IsModelPrecached(sModel))
     {
         // Precache model sounds
-        ModelsPrecacheSounds(sModel);
+        DecryptPrecacheSounds(sModel);
         
         // Precache model materails
-        ModelsPrecacheMaterials(sModel);
+        DecryptPrecacheMaterials(sModel);
         
         // Precache model resources
-        ModelsPrecacheResources(sModel);
+        DecryptPrecacheResources(sModel);
     }
     
     // Return the model index
@@ -102,11 +102,44 @@ int ModelsPrecacheWeapon(const char[] sModel)
 }
 
 /**
+ * @brief Precache particle models and return model index.
+ *
+ * @param sModel            The model path. 
+ * @return                  The model index if was precached, 0 otherwise.
+ **/
+int DecryptPrecacheParticle(const char[] sModel)
+{
+    // If model path is empty, then stop
+    if(!hasLength(sModel))
+    {
+        return 0;
+    }
+    
+    // If model didn't exist, then
+    if(!FileExists(sModel))
+    {
+        // Return error
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
+        return 0;
+    }
+
+    // If model doesn't precache yet, then continue
+    if(!IsGenericPrecached(sModel))
+    {
+        // Precache model effects
+        DecryptPrecacheEffects(sModel);
+    }
+    
+    // Return the model index
+    return PrecacheGeneric(sModel, true);
+}
+
+/**
  * @brief Reads the current model and precache its resources.
  *
  * @param sModel            The model path.
  **/
-void ModelsPrecacheResources(const char[] sModel)
+void DecryptPrecacheResources(const char[] sModel)
 {
     // Add file to download table
     AddFileToDownloadsTable(sModel);
@@ -143,7 +176,7 @@ void ModelsPrecacheResources(const char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool ModelsPrecacheSounds(const char[] sModel)
+bool DecryptPrecacheSounds(const char[] sModel)
 {
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sModel, '.', true);
@@ -151,7 +184,7 @@ bool ModelsPrecacheSounds(const char[] sModel)
     // If model path is don't have format, then log, and stop
     if(iFormat == -1)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Missing file format: %s", sModel);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Missing file format: %s", sModel);
         return false;
     }
     
@@ -178,7 +211,7 @@ bool ModelsPrecacheSounds(const char[] sModel)
         if(hFile == null)
         {
             DeleteFile(sPath);
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sModel);
             return false;
         }
         
@@ -206,7 +239,7 @@ bool ModelsPrecacheSounds(const char[] sModel)
             hFile.Seek(2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar != 0);
+        while(iChar);
 
         // Loop throught the binary
         while(!hFile.EndOfFile())
@@ -230,7 +263,7 @@ bool ModelsPrecacheSounds(const char[] sModel)
                     hBase.WriteLine(sPath);
                     
                     // Add file to download table
-                    fnPrecacheSoundQuirk(sPath);
+                    SoundsPrecacheQuirk(sPath);
                 }
             }
         }
@@ -260,7 +293,7 @@ bool ModelsPrecacheSounds(const char[] sModel)
             }
             
             // Add file to download table
-            fnPrecacheSoundQuirk(sPath);
+            SoundsPrecacheQuirk(sPath);
         }
     }
     
@@ -275,7 +308,7 @@ bool ModelsPrecacheSounds(const char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool ModelsPrecacheMaterials(const char[] sModel)
+bool DecryptPrecacheMaterials(const char[] sModel)
 {
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sModel, '.', true);
@@ -283,7 +316,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
     // If model path is don't have format, then log, and stop
     if(iFormat == -1)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Missing file format: %s", sModel);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Missing file format: %s", sModel);
         return false;
     }
     
@@ -310,7 +343,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
         if(hFile == null)
         {
             DeleteFile(sPath);
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sModel);
             return false;
         }
         
@@ -337,7 +370,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
             hFile.Seek(-2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar != 0);
+        while(iChar);
 
         // Reads a UTF8 or ANSI string from a file
         int iPosIndex = hFile.Position;
@@ -356,7 +389,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
                 hFile.Seek(-2, SEEK_CUR);
                 hFile.ReadInt8(iChar);
             } 
-            while(iChar != 0);
+            while(iChar);
 
             // Reads a UTF8 or ANSI string from a file
             iPosIndex = hFile.Position;
@@ -385,7 +418,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
                 // If doesn't exist stop
                 if(hDirectory == null)
                 {
-                    LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening folder: \"%s\"", sPath);
+                    LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening folder: \"%s\"", sPath);
                     continue;
                 }
 
@@ -421,7 +454,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
                                 hBase.WriteLine(sFile);
 
                                 // Precache model textures
-                                ModelsPrecacheTextures(sFile);
+                                DecryptPrecacheTextures(sFile);
                             }
                         }
                     }
@@ -449,7 +482,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
                 hBase.WriteLine(sPath);
                 
                 // Precache model textures
-                ModelsPrecacheTextures(sPath);
+                DecryptPrecacheTextures(sPath);
             }
         }
 
@@ -479,7 +512,7 @@ bool ModelsPrecacheMaterials(const char[] sModel)
             }
             
             // Precache model textures
-            ModelsPrecacheTextures(sPath);
+            DecryptPrecacheTextures(sPath);
         }
     }
     
@@ -489,12 +522,12 @@ bool ModelsPrecacheMaterials(const char[] sModel)
 }
 
 /**
- * @brief Reads the current particle and precache its textures.
+ * @brief Reads the current model and precache its effects.
  *
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool ModelsPrecacheParticle(const char[] sModel)
+bool DecryptPrecacheEffects(const char[] sModel)
 {
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sModel, '.', true);
@@ -502,10 +535,10 @@ bool ModelsPrecacheParticle(const char[] sModel)
     // If model path is don't have format, then log, and stop
     if(iFormat == -1)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Missing file format: %s", sModel);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Missing file format: %s", sModel);
         return false;
     }
-    
+
     /// @link https://github.com/VSES/SourceEngine2007/blob/master/src_main/movieobjects/dmeparticlesystemdefinition.cpp
     /*static const char sParticleFuncTypes[48][SMALL_LINE_LENGTH] =
     {
@@ -515,14 +548,10 @@ bool ModelsPrecacheParticle(const char[] sModel)
         "color", "render", "radius", "lifetime", "type", "emit", "distance", "rotation", "speed", "fadeout", "DEBRIS", "size",
         "material", "function", "tint", "max", "min", "gravity", "scale", "rate", "time", "fade", "length", "definition", "thickness"
     };*/
-
+    
     // Add file to download table
     AddFileToDownloadsTable(sModel);
 
-    // Precache generic
-    PrecacheGeneric(sModel, true); /// Precache only here
-    //fnPrecacheParticleEffect(sModel);
-    
     // Extract value string
     static char sPath[PLATFORM_LINE_LENGTH];
     StrExtract(sPath, sModel, 0, iFormat);
@@ -546,7 +575,7 @@ bool ModelsPrecacheParticle(const char[] sModel)
         if(hFile == null)
         {
             DeleteFile(sPath);
-            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sModel);
+            LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sModel);
             return false;
         }
 
@@ -568,7 +597,7 @@ bool ModelsPrecacheParticle(const char[] sModel)
             hFile.Seek(2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar != 0);
+        while(iChar);
 
         // Loop throught the binary
         while(!hFile.EndOfFile())
@@ -592,7 +621,7 @@ bool ModelsPrecacheParticle(const char[] sModel)
                     hBase.WriteLine(sPath);
                     
                     // Precache model textures
-                    ModelsPrecacheTextures(sPath);
+                    DecryptPrecacheTextures(sPath);
                 }
             }
         }
@@ -622,7 +651,7 @@ bool ModelsPrecacheParticle(const char[] sModel)
             }
 
             // Precache model textures
-            ModelsPrecacheTextures(sPath);
+            DecryptPrecacheTextures(sPath);
         }
     }
     
@@ -638,7 +667,7 @@ bool ModelsPrecacheParticle(const char[] sModel)
  * @param bDecal            (Optional) If true, the texture will be precached like a decal.
  * @return                  True if was precached, false otherwise.
  **/
-bool ModelsPrecacheTextures(const char[] sPath)
+bool DecryptPrecacheTextures(const char[] sPath)
 {
     // Dublicate value string
     static char sTexture[PLATFORM_LINE_LENGTH];
@@ -647,7 +676,7 @@ bool ModelsPrecacheTextures(const char[] sPath)
     // If doesn't exist stop
     if(!FileExists(sTexture))
     {
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid material path. File not found: \"%s\"", sTexture);
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid material path. File not found: \"%s\"", sTexture);
         return false;
     }
 
@@ -663,7 +692,7 @@ bool ModelsPrecacheTextures(const char[] sPath)
     // If doesn't exist stop
     if(hFile == null)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error opening file: \"%s\"", sTexture);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sTexture);
         return false;
     }
     
@@ -696,7 +725,7 @@ bool ModelsPrecacheTextures(const char[] sPath)
                 int iQuotes = CountCharInString(sTexture[iShift], '"');
                 if(iQuotes != 2)
                 {
-                    LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Error with parsing \"%s\" in file: \"%s\"", sTypes[x], sPath);
+                    LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error with parsing \"%s\" in file: \"%s\"", sTypes[x], sPath);
                 }
                 else
                 {
@@ -729,7 +758,7 @@ bool ModelsPrecacheTextures(const char[] sPath)
                     }
                     else
                     {
-                        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid texture path. File not found: \"%s\"", sTexture);
+                        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid texture path. File not found: \"%s\"", sTexture);
                     }
                 }
             }
@@ -747,7 +776,7 @@ bool ModelsPrecacheTextures(const char[] sPath)
  * @param sModel            The model path for validation.
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int ModelsPrecacheStandart(const char[] sModel)
+int DecryptPrecacheStandart(const char[] sModel)
 {
     // Validate path
     if(!strncmp(sModel, "models/player/", 14, true))
@@ -783,6 +812,6 @@ int ModelsPrecacheStandart(const char[] sModel)
     }
 
     // Model didn't exist, then stop
-    LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Models, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
+    LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
     return 0;
 }

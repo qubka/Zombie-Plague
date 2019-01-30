@@ -226,7 +226,7 @@ void SoundsOnRoundEnd(const CSRoundEndReason reasonIndex)
     
     // Create timer for emit sounds
     delete gServerData.EndTimer;
-    gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reasonIndex, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+    gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reasonIndex, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
 }
 
 /**
@@ -247,7 +247,7 @@ void SoundsOnBlast(/*void*/)
 {
     // Create timer for emit sounds
     delete gServerData.BlastTimer;
-    gServerData.BlastTimer = CreateTimer(0.3, PlayerSoundsOnBlastPost, _, TIMER_FLAG_NO_MAPCHANGE); /// (Bug fix)
+    gServerData.BlastTimer = CreateTimer(0.3, PlayerSoundsOnBlastPost, _, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
 }
 
 /**
@@ -403,7 +403,7 @@ void SoundsOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetSoundKeyID(name);
  **/
-public int API_GetSoundKeyID(Handle hPlugin, const int iNumParams)
+public int API_GetSoundKeyID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -431,7 +431,7 @@ public int API_GetSoundKeyID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetSound(keyID, sound, maxlenght, position);
  **/
-public int API_GetSound(Handle hPlugin, const int iNumParams)
+public int API_GetSound(const Handle hPlugin, const int iNumParams)
 {
     // Gets string size from native cell
     int maxLen = GetNativeCell(3);
@@ -604,4 +604,51 @@ int SoundsKeyToIndex(const char[] sKey)
     
     // Return index
     return (iRandom) ? keyIndex[GetRandomInt(0, iRandom-1)] : -1;
+}
+
+/**
+ * @brief Precache the sound in the sounds table.
+ *
+ * @param sPath             The sound path.
+ * @return                  True if was precached, false otherwise.
+ **/
+bool SoundsPrecacheQuirk(const char[] sPath)
+{
+    // Dublicate value string
+    static char sSound[PLATFORM_LINE_LENGTH];
+    strcopy(sSound, sizeof(sSound), sPath);
+
+    /// @link https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
+    if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
+    {
+        // Initialize the table index
+        static int tableIndex = INVALID_STRING_TABLE;
+
+        // Validate table
+        if(tableIndex == INVALID_STRING_TABLE)
+        {
+            // Searches for a string table
+            tableIndex = FindStringTable("soundprecache");
+        }
+
+        // If sound doesn't precache yet, then continue
+        if(FindStringIndex(tableIndex, sSound) == INVALID_STRING_INDEX)
+        {
+            // Add file to download table
+            AddFileToDownloadsTable(sPath);
+
+            // Precache sound
+            ///bool bSave = LockStringTables(false);
+            AddToStringTable(tableIndex, sSound);
+            ///LockStringTables(bSave);
+        }
+    }
+    else
+    {
+        LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Wrong sound path: %s", sPath);
+        return false;
+    }
+    
+    // Return on success
+    return true;
 }

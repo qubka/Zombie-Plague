@@ -56,18 +56,7 @@
 /**
  * @endsection
  **/
- 
-/**
- * Variables to store SDK calls handlers.
- **/
-//Handle hSDKCallGetParticleSystemCount;
-//Handle hSDKCallGetParticleSystemNameFromIndex;
 
-/**
- * Variables to store virtual SDK adresses.
- **/
-//Address ParticleSystemMgr;
- 
 /**
  * @brief Called once when server is started. Will log a warning if a unsupported game is detected.
  **/
@@ -166,43 +155,8 @@ void GameEngineOnInit(/*void*/)
         }
     }
     
-    /*_________________________________________________________________________________________________________________________________________*/
-    
-    // Starts the preparation of an SDK call
-    /*StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemMgr_GetParticleSystemCount");
-    
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-
-    // Validate call
-    if(!(hSDKCallGetParticleSystemCount = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to load SDK call \"CParticleSystemMgr::GetParticleSystemCount\". Update signature in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }
-    
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemMgr_GetParticleSystemNameFromIndex");
-    
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_SetReturnInfo(SDKType_String, SDKPass_Pointer);
-
-    // Validate call
-    if(!(hSDKCallGetParticleSystemNameFromIndex = EndPrepSDKCall()))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to load SDK call \"CParticleSystemMgr::GetParticleSystemNameFromIndex\". Update signature in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }*/
-    
-    /*_________________________________________________________________________________________________________________________________________*/
-    
-    // Load other addresses 
-    ///fnInitGameConfAddress(gServerData.Config, ParticleSystemMgr, "ParticleSystemMgr");
+    // Load other offsets
+    fnInitGameConfOffset(gServerData.Config, view_as<int>(gServerData.Platform), "CServer::OS");
 }
 
 /**
@@ -224,54 +178,6 @@ void GameEngineOnPurge(/*void*/)
 {
     // Clear map bool
     gServerData.MapLoaded = false;
-}
-
-/**
- * @brief Gets the server operating system.
- *
- * @param oS                The platform id.
- *
- * @return                  True or false.
- **/
-bool GameEngineGetPlatform(EngineOS oS)
-{
-    // Validate platform
-    if(gServerData.Platform == OS_Unknown)
-    {
-        // Initialize variable
-        char sBuffer[CONSOLE_LINE_LENGTH];
-        
-        // Extract status string
-        ServerCommandEx(sBuffer, sizeof(sBuffer), "status");
-
-        // Validate length
-        if(hasLength(sBuffer))
-        {
-            // Precompile a regular expression
-            Regex hRegex = CompileRegex("(os\\s+:\\s+\\w+)"); 
-            
-            // i = str index
-            int iCount = hRegex.Match(sBuffer); 
-            for(int i = 0; i < iCount; i++) 
-            { 
-                // Returns a matched substring from a regex handle
-                hRegex.GetSubString(i, sBuffer, sizeof(sBuffer)); 
-                
-                // Finds the first occurrence of a character in a string
-                int iSystem = FindCharInString(sBuffer, ' ', true) + 1;
-
-                // Validate operating system
-                gServerData.Platform = !strncmp(sBuffer[iSystem], "win", 3, false) ? OS_Windows : !strncmp(sBuffer[iSystem], "lin", 3, false) ? OS_Linux : OS_Mac;
-                break;
-            }
-            
-            // Decompile expression
-            delete hRegex;
-        }
-    }
-    
-    // Return on success
-    return (gServerData.Platform == oS);
 }
 
 /*
@@ -600,7 +506,7 @@ stock int[] fnGetRandomAlive(const int targetIndex = -1, const bool bZombie = fa
  * @param iOffset           An offset, or -1 on failure.
  * @param sKey              Key to retrieve from the offset section.
  **/
-stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, const char[] sKey)
+stock void fnInitGameConfOffset(const Handle gameConf, int &iOffset, const char[] sKey)
 {
     // Validate offset
     if((iOffset = GameConfGetOffset(gameConf, sKey)) == -1)
@@ -613,13 +519,13 @@ stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, const char[] sKey
  * @brief Returns an address value from a given config.
  *
  * @param gameConf          The game config handle.
- * @param iAddress          An adress, or null on failure.
+ * @param xAddress          An adress, or null on failure.
  * @param sKey              Key to retrieve from the address section.
  **/
-stock void fnInitGameConfAddress(Handle gameConf, Address &iAddress, const char[] sKey)
+stock void fnInitGameConfAddress(const Handle gameConf, Address &xAddress, const char[] sKey)
 {
-    // Validate adress
-    if((iAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
+    // Validate address
+    if((xAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get adress: \"%s\"", sKey);
     }
@@ -639,152 +545,6 @@ stock void fnInitSendPropOffset(int &iOffset, const char[] sServerClass, const c
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find prop: \"%s\"", sProp);
     }
-}
-
-/**
- * @brief Searches for the index of a given string in a dispatch table.
- *
- * @param sEffect           The effect name.
- * @return                  The item index.
- **/
-stock int fnGetEffectIndex(const char[] sEffect)
-{
-    // Initialize the table index
-    static int tableIndex = INVALID_STRING_TABLE;
-
-    // Validate table
-    if(tableIndex == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        tableIndex = FindStringTable("EffectDispatch");
-    }
-
-    // Searches for the index of a given string in a string table
-    int itemIndex = FindStringIndex(tableIndex, sEffect);
-
-    // Validate item
-    if(itemIndex != INVALID_STRING_INDEX)
-    {
-        return itemIndex;
-    }
-
-    // Return on the unsuccess
-    return 0;
-}
-
-/**
- * @brief Searches for the index of a given string in an effect table.
- *
- * @param sEffect           The effect name.
- * @return                  The item index.
- **/
-stock int fnGetParticleEffectIndex(const char[] sEffect)
-{
-    // Initialize the table index
-    static int tableIndex = INVALID_STRING_TABLE;
-
-    // Validate table
-    if(tableIndex == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        tableIndex = FindStringTable("ParticleEffectNames");
-    }
-
-    // Searches for the index of a given string in a string table
-    int itemIndex = FindStringIndex(tableIndex, sEffect);
-
-    // Validate item
-    if(itemIndex != INVALID_STRING_INDEX)
-    {
-        return itemIndex;
-    }
-
-    // Return on the unsuccess
-    return 0;
-}
-
-/**
- * @brief Precache the particle in the effect table.
- *
- * @param sEffect           The effect name.
- **/
-stock void fnPrecacheParticleEffect(const char[] sEffect)
-{
-    // Initialize the table index
-    static int tableIndex = INVALID_STRING_TABLE;
-
-    // Validate table
-    if(tableIndex == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        tableIndex = FindStringTable("ParticleEffectNames");
-    }
-
-    // If particle doesn't precache yet, then continue
-    ///if(FindStringIndex(tableIndex, sEffect) == INVALID_STRING_INDEX)
-
-    // Precache particle
-    bool bSave = LockStringTables(false);
-    AddToStringTable(tableIndex, sEffect);
-    LockStringTables(bSave);
-    
-    /// Test particles amount
-    /*char sParticle[SMALL_LINE_LENGTH];
-    int mgr = LoadFromAddress(ParticleSystemMgr, NumberType_Int32);
-    int iCount = SDKCall(hSDKCallGetParticleSystemCount, mgr);
-    PrintToServer("hSDKCallGetParticleSystemCount = %i", iCount);
-    for(int i = 0; i < iCount; i++)
-    {
-        SDKCall(hSDKCallGetParticleSystemNameFromIndex, mgr, i, sParticle, sizeof(sParticle)); 
-        if(hasLength(sParticle)) PrintToServer(sParticle);
-    }*/
-}
-
-/**
- * @brief Precache the sound in the sounds table.
- *
- * @param sPath             The sound path.
- * @return                  True if was precached, false otherwise.
- **/
-stock bool fnPrecacheSoundQuirk(const char[] sPath)
-{
-    // Dublicate value string
-    static char sSound[PLATFORM_LINE_LENGTH];
-    strcopy(sSound, sizeof(sSound), sPath);
-
-    /// @link https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
-    if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
-    {
-        // Initialize the table index
-        static int tableIndex = INVALID_STRING_TABLE;
-
-        // Validate table
-        if(tableIndex == INVALID_STRING_TABLE)
-        {
-            // Searches for a string table
-            tableIndex = FindStringTable("soundprecache");
-        }
-
-        // If sound doesn't precache yet, then continue
-        if(FindStringIndex(tableIndex, sSound) == INVALID_STRING_INDEX)
-        {
-            // Add file to download table
-            AddFileToDownloadsTable(sPath);
-
-            // Precache sound
-            ///bool bSave = LockStringTables(false);
-            AddToStringTable(tableIndex, sSound);
-            ///LockStringTables(bSave);
-        }
-    }
-    else
-    {
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Wrong sound path: %s", sPath);
-        return false;
-    }
-    
-    // Return on success
-    return true;
 }
 
 /**

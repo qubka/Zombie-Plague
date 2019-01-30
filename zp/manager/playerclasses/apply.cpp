@@ -39,6 +39,7 @@ void ApplyOnClientSpawn(const int clientIndex)
         // Resets some variables
         gClientData[clientIndex].RespawnTimes = 0;
         gClientData[clientIndex].Respawn = TEAM_HUMAN;
+        gClientData[clientIndex].LastPurchase = 0;
         
         // Resets limit of extraitems
         ItemsRemoveLimits(clientIndex);
@@ -302,7 +303,7 @@ void ApplyOnClientTeam(const int clientIndex, const int iTeam)
     // Switch team
     bool bState = ToolsGetClientDefuser(clientIndex);
     ToolsSetClientTeam(clientIndex, iTeam);
-    ToolsSetClientDefuser(clientIndex, bState); /// Defuser fix
+    ToolsSetClientDefuser(clientIndex, bState); /// HACK~HACK
 
     // Sets glowing for the zombie vision
     ToolsSetClientDetecting(clientIndex, ModesIsXRay(gServerData.RoundMode));

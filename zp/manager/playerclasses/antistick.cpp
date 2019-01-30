@@ -224,7 +224,7 @@ public void AntiStickOnStartTouch(const int clientIndex, const int entityIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AntiStickOnClientSolidify(Handle hTimer, const int userID)
+public Action AntiStickOnClientSolidify(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

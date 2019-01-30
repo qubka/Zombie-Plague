@@ -299,7 +299,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveBurnEffect(Handle hTimer, const int userID)
+public Action ClientRemoveBurnEffect(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

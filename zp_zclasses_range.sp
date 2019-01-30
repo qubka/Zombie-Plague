@@ -43,7 +43,7 @@ public Plugin myinfo =
 /**
  * @section Information about zombie class.
  **/
-#define ZOMBIE_CLASS_EXP_RADIUS         40000.0 // [squared]
+#define ZOMBIE_CLASS_EXP_RADIUS         200.0
 #define ZOMBIE_CLASS_EXP_LAST           false   // Can a last human be infected
 #define ZOMBIE_CLASS_EXP_DURATION       2.0
 /**
@@ -113,7 +113,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
         GetClientAbsOrigin(clientIndex, vEntPosition);
 
         // Validate infection round
-        if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
+        if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
         {
             // i = client index
             for(int i = 1; i <= MaxClients; i++)
@@ -125,7 +125,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
                     GetClientAbsOrigin(i, vVictimPosition);
 
                     // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
                     // Validate distance
                     if(flDistance <= ZOMBIE_CLASS_EXP_RADIUS)

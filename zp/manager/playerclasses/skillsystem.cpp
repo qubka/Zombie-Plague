@@ -227,7 +227,7 @@ void SkillSystemOnClientStart(const int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientHUD(Handle hTimer, const int userID)
+public Action SkillSystemOnClientHUD(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); 
@@ -270,7 +270,7 @@ public Action SkillSystemOnClientHUD(Handle hTimer, const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientEnd(Handle hTimer, const int userID)
+public Action SkillSystemOnClientEnd(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -303,7 +303,7 @@ public Action SkillSystemOnClientEnd(Handle hTimer, const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientCount(Handle hTimer, const int userID)
+public Action SkillSystemOnClientCount(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -347,7 +347,7 @@ public Action SkillSystemOnClientCount(Handle hTimer, const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientRegen(Handle hTimer, const int userID)
+public Action SkillSystemOnClientRegen(const Handle hTimer, const int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -416,7 +416,7 @@ void SkillSystemOnNativeInit(/*void*/)
  *
  * @note native bool ZP_GetClientSkillUsage(clientIndex);
  **/
-public int API_GetClientSkillUsage(Handle hPlugin, const int iNumParams)
+public int API_GetClientSkillUsage(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -430,7 +430,7 @@ public int API_GetClientSkillUsage(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClientSkillCountdown(clientIndex);
  **/
-public int API_GetClientSkillCountdown(Handle hPlugin, const int iNumParams)
+public int API_GetClientSkillCountdown(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -444,7 +444,7 @@ public int API_GetClientSkillCountdown(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_ResetClientSkill(clientIndex);
  **/
-public int API_ResetClientSkill(Handle hPlugin, const int iNumParams)
+public int API_ResetClientSkill(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

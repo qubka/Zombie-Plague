@@ -224,13 +224,13 @@ void WeaponsOnCacheData(/*void*/)
         arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));                 // Index: 18
         kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 19    
-        arrayWeapon.Push(ModelsPrecacheWeapon(sPathWeapons));             // Index: 20
+        arrayWeapon.Push(DecryptPrecacheWeapon(sPathWeapons));             // Index: 20
         kvWeapons.GetString("world", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 21
-        arrayWeapon.Push(ModelsPrecacheStatic(sPathWeapons));             // Index: 22
+        arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));             // Index: 22
         kvWeapons.GetString("dropped", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 23
-        arrayWeapon.Push(ModelsPrecacheStatic(sPathWeapons));             // Index: 24
+        arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));             // Index: 24
         int iBody[4]; kvWeapons.GetColor4("body", iBody);
         arrayWeapon.PushArray(iBody, sizeof(iBody));                      // Index: 25
         int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
@@ -524,7 +524,7 @@ void WeaponsOnClientDeath(const int clientIndex)
 void WeaponOnEntityCreated(const int weaponIndex, const char[] sClassname)
 {
     // Validate entity
-    if(weaponIndex > INVALID_ENT_REFERENCE) /// Bugfix for some sm builds
+    if(weaponIndex > INVALID_ENT_REFERENCE)
     {
         // Forward event to sub-modules
         WeaponSDKOnEntityCreated(weaponIndex, sClassname);
@@ -582,7 +582,7 @@ void WeaponsOnNativeInit(/*void*/)
  *
  * @note native int ZP_GiveClientWeapon(client, id, slot, remove);
  **/
-public int API_GiveClientWeapon(Handle hPlugin, const int iNumParams)
+public int API_GiveClientWeapon(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -632,7 +632,7 @@ public int API_GiveClientWeapon(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientViewModel(clientIndex, custom);
  **/
-public int API_GetClientViewModel(Handle hPlugin, const int iNumParams)
+public int API_GetClientViewModel(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -653,7 +653,7 @@ public int API_GetClientViewModel(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientAttachModel(clientIndex, bit);
  **/
-public int API_GetClientAttachModel(Handle hPlugin, const int iNumParams)
+public int API_GetClientAttachModel(const Handle hPlugin, const int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -682,7 +682,7 @@ public int API_GetClientAttachModel(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponID(weaponIndex);
  **/
-public int API_GetWeaponID(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponID(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell 
     int weaponIndex = GetNativeCell(1);
@@ -703,7 +703,7 @@ public int API_GetWeaponID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponNameID(name);
  **/
-public int API_GetWeaponNameID(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponNameID(const Handle hPlugin, const int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -731,7 +731,7 @@ public int API_GetWeaponNameID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberWeapon();
  **/
-public int API_GetNumberWeapon(Handle hPlugin, const int iNumParams)
+public int API_GetNumberWeapon(const Handle hPlugin, const int iNumParams)
 {
     // Return the value 
     return gServerData.Weapons.Length;
@@ -742,7 +742,7 @@ public int API_GetNumberWeapon(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponName(iD, name, maxlen);
  **/
-public int API_GetWeaponName(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponName(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -777,7 +777,7 @@ public int API_GetWeaponName(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponInfo(iD, info, maxlen);
  **/
-public int API_GetWeaponInfo(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponInfo(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -812,7 +812,7 @@ public int API_GetWeaponInfo(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponGroup(iD, group, maxlen);
  **/
-public int API_GetWeaponGroup(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponGroup(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -847,7 +847,7 @@ public int API_GetWeaponGroup(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponClass(iD, class, maxlen);
  **/
-public int API_GetWeaponClass(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponClass(const Handle hPlugin, const int iNumParams)
 { 
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -882,7 +882,7 @@ public int API_GetWeaponClass(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponEntity(iD, entity, maxlen);
  **/
-public int API_GetWeaponEntity(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponEntity(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -917,7 +917,7 @@ public int API_GetWeaponEntity(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponCost(iD);
  **/
-public int API_GetWeaponCost(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponCost(const Handle hPlugin, const int iNumParams)
 {    
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -938,7 +938,7 @@ public int API_GetWeaponCost(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponSlot(iD);
  **/
-public int API_GetWeaponSlot(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponSlot(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -959,7 +959,7 @@ public int API_GetWeaponSlot(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponLevel(iD);
  **/
-public int API_GetWeaponLevel(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponLevel(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -980,7 +980,7 @@ public int API_GetWeaponLevel(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponOnline(iD);
  **/
-public int API_GetWeaponOnline(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponOnline(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1001,7 +1001,7 @@ public int API_GetWeaponOnline(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetWeaponDamage(iD);
  **/
-public int API_GetWeaponDamage(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponDamage(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1022,7 +1022,7 @@ public int API_GetWeaponDamage(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetWeaponKnockBack(iD);
  **/
-public int API_GetWeaponKnockBack(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponKnockBack(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1043,7 +1043,7 @@ public int API_GetWeaponKnockBack(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponClip(iD);
  **/
-public int API_GetWeaponClip(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponClip(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1064,7 +1064,7 @@ public int API_GetWeaponClip(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponAmmo(iD);
  **/
-public int API_GetWeaponAmmo(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponAmmo(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1085,7 +1085,7 @@ public int API_GetWeaponAmmo(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponAmmunition(iD);
  **/
-public int API_GetWeaponAmmunition(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponAmmunition(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1106,7 +1106,7 @@ public int API_GetWeaponAmmunition(Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsWeaponDrop(iD);
  **/
-public int API_IsWeaponDrop(Handle hPlugin, const int iNumParams)
+public int API_IsWeaponDrop(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1127,7 +1127,7 @@ public int API_IsWeaponDrop(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetWeaponSpeed(iD);
  **/
-public int API_GetWeaponSpeed(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponSpeed(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1148,7 +1148,7 @@ public int API_GetWeaponSpeed(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetWeaponReload(iD);
  **/
-public int API_GetWeaponReload(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponReload(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1169,7 +1169,7 @@ public int API_GetWeaponReload(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetWeaponDeploy(iD);
  **/
-public int API_GetWeaponDeploy(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponDeploy(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1190,7 +1190,7 @@ public int API_GetWeaponDeploy(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponSoundID(iD);
  **/
-public int API_GetWeaponSoundID(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponSoundID(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1211,7 +1211,7 @@ public int API_GetWeaponSoundID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponModelView(iD, model, maxlen);
  **/
-public int API_GetWeaponModelView(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelView(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1246,7 +1246,7 @@ public int API_GetWeaponModelView(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponModelViewID(iD);
  **/
-public int API_GetWeaponModelViewID(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelViewID(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1267,7 +1267,7 @@ public int API_GetWeaponModelViewID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponModelWorld(iD, model, maxlen);
  **/
-public int API_GetWeaponModelWorld(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelWorld(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1302,7 +1302,7 @@ public int API_GetWeaponModelWorld(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponModelWorldID(iD);
  **/
-public int API_GetWeaponModelWorldID(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelWorldID(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1323,7 +1323,7 @@ public int API_GetWeaponModelWorldID(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponModelDrop(iD, model, maxlen);
  **/
-public int API_GetWeaponModelDrop(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelDrop(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1358,7 +1358,7 @@ public int API_GetWeaponModelDrop(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponModelDropID(iD);
  **/
-public int API_GetWeaponModelDropID(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelDropID(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1379,7 +1379,7 @@ public int API_GetWeaponModelDropID(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponModelBody(iD, model);
  **/
-public int API_GetWeaponModelBody(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelBody(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1408,7 +1408,7 @@ public int API_GetWeaponModelBody(Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetWeaponModelSkin(iD, model);
  **/
-public int API_GetWeaponModelSkin(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelSkin(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1437,7 +1437,7 @@ public int API_GetWeaponModelSkin(Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetWeaponModelMuzzle(iD, muzzle, maxlen);
  **/
-public int API_GetWeaponModelMuzzle(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelMuzzle(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -1472,7 +1472,7 @@ public int API_GetWeaponModelMuzzle(Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetWeaponModelHeat(iD);
  **/
-public int API_GetWeaponModelHeat(Handle hPlugin, const int iNumParams)
+public int API_GetWeaponModelHeat(const Handle hPlugin, const int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);

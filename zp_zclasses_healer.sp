@@ -45,7 +45,7 @@ public Plugin myinfo =
  * @section Information about zombie class.
  **/
 #define ZOMBIE_CLASS_SKILL_REWARD       1 // For each zombie
-#define ZOMBIE_CLASS_SKILL_RADIUS       40000.0 // [squared]
+#define ZOMBIE_CLASS_SKILL_RADIUS       250.0
 #define ZOMBIE_CLASS_SKILL_COLOR_F      {255, 127, 80, 75}
 #define ZOMBIE_CLASS_SKILL_DURATION_F   0.3
 #define ZOMBIE_CLASS_SKILL_TIME_F       1.0
@@ -119,7 +119,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
                 GetClientAbsOrigin(i, vVictimPosition);
 
                 // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition, true);
+                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
                 // Validate distance
                 if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
