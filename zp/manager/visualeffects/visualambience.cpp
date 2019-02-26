@@ -72,7 +72,7 @@ void VAmbienceOnCvarInit(/*void*/)
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceOnCvarHookLightStyle(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookLightStyle(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If lightstyle is disabled, then disable
     bool bLightStyle = gCvarList[CVAR_VEFFECTS_LIGHTSTYLE].BoolValue;
@@ -89,7 +89,7 @@ public void VAmbienceOnCvarHookLightStyle(ConVar iConVar, const char[] oldValue,
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceOnCvarHookSky(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookSky(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If sky is disabled, then disable
     bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue;
@@ -106,7 +106,7 @@ public void VAmbienceOnCvarHookSky(ConVar iConVar, const char[] oldValue, const 
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If sun is disabled, then disable
     bool bSun = gCvarList[CVAR_VEFFECTS_SUN_DISABLE].BoolValue;
@@ -123,7 +123,7 @@ public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, const char[] oldValue,
  * @param oldvalue          The value before change.
  * @param newvalue          The new value.
  **/
-public void VAmbienceOnCvarHookFog(ConVar iConVar, const char[] oldValue, const char[] newValue)
+public void VAmbienceOnCvarHookFog(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If fog is disabled, then disable
     bool bFog = gCvarList[CVAR_VEFFECTS_FOG].BoolValue;
@@ -163,7 +163,7 @@ void VAmbienceOnLoad(/*void*/)
 /**
  * @brief Apply light style on server.
  **/
-void VAmbienceApplyLightStyle(const bool bDisable = false)
+void VAmbienceApplyLightStyle(bool bDisable = false)
 {
     // If default, then set to normal light style
     if(bDisable)
@@ -199,7 +199,7 @@ void VAmbienceApplyLightStyle(const bool bDisable = false)
 /**
  * @brief Apply sky on server.
  **/
-void VAmbienceApplySky(const bool bDisable = false)
+void VAmbienceApplySky(bool bDisable = false)
 {
     // If we can't find the sv_skyname cvar, then stop
     ConVar hSkyname = gCvarList[CVAR_VEFFECTS_SKYNAME];
@@ -236,7 +236,7 @@ void VAmbienceApplySky(const bool bDisable = false)
 /**
  * @brief Apply sun on server.
  **/
-void VAmbienceApplySunDisable(const bool bDisable = false)
+void VAmbienceApplySunDisable(bool bDisable = false)
 {
     // Find sun entity
     int iSun = FindEntityByClassname(-1, "env_sun");

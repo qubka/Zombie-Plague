@@ -149,8 +149,9 @@ void ClassesOnPurge(/*void*/)
  **/
 void ClassesOnLoad(/*void*/)
 {
-    // Load spawns
+    // Forward event to sub-modules
     SpawnOnLoad();
+    DeathOnLoad();
     
     // Register config file
     ConfigRegisterConfig(File_Classes, Structure_Keyvalue, CONFIG_FILE_ALIAS_CLASSES);
@@ -427,7 +428,7 @@ void ClassesOnCvarInit(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void ClassesOnClientInit(const int clientIndex)
+void ClassesOnClientInit(int clientIndex)
 {
     // Forward event to sub-modules
     DeathOnClientInit(clientIndex);
@@ -440,7 +441,7 @@ void ClassesOnClientInit(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ClassesOnClientConnect(const int clientIndex)
+void ClassesOnClientConnect(int clientIndex)
 {
     // Forward event to sub-modules
     ToolsOnClientConnect(clientIndex);
@@ -451,7 +452,7 @@ void ClassesOnClientConnect(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ClassesOnClientDisconnectPost(const int clientIndex)
+void ClassesOnClientDisconnectPost(int clientIndex)
 {
     // Forward event to sub-modules
     ToolsOnClientDisconnectPost(clientIndex);
@@ -539,7 +540,7 @@ void ClassesOnNativeInit(/*void*/)
  *
  * @note native bool ZP_ChangeClient(clientIndex, attackerIndex, type);
  **/
-public int API_ChangeClient(const Handle hPlugin, const int iNumParams)
+public int API_ChangeClient(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -587,7 +588,7 @@ public int API_ChangeClient(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberClass();
  **/
-public int API_GetNumberClass(const Handle hPlugin, const int iNumParams)
+public int API_GetNumberClass(Handle hPlugin, int iNumParams)
 {
     // Return the value 
     return gServerData.Classes.Length;
@@ -598,7 +599,7 @@ public int API_GetNumberClass(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientClass(clientIndex);
  **/
-public int API_GetClientClass(const Handle hPlugin, const int iNumParams)
+public int API_GetClientClass(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -612,7 +613,7 @@ public int API_GetClientClass(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientHumanClassNext(clientIndex);
  **/
-public int API_GetClientHumanClassNext(const Handle hPlugin, const int iNumParams)
+public int API_GetClientHumanClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -626,7 +627,7 @@ public int API_GetClientHumanClassNext(const Handle hPlugin, const int iNumParam
  *
  * @note native int ZP_GetClientZombieClassNext(clientIndex);
  **/
-public int API_GetClientZombieClassNext(const Handle hPlugin, const int iNumParams)
+public int API_GetClientZombieClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -640,7 +641,7 @@ public int API_GetClientZombieClassNext(const Handle hPlugin, const int iNumPara
  *
  * @note native void ZP_SetClientHumanClassNext(clientIndex, iD);
  **/
-public int API_SetClientHumanClassNext(const Handle hPlugin, const int iNumParams)
+public int API_SetClientHumanClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -675,7 +676,7 @@ public int API_SetClientHumanClassNext(const Handle hPlugin, const int iNumParam
  *
  * @note native void ZP_SetClientZombieClassNext(clientIndex, iD);
  **/
-public int API_SetClientZombieClassNext(const Handle hPlugin, const int iNumParams)
+public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -710,7 +711,7 @@ public int API_SetClientZombieClassNext(const Handle hPlugin, const int iNumPara
  *
  * @note native int ZP_GetClassNameID(name);
  **/
-public int API_GetClassNameID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassNameID(Handle hPlugin, int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -738,7 +739,7 @@ public int API_GetClassNameID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassName(iD, name, maxlen);
  **/
-public int API_GetClassName(const Handle hPlugin, const int iNumParams)
+public int API_GetClassName(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -773,7 +774,7 @@ public int API_GetClassName(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassInfo(iD, info, maxlen);
  **/
-public int API_GetClassInfo(const Handle hPlugin, const int iNumParams)
+public int API_GetClassInfo(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -808,7 +809,7 @@ public int API_GetClassInfo(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassTypeID(type);
  **/
-public int API_GetClassTypeID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassTypeID(Handle hPlugin, int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -836,7 +837,7 @@ public int API_GetClassTypeID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassType(iD, type, maxlen);
  **/
-public int API_GetClassType(const Handle hPlugin, const int iNumParams)
+public int API_GetClassType(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -871,7 +872,7 @@ public int API_GetClassType(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassZombie(iD);
  **/
-public int API_IsClassZombie(const Handle hPlugin, const int iNumParams)
+public int API_IsClassZombie(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -892,7 +893,7 @@ public int API_IsClassZombie(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassModel(iD, model, maxlen);
  **/
-public int API_GetClassModel(const Handle hPlugin, const int iNumParams)
+public int API_GetClassModel(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -927,7 +928,7 @@ public int API_GetClassModel(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassClaw(iD, model, maxlen);
  **/
-public int API_GetClassClaw(const Handle hPlugin, const int iNumParams)
+public int API_GetClassClaw(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -962,7 +963,7 @@ public int API_GetClassClaw(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassGrenade(iD, model, maxlen);
  **/
-public int API_GetClassGrenade(const Handle hPlugin, const int iNumParams)
+public int API_GetClassGrenade(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -997,7 +998,7 @@ public int API_GetClassGrenade(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassArm(iD, model, maxlen);
  **/
-public int API_GetClassArm(const Handle hPlugin, const int iNumParams)
+public int API_GetClassArm(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1032,7 +1033,7 @@ public int API_GetClassArm(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassBody(iD);
  **/
-public int API_GetClassBody(const Handle hPlugin, const int iNumParams)
+public int API_GetClassBody(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1053,7 +1054,7 @@ public int API_GetClassBody(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassSkin(iD);
  **/
-public int API_GetClassSkin(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSkin(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1074,7 +1075,7 @@ public int API_GetClassSkin(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassHealth(iD);
  **/
-public int API_GetClassHealth(const Handle hPlugin, const int iNumParams)
+public int API_GetClassHealth(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1095,7 +1096,7 @@ public int API_GetClassHealth(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassSpeed(iD);
  **/
-public int API_GetClassSpeed(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSpeed(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1116,7 +1117,7 @@ public int API_GetClassSpeed(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassGravity(iD);
  **/
-public int API_GetClassGravity(const Handle hPlugin, const int iNumParams)
+public int API_GetClassGravity(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1137,7 +1138,7 @@ public int API_GetClassGravity(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassKnockBack(iD);
  **/
-public int API_GetClassKnockBack(const Handle hPlugin, const int iNumParams)
+public int API_GetClassKnockBack(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1158,7 +1159,7 @@ public int API_GetClassKnockBack(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassArmor(iD);
  **/
-public int API_GetClassArmor(const Handle hPlugin, const int iNumParams)
+public int API_GetClassArmor(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1179,7 +1180,7 @@ public int API_GetClassArmor(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLevel(iD);
  **/
-public int API_GetClassLevel(const Handle hPlugin, const int iNumParams)
+public int API_GetClassLevel(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1200,7 +1201,7 @@ public int API_GetClassLevel(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassGroup(iD, group, maxlen);
  **/
-public int API_GetClassGroup(const Handle hPlugin, const int iNumParams)
+public int API_GetClassGroup(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1235,7 +1236,7 @@ public int API_GetClassGroup(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassSkillDuration(iD);
  **/
-public int API_GetClassSkillDuration(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSkillDuration(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1256,7 +1257,7 @@ public int API_GetClassSkillDuration(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassSkillCountdown(iD);
  **/
-public int API_GetClassSkillCountdown(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSkillCountdown(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1277,7 +1278,7 @@ public int API_GetClassSkillCountdown(const Handle hPlugin, const int iNumParams
  *
  * @note native bool ZP_IsClassSkillBar(iD);
  **/
-public int API_IsClassSkillBar(const Handle hPlugin, const int iNumParams)
+public int API_IsClassSkillBar(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1298,7 +1299,7 @@ public int API_IsClassSkillBar(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassRegenHealth(iD);
  **/
-public int API_GetClassRegenHealth(const Handle hPlugin, const int iNumParams)
+public int API_GetClassRegenHealth(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1319,7 +1320,7 @@ public int API_GetClassRegenHealth(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassRegenInterval(iD);
  **/
-public int API_GetClassRegenInterval(const Handle hPlugin, const int iNumParams)
+public int API_GetClassRegenInterval(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1340,7 +1341,7 @@ public int API_GetClassRegenInterval(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassFall(iD);
  **/
-public int API_IsClassFall(const Handle hPlugin, const int iNumParams)
+public int API_IsClassFall(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1361,7 +1362,7 @@ public int API_IsClassFall(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassSpot(iD);
  **/
-public int API_IsClassSpot(const Handle hPlugin, const int iNumParams)
+public int API_IsClassSpot(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1382,7 +1383,7 @@ public int API_IsClassSpot(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassFov(iD);
  **/
-public int API_GetClassFov(const Handle hPlugin, const int iNumParams)
+public int API_GetClassFov(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1403,7 +1404,7 @@ public int API_GetClassFov(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassCross(iD);
  **/
-public int API_IsClassCross(const Handle hPlugin, const int iNumParams)
+public int API_IsClassCross(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1424,7 +1425,7 @@ public int API_IsClassCross(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsClassNvgs(iD);
  **/
-public int API_IsClassNvgs(const Handle hPlugin, const int iNumParams)
+public int API_IsClassNvgs(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1445,7 +1446,7 @@ public int API_IsClassNvgs(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassOverlay(iD, overlay, maxlen);
  **/
-public int API_GetClassOverlay(const Handle hPlugin, const int iNumParams)
+public int API_GetClassOverlay(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1480,7 +1481,7 @@ public int API_GetClassOverlay(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassWeapon(iD, weapon, maxlen);
  **/
-public int API_GetClassWeapon(const Handle hPlugin, const int iNumParams)
+public int API_GetClassWeapon(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1515,7 +1516,7 @@ public int API_GetClassWeapon(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassMoney(iD, money, maxlen);
  **/
-public int API_GetClassMoney(const Handle hPlugin, const int iNumParams)
+public int API_GetClassMoney(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1550,7 +1551,7 @@ public int API_GetClassMoney(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassExperience(iD, experience, maxlen);
  **/
-public int API_GetClassExperience(const Handle hPlugin, const int iNumParams)
+public int API_GetClassExperience(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1585,7 +1586,7 @@ public int API_GetClassExperience(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLifeSteal(iD);
  **/
-public int API_GetClassLifeSteal(const Handle hPlugin, const int iNumParams)
+public int API_GetClassLifeSteal(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1606,7 +1607,7 @@ public int API_GetClassLifeSteal(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLifeAmmunition(iD);
  **/
-public int API_GetClassAmmunition(const Handle hPlugin, const int iNumParams)
+public int API_GetClassAmmunition(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1627,7 +1628,7 @@ public int API_GetClassAmmunition(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassLeapJump(iD);
  **/
-public int API_GetClassLeapJump(const Handle hPlugin, const int iNumParams)
+public int API_GetClassLeapJump(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1648,7 +1649,7 @@ public int API_GetClassLeapJump(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassLeapForce(iD);
  **/
-public int API_GetClassLeapForce(const Handle hPlugin, const int iNumParams)
+public int API_GetClassLeapForce(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1669,7 +1670,7 @@ public int API_GetClassLeapForce(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassLeapCountdown(iD);
  **/
-public int API_GetClassLeapCountdown(const Handle hPlugin, const int iNumParams)
+public int API_GetClassLeapCountdown(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1690,7 +1691,7 @@ public int API_GetClassLeapCountdown(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassEffectName(iD, name, maxlen);
  **/
-public int API_GetClassEffectName(const Handle hPlugin, const int iNumParams)
+public int API_GetClassEffectName(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1725,7 +1726,7 @@ public int API_GetClassEffectName(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassEffectAttach(iD, attach, maxlen);
  **/
-public int API_GetClassEffectAttach(const Handle hPlugin, const int iNumParams)
+public int API_GetClassEffectAttach(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1760,7 +1761,7 @@ public int API_GetClassEffectAttach(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClassEffectTime(iD);
  **/
-public int API_GetClassEffectTime(const Handle hPlugin, const int iNumParams)
+public int API_GetClassEffectTime(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1781,7 +1782,7 @@ public int API_GetClassEffectTime(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassClawID(iD);
  **/
-public int API_GetClassClawID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassClawID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1802,7 +1803,7 @@ public int API_GetClassClawID(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClassGrenadeID(iD);
  **/
-public int API_GetClassGrenadeID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassGrenadeID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1823,7 +1824,7 @@ public int API_GetClassGrenadeID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundDeathID(iD);
  **/
-public int API_GetClassSoundDeathID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundDeathID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1844,7 +1845,7 @@ public int API_GetClassSoundDeathID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundHurtID(iD);
  **/
-public int API_GetClassSoundHurtID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundHurtID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1865,7 +1866,7 @@ public int API_GetClassSoundHurtID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundIdleID(iD);
  **/
-public int API_GetClassSoundIdleID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundIdleID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1886,7 +1887,7 @@ public int API_GetClassSoundIdleID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundInfectID(iD);
  **/
-public int API_GetClassSoundInfectID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundInfectID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1907,7 +1908,7 @@ public int API_GetClassSoundInfectID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundRespawnID(iD);
  **/
-public int API_GetClassSoundRespawnID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundRespawnID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1928,7 +1929,7 @@ public int API_GetClassSoundRespawnID(const Handle hPlugin, const int iNumParams
  *
  * @note native void ZP_GetClassSoundBurnID(iD);
  **/
-public int API_GetClassSoundBurnID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundBurnID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1949,7 +1950,7 @@ public int API_GetClassSoundBurnID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundAttackID(iD);
  **/
-public int API_GetClassSoundAttackID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundAttackID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1970,7 +1971,7 @@ public int API_GetClassSoundAttackID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundFootID(iD);
  **/
-public int API_GetClassSoundFootID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundFootID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -1991,7 +1992,7 @@ public int API_GetClassSoundFootID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundRegenID(iD);
  **/
-public int API_GetClassSoundRegenID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundRegenID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -2012,7 +2013,7 @@ public int API_GetClassSoundRegenID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetClassSoundJumpID(iD);
  **/
-public int API_GetClassSoundJumpID(const Handle hPlugin, const int iNumParams)
+public int API_GetClassSoundJumpID(Handle hPlugin, int iNumParams)
 {
     // Gets class index from native cell
     int iD = GetNativeCell(1);
@@ -2039,7 +2040,7 @@ public int API_GetClassSoundJumpID(const Handle hPlugin, const int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetName(const int iD, char[] sName, const int iMaxLen)
+void ClassGetName(int iD, char[] sName, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2055,7 +2056,7 @@ void ClassGetName(const int iD, char[] sName, const int iMaxLen)
  * @param sInfo             The string to return info in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetInfo(const int iD, char[] sInfo, const int iMaxLen)
+void ClassGetInfo(int iD, char[] sInfo, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2071,7 +2072,7 @@ void ClassGetInfo(const int iD, char[] sInfo, const int iMaxLen)
  * @param sType             The string to return type in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetType(const int iD, char[] sType, const int iMaxLen)
+void ClassGetType(int iD, char[] sType, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2086,7 +2087,7 @@ void ClassGetType(const int iD, char[] sType, const int iMaxLen)
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-bool ClassIsZombie(const int iD)
+bool ClassIsZombie(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2102,7 +2103,7 @@ bool ClassIsZombie(const int iD)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetModel(int iD, char[] sModel, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2118,7 +2119,7 @@ void ClassGetModel(const int iD, char[] sModel, const int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetClawModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetClawModel(int iD, char[] sModel, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2134,7 +2135,7 @@ void ClassGetClawModel(const int iD, char[] sModel, const int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetGrenadeModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetGrenadeModel(int iD, char[] sModel, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2150,7 +2151,7 @@ void ClassGetGrenadeModel(const int iD, char[] sModel, const int iMaxLen)
  * @param sModel            The string to return model in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetArmModel(const int iD, char[] sModel, const int iMaxLen)
+void ClassGetArmModel(int iD, char[] sModel, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2165,7 +2166,7 @@ void ClassGetArmModel(const int iD, char[] sModel, const int iMaxLen)
  * @param iD                The class index.
  * @return                  The body index.    
  **/
-int ClassGetBody(const int iD)
+int ClassGetBody(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2180,7 +2181,7 @@ int ClassGetBody(const int iD)
  * @param iD                The class index.
  * @return                  The skin index.    
  **/
-int ClassGetSkin(const int iD)
+int ClassGetSkin(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2195,7 +2196,7 @@ int ClassGetSkin(const int iD)
  * @param iD                The class index.
  * @return                  The health amount.    
  **/
-int ClassGetHealth(const int iD)
+int ClassGetHealth(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2210,7 +2211,7 @@ int ClassGetHealth(const int iD)
  * @param iD                The class index.
  * @return                  The speed amount.    
  **/
-float ClassGetSpeed(const int iD)
+float ClassGetSpeed(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2225,7 +2226,7 @@ float ClassGetSpeed(const int iD)
  * @param iD                The class index.
  * @return                  The gravity amount.    
  **/
-float ClassGetGravity(const int iD)
+float ClassGetGravity(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2240,7 +2241,7 @@ float ClassGetGravity(const int iD)
  * @param iD                The class index.
  * @return                  The knockback amount.    
  **/
-float ClassGetKnockBack(const int iD)
+float ClassGetKnockBack(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2255,7 +2256,7 @@ float ClassGetKnockBack(const int iD)
  * @param iD                The class index.
  * @return                  The armor amount.    
  **/
-int ClassGetArmor(const int iD)
+int ClassGetArmor(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2270,7 +2271,7 @@ int ClassGetArmor(const int iD)
  * @param iD                The class index.
  * @return                  The level amount.    
  **/
-int ClassGetLevel(const int iD)
+int ClassGetLevel(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2286,7 +2287,7 @@ int ClassGetLevel(const int iD)
  * @param sGroup            The string to return group in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetGroup(const int iD, char[] sGroup, const int iMaxLen)
+void ClassGetGroup(int iD, char[] sGroup, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2301,7 +2302,7 @@ void ClassGetGroup(const int iD, char[] sGroup, const int iMaxLen)
  * @param iD                The class index.
  * @return                  The duration amount.    
  **/
-float ClassGetSkillDuration(const int iD)
+float ClassGetSkillDuration(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2316,7 +2317,7 @@ float ClassGetSkillDuration(const int iD)
  * @param iD                The class index.
  * @return                  The countdown amount.    
  **/
-float ClassGetSkillCountdown(const int iD)
+float ClassGetSkillCountdown(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2331,7 +2332,7 @@ float ClassGetSkillCountdown(const int iD)
  * @param iD                The class index.
  * @return                  True or false.
  **/
-bool ClassIsSkillBar(const int iD)
+bool ClassIsSkillBar(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2346,7 +2347,7 @@ bool ClassIsSkillBar(const int iD)
  * @param iD                The class index.
  * @return                  The health amount.    
  **/
-int ClassGetRegenHealth(const int iD)
+int ClassGetRegenHealth(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2361,7 +2362,7 @@ int ClassGetRegenHealth(const int iD)
  * @param iD                The class index.
  * @return                  The interval amount.    
  **/
-float ClassGetRegenInterval(const int iD)
+float ClassGetRegenInterval(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2376,7 +2377,7 @@ float ClassGetRegenInterval(const int iD)
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-bool ClassIsFall(const int iD)
+bool ClassIsFall(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2391,7 +2392,7 @@ bool ClassIsFall(const int iD)
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-bool ClassIsSpot(const int iD)
+bool ClassIsSpot(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2406,7 +2407,7 @@ bool ClassIsSpot(const int iD)
  * @param iD                The class index.
  * @return                  The fov amount.    
  **/
-int ClassGetFov(const int iD)
+int ClassGetFov(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2421,7 +2422,7 @@ int ClassGetFov(const int iD)
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-bool ClassIsCross(const int iD)
+bool ClassIsCross(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2436,7 +2437,7 @@ bool ClassIsCross(const int iD)
  * @param iD                The class index.
  * @return                  True or false.    
  **/
-bool ClassIsNvgs(const int iD)
+bool ClassIsNvgs(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2452,7 +2453,7 @@ bool ClassIsNvgs(const int iD)
  * @param sOverlay          The string to return overlay in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetOverlay(const int iD, char[] sOverlay, const int iMaxLen)
+void ClassGetOverlay(int iD, char[] sOverlay, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2468,7 +2469,7 @@ void ClassGetOverlay(const int iD, char[] sOverlay, const int iMaxLen)
  * @param iWeapon           The array to return weapon in.
  * @param iMaxLen           The max length of the array.
  **/
-void ClassGetWeapon(const int iD, int[] iWeapon, const int iMaxLen)
+void ClassGetWeapon(int iD, int[] iWeapon, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2484,7 +2485,7 @@ void ClassGetWeapon(const int iD, int[] iWeapon, const int iMaxLen)
  * @param iMoney            The array to return money in.
  * @param iMaxLen           The max length of the array.
  **/
-void ClassGetMoney(const int iD, int[] iMoney, const int iMaxLen)
+void ClassGetMoney(int iD, int[] iMoney, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2500,7 +2501,7 @@ void ClassGetMoney(const int iD, int[] iMoney, const int iMaxLen)
  * @param iExp              The array to return experience in.
  * @param iMaxLen           The max length of the array.
  **/
-void ClassGetExp(const int iD, int[] iExp, const int iMaxLen)
+void ClassGetExp(int iD, int[] iExp, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2515,7 +2516,7 @@ void ClassGetExp(const int iD, int[] iExp, const int iMaxLen)
  * @param iD                The class index.
  * @return                  The steal amount.    
  **/
-int ClassGetLifeSteal(const int iD)
+int ClassGetLifeSteal(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2530,7 +2531,7 @@ int ClassGetLifeSteal(const int iD)
  * @param iD                The class index.
  * @return                  The ammunition type.    
  **/
-int ClassGetAmmunition(const int iD)
+int ClassGetAmmunition(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2545,7 +2546,7 @@ int ClassGetAmmunition(const int iD)
  * @param iD                The class index.
  * @return                  The leap jump.    
  **/
-int ClassGetLeapJump(const int iD)
+int ClassGetLeapJump(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2560,7 +2561,7 @@ int ClassGetLeapJump(const int iD)
  * @param iD                The class index.
  * @return                  The leap force.    
  **/
-float ClassGetLeapForce(const int iD)
+float ClassGetLeapForce(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2575,7 +2576,7 @@ float ClassGetLeapForce(const int iD)
  * @param iD                The class index.
  * @return                  The leap countdown.    
  **/
-float ClassGetLeapCountdown(const int iD)
+float ClassGetLeapCountdown(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2591,7 +2592,7 @@ float ClassGetLeapCountdown(const int iD)
  * @param sName             The string to return name in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetEffectName(const int iD, char[] sName, const int iMaxLen)
+void ClassGetEffectName(int iD, char[] sName, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2607,7 +2608,7 @@ void ClassGetEffectName(const int iD, char[] sName, const int iMaxLen)
  * @param sAttach           The string to return attach in.
  * @param iMaxLen           The lenght of string.
  **/
-void ClassGetEffectAttach(const int iD, char[] sAttach, const int iMaxLen)
+void ClassGetEffectAttach(int iD, char[] sAttach, int iMaxLen)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2622,7 +2623,7 @@ void ClassGetEffectAttach(const int iD, char[] sAttach, const int iMaxLen)
  * @param iD                The class index.
  * @return                  The effect time.    
  **/
-float ClassGetEffectTime(const int iD)
+float ClassGetEffectTime(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2637,7 +2638,7 @@ float ClassGetEffectTime(const int iD)
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-int ClassGetClawID(const int iD)
+int ClassGetClawID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2652,7 +2653,7 @@ int ClassGetClawID(const int iD)
  * @param iD                The class index.
  * @return                  The model index.    
  **/
-int ClassGetGrenadeID(const int iD)
+int ClassGetGrenadeID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2667,7 +2668,7 @@ int ClassGetGrenadeID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundDeathID(const int iD)
+int ClassGetSoundDeathID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2682,7 +2683,7 @@ int ClassGetSoundDeathID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundHurtID(const int iD)
+int ClassGetSoundHurtID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2697,7 +2698,7 @@ int ClassGetSoundHurtID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundIdleID(const int iD)
+int ClassGetSoundIdleID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2712,7 +2713,7 @@ int ClassGetSoundIdleID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundInfectID(const int iD)
+int ClassGetSoundInfectID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2727,7 +2728,7 @@ int ClassGetSoundInfectID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundRespawnID(const int iD)
+int ClassGetSoundRespawnID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2742,7 +2743,7 @@ int ClassGetSoundRespawnID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundBurnID(const int iD)
+int ClassGetSoundBurnID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2757,7 +2758,7 @@ int ClassGetSoundBurnID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundAttackID(const int iD)
+int ClassGetSoundAttackID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2772,7 +2773,7 @@ int ClassGetSoundAttackID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundFootID(const int iD)
+int ClassGetSoundFootID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2787,7 +2788,7 @@ int ClassGetSoundFootID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundRegenID(const int iD)
+int ClassGetSoundRegenID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2802,7 +2803,7 @@ int ClassGetSoundRegenID(const int iD)
  * @param iD                The class index.
  * @return                  The key index.
  **/
-int ClassGetSoundJumpID(const int iD)
+int ClassGetSoundJumpID(int iD)
 {
     // Gets array handle of class at given index
     ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -2821,7 +2822,7 @@ int ClassGetSoundJumpID(const int iD)
  * @param sName             The class name.
  * @return                  The array index containing the given class name.
  **/
-int ClassNameToIndex(const char[] sName)
+int ClassNameToIndex(char[] sName)
 {
     // Initialize name char
     static char sClassName[SMALL_LINE_LENGTH];
@@ -2851,7 +2852,7 @@ int ClassNameToIndex(const char[] sName)
  * @param sType             The class type.
  * @return                  The array index containing the given class type.
  **/
-int ClassTypeToIndex(const char[] sType)
+int ClassTypeToIndex(char[] sType)
 {
     // Initialize type char
     static char sClassType[SMALL_LINE_LENGTH]; 

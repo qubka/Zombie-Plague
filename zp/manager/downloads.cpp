@@ -110,7 +110,7 @@ void DownloadsOnCacheData(/*void*/)
         gServerData.Downloads.GetString(i, sPathDownloads, sizeof(sPathDownloads));
 
         // If file exist
-        if(FileExists(sPathDownloads)) 
+        if(FileExists(sPathDownloads) || FileExists(sPathDownloads, true)) 
         {
             // Add to server precache list
             if(DownloadsOnPrecache(sPathDownloads)) iDownloadValidCount++; else iDownloadUnValidCount++;
@@ -121,6 +121,13 @@ void DownloadsOnCacheData(/*void*/)
             // Opens directory
             DirectoryListing hDirectory = OpenDirectory(sPathDownloads);
             
+            // If directory doesn't exist, try to open folder in .vpk
+            if(hDirectory == null)
+            {
+                // Opens directory
+                hDirectory = OpenDirectory(sPathDownloads, true);
+            }
+
             // If directory doesn't exist, then log, and stop
             if(hDirectory == null)
             {
@@ -185,7 +192,7 @@ public void DownloadsOnConfigReload(ConfigFile iConfig)
  * @param sPath             The path to file.
  * @return                  True or false.
  **/
-bool DownloadsOnPrecache(const char[] sPath)
+bool DownloadsOnPrecache(char[] sPath)
 {
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sPath, '.', true);

@@ -81,7 +81,7 @@ void JumpBoostOnCvarInit(/*void*/)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void JumpBoostOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void JumpBoostOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(oldValue[0] == newValue[0])
@@ -98,7 +98,7 @@ public void JumpBoostOnCvarHook(ConVar hConVar, const char[] oldValue, const cha
  * 
  * @param clientIndex       The client index.
  **/
-void JumpBoostOnClientInit(const int clientIndex)
+void JumpBoostOnClientInit(int clientIndex)
 {
     // If jumpboost is disabled, then stop
     bool bJumpBoost = gCvarList[CVAR_JUMPBOOST].BoolValue;
@@ -119,7 +119,7 @@ void JumpBoostOnClientInit(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-public void JumpBoostOnClientEntChanged(const int clientIndex)
+public void JumpBoostOnClientEntChanged(int clientIndex)
 {
     // Verify that the client is exist
     if(!IsPlayerExist(clientIndex))
@@ -149,7 +149,7 @@ public void JumpBoostOnClientEntChanged(const int clientIndex)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action JumpBoostOnClientJump(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action JumpBoostOnClientJump(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
@@ -163,7 +163,7 @@ public Action JumpBoostOnClientJump(Event hEvent, const char[] sName, bool dontB
  *
  * @param userID            The user id.
  **/
-public void JumpBoostOnClientJumpPost(const int userID)
+public void JumpBoostOnClientJumpPost(int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -198,7 +198,7 @@ public void JumpBoostOnClientJumpPost(const int userID)
  *
  * @param clientIndex       The client index.
  **/
-void JumpBoostOnClientLeapJump(const int clientIndex)
+void JumpBoostOnClientLeapJump(int clientIndex)
 {
     // Validate access
     if(!ModesIsLeapJump(gServerData.RoundMode))

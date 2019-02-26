@@ -113,7 +113,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const float flCurrentTime)
+void Weapon_OnReload(int clientIndex, int weaponIndex, int iClip, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
 
@@ -124,7 +124,7 @@ void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));
 }
 
-void Weapon_OnReloadStart(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const float flCurrentTime)
+void Weapon_OnReloadStart(int clientIndex, int weaponIndex, int iClip, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
     
@@ -151,7 +151,7 @@ void Weapon_OnReloadStart(const int clientIndex, const int weaponIndex, const in
     }
 }
 
-bool Weapon_OnReloadEmulate(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const float flCurrentTime)
+bool Weapon_OnReloadEmulate(int clientIndex, int weaponIndex, int iClip, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
     
@@ -159,7 +159,7 @@ bool Weapon_OnReloadEmulate(const int clientIndex, const int weaponIndex, const 
     return !iClip && iAmmo ? true : false;
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
 
@@ -173,7 +173,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, float flCurrentTime)
+void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, flCurrentTime
 
@@ -248,7 +248,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     }
 }
 
-void Weapon_OnCreatePlasma(const int clientIndex, const int weaponIndex)
+void Weapon_OnCreatePlasma(int clientIndex, int weaponIndex)
 {
     #pragma unused clientIndex
 
@@ -310,7 +310,7 @@ void Weapon_OnCreatePlasma(const int clientIndex, const int weaponIndex)
     }
 }
 
-void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
+void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
 {
     #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
 
@@ -485,7 +485,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action PlasmaTouchHook(const int entityIndex, const int targetIndex)
+public Action PlasmaTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))

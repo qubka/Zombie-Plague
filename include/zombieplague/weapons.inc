@@ -292,7 +292,7 @@ native void ZP_GetWeaponName(int weaponID, char[] name, int maxlenght = 32);
 native void ZP_GetWeaponInfo(int weaponID, char[] info, int maxlenght = 128);
 
 /**
- * @brief Gets the entity a weapon at a given id.
+ * @brief Gets the entity of a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
  * @param entity            The string to return entity in.
@@ -353,6 +353,15 @@ native int ZP_GetWeaponLevel(int weaponID);
  * @return                  The online amount.    
  **/
 native int ZP_GetWeaponOnline(int weaponID);
+
+/**
+ * @brief Gets the limit of the weapon.
+ * 
+ * @param weaponID          The weapon ID.
+ *
+ * @return                  The limit amount.    
+ **/
+native int ZP_GetWeaponLimit(int weaponID);
 
 /**
  * @brief Gets the damage of the weapon.
@@ -445,7 +454,16 @@ native float ZP_GetWeaponDeploy(int weaponID);
 native int ZP_GetWeaponSoundID(int weaponID);
 
 /**
- * @brief Gets the viewmodel path a weapon at a given id.
+ * @brief Gets the icon of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param icon              The string to return icon in.
+ * @param maxlenght         The lenght of string.
+ **/
+native int ZP_GetWeaponIcon(int weaponID, char[] icon, int maxlenght = 32);
+
+/**
+ * @brief Gets the viewmodel path of a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
  * @param model             The string to return model in.
@@ -463,7 +481,7 @@ native void ZP_GetWeaponModelView(int weaponID, char[] model, int maxlenght = 25
 native int ZP_GetWeaponModelViewID(int weaponID);
 
 /**
- * @brief Gets the worldmodel path a weapon at a given id.
+ * @brief Gets the worldmodel path of a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
  * @param model             The string to return model in.
@@ -481,7 +499,7 @@ native void ZP_GetWeaponModelWorld(int weaponID, char[] model, int maxlenght = 2
 native int ZP_GetWeaponModelWorldID(int weaponID);
 
 /**
- * @brief Gets the dropmodel path a weapon at a given id.
+ * @brief Gets the dropmodel path of a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
  * @param model             The string to return model in.

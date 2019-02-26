@@ -71,7 +71,7 @@ void TranslationOnInit(/*void*/)
  * @param sText             Text to format.
  * @param iMaxlen           Maximum length of the formatted text.
  **/
-stock void TranslationPluginFormatString(char[] sText, const int iMaxlen, const bool bColor = true)
+stock void TranslationPluginFormatString(char[] sText, int iMaxlen, bool bColor = true)
 {
     if(bColor)
     {
@@ -97,7 +97,7 @@ stock void TranslationPluginFormatString(char[] sText, const int iMaxlen, const 
  * @param clientIndex       The client index.
  * @param ...               Translation formatting parameters.  
  **/
-stock void TranslationPrintToConsole(const int clientIndex, any ...)
+stock void TranslationPrintToConsole(int clientIndex, any ...)
 {
     // Validate real client
     if(!IsFakeClient(clientIndex))
@@ -123,7 +123,7 @@ stock void TranslationPrintToConsole(const int clientIndex, any ...)
  * @param bServer           True to also print text to server console, false just to the clients.
  * @param ...               Translation formatting parameters.
  **/
-stock void TranslationPrintToConsoleAll(const bool bServer, any ...)
+stock void TranslationPrintToConsoleAll(bool bServer, any ...)
 {
     static char sTranslation[CONSOLE_LINE_LENGTH];
 
@@ -176,7 +176,7 @@ stock void TranslationPrintToConsoleAll(const bool bServer, any ...)
  * @param clientIndex       The client index.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHintText(const int clientIndex, any ...)
+stock void TranslationPrintHintText(int clientIndex, any ...)
 {
     // Validate real client
     if(!IsFakeClient(clientIndex))
@@ -243,7 +243,7 @@ stock void TranslationPrintHintTextAll(any ...)
  * @param fadeOut           Number of seconds to spend fading out.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHudText(const Handle hSync, const int clientIndex, const float x, const float y, const float holdTime, const int r, const int g, const int b, const int a, const int effect, const float fxTime, const float fadeIn, const float fadeOut, any ...)
+stock void TranslationPrintHudText(Handle hSync, int clientIndex, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
 {
     // Validate real client
     if(!IsFakeClient(clientIndex))
@@ -277,7 +277,7 @@ stock void TranslationPrintHudText(const Handle hSync, const int clientIndex, co
  * @param fadeOut           Number of seconds to spend fading out.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHudTextAll(const Handle hSync, const float x, const float y, const float holdTime, const int r, const int g, const int b, const int a, const int effect, const float fxTime, const float fadeIn, const float fadeOut, any ...)
+stock void TranslationPrintHudTextAll(Handle hSync, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -310,7 +310,7 @@ stock void TranslationPrintHudTextAll(const Handle hSync, const float x, const f
  * @param clientIndex       The client index.
  * @param ...               Formatting parameters. 
  **/
-stock void TranslationPrintToChat(const int clientIndex, any ...)
+stock void TranslationPrintToChat(int clientIndex, any ...)
 {
     // Validate real client
     if(!IsFakeClient(clientIndex))
@@ -392,7 +392,7 @@ stock void TranslationPrintToServer(any:...)
  * @param clientIndex       The client index.
  * @param ...               Formatting parameters. 
  **/
-stock void TranslationReplyToCommand(const int clientIndex, any ...)
+stock void TranslationReplyToCommand(int clientIndex, any ...)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))

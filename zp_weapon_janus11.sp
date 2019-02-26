@@ -114,7 +114,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-Action Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iClip, const int iCounter, const int iStateMode, const float flCurrentTime)
+Action Weapon_OnReload(int clientIndex, int weaponIndex, int iClip, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iCounter, iStateMode, flCurrentTime
     
@@ -122,7 +122,7 @@ Action Weapon_OnReload(const int clientIndex, const int weaponIndex, const int i
     return iStateMode == STATE_ACTIVE ? Plugin_Handled : Plugin_Continue;
 }
 
-void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iClip, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnHolster(int clientIndex, int weaponIndex, int iClip, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iCounter, iStateMode, flCurrentTime
     
@@ -130,7 +130,7 @@ void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iC
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iCounter, iStateMode, flCurrentTime
 
@@ -144,7 +144,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnShoot(const int clientIndex, const int weaponIndex, const int iClip, int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnShoot(int clientIndex, int weaponIndex, int iClip, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iCounter, iStateMode, flCurrentTime
     
@@ -177,7 +177,7 @@ void Weapon_OnShoot(const int clientIndex, const int weaponIndex, const int iCli
     SetEntProp(weaponIndex, Prop_Send, "m_iClip2", iCounter + 1);
 }
 
-void Weapon_OnFire(const int clientIndex, const int weaponIndex, int iClip, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnFire(int clientIndex, int weaponIndex, int iClip, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iCounter, iStateMode, flCurrentTime
 
@@ -207,7 +207,7 @@ void Weapon_OnFire(const int clientIndex, const int weaponIndex, int iClip, cons
     iClip += 1; SetEntProp(weaponIndex, Prop_Send, "m_iClip1", iClip);  
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iClip, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iCounter, iStateMode, flCurrentTime
     
@@ -239,7 +239,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
     }
 }
 
-void Weapon_OnFinish(const int clientIndex, const int weaponIndex, const int iClip, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnFinish(int clientIndex, int weaponIndex, int iClip, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iCounter, iStateMode, flCurrentTime
     
@@ -262,7 +262,7 @@ void Weapon_OnFinish(const int clientIndex, const int weaponIndex, const int iCl
     RequestFrame(view_as<RequestFrameCallback>(Weapon_OnFinishPost), GetClientUserId(clientIndex));
 }
 
-public void Weapon_OnFinishPost(const int userID)
+public void Weapon_OnFinishPost(int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -460,7 +460,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *
  * @param weaponIndex       The weapon index.
  **/
-public Action /*ZP_*/OnWeaponReload(const int weaponIndex) 
+public Action /*ZP_*/OnWeaponReload(int weaponIndex) 
 {
     // Call event
     return _call.Reload(GetEntPropEnt(weaponIndex, Prop_Send, "m_hOwner"), weaponIndex);

@@ -64,7 +64,7 @@ void SpawnOnLoad(/*void*/)
  *
  * @param sClassname        The string with info name. 
  **/
-void SpawnOnCacheData(const char[] sClassname)
+void SpawnOnCacheData(char[] sClassname)
 {
     // Loop throught all entities
     int entityIndex;
@@ -96,7 +96,7 @@ void SpawnOnCommandInit(/*void*/)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SpawnOnCommandListened(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
 {
     // Validate client 
     if(IsPlayerExist(clientIndex, false))
@@ -223,7 +223,7 @@ public Action SpawnOnCommandListened(const int clientIndex, const char[] command
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action SpawnOnClientSpawn(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));

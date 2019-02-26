@@ -132,7 +132,7 @@ void AccountOnCvarInit(/*void*/)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void AccountOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void AccountOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(oldValue[0] == newValue[0])
@@ -149,7 +149,7 @@ public void AccountOnCvarHook(ConVar hConVar, const char[] oldValue, const char[
  * 
  * @param clientIndex       The client index.
  **/
-void AccountOnClientSpawn(const int clientIndex)
+void AccountOnClientSpawn(int clientIndex)
 {
     // Reset HUD on the team change
     AccountOnClientUpdate(GetClientUserId(clientIndex));
@@ -160,7 +160,7 @@ void AccountOnClientSpawn(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void AccountOnClientDeath(const int clientIndex)
+void AccountOnClientDeath(int clientIndex)
 {
     // Enable HUD for spectator
     AccountOnClientUpdate(GetClientUserId(clientIndex));
@@ -171,7 +171,7 @@ void AccountOnClientDeath(const int clientIndex)
  *
  * @param userID            The user id.
  **/
-public void AccountOnClientUpdate(const int userID)
+public void AccountOnClientUpdate(int userID)
 {
     // If account disabled, then stop
     if(!gCvarList[CVAR_ACCOUNT_MONEY].BoolValue)
@@ -216,7 +216,7 @@ public void AccountOnClientUpdate(const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AccountOnClientHUD(const Handle hTimer, const int userID)
+public Action AccountOnClientHUD(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -270,7 +270,7 @@ public Action AccountOnClientHUD(const Handle hTimer, const int userID)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action AccountGiveOnCommandCatched(const int clientIndex, const int iArguments)
+public Action AccountGiveOnCommandCatched(int clientIndex, int iArguments)
 {
     // If not enough arguments given, then stop
     if(iArguments < 2)
@@ -321,7 +321,7 @@ public Action AccountGiveOnCommandCatched(const int clientIndex, const int iArgu
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action AccountMenuOnCommandCatched(const int clientIndex, const int iArguments)
+public Action AccountMenuOnCommandCatched(int clientIndex, int iArguments)
 {
     AccountMenu(clientIndex, gCvarList[CVAR_ACCOUNT_BET].IntValue, gCvarList[CVAR_ACCOUNT_COMMISION].FloatValue);
     return Plugin_Handled;
@@ -347,7 +347,7 @@ void AccountOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetClientMoney(clientIndex);
  **/
-public int API_GetClientMoney(const Handle hPlugin, const int iNumParams)
+public int API_GetClientMoney(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -361,7 +361,7 @@ public int API_GetClientMoney(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientMoney(clientIndex, iD);
  **/
-public int API_SetClientMoney(const Handle hPlugin, const int iNumParams)
+public int API_SetClientMoney(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -375,7 +375,7 @@ public int API_SetClientMoney(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientLastPurchase(clientIndex);
  **/
-public int API_GetClientLastPurchase(const Handle hPlugin, const int iNumParams)
+public int API_GetClientLastPurchase(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -389,7 +389,7 @@ public int API_GetClientLastPurchase(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientLastPurchase(clientIndex, iD);
  **/
-public int API_SetClientLastPurchase(const Handle hPlugin, const int iNumParams)
+public int API_SetClientLastPurchase(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -408,7 +408,7 @@ public int API_SetClientLastPurchase(const Handle hPlugin, const int iNumParams)
  * @param clientIndex       The client index.
  * @param iMoney            The money amount.
  **/
-void AccountSetClientCash(const int clientIndex, int iMoney)
+void AccountSetClientCash(int clientIndex, int iMoney)
 {
     // Call forward
     gForwardData._OnClientMoney(clientIndex, iMoney);
@@ -468,7 +468,7 @@ void AccountSetClientCash(const int clientIndex, int iMoney)
  * @param clientIndex       The client index.
  * @param iMoney            The money amount.
  **/
-void AccountSetMoney(const int clientIndex, const int iMoney)
+void AccountSetMoney(int clientIndex, int iMoney)
 {
     SetEntData(clientIndex, g_iOffset_PlayerAccount, iMoney, _, true);
 }
@@ -484,7 +484,7 @@ void AccountSetMoney(const int clientIndex, const int iMoney)
  * @param iMoney            The money amount.   
  * @param flCommision       The commision amount.
  **/
-void AccountMenu(const int clientIndex, int iMoney, float flCommision) 
+void AccountMenu(int clientIndex, int iMoney, float flCommision) 
 {
     // If amount below bet, then set to default
     int iBet = gCvarList[CVAR_ACCOUNT_BET].IntValue;
@@ -581,7 +581,7 @@ void AccountMenu(const int clientIndex, int iMoney, float flCommision)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int AccountMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {   
     // Switch the menu action
     switch(mAction)

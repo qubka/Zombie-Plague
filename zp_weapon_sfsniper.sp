@@ -74,7 +74,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnBullet(const int clientIndex, const int weaponIndex, float vBulletPosition[3])
+void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
 {
     #pragma unused clientIndex, weaponIndex, vBulletPosition
 
@@ -91,7 +91,7 @@ void Weapon_OnBullet(const int clientIndex, const int weaponIndex, float vBullet
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Initialize variables
-        static char sClassname[SMALL_LINE_LENGTH]; static char sWidth[SMALL_LINE_LENGTH]; static const int vColor[4] = WEAPON_BEAM_COLOR;
+        static char sClassname[SMALL_LINE_LENGTH]; static char sWidth[SMALL_LINE_LENGTH]; static int vColor[4] = WEAPON_BEAM_COLOR;
         
         // Dispatch main values of the entity
         FormatEx(sClassname, sizeof(sClassname), "zp_sflaser_%d", entityIndex);
@@ -155,7 +155,7 @@ void Weapon_OnBullet(const int clientIndex, const int weaponIndex, float vBullet
  * @param hThink            The think handle.    
  * @param referenceIndex    The reference index.    
  **/
-public Action BeamEffectHook(const Handle hTimer, int referenceIndex)
+public Action BeamEffectHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from the reference
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -164,7 +164,7 @@ public Action BeamEffectHook(const Handle hTimer, int referenceIndex)
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Initalize values
-        static int iRed; static int iGreen; static int iBlue; static int iAplha; int iNewAlpha = RoundToNearest((240.0 / WEAPON_BEAM_LIFE) / 10.0); static const int vColor[4] = WEAPON_BEAM_COLOR;
+        static int iRed; static int iGreen; static int iBlue; static int iAplha; int iNewAlpha = RoundToNearest((240.0 / WEAPON_BEAM_LIFE) / 10.0); static int vColor[4] = WEAPON_BEAM_COLOR;
         
         // Gets an entity's color
         GetEntityRenderColor(entityIndex, iRed, iGreen, iBlue, iAplha);

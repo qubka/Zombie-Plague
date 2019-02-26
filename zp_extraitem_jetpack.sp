@@ -123,7 +123,7 @@ public void OnClientDisconnect(int clientIndex)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
@@ -196,7 +196,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Item_OnActivate(const int clientIndex)
+void Item_OnActivate(int clientIndex)
 {
     // Validate delay
     if(IsDelay(clientIndex, 0.1))
@@ -268,7 +268,7 @@ void Item_OnActivate(const int clientIndex)
  * @param hTimer            The timer handle.
  * @param clientIndex       The user id.
  **/
-public Action ItemOnReload(const Handle hTimer, const int userID)
+public Action ItemOnReload(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -341,7 +341,7 @@ public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, floa
  * @param clientIndex       The client index.
  * @param flDelay           The delay time.
  **/
-stock bool IsDelay(const int clientIndex, const float flDelay)
+stock bool IsDelay(int clientIndex, float flDelay)
 {
     // Initialize delay
     static float flTime[MAXPLAYERS+1];

@@ -123,7 +123,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnHolster(int clientIndex, int weaponIndex, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iStateMode, flCurrentTime
     
@@ -131,7 +131,7 @@ void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iC
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iStateMode, flCurrentTime
 
@@ -152,7 +152,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCo
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnShoot(const int clientIndex, const int weaponIndex, int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnShoot(int clientIndex, int weaponIndex, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iStateMode, flCurrentTime
     
@@ -175,7 +175,7 @@ void Weapon_OnShoot(const int clientIndex, const int weaponIndex, int iCounter, 
     SetEntProp(weaponIndex, Prop_Send, "m_iClip2", iCounter + 1);
 }
 
-bool Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, const int iCounter, const int iStateMode, float flCurrentTime)
+bool Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iStateMode, flCurrentTime
     
@@ -259,7 +259,7 @@ bool Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, const 
     return true;
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iStateMode, flCurrentTime
     
@@ -293,7 +293,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
     }
 }
 
-void Weapon_OnFinish(const int clientIndex, const int weaponIndex, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnFinish(int clientIndex, int weaponIndex, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iStateMode, flCurrentTime
     
@@ -315,7 +315,7 @@ void Weapon_OnFinish(const int clientIndex, const int weaponIndex, const int iCo
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 }
 
-void Weapon_OnCreateBeam(const int clientIndex, const int weaponIndex)
+void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
 {
     #pragma unused clientIndex
     
@@ -398,7 +398,7 @@ void Weapon_OnCreateBeam(const int clientIndex, const int weaponIndex)
     }
 }
 
-void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
+void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
 {
     #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
 
@@ -628,7 +628,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *
  * @return                  True of false.        
  **/
-stock bool TraceRay(const int filterIndex, const float vStartPosition[3], const float vEndPosition[3], const float flDistance = 0.0, float &flLenth = 0.0)
+stock bool TraceRay(int filterIndex, float vStartPosition[3], float vEndPosition[3], float flDistance = 0.0, float &flLenth = 0.0)
 {
     // Store the current distance between positions' vectors
     flLenth = GetVectorDistance(vStartPosition, vEndPosition);
@@ -672,7 +672,7 @@ stock bool TraceRay(const int filterIndex, const float vStartPosition[3], const 
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(const int entityIndex, const int contentsMask, const int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
 {
     // If entity is a player, continue tracing
     return (entityIndex == clientIndex || !(1 <= entityIndex <= MaxClients));

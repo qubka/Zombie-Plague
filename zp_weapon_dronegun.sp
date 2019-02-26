@@ -137,7 +137,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
     
@@ -148,7 +148,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const float f
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, float flCurrentTime)
+void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
 
@@ -202,7 +202,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, float 
             SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
 
             // Sets health     
-            SetEntProp(entityIndex, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
+            SetEntProp(entityIndex, Prop_Data, "m_takedamage", DAMAGE_YES);
             SetEntProp(entityIndex, Prop_Data, "m_iHealth", WEAPON_DRONE_HEALTH);
             SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", WEAPON_DRONE_HEALTH);
             
@@ -210,7 +210,8 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, float 
             SetEntProp(entityIndex, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PUSHAWAY);
             
             // Create damage hook
-            SDKHook(entityIndex, SDKHook_OnTakeDamage, DroneDamageHook);
+            //SDKHook(entityIndex, SDKHook_OnTakeDamage, DroneDamageHook); 
+            /// NOT WORK YET!
         }
         
         // Adds the delay to the game tick
@@ -345,7 +346,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
  * @param flDamage          The damage amount.
  * @param iBits             The damage type.
  **/
-public Action DroneDamageHook(const int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
+/*public Action DroneDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -372,7 +373,7 @@ public Action DroneDamageHook(const int entityIndex, int &attackerIndex, int &in
 
     // Return on success
     return Plugin_Handled;
-}
+}*/
 
 /**
  * @brief Trace filter.
@@ -381,7 +382,7 @@ public Action DroneDamageHook(const int entityIndex, int &attackerIndex, int &in
  * @param contentsMask      The contents mask.
  * @return                  True or false.
  **/
-public bool TraceFilter(const int entityIndex, const int contentsMask)
+public bool TraceFilter(int entityIndex, int contentsMask)
 {
     return !(1 <= entityIndex <= MaxClients);
 }

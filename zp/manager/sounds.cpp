@@ -218,7 +218,7 @@ void SoundsOnCounterStart(/*void*/)
  *
  * @param reasonIndex       The reason index.
  **/
-void SoundsOnRoundEnd(const CSRoundEndReason reasonIndex)
+void SoundsOnRoundEnd(CSRoundEndReason reasonIndex)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
@@ -265,7 +265,7 @@ void SoundsOnGameModeStart(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientDeath(const int clientIndex)
+void SoundsOnClientDeath(int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientDeath(clientIndex);
@@ -277,7 +277,7 @@ void SoundsOnClientDeath(const int clientIndex)
  * @param clientIndex       The client index.
  * @param iBits             The type of damage inflicted.
  **/
-void SoundsOnClientHurt(const int clientIndex, const int iBits)
+void SoundsOnClientHurt(int clientIndex, int iBits)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientHurt(clientIndex, ((iBits & DMG_BURN) || (iBits & DMG_DIRECT)));
@@ -289,7 +289,7 @@ void SoundsOnClientHurt(const int clientIndex, const int iBits)
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
  **/
-void SoundsOnClientInfected(const int clientIndex, const int attackerIndex)
+void SoundsOnClientInfected(int clientIndex, int attackerIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientInfected(clientIndex, attackerIndex);
@@ -300,7 +300,7 @@ void SoundsOnClientInfected(const int clientIndex, const int attackerIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientUpdate(const int clientIndex)
+void SoundsOnClientUpdate(int clientIndex)
 {
     // Forward event to sub-modules
     VoiceOnClientUpdate(clientIndex);
@@ -312,7 +312,7 @@ void SoundsOnClientUpdate(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientRegen(const int clientIndex)
+void SoundsOnClientRegen(int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientRegen(clientIndex);
@@ -323,7 +323,7 @@ void SoundsOnClientRegen(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientJump(const int clientIndex)
+void SoundsOnClientJump(int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientJump(clientIndex);
@@ -334,7 +334,7 @@ void SoundsOnClientJump(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientNvgs(const int clientIndex)
+void SoundsOnClientNvgs(int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientNvgs(clientIndex);
@@ -345,7 +345,7 @@ void SoundsOnClientNvgs(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientFlashLight(const int clientIndex)
+void SoundsOnClientFlashLight(int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientFlashLight(clientIndex);
@@ -356,7 +356,7 @@ void SoundsOnClientFlashLight(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientAmmunition(const int clientIndex)
+void SoundsOnClientAmmunition(int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientAmmunition(clientIndex);
@@ -367,7 +367,7 @@ void SoundsOnClientAmmunition(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void SoundsOnClientLevelUp(const int clientIndex)
+void SoundsOnClientLevelUp(int clientIndex)
 {
     // Forward event to sub-modules
     PlayerSoundsOnClientLevelUp(clientIndex);
@@ -379,7 +379,7 @@ void SoundsOnClientLevelUp(const int clientIndex)
  * @param clientIndex       The client index.
  * @param iD                The weapon id.
  **/
-Action SoundsOnClientShoot(const int clientIndex, const int iD)
+Action SoundsOnClientShoot(int clientIndex, int iD)
 {
     // Forward event to sub-modules
     return PlayerSoundsOnClientShoot(clientIndex, iD) ? Plugin_Stop : Plugin_Continue;
@@ -403,7 +403,7 @@ void SoundsOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetSoundKeyID(name);
  **/
-public int API_GetSoundKeyID(const Handle hPlugin, const int iNumParams)
+public int API_GetSoundKeyID(Handle hPlugin, int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -431,7 +431,7 @@ public int API_GetSoundKeyID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetSound(keyID, sound, maxlenght, position);
  **/
-public int API_GetSound(const Handle hPlugin, const int iNumParams)
+public int API_GetSound(Handle hPlugin, int iNumParams)
 {
     // Gets string size from native cell
     int maxLen = GetNativeCell(3);
@@ -472,7 +472,7 @@ public int API_GetSound(const Handle hPlugin, const int iNumParams)
  * @param iMaxLen           The lenght of string.
  * @param bDelete           (Optional) Clear the array key position.
  **/
-ArrayList SoundsGetKey(const int iKey, char[] sKey, const int iMaxLen, const bool bDelete = false)
+ArrayList SoundsGetKey(int iKey, char[] sKey, int iMaxLen, bool bDelete = false)
 {
     // Gets array handle of sound at given index
     ArrayList arraySound = gServerData.Sounds.Get(iKey);
@@ -495,7 +495,7 @@ ArrayList SoundsGetKey(const int iKey, char[] sKey, const int iMaxLen, const boo
  * @param iMaxLen           The lenght of string.
  * @param iNum              (Optional) The position index. (for not random sound)
  **/
-void SoundsGetPath(const int iKey, char[] sPath, const int iMaxLen, const int iNum = 0)
+void SoundsGetPath(int iKey, char[] sPath, int iMaxLen, int iNum = 0)
 {
     // Validate key
     if(iKey == -1)
@@ -522,7 +522,7 @@ void SoundsGetPath(const int iKey, char[] sPath, const int iMaxLen, const int iN
  * @param clientIndex       (Optional) The client index.
  * @param iChannel          (Optional) The channel to emit with.
  **/
-void SoundsStopAll(const int iKey, const int clientIndex = -1, const int iChannel = SNDCHAN_AUTO)
+void SoundsStopAll(int iKey, int clientIndex = -1, int iChannel = SNDCHAN_AUTO)
 {
     // Validate key
     if(iKey == -1)
@@ -582,7 +582,7 @@ void SoundsStopAll(const int iKey, const int clientIndex = -1, const int iChanne
  * @param sKey              The key name.
  * @return                  The array index containing the given sound key.
  **/
-int SoundsKeyToIndex(const char[] sKey)
+int SoundsKeyToIndex(char[] sKey)
 {
     // Initialize key char
     static char sSoundKey[SMALL_LINE_LENGTH]; 
@@ -612,8 +612,24 @@ int SoundsKeyToIndex(const char[] sKey)
  * @param sPath             The sound path.
  * @return                  True if was precached, false otherwise.
  **/
-bool SoundsPrecacheQuirk(const char[] sPath)
+bool SoundsPrecacheQuirk(char[] sPath)
 {
+    // If sound didn't exist, then
+    if(!FileExists(sPath))
+    {
+        // Try to find file in .vpk
+        if(FileExists(sPath, true))
+        {
+            // Return on success
+            PrecacheSound(sPath, true);
+            return true;
+        }
+
+        // Return error
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Invalid sound path. File not found: \"%s\"", sPath);
+        return false;
+    }
+    
     // Dublicate value string
     static char sSound[PLATFORM_LINE_LENGTH];
     strcopy(sSound, sizeof(sSound), sPath);
@@ -645,7 +661,7 @@ bool SoundsPrecacheQuirk(const char[] sPath)
     }
     else
     {
-        LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Wrong sound path: %s", sPath);
+        LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Invalid sound path. File not found: \"%s\"", sPath);
         return false;
     }
     

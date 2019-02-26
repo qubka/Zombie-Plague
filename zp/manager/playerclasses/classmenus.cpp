@@ -48,7 +48,7 @@ void ClassMenusOnCommandInit(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ClassHumanOnCommandCatched(const int clientIndex, const int iArguments)
+public Action ClassHumanOnCommandCatched(int clientIndex, int iArguments)
 {
     ClassMenu(clientIndex, "choose humanclass", "human", gClientData[clientIndex].HumanClassNext);
     return Plugin_Handled;
@@ -61,7 +61,7 @@ public Action ClassHumanOnCommandCatched(const int clientIndex, const int iArgum
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ClassZombieOnCommandCatched(const int clientIndex, const int iArguments)
+public Action ClassZombieOnCommandCatched(int clientIndex, int iArguments)
 {
     ClassMenu(clientIndex, "choose zombieclass", "zombie", gClientData[clientIndex].ZombieClassNext);
     return Plugin_Handled;
@@ -74,7 +74,7 @@ public Action ClassZombieOnCommandCatched(const int clientIndex, const int iArgu
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ClassesOnCommandCatched(const int clientIndex, const int iArguments)
+public Action ClassesOnCommandCatched(int clientIndex, int iArguments)
 {
     ClassesMenu(clientIndex);
     return Plugin_Handled;
@@ -89,7 +89,7 @@ public Action ClassesOnCommandCatched(const int clientIndex, const int iArgument
  *
  * @param clientIndex       The client index.
  **/
-void ZombieValidateClass(const int clientIndex)
+void ZombieValidateClass(int clientIndex)
 {
     // Validate class
     int iClass = ClassValidateIndex(clientIndex, "zombie");
@@ -116,7 +116,7 @@ void ZombieValidateClass(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void HumanValidateClass(const int clientIndex)
+void HumanValidateClass(int clientIndex)
 {
     // Validate class
     int iClass = ClassValidateIndex(clientIndex, "human");
@@ -144,7 +144,7 @@ void HumanValidateClass(const int clientIndex)
  * @param clientIndex       The client index.
  * @return                  The class index. 
  **/
-int ClassValidateIndex(const int clientIndex, const char[] sType)
+int ClassValidateIndex(int clientIndex, char[] sType)
 {
     // Gets array size
     int iSize = gServerData.Classes.Length;
@@ -221,7 +221,7 @@ int ClassValidateIndex(const int clientIndex, const char[] sType)
  * @param iClass            The current class.
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/
-void ClassMenu(const int clientIndex, const char[] sTitle, const char[] sType, const int iClass, const bool bInstant = false) 
+void ClassMenu(int clientIndex, char[] sTitle, char[] sType, int iClass, bool bInstant = false) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -307,7 +307,7 @@ void ClassMenu(const int clientIndex, const char[] sTitle, const char[] sType, c
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
    // Call menu
    ClassMenuSlots(hMenu, mAction, "zp_zombie_menu", clientIndex, mSlot);
@@ -321,7 +321,7 @@ public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, const int clien
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
    // Call menu
    ClassMenuSlots(hMenu, mAction, "zp_zombie_menu", clientIndex, mSlot, true);
@@ -335,7 +335,7 @@ public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, const int clien
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
    // Call menu
    ClassMenuSlots(hMenu, mAction, "zp_human_menu", clientIndex, mSlot);
@@ -349,7 +349,7 @@ public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, const int client
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
    // Call menu
    ClassMenuSlots(hMenu, mAction, "zp_human_menu", clientIndex, mSlot, true);
@@ -365,7 +365,7 @@ public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, const int client
  * @param mSlot             The slot index selected (starting from 0).
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/ 
-void ClassMenuSlots(Menu hMenu, MenuAction mAction, const char[] sCommand, const int clientIndex, const int mSlot, const bool bInstant = false)
+void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int clientIndex, int mSlot, bool bInstant = false)
 {
     // Switch the menu action
     switch(mAction)
@@ -467,7 +467,7 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, const char[] sCommand, const
  *
  * @param clientIndex       The client index.
  **/
-void ClassesMenu(const int clientIndex) 
+void ClassesMenu(int clientIndex) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -548,7 +548,7 @@ void ClassesMenu(const int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {   
     // Switch the menu action
     switch(mAction)
@@ -634,7 +634,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, const int clientInde
  * @param clientIndex       The client index.
  * @param targetIndex       The target index.
  **/
-void ClassesOptionMenu(const int clientIndex, const int targetIndex)
+void ClassesOptionMenu(int clientIndex, int targetIndex)
 {
     // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH]; 
@@ -689,7 +689,7 @@ void ClassesOptionMenu(const int clientIndex, const int targetIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {   
     // Switch the menu action
     switch(mAction)

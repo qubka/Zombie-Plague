@@ -76,7 +76,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnBullet(const int clientIndex, const int weaponIndex, float vBulletPosition[3])
+void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
 {
     #pragma unused clientIndex, weaponIndex, vBulletPosition
 

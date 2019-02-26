@@ -186,10 +186,11 @@ enum CvarsList
     ConVar:CVAR_SEFFECTS_ROUND_COUNT,  
     ConVar:CVAR_SEFFECTS_ROUND_BLAST,
     
-    ConVar:CVAR_MESSAGES_HELP,
-    ConVar:CVAR_MESSAGES_BLOCK,
+    ConVar:CVAR_INFECT_ICON,
+    ConVar:CVAR_HEAD_ICON,
     
-    ConVar:CVAR_INFECT_ICON
+    ConVar:CVAR_MESSAGES_HELP,
+    ConVar:CVAR_MESSAGES_BLOCK
 };
 /**
  * @endsection
@@ -352,7 +353,7 @@ public void CvarsOnConfigReload(ConfigFile iConfig)
  * @param iMaxLen           The lenght of string.
  * @param bDelete           (Optional) Clear the array key position.
  **/
-ArrayList CvarsGetKey(const int iD, char[] sKey, const int iMaxLen, const bool bDelete = false)
+ArrayList CvarsGetKey(int iD, char[] sKey, int iMaxLen, bool bDelete = false)
 {
     // Gets array handle of cvar at given index
     ArrayList arrayCvar = gServerData.Cvars.Get(iD);
@@ -379,7 +380,7 @@ ArrayList CvarsGetKey(const int iD, char[] sKey, const int iMaxLen, const bool b
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void CvarsLockOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void CvarsLockOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Revert to locked value
     hConVar.IntValue = 0;
@@ -393,7 +394,7 @@ public void CvarsLockOnCvarHook(ConVar hConVar, const char[] oldValue, const cha
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void CvarsUnlockOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void CvarsUnlockOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Revert to locked value
     hConVar.IntValue = 1;
@@ -407,7 +408,7 @@ public void CvarsUnlockOnCvarHook(ConVar hConVar, const char[] oldValue, const c
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void CvarsLockOnCvarHook2(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void CvarsLockOnCvarHook2(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Revert to locked value
     CvarsOnCheatSet(hConVar, 0);
@@ -421,7 +422,7 @@ public void CvarsLockOnCvarHook2(ConVar hConVar, const char[] oldValue, const ch
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void CvarsLockOnCvarHook3(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void CvarsLockOnCvarHook3(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Revert to locked value
     hConVar.SetString("");
@@ -437,7 +438,7 @@ public void CvarsLockOnCvarHook3(ConVar hConVar, const char[] oldValue, const ch
  * @param hConVar           Handle to the convar.
  * @param iValue            New integer value.
  **/
-void CvarsOnCheatSet(ConVar hConVar, const int iValue) 
+void CvarsOnCheatSet(ConVar hConVar, int iValue) 
 {
     // Revert to locked value
     hConVar.Flags = (hConVar.Flags & ~FCVAR_CHEAT);

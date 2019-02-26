@@ -62,7 +62,7 @@ void AmbientSoundsOnGameModeStart(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void AmbientSoundsOnClientUpdate(const int clientIndex)
+void AmbientSoundsOnClientUpdate(int clientIndex)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
@@ -101,7 +101,7 @@ void AmbientSoundsOnClientUpdate(const int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AmbientSoundsOnMP3Repeat(const Handle hTimer, const int userID)
+public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

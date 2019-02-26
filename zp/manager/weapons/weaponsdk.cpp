@@ -267,7 +267,7 @@ void WeaponSDKOnCommandInit(/*void*/)
  * 
  * @param clientIndex       The client index.  
  **/
-void WeaponSDKOnClientInit(const int clientIndex)
+void WeaponSDKOnClientInit(int clientIndex)
 {
     // Hook entity callbacks
     SDKHook(clientIndex, SDKHook_WeaponCanUse,      WeaponSDKOnCanUse);
@@ -286,7 +286,7 @@ void WeaponSDKOnClientInit(const int clientIndex)
  * @param weaponIndex       The weapon index.
  * @param sClassname        The weapon entity.
  **/
-void WeaponSDKOnEntityCreated(const int weaponIndex, const char[] sClassname)
+void WeaponSDKOnEntityCreated(int weaponIndex, const char[] sClassname)
 {
     // Validate weapon
     if(sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_')
@@ -325,7 +325,7 @@ void WeaponSDKOnEntityCreated(const int weaponIndex, const char[] sClassname)
  *
  * @param weaponIndex       The weapon index.
  **/
-public Action WeaponSDKOnWeaponReload(const int weaponIndex) 
+public Action WeaponSDKOnWeaponReload(int weaponIndex) 
 {
     // Apply fake reload hook on the next frame
     RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnWeaponReloadPost), EntIndexToEntRef(weaponIndex));
@@ -337,7 +337,7 @@ public Action WeaponSDKOnWeaponReload(const int weaponIndex)
  *
  * @param referenceIndex    The reference index.
  **/
-public void WeaponSDKOnWeaponReloadPost(const int referenceIndex) 
+public void WeaponSDKOnWeaponReloadPost(int referenceIndex) 
 {
     // Gets the weapon index from the reference
     int weaponIndex = EntRefToEntIndex(referenceIndex);
@@ -347,7 +347,7 @@ public void WeaponSDKOnWeaponReloadPost(const int referenceIndex)
     {
         // Validate custom index
         int iD = WeaponsGetCustomID(weaponIndex);
-        if(iD != INVALID_ENT_REFERENCE)
+        if(iD != -1)
         {
             // Gets weapon owner
             int clientIndex = WeaponsGetOwner(weaponIndex);
@@ -387,7 +387,7 @@ public void WeaponSDKOnWeaponReloadPost(const int referenceIndex)
  *
  * @param itemIndex         The item index.
  **/
-public void WeaponSDKOnItemSpawn(const int itemIndex)
+public void WeaponSDKOnItemSpawn(int itemIndex)
 {
     // Validate item
     if(IsValidEdict(itemIndex)) 
@@ -403,7 +403,7 @@ public void WeaponSDKOnItemSpawn(const int itemIndex)
  *
  * @param weaponIndex       The weapon index.
  **/
-public void WeaponSDKOnWeaponSpawn(const int weaponIndex)
+public void WeaponSDKOnWeaponSpawn(int weaponIndex)
 {
     // Validate weapon
     if(IsValidEdict(weaponIndex)) 
@@ -425,7 +425,7 @@ public void WeaponSDKOnWeaponSpawn(const int weaponIndex)
  * @param referenceIndex    The reference index.
  **/
 #if defined USE_DHOOKS
-public void WeaponSDKOnWeaponSpawnPost(const int referenceIndex) 
+public void WeaponSDKOnWeaponSpawnPost(int referenceIndex) 
 {
     // Gets the weapon index from the reference
     int weaponIndex = EntRefToEntIndex(referenceIndex);
@@ -435,7 +435,7 @@ public void WeaponSDKOnWeaponSpawnPost(const int referenceIndex)
     {
         // Validate custom index
         int iD = WeaponsGetCustomID(weaponIndex);
-        if(iD != INVALID_ENT_REFERENCE)
+        if(iD != -1)
         {
             // Gets weapon clip
             int iClip = WeaponsGetClip(iD);
@@ -463,7 +463,7 @@ public void WeaponSDKOnWeaponSpawnPost(const int referenceIndex)
  *
  * @param grenadeIndex      The grenade index.
  **/
-public void WeaponSDKOnGrenadeSpawn(const int grenadeIndex)
+public void WeaponSDKOnGrenadeSpawn(int grenadeIndex)
 {
     // Validate grenade
     if(IsValidEdict(grenadeIndex)) 
@@ -482,7 +482,7 @@ public void WeaponSDKOnGrenadeSpawn(const int grenadeIndex)
  *
  * @param referenceIndex    The reference index.
  **/
-public void WeaponSDKOnGrenadeSpawnPost(const int referenceIndex) 
+public void WeaponSDKOnGrenadeSpawnPost(int referenceIndex) 
 {
     // Gets the grenade index from the reference
     int grenadeIndex = EntRefToEntIndex(referenceIndex);
@@ -519,7 +519,7 @@ public void WeaponSDKOnGrenadeSpawnPost(const int referenceIndex)
 
         // Validate custom index
         int iD = WeaponsGetCustomID(weaponIndex);
-        if(iD != INVALID_ENT_REFERENCE)
+        if(iD != -1)
         {
             // Duplicate index to the projectile for future use
             WeaponsSetCustomID(grenadeIndex, iD);
@@ -558,7 +558,7 @@ public Action CS_OnCSWeaponDrop(int clientIndex, int weaponIndex)
     {
         // Validate custom index
         int iD = WeaponsGetCustomID(weaponIndex);
-        if(iD != INVALID_ENT_REFERENCE)
+        if(iD != -1)
         {
             // Block drop, if not available
             if(!WeaponsIsDrop(iD)) 
@@ -582,14 +582,14 @@ public Action CS_OnCSWeaponDrop(int clientIndex, int weaponIndex)
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
+public Action WeaponSDKOnCanUse(int clientIndex, int weaponIndex)
 {
     // Validate weapon
     if(IsValidEdict(weaponIndex))
     {
         // Validate custom index
         int iD = WeaponsGetCustomID(weaponIndex);
-        if(iD != INVALID_ENT_REFERENCE)
+        if(iD != -1)
         {
             // Block pickup it, if not available
             if(!WeaponsValidateClass(clientIndex, iD)) 
@@ -635,7 +635,7 @@ public Action WeaponSDKOnCanUse(const int clientIndex, const int weaponIndex)
  *
  * @param clientIndex       The client index.
  **/
-void WeaponSDKOnClientUpdate(const int clientIndex)
+void WeaponSDKOnClientUpdate(int clientIndex)
 {
     // Client has swapped to a regular weapon
     gClientData[clientIndex].CustomWeapon = INVALID_ENT_REFERENCE;
@@ -700,7 +700,7 @@ void WeaponSDKOnClientUpdate(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void WeaponSDKOnClientDeath(const int clientIndex)
+void WeaponSDKOnClientDeath(int clientIndex)
 {
     // Gets entity index from the reference
     int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
@@ -727,7 +727,7 @@ void WeaponSDKOnClientDeath(const int clientIndex)
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex) 
+public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex) 
 {
     // Gets entity index from the reference
     int viewModel1 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[0]);
@@ -752,7 +752,7 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
     {
         // Validate custom index
         int iD = WeaponsGetCustomID(weaponIndex);
-        if(iD != INVALID_ENT_REFERENCE)
+        if(iD != -1)
         {
             //Gets the last weapon index from the client
             int itemIndex = ToolsGetClientLastWeapon(clientIndex);
@@ -817,7 +817,7 @@ public void WeaponSDKOnDeploy(const int clientIndex, const int weaponIndex)
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex) 
+public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -1003,7 +1003,7 @@ public void WeaponSDKOnDeployPost(const int clientIndex, const int weaponIndex)
  *
  * @param clientIndex       The client index.
  **/
-public void WeaponSDKOnAnimationFix(const int clientIndex) 
+public void WeaponSDKOnAnimationFix(int clientIndex) 
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -1101,11 +1101,11 @@ public void WeaponSDKOnAnimationFix(const int clientIndex)
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-void WeaponSDKOnFire(const int clientIndex, const int weaponIndex) 
+void WeaponSDKOnFire(int clientIndex, int weaponIndex) 
 { 
     // Validate custom index
     int iD = WeaponsGetCustomID(weaponIndex);
-    if(iD != INVALID_ENT_REFERENCE)    
+    if(iD != -1)    
     {
         // Gets game time based on the game tick
         float flCurrentTime = GetGameTime();
@@ -1213,11 +1213,11 @@ void WeaponSDKOnFire(const int clientIndex, const int weaponIndex)
  * @param vBulletPosition   The position of a bullet hit.
  * @param weaponIndex       The weapon index.
  **/
-void WeaponSDKOnBullet(const int clientIndex, const float vBulletPosition[3], const int weaponIndex) 
+void WeaponSDKOnBullet(int clientIndex, float vBulletPosition[3], int weaponIndex) 
 { 
     // Validate custom index
     int iD = WeaponsGetCustomID(weaponIndex);
-    if(iD != INVALID_ENT_REFERENCE)    
+    if(iD != -1)    
     {
         // Call forward
         gForwardData._OnWeaponBullet(clientIndex, vBulletPosition, weaponIndex, iD);
@@ -1232,11 +1232,11 @@ void WeaponSDKOnBullet(const int clientIndex, const float vBulletPosition[3], co
  * @param iLastButtons      The last button buffer.
  * @param weaponIndex       The weapon index.
  **/
-Action WeaponSDKOnRunCmd(const int clientIndex, int &iButtons, const int iLastButtons, const int weaponIndex)
+Action WeaponSDKOnRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex)
 {
     // Validate custom index
     static int iD; iD = WeaponsGetCustomID(weaponIndex); /** static for runcmd **/
-    if(iD != INVALID_ENT_REFERENCE)    
+    if(iD != -1)    
     {
         // Call forward
         static Action resultHandle;
@@ -1255,11 +1255,11 @@ Action WeaponSDKOnRunCmd(const int clientIndex, int &iButtons, const int iLastBu
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-Action WeaponSDKOnShoot(const int clientIndex, const int weaponIndex) 
+Action WeaponSDKOnShoot(int clientIndex, int weaponIndex) 
 { 
     // Validate custom index
     int iD = WeaponsGetCustomID(weaponIndex);
-    if(iD != INVALID_ENT_REFERENCE)    
+    if(iD != -1)    
     {
         // Validate broadcast
         Action resultHandle = SoundsOnClientShoot(clientIndex, iD);
@@ -1282,7 +1282,7 @@ Action WeaponSDKOnShoot(const int clientIndex, const int weaponIndex)
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  **/
-void WeaponSDKOnHostage(const int clientIndex) 
+void WeaponSDKOnHostage(int clientIndex) 
 {
     // Prevent the viewmodel from being removed
     WeaponHDRSetPlayerViewModel(clientIndex, 1, INVALID_ENT_REFERENCE);
@@ -1297,7 +1297,7 @@ void WeaponSDKOnHostage(const int clientIndex)
  *
  * @param userID            The user id.
  **/
-public void WeaponSDKOnHostagePost(const int userID) 
+public void WeaponSDKOnHostagePost(int userID) 
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -1309,7 +1309,7 @@ public void WeaponSDKOnHostagePost(const int userID)
         int iD = gClientData[clientIndex].IndexWeapon; /// Only viewmodel identification
 
         // Validate id
-        if(iD != INVALID_ENT_REFERENCE)
+        if(iD != -1)
         {
             // Gets second viewmodel
             int viewModel2 = WeaponHDRGetPlayerViewModel(clientIndex, 1);
@@ -1334,7 +1334,7 @@ public void WeaponSDKOnHostagePost(const int userID)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action WeaponSDKOnCommandListened(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action WeaponSDKOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
 {
     // Validate client
     if(IsPlayerExist(clientIndex))
@@ -1360,7 +1360,7 @@ public Action WeaponSDKOnCommandListened(const int clientIndex, const char[] com
             
             // Validate custom index
             int iD = WeaponsGetCustomID(weaponIndex);
-            if(iD != INVALID_ENT_REFERENCE)
+            if(iD != -1)
             {
                 // If cost is disabled, then stop
                 int iCost = WeaponsGetAmmunition(iD);
@@ -1418,11 +1418,11 @@ public Action WeaponSDKOnCommandListened(const int clientIndex, const char[] com
  * @param weaponIndex       The weapon index.
  * @param hReturn           Handle to return structure.
  **/
-public MRESReturn WeaponDHookOnGetMaxClip1(const int weaponIndex, Handle hReturn)
+public MRESReturn WeaponDHookOnGetMaxClip1(int weaponIndex, Handle hReturn)
 {
     // Validate custom index
     int iD = WeaponsGetCustomID(weaponIndex);
-    if(iD != INVALID_ENT_REFERENCE)
+    if(iD != -1)
     {
         // Gets weapon clip
         int iClip = WeaponsGetClip(iD);
@@ -1444,11 +1444,11 @@ public MRESReturn WeaponDHookOnGetMaxClip1(const int weaponIndex, Handle hReturn
  * @param weaponIndex       The weapon index.
  * @param hReturn           Handle to return structure.
  **/
-public MRESReturn WeaponDHookOnGetReverseMax(const int weaponIndex, Handle hReturn)
+public MRESReturn WeaponDHookOnGetReverseMax(int weaponIndex, Handle hReturn)
 {
     // Validate custom index
     int iD = WeaponsGetCustomID(weaponIndex);
-    if(iD != INVALID_ENT_REFERENCE)
+    if(iD != -1)
     {
         // Gets weapon ammo
         int iAmmo = WeaponsGetAmmo(iD);

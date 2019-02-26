@@ -151,7 +151,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventEntityFlash(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets real player index from event key
     ///int ownerIndex = GetClientOfUserId(hEvent.GetInt("userid")); 
@@ -222,7 +222,7 @@ public Action EventEntityFlash(Event hEvent, const char[] sName, bool dontBroadc
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerBlind(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventPlayerBlind(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Sets whether an event broadcasting will be disabled
     if(!dontBroadcast) 

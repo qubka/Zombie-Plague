@@ -43,6 +43,7 @@ int DHook_CommitSuicide;
 void DeathOnInit(/*void*/)
 {
     // Hook player events
+    HookEvent("player_death", DeathOnClientIcon, EventHookMode_Pre);
     HookEvent("player_death", DeathOnClientDeath, EventHookMode_Post);
     
     #if defined USE_DHOOKS
@@ -57,6 +58,32 @@ void DeathOnInit(/*void*/)
 }
 
 /**
+ * @brief Death module load function.
+ **/
+void DeathOnLoad(/*void*/)
+{
+    // Gets infect icon
+    static char sIcon[NORMAL_LINE_LENGTH];
+    gCvarList[CVAR_INFECT_ICON].GetString(sIcon, sizeof(sIcon));
+    if(hasLength(sIcon))
+    {
+        // Precache custom icon
+        Format(sIcon, sizeof(sIcon), "materials/panorama/images/icons/equipment/%s.svg", sIcon);
+        if(FileExists(sIcon)) AddFileToDownloadsTable(sIcon); 
+    }
+}
+
+/**
+ * @brief Hook death cvar changes.
+ **/
+void DeathOnCvarInit(/*void*/)
+{
+    // Creates cvars
+    gCvarList[CVAR_INFECT_ICON] = FindConVar("zp_infect_icon");
+    gCvarList[CVAR_HEAD_ICON]   = FindConVar("zp_head_icon");
+}
+
+/**
  * @brief Creates commands for death module.
  **/
 void DeathOnCommandInit(/*void*/)
@@ -68,20 +95,11 @@ void DeathOnCommandInit(/*void*/)
 }
 
 /**
- * @brief Hook death cvar changes.
- **/
-void DeathOnCvarInit(/*void*/)
-{
-    // Creates cvars
-    gCvarList[CVAR_INFECT_ICON] = FindConVar("zp_infect_icon");
-}
-
-/**
  * @brief Client has been joined.
  * 
  * @param clientIndex       The client index.  
  **/
-void DeathOnClientInit(const int clientIndex)
+void DeathOnClientInit(int clientIndex)
 {
     #if defined USE_DHOOKS
     // Hook entity callbacks
@@ -99,7 +117,7 @@ void DeathOnClientInit(const int clientIndex)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action DeathOnCommandListened(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action DeathOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
 {
     // Validate client 
     if(IsPlayerExist(clientIndex, false))
@@ -114,13 +132,44 @@ public Action DeathOnCommandListened(const int clientIndex, const char[] command
 
 /**
  * Event callback (player_death)
+ * @brief Client is going to die.
+ * 
+ * @param gEventHook        The event handle.
+ * @param gEventName        The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action DeathOnClientIcon(Event hEvent, char[] sName, bool dontBroadcast) 
+{
+    // Gets all required event info
+    int attackerIndex = GetClientOfUserId(hEvent.GetInt("attacker"));
+    
+    // Validate attacker
+    if(!IsPlayerExist(attackerIndex, false))
+    {
+        return;
+    }
+    
+    // Validate custom index of last damage
+    if(gClientData[attackerIndex].DamageID != -1)
+    {
+        // Gets infect icon
+        static char sIcon[SMALL_LINE_LENGTH];
+        WeaponsGetIcon(gClientData[attackerIndex].DamageID, sIcon, sizeof(sIcon));
+        
+        // Sets event properties
+        if(hasLength(sIcon)) hEvent.SetString("weapon", sIcon);
+    }
+}
+
+/**
+ * Event callback (player_death)
  * @brief Client has been killed.
  * 
  * @param gEventHook        The event handle.
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action DeathOnClientDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action DeathOnClientDeath(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex   = GetClientOfUserId(hEvent.GetInt("userid"));
@@ -155,14 +204,15 @@ public Action DeathOnClientDeath(Event hEvent, const char[] sName, bool dontBroa
         ModesValidateRound();
     }
 }
+
 /**
- * @brief 
+ * @brief Validate respawning.
  *
  * @param clientIndex       The client index.
  * @param attackerIndex     (Optional) The attacker index.
  * @param bTimer            If true, run the respawning timer, false to respawn instantly.
  **/
-bool DeathOnClientRespawn(const int clientIndex, const int attackerIndex = 0,  const bool bTimer = true)
+bool DeathOnClientRespawn(int clientIndex, int attackerIndex = 0,  bool bTimer = true)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
@@ -196,7 +246,7 @@ bool DeathOnClientRespawn(const int clientIndex, const int attackerIndex = 0,  c
     }
 
     // Verify that the attacker is exist
-    if(IsPlayerExist(attackerIndex))
+    if(IsPlayerExist(attackerIndex, false))
     {
         // Gets class exp and money bonuses
         static int iExp[6]; static int iMoney[6];
@@ -235,7 +285,7 @@ bool DeathOnClientRespawn(const int clientIndex, const int attackerIndex = 0,  c
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action DeathOnClientRespawning(const Handle hTimer, const int userID)
+public Action DeathOnClientRespawning(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -261,21 +311,21 @@ public Action DeathOnClientRespawning(const Handle hTimer, const int userID)
  * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
  **/
-public void DeathOnClientHUD(const int clientIndex, const int attackerIndex)
+public void DeathOnClientHUD(int clientIndex, int attackerIndex)
 {
     // Creates and send custom death icon
     Event hEvent = CreateEvent("player_death");
     if(hEvent != null)
     {
-        // Gets infect alias
-        static char sAlias[SMALL_LINE_LENGTH];
-        gCvarList[CVAR_INFECT_ICON].GetString(sAlias, sizeof(sAlias));
+        // Gets infect icon
+        static char sIcon[NORMAL_LINE_LENGTH];
+        gCvarList[CVAR_INFECT_ICON].GetString(sIcon, sizeof(sIcon));
         
         // Sets event properties
         hEvent.SetInt("userid", GetClientUserId(clientIndex));
         hEvent.SetInt("attacker", GetClientUserId(attackerIndex));
-        hEvent.SetString("weapon", sAlias);
-        hEvent.SetBool("headshot", true);
+        hEvent.SetString("weapon", sIcon);
+        hEvent.SetBool("headshot", gCvarList[CVAR_HEAD_ICON].BoolValue);
         
         // i = client index
         for(int i = 1; i <= MaxClients; i++)
@@ -296,7 +346,7 @@ public void DeathOnClientHUD(const int clientIndex, const int attackerIndex)
  *
  * @param clientIndex       The client index.
  **/
-public MRESReturn DeathDhookOnCommitSuicide(const int clientIndex)
+public MRESReturn DeathDhookOnCommitSuicide(int clientIndex)
 {
     // Validate client
     if(IsPlayerExist(clientIndex, false))

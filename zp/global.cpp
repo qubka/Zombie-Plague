@@ -243,7 +243,8 @@ enum struct ClientData
     int DrawSequence;
     bool ToggleSequence;
     int LastSequenceParity;
-
+    int DamageID;
+    
     /* Timers */
     Handle LevelTimer;
     Handle AccountTimer;
@@ -258,6 +259,7 @@ enum struct ClientData
     /* Arrays */
     ArrayList ShoppingCart;
     StringMap ItemLimit;
+    StringMap WeaponLimit;
     
     /**
      * @brief Resets all variables.
@@ -304,9 +306,11 @@ enum struct ClientData
         this.DrawSequence         = -1;
         this.ToggleSequence       = false;
         this.LastSequenceParity   = -1;
+        this.DamageID             = -1;
        
         delete this.ShoppingCart;
         delete this.ItemLimit;
+        delete this.WeaponLimit;
     }
     
     /**

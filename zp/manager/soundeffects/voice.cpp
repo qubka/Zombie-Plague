@@ -78,7 +78,7 @@ void VoiceOnRoundEnd(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void VoiceOnClientUpdate(const int clientIndex)
+void VoiceOnClientUpdate(int clientIndex)
 {
     // If voice module is disabled, then stop
     if(!g_bVoice)
@@ -103,7 +103,7 @@ void VoiceOnClientUpdate(const int clientIndex)
  * @param iSender           The sender index.
  * @return                  True if successful otherwise false.
  **/
-bool VoiceSetClientListening(const int iReceiver, const int iSender, const bool bListen)
+bool VoiceSetClientListening(int iReceiver, int iSender, bool bListen)
 {
     // If the sender is muted, then return false
     if(VoiceIsClientMuted(iSender))
@@ -157,7 +157,7 @@ void VoiceAllTalk(/*void*/)
  * @param clientIndex       The client index.
  * @param bZombie           True to permit verbal communication to zombies only, false for humans only.
  **/
-void VoiceSetClientTeam(const int clientIndex, const bool bZombie)
+void VoiceSetClientTeam(int clientIndex, bool bZombie)
 {
     // If zombie mute is disabled, then skip
     bool bVoiceZombieMute = gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE].BoolValue;
@@ -197,7 +197,7 @@ void VoiceSetClientTeam(const int clientIndex, const bool bZombie)
  * @param clientIndex       The client index.
  * @return                  True if the client is muted, false if not.
  **/
-bool VoiceIsClientMuted(const int clientIndex)
+bool VoiceIsClientMuted(int clientIndex)
 {
     // Return true if the mute flag isn't on the client
     return view_as<bool>(GetClientListeningFlags(clientIndex) & VOICE_MUTED);

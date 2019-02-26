@@ -45,7 +45,7 @@ enum OverlayType
  *
  * @param clientIndex       The client index.
  **/
-void VOverlayOnClientSpawn(const int clientIndex)
+void VOverlayOnClientSpawn(int clientIndex)
 {
     // Reset overlay on the team change
     VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
@@ -56,7 +56,7 @@ void VOverlayOnClientSpawn(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void VOverlayOnClientDeath(const int clientIndex)
+void VOverlayOnClientDeath(int clientIndex)
 {
     // Reset overlay on the death
     VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
@@ -68,7 +68,7 @@ void VOverlayOnClientDeath(const int clientIndex)
  * @param clientIndex       The client index.
  * @param overlayType       The overlay type.
  **/
-void VOverlayOnClientUpdate(const int clientIndex, const OverlayType overlayType)
+void VOverlayOnClientUpdate(int clientIndex, OverlayType overlayType)
 {
     // Initilize overlay char
     static char sOverlay[PLATFORM_LINE_LENGTH];
@@ -138,7 +138,7 @@ void VOverlayOnClientUpdate(const int clientIndex, const OverlayType overlayType
  *
  * @param clientIndex       The client index.
  **/
-void VOverlayOnClientNvgs(const int clientIndex)
+void VOverlayOnClientNvgs(int clientIndex)
 {
     // Switch on/off nightvision 
     VOverlayOnClientUpdate(clientIndex, ToolsGetClientNightVision(clientIndex, true) ? Overlay_Reset : Overlay_Vision);

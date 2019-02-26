@@ -134,7 +134,7 @@ public void OnClientDisconnect(int clientIndex)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Delete timer
     delete Task_ZombieHallucination[GetClientOfUserId(hEvent.GetInt("userid"))];
@@ -249,7 +249,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientOnHallucination(const Handle hTimer, const int userID)
+public Action ClientOnHallucination(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

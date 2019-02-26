@@ -129,7 +129,7 @@ void PlayerSoundsOnCounterStart(/*void*/)
  *
  * @param reasonIndex       The reason index.
  **/
-public Action PlayerSoundsOnRoundEndPost(const Handle hTimer, const CSRoundEndReason reasonIndex)
+public Action PlayerSoundsOnRoundEndPost(Handle hTimer, CSRoundEndReason reasonIndex)
 {
     // Clear timer
     gServerData.EndTimer = null;
@@ -161,7 +161,7 @@ bool PlayerSoundsOnCounter(/*void*/)
 /**
  * @brief Timer callback, the blast is started. *(Post)
  **/
-public Action PlayerSoundsOnBlastPost(const Handle hTimer)
+public Action PlayerSoundsOnBlastPost(Handle hTimer)
 {
     // Clear timer
     gServerData.BlastTimer = null;
@@ -187,7 +187,7 @@ void PlayerSoundsOnGameModeStart(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientDeath(const int clientIndex)
+void PlayerSoundsOnClientDeath(int clientIndex)
 {
     // If death sound cvar is disabled, then stop
     bool bDeath = gCvarList[CVAR_SEFFECTS_DEATH].BoolValue;
@@ -206,7 +206,7 @@ void PlayerSoundsOnClientDeath(const int clientIndex)
  * @param clientIndex       The client index.
  * @param bBurning          The burning type of damage. 
  **/
-void PlayerSoundsOnClientHurt(const int clientIndex, const bool bBurning)
+void PlayerSoundsOnClientHurt(int clientIndex, bool bBurning)
 {
     // Gets groan factor, if 0, then stop
     int iGroan = gCvarList[CVAR_SEFFECTS_GROAN].IntValue;
@@ -241,7 +241,7 @@ void PlayerSoundsOnClientHurt(const int clientIndex, const bool bBurning)
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
  **/
-void PlayerSoundsOnClientInfected(const int clientIndex, const int attackerIndex)
+void PlayerSoundsOnClientInfected(int clientIndex, int attackerIndex)
 {
     // If infect sound cvar is disabled, then skip
     if(gCvarList[CVAR_SEFFECTS_INFECT].BoolValue) 
@@ -277,7 +277,7 @@ void PlayerSoundsOnClientInfected(const int clientIndex, const int attackerIndex
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action PlayerSoundsOnMoanRepeat(const Handle hTimer, const int userID)
+public Action PlayerSoundsOnMoanRepeat(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -304,7 +304,7 @@ public Action PlayerSoundsOnMoanRepeat(const Handle hTimer, const int userID)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientRegen(const int clientIndex)
+void PlayerSoundsOnClientRegen(int clientIndex)
 {
     // Emit regen sound
     SEffectsInputEmitToAll(ClassGetSoundRegenID(gClientData[clientIndex].Class), _, clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -315,7 +315,7 @@ void PlayerSoundsOnClientRegen(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientJump(const int clientIndex)
+void PlayerSoundsOnClientJump(int clientIndex)
 {
     // Emit jump sound
     SEffectsInputEmitToAll(ClassGetSoundJumpID(gClientData[clientIndex].Class), _, clientIndex, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -326,7 +326,7 @@ void PlayerSoundsOnClientJump(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientNvgs(const int clientIndex)
+void PlayerSoundsOnClientNvgs(int clientIndex)
 {
     // Emit player nightvision sound
     SEffectsInputEmitToAll(gSoundData.Nvgs, _, clientIndex, SNDCHAN_ITEM, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -337,7 +337,7 @@ void PlayerSoundsOnClientNvgs(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientFlashLight(const int clientIndex)
+void PlayerSoundsOnClientFlashLight(int clientIndex)
 {
     // Emit player flashlight sound
     SEffectsInputEmitToAll(gSoundData.Flashlight, _, clientIndex, SNDCHAN_ITEM, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -348,7 +348,7 @@ void PlayerSoundsOnClientFlashLight(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientAmmunition(const int clientIndex)
+void PlayerSoundsOnClientAmmunition(int clientIndex)
 {
     // Emit player ammunition sound
     SEffectsInputEmitToAll(gSoundData.Ammunition, _, clientIndex, SNDCHAN_ITEM, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -359,7 +359,7 @@ void PlayerSoundsOnClientAmmunition(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerSoundsOnClientLevelUp(const int clientIndex)
+void PlayerSoundsOnClientLevelUp(int clientIndex)
 {
     // Emit player levelup sound
     SEffectsInputEmitToAll(gSoundData.Level, _, clientIndex, SNDCHAN_ITEM, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -372,7 +372,7 @@ void PlayerSoundsOnClientLevelUp(const int clientIndex)
  * @param iD                The weapon id.
  * @return                  True or false.
  **/
-bool PlayerSoundsOnClientShoot(const int clientIndex, const int iD)
+bool PlayerSoundsOnClientShoot(int clientIndex, int iD)
 {
     // Emit player shoot sound
     return SEffectsInputEmitToAll(WeaponsGetSoundID(iD), _, clientIndex, SNDCHAN_WEAPON, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -441,7 +441,7 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients,
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void PlayerSoundsOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void PlayerSoundsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {    
     // Validate new value
     if(!strcmp(oldValue, newValue, false))

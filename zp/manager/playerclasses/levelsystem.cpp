@@ -161,7 +161,7 @@ void LevelSystemOnCvarInit(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void LevelSystemOnClientSpawn(const int clientIndex)
+void LevelSystemOnClientSpawn(int clientIndex)
 {
     // Reset HUD on the team change
     LevelSystemOnClientUpdate(clientIndex);
@@ -172,7 +172,7 @@ void LevelSystemOnClientSpawn(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void LevelSystemOnClientDeath(const int clientIndex)
+void LevelSystemOnClientDeath(int clientIndex)
 {
     // Enable HUD for spectator
     LevelSystemOnClientUpdate(clientIndex);
@@ -183,7 +183,7 @@ void LevelSystemOnClientDeath(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void LevelSystemOnClientUpdate(const int clientIndex)
+void LevelSystemOnClientUpdate(int clientIndex)
 {
     // If level hud disabled, then stop
     if(!gCvarList[CVAR_LEVEL_HUD].BoolValue)
@@ -206,7 +206,7 @@ void LevelSystemOnClientUpdate(const int clientIndex)
  * @param clientIndex       The client index.
  * @param iLevel            The level amount.
  **/
-void LevelSystemOnSetLvl(const int clientIndex, int iLevel)
+void LevelSystemOnSetLvl(int clientIndex, int iLevel)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -258,7 +258,7 @@ void LevelSystemOnSetLvl(const int clientIndex, int iLevel)
  * @param clientIndex       The client index.
  * @param iExp              The experience amount.
  **/
-void LevelSystemOnSetExp(const int clientIndex, int iExp)
+void LevelSystemOnSetExp(int clientIndex, int iExp)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -309,7 +309,7 @@ void LevelSystemOnSetExp(const int clientIndex, int iExp)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action LevelSystemOnClientHUD(const Handle hTimer, const int userID)
+public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); 
@@ -407,7 +407,7 @@ public Action LevelSystemOnClientHUD(const Handle hTimer, const int userID)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void LevelSystemOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void LevelSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(oldValue[0] == newValue[0])
@@ -427,7 +427,7 @@ public void LevelSystemOnCvarHook(ConVar hConVar, const char[] oldValue, const c
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void LevelSystemChangeOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void LevelSystemChangeOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {    
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -466,7 +466,7 @@ public void LevelSystemChangeOnCvarHook(ConVar hConVar, const char[] oldValue, c
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action LevelSystemLevelOnCommandCatched(const int clientIndex, const int iArguments)
+public Action LevelSystemLevelOnCommandCatched(int clientIndex, int iArguments)
 {
     // If not enough arguments given, then stop
     if(iArguments < 2)
@@ -517,7 +517,7 @@ public Action LevelSystemLevelOnCommandCatched(const int clientIndex, const int 
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action LevelSystemExpOnCommandCatched(const int clientIndex, const int iArguments)
+public Action LevelSystemExpOnCommandCatched(int clientIndex, int iArguments)
 {
     // If not enough arguments given, then stop
     if(iArguments < 2)
@@ -581,7 +581,7 @@ void LevelSystemOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetClientLevel(clientIndex);
  **/
-public int API_GetClientLevel(const Handle hPlugin, const int iNumParams)
+public int API_GetClientLevel(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -595,7 +595,7 @@ public int API_GetClientLevel(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientLevel(clientIndex, iD);
  **/
-public int API_SetClientLevel(const Handle hPlugin, const int iNumParams)
+public int API_SetClientLevel(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -609,7 +609,7 @@ public int API_SetClientLevel(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetClientExp(clientIndex);
  **/
-public int API_GetClientExp(const Handle hPlugin, const int iNumParams)
+public int API_GetClientExp(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -623,7 +623,7 @@ public int API_GetClientExp(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientExp(clientIndex, iD);
  **/
-public int API_SetClientExp(const Handle hPlugin, const int iNumParams)
+public int API_SetClientExp(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

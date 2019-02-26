@@ -110,7 +110,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCounter, const int iAmmo, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iCounter, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iAmmo, flCurrentTime
     
@@ -121,7 +121,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCo
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", 0);
 }
 
-void Weapon_OnShoot(const int clientIndex, const int weaponIndex, int iCounter, const int iAmmo, const float flCurrentTime)
+void Weapon_OnShoot(int clientIndex, int weaponIndex, int iCounter, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iAmmo, flCurrentTime
     
@@ -154,7 +154,7 @@ void Weapon_OnShoot(const int clientIndex, const int weaponIndex, int iCounter, 
     SetEntProp(weaponIndex, Prop_Send, "m_iClip2", iCounter + 1);
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iCounter, int iAmmo, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iCounter, iAmmo, flCurrentTime
 
@@ -255,7 +255,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
     TE_SendToClient(clientIndex);
 }
 
-void Weapon_OnCreateFire(const int clientIndex, const int weaponIndex, const float vPosition[3])
+void Weapon_OnCreateFire(int clientIndex, int weaponIndex, float vPosition[3])
 {
     #pragma unused clientIndex, weaponIndex, vPosition
 
@@ -320,7 +320,7 @@ void Weapon_OnCreateFire(const int clientIndex, const int weaponIndex, const flo
     }
 }
 
-void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
+void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
 {
     #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
 
@@ -388,7 +388,7 @@ void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, c
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action FireFlyHook(const Handle hTimer, const int referenceIndex)
+public Action FireFlyHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -415,7 +415,7 @@ public Action FireFlyHook(const Handle hTimer, const int referenceIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action FireRemoveHook(const Handle hTimer, const int referenceIndex)
+public Action FireRemoveHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -542,7 +542,7 @@ public void ZP_OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action FireTouchHook(const int entityIndex, const int targetIndex)
+public Action FireTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))

@@ -137,7 +137,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iAmmo, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnHolster(int clientIndex, int weaponIndex, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, iCounter, iStateMode, flCurrentTime
 
@@ -145,7 +145,7 @@ void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iA
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iAmmo, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, iCounter, iStateMode, flCurrentTime
 
@@ -162,7 +162,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iAm
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iAmmo, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, iCounter, iStateMode, flCurrentTime
     
@@ -285,7 +285,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iA
     TE_SendToClient(clientIndex);
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iAmmo, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, iCounter, iStateMode, flCurrentTime
     
@@ -316,7 +316,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
     }
 }
 
-void Weapon_OnFinish(const int clientIndex, const int weaponIndex, const int iAmmo, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnFinish(int clientIndex, int weaponIndex, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, iCounter, iStateMode, flCurrentTime
     
@@ -337,7 +337,7 @@ void Weapon_OnFinish(const int clientIndex, const int weaponIndex, const int iAm
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime); 
 }
 
-void Weapon_OnCreateRocket(const int clientIndex)
+void Weapon_OnCreateRocket(int clientIndex)
 {
     #pragma unused clientIndex
 
@@ -396,7 +396,7 @@ void Weapon_OnCreateRocket(const int clientIndex)
     }
 }
 
-void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
+void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
 {
     #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
 
@@ -606,7 +606,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action RocketTouchHook(const int entityIndex, const int targetIndex)
+public Action RocketTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))

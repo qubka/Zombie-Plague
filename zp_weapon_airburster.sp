@@ -108,7 +108,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iAmmo, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, flCurrentTime
 
@@ -119,7 +119,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iAm
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", 0);
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, int iAmmo, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, flCurrentTime
 
@@ -194,7 +194,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, int 
     }
 }
 
-void Weapon_OnCreateAirBurst(const int clientIndex, const int weaponIndex)
+void Weapon_OnCreateAirBurst(int clientIndex, int weaponIndex)
 {
     #pragma unused clientIndex, weaponIndex
 
@@ -212,8 +212,8 @@ void Weapon_OnCreateAirBurst(const int clientIndex, const int weaponIndex)
     if(TR_GetFraction(hTrace) >= 1.0)
     {
         // Initialize the hull intersection
-        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        static float vMins[3] = { -16.0, -16.0, -18.0  }; 
+        static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
         hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
@@ -246,7 +246,7 @@ void Weapon_OnCreateAirBurst(const int clientIndex, const int weaponIndex)
     delete hTrace;
 }
 
-void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int iAmmo, float flCurrentTime)
+void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iAmmo, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iAmmo, flCurrentTime
 
@@ -269,7 +269,7 @@ void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int 
     }
 }
 
-void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
+void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
 {
     #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
 
@@ -430,7 +430,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(const int entityIndex, const int contentsMask, const int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
 {
     // If entity is a player, continue tracing
     return (entityIndex != clientIndex);

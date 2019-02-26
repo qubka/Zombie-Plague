@@ -172,7 +172,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action BombTouchHook(const int entityIndex, const int targetIndex)
+public Action BombTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))

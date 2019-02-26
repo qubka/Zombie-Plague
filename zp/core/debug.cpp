@@ -41,7 +41,7 @@ void DebugOnCommandInit(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action DebugOnCommandCatched(const int clientIndex, const int iArguments)
+public Action DebugOnCommandCatched(int clientIndex, int iArguments)
 {
     // Validate mode
     static bool bDebug;

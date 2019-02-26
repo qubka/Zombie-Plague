@@ -240,7 +240,7 @@ void DataBaseOnUnload(/*void*/)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action DataBaseOnCommandListened(const int entityIndex, const char[] commandMsg, const int iArguments)
+public Action DataBaseOnCommandListened(int entityIndex, char[] commandMsg, int iArguments)
 {
     // Validate server
     if(!entityIndex)
@@ -281,7 +281,7 @@ void DataBaseOnCvarInit(/*void*/)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void DataBaseOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void DataBaseOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(oldValue[0] == newValue[0])
@@ -298,7 +298,7 @@ public void DataBaseOnCvarHook(ConVar hConVar, const char[] oldValue, const char
  * 
  * @param clientIndex       The client index. 
  **/
-void DataBaseOnClientInit(const int clientIndex)
+void DataBaseOnClientInit(int clientIndex)
 {
     // If database doesn't exist, then stop
     if(gServerData.DataBase == null)
@@ -329,7 +329,7 @@ void DataBaseOnClientInit(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void DataBaseOnClientConnect(const int clientIndex)
+void DataBaseOnClientConnect(int clientIndex)
 {
     // Reset steam buffer
     SteamID[clientIndex][0] = '\0';
@@ -340,7 +340,7 @@ void DataBaseOnClientConnect(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void DataBaseOnClientDisconnectPost(const int clientIndex)
+void DataBaseOnClientDisconnectPost(int clientIndex)
 {
     // Update data in the database
     DataBaseOnClientUpdate(clientIndex, ColumnType_All);
@@ -355,7 +355,7 @@ void DataBaseOnClientDisconnectPost(const int clientIndex)
  * @param clientIndex       The client index.
  * @param columnType        The column type.
  **/
-void DataBaseOnClientUpdate(const int clientIndex, const ColumnType columnType)
+void DataBaseOnClientUpdate(int clientIndex, ColumnType columnType)
 {
     // If database doesn't exist, then stop
     if(gServerData.DataBase == null)
@@ -392,7 +392,7 @@ void DataBaseOnClientUpdate(const int clientIndex, const ColumnType columnType)
  * @param hResults          An array of DBResultSet results, one for each of numQueries. They are closed automatically.
  * @param clientIndex       An array of each data value passed.
  **/
-public void SQLTxnSuccess_Callback(Database hDatabase, const TransactionType transactionType, const int numQueries, DBResultSet[] hResults, const int[] clientIndex)
+public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType transactionType, int numQueries, DBResultSet[] hResults, int[] clientIndex)
 {
     // Gets transaction type
     switch(transactionType)
@@ -439,7 +439,7 @@ public void SQLTxnSuccess_Callback(Database hDatabase, const TransactionType tra
  * @param failIndex         Index of the query that failed, or -1 if something else.
  * @param clientIndex       An array of each data value passed.
  **/
-public void SQLTxnFailure_Callback(Database hDatabase, const TransactionType transactionType, const int numQueries, const char[] sError, const int failIndex, const any[] clientIndex)
+public void SQLTxnFailure_Callback(Database hDatabase, TransactionType transactionType, int numQueries, char[] sError, int failIndex, any[] clientIndex)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hasLength(sError))
@@ -457,7 +457,7 @@ public void SQLTxnFailure_Callback(Database hDatabase, const TransactionType tra
  * @param sError            Error string if there was an error.
  * @param bDropping         Data passed in via the original threaded invocation.
  **/
-public void SQLBaseConnect_Callback(Database hDatabase, const char[] sError, const bool bDropping)
+public void SQLBaseConnect_Callback(Database hDatabase, char[] sError, bool bDropping)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hasLength(sError))
@@ -535,7 +535,7 @@ public void SQLBaseConnect_Callback(Database hDatabase, const char[] sError, con
  * @param hResult           Handle to the child object.
  * @param MySQL             The type of connection. 
  **/
-public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, const bool MySQL)
+public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool MySQL)
 {
     // Initialize a column existance array
     ArrayList hColumn = CreateArray(SMALL_LINE_LENGTH);
@@ -562,7 +562,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, const b
     static char sRequest[HUGE_LINE_LENGTH]; 
     
     // Find any column which not exist in the table
-    static const char sColumn[11][SMALL_LINE_LENGTH] = { "id", "steam_id", "money", "level", "exp", "zclass", "hclass", "rebuy", "costume", "vision", "time" };
+    static char sColumn[11][SMALL_LINE_LENGTH] = { "id", "steam_id", "money", "level", "exp", "zclass", "hclass", "rebuy", "costume", "vision", "time" };
     for(int i = 0; i < sizeof(sColumn); i++)
     {
         // Validate unique column
@@ -592,7 +592,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, const b
  * @param sError            Error string if there was an error.
  * @param clientIndex       Data passed in via the original threaded invocation.
  **/
-public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, const char[] sError, const int clientIndex)
+public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int clientIndex)
 {
     // Make sure the client didn't disconnect while the thread was running
     if(IsPlayerExist(clientIndex, false))
@@ -647,7 +647,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, cons
  * @param sError            Error string if there was an error.
  * @param clientIndex       Data passed in via the original threaded invocation.
  **/
-public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, const char[] sError, const int clientIndex)
+public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int clientIndex)
 {
     // Make sure the client didn't disconnect while the thread was running
     if(IsPlayerExist(clientIndex, false))
@@ -676,7 +676,7 @@ public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, cons
  * @param sError            Error string if there was an error.
  * @param clientIndex       Data passed in via the original threaded invocation.
  **/
-public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, const char[] sError, const int clientIndex)
+public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int clientIndex)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hResult == null || hasLength(sError))
@@ -700,7 +700,7 @@ public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, cons
  * @param factoryType       The request type.
  * @param clientIndex       (Optional) The client index. (for data)
  **/
-void SQLBaseFactory__(const bool MySQL = false, char[] sRequest, const int iMaxLen, const ColumnType columnType, const FactoryType factoryType, const int clientIndex = 0)
+void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnType columnType, FactoryType factoryType, int clientIndex = 0)
 {   
     // Gets factory mode
     switch(factoryType)

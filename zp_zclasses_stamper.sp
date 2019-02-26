@@ -206,7 +206,7 @@ public Action CoffinTouchHook(int entityIndex, int targetIndex)
  * @param flDamage          The damage amount.
  * @param iBits             The damage type.
  **/
-public Action CoffinDamageHook(const int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
+public Action CoffinDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -245,7 +245,7 @@ public Action CoffinDamageHook(const int entityIndex, int &attackerIndex, int &i
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.                    
  **/
-public Action CoffinExploadHook(const Handle hTimer, const int referenceIndex)
+public Action CoffinExploadHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -263,7 +263,7 @@ public Action CoffinExploadHook(const Handle hTimer, const int referenceIndex)
  * 
  * @param entityIndex       The entity index.                    
  **/
-void CoffinExpload(const int entityIndex)
+void CoffinExpload(int entityIndex)
 {
     // Initialize vectors
     static float vEntPosition[3]; static float vEntAngle[3]; static float vVictimPosition[3]; static float vVelocity[3]; static float vAngle[3];

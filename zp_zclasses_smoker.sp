@@ -117,7 +117,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action ClientOnToxicGas(const Handle hTimer, const int referenceIndex)
+public Action ClientOnToxicGas(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);

@@ -93,7 +93,7 @@ void WeaponAttachOnUnload(/*void*/)
  * @param entityIndex       The entity index.
  * @param clientIndex       The client index.
  **/
-public Action WeaponAttachOnTransmit(const int entityIndex, const int clientIndex)
+public Action WeaponAttachOnTransmit(int entityIndex, int clientIndex)
 {
     // i = slot index
     for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
@@ -143,7 +143,7 @@ public Action WeaponAttachOnTransmit(const int entityIndex, const int clientInde
  *
  * @param clientIndex       The client index.
  **/
-void WeaponAttachSetAddons(const int clientIndex)
+void WeaponAttachSetAddons(int clientIndex)
 {
     // Gets current bits
     int iBits = ToolsGetClientAddonBits(clientIndex); int iBitPurge; static int weaponIndex; static int iD;
@@ -164,7 +164,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_PrimaryWeapon, "primary");
@@ -201,7 +201,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_SecondaryWeapon, "pistol");
@@ -231,7 +231,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Flashbang1, "grenade0");
@@ -261,7 +261,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Flashbang2, "eholster");
@@ -291,7 +291,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_HEGrenade, "grenade1");
@@ -321,7 +321,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_SmokeGrenade, "grenade2");
@@ -351,7 +351,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Decoy, "grenade3");
@@ -381,7 +381,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_Knife, "knife");
@@ -411,7 +411,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_TaGrenade, "grenade4");
@@ -441,7 +441,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_C4, "c4");
@@ -468,7 +468,7 @@ void WeaponAttachSetAddons(const int clientIndex)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(clientIndex);
-                if(iD != INVALID_ENT_REFERENCE)
+                if(iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(clientIndex, iD, BitType_DefuseKit, "c4");
@@ -543,7 +543,7 @@ void WeaponAttachSetAddons(const int clientIndex)
  * @param bitType           The bit type.
  * @param sAttach           The attachment name.
  **/
-void WeaponAttachCreateAddons(const int clientIndex, const int iD, const BitType bitType, const char[] sAttach)
+void WeaponAttachCreateAddons(int clientIndex, int iD, BitType bitType, char[] sAttach)
 {
     // Remove current addons
     WeaponAttachRemoveAddons(clientIndex, bitType);
@@ -607,7 +607,7 @@ void WeaponAttachCreateAddons(const int clientIndex, const int iD, const BitType
  * @param clientIndex       The client index.
  * @param bitType           The bit type.
  **/
-void WeaponAttachRemoveAddons(const int clientIndex, const BitType bitType = BitType_Invalid) 
+void WeaponAttachRemoveAddons(int clientIndex, BitType bitType = BitType_Invalid) 
 {
     // Validate all
     if(bitType == BitType_Invalid)

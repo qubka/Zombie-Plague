@@ -54,7 +54,7 @@ void RagdollOnCvarInit(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void RagdollOnClientDeath(const int clientIndex)
+void RagdollOnClientDeath(int clientIndex)
 {
     // If true, the stop
     bool bRagDollRemove = gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue;
@@ -92,7 +92,7 @@ void RagdollOnClientDeath(const int clientIndex)
  * @param hTimer            The timer handle. 
  * @param referenceIndex    The reference index.
  **/
-public Action RagdollOnEntityRemove(const Handle hTimer, const int referenceIndex)
+public Action RagdollOnEntityRemove(Handle hTimer, int referenceIndex)
 {
     // Gets the ragdoll index from the reference
     int iRagdoll = EntRefToEntIndex(referenceIndex);
@@ -159,7 +159,7 @@ public Action RagdollOnEntityRemove(const Handle hTimer, const int referenceInde
  * @param clientIndex       The client index.
  * @return                  The ragdoll index.
  **/
-int RagdollGetIndex(const int clientIndex)
+int RagdollGetIndex(int clientIndex)
 {
     return GetEntDataEnt2(clientIndex, g_iOffset_PlayerRagdoll);
 }

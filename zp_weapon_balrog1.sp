@@ -110,7 +110,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
+void Weapon_OnHolster(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
@@ -118,7 +118,7 @@ void Weapon_OnHolster(const int clientIndex, const int weaponIndex, const int iC
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
     
@@ -126,7 +126,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCl
     ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
 }
 
-void Weapon_OnShoot(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
+void Weapon_OnShoot(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
     
@@ -140,7 +140,7 @@ void Weapon_OnShoot(const int clientIndex, const int weaponIndex, const int iCli
     }
 }
 
-void Weapon_OnFire(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
+void Weapon_OnFire(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
     
@@ -166,7 +166,7 @@ void Weapon_OnFire(const int clientIndex, const int weaponIndex, const int iClip
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
@@ -194,7 +194,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, cons
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", flCurrentTime);
 }
 
-void Weapon_OnBullet(const int clientIndex, const int weaponIndex, const int iStateMode, float vBulletPosition[3])
+void Weapon_OnBullet(int clientIndex, int weaponIndex, int iStateMode, float vBulletPosition[3])
 {
     #pragma unused clientIndex, weaponIndex, iStateMode, vBulletPosition
 

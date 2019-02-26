@@ -192,7 +192,7 @@ void GameEngineOnPurge(/*void*/)
  *
  * @return                  True or false.
  **/
-bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
+bool IsPlayerExist(int clientIndex, bool clientAlive = true)
 {
     // If client isn't valid, then stop
     if(clientIndex <= 0 || clientIndex > MaxClients)
@@ -236,7 +236,7 @@ bool IsPlayerExist(const int clientIndex, const bool clientAlive = true)
  *
  * @return                  True or false.
  **/
-bool IsPlayerInGroup(const int clientIndex, const char[] sGroup)
+bool IsPlayerInGroup(int clientIndex, char[] sGroup)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -449,7 +449,7 @@ stock int fnGetRandomZombie(/*void*/)
  * @param bZombie           (Optional) True to state zombie, false for human on the target index.
  * @return                  The random array of total alive players.
  **/
-stock int[] fnGetRandomAlive(const int targetIndex = -1, const bool bZombie = false)
+stock int[] fnGetRandomAlive(int targetIndex = -1, bool bZombie = false)
 {
     // Initialize variables
     int iAmount; static int clientIndex[MAXPLAYERS+1];
@@ -506,7 +506,7 @@ stock int[] fnGetRandomAlive(const int targetIndex = -1, const bool bZombie = fa
  * @param iOffset           An offset, or -1 on failure.
  * @param sKey              Key to retrieve from the offset section.
  **/
-stock void fnInitGameConfOffset(const Handle gameConf, int &iOffset, const char[] sKey)
+stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, char[] sKey)
 {
     // Validate offset
     if((iOffset = GameConfGetOffset(gameConf, sKey)) == -1)
@@ -522,7 +522,7 @@ stock void fnInitGameConfOffset(const Handle gameConf, int &iOffset, const char[
  * @param xAddress          An adress, or null on failure.
  * @param sKey              Key to retrieve from the address section.
  **/
-stock void fnInitGameConfAddress(const Handle gameConf, Address &xAddress, const char[] sKey)
+stock void fnInitGameConfAddress(Handle gameConf, Address &xAddress, char[] sKey)
 {
     // Validate address
     if((xAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
@@ -538,7 +538,7 @@ stock void fnInitGameConfAddress(const Handle gameConf, Address &xAddress, const
  * @param sServerClass      The classname.
  * @param sProp             The property name.
  **/
-stock void fnInitSendPropOffset(int &iOffset, const char[] sServerClass, const char[] sProp)
+stock void fnInitSendPropOffset(int &iOffset, char[] sServerClass, char[] sProp)
 {
     // Validate prop
     if((iOffset = FindSendPropInfo(sServerClass, sProp)) < 1)
@@ -555,7 +555,7 @@ stock void fnInitSendPropOffset(int &iOffset, const char[] sServerClass, const c
  * @param eMode             (Optional) EventHookMode determining the type of hook.
  * @error                   No errors.
  **/
-stock void UnhookEvent2(const char[] sName, EventHook hCallBack, EventHookMode eMode = EventHookMode_Post)
+stock void UnhookEvent2(char[] sName, EventHook hCallBack, EventHookMode eMode = EventHookMode_Post)
 {
     HookEvent(sName, hCallBack, eMode);
     UnhookEvent(sName, hCallBack, eMode);
@@ -569,7 +569,7 @@ stock void UnhookEvent2(const char[] sName, EventHook hCallBack, EventHookMode e
  *                          The command is case insensitive.
  * @error                   No errors..
  **/
-stock void RemoveCommandListener2(CommandListener hCallBack, const char[] sCommand = "")
+stock void RemoveCommandListener2(CommandListener hCallBack, char[] sCommand = "")
 {
     AddCommandListener(hCallBack, sCommand);
     RemoveCommandListener(hCallBack, sCommand);

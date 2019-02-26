@@ -54,7 +54,7 @@ void PlayerVEffectsOnCvarInit(/*void*/)
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
  **/
-void PlayerVEffectsOnClientInfected(const int clientIndex, const int attackerIndex)
+void PlayerVEffectsOnClientInfected(int clientIndex, int attackerIndex)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -112,7 +112,7 @@ void PlayerVEffectsOnClientInfected(const int clientIndex, const int attackerInd
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerVEffectsOnClientHumanized(const int clientIndex)
+void PlayerVEffectsOnClientHumanized(int clientIndex)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -170,7 +170,7 @@ void PlayerVEffectsOnClientHumanized(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerVEffectsOnClientRegen(const int clientIndex)
+void PlayerVEffectsOnClientRegen(int clientIndex)
 {
     // If regeneration effect disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
@@ -202,7 +202,7 @@ void PlayerVEffectsOnClientRegen(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void PlayerVEffectsOnClientJump(const int clientIndex)
+void PlayerVEffectsOnClientJump(int clientIndex)
 {
     // If jump effect disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_LEAP].BoolValue) 

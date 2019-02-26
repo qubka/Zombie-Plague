@@ -127,7 +127,7 @@ public void OnClientDisconnect(int clientIndex)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Delete timer
     delete Task_HumanTrapped[GetClientOfUserId(hEvent.GetInt("userid"))];
@@ -266,7 +266,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action TrapTouchHook(const int entityIndex, const int targetIndex)
+public Action TrapTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -361,7 +361,7 @@ public Action TrapTouchHook(const int entityIndex, const int targetIndex)
  * @param entityIndex       The entity index.
  * @param clientIndex       The client index.
  **/
-public Action TrapOnTransmit(const int entityIndex, const int clientIndex)
+public Action TrapOnTransmit(int entityIndex, int clientIndex)
 {
     // Validate human
     if(ZP_IsPlayerHuman(clientIndex))
@@ -380,7 +380,7 @@ public Action TrapOnTransmit(const int entityIndex, const int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveTrapEffect(const Handle hTimer, const int userID)
+public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

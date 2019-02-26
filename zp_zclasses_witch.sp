@@ -199,7 +199,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action BatTouchHook(const int entityIndex, const int targetIndex)
+public Action BatTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -310,7 +310,7 @@ public Action BatTouchHook(const int entityIndex, const int targetIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action BatAttachHook(const Handle hTimer, const int referenceIndex)
+public Action BatAttachHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);

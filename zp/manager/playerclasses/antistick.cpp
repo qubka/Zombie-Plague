@@ -110,7 +110,7 @@ void AntiStickOnInit(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void AntiStickOnClientInit(const int clientIndex)
+void AntiStickOnClientInit(int clientIndex)
 {
     // If antistick is disabled, then unhook
     bool bAntiStick = gCvarList[CVAR_ANTISTICK].BoolValue;
@@ -154,7 +154,7 @@ void AntiStickOnCvarInit(/*void*/)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void AntiStickOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void AntiStickOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(oldValue[0] == newValue[0])
@@ -173,7 +173,7 @@ public void AntiStickOnCvarHook(ConVar hConVar, const char[] oldValue, const cha
  * @param clientIndex       The client index.
  * @param entityIndex       The entity index of the entity being touched.
  **/
-public void AntiStickOnStartTouch(const int clientIndex, const int entityIndex)
+public void AntiStickOnStartTouch(int clientIndex, int entityIndex)
 {
     // Verify that the client is exist
     if(!IsPlayerExist(clientIndex))
@@ -224,7 +224,7 @@ public void AntiStickOnStartTouch(const int clientIndex, const int entityIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action AntiStickOnClientSolidify(const Handle hTimer, const int userID)
+public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -278,7 +278,7 @@ public Action AntiStickOnClientSolidify(const Handle hTimer, const int userID)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action AntiStickOnCommandCatched(const int clientIndex, const int iArguments)
+public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -339,7 +339,7 @@ public Action AntiStickOnCommandCatched(const int clientIndex, const int iArgume
  * @param boundaries        Array with 'AntiStickBoxBounds' for indexes to return bounds into.
  * @param width             The width of the model box.
  **/
-void AntiStickBuildModelBox(const int clientIndex, float boundaries[AntiStickBoxBound][3], const float flWidth)
+void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBoxBound][3], float flWidth)
 {
     // Initialize vector variables
     static float vClientLoc[3];
@@ -419,7 +419,7 @@ void AntiStickBuildModelBox(const int clientIndex, float boundaries[AntiStickBox
  * @param flDistance        Distance to jump
  * @param flResult          Resultant point.
  **/
-void AntiStickJumpToPoint(const float vVector[3], const float vAngle[3], const float flDistance, float vResult[3])
+void AntiStickJumpToPoint(float vVector[3], float vAngle[3], float flDistance, float vResult[3])
 {
     // Initialize vector variable
     static float vViewVector[3];
@@ -444,7 +444,7 @@ void AntiStickJumpToPoint(const float vVector[3], const float vAngle[3], const f
  * @param boundaries        The boundaries to check.
  * @param iMin              Return the min value instead.
  **/
-float AntiStickGetBoxMaxBoundary(const int Axis, const float boundaries[AntiStickBoxBound][3],const bool iMin = false)
+float AntiStickGetBoxMaxBoundary(int Axis, float boundaries[AntiStickBoxBound][3],bool iMin = false)
 {
     // Creates 'outlier' with initial value of first boundary
     float outlier = boundaries[0][Axis];
@@ -474,7 +474,7 @@ float AntiStickGetBoxMaxBoundary(const int Axis, const float boundaries[AntiStic
  * @param client2           The second client index.
  * @return                  True if they are stuck together, false if not.
  **/
-bool AntiStickIsModelBoxColliding(const int client1, const int client2)
+bool AntiStickIsModelBoxColliding(int client1, int client2)
 {
     // Initialize vector variables
     float client1modelbox[AntiStickBoxBound][3];
@@ -527,7 +527,7 @@ bool AntiStickIsModelBoxColliding(const int client1, const int client2)
  * @param clientIndex       The client index.
  * @param collisiongroup    Collision group flag.
  **/
-void AntiStickSetCollisionGroup(const int clientIndex, const int collisiongroup)
+void AntiStickSetCollisionGroup(int clientIndex, int collisiongroup)
 {
     SetEntData(clientIndex, g_iOffset_PlayerCollision, collisiongroup, _, true);
 }
@@ -538,7 +538,7 @@ void AntiStickSetCollisionGroup(const int clientIndex, const int collisiongroup)
  * @param clientIndex       The client index.
  * @return                  The collision group on the client.
  **/
-int AntiStickGetCollisionGroup(const int clientIndex)
+int AntiStickGetCollisionGroup(int clientIndex)
 {
     return GetEntData(clientIndex, g_iOffset_PlayerCollision);
 }
@@ -552,7 +552,7 @@ int AntiStickGetCollisionGroup(const int clientIndex)
  *
  * @return                  True or false.
  **/
-public bool AntiStickFilter(int entityIndex, int contentsMask, const int clientIndex) 
+public bool AntiStickFilter(int entityIndex, int contentsMask, int clientIndex) 
 {
     return (entityIndex != clientIndex);
 }

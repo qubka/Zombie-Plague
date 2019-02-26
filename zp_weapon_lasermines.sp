@@ -55,9 +55,9 @@ public Plugin myinfo =
 #define WEAPON_MINE_EXPLOSION_TIME              0.1 // Mine exp duration   
 #define WEAPON_MINE_UPDATE           0.5     // Mine delay (damage delay)
 #define WEAPON_MINE_ACTIVATION       2.0     // Mine activation delay
-#define WEAPON_MINE_IMPACT           "weapons/taser/taser_hit.wav"   /// Only standart sounds (from engine)
+#define WEAPON_MINE_IMPACT           "sound/weapons/taser/taser_hit.wav"   /// Only standart sounds (from engine)
 #define WEAPON_MINE_IMPACT_LEVEL     0.5      // Mine impact sound level
-#define WEAPON_MINE_SHOOT            "weapons/taser/taser_shoot.wav" /// Only standart sounds (from engine)
+#define WEAPON_MINE_SHOOT            "sound/weapons/taser/taser_shoot.wav" /// Only standart sounds (from engine)
 #define WEAPON_MINE_SHOOT_LEVEL      0.3      // Mine shoot sound level
 #define WEAPON_BEAM_MODEL            "materials/sprites/purplelaser1.vmt"//"materials/sprites/laserbeam.vmt"
 #define WEAPON_BEAM_LIFE             0.1
@@ -141,8 +141,8 @@ public void ZP_OnEngineExecute(/*void*/)
     // Sounds
     gSound = ZP_GetSoundKeyID("LASERMINE_SHOOT_SOUNDS");
     if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"LASERMINE_SHOOT_SOUNDS\" wasn't find");
-    PrecacheSound(WEAPON_MINE_IMPACT);
-    PrecacheSound(WEAPON_MINE_SHOOT);
+    PrecacheSound(WEAPON_MINE_IMPACT, true);
+    PrecacheSound(WEAPON_MINE_SHOOT, true);
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
@@ -158,8 +158,8 @@ public void ZP_OnEngineExecute(/*void*/)
     
     #if defined WEAPON_MINE_IMPULSE
     // Sounds
-    PrecacheSound(WEAPON_MINE_IMPACT);
-    PrecacheSound(WEAPON_MINE_SHOOT);
+    PrecacheSound(WEAPON_MINE_IMPACT, true);
+    PrecacheSound(WEAPON_MINE_SHOOT, true);
     #endif
 }
 
@@ -233,7 +233,7 @@ public void OnClientDisconnect(int clientIndex)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
     
@@ -244,7 +244,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const float f
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, float flCurrentTime)
+void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
 
@@ -295,7 +295,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, float 
     delete hTrace;
 }
 
-bool Weapon_OnPickupMine(const int clientIndex, int entityIndex, const float flCurrentTime)
+bool Weapon_OnPickupMine(int clientIndex, int entityIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, entityIndex, flCurrentTime
 
@@ -316,8 +316,8 @@ bool Weapon_OnPickupMine(const int clientIndex, int entityIndex, const float flC
     if(TR_GetFraction(hTrace) >= 1.0)
     {
         // Initialize the hull intersection
-        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        static float vMins[3] = { -16.0, -16.0, -18.0  }; 
+        static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
         hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter2);
@@ -358,7 +358,7 @@ bool Weapon_OnPickupMine(const int clientIndex, int entityIndex, const float flC
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action Weapon_OnCreateMine(const Handle hTimer, const int userID)
+public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
@@ -401,7 +401,7 @@ public Action Weapon_OnCreateMine(const Handle hTimer, const int userID)
                 ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
                 
                 // Dispatch main values of the entity
-                DispatchKeyValue(entityIndex, "targetname", "mine");
+                DispatchKeyValue(entityIndex, "targetname", "zp_mine");
                 DispatchKeyValue(entityIndex, "model", sModel);
                 DispatchKeyValue(entityIndex, "spawnflags", "8832"); /// Not affected by rotor wash | Prevent pickup | Force server-side
 
@@ -468,7 +468,10 @@ public Action Weapon_OnCreateMine(const Handle hTimer, const int userID)
                     DispatchKeyValue(beamIndex, "renderamt", "100");
                     DispatchKeyValue(beamIndex, "rendercolor", "0 0 0");
                     
-                    // Turn off the beam
+                    // Spawn the entity into the world
+                    DispatchSpawn(beamIndex);
+
+                    // Activate the entity
                     AcceptEntityInput(beamIndex, "TurnOff");
                     
                     // Sets model for the beam
@@ -669,7 +672,7 @@ public Action ZP_OnClientValidateMainMenu(int clientIndex)
  * @param damage            The amount of damage inflicted.
  * @param damageBits        The type of damage inflicted.
  **/
-public Action MineDamageHook(const int entityIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &damageBits)
+public Action MineDamageHook(int entityIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &damageBits)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -710,7 +713,7 @@ public Action MineDamageHook(const int entityIndex, int &attackerIndex, int &inf
  * 
  * @param entityIndex       The entity index.                    
  **/
-void MineExpload(const int entityIndex)
+void MineExpload(int entityIndex)
 {
     // Initialize vectors
     static float vEntPosition[3]; static float vEntAngle[3]; static float vVictimPosition[3]; static float vVelocity[3]; static float vAngle[3];
@@ -833,7 +836,7 @@ void MineExpload(const int entityIndex)
  * @param referenceIndex    The reference index.
  **/
 #if defined WEAPON_MINE_IMPULSE
-public Action MineActivateHook(const Handle hTimer, const int referenceIndex)
+public Action MineActivateHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -863,7 +866,7 @@ public Action MineActivateHook(const Handle hTimer, const int referenceIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action MineUpdateHook(const Handle hTimer, const int referenceIndex)
+public Action MineUpdateHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -888,8 +891,8 @@ public Action MineUpdateHook(const Handle hTimer, const int referenceIndex)
         if(TR_GetFraction(hTrace) >= 1.0)
         {
             // Initialize the hull intersection
-            static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
-            static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+            static float vMins[3] = { -16.0, -16.0, -18.0  }; 
+            static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
             
             // Create the hull trace
             hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, entityIndex);
@@ -942,7 +945,7 @@ public Action MineUpdateHook(const Handle hTimer, const int referenceIndex)
  *
  * @param entityIndex       The entity index.
  **/ 
-void CreateGlowableModel(const int entityIndex)
+void CreateGlowableModel(int entityIndex)
 {
     // Create a prop_dynamic_glow entity
     int glowIndex = CreateEntityByName("prop_dynamic_override");
@@ -979,7 +982,7 @@ void CreateGlowableModel(const int entityIndex)
         TeleportEntity(glowIndex, vPosition, vAngle, NULL_VECTOR);
 
         // Validate offset
-        static int iGlowOffset; static const int vColor[4] = WEAPON_GLOW_COLOR;
+        static int iGlowOffset; static int vColor[4] = WEAPON_GLOW_COLOR;
         if(!iGlowOffset) iGlowOffset = GetEntSendPropOffs(glowIndex, "m_clrGlow")
         
         // Sets glowing mode
@@ -995,7 +998,7 @@ void CreateGlowableModel(const int entityIndex)
     }
 }
 #else
-public Action MineActivateHook(const Handle hTimer, DataPack hPack)
+public Action MineActivateHook(Handle hTimer, DataPack hPack)
 {
     // Resets the position in a data pack
     hPack.Reset();
@@ -1013,30 +1016,28 @@ public Action MineActivateHook(const Handle hTimer, DataPack hPack)
     }
     
     // Gets data from the datapack
-    int beamIndex = EntRefToEntIndex(hPack.ReadCell());
+    entityIndex = EntRefToEntIndex(hPack.ReadCell());
     
     // Validate entity
-    if(beamIndex != INVALID_ENT_REFERENCE)
+    if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Gets color of beam
-        static const int vColor[4] = WEAPON_BEAM_COLOR;
-        
         // Turn on the beam
-        AcceptEntityInput(beamIndex, "TurnOn");
+        AcceptEntityInput(entityIndex, "TurnOn");
         
         // Sets an entity's color
+        static int vColor[4] = WEAPON_BEAM_COLOR;
         SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
         SetEntityRenderColor(entityIndex, vColor[0], vColor[1], vColor[2], vColor[3]);
-        
+
         // Gets classname
         static char sClassname[SMALL_LINE_LENGTH]; static char sDispatch[SMALL_LINE_LENGTH];
         hPack.ReadString(sClassname, sizeof(sClassname));
         
         // Sets modified flags on the beam
         FormatEx(sDispatch, sizeof(sDispatch), "%s,TurnOff,,0.001,-1", sClassname);
-        DispatchKeyValue(beamIndex, "OnTouchedByEntity", sDispatch);
+        DispatchKeyValue(entityIndex, "OnTouchedByEntity", sDispatch);
         FormatEx(sDispatch, sizeof(sDispatch), "%s,TurnOn,,0.002,-1", sClassname);
-        DispatchKeyValue(beamIndex, "OnTouchedByEntity", sDispatch);
+        DispatchKeyValue(entityIndex, "OnTouchedByEntity", sDispatch);
     }
     
     // Destroy timer
@@ -1051,7 +1052,7 @@ public Action MineActivateHook(const Handle hTimer, DataPack hPack)
  * @param activatorIndex    The activator index.
  * @param flDelay           The delay of updating.
  **/ 
-public void BeamTouchHook(const char[] sOutput, const int entityIndex, const int activatorIndex, const float flDelay)
+public void BeamTouchHook(char[] sOutput, int entityIndex, int activatorIndex, float flDelay)
 {
     // Validate entity
     if(IsEntityBeam(entityIndex))
@@ -1081,7 +1082,7 @@ public void BeamTouchHook(const char[] sOutput, const int entityIndex, const int
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     static char sClassname[SMALL_LINE_LENGTH];
@@ -1090,8 +1091,11 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
     // Validate beam
     if(!strcmp(sClassname, "env_beam", false))
     {
+        // Gets icon of lasermine
+        ZP_GetWeaponIcon(gWeapon, sClassname, sizeof(sClassname));
+    
         // Sets event properties
-        hEvent.SetString("weapon", "taser");
+        hEvent.SetString("weapon", sClassname);
         hEvent.SetBool("headshot", true);
     }
 }
@@ -1102,7 +1106,7 @@ public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadc
  * @param clientIndex       The client index.
  * @param flDamageDelay     The delay of updating.
  **/
-stock bool IsPlayerDamageble(const int clientIndex, const float flDamageDelay)
+stock bool IsPlayerDamageble(int clientIndex, float flDamageDelay)
 {
     // Initialize damage
     static float flDamageTime[MAXPLAYERS+1];
@@ -1132,7 +1136,7 @@ stock bool IsPlayerDamageble(const int clientIndex, const float flDamageDelay)
  * @param entityIndex       The entity index.
  * @return                  The beam index.
  **/
-stock int IsEntityBeam(const int entityIndex)
+stock int IsEntityBeam(int entityIndex)
 {
     // Validate entity
     if(entityIndex <= MaxClients || !IsValidEdict(entityIndex))
@@ -1145,7 +1149,7 @@ stock int IsEntityBeam(const int entityIndex)
     GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
     
     // Validate model
-    return (!strncmp(sClassname, "laser", 5, false));
+    return (!strncmp(sClassname, "zp_laser_", 9, false));
 }
 
 /**
@@ -1154,7 +1158,7 @@ stock int IsEntityBeam(const int entityIndex)
  * @param entityIndex       The entity index.
  * @return                  True or false.
  **/
-stock bool IsEntityLasermine(const int entityIndex)
+stock bool IsEntityLasermine(int entityIndex)
 {
     // Validate entity
     if(entityIndex <= MaxClients || !IsValidEdict(entityIndex))
@@ -1167,7 +1171,7 @@ stock bool IsEntityLasermine(const int entityIndex)
     GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
     
     // Validate model
-    return (!strcmp(sClassname, "mine", false));
+    return (!strcmp(sClassname, "zp_mine", false));
 }
 
 /**
@@ -1178,7 +1182,7 @@ stock bool IsEntityLasermine(const int entityIndex)
  * @param filterIndex       The filter index.
  * @return                  True or false.
  **/
-public bool TraceFilter(const int entityIndex, const int contentsMask, const int filterIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
 {
     return (entityIndex != filterIndex);
 }
@@ -1191,7 +1195,7 @@ public bool TraceFilter(const int entityIndex, const int contentsMask, const int
  *
  * @return                  True or false.
  **/
-public bool TraceFilter2(const int entityIndex, const int contentsMask)
+public bool TraceFilter2(int entityIndex, int contentsMask)
 {
     return !(1 <= entityIndex <= MaxClients);
 }
@@ -1204,7 +1208,7 @@ public bool TraceFilter2(const int entityIndex, const int contentsMask)
  * @param filterIndex       The filter index.
  * @return                  True or false.
  **/
-public bool TraceFilter3(const int entityIndex, const int contentsMask, const int filterIndex)
+public bool TraceFilter3(int entityIndex, int contentsMask, int filterIndex)
 {
     return (!(1 <= entityIndex <= MaxClients) && entityIndex != filterIndex);
 }

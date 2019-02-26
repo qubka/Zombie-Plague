@@ -271,7 +271,7 @@ void MenusOnCvarLoad(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action MenusOnCommandCatched(const int clientIndex, const int iArguments)
+public Action MenusOnCommandCatched(int clientIndex, int iArguments)
 {
     MainMenu(clientIndex);
     return Plugin_Handled;
@@ -285,7 +285,7 @@ public Action MenusOnCommandCatched(const int clientIndex, const int iArguments)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action MenusMainOnCommandListened(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action MenusMainOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
 {
     MainMenu(clientIndex);
     return Plugin_Handled;
@@ -299,7 +299,7 @@ public Action MenusMainOnCommandListened(const int clientIndex, const char[] com
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action MenusCommandOnCommandListened(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action MenusCommandOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -333,7 +333,7 @@ public Action MenusCommandOnCommandListened(const int clientIndex, const char[] 
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void MenusOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void MenusOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(!strcmp(oldValue, newValue, false))
@@ -369,7 +369,7 @@ void MenusOnNativeInit(/*void*/)
  *
  * @note native int ZP_GetNumberMenu();
  **/
-public int API_GetNumberMenu(const Handle hPlugin, const int iNumParams)
+public int API_GetNumberMenu(Handle hPlugin, int iNumParams)
 {
     // Return the value 
     return gServerData.Menus.Length;
@@ -380,7 +380,7 @@ public int API_GetNumberMenu(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuName(iD, name, maxlen, sub);
  **/
-public int API_GetMenuName(const Handle hPlugin, const int iNumParams)
+public int API_GetMenuName(Handle hPlugin, int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -415,7 +415,7 @@ public int API_GetMenuName(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuGroup(iD, group, maxlen, sub);
  **/
-public int API_GetMenuGroup(const Handle hPlugin, const int iNumParams)
+public int API_GetMenuGroup(Handle hPlugin, int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -450,7 +450,7 @@ public int API_GetMenuGroup(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuClass(iD, class, maxlen, sub);
  **/
-public int API_GetMenuClass(const Handle hPlugin, const int iNumParams)
+public int API_GetMenuClass(Handle hPlugin, int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -485,7 +485,7 @@ public int API_GetMenuClass(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsMenuHide(iD, sub);
  **/
-public int API_IsMenuHide(const Handle hPlugin, const int iNumParams)
+public int API_IsMenuHide(Handle hPlugin, int iNumParams)
 {    
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -506,7 +506,7 @@ public int API_IsMenuHide(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetGameModeNameID(command, index, maxlen);
  **/
-public int API_GetMenuCommandID(const Handle hPlugin, const int iNumParams)
+public int API_GetMenuCommandID(Handle hPlugin, int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -538,7 +538,7 @@ public int API_GetMenuCommandID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetMenuCommand(iD, command, maxlen, sub);
  **/
-public int API_GetMenuCommand(const Handle hPlugin, const int iNumParams)
+public int API_GetMenuCommand(Handle hPlugin, int iNumParams)
 {
     // Gets menu index from native cell
     int iD = GetNativeCell(1);
@@ -573,7 +573,7 @@ public int API_GetMenuCommand(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_OpenMenuSub(clientIndex, iD);
  **/
-public int API_OpenMenuSub(const Handle hPlugin, const int iNumParams)
+public int API_OpenMenuSub(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -614,7 +614,7 @@ public int API_OpenMenuSub(const Handle hPlugin, const int iNumParams)
  * @param iMaxLen           The lenght of string.
  * @param iSubMenu          (Optional) The submenu index. (Loop += 4)
  **/
-void MenusGetName(const int iD, char[] sName, const int iMaxLen, const int iSubMenu = 0)
+void MenusGetName(int iD, char[] sName, int iMaxLen, int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = gServerData.Menus.Get(iD);
@@ -631,7 +631,7 @@ void MenusGetName(const int iD, char[] sName, const int iMaxLen, const int iSubM
  * @param iMaxLen           The lenght of string.
  * @param iSubMenu          (Optional) The submenu index.
  **/
-void MenusGetGroup(const int iD, char[] sGroup, const int iMaxLen, const int iSubMenu = 0)
+void MenusGetGroup(int iD, char[] sGroup, int iMaxLen, int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = gServerData.Menus.Get(iD);
@@ -648,7 +648,7 @@ void MenusGetGroup(const int iD, char[] sGroup, const int iMaxLen, const int iSu
  * @param iMaxLen           The lenght of string.
  * @param iSubMenu          (Optional) The submenu index.
  **/
-void MenusGetClass(const int iD, char[] sClass, const int iMaxLen, const int iSubMenu = 0)
+void MenusGetClass(int iD, char[] sClass, int iMaxLen, int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = gServerData.Menus.Get(iD);
@@ -664,7 +664,7 @@ void MenusGetClass(const int iD, char[] sClass, const int iMaxLen, const int iSu
  * @param iSubMenu          (Optional) The submenu index.
  * @return                  True if menu is hided, false if not.
  **/
-bool MenusIsHide(const int iD, const int iSubMenu = 0)
+bool MenusIsHide(int iD, int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = gServerData.Menus.Get(iD);
@@ -681,7 +681,7 @@ bool MenusIsHide(const int iD, const int iSubMenu = 0)
  * @param iMaxLen           The lenght of string.
  * @param iSubMenu          (Optional) The submenu index.
  **/
-void MenusGetCommand(const int iD, char[] sCommand, const int iMaxLen, const int iSubMenu = 0)
+void MenusGetCommand(int iD, char[] sCommand, int iMaxLen, int iSubMenu = 0)
 {
     // Gets array handle of menu at given index
     ArrayList arrayMenu = gServerData.Menus.Get(iD);
@@ -700,7 +700,7 @@ void MenusGetCommand(const int iD, char[] sCommand, const int iMaxLen, const int
  * @param sCommand          The menu command.
  * @return                  The array containing the given menu command.
  **/
-int[] MenusCommandToArray(const char[] sCommand)
+int[] MenusCommandToArray(char[] sCommand)
 {
     // Initialize command char
     static char sMenuCommand[SMALL_LINE_LENGTH];
@@ -747,7 +747,7 @@ int[] MenusCommandToArray(const char[] sCommand)
  *
  * @return                  True or false.    
  **/
-bool MenusValidateClass(const int clientIndex, const int iD, const int iSubMenu = 0)
+bool MenusValidateClass(int clientIndex, int iD, int iSubMenu = 0)
 {
     // Gets menu class
     static char sClass[BIG_LINE_LENGTH];
@@ -776,7 +776,7 @@ bool MenusValidateClass(const int clientIndex, const int iD, const int iSubMenu 
  *
  * @return                  True or false.    
  **/
-bool MenusValidateCommand(const int clientIndex, const char[] sCommand)
+bool MenusValidateCommand(int clientIndex, char[] sCommand)
 {
     // Validate menu index
     int iD[2]; iD = MenusCommandToArray(sCommand);
@@ -802,7 +802,7 @@ bool MenusValidateCommand(const int clientIndex, const char[] sCommand)
  * 
  * @param menuCondition     If this is true, item will be drawn normally.
  **/
-int MenusGetItemDraw(const bool menuCondition)
+int MenusGetItemDraw(bool menuCondition)
 {
     return menuCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
 }
@@ -816,7 +816,7 @@ int MenusGetItemDraw(const bool menuCondition)
  *
  * @param clientIndex       The client index.
  **/
-void MainMenu(const int clientIndex)
+void MainMenu(int clientIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -901,7 +901,7 @@ void MainMenu(const int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int MainMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int MainMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -964,7 +964,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, 
  * @param clientIndex       The client index.
  * @param iD                The menu index.
  **/
-void SubMenu(const int clientIndex, const int iD)
+void SubMenu(int clientIndex, int iD)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -1075,7 +1075,7 @@ void SubMenu(const int clientIndex, const int iD)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int SubMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int SubMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
     // Switch the menu action
     switch(mAction)

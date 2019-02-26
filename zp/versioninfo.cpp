@@ -29,7 +29,7 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "X.008"
+#define PLUGIN_VERSION      "X.009"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
@@ -37,7 +37,7 @@
 #define PLUGIN_BRANCH       "master"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "30-January-2019T22:49:00-GMT+01:00"
+#define PLUGIN_DATE         "26-February-2019T00:38:00-GMT+01:00"
 /**
  * @endsection
  **/
@@ -66,7 +66,7 @@ void VersionOnLoad(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action VersionOnCommandCatched(const int clientIndex, const int iArguments)
+public Action VersionOnCommandCatched(int clientIndex, int iArguments)
 {
     // Initialize variables
     static char sBuffer[HUGE_LINE_LENGTH]; sBuffer[0] = '\0';

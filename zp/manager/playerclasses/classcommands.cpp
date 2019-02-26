@@ -41,7 +41,7 @@ void ClassCommandsOnCommandInit(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ClassDumpOnCommandCatched(const int clientIndex, const int iArguments)
+public Action ClassDumpOnCommandCatched(int clientIndex, int iArguments)
 {
     // If not enough arguments given, then stop
     if(iArguments < 1)
@@ -102,7 +102,7 @@ public Action ClassDumpOnCommandCatched(const int clientIndex, const int iArgume
  * @param iMaxLen           The lenght of string.
  * @return                  The number of cells written.
  */
-int ClassDumpData(int iD, char[] sBuffer, const int iMaxLen)
+int ClassDumpData(int iD, char[] sBuffer, int iMaxLen)
 {
     // Initialize variables
     int iCellCount; int iFormat[SMALL_LINE_LENGTH];

@@ -195,7 +195,7 @@ void ExtraItemsOnCommandInit(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ExtraItemsOnCommandCatched(const int clientIndex, const int iArguments)
+public Action ExtraItemsOnCommandCatched(int clientIndex, int iArguments)
 {
     ItemsMenu(clientIndex);
     return Plugin_Handled;
@@ -230,7 +230,7 @@ void ExtraItemsOnNativeInit(/*void*/)
  *
  * @note native bool ZP_GiveClientExtraItem(clientIndex, iD);
  **/
-public int API_GiveClientExtraItem(const Handle hPlugin, const int iNumParams)
+public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -273,7 +273,7 @@ public int API_GiveClientExtraItem(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_SetClientExtraItemLimit(clientIndex, iD, limit);
  **/
-public int API_SetClientExtraItemLimit(const Handle hPlugin, const int iNumParams)
+public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -307,7 +307,7 @@ public int API_SetClientExtraItemLimit(const Handle hPlugin, const int iNumParam
  *
  * @note native int ZP_GetClientExtraItemLimit(clientIndex, iD);
  **/
-public int API_GetClientExtraItemLimit(const Handle hPlugin, const int iNumParams)
+public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -338,7 +338,7 @@ public int API_GetClientExtraItemLimit(const Handle hPlugin, const int iNumParam
  *
  * @note native int ZP_GetNumberExtraItem();
  **/
-public int API_GetNumberExtraItem(const Handle hPlugin, const int iNumParams)
+public int API_GetNumberExtraItem(Handle hPlugin, int iNumParams)
 {
     return gServerData.ExtraItems.Length;
 }
@@ -348,7 +348,7 @@ public int API_GetNumberExtraItem(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemNameID(name);
  **/
-public int API_GetExtraItemNameID(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemNameID(Handle hPlugin, int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -376,7 +376,7 @@ public int API_GetExtraItemNameID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemName(iD, name, maxlen);
  **/
-public int API_GetExtraItemName(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemName(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -411,7 +411,7 @@ public int API_GetExtraItemName(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemInfo(iD, info, maxlen);
  **/
-public int API_GetExtraItemInfo(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemInfo(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -446,7 +446,7 @@ public int API_GetExtraItemInfo(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemCost(iD);
  **/
-public int API_GetExtraItemCost(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemCost(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -467,7 +467,7 @@ public int API_GetExtraItemCost(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemLevel(iD);
  **/
-public int API_GetExtraItemLevel(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemLevel(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -488,7 +488,7 @@ public int API_GetExtraItemLevel(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemOnline(iD);
  **/
-public int API_GetExtraItemOnline(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemOnline(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -509,7 +509,7 @@ public int API_GetExtraItemOnline(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetExtraItemLimit(iD);
  **/
-public int API_GetExtraItemLimit(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemLimit(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -530,7 +530,7 @@ public int API_GetExtraItemLimit(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemGroup(iD, group, maxlen);
  **/
-public int API_GetExtraItemGroup(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemGroup(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -565,7 +565,7 @@ public int API_GetExtraItemGroup(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetExtraItemClass(iD, class, maxlen);
  **/
-public int API_GetExtraItemClass(const Handle hPlugin, const int iNumParams)
+public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
 {
     // Gets item index from native cell
     int iD = GetNativeCell(1);
@@ -606,7 +606,7 @@ public int API_GetExtraItemClass(const Handle hPlugin, const int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The lenght of string.
  **/
-void ItemsGetName(const int iD, char[] sName, const int iMaxLen)
+void ItemsGetName(int iD, char[] sName, int iMaxLen)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -622,7 +622,7 @@ void ItemsGetName(const int iD, char[] sName, const int iMaxLen)
  * @param sInfo             The string to return info in.
  * @param iMaxLen           The lenght of string.
  **/
-void ItemsGetInfo(const int iD, char[] sInfo, const int iMaxLen)
+void ItemsGetInfo(int iD, char[] sInfo, int iMaxLen)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -637,7 +637,7 @@ void ItemsGetInfo(const int iD, char[] sInfo, const int iMaxLen)
  * @param iD                The item index.
  * @return                  The ammo price.    
  **/
-int ItemsGetCost(const int iD)
+int ItemsGetCost(int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -652,7 +652,7 @@ int ItemsGetCost(const int iD)
  * @param iD                The item index.
  * @return                  The level value.    
  **/
-int ItemsGetLevel(const int iD)
+int ItemsGetLevel(int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -667,7 +667,7 @@ int ItemsGetLevel(const int iD)
  * @param iD                The item index.
  * @return                  The online value.    
  **/
-int ItemsGetOnline(const int iD)
+int ItemsGetOnline(int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -681,7 +681,7 @@ int ItemsGetOnline(const int iD)
  * @param iD                The item index.
  * @return                  The limit value.    
  **/
-int ItemsGetLimit(const int iD)
+int ItemsGetLimit(int iD)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -695,7 +695,7 @@ int ItemsGetLimit(const int iD)
  *
  * @param clientIndex       The client index.
  **/
-void ItemsRemoveLimits(const int clientIndex)
+void ItemsRemoveLimits(int clientIndex)
 {
     // If array hasn't been created, then create
     if(gClientData[clientIndex].ItemLimit == null)
@@ -715,7 +715,7 @@ void ItemsRemoveLimits(const int clientIndex)
  * @param iD                The item index.
  * @param iLimit            The limit value.    
  **/
-void ItemsSetLimits(const int clientIndex, const int iD, const int iLimit)
+void ItemsSetLimits(int clientIndex, int iD, int iLimit)
 {
     // If array hasn't been created, then create
     if(gClientData[clientIndex].ItemLimit == null)
@@ -738,7 +738,7 @@ void ItemsSetLimits(const int clientIndex, const int iD, const int iLimit)
  * @param clientIndex       The client index.
  * @param iD                The item index.
  **/
-int ItemsGetLimits(const int clientIndex, const int iD)
+int ItemsGetLimits(int clientIndex, int iD)
 {
     // If array hasn't been created, then create
     if(gClientData[clientIndex].ItemLimit == null)
@@ -763,7 +763,7 @@ int ItemsGetLimits(const int clientIndex, const int iD)
  * @param sGroup            The string to return group in.
  * @param iMaxLen           The lenght of string.
  **/
-void ItemsGetGroup(const int iD, char[] sGroup, const int iMaxLen)
+void ItemsGetGroup(int iD, char[] sGroup, int iMaxLen)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -779,7 +779,7 @@ void ItemsGetGroup(const int iD, char[] sGroup, const int iMaxLen)
  * @param sClass            The string to return class in.
  * @param iMaxLen           The lenght of string.
  **/
-void ItemsGetClass(const int iD, char[] sClass, const int iMaxLen)
+void ItemsGetClass(int iD, char[] sClass, int iMaxLen)
 {
     // Gets array handle of extra item at given index
     ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
@@ -798,7 +798,7 @@ void ItemsGetClass(const int iD, char[] sClass, const int iMaxLen)
  * @param sName             The item name.
  * @return                  The array index containing the given item name.
  **/
-int ItemsNameToIndex(const char[] sName)
+int ItemsNameToIndex(char[] sName)
 {
     // Initialize name char
     static char sItemName[SMALL_LINE_LENGTH];
@@ -830,7 +830,7 @@ int ItemsNameToIndex(const char[] sName)
  *
  * @return                  True or false.    
  **/
-bool ItemsValidateClass(const int clientIndex, const int iD)
+bool ItemsValidateClass(int clientIndex, int iD)
 {
     // Gets item class
     static char sClass[BIG_LINE_LENGTH];
@@ -860,7 +860,7 @@ bool ItemsValidateClass(const int clientIndex, const int iD)
  *  
  * @param clientIndex       The client index.
  **/ 
-void ItemsMenu(const int clientIndex)
+void ItemsMenu(int clientIndex)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex))
@@ -931,7 +931,7 @@ void ItemsMenu(const int clientIndex)
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex].Money < ItemsGetCost(i)) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex].Money < ItemsGetCost(i) ? false : true));
     }
     
     // If there are no cases, add an "(Empty)" line
@@ -958,7 +958,7 @@ void ItemsMenu(const int clientIndex)
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex, const int mSlot)
+public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -1046,13 +1046,13 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, const int clientIndex,
                         // Remove money and store it for returning if player will be first zombie
                         AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - ItemsGetCost(iD));
                         gClientData[clientIndex].LastPurchase += ItemsGetCost(iD);
-                        
-                        // If item has a limit
-                        if(ItemsGetLimit(iD))
-                        {
-                            // Increment count
-                            ItemsSetLimits(clientIndex, iD, ItemsGetLimits(clientIndex, iD) + 1);
-                        }
+                    }
+                    
+                    // If item has a limit
+                    if(ItemsGetLimit(iD))
+                    {
+                        // Increment count
+                        ItemsSetLimits(clientIndex, iD, ItemsGetLimits(clientIndex, iD) + 1);
                     }
                     
                     // Return on success

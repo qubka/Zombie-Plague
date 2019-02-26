@@ -107,7 +107,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
+void Weapon_OnReload(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
@@ -118,7 +118,7 @@ void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));
 }
 
-void Weapon_OnReloadStart(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
+void Weapon_OnReloadStart(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
     
@@ -152,7 +152,7 @@ void Weapon_OnReloadStart(const int clientIndex, const int weaponIndex, const in
     }
 }
 
-bool Weapon_OnReloadEmulate(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
+bool Weapon_OnReloadEmulate(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
     
@@ -160,7 +160,7 @@ bool Weapon_OnReloadEmulate(const int clientIndex, const int weaponIndex, const 
     return !iClip && iAmmo ? true : false;
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
@@ -177,7 +177,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
+void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
@@ -237,7 +237,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     Weapon_OnCreateBeam(clientIndex, weaponIndex);
 }
 
-void Weapon_OnCreateBeam(const int clientIndex, const int weaponIndex)
+void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
 {
     #pragma unused clientIndex, weaponIndex
 
@@ -257,8 +257,8 @@ void Weapon_OnCreateBeam(const int clientIndex, const int weaponIndex)
     if(TR_GetFraction(hTrace) >= 1.0)
     {
         // Initialize the hull intersection
-        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        static float vMins[3] = { -16.0, -16.0, -18.0  }; 
+        static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
         hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
@@ -312,7 +312,7 @@ void Weapon_OnCreateBeam(const int clientIndex, const int weaponIndex)
     delete hTrace;
 }
 
-void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iStateMode, float flCurrentTime)
+void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime
 
@@ -477,7 +477,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(const int entityIndex, const int contentsMask, const int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
 {
     // If entity is a player, continue tracing
     return (entityIndex != clientIndex);

@@ -156,7 +156,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iClip, const float flCurrentTime)
+void Weapon_OnReload(int clientIndex, int weaponIndex, int iClip, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, flCurrentTime
 
@@ -167,7 +167,7 @@ void Weapon_OnReload(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));
 }
 
-void Weapon_OnReloadStart(const int clientIndex, const int weaponIndex, const int iClip, const float flCurrentTime)
+void Weapon_OnReloadStart(int clientIndex, int weaponIndex, int iClip, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, flCurrentTime
     
@@ -188,7 +188,7 @@ void Weapon_OnReloadStart(const int clientIndex, const int weaponIndex, const in
     }
 }
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, flCurrentTime
 
@@ -202,7 +202,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCl
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iClip, float flCurrentTime)
+void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, flCurrentTime
 
@@ -285,7 +285,7 @@ void Weapon_OnPrimaryAttack(const int clientIndex, const int weaponIndex, int iC
     TE_SendToClient(clientIndex);
 }
 
-void Weapon_OnCreateRocket(const int clientIndex)
+void Weapon_OnCreateRocket(int clientIndex)
 {
     #pragma unused clientIndex
 
@@ -349,7 +349,7 @@ void Weapon_OnCreateRocket(const int clientIndex)
     }
 }
 
-void Weapon_OnKickBack(const int clientIndex, float upBase, float lateralBase, const float upMod, const float lateralMod, float upMax, float lateralMax, const int directionChange)
+void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
 {
     #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
 
@@ -513,7 +513,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action RocketTouchHook(const int entityIndex, const int targetIndex)
+public Action RocketTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))

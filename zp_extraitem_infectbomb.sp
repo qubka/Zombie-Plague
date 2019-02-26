@@ -163,7 +163,7 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action TanadeTouchHook(const int entityIndex, const int targetIndex)
+public Action TanadeTouchHook(int entityIndex, int targetIndex)
 {
     // Validate attaching
     return (IsValidEdict(entityIndex) && GRENADE_INFECT_ATTACH) ? Plugin_Continue : Plugin_Handled;
@@ -177,7 +177,7 @@ public Action TanadeTouchHook(const int entityIndex, const int targetIndex)
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventEntityTanade(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets real player index from event key
     int ownerIndex = GetClientOfUserId(hEvent.GetInt("userid")); 

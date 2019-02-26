@@ -51,7 +51,7 @@
 /**
  * Errors description for a codes.
  **/
-static const char sParamError[7][PLATFORM_LINE_LENGTH] = {
+char sParamError[7][PLATFORM_LINE_LENGTH] = {
     /*"No errors",*/
     "Source string is empty",
     "Unexpected key name",
@@ -77,7 +77,7 @@ static const char sParamError[7][PLATFORM_LINE_LENGTH] = {
  * @param cSeparator        The separator character.
  * @return                  Returns error code if parsing error.
  **/
-int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, const int iMaxLen, const char cSeparator)
+int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, char cSeparator)
 {
     /*
      *  VALIDATION OF INPUT AND BUFFERS
@@ -225,7 +225,7 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, const int iMax
  * @param endPos            End position of string to extract.
  * @return                  The number of cells written.
  **/
-int StrExtract(char[] sBuffer, const char[] sSource, const int startPos, const int endPos)
+int StrExtract(char[] sBuffer, char[] sSource, int startPos, int endPos)
 {
     // Calculate string length. Also add space for null terminator
     int iMaxLen = endPos - startPos + 1;
@@ -248,7 +248,7 @@ int StrExtract(char[] sBuffer, const char[] sSource, const int startPos, const i
  * @param cSeparator        The separator character.
  * @return                  True or false.
  **/
-bool StrContain(const char[] sBuffer, const char[] sSource, const char cSeparator)
+bool StrContain(char[] sBuffer, char[] sSource, char cSeparator)
 {
     // i = char index
     int iLen1 = strlen(sSource); int iLen2 = strlen(sBuffer); int x; int y;
@@ -293,7 +293,7 @@ bool StrContain(const char[] sBuffer, const char[] sSource, const char cSeparato
  * @param cSymbol           The character to search for.
  * @return                  The amount of characters in the string, or -1 if the characters were not found.
  */
-int CountCharInString(const char[] sBuffer, const char cSymbol)
+int CountCharInString(char[] sBuffer, char cSymbol)
 {
     // Initialize index
     int iAmount;

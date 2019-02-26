@@ -98,7 +98,7 @@ public void ZP_OnEngineExecute(/*void*/)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false ifnot.
  **/
-public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));

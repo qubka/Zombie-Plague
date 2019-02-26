@@ -232,7 +232,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @param entityIndex       The entity index.        
  * @param targetIndex       The target index.               
  **/
-public Action BlastTouchHook(const int entityIndex, const int targetIndex)
+public Action BlastTouchHook(int entityIndex, int targetIndex)
 {
     // Validate entity
     if(IsValidEdict(entityIndex))
@@ -253,7 +253,7 @@ public Action BlastTouchHook(const int entityIndex, const int targetIndex)
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.                    
  **/
-public Action BlastExploadHook(const Handle hTimer, const int referenceIndex)
+public Action BlastExploadHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -330,7 +330,7 @@ public Action BlastExploadHook(const Handle hTimer, const int referenceIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveBlastEffect(const Handle hTimer, const int userID)
+public Action ClientRemoveBlastEffect(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

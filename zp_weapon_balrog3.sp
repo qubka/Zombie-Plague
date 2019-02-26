@@ -99,7 +99,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 
@@ -107,7 +107,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const int iCl
     ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
 }
 
-void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, const int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 
@@ -116,7 +116,7 @@ void Weapon_OnEndAttack(const int clientIndex, const int weaponIndex, const int 
     SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_NORMAL);
 }
 
-void Weapon_OnFire(const int clientIndex, const int weaponIndex, int iClip, int iAmmo, const int iCounter, const int iStateMode, float flCurrentTime)
+void Weapon_OnFire(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
     
@@ -152,7 +152,7 @@ void Weapon_OnFire(const int clientIndex, const int weaponIndex, int iClip, int 
     iAmmo -= 1; SetEntProp(weaponIndex, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 }
 
-void Weapon_OnShoot(const int clientIndex, const int weaponIndex, const int iClip, const int iAmmo, int iCounter, const int iStateMode, const float flCurrentTime)
+void Weapon_OnShoot(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
     

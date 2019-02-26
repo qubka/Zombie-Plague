@@ -246,7 +246,7 @@ bool LogCheckFlag(int eventType)
  * @param iModule           Module to check.
  * @return                  True ifenabled, false otherwise. 
  **/
-bool LogCheckModuleFilter(const LogModule iModule)
+bool LogCheckModuleFilter(LogModule iModule)
 {
     // Check if filter is set
     return LogModuleFilterCache[iModule] ? true : false;
@@ -262,7 +262,7 @@ bool LogCheckModuleFilter(const LogModule iModule)
  *
  * @return                  Number of cells written.
  **/
-int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModule iModule, const bool shortName = false)
+int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool shortName = false)
 {
     switch(iModule)
     {
@@ -364,7 +364,7 @@ int LogGetModuleNameString(char[] sBuffer, const int iMaxLen, const LogModule iM
  * @param sMessage          Log message. Can be formatted.
  * @param ...               Formatting parameters.
  **/
-void LogEvent(const bool isConsole = false, const LogType iType = LogType_Normal, const int eventType = LOG_CORE_EVENTS, const LogModule iModule = LogModule_Config, const char[] sDescription, const char[] sMessage, any ...)
+void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int eventType = LOG_CORE_EVENTS, LogModule iModule = LogModule_Config, char[] sDescription, char[] sMessage, any ...)
 {    
     // Check filter overrides. Always log fatal errors, and check error override setting on error log types
     if((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
@@ -453,7 +453,7 @@ void LogEvent(const bool isConsole = false, const LogType iType = LogType_Normal
  * @param iModule           The module to add.
  * @return                  True if added, false otherwise.
  **/
-bool LogModuleFilterAdd(const LogModule iModule)
+bool LogModuleFilterAdd(LogModule iModule)
 {
     // Initialize some chars
     static char sModuleName[SMALL_LINE_LENGTH];
@@ -485,7 +485,7 @@ bool LogModuleFilterAdd(const LogModule iModule)
  * @param iModule           The module to remove.
  * @return                  True ifremoved, false otherwise.
  **/
-bool LogModuleFilterRemove(const LogModule iModule)
+bool LogModuleFilterRemove(LogModule iModule)
 {
     // Initialize some chars
     static char sModuleName[SMALL_LINE_LENGTH]; int iModuleIndex;
@@ -553,7 +553,7 @@ void LogModuleFilterCacheUpdate(/*void*/)
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action LogListOnCommandCatched(const int clientIndex, const int iArguments)
+public Action LogListOnCommandCatched(int clientIndex, int iArguments)
 {
     // Initialize some chars
     static char sBuffer[FILE_LINE_LENGTH];
@@ -632,7 +632,7 @@ public Action LogListOnCommandCatched(const int clientIndex, const int iArgument
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action LogAddModuleOnCommandCatched(const int clientIndex, const int iArguments)
+public Action LogAddModuleOnCommandCatched(int clientIndex, int iArguments)
 {
     // Initialize argument char
     static char sArgument[SMALL_LINE_LENGTH];
@@ -681,7 +681,7 @@ public Action LogAddModuleOnCommandCatched(const int clientIndex, const int iArg
  * @param clientIndex       The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action LogRemoveModuleOnCommandCatched(const int clientIndex, const int iArguments)
+public Action LogRemoveModuleOnCommandCatched(int clientIndex, int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];

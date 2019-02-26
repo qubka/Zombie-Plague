@@ -157,7 +157,7 @@ public void OnClientDisconnect(int clientIndex)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventPlayerDeath(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Delete timer
     delete Task_ZombieFreezed[GetClientOfUserId(hEvent.GetInt("userid"))];
@@ -247,7 +247,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets real player index from event key
     ///int ownerIndex = GetClientOfUserId(hEvent.GetInt("userid")); 
@@ -354,7 +354,7 @@ public Action EventEntitySmoke(Event hEvent, const char[] sName, bool dontBroadc
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveFreezeEffect(const Handle hTimer, const int userID)
+public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);

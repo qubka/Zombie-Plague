@@ -31,7 +31,7 @@
  * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
  **/
-void ApplyOnClientSpawn(const int clientIndex)
+void ApplyOnClientSpawn(int clientIndex)
 { 
     // If mode doesn't started yet, then reset
     if(gServerData.RoundNew) 
@@ -41,8 +41,9 @@ void ApplyOnClientSpawn(const int clientIndex)
         gClientData[clientIndex].Respawn = TEAM_HUMAN;
         gClientData[clientIndex].LastPurchase = 0;
         
-        // Resets limit of extraitems
+        // Resets limit of weapons/items
         ItemsRemoveLimits(clientIndex);
+        WeaponsRemoveLimits(clientIndex);
     }
     
     // Initialize type char
@@ -81,7 +82,7 @@ void ApplyOnClientSpawn(const int clientIndex)
  * @param sType             (Optional) The class type.
  * @return                  True or false.
  **/
-bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, const char[] sType = "zombie")
+bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = "zombie")
 {
     // Validate client 
     if(!IsPlayerExist(clientIndex))
@@ -298,7 +299,7 @@ bool ApplyOnClientUpdate(const int clientIndex, const int attackerIndex = 0, con
  * @param clientIndex       The client index.
  * @param iTeam             The team index.
  **/
-void ApplyOnClientTeam(const int clientIndex, const int iTeam)
+void ApplyOnClientTeam(int clientIndex, int iTeam)
 {
     // Switch team
     bool bState = ToolsGetClientDefuser(clientIndex);

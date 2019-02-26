@@ -191,7 +191,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventEntityNapalm(Event hEvent, const char[] sName, bool dontBroadcast) 
+public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets real player index from event key
     ///int ownerIndex = GetClientOfUserId(hEvent.GetInt("userid")); 

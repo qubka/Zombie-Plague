@@ -152,7 +152,7 @@ void VEffectsOnCvarInit(/*void*/)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectOnBlast(const int clientIndex)
+void VEffectOnBlast(int clientIndex)
 {
     // Forward event to sub-modules
     VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 255, 255, 255});
@@ -163,7 +163,7 @@ void VEffectOnBlast(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectOnClientDeath(const int clientIndex)
+void VEffectOnClientDeath(int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -181,7 +181,7 @@ void VEffectOnClientDeath(const int clientIndex)
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
  **/
-void VEffectsOnClientInfected(const int clientIndex, const int attackerIndex)
+void VEffectsOnClientInfected(int clientIndex, int attackerIndex)
 {
     // Forward event to sub-modules
     VEffectsShakeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_SHAKE_AMP], gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY], gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]);
@@ -203,7 +203,7 @@ void VEffectsOnClientInfected(const int clientIndex, const int attackerIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectsOnClientHumanized(const int clientIndex)
+void VEffectsOnClientHumanized(int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -221,7 +221,7 @@ void VEffectsOnClientHumanized(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectsOnClientRegen(const int clientIndex)
+void VEffectsOnClientRegen(int clientIndex)
 {
     // Forward event to sub-modules
     VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {0, 255, 0, 25});
@@ -241,7 +241,7 @@ void VEffectsOnClientRegen(const int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectsOnClientJump(const int clientIndex)
+void VEffectsOnClientJump(int clientIndex)
 {
     // If particles disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
@@ -265,7 +265,7 @@ void VEffectsOnClientJump(const int clientIndex)
  * @param hFrequency        The cvar with frequency of shake.
  * @param hDuration         The cvar with duration of shake in the seconds.
  **/
-void VEffectsShakeClientScreen(const int clientIndex, const ConVar hAmplitude, const ConVar hFrequency, const ConVar hDuration)
+void VEffectsShakeClientScreen(int clientIndex, ConVar hAmplitude, ConVar hFrequency, ConVar hDuration)
 {
     // If screen shake disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_SHAKE].BoolValue) 
@@ -299,7 +299,7 @@ void VEffectsShakeClientScreen(const int clientIndex, const ConVar hAmplitude, c
  * @param iFlags            The flags.
  * @param vColor            The array with RGB color.
  **/
-void VEffectsFadeClientScreen(const int clientIndex, const ConVar hDuration, const ConVar hHoldTime, const int iFlags, const int vColor[4])
+void VEffectsFadeClientScreen(int clientIndex, ConVar hDuration, ConVar hHoldTime, int iFlags, int vColor[4])
 {
     // If screen fade disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_FADE].BoolValue) 
@@ -330,7 +330,7 @@ void VEffectsFadeClientScreen(const int clientIndex, const ConVar hDuration, con
  * @param clientIndex       The client index.
  * @param sMessage          The message to send.
  **/
-void VEffectsHintClientScreen(const int clientIndex, const char[] sMessage)
+void VEffectsHintClientScreen(int clientIndex, char[] sMessage)
 {
     // Create message
     Protobuf hMessage = view_as<Protobuf>(StartMessageOne("HintText", clientIndex));
@@ -364,7 +364,7 @@ void VEffectsHintClientScreen(const int clientIndex, const char[] sMessage)
  * @param fadeOut           Number of seconds to spend fading out.
  * @param sMessage          The message to send.
  **/
-void VEffectsHudClientScreen(const Handle hSync, const int clientIndex, const float x, const float y, const float holdTime, const int r, const int g, const int b, const int a, const int effect, const float fxTime, const float fadeIn, const float fadeOut, const char[] sMessage)
+void VEffectsHudClientScreen(Handle hSync, int clientIndex, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, char[] sMessage)
 {
     // Sets HUD parameters for drawing text
     SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
@@ -382,7 +382,7 @@ void VEffectsHudClientScreen(const Handle hSync, const int clientIndex, const fl
  * @param flDurationTime    The duration of light.
  * @return                  The entity index.
  **/
-int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char[] sType, const float flDurationTime)
+int VEffectSpawnParticle(int clientIndex, char[] sAttach, char[] sType, float flDurationTime)
 {
     // Validate name
     if(!hasLength(sType))
@@ -449,7 +449,7 @@ int VEffectSpawnParticle(const int clientIndex, const char[] sAttach, const char
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectRemoveParticle(const int clientIndex)
+void VEffectRemoveParticle(int clientIndex)
 {
     // Initialize classname char
     static char sClassname[SMALL_LINE_LENGTH];
@@ -484,7 +484,7 @@ void VEffectRemoveParticle(const int clientIndex)
  * @param entityIndex       The weapon index.
  * @param sEffect           The effect name.
  **/
-void VEffectSpawnMuzzle(const int clientIndex, const int entityIndex, const char[] sEffect)
+void VEffectSpawnMuzzle(int clientIndex, int entityIndex, char[] sEffect)
 {
     // Initialize vector variables
     static float vOrigin[3];
@@ -503,7 +503,7 @@ void VEffectSpawnMuzzle(const int clientIndex, const int entityIndex, const char
  * @param clientIndex       The client index.
  * @param entityIndex       The weapon index.
  **/
-void VEffectSpawnMuzzleSmoke(const int clientIndex, const int entityIndex)
+void VEffectSpawnMuzzleSmoke(int clientIndex, int entityIndex)
 {
     // Initialize vector variables
     static float vOrigin[3];
@@ -522,7 +522,7 @@ void VEffectSpawnMuzzleSmoke(const int clientIndex, const int entityIndex)
  * @param clientIndex       The client index.
  * @param entityIndex       The weapon index.
  **/
-void VEffectRemoveMuzzle(const int clientIndex, const int entityIndex)
+void VEffectRemoveMuzzle(int clientIndex, int entityIndex)
 {
     // Initialize vector variables
     static float vOrigin[3];
@@ -546,7 +546,7 @@ void VEffectRemoveMuzzle(const int clientIndex, const int entityIndex)
  * @param vAngle            (Optional) The angle vector.
  * @param iAttachment       (Optional) The attachment index.
  **/
-void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
+void VEffectDispatch(int entityIndex = 0, char[] sParticle = "", char[] sIndex = "", float vStart[3] = NULL_VECTOR, float vEnd[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, int iAttachment = 0) 
 {
     // Dispatch effect
     TE_Start("EffectDispatch");
@@ -574,7 +574,7 @@ void VEffectDispatch(const int entityIndex = 0, const char[] sParticle = "", con
  * @param sEffect           The effect name.
  * @return                  The item index.
  **/
-int VEffectGetEffectIndex(const char[] sEffect)
+int VEffectGetEffectIndex(char[] sEffect)
 {
     // Initialize the table index
     static int tableIndex = INVALID_STRING_TABLE;
@@ -605,7 +605,7 @@ int VEffectGetEffectIndex(const char[] sEffect)
  * @param sEffect           The effect name.
  * @return                  The item index.
  **/
-int VEffectGetParticleEffectIndex(const char[] sEffect)
+int VEffectGetParticleEffectIndex(char[] sEffect)
 {
     // Initialize the table index
     static int tableIndex = INVALID_STRING_TABLE;

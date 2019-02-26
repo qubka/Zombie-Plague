@@ -121,7 +121,7 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const float flCurrentTime)
+void Weapon_OnDeploy(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
 
@@ -129,7 +129,7 @@ void Weapon_OnDeploy(const int clientIndex, const int weaponIndex, const float f
     ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
 }
 
-void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
 
@@ -160,7 +160,7 @@ void Weapon_OnSecondaryAttack(const int clientIndex, const int weaponIndex, floa
     Task_Stab[clientIndex] = CreateTimer(0.8, Weapon_OnStab, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
 }
 
-void Weapon_OnSlash(const int clientIndex, const int weaponIndex)
+void Weapon_OnSlash(int clientIndex, int weaponIndex)
 {    
     #pragma unused clientIndex, weaponIndex
 
@@ -178,8 +178,8 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex)
     if(TR_GetFraction(hTrace) >= 1.0)
     {
         // Initialize the hull intersection
-        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        static float vMins[3] = { -16.0, -16.0, -18.0  }; 
+        static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
         hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
@@ -225,7 +225,7 @@ void Weapon_OnSlash(const int clientIndex, const int weaponIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action Weapon_OnStab(const Handle hTimer, const int userID)
+public Action Weapon_OnStab(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
@@ -331,7 +331,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(const int entityIndex, const int contentsMask, const int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
 {
     // If entity is a player, continue tracing
     return (entityIndex != clientIndex);

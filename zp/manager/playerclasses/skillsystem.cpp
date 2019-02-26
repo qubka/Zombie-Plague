@@ -43,7 +43,7 @@
  * Arrays to store the skill bar.
  **/
 char SkillSystemBar[MAXPLAYERS+1][BAR_MAX_LENGTH+1];
-static const char SkillSystemMax[BAR_MAX_LENGTH] = "__________________________________________________";
+static char SkillSystemMax[BAR_MAX_LENGTH] = "__________________________________________________";
  
 /**
  * @brief Skill module init function.
@@ -108,7 +108,7 @@ void SkillSystemOnCvarLoad(/*void*/)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void SkillSystemOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void SkillSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(!strcmp(oldValue, newValue, false))
@@ -128,7 +128,7 @@ public void SkillSystemOnCvarHook(ConVar hConVar, const char[] oldValue, const c
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SkillSystemOnCommandListened(const int clientIndex, const char[] commandMsg, const int iArguments)
+public Action SkillSystemOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
 {
     // Validate access
     if(!ModesIsSkill(gServerData.RoundMode))
@@ -153,7 +153,7 @@ public Action SkillSystemOnCommandListened(const int clientIndex, const char[] c
  * 
  * @param clientIndex       The client index.
  **/
-void SkillSystemOnClientUpdate(const int clientIndex)
+void SkillSystemOnClientUpdate(int clientIndex)
 {
     // If health restoring disabled, then stop
     if(!ModesIsRegen(gServerData.RoundMode))
@@ -178,7 +178,7 @@ void SkillSystemOnClientUpdate(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void SkillSystemOnClientStart(const int clientIndex)
+void SkillSystemOnClientStart(int clientIndex)
 {
     // Validate class skill duration/countdown
     float flInterval = ClassGetSkillDuration(gClientData[clientIndex].Class);
@@ -227,7 +227,7 @@ void SkillSystemOnClientStart(const int clientIndex)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientHUD(const Handle hTimer, const int userID)
+public Action SkillSystemOnClientHUD(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); 
@@ -270,7 +270,7 @@ public Action SkillSystemOnClientHUD(const Handle hTimer, const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientEnd(const Handle hTimer, const int userID)
+public Action SkillSystemOnClientEnd(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -303,7 +303,7 @@ public Action SkillSystemOnClientEnd(const Handle hTimer, const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientCount(const Handle hTimer, const int userID)
+public Action SkillSystemOnClientCount(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -347,7 +347,7 @@ public Action SkillSystemOnClientCount(const Handle hTimer, const int userID)
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action SkillSystemOnClientRegen(const Handle hTimer, const int userID)
+public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
@@ -416,7 +416,7 @@ void SkillSystemOnNativeInit(/*void*/)
  *
  * @note native bool ZP_GetClientSkillUsage(clientIndex);
  **/
-public int API_GetClientSkillUsage(const Handle hPlugin, const int iNumParams)
+public int API_GetClientSkillUsage(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -430,7 +430,7 @@ public int API_GetClientSkillUsage(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetClientSkillCountdown(clientIndex);
  **/
-public int API_GetClientSkillCountdown(const Handle hPlugin, const int iNumParams)
+public int API_GetClientSkillCountdown(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);
@@ -444,7 +444,7 @@ public int API_GetClientSkillCountdown(const Handle hPlugin, const int iNumParam
  *
  * @note native void ZP_ResetClientSkill(clientIndex);
  **/
-public int API_ResetClientSkill(const Handle hPlugin, const int iNumParams)
+public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

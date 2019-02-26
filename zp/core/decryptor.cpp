@@ -33,7 +33,7 @@
  * @param sModel            The model path.
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int DecryptPrecacheModel(const char[] sModel)
+int DecryptPrecacheModel(char[] sModel)
 {
     // If model path is empty, then stop
     if(!hasLength(sModel))
@@ -44,8 +44,16 @@ int DecryptPrecacheModel(const char[] sModel)
     // If model didn't exist, then
     if(!FileExists(sModel))
     {
-        // Try to find model in game folder by name
-        return DecryptPrecacheStandart(sModel);
+        // Try to find file in .vpk
+        if(FileExists(sModel, true))
+        {
+            // Return on success
+            return PrecacheModel(sModel, true);
+        }
+        
+        // Return error
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
+        return 0;
     }
     
     // If model doesn't precache yet, then continue
@@ -58,7 +66,7 @@ int DecryptPrecacheModel(const char[] sModel)
         DecryptPrecacheResources(sModel);
     }
     
-    // Return on success
+    // Return the model index
     return PrecacheModel(sModel, true);
 }
 
@@ -68,7 +76,7 @@ int DecryptPrecacheModel(const char[] sModel)
  * @param sModel            The model path. 
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int DecryptPrecacheWeapon(const char[] sModel)
+int DecryptPrecacheWeapon(char[] sModel)
 {
     // If model path is empty, then stop
     if(!hasLength(sModel))
@@ -79,6 +87,13 @@ int DecryptPrecacheWeapon(const char[] sModel)
     // If model didn't exist, then
     if(!FileExists(sModel))
     {
+        // Try to find file in .vpk
+        if(FileExists(sModel, true))
+        {
+            // Return on success
+            return PrecacheModel(sModel, true);
+        }
+
         // Return error
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
         return 0;
@@ -107,7 +122,7 @@ int DecryptPrecacheWeapon(const char[] sModel)
  * @param sModel            The model path. 
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int DecryptPrecacheParticle(const char[] sModel)
+int DecryptPrecacheParticle(char[] sModel)
 {
     // If model path is empty, then stop
     if(!hasLength(sModel))
@@ -118,6 +133,13 @@ int DecryptPrecacheParticle(const char[] sModel)
     // If model didn't exist, then
     if(!FileExists(sModel))
     {
+        // Try to find file in .vpk
+        if(FileExists(sModel, true))
+        {
+            // Return on success
+            return PrecacheGeneric(sModel, true);
+        }
+
         // Return error
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
         return 0;
@@ -139,14 +161,14 @@ int DecryptPrecacheParticle(const char[] sModel)
  *
  * @param sModel            The model path.
  **/
-void DecryptPrecacheResources(const char[] sModel)
+void DecryptPrecacheResources(char[] sModel)
 {
     // Add file to download table
     AddFileToDownloadsTable(sModel);
 
     // Initialize variables
     static char sResource[PLATFORM_LINE_LENGTH];
-    static const char sTypes[3][SMALL_LINE_LENGTH] = { ".dx90.vtx", ".phy", ".vvd" };
+    static char sTypes[3][SMALL_LINE_LENGTH] = { ".dx90.vtx", ".phy", ".vvd" };
 
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sModel, '.', true);
@@ -176,7 +198,7 @@ void DecryptPrecacheResources(const char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheSounds(const char[] sModel)
+bool DecryptPrecacheSounds(char[] sModel)
 {
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sModel, '.', true);
@@ -308,7 +330,7 @@ bool DecryptPrecacheSounds(const char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheMaterials(const char[] sModel)
+bool DecryptPrecacheMaterials(char[] sModel)
 {
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sModel, '.', true);
@@ -527,7 +549,7 @@ bool DecryptPrecacheMaterials(const char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheEffects(const char[] sModel)
+bool DecryptPrecacheEffects(char[] sModel)
 {
     // Finds the first occurrence of a character in a string
     int iFormat = FindCharInString(sModel, '.', true);
@@ -540,7 +562,7 @@ bool DecryptPrecacheEffects(const char[] sModel)
     }
 
     /// @link https://github.com/VSES/SourceEngine2007/blob/master/src_main/movieobjects/dmeparticlesystemdefinition.cpp
-    /*static const char sParticleFuncTypes[48][SMALL_LINE_LENGTH] =
+    /*static char sParticleFuncTypes[48][SMALL_LINE_LENGTH] =
     {
         "DmeParticleSystemDefinition", "DmElement", "DmeParticleChild", "DmeParticleOperator", "particleSystemDefinitions",
         "preventNameBasedLookup", "particleSystemDefinitionDict", "snapshot", "untitled", "child", "drag", "delay", "name",
@@ -667,7 +689,7 @@ bool DecryptPrecacheEffects(const char[] sModel)
  * @param bDecal            (Optional) If true, the texture will be precached like a decal.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheTextures(const char[] sPath)
+bool DecryptPrecacheTextures(char[] sPath)
 {
     // Dublicate value string
     static char sTexture[PLATFORM_LINE_LENGTH];
@@ -684,7 +706,7 @@ bool DecryptPrecacheTextures(const char[] sPath)
     AddFileToDownloadsTable(sTexture);
     
     // Initialize variables
-    static const char sTypes[4][SMALL_LINE_LENGTH] = { "$baseTexture", "$bumpmap", "$lightwarptexture", "$REFRACTTINTtexture" }; bool bFound[sizeof(sTypes)]; int iShift;
+    static char sTypes[4][SMALL_LINE_LENGTH] = { "$baseTexture", "$bumpmap", "$lightwarptexture", "$REFRACTTINTtexture" }; bool bFound[sizeof(sTypes)]; int iShift;
     
     // Opens the file
     File hFile = OpenFile(sTexture, "rt");
@@ -768,50 +790,4 @@ bool DecryptPrecacheTextures(const char[] sPath)
     // Close file
     delete hFile; 
     return true;
-}
-
-/**
- * @brief Validates the specified standart models.
- *
- * @param sModel            The model path for validation.
- * @return                  The model index if was precached, 0 otherwise.
- **/
-int DecryptPrecacheStandart(const char[] sModel)
-{
-    // Validate path
-    if(!strncmp(sModel, "models/player/", 14, true))
-    {
-        // If path contains standart path
-        if(!strncmp(sModel[14], "custom_player/legacy/", 21, true))
-        {
-            // If path contains standart path
-            if(!strncmp(sModel[35], "ctm_", 4, true) || !strncmp(sModel[35], "tm_", 3, true))
-            {
-                // Precache model
-                return PrecacheModel(sModel, true);
-            }
-        }
-        else
-        {
-            // If path contains standart path
-            if(!strncmp(sModel[14], "ctm_", 4, true) || !strncmp(sModel[14], "tm_", 3, true))
-            {
-                // Precache model
-                return PrecacheModel(sModel, true);
-            }
-        }
-    }
-    else if(!strncmp(sModel, "models/weapons/", 15, true))
-    {
-        // If path contains standart path
-        if(!strncmp(sModel[15], "ct_arms_", 8, true) || !strncmp(sModel[15], "t_arms_", 7, true) || !strncmp(sModel[15], "w_knife_ghost", 13, true))
-        {
-            // Precache model
-            return PrecacheModel(sModel, true);
-        }
-    }
-
-    // Model didn't exist, then stop
-    LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid model path. File not found: \"%s\"", sModel);
-    return 0;
 }

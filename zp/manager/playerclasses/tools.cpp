@@ -148,7 +148,7 @@ void ToolsOnPurge(/*void*/)
  *
  * @param clientIndex       The client index.
  **/
-void ToolsOnClientConnect(const int clientIndex)
+void ToolsOnClientConnect(int clientIndex)
 {
     // Forward event to modules
     gClientData[clientIndex].ResetVars();
@@ -160,7 +160,7 @@ void ToolsOnClientConnect(const int clientIndex)
  *
  * @param clientIndex       The client index.
  **/
-void ToolsOnClientDisconnectPost(const int clientIndex)
+void ToolsOnClientDisconnectPost(int clientIndex)
 {
     // Forward event to modules
     gClientData[clientIndex].ResetVars();
@@ -186,7 +186,7 @@ void ToolsOnNativeInit(/*void*/)
  *
  * @note native bool ZP_LookupAttachment(entityIndex, attach);
  **/
-public int API_LookupAttachment(const Handle hPlugin, const int iNumParams)
+public int API_LookupAttachment(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
     int entityIndex = GetNativeCell(1);
@@ -221,7 +221,7 @@ public int API_LookupAttachment(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetAttachment(entityIndex, attach, origin, angles);
  **/
-public int API_GetAttachment(const Handle hPlugin, const int iNumParams)
+public int API_GetAttachment(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
     int entityIndex = GetNativeCell(1);
@@ -261,7 +261,7 @@ public int API_GetAttachment(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_RespawnClient(clientIndex);
  **/
-public int API_RespawnClient(const Handle hPlugin, const int iNumParams)
+public int API_RespawnClient(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
     int clientIndex = GetNativeCell(1);

@@ -43,7 +43,7 @@
  * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsInputEmitToAll(const int iKey, const int iNum = 0, const int entityIndex = SOUND_FROM_PLAYER, const int iChannel = SNDCHAN_AUTO, const int iLevel = SNDLEVEL_NORMAL, const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const int speakerIndex = INVALID_ENT_REFERENCE, const float vOrigin[3] = NULL_VECTOR, const float vDirection[3] = NULL_VECTOR, const bool updatePos = true, const float flSoundTime = 0.0)
+bool SEffectsInputEmitToAll(int iKey, int iNum = 0, int entityIndex = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speakerIndex = INVALID_ENT_REFERENCE, float vOrigin[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
 {
     // Initialize sound char
     static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = '\0';
@@ -85,7 +85,7 @@ bool SEffectsInputEmitToAll(const int iKey, const int iNum = 0, const int entity
  * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsInputEmitToClient(const int iKey, const int iNum = 0, const int clientIndex, const int entityIndex = SOUND_FROM_PLAYER, const int iChannel = SNDCHAN_AUTO, const int iLevel = SNDLEVEL_NORMAL, const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const int speakerIndex = INVALID_ENT_REFERENCE, const float vOrigin[3] = NULL_VECTOR, const float vDirection[3] = NULL_VECTOR, const bool updatePos = true, const float flSoundTime = 0.0)
+bool SEffectsInputEmitToClient(int iKey, int iNum = 0, int clientIndex, int entityIndex = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speakerIndex = INVALID_ENT_REFERENCE, float vOrigin[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
 {
     // Initialize sound char
     static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = '\0';
@@ -127,7 +127,7 @@ bool SEffectsInputEmitToClient(const int iKey, const int iNum = 0, const int cli
  * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsInputEmitAmbient(const int iKey, const int iNum = 0, const int clientIndex = -1, const int entityIndex = SOUND_FROM_PLAYER, const int iChannel = SNDCHAN_AUTO, const int iLevel = SNDLEVEL_NORMAL, const int iFlags = SND_NOFLAGS, const float flVolume = SNDVOL_NORMAL, const int iPitch = SNDPITCH_NORMAL, const int speakerIndex = INVALID_ENT_REFERENCE, const float vOrigin[3] = NULL_VECTOR, const float vDirection[3] = NULL_VECTOR, const bool updatePos = true, const float flSoundTime = 0.0)
+bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, int clientIndex = -1, int entityIndex = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speakerIndex = INVALID_ENT_REFERENCE, float vOrigin[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
 {
     // Validate client
     if(IsPlayerExist(clientIndex) && !IsFakeClient(clientIndex))
@@ -147,7 +147,7 @@ bool SEffectsInputEmitAmbient(const int iKey, const int iNum = 0, const int clie
  * @param clientIndex       (Optional) The client index.
  * @param iChannel          (Optional) The channel to emit with.
  **/
-void SEffectsInputStopSound(const int iKey, const int clientIndex = -1, const int iChannel = SNDCHAN_AUTO)
+void SEffectsInputStopSound(int iKey, int clientIndex = -1, int iChannel = SNDCHAN_AUTO)
 {
     // Stop all sounds
     SoundsStopAll(iKey, clientIndex, iChannel);

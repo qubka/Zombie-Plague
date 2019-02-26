@@ -234,7 +234,7 @@ void HitGroupsOnCvarInit(/*void*/)
  * 
  * @param clientIndex       The client index.  
  **/
-void HitGroupsOnClientInit(const int clientIndex)
+void HitGroupsOnClientInit(int clientIndex)
 {
     // If gamemodes is disabled, then unhook
     int iDamage = gCvarList[CVAR_GAMEMODE].IntValue;
@@ -259,7 +259,7 @@ void HitGroupsOnClientInit(const int clientIndex)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void HitGroupsOnCvarHook(ConVar hConVar, const char[] oldValue, const char[] newValue)
+public void HitGroupsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
     if(oldValue[0] == newValue[0])
@@ -288,7 +288,7 @@ public void HitGroupsOnCvarHook(ConVar hConVar, const char[] oldValue, const cha
  * @param iHitBox           The hitbox index.  
  * @param iHitGroup         The hitgroup index.  
  **/
-public Action HitGroupsOnTraceAttack(const int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &iAmmo, int iHitBox, int iHitGroup)
+public Action HitGroupsOnTraceAttack(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &iAmmo, int iHitBox, int iHitGroup)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
@@ -341,7 +341,7 @@ public Action HitGroupsOnTraceAttack(const int clientIndex, int &attackerIndex, 
  * @param damageForce       The velocity of damage force.
  * @param damagePosition    The origin of damage.
  **/
-public Action HitGroupsOnTakeDamage(const int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex, const float damageForce[3], const float damagePosition[3]/*, int damagecustom*/)
+public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex, float damageForce[3], float damagePosition[3]/*, int damagecustom*/)
 {
     // Validate inflictor
     if(IsValidEdict(inflictorIndex))
@@ -389,7 +389,7 @@ public Action HitGroupsOnTakeDamage(const int clientIndex, int &attackerIndex, i
  * @param weaponIndex       The weapon index or -1 for unspecified.
  * @return                  True to allow real damage or false to block real damage.
  **/
-bool HitGroupsOnCalculateDamage(const int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Validate victim
     if(!IsPlayerExist(clientIndex))
@@ -462,7 +462,7 @@ bool HitGroupsOnCalculateDamage(const int clientIndex, int &attackerIndex, int &
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate attacker
-    if(IsPlayerExist(attackerIndex))
+    if(IsPlayerExist(attackerIndex, false))
     {
         // Validate team
         if(GetClientTeam(clientIndex) == GetClientTeam(attackerIndex))
@@ -478,16 +478,22 @@ bool HitGroupsOnCalculateDamage(const int clientIndex, int &attackerIndex, int &
             flDamageRatio *= float(gClientData[attackerIndex].Level) * gCvarList[CVAR_LEVEL_DAMAGE_RATIO].FloatValue + 1.0;
         }
         
+        // Resets the weapon id
+        gClientData[attackerIndex].DamageID = -1;
+        
         // Validate weapon
         if(IsValidEdict(weaponIndex))
         {
             // Validate custom index
             int iD = WeaponsGetCustomID(weaponIndex);
-            if(iD != INVALID_ENT_REFERENCE)
+            if(iD != -1)
             {
                 // Add multipliers
                 flDamageRatio *= WeaponsGetDamage(iD); 
                 flKnockRatio  *= WeaponsGetKnockBack(iD);
+                
+                // Store the weapon id for an icon
+                gClientData[attackerIndex].DamageID = iD;
             }
         }
     }
@@ -638,7 +644,7 @@ void HitGroupsOnNativeInit(/*void*/)
  *
  * @note native void ZP_TakeDamage(clientIndex, attackerIndex, flDamage, iBits, weaponIndex);
  **/
-public int API_TakeDamage(const Handle hPlugin, const int iNumParams)
+public int API_TakeDamage(Handle hPlugin, int iNumParams)
 {
     // Gets data from native cells
     int clientIndex = GetNativeCell(1);
@@ -666,7 +672,7 @@ public int API_TakeDamage(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetNumberHitGroup();
  **/
-public int API_GetNumberHitGroup(const Handle hPlugin, const int iNumParams)
+public int API_GetNumberHitGroup(Handle hPlugin, int iNumParams)
 {
     // Return the value 
     return gServerData.HitGroups.Length;
@@ -677,7 +683,7 @@ public int API_GetNumberHitGroup(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetHitGroupID(hitgroup);
  **/
-public int API_GetHitGroupID(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupID(Handle hPlugin, int iNumParams)
 {
     // Return the value
     return HitGroupToIndex(GetNativeCell(1));
@@ -688,7 +694,7 @@ public int API_GetHitGroupID(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetHitGroupNameID(name);
  **/
-public int API_GetHitGroupNameID(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupNameID(Handle hPlugin, int iNumParams)
 {
     // Retrieves the string length from a native parameter string
     int maxLen;
@@ -716,7 +722,7 @@ public int API_GetHitGroupNameID(const Handle hPlugin, const int iNumParams)
  *
  * @note native void ZP_GetHitGroupName(iD, name, maxlen);
  **/
-public int API_GetHitGroupName(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupName(Handle hPlugin, int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -751,7 +757,7 @@ public int API_GetHitGroupName(const Handle hPlugin, const int iNumParams)
  *
  * @note native int ZP_GetHitGroupIndex(iD);
  **/
-public int API_GetHitGroupIndex(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupIndex(Handle hPlugin, int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -772,7 +778,7 @@ public int API_GetHitGroupIndex(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsHitGroupDamage(iD);
  **/
-public int API_IsHitGroupDamage(const Handle hPlugin, const int iNumParams)
+public int API_IsHitGroupDamage(Handle hPlugin, int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -793,7 +799,7 @@ public int API_IsHitGroupDamage(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupKnockBack(iD);
  **/
-public int API_GetHitGroupKnockBack(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupKnockBack(Handle hPlugin, int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -814,7 +820,7 @@ public int API_GetHitGroupKnockBack(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupArmor(iD);
  **/
-public int API_GetHitGroupArmor(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupArmor(Handle hPlugin, int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -835,7 +841,7 @@ public int API_GetHitGroupArmor(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupBonus(iD);
  **/
-public int API_GetHitGroupBonus(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupBonus(Handle hPlugin, int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -856,7 +862,7 @@ public int API_GetHitGroupBonus(const Handle hPlugin, const int iNumParams)
  *
  * @note native float ZP_GetHitGroupHeavy(iD);
  **/
-public int API_GetHitGroupHeavy(const Handle hPlugin, const int iNumParams)
+public int API_GetHitGroupHeavy(Handle hPlugin, int iNumParams)
 {
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -877,7 +883,7 @@ public int API_GetHitGroupHeavy(const Handle hPlugin, const int iNumParams)
  *
  * @note native bool ZP_IsHitGroupProtect(iD);
  **/
-public int API_IsHitGroupProtect(const Handle hPlugin, const int iNumParams)
+public int API_IsHitGroupProtect(Handle hPlugin, int iNumParams)
 {    
     // Gets hitgroup index from native cell
     int iD = GetNativeCell(1);
@@ -904,7 +910,7 @@ public int API_IsHitGroupProtect(const Handle hPlugin, const int iNumParams)
  * @param sName             The string to return name in.
  * @param iMaxLen           The lenght of string.
  **/
-void HitGroupsGetName(const int iD, char[] sName, const int iMaxLen)
+void HitGroupsGetName(int iD, char[] sName, int iMaxLen)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -919,7 +925,7 @@ void HitGroupsGetName(const int iD, char[] sName, const int iMaxLen)
  * @param iD                The hitgroup index.
  * @return                  The real hitgroup index.
  **/
-int HitGroupsGetIndex(const int iD)
+int HitGroupsGetIndex(int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -934,7 +940,7 @@ int HitGroupsGetIndex(const int iD)
  * @param iD                The hitgroup index.
  * @return                  True if hitgroup can be damaged, false if not.
  **/
-bool HitGroupsIsDamage(const int iD)
+bool HitGroupsIsDamage(int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -949,7 +955,7 @@ bool HitGroupsIsDamage(const int iD)
  * @param iD                The array index.
  * @return                  The knockback multiplier of the hitgroup.
  **/
-float HitGroupsGetKnockBack(const int iD)
+float HitGroupsGetKnockBack(int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -964,7 +970,7 @@ float HitGroupsGetKnockBack(const int iD)
  * @param iD                The array index.
  * @return                  The knockback armor of the hitgroup.
  **/
-float HitGroupsGetArmor(const int iD)
+float HitGroupsGetArmor(int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -979,7 +985,7 @@ float HitGroupsGetArmor(const int iD)
  * @param iD                The array index.
  * @return                  The knockback bonus of the hitgroup.
  **/
-float HitGroupsGetBonus(const int iD)
+float HitGroupsGetBonus(int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -994,7 +1000,7 @@ float HitGroupsGetBonus(const int iD)
  * @param iD                The array index.
  * @return                  The knockback heavy of the hitgroup.
  **/
-float HitGroupsGetHeavy(const int iD)
+float HitGroupsGetHeavy(int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -1009,7 +1015,7 @@ float HitGroupsGetHeavy(const int iD)
  * @param iD                The hitgroup index.
  * @return                  True if hitgroup can be protected, false if not.
  **/
-bool HitGroupsIsProtect(const int iD)
+bool HitGroupsIsProtect(int iD)
 {
     // Gets array handle of hitgroup at given index
     ArrayList arrayHitGroup = gServerData.HitGroups.Get(iD);
@@ -1028,7 +1034,7 @@ bool HitGroupsIsProtect(const int iD)
  * @param sName             The hitgroup name.
  * @return                  The array index containing the given hitgroup name.
  **/
-int HitGroupsNameToIndex(const char[] sName)
+int HitGroupsNameToIndex(char[] sName)
 {
     // Initialize name char
     static char sHitGroupName[SMALL_LINE_LENGTH];
@@ -1058,7 +1064,7 @@ int HitGroupsNameToIndex(const char[] sName)
  * @param iHitGroup         The hitgroup index to search for.
  * @return                  The array index that contains the given hitgroup index.
  **/
-int HitGroupToIndex(const int iHitGroup)
+int HitGroupToIndex(int iHitGroup)
 {
     // i = box index
     int iSize = gServerData.HitGroups.Length;
@@ -1087,7 +1093,7 @@ int HitGroupToIndex(const int iHitGroup)
  * @param iHitGroup         The hitgroup index output.
  * @return                  True or false.
  **/
-bool HitGroupsValidateBits(const int clientIndex, const int iBits, int &iHitGroup)
+bool HitGroupsValidateBits(int clientIndex, int iBits, int &iHitGroup)
 {
     // Validate bits
     if(iBits & (DMG_BURN | DMG_DIRECT))
@@ -1146,7 +1152,7 @@ bool HitGroupsValidateBits(const int clientIndex, const int iBits, int &iHitGrou
  * @param iHitGroup         The hitgroup index.
  * @return                  True or false.
  **/
-bool HitGroupsValidateArmor(const int clientIndex, const int iHitGroup)
+bool HitGroupsValidateArmor(int clientIndex, int iHitGroup)
 {
     // Initialize bool
     bool bApplyArmor;
@@ -1176,7 +1182,7 @@ bool HitGroupsValidateArmor(const int clientIndex, const int iHitGroup)
  * @param attackerIndex     The attacker index.
  * @param flKnockBack       The knockback amount.
  **/
-void HitGroupsApplyKnockBack(const int clientIndex, const int attackerIndex, float flKnockBack)
+void HitGroupsApplyKnockBack(int clientIndex, int attackerIndex, float flKnockBack)
 {
     // If victim is not on the ground, then apply it
     if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
@@ -1231,7 +1237,7 @@ void HitGroupsApplyKnockBack(const int clientIndex, const int attackerIndex, flo
  * @param clientIndex       The client index.
  * @param iDamage           The damage amount.
  **/
-void HitGroupsGiveMoney(const int clientIndex, const int iDamage)
+void HitGroupsGiveMoney(int clientIndex, int iDamage)
 {
     // Initialize client applied damage
     static int iAppliedDamage[MAXPLAYERS+1];
@@ -1270,7 +1276,7 @@ void HitGroupsGiveMoney(const int clientIndex, const int iDamage)
  * @param clientIndex       The client index.
  * @param iDamage           The damage amount.
  **/
-void HitGroupsGiveExp(const int clientIndex, const int iDamage)
+void HitGroupsGiveExp(int clientIndex, int iDamage)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -1318,7 +1324,7 @@ void HitGroupsGiveExp(const int clientIndex, const int iDamage)
  *
  * @return                  True or false.
  **/
-public bool HitGroupsFilter(const int entityIndex, const int contentsMask, const int clientIndex)
+public bool HitGroupsFilter(int entityIndex, int contentsMask, int clientIndex)
 {
     return (1 <= entityIndex <= MaxClients && entityIndex != clientIndex);
 }
