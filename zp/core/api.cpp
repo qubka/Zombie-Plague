@@ -512,7 +512,7 @@ enum struct ForwardData
         Call_StartForward(this.OnEngineExecute);
         Call_Finish();
     }
-};
+}
 /**
  * @endsection
  **/
