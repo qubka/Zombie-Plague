@@ -196,7 +196,7 @@ enum struct ServerData
         this.EndTimer     = null;
         this.BlastTimer   = null;
     }
-};
+}
 /**
  * @endsection
  **/
@@ -344,7 +344,7 @@ enum struct ClientData
         this.MoanTimer      = null; 
         this.AmbientTimer   = null; 
     }
-};
+}
 /**
  * @endsection
  **/
