@@ -389,12 +389,8 @@ public void WeaponSDKOnWeaponReloadPost(int referenceIndex)
  **/
 public void WeaponSDKOnItemSpawn(int itemIndex)
 {
-    // Validate item
-    if(IsValidEdict(itemIndex)) 
-    {
-        // Reset the weapon id
-        WeaponsSetCustomID(itemIndex, INVALID_ENT_REFERENCE);
-    }
+    // Reset the weapon id
+    WeaponsSetCustomID(itemIndex, INVALID_ENT_REFERENCE);
 }
 
 /**
@@ -405,12 +401,8 @@ public void WeaponSDKOnItemSpawn(int itemIndex)
  **/
 public void WeaponSDKOnWeaponSpawn(int weaponIndex)
 {
-    // Validate weapon
-    if(IsValidEdict(weaponIndex)) 
-    {
-        // Reset the weapon id
-        WeaponsSetCustomID(weaponIndex, INVALID_ENT_REFERENCE);
-    }
+    // Reset the weapon id
+    WeaponsSetCustomID(weaponIndex, INVALID_ENT_REFERENCE);
     
     #if defined USE_DHOOKS
         // Apply fake spawn hook on the next frame
@@ -465,12 +457,8 @@ public void WeaponSDKOnWeaponSpawnPost(int referenceIndex)
  **/
 public void WeaponSDKOnGrenadeSpawn(int grenadeIndex)
 {
-    // Validate grenade
-    if(IsValidEdict(grenadeIndex)) 
-    {
-        // Reset the grenade id
-        WeaponsSetCustomID(grenadeIndex, INVALID_ENT_REFERENCE);
-    }
+    // Reset the grenade id
+    WeaponsSetCustomID(grenadeIndex, INVALID_ENT_REFERENCE);
     
     // Apply fake throw hook on the next frame
     RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnGrenadeSpawnPost), EntIndexToEntRef(grenadeIndex));
@@ -506,7 +494,7 @@ public void WeaponSDKOnGrenadeSpawnPost(int referenceIndex)
         int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
         
         // Validate weapon
-        if(!IsValidEdict(weaponIndex))
+        if(weaponIndex == INVALID_ENT_REFERENCE)
         {
             return;
         }
@@ -649,7 +637,7 @@ void WeaponSDKOnClientUpdate(int clientIndex)
     int viewModel2 = WeaponHDRGetPlayerViewModel(clientIndex, 1);
 
     // If a secondary viewmodel doesn't exist, create one
-    if(!IsValidEdict(viewModel2))
+    if(viewModel1 != INVALID_ENT_REFERENCE && viewModel2 == INVALID_ENT_REFERENCE)
     {
         // Validate entity
         if((viewModel2 = CreateEntityByName("predicted_viewmodel")) == INVALID_ENT_REFERENCE)
@@ -681,7 +669,7 @@ void WeaponSDKOnClientUpdate(int clientIndex)
     int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
 
     // Validate weapon
-    if(IsValidEdict(weaponIndex))
+    if(weaponIndex != INVALID_ENT_REFERENCE)
     {
         // Gets weapon classname
         static char sClassname[SMALL_LINE_LENGTH];
@@ -758,7 +746,7 @@ public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex)
             int itemIndex = ToolsGetClientLastWeapon(clientIndex);
         
             // Validate last weapon
-            if(IsValidEdict(itemIndex))
+            if(itemIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate last index
                 int iL = WeaponsGetCustomID(itemIndex);
@@ -819,12 +807,6 @@ public void WeaponSDKOnDeploy(int clientIndex, int weaponIndex)
  **/
 public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex) 
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-
     // Gets entity index from the reference
     int viewModel1 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[0]);
     int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
@@ -1005,12 +987,6 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
  **/
 public void WeaponSDKOnAnimationFix(int clientIndex) 
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        return;
-    }
-
     // Sets current addons
     WeaponAttachSetAddons(clientIndex); /// Back weapon models
     
@@ -1315,7 +1291,7 @@ public void WeaponSDKOnHostagePost(int userID)
             int viewModel2 = WeaponHDRGetPlayerViewModel(clientIndex, 1);
 
             // Remove the viewmodel created by the game
-            if(IsValidEdict(viewModel2))
+            if(viewModel2 != INVALID_ENT_REFERENCE)
             {
                 AcceptEntityInput(viewModel2, "Kill"); /// Destroy
             }
@@ -1350,7 +1326,7 @@ public Action WeaponSDKOnCommandListened(int clientIndex, char[] commandMsg, int
         int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
 
         // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        if(weaponIndex != INVALID_ENT_REFERENCE)
         {
             // If weapon without any type of ammo, then stop
             if(GetEntData(weaponIndex, g_iOffset_WeaponAmmoType) == -1)

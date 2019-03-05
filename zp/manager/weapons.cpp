@@ -369,7 +369,7 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
     int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
     
     // Validate weapon
-    if(!IsValidEdict(weaponIndex))
+    if(weaponIndex == INVALID_ENT_REFERENCE)
     {
         return;
     }
@@ -401,7 +401,7 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
     int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
     
     // Validate weapon
-    if(!IsValidEdict(weaponIndex))
+    if(weaponIndex == INVALID_ENT_REFERENCE)
     {
         return;
     }
@@ -465,7 +465,7 @@ public Action WeaponsOnShoot(char[] sTEName, int[] iPlayers, int numClients, flo
     int weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
     
     // Validate weapon
-    if(!IsValidEdict(weaponIndex))
+    if(weaponIndex == INVALID_ENT_REFERENCE)
     {
         return Plugin_Continue;
     }
@@ -487,7 +487,7 @@ Action WeaponsOnRunCmd(int clientIndex, int &iButtons, int iLastButtons)
     static int weaponIndex; weaponIndex = ToolsGetClientActiveWeapon(clientIndex);
 
     // Validate weapon
-    if(!IsValidEdict(weaponIndex))
+    if(weaponIndex == INVALID_ENT_REFERENCE)
     {
         return Plugin_Continue;
     }
@@ -2382,7 +2382,7 @@ bool WeaponsRemoveAll(int clientIndex)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
         
         // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        if(weaponIndex != INVALID_ENT_REFERENCE)
         {
             // Validate custom index
             int iD = WeaponsGetCustomID(weaponIndex);
@@ -2567,7 +2567,7 @@ int WeaponsGetIndex(int clientIndex, char[] sType)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
 
         // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        if(weaponIndex != INVALID_ENT_REFERENCE)
         {
             // Gets weapon classname
             GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
@@ -2602,7 +2602,7 @@ bool WeaponsValidateID(int clientIndex, int iD)
         int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
         
         // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        if(weaponIndex != INVALID_ENT_REFERENCE)
         {
             // If weapon find, then return
             if(WeaponsGetCustomID(weaponIndex) == iD)
@@ -2718,4 +2718,31 @@ bool WeaponsValidateGrenade(int weaponIndex)
     // Return on success
     return (!strncmp(sClassname[7], "heg", 3, false) || !strncmp(sClassname[7], "dec", 3, false) || !strncmp(sClassname[7], "fla", 3, false) || !strncmp(sClassname[7], "inc", 3, false) ||
             !strncmp(sClassname[7], "mol", 3, false) || !strncmp(sClassname[7], "smo", 3, false) || !strncmp(sClassname[7], "tag", 3, false));
+}
+
+/**
+ * @brief Returns true if the player has a projectile, false if not.
+ *
+ * @param weaponIndex       The weapon index.
+ *
+ * @return                  True or false.    
+ **/
+bool WeaponsValidateProjectile(int weaponIndex)
+{
+    // Gets weapon classname
+    static char sClassname[SMALL_LINE_LENGTH];
+    GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
+
+    // Gets string length
+    int iLen = strlen(sClassname) - 11;
+    
+    // Validate length
+    if(iLen > 0)
+    {
+        // Validate grenade
+        return (!strncmp(sClassname[iLen], "_proj", 5, false));
+    }
+    
+    // Return on unsuccess
+    return false;
 }

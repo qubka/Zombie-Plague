@@ -439,7 +439,7 @@ public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType transacti
  * @param failIndex         Index of the query that failed, or -1 if something else.
  * @param clientIndex       An array of each data value passed.
  **/
-public void SQLTxnFailure_Callback(Database hDatabase, TransactionType transactionType, int numQueries, char[] sError, int failIndex, any[] clientIndex)
+public void SQLTxnFailure_Callback(Database hDatabase, TransactionType transactionType, int numQueries, char[] sError, int failIndex, int[] clientIndex)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hasLength(sError))
@@ -1010,7 +1010,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
 
                 case ColumnType_Time :
                 {
-                    Format(sRequest, iMaxLen, "%s `time` = %d", sRequest, GetTime()); //! Gets system time as a unix timestamp
+                    Format(sRequest, iMaxLen, "%s `time` = %d", sRequest, GetTime()); /// Gets system time as a unix timestamp
                 }
             }
             

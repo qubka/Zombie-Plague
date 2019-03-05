@@ -471,12 +471,12 @@ public Action /*ZP_*/OnWeaponReload(int weaponIndex)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param inflicterIndex    The inflicter index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Client was damaged by 'bullet'
     if(iBits & DMG_NEVERGIB)

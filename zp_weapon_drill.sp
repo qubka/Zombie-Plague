@@ -522,53 +522,49 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  **/
 public Action BowTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
+    // Validate target
+    if(IsValidEdict(targetIndex))
     {
-        // Validate target
-        if(IsValidEdict(targetIndex))
+        // Gets thrower index
+        int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+        int weaponIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hEffectEntity");
+        
+        // Validate thrower
+        if(throwerIndex == targetIndex)
         {
-            // Gets thrower index
-            int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
-            int weaponIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hEffectEntity");
+            // Return on the unsuccess
+            return Plugin_Continue;
+        }
+
+        // Validate client
+        if(IsPlayerExist(targetIndex))
+        {
+            // Validate zombie
+            if(ZP_IsPlayerZombie(targetIndex)) 
+            {
+                // Create the damage for a victim
+                ZP_TakeDamage(targetIndex, throwerIndex, entityIndex, WEAPON_BOW_DAMAGE, DMG_NEVERGIB, weaponIndex);
+            }
+
+            // Remove the entity from the world
+            AcceptEntityInput(entityIndex, "Kill");
+        }
+        else
+        {
+            // Remove a physics
+            SetEntityMoveType(entityIndex, MOVETYPE_NONE);
+
+            // Initialize time char
+            static char sTime[SMALL_LINE_LENGTH];
+            FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", WEAPON_BOW_TIME);
+
+            // Sets modified flags on the entity
+            SetVariantString(sTime);
+            AcceptEntityInput(entityIndex, "AddOutput");
+            AcceptEntityInput(entityIndex, "FireUser1");
             
-            // Validate thrower
-            if(throwerIndex == targetIndex)
-            {
-                // Return on the unsuccess
-                return Plugin_Continue;
-            }
-
-            // Validate client
-            if(IsPlayerExist(targetIndex))
-            {
-                // Validate zombie
-                if(ZP_IsPlayerZombie(targetIndex)) 
-                {
-                    // Create the damage for a victim
-                    ZP_TakeDamage(targetIndex, throwerIndex, WEAPON_BOW_DAMAGE, DMG_NEVERGIB, weaponIndex);
-                }
-
-                // Remove the entity from the world
-                AcceptEntityInput(entityIndex, "Kill");
-            }
-            else
-            {
-                // Remove a physics
-                SetEntityMoveType(entityIndex, MOVETYPE_NONE);
-
-                // Initialize time char
-                static char sTime[SMALL_LINE_LENGTH];
-                FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", WEAPON_BOW_TIME);
-
-                // Sets modified flags on the entity
-                SetVariantString(sTime);
-                AcceptEntityInput(entityIndex, "AddOutput");
-                AcceptEntityInput(entityIndex, "FireUser1");
-                
-                // Destroy touch hook
-                SDKUnhook(entityIndex, SDKHook_Touch, BowTouchHook);
-            }
+            // Destroy touch hook
+            SDKUnhook(entityIndex, SDKHook_Touch, BowTouchHook);
         }
     }
 

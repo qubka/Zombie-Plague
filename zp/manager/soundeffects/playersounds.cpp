@@ -37,7 +37,7 @@ enum struct SoundData
     int Start;
     int Count;
     int Blast;
-};
+}
 /**
  * @endsection
  **/

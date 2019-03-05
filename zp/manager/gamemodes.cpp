@@ -600,8 +600,8 @@ void GameModesOnBegin(int modeIndex = -1, int targetIndex = -1)
     // Gets human class type
     ModesGetHumanClass(gServerData.RoundMode, sBuffer, sizeof(sBuffer));
 
-    // Make standart humans
-    if(!strcmp(sBuffer, "human"))
+    // Make standard humans
+    if(!strcmp(sBuffer, "human", false))
     {
         // i = client index    
         for(int i = iMaxZombies; i < iAlive; i++) /// Remaining players should be humans

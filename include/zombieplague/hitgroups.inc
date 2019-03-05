@@ -37,29 +37,30 @@
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index. (Not validated!)
- * @param inflictorIndex    The inflictor index. (Not validated!)
+ * @param inflicterIndex    The inflicter index. (Not validated!)
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  *
  * @noreturn
  **/
-forward void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &damage, int &bits, int &weaponIndex);
+forward void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &damage, int &bits, int &weaponIndex);
 
 /**
  * @brief Applies core damage to an entity. 
  *
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
+ * @param inflicterIndex    The inflicter index.
  * @param damage            The amount of damage inflicted.
  * @param bits              (Optional) The ditfield of damage types. 
  * @param weaponIndex       (Optional) The weapon index or -1 for unspecified.
  *
  * @note Knockback will apply only on 'DMG_NEVERGIB' from the class and if the weapon index is state.
  *
- * @noreturn
+ * @return                  True if was damaged, false on letal damage.
  **/
-native void ZP_TakeDamage(int clientIndex, int attackerIndex, float damage, int bits = DMG_GENERIC, int weaponIndex = INVALID_ENT_REFERENCE);
+native bool ZP_TakeDamage(int clientIndex, int attackerIndex, int inflicterIndex, float damage, int bits = DMG_GENERIC, int weaponIndex = INVALID_ENT_REFERENCE);
 
 /**
  * @brief Gets the amount of all hitgrups.

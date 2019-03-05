@@ -223,7 +223,11 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, int iStateMode, float vBu
             if(flDistance <= WEAPON_EXPLOSION_RADIUS)
             {
                 // Create the damage for a victim
-                ZP_TakeDamage(i, clientIndex, WEAPON_EXPLOSION_DAMAGE * (1.0 - (flDistance / WEAPON_EXPLOSION_RADIUS)), DMG_AIRBOAT);
+                if(!ZP_TakeDamage(i, clientIndex, clientIndex, WEAPON_EXPLOSION_DAMAGE * (1.0 - (flDistance / WEAPON_EXPLOSION_RADIUS)), DMG_AIRBOAT))
+                {
+                    // Create a custom death event
+                    ZP_CreateDeathEvent(i, clientIndex, "prop_exploding_barrel", true);
+                }
 
                 // Calculate the velocity vector
                 SubtractVectors(vVictimPosition, vBulletPosition, vVelocity);

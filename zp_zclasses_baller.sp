@@ -234,14 +234,10 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  **/
 public Action BlastTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
-    {
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(3, 4));
-        EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-    }
+    // Emit sound
+    static char sSound[PLATFORM_LINE_LENGTH];
+    ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(3, 4));
+    EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
     // Return on the success
     return Plugin_Continue;
@@ -304,8 +300,12 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
                     SetEntityMoveType(i, MOVETYPE_NONE);
 
                     // Create the damage for a victim
-                    ZP_TakeDamage(i, ownerIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_EXP_RADIUS)), DMG_AIRBOAT);
-
+                    if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_EXP_RADIUS)), DMG_AIRBOAT))
+                    {
+                        // Create a custom death event
+                        ZP_CreateDeathEvent(i, ownerIndex, "snowball", true);
+                    }
+                    
                     // Create a fade
                     ZP_CreateFadeScreen(i, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);
                     

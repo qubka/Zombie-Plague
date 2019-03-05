@@ -121,12 +121,6 @@ void JumpBoostOnClientInit(int clientIndex)
  **/
 public void JumpBoostOnClientEntChanged(int clientIndex)
 {
-    // Verify that the client is exist
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-
     // If not on the ground, then stop
     if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
     {

@@ -235,7 +235,11 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
                 if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
                 {            
                     // Apply damage
-                    ZP_TakeDamage(i, clientIndex, ZOMBIE_CLASS_SKILL_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_RADIUS)), DMG_SONIC);
+                    if(!ZP_TakeDamage(i, clientIndex, clientIndex, ZOMBIE_CLASS_SKILL_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_RADIUS)), DMG_SONIC))
+                    {
+                        // Create a custom death event
+                        ZP_CreateDeathEvent(i, clientIndex, "prop_exploding_barrel", true);
+                    }
                 }
             }
         }

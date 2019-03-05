@@ -47,7 +47,6 @@ public Plugin myinfo =
 #define WEAPON_PLASMA_SPEED             2000.0
 #define WEAPON_PLASMA_GRAVITY           0.01
 #define WEAPON_PLASMA_RADIUS            200.0
-#define WEAPON_PLASMA_EXPLOSION         0.1
 #define WEAPON_PLASMA_SHAKE_AMP         10.0
 #define WEAPON_PLASMA_SHAKE_FREQUENCY   1.0
 #define WEAPON_PLASMA_SHAKE_DURATION    2.0
@@ -487,76 +486,78 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  **/
 public Action PlasmaTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
+    // Validate target
+    if(IsValidEdict(targetIndex))
     {
-        // Validate target
-        if(IsValidEdict(targetIndex))
+        // Gets thrower index
+        int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+
+        // Validate thrower
+        if(throwerIndex == targetIndex)
         {
-            // Gets thrower index
-            int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+            // Return on the unsuccess
+            return Plugin_Continue;
+        }
 
-            // Validate thrower
-            if(throwerIndex == targetIndex)
-            {
-                // Return on the unsuccess
-                return Plugin_Continue;
-            }
+        // Initialize vectors
+        static float vEntPosition[3]; static float vVictimPosition[3]; static float vVelocity[3];
 
-            // Initialize vectors
-            static float vEntPosition[3]; static float vVictimPosition[3]; static float vVelocity[3];
+        // Gets entity position
+        GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
 
-            // Gets entity position
-            GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
-
-            // Create a info_target entity
-            int infoIndex = ZP_CreateEntity(vEntPosition, WEAPON_EXPLOSION_TIME);
+        // Create a info_target entity
+        int infoIndex = ZP_CreateEntity(vEntPosition, WEAPON_EXPLOSION_TIME);
+        
+        // Validate entity
+        if(IsValidEdict(infoIndex))
+        {
+            // Create an explosion effect
+            ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_molotov_air", WEAPON_EXPLOSION_TIME);
             
-            // Validate entity
-            if(IsValidEdict(infoIndex))
-            {
-                // Create an explosion effect
-                ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_molotov_air", WEAPON_EXPLOSION_TIME);
-                
-                // Emit sound
-                static char sSound[PLATFORM_LINE_LENGTH];
-                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-                EmitSoundToAll(sSound, infoIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
-            }
+            // Emit sound
+            static char sSound[PLATFORM_LINE_LENGTH];
+            ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+            EmitSoundToAll(sSound, infoIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+        }
 
-            // i = client index
-            for(int i = 1; i <= MaxClients; i++)
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate client
+            if((IsPlayerExist(i) && ZP_IsPlayerZombie(i)))
             {
-                // Validate client
-                if((IsPlayerExist(i) && ZP_IsPlayerZombie(i)))
+                // Gets victim origin
+                GetClientAbsOrigin(i, vVictimPosition);
+
+                // Calculate the distance
+                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
+
+                // Validate distance
+                if(flDistance <= WEAPON_PLASMA_RADIUS)
                 {
-                    // Gets victim origin
-                    GetClientAbsOrigin(i, vVictimPosition);
-
-                    // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                    // Validate distance
-                    if(flDistance <= WEAPON_PLASMA_RADIUS)
+                    // Create the damage for a victim
+                    if(!ZP_TakeDamage(i, throwerIndex, entityIndex, ZP_GetWeaponDamage(gWeapon) * (1.0 - (flDistance / WEAPON_PLASMA_RADIUS)), DMG_AIRBOAT))
                     {
-                        // Create the damage for a victim
-                        ZP_TakeDamage(i, throwerIndex, ZP_GetWeaponDamage(gWeapon) * (1.0 - (flDistance / WEAPON_PLASMA_RADIUS)), DMG_AIRBOAT);
-
-                        // Calculate the velocity vector
-                        SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
-                
-                        // Create a knockback
-                        ZP_CreateRadiusKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), WEAPON_PLASMA_RADIUS);
-                        
-                        // Create a shake
-                        ZP_CreateShakeScreen(i, WEAPON_PLASMA_SHAKE_AMP, WEAPON_PLASMA_SHAKE_FREQUENCY, WEAPON_PLASMA_SHAKE_DURATION);
+                        // Create a custom death event
+                        static char sIcon[SMALL_LINE_LENGTH];
+                        ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
+                        ZP_CreateDeathEvent(i, throwerIndex, sIcon);
                     }
+                    
+                    // Calculate the velocity vector
+                    SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
+            
+                    // Create a knockback
+                    ZP_CreateRadiusKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), WEAPON_PLASMA_RADIUS);
+                    
+                    // Create a shake
+                    ZP_CreateShakeScreen(i, WEAPON_PLASMA_SHAKE_AMP, WEAPON_PLASMA_SHAKE_FREQUENCY, WEAPON_PLASMA_SHAKE_DURATION);
                 }
             }
-
-            // Remove the entity from the world
-            AcceptEntityInput(entityIndex, "Kill");
         }
+
+        // Remove the entity from the world
+        AcceptEntityInput(entityIndex, "Kill");
     }
 
     // Return on the success

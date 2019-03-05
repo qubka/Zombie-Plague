@@ -174,64 +174,60 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  **/
 public Action BombTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
+    // Validate target
+    if(IsValidEdict(targetIndex))
     {
-        // Validate target
-        if(IsValidEdict(targetIndex))
+        // Validate thrower
+        if(GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower") == targetIndex)
         {
-            // Validate thrower
-            if(GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower") == targetIndex)
+            // Return on the unsuccess
+            return Plugin_Continue;
+        }
+
+        // Initialize vectors
+        static float vEntPosition[3]; static float vVictimPosition[3];
+
+        // Gets entity position
+        GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
+
+        // Create a info_target entity
+        int infoIndex = ZP_CreateEntity(vEntPosition, ZOMBIE_CLASS_SKILL_EXP_TIME);
+
+        // Validate entity
+        if(IsValidEdict(infoIndex))
+        {
+            // Create an explosion effect
+            ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_interior", ZOMBIE_CLASS_SKILL_EXP_TIME);
+            
+            // Emit sound
+            static char sSound[PLATFORM_LINE_LENGTH];
+            ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
+            EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        }
+
+        // Remove entity from world
+        AcceptEntityInput(entityIndex, "Kill");
+
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Validate client
+            if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
             {
-                // Return on the unsuccess
-                return Plugin_Continue;
-            }
+                // Gets victim origin
+                GetClientAbsOrigin(i, vVictimPosition);
 
-            // Initialize vectors
-            static float vEntPosition[3]; static float vVictimPosition[3];
+                // Calculate the distance
+                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
-            // Gets entity position
-            GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
-
-            // Create a info_target entity
-            int infoIndex = ZP_CreateEntity(vEntPosition, ZOMBIE_CLASS_SKILL_EXP_TIME);
-
-            // Validate entity
-            if(IsValidEdict(infoIndex))
-            {
-                // Create an explosion effect
-                ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_interior", ZOMBIE_CLASS_SKILL_EXP_TIME);
-                
-                // Emit sound
-                static char sSound[PLATFORM_LINE_LENGTH];
-                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-                EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-            }
-
-            // Remove entity from world
-            AcceptEntityInput(entityIndex, "Kill");
-
-            // i = client index
-            for(int i = 1; i <= MaxClients; i++)
-            {
-                // Validate client
-                if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                // Validate distance
+                if(flDistance <= ZOMBIE_CLASS_SKILL_EXP_RADIUS)
                 {
-                    // Gets victim origin
-                    GetClientAbsOrigin(i, vVictimPosition);
+                    // Simple droping of the weapon
+                    FakeClientCommandEx(i, "drop");
 
-                    // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                    // Validate distance
-                    if(flDistance <= ZOMBIE_CLASS_SKILL_EXP_RADIUS)
-                    {
-                        // Simple droping of the weapon
-                        FakeClientCommandEx(i, "drop");
-    
-                        // Create an fade
-                        ZP_CreateFadeScreen(i, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);
-                    }
+                    // Create an fade
+                    ZP_CreateFadeScreen(i, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);
                 }
             }
         }

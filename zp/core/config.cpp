@@ -179,7 +179,7 @@ enum struct ConfigData
     ArrayList Handler;               /** Handle of the config file. */
     char Path[PLATFORM_LINE_LENGTH]; /** Full path to config file. */
     char Alias[NORMAL_LINE_LENGTH];  /** Config file alias, used for client interaction. */
-};
+}
 /**
  * @endsection
  **/

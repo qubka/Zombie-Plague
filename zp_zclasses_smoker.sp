@@ -150,7 +150,11 @@ public Action ClientOnToxicGas(Handle hTimer, int referenceIndex)
                     if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
                     {            
                         // Create the damage for a victim
-                        ZP_TakeDamage(i, ownerIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS);
+                        if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS))
+                        {
+                            // Create a custom death event
+                            ZP_CreateDeathEvent(i, ownerIndex, "ammobox_threepack", true);
+                        }
                     }
                 }
             }

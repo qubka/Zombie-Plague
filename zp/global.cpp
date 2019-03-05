@@ -196,7 +196,7 @@ enum struct ServerData
         this.EndTimer     = null;
         this.BlastTimer   = null;
     }
-};
+}
 /**
  * @endsection
  **/
@@ -243,7 +243,6 @@ enum struct ClientData
     int DrawSequence;
     bool ToggleSequence;
     int LastSequenceParity;
-    int DamageID;
     
     /* Timers */
     Handle LevelTimer;
@@ -306,7 +305,6 @@ enum struct ClientData
         this.DrawSequence         = -1;
         this.ToggleSequence       = false;
         this.LastSequenceParity   = -1;
-        this.DamageID             = -1;
        
         delete this.ShoppingCart;
         delete this.ItemLimit;
@@ -344,7 +342,7 @@ enum struct ClientData
         this.MoanTimer      = null; 
         this.AmbientTimer   = null; 
     }
-};
+}
 /**
  * @endsection
  **/

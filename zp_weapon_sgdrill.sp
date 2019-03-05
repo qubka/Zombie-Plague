@@ -195,7 +195,11 @@ void Weapon_OnSlash(int clientIndex, int weaponIndex)
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
         {    
             // Create the damage for a victim
-            ZP_TakeDamage(victimIndex, clientIndex, WEAPON_STAB_DAMAGE, DMG_NEVERGIB, weaponIndex);
+            if(!ZP_TakeDamage(victimIndex, clientIndex, clientIndex, WEAPON_STAB_DAMAGE, DMG_SLASH))
+            {
+                // Create a custom death event
+                ZP_CreateDeathEvent(victimIndex, clientIndex, "radarjammer", true);
+            }
 
             // Gets center position
             ZP_GetPlayerGunPosition(victimIndex, 0.0, 0.0, -45.0, vPosition);
@@ -327,12 +331,11 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *  
  * @param entityIndex       The entity index.
  * @param contentsMask      The contents mask.
- * @param clientIndex       The client index.
+ * @param filterIndex       The filter index.
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
 {
-    // If entity is a player, continue tracing
-    return (entityIndex != clientIndex);
+    return (entityIndex != filterIndex);
 }

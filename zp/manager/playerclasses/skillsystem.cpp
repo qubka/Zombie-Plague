@@ -208,7 +208,7 @@ void SkillSystemOnClientStart(int clientIndex)
         {
             // Resets bar string 
             strcopy(SkillSystemBar[clientIndex], sizeof(SkillSystemBar[]), SkillSystemMax);
-            gClientData[clientIndex].SkillCounter = flInterval; //! Update skill time usage
+            gClientData[clientIndex].SkillCounter = flInterval; /// Update skill time usage
         
             // Sets timer for showing bar
             delete gClientData[clientIndex].BarTimer;

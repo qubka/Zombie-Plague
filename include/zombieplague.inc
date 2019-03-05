@@ -625,17 +625,49 @@ stock void ZP_CreateRadiusKnockBack(const int clientIndex, float vVelocity[3], c
 }
 
 /**
+ * @brief Create a death event. *(Fake)
+ * 
+ * @param clientIndex       The victim index.
+ * @param attackerIndex     The attacker index.
+ * @param sIcon             The icon name.
+ * @param bHead             (Optional) States the additional head-shot icon.
+ **/
+stock void ZP_CreateDeathEvent(int clientIndex, int attackerIndex, char[] sIcon, bool bHead = false)
+{
+    // Creates and send custom death icon
+    Event hEvent = CreateEvent("player_death");
+    if(hEvent != null)
+    {
+        // Sets event properties
+        hEvent.SetInt("userid", GetClientUserId(clientIndex));
+        hEvent.SetInt("attacker", GetClientUserId(attackerIndex));
+        hEvent.SetString("weapon", sIcon);
+        hEvent.SetBool("headshot", bHead);
+        
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Send fake event
+            if(IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
+        }
+        
+        // Close it
+        hEvent.Close();
+    }
+}
+
+/**
  * @brief Dispatch an attached effect.
  * 
  * @param entityIndex       (Optional) The entity index.
  * @param sParticle         (Optional) The particle name.
- * @param sItem             (Optional) The particle item.
+ * @param sIndex            (Optional) The particle item.
  * @param vStart            (Optional) The start origin.
  * @param vEnd              (Optional) The end origin.
  * @param vAngle            (Optional) The angle vector.
  * @param iAttachment       (Optional) The attachment index.
  **/
-stock void ZP_DispatchEffect(const int entityIndex = 0, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
+stock void TE_DispatchEffect(const int entityIndex = 0, const char[] sParticle = "", const char[] sIndex = "", const float vStart[3] = NULL_VECTOR, const float vEnd[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const int iAttachment = 0) 
 {
     // Dispatch effect
     TE_Start("EffectDispatch");

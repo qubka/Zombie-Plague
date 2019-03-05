@@ -175,12 +175,6 @@ public void AntiStickOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
  **/
 public void AntiStickOnStartTouch(int clientIndex, int entityIndex)
 {
-    // Verify that the client is exist
-    if(!IsPlayerExist(clientIndex))
-    {
-        return;
-    }
-    
     // If client is touching themselves, then leave them alone :P
     if(clientIndex == entityIndex)
     {

@@ -215,7 +215,7 @@ void WeaponHDRSetPlayerWorldModel(int weaponIndex, int iModel = 0, int iBody = 0
     int worldIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponWorldModel);
 
     // Validate worldmodel
-    if(IsValidEdict(worldIndex))
+    if(worldIndex != INVALID_ENT_REFERENCE)
     {
         // Sets model index for the worldmodel
         ToolsSetEntityModelIndex(worldIndex, iModel);
@@ -316,7 +316,7 @@ int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
         int weaponIndex2 = GetEntDataEnt2(clientIndex, g_iOffset_CharacterWeapons + (i * 4));
         
         // Validate swapped weapon
-        if(IsValidEdict(weaponIndex2) && weaponIndex1 != weaponIndex2)
+        if(weaponIndex2 != INVALID_ENT_REFERENCE && weaponIndex1 != weaponIndex2)
         {
             return weaponIndex2;
         }

@@ -49,7 +49,6 @@ public Plugin myinfo =
 #define ZOMBIE_CLASS_SKILL_SHAKE_DURATION    3.0
 #define ZOMBIE_CLASS_SKILL_DISTANCE          60.0
 #define ZOMBIE_CLASS_SKILL_HEALTH            200
-#define ZOMBIE_CLASS_SKILL_EXP_TIME          0.1
 #define ZOMBIE_CLASS_SKILL_RADIUS            400.0
 #define ZOMBIE_CLASS_SKILL_POWER             1000.0         
 /**
@@ -175,21 +174,17 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  **/
 public Action CoffinTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
+    // Validate target
+    if(IsPlayerExist(targetIndex))
     {
-        // Validate target
-        if(IsPlayerExist(targetIndex))
+        // Expload with other player coliding
+        if(GetEntPropEnt(entityIndex, Prop_Data, "m_pParent") != targetIndex)
         {
-            // Expload with other player coliding
-            if(GetEntPropEnt(entityIndex, Prop_Data, "m_pParent") != targetIndex)
-            {
-                // Destroy touch hook
-                SDKUnhook(entityIndex, SDKHook_Touch, CoffinTouchHook);
-        
-                // Expload it
-                CoffinExpload(entityIndex);
-            }
+            // Destroy touch hook
+            SDKUnhook(entityIndex, SDKHook_Touch, CoffinTouchHook);
+    
+            // Expload it
+            CoffinExpload(entityIndex);
         }
     }
     
@@ -202,37 +197,33 @@ public Action CoffinTouchHook(int entityIndex, int targetIndex)
  *
  * @param entityIndex       The entity index.    
  * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param inflicterIndex    The inflicter index.
  * @param flDamage          The damage amount.
  * @param iBits             The damage type.
  **/
-public Action CoffinDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
+public Action CoffinDamageHook(int entityIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
-    {
-        // Calculate the damage
-        int iHealth = GetEntProp(entityIndex, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
+    // Calculate the damage
+    int iHealth = GetEntProp(entityIndex, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
-        // Destroy entity
-        if(!iHealth)
-        {
-            // Destroy damage hook
-            SDKUnhook(entityIndex, SDKHook_OnTakeDamage, CoffinDamageHook);
-    
-            // Expload it
-            CoffinExpload(entityIndex);
-        }
-        else
-        {
-            // Emit sound
-            static char sSound[PLATFORM_LINE_LENGTH];
-            ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(2, 3));
-            EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-            
-            // Apply damage
-            SetEntProp(entityIndex, Prop_Data, "m_iHealth", iHealth);
-        }
+    // Destroy entity
+    if(!iHealth)
+    {
+        // Destroy damage hook
+        SDKUnhook(entityIndex, SDKHook_OnTakeDamage, CoffinDamageHook);
+
+        // Expload it
+        CoffinExpload(entityIndex);
+    }
+    else
+    {
+        // Emit sound
+        static char sSound[PLATFORM_LINE_LENGTH];
+        ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(2, 3));
+        EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        
+        // Apply damage
+        SetEntProp(entityIndex, Prop_Data, "m_iHealth", iHealth);
     }
 
     // Return on success
@@ -266,7 +257,7 @@ public Action CoffinExploadHook(Handle hTimer, int referenceIndex)
 void CoffinExpload(int entityIndex)
 {
     // Initialize vectors
-    static float vEntPosition[3]; static float vEntAngle[3]; static float vVictimPosition[3]; static float vVelocity[3]; static float vAngle[3];
+    static float vEntPosition[3]; static float vGibAngle[3]; static float vVictimPosition[3]; static float vVelocity[3]; float vShootAngle[3];
 
     // Gets entity position
     GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
@@ -299,25 +290,25 @@ void CoffinExpload(int entityIndex)
     }
     
     // Create an explosion effect
-    ZP_CreateParticle(entityIndex, vEntPosition, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_SKILL_EXP_TIME);
+    ZP_CreateParticle(entityIndex, vEntPosition, _, "explosion_hegrenade_dirt", 0.1);
 
     // Emit sound
     static char sSound[PLATFORM_LINE_LENGTH];
     ZP_GetSound(gSound, sSound, sizeof(sSound), 4);
     EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
     
-    // Create a breaked glass effect
-    static char sModel[NORMAL_LINE_LENGTH];
+    // Create a breaked metal effect
+    static char sBuffer[NORMAL_LINE_LENGTH];
     for(int x = 0; x <= 4; x++)
     {
         // Find gib positions
-        vAngle[1] += 72.0; vEntAngle[0] = GetRandomFloat(0.0, 360.0); vEntAngle[1] = GetRandomFloat(-15.0, 15.0); vEntAngle[2] = GetRandomFloat(-15.0, 15.0); switch(x)
+        vShootAngle[1] += 72.0; vGibAngle[0] = GetRandomFloat(0.0, 360.0); vGibAngle[1] = GetRandomFloat(-15.0, 15.0); vGibAngle[2] = GetRandomFloat(-15.0, 15.0); switch(x)
         {
-            case 0 : strcopy(sModel, sizeof(sModel), "models/gibs/metal_gib1.mdl");
-            case 1 : strcopy(sModel, sizeof(sModel), "models/gibs/metal_gib2.mdl");
-            case 2 : strcopy(sModel, sizeof(sModel), "models/gibs/metal_gib3.mdl");
-            case 3 : strcopy(sModel, sizeof(sModel), "models/gibs/metal_gib4.mdl");
-            case 4 : strcopy(sModel, sizeof(sModel), "models/gibs/metal_gib5.mdl");
+            case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
+            case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");
+            case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib3.mdl");
+            case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib4.mdl");
+            case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib5.mdl");
         }
     
         // Create a shooter entity
@@ -327,11 +318,11 @@ void CoffinExpload(int entityIndex)
         if(gibIndex != INVALID_ENT_REFERENCE)
         {
             // Dispatch main values of the entity
-            DispatchKeyValueVector(gibIndex, "angles", vAngle);
-            DispatchKeyValueVector(gibIndex, "gibangles", vEntAngle);
+            DispatchKeyValueVector(gibIndex, "angles", vShootAngle);
+            DispatchKeyValueVector(gibIndex, "gibangles", vGibAngle);
             DispatchKeyValue(gibIndex, "rendermode", "5");
             DispatchKeyValue(gibIndex, "shootsounds", "2");
-            DispatchKeyValue(gibIndex, "shootmodel", sModel);
+            DispatchKeyValue(gibIndex, "shootmodel", sBuffer);
             DispatchKeyValueFloat(gibIndex, "m_iGibs", METAL_GIBS_AMOUNT);
             DispatchKeyValueFloat(gibIndex, "delay", METAL_GIBS_DELAY);
             DispatchKeyValueFloat(gibIndex, "m_flVelocity", METAL_GIBS_SPEED);
@@ -354,22 +345,17 @@ void CoffinExpload(int entityIndex)
             AcceptEntityInput(gibIndex, "SetParentAttachment", entityIndex, gibIndex);
 
             // Initialize time char
-            static char sTime[SMALL_LINE_LENGTH];
-            FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", METAL_GIBS_DURATION);
+            FormatEx(sBuffer, sizeof(sBuffer), "OnUser1 !self:kill::%f:1", METAL_GIBS_DURATION);
 
             // Sets modified flags on the entity
-            SetVariantString(sTime);
+            SetVariantString(sBuffer);
             AcceptEntityInput(gibIndex, "AddOutput");
             AcceptEntityInput(gibIndex, "FireUser1");
         }
     }
 
-    // Initialize time char
-    static char sTime[SMALL_LINE_LENGTH];
-    FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", ZOMBIE_CLASS_SKILL_EXP_TIME);
-
     // Sets modified flags on the entity
-    SetVariantString(sTime);
+    SetVariantString("OnUser1 !self:kill::0.1:1");
     AcceptEntityInput(entityIndex, "AddOutput");
     AcceptEntityInput(entityIndex, "FireUser1");
 }

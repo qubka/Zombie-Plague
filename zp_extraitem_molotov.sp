@@ -124,12 +124,22 @@ public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast)
 {
     // Gets all required event info
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
-
+    int attackerIndex = GetClientOfUserId(hEvent.GetInt("attacker"));
+    
     // Reset variable
     flSpeed[clientIndex] = 0.0;
 
     // Delete timer
     delete Task_ZombieBurned[clientIndex];
+    
+    // Gets the icon name
+    static char sIcon[SMALL_LINE_LENGTH]; /// Fix with inferno icon, because inflictor not have custom weapon id
+    hEvent.GetString("weapon", sIcon, sizeof(sIcon));
+    if(clientIndex && attackerIndex && !strcmp(sIcon, "inferno", false))
+    {
+        // Create a custom death event
+        ZP_CreateDeathEvent(clientIndex, attackerIndex, "inferno");
+    }
 }
 
 /**
@@ -206,12 +216,12 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param inflicterIndex    The inflicter index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Client was damaged by 'fire' or 'burn'
     if(iBits & DMG_BURN || iBits & DMG_DIRECT)
@@ -224,7 +234,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
             {
                 // This instead of 'ExtinguishEntity' function
                 int fireIndex = GetEntPropEnt(clientIndex, Prop_Data, "m_hEffectEntity");
-                if(IsValidEdict(fireIndex))
+                if(fireIndex != INVALID_ENT_REFERENCE) 
                 {
                     // Make sure the entity is a flame, so we can extinguish it
                     static char sClassname[SMALL_LINE_LENGTH];

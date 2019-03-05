@@ -502,37 +502,33 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  **/
 public Action FireTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
+    // Validate target
+    if(IsValidEdict(targetIndex))
     {
-        // Validate target
-        if(IsValidEdict(targetIndex))
+        // Gets thrower index
+        int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+        int weaponIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_hDamageFilter");
+        
+        // Validate thrower
+        if(throwerIndex == targetIndex)
         {
-            // Gets thrower index
-            int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
-            int weaponIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_hDamageFilter");
-            
-            // Validate thrower
-            if(throwerIndex == targetIndex)
-            {
-                // Return on the unsuccess
-                return Plugin_Continue;
-            }
-
-            // Validate client
-            if(IsPlayerExist(targetIndex))
-            {
-                // Validate zombie
-                if(ZP_IsPlayerZombie(targetIndex)) 
-                {
-                    // Create the damage for a victim
-                    ZP_TakeDamage(targetIndex, throwerIndex, WEAPON_FIRE_DAMAGE, DMG_NEVERGIB, weaponIndex);
-                }
-            }
-            
-            // Remove the entity from the world
-            AcceptEntityInput(entityIndex, "Kill");
+            // Return on the unsuccess
+            return Plugin_Continue;
         }
+
+        // Validate client
+        if(IsPlayerExist(targetIndex))
+        {
+            // Validate zombie
+            if(ZP_IsPlayerZombie(targetIndex)) 
+            {
+                // Create the damage for a victim
+                ZP_TakeDamage(targetIndex, throwerIndex, entityIndex, WEAPON_FIRE_DAMAGE, DMG_NEVERGIB, weaponIndex);
+            }
+        }
+        
+        // Remove the entity from the world
+        AcceptEntityInput(entityIndex, "Kill");
     }
 
     // Return on the success

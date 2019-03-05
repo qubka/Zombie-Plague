@@ -341,14 +341,20 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
             if(flDistance <= WEAPON_BEAM_RADIUS)
             {
                 // Validate visibility
-                if(!TraceRay(clientIndex, vPosition, vVictimPosition, flDistance))
+                if(!TraceRay(clientIndex, i, vPosition, vVictimPosition, flDistance))
                 {
                     continue;
                 }
 
                 // Create the damage for a victim
-                ZP_TakeDamage(i, clientIndex, WEAPON_BEAM_DAMAGE, DMG_BURN);
-
+                if(!ZP_TakeDamage(i, clientIndex, clientIndex, WEAPON_BEAM_DAMAGE, DMG_BURN))
+                {
+                    // Create a custom death event
+                    static char sIcon[SMALL_LINE_LENGTH];
+                    ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
+                    ZP_CreateDeathEvent(i, clientIndex, "inferno", true);
+                }
+                
                 // Create a shake
                 ZP_CreateShakeScreen(i, WEAPON_BEAM_SHAKE_AMP, WEAPON_BEAM_SHAKE_FREQUENCY, WEAPON_BEAM_SHAKE_DURATION);
                 
@@ -381,7 +387,7 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
     
     // Validate entity
-    if(IsValidEdict(entityIndex))
+    if(entityIndex != INVALID_ENT_REFERENCE) 
     {
         // Gets attachment position
         ZP_GetAttachment(entityIndex, "muzzle_flash", vPosition, vAngle);
@@ -620,7 +626,8 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
 /**
  * @brief Starts up a new trace ray using a new trace result and a customized trace ray filter. 
  *
- * @param filterIndex       The filter index. 
+ * @param entityIndex       The entity index.
+ * @param targetIndex       The target index. 
  * @param vStartPosition    The starting position of the ray.
  * @param vEndPosition      The ending position of the ray.      
  * @param flDistance        (Optional) The distance amount. 
@@ -628,7 +635,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *
  * @return                  True of false.        
  **/
-stock bool TraceRay(int filterIndex, float vStartPosition[3], float vEndPosition[3], float flDistance = 0.0, float &flLenth = 0.0)
+stock bool TraceRay(int entityIndex, int targetIndex, float vStartPosition[3], float vEndPosition[3], float flDistance = 0.0, float &flLenth = 0.0)
 {
     // Store the current distance between positions' vectors
     flLenth = GetVectorDistance(vStartPosition, vEndPosition);
@@ -638,29 +645,21 @@ stock bool TraceRay(int filterIndex, float vStartPosition[3], float vEndPosition
     {
         return false;
     }
-    
-    // Initialize boolean
-    bool bTrace = true;
 
     // Starts up a new trace ray using a new trace result and a customized trace ray filter
-    Handle hTrace = TR_TraceRayFilterEx(vStartPosition, vEndPosition, MASK_SHOT, RayType_EndPoint, TraceFilter, filterIndex);
+    Handle hTrace = TR_TraceRayFilterEx(vStartPosition, vEndPosition, MASK_SHOT, RayType_EndPoint, TraceFilter, entityIndex);
 
-    // Validate trace
-    if(hTrace != null)
+    // Validate any kind of collision along the trace ray
+    bool bHit;
+    if(!TR_DidHit(hTrace) || TR_GetEntityIndex(hTrace) == targetIndex) 
     {
-        // Validate any kind of collision along the trace ray
-        if(TR_DidHit(hTrace))
-        {
-            // If trace hit, then stop
-            bTrace = false;
-        }
-        
-        // Close trace handle
-        delete hTrace;
+        // If trace hit, then stop
+        bHit = true;
     }
-    
+
     // Return on the end
-    return bTrace;
+    delete hTrace;
+    return bHit;
 }
 
 /**
@@ -668,12 +667,11 @@ stock bool TraceRay(int filterIndex, float vStartPosition[3], float vEndPosition
  *  
  * @param entityIndex       The entity index.
  * @param contentsMask      The contents mask.
- * @param clientIndex       The client index.
+ * @param filterIndex       The filter index.
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
 {
-    // If entity is a player, continue tracing
-    return (entityIndex == clientIndex || !(1 <= entityIndex <= MaxClients));
+    return (entityIndex != filterIndex);
 }

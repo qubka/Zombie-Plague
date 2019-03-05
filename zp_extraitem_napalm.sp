@@ -160,21 +160,21 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param inflicterIndex    The inflicter index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Client was damaged by 'explosion'
     if(iBits & DMG_BLAST)
     {
-        // Validate inflictor
-        if(IsValidEdict(inflictorIndex))
+        // Validate inflicter
+        if(IsValidEdict(inflicterIndex))
         {
             // Validate custom grenade
-            if(ZP_GetWeaponID(inflictorIndex) == gWeapon)
+            if(ZP_GetWeaponID(inflicterIndex) == gWeapon)
             {
                 // Remove explosion damage
                 flDamage *= ZP_GetWeaponDamage(gWeapon);

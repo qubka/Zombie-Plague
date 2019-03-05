@@ -271,7 +271,7 @@ void ClassesOnCacheData(/*void*/)
         arrayClass.PushString(sPathClasses);                                    // Index: 2
         if(gServerData.Types.FindString(sPathClasses) == -1)
         {
-            gServerData.Types.PushString(sPathClasses); //! Unique type catched
+            gServerData.Types.PushString(sPathClasses); /// Unique type catched
         }
         arrayClass.Push(ConfigKvGetStringBool(kvClasses, "zombie", "no"));      // Index: 3
         kvClasses.GetString("model", sPathClasses, sizeof(sPathClasses), "");

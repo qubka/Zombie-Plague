@@ -172,7 +172,7 @@ int ClassValidateIndex(int clientIndex, char[] sType)
     ClassGetType(gClientData[clientIndex].Class, sClassType, sizeof(sClassType));
     
     // Find any accessable class 
-    if((hasLength(sClassGroup) && !IsPlayerInGroup(clientIndex, sClassGroup)) || ClassGetLevel(gClientData[clientIndex].Class) > gClientData[clientIndex].Level || strcmp(sClassType, sType))
+    if((hasLength(sClassGroup) && !IsPlayerInGroup(clientIndex, sClassGroup)) || ClassGetLevel(gClientData[clientIndex].Class) > gClientData[clientIndex].Level || strcmp(sClassType, sType, false))
     {
         // Choose any accessable class
         for(int i = 0; i < iSize; i++)
@@ -186,7 +186,7 @@ int ClassValidateIndex(int clientIndex, char[] sType)
             
             // Skip some classes, if types isn't equal
             ClassGetType(i, sClassType, sizeof(sClassType));
-            if(strcmp(sClassType, sType))
+            if(strcmp(sClassType, sType, false))
             {
                 continue;
             }
@@ -237,7 +237,7 @@ void ClassMenu(int clientIndex, char[] sTitle, char[] sType, int iClass, bool bI
     static char sGroup[SMALL_LINE_LENGTH];
 
     // Creates menu handle
-    Menu hMenu = CreateMenu((!strcmp(sType, "zombie")) ? (bInstant ? ClassZombieMenuSlots2 : ClassZombieMenuSlots1) : (bInstant ? ClassHumanMenuSlots2 : ClassHumanMenuSlots1));
+    Menu hMenu = CreateMenu((!strcmp(sType, "zombie", false)) ? (bInstant ? ClassZombieMenuSlots2 : ClassZombieMenuSlots1) : (bInstant ? ClassHumanMenuSlots2 : ClassHumanMenuSlots1));
 
     // Sets language to target
     SetGlobalTransTarget(clientIndex);
@@ -265,7 +265,7 @@ void ClassMenu(int clientIndex, char[] sTitle, char[] sType, int iClass, bool bI
         ClassGetType(i, sName, sizeof(sName));
         
         // Skip some classes, if types isn't equal
-        if(strcmp(sName, sType))
+        if(strcmp(sName, sType, false))
         {
             continue;
         }

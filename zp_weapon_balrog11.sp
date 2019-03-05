@@ -251,7 +251,7 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
     ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
     
     // Create a muzzleflesh / True for getting the custom viewmodel index
-    ZP_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), sMuzzle, "ParticleEffect", _, _, _, 1);
+    TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), sMuzzle, "ParticleEffect", _, _, _, 1);
     TE_SendToClient(clientIndex);
 }
 
@@ -544,37 +544,33 @@ public void ZP_OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID)
  **/
 public Action FireTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate entity
-    if(IsValidEdict(entityIndex))
+    // Validate target
+    if(IsValidEdict(targetIndex))
     {
-        // Validate target
-        if(IsValidEdict(targetIndex))
+        // Gets thrower index
+        int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+        int weaponIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_hDamageFilter");
+        
+        // Validate thrower
+        if(throwerIndex == targetIndex)
         {
-            // Gets thrower index
-            int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
-            int weaponIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_hDamageFilter");
-            
-            // Validate thrower
-            if(throwerIndex == targetIndex)
-            {
-                // Return on the unsuccess
-                return Plugin_Continue;
-            }
-
-            // Validate client
-            if(IsPlayerExist(targetIndex))
-            {
-                // Validate zombie
-                if(ZP_IsPlayerZombie(targetIndex)) 
-                {
-                    // Create the damage for a victim
-                    ZP_TakeDamage(targetIndex, throwerIndex, WEAPON_FIRE_DAMAGE, DMG_NEVERGIB, weaponIndex);
-                }
-            }
-            
-            // Remove the entity from the world
-            AcceptEntityInput(entityIndex, "Kill");
+            // Return on the unsuccess
+            return Plugin_Continue;
         }
+
+        // Validate client
+        if(IsPlayerExist(targetIndex))
+        {
+            // Validate zombie
+            if(ZP_IsPlayerZombie(targetIndex)) 
+            {
+                // Create the damage for a victim
+                ZP_TakeDamage(targetIndex, throwerIndex, entityIndex, WEAPON_FIRE_DAMAGE, DMG_NEVERGIB, weaponIndex);
+            }
+        }
+        
+        // Remove the entity from the world
+        AcceptEntityInput(entityIndex, "Kill");
     }
 
     // Return on the success

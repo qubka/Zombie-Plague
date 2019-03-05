@@ -201,8 +201,10 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     // Validate attacker
     if(IsPlayerExist(attackerIndex, false)) 
     {
-        // Create a fake event
-        DeathOnClientHUD(clientIndex, attackerIndex);
+        // Create a fake death event
+        static char sIcon[SMALL_LINE_LENGTH];
+        gCvarList[CVAR_INFECT_ICON].GetString(sIcon, sizeof(sIcon));
+        DeathOnClientHUD(clientIndex, attackerIndex, sIcon, gCvarList[CVAR_HEAD_ICON].BoolValue);
         
         // Increment kills and frags
         ToolsSetClientScore(attackerIndex, true, ToolsGetClientScore(attackerIndex, true) + 1);

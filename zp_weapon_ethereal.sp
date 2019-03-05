@@ -97,13 +97,14 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
     int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
     
     // Validate entity
-    if(IsValidEdict(entityIndex))
+    if(entityIndex != INVALID_ENT_REFERENCE) 
     {
         // Gets attachment position
         ZP_GetAttachment(entityIndex, "muzzle_flash", vEntPosition, vEntAngle);
-        
+
         // Sent a beam
         TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+
         int[] iClients = new int[MaxClients]; int iCount;
         for(int i = 1; i <= MaxClients; i++)
         {

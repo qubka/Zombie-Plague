@@ -165,8 +165,11 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
  **/
 public Action TanadeTouchHook(int entityIndex, int targetIndex)
 {
-    // Validate attaching
-    return (IsValidEdict(entityIndex) && GRENADE_INFECT_ATTACH) ? Plugin_Continue : Plugin_Handled;
+    #if GRENADE_INFECT_ATTACH == true
+    return Plugin_Continue;
+    #else
+    return Plugin_Handled;
+    #endif
 }
 
 /**

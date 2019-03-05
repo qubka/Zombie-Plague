@@ -140,24 +140,11 @@ public Action DeathOnCommandListened(int clientIndex, char[] commandMsg, int iAr
  **/
 public Action DeathOnClientIcon(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-    // Gets all required event info
-    int attackerIndex = GetClientOfUserId(hEvent.GetInt("attacker"));
-    
-    // Validate attacker
-    if(!IsPlayerExist(attackerIndex, false))
+    // Sets whether an event broadcasting will be disabled
+    if(!dontBroadcast) 
     {
-        return;
-    }
-    
-    // Validate custom index of last damage
-    if(gClientData[attackerIndex].DamageID != -1)
-    {
-        // Gets infect icon
-        static char sIcon[SMALL_LINE_LENGTH];
-        WeaponsGetIcon(gClientData[attackerIndex].DamageID, sIcon, sizeof(sIcon));
-        
-        // Sets event properties
-        if(hasLength(sIcon)) hEvent.SetString("weapon", sIcon);
+        // Disable broadcasting
+        hEvent.BroadcastDisabled = true;
     }
 }
 
@@ -217,7 +204,7 @@ bool DeathOnClientRespawn(int clientIndex, int attackerIndex = 0,  bool bTimer =
     // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
     {
-        return true; //! Avoid double check in 'ModesValidateRound'
+        return true; /// Avoid double check in 'ModesValidateRound'
     }
 
     // If respawn disabled on the current game mode, then stop
@@ -310,22 +297,20 @@ public Action DeathOnClientRespawning(Handle hTimer, int userID)
  * 
  * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
+ * @param sIcon             The icon name.
+ * @param bHead             (Optional) States the additional head-shot icon.
  **/
-public void DeathOnClientHUD(int clientIndex, int attackerIndex)
+void DeathOnClientHUD(int clientIndex, int attackerIndex, char[] sIcon, bool bHead = false)
 {
     // Creates and send custom death icon
     Event hEvent = CreateEvent("player_death");
     if(hEvent != null)
     {
-        // Gets infect icon
-        static char sIcon[NORMAL_LINE_LENGTH];
-        gCvarList[CVAR_INFECT_ICON].GetString(sIcon, sizeof(sIcon));
-        
         // Sets event properties
         hEvent.SetInt("userid", GetClientUserId(clientIndex));
         hEvent.SetInt("attacker", GetClientUserId(attackerIndex));
         hEvent.SetString("weapon", sIcon);
-        hEvent.SetBool("headshot", gCvarList[CVAR_HEAD_ICON].BoolValue);
+        hEvent.SetBool("headshot", bHead);
         
         // i = client index
         for(int i = 1; i <= MaxClients; i++)

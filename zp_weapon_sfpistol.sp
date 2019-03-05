@@ -274,7 +274,7 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
         {    
             // Create the damage for a victim
-            ZP_TakeDamage(victimIndex, clientIndex, WEAPON_BEAM_DAMAGE, DMG_NEVERGIB, weaponIndex);
+            ZP_TakeDamage(victimIndex, clientIndex, clientIndex, WEAPON_BEAM_DAMAGE, DMG_NEVERGIB, weaponIndex);
         }
     }
     
@@ -292,7 +292,7 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
     
     // Validate entity
-    if(IsValidEdict(entityIndex))
+    if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Gets attachment position
         ZP_GetAttachment(entityIndex, "muzzle_flash", vPosition, vAngle);
@@ -473,12 +473,11 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *  
  * @param entityIndex       The entity index.
  * @param contentsMask      The contents mask.
- * @param clientIndex       The client index.
+ * @param filterIndex       The filter index.
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
 {
-    // If entity is a player, continue tracing
-    return (entityIndex != clientIndex);
+    return (entityIndex != filterIndex);
 }

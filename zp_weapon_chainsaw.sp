@@ -230,7 +230,7 @@ void Weapon_OnReloadStart(int clientIndex, int weaponIndex, int iClip, int iAmmo
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
         
         // Create a muzzleflesh / True for getting the custom viewmodel index
-        ZP_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_smoke_long", "ParticleEffect", _, _, _, 2);
+        TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_smoke_long", "ParticleEffect", _, _, _, 2);
         TE_SendToClient(clientIndex);
     }
 }
@@ -348,7 +348,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
             Weapon_OnSlash(clientIndex, weaponIndex, 0.0, true);
 
             // Create a muzzleflesh / True for getting the custom viewmodel index
-            ZP_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_smoke", "ParticleEffect", _, _, _, 3);
+            TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), "weapon_muzzle_smoke", "ParticleEffect", _, _, _, 3);
             TE_SendToClient(clientIndex);
             
             // Initialize variables
@@ -533,7 +533,7 @@ void Weapon_OnSlash(int clientIndex, int weaponIndex, float flRightShift, bool b
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
         {    
             // Create the damage for a victim
-            ZP_TakeDamage(victimIndex, clientIndex, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, DMG_NEVERGIB, weaponIndex);
+            ZP_TakeDamage(victimIndex, clientIndex, clientIndex, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, DMG_NEVERGIB, weaponIndex);
             
             // Emit the hit sound
             ZP_GetSound(gSoundHit, sSound, sizeof(sSound), GetRandomInt(3, 4));
@@ -775,12 +775,11 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *  
  * @param entityIndex       The entity index.
  * @param contentsMask      The contents mask.
- * @param clientIndex       The client index.
+ * @param filterIndex       The filter index.
  *
  * @return                  True or false.
  **/
-public bool TraceFilter(int entityIndex, int contentsMask, int clientIndex)
+public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
 {
-    // If entity is a player, continue tracing
-    return (entityIndex != clientIndex);
+    return (entityIndex != filterIndex);
 }

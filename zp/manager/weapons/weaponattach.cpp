@@ -197,7 +197,7 @@ void WeaponAttachSetAddons(int clientIndex)
             }
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);

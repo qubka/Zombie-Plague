@@ -141,7 +141,7 @@ public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast)
         int iRagdoll = GetEntPropEnt(clientIndex, Prop_Send, "m_hRagdoll");
 
         // If the ragdoll is invalid, then stop
-        if(IsValidEdict(iRagdoll))
+        if(iRagdoll != INVALID_ENT_REFERENCE) 
         {
             // Create an effect
             ZP_CreateParticle(iRagdoll, vEntPosition, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);

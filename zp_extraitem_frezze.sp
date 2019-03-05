@@ -224,12 +224,12 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param inflicterIndex    The inflicter index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Client was damaged by 'bullet'
     if(iBits & DMG_NEVERGIB)
@@ -366,7 +366,7 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
     if(clientIndex)
     {
         // Initialize vectors
-        float vEntPosition[3]; static float vEntAngle[3];
+        static float vGibAngle[3]; float vShootAngle[3]; 
 
         // Unfreeze the client
         SetEntityMoveType(clientIndex, MOVETYPE_WALK);
@@ -377,18 +377,18 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
         EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
 
         // Create a breaked glass effect
-        static char sModel[NORMAL_LINE_LENGTH];
+        static char sBuffer[NORMAL_LINE_LENGTH];
         for(int x = 0; x <= 5; x++)
         {
             // Find gib positions
-            vEntPosition[1] += 60.0; vEntAngle[0] = GetRandomFloat(0.0, 360.0); vEntAngle[1] = GetRandomFloat(-15.0, 15.0); vEntAngle[2] = GetRandomFloat(-15.0, 15.0); switch(x)
+            vShootAngle[1] += 60.0; vGibAngle[0] = GetRandomFloat(0.0, 360.0); vGibAngle[1] = GetRandomFloat(-15.0, 15.0); vGibAngle[2] = GetRandomFloat(-15.0, 15.0); switch(x)
             {
-                case 0 : strcopy(sModel, sizeof(sModel), "models/gibs/glass_shard01.mdl");
-                case 1 : strcopy(sModel, sizeof(sModel), "models/gibs/glass_shard02.mdl");
-                case 2 : strcopy(sModel, sizeof(sModel), "models/gibs/glass_shard03.mdl");
-                case 3 : strcopy(sModel, sizeof(sModel), "models/gibs/glass_shard04.mdl");
-                case 4 : strcopy(sModel, sizeof(sModel), "models/gibs/glass_shard05.mdl");
-                case 5 : strcopy(sModel, sizeof(sModel), "models/gibs/glass_shard06.mdl");
+                case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard01.mdl");
+                case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard02.mdl");
+                case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard03.mdl");
+                case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard04.mdl");
+                case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard05.mdl");
+                case 5 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard06.mdl");
             }
         
             // Create a shooter entity
@@ -398,11 +398,11 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
             if(entityIndex != INVALID_ENT_REFERENCE)
             {
                 // Dispatch main values of the entity
-                DispatchKeyValueVector(entityIndex, "angles", vEntPosition);
-                DispatchKeyValueVector(entityIndex, "gibangles", vEntAngle);
+                DispatchKeyValueVector(entityIndex, "angles", vShootAngle);
+                DispatchKeyValueVector(entityIndex, "gibangles", vGibAngle);
                 DispatchKeyValue(entityIndex, "rendermode", "5");
                 DispatchKeyValue(entityIndex, "shootsounds", "0");
-                DispatchKeyValue(entityIndex, "shootmodel", sModel);
+                DispatchKeyValue(entityIndex, "shootmodel", sBuffer);
                 DispatchKeyValueFloat(entityIndex, "m_iGibs", GLASS_GIBS_AMOUNT);
                 DispatchKeyValueFloat(entityIndex, "delay", GLASS_GIBS_DELAY);
                 DispatchKeyValueFloat(entityIndex, "m_flVelocity", GLASS_GIBS_SPEED);
@@ -425,11 +425,10 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
 
                 // Initialize time char
-                static char sTime[SMALL_LINE_LENGTH];
-                FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", GLASS_GIBS_DURATION);
+                FormatEx(sBuffer, sizeof(sBuffer), "OnUser1 !self:kill::%f:1", GLASS_GIBS_DURATION);
 
                 // Sets modified flags on the entity
-                SetVariantString(sTime);
+                SetVariantString(sBuffer);
                 AcceptEntityInput(entityIndex, "AddOutput");
                 AcceptEntityInput(entityIndex, "FireUser1");
             }
