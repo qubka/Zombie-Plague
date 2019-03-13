@@ -228,6 +228,11 @@ bool DownloadsOnPrecache(char[] sPath)
         // Precache textures
         return DecryptPrecacheTextures(sPath);
     }
+    else
+    {
+        // Add file to download table 
+        AddFileToDownloadsTable(sPath);
+    }
     
     // Return on success
     return true;

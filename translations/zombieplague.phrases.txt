@@ -22,8 +22,8 @@
 
     "general buttons reminder" // Hint
     {
-        "en"            "Press <font color='#FF0000'>F3</font> for open menu\nPress <font color='#FF0000'F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
-        "ru"            "Нажмите F3 для открытия меню\nНажмите F4 для способности зомби/людей\nНажмите F для включения фонарика"
+        "en"            "Press <font color='#FF0000'>F3/B</font> for open menu\nPress <font color='#FF0000'F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
+        "ru"            "Нажмите F3/B для открытия меню\nНажмите F4 для способности зомби/людей\nНажмите F для включения фонарика"
     }
     
     "general ammunition reminder" // Chat
@@ -71,7 +71,7 @@
 
     "level info" // DHUD (translated)
     {
-        "#format"       "{1:d},{2:t},{3:d},{4:d},{5:s}"
+        "#format"       "{1:d},{2:t},{3:d},{4:d},{5:d}"
         "en"            "ARMOR:[{1}] CLASS:[{2}]\nLVL:[{3}] EXP:[{4}/{5}]"    
         "ru"            "БРОНЯ:[{1}] КЛАСС:[{2}]\nУРОВЕНЬ:[{3}] ОПЫТ:[{4}/{5}]"    
     }
@@ -470,9 +470,9 @@
 
     "config reload commands aliases" // Console
     {
-        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s}"
-        "en"            "File aliases:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\""
-        "ru"            "Алиасы файла:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\""
+        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s},{11:s}"
+        "en"            "File aliases:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
+        "ru"            "Алиасы файла:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
     }
 
     "config reload invalid" // Console
@@ -1210,6 +1210,12 @@
         "ru"            "Сильный <font color='#7A1A0B'>удар</font> на правую кнопку мыши"
     }
 
+    "turret info" // Hint
+    {
+        "en"            "To remove <font color='#3D49C7'>a turret</font>, press the button to <font color='#1CA9C9'>open the menu</font>"
+        "ru"            "Чтобы снять <font color='#3D49C7'>турель</font> нажмите кнопку для <font color='#1CA9C9'>открытия меню</font>"
+    }
+    
     "lasermine info" // Hint
     {
         "en"            "To remove <font color='#F8173E'>a mine</font>, press the button to <font color='#1CA9C9'>open the menu</font>"

@@ -246,7 +246,7 @@ void ClassMenu(int clientIndex, char[] sTitle, char[] sType, int iClass, bool bI
     hMenu.SetTitle("%t", sTitle);
     
     // Initialize forward
-    static Action resultHandle;
+    Action resultHandle;
     
     // i = class index
     int iSize = gServerData.Classes.Length;
@@ -404,7 +404,7 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int clientI
             int iD = StringToInt(sClassName);
             
             // Call forward
-            static Action resultHandle;
+            Action resultHandle;
             gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
 
             // Validate handle

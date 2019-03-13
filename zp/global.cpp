@@ -168,10 +168,10 @@ enum struct ServerData
     Database DataBase;
     
     /* Synchronizers */
-    Handle Account;
-    Handle Level;
-    Handle Game;
-    Handle Skill[2];
+    Handle AccountSync;
+    Handle LevelSync;
+    Handle GameSync;
+    Handle SkillSync[2];
     
     /* Configs */
     ArrayList ExtraItems;
@@ -186,6 +186,7 @@ enum struct ServerData
     ArrayList Weapons;
     ArrayList Downloads;
     ArrayList Sounds;
+    ArrayList Levels;
     
     /**
      * @brief Clear all timers.
@@ -254,6 +255,7 @@ enum struct ClientData
     Handle HealTimer;
     Handle MoanTimer;
     Handle AmbientTimer;
+    Handle BuyTimer;
     
     /* Arrays */
     ArrayList ShoppingCart;
@@ -325,6 +327,7 @@ enum struct ClientData
         delete this.HealTimer;
         delete this.MoanTimer;
         delete this.AmbientTimer;
+        delete this.BuyTimer;
     }
     
     /**
@@ -341,6 +344,7 @@ enum struct ClientData
         this.HealTimer      = null;    
         this.MoanTimer      = null; 
         this.AmbientTimer   = null; 
+        this.BuyTimer       = null;
     }
 }
 /**

@@ -256,6 +256,7 @@ void SoundsOnBlast(/*void*/)
 void SoundsOnGameModeStart(/*void*/)
 {
     // Forward event to sub-modules
+    VoiceOnGameModeStart();
     PlayerSoundsOnGameModeStart();
     AmbientSoundsOnGameModeStart();
 }

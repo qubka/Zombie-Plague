@@ -24,7 +24,7 @@
  *
  * ============================================================================
  **/
- 
+
 #if defined USE_DHOOKS
 /**
  * Variables to store DHook calls handlers.
@@ -35,7 +35,7 @@ Handle hDHookCommitSuicide;
  * Variables to store dynamic DHook offsets.
  **/
 int DHook_CommitSuicide;
-#endif 
+#endif  
  
 /**
  * @brief Death module init function.
@@ -43,8 +43,8 @@ int DHook_CommitSuicide;
 void DeathOnInit(/*void*/)
 {
     // Hook player events
-    HookEvent("player_death", DeathOnClientIcon, EventHookMode_Pre);
-    HookEvent("player_death", DeathOnClientDeath, EventHookMode_Post);
+    HookEvent("player_death", DeathOnClientDeathPre, EventHookMode_Pre);
+    HookEvent("player_death", DeathOnClientDeathPost, EventHookMode_Post);
     
     #if defined USE_DHOOKS
     // Load offsets
@@ -138,7 +138,7 @@ public Action DeathOnCommandListened(int clientIndex, char[] commandMsg, int iAr
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action DeathOnClientIcon(Event hEvent, char[] sName, bool dontBroadcast) 
+public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Sets whether an event broadcasting will be disabled
     if(!dontBroadcast) 
@@ -156,7 +156,7 @@ public Action DeathOnClientIcon(Event hEvent, char[] sName, bool dontBroadcast)
  * @param gEventName        The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action DeathOnClientDeath(Event hEvent, char[] sName, bool dontBroadcast) 
+public Action DeathOnClientDeathPost(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
     int clientIndex   = GetClientOfUserId(hEvent.GetInt("userid"));
@@ -168,6 +168,18 @@ public Action DeathOnClientDeath(Event hEvent, char[] sName, bool dontBroadcast)
         return;
     }
     
+    // Forward event to sub-modules
+    DeathOnClientDeath(clientIndex, IsPlayerExist(attackerIndex, false) ? attackerIndex : 0);
+}
+
+/**
+ * @brief Client has been killed.
+ * 
+ * @param clientIndex       The client index.  
+ * @param attackerIndex     (Optional) The attacker index.
+ **/
+void DeathOnClientDeath(int clientIndex, int attackerIndex = 0)
+{
     // Delete player timers
     gClientData[clientIndex].ResetTimers();
     
@@ -176,6 +188,9 @@ public Action DeathOnClientDeath(Event hEvent, char[] sName, bool dontBroadcast)
     ToolsSetClientFlashLight(clientIndex, false);
     ToolsSetClientHud(clientIndex, true);
     ToolsSetClientFov(clientIndex);
+    
+    // Call forward
+    gForwardData._OnClientDeath(clientIndex, attackerIndex);
     
     // Forward event to modules
     RagdollOnClientDeath(clientIndex);
@@ -283,8 +298,16 @@ public Action DeathOnClientRespawning(Handle hTimer, int userID)
     // Validate client
     if(clientIndex)
     {
-        // Call respawning
-        DeathOnClientRespawn(clientIndex, _, false);
+        // Call forward
+        Action resultHandle;
+        gForwardData._OnClientRespawn(clientIndex, resultHandle);
+    
+        // Validate handle
+        if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+        {
+            // Call respawning
+            DeathOnClientRespawn(clientIndex, _, false);
+        }
     }
     
     // Destroy timer
@@ -333,14 +356,7 @@ void DeathOnClientHUD(int clientIndex, int attackerIndex, char[] sIcon, bool bHe
  **/
 public MRESReturn DeathDhookOnCommitSuicide(int clientIndex)
 {
-    // Validate client
-    if(IsPlayerExist(clientIndex, false))
-    {
-        // Reset any respawning 
-        delete gClientData[clientIndex].RespawnTimer;
-        
-        // Terminate the round
-        ModesValidateRound();
-    }
+    // Forward event to sub-modules
+    DeathOnClientDeath(clientIndex);
 }
 #endif

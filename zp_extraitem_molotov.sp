@@ -135,7 +135,7 @@ public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast)
     // Gets the icon name
     static char sIcon[SMALL_LINE_LENGTH]; /// Fix with inferno icon, because inflictor not have custom weapon id
     hEvent.GetString("weapon", sIcon, sizeof(sIcon));
-    if(clientIndex && attackerIndex && !strcmp(sIcon, "inferno", false))
+    if(!strcmp(sIcon, "inferno", false) && IsPlayerExist(clientIndex, false) && IsPlayerExist(attackerIndex, false))
     {
         // Create a custom death event
         ZP_CreateDeathEvent(clientIndex, attackerIndex, "inferno");

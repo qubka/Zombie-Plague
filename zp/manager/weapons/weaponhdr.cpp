@@ -53,8 +53,8 @@
 /**
  * Variables to store SDK calls handlers.
  **/
-Handle hSDKCallAnimatingGetSequenceActivity;
-Handle hSDKCallViewUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
+Handle hSDKCallGetSequenceActivity;
+Handle hSDKCallUpdateTransmitState; // UpdateTransmitState will stop the viewmodel from transmitting if EF_NODRAW flag is present
 
 /**
  * Variables to store virtual SDK adresses.
@@ -104,7 +104,7 @@ void WeaponHDROnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
     // Validate call
-    if(!(hSDKCallAnimatingGetSequenceActivity = EndPrepSDKCall()))
+    if((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -118,10 +118,10 @@ void WeaponHDROnInit(/*void*/)
     PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseViewModel::UpdateTransmitState");
 
     // Validate call
-    if(!(hSDKCallViewUpdateTransmitState = EndPrepSDKCall()))
+    if((hSDKCallUpdateTransmitState = EndPrepSDKCall()) == null)
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseViewModel::UpdateTransmitState\". Update offset in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseViewModel::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
         return;
     }
     
@@ -512,7 +512,7 @@ int WeaponHDRGetSequenceCount(int iAnimating)
  **/
 int WeaponHDRGetSequenceActivity(int iAnimating, int iSequence)
 {
-    return SDKCall(hSDKCallAnimatingGetSequenceActivity, iAnimating, iSequence);
+    return SDKCall(hSDKCallGetSequenceActivity, iAnimating, iSequence);
 }
 
 /**
@@ -522,7 +522,7 @@ int WeaponHDRGetSequenceActivity(int iAnimating, int iSequence)
  **/
 void WeaponHDRUpdateTransmitState(int iAnimating)
 {
-    SDKCall(hSDKCallViewUpdateTransmitState, iAnimating);
+    SDKCall(hSDKCallUpdateTransmitState, iAnimating);
 }
 
 

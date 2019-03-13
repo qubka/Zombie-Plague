@@ -569,7 +569,10 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
                         // Create a custom death event
                         static char sIcon[SMALL_LINE_LENGTH];
                         ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
-                        ZP_CreateDeathEvent(i, throwerIndex, sIcon);
+                        if(IsPlayerExist(throwerIndex, false)) /// Check thrower in case!
+                        {  
+                            ZP_CreateDeathEvent(i, throwerIndex, sIcon);
+                        }
                     }
 
                     // Calculate the velocity vector

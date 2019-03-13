@@ -67,20 +67,6 @@ int gZombie;
 #pragma unused gZombie
 
 /**
- * @brief Called after a library is added that the current plugin references optionally. 
- *        A library is either a plugin name or extension name, as exposed via its include file.
- **/
-public void OnLibraryAdded(const char[] sLibrary)
-{
-    // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
-    {
-        // Hook player events
-        HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
-    }
-}
-
-/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
@@ -127,17 +113,15 @@ public void OnClientDisconnect(int clientIndex)
 }
 
 /**
- * Event callback (player_death)
- * @brief Client has been killed.
+ * @brief Called when a client has been killed.
  * 
- * @param gEventHook        The event handle.
- * @param gEventName        The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
  **/
-public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
+public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
 {
     // Delete timer
-    delete Task_ZombieHallucination[GetClientOfUserId(hEvent.GetInt("userid"))];
+    delete Task_ZombieHallucination[clientIndex];
 }
 
 /**

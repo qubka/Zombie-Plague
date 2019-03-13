@@ -74,14 +74,6 @@ void MenusOnLoad(/*void*/)
         return;
     }
 
-    // Validate menus config
-    int iSize = gServerData.Menus.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sPathMenus);
-        return;
-    }
-
     // Now copy data to array structure
     MenusOnCacheData();
 
@@ -111,8 +103,15 @@ void MenusOnCacheData(/*void*/)
         return;
     }
 
-    // i = array index
+    // Validate size
     int iSize = gServerData.Menus.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sPathMenus);
+        return;
+    }
+    
+    // i = array index
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -273,7 +272,23 @@ void MenusOnCvarLoad(/*void*/)
  **/ 
 public Action MenusOnCommandCatched(int clientIndex, int iArguments)
 {
-    MainMenu(clientIndex);
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
+    {
+        return Plugin_Handled;
+    }
+    
+    // Call forward
+    Action resultHandle;
+    gForwardData._OnClientValidateButton(clientIndex, resultHandle);
+    
+    // Validate handle
+    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    {
+        MainMenu(clientIndex);
+    }
+    
+    // Return on success
     return Plugin_Handled;
 }
 
@@ -287,8 +302,7 @@ public Action MenusOnCommandCatched(int clientIndex, int iArguments)
  **/
 public Action MenusMainOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
 {
-    MainMenu(clientIndex);
-    return Plugin_Handled;
+    return MenusOnCommandCatched(clientIndex, iArguments);
 }
 
 /**
@@ -818,12 +832,6 @@ int MenusGetItemDraw(bool menuCondition)
  **/
 void MainMenu(int clientIndex)
 {
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        return;
-    }
-
     // Initialize variables
     static char sBuffer[NORMAL_LINE_LENGTH];
     static char sName[SMALL_LINE_LENGTH];
@@ -839,7 +847,7 @@ void MainMenu(int clientIndex)
     hMenu.SetTitle("%t", "main menu");
     
     // Initialize forward
-    static Action resultHandle;
+    Action resultHandle;
     
     // i = menu index
     int iSize = gServerData.Menus.Length;
@@ -1002,7 +1010,7 @@ void SubMenu(int clientIndex, int iD)
     hMenu.SetTitle("%t", sBuffer);
     
     // Initialize forward
-    static Action resultHandle;
+    Action resultHandle;
     
     // i = submenu index
     for(int i = MENUS_DATA_SUBMENU; i < iSize; i += MENUS_DATA_SUBMENU)
@@ -1091,6 +1099,12 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSl
         {
             if(mSlot == MenuCancel_ExitBack)
             {
+                // Validate client
+                if(!IsPlayerExist(clientIndex, false))
+                {
+                    return;
+                }
+                
                 // Opens main menu back
                 MainMenu(clientIndex);
             }
@@ -1115,7 +1129,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSl
             int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
             
             // Validate access
-            if(MenusValidateClass(clientIndex, iD)) 
+            if(MenusValidateClass(clientIndex, iD, i)) 
             {
                 // Gets menu command
                 MenusGetCommand(iD, sMenuCommand, sizeof(sMenuCommand), i);

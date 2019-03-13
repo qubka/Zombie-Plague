@@ -98,9 +98,17 @@ void CostumesOnInit(/*void*/)
     // Load offsets
     fnInitGameConfOffset(gServerData.SDKTools, DHook_SetEntityModel, /*CBasePlayer::*/"SetEntityModel");
 
-    /// CCSPlayer::SetModel(CBasePlayer *this, char const*)
+    /// CBasePlayer::SetModel(CBasePlayer *this, char const*)
     hDHookSetEntityModel = DHookCreate(DHook_SetEntityModel, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, CostumesDhookOnSetEntityModel);
     DHookAddParam(hDHookSetEntityModel, HookParamType_CharPtr);
+    
+    // Validate hook
+    if(hDHookSetEntityModel == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "GameData Validation", "Failed to create DHook for \"CBasePlayer::SetEntityModel\". Update \"SourceMod\"");
+        return;
+    }
     #endif
 }
 
@@ -112,7 +120,7 @@ void CostumesOnLoad(/*void*/)
     // Register config file
     ConfigRegisterConfig(File_Costumes, Structure_Keyvalue, CONFIG_FILE_ALIAS_COSTUMES);
 
-    // If module is disabled, then stop
+    // If costumes is disabled, then stop
     if(!gCvarList[CVAR_COSTUMES].BoolValue)
     {
         return;
@@ -140,14 +148,6 @@ void CostumesOnLoad(/*void*/)
     if(!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sPathCostumes);
-        return;
-    }
-
-    // Validate costumes config
-    int iSize = gServerData.Costumes.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sPathCostumes);
         return;
     }
 
@@ -180,8 +180,15 @@ void CostumesOnCacheData(/*void*/)
         return;
     }
 
-    // i = array index
+    // Validate size
     int iSize = gServerData.Costumes.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sPathCostumes);
+        return;
+    }
+    
+    // i = array index
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -456,7 +463,7 @@ public int API_SetClientCostume(Handle hPlugin, int iNumParams)
     }
     
     // Call forward
-    static Action resultHandle;
+    Action resultHandle;
     gForwardData._OnClientValidateCostume(clientIndex, iD, resultHandle);
 
     // Validate handle
@@ -1036,7 +1043,7 @@ void CostumesMenu(int clientIndex)
     hMenu.SetTitle("%t", "costumes menu");
     
     // Initialize forward
-    static Action resultHandle;
+    Action resultHandle;
     
     // i = array index
     int iSize = gServerData.Costumes.Length;
@@ -1127,7 +1134,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, in
             int iD = StringToInt(sKey);
             
             // Call forward
-            static Action resultHandle;
+            Action resultHandle;
             gForwardData._OnClientValidateCostume(clientIndex, iD, resultHandle);
             
             // Validate handle

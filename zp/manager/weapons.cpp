@@ -132,14 +132,6 @@ void WeaponsOnLoad(/*void*/)
         return;
     }
 
-    // Validate weapons config
-    int iSize = gServerData.Weapons.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
-        return;
-    }
-
     // Now copy data to array structure
     WeaponsOnCacheData();
 
@@ -168,9 +160,16 @@ void WeaponsOnCacheData(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sPathWeapons);
         return;
     }
+    
+    // Validate size
+    int iSize = gServerData.Weapons.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
+        return;
+    }
 
     // i = array index
-    int iSize = gServerData.Weapons.Length;
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -626,7 +625,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
     }
     
     // Call forward
-    static Action resultHandle;
+    Action resultHandle;
     gForwardData._OnClientValidateWeapon(clientIndex, iD, resultHandle);
 
     // Validate handle
@@ -2658,10 +2657,10 @@ bool WeaponsValidateKnife(int weaponIndex)
     static char sClassname[SMALL_LINE_LENGTH];
     GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
 
-    // Validate knife or melee
+    // Validate knife or melee or fists
     if(sClassname[0] == 'w' && sClassname[1] == 'e')
     {
-        return (sClassname[7] == 'k' || (sClassname[7] == 'm' && sClassname[8] == 'e' || (sClassname[7] == 'f' && sClassname[9] == 's')));
+        return (sClassname[7] == 'k' || (sClassname[7] == 'm' && sClassname[8] == 'e') || (sClassname[7] == 'f' && sClassname[9] == 's'));
     }
     
     // Return on unsuccess 

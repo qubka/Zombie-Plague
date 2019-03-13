@@ -43,6 +43,8 @@ enum struct ForwardData
 {
     /* Global */
     Handle OnClientUpdated;
+    Handle OnClientDeath;
+    Handle OnClientRespawn;
     Handle OnClientDamaged;
     Handle OnClientValidateItem;
     Handle OnClientBuyItem;
@@ -50,6 +52,7 @@ enum struct ForwardData
     Handle OnClientValidateCostume;
     Handle OnClientValidateWeapon;
     Handle OnClientValidateMode;
+    Handle OnClientValidateButton;
     Handle OnClientValidateMenu;
     Handle OnClientSkillUsed;
     Handle OnClientSkillOver;
@@ -75,6 +78,8 @@ enum struct ForwardData
     void OnForwardInit(/*void*/)
     {
         this.OnClientUpdated         = CreateGlobalForward("ZP_OnClientUpdated", ET_Ignore, Param_Cell, Param_Cell);
+        this.OnClientDeath           = CreateGlobalForward("ZP_OnClientDeath", ET_Ignore, Param_Cell, Param_Cell);
+        this.OnClientRespawn         = CreateGlobalForward("ZP_OnClientRespawn", ET_Hook, Param_Cell);
         this.OnClientDamaged         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_CellByRef, Param_CellByRef, Param_FloatByRef, Param_CellByRef, Param_CellByRef);
         this.OnClientValidateItem    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
         this.OnClientBuyItem         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
@@ -82,6 +87,7 @@ enum struct ForwardData
         this.OnClientValidateCostume = CreateGlobalForward("ZP_OnClientValidateCostume", ET_Hook, Param_Cell, Param_Cell);
         this.OnClientValidateWeapon  = CreateGlobalForward("ZP_OnClientValidateWeapon", ET_Hook, Param_Cell, Param_Cell);
         this.OnClientValidateMode    = CreateGlobalForward("ZP_OnClientValidateMode", ET_Hook, Param_Cell, Param_Cell);
+        this.OnClientValidateButton  = CreateGlobalForward("ZP_OnClientValidateButton", ET_Hook, Param_Cell);
         this.OnClientValidateMenu    = CreateGlobalForward("ZP_OnClientValidateMenu", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
         this.OnClientSkillUsed       = CreateGlobalForward("ZP_OnClientSkillUsed", ET_Hook, Param_Cell);
         this.OnClientSkillOver       = CreateGlobalForward("ZP_OnClientSkillOver", ET_Ignore, Param_Cell);
@@ -103,7 +109,7 @@ enum struct ForwardData
     }
     
     /**
-     * @brief Called when a client became a zombie/human.
+     * @brief Called when a client became/spawn a zombie/human.
      * 
      * @param clientIndex       The client index.
      * @param attackerIndex     The attacker index.
@@ -114,6 +120,35 @@ enum struct ForwardData
         Call_PushCell(clientIndex);
         Call_PushCell(attackerIndex);
         Call_Finish();
+    }
+    
+    /**
+     * @brief Called when a client has been killed.
+     * 
+     * @param clientIndex       The client index.
+     * @param attackerIndex     The attacker index.
+     **/
+    void _OnClientDeath(int clientIndex, int attackerIndex)
+    {
+        Call_StartForward(this.OnClientDeath);
+        Call_PushCell(clientIndex);
+        Call_PushCell(attackerIndex);
+        Call_Finish();
+    }
+    
+    /**
+     * @brief Called right before a client is about to respawn.
+     * 
+     * @param clientIndex       The client index.
+     *
+     * @param resultHandle      Plugin_Handled or Plugin_Stop to block respawn. Anything else
+     *                              (like Plugin_Continue) to allow use.
+     **/
+    void _OnClientRespawn(int clientIndex, Action &resultHandle)
+    {
+        Call_StartForward(this.OnClientRespawn);
+        Call_PushCell(clientIndex);
+        Call_Finish(resultHandle);
     }
 
     /**
@@ -237,6 +272,21 @@ enum struct ForwardData
         Call_Finish(resultHandle);
     }
 
+    /**
+     * @brief Called before show a main menu.
+     * 
+     * @param clientIndex       The client index.
+     *
+     * @param resultHandle      Plugin_Handled or Plugin_Stop to block showing. Anything else
+     *                              (like Plugin_Continue) to allow showing.
+     **/
+    void _OnClientValidateButton(int clientIndex, Action &resultHandle)
+    {
+        Call_StartForward(this.OnClientValidateButton);
+        Call_PushCell(clientIndex);
+        Call_Finish(resultHandle);
+    }
+    
     /**
      * @brief Called before show a slot in the main/sub menu.
      * 

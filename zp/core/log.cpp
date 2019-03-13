@@ -26,7 +26,7 @@
  **/
 
 /**
- * @section Custrom log file.
+ * @section Custom log file.
  **/
 #define LOG_FILE "addons/sourcemod/logs/zombieplague.log"
 /**
@@ -85,6 +85,8 @@ enum LogModule
     bool:LogModule_Menus,
     bool:LogModule_HitGroups,
     bool:LogModule_AntiStick,
+    bool:LogModule_Death,
+    bool:LogModule_Levels,
     bool:LogModule_Classes,
     bool:LogModule_ExtraItems,
     bool:LogModule_Costumes,
@@ -199,6 +201,14 @@ LogModule LogGetModule(char[] sModuleName)
     {
         return LogModule_AntiStick;
     }
+    else if(!strcmp(sModuleName, "death", false))
+    {
+        return LogModule_Death;
+    }
+    else if(!strcmp(sModuleName, "levels", false))
+    {
+        return LogModule_Levels;
+    }
     else if(!strcmp(sModuleName, "classes", false))
     {
         return LogModule_Classes;
@@ -310,13 +320,21 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "menus") : strcopy(sBuffer, iMaxLen, "Menus");
         }
-        case LogModule_HitGroups:
+        case LogModule_HitGroups :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "hitgroups") : strcopy(sBuffer, iMaxLen, "HitGroups");
         }
-        case LogModule_AntiStick:
+        case LogModule_AntiStick :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "antistick") : strcopy(sBuffer, iMaxLen, "Antistick");
+        }
+        case LogModule_Death :
+        {
+            return shortName ? strcopy(sBuffer, iMaxLen, "death") : strcopy(sBuffer, iMaxLen, "Death");
+        }
+        case LogModule_Levels : 
+        {
+            return shortName ? strcopy(sBuffer, iMaxLen, "levels") : strcopy(sBuffer, iMaxLen, "Levels");
         }
         case LogModule_Classes :
         {

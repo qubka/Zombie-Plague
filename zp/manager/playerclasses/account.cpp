@@ -42,7 +42,7 @@ void AccountOnInit(/*void*/)
         if(gServerData.MapLoaded)
         {
             // Validate sync
-            if(gServerData.Account != null)
+            if(gServerData.AccountSync != null)
             {
                 // i = client index
                 for(int i = 1; i <= MaxClients; i++)
@@ -56,16 +56,16 @@ void AccountOnInit(/*void*/)
                 }
                 
                 // Remove sync
-                delete gServerData.Account;
+                delete gServerData.AccountSync;
             }
         }
         return;
     }
 
     // Creates a HUD synchronization object
-    if(gServerData.Account == null)
+    if(gServerData.AccountSync == null)
     {
-        gServerData.Account = CreateHudSynchronizer();
+        gServerData.AccountSync = CreateHudSynchronizer();
     }
     
     // Validate loaded map
@@ -102,6 +102,7 @@ void AccountOnCvarInit(/*void*/)
     // Create cvars
     gCvarList[CVAR_ACCOUNT_CASH_AWARD]   = FindConVar("mp_playercashawards");
     gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE] = FindConVar("mp_buy_anywhere");
+    gCvarList[CVAR_ACCOUNT_BUY_IMMUNITY] = FindConVar("mp_buy_during_immunity");
     gCvarList[CVAR_ACCOUNT_MONEY]        = FindConVar("zp_account_money");
     gCvarList[CVAR_ACCOUNT_CONNECT]      = FindConVar("zp_account_connect");
     gCvarList[CVAR_ACCOUNT_BET]          = FindConVar("zp_account_bet");
@@ -116,12 +117,14 @@ void AccountOnCvarInit(/*void*/)
     
     // Sets locked cvars to their locked values
     gCvarList[CVAR_ACCOUNT_CASH_AWARD].IntValue   = 0;
-    gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].IntValue = 0;
+    gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].IntValue = 1;
+    gCvarList[CVAR_ACCOUNT_BUY_IMMUNITY].IntValue = 0;
     
     // Hook cvars
     HookConVarChange(gCvarList[CVAR_ACCOUNT_MONEY],        AccountOnCvarHook); 
     HookConVarChange(gCvarList[CVAR_ACCOUNT_CASH_AWARD],   CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE], CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE], CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_ACCOUNT_BUY_IMMUNITY], CvarsLockOnCvarHook);
 }
 
 /**
@@ -250,7 +253,7 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
         }
         
         // Print hud text to the client
-        TranslationPrintHudText(gServerData.Account, clientIndex, gCvarList[CVAR_ACCOUNT_HUD_X].FloatValue, gCvarList[CVAR_ACCOUNT_HUD_Y].FloatValue, 1.1, gCvarList[CVAR_ACCOUNT_HUD_R].IntValue, gCvarList[CVAR_ACCOUNT_HUD_G].IntValue, gCvarList[CVAR_ACCOUNT_HUD_B].IntValue, gCvarList[CVAR_ACCOUNT_HUD_A].IntValue, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[targetIndex].Money);
+        TranslationPrintHudText(gServerData.AccountSync, clientIndex, gCvarList[CVAR_ACCOUNT_HUD_X].FloatValue, gCvarList[CVAR_ACCOUNT_HUD_Y].FloatValue, 1.1, gCvarList[CVAR_ACCOUNT_HUD_R].IntValue, gCvarList[CVAR_ACCOUNT_HUD_G].IntValue, gCvarList[CVAR_ACCOUNT_HUD_B].IntValue, gCvarList[CVAR_ACCOUNT_HUD_A].IntValue, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[targetIndex].Money);
 
         // Allow timer
         return Plugin_Continue;

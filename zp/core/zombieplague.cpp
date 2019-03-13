@@ -445,14 +445,15 @@ stock int fnGetRandomZombie(/*void*/)
 /**
  * @brief Gets random array of total alive players.
  *
+ * @param clientIndex       The array containing target player indexes.
  * @param targetIndex       (Optional) The target index.
  * @param bZombie           (Optional) True to state zombie, false for human on the target index.
  * @return                  The random array of total alive players.
  **/
-stock int[] fnGetRandomAlive(int targetIndex = -1, bool bZombie = false)
+stock void fnGetRandomAlive(int clientIndex[MAXPLAYERS+1], int targetIndex = -1, bool bZombie = false)
 {
-    // Initialize variables
-    int iAmount; static int clientIndex[MAXPLAYERS+1];
+    // Initialize index
+    int iAmount;
 
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -494,9 +495,6 @@ stock int[] fnGetRandomAlive(int targetIndex = -1, bool bZombie = false)
             }    
         }
     }
-
-    // Return shuffled array
-    return clientIndex;
 }
 
 /**

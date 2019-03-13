@@ -873,10 +873,10 @@ void ToolsGetAttachment(int entityIndex, char[] sAttach, float vOrigin[3], float
     }
     else
     {
-        int iAnimating = SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
-        if(iAnimating)
+        int iAttach = SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
+        if(iAttach)
         {
-            SDKCall(hSDKCallGetAttachment, entityIndex, iAnimating, vOrigin, vAngle); 
+            SDKCall(hSDKCallGetAttachment, entityIndex, iAttach, vOrigin, vAngle); 
         }
     }
 }

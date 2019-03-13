@@ -38,6 +38,13 @@ void ZMarketOnClientUpdate(int clientIndex)
         // Rebuy if auto-rebuy is enabled
         ZMarketResetPurchaseCount(clientIndex);
     }
+    
+    // Validate real client
+    if(!IsFakeClient(clientIndex)) 
+    {
+        // Unlock VGUI buy panel
+        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(clientIndex, "1");
+    }
 }
 
 /**
@@ -53,11 +60,77 @@ void ZMarketOnClientUpdate(int clientIndex)
     RegConsoleCmd("zp_sniper_menu", ZMarketSnipersOnCommandCatched, "Opens the snipers menu.");
     RegConsoleCmd("zp_machinegun_menu", ZMarketMachinegunsOnCommandCatched, "Opens the machineguns menu.");
     RegConsoleCmd("zp_knife_menu", ZMarketKnifesOnCommandCatched, "Opens the knifes menu.");
+    
+    // Hook listeners
+    AddCommandListener(ZMarketOnCommandListened, "open_buymenu");
+    //AddCommandListener(ZMarketOnCommandListened, "close_buymenu");
 }
 
 /*
  * Market main functions.
  */
+
+/**
+ * Listener command callback (open_buymenu)
+ * @brief Buying of the weapons.
+ *
+ * @param clientIndex       The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action ZMarketOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
+{
+    // Validate real client
+    if(IsPlayerExist(clientIndex) && !IsFakeClient(clientIndex))
+    {
+        // Lock VGUI buy panel
+        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(clientIndex, "0");
+        
+        // Opens weapon menu
+        int iD[2]; iD = MenusCommandToArray("zp_rebuy_menu");
+        if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+        
+        // Sets timer for reseting command
+        delete gClientData[clientIndex].BuyTimer;
+        gClientData[clientIndex].BuyTimer = CreateTimer(1.0, ZMarketOnClientBuyMenu, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+    }
+}
+
+/**
+ * @brief Timer callback, auto-close a default buy menu.
+ *
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
+ **/
+public Action ZMarketOnClientBuyMenu(Handle hTimer, int userID)
+{
+    // Gets client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
+
+    // Clear timer
+    gClientData[clientIndex].BuyTimer = null;
+    
+    // Validate client
+    if(clientIndex)
+    {
+        // Unlock VGUI buy panel
+        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(clientIndex, "1");
+    }
+    
+    // Destroy timer
+    return Plugin_Stop;
+}
+/**
+ * @brief Called when a player attempts to purchase an item.
+ * 
+ * @param clientIndex       The client index.
+ * @param sName             The weapon name.
+ **/
+public Action CS_OnBuyCommand(int clientIndex, const char[] sName)
+{
+    // Block buy
+    return Plugin_Handled;
+}
 
 /**
  * Console command callback (zp_rebuy_menu)
@@ -205,90 +278,49 @@ void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invis
     hMenu.SetTitle(sBuffer);
     
     // Initialize variables
-    static Action resultHandle; static int iCount;
+    Action resultHandle; bool bMenu = mSlot != MenuType_Invisible;
     
-    // Opens weapon menu
-    if(mSlot)
+    // i = array number
+    int iCount = bMenu ? gServerData.Weapons.Length : gClientData[clientIndex].ShoppingCart.Length;
+    for(int i = 0; i < iCount; i++)
     {
-        // i = weapon index
-        iCount = gServerData.Weapons.Length;
-        for(int i = 0; i < iCount; i++)
-        {
-            // Call forward
-            gForwardData._OnClientValidateWeapon(clientIndex, i, resultHandle);
-            
-            // Skip, if weapon is disabled
-            if(resultHandle == Plugin_Stop)
-            {
-                continue;
-            }
+        // Gets weapon id from the list
+        int iD = bMenu ? i : gClientData[clientIndex].ShoppingCart.Get(i);
         
-            // Skip some weapons, if slot isn't equal
-            if(WeaponsGetSlot(i) != mSlot) 
-            {
-                continue;
-            }
-            
-            // Skip some weapons, if class isn't equal
-            if(!WeaponsValidateClass(clientIndex, i)) 
-            {
-                continue;
-            }
+        // Call forward
+        gForwardData._OnClientValidateWeapon(clientIndex, iD, resultHandle);
+        
+        // Skip, if weapon is disabled
+        if(resultHandle == Plugin_Stop)
+        {
+            continue;
+        }
+        
+        // Skip some weapons, if slot isn't equal
+        if(bMenu && WeaponsGetSlot(iD) != mSlot) 
+        {
+            continue;
+        }
+        
+        // Skip some weapons, if class isn't equal
+        if(!WeaponsValidateClass(clientIndex, iD))
+        {
+            continue;
+        }    
+    
+        // Gets weapon data
+        WeaponsGetName(iD, sName, sizeof(sName));
+        WeaponsGetGroup(iD, sGroup, sizeof(sGroup));
+        
+        // Format some chars for showing in menu
+        FormatEx(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(iD));
+        FormatEx(sLimit, sizeof(sLimit), "%t", "limit", WeaponsGetLimit(iD));
+        FormatEx(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(iD));      
+        FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%t  %s  %t" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[clientIndex].Level < WeaponsGetLevel(iD)) ? sLevel : (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(clientIndex, iD)) ? sLimit : (fnGetPlaying() < WeaponsGetOnline(iD)) ? sOnline : "", "price", WeaponsGetCost(iD), "money");
 
-            // Gets weapon data
-            WeaponsGetName(i, sName, sizeof(sName));
-            WeaponsGetGroup(i, sGroup, sizeof(sGroup));
-            
-            // Format some chars for showing in menu
-            FormatEx(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(i));
-            FormatEx(sLimit, sizeof(sLimit), "%t", "limit", WeaponsGetLimit(i));
-            FormatEx(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(i));      
-            FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[clientIndex].Level < WeaponsGetLevel(i)) ? sLevel : (WeaponsGetLimit(i) && WeaponsGetLimit(i) <= WeaponsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < WeaponsGetOnline(i)) ? sOnline : "", "price", WeaponsGetCost(i), "money");
-   
-            // Show option
-            IntToString(i, sInfo, sizeof(sInfo));
-            hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || WeaponsValidateID(clientIndex, i) || gClientData[clientIndex].Level < WeaponsGetLevel(i) || fnGetPlaying() < WeaponsGetOnline(i) || WeaponsGetLimit(i) && WeaponsGetLimit(i) <= WeaponsGetLimits(clientIndex, i) || gClientData[clientIndex].Money < WeaponsGetCost(i) ? false : true));
-        }
-    }
-    // Opens rebuy menu
-    else
-    {
-        // i = array number
-        iCount = gClientData[clientIndex].ShoppingCart.Length;
-        for(int i = 0; i < iCount; i++)
-        {
-            // Gets weapon id from the list
-            int iD = gClientData[clientIndex].ShoppingCart.Get(i);
-            
-            // Call forward
-            gForwardData._OnClientValidateWeapon(clientIndex, iD, resultHandle);
-            
-            // Skip, if weapon is disabled
-            if(resultHandle == Plugin_Stop)
-            {
-                continue;
-            }
-            
-            // Skip some weapons, if class isn't equal
-            if(!WeaponsValidateClass(clientIndex, iD))
-            {
-                continue;
-            }    
-        
-            // Gets weapon data
-            WeaponsGetName(iD, sName, sizeof(sName));
-            WeaponsGetGroup(iD, sGroup, sizeof(sGroup));
-            
-            // Format some chars for showing in menu
-            FormatEx(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(iD));
-            FormatEx(sLimit, sizeof(sLimit), "%t", "limit", WeaponsGetLimit(iD));
-            FormatEx(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(iD));      
-            FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%t  %s  %t" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[clientIndex].Level < WeaponsGetLevel(iD)) ? sLevel : (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(clientIndex, iD)) ? sLimit : (fnGetPlaying() < WeaponsGetOnline(iD)) ? sOnline : "", "price", WeaponsGetCost(iD), "money");
-   
-            // Show option
-            IntToString(iD, sInfo, sizeof(sInfo));
-            hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || WeaponsValidateID(clientIndex, iD) || gClientData[clientIndex].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(clientIndex, iD) || gClientData[clientIndex].Money < WeaponsGetCost(iD) ? false : true));
-        }
+        // Show option
+        IntToString(iD, sInfo, sizeof(sInfo));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || WeaponsValidateID(clientIndex, iD) || gClientData[clientIndex].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(clientIndex, iD) || gClientData[clientIndex].Money < WeaponsGetCost(iD) ? false : true));
     }
     
     // If there are no cases, add an "(Empty)" line
@@ -365,7 +397,7 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
             int iD = StringToInt(sWeaponName);
 
             // Call forward
-            static Action resultHandle; 
+            Action resultHandle; 
             gForwardData._OnClientValidateWeapon(clientIndex, iD, resultHandle);
             
             // Validate handle

@@ -181,14 +181,6 @@ void ClassesOnLoad(/*void*/)
         return;
     }
 
-    // Validate classes config
-    int iSize = gServerData.Classes.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sPathClasses);
-        return;
-    }
-
     // Now copy data to array structure
     ClassesOnCacheData();
 
@@ -224,12 +216,21 @@ void ClassesOnCacheData(/*void*/)
         // Initialize a type list array
         gServerData.Types = CreateArray(SMALL_LINE_LENGTH);
     }
+    else
+    {
+        // Clear out the array of all data
+        gServerData.Types.Clear();
+    }
     
-    // Clear out the array of all data
-    gServerData.Types.Clear();
+    // Validate size
+    int iSize = gServerData.Classes.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sPathClasses);
+        return;
+    }
     
     // i = array index
-    int iSize = gServerData.Classes.Length;
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -657,7 +658,7 @@ public int API_SetClientHumanClassNext(Handle hPlugin, int iNumParams)
     }
     
     // Call forward
-    static Action resultHandle;
+    Action resultHandle;
     gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
 
     // Validate handle
@@ -692,7 +693,7 @@ public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
     }
     
     // Call forward
-    static Action resultHandle;
+    Action resultHandle;
     gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
 
     // Validate handle

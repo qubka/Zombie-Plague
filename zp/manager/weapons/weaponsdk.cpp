@@ -111,7 +111,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
     
     // Validate call
-    if(!(hSDKCallRemoveAllItems = EndPrepSDKCall()))
+    if((hSDKCallRemoveAllItems = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::RemoveAllItems\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
@@ -129,7 +129,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
     // Validate call
-    if(!(hSDKCallWeaponSwitch = EndPrepSDKCall()))
+    if((hSDKCallWeaponSwitch = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update \"SourceMod\"");
@@ -146,7 +146,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
     
     // Validate call
-    if(!(hSDKCallGetMaxClip1 = EndPrepSDKCall()))
+    if((hSDKCallGetMaxClip1 = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
@@ -163,7 +163,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue); 
     
     // Validate call
-    if(!(hSDKCallGetReserveAmmoMax = EndPrepSDKCall()))
+    if((hSDKCallGetReserveAmmoMax = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
@@ -208,9 +208,25 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     /// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
     hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
     
+    // Validate hook
+    if(hDHookGetMaxClip == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
     /// CBaseCombatWeapon::GetReserveAmmoMax(AmmoPosition_t)
     hDHookGetReserveAmmoMax = DHookCreate(DHook_GetReserveAmmoMax, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetReverseMax);
     DHookAddParam(hDHookGetReserveAmmoMax, HookParamType_Unknown);
+    
+    // Validate hook
+    if(hDHookGetReserveAmmoMax == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
     #endif
 }
 
@@ -1215,7 +1231,7 @@ Action WeaponSDKOnRunCmd(int clientIndex, int &iButtons, int iLastButtons, int w
     if(iD != -1)    
     {
         // Call forward
-        static Action resultHandle;
+        Action resultHandle;
         gForwardData._OnWeaponRunCmd(clientIndex, iButtons, iLastButtons, weaponIndex, iD, resultHandle);
         return resultHandle;
     }
@@ -1303,7 +1319,7 @@ public void WeaponSDKOnHostagePost(int userID)
 }
 
 /**
- * Listener command callback(buyammo1, buyammo2)
+ * Listener command callback (buyammo1, buyammo2)
  * @brief Buying of the ammunition.
  *
  * @param clientIndex       The client index.

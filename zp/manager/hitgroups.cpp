@@ -91,7 +91,7 @@ void HitGroupsOnLoad(/*void*/)
     // Register config file
     ConfigRegisterConfig(File_HitGroups, Structure_Keyvalue, CONFIG_FILE_ALIAS_HITGROUPS);
 
-    // If module is disabled, then stop
+    // If hitgroups is disabled, then stop
     if(!gCvarList[CVAR_HITGROUP].BoolValue)
     {
         return;
@@ -121,15 +121,7 @@ void HitGroupsOnLoad(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error encountered loading: %s", sPathGroups);
         return;
     }
-
-    // Validate hitgroups config
-    int iSize = gServerData.HitGroups.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "No usable data found in hitgroups config file: %s", sPathGroups);
-        return;
-    }
-
+    
     // Now copy data to array structure
     HitGroupsOnCacheData();
 
@@ -158,9 +150,16 @@ void HitGroupsOnCacheData(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error caching data from hitgroups config file: %s", sPathGroups);
         return;
     }
+    
+    // Validate size
+    int iSize = gServerData.HitGroups.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "No usable data found in hitgroups config file: %s", sPathGroups);
+        return;
+    }
 
     // i = array index
-    int iSize = gServerData.HitGroups.Length;
     for(int i = 0; i < iSize; i++)
     {
         // General

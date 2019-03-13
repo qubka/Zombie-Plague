@@ -397,7 +397,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
                 ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
                 
                 // Dispatch main values of the entity
-                DispatchKeyValue(entityIndex, "targetname", "zp_mine");
+                DispatchKeyValue(entityIndex, "targetname", "mine");
                 DispatchKeyValue(entityIndex, "model", sModel);
                 DispatchKeyValue(entityIndex, "spawnflags", "8832"); /// Not affected by rotor wash | Prevent pickup | Force server-side
 
@@ -440,7 +440,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
                 if(beamIndex != INVALID_ENT_REFERENCE)
                 {
                     // Dispatch main values of the entity
-                    FormatEx(sClassname, sizeof(sClassname), "zp_laser_%d", beamIndex);
+                    FormatEx(sClassname, sizeof(sClassname), "laser%d", beamIndex);
                     FormatEx(sDispatch, sizeof(sDispatch), "%s,Kill,,0,-1", sClassname);
                     DispatchKeyValue(entityIndex, "OnBreak", sDispatch);
                     DispatchKeyValue(beamIndex, "targetname", sClassname);
@@ -636,12 +636,12 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  *
  * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
  *                              (like Plugin_Continue) to allow showing.
- **/
-public Action ZP_OnClientValidateMainMenu(int clientIndex)
+**/
+public Action ZP_OnClientValidateButton(int clientIndex)
 {
     // Validate no weapon
     static int weaponIndex;
-    if(!ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
+    if(ZP_IsPlayerHuman(clientIndex) && !ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
     {
         // Call event
         if(_call.PickupMine(clientIndex, weaponIndex))
@@ -735,9 +735,7 @@ void MineExpload(int entityIndex)
                 if(!ZP_TakeDamage(i, ownerIndex, entityIndex, WEAPON_MINE_EXPLOSION_DAMAGE * (1.0 - (flDistance / WEAPON_MINE_EXPLOSION_RADIUS)), DMG_VEHICLE))
                 {
                     // Create a custom death event
-                    static char sIcon[SMALL_LINE_LENGTH];
-                    ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
-                    ZP_CreateDeathEvent(i, ownerIndex, sIcon);
+                    ZP_CreateDeathEvent(i, ownerIndex, "prop_exploding_barrel");
                 }
                 
                 // Calculate the velocity vector
@@ -903,7 +901,10 @@ public Action MineUpdateHook(Handle hTimer, int referenceIndex)
                     // Create a custom death event
                     static char sIcon[SMALL_LINE_LENGTH];
                     ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
-                    ZP_CreateDeathEvent(victimIndex, ownerIndex, sIcon);
+                    if(IsPlayerExist(ownerIndex, false)) /// Check owner in case!
+                    {  
+                        ZP_CreateDeathEvent(victimIndex, ownerIndex, sIcon);
+                    }
                 }
                 
                 // Emit the damage sound
@@ -1064,7 +1065,10 @@ public void BeamTouchHook(char[] sOutput, int entityIndex, int activatorIndex, f
                 // Create a custom death event
                 static char sIcon[SMALL_LINE_LENGTH];
                 ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
-                ZP_CreateDeathEvent(activatorIndex, ownerIndex, sIcon);
+                if(IsPlayerExist(ownerIndex, false)) /// Check owner in case!
+                {  
+                    ZP_CreateDeathEvent(activatorIndex, ownerIndex, sIcon);
+                }
             }
 
             // Emit the damage sound
@@ -1109,9 +1113,9 @@ stock bool IsPlayerDamageble(int clientIndex, float flDamageDelay)
  * @brief Validate a lasermine.
  *
  * @param entityIndex       The entity index.
- * @return                  The beam index.
+ * @return                  True or false.
  **/
-stock int IsEntityBeam(int entityIndex)
+stock bool IsEntityBeam(int entityIndex)
 {
     // Validate entity
     if(entityIndex <= MaxClients || !IsValidEdict(entityIndex))
@@ -1124,7 +1128,7 @@ stock int IsEntityBeam(int entityIndex)
     GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
     
     // Validate model
-    return (!strncmp(sClassname, "zp_laser_", 9, false));
+    return (!strncmp(sClassname, "laser", 5, false));
 }
 
 /**
@@ -1146,7 +1150,7 @@ stock bool IsEntityLasermine(int entityIndex)
     GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
     
     // Validate model
-    return (!strcmp(sClassname, "zp_mine", false));
+    return (!strcmp(sClassname, "mine", false));
 }
 
 /**
@@ -1159,6 +1163,15 @@ stock bool IsEntityLasermine(int entityIndex)
  **/
 public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
 {
+    #if defined WEAPON_MINE_IMPULSE
+    if(IsPlayerExist(entityIndex) && ZP_IsPlayerHuman(entityIndex)) 
+    #else
+    if(IsPlayerExist(entityIndex)) 
+    #endif
+    {
+        return false;
+    }
+
     return (entityIndex != filterIndex);
 }
 

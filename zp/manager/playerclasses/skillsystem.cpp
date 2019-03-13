@@ -51,8 +51,8 @@ static char SkillSystemMax[BAR_MAX_LENGTH] = "__________________________________
 void SkillSystemOnInit(/*void*/)
 {
     // Creates HUD synchronization objects
-    gServerData.Skill[0] = CreateHudSynchronizer();
-    gServerData.Skill[1] = CreateHudSynchronizer();
+    gServerData.SkillSync[0] = CreateHudSynchronizer();
+    gServerData.SkillSync[1] = CreateHudSynchronizer();
 } 
  
 /**
@@ -191,7 +191,7 @@ void SkillSystemOnClientStart(int clientIndex)
     if(!gClientData[clientIndex].Skill && gClientData[clientIndex].SkillCounter <= 0.0)
     {
         // Call forward
-        static Action resultHandle; 
+        Action resultHandle; 
         gForwardData._OnClientSkillUsed(clientIndex, resultHandle);
         
         // Block skill usage
@@ -250,8 +250,8 @@ public Action SkillSystemOnClientHUD(Handle hTimer, int userID)
         SkillSystemBar[clientIndex][RoundToNearest((gClientData[clientIndex].SkillCounter * BAR_MAX_LENGTH) / ClassGetSkillDuration(gClientData[clientIndex].Class))] = '\0';
 
         // Show health bar
-        VEffectsHudClientScreen(gServerData.Skill[0], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemMax);
-        VEffectsHudClientScreen(gServerData.Skill[1], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 255, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemBar[clientIndex]);
+        VEffectsHudClientScreen(gServerData.SkillSync[0], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemMax);
+        VEffectsHudClientScreen(gServerData.SkillSync[1], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 255, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemBar[clientIndex]);
 
         // Allow timer
         return Plugin_Continue;

@@ -94,7 +94,6 @@ enum CvarsList
     ConVar:CVAR_JUMPBOOST_KNOCKBACK,
     
     ConVar:CVAR_LEVEL_SYSTEM,
-    ConVar:CVAR_LEVEL_STATISTICS,
     ConVar:CVAR_LEVEL_HEALTH_RATIO,
     ConVar:CVAR_LEVEL_SPEED_RATIO,
     ConVar:CVAR_LEVEL_GRAVITY_RATIO,
@@ -117,6 +116,7 @@ enum CvarsList
     
     ConVar:CVAR_ACCOUNT_CASH_AWARD,
     ConVar:CVAR_ACCOUNT_BUY_ANYWHERE,
+    ConVar:CVAR_ACCOUNT_BUY_IMMUNITY,
     ConVar:CVAR_ACCOUNT_MONEY,
     ConVar:CVAR_ACCOUNT_CONNECT,
     ConVar:CVAR_ACCOUNT_BET,
@@ -154,7 +154,7 @@ enum CvarsList
     ConVar:CVAR_VEFFECTS_LIGHTSTYLE,
     ConVar:CVAR_VEFFECTS_LIGHTSTYLE_VALUE,
     ConVar:CVAR_VEFFECTS_SKY,
-    ConVar:CVAR_VEFFECTS_SKYNAME, ///
+    ConVar:CVAR_VEFFECTS_SKYNAME,
     ConVar:CVAR_VEFFECTS_SKY_PATH, 
     ConVar:CVAR_VEFFECTS_SUN_DISABLE,
     ConVar:CVAR_VEFFECTS_FOG,
@@ -168,7 +168,7 @@ enum CvarsList
     ConVar:CVAR_VEFFECTS_RAGDOLL_DELAY,
     
     ConVar:CVAR_SEFFECTS_LEVEL,
-    ConVar:CVAR_SEFFECTS_ALLTALK, ////
+    ConVar:CVAR_SEFFECTS_ALLTALK,
     ConVar:CVAR_SEFFECTS_VOICE,
     ConVar:CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE,
     ConVar:CVAR_SEFFECTS_INFECT,
@@ -266,9 +266,6 @@ void CvarsOnLoad(/*void*/)
     ConfigSetConfigLoaded(File_Cvars, true);
     ConfigSetConfigReloadFunc(File_Cvars, GetFunctionByName(GetMyHandle(), "CvarsOnConfigReload"));
     ConfigSetConfigHandle(File_Cvars, gServerData.Cvars);
-    
-    // Destroy all data
-    ConfigClearKvArray(gServerData.Cvars);
 }
 
 /**
@@ -320,6 +317,9 @@ void CvarsOnCacheData(/*void*/)
             i--;
         }
     }
+    
+    // Destroy all data
+    ConfigClearKvArray(gServerData.Cvars);
 }
 
 /**

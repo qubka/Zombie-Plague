@@ -94,7 +94,7 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
         static char sClassname[SMALL_LINE_LENGTH]; static char sWidth[SMALL_LINE_LENGTH]; static int vColor[4] = WEAPON_BEAM_COLOR;
         
         // Dispatch main values of the entity
-        FormatEx(sClassname, sizeof(sClassname), "zp_sflaser_%d", entityIndex);
+        FormatEx(sClassname, sizeof(sClassname), "sflaser%d", entityIndex);
         DispatchKeyValue(entityIndex, "targetname", sClassname);
         DispatchKeyValue(entityIndex, "damage", "0");
         DispatchKeyValue(entityIndex, "framestart", "0");

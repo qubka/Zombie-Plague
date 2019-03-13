@@ -130,7 +130,7 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
                         if(iDelay > gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP].IntValue || gServerData.RoundMode == -1)
                         {
                             // Switch team
-                            ToolsSetClientTeam(clientIndex, !(clientIndex % 2) ? TEAM_HUMAN : TEAM_ZOMBIE);
+                            ToolsSetClientTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
                             
                             // If game round didn't start, then respawn
                             if(gServerData.RoundMode == -1)
@@ -172,7 +172,7 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
                         if(gServerData.RoundMode == -1)
                         {
                             // Switch team
-                            ToolsSetClientTeam(clientIndex, !(clientIndex % 2) ? TEAM_HUMAN : TEAM_ZOMBIE);
+                            ToolsSetClientTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
                             
                             // Force client to respawn
                             ToolsForceToRespawn(clientIndex);

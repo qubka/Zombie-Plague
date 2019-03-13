@@ -90,7 +90,7 @@ void GameModesOnInit(/*void*/)
     HookEvent("cs_win_panel_round", GameModesOnPanel,     EventHookMode_Pre);
     
     // Creates a HUD synchronization object
-    gServerData.Game = CreateHudSynchronizer();
+    gServerData.GameSync = CreateHudSynchronizer();
 }
 
 /**
@@ -135,14 +135,6 @@ void GameModesOnLoad(/*void*/)
         return;
     }
 
-    // Validate gamemodes config
-    int iSize = gServerData.GameModes.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "No usable data found in gamemodes config file: \"%s\"", sPathModes);
-        return;
-    }
-
     // Now copy data to array structure
     GameModesOnCacheData();
 
@@ -176,8 +168,15 @@ void GameModesOnCacheData(/*void*/)
         return;
     }
 
-    // i = array index
+    // Validate size
     int iSize = gServerData.GameModes.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "No usable data found in gamemodes config file: \"%s\"", sPathModes);
+        return;
+    }
+    
+    // i = array index
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -575,12 +574,12 @@ void GameModesOnBegin(int modeIndex = -1, int targetIndex = -1)
         if(flTime)
         {
             // Print game mode description
-            TranslationPrintHudTextAll(gServerData.Game, ModesGetDescPosX(gServerData.RoundMode), ModesGetDescPosY(gServerData.RoundMode), flTime, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, sBuffer);
+            TranslationPrintHudTextAll(gServerData.GameSync, ModesGetDescPosX(gServerData.RoundMode), ModesGetDescPosY(gServerData.RoundMode), flTime, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, sBuffer);
         }
     }
     
     // Gets shuffled client array
-    clientIndex = fnGetRandomAlive(targetIndex, (ModesGetRatio(gServerData.RoundMode) < 0.5)); /// If less than half, selected will be zombie
+    fnGetRandomAlive(clientIndex, targetIndex, (ModesGetRatio(gServerData.RoundMode) < 0.5)); /// If less than half, selected will be zombie
     
     /*_________________________________________________________________________________________________________________________________________*/
     
@@ -750,22 +749,6 @@ public Action GameModesOnBlast(Handle hTimer)
  **/
 public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& reasonIndex)
 {
-    // Validate time
-    int iRoundTimeLeft = (RoundToNearest(GameRules_GetPropFloat("m_fRoundStartTime")) + GameRules_GetProp("m_iRoundTime")) - RoundToNearest(GetGameTime());
-    if(iRoundTimeLeft > 0)
-    {
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            // Validate any respawning
-            if(gClientData[i].RespawnTimer != null)
-            {
-                // Block end
-                return Plugin_Handled;
-            }
-        }
-    }
-    
     // Resets server grobal variables
     gServerData.RoundNew   = false;
     gServerData.RoundEnd   = true;
@@ -3142,7 +3125,7 @@ void ModesBalanceTeams(/*void*/)
             }
     
             // Swith team
-            ApplyOnClientTeam(i, !(i % 2) ? TEAM_HUMAN : TEAM_ZOMBIE);
+            ApplyOnClientTeam(i, (i & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
         }
     }
 }
@@ -3154,8 +3137,7 @@ void ModesKillEntities(/*void*/)
 {
     // Initialize variables
     static char sClassname[NORMAL_LINE_LENGTH];
-    static char sObjective[NORMAL_LINE_LENGTH+1] = "func_bomb_target_hostage_entity_func_hostage_rescue_func_buyzone";
-
+    
     // i = entity index
     int MaxEntities = GetMaxEntities();
     for(int i = MaxClients; i <= MaxEntities; i++)
@@ -3165,9 +3147,12 @@ void ModesKillEntities(/*void*/)
         {
             // Gets valid edict classname
             GetEdictClassname(i, sClassname, sizeof(sClassname));
-            
+
             // Validate objectives
-            if(StrContains(sObjective, sClassname, false) != -1) 
+            if((sClassname[0] == 'h' && sClassname[7] == '_' && sClassname[8] == 'e') || // hostage_entity
+               (sClassname[0] == 'f' && // func_
+               (sClassname[5] == 'h' || // _hostage_rescue
+               (sClassname[5] == 'b' && (sClassname[7] == 'y' || sClassname[7] == 'm'))))) // _buyzone , _bomb_target
             {
                 AcceptEntityInput(i, "Kill"); /// Destroy
             }
@@ -3319,7 +3304,7 @@ void ModesMenu(int clientIndex, int targetIndex = -1)
     hMenu.AddItem("-1", sBuffer);
     
     // Initialize forward
-    static Action resultHandle;
+    Action resultHandle;
     
     // i = array index
     int iSize = gServerData.GameModes.Length;
@@ -3431,7 +3416,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             }
 
             // Call forward
-            static Action resultHandle;
+            Action resultHandle;
             gForwardData._OnClientValidateMode(clientIndex, iD, resultHandle);
             
             // Validate handle

@@ -113,6 +113,7 @@
 #define CONFIG_FILE_ALIAS_EXTRAITEMS    "extraitems"    
 #define CONFIG_FILE_ALIAS_GAMEMODES     "gamemodes"
 #define CONFIG_FILE_ALIAS_CLASSES       "classes"
+#define CONFIG_FILE_ALIAS_LEVELS        "levels"
 /**
  * @endsection
  **/
@@ -130,6 +131,7 @@
 #define CONFIG_PATH_EXTRAITEMS          "zombieplague/extraitems.ini"    
 #define CONFIG_PATH_GAMEMODES           "zombieplague/gamemodes.ini"
 #define CONFIG_PATH_CLASSES             "zombieplague/classes.ini"
+#define CONFIG_PATH_LEVELS              "zombieplague/levels.ini"
 /**
  * @endsection
  **/
@@ -162,7 +164,8 @@ enum ConfigFile
     File_Costumes,                /** <sourcemod root>/zombieplague/costumes.ini (default) */
     File_ExtraItems,              /** <sourcemod root>/zombieplague/extraitems.ini (default) */
     File_GameModes,               /** <sourcemod root>/zombieplague/gamemodes.ini (default) */
-    File_Classes                  /** <sourcemod root>/zombieplague/classes.ini (default) */
+    File_Classes,                 /** <sourcemod root>/zombieplague/classes.ini (default) */
+    File_Levels                   /** <sourcemod root>/zombieplague/levels.ini (default) */
 };
 /**
  * @endsection
@@ -214,28 +217,6 @@ void ConfigOnInit(/*void*/)
     gServerData.SDKTools = LoadGameConfigFile("sdktools.games");
     gServerData.CStrike  = LoadGameConfigFile("sm-cstrike.games");
 }
-
-/**
- * @brief Config module unload function.
- **/
-/*void ConfigOnUnload(void) 
-{
-    // Remove a gamedata configs
-    delete gServerData.Config;
-    delete gServerData.SDKHooks;
-    delete gServerData.SDKTools;
-    delete gServerData.CStrike;
-
-// i = config file entry index
-    for(int i = 0; i < sizeof(gConfigData); i++)
-    {
-        // Gets config file
-        Handle iFile = ConfigGetConfigHandle(view_as<ConfigFile>(i));
-
-        // Destroy all old data
-        ConfigClearKvArray(view_as<ArrayList>(iFile));
-    }
-}*/
 
 /**
  * @brief Creates commands for config module.
@@ -939,7 +920,7 @@ public Action ConfigReloadOnCommandCatched(int clientIndex, int iArguments)
         // Write syntax info
         TranslationReplyToCommand(clientIndex, "config reload");
         TranslationReplyToCommand(clientIndex, "config reload commands");
-        TranslationReplyToCommand(clientIndex, "config reload commands aliases", CONFIG_FILE_ALIAS_CVARS, CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES, CONFIG_FILE_ALIAS_EXTRAITEMS, CONFIG_FILE_ALIAS_GAMEMODES, CONFIG_PATH_CLASSES);
+        TranslationReplyToCommand(clientIndex, "config reload commands aliases", CONFIG_FILE_ALIAS_CVARS, CONFIG_FILE_ALIAS_DOWNLOADS, CONFIG_FILE_ALIAS_WEAPONS, CONFIG_FILE_ALIAS_SOUNDS, CONFIG_FILE_ALIAS_MENUS, CONFIG_FILE_ALIAS_HITGROUPS, CONFIG_FILE_ALIAS_COSTUMES, CONFIG_FILE_ALIAS_EXTRAITEMS, CONFIG_FILE_ALIAS_GAMEMODES, CONFIG_PATH_CLASSES, CONFIG_PATH_LEVELS);
         return Plugin_Handled;
     }
 

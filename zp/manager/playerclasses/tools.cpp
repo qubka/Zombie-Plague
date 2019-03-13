@@ -94,7 +94,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
     // Validate call
-    if(!(hSDKCallLookupAttachment = EndPrepSDKCall()))
+    if((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -122,7 +122,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
     
     // Validate call
-    if(!(hSDKCallGetAttachment = EndPrepSDKCall()))
+    if((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);

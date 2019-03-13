@@ -85,14 +85,6 @@ void ExtraItemsOnLoad(/*void*/)
         return;
     }
 
-    // Validate extraitems config
-    int iSize = gServerData.ExtraItems.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
-        return;
-    }
-
     // Now copy data to array structure
     ExtraItemsOnCacheData();
 
@@ -121,9 +113,16 @@ void ExtraItemsOnCacheData(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
         return;
     }
+    
+    // Validate size
+    int iSize = gServerData.ExtraItems.Length;
+    if(!iSize)
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
+        return;
+    }
 
     // i = array index
-    int iSize = gServerData.ExtraItems.Length;
     for(int i = 0; i < iSize; i++)
     {
         // General
@@ -253,7 +252,7 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
     }
 
     // Call forward
-    static Action resultHandle;
+    Action resultHandle;
     gForwardData._OnClientValidateExtraItem(clientIndex, iD, resultHandle);
 
     // Validate handle
@@ -300,7 +299,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
     
     // Return on success
     return iD;
-}
+    }
 
 /**
  * @brief Gets the buy limit of the current player item.
@@ -898,7 +897,7 @@ void ItemsMenu(int clientIndex)
     hMenu.SetTitle("%t", "buy extraitems");
     
     // Initialize forward
-    static Action resultHandle;
+    Action resultHandle;
     
     // i = extraitem index
     int iSize = gServerData.ExtraItems.Length;
@@ -1011,7 +1010,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             ItemsGetName(iD, sItemName, sizeof(sItemName));
             
             // Call forward
-            static Action resultHandle;
+            Action resultHandle;
             gForwardData._OnClientValidateExtraItem(clientIndex, iD, resultHandle);
 
             // Validate handle

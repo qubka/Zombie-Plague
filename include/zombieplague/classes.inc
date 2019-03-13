@@ -55,7 +55,7 @@ enum /*BonusType*/
 #include "zombieplague/classes/levelsystem.inc" 
  
 /**
- * @brief Called when a client became a zombie/human.
+ * @brief Called when a client became/spawn a zombie/human.
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
@@ -63,6 +63,26 @@ enum /*BonusType*/
  * @noreturn
  **/
 forward void ZP_OnClientUpdated(int clientIndex, int attackerIndex); 
+
+/**
+ * @brief Called when a client has been killed.
+ * 
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnClientDeath(int clientIndex, int attackerIndex);
+
+/**
+ * @brief Called right before a client is about to respawn.
+ * 
+ * @param clientIndex       The client index.
+ *
+ * @return                  Plugin_Handled or Plugin_Stop to block respawn. Anything else
+ *                              (like Plugin_Continue) to allow use.
+ **/
+forward Action ZP_OnClientRespawn(int clientIndex);
  
 /**
  * @brief Called before show a class in the class menu.

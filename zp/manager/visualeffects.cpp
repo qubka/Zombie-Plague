@@ -80,12 +80,6 @@
  **/
 void VEffectsOnInit(/*void*/)
 {
-    // If windows, then stop
-    if(gServerData.Platform == OS_Windows)
-    {
-        return;
-    }
-    
     // Forward event to sub-modules
     ParticlesOnInit();
 }
@@ -97,14 +91,6 @@ void VEffectsOnLoad(/*void*/)
 {
     // Forward event to sub-modules
     VAmbienceOnLoad();
-    
-    // If windows, then stop
-    if(gServerData.Platform == OS_Windows)
-    {
-        return;
-    }
-    
-    // Forward event to sub-modules
     ParticlesOnLoad();
 }
 
@@ -113,12 +99,6 @@ void VEffectsOnLoad(/*void*/)
  **/
 void VEffectsOnPurge(/*void*/)
 {
-    // If windows, then stop
-    if(gServerData.Platform == OS_Windows)
-    {
-        return;
-    }
-    
     // Forward event to sub-modules
     ParticlesOnPurge();
 }

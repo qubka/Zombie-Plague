@@ -43,7 +43,7 @@
 public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
 {
     // Initialize variables
-    static Action resultHandle; static int iLastButtons[MAXPLAYERS+1]; 
+    Action resultHandle; static int iLastButtons[MAXPLAYERS+1]; 
 
     // Validate client
     if(IsPlayerExist(clientIndex, false))

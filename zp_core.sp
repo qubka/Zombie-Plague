@@ -86,11 +86,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = PLUGIN_NAME,
-    author          = PLUGIN_AUTHOR,
-    description     = PLUGIN_COPYRIGHT,
-    version         = PLUGIN_VERSION,
-    url             = PLUGIN_LINK
+    name        = PLUGIN_NAME,
+    author      = PLUGIN_AUTHOR,
+    description = PLUGIN_COPYRIGHT,
+    version     = PLUGIN_VERSION,
+    url         = PLUGIN_LINK
 }
 
 //*********************************************************************

@@ -303,7 +303,10 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
                     if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_EXP_RADIUS)), DMG_AIRBOAT))
                     {
                         // Create a custom death event
-                        ZP_CreateDeathEvent(i, ownerIndex, "snowball", true);
+                        if(IsPlayerExist(ownerIndex, false)) /// Check owner in case!
+                        {  
+                            ZP_CreateDeathEvent(i, ownerIndex, "snowball", true);
+                        }
                     }
                     
                     // Create a fade
