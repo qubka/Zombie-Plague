@@ -84,7 +84,7 @@ void LevelSystemOnInit(/*void*/)
         for(int i = 1; i <= MaxClients; i++)
         {
             // Validate client
-            if(IsPlayerExist(i))
+            if(IsPlayerExist(i, false))
             {
                 // Enable level system
                 LevelSystemOnClientUpdate(i);
@@ -350,9 +350,6 @@ void LevelSystemOnSetLvl(int clientIndex, int iLevel)
 
     // Sets level
     gClientData[clientIndex].Level = iLevel;
-    
-    // Update level in the database
-    DataBaseOnClientUpdate(clientIndex, ColumnType_Level);
 
     // Gets the max level
     int iMaxLevel = gServerData.Levels.Length;
@@ -372,6 +369,9 @@ void LevelSystemOnSetLvl(int clientIndex, int iLevel)
             SoundsOnClientLevelUp(clientIndex);
         }
     }
+    
+    // Update level in the database
+    DataBaseOnClientUpdate(clientIndex, ColumnType_Level);
 }
 
 /**
@@ -399,9 +399,6 @@ void LevelSystemOnSetExp(int clientIndex, int iExp)
 
     // Sets experience
     gClientData[clientIndex].Exp = iExp;
-    
-    // Update experience in the database
-    DataBaseOnClientUpdate(clientIndex, ColumnType_Exp);
 
     // Gets the max level
     int iMaxLevel = gServerData.Levels.Length;
@@ -421,6 +418,9 @@ void LevelSystemOnSetExp(int clientIndex, int iExp)
             LevelSystemOnSetLvl(clientIndex, gClientData[clientIndex].Level + 1);
         }
     }
+    
+    // Update experience in the database
+    DataBaseOnClientUpdate(clientIndex, ColumnType_Exp);
 }
 
 /**
@@ -500,12 +500,12 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
         if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
         {
             // Print hud text to the client
-            TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "short info", GetClientArmor(targetIndex), sInfo);
+            TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "short info", sInfo);
         }
         else
         {
             // Print hud text to the client
-            TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", GetClientArmor(targetIndex), sInfo, gClientData[targetIndex].Level, gClientData[targetIndex].Exp, LevelSystemGetLimit(gClientData[targetIndex].Level));
+            TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[targetIndex].Level, gClientData[targetIndex].Exp, LevelSystemGetLimit(gClientData[targetIndex].Level));
         }
 
         // Allow timer
@@ -702,10 +702,44 @@ public Action LevelSystemExpOnCommandCatched(int clientIndex, int iArguments)
  **/
 void LevelSystemOnNativeInit(/*void*/)
 {
+    CreateNative("ZP_GetLevelMax",    API_GetLevelMax);
+    CreateNative("ZP_GetLevelLimit",  API_GetLevelLimit);
     CreateNative("ZP_GetClientLevel", API_GetClientLevel);
     CreateNative("ZP_SetClientLevel", API_SetClientLevel);
     CreateNative("ZP_GetClientExp",   API_GetClientExp);
     CreateNative("ZP_SetClientExp",   API_SetClientExp);
+}
+
+/**
+ * @brief Gets the maximum level.
+ *
+ * @note native int ZP_GetLevelMax();
+ **/
+public int API_GetLevelMax(Handle hPlugin, int iNumParams)
+{
+    // Return the value 
+    return gServerData.Levels.Length;
+}
+
+/**
+ * @brief Gets the level experience limit.
+ *
+ * @note native int ZP_GetLevelLimit(iD);
+ **/
+public int API_GetLevelLimit(Handle hPlugin, int iNumParams)
+{
+    // Gets level index from native cell 
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD < 1 || iD > gServerData.Levels.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Levels, "Native Validation", "Invalid the level index (%d)", iD);
+        return -1;
+    }
+
+    // Return the value 
+    return LevelSystemGetLimit(iD);
 }
 
 /**

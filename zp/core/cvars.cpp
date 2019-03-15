@@ -190,7 +190,9 @@ enum CvarsList
     ConVar:CVAR_HEAD_ICON,
     
     ConVar:CVAR_MESSAGES_HELP,
-    ConVar:CVAR_MESSAGES_BLOCK
+    ConVar:CVAR_MESSAGES_BLOCK,
+    
+    ConVar:CVAR_SEND_TABLES
 };
 /**
  * @endsection

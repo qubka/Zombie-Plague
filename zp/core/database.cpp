@@ -40,22 +40,35 @@
  **/
 
 /**
+ * @section Database state types.
+ **/ 
+enum /*DatabaseType*/
+{
+    DatabaseType_Disabled,
+    DatabaseType_Enable,
+    DatabaseType_Drop
+}
+/**
+ * @endsection
+ **/  
+ 
+/**
  * @section Database column types.
  **/
 enum ColumnType
 {
-     ColumnType_ID,
-     ColumnType_SteamID,
-     ColumnType_Money,
-     ColumnType_Level,
-     ColumnType_Exp,
-     ColumnType_Zombie,
-     ColumnType_Human,
-     ColumnType_Rebuy,
-     ColumnType_Costume,
-     ColumnType_Vision,
-     ColumnType_Time,
-     ColumnType_All,
+    ColumnType_ID,
+    ColumnType_SteamID,
+    ColumnType_Money,
+    ColumnType_Level,
+    ColumnType_Exp,
+    ColumnType_Zombie,
+    ColumnType_Human,
+    ColumnType_Rebuy,
+    ColumnType_Costume,
+    ColumnType_Vision,
+    ColumnType_Time,
+    ColumnType_All,
 };
 /**
  * @endsection
@@ -76,7 +89,7 @@ enum TransactionType
  * @endsection
  **/
  
- /**
+/**
  * @section Database factories types.
  **/ 
 enum FactoryType
@@ -129,7 +142,7 @@ void DataBaseOnInit(/*void*/)
     }
 
     // Connects to a database asynchronously, so the game thread is not blocked.
-    Database.Connect(SQLBaseConnect_Callback, DATABASE_SECTION, (gCvarList[CVAR_DATABASE].IntValue == 2));
+    Database.Connect(SQLBaseConnect_Callback, DATABASE_SECTION, (gCvarList[CVAR_DATABASE].IntValue == DatabaseType_Drop));
 
     // Validate loaded map
     if(gServerData.MapLoaded)

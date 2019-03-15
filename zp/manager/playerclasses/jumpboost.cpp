@@ -149,7 +149,7 @@ public Action JumpBoostOnClientJump(Event hEvent, char[] sName, bool dontBroadca
     int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Creates a single use next frame hook
-    RequestFrame(view_as<RequestFrameCallback>(JumpBoostOnClientJumpPost), GetClientUserId(clientIndex));
+    _call.JumpBoostOnClientJumpPost(clientIndex);
 }
 
 /**

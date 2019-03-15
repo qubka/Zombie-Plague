@@ -26,17 +26,25 @@
  **/
  
 /**
- * Maximum cash limit in CS:GO.
- **/
-#define ACCOUNT_CASH_MAX 65000
+ * @section Account types.
+ **/ 
+enum /*AccountType*/
+{
+    AccountType_Disabled,
+    AccountType_Classic,
+    AccountType_Custom
+}
+/**
+ * @endsection
+ **/   
 
 /**
  * @brief Account module init function.
  **/
 void AccountOnInit(/*void*/)
 {
-    // If account disabled, then stop
-    if(!gCvarList[CVAR_ACCOUNT_MONEY].BoolValue)
+    // If custom disabled, then remove hud
+    if(gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Custom)
     {
         // Validate loaded map
         if(gServerData.MapLoaded)
@@ -59,13 +67,16 @@ void AccountOnInit(/*void*/)
                 delete gServerData.AccountSync;
             }
         }
-        return;
     }
-
-    // Creates a HUD synchronization object
-    if(gServerData.AccountSync == null)
+    
+    // If custom enabled, then create sync
+    if(gCvarList[CVAR_ACCOUNT_MONEY].IntValue == AccountType_Custom)
     {
-        gServerData.AccountSync = CreateHudSynchronizer();
+        // Creates a HUD synchronization object
+        if(gServerData.AccountSync == null)
+        {
+            gServerData.AccountSync = CreateHudSynchronizer();
+        }
     }
     
     // Validate loaded map
@@ -75,10 +86,10 @@ void AccountOnInit(/*void*/)
         for(int i = 1; i <= MaxClients; i++)
         {
             // Validate client
-            if(IsPlayerExist(i))
+            if(IsPlayerExist(i, false))
             {
                 // Enable account system
-                AccountOnClientUpdate(GetClientUserId(i));
+                _call.AccountOnClientUpdate(i);
             }
         }
     }
@@ -155,7 +166,7 @@ public void AccountOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 void AccountOnClientSpawn(int clientIndex)
 {
     // Reset HUD on the team change
-    AccountOnClientUpdate(GetClientUserId(clientIndex));
+    _call.AccountOnClientUpdate(clientIndex);
 }
 
 /**
@@ -166,7 +177,7 @@ void AccountOnClientSpawn(int clientIndex)
 void AccountOnClientDeath(int clientIndex)
 {
     // Enable HUD for spectator
-    AccountOnClientUpdate(GetClientUserId(clientIndex));
+    _call.AccountOnClientUpdate(clientIndex);
 }
 
 /**
@@ -176,12 +187,6 @@ void AccountOnClientDeath(int clientIndex)
  **/
 public void AccountOnClientUpdate(int userID)
 {
-    // If account disabled, then stop
-    if(!gCvarList[CVAR_ACCOUNT_MONEY].BoolValue)
-    {
-        return;
-    }
-    
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
 
@@ -191,23 +196,33 @@ public void AccountOnClientUpdate(int userID)
         // Validate real client
         if(!IsFakeClient(clientIndex))
         {
-            // If value higher or client is spectator, then create custom HUD
-            if(gClientData[clientIndex].Money > ACCOUNT_CASH_MAX || !IsPlayerAlive(clientIndex))
+            // Manipulate with account type
+            delete gClientData[clientIndex].AccountTimer;
+            switch(gCvarList[CVAR_ACCOUNT_MONEY].IntValue)
             {
-                // Send a convar to the client
-                gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "0");
-
-                // Sets timer for player account HUD
-                delete gClientData[clientIndex].AccountTimer;
-                gClientData[clientIndex].AccountTimer = CreateTimer(1.0, AccountOnClientHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-            }
-            else
-            {
-                // Send a convar to the client
-                gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "1");
+                case AccountType_Disabled : 
+                {
+                    // Hide money bar panel
+                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "0");
+                }
                 
-                // Update client moeny
-                AccountSetMoney(clientIndex, gClientData[clientIndex].Money);
+                case AccountType_Classic : 
+                {
+                    // Show money bar panel
+                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "1");
+                    
+                    // Update client money
+                    AccountSetMoney(clientIndex, gClientData[clientIndex].Money);
+                }
+                
+                case AccountType_Custom : 
+                {
+                    // Hide money bar panel
+                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "0");
+                    
+                    // Sets timer for player account HUD
+                    gClientData[clientIndex].AccountTimer = CreateTimer(1.0, AccountOnClientHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+                }
             }
         }
     }
@@ -429,40 +444,13 @@ void AccountSetClientCash(int clientIndex, int iMoney)
     DataBaseOnClientUpdate(clientIndex, ColumnType_Money);
 
     // If account disabled, then stop
-    if(!gCvarList[CVAR_ACCOUNT_MONEY].BoolValue)
+    if(gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Classic)
     {
         return;
     }
     
-    // If value higher, then create custom HUD
-    if(iMoney > ACCOUNT_CASH_MAX)
-    {
-        // Validate timer
-        if(gClientData[clientIndex].AccountTimer == null)
-        {
-            // Send a convar to the client
-            gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "0");
-  
-            // Sets timer for player account HUD
-            delete gClientData[clientIndex].AccountTimer;
-            gClientData[clientIndex].AccountTimer = CreateTimer(1.0, AccountOnClientHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-        }
-    }
-    else
-    {
-        // Validate timer
-        if(gClientData[clientIndex].AccountTimer != null)
-        {
-            // Remove timer
-            delete gClientData[clientIndex].AccountTimer;
-            
-            // Send a convar to the client
-            gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "1");
-        }
-        
-        // Update client moeny
-        AccountSetMoney(clientIndex, gClientData[clientIndex].Money);
-    }
+    // Update client money
+    AccountSetMoney(clientIndex, gClientData[clientIndex].Money);
 }
 
 /**
@@ -485,7 +473,7 @@ void AccountSetMoney(int clientIndex, int iMoney)
  *
  * @param clientIndex       The client index.
  * @param iMoney            The money amount.   
- * @param flCommision       The commision amount.
+ * @param flCommision       The commission amount.
  **/
 void AccountMenu(int clientIndex, int iMoney, float flCommision) 
 {
@@ -512,7 +500,7 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     // Sets language to target
     SetGlobalTransTarget(clientIndex);
 
-    // Validate commision
+    // Validate commission
     if(flCommision <= 0.0)
     {
         // Sets donate title
@@ -520,9 +508,9 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     }
     else
     {
-        // Sets commision title
+        // Sets commission title
         FormatEx(sInfo, sizeof(sInfo), "%.2f%", flCommision);
-        hMenu.SetTitle("%t", "commision", iMoney, "money", sInfo);
+        hMenu.SetTitle("%t", "commission", iMoney, "money", sInfo);
     }
 
     // Format some chars for showing in menu

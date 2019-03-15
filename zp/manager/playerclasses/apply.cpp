@@ -264,9 +264,9 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     SkillSystemOnClientUpdate(clientIndex);
     LevelSystemOnClientUpdate(clientIndex);
     VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
-    if(gClientData[clientIndex].Vision) VOverlayOnClientUpdate(clientIndex, Overlay_Vision);
-    RequestFrame(view_as<RequestFrameCallback>(AccountOnClientUpdate), GetClientUserId(clientIndex));
-    RequestFrame(view_as<RequestFrameCallback>(WeaponsOnClientUpdate), GetClientUserId(clientIndex));
+    if(gClientData[clientIndex].Vision) VOverlayOnClientUpdate(clientIndex, Overlay_Vision); /// HACK~HACK
+    _call.AccountOnClientUpdate(clientIndex);
+    _call.WeaponsOnClientUpdate(clientIndex);
     
     // If mode already started, then change team
     if(!gServerData.RoundNew)

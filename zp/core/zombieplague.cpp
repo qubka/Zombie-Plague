@@ -517,15 +517,15 @@ stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, char[] sKey)
  * @brief Returns an address value from a given config.
  *
  * @param gameConf          The game config handle.
- * @param xAddress          An adress, or null on failure.
+ * @param pAddress          An address, or null on failure.
  * @param sKey              Key to retrieve from the address section.
  **/
-stock void fnInitGameConfAddress(Handle gameConf, Address &xAddress, char[] sKey)
+stock void fnInitGameConfAddress(Handle gameConf, Address &pAddress, char[] sKey)
 {
     // Validate address
-    if((xAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
+    if((pAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get adress: \"%s\"", sKey);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get address: \"%s\"", sKey);
     }
 }
 

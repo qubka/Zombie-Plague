@@ -510,7 +510,7 @@ stock int ZP_CreateParticle(const int parentIndex, const float vPosition[3] = NU
 }
 
 /**
- * @brief Create an fake entity.
+ * @brief Create a fake entity.
  * 
  * @param vPosition         The origin of the entity.
  * @param flDurationTime    The duration of life.

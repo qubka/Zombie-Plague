@@ -168,8 +168,8 @@ enum struct ServerData
     Database DataBase;
     
     /* Synchronizers */
-    Handle AccountSync;
     Handle LevelSync;
+    Handle AccountSync;
     Handle GameSync;
     Handle SkillSync[2];
     
@@ -359,7 +359,9 @@ ClientData gClientData[MAXPLAYERS+1];
 /**
  * @section Core useful functions.
  **/
-#define hasLength(%0) (%0[0] != '\0') 
+#define hasLength(%0) (%0[0] != '\0')
+#define _call.%0(%1)  RequestFrame(view_as<RequestFrameCallback>(%0), GetClientUserId(%1))
+#define _next.%0(%1)  RequestFrame(view_as<RequestFrameCallback>(%0), EntIndexToEntRef(%1))
 /**
  * @endsection
  **/

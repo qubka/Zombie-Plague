@@ -82,7 +82,7 @@ public void ZP_OnEngineExecute(/*void*/)
     // Weapons
     gWeapon = ZP_GetWeaponNameID("molotov");
     gDublicat = ZP_GetWeaponNameID("inc grenade"); /// Bugfix
-    if(gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"molotov\" wasn't find");
+    if(gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"molotov\" or \"inc grenade\" wasn't find");
 }
 
 /**

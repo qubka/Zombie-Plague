@@ -31,7 +31,7 @@
  #endinput
 #endif
 #define _levelsystem_included
-
+ 
 /**
  * @brief Called when a client receive level.
  * 
@@ -41,6 +41,22 @@
  * @noreturn
  **/
 forward void ZP_OnClientLevel(int clientIndex, int &level);
+
+/**
+ * @brief Gets the maximum level.
+ *
+ * @return                  The max level.     
+ **/
+native int ZP_GetLevelMax();
+
+/**
+ * @brief Gets the level experience limit.
+ *
+ * @param level             The level amount.
+ *
+ * @return                  The limit amount.
+ **/
+native int ZP_GetLevelLimit(int level);
 
 /**
  * @brief Called when a client receive experience.

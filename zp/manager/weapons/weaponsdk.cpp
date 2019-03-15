@@ -344,7 +344,7 @@ void WeaponSDKOnEntityCreated(int weaponIndex, const char[] sClassname)
 public Action WeaponSDKOnWeaponReload(int weaponIndex) 
 {
     // Apply fake reload hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnWeaponReloadPost), EntIndexToEntRef(weaponIndex));
+    _next.WeaponSDKOnWeaponReloadPost(weaponIndex);
 }
 
 /**
@@ -422,7 +422,7 @@ public void WeaponSDKOnWeaponSpawn(int weaponIndex)
     
     #if defined USE_DHOOKS
         // Apply fake spawn hook on the next frame
-        RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnWeaponSpawnPost), EntIndexToEntRef(weaponIndex));
+        _next.WeaponSDKOnWeaponSpawnPost(weaponIndex);
     #endif
 }
 
@@ -477,7 +477,7 @@ public void WeaponSDKOnGrenadeSpawn(int grenadeIndex)
     WeaponsSetCustomID(grenadeIndex, INVALID_ENT_REFERENCE);
     
     // Apply fake throw hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnGrenadeSpawnPost), EntIndexToEntRef(grenadeIndex));
+    _next.WeaponSDKOnGrenadeSpawnPost(grenadeIndex);
 }
 
 /**
@@ -572,7 +572,7 @@ public Action CS_OnCSWeaponDrop(int clientIndex, int weaponIndex)
         }
 
         // Apply dropped model on the next frame
-        RequestFrame(view_as<RequestFrameCallback>(WeaponHDRSetDroppedModel), EntIndexToEntRef(weaponIndex));
+        _next.WeaponHDRSetDroppedModel(weaponIndex);
     }
     
     // Allow drop
@@ -1280,7 +1280,7 @@ void WeaponSDKOnHostage(int clientIndex)
     WeaponHDRSetPlayerViewModel(clientIndex, 1, INVALID_ENT_REFERENCE);
 
     // Apply fake hostage follow hook on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(WeaponSDKOnHostagePost), GetClientUserId(clientIndex));
+    _call.WeaponSDKOnHostagePost(clientIndex);
 }
     
 /**

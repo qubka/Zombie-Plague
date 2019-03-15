@@ -34,6 +34,11 @@ Handle hSDKCallGetAttachment;
 /**
  * Variables to store virtual SDK adresses.
  **/
+Address sendTableCRC;
+Address offsetArmorValue; 
+Address offsetAccount; 
+Address offsetHealth; 
+int SendProp_iBits; 
 int Player_CanBeSpotted;
 
 // Tools Functions (header)
@@ -82,6 +87,19 @@ void ToolsOnInit(/*void*/)
     // Load other offsets
     fnInitGameConfOffset(gServerData.Config, Player_CanBeSpotted, "CBasePlayer::CanBeSpotted");
     g_iOffset_PlayerCanBeSpotted = g_iOffset_PlayerSpotted - Player_CanBeSpotted;
+    fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "CSendProp::m_nBits");
+    fnInitGameConfAddress(gServerData.Config, sendTableCRC, "g_SendTableCRC");
+    fnInitGameConfAddress(gServerData.Config, offsetArmorValue, "m_ArmorValue");
+    fnInitGameConfAddress(gServerData.Config, offsetAccount, "m_iAccount");
+    fnInitGameConfAddress(gServerData.Config, offsetHealth, "m_iHealth");
+
+    // Memory patching
+    StoreToAddress(offsetArmorValue + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
+    StoreToAddress(offsetAccount + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
+    StoreToAddress(offsetHealth + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
+
+    /// 1337 -> it just a random and an invalid CRC32 byte
+    StoreToAddress(sendTableCRC, 1337, NumberType_Int32);
     
     /*_________________________________________________________________________________________________________________________________________*/
     

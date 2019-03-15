@@ -198,8 +198,8 @@ void DeathOnClientDeath(int clientIndex, int attackerIndex = 0)
     VEffectOnClientDeath(clientIndex);
     WeaponsOnClientDeath(clientIndex);
     VOverlayOnClientDeath(clientIndex);
-    LevelSystemOnClientDeath(clientIndex);
     AccountOnClientDeath(clientIndex);
+    LevelSystemOnClientDeath(clientIndex);
     if(!DeathOnClientRespawn(clientIndex, attackerIndex))
     {
         // Terminate the round

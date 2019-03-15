@@ -47,7 +47,7 @@ void VoiceOnCvarInit(/*void*/)
 void VoiceOnRoundStart(/*void*/)
 {
     // Allow everyone to listen/speak with each other
-    gCvarList[CVAR_SEFFECTS_ALLTALK].BoolValue = true;
+    gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = 1;
 }
 
 /**
@@ -56,7 +56,7 @@ void VoiceOnRoundStart(/*void*/)
 void VoiceOnRoundEnd(/*void*/)
 {
     // Allow everyone to listen/speak with each other
-    gCvarList[CVAR_SEFFECTS_ALLTALK].BoolValue = true;
+    gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = 1;
 }
 
 /**
@@ -65,7 +65,7 @@ void VoiceOnRoundEnd(/*void*/)
 void VoiceOnGameModeStart(/*void*/)
 {
     // Change the voice permissions based on custom cvar
-    gCvarList[CVAR_SEFFECTS_ALLTALK].BoolValue = gCvarList[CVAR_SEFFECTS_VOICE].BoolValue;
+    gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = gCvarList[CVAR_SEFFECTS_VOICE].BoolValue;
 }
 
 /**
@@ -95,7 +95,7 @@ void VoiceOnClientUpdate(int clientIndex)
 public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(!strcmp(oldValue, newValue, false))
+    if(oldValue[0] == newValue[0])
     {
         return;
     }
@@ -107,7 +107,7 @@ public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
         if(gServerData.RoundStart)
         {
             // Change the voice permissions based on custom cvar
-            gCvarList[CVAR_SEFFECTS_ALLTALK].BoolValue = view_as<bool>(StringToInt(newValue));
+            gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = StringToInt(newValue);
         }
     }
 }
@@ -123,7 +123,7 @@ public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 public void VoiceMuteOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(!strcmp(oldValue, newValue, false))
+    if(oldValue[0] == newValue[0])
     {
         return;
     }

@@ -82,9 +82,14 @@ void ToolsOnCvarInit(/*void*/)
     gCvarList[CVAR_LIGHT_BUTTON]   = FindConVar("zp_light_button");  
     gCvarList[CVAR_MESSAGES_HELP]  = FindConVar("zp_messages_help");
     gCvarList[CVAR_MESSAGES_BLOCK] = FindConVar("zp_messages_block");
+    gCvarList[CVAR_SEND_TABLES]    = FindConVar("sv_sendtables");
+    
+    // Sets locked cvars to their locked value
+    gCvarList[CVAR_SEND_TABLES].IntValue = 1;
     
     // Hook cvars
     HookConVarChange(gCvarList[CVAR_LIGHT_BUTTON], ToolsFOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_SEND_TABLES],  CvarsUnlockOnCvarHook);
     
     // Load cvars
     ToolsOnCommandLoad();

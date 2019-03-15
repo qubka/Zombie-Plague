@@ -206,8 +206,8 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
         }
         
         // Forward event to modules
-        LevelSystemOnClientSpawn(clientIndex);
         AccountOnClientSpawn(clientIndex);
+        LevelSystemOnClientSpawn(clientIndex);
         VOverlayOnClientSpawn(clientIndex);
     }
     
