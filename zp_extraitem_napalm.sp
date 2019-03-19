@@ -176,8 +176,8 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
             // Validate custom grenade
             if(ZP_GetWeaponID(inflicterIndex) == gWeapon)
             {
-                // Remove explosion damage
-                flDamage *= ZP_GetWeaponDamage(gWeapon);
+                // Reset explosion damage
+                flDamage *= ZP_IsPlayerZombie(attackerIndex) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
             }
         }
     }
@@ -245,7 +245,7 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
             int infoIndex = ZP_CreateEntity(vEntPosition, GRENADE_HOLY_EXP_TIME);
 
             // Validate entity
-            if(IsValidEdict(infoIndex))
+            if(infoIndex != INVALID_ENT_REFERENCE)
             {
                 // Create an explosion effect
                 ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);

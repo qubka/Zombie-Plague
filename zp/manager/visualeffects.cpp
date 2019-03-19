@@ -33,6 +33,7 @@
 #include "zp/manager/visualeffects/playereffects.cpp"
 #include "zp/manager/visualeffects/ragdoll.cpp"
 #include "zp/manager/visualeffects/particles.cpp"
+#include "zp/manager/visualeffects/healthsprite.cpp"
 
 /**
  * @section Explosion flags.
@@ -69,7 +70,7 @@
 /**
  * @section Particle flags.
  **/
-#define PARTICLE_WORLDORIGIN          5
+#define PARTICLE_WORLDORIGIN           5
 #define PARTICLE_DISPATCH_FROM_ENTITY (1<<0)
 /**
  * @endsection
@@ -92,6 +93,7 @@ void VEffectsOnLoad(/*void*/)
     // Forward event to sub-modules
     VAmbienceOnLoad();
     ParticlesOnLoad();
+    HealthOnLoad();
 }
 
 /**
@@ -116,10 +118,18 @@ void VEffectsOnCvarInit(/*void*/)
     gCvarList[CVAR_VEFFECTS_FADE]            = FindConVar("zp_veffects_fade"); 
     gCvarList[CVAR_VEFFECTS_FADE_TIME]       = FindConVar("zp_veffects_fade_time"); 
     gCvarList[CVAR_VEFFECTS_FADE_DURATION]   = FindConVar("zp_veffects_fade_duration"); 
+    gCvarList[CVAR_VEFFECTS_IMMUNITY_ALPHA]  = FindConVar("sv_disable_immunity_alpha");
+    
+    // Sets locked cvars to their locked value
+    gCvarList[CVAR_VEFFECTS_IMMUNITY_ALPHA].IntValue = 1;
+    
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_VEFFECTS_IMMUNITY_ALPHA],  CvarsUnlockOnCvarHook);
     
     // Forward event to sub-modules
     VAmbienceOnCvarInit();
     RagdollOnCvarInit();
+    HealthOnCvarInit();
     PlayerVEffectsOnCvarInit();
 }
 
@@ -145,14 +155,25 @@ void VEffectOnBlast(int clientIndex)
  **/
 void VEffectOnClientDeath(int clientIndex)
 {
-    // If particles disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
-    {
-        return;
-    }
-
     // Forward event to sub-modules
-    VEffectRemoveParticle(clientIndex);
+    ParticlesRemove(clientIndex);
+}
+
+/**
+ * @brief Client has been hurt.
+ * 
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param iHealth           The health amount.
+ **/
+void VEffectOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
+{
+    // Validate attacker
+    if(attackerIndex > 0)
+    {
+        // Forward event to sub-modules
+        HealthOnClientHurt(clientIndex, attackerIndex, iHealth);
+    }
 }
 
 /**
@@ -164,17 +185,9 @@ void VEffectOnClientDeath(int clientIndex)
 void VEffectsOnClientInfected(int clientIndex, int attackerIndex)
 {
     // Forward event to sub-modules
+    ParticlesRemove(clientIndex);
     VEffectsShakeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_SHAKE_AMP], gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY], gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]);
     VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 0, 0, 50});
-
-    // If particles disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
-    {
-        return;
-    }
-
-    // Forward event to sub-modules
-    VEffectRemoveParticle(clientIndex);
     PlayerVEffectsOnClientInfected(clientIndex, attackerIndex);    
 }
 
@@ -185,15 +198,20 @@ void VEffectsOnClientInfected(int clientIndex, int attackerIndex)
  **/
 void VEffectsOnClientHumanized(int clientIndex)
 {
-    // If particles disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
-    {
-        return;
-    }
-
     // Forward event to sub-modules
-    VEffectRemoveParticle(clientIndex);
+    ParticlesRemove(clientIndex);
     PlayerVEffectsOnClientHumanized(clientIndex);
+}
+
+/**
+ * @brief Client has been changed class state.
+ *
+ * @param clientIndex       The client index.
+ **/
+void VEffectsOnClientUpdate(int clientIndex)
+{
+    // Forward event to sub-modules
+    HealthOnClientUpdate(clientIndex);
 }
 
 /**
@@ -205,14 +223,6 @@ void VEffectsOnClientRegen(int clientIndex)
 {
     // Forward event to sub-modules
     VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {0, 255, 0, 25});
-    
-    // If particles disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
-    {
-        return;
-    }
-    
-    // Forward event to sub-modules
     PlayerVEffectsOnClientRegen(clientIndex);
 }
 
@@ -221,14 +231,8 @@ void VEffectsOnClientRegen(int clientIndex)
  * 
  * @param clientIndex       The client index.
  **/
-void VEffectsOnClientJump(int clientIndex)
+ void VEffectsOnClientJump(int clientIndex)
 {
-    // If particles disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_PARTICLES].BoolValue)
-    {
-        return;
-    }
-    
     // Forward event to sub-modules
     PlayerVEffectsOnClientJump(clientIndex);
 }
@@ -348,171 +352,9 @@ void VEffectsHudClientScreen(Handle hSync, int clientIndex, float x, float y, fl
 {
     // Sets HUD parameters for drawing text
     SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
-        
+    
     // Print translated phrase to the client screen
     ShowSyncHudText(clientIndex, hSync, sMessage);
-}
-
-/**
- * @brief Create an attached particle entity.
- * 
- * @param clientIndex       The client index.
- * @param sAttach           The attachment name.
- * @param sType             The type of the particle.
- * @param flDurationTime    The duration of light.
- * @return                  The entity index.
- **/
-int VEffectSpawnParticle(int clientIndex, char[] sAttach, char[] sType, float flDurationTime)
-{
-    // Validate name
-    if(!hasLength(sType))
-    {
-        return INVALID_ENT_REFERENCE;
-    }
-    
-    // Create an attach particle entity
-    int entityIndex = CreateEntityByName("info_particle_system");
-    
-    // If entity isn't valid, then skip
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValue(entityIndex, "start_active", "1");
-        DispatchKeyValue(entityIndex, "effect_name", sType);
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entityIndex);
-
-        // Sets parent to the entity
-        SetVariantString("!activator");
-        AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
-        ToolsSetEntityOwner(entityIndex, clientIndex);
-        
-        // Sets attachment to the entity
-        if(hasLength(sAttach))
-        { 
-            SetVariantString(sAttach); 
-            AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
-        }
-        else
-        {
-            // Initialize vector variables
-            static float vOrigin[3];
-
-            // Gets client position
-            GetClientAbsOrigin(clientIndex, vOrigin);
-
-            // Spawn the entity
-            DispatchKeyValueVector(entityIndex, "origin", vOrigin);
-        }
-        
-        // Activate the entity
-        ActivateEntity(entityIndex);
-        AcceptEntityInput(entityIndex, "Start");
-        
-        // Initialize time char
-        static char sTime[SMALL_LINE_LENGTH];
-        FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
-        
-        // Sets modified flags on the entity
-        SetVariantString(sTime);
-        AcceptEntityInput(entityIndex, "AddOutput");
-        AcceptEntityInput(entityIndex, "FireUser1");
-    }
-    
-    // Return on success
-    return entityIndex;
-}
-
-/**
- * @brief Delete an attached particle from the entity.
- * 
- * @param clientIndex       The client index.
- **/
-void VEffectRemoveParticle(int clientIndex)
-{
-    // Initialize classname char
-    static char sClassname[SMALL_LINE_LENGTH];
-
-    // i = entity index
-    int MaxEntities = GetMaxEntities();
-    for(int i = MaxClients; i <= MaxEntities; i++)
-    {
-        // Validate entity
-        if(IsValidEdict(i))
-        {
-            // Gets valid edict classname
-            GetEdictClassname(i, sClassname, sizeof(sClassname));
-
-            // If entity is an attach particle entity
-            if(sClassname[0] == 'i' && sClassname[5] == 'p' && sClassname[6] == 'a')
-            {
-                // Validate parent
-                if(ToolsGetEntityOwner(i) == clientIndex)
-                {
-                    AcceptEntityInput(i, "Kill"); /// Destroy
-                }
-            }
-        }
-    }
-}
-
-/**
- * @brief Create an attached muzzle to the entity.
- * 
- * @param clientIndex       The client index.
- * @param entityIndex       The weapon index.
- * @param sEffect           The effect name.
- **/
-void VEffectSpawnMuzzle(int clientIndex, int entityIndex, char[] sEffect)
-{
-    // Initialize vector variables
-    static float vOrigin[3];
-
-    // Gets client position
-    GetClientAbsOrigin(clientIndex, vOrigin); 
-
-    // Create an effect
-    VEffectDispatch(entityIndex, sEffect, "ParticleEffect", vOrigin, vOrigin, _, 1);
-    TE_SendToClient(clientIndex);
-}
-
-/**
- * @brief Create an attached muzzlesmoke to the entity.
- * 
- * @param clientIndex       The client index.
- * @param entityIndex       The weapon index.
- **/
-void VEffectSpawnMuzzleSmoke(int clientIndex, int entityIndex)
-{
-    // Initialize vector variables
-    static float vOrigin[3];
-
-    // Gets client position
-    GetClientAbsOrigin(clientIndex, vOrigin); 
-
-    // Create an effect
-    VEffectDispatch(entityIndex, "weapon_muzzle_smoke", "ParticleEffect", vOrigin, vOrigin, _, 1);
-    TE_SendToClient(clientIndex);
-}
-
-/**
- * @brief Delete an attached muzzlesmoke from the entity.
- * 
- * @param clientIndex       The client index.
- * @param entityIndex       The weapon index.
- **/
-void VEffectRemoveMuzzle(int clientIndex, int entityIndex)
-{
-    // Initialize vector variables
-    static float vOrigin[3];
-
-    // Gets client position
-    GetClientAbsOrigin(clientIndex, vOrigin); 
-
-    // Delete an effect
-    VEffectDispatch(entityIndex, _, "ParticleEffectStop", vOrigin, vOrigin);
-    TE_SendToClient(clientIndex);
 }
 
 /**

@@ -517,7 +517,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     flDamage *= flDamageRatio;
     
     // Armor doesn't protect against fall or drown damage!
-    int iArmor = GetClientArmor(clientIndex); 
+    int iArmor = ToolsGetClientArmor(clientIndex); 
     if(iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsValidateArmor(clientIndex, iHitGroup))
     {
         // Calculate reduced amount
@@ -553,7 +553,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     int iDamage = RoundToNearest(flDamage);
     
     // Counts the applied damage
-    int iHealth = GetClientHealth(clientIndex) - iDamage;
+    int iHealth = ToolsGetClientHealth(clientIndex) - iDamage;
     
     // Validate attacker
     if(attackerIndex > 0 && clientIndex != attackerIndex)
@@ -563,7 +563,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
         HitGroupsGiveExp(attackerIndex, iDamage);
         
         // If help messages enabled, then show info
-        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintHintText(attackerIndex, "damage info", (iHealth > 0) ? iHealth : 0);
+        if(gCvarList[CVAR_MESSAGES_DAMAGE].BoolValue) TranslationPrintHintText(attackerIndex, "damage info", (iHealth > 0) ? iHealth : 0);
 
         // Client was damaged by 'bullet' or 'knife'
         if(iBits & DMG_NEVERGIB)
@@ -609,6 +609,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     
     // Forward event to modules
     SoundsOnClientHurt(clientIndex, iBits);
+    VEffectOnClientHurt(clientIndex, attackerIndex, iHealth);
     
     // Validate health
     if(iHealth > 0)

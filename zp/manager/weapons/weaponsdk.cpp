@@ -47,14 +47,14 @@ enum SlotType
  **/
 enum MenuType
 {
-     MenuType_Invisible,          /**  Used as return value when a menu doens't exist. */
+    MenuType_Invisible,           /**  Used as return value when a menu doens't exist. */
      
-     MenuType_Pistols,            /**  Pistol menu */
-     MenuType_Shotguns,           /**  Shotgun menu */
-     MenuType_Rifles,             /**  Rifle menu */
-     MenuType_Snipers,            /**  Sniper menu */
-     MenuType_Machineguns,        /**  Machineguns menu */
-     MenuType_Knifes,             /**  Knife menu */
+    MenuType_Pistols,             /**  Pistol menu */
+    MenuType_Shotguns,            /**  Shotgun menu */
+    MenuType_Rifles,              /**  Rifle menu */
+    MenuType_Snipers,             /**  Sniper menu */
+    MenuType_Machineguns,         /**  Machineguns menu */
+    MenuType_Knifes,              /**  Knife menu */
 };
 /**
  * @endsection
@@ -888,7 +888,7 @@ public void WeaponSDKOnDeployPost(int clientIndex, int weaponIndex)
             ///WeaponHDRUpdateTransmitState(viewModel2); //-> transport a bit below
             
             // Remove the muzzle on the switch
-            VEffectRemoveMuzzle(clientIndex, viewModel2);
+            ParticlesMuzzleRemove(clientIndex, viewModel2);
 
             // Gets draw animation sequence
             gClientData[clientIndex].DrawSequence = GetEntData(viewModel1, g_iOffset_ViewModelSequence);
@@ -1142,7 +1142,7 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
             WeaponsGetModelMuzzle(iD, sMuzzle, sizeof(sMuzzle));
 
             // Creates a muzzle
-            if(hasLength(sMuzzle)) VEffectSpawnMuzzle(clientIndex, viewModel2, sMuzzle);
+            if(hasLength(sMuzzle)) ParticlesMuzzleCreate(clientIndex, viewModel2, sMuzzle);
 
             // Validate weapon heat delay
             float flDelay = WeaponsGetModelHeat(iD);
@@ -1167,7 +1167,7 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
                     if(flCurrentTime - flSmoke[clientIndex] > 1.0)
                     {
                         // Creates a muzzle smoke
-                        VEffectSpawnMuzzleSmoke(clientIndex, viewModel2);
+                        ParticlesMuzzleSmoke(clientIndex, viewModel2);
                         flSmoke[clientIndex] = flCurrentTime;
                     }
                     

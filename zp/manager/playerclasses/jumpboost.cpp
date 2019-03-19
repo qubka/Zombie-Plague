@@ -246,10 +246,10 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Initialize some floats
-    static float vAngle[3]; static float vOrigin[3]; static float vVelocity[3];
+    static float vAngle[3]; static float vPosition[3]; static float vVelocity[3];
     
     // Gets client location and view direction
-    GetClientAbsOrigin(clientIndex, vOrigin);
+    ToolsGetClientAbsOrigin(clientIndex, vPosition);
     GetClientEyeAngles(clientIndex, vAngle);
     
     // Store zero angle
@@ -266,7 +266,7 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     vAngle[0] = flAngleZero;
     
     // Push the player
-    TeleportEntity(clientIndex, vOrigin, vAngle, vVelocity);
+    TeleportEntity(clientIndex, vPosition, vAngle, vVelocity);
     
     // Forward event to modules
     SoundsOnClientJump(clientIndex);

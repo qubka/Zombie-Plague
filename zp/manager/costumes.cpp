@@ -1234,11 +1234,9 @@ void CostumesCreateEntity(int clientIndex)
             DispatchSpawn(entityIndex);
             
             // Sets parent to the entity
-            ToolsSetEntityOwner(entityIndex, clientIndex);
-            
-            // Sets parent to the client
             SetVariantString("!activator");
             AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
+            ToolsSetEntityOwner(entityIndex, clientIndex);
 
             // Gets costume attachment
             static char sAttach[SMALL_LINE_LENGTH];
@@ -1247,18 +1245,18 @@ void CostumesCreateEntity(int clientIndex)
             // Validate attachment
             if(ToolsLookupAttachment(clientIndex, sAttach))
             {
-                // Sets attachment to the client
+                // Sets attachment to the entity
                 SetVariantString(sAttach);
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
             }
             else
             {
                 // Initialize vector variables
-                static float vOrigin[3]; static float vAngle[3]; static float vEntOrigin[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
+                static float vPosition[3]; static float vAngle[3]; static float vEntOrigin[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
 
                 // Gets client position
-                GetClientAbsOrigin(clientIndex, vOrigin); 
-                GetClientAbsAngles(clientIndex, vAngle);
+                ToolsGetClientAbsOrigin(clientIndex, vPosition); 
+                ToolsGetClientAbsAngles(clientIndex, vAngle);
                 
                 // Gets costume position
                 CostumesGetPosition(gClientData[clientIndex].Costume, vEntOrigin);
@@ -1273,12 +1271,14 @@ void CostumesCreateEntity(int clientIndex)
                 GetAngleVectors(vAngle, vForward, vRight, vVertical);
                 
                 // Calculate ends point by applying all vectors distances 
-                vOrigin[0] += (vForward[0] * vEntOrigin[0]) + (vRight[0] * vEntOrigin[1]) + (vVertical[0] * vEntOrigin[2]);
-                vOrigin[1] += (vForward[1] * vEntOrigin[0]) + (vRight[1] * vEntOrigin[1]) + (vVertical[1] * vEntOrigin[2]);
-                vOrigin[2] += (vForward[2] * vEntOrigin[0]) + (vRight[2] * vEntOrigin[1]) + (vVertical[2] * vEntOrigin[2]);
+                vPosition[0] += (vForward[0] * vEntOrigin[0]) + (vRight[0] * vEntOrigin[1]) + (vVertical[0] * vEntOrigin[2]);
+                vPosition[1] += (vForward[1] * vEntOrigin[0]) + (vRight[1] * vEntOrigin[1]) + (vVertical[1] * vEntOrigin[2]);
+                vPosition[2] += (vForward[2] * vEntOrigin[0]) + (vRight[2] * vEntOrigin[1]) + (vVertical[2] * vEntOrigin[2]);
 
-                // Spawn the entity
-                TeleportEntity(entityIndex, vOrigin, vAngle, NULL_VECTOR);
+                // Teleport the entity
+                ///DispatchKeyValueVector(entityIndex, "origin", vPosition);
+                ///DispatchKeyValueVector(entityIndex, "angles", vAngle);
+                TeleportEntity(entityIndex, vPosition, vAngle, NULL_VECTOR);
             }
         
             // Validate merging

@@ -449,7 +449,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
             return Plugin_Changed;
         }
 
-        // Button reload press
+// Button reload press
         if(iButtons & IN_RELOAD)
         {
             // Validate overtransmitting
@@ -509,7 +509,7 @@ public Action PlasmaTouchHook(int entityIndex, int targetIndex)
         int infoIndex = ZP_CreateEntity(vEntPosition, WEAPON_EXPLOSION_TIME);
         
         // Validate entity
-        if(IsValidEdict(infoIndex))
+        if(infoIndex != INVALID_ENT_REFERENCE)
         {
             // Create an explosion effect
             ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_molotov_air", WEAPON_EXPLOSION_TIME);

@@ -71,11 +71,11 @@ void SpawnOnCacheData(char[] sClassname)
     while((entityIndex = FindEntityByClassname(entityIndex, sClassname)) != INVALID_ENT_REFERENCE)
     {
         // Gets the origin position
-        static float vOrigin[3];
-        ToolsGetEntityOrigin(entityIndex, vOrigin); 
+        static float vPosition[3];
+        ToolsGetEntityOrigin(entityIndex, vPosition); 
         
         // Push data into array 
-        gServerData.Spawns.PushArray(vOrigin, sizeof(vOrigin));
+        gServerData.Spawns.PushArray(vPosition, sizeof(vPosition));
     }
 }
 
@@ -241,9 +241,9 @@ public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast)
 /**
  * @brief Gets the random spawn position.
  * 
- * @param vOrigin           The origin output.
+ * @param vPosition         The origin output.
  **/
-void SpawnGetRandomPosition(float vOrigin[3])
+void SpawnGetRandomPosition(float vPosition[3])
 {
     // Validate lenght
     int iSize = gServerData.Spawns.Length;
@@ -254,5 +254,5 @@ void SpawnGetRandomPosition(float vOrigin[3])
     }
     
     // Gets random array
-    gServerData.Spawns.GetArray(GetRandomInt(0, iSize - 1), vOrigin, sizeof(vOrigin));
+    gServerData.Spawns.GetArray(GetRandomInt(0, iSize - 1), vPosition, sizeof(vPosition));
 }

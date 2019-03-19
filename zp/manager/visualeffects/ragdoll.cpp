@@ -126,7 +126,7 @@ public Action RagdollOnEntityRemove(Handle hTimer, int referenceIndex)
 
             // Prep the ragdoll for dissolving
             static char sTarget[SMALL_LINE_LENGTH];
-            FormatEx(sTarget, sizeof(sTarget), "zp_dissolve_%d", iRagdoll);
+            FormatEx(sTarget, sizeof(sTarget), "dissolve%d", iRagdoll);
             DispatchKeyValue(iRagdoll, "targetname", sTarget);
 
             // Prep the dissolve entity

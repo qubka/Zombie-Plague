@@ -267,7 +267,7 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
         int infoIndex = ZP_CreateEntity(vEntPosition, ZOMBIE_CLASS_SKILL_EXP_TIME);
 
         // Validate entity
-        if(IsValidEdict(infoIndex))
+        if(infoIndex != INVALID_ENT_REFERENCE)
         {
             // Create an explosion effect
             ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_molotov_air", ZOMBIE_CLASS_SKILL_EXP_TIME);

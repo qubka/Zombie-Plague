@@ -240,10 +240,28 @@ void GameModesOnCacheData(/*void*/)
         arrayGameMode.PushString(sPathModes);                                       // Index: 21
         kvGameModes.GetString("overlay_human", sPathModes, sizeof(sPathModes), "");
         arrayGameMode.PushString(sPathModes);                                       // Index: 22
+        if(hasLength(sPathModes)) 
+        {
+            // Precache material
+            Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
+            DecryptPrecacheTextures(sPathModes);
+        }
         kvGameModes.GetString("overlay_zombie", sPathModes, sizeof(sPathModes), "");
         arrayGameMode.PushString(sPathModes);                                       // Index: 23
+        if(hasLength(sPathModes)) 
+        {
+            // Precache material
+            Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
+            DecryptPrecacheTextures(sPathModes);
+        }
         kvGameModes.GetString("overlay_draw", sPathModes, sizeof(sPathModes), "");
         arrayGameMode.PushString(sPathModes);                                       // Index: 24
+        if(hasLength(sPathModes)) 
+        {
+            // Precache material
+            Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
+            DecryptPrecacheTextures(sPathModes);
+        }
         arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 25
         arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 26
         arrayGameMode.Push(kvGameModes.GetFloat("delay", 0.0));                     // Index: 27
@@ -472,7 +490,7 @@ public Action GameModesOnCounter(Handle hTimer)
             if(gServerData.RoundCount == (gCvarList[CVAR_GAMEMODE].IntValue - 2))
             {
                 // If help messages enabled, then show info
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                if(gCvarList[CVAR_MESSAGES_OBJECTIVE].BoolValue)
                 {
                     // Show help information
                     TranslationPrintToChatAll("general round objective");
@@ -488,7 +506,7 @@ public Action GameModesOnCounter(Handle hTimer)
             if(SoundsOnCounter()) /// (2)
             {
                 // If help messages enabled, then show info
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                if(gCvarList[CVAR_MESSAGES_COUNTER].BoolValue)
                 {
                     // Show help information
                     TranslationPrintHintTextAll("zombie comming", gServerData.RoundCount);
@@ -511,7 +529,7 @@ public Action GameModesOnCounter(Handle hTimer)
         gServerData.RoundCount--;
     }
 
-    // Allow counter
+    // Allow timer
     return Plugin_Continue;
 }
 
@@ -591,7 +609,7 @@ void GameModesOnBegin(int modeIndex = -1, int targetIndex = -1)
     {
         // Make zombies
         ApplyOnClientUpdate(clientIndex[i], _, sBuffer);
-        ToolsSetClientHealth(clientIndex[i], GetClientHealth(clientIndex[i]) + (iAlive * ModesGetHealth(gServerData.RoundMode))); /// Add health
+        ToolsSetClientHealth(clientIndex[i], ToolsGetClientHealth(clientIndex[i]) + (iAlive * ModesGetHealth(gServerData.RoundMode))); /// Add health
     }
     
     /*_________________________________________________________________________________________________________________________________________*/
@@ -3175,11 +3193,11 @@ void ModesKillEntities(/*void*/)
 /**
  * @brief Gives rewards by the bonus type and shows overlay.
  * 
- * @param zombieType        The bonus type.
- * @param humanType         The bonus type.
- * @param overlayType       The overlay type.
+ * @param rZombie           The zombie bonus type.
+ * @param rHuman            The human bonus type.
+ * @param nOverlay          The overlay type.
  **/
-void ModesReward(int zombieType, int humanType, OverlayType overlayType)
+void ModesReward(int rZombie, int rHuman, OverlayType nOverlay)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -3199,11 +3217,11 @@ void ModesReward(int zombieType, int humanType, OverlayType overlayType)
             ClassGetMoney(gClientData[i].Class, iMoney, sizeof(iMoney));
             
             // Increment money/exp
-            LevelSystemOnSetExp(i, gClientData[i].Exp + (gClientData[i].Zombie ? iExp[zombieType] : iExp[humanType]));
-            AccountSetClientCash(i, gClientData[i].Money + (gClientData[i].Zombie ? iMoney[zombieType] : iMoney[humanType]));
+            LevelSystemOnSetExp(i, gClientData[i].Exp + (gClientData[i].Zombie ? iExp[rZombie] : iExp[rHuman]));
+            AccountSetClientCash(i, gClientData[i].Money + (gClientData[i].Zombie ? iMoney[rZombie] : iMoney[rHuman]));
 
             // Display overlay to the client
-            VOverlayOnClientUpdate(i, overlayType);
+            VOverlayOnClientUpdate(i, nOverlay);
         }
     }
 }
@@ -3229,7 +3247,7 @@ void ModesBlast(float flDelay)
         SoundsOnBlast();
         
         // If help messages enabled, then show info
-        if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+        if(gCvarList[CVAR_MESSAGES_BLAST].BoolValue)
         {
             // Show help information
             TranslationPrintHintTextAll("general blast reminder");

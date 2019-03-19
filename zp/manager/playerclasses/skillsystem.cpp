@@ -365,7 +365,7 @@ public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
         if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
         {
             // If restoring is available, then do it
-            int iHealth = GetClientHealth(clientIndex); // Store for next usage
+            int iHealth = ToolsGetClientHealth(clientIndex); // Store for next usage
             if(iHealth < ClassGetHealth(gClientData[clientIndex].Class))
             {
                 // Initialize a new health amount
@@ -386,7 +386,7 @@ public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
             }
         }
 
-        // Allow counter
+        // Allow timer
         return Plugin_Continue;
     }
 

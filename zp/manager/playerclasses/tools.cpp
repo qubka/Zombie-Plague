@@ -50,8 +50,8 @@ int Player_CanBeSpotted;
 void ToolsOnInit(/*void*/)
 {
     // Load player offsets
-    fnInitSendPropOffset(g_iOffset_PlayerVelocity, "CBasePlayer", "m_vecVelocity[0]");
     fnInitSendPropOffset(g_iOffset_PlayerLMV, "CBasePlayer", "m_flLaggedMovementValue");
+    fnInitSendPropOffset(g_iOffset_PlayerRender, "CBasePlayer", "m_clrRender");
     fnInitSendPropOffset(g_iOffset_PlayerNightVisionOn, "CCSPlayer", "m_bNightVisionOn");
     fnInitSendPropOffset(g_iOffset_PlayerHasNightVision, "CCSPlayer", "m_bHasNightVision");
     fnInitSendPropOffset(g_iOffset_PlayerHasDefuser, "CCSPlayer", "m_bHasDefuser");
@@ -262,16 +262,16 @@ public int API_GetAttachment(Handle hPlugin, int iNumParams)
     }
     
     // Initialize variables
-    static char sAttach[SMALL_LINE_LENGTH]; static float vOrigin[3]; static float vAngle[3];
+    static char sAttach[SMALL_LINE_LENGTH]; static float vPosition[3]; static float vAngle[3];
 
     // General
     GetNativeString(2, sAttach, sizeof(sAttach));
     
     // Extract data
-    ToolsGetAttachment(entityIndex, sAttach, vOrigin, vAngle);
+    ToolsGetAttachment(entityIndex, sAttach, vPosition, vAngle);
     
     // Return on success
-    SetNativeArray(3, vOrigin, sizeof(vOrigin)); return SetNativeArray(4, vAngle, sizeof(vAngle));
+    SetNativeArray(3, vPosition, sizeof(vPosition)); return SetNativeArray(4, vAngle, sizeof(vAngle));
 }
 
 /**

@@ -331,8 +331,8 @@ public Action MenusCommandOnCommandListened(int clientIndex, char[] commandMsg, 
         // Emit error sound
         ClientCommand(clientIndex, "play buttons/button11.wav");
         
-        // Block command
-        return Plugin_Handled;
+        // Terminate command
+        return Plugin_Stop;
     }
     
     // Allow command

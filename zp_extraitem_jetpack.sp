@@ -208,7 +208,7 @@ void Item_OnActivate(int clientIndex)
     if(gItemDuration[clientIndex] < ZP_GetWeaponClip(gWeapon))
     {
         // Initialize vectors
-        static float vPosition[3]; static float vVelocity[3]; static float vAngle[3];
+        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; 
         
         // Gets client angle
         GetClientEyeAngles(clientIndex, vAngle); vAngle[0] = -40.0;

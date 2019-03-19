@@ -1000,7 +1000,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             }
 
             // Initialize name char
-            static char sItemName[SMALL_LINE_LENGTH];
+            static char sItemName[BIG_LINE_LENGTH];
 
             // Gets menu info
             hMenu.GetItem(mSlot, sItemName, sizeof(sItemName));
@@ -1023,20 +1023,24 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
                     gForwardData._OnClientBuyExtraItem(clientIndex, iD); /// Buy item
             
                     // If help messages enabled, then show info
-                    if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                    if(gCvarList[CVAR_MESSAGES_ITEM_ALL].BoolValue)
                     {
                         // Gets client name
-                        static char sItemInfo[BIG_LINE_LENGTH];
-                        GetClientName(clientIndex, sItemInfo, sizeof(sItemInfo));
+                        static char sClient[SMALL_LINE_LENGTH];
+                        GetClientName(clientIndex, sClient, sizeof(sClient));
 
                         // Show item buying info
-                        TranslationPrintToChatAll("extraitem info", sItemInfo, sItemName);
-                        
+                        TranslationPrintToChatAll("buy info", sClient, sItemName);
+                    }
+                
+                    // If help messages enabled, then show info
+                    if(gCvarList[CVAR_MESSAGES_ITEM_INFO].BoolValue)
+                    {
                         // Gets item info
-                        ItemsGetInfo(iD, sItemInfo, sizeof(sItemInfo));
+                        ItemsGetInfo(iD, sItemName, sizeof(sItemName));
                         
                         // Show item personal info
-                        if(hasLength(sItemInfo)) TranslationPrintHintText(clientIndex, sItemInfo);
+                        if(hasLength(sItemName)) TranslationPrintHintText(clientIndex, sItemName);
                     }
                     
                     // If item has a cost

@@ -30,7 +30,7 @@
  **/
 void CommandsOnInit(/*void*/)
 {
-    // Forward event to sub-modules
+    // Forward event to modules
     DebugOnCommandInit();
     ConfigOnCommandInit();
     LogOnCommandInit();

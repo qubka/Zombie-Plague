@@ -357,6 +357,15 @@ native float ZP_GetClassSkillCountdown(int classID);
 native bool ZP_IsClassSkillBar(int classID);
 
 /**
+ * @brief Checks the health sprite of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  True or false. 
+ **/
+native bool ZP_IsClassHealthSprite(int classID);
+
+/**
  * @brief Gets the regen health of the class.
  *
  * @param classID           The class index.

@@ -297,13 +297,14 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
                         if(iceIndex != INVALID_ENT_REFERENCE)
                         {
                             // Dispatch main values of the entity
+                            DispatchKeyValueVector(iceIndex, "origin", vVictimPosition); 
+                            DispatchKeyValueVector(iceIndex, "angles", vVictimAngle); 
                             DispatchKeyValue(iceIndex, "model", "models/player/custom_player/zombie/ice/ice.mdl");
                             DispatchKeyValue(iceIndex, "spawnflags", "256"); /// Start with collision disabled
                             DispatchKeyValue(iceIndex, "solid", "0");
                             
                             // Spawn the entity
                             DispatchSpawn(iceIndex);
-                            TeleportEntity(iceIndex, vVictimPosition, vVictimAngle, NULL_VECTOR);
 
                             // Initialize time char
                             static char sTime[SMALL_LINE_LENGTH];
@@ -327,7 +328,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
             int infoIndex = ZP_CreateEntity(vEntPosition, GRENADE_FREEZE_EXP_TIME);
 
             // Validate entity
-            if(IsValidEdict(infoIndex))
+            if(infoIndex != INVALID_ENT_REFERENCE)
             {
                 // Create an explosion effect
                 ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_snow", GRENADE_FREEZE_EXP_TIME);
@@ -411,11 +412,11 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
                 ActivateEntity(entityIndex);  
                 AcceptEntityInput(entityIndex, "Shoot");
 
-                // Sets parent to the client
+                // Sets parent to the entity
                 SetVariantString("!activator"); 
                 AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex); 
 
-                // Sets attachment to the client
+                // Sets attachment to the entity
                 SetVariantString("eholster"); 
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
 

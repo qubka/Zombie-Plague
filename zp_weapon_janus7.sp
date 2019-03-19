@@ -320,10 +320,10 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     #pragma unused clientIndex
     
     // Initialize variables
-    static float vPosition[3]; static float vAngle[3]; static float vVictimPosition[3]; bool bFound;
+    static float vEntPosition[3]; static float vEntAngle[3]; static float vVictimPosition[3]; bool bFound;
 
     // Gets weapon position
-    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -10.0, vPosition);
+    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -10.0, vEntPosition);
 
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -335,13 +335,13 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
             ZP_GetPlayerGunPosition(i, 0.0, 0.0, -45.0, vVictimPosition);
 
             // Calculate the distance
-            float flDistance = GetVectorDistance(vPosition, vVictimPosition);
+            float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
 
             // Validate distance
             if(flDistance <= WEAPON_BEAM_RADIUS)
             {
                 // Validate visibility
-                if(!TraceRay(clientIndex, i, vPosition, vVictimPosition, flDistance))
+                if(!TraceRay(clientIndex, i, vEntPosition, vVictimPosition, flDistance))
                 {
                     continue;
                 }
@@ -369,10 +369,10 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     if(!bFound)
     {
         // Gets client eye angle
-        GetClientEyeAngles(clientIndex, vAngle);
+        GetClientEyeAngles(clientIndex, vEntAngle);
 
         // Calculate aim end-vector
-        TR_TraceRayFilter(vPosition, vAngle, MASK_SHOT, RayType_Infinite, TraceFilter, clientIndex);
+        TR_TraceRayFilter(vEntPosition, vEntAngle, MASK_SHOT, RayType_Infinite, TraceFilter, clientIndex);
         TR_GetEndPosition(vVictimPosition);
     }
 
@@ -380,7 +380,7 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     float flLife = ZP_GetWeaponSpeed(gWeapon);
     
     // Sent a beam
-    TE_SetupBeamPoints(vPosition, vVictimPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 3.0, WEAPON_BEAM_COLOR, 30);
+    TE_SetupBeamPoints(vEntPosition, vVictimPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 3.0, WEAPON_BEAM_COLOR, 30);
     TE_SendToClient(clientIndex);
     
     // Gets worldmodel index
@@ -390,10 +390,10 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     if(entityIndex != INVALID_ENT_REFERENCE) 
     {
         // Gets attachment position
-        ZP_GetAttachment(entityIndex, "muzzle_flash", vPosition, vAngle);
+        ZP_GetAttachment(entityIndex, "muzzle_flash", vEntPosition, vEntAngle);
         
         // Sent a beam
-        TE_SetupBeamPoints(vPosition, vVictimPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 3.0, WEAPON_BEAM_COLOR, 30);
+        TE_SetupBeamPoints(vEntPosition, vVictimPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 3.0, WEAPON_BEAM_COLOR, 30);
         int[] iClients = new int[MaxClients]; int iCount;
         for (int i = 1; i <= MaxClients; i++)
         {

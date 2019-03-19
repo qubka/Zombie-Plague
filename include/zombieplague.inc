@@ -273,8 +273,8 @@ native bool ZP_LookupAttachment(int entityIndex, char[] attach);
  *
  * @param entityIndex       The entity index.
  * @param attach            The attachment name.
- * @param origin            The origin ouput.
- * @param angle             The angle ouput.
+ * @param origin            The origin output.
+ * @param angle             The angle output.
  *
  * @noreturn
  **/
@@ -487,7 +487,7 @@ stock int ZP_CreateParticle(const int parentIndex, const float vPosition[3] = NU
         }
         else
         {
-            // Spawn the entity
+            // Teleport the entity
             DispatchKeyValueVector(entityIndex, "origin", vPosition);
         }
         

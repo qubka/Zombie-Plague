@@ -287,26 +287,26 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
      */
     
     // Initialize vector variables
-    static float vOrigin[3]; float vMax[3]; float vMin[3]; 
+    static float vPosition[3]; float vMax[3]; float vMin[3]; 
 
     // Get client's location
-    GetClientAbsOrigin(clientIndex, vOrigin);
+    ToolsGetClientAbsOrigin(clientIndex, vPosition);
     
     // Get the client's min and max size vector
     GetClientMins(clientIndex, vMin);
     GetClientMaxs(clientIndex, vMax);
 
     // Create the hull trace
-    Handle hTrace = TR_TraceHullFilterEx(vOrigin, vOrigin, vMin, vMax, MASK_SOLID, AntiStickFilter, clientIndex);
+    Handle hTrace = TR_TraceHullFilterEx(vPosition, vPosition, vMin, vMax, MASK_SOLID, AntiStickFilter, clientIndex);
 
     // Returns if there was any kind of collision along the trace ray
     if(TR_DidHit(hTrace))
     {
         // Gets spawn position
-        SpawnGetRandomPosition(vOrigin);
+        SpawnGetRandomPosition(vPosition);
         
         // Teleport player back on the spawn point
-        TeleportEntity(clientIndex, vOrigin, NULL_VECTOR, NULL_VECTOR);
+        TeleportEntity(clientIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
     }
     else
     {
@@ -343,7 +343,7 @@ void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBoxBound]
     static float vFinalLoc[4][3];
 
     // Gets needed vector info
-    GetClientAbsOrigin(clientIndex, vClientLoc);
+    ToolsGetClientAbsOrigin(clientIndex, vClientLoc);
 
     // Sets pitch to 0
     vTwistAngle[1] = 90.0;

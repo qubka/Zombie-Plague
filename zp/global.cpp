@@ -52,7 +52,10 @@
  * @section Variables to store offset values.
  **/
 int g_iOffset_PlayerVelocity;
+int g_iOffset_PlayerOrigin;
+int g_iOffset_PlayerAngles;
 int g_iOffset_PlayerLMV;
+int g_iOffset_PlayerRender;
 int g_iOffset_PlayerNightVisionOn;
 int g_iOffset_PlayerHasNightVision;
 int g_iOffset_PlayerHasDefuser;
@@ -231,7 +234,11 @@ enum struct ClientData
     int Costume;
     bool Vision;
     int Time;
+    int LastAttacker;
+    float HealthDuration;
     int AttachmentCostume;
+    int AttachmentHealth;
+    int AttachmentController;
     int AttachmentBits;
     int AttachmentAddons[11]; /* Amount of weapon back attachments */
     
@@ -253,6 +260,7 @@ enum struct ClientData
     Handle BarTimer;
     Handle CounterTimer;
     Handle HealTimer;
+    Handle SpriteTimer;
     Handle MoanTimer;
     Handle AmbientTimer;
     Handle BuyTimer;
@@ -285,7 +293,11 @@ enum struct ClientData
         this.Costume              = -1;
         this.Vision               = true;
         this.Time                 = 0;
+        this.LastAttacker         = 0;
+        this.HealthDuration       = 0.0;
         this.AttachmentCostume    = INVALID_ENT_REFERENCE;
+        this.AttachmentHealth     = INVALID_ENT_REFERENCE;
+        this.AttachmentController = INVALID_ENT_REFERENCE;
         this.AttachmentBits       = 0;
         this.AttachmentAddons[0]  = INVALID_ENT_REFERENCE;
         this.AttachmentAddons[1]  = INVALID_ENT_REFERENCE; 
@@ -325,6 +337,7 @@ enum struct ClientData
         delete this.BarTimer;
         delete this.CounterTimer;
         delete this.HealTimer;
+        delete this.SpriteTimer;
         delete this.MoanTimer;
         delete this.AmbientTimer;
         delete this.BuyTimer;
@@ -341,7 +354,8 @@ enum struct ClientData
         this.SkillTimer     = null;
         this.BarTimer       = null;
         this.CounterTimer   = null;
-        this.HealTimer      = null;    
+        this.HealTimer      = null;
+        this.SpriteTimer    = null;
         this.MoanTimer      = null; 
         this.AmbientTimer   = null; 
         this.BuyTimer       = null;

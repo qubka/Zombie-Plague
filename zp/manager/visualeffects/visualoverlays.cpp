@@ -66,15 +66,15 @@ void VOverlayOnClientDeath(int clientIndex)
  * @brief Client has been changed class state.
  *
  * @param clientIndex       The client index.
- * @param overlayType       The overlay type.
+ * @param nOverlay          The overlay type.
  **/
-void VOverlayOnClientUpdate(int clientIndex, OverlayType overlayType)
+void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
 {
     // Initilize overlay char
     static char sOverlay[PLATFORM_LINE_LENGTH];
 
     // Gets overlay type
-    switch(overlayType)
+    switch(nOverlay)
     {
         // Remove 'Any' overlay
         case Overlay_Reset : 

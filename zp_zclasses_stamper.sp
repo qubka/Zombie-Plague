@@ -115,11 +115,12 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
         // Initialize vectors
-        static float vFromPosition[3];
+        static float vPosition[3]; static float vAngle[3]; 
 
         // Gets weapon position
-        ZP_GetPlayerGunPosition(clientIndex, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vFromPosition);
-
+        ZP_GetPlayerGunPosition(clientIndex, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vPosition);
+        GetClientEyeAngles(clientIndex, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
+        
         // Emit sound
         static char sSound[PLATFORM_LINE_LENGTH];
         ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
@@ -132,14 +133,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
             // Dispatch main values of the entity
+            DispatchKeyValueVector(entityIndex, "origin", vPosition);
+            DispatchKeyValueVector(entityIndex, "angles", vAngle); 
             DispatchKeyValue(entityIndex, "model", "models/player/custom_player/zombie/zombiepile/zombiepile.mdl");
             DispatchKeyValue(entityIndex, "spawnflags", "8832"); /// Not affected by rotor wash | Prevent pickup | Force server-side
 
             // Spawn the entity
             DispatchSpawn(entityIndex);
-
-            // Teleport the coffin
-            TeleportEntity(entityIndex, vFromPosition, NULL_VECTOR, NULL_VECTOR);
 
             // Sets physics
             SetEntProp(entityIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
@@ -336,11 +336,11 @@ void CoffinExpload(int entityIndex)
             ActivateEntity(gibIndex);  
             AcceptEntityInput(gibIndex, "Shoot");
 
-            // Sets parent to the client
+            // Sets parent to the entity
             SetVariantString("!activator"); 
             AcceptEntityInput(gibIndex, "SetParent", entityIndex, gibIndex); 
 
-            // Sets attachment to the client
+            // Sets attachment to the entity
             SetVariantString("1"); /// Attachment name in the coffin model
             AcceptEntityInput(gibIndex, "SetParentAttachment", entityIndex, gibIndex);
 

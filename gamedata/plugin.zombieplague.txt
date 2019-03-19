@@ -36,6 +36,11 @@
                 "windows"   "38"
                 "linux"     "38"
             }
+            "CSendProp::m_nBits"
+            {
+                "windows"   "12"
+                "linux"     "12"
+            }
             "CServer::OS"
             {
                 "windows"   "1"
@@ -108,7 +113,7 @@
             "CBaseAnimating::LookupAttachment" // Str: "weapon_bone"
             { 
                 "library"   "server" 
-                "windows"   "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A" 
+                "windows"   "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A"
                 "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x18\x85\xDB" 
             }  
             "CBaseAnimating::GetAttachment" // Str: "weapon_bone"
@@ -132,11 +137,11 @@
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x7D\x08\x8B\x47\x58\x85\xC0"
             }
             "CParticleSystemDefinition::ParseChildren" // Str: "DmeParticleSystemDefinition" and "children" and "preventNameBasedLookup"
-			{
-                "library"	"server"
+            {
+                "library"   "server"
                 "windows"   "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\xF9\x51"
-                "linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x45\x0C\xC7\x44\x24\x04"
-			}
+                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x45\x0C\xC7\x44\x24\x04"
+            }
             "SV_ActivateServer" // Str: "SV_ActivateServer"
             {
                 "library"   "engine"
@@ -149,6 +154,27 @@
                 "windows"   "\x56\x8B\xF1\x57\x8B\x4E\x40"
                 "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x43\x40"
             }
+            
+            /*___________________________________________________________________________________________*/
+            
+            "ServerClassInit<DT_CSPlayer::ignored>" // Str: "DT_CSPlayer"
+            {
+                "library"   "server"
+                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x40\x00\x00\x00"
+                "linux"     "\x55\x89\xE5\x53\x81\xEC\xE4\x04\x00\x00"
+            }
+            "ServerClassInit<DT_BasePlayer::ignored>" // Str: "DT_BasePlayer"
+            {
+                "library"   "server"
+                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x34\x0C\x00\x00"
+                "linux"     "\x55\x89\xE5\x53\x81\xEC\xA4\x00\x00\x00\x80\x3D\x2A\x2A\x2A\x2A\x00\x75\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xC7\x44\x24\x0C\x2A\x2A\x2A\x2A\xC7\x44\x24\x08\x2B\x00\x00\x00"
+            }
+            "SendTable_Init" // Str: "SendTable[%03d] = %s\n"
+            {
+                "library"   "engine"
+                "windows"   "\x55\x8B\xEC\x83\xEC\x0C\x83\x3D\x2A\x2A\x2A\x2A\x00\x53"
+                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\xA1\x2A\x2A\x2A\x2A\x8B\x7D\x08\x85\xC0"
+            }
         }
        
         // Addr from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
@@ -157,33 +183,78 @@
         {
             "m_pParticleSystemDictionary"
             {
+                "signature" "CParticleSystemDefinition::ParseChildren"
                 "linux"
                 {
-                    "signature"     "CParticleSystemDefinition::ParseChildren"
-                    "read"          "375"
-                    "read"          "0"
-                    "read"          "140"
+                    "read"  "375"
+                    "read"  "0"
+                    "read"  "140"
                 }
                 "windows"
                 {
-                    "signature"     "CParticleSystemDefinition::ParseChildren"
-                    "read"          "401"
-                    "read"          "0"
+                    "read"  "401"
+                    "read"  "0"
                 }
             }
             "s_NetworkStringTable"
             {
+                "signature" "SV_ActivateServer"
                 "linux"
                 {
-                    "signature"     "SV_ActivateServer"
-                    "read"          "34"
-                    "read"          "0"
+                    "read"  "34"
                 }
                 "windows"
                 {
-                    "signature"     "SV_ActivateServer"
-                    "read"          "997"
-                    "read"          "0"
+                    "read"  "997"
+                }
+                "read"      "0"
+            }
+            "m_ArmorValue"
+            {
+                "signature" "ServerClassInit<DT_CSPlayer::ignored>"
+                "linux"
+                {
+                    "read"  "2077"
+                }
+                "windows"
+                {
+                    "read"  "2689"
+                }
+            }
+            "m_iAccount"
+            {
+                "signature" "ServerClassInit<DT_CSPlayer::ignored>"
+                "linux"
+                {
+                    "read"  "1459"
+                }
+                "windows"
+                {
+                    "read"  "1868"
+                }
+            }
+            "m_iHealth"
+            {
+                "signature" "ServerClassInit<DT_BasePlayer::ignored>"
+                "linux"
+                {
+                    "read"  "565"
+                }
+                "windows"
+                {
+                    "read"  "495"
+                }
+            }
+            "g_SendTableCRC"
+            {
+                "signature" "SendTable_Init"
+                "linux"
+                {
+                    "read"  "270"
+                }
+                "windows"
+                {
+                    "read"  "205"
                 }
             }
         }

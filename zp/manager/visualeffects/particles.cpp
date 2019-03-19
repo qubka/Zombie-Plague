@@ -208,3 +208,169 @@ void ParticlesOnPurge(/*void*/)
     if(iTable)   SDKCall(hSDKCallTableDeleteAllStrings, iTable);
     LockStringTables(bSave);
 }
+
+/*
+ * Stocks particles API.
+ */ 
+
+/**
+ * @brief Create an attached particle entity.
+ * 
+ * @param clientIndex       The client index.
+ * @param sAttach           The attachment name.
+ * @param sType             The type of the particle.
+ * @param flDurationTime    The duration of light.
+ * @return                  The entity index.
+ **/
+int ParticlesCreate(int clientIndex, char[] sAttach, char[] sType, float flDurationTime)
+{
+    // Validate name
+    if(!hasLength(sType))
+    {
+        return INVALID_ENT_REFERENCE;
+    }
+    
+    // Create an attach particle entity
+    int entityIndex = CreateEntityByName("info_particle_system");
+    
+    // If entity isn't valid, then skip
+    if(entityIndex != INVALID_ENT_REFERENCE)
+    {
+        // Dispatch main values of the entity
+        DispatchKeyValue(entityIndex, "start_active", "1");
+        DispatchKeyValue(entityIndex, "effect_name", sType);
+        
+        // Spawn the entity into the world
+        DispatchSpawn(entityIndex);
+
+        // Sets parent to the entity
+        SetVariantString("!activator");
+        AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
+        ToolsSetEntityOwner(entityIndex, clientIndex);
+        
+        // Sets attachment to the entity
+        if(hasLength(sAttach))
+        { 
+            SetVariantString(sAttach); 
+            AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
+        }
+        else
+        {
+            // Initialize vector variables
+            static float vPosition[3];
+
+            // Gets client position
+            ToolsGetClientAbsOrigin(clientIndex, vPosition);
+
+            // Teleport the entity
+            DispatchKeyValueVector(entityIndex, "origin", vPosition);
+        }
+        
+        // Activate the entity
+        ActivateEntity(entityIndex);
+        AcceptEntityInput(entityIndex, "Start");
+        
+        // Initialize time char
+        static char sTime[SMALL_LINE_LENGTH];
+        FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
+        
+        // Sets modified flags on the entity
+        SetVariantString(sTime);
+        AcceptEntityInput(entityIndex, "AddOutput");
+        AcceptEntityInput(entityIndex, "FireUser1");
+    }
+    
+    // Return on success
+    return entityIndex;
+}
+
+/**
+ * @brief Delete an attached particle from the entity.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void ParticlesRemove(int clientIndex)
+{
+    // Initialize classname char
+    static char sClassname[SMALL_LINE_LENGTH];
+
+    // i = entity index
+    int MaxEntities = GetMaxEntities();
+    for(int i = MaxClients; i <= MaxEntities; i++)
+    {
+        // Validate entity
+        if(IsValidEdict(i))
+        {
+            // Gets valid edict classname
+            GetEdictClassname(i, sClassname, sizeof(sClassname));
+
+            // If entity is an attach particle entity
+            if(sClassname[0] == 'i' && sClassname[5] == 'p' && sClassname[6] == 'a')
+            {
+                // Validate parent
+                if(ToolsGetEntityOwner(i) == clientIndex)
+                {
+                    AcceptEntityInput(i, "Kill"); /// Destroy
+                }
+            }
+        }
+    }
+}
+
+/**
+ * @brief Create an attached muzzle to the entity.
+ * 
+ * @param clientIndex       The client index.
+ * @param entityIndex       The weapon index.
+ * @param sEffect           The effect name.
+ **/
+void ParticlesMuzzleCreate(int clientIndex, int entityIndex, char[] sEffect)
+{
+    // Initialize vector variables
+    static float vPosition[3];
+
+    // Gets client position
+    ToolsGetClientAbsOrigin(clientIndex, vPosition); 
+
+    // Create an effect
+    VEffectDispatch(entityIndex, sEffect, "ParticleEffect", vPosition, vPosition, _, 1);
+    TE_SendToClient(clientIndex);
+}
+
+/**
+ * @brief Create an attached muzzlesmoke to the entity.
+ * 
+ * @param clientIndex       The client index.
+ * @param entityIndex       The weapon index.
+ **/
+void ParticlesMuzzleSmoke(int clientIndex, int entityIndex)
+{
+    // Initialize vector variables
+    static float vPosition[3];
+
+    // Gets client position
+    ToolsGetClientAbsOrigin(clientIndex, vPosition); 
+
+    // Create an effect
+    VEffectDispatch(entityIndex, "weapon_muzzle_smoke", "ParticleEffect", vPosition, vPosition, _, 1);
+    TE_SendToClient(clientIndex);
+}
+
+/**
+ * @brief Delete an attached muzzlesmoke from the entity.
+ * 
+ * @param clientIndex       The client index.
+ * @param entityIndex       The weapon index.
+ **/
+void ParticlesMuzzleRemove(int clientIndex, int entityIndex)
+{
+    // Initialize vector variables
+    static float vPosition[3];
+
+    // Gets client position
+    ToolsGetClientAbsOrigin(clientIndex, vPosition); 
+
+    // Delete an effect
+    VEffectDispatch(entityIndex, _, "ParticleEffectStop", vPosition, vPosition);
+    TE_SendToClient(clientIndex);
+}

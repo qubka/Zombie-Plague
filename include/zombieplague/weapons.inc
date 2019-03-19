@@ -632,9 +632,9 @@ stock bool ZP_IsPlayerHoldWeapon(const int clientIndex, int &weaponIndex, const 
  * @param flForward         (Optional) The forward distance.
  * @param flRight           (Optional) The right distance. 
  * @param flVertical        (Optional) The vertical distance.
- * @param vOrigin           The calculated position vector output.
+ * @param vPosition         The calculated position vector output.
  **/
-stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward = 0.0, const float flRight = 0.0, const float flVertical = 0.0, float vOrigin[3])
+stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward = 0.0, const float flRight = 0.0, const float flVertical = 0.0, float vPosition[3])
 {
     // Initialize vectors
     static float vEntPosition[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
@@ -649,9 +649,9 @@ stock void ZP_GetPlayerGunPosition(const int clientIndex, const float flForward 
     GetAngleVectors(vEntAngle, vForward, vRight, vVertical);
 
     // Calculate ends point by applying all vectors distances 
-    vOrigin[0] = vEntPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
-    vOrigin[1] = vEntPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
-    vOrigin[2] = vEntPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
+    vPosition[0] = vEntPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
+    vPosition[1] = vEntPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
+    vPosition[2] = vEntPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
 }
 
 /**

@@ -194,7 +194,7 @@ public Action BombTouchHook(int entityIndex, int targetIndex)
         int infoIndex = ZP_CreateEntity(vEntPosition, ZOMBIE_CLASS_SKILL_EXP_TIME);
 
         // Validate entity
-        if(IsValidEdict(infoIndex))
+        if(infoIndex != INVALID_ENT_REFERENCE)
         {
             // Create an explosion effect
             ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_interior", ZOMBIE_CLASS_SKILL_EXP_TIME);

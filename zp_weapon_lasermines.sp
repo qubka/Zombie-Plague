@@ -54,9 +54,9 @@ public Plugin myinfo =
 #define WEAPON_MINE_EXPLOSION_SHAKE_DURATION    3.0 // Mine exp time    
 #define WEAPON_MINE_UPDATE           0.5     // Mine delay (damage delay)
 #define WEAPON_MINE_ACTIVATION       2.0     // Mine activation delay
-#define WEAPON_MINE_IMPACT           "sound/weapons/taser/taser_hit.wav"   /// Only standart sounds (from engine)
+#define WEAPON_MINE_IMPACT           "weapons/taser/taser_hit.wav"   /// Only standart sounds (from engine)
 #define WEAPON_MINE_IMPACT_LEVEL     0.5      // Mine impact sound level
-#define WEAPON_MINE_SHOOT            "sound/weapons/taser/taser_shoot.wav" /// Only standart sounds (from engine)
+#define WEAPON_MINE_SHOOT            "weapons/taser/taser_shoot.wav" /// Only standart sounds (from engine)
 #define WEAPON_MINE_SHOOT_LEVEL      0.3      // Mine shoot sound level
 #define WEAPON_BEAM_MODEL            "materials/sprites/purplelaser1.vmt"//"materials/sprites/laserbeam.vmt"
 #define WEAPON_BEAM_LIFE             0.1
@@ -244,9 +244,6 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
 
-    /// Block the real attack
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-    
     // Validate animation delay
     if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
@@ -258,6 +255,13 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
     {
         return;
     }
+    
+    // Adds the delay to the game tick
+    flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+    
+    // Sets next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
 
     // Initialize vectors
     static float vPosition[3]; static float vEndPosition[3];
@@ -272,13 +276,6 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
     // Validate collisions
     if(TR_DidHit(hTrace) && TR_GetEntityIndex(hTrace) < 1)
     {
-        // Adds the delay to the game tick
-        flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
-                
-        // Sets next attack time
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
-
         // Sets deploy animation
         ZP_SetWeaponAnimation(clientIndex, ANIM_DEPLOY);
 
@@ -397,6 +394,8 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
                 ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
                 
                 // Dispatch main values of the entity
+                DispatchKeyValueVector(entityIndex, "origin", vPosition); 
+                DispatchKeyValueVector(entityIndex, "angles", vEntAngle);
                 DispatchKeyValue(entityIndex, "targetname", "mine");
                 DispatchKeyValue(entityIndex, "model", sModel);
                 DispatchKeyValue(entityIndex, "spawnflags", "8832"); /// Not affected by rotor wash | Prevent pickup | Force server-side
@@ -404,9 +403,6 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
                 // Spawn the entity
                 DispatchSpawn(entityIndex);
 
-                // Teleport the mine
-                TeleportEntity(entityIndex, vPosition, vEntAngle, NULL_VECTOR);
-                
                 // Sets physics
                 AcceptEntityInput(entityIndex, "DisableMotion");
                 SetEntityMoveType(entityIndex, MOVETYPE_NONE);
@@ -440,6 +436,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
                 if(beamIndex != INVALID_ENT_REFERENCE)
                 {
                     // Dispatch main values of the entity
+                    DispatchKeyValueVector(beamIndex, "origin", vPosition); 
                     FormatEx(sClassname, sizeof(sClassname), "laser%d", beamIndex);
                     FormatEx(sDispatch, sizeof(sDispatch), "%s,Kill,,0,-1", sClassname);
                     DispatchKeyValue(entityIndex, "OnBreak", sDispatch);
@@ -478,12 +475,9 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
                     
                     // Returns the collision position of a trace result
                     TR_GetEndPosition(vEndPosition, hTrace);
-                    
-                    // Teleport the beam
-                    TeleportEntity(beamIndex, vEndPosition, NULL_VECTOR, NULL_VECTOR); 
-                    
+
                     // Sets size
-                    SetEntPropVector(beamIndex, Prop_Data, "m_vecEndPos", vPosition);
+                    SetEntPropVector(beamIndex, Prop_Data, "m_vecEndPos", vEndPosition);
                     SetEntPropFloat(beamIndex, Prop_Data, "m_fWidth", WEAPON_BEAM_WIDTH);
                     SetEntPropFloat(beamIndex, Prop_Data, "m_fEndWidth", WEAPON_BEAM_WIDTH);
                     
@@ -524,7 +518,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
             int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Melee)); // Switch to knife
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex2))
+            if(weaponIndex2 != INVALID_ENT_REFERENCE)
             {
                 // Gets weapon classname
                 GetEdictClassname(weaponIndex2, sBuffer, sizeof(sBuffer));
@@ -536,7 +530,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
         else
         {
             // Adds the delay to the game tick
-            float flCurrentTime = GetGameTime() + 1.0;
+            float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon) - 0.3;
             
             // Sets next attack time
             SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -548,7 +542,10 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 
         // Close the trace
         delete hTrace;
-    }   
+    }
+    
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 //**********************************************
@@ -961,6 +958,8 @@ void CreateGlowableModel(int entityIndex)
         ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
 
         // Dispatch main values of the entity
+        DispatchKeyValueVector(glowIndex, "origin", vPosition); 
+        DispatchKeyValueVector(glowIndex, "angles", vAngle);
         DispatchKeyValue(glowIndex, "model", sModel);
         DispatchKeyValue(glowIndex, "disablereceiveshadows", "1");
         DispatchKeyValue(glowIndex, "disableshadows", "1");
@@ -973,9 +972,6 @@ void CreateGlowableModel(int entityIndex)
         // Sets owner to the entity
         SetEntPropEnt(entityIndex, Prop_Data, "m_hMoveChild", glowIndex);
         SetEntPropEnt(glowIndex, Prop_Data, "m_hEffectEntity", entityIndex);
-
-        // Teleport the glow
-        TeleportEntity(glowIndex, vPosition, vAngle, NULL_VECTOR);
 
         // Validate offset
         static int iGlowOffset; static int vColor[4] = WEAPON_GLOW_COLOR;

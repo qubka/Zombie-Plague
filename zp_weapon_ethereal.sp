@@ -81,16 +81,16 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
     #pragma unused clientIndex, weaponIndex, vBulletPosition
 
     // Initialize vectors
-    static float vEntPosition[3]; static float vEntAngle[3];
+    static float vPosition[3]; static float vAngle[3];
 
     // Gets weapon position
-    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vEntPosition);
+    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vPosition);
     
     // Gets beam lifetime
     float flLife = ZP_GetWeaponSpeed(gWeapon);
     
     // Sent a beam
-    TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+    TE_SetupBeamPoints(vPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
     TE_SendToClient(clientIndex);
     
     // Gets worldmodel index
@@ -100,10 +100,10 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
     if(entityIndex != INVALID_ENT_REFERENCE) 
     {
         // Gets attachment position
-        ZP_GetAttachment(entityIndex, "muzzle_flash", vEntPosition, vEntAngle);
+        ZP_GetAttachment(entityIndex, "muzzle_flash", vPosition, vAngle);
 
         // Sent a beam
-        TE_SetupBeamPoints(vEntPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+        TE_SetupBeamPoints(vPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
 
         int[] iClients = new int[MaxClients]; int iCount;
         for(int i = 1; i <= MaxClients; i++)

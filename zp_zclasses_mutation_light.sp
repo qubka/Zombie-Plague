@@ -75,7 +75,8 @@ public void ZP_OnEngineExecute(/*void*/)
 public void ZP_OnClientUpdated(int clientIndex, int attackerIndex)
 {
     // Reset visibility
-    SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
+    SetEntityRenderMode(clientIndex, RENDER_TRANSALPHA); 
+    SetEntityRenderColor(clientIndex, 255, 255, 255, 255);
 }
 
 /**
@@ -92,7 +93,8 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
         // Make model invisible
-        SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 0.0);  
+        SetEntityRenderMode(clientIndex, RENDER_TRANSALPHA); 
+        SetEntityRenderColor(clientIndex, 255, 255, 255, 0);
 
         // Emit sound
         static char sSound[PLATFORM_LINE_LENGTH];
@@ -115,7 +117,8 @@ public void ZP_OnClientSkillOver(int clientIndex)
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
         // Reset visibility
-        SetEntPropFloat(clientIndex, Prop_Send, "m_flModelScale", 1.0);  
+        SetEntityRenderMode(clientIndex, RENDER_TRANSALPHA); 
+        SetEntityRenderColor(clientIndex, 255, 255, 255, 255);  
 
         // Emit sound
         static char sSound[PLATFORM_LINE_LENGTH];

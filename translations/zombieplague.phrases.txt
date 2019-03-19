@@ -68,26 +68,19 @@
         "en"            "<font color='#D67E76'>The last player has left the game</font>!"
         "ru"            "<font color='#D67E76'>Последний игрок вышел</font>!"
     }
-
-    "level info" // DHUD (translated)
-    {
-        "#format"       "{1:d},{2:t},{3:d},{4:d},{5:d}"
-        "en"            "ARMOR:[{1}] CLASS:[{2}]\nLVL:[{3}] EXP:[{4}/{5}]"    
-        "ru"            "БРОНЯ:[{1}] КЛАСС:[{2}]\nУРОВЕНЬ:[{3}] ОПЫТ:[{4}/{5}]"    
-    }
-    
-    "short info" // DHUD (translated)
-    {
-        "#format"       "{1:d},{2:t}"
-        "en"            "ARMOR:[{1}] CLASS:[{2}]"    
-        "ru"            "БРОНЯ:[{1}] КЛАСС:[{2}]"    
-    }
     
     "account info" // DHUD (translated)
     {
         "#format"       "{1:t},{2:d}"
         "en"            "{1}{2}"    
         "ru"            "{1}{2}"   
+    }
+
+    "level info" // DHUD (translated)
+    {
+        "#format"       "{1:t},{2:d},{3:d},{4:d}"
+        "en"            "CLASS:[{1}]\nLVL:[{2}] EXP:[{3}/{4}]"    
+        "ru"            "КЛАСС:[{1}]\nУРОВЕНЬ:[{2}] ОПЫТ:[{3}/{4}]"    
     }
 
     "class info" // Chat (translated)
@@ -104,7 +97,7 @@
         "ru"            "<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>"    
     }
     
-    "extraitem info" // Chat (translated)
+    "buy info" // Chat (translated)
     {
         "#format"       "{1:s},{2:t}"
         "en"            "Player: @red[{1}] @defaultbuy: @red[{2}]"
@@ -176,10 +169,10 @@
         "ru"            "Переслать: [{1}{2}]"
     }
     
-    "commision" // Menu (translated)
+    "commission" // Menu (translated)
     {
         "#format"       "{1:d},{2:t},{3:s}"
-        "en"            "Amount: [{1}{2}] | Commision: [{3}]"
+        "en"            "Amount: [{1}{2}] | Commission: [{3}]"
         "ru"            "Сумма: [{1}{2}] | Комиссия: [{3}]"
     }
     
@@ -1135,6 +1128,12 @@
         "en"            "Flare grenade"
         "ru"            "Световая граната"
     }
+    
+    "breachcharge" // Menu
+    {
+        "en"            "C4"
+        "ru"            "C4"
+    }
 
     "kevlar" // Menu
     {
@@ -1158,6 +1157,12 @@
     {
         "en"            "Bazooka"
         "ru"            "Базука"
+    }
+    
+    "airdrop" // Menu
+    {
+        "en"            "Call airdrop"
+        "ru"            "Вызов вертолета"
     }
     
     "m32" // Menu
@@ -1214,6 +1219,31 @@
     {
         "en"            "To remove <font color='#3D49C7'>a turret</font>, press the button to <font color='#1CA9C9'>open the menu</font>"
         "ru"            "Чтобы снять <font color='#3D49C7'>турель</font> нажмите кнопку для <font color='#1CA9C9'>открытия меню</font>"
+    }
+    
+    "airdrop info" // Hint (no color)
+    {
+        "en"            "To activate the call, set the sensor and activate the remote"
+        "ru"            "Чтобы активировать вызов, установите датчик и активитуйте пультом"
+    }
+    
+    "airdrop safe" // Hint (no color)
+    {
+        "#format"       "{1:d}"
+        "en"            "To open the safe, blow up C4 in quantity {1} PCs."
+        "ru"            "Чтобы открыть сейф взорвите C4 в кол-ве {1} шт."
+    }
+    
+    "trigger on info" // Hint (no color)
+    {
+        "en"            "Call bomber with a nuclear bomb"
+        "ru"            "Вызов бомбордировщика с ядерной бомбой"
+    }
+    
+    "trigger off info" // Hint (no color)
+    {
+        "en"            "Call helicopter with an airdro"
+        "ru"            "Вызов вертолета с дропом"
     }
     
     "lasermine info" // Hint

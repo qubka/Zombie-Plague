@@ -260,10 +260,10 @@ public void ZP_OnEngineExecute(/*void*/)
     if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
     
     // Sounds
-    PrecacheSound("sound/survival/turret_death_01.wav", true);
-    PrecacheSound("sound/survival/turret_takesdamage_01.wav", true);
-    PrecacheSound("sound/survival/turret_takesdamage_02.wav", true);
-    PrecacheSound("sound/survival/turret_takesdamage_03.wav", true);
+    PrecacheSound("survival/turret_death_01.wav", true);
+    PrecacheSound("survival/turret_takesdamage_01.wav", true);
+    PrecacheSound("survival/turret_takesdamage_02.wav", true);
+    PrecacheSound("survival/turret_takesdamage_03.wav", true);
     
     // Models
     PrecacheModel("models/props_survival/dronegun/dronegun.mdl", true);
@@ -326,7 +326,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 #define ANIM_LAYER_DONTRESTORE   0x0008 
 #define ANIM_LAYER_CHECKACCESS   0x0010 
 #define ANIM_LAYER_DYING         0x0020
-#define ANIM_LAYER_NOEVENTS		 0x0040
+#define ANIM_LAYER_NOEVENTS      0x0040
 
 enum //CAnimationLayer 
 {
@@ -396,7 +396,7 @@ methodmap CAnimationOverlay
     public bool IsAutokill(int iLayer)  { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_AUTOKILL) != 0); } 
     public bool IsKillMe(int iLayer)    { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_KILLME)   != 0); } 
     public bool IsDying(int iLayer)     { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_DYING)    != 0); } 
-    public bool	NoEvents(int iLayer)    { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_NOEVENTS) != 0); }
+    public bool NoEvents(int iLayer)    { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_NOEVENTS) != 0); }
     public void KillMe(int iLayer)      { int iFlags = this.Get(m_fFlags, iLayer); this.Set(m_fFlags, iLayer, (iFlags |= ANIM_LAYER_KILLME)); } 
     public void AutoKill(int iLayer)    { int iFlags = this.Get(m_fFlags, iLayer); this.Set(m_fFlags, iLayer, (iFlags |= ANIM_LAYER_AUTOKILL)); }
     public void Dying(int iLayer)       { int iFlags = this.Get(m_fFlags, iLayer); this.Set(m_fFlags, iLayer, (iFlags |= ANIM_LAYER_DYING));  } 
@@ -438,15 +438,14 @@ methodmap SentryGun /** Regards to Pelipoika **/
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
             // Dispatch main values of the entity
+            DispatchKeyValueVector(entityIndex, "origin", vPosition); 
+            DispatchKeyValueVector(entityIndex, "angles", vAngle);
             DispatchKeyValue(entityIndex, "model", sModel); 
             DispatchKeyValue(entityIndex, "targetname", "turret_gun");
-            DispatchKeyValue(entityIndex, "spawnflags", "24706"); /// Gag (No IDLE sounds until angry) | Wait For Script | Don't drop weapons | Ignore pOverlay push (New with Half-Life 2: Episode One / Source 2006): Don't give way to pOverlay
+            DispatchKeyValue(entityIndex, "spawnflags", "24706"); /// Gag (No IDLE sounds until angry) | Wait For Script | Don't drop weapons | Ignore player push (New with Half-Life 2: Episode One / Source 2006): Don't give way to player
              
             // Spawn the entity
             DispatchSpawn(entityIndex); 
-            
-            // Teleport the entity
-            TeleportEntity(entityIndex, vPosition, vAngle, NULL_VECTOR);
 
             /**__________________________________________________________**/
             
@@ -489,16 +488,17 @@ methodmap SentryGun /** Regards to Pelipoika **/
                 if(parentIndex != INVALID_ENT_REFERENCE)
                 { 
                     // Dispatch main values of the entity
+                    DispatchKeyValueVector(parentIndex, "origin", vPosition); 
+                    DispatchKeyValueVector(parentIndex, "angles", vAngle);
                     DispatchKeyValue(parentIndex, "model", "models/props_survival/dronegun/dronegun.mdl");
                     DispatchKeyValue(parentIndex, "targetname", "turret_body");
                     DispatchKeyValue(parentIndex, "disableshadows", "1"); /// Prevents the entity from receiving shadows
-                    DispatchKeyValue(parentIndex, "physicsmode", "1"); /// Solid, Server-side, pushes the pOverlay away
+                    DispatchKeyValue(parentIndex, "physicsmode", "1"); /// Solid, Server-side, pushes the player away
                     DispatchKeyValue(parentIndex, "spawnflags", "8834"); /// Don't take physics damage | Not affected by rotor wash | Prevent pickup | Force server-side
 
                     // Spawn the entity
                     DispatchSpawn(parentIndex);
-                    TeleportEntity(parentIndex, vPosition, vAngle, NULL_VECTOR);
-            
+
                     // Sets physics
                     AcceptEntityInput(parentIndex, "DisableMotion");
                     SetEntityMoveType(parentIndex, MOVETYPE_NONE);
@@ -516,7 +516,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
                     
                     // Sets parent for the entity
                     SetVariantString("!activator");
-                    AcceptEntityInput(entityIndex, "SetParent", parentIndex, parentIndex);
+                    AcceptEntityInput(entityIndex, "SetParent", parentIndex, entityIndex);
                     SetEntPropEnt(parentIndex, Prop_Data, "m_hOwnerEntity", entityIndex);
                     
                     // Create damage hook
@@ -961,7 +961,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
     /*__________________________________________________________________________________________________*/
 
-    public bool ValidTargetpOverlay(int targetIndex, float vStart[3], float vEnd[3]) 
+    public bool ValidTargetPlayer(int targetIndex, float vStart[3], float vEnd[3]) 
     {
         // Create the end-point trace
         Handle hTrace = TR_TraceRayFilterEx(vStart, vEnd, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, this.Index); 
@@ -995,7 +995,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             if(victimIndex >= MaxClients || victimIndex <= 0)
             {
                 // Hack it lower a little bit
-                // The eye position is not always within the hitboxes for a standing CS pOverlay 
+                // The eye position is not always within the hitboxes for a standing CS player 
                 this.GetEyePosition(this.Enemy, vMid); 
                 vMid[2] -= 5.0; 
             }
@@ -1039,7 +1039,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         // Initialize vectors
         static float vPosition[3]; static float vSegment[3]; static float vMidEnemy[3]; 
     
-        // Loop through pOverlays within 1100 units (sentry range)
+        // Loop through players within 1100 units (sentry range)
         this.GetEyePosition(this.Index, vPosition); 
 
         // If we have an enemy get his minimum distance to check against
@@ -1065,8 +1065,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             }
             
             // Gets target distance
-            this.GetAbsOrigin(i, vMidEnemy); 
-            vMidEnemy[2] += GetEntPropFloat(i, Prop_Send, "m_vecViewOffset[2]"); 
+            this.GetEyePosition(i, vMidEnemy); 
             SubtractVectors(vMidEnemy, vPosition, vSegment); 
             flDist = GetVectorLength(vSegment); 
 
@@ -1083,7 +1082,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             }
             
             // It is closer, check to see if the target is valid
-            if(this.ValidTargetpOverlay(i, vPosition, vMidEnemy)) 
+            if(this.ValidTargetPlayer(i, vPosition, vMidEnemy)) 
             { 
                 flMinDist = flDist; 
                 targetIndex = i; 
@@ -1434,12 +1433,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
         // Rotate a bit
         if(!this.MoveTurret()) 
         {
-            switch(this.UpgradeLevel) 
+            /*switch(this.UpgradeLevel) 
             { 
                 case SENTRY_MODE_NORMAL    : this.EmitSound(SENTRY_SOUND_SCAN); 
                 case SENTRY_MODE_AGRESSIVE : this.EmitSound(SENTRY_SOUND_SCAN2); 
                 case SENTRY_MODE_ROCKET    : this.EmitSound(SENTRY_SOUND_SCAN3); 
-            }
+            }*/
      
             // Start it rotating
             static float vGoalAngle[3]; 
@@ -1534,7 +1533,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         static float vEntPosition[3]; static float vGibAngle[3]; float vShootAngle[3];
 
         // Emit sound
-        EmitSoundToAll("sound/survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        EmitSoundToAll("survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC, hSoundLevel.IntValue);
         
         // Gets entity position
         this.GetAbsOrigin(this.Index, vEntPosition);
@@ -1627,9 +1626,6 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
 
-    /// Block the real attack
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
-    
     // Validate animation delay
     if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
@@ -1641,6 +1637,13 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
     {
         return;
     }
+    
+    // Adds the delay to the game tick
+    flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+
+    // Sets next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);   
     
     // Initialize vectors
     static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
@@ -1660,16 +1663,9 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
         TR_GetPlaneNormal(hTrace, vAngle); 
 
         // Create a dronegun entity
-        SentryGun sentry = SentryGun(clientIndex, vPosition, vAngle, SENTRY_MODE_DEFAULT); 
+        SentryGun(clientIndex, vPosition, vAngle, SENTRY_MODE_DEFAULT); 
         
-        // Adds the delay to the game tick
-        flCurrentTime += sentry.GetSpeed();
-                
-        // Sets next attack time
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
-        
-        // Forces a pOverlay to remove weapon
+        // Forces a player to remove weapon
         RemovePlayerItem(clientIndex, weaponIndex);
         AcceptEntityInput(weaponIndex, "Kill");
         
@@ -1677,7 +1673,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
         int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Melee)); // Switch to knife
         
         // Validate weapon
-        if(IsValidEdict(weaponIndex2))
+        if(weaponIndex2 != INVALID_ENT_REFERENCE)
         {
             // Gets weapon classname
             static char sClassname[SMALL_LINE_LENGTH];
@@ -1916,9 +1912,9 @@ public Action SentryDamageHook(int entityIndex, int &attackerIndex, int &inflict
                 // Emit sound
                 switch(GetRandomInt(0, 2))
                 {
-                    case 0 : EmitSoundToAll("sound/survival/turret_takesdamage_01.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                    case 1 : EmitSoundToAll("sound/survival/turret_takesdamage_02.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                    case 2 : EmitSoundToAll("sound/survival/turret_takesdamage_03.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                    case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                    case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                    case 2 : EmitSoundToAll("survival/turret_takesdamage_03.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
                 }
             }
         }
@@ -1965,7 +1961,7 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
         int infoIndex = ZP_CreateEntity(vEntPosition, SENTRY_ROCKET_EXPLOSION_TIME);
         
         // Validate entity
-        if(IsValidEdict(infoIndex))
+        if(infoIndex != INVALID_ENT_REFERENCE)
         {
             // Create an explosion effect
             ZP_CreateParticle(infoIndex, vEntPosition, _, "expl_coopmission_skyboom", SENTRY_ROCKET_EXPLOSION_TIME);

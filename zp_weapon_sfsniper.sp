@@ -79,10 +79,10 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
     #pragma unused clientIndex, weaponIndex, vBulletPosition
 
     // Initialize vectors
-    static float vEntPosition[3];
+    static float vPosition[3];
 
     // Gets weapon position
-    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vEntPosition);
+    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vPosition);
     
     // Create a beam entity
     int entityIndex = CreateEntityByName("env_beam");
@@ -94,6 +94,7 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
         static char sClassname[SMALL_LINE_LENGTH]; static char sWidth[SMALL_LINE_LENGTH]; static int vColor[4] = WEAPON_BEAM_COLOR;
         
         // Dispatch main values of the entity
+        DispatchKeyValueVector(entityIndex, "origin", vPosition); 
         FormatEx(sClassname, sizeof(sClassname), "sflaser%d", entityIndex);
         DispatchKeyValue(entityIndex, "targetname", sClassname);
         DispatchKeyValue(entityIndex, "damage", "0");
@@ -124,10 +125,7 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
         
         // Sets model
         SetEntityModel(entityIndex, WEAPON_BEAM_MODEL);
-        
-        // Teleport the beam
-        TeleportEntity(entityIndex, vEntPosition, NULL_VECTOR, NULL_VECTOR); 
-        
+
         // Sets size
         SetEntPropVector(entityIndex, Prop_Data, "m_vecEndPos", vBulletPosition);
         SetEntPropFloat(entityIndex, Prop_Data, "m_fWidth", WEAPON_BEAM_WIDTH);

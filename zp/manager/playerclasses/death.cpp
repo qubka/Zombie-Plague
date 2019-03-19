@@ -64,7 +64,7 @@ void DeathOnLoad(/*void*/)
 {
     // Gets infect icon
     static char sIcon[NORMAL_LINE_LENGTH];
-    gCvarList[CVAR_INFECT_ICON].GetString(sIcon, sizeof(sIcon));
+    gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
     if(hasLength(sIcon))
     {
         // Precache custom icon
@@ -79,8 +79,8 @@ void DeathOnLoad(/*void*/)
 void DeathOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_INFECT_ICON] = FindConVar("zp_infect_icon");
-    gCvarList[CVAR_HEAD_ICON]   = FindConVar("zp_head_icon");
+    gCvarList[CVAR_ICON_INFECT] = FindConVar("zp_icon_infect");
+    gCvarList[CVAR_ICON_HEAD]   = FindConVar("zp_icon_head");
 }
 
 /**
@@ -258,7 +258,7 @@ bool DeathOnClientRespawn(int clientIndex, int attackerIndex = 0,  bool bTimer =
         // Increment money/exp/health
         LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex].Exp + iExp[BonusType_Kill]);
         AccountSetClientCash(attackerIndex, gClientData[attackerIndex].Money + iMoney[BonusType_Kill]);
-        ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+        ToolsSetClientHealth(attackerIndex, ToolsGetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
     }
         
     // Validate timer

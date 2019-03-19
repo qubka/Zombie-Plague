@@ -33,7 +33,7 @@ enum
     LEVELS_DATA_INDEX
 };
 /**
- * @end 
+ * @endsection 
  **/
 
 /**
@@ -44,8 +44,8 @@ void LevelSystemOnInit(/*void*/)
     // Prepare all levels data
     LevelSystemOnLoad();
 
-    // If level hud disable, then stop
-    if(!gCvarList[CVAR_LEVEL_HUD].BoolValue)
+    // If level system disable, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !gCvarList[CVAR_LEVEL_HUD].BoolValue )
     {
         // Validate loaded map
         if(gServerData.MapLoaded)
@@ -310,8 +310,8 @@ void LevelSystemOnClientDeath(int clientIndex)
  **/
 void LevelSystemOnClientUpdate(int clientIndex)
 {
-    // If level hud disabled, then stop
-    if(!gCvarList[CVAR_LEVEL_HUD].BoolValue)
+    // If level system disabled, then stop
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !gCvarList[CVAR_LEVEL_HUD].BoolValue)
     {
         return;
     }
@@ -496,17 +496,8 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
         static char sInfo[SMALL_LINE_LENGTH];
         ClassGetName(gClientData[targetIndex].Class, sInfo, sizeof(sInfo));
 
-        // If level system disabled, then format differently
-        if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
-        {
-            // Print hud text to the client
-            TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "short info", sInfo);
-        }
-        else
-        {
-            // Print hud text to the client
-            TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[targetIndex].Level, gClientData[targetIndex].Exp, LevelSystemGetLimit(gClientData[targetIndex].Level));
-        }
+        // Print hud text to the client
+        TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[targetIndex].Level, gClientData[targetIndex].Exp, LevelSystemGetLimit(gClientData[targetIndex].Level));
 
         // Allow timer
         return Plugin_Continue;

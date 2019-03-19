@@ -232,7 +232,7 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
             int infoIndex = ZP_CreateEntity(vEntPosition, GRENADE_INFECT_EXP_TIME);
 
             // Validate entity
-            if(IsValidEdict(infoIndex))
+            if(infoIndex != INVALID_ENT_REFERENCE)
             {
                 // Create an explosion effect
                 ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_dirt", GRENADE_INFECT_EXP_TIME);

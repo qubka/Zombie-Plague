@@ -662,7 +662,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                     AccountSetClientCash(targetIndex, gClientData[targetIndex].Money + iAmount);
                     
                     // If help messages enabled, then show info
-                    if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                    if(gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
                     {
                         // Gets client/target name
                         GetClientName(clientIndex, sInfo[0], sizeof(sInfo[]));

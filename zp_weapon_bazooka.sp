@@ -537,7 +537,7 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
         int infoIndex = ZP_CreateEntity(vEntPosition, WEAPON_EXPLOSION_TIME);
         
         // Validate entity
-        if(IsValidEdict(infoIndex))
+        if(infoIndex != INVALID_ENT_REFERENCE)
         {
             // Create an explosion effect
             ZP_CreateParticle(infoIndex, vEntPosition, _, "expl_coopmission_skyboom", WEAPON_EXPLOSION_TIME);

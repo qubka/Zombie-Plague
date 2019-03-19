@@ -540,13 +540,13 @@ void WeaponAttachSetAddons(int clientIndex)
  *
  * @param clientIndex       The client index.
  * @param iD                The weapon id.
- * @param bitType           The bit type.
+ * @param mBits             The bits type.
  * @param sAttach           The attachment name.
  **/
-void WeaponAttachCreateAddons(int clientIndex, int iD, BitType bitType, char[] sAttach)
+void WeaponAttachCreateAddons(int clientIndex, int iD, BitType mBits, char[] sAttach)
 {
     // Remove current addons
-    WeaponAttachRemoveAddons(clientIndex, bitType);
+    WeaponAttachRemoveAddons(clientIndex, mBits);
 
     // If dropmodel exist, then apply it
     if(WeaponsGetModelDropID(iD))
@@ -579,15 +579,13 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, BitType bitType, char[] s
                 
                 // Spawn the entity into the world
                 DispatchSpawn(entityIndex);
-                
+ 
                 // Sets parent to the entity
-                ToolsSetEntityOwner(entityIndex, clientIndex);
-                
-                // Sets parent to the client
                 SetVariantString("!activator");
                 AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
+                ToolsSetEntityOwner(entityIndex, clientIndex);
                 
-                // Sets attachment to the client
+                // Sets attachment to the entity
                 SetVariantString(sAttach);
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
                 
@@ -595,7 +593,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, BitType bitType, char[] s
                 SDKHook(entityIndex, SDKHook_SetTransmit, WeaponAttachOnTransmit);
                 
                 // Store the client cache
-                gClientData[clientIndex].AttachmentAddons[bitType] = EntIndexToEntRef(entityIndex);
+                gClientData[clientIndex].AttachmentAddons[mBits] = EntIndexToEntRef(entityIndex);
             }
         }
     }
@@ -605,12 +603,12 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, BitType bitType, char[] s
  * @brief Remove an attachment addons entities from the client.
  *
  * @param clientIndex       The client index.
- * @param bitType           The bit type.
+ * @param mBits             The bits type.
  **/
-void WeaponAttachRemoveAddons(int clientIndex, BitType bitType = BitType_Invalid) 
+void WeaponAttachRemoveAddons(int clientIndex, BitType mBits = BitType_Invalid) 
 {
     // Validate all
-    if(bitType == BitType_Invalid)
+    if(mBits == BitType_Invalid)
     {
         // i = slot index
         for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
@@ -632,7 +630,7 @@ void WeaponAttachRemoveAddons(int clientIndex, BitType bitType = BitType_Invalid
     else
     {
         // Gets current addon from the client reference
-        int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[bitType]);
+        int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[mBits]);
 
         // Validate addon
         if(entityIndex != INVALID_ENT_REFERENCE) 
@@ -642,6 +640,6 @@ void WeaponAttachRemoveAddons(int clientIndex, BitType bitType = BitType_Invalid
 
         // Clear the client cache
         gClientData[clientIndex].AttachmentBits = CSAddon_NONE;
-        gClientData[clientIndex].AttachmentAddons[bitType] = INVALID_ENT_REFERENCE;
+        gClientData[clientIndex].AttachmentAddons[mBits] = INVALID_ENT_REFERENCE;
     }
 }

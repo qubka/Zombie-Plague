@@ -170,7 +170,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     ToolsSetClientHealth(clientIndex, ClassGetHealth(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0), true);
     ToolsSetClientLMV(clientIndex, ClassGetSpeed(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
     ToolsSetClientGravity(clientIndex, ClassGetGravity(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
-    ToolsSetClientArmor(clientIndex, (GetClientArmor(clientIndex) < ClassGetArmor(gClientData[clientIndex].Class)) ? ClassGetArmor(gClientData[clientIndex].Class) : GetClientArmor(clientIndex));
+    ToolsSetClientArmor(clientIndex, (ToolsGetClientArmor(clientIndex) < ClassGetArmor(gClientData[clientIndex].Class)) ? ClassGetArmor(gClientData[clientIndex].Class) : ToolsGetClientArmor(clientIndex));
     ToolsSetClientHud(clientIndex, ClassIsCross(gClientData[clientIndex].Class));
     ToolsSetClientSpot(clientIndex, ClassIsSpot(gClientData[clientIndex].Class));
     ToolsSetClientFov(clientIndex, ClassGetFov(gClientData[clientIndex].Class));
@@ -187,7 +187,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     if(hasLength(sModel)) ToolsSetClientArm(clientIndex, sModel, sizeof(sModel));
     
     // If help messages enabled, then show info
-    if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+    if(gCvarList[CVAR_MESSAGES_CLASS_INFO].BoolValue)
     {
         // Gets class info
         ClassGetInfo(gClientData[clientIndex].Class, sModel, sizeof(sModel));
@@ -203,8 +203,8 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     {
         // Create a fake death event
         static char sIcon[SMALL_LINE_LENGTH];
-        gCvarList[CVAR_INFECT_ICON].GetString(sIcon, sizeof(sIcon));
-        DeathOnClientHUD(clientIndex, attackerIndex, sIcon, gCvarList[CVAR_HEAD_ICON].BoolValue);
+        gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
+        DeathOnClientHUD(clientIndex, attackerIndex, sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
         
         // Increment kills and frags
         ToolsSetClientScore(attackerIndex, true, ToolsGetClientScore(attackerIndex, true) + 1);
@@ -223,7 +223,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
         if(IsPlayerAlive(attackerIndex)) 
         {
             // Add lifesteal health
-            ToolsSetClientHealth(attackerIndex, GetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+            ToolsSetClientHealth(attackerIndex, ToolsGetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
         }
     }
     // If change was done by server
@@ -236,11 +236,11 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
         if(ModesIsEscape(gServerData.RoundMode))
         {
             // Gets spawn position
-            static float vOrigin[3];
-            SpawnGetRandomPosition(vOrigin);
+            static float vPosition[3];
+            SpawnGetRandomPosition(vPosition);
             
             // Teleport player back on the spawn point
-            TeleportEntity(clientIndex, vOrigin, NULL_VECTOR, NULL_VECTOR);
+            TeleportEntity(clientIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
         }
     } gClientData[clientIndex].LastPurchase = 0; /// Reset purhase amount
     
@@ -263,6 +263,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     SoundsOnClientUpdate(clientIndex);
     SkillSystemOnClientUpdate(clientIndex);
     LevelSystemOnClientUpdate(clientIndex);
+    VEffectsOnClientUpdate(clientIndex);
     VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
     if(gClientData[clientIndex].Vision) VOverlayOnClientUpdate(clientIndex, Overlay_Vision); /// HACK~HACK
     _call.AccountOnClientUpdate(clientIndex);

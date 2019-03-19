@@ -366,9 +366,9 @@ void DataBaseOnClientDisconnectPost(int clientIndex)
  * @brief Client has been changed class state.
  *
  * @param clientIndex       The client index.
- * @param columnType        The column type.
+ * @param nColumn           The column type.
  **/
-void DataBaseOnClientUpdate(int clientIndex, ColumnType columnType)
+void DataBaseOnClientUpdate(int clientIndex, ColumnType nColumn)
 {
     // If database doesn't exist, then stop
     if(gServerData.DataBase == null)
@@ -386,7 +386,7 @@ void DataBaseOnClientUpdate(int clientIndex, ColumnType columnType)
     static char sRequest[HUGE_LINE_LENGTH]; 
     
     // Generate request
-    SQLBaseFactory__(_, sRequest, sizeof(sRequest), columnType, FactoryType_Update, clientIndex);
+    SQLBaseFactory__(_, sRequest, sizeof(sRequest), nColumn, FactoryType_Update, clientIndex);
     
     // Sent a request
     gServerData.DataBase.Query(SQLBaseUpdate_Callback, sRequest, clientIndex, DBPrio_Low);
@@ -400,15 +400,15 @@ void DataBaseOnClientUpdate(int clientIndex, ColumnType columnType)
  * @brief Callback for a successful transaction.
  * 
  * @param hDatabase         Handle to the database connection.
- * @param transactionType   Data passed in via the original threaded invocation.
+ * @param mTransaction      Data passed in via the original threaded invocation.
  * @param numQueries        Number of queries executed in the transaction.
  * @param hResults          An array of DBResultSet results, one for each of numQueries. They are closed automatically.
  * @param clientIndex       An array of each data value passed.
  **/
-public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType transactionType, int numQueries, DBResultSet[] hResults, int[] clientIndex)
+public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType mTransaction, int numQueries, DBResultSet[] hResults, int[] clientIndex)
 {
     // Gets transaction type
-    switch(transactionType)
+    switch(mTransaction)
     {
         // Database was 'Loaded' during map
         case TransactionType_Load :
@@ -446,13 +446,13 @@ public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType transacti
  * @brief Callback for a failed transaction.
  * 
  * @param hDatabase         Handle to the database connection.
- * @param data              Data passed in via the original threaded invocation.
+ * @param mTransaction      Data passed in via the original threaded invocation.
  * @param numQueries        Number of queries executed in the transaction.
  * @param sError            Error string if there was an error.
  * @param failIndex         Index of the query that failed, or -1 if something else.
  * @param clientIndex       An array of each data value passed.
  **/
-public void SQLTxnFailure_Callback(Database hDatabase, TransactionType transactionType, int numQueries, char[] sError, int failIndex, int[] clientIndex)
+public void SQLTxnFailure_Callback(Database hDatabase, TransactionType mTransaction, int numQueries, char[] sError, int failIndex, int[] clientIndex)
 {
     // If invalid query handle, then log error
     if(hDatabase == null || hasLength(sError))
@@ -709,14 +709,14 @@ public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, char
  * @param MySQL             (Optional) The type of connection. 
  * @param sRequest          The request output.
  * @param iMaxLen           The lenght of string.
- * @param columnType        The column type.
- * @param factoryType       The request type.
+ * @param nColumn           The column type.
+ * @param mFactory          The request type.
  * @param clientIndex       (Optional) The client index. (for data)
  **/
-void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnType columnType, FactoryType factoryType, int clientIndex = 0)
+void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnType nColumn, FactoryType mFactory, int clientIndex = 0)
 {   
     // Gets factory mode
-    switch(factoryType)
+    switch(mFactory)
     {
         case FactoryType_Create :
         {
@@ -776,7 +776,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         {
             /// Format request
             FormatEx(sRequest, iMaxLen, "ALTER TABLE `%s` ", DATABASE_NAME);
-            switch(columnType)
+            switch(nColumn)
             {
                 case ColumnType_ID :
                 {
@@ -890,7 +890,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         {
             /// Format request
             FormatEx(sRequest, iMaxLen, "SELECT ");    
-            switch(columnType)
+            switch(nColumn)
             {
                 case ColumnType_All :
                 {
@@ -962,7 +962,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         {
             /// Format request
             FormatEx(sRequest, iMaxLen, "UPDATE `%s` SET", DATABASE_NAME);    
-            switch(columnType)
+            switch(nColumn)
             {
                 case ColumnType_All :
                 {
@@ -1041,7 +1041,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         case FactoryType_Insert :
         {
             /// Format request  
-            switch(columnType)
+            switch(nColumn)
             {
                 case ColumnType_SteamID :
                 {

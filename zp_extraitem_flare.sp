@@ -138,6 +138,12 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
         // Block grenade
         SetEntProp(grenadeIndex, Prop_Data, "m_nNextThinkTick", -1);
 
+        // Initialize vector variables
+        static float vPosition[3];
+        
+        // Gets parent position
+        GetEntPropVector(grenadeIndex, Prop_Send, "m_vecOrigin", vPosition);
+        
         // Emit sound
         static char sSound[PLATFORM_LINE_LENGTH];
         ZP_GetSound(gSound, sSound, sizeof(sSound));
@@ -150,6 +156,7 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
         if(lightIndex != INVALID_ENT_REFERENCE)
         {
             // Dispatch main values of the entity
+            DispatchKeyValueVector(lightIndex, "origin", vPosition); 
             DispatchKeyValue(lightIndex, "inner_cone", "0");
             DispatchKeyValue(lightIndex, "cone", "80");
             DispatchKeyValue(lightIndex, "brightness", "1");
@@ -165,15 +172,6 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
             // Activate the entity
             AcceptEntityInput(lightIndex, "TurnOn");
 
-            // Initialize vector variables
-            static float vPosition[3];
-            
-            // Gets parent position
-            GetEntPropVector(grenadeIndex, Prop_Send, "m_vecOrigin", vPosition);
-            
-            // Teleport the entity
-            TeleportEntity(lightIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
-            
             // Sets parent to the entity
             SetVariantString("!activator"); 
             AcceptEntityInput(lightIndex, "SetParent", grenadeIndex, lightIndex); 

@@ -397,9 +397,9 @@ public Action FireFlyHook(Handle hTimer, int referenceIndex)
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Create an effect
-        static float vEntPosition[3];
-        GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
-        ZP_CreateParticle(entityIndex, vEntPosition, _, "env_fire_large", 0.5);
+        static float vPosition[3];
+        GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vPosition);
+        ZP_CreateParticle(entityIndex, vPosition, _, "env_fire_large", 0.5);
 
         // Create think hook
         CreateTimer(0.5, FireRemoveHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);

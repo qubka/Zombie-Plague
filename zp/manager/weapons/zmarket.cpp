@@ -441,7 +441,21 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                             gClientData[clientIndex].ShoppingCart.Push(iD);
                             
                             // If help messages enabled, then show info
-                            if(gCvarList[CVAR_MESSAGES_HELP].BoolValue)
+                            if(gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
+                            {
+                                // Gets client name
+                                static char sClient[SMALL_LINE_LENGTH];
+                                GetClientName(clientIndex, sClient, sizeof(sClient));
+
+                                // Gets weapon name
+                                WeaponsGetName(iD, sWeaponName, sizeof(sWeaponName));    
+                                
+                                // Show item buying info
+                                TranslationPrintToChatAll("buy info", sClient, sWeaponName);
+                            }
+                            
+                            // If help messages enabled, then show info
+                            if(gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
                             {
                                 // Gets weapon info
                                 WeaponsGetInfo(iD, sWeaponName, sizeof(sWeaponName));

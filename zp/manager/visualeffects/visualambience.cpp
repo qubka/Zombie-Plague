@@ -201,18 +201,11 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
  **/
 void VAmbienceApplySky(bool bDisable = false)
 {
-    // If we can't find the sv_skyname cvar, then stop
-    ConVar hSkyname = gCvarList[CVAR_VEFFECTS_SKYNAME];
-    if(hSkyname == null)
-    {
-        return;
-    }
-
     // Default sky of current map
     static char VAmbienceDefaultSky[PLATFORM_LINE_LENGTH];
 
     // Store map default sky before applying new one
-    hSkyname.GetString(VAmbienceDefaultSky, sizeof(VAmbienceDefaultSky));
+    gCvarList[CVAR_VEFFECTS_SKYNAME].GetString(VAmbienceDefaultSky, sizeof(VAmbienceDefaultSky));
 
     // If default, then set to default sky
     if(bDisable)
@@ -220,7 +213,7 @@ void VAmbienceApplySky(bool bDisable = false)
         if(hasLength(VAmbienceDefaultSky))
         {
             // Sets default sky on all clients
-            hSkyname.SetString(VAmbienceDefaultSky, true);
+            gCvarList[CVAR_VEFFECTS_SKYNAME].SetString(VAmbienceDefaultSky, true);
         }
         return;
     }
@@ -230,7 +223,7 @@ void VAmbienceApplySky(bool bDisable = false)
     gCvarList[CVAR_VEFFECTS_SKY_PATH].GetString(sSkyPath, sizeof(sSkyPath));
 
     // Sets new sky on all clients
-    hSkyname.SetString(sSkyPath, true);
+    gCvarList[CVAR_VEFFECTS_SKYNAME].SetString(sSkyPath, true);
 }
 
 /**

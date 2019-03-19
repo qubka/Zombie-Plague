@@ -456,7 +456,7 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int clientI
                 ClassGetName(iD, sClassName, sizeof(sClassName));
                 
                 // If help messages enabled, then show info
-                if(gCvarList[CVAR_MESSAGES_HELP].BoolValue) TranslationPrintToChat(clientIndex, "class info", sClassName, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
+                if(gCvarList[CVAR_MESSAGES_CLASS_CHOOSE].BoolValue) TranslationPrintToChat(clientIndex, "class info", sClassName, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
             }
         }
     }

@@ -183,10 +183,11 @@ public void ZP_OnClientSkillOver(int clientIndex)
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
         // Initialize vectors
-        static float vPosition[3];
+        static float vPosition[3]; static float vAngle[3];
         
-        // Gets client position
+        // Gets client position/angles
         GetClientAbsOrigin(clientIndex, vPosition);
+        GetClientEyeAngles(clientIndex, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
         
         // Emit sound
         static char sSound[PLATFORM_LINE_LENGTH];
@@ -200,15 +201,13 @@ public void ZP_OnClientSkillOver(int clientIndex)
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
             // Dispatch main values of the entity
+            DispatchKeyValueVector(entityIndex, "origin", vPosition); 
             DispatchKeyValue(entityIndex, "model", "models/player/custom_player/zombie/ice/ice.mdl");
             DispatchKeyValue(entityIndex, "spawnflags", "8834"); /// Don't take physics damage | Not affected by rotor wash | Prevent pickup | Force server-side
             
             // Spawn the entity
             DispatchSpawn(entityIndex);
-            
-            // Teleport the trap
-            TeleportEntity(entityIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
-            
+
             // Sets physics
             SetEntProp(entityIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
             SetEntProp(entityIndex, Prop_Send, "m_usSolidFlags", FSOLID_NOT_SOLID|FSOLID_TRIGGER); 
@@ -222,6 +221,8 @@ public void ZP_OnClientSkillOver(int clientIndex)
             if(trapIndex != INVALID_ENT_REFERENCE)
             {
                 // Dispatch main values of the entity
+                DispatchKeyValueVector(trapIndex, "origin", vPosition); 
+                DispatchKeyValueVector(trapIndex, "angles", vAngle); 
                 DispatchKeyValue(trapIndex, "model", "models/player/custom_player/zombie/zombie_trap/trap.mdl");
                 DispatchKeyValue(trapIndex, "DefaultAnim", "idle");
                 DispatchKeyValue(trapIndex, "spawnflags", "256"); /// Start with collision disabled
@@ -232,9 +233,6 @@ public void ZP_OnClientSkillOver(int clientIndex)
 
                 // Create transmit hook
                 SDKHook(trapIndex, SDKHook_SetTransmit, TrapOnTransmit);
-
-                // Spawn the fake trap
-                TeleportEntity(trapIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
             }
             
             // Sets parent for the entity
@@ -319,6 +317,7 @@ public Action TrapTouchHook(int entityIndex, int targetIndex)
             if(trapIndex != INVALID_ENT_REFERENCE)
             {
                 // Dispatch main values of the entity
+                DispatchKeyValueVector(trapIndex, "origin", vPosition); 
                 DispatchKeyValue(trapIndex, "model", "models/player/custom_player/zombie/zombie_trap/trap.mdl");
                 DispatchKeyValue(trapIndex, "DefaultAnim", "trap");
                 DispatchKeyValue(trapIndex, "spawnflags", "256"); /// Start with collision disabled
@@ -326,7 +325,6 @@ public Action TrapTouchHook(int entityIndex, int targetIndex)
 
                 // Spawn the entity
                 DispatchSpawn(trapIndex);
-                TeleportEntity(trapIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
 
                 // Initialize time char
                 static char sTime[SMALL_LINE_LENGTH];

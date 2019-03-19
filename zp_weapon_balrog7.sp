@@ -134,7 +134,7 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, int iCounter, float vBull
         int infoIndex = ZP_CreateEntity(vBulletPosition, WEAPON_EXPLOSION_TIME);
 
         // Validate entity
-        if(IsValidEdict(infoIndex))
+        if(infoIndex != INVALID_ENT_REFERENCE)
         {
             // Create an explosion effect
             ZP_CreateParticle(infoIndex, vBulletPosition, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);

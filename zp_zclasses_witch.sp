@@ -276,7 +276,7 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
             int infoIndex = ZP_CreateEntity(vEntPosition, ZOMBIE_CLASS_SKILL_EXP_TIME);
 
             // Validate entity
-            if(IsValidEdict(infoIndex))
+            if(infoIndex != INVALID_ENT_REFERENCE)
             {
                 // Create an blood effect
                 ZP_CreateParticle(infoIndex, vEntPosition, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);

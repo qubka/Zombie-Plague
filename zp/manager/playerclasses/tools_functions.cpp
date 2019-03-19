@@ -24,7 +24,7 @@
  *
  * ============================================================================
  **/
-
+ 
 /**
  * @section Hud elements flags.
  **/
@@ -79,10 +79,20 @@ void ToolsOnCommandInit(/*void*/)
 void ToolsOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_LIGHT_BUTTON]   = FindConVar("zp_light_button");  
-    gCvarList[CVAR_MESSAGES_HELP]  = FindConVar("zp_messages_help");
-    gCvarList[CVAR_MESSAGES_BLOCK] = FindConVar("zp_messages_block");
-    gCvarList[CVAR_SEND_TABLES]    = FindConVar("sv_sendtables");
+    gCvarList[CVAR_LIGHT_BUTTON]          = FindConVar("zp_light_button");  
+    gCvarList[CVAR_MESSAGES_OBJECTIVE]    = FindConVar("zp_messages_objective");
+    gCvarList[CVAR_MESSAGES_COUNTER]      = FindConVar("zp_messages_counter");
+    gCvarList[CVAR_MESSAGES_BLAST]        = FindConVar("zp_messages_blast");
+    gCvarList[CVAR_MESSAGES_DAMAGE]       = FindConVar("zp_messages_damage");
+    gCvarList[CVAR_MESSAGES_DONATE]       = FindConVar("zp_messages_donate");
+    gCvarList[CVAR_MESSAGES_CLASS_INFO]   = FindConVar("zp_messages_class_info");
+    gCvarList[CVAR_MESSAGES_CLASS_CHOOSE] = FindConVar("zp_messages_class_choose");
+    gCvarList[CVAR_MESSAGES_ITEM_INFO]    = FindConVar("zp_messages_item_info");
+    gCvarList[CVAR_MESSAGES_ITEM_ALL]     = FindConVar("zp_messages_item_all");
+    gCvarList[CVAR_MESSAGES_WEAPON_INFO]  = FindConVar("zp_messages_weapon_info");
+    gCvarList[CVAR_MESSAGES_WEAPON_ALL]   = FindConVar("zp_messages_weapon_all");
+    gCvarList[CVAR_MESSAGES_BLOCK]        = FindConVar("zp_messages_block");
+    gCvarList[CVAR_SEND_TABLES]           = FindConVar("sv_sendtables");
     
     // Sets locked cvars to their locked value
     gCvarList[CVAR_SEND_TABLES].IntValue = 1;
@@ -281,11 +291,8 @@ void ToolsClientVelocity(int clientIndex, float vVelocity[3], bool bApply = true
     // If retrieve if true, then get client velocity
     if(!bApply)
     {
-        // i = vector component
-        for(int i = 0; i < 3; i++)
-        {
-            vVelocity[i] = GetEntDataFloat(clientIndex, g_iOffset_PlayerVelocity + (i * 4));
-        }
+        // Gets client velocity
+        ToolsGetClientVelocity(clientIndex, vVelocity);
         
         // Stop here
         return;
@@ -296,13 +303,9 @@ void ToolsClientVelocity(int clientIndex, float vVelocity[3], bool bApply = true
     {
         // Gets client velocity
         static float vecClientVelocity[3];
+        ToolsGetClientVelocity(clientIndex, vecClientVelocity);
         
-        // i = vector component
-        for(int i = 0; i < 3; i++)
-        {
-            vecClientVelocity[i] = GetEntDataFloat(clientIndex, g_iOffset_PlayerVelocity + (i * 4));
-        }
-        
+        // Add to the current
         AddVectors(vecClientVelocity, vVelocity, vVelocity);
     }
     
@@ -318,11 +321,76 @@ void ToolsClientVelocity(int clientIndex, float vVelocity[3], bool bApply = true
  **/
 void ToolsGetClientVelocity(int clientIndex, float vVelocity[3])
 {
-    // i = vector component
-    for(int i = 0; i < 3; i++)
+    // Find the datamap
+    if(!g_iOffset_PlayerVelocity)
     {
-        vVelocity[i] = GetEntDataFloat(clientIndex, g_iOffset_PlayerVelocity + (i * 4));
+        g_iOffset_PlayerVelocity = FindDataMapInfo(clientIndex, "m_vecVelocity");
     }
+   
+    // Gets origin of the client
+    GetEntDataVector(clientIndex, g_iOffset_PlayerVelocity, vVelocity);
+}
+
+/**
+ * @brief Gets the abs origin of a client.
+ *
+ * @param clientIndex       The client index.
+ * @param vPosition         The origin output.
+ **/
+void ToolsGetClientAbsOrigin(int clientIndex, float vPosition[3])
+{
+    // Find the datamap
+    if(!g_iOffset_PlayerOrigin)
+    {
+        g_iOffset_PlayerOrigin = FindDataMapInfo(clientIndex, "m_vecAbsOrigin");
+    }
+   
+    // Gets origin of the client
+    GetEntDataVector(clientIndex, g_iOffset_PlayerOrigin, vPosition);
+}
+
+/**
+ * @brief Gets the abs angle of a client.
+ *
+ * @param clientIndex       The client index.
+ * @param vAngle            The angle output.
+ **/
+void ToolsGetClientAbsAngles(int clientIndex, float vAngle[3])
+{
+    // Find the datamap
+    if(!g_iOffset_PlayerAngles)
+    {
+        g_iOffset_PlayerAngles = FindDataMapInfo(clientIndex, "m_angAbsRotation");
+    }
+   
+    // Gets angles of the client
+    GetEntDataVector(clientIndex, g_iOffset_PlayerAngles, vAngle);
+}
+
+/**
+ * @brief Gets the render of a client.
+ *
+ * @param clientIndex       The client index.
+ * @param mColor            The offset index.
+ * @return                  The color amount.
+ **/
+int ToolsGetClientRenderColor(int entityIndex, ColorType mColor)
+{
+    // Gets render of the client
+    return GetEntData(entityIndex, g_iOffset_PlayerRender + view_as<int>(mColor), 1);
+}
+
+/**
+ * @brief Gets the health of a client.
+ *
+ * @param clientIndex       The client index.
+ * @param bMax              True to get maximum value, false to get health.  
+ * @return                  The health value.
+ **/
+int ToolsGetClientHealth(int clientIndex, bool bMax = false)
+{
+    // Gets health of the client
+    return GetEntData(clientIndex, bMax ? g_iOffset_PlayerMaxHealth : g_iOffset_PlayerHealth);
 }
 
 /**
@@ -334,7 +402,7 @@ void ToolsGetClientVelocity(int clientIndex, float vVelocity[3])
  **/
 void ToolsSetClientHealth(int clientIndex, int iValue, bool bSet = false)
 {
-    // Sets health of client
+    // Sets health of the client
     SetEntData(clientIndex, g_iOffset_PlayerHealth, iValue, _, true);
     
     // If set is true, then set max health
@@ -346,7 +414,7 @@ void ToolsSetClientHealth(int clientIndex, int iValue, bool bSet = false)
             g_iOffset_PlayerMaxHealth = FindDataMapInfo(clientIndex, "m_iMaxHealth");
         }
 
-        // Sets max health of client
+        // Sets max health of the client
         SetEntData(clientIndex, g_iOffset_PlayerMaxHealth, iValue, _, true);
     }
 }
@@ -359,8 +427,20 @@ void ToolsSetClientHealth(int clientIndex, int iValue, bool bSet = false)
  **/
 void ToolsSetClientLMV(int clientIndex, float flValue)
 {
-    // Sets lagged movement value of client
+    // Sets lagged movement value of the client
     SetEntDataFloat(clientIndex, g_iOffset_PlayerLMV, flValue, true);
+}
+
+/**
+ * @brief Gets the armor of a client.
+ *
+ * @param clientIndex       The client index.
+ * @return                  The armor value.
+ **/
+int ToolsGetClientArmor(int clientIndex)
+{
+    // Gets armor of the client
+    return GetEntData(clientIndex, g_iOffset_PlayerArmor);
 }
 
 /**
@@ -371,7 +451,7 @@ void ToolsSetClientLMV(int clientIndex, float flValue)
  **/
 void ToolsSetClientArmor(int clientIndex, int iValue)
 {
-    // Sets armor of client
+    // Sets armor of the client
     SetEntData(clientIndex, g_iOffset_PlayerArmor, iValue, _, true);
 }
 
@@ -386,12 +466,12 @@ void ToolsSetClientTeam(int clientIndex, int iValue)
     // Validate team
     if(GetClientTeam(clientIndex) <= TEAM_SPECTATOR) /// Fix, thanks to inklesspen!
     {
-        // Sets team of client
+        // Sets team of the client
         ChangeClientTeam(clientIndex, iValue);
     }
     else
     {
-        // Switch team of client
+        // Switch team of the client
         CS_SwitchTeam(clientIndex, iValue); 
     }
 }
@@ -432,7 +512,7 @@ void ToolsSetClientNightVision(int clientIndex, bool bEnable, bool bOwnership = 
  **/
 bool ToolsGetClientDefuser(int clientIndex)
 {
-    // Gets value on the client
+    // Gets defuser on the client
     return view_as<bool>(GetEntData(clientIndex, g_iOffset_PlayerHasDefuser, 1));
 }
 
@@ -444,7 +524,7 @@ bool ToolsGetClientDefuser(int clientIndex)
  **/
 void ToolsSetClientDefuser(int clientIndex, bool bEnable)
 {
-    // Sets value on the client
+    // Sets defuser on the client
     SetEntData(clientIndex, g_iOffset_PlayerHasDefuser, bEnable, 1, true);
 }
 
@@ -456,7 +536,7 @@ void ToolsSetClientDefuser(int clientIndex, bool bEnable)
  **/
 bool ToolsGetClientHelmet(int clientIndex)
 {
-    // Gets value on the client
+    // Gets helmet on the client
     return view_as<bool>(GetEntData(clientIndex, g_iOffset_PlayerHasHelmet, 1));
 }
 
@@ -468,7 +548,7 @@ bool ToolsGetClientHelmet(int clientIndex)
  **/
 void ToolsSetClientHelmet(int clientIndex, bool bEnable)
 {
-    // Sets value on the client
+    // Sets helmet on the client
     SetEntData(clientIndex, g_iOffset_PlayerHasHelmet, bEnable, 1, true);
 }
 
@@ -480,7 +560,7 @@ void ToolsSetClientHelmet(int clientIndex, bool bEnable)
  **/
 bool ToolsGetClientHeavySuit(int clientIndex)
 {
-    // Gets value on the client
+    // Gets suit on the client
     return view_as<bool>(GetEntData(clientIndex, g_iOffset_PlayerHasHeavyArmor, 1));
 }
 
@@ -492,7 +572,7 @@ bool ToolsGetClientHeavySuit(int clientIndex)
  **/
 void ToolsSetClientHeavySuit(int clientIndex, bool bEnable)
 {
-    // Sets value on the client
+    // Sets suit on the client
     SetEntData(clientIndex, g_iOffset_PlayerHasHeavyArmor, bEnable, 1, true);
 }
 
@@ -504,7 +584,7 @@ void ToolsSetClientHeavySuit(int clientIndex, bool bEnable)
  **/
 int ToolsGetClientActiveWeapon(int clientIndex)
 {
-    // Gets value on the client    
+    // Gets weapon on the client    
     return GetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon);
 }
 
@@ -516,7 +596,7 @@ int ToolsGetClientActiveWeapon(int clientIndex)
  **/
 void ToolsSetClientActiveWeapon(int clientIndex, int weaponIndex)
 {
-    // Sets value on the client    
+    // Sets weapon on the client    
     SetEntDataEnt2(clientIndex, g_iOffset_PlayerActiveWeapon, weaponIndex, true);
 }
 
@@ -528,7 +608,7 @@ void ToolsSetClientActiveWeapon(int clientIndex, int weaponIndex)
  **/
 int ToolsGetClientLastWeapon(int clientIndex)
 {
-    // Gets value on the client    
+    // Gets last weapon on the client    
     return GetEntDataEnt2(clientIndex, g_iOffset_PlayerLastWeapon);
 }
 
@@ -540,7 +620,7 @@ int ToolsGetClientLastWeapon(int clientIndex)
  **/
 void ToolsSetClientLastWeapon(int clientIndex, int weaponIndex)
 {
-    // Sets value on the client    
+    // Sets last weapon on the client    
     SetEntDataEnt2(clientIndex, g_iOffset_PlayerLastWeapon, weaponIndex, true);
 }
 
@@ -552,7 +632,7 @@ void ToolsSetClientLastWeapon(int clientIndex, int weaponIndex)
  **/
 int ToolsGetClientAddonBits(int clientIndex)
 {
-    // Gets value on the client    
+    // Gets addon value on the client    
     return GetEntData(clientIndex, g_iOffset_PlayerAddonBits);
 }
 
@@ -564,7 +644,7 @@ int ToolsGetClientAddonBits(int clientIndex)
  **/
 void ToolsSetClientAddonBits(int clientIndex, int iValue)
 {
-    // Sets value on the client    
+    // Sets addon value on the client    
     SetEntData(clientIndex, g_iOffset_PlayerAddonBits, iValue, _, true);
 }
 
@@ -576,7 +656,7 @@ void ToolsSetClientAddonBits(int clientIndex, int iValue)
  **/
 int ToolsGetClientObserverMode(int clientIndex)
 {
-    // Gets value on the client    
+    // Gets obs mode on the client    
     return GetEntData(clientIndex, g_iOffset_PlayerObserverMode);
 }
 
@@ -588,8 +668,20 @@ int ToolsGetClientObserverMode(int clientIndex)
  **/
 int ToolsGetClientObserverTarget(int clientIndex)
 {
-    // Gets value on the client    
+    // Gets obs mode on the client    
     return GetEntDataEnt2(clientIndex, g_iOffset_PlayerObserverTarget);
+}
+
+/**
+ * @brief Gets hitgroup value on a client.
+ *
+ * @param clientIndex       The client index.
+ * @return                  The hitgroup index.
+ **/
+int ToolsGetClientHitGroup(int clientIndex)
+{
+    // Gets hitgroup on the client    
+    return GetEntData(clientIndex, g_iOffset_PlayerHitGroup);
 }
 
 /**
@@ -601,20 +693,15 @@ int ToolsGetClientObserverTarget(int clientIndex)
  **/
 int ToolsGetClientScore(int clientIndex, bool bScore = true)
 {
+    // Find the datamap
+    if(!g_iOffset_PlayerFrags || !g_iOffset_PlayerDeath)
+    {
+        g_iOffset_PlayerFrags = FindDataMapInfo(clientIndex, "m_iFrags");
+        g_iOffset_PlayerDeath = FindDataMapInfo(clientIndex, "m_iDeaths");
+    }
+    
     // If score is true, then return client score, otherwise return client deaths
-    return bScore ? GetClientFrags(clientIndex) : GetClientDeaths(clientIndex);
-}
-
-/**
- * @brief Gets hitgroup value on a client.
- *
- * @param clientIndex       The client index.
- * @return                  The hitgroup index.
- **/
-int ToolsGetClientHitGroup(int clientIndex)
-{
-    // Gets value on the client    
-    return GetEntData(clientIndex, g_iOffset_PlayerHitGroup);
+    return GetEntData(clientIndex, bScore ? g_iOffset_PlayerFrags : g_iOffset_PlayerDeath);
 }
 
 /**
@@ -652,7 +739,7 @@ void ToolsSetClientGravity(int clientIndex, float flValue)
         g_iOffset_PlayerGravity = FindDataMapInfo(clientIndex, "m_flGravity");
     }
     
-    // Sets value on the client
+    // Sets gravity on the client
     SetEntDataFloat(clientIndex, g_iOffset_PlayerGravity, flValue, true);
 }
 
@@ -688,7 +775,7 @@ void ToolsSetClientSpot(int clientIndex, bool bEnable)
  **/
 void ToolsSetClientDetecting(int clientIndex, bool bEnable)
 {
-    // Sets value on the client
+    // Sets glow on the client
     SetEntDataFloat(clientIndex, g_iOffset_PlayerDetected, bEnable ? (GetGameTime() + 9999.0) : 0.0, true);
 }
 
@@ -700,7 +787,7 @@ void ToolsSetClientDetecting(int clientIndex, bool bEnable)
  **/
 void ToolsSetClientHud(int clientIndex, bool bEnable)
 {   
-    // Sets value on the client
+    // Sets hud type on the client
     SetEntData(clientIndex, g_iOffset_PlayerHUD, bEnable ? (GetEntData(clientIndex, g_iOffset_PlayerHUD) & ~HIDEHUD_CROSSHAIR) : (GetEntData(clientIndex, g_iOffset_PlayerHUD) | HIDEHUD_CROSSHAIR), _, true);
 }
 
@@ -713,7 +800,7 @@ void ToolsSetClientHud(int clientIndex, bool bEnable)
  **/
 void ToolsSetClientArm(int clientIndex, char[] sModel, int iMaxLen)
 {
-    // Sets value on the client
+    // Sets arm on the client
     SetEntDataString(clientIndex, g_iOffset_PlayerArms, sModel, iMaxLen, true);
 }
 
@@ -725,7 +812,7 @@ void ToolsSetClientArm(int clientIndex, char[] sModel, int iMaxLen)
  **/
 void ToolsSetClientAttack(int clientIndex, float flValue)
 {
-    // Sets value on the client
+    // Sets next attack on the client
     SetEntDataFloat(clientIndex, g_iOffset_PlayerAttack, flValue, true);
 }
 
@@ -737,7 +824,7 @@ void ToolsSetClientAttack(int clientIndex, float flValue)
  **/
 void ToolsSetClientFlashLight(int clientIndex, bool bEnable)
 {
-    // Sets value on the client
+    // Sets flashlight on the client
     ToolsSetEntityEffect(clientIndex, bEnable ? (ToolsGetEntityEffect(clientIndex) ^ EF_DIMLIGHT) : 0);
 }
 
@@ -749,7 +836,7 @@ void ToolsSetClientFlashLight(int clientIndex, bool bEnable)
  **/
 void ToolsSetClientFov(int clientIndex, int iValue = 90)
 {
-    // Sets value on the client
+    // Sets fov on the client
     SetEntData(clientIndex, g_iOffset_PlayerFov, iValue, _, true);
     SetEntData(clientIndex, g_iOffset_PlayerDefaultFOV, iValue, _, true);
 }
@@ -764,7 +851,7 @@ void ToolsSetClientFov(int clientIndex, int iValue = 90)
  **/
 int ToolsGetEntityEffect(int entityIndex)
 {
-    // Gets value on the client    
+    // Gets effect on the entity    
     return GetEntData(entityIndex, g_iOffset_EntityEffects);
 }
 
@@ -776,7 +863,7 @@ int ToolsGetEntityEffect(int entityIndex)
  **/
 void ToolsSetEntityEffect(int entityIndex, int iValue)
 {
-    // Sets value on the entity
+    // Sets effect on the entity
     SetEntData(entityIndex, g_iOffset_EntityEffects, iValue, _, true);
 }
 
@@ -788,7 +875,7 @@ void ToolsSetEntityEffect(int entityIndex, int iValue)
  **/
 void ToolsSetEntityModelIndex(int entityIndex, int iModel)
 {
-    // Sets value on the entity
+    // Sets index on the entity
     SetEntData(entityIndex, g_iOffset_EntityModelIndex, iModel, _, true);
 }
 
@@ -800,7 +887,7 @@ void ToolsSetEntityModelIndex(int entityIndex, int iModel)
  **/
 int ToolsGetEntityOwner(int entityIndex)
 {
-    // Gets value on the entity
+    // Gets owner on the entity
     return GetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity);
 }
 
@@ -812,6 +899,7 @@ int ToolsGetEntityOwner(int entityIndex)
  **/
 void ToolsSetEntityOwner(int entityIndex, int ownerIndex)
 {
+    // Sets owner on the entity
     SetEntDataEnt2(entityIndex, g_iOffset_EntityOwnerEntity, ownerIndex, true);
 }
 
@@ -823,6 +911,7 @@ void ToolsSetEntityOwner(int entityIndex, int ownerIndex)
  **/
 void ToolsSetEntityTeam(int entityIndex, int iValue)
 {
+    // Sets team on the entity
     SetEntData(entityIndex, g_iOffset_EntityTeam, iValue);
 }
 
@@ -830,15 +919,12 @@ void ToolsSetEntityTeam(int entityIndex, int iValue)
  * @brief Gets the origin of an entity.
  *
  * @param entityIndex       The entity index.
- * @param vOrigin           The origin output.
+ * @param vPosition         The origin output.
  **/
-void ToolsGetEntityOrigin(int entityIndex, float vOrigin[3])
+void ToolsGetEntityOrigin(int entityIndex, float vPosition[3])
 {
-    // i = vector component
-    for(int i = 0; i < 3; i++)
-    {
-        vOrigin[i] = GetEntDataFloat(entityIndex, g_iOffset_EntityOrigin + (i * 4));
-    }
+    // Gets origin on the entity
+    GetEntDataVector(entityIndex, g_iOffset_EntityOrigin, vPosition);
 }
 
 /*_____________________________________________________________________________________________________*/
@@ -860,10 +946,10 @@ bool ToolsLookupAttachment(int entityIndex, char[] sAttach)
  *
  * @param entityIndex       The entity index.
  * @param sAttach           The attachment name.
- * @param vOrigin           The origin ouput.
- * @param vAngle            The angle ouput.
+ * @param vPosition         The origin output.
+ * @param vAngle            The angle output.
  **/
-void ToolsGetAttachment(int entityIndex, char[] sAttach, float vOrigin[3], float vAngle[3])
+void ToolsGetAttachment(int entityIndex, char[] sAttach, float vPosition[3], float vAngle[3])
 {
     // Validate length
     if(!hasLength(sAttach))
@@ -874,14 +960,14 @@ void ToolsGetAttachment(int entityIndex, char[] sAttach, float vOrigin[3], float
     // Validate windows
     if(gServerData.Platform == OS_Windows)
     {
-        SDKCall(hSDKCallGetAttachment, entityIndex, sAttach, vOrigin, vAngle); 
+        SDKCall(hSDKCallGetAttachment, entityIndex, sAttach, vPosition, vAngle); 
     }
     else
     {
         int iAttach = SDKCall(hSDKCallLookupAttachment, entityIndex, sAttach);
         if(iAttach)
         {
-            SDKCall(hSDKCallGetAttachment, entityIndex, iAttach, vOrigin, vAngle); 
+            SDKCall(hSDKCallGetAttachment, entityIndex, iAttach, vPosition, vAngle); 
         }
     }
 }

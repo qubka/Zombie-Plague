@@ -2349,12 +2349,12 @@ void WeaponsDrop(int clientIndex, int weaponIndex, bool bRemove = false)
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
  * @param iD                The weapon id.
- * @param CSlot             The slot index.
+ * @param mSlot             The slot index.
  **/
-void WeaponsPickUp(int clientIndex, int weaponIndex, int iD, SlotType CSlot)
+void WeaponsPickUp(int clientIndex, int weaponIndex, int iD, SlotType mSlot)
 {
     // Gets weapon index
-    int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(CSlot));
+    int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(mSlot));
     
     // Validate weapon
     if(!IsValidEdict(weaponIndex2))
@@ -2448,6 +2448,7 @@ int WeaponsGive(int clientIndex, int iD)
             if(!strncmp(sWeaponName[7], "fis", 3, false) || !strncmp(sWeaponName[12], "_g", 2, false) || 
                !strncmp(sWeaponName[7], "spa", 3, false) || !strncmp(sWeaponName[7], "tab", 3, false) ||
                !strcmp(sWeaponName[7], "axe", false) || !strncmp(sWeaponName[7], "ha", 2, false) || 
+               !strncmp(sWeaponName[7], "br", 2, false) || !strncmp(sWeaponName[7], "sn", 2, false) ||
                !strcmp(sWeaponName[7], "c4", false) || !strcmp(sWeaponName[12], "_t", false))
             {
                 // Create a weapon entity
