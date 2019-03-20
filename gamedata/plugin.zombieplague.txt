@@ -126,32 +126,28 @@
             /*___________________________________________________________________________________________*/
             
             /*
-             * Info: Every custom particle precached during a map is not removed from precache table on the map end. 
-             *       Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
-             *       and the custom particles used on the next maps will not show right but erros will appear in their place.
+             * Linux: Every custom particle precached during a map is not removed from precache table on the map end. 
+             *        Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
+             *        and the custom particles used on the next maps will not show right but erros will appear in their place.
              */
             "CParticleSystemDictionary::~CParticleSystemDictionary" // Str: "CParticleSystemMgr::InitAttributeTable has an out-of-date attribute list! (element %d not set up)\n" | "CParticleSystemMgr::InitAttributeTable" -> "CParticleSystemMgr::CParticleSystemMgr" -> "CParticleSystemMgr::~CParticleSystemMgr" 
             {
                 "library"   "server"
-                "windows"   "\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x33\xF6\x8B\x47\x58"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x7D\x08\x8B\x47\x58\x85\xC0"
             }
             "CParticleSystemDefinition::ParseChildren" // Str: "DmeParticleSystemDefinition" and "children" and "preventNameBasedLookup"
             {
                 "library"   "server"
-                "windows"   "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\xF9\x51"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x45\x0C\xC7\x44\x24\x04"
             }
             "SV_ActivateServer" // Str: "SV_ActivateServer"
             {
                 "library"   "engine"
-                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\x1D\x2A\x2A\x2A\x2A"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A"
             }
             "CNetworkStringTable::DeleteAllStrings" // Str: "___clientsideitemsplaceholder0___"
             {
                 "library"   "engine"
-                "windows"   "\x56\x8B\xF1\x57\x8B\x4E\x40"
                 "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x43\x40"
             }
             
@@ -190,11 +186,6 @@
                     "read"  "0"
                     "read"  "140"
                 }
-                "windows"
-                {
-                    "read"  "401"
-                    "read"  "0"
-                }
             }
             "s_NetworkStringTable"
             {
@@ -202,10 +193,6 @@
                 "linux"
                 {
                     "read"  "34"
-                }
-                "windows"
-                {
-                    "read"  "997"
                 }
                 "read"      "0"
             }

@@ -44,6 +44,12 @@ int ParticleSystem_Count;
  **/
 void ParticlesOnInit(/*void*/)
 {
+    // If windows, then stop
+    if(gServerData.Platform == OS_Windows)
+    {
+        return;
+    }
+    
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Raw);
     PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemDictionary::~CParticleSystemDictionary");
@@ -101,6 +107,12 @@ void ParticlesOnInit(/*void*/)
  **/
 void ParticlesOnLoad(/*void*/)
 {
+    // If windows, then stop
+    if(gServerData.Platform == OS_Windows)
+    {
+        return;
+    }
+    
     // Initialize buffer char
     static char sBuffer[PLATFORM_LINE_LENGTH];
 
@@ -197,6 +209,12 @@ void ParticlesOnLoad(/*void*/)
  **/
 void ParticlesOnPurge(/*void*/)
 {
+    // If windows, then stop
+    if(gServerData.Platform == OS_Windows)
+    {
+        return;
+    }
+    
     // @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L81
     SDKCall(hSDKCallDestructorParticleDictionary, particleSystemDictionary);
 
