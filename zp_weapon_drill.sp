@@ -46,7 +46,7 @@ public Plugin myinfo =
  **/
 #define WEAPON_BOW_SPEED             1500.0
 #define WEAPON_BOW_GRAVITY           0.01
-#define WEAPON_BOW_DAMAGE            50.0
+#define WEAPON_BOW_DAMAGE            1000.0
 #define WEAPON_BOW_TIME              2.0
 #define WEAPON_BEAM_MODEL            "materials/sprites/laserbeam.vmt"
 #define WEAPON_BEAM_DURATION         0.5
@@ -135,7 +135,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     if(extraitemIndex == gItem)
     {
         // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
         {
             return Plugin_Handled;
         }
@@ -256,11 +256,9 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
 
     // Sets shots count
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", GetEntProp(clientIndex, Prop_Send, "m_iShotsFired") + 1);
-    
-    // Emit sound
-    static char sSound[PLATFORM_LINE_LENGTH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-    EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+
+    // Play sound
+    ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_SHOOT1, ANIM_SHOOT2 });   
@@ -277,19 +275,19 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
     // Apply kick back
     if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
     {
-        Weapon_OnKickBack(clientIndex, 5.5, 2.5, 0.225, 0.05, 10.5, 7.5, 7);
+        ZP_CreateWeaponKickBack(clientIndex, 5.5, 2.5, 0.225, 0.05, 10.5, 7.5, 7);
     }
     else if(!(iFlags & FL_ONGROUND))
     {
-        Weapon_OnKickBack(clientIndex, 9.0, 5.0, 0.5, 0.35, 14.0, 10.0, 5);
+        ZP_CreateWeaponKickBack(clientIndex, 9.0, 5.0, 0.5, 0.35, 14.0, 10.0, 5);
     }
     else if(iFlags & FL_DUCKING)
     {
-        Weapon_OnKickBack(clientIndex, 5.5, 1.5, 0.15, 0.025, 10.5, 6.5, 9);
+        ZP_CreateWeaponKickBack(clientIndex, 5.5, 1.5, 0.15, 0.025, 10.5, 6.5, 9);
     }
     else
     {
-        Weapon_OnKickBack(clientIndex, 5.75, 5.75, 0.175, 0.0375, 10.75, 10.75, 8);
+        ZP_CreateWeaponKickBack(clientIndex, 5.75, 5.75, 0.175, 0.0375, 10.75, 10.75, 8);
     }
 }
 
@@ -310,14 +308,11 @@ void Weapon_OnCreateBow(int clientIndex, int weaponIndex)
     GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
 
     // Create a rocket entity
-    int entityIndex = CreateEntityByName("hegrenade_projectile");
+    int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/drillgun/w_drillgun_projectile.mdl");
 
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-
         // Returns vectors in the direction of an angle
         GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
 
@@ -331,10 +326,7 @@ void Weapon_OnCreateBow(int clientIndex, int weaponIndex)
         AddVectors(vEntVelocity, vVelocity, vEntVelocity);
 
         // Push the rocket
-        TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
-
-        // Sets model
-        SetEntityModel(entityIndex, "models/weapons/drillgun/w_drillgun_projectile.mdl");
+        TeleportEntity(entityIndex, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
 
         // Sets parent for the entity
         SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
@@ -352,68 +344,6 @@ void Weapon_OnCreateBow(int clientIndex, int weaponIndex)
         TE_SetupBeamFollow(entityIndex, decalBeam, 0, WEAPON_BEAM_DURATION, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH_END, WEAPON_BEAM_FRAMERATE, WEAPON_BEAM_COLOR);
         TE_SendToAll();
     }
-}
-
-void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
-{
-    #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
-
-    // Initialize variables
-    static int iDirection; static int iShotsFired; static float vPunchAngle[3];
-    GetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-
-    // Gets a shots fired
-    if((iShotsFired = GetEntProp(clientIndex, Prop_Send, "m_iShotsFired")) != 1)
-    {
-        // Calculate a base power
-        upBase += iShotsFired * upMod;
-        lateralBase += iShotsFired * lateralMod;
-    }
-
-    // Reduce a max power
-    upMax *= -1.0;
-    vPunchAngle[0] -= upBase;
-
-    // Validate max angle
-    if(upMax >= vPunchAngle[0])
-    {
-        vPunchAngle[0] = upMax;
-    }
-
-    // Gets a direction change
-    if((iDirection = GetEntProp(clientIndex, Prop_Send, "m_iDirection")))
-    {
-        // Increase the angle
-        vPunchAngle[1] += lateralBase;
-
-        // Validate min angle
-        if(lateralMax < vPunchAngle[1])
-        {
-            vPunchAngle[1] = lateralMax;
-        }
-    }
-    else
-    {
-        // Decrease the angle
-        lateralMax *=  -1.0;
-        vPunchAngle[1] -= lateralBase;
-
-        // Validate max angle
-        if(lateralMax > vPunchAngle[1])
-        {
-            vPunchAngle[1] = lateralMax;
-        }
-    }
-
-    // Create a direction change
-    if(!GetRandomInt(0, directionChange))
-    {
-        SetEntProp(clientIndex, Prop_Send, "m_iDirection", !iDirection);
-    }
-
-    // Sets a punch angle
-    SetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-    SetEntPropVector(clientIndex, Prop_Send, "m_viewPunchAngle", vPunchAngle);
 }
 
 //**********************************************
@@ -554,14 +484,8 @@ public Action BowTouchHook(int entityIndex, int targetIndex)
             // Remove a physics
             SetEntityMoveType(entityIndex, MOVETYPE_NONE);
 
-            // Initialize time char
-            static char sTime[SMALL_LINE_LENGTH];
-            FormatEx(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", WEAPON_BOW_TIME);
-
-            // Sets modified flags on the entity
-            SetVariantString(sTime);
-            AcceptEntityInput(entityIndex, "AddOutput");
-            AcceptEntityInput(entityIndex, "FireUser1");
+            // Kill after some duration
+            UTIL_RemoveEntity(entityIndex, WEAPON_BOW_TIME);
             
             // Destroy touch hook
             SDKUnhook(entityIndex, SDKHook_Touch, BowTouchHook);

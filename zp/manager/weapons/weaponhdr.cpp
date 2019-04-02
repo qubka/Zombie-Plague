@@ -202,6 +202,17 @@ void WeaponHDRSetPlayerViewModel(int clientIndex, int viewIndex, int iModel)
 }
 
 /**
+ * @brief Gets the world (player) weapon model.
+ *
+ * @param weaponIndex       The weapon index.
+ **/
+int WeaponHDRGetPlayerWorldModel(int weaponIndex)
+{ 
+    // Gets worldmodel of the weapon
+    return GetEntDataEnt2(weaponIndex, g_iOffset_WeaponWorldModel);
+}
+
+/**
  * @brief Sets the world (player) weapon model.
  *
  * @param weaponIndex       The weapon index.
@@ -212,7 +223,7 @@ void WeaponHDRSetPlayerViewModel(int clientIndex, int viewIndex, int iModel)
 void WeaponHDRSetPlayerWorldModel(int weaponIndex, int iModel = 0, int iBody = 0, int iSkin = 0)
 { 
     // Gets worldmodel entity
-    int worldIndex = GetEntDataEnt2(weaponIndex, g_iOffset_WeaponWorldModel);
+    int worldIndex = WeaponHDRGetPlayerWorldModel(weaponIndex);
 
     // Validate worldmodel
     if(worldIndex != INVALID_ENT_REFERENCE)
@@ -333,21 +344,22 @@ int WeaponHDRCreateSwapWeapon(int iD, int clientIndex)
     if(weaponIndex1 != INVALID_ENT_REFERENCE)
     {
         // Spawn the entity into the world
-        DispatchSpawn(weaponIndex1);
+        if(DispatchSpawn(weaponIndex1))
+        {
+            // Sets weapon id
+            WeaponsSetCustomID(weaponIndex1, iD);
+            
+            // Sets parent to the entity
+            WeaponsSetOwner(weaponIndex1, clientIndex);
+            ToolsSetEntityOwner(weaponIndex1, clientIndex);
 
-        // Sets weapon id
-        WeaponsSetCustomID(weaponIndex1, iD);
-        
-        // Sets parent to the entity
-        WeaponsSetOwner(weaponIndex1, clientIndex);
-        ToolsSetEntityOwner(weaponIndex1, clientIndex);
+            // Remove an entity movetype
+            SetEntityMoveType(weaponIndex1, MOVETYPE_NONE);
 
-        // Remove an entity movetype
-        SetEntityMoveType(weaponIndex1, MOVETYPE_NONE);
-
-        // Sets parent of a weapon
-        SetVariantString("!activator");
-        AcceptEntityInput(weaponIndex1, "SetParent", clientIndex);
+            // Sets parent of a weapon
+            SetVariantString("!activator");
+            AcceptEntityInput(weaponIndex1, "SetParent", clientIndex, weaponIndex1);
+        }
     }
     else
     {
@@ -458,7 +470,7 @@ int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], int iS
 int WeaponHDRGetSequenceCount(int iAnimating)
 {
     // Load some bytes from a memory address
-    Address studioHdrClass = view_as<Address>(GetEntData(iAnimating, Animating_StudioHdr));
+    Address studioHdrClass = WeaponHDRGetStudioHdrClass(iAnimating);
     
     // Validate address
     if(studioHdrClass == Address_Null)
@@ -525,7 +537,15 @@ void WeaponHDRUpdateTransmitState(int iAnimating)
     SDKCall(hSDKCallUpdateTransmitState, iAnimating);
 }
 
-
+/**
+ * @brief Gets the hdr class address.
+ * 
+ * @param iAnimating        The animating index.
+ **/
+Address WeaponHDRGetStudioHdrClass(int iAnimating)
+{
+    return view_as<Address>(GetEntData(iAnimating, Animating_StudioHdr));
+}
 
 
 
@@ -535,11 +555,6 @@ void WeaponHDRUpdateTransmitState(int iAnimating)
 
 
 /*
-Address Animating_GetStudioHdrClass(int iAnimating)
-{
-    return view_as<Address>(GetEntData(iAnimating, Animating_StudioHdr));
-}
-
 Address StudioHdrClass_GetStudioHdrStruct(Address studioHdrClass)
 {
     return studioHdrClass != Address_Null ? view_as<Address>(LoadFromAddress(studioHdrClass, NumberType_Int32)) : Address_Null;

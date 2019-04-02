@@ -90,15 +90,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Sets a new speed
         SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", HUMAN_CLASS_SKILL_SPEED);
         
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create effect
         static float vPosition[3];
-        GetClientAbsOrigin(clientIndex, vPosition);
-        ZP_CreateParticle(clientIndex, vPosition, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        UTIL_CreateParticle(clientIndex, vPosition, _, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
     }
     
     // Allow usage

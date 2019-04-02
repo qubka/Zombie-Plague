@@ -67,7 +67,6 @@ void JumpBoostOnCvarInit(/*void*/)
     gCvarList[CVAR_JUMPBOOST]            = FindConVar("zp_jumpboost");
     gCvarList[CVAR_JUMPBOOST_MULTIPLIER] = FindConVar("zp_jumpboost_multiplier");
     gCvarList[CVAR_JUMPBOOST_MAX]        = FindConVar("zp_jumpboost_max"); 
-    gCvarList[CVAR_JUMPBOOST_KNOCKBACK]  = FindConVar("zp_jumpboost_knockback");
 
     // Hook cvars
     HookConVarChange(gCvarList[CVAR_JUMPBOOST], JumpBoostOnCvarHook);

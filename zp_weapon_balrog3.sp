@@ -112,8 +112,8 @@ void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, 
     #pragma unused clientIndex, weaponIndex, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 
     // Reset variables
-    SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", 0);
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_NORMAL);
+    SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, 0);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_NORMAL);
 }
 
 void Weapon_OnFire(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
@@ -160,7 +160,7 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iClip, int iAmmo, int 
     if(!iAmmo)
     {
         // Sets normal mode
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_NORMAL);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_NORMAL);
     }
     else
     {
@@ -168,22 +168,20 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iClip, int iAmmo, int 
         if(iCounter > WEAPON_ACTIVE_COUNTER)
         {
             // Sets active mode
-            SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_ACTIVE);
+            SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_ACTIVE);
 
             // Resets the shots count
             iCounter = -1;
         }
         
         // Sets shots count
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", iCounter + 1);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, iCounter + 1);
         
         // Validate mode
         if(iStateMode)
         {
-            // Emit sound
-            static char sSound[PLATFORM_LINE_LENGTH];
-            ZP_GetSound(gSound, sSound, sizeof(sSound), 1); 
-            EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+            // Play sound
+            ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
         }
     }
 }
@@ -203,9 +201,9 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iClip, int iAmmo, int 
                                 \
         GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
                                 \
-        GetEntProp(%2, Prop_Data, "m_iIKCounter"), \
+        GetEntProp(%2, Prop_Data, "m_iMaxHealth"/**/), \
                                 \
-        GetEntProp(%2, Prop_Send, "m_iClip2"), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
                                 \
         GetGameTime()           \
     )    
@@ -223,8 +221,8 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", 0);
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_NORMAL);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_NORMAL);
     }
 }  
     
@@ -297,7 +295,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
     if(weaponID == gWeapon)
     {
         // Validate state
-        if(GetEntProp(weaponIndex, Prop_Send, "m_iClip2"))
+        if(GetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/))
         {
             // Switch animation
             switch(ZP_GetWeaponAnimation(clientIndex))

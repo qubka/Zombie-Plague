@@ -41,22 +41,9 @@ public Plugin myinfo =
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
-/**
- * @section Information about weapon.
- **/
-#define WEAPON_BEAM_COLOR               {0, 194, 194, 255}
-#define WEAPON_BEAM_MODEL               "materials/sprites/laserbeam.vmt"
-/**
- * @endsection
- **/
-
 // Weapon index
 int gWeapon;
 #pragma unused gWeapon
-
-// Decal index
-int decalBeam;
-#pragma unused decalBeam
 
 /**
  * @brief Called after a zombie core is loaded.
@@ -66,9 +53,6 @@ public void ZP_OnEngineExecute(/*void*/)
     // Weapons
     gWeapon = ZP_GetWeaponNameID("etherial");
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"etherial\" wasn't find");
-
-    // Models
-    decalBeam = PrecacheModel(WEAPON_BEAM_MODEL, true);
 }
 
 //*********************************************************************
@@ -79,40 +63,9 @@ public void ZP_OnEngineExecute(/*void*/)
 void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
 {
     #pragma unused clientIndex, weaponIndex, vBulletPosition
-
-    // Initialize vectors
-    static float vPosition[3]; static float vAngle[3];
-
-    // Gets weapon position
-    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vPosition);
-    
-    // Gets beam lifetime
-    float flLife = ZP_GetWeaponSpeed(gWeapon);
     
     // Sent a beam
-    TE_SetupBeamPoints(vPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-    TE_SendToClient(clientIndex);
-    
-    // Gets worldmodel index
-    int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
-    
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE) 
-    {
-        // Gets attachment position
-        ZP_GetAttachment(entityIndex, "muzzle_flash", vPosition, vAngle);
-
-        // Sent a beam
-        TE_SetupBeamPoints(vPosition, vBulletPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-
-        int[] iClients = new int[MaxClients]; int iCount;
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
-            iClients[iCount++] = i;
-        }
-        TE_Send(iClients, iCount);
-    }
+    ZP_CreateWeaponTracer(clientIndex, weaponIndex, "weapon_muzzle", "muzzle_flash", "weapon_tracers_taser", vBulletPosition, ZP_GetWeaponSpeed(gWeapon));
 }
 
 //**********************************************
@@ -127,8 +80,6 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
         %2,                     \
         %3                      \
     )    
-
-
 
 /**
  * @brief Called on bullet of a weapon.

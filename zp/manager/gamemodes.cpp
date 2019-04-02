@@ -539,7 +539,7 @@ public Action GameModesOnCounter(Handle hTimer)
  * @param modeIndex         (Optional) The mode index. 
  * @param targetIndex       (Optional) The target index.
  **/
-void GameModesOnBegin(int modeIndex = -1, int targetIndex = -1)
+void GameModesOnBegin(int modeIndex = -1, int targetIndex = INVALID_ENT_REFERENCE)
 {
     // Resets server grobal variables
     gServerData.RoundNew   = false;
@@ -811,7 +811,7 @@ public Action CS_OnTerminateRound(float& flDelay, CSRoundEndReason& reasonIndex)
         // Sets bonus overlay 
         ModesReward(BonusType_Win, BonusType_Lose, Overlay_ZombieWin);
 
-        // Sets the reason
+// Sets the reason
         reasonIndex = CSRoundEnd_TerroristWin;
     }
     // We know here, that either zombies or humans is 0 (not both)
@@ -959,7 +959,7 @@ public int API_StartGameMode(Handle hPlugin, int iNumParams)
     int targetIndex = GetNativeCell(2);
 
     // Validate client
-    if(targetIndex != -1 && !IsPlayerExist(targetIndex))
+    if(targetIndex != INVALID_ENT_REFERENCE && !IsPlayerExist(targetIndex))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the target index (%d)", targetIndex);
         return -1;
@@ -3268,7 +3268,7 @@ void ModesBlast(float flDelay)
  * @param clientIndex       The client index.
  * @param targetIndex       (Optional) The selected index.
  **/
-void ModesMenu(int clientIndex, int targetIndex = -1)
+void ModesMenu(int clientIndex, int targetIndex = INVALID_ENT_REFERENCE)
 {
     // Validate client
     if(!IsPlayerExist(clientIndex, false))
@@ -3307,7 +3307,7 @@ void ModesMenu(int clientIndex, int targetIndex = -1)
     hMenu.SetTitle("%t", "modes menu");
 
     // If there are no target, add an "(Empty)" line
-    if(targetIndex != -1)
+    if(targetIndex != INVALID_ENT_REFERENCE)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%N\n \n", targetIndex);
@@ -3319,7 +3319,8 @@ void ModesMenu(int clientIndex, int targetIndex = -1)
     }
     
     // Show target option
-    hMenu.AddItem("-1", sBuffer);
+    AnyToStream(sInfo, -1);
+    hMenu.AddItem(sInfo, sBuffer);
     
     // Initialize forward
     Action resultHandle;
@@ -3346,7 +3347,8 @@ void ModesMenu(int clientIndex, int targetIndex = -1)
         FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (iAlive < ModesGetMinPlayers(i)) ? sOnline : "");
 
         // Show option
-        FormatEx(sInfo, sizeof(sInfo), "%d %d", i, targetIndex);
+        ///FormatEx(sInfo, sizeof(sInfo), "%d %d", i, targetIndex);
+        AnyToStream(sInfo, i, targetIndex);
         hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || iAlive < ModesGetMinPlayers(i)) ? false : true);
     }
     
@@ -3416,17 +3418,16 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
                 return;
             }
             
-            // Initialize name char
-            static char sModeName[SMALL_LINE_LENGTH];
-        
             // Gets menu info
-            hMenu.GetItem(mSlot, sModeName, sizeof(sModeName));
-            static char sInfo[2][SMALL_LINE_LENGTH];
-            ExplodeString(sModeName, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-            int iD = StringToInt(sInfo[0]); int targetIndex = StringToInt(sInfo[1]);
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            static int iD[2]; StreamToAny(sBuffer, iD);
+            ///static char sInfo[2][SMALL_LINE_LENGTH];
+            ///ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            ///int iD = StringToInt(sInfo[0]); int targetIndex = StringToInt(sInfo[1]);
             
             // Validalite list option
-            if(iD == -1)
+            if(iD[0] == -1)
             {
                 // Creates a option menu
                 ModesOptionMenu(clientIndex);
@@ -3435,13 +3436,13 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
 
             // Call forward
             Action resultHandle;
-            gForwardData._OnClientValidateMode(clientIndex, iD, resultHandle);
+            gForwardData._OnClientValidateMode(clientIndex, iD[0], resultHandle);
             
             // Validate handle
             if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
             {
                 // Validate target
-                if(targetIndex != -1 && !IsPlayerExist(targetIndex))
+                if(iD[1] != -1 && !IsPlayerExist(iD[1]))
                 {
                     // Opens mode menu back
                     ModesMenu(clientIndex);
@@ -3455,13 +3456,13 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
                 }
                 
                 // Start the game mode
-                GameModesOnBegin(iD, targetIndex);
+                GameModesOnBegin(iD[0], iD[1]);
                 
                 // Gets mode name
-                ModesGetName(iD, sModeName, sizeof(sModeName));
+                ModesGetName(iD[0], sBuffer, sizeof(sBuffer));
                 
                 // Log action to game events
-                LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_GameModes, "Command", "Admin \"%N\" started a gamemode: \"%s\"", clientIndex, sModeName);
+                LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_GameModes, "Command", "Admin \"%N\" started a gamemode: \"%s\"", clientIndex, sBuffer);
             }
         }
     }
@@ -3512,7 +3513,7 @@ void ModesOptionMenu(int clientIndex)
     if(!iCount)
     {
         // Format some chars for showing in menu
-        Format(sBuffer, sizeof(sBuffer), "%t", "empty");
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
         hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
     }
     
@@ -3562,12 +3563,10 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, i
                 return;
             }
             
-            // Initialize key char
-            static char sKey[SMALL_LINE_LENGTH];
-
             // Gets menu info
-            hMenu.GetItem(mSlot, sKey, sizeof(sKey));
-            int iD = StringToInt(sKey);
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            int iD = StringToInt(sBuffer);
 
             // Opens modes menu back with selected index
             ModesMenu(clientIndex, iD);

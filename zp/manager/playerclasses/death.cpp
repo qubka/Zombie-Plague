@@ -194,11 +194,13 @@ void DeathOnClientDeath(int clientIndex, int attackerIndex = 0)
     
     // Forward event to modules
     RagdollOnClientDeath(clientIndex);
+    HealthOnClientDeath(clientIndex);
     SoundsOnClientDeath(clientIndex);
     VEffectOnClientDeath(clientIndex);
     WeaponsOnClientDeath(clientIndex);
     VOverlayOnClientDeath(clientIndex);
     AccountOnClientDeath(clientIndex);
+    CostumesOnClientDeath(clientIndex);
     LevelSystemOnClientDeath(clientIndex);
     if(!DeathOnClientRespawn(clientIndex, attackerIndex))
     {
@@ -312,39 +314,6 @@ public Action DeathOnClientRespawning(Handle hTimer, int userID)
     
     // Destroy timer
     return Plugin_Stop;
-}
-
-/**
- * Event creation (player_death)
- * @brief Client has been killed. *(Fake)
- * 
- * @param clientIndex       The victim index.
- * @param attackerIndex     The attacker index.
- * @param sIcon             The icon name.
- * @param bHead             (Optional) States the additional head-shot icon.
- **/
-void DeathOnClientHUD(int clientIndex, int attackerIndex, char[] sIcon, bool bHead = false)
-{
-    // Creates and send custom death icon
-    Event hEvent = CreateEvent("player_death");
-    if(hEvent != null)
-    {
-        // Sets event properties
-        hEvent.SetInt("userid", GetClientUserId(clientIndex));
-        hEvent.SetInt("attacker", GetClientUserId(attackerIndex));
-        hEvent.SetString("weapon", sIcon);
-        hEvent.SetBool("headshot", bHead);
-        
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            // Send fake event
-            if(IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
-        }
-        
-        // Close it
-        hEvent.Close();
-    }
 }
 
 #if defined USE_DHOOKS

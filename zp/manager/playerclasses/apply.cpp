@@ -204,7 +204,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
         // Create a fake death event
         static char sIcon[SMALL_LINE_LENGTH];
         gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
-        DeathOnClientHUD(clientIndex, attackerIndex, sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
+        UTIL_CreateIcon(clientIndex, attackerIndex, sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
         
         // Increment kills and frags
         ToolsSetClientScore(attackerIndex, true, ToolsGetClientScore(attackerIndex, true) + 1);

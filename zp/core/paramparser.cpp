@@ -296,7 +296,7 @@ bool StrContain(char[] sBuffer, char[] sSource, char cSeparator)
 int CountCharInString(char[] sBuffer, char cSymbol)
 {
     // Initialize index
-    int iAmount;
+    int iCount;
     
     // i = char index
     int iLen = strlen(sBuffer);
@@ -306,12 +306,12 @@ int CountCharInString(char[] sBuffer, char cSymbol)
         if (sBuffer[i] == cSymbol)
         {
             // Increment amount
-            iAmount++;
+            iCount++;
         }
     }
 
     // Return amount
-    return iAmount ? iAmount : -1;
+    return iCount ? iCount : -1;
 }
 
 /**
@@ -328,4 +328,88 @@ void StringToLower(char[] sBuffer)
         // Character to convert
         sBuffer[i] = CharToLower(sBuffer[i]);
     }
+}
+
+/**
+ * @brief Converts any parameter into a stream.
+ *
+ * @param sStream           Input string buffer.
+ */
+void AnyToStream(char[] sStream, any ...)
+{
+    // Initialize some variables
+    int iArgs; int nArg;
+    #emit load.s.pri 8
+    #emit stor.s.pri iArgs
+    sStream[iArgs * 5 - 4] = 0;
+    iArgs = 12 + iArgs * 4;
+    
+    // i = byte index
+    for(int i = 16; i < iArgs; i += 4, nArg++)
+    {
+        #emit addr.alt 0
+        #emit load.s.pri i
+        #emit add
+        #emit load.i
+        #emit load.i
+        #emit push.pri
+        #emit load.s.pri nArg
+        #emit smul.c 5
+        #emit load.s.alt sStream
+        #emit add
+        #emit move.alt
+        #emit pop.pri
+        #emit stor.i
+        #emit move.pri
+        #emit add.c 4
+        #emit move.alt
+        #emit const.pri 16
+        #emit strb.i 0x1
+        
+        for(int x = 0, y = nArg * 5; x != 4; x++)
+        {
+            if(sStream[y + x] == 0)
+            {
+                sStream[y + 4] |= (1<<x);
+                sStream[y + x] = 0xFF;
+            }
+        }
+    }
+}
+
+/**
+ * @brief Converts the stream in an any array.
+ *
+ * @param sStream           Input stream buffer.
+ * @param iBuffer           Output data array.
+ */
+int StreamToAny(char[] sStream, any[] iBuffer)
+{
+    // Initialize some variables
+    int iCount = strlen(sStream) / 5, nTemp, iMagic;
+    
+    // i = byte index
+    for(int i = 0; i < iCount; i++)
+    {
+        #emit load.s.alt sStream
+        #emit load.s.pri i
+        #emit smul.c 5
+        #emit add
+        #emit lodb.i 4
+        #emit addr.alt nTemp
+        #emit stor.i
+        
+        if((iMagic = sStream[i * 5 + 4]) != 16)
+        {
+            if(iMagic & (1 << 0)) nTemp &= 0xFFFFFF00;
+            if(iMagic & (1 << 1)) nTemp &= 0xFFFF00FF;
+            if(iMagic & (1 << 2)) nTemp &= 0xFF00FFFF;
+            if(iMagic & (1 << 3)) nTemp &= 0x00FFFFFF;
+        }
+        
+        iBuffer[i] = nTemp;
+    }
+    
+    // Return amount 
+    return iCount;
 }

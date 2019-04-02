@@ -97,7 +97,7 @@ public void ZP_OnEngineExecute(/*void*/)
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
     if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
-    
+
     // Models
     decalBeam = PrecacheModel(WEAPON_BEAM_MODEL, true);
 }
@@ -171,7 +171,7 @@ void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, int iAmmo, int
     ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
     
     // Sets attack state
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
 
     // Sets next attack time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
@@ -200,7 +200,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
     {
         return;
     }
-
+    
     // Validate water
     if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
     {
@@ -212,7 +212,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
     ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_ATTACK_LOOP1, ANIM_ATTACK_LOOP2 });   
 
     // Sets attack state
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_ATTACK);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_ATTACK);
     
     // Substract ammo
     iClip -= 1; SetEntProp(weaponIndex, Prop_Send, "m_iClip1", iClip); if(!iClip)
@@ -220,11 +220,9 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
         Weapon_OnEndAttack(clientIndex, weaponIndex, iClip, iAmmo, iStateMode, flCurrentTime);
         return;
     }
-
-    // Emit the attack sound
-    static char sSound[PLATFORM_LINE_LENGTH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-    EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+    
+    // Play sound
+    ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
 
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
@@ -235,6 +233,14 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
 
     // Create a fire
     Weapon_OnCreateBeam(clientIndex, weaponIndex);
+    
+    // Gets weapon muzzleflesh
+    static char sMuzzle[SMALL_LINE_LENGTH];
+    ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
+    
+    // Create a muzzleflesh / True for getting the custom viewmodel index
+    TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), sMuzzle, "ParticleEffect", _, _, _, 1);
+    TE_SendToClient(clientIndex);
 }
 
 void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
@@ -251,24 +257,24 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     GetClientEyeAngles(clientIndex, vAngle);
 
     // Create the end-point trace
-    Handle hTrace = TR_TraceRayFilterEx(vPosition, vAngle, MASK_SHOT, RayType_Infinite, TraceFilter, clientIndex);
+    TR_TraceRayFilter(vPosition, vAngle, (MASK_SHOT|CONTENTS_GRATE), RayType_Infinite, TraceFilter, clientIndex);
 
     // Validate collisions
-    if(TR_GetFraction(hTrace) >= 1.0)
+    if(TR_GetFraction() >= 1.0)
     {
         // Initialize the hull intersection
-        static float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
+        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
-        hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
+        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
     }
     
     // Validate collisions
-    if(TR_GetFraction(hTrace) < 1.0)
+    if(TR_GetFraction() < 1.0)
     {
         // Gets victim index
-        int victimIndex = TR_GetEntityIndex(hTrace);
+        int victimIndex = TR_GetEntityIndex();
         
         // Validate victim
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
@@ -279,8 +285,8 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     }
     
     // Returns the collision position/angle of a trace result
-    TR_GetEndPosition(vEndPosition, hTrace);
-    
+    TR_GetEndPosition(vEndPosition);
+
     // Gets beam lifetime
     float flLife = ZP_GetWeaponSpeed(gWeapon);
     
@@ -288,18 +294,18 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     TE_SetupBeamPoints(vPosition, vEndPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
     TE_SendToClient(clientIndex);
     
-    // Gets worldmodel index
-    int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
+    // Gets the world model index
+    int worldModel = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
     
     // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    if(worldModel != INVALID_ENT_REFERENCE)
     {
         // Gets attachment position
-        ZP_GetAttachment(entityIndex, "muzzle_flash", vPosition, vAngle);
+        ZP_GetAttachment(worldModel, "muzzle_flash", vPosition, vAngle);
         
         // Sent a beam
         TE_SetupBeamPoints(vPosition, vEndPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-        int[] iClients = new int[MaxClients]; int iCount;
+        static int iClients[MAXPLAYERS+1]; int iCount;
         for(int i = 1; i <= MaxClients; i++)
         {
             if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
@@ -307,9 +313,6 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
         }
         TE_Send(iClients, iCount);
     }
-    
-    // Close the trace
-    delete hTrace;
 }
 
 void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -322,13 +325,11 @@ void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, 
         // Sets end animation
         ZP_SetWeaponAnimation(clientIndex, ANIM_ATTACK_END);        
 
-        // Stop the attack sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue, SND_STOP);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue, SND_STOP);
         
         // Sets begin state
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
 
         // Adds the delay to the game tick
         flCurrentTime += WEAPON_TIME_DELAY_END;
@@ -355,7 +356,7 @@ void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, 
                                 \
         GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
                                 \
-        GetEntProp(%2, Prop_Send, "m_iClip2"), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
                                 \
         GetGameTime() \
     )
@@ -373,7 +374,7 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
     }
 } 
     

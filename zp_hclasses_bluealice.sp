@@ -96,15 +96,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         SetEntityRenderMode(clientIndex, RENDER_TRANSALPHA); 
         SetEntityRenderColor(clientIndex, 255, 255, 255, 0);
 
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create effect
         static float vPosition[3];
-        GetClientAbsOrigin(clientIndex, vPosition);
-        ZP_CreateParticle(clientIndex, vPosition, _, "ekvalaizer_gray", ZP_GetClassSkillDuration(gHuman));
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        UTIL_CreateParticle(clientIndex, vPosition, _, _, "ekvalaizer_gray", ZP_GetClassSkillDuration(gHuman));
     }
     
     // Allow usage
@@ -125,9 +123,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
         SetEntityRenderMode(clientIndex, RENDER_TRANSALPHA); 
         SetEntityRenderColor(clientIndex, 255, 255, 255, 255);  
 
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 2, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
     }
 }

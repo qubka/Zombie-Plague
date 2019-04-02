@@ -504,7 +504,7 @@ public void WeaponsOnClientUpdate(int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID);
-
+    
     // Validate client
     if(clientIndex)
     {
@@ -728,10 +728,8 @@ public int API_GetWeaponNameID(Handle hPlugin, int iNumParams)
         return -1;
     }
 
-    // Gets native data
-    static char sName[SMALL_LINE_LENGTH];
-
-    // General                                            
+    // Initialize name char
+    static char sName[SMALL_LINE_LENGTH];                                         
     GetNativeString(1, sName, sizeof(sName));
     
     // Return the value
@@ -2357,7 +2355,7 @@ void WeaponsPickUp(int clientIndex, int weaponIndex, int iD, SlotType mSlot)
     int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(mSlot));
     
     // Validate weapon
-    if(!IsValidEdict(weaponIndex2))
+    if(weaponIndex2 == INVALID_ENT_REFERENCE)
     {
         // Give the new weapon
         AcceptEntityInput(weaponIndex, "Kill"); /// Destroy
@@ -2457,11 +2455,12 @@ int WeaponsGive(int clientIndex, int iD)
                 // Validate index
                 if(weaponIndex != INVALID_ENT_REFERENCE) 
                 {
-                    // Spawn the entity 
-                    DispatchSpawn(weaponIndex);
-
-                    // Give weapon
-                    EquipPlayerWeapon(clientIndex, weaponIndex);
+                    // Spawn the entity into the world
+                    if(DispatchSpawn(weaponIndex))
+                    {
+                        // Give weapon
+                        EquipPlayerWeapon(clientIndex, weaponIndex);
+                    }
                 }
             }
             else 

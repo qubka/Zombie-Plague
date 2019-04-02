@@ -517,14 +517,16 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     FormatEx(sBuffer, sizeof(sBuffer), "%t", "increase");
     
     // Show increase option
-    FormatEx(sInfo, sizeof(sInfo), "0 %d %f", iMoney, flCommision);
+    ///FormatEx(sInfo, sizeof(sInfo), "0 %d %f", iMoney, flCommision);
+    AnyToStream(sInfo, 0, iMoney, flCommision);
     hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[clientIndex].Money));
 
     // Format some chars for showing in menu
     FormatEx(sBuffer, sizeof(sBuffer), "%t", "decrease");
     
     // Show decrease option
-    FormatEx(sInfo, sizeof(sInfo), "-1 %d %f", iMoney, flCommision);
+    ///FormatEx(sInfo, sizeof(sInfo), "-1 %d %f", iMoney, flCommision);
+    AnyToStream(sInfo, -1, iMoney, flCommision);
     hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney > iBet));
     
     // i = client index
@@ -541,7 +543,8 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
         FormatEx(sBuffer, sizeof(sBuffer), "%N", i);
 
         // Show option
-        FormatEx(sInfo, sizeof(sInfo), "%d %d %f", i, iMoney, flCommision);
+        ///FormatEx(sInfo, sizeof(sInfo), "%d %d %f", i, iMoney, flCommision);
+        AnyToStream(sInfo, i, iMoney, flCommision);
         hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[clientIndex].Money));
 
         // Increment count
@@ -552,7 +555,7 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     if(!iCount)
     {
         // Format some chars for showing in menu
-        Format(sBuffer, sizeof(sBuffer), "%t", "empty");
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
         hMenu.AddItem("empty", sBuffer);
     }
     
@@ -602,37 +605,36 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
             {
                 return;
             }
-            
-            // Initialize type char
-            static char sKey[SMALL_LINE_LENGTH];
-        
+
             // Gets menu info
-            hMenu.GetItem(mSlot, sKey, sizeof(sKey));
-            static char sInfo[3][SMALL_LINE_LENGTH];
-            ExplodeString(sKey, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-            int targetIndex = StringToInt(sInfo[0]); int iMoney = StringToInt(sInfo[1]); 
-            float flCommision = StringToFloat(sInfo[2]);
+            static char sBuffer[2][SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer[0], sizeof(sBuffer[]));
+            static any iD[3]; StreamToAny(sBuffer[0], iD);
+            ///static char sInfo[3][SMALL_LINE_LENGTH];
+            ///ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            ///int targetIndex = StringToInt(sInfo[0]); int iMoney = StringToInt(sInfo[1]); 
+            ///float flCommision = StringToFloat(sInfo[2]);
 
             // Validate button info
-            switch(targetIndex)
+            switch(iD[0])
             {
                 // Client hit 'Decrease' button 
                 case -1 :
                 {
-                    AccountMenu(clientIndex, iMoney - gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision + gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+                    AccountMenu(clientIndex, iD[1] - gCvarList[CVAR_ACCOUNT_BET].IntValue, view_as<float>(iD[2]) + gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
                 }
                 
                 // Client hit 'Increase' button
                 case 0  :
                 {
-                    AccountMenu(clientIndex, iMoney + gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision - gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+                    AccountMenu(clientIndex, iD[1] + gCvarList[CVAR_ACCOUNT_BET].IntValue, view_as<float>(iD[2]) - gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
                 }
                 
                 // Client hit 'Target' button
                 default :
                 {
                     // Validate target
-                    if(!IsPlayerExist(targetIndex, false))
+                    if(!IsPlayerExist(iD[0], false))
                     {
                         // Show block info
                         TranslationPrintHintText(clientIndex, "selecting target block");
@@ -644,32 +646,32 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                     
                     // Validate commision
                     int iAmount;
-                    if(flCommision <= 0.0)
+                    if(view_as<float>(iD[2]) <= 0.0)
                     {
                         // Sets amount
-                        iAmount = iMoney;
+                        iAmount = iD[1];
                     }
                     else
                     {
                         // Calculate amount
-                        iAmount = RoundToNearest(float(iMoney) * (1.0 - flCommision));
+                        iAmount = RoundToNearest(float(iD[1]) * (1.0 - view_as<float>(iD[2])));
                     }
                     
                     // Sets money for the client
-                    AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - iMoney);
+                    AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - iD[1]);
                     
                     // Sets money for the target 
-                    AccountSetClientCash(targetIndex, gClientData[targetIndex].Money + iAmount);
+                    AccountSetClientCash(iD[0], gClientData[iD[0]].Money + iAmount);
                     
                     // If help messages enabled, then show info
                     if(gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
                     {
                         // Gets client/target name
-                        GetClientName(clientIndex, sInfo[0], sizeof(sInfo[]));
-                        GetClientName(targetIndex, sInfo[1], sizeof(sInfo[]));
+                        GetClientName(clientIndex, sBuffer[0], sizeof(sBuffer[]));
+                        GetClientName(iD[0], sBuffer[1], sizeof(sBuffer[]));
                         
                         // Show message of successful transaction
-                        TranslationPrintToChatAll("donate info", sInfo[0], iAmount, "money", sInfo[1]);
+                        TranslationPrintToChatAll("donate info", sBuffer[0], iAmount, "money", sBuffer[1]);
                     }
                 }
             }

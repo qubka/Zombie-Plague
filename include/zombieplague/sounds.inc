@@ -49,6 +49,53 @@ native int ZP_GetSoundKeyID(char[] key);
  * @param keyID             The key index.
  * @param sound             The string to return sound in.
  * @param maxlenght         The lenght of string.
- * @param position          (Optional) The position index. (for not random sound)
+ * @param num               (Optional) The position index. (for not random sound)
  **/
-native void ZP_GetSound(int keyID, char[] sound, int maxlenght = 256, int position = 0);
+native void ZP_GetSound(int keyID, char[] sound, int maxlenght = 256, int num = 0);
+
+/**
+ * @brief Emits a sound to all clients.
+ *
+ * @param keyID             The key array.
+ * @param num               (Optional) The position index. (for not random sound)
+ * @param entityIndex       (Optional) The entity to emit from.
+ * @param channel           (Optional) The channel to emit with.
+ * @param level             (Optional) The sound level.
+ * @param flags             (Optional) The sound flags.
+ * @param volume            (Optional) The sound volume.
+ * @param pitch             (Optional) The sound pitch.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+native bool ZP_EmitSoundToAll(int keyID, int num = 0, int entityIndex = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
+
+/**
+ * @brief Emits a sound to the client.
+ *
+ * @param keyID             The key array.
+ * @param num               (Optional) The position index. (for not random sound)
+ * @param clientIndex       The client index.
+ * @param entityIndex       (Optional) The entity to emit from.
+ * @param channel           (Optional) The channel to emit with.
+ * @param level             (Optional) The sound level.
+ * @param flags             (Optional) The sound flags.
+ * @param volume            (Optional) The sound volume.
+ * @param pitch             (Optional) The sound pitch.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+native bool ZP_EmitSoundToClient(int keyID, int num = 0, int clientIndex, int entityIndex = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
+
+/**
+ * @brief Emits an ambient sound.
+ *
+ * @param keyID             The key array.
+ * @param num               (Optional) The position index. (for not random sound)
+ * @param origin            The sound origin.
+ * @param entityIndex       (Optional) The entity to associate sound with.
+ * @param level             (Optional) The sound level.
+ * @param flags             (Optional) The sound flags.
+ * @param volume            (Optional) The sound volume.
+ * @param pitch             (Optional) The sound pitch.
+ * @param delay             (Optional) The play delay.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+native bool ZP_EmitAmbientSound(int keyID, int num = 0, float origin[3], int entityIndex = SOUND_FROM_WORLD, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL, float delay = 0.0);

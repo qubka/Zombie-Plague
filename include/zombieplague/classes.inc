@@ -652,7 +652,7 @@ native int ZP_GetClassSoundJumpID(int classID);
  *
  * @return                  True or false.
  **/
-stock bool ZP_IsPlayerType(const int clientIndex, const char[] sType)
+stock bool ZP_IsPlayerType(int clientIndex, char[] sType)
 {
     // Gets class type
     static char sClassType[SMALL_LINE_LENGTH];

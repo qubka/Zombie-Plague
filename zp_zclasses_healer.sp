@@ -92,59 +92,55 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     // Validate the zombie class index
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
-
-        // Create an fade
-        ZP_CreateFadeScreen(clientIndex, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);  
-        
         // Initialize vectors
         static float vEntPosition[3]; static float vVictimPosition[3];
         
         // Gets client origin
-        GetClientAbsOrigin(clientIndex, vEntPosition);
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vEntPosition);
+        
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+
+        // Create an fade
+        UTIL_CreateFadeScreen(clientIndex, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);  
         
         // Create an effect
-        ZP_CreateParticle(clientIndex, vEntPosition, _, "tornado", ZP_GetClassSkillDuration(gZombie));
+        UTIL_CreateParticle(clientIndex, vEntPosition, _, _, "tornado", ZP_GetClassSkillDuration(gZombie));
         
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        // Find any players in the radius
+        int i; int it = 1; /// iterator
+        while((i = ZP_FindPlayerInSphere(it, vEntPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != INVALID_ENT_REFERENCE)
         {
-            // Validate zombie
-            if(IsPlayerExist(i) && ZP_IsPlayerZombie(i))
+            // Skip humans
+            if(ZP_IsPlayerHuman(i))
             {
-                // Gets victim origin
-                GetClientAbsOrigin(i, vVictimPosition);
+                continue;
+            }
 
-                // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
+            // Gets victim zombie class/health
+            int iClass = ZP_GetClientClass(i);
+            int iHealth = ZP_GetClassHealth(iClass);
+            int iSound = ZP_GetClassSoundRegenID(iClass);
 
-                // Validate distance
-                if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
+            // Validate lower health
+            if(GetEntProp(i, Prop_Send, "m_iHealth") < iHealth)
+            {
+                // Sets a new health 
+                SetEntProp(i, Prop_Send, "m_iHealth", iHealth); 
+                
+                // Validate sound key
+                if(iSound != -1)
                 {
-                    // Gets victim zombie class/health
-                    int iD = ZP_GetClientClass(i);
-                    int iHealth = ZP_GetClassHealth(iD);
-
-                    // Validate lower health
-                    if(GetClientHealth(i) < iHealth)
-                    {
-                        // Emit sound
-                        ZP_GetSound(ZP_GetClassSoundRegenID(iD), sSound, sizeof(sSound));
-                        EmitSoundToAll(sSound, i, SNDCHAN_VOICE, hSoundLevel.IntValue);
-                        
-                        // Create an effect
-                        ZP_CreateParticle(i, vVictimPosition, _, "heal_ss", ZP_GetClassSkillDuration(gZombie));
-                        
-                        // Sets a new health 
-                        SetEntProp(i, Prop_Send, "m_iHealth", iHealth); 
-                        
-                        // Give reward
-                        ZP_SetClientMoney(clientIndex, ZP_GetClientMoney(clientIndex) + ZOMBIE_CLASS_SKILL_REWARD);
-                    }
+                    // Play sound
+                    ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, hSoundLevel.IntValue);
                 }
+                
+                // Create an effect
+                GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vVictimPosition);
+                UTIL_CreateParticle(i, vVictimPosition, _, _, "heal_ss", ZP_GetClassSkillDuration(gZombie));
+
+                // Give reward
+                ZP_SetClientMoney(clientIndex, ZP_GetClientMoney(clientIndex) + ZOMBIE_CLASS_SKILL_REWARD);
             }
         }
     }

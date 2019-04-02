@@ -135,10 +135,10 @@ public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast)
     // Gets the icon name
     static char sIcon[SMALL_LINE_LENGTH]; /// Fix with inferno icon, because inflictor not have custom weapon id
     hEvent.GetString("weapon", sIcon, sizeof(sIcon));
-    if(!strcmp(sIcon, "inferno", false) && IsPlayerExist(clientIndex, false) && IsPlayerExist(attackerIndex, false))
+    if(!strcmp(sIcon, "inferno", false) && clientIndex && attackerIndex)
     {
         // Create a custom death event
-        ZP_CreateDeathEvent(clientIndex, attackerIndex, "inferno");
+        UTIL_CreateIcon(clientIndex, attackerIndex, "inferno");
     }
 }
 
@@ -172,7 +172,8 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     if(extraitemIndex == gItem)
     {
         // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerHasWeapon(clientIndex, gDublicat))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE || 
+           ZP_IsPlayerHasWeapon(clientIndex, gDublicat) != INVALID_ENT_REFERENCE)
         {
             return Plugin_Handled;
         }
@@ -216,12 +217,12 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Client was damaged by 'fire' or 'burn'
     if(iBits & DMG_BURN || iBits & DMG_DIRECT)
@@ -233,17 +234,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
             if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") > WLEVEL_CSGO_FEET || GetEntityMoveType(clientIndex) == MOVETYPE_NONE)
             {
                 // This instead of 'ExtinguishEntity' function
-                int fireIndex = GetEntPropEnt(clientIndex, Prop_Data, "m_hEffectEntity");
-                if(fireIndex != INVALID_ENT_REFERENCE) 
-                {
-                    // Make sure the entity is a flame, so we can extinguish it
-                    static char sClassname[SMALL_LINE_LENGTH];
-                    GetEdictClassname(fireIndex, sClassname, sizeof(sClassname));
-                    if(!strcmp(sClassname, "entityflame", false))
-                    {
-                        SetEntPropFloat(fireIndex, Prop_Data, "m_flLifetime", 0.0);
-                    }
-                }
+                UTIL_ExtinguishEntity(clientIndex);
             }
             else
             {
@@ -277,7 +268,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
                 iD[clientIndex] = -1;
                 
                 // Put the fire on
-                if(iBits & DMG_BURN) IgniteEntity(clientIndex, flDuration);
+                if(iBits & DMG_BURN) UTIL_IgniteEntity(clientIndex, flDuration);
 
                 // Store the current speed
                 if(!flSpeed[clientIndex]) flSpeed[clientIndex] = GetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue");

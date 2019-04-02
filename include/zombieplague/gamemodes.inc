@@ -451,7 +451,7 @@ native bool ZP_IsGameModeExtraItem(int modeID);
  *
  * @return                  True or false.
  **/
-stock bool ZP_IsGameModeZombieClass(const int modeID, const char[] sClass)
+stock bool ZP_IsGameModeZombieClass(int modeID, char[] sClass)
 {
     // Gets zombie class type
     static char sClassType[SMALL_LINE_LENGTH];
@@ -469,7 +469,7 @@ stock bool ZP_IsGameModeZombieClass(const int modeID, const char[] sClass)
  *
  * @return                  True or false.
  **/
-stock bool ZP_IsGameModeHumanClass(const int modeID, const char[] sClass)
+stock bool ZP_IsGameModeHumanClass(int modeID, char[] sClass)
 {
     // Gets human class type
     static char sClassType[SMALL_LINE_LENGTH];

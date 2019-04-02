@@ -26,35 +26,6 @@
  **/
 
 /**
- * @section Collision values.
- **/
-#define COLLISION_GROUP_NONE                0   /** Default; collides with static and dynamic objects. */
-#define COLLISION_GROUP_DEBRIS              1   /** Collides with nothing but world and static stuff. */
-#define COLLISION_GROUP_DEBRIS_TRIGGER      2   /** Same as debris, but hits triggers. */
-#define COLLISION_GROUP_INTERACTIVE_DEBRIS  3   /** Collides with everything except other interactive debris or debris. */
-#define COLLISION_GROUP_INTERACTIVE         4   /** Collides with everything except interactive debris or debris. */
-#define COLLISION_GROUP_PLAYER              5   /** This is the default behavior expected for most prop_physics. */
-#define COLLISION_GROUP_BREAKABLE_GLASS     6   /** Special group for glass debris. */
-#define COLLISION_GROUP_VEHICLE             7   /** Collision group for driveable vehicles. */
-#define COLLISION_GROUP_PLAYER_MOVEMENT     8   /** For HL2, same as Collision_Group_Player. */
-#define COLLISION_GROUP_NPC                 9   /** Generic NPC group. */
-#define COLLISION_GROUP_IN_VEHICLE          10  /** For any entity inside a vehicle. */
-#define COLLISION_GROUP_WEAPON              11  /** For any weapons that need collision detection. */
-#define COLLISION_GROUP_VEHICLE_CLIP        12  /** Vehicle clip brush to restrict vehicle movement. */
-#define COLLISION_GROUP_PROJECTILE          13  /** Projectiles. */
-#define COLLISION_GROUP_DOOR_BLOCKER        14  /** Blocks entities not permitted to get near moving doors. */
-#define COLLISION_GROUP_PASSABLE_DOOR       15  /** Doors that the player shouldn't collide with. */
-#define COLLISION_GROUP_DISSOLVING          16  /** Things that are dissolving are in this group. */
-#define COLLISION_GROUP_PUSHAWAY            17  /** Nonsolid on client and server, pushaway in player code. */
-#define COLLISION_GROUP_NPC_ACTOR           18  /** Used so NPCs in scripts ignore the player. */
-
-#define ANTISTICK_COLLISIONS_OFF COLLISION_GROUP_PUSHAWAY
-#define ANTISTICK_COLLISIONS_ON  COLLISION_GROUP_PLAYER
-/**
- * @endsection
- **/
-
-/**
  * Default player hull width.
  **/
 #define ANTISTICK_DEFAULT_HULL_WIDTH 32.0
@@ -204,10 +175,10 @@ public void AntiStickOnStartTouch(int clientIndex, int entityIndex)
     //       one too.
 
     // If the client is in any other collision group than "off", than we must set them to off, to unstick
-    if(collisionGroup != ANTISTICK_COLLISIONS_OFF)
+    if(collisionGroup != COLLISION_GROUP_PUSHAWAY)
     {
         // Disable collisions to unstick, and start timers to re-solidify
-        AntiStickSetCollisionGroup(clientIndex, ANTISTICK_COLLISIONS_OFF);
+        AntiStickSetCollisionGroup(clientIndex, COLLISION_GROUP_PUSHAWAY);
         CreateTimer(0.0, AntiStickOnClientSolidify, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
 }
@@ -230,7 +201,7 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
     }
 
     // If the client collisions are already on, then stop
-    if(AntiStickGetCollisionGroup(clientIndex) == ANTISTICK_COLLISIONS_ON)
+    if(AntiStickGetCollisionGroup(clientIndex) == COLLISION_GROUP_PLAYER)
     {
         return Plugin_Stop;
     }
@@ -258,7 +229,7 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
     }
 
     // Change collisions back to normal
-    AntiStickSetCollisionGroup(clientIndex, ANTISTICK_COLLISIONS_ON);
+    AntiStickSetCollisionGroup(clientIndex, COLLISION_GROUP_PLAYER);
 
     // Debug message. May be useful when calibrating antistick
     LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" is no longer intersecting anyone. Applying normal collisions.", clientIndex);
@@ -286,21 +257,21 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
      * Thanks to Andersso for the basis of this function.
      */
     
-    // Initialize vector variables
-    static float vPosition[3]; float vMax[3]; float vMin[3]; 
+    // Initialize vectors
+    static float vPosition[3]; float vMaxs[3]; float vMins[3]; 
 
     // Get client's location
     ToolsGetClientAbsOrigin(clientIndex, vPosition);
     
     // Get the client's min and max size vector
-    GetClientMins(clientIndex, vMin);
-    GetClientMaxs(clientIndex, vMax);
+    GetClientMins(clientIndex, vMins);
+    GetClientMaxs(clientIndex, vMaxs);
 
     // Create the hull trace
-    Handle hTrace = TR_TraceHullFilterEx(vPosition, vPosition, vMin, vMax, MASK_SOLID, AntiStickFilter, clientIndex);
+    TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, clientIndex);
 
     // Returns if there was any kind of collision along the trace ray
-    if(TR_DidHit(hTrace))
+    if(TR_DidHit())
     {
         // Gets spawn position
         SpawnGetRandomPosition(vPosition);
@@ -317,8 +288,7 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
         ClientCommand(clientIndex, "play buttons/button11.wav");    
     }
     
-    // Close the trace
-    delete hTrace;
+    // Return on success
     return Plugin_Handled;
 }
 
@@ -330,10 +300,10 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
  * @brief Build the model box by finding all vertices.
  * 
  * @param clientIndex       The client index.
- * @param boundaries        Array with 'AntiStickBoxBounds' for indexes to return bounds into.
+ * @param flBoundaries      Array with 'AntiStickBoxBounds' for indexes to return bounds into.
  * @param width             The width of the model box.
  **/
-void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBoxBound][3], float flWidth)
+void AntiStickBuildModelBox(int clientIndex, float flBoundaries[AntiStickBoxBound][3], float flWidth)
 {
     // Initialize vector variables
     static float vClientLoc[3];
@@ -374,35 +344,35 @@ void AntiStickBuildModelBox(int clientIndex, float boundaries[AntiStickBoxBound]
     }
 
     // Copy all horizontal model box data to array
-    boundaries[BoxBound_FUR][0] = vFinalLoc[3][0];
-    boundaries[BoxBound_FUR][1] = vFinalLoc[3][1];
-    boundaries[BoxBound_FUL][0] = vFinalLoc[0][0];
-    boundaries[BoxBound_FUL][1] = vFinalLoc[0][1];
-    boundaries[BoxBound_FDR][0] = vFinalLoc[3][0];
-    boundaries[BoxBound_FDR][1] = vFinalLoc[3][1];
-    boundaries[BoxBound_FDL][0] = vFinalLoc[0][0];
-    boundaries[BoxBound_FDL][1] = vFinalLoc[0][1];
-    boundaries[BoxBound_BUR][0] = vFinalLoc[2][0];
-    boundaries[BoxBound_BUR][1] = vFinalLoc[2][1];
-    boundaries[BoxBound_BUL][0] = vFinalLoc[1][0];
-    boundaries[BoxBound_BUL][1] = vFinalLoc[1][1];
-    boundaries[BoxBound_BDR][0] = vFinalLoc[2][0];
-    boundaries[BoxBound_BDR][1] = vFinalLoc[2][1];
-    boundaries[BoxBound_BDL][0] = vFinalLoc[1][0];
-    boundaries[BoxBound_BDL][1] = vFinalLoc[1][1];
+    flBoundaries[BoxBound_FUR][0] = vFinalLoc[3][0];
+    flBoundaries[BoxBound_FUR][1] = vFinalLoc[3][1];
+    flBoundaries[BoxBound_FUL][0] = vFinalLoc[0][0];
+    flBoundaries[BoxBound_FUL][1] = vFinalLoc[0][1];
+    flBoundaries[BoxBound_FDR][0] = vFinalLoc[3][0];
+    flBoundaries[BoxBound_FDR][1] = vFinalLoc[3][1];
+    flBoundaries[BoxBound_FDL][0] = vFinalLoc[0][0];
+    flBoundaries[BoxBound_FDL][1] = vFinalLoc[0][1];
+    flBoundaries[BoxBound_BUR][0] = vFinalLoc[2][0];
+    flBoundaries[BoxBound_BUR][1] = vFinalLoc[2][1];
+    flBoundaries[BoxBound_BUL][0] = vFinalLoc[1][0];
+    flBoundaries[BoxBound_BUL][1] = vFinalLoc[1][1];
+    flBoundaries[BoxBound_BDR][0] = vFinalLoc[2][0];
+    flBoundaries[BoxBound_BDR][1] = vFinalLoc[2][1];
+    flBoundaries[BoxBound_BDL][0] = vFinalLoc[1][0];
+    flBoundaries[BoxBound_BDL][1] = vFinalLoc[1][1];
 
     // Sets Z bounds
     static float vEyeLoc[3];
     GetClientEyePosition(clientIndex, vEyeLoc);
 
-    boundaries[BoxBound_FUR][2] = vEyeLoc[2];
-    boundaries[BoxBound_FUL][2] = vEyeLoc[2];
-    boundaries[BoxBound_FDR][2] = vClientLoc[2] + 15.0;
-    boundaries[BoxBound_FDL][2] = vClientLoc[2] + 15.0;
-    boundaries[BoxBound_BUR][2] = vEyeLoc[2];
-    boundaries[BoxBound_BUL][2] = vEyeLoc[2];
-    boundaries[BoxBound_BDR][2] = vClientLoc[2] + 15.0;
-    boundaries[BoxBound_BDL][2] = vClientLoc[2] + 15.0;
+    flBoundaries[BoxBound_FUR][2] = vEyeLoc[2];
+    flBoundaries[BoxBound_FUL][2] = vEyeLoc[2];
+    flBoundaries[BoxBound_FDR][2] = vClientLoc[2] + 15.0;
+    flBoundaries[BoxBound_FDL][2] = vClientLoc[2] + 15.0;
+    flBoundaries[BoxBound_BUR][2] = vEyeLoc[2];
+    flBoundaries[BoxBound_BUL][2] = vEyeLoc[2];
+    flBoundaries[BoxBound_BDR][2] = vClientLoc[2] + 15.0;
+    flBoundaries[BoxBound_BDL][2] = vClientLoc[2] + 15.0;
 }
 
 /**
@@ -434,49 +404,49 @@ void AntiStickJumpToPoint(float vVector[3], float vAngle[3], float flDistance, f
 /**
  * @brief Gets the max/min value of a 3D box on any axis.
  * 
- * @param Axis              The axis to check.
- * @param boundaries        The boundaries to check.
- * @param iMin              Return the min value instead.
+ * @param iAxis             The axis to check.
+ * @param flBoundaries      The boundaries to check.
+ * @param bMin              Return the min value instead.
  **/
-float AntiStickGetBoxMaxBoundary(int Axis, float boundaries[AntiStickBoxBound][3],bool iMin = false)
+float AntiStickGetBoxMaxBoundary(int iAxis, float flBoundaries[AntiStickBoxBound][3], bool bMin = false)
 {
     // Creates 'outlier' with initial value of first boundary
-    float outlier = boundaries[0][Axis];
+    float flOutlier = flBoundaries[0][iAxis];
     
     // x = Boundary index. (Start at 1 because we initialized 'outlier' with the 0 index value)
-    int iSize = sizeof(boundaries);
+    int iSize = sizeof(flBoundaries);
     for(int x = 1; x < iSize; x++)
     {
-        if(!iMin && boundaries[x][Axis] > outlier)
+        if(!bMin && flBoundaries[x][iAxis] > flOutlier)
         {
-            outlier = boundaries[x][Axis];
+            flOutlier = flBoundaries[x][iAxis];
         }
-        else if(iMin && boundaries[x][Axis] < outlier)
+        else if(bMin && flBoundaries[x][iAxis] < flOutlier)
         {
-            outlier = boundaries[x][Axis];
+            flOutlier = flBoundaries[x][iAxis];
         }
     }
     
     // Return value
-    return outlier;
+    return flOutlier;
 }
 
 /**
  * @brief Checks if a player is currently stuck within another player.
  *
- * @param client1           The first client index.
- * @param client2           The second client index.
+ * @param clientIndex1      The first client index.
+ * @param clientIndex2      The second client index.
  * @return                  True if they are stuck together, false if not.
  **/
-bool AntiStickIsModelBoxColliding(int client1, int client2)
+bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
 {
     // Initialize vector variables
     float client1modelbox[AntiStickBoxBound][3];
     float client2modelbox[AntiStickBoxBound][3];
     
     // Build model boxes for each client
-    AntiStickBuildModelBox(client1, client1modelbox, ANTISTICK_DEFAULT_HULL_WIDTH);
-    AntiStickBuildModelBox(client2, client2modelbox, ANTISTICK_DEFAULT_HULL_WIDTH);
+    AntiStickBuildModelBox(clientIndex1, client1modelbox, ANTISTICK_DEFAULT_HULL_WIDTH);
+    AntiStickBuildModelBox(clientIndex2, client2modelbox, ANTISTICK_DEFAULT_HULL_WIDTH);
     
     // Compare x values
     float max1x = AntiStickGetBoxMaxBoundary(0, client1modelbox);
@@ -513,6 +483,110 @@ bool AntiStickIsModelBoxColliding(int client1, int client2)
     
     // They are intersecting
     return true;
+}
+
+/**
+ * @brief Used to iterate all the clients collision within a sphere.
+ * 
+ * @param it                The iterator.
+ * @param vPosition         The sphere origin.
+ * @param flRadius          The sphere radius.
+ **/
+int AntiStickFindPlayerInSphere(int &it, float vPosition[3], float flRadius)
+{
+    // Initialize vector variables
+    float clientmodelbox[AntiStickBoxBound][3];
+
+    // i = client index
+    for(int i = it; i <= MaxClients; i++)
+    {
+        // Validate client
+        if(IsPlayerExist(i))
+        {
+            // Build model boxes for client
+            AntiStickBuildModelBox(i, clientmodelbox, ANTISTICK_DEFAULT_HULL_WIDTH);
+
+            // Validate collision
+            if(AntiStickIsBoxIntersectingSphere(clientmodelbox, vPosition, flRadius))
+            { 
+                // Move iterator
+                it = i + 1;
+        
+                // Return index
+                return i;
+            }
+        }
+    }
+    
+    // Client doesn't exist
+    return -1;
+}
+
+/**
+ * @brief Returns true if there's an intersection between box and sphere.
+ * 
+ * @param flBoundaries      Array with 'AntiStickBoxBounds' for indexes to return bounds into.
+ * @param vPosition         The sphere center.
+ * @param flRadius          The sphere radius.
+ * 
+ * @return                  True or false. 
+ *
+ * @link https://github.com/erich666/GraphicsGems/blob/master/gems/BoxSphere.c
+ **/
+bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], float vPosition[3], float flRadius)
+{
+    // See graphics gems, box-sphere intersection
+    float flDelta; float flDistance;
+
+    /// Unrolled the loop.. this is a big cycle stealer...
+    
+    // Compare z values
+    float maxBx = AntiStickGetBoxMaxBoundary(0, flBoundaries);
+    float minBx = AntiStickGetBoxMaxBoundary(0, flBoundaries, true);  
+
+    if(vPosition[0] < minBx) 
+    {
+        flDelta = vPosition[0] - minBx;
+        flDistance += flDelta * flDelta;
+    }
+    else if(vPosition[0] > maxBx) 
+    {   
+        flDelta = vPosition[0] - maxBx;
+        flDistance += flDelta * flDelta;   
+    }
+    
+    // Compare y values
+    float maxBy = AntiStickGetBoxMaxBoundary(1, flBoundaries);
+    float minBy = AntiStickGetBoxMaxBoundary(1, flBoundaries, true);  
+    
+    if(vPosition[1] < minBy) 
+    {
+        flDelta = vPosition[1] - minBy;
+        flDistance += flDelta * flDelta;
+    }
+    else if(vPosition[1] > maxBy) 
+    {   
+        flDelta = vPosition[1] - maxBy;
+        flDistance += flDelta * flDelta;   
+    }
+    
+    // Compare z values
+    float maxBz = AntiStickGetBoxMaxBoundary(2, flBoundaries);
+    float minBz = AntiStickGetBoxMaxBoundary(2, flBoundaries, true); 
+    
+    if(vPosition[2] < minBz) 
+    {
+        flDelta = vPosition[2] - minBz;
+        flDistance += flDelta * flDelta;
+    }
+    else if(vPosition[2] > maxBz) 
+    {   
+        flDelta = vPosition[2] - maxBz;
+        flDistance += flDelta * flDelta;   
+    }
+
+    // Return true on the collision
+    return flDistance <= (flRadius * flRadius);
 }
 
 /**

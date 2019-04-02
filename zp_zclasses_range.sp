@@ -87,50 +87,39 @@ public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
     // Validate the zombie class index
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
-        // Initialize vectors
-        static float vEntPosition[3]; static float vVictimPosition[3];
-
         // Gets client origin
-        GetClientAbsOrigin(clientIndex, vEntPosition);
-
+        static float vPosition[3];
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        
         // Validate infection round
         if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
         {
-            // i = client index
-            for(int i = 1; i <= MaxClients; i++)
+            // Find any players in the radius
+            int i; int it = 1; /// iterator
+            while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_EXP_RADIUS)) != INVALID_ENT_REFERENCE)
             {
-                // Validate human
-                if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                // Skip zombies
+                if(ZP_IsPlayerZombie(i))
                 {
-                    // Gets victim origin
-                    GetClientAbsOrigin(i, vVictimPosition);
-
-                    // Calculate the distance
-                    float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                    // Validate distance
-                    if(flDistance <= ZOMBIE_CLASS_EXP_RADIUS)
-                    {
-                        // Change class to zombie
-                        if(ZP_GetHumanAmount() > 1 || ZOMBIE_CLASS_EXP_LAST) ZP_ChangeClient(i, clientIndex, "zombie");
-                    }
+                    continue;
                 }
+                
+                // Change class to zombie
+                if(ZP_GetHumanAmount() > 1 || ZOMBIE_CLASS_EXP_LAST) ZP_ChangeClient(i, clientIndex, "zombie");
             }
         }
         
         // Gets ragdoll index
-        int iRagdoll = GetEntPropEnt(clientIndex, Prop_Send, "m_hRagdoll");
+        int ragdollIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hRagdoll");
 
         // If the ragdoll is invalid, then stop
-        if(iRagdoll != INVALID_ENT_REFERENCE) 
+        if(ragdollIndex != INVALID_ENT_REFERENCE) 
         {
             // Create an effect
-            ZP_CreateParticle(iRagdoll, vEntPosition, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
+            UTIL_CreateParticle(ragdollIndex, vPosition, _, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
             
-            // Emit sound
-            static char sSound[PLATFORM_LINE_LENGTH];
-            ZP_GetSound(gSound, sSound, sizeof(sSound));
-            EmitSoundToAll(sSound, iRagdoll, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            // Play sound
+            ZP_EmitSoundToAll(gSound, 1, ragdollIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
         }
     }
 }

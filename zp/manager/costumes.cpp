@@ -315,6 +315,17 @@ void CostumesOnClientInit(int clientIndex)
 }
 
 /**
+ * @brief Client has been killed.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void CostumesOnClientDeath(int clientIndex)
+{
+    // Remove current costume
+    CostumesRemove(clientIndex);
+}
+
+/**
  * Console command callback (zp_costume_menu)
  * @brief Opens the costumes menu.
  * 
@@ -345,50 +356,6 @@ public void CostumesOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
     
     // Forward event to modules
     CostumesOnInit();
-}
-
-/**
- * Hook: SetTransmit
- * @brief Called right before the entity transmitting to other entities.
- *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
- **/
-public Action CostumesOnTransmit(int entityIndex, int clientIndex)
-{
-    // Validate addons
-    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentCostume) == entityIndex)
-    {
-        // Validate observer mode
-        if(ToolsGetClientObserverMode(clientIndex))
-        {
-            // Allow transmitting    
-            return Plugin_Continue;
-        }
-
-        // Block transmitting
-        return Plugin_Handled;
-    }
-    
-    // Gets the owner of the entity
-    int ownerIndex = ToolsGetEntityOwner(entityIndex);
-
-    // Validate dead owner
-    if(!IsPlayerAlive(ownerIndex))
-    {
-        // Block transmitting
-        return Plugin_Handled;
-    }
-    
-    // Validate observer mode
-    if(ToolsGetClientObserverMode(clientIndex) == SPECMODE_FIRSTPERSON && ownerIndex == ToolsGetClientObserverTarget(clientIndex))
-    {
-        // Block transmitting
-        return Plugin_Handled;
-    }
-
-    // Allow transmitting
-    return Plugin_Continue;
 }
 
 /*
@@ -1126,12 +1093,10 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, in
                 return;
             }
             
-            // Initialize key char
-            static char sKey[SMALL_LINE_LENGTH];
-
             // Gets menu info
-            hMenu.GetItem(mSlot, sKey, sizeof(sKey));
-            int iD = StringToInt(sKey);
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            int iD = StringToInt(sBuffer);
             
             // Call forward
             Action resultHandle;
@@ -1207,21 +1172,16 @@ void CostumesCreateEntity(int clientIndex)
             return;
         }
 
+        // Gets costume model
+        static char sModel[PLATFORM_LINE_LENGTH];
+        CostumesGetModel(gClientData[clientIndex].Costume, sModel, sizeof(sModel));
+        
         // Creates an attach addon entity 
-        int entityIndex = CreateEntityByName("prop_dynamic_override");
+        int entityIndex = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, sModel);
         
         // If entity isn't valid, then skip
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Gets costume model
-            static char sModel[PLATFORM_LINE_LENGTH];
-            CostumesGetModel(gClientData[clientIndex].Costume, sModel, sizeof(sModel)); 
-
-            // Dispatch main values of the entity
-            DispatchKeyValue(entityIndex, "model", sModel);
-            DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
-            DispatchKeyValue(entityIndex, "solid", "0");
-           
             // Sets bodygroup of the entity
             SetVariantInt(CostumesGetBody(gClientData[clientIndex].Costume));
             AcceptEntityInput(entityIndex, "SetBodyGroup");
@@ -1229,10 +1189,7 @@ void CostumesCreateEntity(int clientIndex)
             // Sets skin of the entity
             SetVariantInt(CostumesGetSkin(gClientData[clientIndex].Costume));
             AcceptEntityInput(entityIndex, "ModelSkin");
-            
-            // Spawn the entity into the world
-            DispatchSpawn(entityIndex);
-            
+    
             // Sets parent to the entity
             SetVariantString("!activator");
             AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
@@ -1285,7 +1242,7 @@ void CostumesCreateEntity(int clientIndex)
             if(CostumesIsMerge(gClientData[clientIndex].Costume)) CostumesBoneMerge(entityIndex);
 
             // Hook entity callbacks
-            if(CostumesIsHide(gClientData[clientIndex].Costume)) SDKHook(entityIndex, SDKHook_SetTransmit, CostumesOnTransmit);
+            if(CostumesIsHide(gClientData[clientIndex].Costume)) SDKHook(entityIndex, SDKHook_SetTransmit, ToolsOnEntityTransmit);
             
             // Store the client cache
             gClientData[clientIndex].AttachmentCostume = EntIndexToEntRef(entityIndex);

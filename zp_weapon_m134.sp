@@ -99,7 +99,7 @@ void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iClip, int iAmmo, int
     ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
     
     // Sets attack state
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
     
     // Sets next attack time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
@@ -180,7 +180,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iClip, int iAm
             ZP_SetWeaponAnimation(clientIndex, ANIM_ATTACK_START);        
 
             // Sets attack state
-            SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_ATTACK);
+            SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_ATTACK);
 
             // Adds the delay to the game tick
             flCurrentTime += WEAPON_TIME_DELAY_START;
@@ -207,7 +207,7 @@ void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, 
         ZP_SetWeaponAnimation(clientIndex, ANIM_ATTACK_END);        
 
         // Sets begin state
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
 
         // Adds the delay to the game tick
         flCurrentTime += WEAPON_TIME_DELAY_END;
@@ -233,7 +233,7 @@ void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iClip, int iAmmo, 
                                 \
         GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
                                 \
-        GetEntProp(%2, Prop_Send, "m_iClip2"), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
                                 \
         GetGameTime() \
     )
@@ -251,7 +251,7 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
     }
 } 
     

@@ -117,6 +117,17 @@ void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iAmmo, float flCurren
     
     // Sets shots count
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", 0);
+    
+    // Create an effect
+    Weapon_OnEffectLogic(weaponIndex);
+}
+
+void Weapon_OnHolster(int clientIndex, int weaponIndex, int iAmmo, float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, iAmmo, flCurrentTime
+
+    // Stop an effect
+    Weapon_OnEffectLogic(weaponIndex, "Kill");
 }
 
 void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iAmmo, float flCurrentTime)
@@ -156,12 +167,10 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iAmmo, float
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", GetEntProp(clientIndex, Prop_Send, "m_iShotsFired") + 1);
     
     // Sets attack state
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_ATTACK);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_ATTACK);
     
-    // Emit sound
-    static char sSound[PLATFORM_LINE_LENGTH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-    EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+    // Play sound
+    ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_SHOOT1, ANIM_SHOOT2 });
@@ -178,20 +187,23 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iAmmo, float
     // Apply kick back
     if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
     {
-        Weapon_OnKickBack(clientIndex, 3.5, 4.5, 0.225, 0.05, 10.5, 7.5, 7);
+        ZP_CreateWeaponKickBack(clientIndex, 3.5, 4.5, 0.225, 0.05, 10.5, 7.5, 7);
     }
     else if(!(iFlags & FL_ONGROUND))
     {
-        Weapon_OnKickBack(clientIndex, 5.0, 4.0, 0.5, 0.35, 14.0, 10.0, 5);
+        ZP_CreateWeaponKickBack(clientIndex, 5.0, 4.0, 0.5, 0.35, 14.0, 10.0, 5);
     }
     else if(iFlags & FL_DUCKING)
     {
-        Weapon_OnKickBack(clientIndex, 3.5, 1.5, 0.15, 0.025, 10.5, 6.5, 9);
+        ZP_CreateWeaponKickBack(clientIndex, 3.5, 1.5, 0.15, 0.025, 10.5, 6.5, 9);
     }
     else
     {
-        Weapon_OnKickBack(clientIndex, 2.75, 2.75, 0.175, 0.0375, 10.75, 10.75, 8);
+        ZP_CreateWeaponKickBack(clientIndex, 2.75, 2.75, 0.175, 0.0375, 10.75, 10.75, 8);
     }
+    
+    // Start an effect
+    Weapon_OnEffectLogic(weaponIndex, "Start");
 }
 
 void Weapon_OnCreateAirBurst(int clientIndex, int weaponIndex)
@@ -206,24 +218,24 @@ void Weapon_OnCreateAirBurst(int clientIndex, int weaponIndex)
     ZP_GetPlayerGunPosition(clientIndex, WEAPON_AIR_DISTANCE, 0.0, 10.0, vEndPosition);
 
     // Create the end-point trace
-    Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, MASK_SHOT, RayType_EndPoint, TraceFilter, clientIndex);
+    TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, clientIndex);
 
     // Validate collisions
-    if(TR_GetFraction(hTrace) >= 1.0)
+    if(TR_GetFraction() >= 1.0)
     {
         // Initialize the hull intersection
-        static float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
+        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
-        hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
+        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
     }
     
     // Validate collisions
-    if(TR_GetFraction(hTrace) < 1.0)
+    if(TR_GetFraction() < 1.0)
     {
         // Gets victim index
-        int victimIndex = TR_GetEntityIndex(hTrace);
+        int victimIndex = TR_GetEntityIndex();
 
         // Validate victim
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
@@ -234,16 +246,13 @@ void Weapon_OnCreateAirBurst(int clientIndex, int weaponIndex)
         else
         {
             // Returns the collision position/angle of a trace result
-            TR_GetEndPosition(vEndPosition, hTrace);
+            TR_GetEndPosition(vEndPosition);
     
             // Create a sparks effect
             TE_SetupSmoke(vEndPosition, decalSmoke, 10.0, 10);
             TE_SendToAllInRange(vEndPosition, RangeType_Visibility);
         }
     }
-    
-    // Close the trace
-    delete hTrace;
 }
 
 void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iAmmo, float flCurrentTime)
@@ -251,13 +260,13 @@ void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iAmmo, float flCur
     #pragma unused clientIndex, weaponIndex, iAmmo, flCurrentTime
 
     // Validate attack
-    if(GetEntProp(weaponIndex, Prop_Send, "m_iClip2"))
+    if(GetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/))
     {
         // Sets end animation
         ZP_SetWeaponAnimation(clientIndex, ANIM_SHOOT_END);        
 
         // Sets begin state
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
 
         // Adds the delay to the game tick
         flCurrentTime += WEAPON_TIME_DELAY_END;
@@ -266,69 +275,57 @@ void Weapon_OnEndAttack(int clientIndex, int weaponIndex, int iAmmo, float flCur
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
         ///SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime);
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+        
+        // Stop an effect
+        Weapon_OnEffectLogic(weaponIndex, "Stop");
     }
 }
 
-void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
+void Weapon_OnEffectLogic(int weaponIndex, char[] sInput = "")
 {
-    #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
+    #pragma unused weaponIndex, sInput
 
-    // Initialize variables
-    static int iDirection; static int iShotsFired; static float vPunchAngle[3];
-    GetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-
-    // Gets a shots fired
-    if((iShotsFired = GetEntProp(clientIndex, Prop_Send, "m_iShotsFired")) != 1)
+    // Gets the effect index
+    int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hEffectEntity");
+    
+    // Is effect should be created ?
+    if(!hasLength(sInput))
     {
-        // Calculate a base power
-        upBase += iShotsFired * upMod;
-        lateralBase += iShotsFired * lateralMod;
-    }
-
-    // Reduce a max power
-    upMax *= -1.0;
-    vPunchAngle[0] -= upBase;
-
-    // Validate max angle
-    if(upMax >= vPunchAngle[0])
-    {
-        vPunchAngle[0] = upMax;
-    }
-
-    // Gets a direction change
-    if((iDirection = GetEntProp(clientIndex, Prop_Send, "m_iDirection")))
-    {
-        // Increase the angle
-        vPunchAngle[1] += lateralBase;
-
-        // Validate min angle
-        if(lateralMax < vPunchAngle[1])
+        // Validate entity 
+        if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            vPunchAngle[1] = lateralMax;
+            return;
+        }
+        
+        // Gets the world model index
+        int worldModel = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
+        
+        // Validate model 
+        if(worldModel != INVALID_ENT_REFERENCE)
+        {
+            // Create an attach fire effect
+            entityIndex = UTIL_CreateParticle(worldModel, _, _, "muzzle_flash", "flamethrower_underwater");
+            
+            // Validate entity 
+            if(entityIndex != INVALID_ENT_REFERENCE)
+            {
+                // Sets the effect index
+                SetEntPropEnt(weaponIndex, Prop_Send, "m_hEffectEntity", entityIndex);
+                
+                // Stop an effect
+                AcceptEntityInput(entityIndex, "Stop"); 
+            }
         }
     }
     else
     {
-        // Decrease the angle
-        lateralMax *=  -1.0;
-        vPunchAngle[1] -= lateralBase;
-
-        // Validate max angle
-        if(lateralMax > vPunchAngle[1])
+        // Validate entity 
+        if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            vPunchAngle[1] = lateralMax;
+            // Toggle state
+            AcceptEntityInput(entityIndex, sInput); 
         }
     }
-
-    // Create a direction change
-    if(!GetRandomInt(0, directionChange))
-    {
-        SetEntProp(clientIndex, Prop_Send, "m_iDirection", !iDirection);
-    }
-
-    // Sets a punch angle
-    SetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-    SetEntPropVector(clientIndex, Prop_Send, "m_viewPunchAngle", vPunchAngle);
 }
 
 //**********************************************
@@ -360,7 +357,7 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", STATE_BEGIN);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, STATE_BEGIN);
     }
 }
 
@@ -378,6 +375,23 @@ public void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID)
     {
         // Call event
         _call.Deploy(clientIndex, weaponIndex);
+    }
+}
+
+/**
+ * @brief Called on holster of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID) 
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Call event
+        _call.Holster(clientIndex, weaponIndex);
     }
 }
 

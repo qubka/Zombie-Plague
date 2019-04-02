@@ -41,18 +41,6 @@ public Plugin myinfo =
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
-/**
- * @section Properties of the grenade.
- **/
-#define CHARGE_BAG_RADIUS            300.0         // Holy size (radius)
-#define CHARGE_BAG_IGNITE_TIME       5.0           // Ignite duration
-#define CHARGE_BAG_SHAKE_AMP         2.0           // Amplutude of the shake effect
-#define CHARGE_BAG_SHAKE_FREQUENCY   1.0           // Frequency of the shake effect
-#define CHARGE_BAG_SHAKE_DURATION    3.0           // Duration of the shake effect in seconds
-/**
- * @endsection
- **/
- 
 // Sound index
 int gSound; ConVar hSoundLevel;
 #pragma unused gSound, hSoundLevel
@@ -90,7 +78,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     if(extraitemIndex == gItem)
     {
         // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
         {
             return Plugin_Handled;
         }
@@ -121,24 +109,24 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Client was damaged by 'explosion'
     if(iBits & DMG_BLAST)
     {
         // Validate inflicter
-        if(IsValidEdict(inflicterIndex))
+        if(IsValidEdict(inflictorIndex))
         {
             // Validate custom grenade
-            if(ZP_GetWeaponID(inflicterIndex) == gWeapon)
+            if(ZP_GetWeaponID(inflictorIndex) == gWeapon)
             {
                 // Reset explosion damage
-                flDamage *= ZP_IsPlayerZombie(attackerIndex) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
+                flDamage *= ZP_IsPlayerHuman(clientIndex) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
             }
         }
     }

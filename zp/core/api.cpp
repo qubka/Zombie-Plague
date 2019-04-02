@@ -156,17 +156,17 @@ enum struct ForwardData
      * 
      * @param clientIndex       The client index.
      * @param attackerIndex     The attacker index.
-     * @param inflicterIndex    The inflicter index.
+     * @param inflictorIndex    The inflictor index.
      * @param flDamage          The amount of damage inflicted.
      * @param iBits             The ditfield of damage types.
      * @param weaponIndex       The weapon index or -1 for unspecified.
      **/
-    void _OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
+    void _OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
     {
         Call_StartForward(this.OnClientDamaged);
         Call_PushCell(clientIndex);
         Call_PushCellRef(attackerIndex);
-        Call_PushCellRef(inflicterIndex);
+        Call_PushCellRef(inflictorIndex);
         Call_PushFloatRef(flDamage);
         Call_PushCellRef(iBits);
         Call_PushCellRef(weaponIndex);

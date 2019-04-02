@@ -185,114 +185,6 @@ void GameEngineOnPurge(/*void*/)
  */
 
 /**
- * @brief Returns true if the player is connected and alive, false if not.
- *
- * @param clientIndex       The client index.
- * @param clientAlive       (Optional) Set to true to validate that the client is alive, false to ignore.
- *
- * @return                  True or false.
- **/
-bool IsPlayerExist(int clientIndex, bool clientAlive = true)
-{
-    // If client isn't valid, then stop
-    if(clientIndex <= 0 || clientIndex > MaxClients)
-    {
-        return false;
-    }
-
-    // If client isn't connected, then stop
-    if(!IsClientConnected(clientIndex))
-    {
-        return false;
-    }
-
-    // If client isn't in game, then stop
-    if(!IsClientInGame(clientIndex) || IsClientInKickQueue(clientIndex)) /// Improved, thanks to fl0wer!
-    {
-        return false;
-    }
-
-    // If client is in GoTV, then stop
-    if(IsClientSourceTV(clientIndex))
-    {
-        return false;
-    } 
-
-    // If client isn't alive, then stop
-    if(clientAlive && !IsPlayerAlive(clientIndex))
-    {
-        return false;
-    }
-
-    // If client exist
-    return true;
-}
-
-/**
- * @brief Returns whether a player is in a spesific group or not.
- *
- * @param clientIndex       The client index.
- * @param sGroup            The SourceMod group name to check.
- *
- * @return                  True or false.
- **/
-bool IsPlayerInGroup(int clientIndex, char[] sGroup)
-{
-    // Validate client
-    if(!IsPlayerExist(clientIndex, false))
-    {
-        return false;
-    }
-
-    /*********************************
-     *                               *
-     *   FLAG GROUP AUTHENTICATION   *
-     *                               *
-     *********************************/
-
-    // Finds a group by name
-    GroupId nGroup = FindAdmGroup(sGroup);
-    
-    // Validate group
-    if(nGroup == INVALID_GROUP_ID)
-    {
-        return false;
-    }
-     
-    // Retrieves a client AdminId
-    AdminId iD = GetUserAdmin(clientIndex);
-    
-    // Validate id
-    if(iD == INVALID_ADMIN_ID)
-    {
-        return false;
-    }
-
-    // Initialize group char
-    static char sGroupName[SMALL_LINE_LENGTH];
-
-    // Gets immunity level
-    int iImmunity = GetAdmGroupImmunityLevel(nGroup);
-    
-    // i = group index
-    int iSize = GetAdminGroupCount(iD);
-    for(int i = 0; i < iSize; i++)
-    {
-        // Gets group name
-        nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
-
-        // Validate groups
-        if(!strcmp(sGroup, sGroupName, false) || iImmunity <= GetAdmGroupImmunityLevel(nGroup))
-        {
-            return true;
-        }
-    }
-    
-    // No groups or no match
-    return false;
-}
-
-/**
  * @brief Gets amount of total playing players.
  *
  * @return                  The amount of total playing players.
@@ -450,7 +342,7 @@ stock int fnGetRandomZombie(/*void*/)
  * @param bZombie           (Optional) True to state zombie, false for human on the target index.
  * @return                  The random array of total alive players.
  **/
-stock void fnGetRandomAlive(int clientIndex[MAXPLAYERS+1], int targetIndex = -1, bool bZombie = false)
+stock void fnGetRandomAlive(int clientIndex[MAXPLAYERS+1], int targetIndex = INVALID_ENT_REFERENCE, bool bZombie = false)
 {
     // Initialize index
     int iAmount;
@@ -479,7 +371,7 @@ stock void fnGetRandomAlive(int clientIndex[MAXPLAYERS+1], int targetIndex = -1,
     }
     
     // Validate target
-    if(targetIndex != -1)
+    if(targetIndex != INVALID_ENT_REFERENCE)
     {
         // i = client index
         int x = bZombie ? 0 : iAmount - 1; int y = clientIndex[x];

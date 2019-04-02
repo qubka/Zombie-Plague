@@ -999,15 +999,13 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
                 return;
             }
 
-            // Initialize name char
-            static char sItemName[BIG_LINE_LENGTH];
-
             // Gets menu info
-            hMenu.GetItem(mSlot, sItemName, sizeof(sItemName));
-            int iD = StringToInt(sItemName);
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            int iD = StringToInt(sBuffer);
             
             // Gets extra item name
-            ItemsGetName(iD, sItemName, sizeof(sItemName));
+            ItemsGetName(iD, sBuffer, sizeof(sBuffer));
             
             // Call forward
             Action resultHandle;
@@ -1030,17 +1028,17 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
                         GetClientName(clientIndex, sClient, sizeof(sClient));
 
                         // Show item buying info
-                        TranslationPrintToChatAll("buy info", sClient, sItemName);
+                        TranslationPrintToChatAll("buy info", sClient, sBuffer);
                     }
                 
                     // If help messages enabled, then show info
                     if(gCvarList[CVAR_MESSAGES_ITEM_INFO].BoolValue)
                     {
                         // Gets item info
-                        ItemsGetInfo(iD, sItemName, sizeof(sItemName));
+                        ItemsGetInfo(iD, sBuffer, sizeof(sBuffer));
                         
                         // Show item personal info
-                        if(hasLength(sItemName)) TranslationPrintHintText(clientIndex, sItemName);
+                        if(hasLength(sBuffer)) TranslationPrintHintText(clientIndex, sBuffer);
                     }
                     
                     // If item has a cost
@@ -1064,7 +1062,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             }
 
             // Show block info
-            TranslationPrintHintText(clientIndex, "buying item block", sItemName);
+            TranslationPrintHintText(clientIndex, "buying item block", sBuffer);
     
             // Emit error sound
             ClientCommand(clientIndex, "play buttons/button11.wav");    

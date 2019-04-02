@@ -389,12 +389,10 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                 return;
             }
 
-            // Initialize name char
-            static char sWeaponName[BIG_LINE_LENGTH];
-
             // Gets menu info
-            hMenu.GetItem(mSlot, sWeaponName, sizeof(sWeaponName));
-            int iD = StringToInt(sWeaponName);
+            static char sBuffer[BIG_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            int iD = StringToInt(sBuffer);
 
             // Call forward
             Action resultHandle; 
@@ -407,10 +405,10 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                 if(!WeaponsValidateID(clientIndex, iD) && WeaponsValidateClass(clientIndex, iD))
                 {
                     // Gets weapon classname
-                    WeaponsGetEntity(iD, sWeaponName, sizeof(sWeaponName));
+                    WeaponsGetEntity(iD, sBuffer, sizeof(sBuffer));
 
                     // Validate primary/secondary weapon
-                    if(strncmp(sWeaponName[7], "tas", 3, false))
+                    if(strncmp(sBuffer[7], "tas", 3, false))
                     {
                         // Drop weapon
                         WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == MenuType_Pistols) ? view_as<int>(SlotType_Secondary) : ((WeaponsGetSlot(iD) == MenuType_Knifes) ? view_as<int>(SlotType_Melee) : view_as<int>(SlotType_Primary))));
@@ -448,20 +446,20 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                                 GetClientName(clientIndex, sClient, sizeof(sClient));
 
                                 // Gets weapon name
-                                WeaponsGetName(iD, sWeaponName, sizeof(sWeaponName));    
+                                WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
                                 
                                 // Show item buying info
-                                TranslationPrintToChatAll("buy info", sClient, sWeaponName);
+                                TranslationPrintToChatAll("buy info", sClient, sBuffer);
                             }
                             
                             // If help messages enabled, then show info
                             if(gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
                             {
                                 // Gets weapon info
-                                WeaponsGetInfo(iD, sWeaponName, sizeof(sWeaponName));
+                                WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
                                 
                                 // Show weapon personal info
-                                if(hasLength(sWeaponName)) TranslationPrintHintText(clientIndex, sWeaponName);
+                                if(hasLength(sBuffer)) TranslationPrintHintText(clientIndex, sBuffer);
                             }
                         }
                         
@@ -472,10 +470,10 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
             }
             
             // Gets weapon name
-            WeaponsGetName(iD, sWeaponName, sizeof(sWeaponName));    
+            WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
     
             // Show block info
-            TranslationPrintHintText(clientIndex, "buying item block", sWeaponName);
+            TranslationPrintHintText(clientIndex, "buying item block", sBuffer);
             
             // Emit error sound
             ClientCommand(clientIndex, "play buttons/button11.wav");    

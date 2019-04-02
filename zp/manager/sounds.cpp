@@ -395,8 +395,11 @@ Action SoundsOnClientShoot(int clientIndex, int iD)
  **/
 void SoundsOnNativeInit(/*void*/) 
 {
-    CreateNative("ZP_GetSoundKeyID", API_GetSoundKeyID);
-    CreateNative("ZP_GetSound",      API_GetSound);
+    CreateNative("ZP_GetSoundKeyID",     API_GetSoundKeyID);
+    CreateNative("ZP_GetSound",          API_GetSound);
+    CreateNative("ZP_EmitSoundToAll",    API_EmitSoundToAll);
+    CreateNative("ZP_EmitSoundToClient", API_EmitSoundToClient);
+    CreateNative("ZP_EmitAmbientSound",  API_EmitAmbientSound);
 }
  
 /**
@@ -417,10 +420,8 @@ public int API_GetSoundKeyID(Handle hPlugin, int iNumParams)
         return -1;
     }
 
-    // Gets native data
-    static char sName[SMALL_LINE_LENGTH];
-
-    // General                                            
+    // Initialize name char
+    static char sName[SMALL_LINE_LENGTH];                                   
     GetNativeString(1, sName, sizeof(sName));
 
     // Return the value
@@ -459,6 +460,43 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
     
     // Return on success
     return SetNativeString(2, sSound, maxLen);
+}
+
+/**
+ * @brief Emits a sound to all clients.
+ *
+ * @note native bool ZP_EmitSoundToAll(keyID, num, entity, channel, level, flags, volume, pitch);
+ **/
+public int API_EmitSoundToAll(Handle hPlugin, int iNumParams)
+{
+    // Play sound
+    return SEffectsInputEmitToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
+}
+
+/**
+ * @brief Emits a sound to the client.
+ *
+ * @note native bool ZP_EmitSoundToClient(keyID, num, client, entity, channel, level, flags, volume, pitch);
+ **/
+public int API_EmitSoundToClient(Handle hPlugin, int iNumParams)
+{
+    // Play sound
+    return SEffectsInputEmitToClient(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
+}
+
+/**
+ * @brief Emits an ambient sound.
+ *
+ * @note native bool ZP_EmitAmbientSound(keyID, num, origin, entity, level, flags, volume, pitch, delay);
+ **/
+public int API_EmitAmbientSound(Handle hPlugin, int iNumParams)
+{
+    // Gets origin vector
+    static float vPosition[3];
+    GetNativeArray(3, vPosition, sizeof(vPosition));
+    
+    // Play sound
+    return SEffectsInputEmitAmbient(GetNativeCell(1), GetNativeCell(2), vPosition, GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
 }
  
 /*

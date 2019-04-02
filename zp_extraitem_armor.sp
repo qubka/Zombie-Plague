@@ -93,7 +93,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     if(extraitemIndex == gItemKevlar)
     {
         // Validate access
-        if(GetClientArmor(clientIndex) >= ZP_GetWeaponClip(gWeaponKevlar))
+        if(GetEntProp(clientIndex, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponKevlar))
         {
             return Plugin_Handled;
         }
@@ -101,7 +101,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     else if(extraitemIndex == gItemAssault)
     {
         // Validate access
-        if(GetClientArmor(clientIndex) >= ZP_GetWeaponClip(gWeaponAssault) || GetEntProp(clientIndex, Prop_Send, "m_bHasHelmet"))
+        if(GetEntProp(clientIndex, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponAssault) || GetEntProp(clientIndex, Prop_Send, "m_bHasHelmet"))
         {
             return Plugin_Handled;
         }
@@ -109,7 +109,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     else if(extraitemIndex == gItemHeavy)
     {
         // Validate access
-        if(GetClientArmor(clientIndex) >= ZP_GetWeaponClip(gWeaponHeavy) || GetEntProp(clientIndex, Prop_Send, "m_bHasHeavyArmor"))
+        if(GetEntProp(clientIndex, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponHeavy) || GetEntProp(clientIndex, Prop_Send, "m_bHasHeavyArmor"))
         {
             return Plugin_Handled;
         }

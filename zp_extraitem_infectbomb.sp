@@ -114,7 +114,7 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     if(extraitemIndex == gItem)
     {
         // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || !ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE || !ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
         {
             return Plugin_Handled;
         }
@@ -186,7 +186,7 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
     int ownerIndex = GetClientOfUserId(hEvent.GetInt("userid")); 
 
     // Initialize vectors
-    static float vEntPosition[3]; static float vVictimPosition[3];
+    static float vEntPosition[3];
 
     // Gets all required event info
     int grenadeIndex = hEvent.GetInt("entityid");
@@ -203,40 +203,34 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
             // Validate infection round
             if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
             {
-                // i = client index
-                for(int i = 1; i <= MaxClients; i++)
+                // Find any players in the radius
+                int i; int it = 1; /// iterator
+                while((i = ZP_FindPlayerInSphere(it, vEntPosition, GRENADE_INFECT_RADIUS)) != INVALID_ENT_REFERENCE)
                 {
-                    // Validate human
-                    if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                    // Skip zombies
+                    if(ZP_IsPlayerZombie(i))
                     {
-                        // Gets victim origin
-                        GetClientAbsOrigin(i, vVictimPosition);
-
-                        // Calculate the distance
-                        float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                        // Validate distance
-                        if(flDistance <= GRENADE_INFECT_RADIUS)
-                        {            
-                            // Change class to zombie
-                            if(ZP_GetHumanAmount() > 1 || GRENADE_INFECT_LAST) ZP_ChangeClient(i, ownerIndex, "zombie");
-                        }
-                        
-                        // Reset glow on the next frame
-                        RequestFrame(view_as<RequestFrameCallback>(EventEntityTanadePost), i);
+                        continue;
                     }
+                    
+                    // Change class to zombie
+                    if(ZP_GetHumanAmount() > 1 || GRENADE_INFECT_LAST) ZP_ChangeClient(i, ownerIndex, "zombie");
+                }
+                
+                // i = client index
+                for(i = 1; i <= MaxClients; i++)
+                {
+                    // Reset glow on the next frame
+                    RequestFrame(view_as<RequestFrameCallback>(EventEntityTanadePost), GetClientUserId(i));
                 }
             }
+            
+            // Gets weapon muzzleflesh
+            static char sMuzzle[SMALL_LINE_LENGTH];
+            ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
 
-            // Create a info_target entity
-            int infoIndex = ZP_CreateEntity(vEntPosition, GRENADE_INFECT_EXP_TIME);
-
-            // Validate entity
-            if(infoIndex != INVALID_ENT_REFERENCE)
-            {
-                // Create an explosion effect
-                ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_hegrenade_dirt", GRENADE_INFECT_EXP_TIME);
-            }
+            // Create an explosion effect
+            UTIL_CreateParticle(_, vEntPosition, _, _, sMuzzle, GRENADE_INFECT_EXP_TIME);
             
             // Remove grenade
             AcceptEntityInput(grenadeIndex, "Kill");
@@ -245,15 +239,22 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 }
 
 /**
- * EventFake callback (tagrenade_detonate)
+ * Event callback (tagrenade_detonate)
  * @brief The tagrenade was exployed. (Post)
  * 
- * @param clientIndex       The client index.
+ * @param userID            The user id.
  **/
-public void EventEntityTanadePost(int clientIndex)
+public void EventEntityTanadePost(int userID)
 {
-    // Bugfix with tagrenade glow
-    if(IsPlayerExist(clientIndex) && ZP_IsPlayerHuman(clientIndex)) SetEntPropFloat(clientIndex, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
+    // Gets client index from the user ID
+    int clientIndex = GetClientOfUserId(userID);
+    
+    // Validate client
+    if(clientIndex && ZP_IsPlayerHuman(clientIndex)) 
+    {
+        // Bugfix with tagrenade glow
+        SetEntPropFloat(clientIndex, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
+    }
 }
 
 /**
@@ -277,27 +278,21 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
         // Validate custom grenade
         if(ZP_GetWeaponID(entityIndex) == gWeapon)
         {
-            // Initialize sound char
-            static char sSound[PLATFORM_LINE_LENGTH];
-
             // Validate sound
             if(!strncmp(sSample[30], "arm", 3, false))
             {
-                // Emit a custom bounce sound
-                ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-                EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                // Play sound
+                ZP_EmitSoundToAll(gSound, 1, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[30], "det", 3, false))
             {
-                // Emit a custom bounce sound
-                ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-                EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                // Play sound
+                ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
             else if(!strncmp(sSample[30], "exp", 3, false))
             {
-                // Emit explosion sound
-                ZP_GetSound(gSound, sSound, sizeof(sSound), 3);
-                EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                // Play sound
+                ZP_EmitSoundToAll(gSound, 3, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
 
             // Block sounds

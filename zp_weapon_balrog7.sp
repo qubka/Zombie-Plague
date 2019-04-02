@@ -47,10 +47,6 @@ public Plugin myinfo =
 #define WEAPON_EXPLOSION_RATIO           6
 #define WEAPON_EXPLOSION_DAMAGE          300.0
 #define WEAPON_EXPLOSION_RADIUS          150.0
-#define WEAPON_EXPLOSION_KNOCKBACK       500.0
-#define WEAPON_EXPLOSION_SHAKE_AMP       10.0
-#define WEAPON_EXPLOSION_SHAKE_FREQUENCY 1.0
-#define WEAPON_EXPLOSION_SHAKE_DURATION  2.0
 #define WEAPON_EXPLOSION_TIME            2.0
 /**
  * @endsection
@@ -93,64 +89,21 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, int iCounter, float vBull
     // Validate counter
     if(iCounter > (ZP_GetWeaponClip(gWeapon) / WEAPON_EXPLOSION_RATIO))
     {
-        // Initialize vectors
-        static float vVictimPosition[3]; static float vVelocity[3];
+        // Create an explosion
+        UTIL_CreateExplosion(vBulletPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_EXPLOSION_DAMAGE, WEAPON_EXPLOSION_RADIUS, "prop_exploding_barrel", clientIndex, weaponIndex);
 
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            // Validate client
-            if((IsPlayerExist(i) && ZP_IsPlayerZombie(i)))
-            {
-                // Gets victim origin
-                GetClientAbsOrigin(i, vVictimPosition);
+        // Create an explosion effect
+        UTIL_CreateParticle(_, vBulletPosition, _, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);
 
-                // Calculate the distance
-                float flDistance = GetVectorDistance(vBulletPosition, vVictimPosition);
-
-                // Validate distance
-                if(flDistance <= WEAPON_EXPLOSION_RADIUS)
-                {
-                    // Create the damage for a victim
-                    if(!ZP_TakeDamage(i, clientIndex, clientIndex, WEAPON_EXPLOSION_DAMAGE * (1.0 - (flDistance / WEAPON_EXPLOSION_RADIUS)), DMG_AIRBOAT))
-                    {
-                        // Create a custom death event
-                        ZP_CreateDeathEvent(i, clientIndex, "prop_exploding_barrel", true);
-                    }
-                    
-                    // Calculate the velocity vector
-                    SubtractVectors(vVictimPosition, vBulletPosition, vVelocity);
-            
-                    // Create a knockback
-                    ZP_CreateRadiusKnockBack(i, vVelocity, flDistance, WEAPON_EXPLOSION_KNOCKBACK, WEAPON_EXPLOSION_RADIUS);
-                    
-                    // Create a shake
-                    ZP_CreateShakeScreen(i, WEAPON_EXPLOSION_SHAKE_AMP, WEAPON_EXPLOSION_SHAKE_FREQUENCY, WEAPON_EXPLOSION_SHAKE_DURATION);
-                }
-            }
-        }
-        
-        // Create a info_target entity
-        int infoIndex = ZP_CreateEntity(vBulletPosition, WEAPON_EXPLOSION_TIME);
-
-        // Validate entity
-        if(infoIndex != INVALID_ENT_REFERENCE)
-        {
-            // Create an explosion effect
-            ZP_CreateParticle(infoIndex, vBulletPosition, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);
-            
-            // Emit sound
-            static char sSound[PLATFORM_LINE_LENGTH];
-            ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-            EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-        }
+        // Play sound
+        ZP_EmitAmbientSound(gSound, 1, vBulletPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue);
         
         // Resets the shots count
         iCounter = -1;
     }
     
     // Sets shots count
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", iCounter + 1);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, iCounter + 1);
 }
 
 //**********************************************
@@ -164,7 +117,7 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, int iCounter, float vBull
         %1,                     \
         %2,                     \
                                 \
-        GetEntProp(%2, Prop_Send, "m_iClip2"), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
                                 \
         %3                      \
     )    
@@ -182,7 +135,7 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, 0);
     }
 }    
     

@@ -250,8 +250,8 @@ public Action SkillSystemOnClientHUD(Handle hTimer, int userID)
         SkillSystemBar[clientIndex][RoundToNearest((gClientData[clientIndex].SkillCounter * BAR_MAX_LENGTH) / ClassGetSkillDuration(gClientData[clientIndex].Class))] = '\0';
 
         // Show health bar
-        VEffectsHudClientScreen(gServerData.SkillSync[0], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemMax);
-        VEffectsHudClientScreen(gServerData.SkillSync[1], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 255, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemBar[clientIndex]);
+        UTIL_CreateClientHud(gServerData.SkillSync[0], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemMax);
+        UTIL_CreateClientHud(gServerData.SkillSync[1], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 255, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemBar[clientIndex]);
 
         // Allow timer
         return Plugin_Continue;

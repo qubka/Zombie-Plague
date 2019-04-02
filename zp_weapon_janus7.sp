@@ -46,14 +46,12 @@ public Plugin myinfo =
  **/
 #define WEAPON_TIME_DELAY_SWITCH    2.2
 #define WEAPON_SIGNAL_COUNTER       100
-#define WEAPON_ACTIVE_COUNTER       100
-#define WEAPON_BEAM_DAMAGE          1.0
+#define WEAPON_ACTIVE_COUNTER       150
+#define WEAPON_BEAM_DAMAGE          50.0
 #define WEAPON_BEAM_RADIUS          500.0
 #define WEAPON_BEAM_SHAKE_AMP       10.0
 #define WEAPON_BEAM_SHAKE_FREQUENCY 1.0
 #define WEAPON_BEAM_SHAKE_DURATION  2.0
-#define WEAPON_BEAM_COLOR           {255, 186, 0, 255}
-#define WEAPON_BEAM_MODEL           "materials/sprites/laserbeam.vmt"
 /**
  * @endsection
  **/
@@ -94,9 +92,6 @@ int gWeapon;
 int gSound; ConVar hSoundLevel;
 #pragma unused gSound, hSoundLevel
 
-// Decal index
-int decalBeam;
-
 /**
  * @brief Called after a zombie core is loaded.
  **/
@@ -113,9 +108,6 @@ public void ZP_OnEngineExecute(/*void*/)
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
     if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
-    
-    // Models
-    decalBeam = PrecacheModel(WEAPON_BEAM_MODEL, true);
 }
 
 //*********************************************************************
@@ -140,6 +132,10 @@ void Weapon_OnDeploy(int clientIndex, int weaponIndex, int iCounter, int iStateM
     {
         /// Block the real attack
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+        
+        // Create a muzzleflesh / True for getting the custom viewmodel index
+        TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), "medicgun_invulnstatus_fullcharge_red", "ParticleEffect", _, _, _, 1);
+        TE_SendToClient(clientIndex);
     }
     
     // Sets draw animation
@@ -160,19 +156,17 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iCounter, int iStateMo
     if(iCounter > WEAPON_SIGNAL_COUNTER)
     {
         // Sets signal mode
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", STATE_SIGNAL);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_SIGNAL);
 
         // Resets the shots count
         iCounter = -1;
 
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 2, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
     
     // Sets shots count
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", iCounter + 1);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, iCounter + 1);
 }
 
 bool Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iCounter, int iStateMode, float flCurrentTime)
@@ -217,22 +211,20 @@ bool Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iCounter, int 
     // Sets shots count
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", GetEntProp(clientIndex, Prop_Send, "m_iShotsFired") + 1);
     
-    // Sets shots count
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", iCounter + 1);
-    
-    // Emit sound
-    static char sSound[PLATFORM_LINE_LENGTH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-    EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+    // Play sound
+    ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_SHOOT2_1, ANIM_SHOOT2_2});
     
     // Create a beam
     Weapon_OnCreateBeam(clientIndex, weaponIndex);
+    
+    // Sets shots count
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, iCounter + 1);
 
     // Initialize variables
-    static float vVelocity[3]; static int iFlags; iFlags = GetEntityFlags(clientIndex);
+    /*static float vVelocity[3]; static int iFlags; iFlags = GetEntityFlags(clientIndex);
 
     // Gets client velocity
     GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
@@ -240,20 +232,20 @@ bool Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int iCounter, int 
     // Apply kick back
     if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
     {
-        Weapon_OnKickBack(clientIndex, 7.5, 4.5, 0.225, 0.05, 10.5, 7.5, 7);
+        ZP_CreateWeaponKickBack(clientIndex, 7.5, 4.5, 0.225, 0.05, 10.5, 7.5, 7);
     }
     else if(!(iFlags & FL_ONGROUND))
     {
-        Weapon_OnKickBack(clientIndex, 10.0, 7.0, 0.5, 0.35, 14.0, 10.0, 5);
+        ZP_CreateWeaponKickBack(clientIndex, 10.0, 7.0, 0.5, 0.35, 14.0, 10.0, 5);
     }
     else if(iFlags & FL_DUCKING)
     {
-        Weapon_OnKickBack(clientIndex, 7.5, 4.5, 0.15, 0.025, 10.5, 6.5, 9);
+        ZP_CreateWeaponKickBack(clientIndex, 7.5, 4.5, 0.15, 0.025, 10.5, 6.5, 9);
     }
     else
     {
-        Weapon_OnKickBack(clientIndex, 6.75, 6.75, 0.175, 0.0375, 10.75, 10.75, 8);
-    }
+        ZP_CreateWeaponKickBack(clientIndex, 6.75, 6.75, 0.175, 0.0375, 10.75, 10.75, 8);
+    }*/
     
     // Return on the success
     return true;
@@ -273,10 +265,10 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
         ZP_SetWeaponAnimation(clientIndex, ANIM_CHANGE);        
 
         // Sets active state
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", STATE_ACTIVE);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_ACTIVE);
         
         // Resets the shots count
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, 0);
         
         // Adds the delay to the game tick
         flCurrentTime += WEAPON_TIME_DELAY_SWITCH;
@@ -287,6 +279,10 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
         
         // Remove the delay to the game tick
         flCurrentTime -= 0.5;
+        
+        // Create a muzzleflesh / True for getting the custom viewmodel index
+        TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), "medicgun_invulnstatus_fullcharge_red", "ParticleEffect", _, _, _, 1);
+        TE_SendToClient(clientIndex);
         
         // Sets switching time
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", flCurrentTime);
@@ -301,10 +297,10 @@ void Weapon_OnFinish(int clientIndex, int weaponIndex, int iCounter, int iStateM
     ZP_SetWeaponAnimation(clientIndex, ANIM_CHANGE2);        
 
     // Sets active state
-    SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", STATE_NORMAL);
+    SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_NORMAL);
     
     // Resets the shots count
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", 0);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, 0);
 
     // Adds the delay to the game tick
     flCurrentTime += WEAPON_TIME_DELAY_SWITCH;
@@ -313,6 +309,10 @@ void Weapon_OnFinish(int clientIndex, int weaponIndex, int iCounter, int iStateM
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+    
+    // Delete an effect
+    TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), _, "ParticleEffectStop");
+    TE_SendToClient(clientIndex);
 }
 
 void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
@@ -325,46 +325,40 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
     // Gets weapon position
     ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -10.0, vEntPosition);
 
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    // Find any players in the radius
+    int i; int it = 1; /// iterator
+    while((i = ZP_FindPlayerInSphere(it, vEntPosition, WEAPON_BEAM_RADIUS)) != INVALID_ENT_REFERENCE)
     {
-        // Validate client
-        if((IsPlayerExist(i) && ZP_IsPlayerZombie(i)))
+        // Skip humans
+        if(ZP_IsPlayerHuman(i))
         {
-            // Gets center position
-            ZP_GetPlayerGunPosition(i, 0.0, 0.0, -45.0, vVictimPosition);
-
-            // Calculate the distance
-            float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-            // Validate distance
-            if(flDistance <= WEAPON_BEAM_RADIUS)
-            {
-                // Validate visibility
-                if(!TraceRay(clientIndex, i, vEntPosition, vVictimPosition, flDistance))
-                {
-                    continue;
-                }
-
-                // Create the damage for a victim
-                if(!ZP_TakeDamage(i, clientIndex, clientIndex, WEAPON_BEAM_DAMAGE, DMG_BURN))
-                {
-                    // Create a custom death event
-                    static char sIcon[SMALL_LINE_LENGTH];
-                    ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
-                    ZP_CreateDeathEvent(i, clientIndex, "inferno", true);
-                }
-                
-                // Create a shake
-                ZP_CreateShakeScreen(i, WEAPON_BEAM_SHAKE_AMP, WEAPON_BEAM_SHAKE_FREQUENCY, WEAPON_BEAM_SHAKE_DURATION);
-                
-                // Sets found state
-                bFound = true; 
-                break;
-            }
+            continue;
         }
-    }
 
+        // Gets victim center
+        GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vVictimPosition); vVictimPosition[2] += 45.0;
+
+        // Validate visibility
+        if(!TraceRay(clientIndex, i, vEntPosition, vVictimPosition))
+        {
+            continue;
+        }
+
+        // Create the damage for a victim
+        if(!ZP_TakeDamage(i, clientIndex, clientIndex, WEAPON_BEAM_DAMAGE, DMG_BURN))
+        {
+            // Create a custom death event
+            UTIL_CreateIcon(i, clientIndex, "inferno", true);
+        }
+        
+        // Create a shake
+        UTIL_CreateShakeScreen(i, WEAPON_BEAM_SHAKE_AMP, WEAPON_BEAM_SHAKE_FREQUENCY, WEAPON_BEAM_SHAKE_DURATION);
+        
+        // Sets found state
+        bFound = true; 
+        break;
+    }
+    
     // Found the aim origin
     if(!bFound)
     {
@@ -372,98 +366,12 @@ void Weapon_OnCreateBeam(int clientIndex, int weaponIndex)
         GetClientEyeAngles(clientIndex, vEntAngle);
 
         // Calculate aim end-vector
-        TR_TraceRayFilter(vEntPosition, vEntAngle, MASK_SHOT, RayType_Infinite, TraceFilter, clientIndex);
+        TR_TraceRayFilter(vEntPosition, vEntAngle, (MASK_SHOT|CONTENTS_GRATE), RayType_Infinite, TraceFilter, clientIndex);
         TR_GetEndPosition(vVictimPosition);
     }
 
-    // Gets beam lifetime
-    float flLife = ZP_GetWeaponSpeed(gWeapon);
-    
     // Sent a beam
-    TE_SetupBeamPoints(vEntPosition, vVictimPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 3.0, WEAPON_BEAM_COLOR, 30);
-    TE_SendToClient(clientIndex);
-    
-    // Gets worldmodel index
-    int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
-    
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE) 
-    {
-        // Gets attachment position
-        ZP_GetAttachment(entityIndex, "muzzle_flash", vEntPosition, vEntAngle);
-        
-        // Sent a beam
-        TE_SetupBeamPoints(vEntPosition, vVictimPosition, decalBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 3.0, WEAPON_BEAM_COLOR, 30);
-        int[] iClients = new int[MaxClients]; int iCount;
-        for (int i = 1; i <= MaxClients; i++)
-        {
-            if(!IsPlayerExist(i, false) || i == clientIndex || IsFakeClient(i)) continue;
-            iClients[iCount++] = i;
-        }
-        TE_Send(iClients, iCount);
-    }
-}
-
-void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
-{
-    #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
-
-    // Initialize variables
-    static int iDirection; static int iShotsFired; static float vPunchAngle[3];
-    GetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-
-    // Gets a shots fired
-    if((iShotsFired = GetEntProp(clientIndex, Prop_Send, "m_iShotsFired")) != 1)
-    {
-        // Calculate a base power
-        upBase += iShotsFired * upMod;
-        lateralBase += iShotsFired * lateralMod;
-    }
-
-    // Reduce a max power
-    upMax *= -1.0;
-    vPunchAngle[0] -= upBase;
-
-    // Validate max angle
-    if(upMax >= vPunchAngle[0])
-    {
-        vPunchAngle[0] = upMax;
-    }
-
-    // Gets a direction change
-    if((iDirection = GetEntProp(clientIndex, Prop_Send, "m_iDirection")))
-    {
-        // Increase the angle
-        vPunchAngle[1] += lateralBase;
-
-        // Validate min angle
-        if(lateralMax < vPunchAngle[1])
-        {
-            vPunchAngle[1] = lateralMax;
-        }
-    }
-    else
-    {
-        // Decrease the angle
-        lateralMax *=  -1.0;
-        vPunchAngle[1] -= lateralBase;
-
-        // Validate max angle
-        if(lateralMax > vPunchAngle[1])
-        {
-            vPunchAngle[1] = lateralMax;
-        }
-    }
-
-    // Create a direction change
-    if(!GetRandomInt(0, directionChange))
-    {
-        SetEntProp(clientIndex, Prop_Send, "m_iDirection", !iDirection);
-    }
-
-    // Sets a punch angle
-    SetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-    SetEntPropVector(clientIndex, Prop_Send, "m_viewPunchAngle", vPunchAngle);
+    ZP_CreateWeaponTracer(clientIndex, weaponIndex, "1", "muzzle_flash", "medicgun_beam_red_invun", vVictimPosition, ZP_GetWeaponSpeed(gWeapon));
 }
 
 //**********************************************
@@ -477,9 +385,9 @@ void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float u
         %1,                     \
         %2,                     \
                                 \
-        GetEntProp(%2, Prop_Send, "m_iClip2"), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
                                 \
-        GetEntProp(%2, Prop_Data, "m_iIKCounter"), \
+        GetEntProp(%2, Prop_Data, "m_iMaxHealth"/**/), \
                                 \
         GetGameTime()           \
     )    
@@ -497,8 +405,8 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", STATE_NORMAL);
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_NORMAL);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, 0);
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
     }
 } 
@@ -554,7 +462,6 @@ public void ZP_OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID)
     }
 }
 
-
 /**
  * @brief Called on each frame of a weapon holding.
  *
@@ -580,13 +487,13 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
             SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 
             // Sets active state
-            SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", STATE_ACTIVE);
+            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_ACTIVE);
         }
         else
         {
             // Validate state
             static int iStateMode;
-            if((iStateMode = GetEntProp(weaponIndex, Prop_Data, "m_iIKCounter")))
+            if((iStateMode = GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/)))
             {
                 // Switch animation
                 switch(ZP_GetWeaponAnimation(clientIndex))
@@ -629,36 +536,24 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  * @param entityIndex       The entity index.
  * @param targetIndex       The target index. 
  * @param vStartPosition    The starting position of the ray.
- * @param vEndPosition      The ending position of the ray.      
- * @param flDistance        (Optional) The distance amount. 
- * @param flLenth           (Optional) The current distance between positions' vectors output. (Squared)
+ * @param vEndPosition      The ending position of the ray.
  *
  * @return                  True of false.        
  **/
-stock bool TraceRay(int entityIndex, int targetIndex, float vStartPosition[3], float vEndPosition[3], float flDistance = 0.0, float &flLenth = 0.0)
+stock bool TraceRay(int entityIndex, int targetIndex, float vStartPosition[3], float vEndPosition[3])
 {
-    // Store the current distance between positions' vectors
-    flLenth = GetVectorDistance(vStartPosition, vEndPosition);
-    
-    // Validate distance
-    if(flDistance && flLenth > flDistance)
-    {
-        return false;
-    }
-
     // Starts up a new trace ray using a new trace result and a customized trace ray filter
-    Handle hTrace = TR_TraceRayFilterEx(vStartPosition, vEndPosition, MASK_SHOT, RayType_EndPoint, TraceFilter, entityIndex);
+    TR_TraceRayFilter(vStartPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, entityIndex);
 
     // Validate any kind of collision along the trace ray
     bool bHit;
-    if(!TR_DidHit(hTrace) || TR_GetEntityIndex(hTrace) == targetIndex) 
+    if(!TR_DidHit() || TR_GetEntityIndex() == targetIndex) 
     {
         // If trace hit, then stop
         bHit = true;
     }
 
     // Return on the end
-    delete hTrace;
     return bHit;
 }
 

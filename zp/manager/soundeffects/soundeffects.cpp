@@ -109,35 +109,40 @@ bool SEffectsInputEmitToClient(int iKey, int iNum = 0, int clientIndex, int enti
 }
 
 /**
- * @brief Emits an ambient sound
+ * @brief Emits an ambient sound.
  * 
  * @param iKey              The key array.
  * @param iNum              (Optional) The position index. (for not random sound)
- * @param clientIndex       (Optional) The client index.
- * @param entityIndex       (Optional) The entity to emit from.
- * @param iChannel          (Optional) The channel to emit with.
+ * @param vPosition         The sound origin.
+ * @param entityIndex       (Optional) The entity to associate sound with.
  * @param iLevel            (Optional) The sound level.
  * @param iFlags            (Optional) The sound flags.
  * @param flVolume          (Optional) The sound volume.
  * @param iPitch            (Optional) The sound pitch.
- * @param speakerIndex      (Optional) Unknown.
- * @param vPosition         (Optional) The sound origin.
- * @param vDirection        (Optional) The sound direction.
- * @param updatePos         (Optional) Unknown (updates positions?)
- * @param flSoundTime       (Optional) Alternate time to play sound for.
+ * @param flDelay           (Optional) The play delay.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, int clientIndex = -1, int entityIndex = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speakerIndex = INVALID_ENT_REFERENCE, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int entityIndex = SOUND_FROM_WORLD, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, float flDelay = 0.0)
 {
-    // Validate client
-    if(IsPlayerExist(clientIndex) && !IsFakeClient(clientIndex))
+    // Initialize sound char
+    static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = '\0';
+    
+    // Gets sound path
+    SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
+    
+    // Validate sound
+    if(hasLength(sSound))
     {
-        // Emit sound to the client
-        return SEffectsInputEmitToClient(iKey, iNum, clientIndex, entityIndex, iChannel, iLevel, iFlags, flVolume, iPitch, speakerIndex, vPosition, vDirection, updatePos, flSoundTime);
+        // Format sound
+        Format(sSound, sizeof(sSound), "*/%s", sSound);
+
+        // Emit sound
+        EmitAmbientSound(sSound, vPosition, entityIndex, iLevel, iFlags, flVolume, iPitch, flDelay);
+        return true;
     }
 
-    // Emit sound to all
-    return SEffectsInputEmitToAll(iKey, iNum, entityIndex, iChannel, iLevel, iFlags, flVolume, iPitch, speakerIndex, vPosition, vDirection, updatePos, flSoundTime);
+    // Sound doesn't exist
+    return false;
 }
 
 /**

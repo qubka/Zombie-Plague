@@ -280,14 +280,14 @@ public void HitGroupsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
  * 
  * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param flDamage          The amount of damage inflicted.
  * @param iBits             The type of damage inflicted.
  * @param iAmmo             The ammo type of the attacker weapon.
  * @param iHitBox           The hitbox index.  
  * @param iHitGroup         The hitgroup index.  
  **/
-public Action HitGroupsOnTraceAttack(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &iAmmo, int iHitBox, int iHitGroup)
+public Action HitGroupsOnTraceAttack(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &iAmmo, int iHitBox, int iHitGroup)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
@@ -333,21 +333,21 @@ public Action HitGroupsOnTraceAttack(int clientIndex, int &attackerIndex, int &i
  * 
  * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param flDamage          The amount of damage inflicted.
  * @param iBits             The type of damage inflicted.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  * @param damageForce       The velocity of damage force.
  * @param damagePosition    The origin of damage.
  **/
-public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex, float damageForce[3], float damagePosition[3]/*, int damagecustom*/)
+public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex, float damageForce[3], float damagePosition[3]/*, int damagecustom*/)
 {
     // Validate inflicter
-    if(IsValidEdict(inflicterIndex))
+    if(IsValidEdict(inflictorIndex))
     {
         // Gets classname of the inflicter
         static char sClassname[SMALL_LINE_LENGTH];
-        GetEdictClassname(inflicterIndex, sClassname, sizeof(sClassname));
+        GetEdictClassname(inflictorIndex, sClassname, sizeof(sClassname));
 
         // If entity is a trigger, then allow damage (Map is damaging client)
         if(StrContains(sClassname, "trigger", false) > -1)
@@ -365,7 +365,7 @@ public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &in
     }
 
     // Validate damage
-    if(!HitGroupsOnCalculateDamage(clientIndex, attackerIndex, inflicterIndex, flDamage, iBits, weaponIndex))
+    if(!HitGroupsOnCalculateDamage(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex))
     {
         // Block damage
         return Plugin_Handled;
@@ -382,13 +382,13 @@ public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &in
  * 
  * @param clientIndex       The victim index.
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param flDamage          The amount of damage inflicted.
  * @param iBits             The type of damage inflicted.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  * @return                  True to allow real damage or false to block real damage.
  **/
-bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
+bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Validate victim
     if(!IsPlayerAlive(clientIndex))
@@ -449,7 +449,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Call forward
-    gForwardData._OnClientDamaged(clientIndex, attackerIndex, inflicterIndex, flDamage, iBits, weaponIndex);
+    gForwardData._OnClientDamaged(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex);
 
     // Validate damage
     if(flDamage < 0.0)
@@ -500,10 +500,10 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     }
     
     // Validate grenade
-    if(IsValidEdict(inflicterIndex) && WeaponsValidateProjectile(inflicterIndex))
+    if(IsValidEdict(inflictorIndex) && WeaponsValidateProjectile(inflictorIndex))
     {
         // Validate custom index
-        int iD = WeaponsGetCustomID(inflicterIndex);
+        int iD = WeaponsGetCustomID(inflictorIndex);
         if(iD != -1)
         {
             // Store the weapon id for an icon 
@@ -634,7 +634,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
         }
         
         // Create a fake death event
-        DeathOnClientHUD(clientIndex, attackerIndex, sIcon, (iHitGroup == HITGROUP_HEAD));
+        UTIL_CreateIcon(clientIndex, attackerIndex, sIcon, (iHitGroup == HITGROUP_HEAD));
     }
 
     // Allow damage
@@ -667,14 +667,14 @@ void HitGroupsOnNativeInit(/*void*/)
 /**
  * @brief Applies fake damage to a player.
  *
- * @note native bool ZP_TakeDamage(clientIndex, attackerIndex, inflicterIndex, flDamage, iBits, weaponIndex);
+ * @note native bool ZP_TakeDamage(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex);
  **/
 public int API_TakeDamage(Handle hPlugin, int iNumParams)
 {
     // Gets data from native cells
     int clientIndex = GetNativeCell(1);
     int attackerIndex = GetNativeCell(2);
-    int inflicterIndex = GetNativeCell(3);
+    int inflictorIndex = GetNativeCell(3);
     float flDamage = GetNativeCell(4);
     int iBits = GetNativeCell(5);
     int weaponIndex = GetNativeCell(6);
@@ -687,17 +687,17 @@ public int API_TakeDamage(Handle hPlugin, int iNumParams)
     }
     
     // Call fake hook
-    Action resultHandle = HitGroupsOnTakeDamage(clientIndex, attackerIndex, inflicterIndex, flDamage, iBits, weaponIndex, NULL_VECTOR, NULL_VECTOR);
+    Action resultHandle = HitGroupsOnTakeDamage(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex, NULL_VECTOR, NULL_VECTOR);
     
     // Validate damage 
     if(resultHandle == Plugin_Changed)
     {
         // If attacker/inflicter doens't exist, then make a self damage
         if(!IsPlayerExist(attackerIndex, false)) attackerIndex = clientIndex;
-        if(!IsValidEdict(inflicterIndex)) inflicterIndex = clientIndex;
+        if(!IsValidEdict(inflictorIndex)) inflictorIndex = clientIndex;
 
         // Create the damage to kill
-        SDKHooks_TakeDamage(clientIndex, inflicterIndex, attackerIndex, flDamage);
+        SDKHooks_TakeDamage(clientIndex, inflictorIndex, attackerIndex, flDamage);
         return false;
     }
     
@@ -1222,13 +1222,6 @@ bool HitGroupsValidateArmor(int clientIndex, int iHitGroup)
  **/
 void HitGroupsApplyKnockBack(int clientIndex, int attackerIndex, float flKnockBack)
 {
-    // If victim is not on the ground, then apply it
-    if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
-    {
-        // Add multiplier
-        flKnockBack *= gCvarList[CVAR_JUMPBOOST_KNOCKBACK].FloatValue;
-    }
-    
     // Validate amount
     if(flKnockBack <= 0.0)
     {
@@ -1244,29 +1237,22 @@ void HitGroupsApplyKnockBack(int clientIndex, int attackerIndex, float flKnockBa
     GetClientEyePosition(attackerIndex, vEntPosition);
 
     // Create the infinite trace
-    Handle hTrace = TR_TraceRayFilterEx(vEntPosition, vEntAngle, MASK_SHOT, RayType_Infinite, HitGroupsFilter, attackerIndex);
+    TR_TraceRayFilter(vEntPosition, vEntAngle, MASK_ALL, RayType_Infinite, HitGroupsFilter, attackerIndex);
 
-    // Validate trace
-    if(!TR_DidHit(hTrace) || TR_GetEntityIndex(hTrace) == clientIndex)
-    {
-        // Gets hit point
-        TR_GetEndPosition(vBulletPosition, hTrace);
+    // Gets hit point
+    TR_GetEndPosition(vBulletPosition);
 
-        // Gets vector from the given starting and ending points
-        MakeVectorFromPoints(vEntPosition, vBulletPosition, vVelocity);
+    // Gets vector from the given starting and ending points
+    MakeVectorFromPoints(vEntPosition, vBulletPosition, vVelocity);
 
-        // Normalize the vector (equal magnitude at varying distances)
-        NormalizeVector(vVelocity, vVelocity);
+    // Normalize the vector (equal magnitude at varying distances)
+    NormalizeVector(vVelocity, vVelocity);
 
-        // Apply the magnitude by scaling the vector
-        ScaleVector(vVelocity, flKnockBack);
+    // Apply the magnitude by scaling the vector
+    ScaleVector(vVelocity, flKnockBack);
 
-        // Adds the given vector to the client current velocity
-        ToolsClientVelocity(clientIndex, vVelocity);
-    }
-    
-    // Close the trace
-    delete hTrace;
+    // Adds the given vector to the client current velocity
+    ToolsClientVelocity(clientIndex, vVelocity);
 }
 
 /**

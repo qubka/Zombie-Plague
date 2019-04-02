@@ -147,10 +147,8 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, float flCurrentT
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 
-    // Emit sound
-    static char sSound[PLATFORM_LINE_LENGTH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-    EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+    // Play sound
+    ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_STAB1, ANIM_STAB2});
@@ -172,24 +170,24 @@ void Weapon_OnSlash(int clientIndex, int weaponIndex)
     ZP_GetPlayerGunPosition(clientIndex, WEAPON_STAB_DISTANCE, 0.0, 10.0, vEndPosition);
 
     // Create the end-point trace
-    Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, MASK_SHOT, RayType_EndPoint, TraceFilter, clientIndex);
+    TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, clientIndex);
 
     // Validate collisions
-    if(TR_GetFraction(hTrace) >= 1.0)
+    if(TR_GetFraction() >= 1.0)
     {
         // Initialize the hull intersection
-        static float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
+        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
-        hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
+        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
     }
     
     // Validate collisions
-    if(TR_GetFraction(hTrace) < 1.0)
+    if(TR_GetFraction() < 1.0)
     {
         // Gets victim index
-        int victimIndex = TR_GetEntityIndex(hTrace);
+        int victimIndex = TR_GetEntityIndex();
 
         // Validate victim
         if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
@@ -198,29 +196,26 @@ void Weapon_OnSlash(int clientIndex, int weaponIndex)
             if(!ZP_TakeDamage(victimIndex, clientIndex, clientIndex, WEAPON_STAB_DAMAGE, DMG_SLASH))
             {
                 // Create a custom death event
-                ZP_CreateDeathEvent(victimIndex, clientIndex, "radarjammer", true);
+                UTIL_CreateIcon(victimIndex, clientIndex, "radarjammer", true);
             }
 
             // Gets center position
-            ZP_GetPlayerGunPosition(victimIndex, 0.0, 0.0, -45.0, vPosition);
+            GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition); vPosition[2] += 40.0;
             
             // Create a blood effect
-            ZP_CreateParticle(victimIndex, vPosition, _, "blood", 0.3);
+            UTIL_CreateParticle(victimIndex, vPosition, _, _, "blood", 0.3);
         }
         else
         {
             // Returns the collision position/angle of a trace result
-            TR_GetEndPosition(vEndPosition, hTrace);
-            TR_GetPlaneNormal(hTrace, vPlaneNormal); 
+            TR_GetEndPosition(vEndPosition);
+            TR_GetPlaneNormal(null, vPlaneNormal); 
     
             // Create a sparks effect
             TE_SetupSparks(vEndPosition, vPlaneNormal, 50, 2);
             TE_SendToAllInRange(vEndPosition, RangeType_Visibility);
         }
     }
-    
-    // Close the trace
-    delete hTrace;
 }
 
 /**

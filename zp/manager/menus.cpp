@@ -928,25 +928,23 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mS
             {
                 return;
             }
-            
-            // Initialize command char
-            static char sMenuCommand[SMALL_LINE_LENGTH];
 
             // Gets menu info
-            hMenu.GetItem(mSlot, sMenuCommand, sizeof(sMenuCommand));
-            int iD = StringToInt(sMenuCommand);
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            int iD = StringToInt(sBuffer);
             
             // Validate access
             if(MenusValidateClass(clientIndex, iD)) 
             {
                 // Gets menu command
-                MenusGetCommand(iD, sMenuCommand, sizeof(sMenuCommand));
+                MenusGetCommand(iD, sBuffer, sizeof(sBuffer));
                 
                 // Validate command
-                if(hasLength(sMenuCommand))
+                if(hasLength(sBuffer))
                 {
                     // Run the command
-                    FakeClientCommand(clientIndex, sMenuCommand);
+                    FakeClientCommand(clientIndex, sBuffer);
                 }
                 else
                 {
@@ -1055,7 +1053,8 @@ void SubMenu(int clientIndex, int iD)
         }
 
         // Show option
-        FormatEx(sInfo, sizeof(sInfo), "%d %d", iD, i);
+        ///FormatEx(sInfo, sizeof(sInfo), "%d %d", iD, i);
+        AnyToStream(sInfo, iD, i);
         hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || bHide ? false : true));
     }
     
@@ -1118,27 +1117,26 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSl
             {
                 return;
             }
-            
-            // Initialize command char
-            static char sMenuCommand[SMALL_LINE_LENGTH];
 
             // Gets menu info
-            hMenu.GetItem(mSlot, sMenuCommand, sizeof(sMenuCommand));
-            static char sInfo[2][SMALL_LINE_LENGTH];
-            ExplodeString(sMenuCommand, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-            int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
-            
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            static int iD[2]; StreamToAny(sBuffer, iD);
+            ///static char sInfo[2][SMALL_LINE_LENGTH];
+            ///ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            ///int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
+
             // Validate access
-            if(MenusValidateClass(clientIndex, iD, i)) 
+            if(MenusValidateClass(clientIndex, iD[0], iD[1])) 
             {
                 // Gets menu command
-                MenusGetCommand(iD, sMenuCommand, sizeof(sMenuCommand), i);
+                MenusGetCommand(iD[0], sBuffer, sizeof(sBuffer), iD[1]);
                 
                 // Validate command
-                if(hasLength(sMenuCommand))
+                if(hasLength(sBuffer))
                 {
                     // Run the command
-                    FakeClientCommand(clientIndex, sMenuCommand);
+                    FakeClientCommand(clientIndex, sBuffer);
                 }
             }
             else

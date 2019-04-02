@@ -127,10 +127,8 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iClip, int iStateMode,
     // Validate mode
     if(iStateMode)
     {
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1); 
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
 }
 
@@ -201,7 +199,7 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iClip, int i
                                 \
         GetEntProp(%2, Prop_Send, "m_iClip1"), \
                                 \
-        GetEntProp(%2, Prop_Data, "m_iIKCounter"), \
+        GetEntProp(%2, Prop_Data, "m_iMaxHealth"/**/), \
                                 \
         GetGameTime()           \
     )    
@@ -220,7 +218,7 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", STATE_NORMAL);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_NORMAL);
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
     }
 } 
@@ -318,12 +316,12 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
             SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 
             // Sets different mode
-            SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", !GetEntProp(weaponIndex, Prop_Data, "m_iIKCounter"));
+            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, !GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/));
         }
         else
         {
             // Validate state
-            if(GetEntProp(weaponIndex, Prop_Data, "m_iIKCounter"))
+            if(GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/))
             {
                 // Switch animation
                 switch(ZP_GetWeaponAnimation(clientIndex))
@@ -354,12 +352,12 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  * 
  * @param clientIndex       The client index.
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
  * @param weaponIndex       The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
 {
     // Client was damaged by 'bullet'
     if(iBits & DMG_NEVERGIB)
@@ -371,7 +369,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
             if(ZP_GetWeaponID(weaponIndex) == gWeapon)
             {
                 // Add additional damage
-                if(GetEntProp(weaponIndex, Prop_Data, "m_iIKCounter")) flDamage *= WEAPON_ACTIVE_MULTIPLIER;
+                if(GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/)) flDamage *= WEAPON_ACTIVE_MULTIPLIER;
             }
         }
     }

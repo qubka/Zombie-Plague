@@ -26,27 +26,6 @@
  **/
 
 /**
- * @section Weapon addon bits.
- **/
-#define CSAddon_NONE                0
-#define CSAddon_Flashbang1          (1<<0)
-#define CSAddon_Flashbang2          (1<<1)
-#define CSAddon_HEGrenade           (1<<2)
-#define CSAddon_SmokeGrenade        (1<<3)
-#define CSAddon_C4                  (1<<4)
-#define CSAddon_DefuseKit           (1<<5)
-#define CSAddon_PrimaryWeapon       (1<<6)
-#define CSAddon_SecondaryWeapon     (1<<7)
-#define CSAddon_Holster             (1<<8) 
-#define CSAddon_Decoy               (1<<9)
-#define CSAddon_Knife               (1<<10)
-#define CSAddon_FaceMask            (1<<11) // I'am guess
-#define CSAddon_TaGrenade           (1<<12)
-/**
- * @endsection
- **/
- 
-/**
  * @section Number of valid addons.
  **/
 enum BitType
@@ -86,54 +65,6 @@ void WeaponAttachOnUnload(/*void*/)
     }
 }
 
-/**
- * Hook: SetTransmit
- * @brief Called right before the entity transmitting to other entities.
- *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
- **/
-public Action WeaponAttachOnTransmit(int entityIndex, int clientIndex)
-{
-    // i = slot index
-    for(BitType i = BitType_PrimaryWeapon; i <= BitType_DefuseKit; i++)
-    {
-        // Validate addons
-        if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[i]) == entityIndex)
-        {
-            // Validate observer mode
-            if(ToolsGetClientObserverMode(clientIndex))
-            {
-                // Allow transmitting    
-                return Plugin_Continue;
-            }
-
-            // Block transmitting
-            return Plugin_Handled;
-        }
-    }
-    
-    // Gets the owner of the entity
-    int ownerIndex = ToolsGetEntityOwner(entityIndex);
-
-    // Validate dead owner
-    if(!IsPlayerAlive(ownerIndex))
-    {
-        // Block transmitting
-        return Plugin_Handled;
-    }
-    
-    // Validate observer mode
-    if(ToolsGetClientObserverMode(clientIndex) == SPECMODE_FIRSTPERSON && ownerIndex == ToolsGetClientObserverTarget(clientIndex))
-    {
-        // Block transmitting
-        return Plugin_Handled;
-    }
-
-    // Allow transmitting
-    return Plugin_Continue;
-}
-
 /*
  * Stocks attachment API.
  */
@@ -160,7 +91,7 @@ void WeaponAttachSetAddons(int clientIndex)
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Primary));
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
@@ -377,7 +308,7 @@ void WeaponAttachSetAddons(int clientIndex)
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Melee));
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
@@ -437,7 +368,7 @@ void WeaponAttachSetAddons(int clientIndex)
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_C4));
             
             // Validate weapon
-            if(IsValidEdict(weaponIndex))
+            if(weaponIndex != INVALID_ENT_REFERENCE)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weaponIndex);
@@ -554,21 +485,16 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, BitType mBits, char[] sAt
         // Validate attachment
         if(ToolsLookupAttachment(clientIndex, sAttach))
         {
+            // Gets weapon dropmodel
+            static char sModel[PLATFORM_LINE_LENGTH];
+            WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 
+    
             // Create an attach addon entity 
-            int entityIndex = CreateEntityByName("prop_dynamic_override");
+            int entityIndex = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, sModel);
             
             // If entity isn't valid, then skip
             if(entityIndex != INVALID_ENT_REFERENCE)
             {
-                // Gets weapon dropmodel
-                static char sModel[PLATFORM_LINE_LENGTH];
-                WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 
-
-                // Dispatch main values of the entity
-                DispatchKeyValue(entityIndex, "model", sModel);
-                DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
-                DispatchKeyValue(entityIndex, "solid", "0");
-               
                 // Sets bodygroup of the entity
                 SetVariantInt(WeaponsGetModelBody(iD, ModelType_Drop));
                 AcceptEntityInput(entityIndex, "SetBodyGroup");
@@ -576,10 +502,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, BitType mBits, char[] sAt
                 // Sets skin of the entity
                 SetVariantInt(WeaponsGetModelSkin(iD, ModelType_Drop));
                 AcceptEntityInput(entityIndex, "ModelSkin");
-                
-                // Spawn the entity into the world
-                DispatchSpawn(entityIndex);
- 
+        
                 // Sets parent to the entity
                 SetVariantString("!activator");
                 AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
@@ -590,7 +513,7 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, BitType mBits, char[] sAt
                 AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
                 
                 // Hook entity callbacks
-                SDKHook(entityIndex, SDKHook_SetTransmit, WeaponAttachOnTransmit);
+                SDKHook(entityIndex, SDKHook_SetTransmit, ToolsOnEntityTransmit);
                 
                 // Store the client cache
                 gClientData[clientIndex].AttachmentAddons[mBits] = EntIndexToEntRef(entityIndex);

@@ -671,10 +671,11 @@ void WeaponSDKOnClientUpdate(int clientIndex)
         SetEntData(viewModel2, g_iOffset_ViewModelIgnoreOffsAcc, true, 1, true);
 
         // Spawn the entity into the world
-        DispatchSpawn(viewModel2);
-
-        // Sets viewmodel to the owner
-        WeaponHDRSetPlayerViewModel(clientIndex, 1, viewModel2);
+        if(DispatchSpawn(viewModel2))
+        {
+            // Sets viewmodel to the owner
+            WeaponHDRSetPlayerViewModel(clientIndex, 1, viewModel2);
+        }
     }
 
     // Sets entity index to the reference
@@ -706,6 +707,9 @@ void WeaponSDKOnClientUpdate(int clientIndex)
  **/
 void WeaponSDKOnClientDeath(int clientIndex)
 {
+    // Remove all addons
+    WeaponAttachRemoveAddons(clientIndex); /// Back weapon models
+    
     // Gets entity index from the reference
     int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
 
@@ -1124,9 +1128,10 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
         {
             // Gets entity index from the reference
             int viewModel2 = EntRefToEntIndex(gClientData[clientIndex].ViewModels[1]);
-
-            // Validate secondary viewmodel
-            if(viewModel2 == INVALID_ENT_REFERENCE)
+            ///int worldModel = WeaponHDRGetPlayerWorldModel(weaponIndex);
+            
+            // Validate models
+            if(viewModel2 == INVALID_ENT_REFERENCE/* || worldModel == INVALID_ENT_REFERENCE*/)
             {
                 return;
             }
@@ -1167,7 +1172,7 @@ void WeaponSDKOnFire(int clientIndex, int weaponIndex)
                     if(flCurrentTime - flSmoke[clientIndex] > 1.0)
                     {
                         // Creates a muzzle smoke
-                        ParticlesMuzzleSmoke(clientIndex, viewModel2);
+                        ParticlesMuzzleCreate(clientIndex, viewModel2, "weapon_muzzle_smoke");
                         flSmoke[clientIndex] = flCurrentTime;
                     }
                     

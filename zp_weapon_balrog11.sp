@@ -44,10 +44,13 @@ public Plugin myinfo =
 /**
  * @section Information about weapon.
  **/
-#define WEAPON_FIRE_DAMAGE      50.0
+#define WEAPON_FIRE_DAMAGE      200.0
+#define WEAPON_FIRE_RADIUS      50.0
 #define WEAPON_FIRE_SPEED       1000.0
 #define WEAPON_FIRE_GRAVITY     0.01
 #define WEAPON_FIRE_COUNTER     4
+#define WEAPON_FIRE_LIFE        0.5
+#define WEAPON_FIRE_TIME        2.0
 /**
  * @endsection
  **/
@@ -138,12 +141,10 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iCounter, int iAmmo, f
         if(iAmmo < ZP_GetWeaponClip(gWeapon))
         {
             // Sets clip count
-            SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", iAmmo + 1);
+            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, iAmmo + 1);
          
-            // Emit sound
-            static char sSound[PLATFORM_LINE_LENGTH];
-            ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-            EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+            // Play sound
+            ZP_EmitSoundToAll(gSound, 2, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             
             // Resets the shots counter
             iCounter = -1;
@@ -151,7 +152,7 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iCounter, int iAmmo, f
     }
     
     // Sets shots count
-    SetEntProp(weaponIndex, Prop_Send, "m_iClip2", iCounter + 1);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, iCounter + 1);
 }
 
 void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, int iAmmo, float flCurrentTime)
@@ -184,7 +185,7 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
     }
 
     // Substract ammo
-    iAmmo -= 1; SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", iAmmo); 
+    iAmmo -= 1; SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, iAmmo); 
 
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
@@ -197,10 +198,8 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
     // Sets shots count
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", GetEntProp(clientIndex, Prop_Send, "m_iShotsFired") + 1);
  
-    // Emit sound
-    static char sSound[PLATFORM_LINE_LENGTH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-    EmitSoundToAll(sSound, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+    // Play sound
+    ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_SHOOT_BSC1, ANIM_SHOOT_BSC2 });
@@ -231,19 +230,19 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
     // Apply kick back
     if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
     {
-        Weapon_OnKickBack(clientIndex, 10.5, 7.5, 0.225, 0.05, 10.5, 7.5, 7);
+        ZP_CreateWeaponKickBack(clientIndex, 10.5, 7.5, 0.225, 0.05, 10.5, 7.5, 7);
     }
     else if(!(iFlags & FL_ONGROUND))
     {
-        Weapon_OnKickBack(clientIndex, 14.0, 10.0, 0.5, 0.35, 14.0, 10.0, 5);
+        ZP_CreateWeaponKickBack(clientIndex, 14.0, 10.0, 0.5, 0.35, 14.0, 10.0, 5);
     }
     else if(iFlags & FL_DUCKING)
     {
-        Weapon_OnKickBack(clientIndex, 10.5, 6.5, 0.15, 0.025, 10.5, 6.5, 9);
+        ZP_CreateWeaponKickBack(clientIndex, 10.5, 6.5, 0.15, 0.025, 10.5, 6.5, 9);
     }
     else
     {
-        Weapon_OnKickBack(clientIndex, 10.75, 10.75, 0.175, 0.0375, 10.75, 10.75, 8);
+        ZP_CreateWeaponKickBack(clientIndex, 10.75, 10.75, 0.175, 0.0375, 10.75, 10.75, 8);
     }
     
     // Gets weapon muzzleflesh
@@ -269,14 +268,11 @@ void Weapon_OnCreateFire(int clientIndex, int weaponIndex, float vPosition[3])
     GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
 
     // Create a rocket entity
-    int entityIndex = CreateEntityByName("hegrenade_projectile");
+    int entityIndex = UTIL_CreateProjectile(vPosition, vAngle);
 
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-
         // Sets grenade model scale
         SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", 10.0);
         
@@ -293,18 +289,17 @@ void Weapon_OnCreateFire(int clientIndex, int weaponIndex, float vPosition[3])
         AddVectors(vEntVelocity, vVelocity, vEntVelocity);
 
         // Push the fire
-        TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
+        TeleportEntity(entityIndex, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
         
         // Sets an entity color
         SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
         SetEntityRenderColor(entityIndex, _, _, _, 0);
-        DispatchKeyValue(entityIndex, "disableshadows", "1"); /// Prevents the entity from receiving shadows
-
+        AcceptEntityInput(entityIndex, "DisableShadow"); /// Prevents the entity from receiving shadows
+        
         // Sets parent for the entity
         SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
         SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
         SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
-        SetEntPropEnt(entityIndex, Prop_Data, "m_hDamageFilter", weaponIndex);
 
         // Sets gravity
         SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", WEAPON_FIRE_GRAVITY); 
@@ -312,123 +307,12 @@ void Weapon_OnCreateFire(int clientIndex, int weaponIndex, float vPosition[3])
         // Create touch hook
         SDKHook(entityIndex, SDKHook_Touch, FireTouchHook);
         
-        // Create fly hook
-        CreateTimer(0.2, FireFlyHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
+        // Create an effect
+        UTIL_CreateParticle(entityIndex, vPosition, _, _, "flaregun_trail_crit_red", WEAPON_FIRE_LIFE);
         
-        // Create an effect
-        ZP_CreateParticle(entityIndex, vPosition, _, "env_fire_medium", 0.2);
+        // Kill after some duration
+        UTIL_RemoveEntity(entityIndex, WEAPON_FIRE_LIFE);
     }
-}
-
-void Weapon_OnKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
-{
-    #pragma unused clientIndex, upBase, lateralBase, upMod, lateralMod, upMax, lateralMax, directionChange 
-
-    // Initialize variables
-    static int iDirection; static int iShotsFired; static float vPunchAngle[3];
-    GetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-
-    // Gets a shots fired
-    if((iShotsFired = GetEntProp(clientIndex, Prop_Send, "m_iShotsFired")) != 1)
-    {
-        // Calculate a base power
-        upBase += iShotsFired * upMod;
-        lateralBase += iShotsFired * lateralMod;
-    }
-
-    // Reduce a max power
-    upMax *= -1.0;
-    vPunchAngle[0] -= upBase;
-
-    // Validate max angle
-    if(upMax >= vPunchAngle[0])
-    {
-        vPunchAngle[0] = upMax;
-    }
-
-    // Gets a direction change
-    if((iDirection = GetEntProp(clientIndex, Prop_Send, "m_iDirection")))
-    {
-        // Increase the angle
-        vPunchAngle[1] += lateralBase;
-
-        // Validate min angle
-        if(lateralMax < vPunchAngle[1])
-        {
-            vPunchAngle[1] = lateralMax;
-        }
-    }
-    else
-    {
-        // Decrease the angle
-        lateralMax *=  -1.0;
-        vPunchAngle[1] -= lateralBase;
-
-        // Validate max angle
-        if(lateralMax > vPunchAngle[1])
-        {
-            vPunchAngle[1] = lateralMax;
-        }
-    }
-
-    // Create a direction change
-    if(!GetRandomInt(0, directionChange))
-    {
-        SetEntProp(clientIndex, Prop_Send, "m_iDirection", !iDirection);
-    }
-
-    // Sets a punch angle
-    SetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-    SetEntPropVector(clientIndex, Prop_Send, "m_viewPunchAngle", vPunchAngle);
-}
-
-/**
- * @brief Main timer for fly fire hook.
- *
- * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
- **/
-public Action FireFlyHook(Handle hTimer, int referenceIndex)
-{
-    // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Create an effect
-        static float vPosition[3];
-        GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vPosition);
-        ZP_CreateParticle(entityIndex, vPosition, _, "env_fire_large", 0.5);
-
-        // Create think hook
-        CreateTimer(0.5, FireRemoveHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
-    }
-    
-    // Destroy timer
-    return Plugin_Stop;
-}  
-    
-/**
- * @brief Main timer for remove fire hook.
- *
- * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
- **/
-public Action FireRemoveHook(Handle hTimer, int referenceIndex)
-{
-    // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Remove the entity from the world
-        AcceptEntityInput(entityIndex, "Kill");  
-    }
-    
-    // Destroy timer
-    return Plugin_Stop;
 }
     
 //**********************************************
@@ -442,9 +326,9 @@ public Action FireRemoveHook(Handle hTimer, int referenceIndex)
         %1,                     \
         %2,                     \
                                 \
-        GetEntProp(%2, Prop_Send, "m_iClip2"), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
                                 \
-        GetEntProp(%2, Prop_Data, "m_iIKCounter"), \
+        GetEntProp(%2, Prop_Data, "m_iMaxHealth"/**/), \
                                 \
         GetGameTime()           \
     )    
@@ -462,8 +346,8 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", 0);
-        SetEntProp(weaponIndex, Prop_Send, "m_iClip2", 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, 0);
     }
 }
 
@@ -549,8 +433,7 @@ public Action FireTouchHook(int entityIndex, int targetIndex)
     {
         // Gets thrower index
         int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
-        int weaponIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_hDamageFilter");
-        
+
         // Validate thrower
         if(throwerIndex == targetIndex)
         {
@@ -558,16 +441,18 @@ public Action FireTouchHook(int entityIndex, int targetIndex)
             return Plugin_Continue;
         }
 
-        // Validate client
-        if(IsPlayerExist(targetIndex))
-        {
-            // Validate zombie
-            if(ZP_IsPlayerZombie(targetIndex)) 
-            {
-                // Create the damage for a victim
-                ZP_TakeDamage(targetIndex, throwerIndex, entityIndex, WEAPON_FIRE_DAMAGE, DMG_NEVERGIB, weaponIndex);
-            }
-        }
+        // Gets entity position
+        static float vPosition[3];
+        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        
+        // Create an explosion
+        UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_FIRE_DAMAGE, WEAPON_FIRE_RADIUS, "prop_exploding_barrel", throwerIndex, entityIndex);
+
+        // Create an explosion effect
+        UTIL_CreateParticle(_, vPosition, _, _, "projectile_fireball_crit_red", WEAPON_FIRE_TIME);
+        
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
         
         // Remove the entity from the world
         AcceptEntityInput(entityIndex, "Kill");

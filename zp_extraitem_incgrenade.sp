@@ -74,7 +74,8 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
     if(extraitemIndex == gItem)
     {
         // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) || ZP_IsPlayerHasWeapon(clientIndex, gDublicat))
+        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE || 
+           ZP_IsPlayerHasWeapon(clientIndex, gDublicat) != INVALID_ENT_REFERENCE)
         {
             return Plugin_Handled;
         }

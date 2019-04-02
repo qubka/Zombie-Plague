@@ -26,29 +26,6 @@
  **/
 
 /**
- * @section Core static macroses.
- **/
-#define SMALL_LINE_LENGTH       32
-#define NORMAL_LINE_LENGTH      64
-#define BIG_LINE_LENGTH         128
-#define CHAT_LINE_LENGTH        192
-#define PLATFORM_LINE_LENGTH    256
-#define HUGE_LINE_LENGTH        512
-#define CONSOLE_LINE_LENGTH     1024
-#define FILE_LINE_LENGTH        2048
-#define TEAM_NONE               0    /**< No team yet */
-#define TEAM_SPECTATOR          1    /**< Spectators */
-#define TEAM_ZOMBIE             2    /**< Zombies */
-#define TEAM_HUMAN              3    /**< Humans */
-#define SPECMODE_NONE           0
-#define SPECMODE_FIRSTPERSON    4
-#define SPECMODE_3RDPERSON      5
-#define SPECMODE_FREELOOK       6
-/**
- * @endsection
- **/
-
-/**
  * @section Variables to store offset values.
  **/
 int g_iOffset_PlayerVelocity;
@@ -373,7 +350,6 @@ ClientData gClientData[MAXPLAYERS+1];
 /**
  * @section Core useful functions.
  **/
-#define hasLength(%0) (%0[0] != '\0')
 #define _call.%0(%1)  RequestFrame(view_as<RequestFrameCallback>(%0), GetClientUserId(%1))
 #define _next.%0(%1)  RequestFrame(view_as<RequestFrameCallback>(%0), EntIndexToEntRef(%1))
 /**

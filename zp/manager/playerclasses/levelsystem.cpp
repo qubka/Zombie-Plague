@@ -57,7 +57,7 @@ void LevelSystemOnInit(/*void*/)
                 for(int i = 1; i <= MaxClients; i++)
                 {
                     // Validate client
-                    if(IsPlayerExist(i))
+                    if(IsPlayerExist(i, false))
                     {
                         // Remove timer
                         delete gClientData[i].LevelTimer;

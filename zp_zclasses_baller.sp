@@ -156,23 +156,15 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Gets client speed
         GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
         
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a blast entity
-        int entityIndex = CreateEntityByName("hegrenade_projectile");
+        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/player/custom_player/zombie/aura_shield/aura_shield2.mdl");
         
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Spawn the entity
-            DispatchSpawn(entityIndex);
-            
-            // Sets model
-            SetEntityModel(entityIndex, "models/player/custom_player/zombie/aura_shield/aura_shield2.mdl");
-            
             // Sets blast model scale
             SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", ZOMBIE_CLASS_SKILL_SIZE);
             
@@ -189,7 +181,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             AddVectors(vEntVelocity, vVelocity, vEntVelocity);
 
             // Push the blast
-            TeleportEntity(entityIndex, vPosition, vAngle, vEntVelocity);
+            TeleportEntity(entityIndex, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
 
             // Sets parent for the entity
             SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
@@ -200,15 +192,14 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", ZOMBIE_CLASS_SKILL_GRAVITY);
             SetEntPropFloat(entityIndex, Prop_Send, "m_flElasticity", ZOMBIE_CLASS_SKILL_ELASTICITY);
             
-            // Emit sound
-            ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-            EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            // Play sound
+            ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             
             // Create an effect
-            ZP_CreateParticle(entityIndex, vPosition, _, "gamma_blue", ZP_GetClassSkillDuration(gZombie));
+            UTIL_CreateParticle(entityIndex, vPosition, _, _, "gamma_blue", ZP_GetClassSkillDuration(gZombie));
             
             // Put fire on it
-            IgniteEntity(entityIndex, ZP_GetClassSkillDuration(gZombie));
+            UTIL_IgniteEntity(entityIndex, ZP_GetClassSkillDuration(gZombie));
 
             // Sets blue render color
             SetEntityRenderMode(entityIndex, RENDER_TRANSCOLOR);
@@ -234,11 +225,9 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  **/
 public Action BlastTouchHook(int entityIndex, int targetIndex)
 {
-    // Emit sound
-    static char sSound[PLATFORM_LINE_LENGTH];
-    ZP_GetSound(gSound, sSound, sizeof(sSound), GetRandomInt(3, 4));
-    EmitSoundToAll(sSound, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-
+    // Play sound
+    ZP_EmitSoundToAll(gSound, GetRandomInt(3, 4), entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+    
     // Return on the success
     return Plugin_Continue;
 }
@@ -261,65 +250,49 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
         static float vEntPosition[3]; static float vVictimPosition[3];
 
         // Gets entity position
-        GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
+        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vEntPosition);
 
-        // Create a info_target entity
-        int infoIndex = ZP_CreateEntity(vEntPosition, ZOMBIE_CLASS_SKILL_EXP_TIME);
+        // Create an explosion effect
+        UTIL_CreateParticle(_, vEntPosition, _, _, "Explosions_MA_Dustup_2", ZOMBIE_CLASS_SKILL_EXP_TIME);
 
-        // Validate entity
-        if(infoIndex != INVALID_ENT_REFERENCE)
-        {
-            // Create an explosion effect
-            ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_molotov_air", ZOMBIE_CLASS_SKILL_EXP_TIME);
-            
-            // Emit sound
-            static char sSound[PLATFORM_LINE_LENGTH];
-            ZP_GetSound(gSound, sSound, sizeof(sSound), 5);
-            EmitSoundToAll(sSound, infoIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-        }
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 5, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
         
         // Gets blast owner
         int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
         
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        // Find any players in the radius
+        int i; int it = 1; /// iterator
+        while((i = ZP_FindPlayerInSphere(it, vEntPosition, ZOMBIE_CLASS_SKILL_EXP_RADIUS)) != INVALID_ENT_REFERENCE)
         {
-            // Validate human
-            if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+            // Skip zombies
+            if(ZP_IsPlayerZombie(i))
             {
-                // Gets victim origin
-                GetClientAbsOrigin(i, vVictimPosition);
-
-                // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                // Validate distance
-                if(flDistance <= ZOMBIE_CLASS_SKILL_EXP_RADIUS)
-                {
-                    // Blaat the client
-                    SetEntityMoveType(i, MOVETYPE_NONE);
-
-                    // Create the damage for a victim
-                    if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_EXP_RADIUS)), DMG_AIRBOAT))
-                    {
-                        // Create a custom death event
-                        if(IsPlayerExist(ownerIndex, false)) /// Check owner in case!
-                        {  
-                            ZP_CreateDeathEvent(i, ownerIndex, "snowball", true);
-                        }
-                    }
-                    
-                    // Create a fade
-                    ZP_CreateFadeScreen(i, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);
-                    
-                    // Create a shake
-                    ZP_CreateShakeScreen(i, ZOMBIE_CLASS_SKILL_SHAKE_AMP, ZOMBIE_CLASS_SKILL_SHAKE_FREQUENCY, ZOMBIE_CLASS_SKILL_SHAKE_DURATION);
-                    
-                    // Create timer for removing freezing
-                    delete Task_HumanBlasted[i];
-                    Task_HumanBlasted[i] = CreateTimer(ZOMBIE_CLASS_SKILL_DURATION, ClientRemoveBlastEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
-                }
+                continue;
             }
+            
+            // Gets victim origin
+            GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vVictimPosition);
+
+            // Blaat the client
+            SetEntityMoveType(i, MOVETYPE_NONE);
+
+            // Create the damage for a victim
+            if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE * (1.0 - (GetVectorDistance(vEntPosition, vVictimPosition) / ZOMBIE_CLASS_SKILL_EXP_RADIUS)), DMG_AIRBOAT))
+            {
+                // Create a custom death event
+                UTIL_CreateIcon(i, ownerIndex, "snowball", true);
+            }
+            
+            // Create a fade
+            UTIL_CreateFadeScreen(i, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);
+            
+            // Create a shake
+            UTIL_CreateShakeScreen(i, ZOMBIE_CLASS_SKILL_SHAKE_AMP, ZOMBIE_CLASS_SKILL_SHAKE_FREQUENCY, ZOMBIE_CLASS_SKILL_SHAKE_DURATION);
+            
+            // Create timer for removing freezing
+            delete Task_HumanBlasted[i];
+            Task_HumanBlasted[i] = CreateTimer(ZOMBIE_CLASS_SKILL_DURATION, ClientRemoveBlastEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);    
         }
 
         // Remove entity from the world

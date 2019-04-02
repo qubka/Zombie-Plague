@@ -89,20 +89,22 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     // Validate the zombie class index
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
-
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        
         // Gets client origin
         static float vPosition[3];
-        GetClientAbsOrigin(clientIndex, vPosition);
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
         
-        // Create an effect
-        int iSmoke = ZP_CreateParticle(clientIndex, vPosition, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
+        // Create an smoke effect
+        int particleIndex = UTIL_CreateParticle(clientIndex, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
         
-        // Create gas damage task
-        CreateTimer(0.1, ClientOnToxicGas, EntIndexToEntRef(iSmoke), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        // Validate entity
+        if(particleIndex != INVALID_ENT_REFERENCE)
+        {
+            // Create gas damage task
+            CreateTimer(0.1, ClientOnToxicGas, EntIndexToEntRef(particleIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        }
     }
     
     // Allow usage
@@ -123,40 +125,28 @@ public Action ClientOnToxicGas(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Initialize vectors
-        static float vEntPosition[3]; static float vVictimPosition[3];
-
         // Gets owner index
         int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
 
         // Gets entity position
-        GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
+        static float vPosition[3];
+        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
  
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        // Find any players in the radius
+        int i; int it = 1; /// iterator
+        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != INVALID_ENT_REFERENCE)
         {
-            // Validate human
-            if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+            // Skip zombies
+            if(ZP_IsPlayerZombie(i))
             {
-                // Gets victim origin
-                GetClientAbsOrigin(i, vVictimPosition);
-
-                // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                // Validate distance
-                if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
-                {            
-                    // Create the damage for a victim
-                    if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS))
-                    {
-                        // Create a custom death event
-                        if(IsPlayerExist(ownerIndex, false)) /// Check owner in case!
-                        {   
-                            ZP_CreateDeathEvent(i, ownerIndex, "ammobox_threepack", true);
-                        }
-                    }
-                }
+                continue;
+            }
+    
+            // Create the damage for a victim
+            if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS))
+            {
+                // Create a custom death event
+                UTIL_CreateIcon(i, ownerIndex, "ammobox_threepack", true);
             }
         }
 

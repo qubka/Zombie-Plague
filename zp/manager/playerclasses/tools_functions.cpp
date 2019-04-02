@@ -24,46 +24,7 @@
  *
  * ============================================================================
  **/
- 
-/**
- * @section Hud elements flags.
- **/
-#define HIDEHUD_WEAPONSELECTION     (1<<0)   // Hide ammo count & weapon selection
-#define HIDEHUD_FLASHLIGHT          (1<<1)
-#define HIDEHUD_ALL                 (1<<2)
-#define HIDEHUD_HEALTH              (1<<3)   // Hide health & armor / suit battery
-#define HIDEHUD_PLAYERDEAD          (1<<4)   // Hide when local player's dead
-#define HIDEHUD_NEEDSUIT            (1<<5)   // Hide when the local player doesn't have the HEV suit
-#define HIDEHUD_MISCSTATUS          (1<<6)   // Hide miscellaneous status elements (trains, pickup history, death notices, etc)
-#define HIDEHUD_CHAT                (1<<7)   // Hide all communication elements (saytext, voice icon, etc)
-#define HIDEHUD_CROSSHAIR           (1<<8)   // Hide crosshairs
-#define HIDEHUD_VEHICLE_CROSSHAIR   (1<<9)   // Hide vehicle crosshair
-#define HIDEHUD_INVEHICLE           (1<<10)
-#define HIDEHUD_BONUS_PROGRESS      (1<<11)  // Hide bonus progress display (for bonus map challenges)
-#define HIDEHUD_RADAR               (1<<12)
-#define HIDEHUD_RADARANDTIMER       (3<<12)  
-/**
- * @endsection
- **/
- 
-/**
- * @section Entity effects flags.
- **/
-#define EF_BONEMERGE                (1<<0)     // Performs bone merge on client side
-#define EF_BRIGHTLIGHT              (1<<1)     // DLIGHT centered at entity origin
-#define EF_DIMLIGHT                 (1<<2)     // Player flashlight
-#define EF_NOINTERP                 (1<<3)     // Don't interpolate the next frame
-#define EF_NOSHADOW                 (1<<4)     // Disables shadow
-#define EF_NODRAW                   (1<<5)     // Prevents the entity from drawing and networking
-#define EF_NORECEIVESHADOW          (1<<6)     // Don't receive shadows
-#define EF_BONEMERGE_FASTCULL       (1<<7)     // For use with EF_BONEMERGE. If this is set, then it places this ents origin at its parent and uses the parent's bbox + the max extents of the aiment. Otherwise, it sets up the parent's bones every frame to figure out where to place the aiment, which is inefficient because it'll setup the parent's bones even if the parent is not in the PVS.
-#define EF_ITEM_BLINK               (1<<8)     // Makes the entity blink
-#define EF_PARENT_ANIMATES          (1<<9)     // Always assume that the parent entity is animating
-#define EF_FOLLOWBONE               (1<<10)    
-/**
- * @endsection
- **/
- 
+
 /**
  * @brief Creates commands for tools module.
  **/
@@ -952,10 +913,10 @@ bool ToolsLookupAttachment(int entityIndex, char[] sAttach)
 void ToolsGetAttachment(int entityIndex, char[] sAttach, float vPosition[3], float vAngle[3])
 {
     // Validate length
-    if(!hasLength(sAttach))
+    /*if(!hasLength(sAttach))
     {
         return;
-    }
+    }*/
     
     // Validate windows
     if(gServerData.Platform == OS_Windows)
@@ -970,4 +931,66 @@ void ToolsGetAttachment(int entityIndex, char[] sAttach, float vPosition[3], flo
             SDKCall(hSDKCallGetAttachment, entityIndex, iAttach, vPosition, vAngle); 
         }
     }
+}
+
+/**
+ * @brief Gets the sequence of the entity.
+ *
+ * @param entityIndex       The entity index.
+ * @param sAnim             The sequence name.
+ * @return                  The sequence index.
+ **/
+int ToolsLookupSequence(int entityIndex, char[] sAnim)
+{
+    // Validate length
+    /*if(!hasLength(sAnim))
+    {
+        return;
+    }*/
+    
+    // Validate windows
+    if(gServerData.Platform == OS_Windows)
+    {
+        return SDKCall(hSDKCallLookupSequence, entityIndex, sAnim); 
+    }
+    else
+    {
+        // Load some bytes from a memory address
+        Address studioHdrClass = WeaponHDRGetStudioHdrClass(entityIndex);
+        
+        // Validate address
+        if(studioHdrClass == Address_Null)
+        {
+            return -1;
+        }
+        
+        return SDKCall(hSDKCallLookupSequence, studioHdrClass, sAnim); 
+    }
+}
+
+/**
+ * @brief Gets the pose of the entity.
+ *
+ * @param entityIndex       The entity index.
+ * @param sName             The pose name.
+ * @return                  The pose parameter.
+ **/
+int ToolsLookupPoseParameter(int entityIndex, char[] sName)
+{
+    // Validate length
+    /*if(!hasLength(sName))
+    {
+        return;
+    }*/
+    
+    // Load some bytes from a memory address
+    Address studioHdrClass = WeaponHDRGetStudioHdrClass(entityIndex);
+    
+    // Validate address
+    if(studioHdrClass == Address_Null)
+    {
+        return -1;
+    }
+    
+    return SDKCall(hSDKCallLookupPoseParameter, entityIndex, studioHdrClass, sName); 
 }

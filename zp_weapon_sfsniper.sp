@@ -45,8 +45,8 @@ public Plugin myinfo =
  * @section Information about weapon.
  **/
 #define WEAPON_BEAM_LIFE                2.5
-#define WEAPON_BEAM_WIDTH               3.0
-#define WEAPON_BEAM_COLOR               {255, 69, 0, 255}
+#define WEAPON_BEAM_WIDTH               "3.0"
+#define WEAPON_BEAM_COLOR               "255 69 0"
 #define WEAPON_BEAM_MODEL               "materials/sprites/laserbeam.vmt"
 /**
  * @endsection
@@ -78,70 +78,16 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
 {
     #pragma unused clientIndex, weaponIndex, vBulletPosition
 
-    // Initialize vectors
-    static float vPosition[3];
-
     // Gets weapon position
+    static float vPosition[3];
     ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vPosition);
     
     // Create a beam entity
-    int entityIndex = CreateEntityByName("env_beam");
-
-    // If entity isn't valid, then skip
+    int entityIndex = UTIL_CreateBeam(vPosition, vBulletPosition, _, _, WEAPON_BEAM_WIDTH, _, _, _, _, _, _, WEAPON_BEAM_MODEL, _, _, BEAM_STARTSPARKS | BEAM_ENDSPARKS, _, _, _, WEAPON_BEAM_COLOR, 0.0, WEAPON_BEAM_LIFE + 1.0, "sflaser");
+    
+    // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Initialize variables
-        static char sClassname[SMALL_LINE_LENGTH]; static char sWidth[SMALL_LINE_LENGTH]; static int vColor[4] = WEAPON_BEAM_COLOR;
-        
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entityIndex, "origin", vPosition); 
-        FormatEx(sClassname, sizeof(sClassname), "sflaser%d", entityIndex);
-        DispatchKeyValue(entityIndex, "targetname", sClassname);
-        DispatchKeyValue(entityIndex, "damage", "0");
-        DispatchKeyValue(entityIndex, "framestart", "0");
-        FloatToString(WEAPON_BEAM_WIDTH, sWidth, sizeof(sWidth));
-        DispatchKeyValue(entityIndex, "BoltWidth", sWidth);
-        DispatchKeyValue(entityIndex, "renderfx", "0");
-        DispatchKeyValue(entityIndex, "TouchType", "3");
-        DispatchKeyValue(entityIndex, "framerate", "0");
-        DispatchKeyValue(entityIndex, "decalname", "Bigshot");
-        DispatchKeyValue(entityIndex, "TextureScroll", "35");
-        DispatchKeyValue(entityIndex, "HDRColorScale", "1.0");
-        DispatchKeyValue(entityIndex, "texture", WEAPON_BEAM_MODEL);
-        DispatchKeyValue(entityIndex, "life", "0"); 
-        DispatchKeyValue(entityIndex, "StrikeTime", "1"); 
-        DispatchKeyValue(entityIndex, "LightningStart", sClassname);
-        DispatchKeyValue(entityIndex, "spawnflags", "0"); 
-        DispatchKeyValue(entityIndex, "NoiseAmplitude", "0"); 
-        DispatchKeyValue(entityIndex, "Radius", "256");
-        DispatchKeyValue(entityIndex, "renderamt", "100");
-        DispatchKeyValue(entityIndex, "rendercolor", "0 0 0");
-
-        // Spawn the entity into the world
-        DispatchSpawn(entityIndex);
-
-        // Activate the entity
-        AcceptEntityInput(entityIndex, "TurnOff"); AcceptEntityInput(entityIndex, "TurnOn"); 
-        
-        // Sets model
-        SetEntityModel(entityIndex, WEAPON_BEAM_MODEL);
-
-        // Sets size
-        SetEntPropVector(entityIndex, Prop_Data, "m_vecEndPos", vBulletPosition);
-        SetEntPropFloat(entityIndex, Prop_Data, "m_fWidth", WEAPON_BEAM_WIDTH);
-        SetEntPropFloat(entityIndex, Prop_Data, "m_fEndWidth", WEAPON_BEAM_WIDTH);
-
-        // Initialize time char
-        static char sTime[SMALL_LINE_LENGTH];
-        FormatEx(sTime, sizeof(sTime), "%s,TurnOff,,0.001,-1", sClassname);
-        DispatchKeyValue(entityIndex, "OnTouchedByEntity", sTime);
-        FormatEx(sTime, sizeof(sTime), "%s,TurnOn,,0.002,-1", sClassname);
-        DispatchKeyValue(entityIndex, "OnTouchedByEntity", sTime);
-
-        // Sets an entity's color
-        SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
-        SetEntityRenderColor(entityIndex, vColor[0], vColor[1], vColor[2], vColor[3]);
-
         // Create effect hook
         CreateTimer(0.1, BeamEffectHook, EntIndexToEntRef(entityIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
@@ -162,7 +108,7 @@ public Action BeamEffectHook(Handle hTimer, int referenceIndex)
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Initalize values
-        static int iRed; static int iGreen; static int iBlue; static int iAplha; int iNewAlpha = RoundToNearest((240.0 / WEAPON_BEAM_LIFE) / 10.0); static int vColor[4] = WEAPON_BEAM_COLOR;
+        static int iRed; static int iGreen; static int iBlue; static int iAplha; int iNewAlpha = RoundToNearest((240.0 / WEAPON_BEAM_LIFE) / 10.0);
         
         // Gets an entity's color
         GetEntityRenderColor(entityIndex, iRed, iGreen, iBlue, iAplha);
@@ -177,7 +123,7 @@ public Action BeamEffectHook(Handle hTimer, int referenceIndex)
         
         // Sets an entity's color
         SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
-        SetEntityRenderColor(entityIndex, vColor[0], vColor[1], vColor[2], iAplha - iNewAlpha); 
+        SetEntityRenderColor(entityIndex, iRed, iGreen, iBlue, iAplha - iNewAlpha); 
     }
     else
     {

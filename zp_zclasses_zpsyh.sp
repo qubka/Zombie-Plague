@@ -98,7 +98,7 @@ public void OnMapEnd(/*void*/)
         // Purge timer
         Task_ZombieScream[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
-}
+    }
 
 
 /**
@@ -153,15 +153,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         delete Task_ZombieScream[clientIndex];
         Task_ZombieScream[clientIndex] = CreateTimer(0.1, ClientOnScreaming, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound));
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create effect
         static float vPosition[3];
-        GetClientAbsOrigin(clientIndex, vPosition);
-        ZP_CreateParticle(clientIndex, vPosition, _, "hell_end", ZP_GetClassSkillDuration(gZombie));
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        UTIL_CreateParticle(clientIndex, vPosition, _, _, "hell_end", ZP_GetClassSkillDuration(gZombie));
     }
     
     // Allow usage
@@ -201,30 +199,29 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
         static float vEntPosition[3]; static float vVictimPosition[3];
 
         // Gets client origin
-        GetClientAbsOrigin(clientIndex, vEntPosition); vEntPosition[2] += 25.0;
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vEntPosition);
+        
+        // Shift position up
+        vEntPosition[2] += 25.0;
 
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        // Find any players in the radius
+        int i; int it = 1; /// iterator
+        while((i = ZP_FindPlayerInSphere(it, vEntPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != INVALID_ENT_REFERENCE)
         {
-            // Validate human
-            if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+            // Skip zombies
+            if(ZP_IsPlayerZombie(i))
             {
-                // Gets victim origin
-                GetClientAbsOrigin(i, vVictimPosition);
-
-                // Calculate the distance
-                float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-                // Validate distance
-                if(flDistance <= ZOMBIE_CLASS_SKILL_RADIUS)
-                {            
-                    // Apply damage
-                    if(!ZP_TakeDamage(i, clientIndex, clientIndex, ZOMBIE_CLASS_SKILL_DAMAGE * (1.0 - (flDistance / ZOMBIE_CLASS_SKILL_RADIUS)), DMG_SONIC))
-                    {
-                        // Create a custom death event
-                        ZP_CreateDeathEvent(i, clientIndex, "prop_exploding_barrel", true);
-                    }
-                }
+                continue;
+            }
+            
+            // Gets victim origin
+            GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vVictimPosition);
+            
+            // Apply damage
+            if(!ZP_TakeDamage(i, clientIndex, clientIndex, ZOMBIE_CLASS_SKILL_DAMAGE * (1.0 - (GetVectorDistance(vEntPosition, vVictimPosition) / ZOMBIE_CLASS_SKILL_RADIUS)), DMG_SONIC))
+            {
+                // Create a custom death event
+                UTIL_CreateIcon(i, clientIndex, "prop_exploding_barrel", true);
             }
         }
 

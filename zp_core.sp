@@ -39,6 +39,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <cstrike>
+#include <utils>
 
 #if defined USE_DHOOKS
     #tryinclude <dhooks>   

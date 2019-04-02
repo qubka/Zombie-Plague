@@ -1121,16 +1121,13 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int 
                 return;
             }
 
-            // Initialize variables
-            static char sAlias[SMALL_LINE_LENGTH];
-            static char sKey[SMALL_LINE_LENGTH];
-
             // Gets menu info
-            hMenu.GetItem(mSlot, sKey, sizeof(sKey));
-            ConfigFile iD = view_as<ConfigFile>(StringToInt(sKey));
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            ConfigFile iD = view_as<ConfigFile>(StringToInt(sBuffer));
             
             // Gets config alias
-            ConfigGetConfigAlias(iD, sAlias, sizeof(sAlias));
+            ConfigGetConfigAlias(iD, sBuffer, sizeof(sBuffer));
             
             // Reloads config file
             bool bSuccessful = ConfigReloadConfig(iD);
@@ -1138,11 +1135,11 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int 
             // Validate load
             if(bSuccessful)
             {
-                TranslationPrintToChat(clientIndex, "config reload finish", sAlias);
+                TranslationPrintToChat(clientIndex, "config reload finish", sBuffer);
             }
             else
             {
-                TranslationPrintToChat(clientIndex, "config reload falied", sAlias);
+                TranslationPrintToChat(clientIndex, "config reload falied", sBuffer);
             }
             
             // Log action to game events

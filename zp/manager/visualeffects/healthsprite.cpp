@@ -102,32 +102,6 @@ public void HealthOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
     // Forward event to modules
     HealthOnLoad();
 }
- 
-/**
- * Hook: SetTransmit
- * @brief Called right before the entity transmitting to other entities.
- *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
- **/
-public Action HealthOnTransmit(int entityIndex, int clientIndex)
-{
-    // Allow particle to be transmittable
-    if(GetEdictFlags(entityIndex) & FL_EDICT_ALWAYS)
-    {
-        SetEdictFlags(entityIndex, (GetEdictFlags(entityIndex) ^ FL_EDICT_ALWAYS));
-    }
-    
-    // Validate owner
-    if(ToolsGetEntityOwner(entityIndex) != clientIndex) 
-    {
-        // Stop transmitting
-        return Plugin_Stop;
-    }
-
-    // Allow transmitting
-    return Plugin_Continue;
-}
 
 /**
  * @brief Client has been changed class state.
@@ -148,6 +122,23 @@ void HealthOnClientUpdate(int clientIndex)
         // If it exists, then hide sprite
         HealthHideSprite(clientIndex);
     }
+}
+
+/**
+ * @brief Client has been killed.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void HealthOnClientDeath(int clientIndex)
+{
+    // If health sprite disabled, then stop
+    if(!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue)
+    {
+        return;
+    }
+    
+    // If it exists, then hide sprite 
+    HealthHideSprite(clientIndex);
 }
 
 /**
@@ -180,7 +171,7 @@ void HealthOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
             // Initialize vector variables
             static float vPosition[3];
             
-            // Gets client origin
+            // Gets client top position
             ToolsGetClientAbsOrigin(clientIndex, vPosition); 
             vPosition[2] += gCvarList[CVAR_VEFFECTS_HEALTH_HEIGHT].FloatValue; // Add height
             
@@ -305,69 +296,43 @@ bool HealthCreateSprite(int clientIndex)
     
     // Initialize sprite char
     static char sSprite[PLATFORM_LINE_LENGTH];
-    static char sClassname[SMALL_LINE_LENGTH];
-    static char sBuffer[SMALL_LINE_LENGTH];
+    static char sScale[SMALL_LINE_LENGTH];
     
     // Gets health sprite
     gCvarList[CVAR_VEFFECTS_HEALTH_SPRITE].GetString(sSprite, sizeof(sSprite));
     
     // Gets sprite scale
-    gCvarList[CVAR_VEFFECTS_HEALTH_SCALE].GetString(sBuffer, sizeof(sBuffer));
+    gCvarList[CVAR_VEFFECTS_HEALTH_SCALE].GetString(sScale, sizeof(sScale));
     
-    // Create an attach sprite entity
-    int entityIndex = CreateEntityByName("env_sprite");
+    // Create an attach sprite
+    int entityIndex = UTIL_CreateSprite(clientIndex, _, _, _, sSprite, sScale, "7");
     
-    // If entity isn't valid, then skip
+    // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Dispatch main values of the entity
-        FormatEx(sClassname, sizeof(sClassname), "sprite%d", clientIndex);
-        DispatchKeyValue(entityIndex, "targetname", sClassname);
-        DispatchKeyValue(entityIndex, "model", sSprite);
-        DispatchKeyValue(entityIndex, "scale", sBuffer);
-        DispatchKeyValue(entityIndex, "rendermode", "7");
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entityIndex);
-
-        // Activate the entity
-        ActivateEntity(entityIndex);
+        // Hide it
         AcceptEntityInput(entityIndex, "HideSprite");
 
-        // Sets parent to the entity
-        ToolsSetEntityOwner(entityIndex, clientIndex);
-        
         // Hook entity callbacks
-        SDKHook(entityIndex, SDKHook_SetTransmit, HealthOnTransmit);
+        SDKHook(entityIndex, SDKHook_SetTransmit, ParticlesOnTransmit);
 
         // Store the client cache
         gClientData[clientIndex].AttachmentHealth = EntIndexToEntRef(entityIndex);
     }
 
     // Gets sprite var
-    gCvarList[CVAR_VEFFECTS_HEALTH_VAR].GetString(sBuffer, sizeof(sBuffer));
+    gCvarList[CVAR_VEFFECTS_HEALTH_VAR].GetString(sScale, sizeof(sScale));
     
-    // Create a material controller entity
-    entityIndex = CreateEntityByName("material_modify_control");
+    // Create a shader controller sprite
+    int controllerIndex = UTIL_CreateSpriteController(entityIndex, sSprite, sScale); 
     
-    // If entity isn't valid, then skip
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    // Validate entity
+    if(controllerIndex != INVALID_ENT_REFERENCE)
     {
-        // Dispatch main values of the entity
-        DispatchKeyValue(entityIndex, "materialName", sSprite);
-        DispatchKeyValue(entityIndex, "materialVar", sBuffer);
-        
-        // Spawn the entity 
-        DispatchSpawn(entityIndex);
-
-        // Sets parent to the entity
-        SetVariantString(sClassname);
-        AcceptEntityInput(entityIndex, "SetParent", entityIndex, entityIndex);
-        
         // Store the client cache
-        gClientData[clientIndex].AttachmentController = EntIndexToEntRef(entityIndex);
-    }
-    
+        gClientData[clientIndex].AttachmentController = EntIndexToEntRef(controllerIndex);
+    }   
+
     // Validate success
     return true;
 }

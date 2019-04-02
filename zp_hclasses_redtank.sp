@@ -81,7 +81,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
     {
         // Validate amount
         int iArmor = ZP_GetClassArmor(gHuman);
-        if(GetClientArmor(clientIndex) >= iArmor)
+        if(GetEntProp(clientIndex, Prop_Send, "m_ArmorValue") >= iArmor)
         {
             return Plugin_Handled;
         }
@@ -89,15 +89,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         // Sets armor
         SetEntProp(clientIndex, Prop_Send, "m_ArmorValue", iArmor);
 
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 1);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create effect
         static float vPosition[3];
-        GetClientAbsOrigin(clientIndex, vPosition);
-        ZP_CreateParticle(clientIndex, vPosition, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
+        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        UTIL_CreateParticle(clientIndex, vPosition, _, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
     }
     
     // Allow usage
@@ -114,9 +112,7 @@ public void ZP_OnClientSkillOver(int clientIndex)
     // Validate the human class index
     if(ZP_GetClientClass(clientIndex) == gHuman)
     {
-        // Emit sound
-        static char sSound[PLATFORM_LINE_LENGTH];
-        ZP_GetSound(gSound, sSound, sizeof(sSound), 2);
-        EmitSoundToAll(sSound, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 2, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
     }
 }

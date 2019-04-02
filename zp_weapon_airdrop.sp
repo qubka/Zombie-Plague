@@ -43,8 +43,8 @@ public Plugin myinfo =
 }
 
 // Sound index
-ConVar hSoundLevel; //int gSound;
-#pragma unused hSoundLevel//, gSound 
+int gSound; ConVar hSoundLevel;
+#pragma unused gSound, hSoundLevel 
  
 // Item index
 int gWeapon;
@@ -55,7 +55,7 @@ int decalSmoke; int decalBeam;
 #pragma unused decalSmoke, decalBeam
 
 // Timer index
-Handle Task_MineCreate[MAXPLAYERS+1] = null; 
+Handle Task_EmitterCreate[MAXPLAYERS+1] = null; 
 
 // Animation sequences
 enum
@@ -93,10 +93,8 @@ enum
  **/
 #define BOMBARDING_HEIGHT               700.0
 #define BOMBARDING_EXPLOSION_TIME       2.0
-#define BOMBARDING_SHAKE_AMP            12.0
-#define BOMBARDING_SHAKE_FREQUENCY      6.0
-#define BOMBARDING_SHAKE_DURATION       6.0
 #define BOMBARDING_SPEED                "500"
+#define BOMBARDING_RADIUS               2000.0
 /**
  * @endsection
  **/
@@ -149,7 +147,7 @@ public void OnMapEnd(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
-        Task_MineCreate[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
+        Task_EmitterCreate[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
 }
 
@@ -161,7 +159,7 @@ public void OnMapEnd(/*void*/)
 public void OnClientDisconnect(int clientIndex)
 {
     // Delete timers
-    delete Task_MineCreate[clientIndex];
+    delete Task_EmitterCreate[clientIndex];
 }
 
 /**
@@ -174,31 +172,18 @@ public void OnClientDisconnect(int clientIndex)
  **/ 
 public void OnTrainPass(char[] sOutput, int entityIndex, int activatorIndex, float flDelay)
 {
-    // Validate target
+    // Validate activator
     if(IsValidEdict(activatorIndex))
     {
-        // Gets classname
-        static char sClassname[SMALL_LINE_LENGTH];
-        GetEntPropString(activatorIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
-            
-        // Validate landing
-        int iPath = GetEntProp(activatorIndex, Prop_Data, "m_iHammerID");
-        if(iPath == 1)
+        // Is it end path ?
+        if(ValidateName(entityIndex, "safepath1", 9))
         {
-            // Validate drop
-            if(!strncmp(sClassname, "safedrop", 8, false))
-            {
-                DropLandHook(activatorIndex);
-            }
-            // Validate nuc
-            else if(!strncmp(sClassname, "nuclear", 7, false))
-            {
-                BombLandHook(activatorIndex);
-            }
+            DropLandHook(activatorIndex);
         }
-        
-        // Go to the next path
-        SetEntProp(activatorIndex, Prop_Data, "m_iHammerID", iPath + 1);
+        else if(ValidateName(entityIndex, "nucpath1", 8))
+        {
+            BombLandHook(activatorIndex);
+        }
     }
 }
 
@@ -211,6 +196,10 @@ public void ZP_OnEngineExecute(/*void*/)
     gWeapon = ZP_GetWeaponNameID("airdrop");
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
 
+    // Sounds
+    gSound = ZP_GetSoundKeyID("HELICOPTER_SOUNDS");
+    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HELICOPTER_SOUNDS\" wasn't find");
+    
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
     if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
@@ -232,7 +221,6 @@ public void ZP_OnEngineExecute(/*void*/)
     PrecacheSound("survival/dropbigguns.wav", true);
     PrecacheSound("survival/breach_activate_nobombs_01.wav", true);
     PrecacheSound("survival/breach_land_01.wav", true);
-    PrecacheSound("vehicles/loud_helicopter_lp_01.wav", true);
     PrecacheSound("survival/rocketincoming.wav", true);
     PrecacheSound("survival/rocketalarm.wav", true);
     PrecacheSound("survival/missile_land_01.wav", true);
@@ -272,11 +260,23 @@ public void ZP_OnGameModeStart(int modeIndex)
         // Validate client
         if(clientIndex != INVALID_ENT_REFERENCE)
         {
-            // Give item and select it
-            ZP_GiveClientWeapon(clientIndex, gWeapon);
+            // Validate weapon
+            static int weaponIndex;
+            if((weaponIndex = ZP_IsPlayerHasWeapon(clientIndex, gWeapon)) != INVALID_ENT_REFERENCE)
+            {
+                // Reset variables
+                SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_TRIGGER_OFF);
+                SetEntProp(weaponIndex, Prop_Data, "m_bIsAutoaimTarget", false);
+                SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
+            }
+            else
+            {
+                // Give item and select it
+                ZP_GiveClientWeapon(clientIndex, gWeapon);
 
-            // Print info
-            PrintHintText(clientIndex, "%t", "airdrop info");
+                // Print info
+                PrintHintText(clientIndex, "%t", "airdrop info");
+            }
         }
     }
 }
@@ -294,7 +294,7 @@ void Weapon_OnHolster(int clientIndex, int weaponIndex, int bTrigger, int iState
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
     
     // Delete timers
-    delete Task_MineCreate[clientIndex];
+    delete Task_EmitterCreate[clientIndex];
 }
 
 void Weapon_OnDeploy(int clientIndex, int weaponIndex, int bTrigger, int iStateMode, float flCurrentTime)
@@ -341,26 +341,23 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int 
     // Validate trigger 
     if(!bTrigger)
     {
-        // Gets weapon position
-        ZP_GetPlayerGunPosition(clientIndex, 0.0, 0.0, 0.0, vPosition);
+        // Gets trace line
+        GetClientEyePosition(clientIndex, vPosition);
         ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
 
         // Create the end-point trace
-        Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, MASK_SHOT, RayType_EndPoint, TraceFilter);
+        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, TraceFilter);
 
         // Validate collisions
-        if(TR_DidHit(hTrace) && TR_GetEntityIndex(hTrace) < 1)
+        if(TR_DidHit() && TR_GetEntityIndex() < 1)
         {
             // Sets attack animation
             ZP_SetWeaponAnimation(clientIndex, ANIM_SHOOT);  
             
-            // Create timer for mine
-            delete Task_MineCreate[clientIndex]; /// Bugfix
-            Task_MineCreate[clientIndex] = CreateTimer(ZP_GetWeaponSpeed(gWeapon), Weapon_OnCreateMine, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+            // Create timer for emitter
+            delete Task_EmitterCreate[clientIndex]; /// Bugfix
+            Task_EmitterCreate[clientIndex] = CreateTimer(ZP_GetWeaponSpeed(gWeapon), Weapon_OnCreateEmitter, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
         }
-        
-        // Close the trace
-        delete hTrace;
     }
     else
     {
@@ -384,8 +381,8 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int 
                 case STATE_TRIGGER_OFF : 
                 {
                     // Create a smoke    
-                    int smokeIndex = CreateSmoke(vPosition, vAngle, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", AIRDROP_SMOKE_REMOVE, AIRDROP_SMOKE_TIME);
-
+                    int smokeIndex = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", AIRDROP_SMOKE_REMOVE, AIRDROP_SMOKE_TIME);
+                    
                     // Sent drop
                     CreateHelicopter(vPosition, vAngle);
                     
@@ -400,7 +397,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int 
                 case STATE_TRIGGER_ON : 
                 {
                     // Start bombarding
-                    CreateJet(vPosition, vAngle, clientIndex);
+                    CreateJet(vPosition, vAngle);
                     
                     // Emit sound
                     EmitSoundToAll("survival/rocketalarm.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, hSoundLevel.IntValue)
@@ -456,55 +453,50 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int bTrigger, in
 }
 
 /**
- * Timer for creating mine.
+ * Timer for creating emitter.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action Weapon_OnCreateMine(Handle hTimer, int userID)
+public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
     int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
 
     // Clear timer 
-    Task_MineCreate[clientIndex] = null;
+    Task_EmitterCreate[clientIndex] = null;
 
     // Validate client
     if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
     {
          // Initialize vectors
-        static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
+        static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3]; bool bHit;
 
-        // Gets weapon position
-        ZP_GetPlayerGunPosition(clientIndex, 0.0, 0.0, 0.0, vPosition);
+        // Gets trace line
+        GetClientEyePosition(clientIndex, vPosition);
         ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
 
         // Create the end-point trace
-        Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, MASK_SHOT, RayType_EndPoint, TraceFilter);
+        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, TraceFilter);
 
         // Validate collisions
-        if(TR_DidHit(hTrace) && TR_GetEntityIndex(hTrace) < 1)
+        if(TR_DidHit() && TR_GetEntityIndex() < 1)
         {
             // Returns the collision position/angle of a trace result
-            TR_GetEndPosition(vPosition, hTrace);
-            TR_GetPlaneNormal(hTrace, vAngle); 
+            TR_GetEndPosition(vPosition);
+            TR_GetPlaneNormal(null, vAngle); 
             
             // Gets the model
             static char sModel[PLATFORM_LINE_LENGTH];
             ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
             
             // Create mine
-            int entityIndex = CreatePhysics(vPosition, vAngle, sModel);
+            int entityIndex = UTIL_CreatePhysics("emitter", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
             
             // Validate entity
             if(entityIndex != INVALID_ENT_REFERENCE)
             {
-                // Spawn the entity
-                DispatchSpawn(entityIndex);
-
                 // Sets physics
-                AcceptEntityInput(entityIndex, "DisableMotion");
-                SetEntityMoveType(entityIndex, MOVETYPE_NONE);
                 SetEntProp(entityIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
                 SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
                 
@@ -518,22 +510,27 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
             
             // Sets trigger mode
             SetEntProp(weaponIndex, Prop_Data, "m_bIsAutoaimTarget", true);
-        }
-        else
-        {
+            
             // Adds the delay to the game tick
             float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon) - 0.3;
             
             // Sets next attack time
             SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
-
-            // Sets pickup animation
-            ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW);
+            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime); 
+            
+            // Placed successfully
+            bHit = true;
         }
+
+        // Adds the delay to the game tick
+        float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon) - 0.3;
         
-        // Close the trace
-        delete hTrace;
+        // Sets next attack time
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
+
+        // Sets pickup animation
+        ZP_SetWeaponAnimation(clientIndex, bHit ? ANIM_DRAW_TRIGGER_OFF : ANIM_DRAW);
     }
 }
 
@@ -554,29 +551,15 @@ public Action Weapon_OnRemove(Handle hTimer, int referenceIndex)
         // Gets the active user
         int clientIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hOwner");
 
-        // Forces a player to remove weapon
-        if(clientIndex != INVALID_ENT_REFERENCE)
+        // Validate client
+        if(IsPlayerExist(clientIndex, false))
         {
-            RemovePlayerItem(clientIndex, weaponIndex);
+            // Forces a player to remove weapon
+            ZP_RemoveWeapon(clientIndex, weaponIndex);
         }
-        AcceptEntityInput(weaponIndex, "Kill");
-        
-        // Validate owner
-        if(clientIndex != INVALID_ENT_REFERENCE)
+        else
         {
-            // Gets weapon index
-            int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Melee)); // Switch to knife
-            
-            // Validate weapon
-            if(weaponIndex2 != INVALID_ENT_REFERENCE)
-            {
-                // Gets weapon classname
-                static char sBuffer[SMALL_LINE_LENGTH];
-                GetEdictClassname(weaponIndex2, sBuffer, sizeof(sBuffer));
-                
-                // Switch the weapon
-                FakeClientCommand(clientIndex, "use %s", sBuffer);
-            }
+            AcceptEntityInput(weaponIndex, "Kill");
         }
     }
 }
@@ -593,7 +576,7 @@ public Action Weapon_OnRemove(Handle hTimer, int referenceIndex)
         %2,             \
                         \
         GetEntProp(%2, Prop_Data, "m_bIsAutoaimTarget"), \
-        GetEntProp(%2, Prop_Data, "m_iIKCounter"), \
+        GetEntProp(%2, Prop_Data, "m_iMaxHealth"/**/), \
                         \
         GetGameTime()   \
    )    
@@ -611,7 +594,7 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", STATE_TRIGGER_OFF);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_TRIGGER_OFF);
         SetEntProp(weaponIndex, Prop_Data, "m_bIsAutoaimTarget", false);
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
     }
@@ -676,7 +659,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
             SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 
             // Sets different mode
-            SetEntProp(weaponIndex, Prop_Data, "m_iIKCounter", !GetEntProp(weaponIndex, Prop_Data, "m_iIKCounter"));
+            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, !GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/));
             
             // Emit sound
             EmitSoundToAll("survival/breach_activate_nobombs_01.wav", clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
@@ -689,7 +672,7 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
                 // Switch animation
                 switch(ZP_GetWeaponAnimation(clientIndex))
                 {
-                    case ANIM_IDLE : ZP_SetWeaponAnimation(clientIndex, GetEntProp(weaponIndex, Prop_Data, "m_iIKCounter") ? ANIM_IDLE_TRIGGER_ON : ANIM_IDLE_TRIGGER_OFF);
+                    case ANIM_IDLE : ZP_SetWeaponAnimation(clientIndex, GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/) ? ANIM_IDLE_TRIGGER_ON : ANIM_IDLE_TRIGGER_OFF);
                 }
             }
         }
@@ -725,9 +708,8 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
  * 
  * @param vPosition         The position to the spawn.
  * @param vAngle            The angle to the spawn.    
- * @param attackerIndex     (Optional) The attacker index.
  **/
-void CreateJet(float vPosition[3], float vAngle[3], int attackerIndex = -1)
+void CreateJet(float vPosition[3], float vAngle[3])
 {
     // Add to the position
     vPosition[2] += BOMBARDING_HEIGHT;
@@ -737,7 +719,7 @@ void CreateJet(float vPosition[3], float vAngle[3], int attackerIndex = -1)
     //FormatEx(sAnim, sizeof(sAnim), "flyby%i", GetRandomInt(1, 5));
 
     // Create a model entity
-    int entityIndex = CreateDynamic(vPosition, vAngle, "models/f18/f18.mdl", "flyby1");
+    int entityIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/f18/f18.mdl", "flyby1");
     
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
@@ -745,9 +727,6 @@ void CreateJet(float vPosition[3], float vAngle[3], int attackerIndex = -1)
         // Create thinks
         CreateTimer(2.7, JetBombHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
         CreateTimer(6.6, HelicopterRemoveHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE); /// Use similar function
-        
-        // Sets the owner for the entity
-        SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", attackerIndex);
     }
 }
 
@@ -777,30 +756,24 @@ public Action JetBombHook(Handle hTimer, int referenceIndex)
         // Create all paths and link them together
         // This has to be done in reverse since target linking is done on entity activation
         static char sTrack[SMALL_LINE_LENGTH]; static char sNextTrack[SMALL_LINE_LENGTH];
-        FormatEx(sTrack, sizeof(sTrack), "nucpath%i1", entityIndex); vPosition[2] -= BOMBARDING_HEIGHT;
-        CreatePath(sTrack, vPosition, NULL_VECTOR, "");
+        FormatEx(sTrack, sizeof(sTrack), "nucpath1%i", entityIndex); vPosition[2] -= BOMBARDING_HEIGHT;
+        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, "");
         strcopy(sNextTrack, sizeof(sNextTrack), sTrack);
-        FormatEx(sTrack, sizeof(sTrack), "nucpath%i0", entityIndex); vPosition[2] += BOMBARDING_HEIGHT;
-        CreatePath(sTrack, vPosition, NULL_VECTOR, sNextTrack); 
+        FormatEx(sTrack, sizeof(sTrack), "nucpath0%i", entityIndex); vPosition[2] += BOMBARDING_HEIGHT;
+        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, sNextTrack); 
 
-        // Gets the attacker for the entity
-        int attackerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
-        
         // Spawn bomb
         FormatEx(sNextTrack, sizeof(sNextTrack), "nuclear%i", entityIndex);
-        entityIndex = CreateTrain(sNextTrack, vPosition, NULL_VECTOR, sTrack, BOMBARDING_SPEED, "");
+        entityIndex = UTIL_CreateTrain(sNextTrack, vPosition, NULL_VECTOR, sTrack, BOMBARDING_SPEED, _, TRAIN_NOCONTROL | TRAIN_PASSABLE | TRAIN_UNBLOCKABLE);
 
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Sets the path index
-            SetEntProp(entityIndex, Prop_Data, "m_iHammerID", 0);
-    
             /// Fix angles (because of train attach)
             vAngle[0] = 90.0; vAngle[1] = 90.0; vAngle[2] = 270.0;
     
             // Create a model entity
-            int modelIndex = CreateDynamic(vPosition, vAngle, "models/weapons/nucler/w_ailerons.mdl", "idle");
+            int modelIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/weapons/nucler/w_ailerons.mdl", "idle");
 
             // Validate entity
             if(modelIndex != INVALID_ENT_REFERENCE)
@@ -808,12 +781,6 @@ public Action JetBombHook(Handle hTimer, int referenceIndex)
                 // Sets the parent for the entity
                 SetVariantString("!activator");
                 AcceptEntityInput(modelIndex, "SetParent", entityIndex, modelIndex);
-            }
-            
-            // Sets the attacker for the entity
-            if(attackerIndex != INVALID_ENT_REFERENCE)
-            {
-                SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", attackerIndex);
             }
         }
     }
@@ -826,75 +793,37 @@ public Action JetBombHook(Handle hTimer, int referenceIndex)
  **/ 
 void BombLandHook(int entityIndex)
 {
-    // Gets attacker index
-    int attackerIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_pParent");
-
-    // Initialize vectors
-    static float vEntPosition[3]; static float vVictimPosition[3]; static float vVelocity[3];
-
     // Gets entity position
-    GetEntPropVector(entityIndex, Prop_Send, "m_vecOrigin", vEntPosition);
+    static float vPosition[3];
+    GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+
+    // Create an explosion effect
+    UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500", BOMBARDING_EXPLOSION_TIME);
+    UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500_fallback", BOMBARDING_EXPLOSION_TIME);
     
-    // Create a info_target entity
-    int infoIndex = ZP_CreateEntity(vEntPosition, BOMBARDING_EXPLOSION_TIME);
-    
-    // Validate entity
-    if(infoIndex != INVALID_ENT_REFERENCE)
+    // Find any players in the radius
+    int i; int it = 1; /// iterator
+    while((i = ZP_FindPlayerInSphere(it, vPosition, BOMBARDING_RADIUS)) != INVALID_ENT_REFERENCE)
     {
-        // Create an explosion effect
-        ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_c4_500", BOMBARDING_EXPLOSION_TIME);
-        ZP_CreateParticle(infoIndex, vEntPosition, _, "explosion_c4_500_fallback", BOMBARDING_EXPLOSION_TIME);
-        
-        // Emit sound
-        switch(GetRandomInt(0, 5))
+        // Skip humans
+        if(ZP_IsPlayerHuman(i))
         {
-            case 0 : EmitSoundToAll("survival/missile_land_01.wav", infoIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-            case 1 : EmitSoundToAll("survival/missile_land_02.wav", infoIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-            case 2 : EmitSoundToAll("survival/missile_land_03.wav", infoIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-            case 3 : EmitSoundToAll("survival/missile_land_04.wav", infoIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-            case 4 : EmitSoundToAll("survival/missile_land_05.wav", infoIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-            case 5 : EmitSoundToAll("survival/missile_land_06.wav", infoIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+            continue;
         }
+        
+        // Forces a player to commit suicide
+        ForcePlayerSuicide(i);
     }
     
-    // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    // Emit sound
+    switch(GetRandomInt(0, 5))
     {
-        // Validate client
-        if((IsPlayerExist(i) && ZP_IsPlayerZombie(i)))
-        {
-            // Gets victim origin
-            GetClientAbsOrigin(i, vVictimPosition);
-
-            // Calculate the distance
-            float flDistance = GetVectorDistance(vEntPosition, vVictimPosition);
-
-            // Validate distance
-            float flRadius = ZP_GetWeaponReload(gWeapon);
-            if(flDistance <= flRadius)
-            {
-                // Create the damage for a victim
-                if(!ZP_TakeDamage(i, attackerIndex, entityIndex, ZP_GetWeaponDamage(gWeapon) * (1.0 - (flDistance / flRadius)), DMG_AIRBOAT))
-                {
-                    // Create a custom death event
-                    static char sIcon[SMALL_LINE_LENGTH];
-                    ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
-                    if(IsPlayerExist(attackerIndex, false)) /// Check thrower in case!
-                    {  
-                        ZP_CreateDeathEvent(i, attackerIndex, sIcon);
-                    }
-                }
-
-                // Calculate the velocity vector
-                SubtractVectors(vVictimPosition, vEntPosition, vVelocity);
-        
-                // Create a knockback
-                ZP_CreateRadiusKnockBack(i, vVelocity, flDistance, ZP_GetWeaponKnockBack(gWeapon), flRadius);
-                
-                // Create a shake
-                ZP_CreateShakeScreen(i, BOMBARDING_SHAKE_AMP, BOMBARDING_SHAKE_FREQUENCY, BOMBARDING_SHAKE_DURATION);
-            }
-        }
+        case 0 : EmitSoundToAll("survival/missile_land_01.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+        case 1 : EmitSoundToAll("survival/missile_land_02.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+        case 2 : EmitSoundToAll("survival/missile_land_03.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+        case 3 : EmitSoundToAll("survival/missile_land_04.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+        case 4 : EmitSoundToAll("survival/missile_land_05.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+        case 5 : EmitSoundToAll("survival/missile_land_06.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
     }
 
     // Remove the entity from the world
@@ -917,7 +846,7 @@ void CreateHelicopter(float vPosition[3], float vAngle[3])
     vPosition[2] += AIRDROP_HEIGHT;
     
     // Create a model entity
-    int entityIndex = CreateDynamic(vPosition, vAngle, "models/buildables/helicopter_rescue.mdl", "helicopter_coop_hostagepickup_flyin");
+    int entityIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/buildables/helicopter_rescue_v2.mdl", "helicopter_coop_hostagepickup_flyin");
     
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
@@ -947,48 +876,38 @@ public Action HelicopterDropHook(Handle hTimer, int referenceIndex)
 
         // Set idle
         SetAnimation(entityIndex, "helicopter_coop_hostagepickup_idle");
-        
+
         // Gets the position/angle
-        ZP_GetAttachment(entityIndex, "dropped", vPosition, vAngle); 
+        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(entityIndex, Prop_Data, "m_angAbsRotation", vAngle);
         
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            // Validate human
-            if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
-            {
-                // Emit sound
-                EmitSoundToClient(i, "survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, hSoundLevel.IntValue);
-            }
-        }
+        // Emit sound
+        EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create all paths and link them together
         // This has to be done in reverse since target linking is done on entity activation
         static char sTrack[SMALL_LINE_LENGTH]; static char sNextTrack[SMALL_LINE_LENGTH];
-        FormatEx(sTrack, sizeof(sTrack), "trackpath%i1", entityIndex); vPosition[2] -= AIRDROP_HEIGHT;
-        CreatePath(sTrack, vPosition, NULL_VECTOR, "");
+        FormatEx(sTrack, sizeof(sTrack), "safepath1%i", entityIndex); vPosition[2] -= AIRDROP_HEIGHT;
+        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, "");
         strcopy(sNextTrack, sizeof(sNextTrack), sTrack);
-        FormatEx(sTrack, sizeof(sTrack), "trackpath%i0", entityIndex); vPosition[2] += AIRDROP_HEIGHT;
-        CreatePath(sTrack, vPosition, NULL_VECTOR, sNextTrack); 
+        FormatEx(sTrack, sizeof(sTrack), "safepath0%i", entityIndex); vPosition[2] += AIRDROP_HEIGHT;
+        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, sNextTrack); 
         
         // Sets idle
         CreateTimer(5.0, HelicopterIdleHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
         
         // Spawn drop
         FormatEx(sNextTrack, sizeof(sNextTrack), "safedrop%i", entityIndex);
-        entityIndex = CreateTrain(sNextTrack, vPosition, NULL_VECTOR, sTrack, AIRDROP_SPEED, "");
+        entityIndex = UTIL_CreateTrain(sNextTrack, vPosition, NULL_VECTOR, sTrack, AIRDROP_SPEED, _, TRAIN_NOCONTROL | TRAIN_PASSABLE | TRAIN_UNBLOCKABLE);
 
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Sets the path index
-            SetEntProp(entityIndex, Prop_Data, "m_iHammerID", 0);
-    
             /// Fix angles (because of train attach)
             vAngle[0] = 0.0; vAngle[1] = 90.0; vAngle[2] = 270.0;
     
             // Create a model entity
-            int modelIndex = CreateDynamic(vPosition, vAngle, "models/buildables/safe.mdl", "ref");
+            int modelIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/buildables/safe.mdl", "ref");
 
             // Validate entity
             if(modelIndex != INVALID_ENT_REFERENCE)
@@ -1000,7 +919,7 @@ public Action HelicopterDropHook(Handle hTimer, int referenceIndex)
             }
 
             // Create a model entity
-            int modelIndex2 = CreateDynamic(NULL_VECTOR, NULL_VECTOR, "models/props_survival/parachute/chute.mdl", "open");
+            int modelIndex2 = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, "models/props_survival/parachute/chute.mdl", "open");
 
             // Validate entity
             if(modelIndex2 != INVALID_ENT_REFERENCE)
@@ -1038,8 +957,14 @@ public Action HelicopterSoundHook(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Play fly sound
-        EmitSoundToAll("vehicles/loud_helicopter_lp_01.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_HELICOPTER);
+        // Initialize vectors
+        static float vPosition[3]; static float vAngle[3];
+
+        // Gets the position/angle
+        ZP_GetAttachment(entityIndex, "dropped", vPosition, vAngle); 
+
+        // Play sound
+        ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_HELICOPTER); 
     }
     else
     {
@@ -1109,7 +1034,8 @@ public Action HelicopterRemoveHook(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        AcceptEntityInput(entityIndex, "Kill"); /// Destroy!
+        /// Destroy
+        AcceptEntityInput(entityIndex, "Kill"); 
     }
 }
 
@@ -1174,7 +1100,7 @@ public Action DropReplaceHook(Handle hTimer, int referenceIndex)
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Initialize vectors
-        static float vPosition[3]; static float vAngle[3]; static float vVictimPosition[3];
+        static float vPosition[3]; static float vAngle[3]; static float vMins[3]; static float vMaxs[3];
 
         // Gets the safe
         int modelIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_pParent");
@@ -1182,37 +1108,36 @@ public Action DropReplaceHook(Handle hTimer, int referenceIndex)
         // Validate entity
         if(modelIndex != INVALID_ENT_REFERENCE)
         {
-            // Gets the position/angle
+            // Gets the position/angle/size
             GetEntPropVector(modelIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
             GetEntPropVector(modelIndex, Prop_Data, "m_angAbsRotation", vAngle);
+            GetEntPropVector(modelIndex, Prop_Data, "m_vecMins", vMins);
+            GetEntPropVector(modelIndex, Prop_Data, "m_vecMaxs", vMaxs);
         }
 
         // Destroy!
         AcceptEntityInput(entityIndex, "Kill");
+
+        // Create the hull trace
+        vPosition[2] += vMaxs[2] / 2; /// Move center of hull upward
+        TR_TraceHull(vPosition, vPosition, vMins, vMaxs, MASK_SOLID);
         
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        // Validate collisions
+        if(TR_GetFraction() < 1.0)
         {
-            // Validate client
-            if(IsPlayerExist(i))
-            {
-                // Gets victim origin
-                GetClientAbsOrigin(i, vVictimPosition);
-
-                // Calculate the distance
-                float flDistance = GetVectorDistance(vPosition, vVictimPosition);
-
-                // Validate distance
-                if(flDistance <= 40.0)
-                {
-                    // Kill them
-                    ForcePlayerSuicide(i);
-                }
+            // Gets victim index
+            int victimIndex = TR_GetEntityIndex();
+            
+            // Validate victim
+            if(IsPlayerExist(victimIndex))
+            {    
+                // Kill it
+                ForcePlayerSuicide(victimIndex);
             }
         }
         
         // Replace with physics object
-        entityIndex = CreatePhysics(vPosition, vAngle, "models/buildables/safe.mdl");
+        entityIndex = UTIL_CreatePhysics("safe", vPosition, vAngle, "models/buildables/safe.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
         
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
@@ -1249,11 +1174,11 @@ public Action DropReplaceHook(Handle hTimer, int referenceIndex)
  *
  * @param entityIndex       The entity index.    
  * @param attackerIndex     The attacker index.
- * @param inflicterIndex    The inflicter index.
+ * @param inflictorIndex    The inflictor index.
  * @param flDamage          The damage amount.
  * @param iBits             The damage type.
  **/
-public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflicterIndex, float &flDamage, int &iBits)
+public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
 {
     // Emit sound
     switch(GetRandomInt(0, 4))
@@ -1294,47 +1219,8 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflicter
                     case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib5.mdl");
                 }
 
-                // Create a shooter entity
-                int gibIndex = CreateEntityByName("env_shooter");
-
-                // If entity isn't valid, then skip
-                if(gibIndex != INVALID_ENT_REFERENCE)
-                {
-                    // Dispatch main values of the entity
-                    DispatchKeyValueVector(gibIndex, "angles", vShootAngle);
-                    DispatchKeyValueVector(gibIndex, "gibangles", vGibAngle);
-                    DispatchKeyValue(gibIndex, "rendermode", "5");
-                    DispatchKeyValue(gibIndex, "shootsounds", "2");
-                    DispatchKeyValue(gibIndex, "shootmodel", sBuffer);
-                    DispatchKeyValueFloat(gibIndex, "m_iGibs", METAL_GIBS_AMOUNT);
-                    DispatchKeyValueFloat(gibIndex, "delay", METAL_GIBS_DELAY);
-                    DispatchKeyValueFloat(gibIndex, "m_flVelocity", METAL_GIBS_SPEED);
-                    DispatchKeyValueFloat(gibIndex, "m_flVariance", METAL_GIBS_VARIENCE);
-                    DispatchKeyValueFloat(gibIndex, "m_flGibLife", METAL_GIBS_LIFE);
-
-                    // Spawn the entity into the world
-                    DispatchSpawn(gibIndex);
-
-                    // Activate the entity
-                    ActivateEntity(gibIndex);  
-                    AcceptEntityInput(gibIndex, "Shoot");
-
-                    // Sets parent to the entity
-                    SetVariantString("!activator"); 
-                    AcceptEntityInput(gibIndex, "SetParent", entityIndex, gibIndex); 
-
-                    // Sets attachment to the entity
-                    SetVariantString("forward"); /// Attachment name in the turret model
-                    AcceptEntityInput(gibIndex, "SetParentAttachment", entityIndex, gibIndex);
-
-                    // Initialize time char
-                    FormatEx(sBuffer, sizeof(sBuffer), "OnUser1 !self:kill::%f:1", METAL_GIBS_DURATION);
-
-                    // Sets modified flags on the entity
-                    SetVariantString(sBuffer);
-                    AcceptEntityInput(entityIndex, "AddOutput");
-                    AcceptEntityInput(entityIndex, "FireUser1");
-                }
+                // Create gibs
+                UTIL_CreateShooter(entityIndex, "forward", _, MAT_METAL, sBuffer, vShootAngle, vGibAngle, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
             }
             
             // Emit sound
@@ -1345,10 +1231,8 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflicter
                 case 2 : EmitSoundToAll("survival/container_death_03.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
 
-            // Sets modified flags on the entity
-            SetVariantString("OnUser1 !self:kill::0.1:1");
-            AcceptEntityInput(entityIndex, "AddOutput");
-            AcceptEntityInput(entityIndex, "FireUser1");
+            // Kill after some duration
+            UTIL_RemoveEntity(entityIndex, 0.1);
         }
         else
         {
@@ -1359,11 +1243,11 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflicter
     else
     {
         // Validate inflicter
-        if(IsValidEdict(inflicterIndex))
+        if(IsValidEdict(inflictorIndex))
         {
             // Gets weapon classname
             static char sClassname[PLATFORM_LINE_LENGTH];
-            GetEdictClassname(inflicterIndex, sClassname, sizeof(sClassname));
+            GetEdictClassname(inflictorIndex, sClassname, sizeof(sClassname));
         
             // Validate c4 projectile
             if(!strncmp(sClassname, "brea", 4, false))
@@ -1416,19 +1300,22 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflicter
                         // Validate entity
                         if(weaponIndex != INVALID_ENT_REFERENCE)
                         {
-                            // Spawn the entity
-                            DispatchSpawn(weaponIndex);
-                            TeleportEntity(weaponIndex, vPosition, vAngle, NULL_VECTOR);
+                            // Spawn the entity into the world
+                            if(DispatchSpawn(weaponIndex))
+                            {
+                                // Teleport the entity
+                                TeleportEntity(weaponIndex, vPosition, vAngle, NULL_VECTOR);
                             
-                            // Remove physics
-                            SetEntityMoveType(weaponIndex, MOVETYPE_NONE);
+                                // Remove physics
+                                SetEntityMoveType(weaponIndex, MOVETYPE_NONE);
                             
-                            // Sets the custom weapon id
-                            SetEntProp(weaponIndex, Prop_Data, "m_iHammerID", iD);
+                                // Sets the custom weapon id
+                                SetEntProp(weaponIndex, Prop_Data, "m_iHammerID", iD);
                             
-                            // Sets the model
-                            ZP_GetWeaponModelDrop(iD, sClassname, sizeof(sClassname));
-                            if(sClassname[0] != '\0') SetEntityModel(weaponIndex, sClassname);
+                                // Sets the model
+                                ZP_GetWeaponModelDrop(iD, sClassname, sizeof(sClassname));
+                                if(sClassname[0] != '\0') SetEntityModel(weaponIndex, sClassname);
+                            }
                         }
                     }
                     
@@ -1436,7 +1323,7 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflicter
                     ZP_GetAttachment(entityIndex, "door", vPosition, vAngle);
                     
                     // Create door
-                    entityIndex = CreatePhysics(vPosition, vAngle, "models/props_survival/safe/safe_door.mdl");
+                    entityIndex = UTIL_CreatePhysics("door", vPosition, vAngle, "models/props_survival/safe/safe_door.mdl", PHYS_FORCESERVERSIDE);
                     
                     // Validate entity
                     if(entityIndex != INVALID_ENT_REFERENCE)
@@ -1459,252 +1346,6 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflicter
 //**********************************************
 
 /**
- * @brief Create a train entity.
- * 
- * @param sClassname        The classname string.
- * @param vPosition         The position to the spawn.
- * @param vAngle            The angle to the spawn.
- * @param sPath             The name of the first path_track in the train's path.
- * @param sSpeed            The maximum speed that this train can move.
- * @param sSound            The sound path.
- *
- * @return                  The entity index.                       
- **/
-stock int CreateTrain(char[] sClassname, float vPosition[3], float vAngle[3], char[] sPath, char[] sSpeed, char[] sSound)
-{
-    // Create a train entity
-    int entityIndex = CreateEntityByName("func_tracktrain"); 
-    
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entityIndex, "origin", vPosition); 
-        DispatchKeyValueVector(entityIndex, "angles", vAngle); 
-        DispatchKeyValue(entityIndex, "targetname", sClassname);
-        DispatchKeyValue(entityIndex, "target", sPath);
-        DispatchKeyValue(entityIndex, "startspeed", sSpeed);
-        DispatchKeyValue(entityIndex, "speed", sSpeed);
-        DispatchKeyValue(entityIndex, "wheels", "256");         /// Make moving smoother
-        DispatchKeyValue(entityIndex, "bank", "20");            /// Make turning smoother
-        DispatchKeyValue(entityIndex, "orientationtype", "2");  /// Linear blend, adds some smoothness
-        DispatchKeyValue(entityIndex, "spawnflags", "522");     /// No User Control | Passable - It disables the collision from the object | Not blockable by players
-        if(sSound[0] != '\0') DispatchKeyValue(entityIndex, "MoveSound", sSound);
-        
-        // Sets the render mode
-        SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
-        SetEntityRenderColor(entityIndex, 0, 0, 0, 0); 
-        
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-    }
-
-    // Return index on the success
-    return entityIndex;
-}
-
-/**
- * @brief Create a path entity.
- * 
- * @param sClassname        The classname string.
- * @param vPosition         The position to the spawn.
- * @param vAngle            The angle to the spawn.
- * @param sNextTarget       The next '_track' in the path.    
- *
- * @return                  The entity index.                       
- **/
-stock int CreatePath(char[] sClassname, float vPosition[3], float vAngle[3], char[] sNextTarget)
-{
-    // Create a path entity
-    int entityIndex = CreateEntityByName("path_track");
-    
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entityIndex, "origin", vPosition); 
-        DispatchKeyValueVector(entityIndex, "angles", vAngle); 
-        DispatchKeyValue(entityIndex, "targetname", sClassname);
-        DispatchKeyValue(entityIndex, "target", sNextTarget);
-        
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-
-        // Activate the entity
-        ActivateEntity(entityIndex);  
-    }
-    
-    // Return index on the success
-    return entityIndex;
-}
-
-/**
- * @brief Create a physics entity.
- * 
- * @param vPosition         The position to the spawn.
- * @param vAngle            The angle to the spawn.
- * @param sModel            The model path.
- *
- * @return                  The entity index.                       
- **/
-stock int CreatePhysics(float vPosition[3], float vAngle[3], char[] sModel)
-{
-    // Create a prop_physics_multiplayer entity
-    int entityIndex = CreateEntityByName("prop_physics_multiplayer"); 
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entityIndex, "origin", vPosition);
-        DispatchKeyValueVector(entityIndex, "angles", vAngle); 
-        DispatchKeyValue(entityIndex, "model", sModel);
-        DispatchKeyValue(entityIndex, "spawnflags", "8832"); /// Not affected by rotor wash | Prevent pickup | Force server-side
-
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-    }
-    
-    // Return index on the success
-    return entityIndex;
-}
-
-/**
- * @brief Create a dynamic entity.
- * 
- * @param vPosition         The position to the spawn.
- * @param vAngle            The angle to the spawn.
- * @param sModel            The model path.
- * @param sDefaultAnim      The default animation.
- *
- * @return                  The entity index.                       
- **/
-stock int CreateDynamic(float vPosition[3], float vAngle[3], char[] sModel, char[] sDefaultAnim)
-{
-    // Create a prop_dynamic_override entity
-    int entityIndex = CreateEntityByName("prop_dynamic_override");
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entityIndex, "origin", vPosition); 
-        DispatchKeyValueVector(entityIndex, "angles", vAngle);
-        DispatchKeyValue(entityIndex, "model", sModel);
-        DispatchKeyValue(entityIndex, "DefaultAnim", sDefaultAnim);
-        DispatchKeyValue(entityIndex, "spawnflags", "256"); /// Start with collision disabled
-        DispatchKeyValue(entityIndex, "solid", "0");
-
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-    }
-    
-    // Return index on the success
-    return entityIndex;
-}
-
-/**
- * @brief Create a projectile entity.
- * 
- * @param vPosition         The position to the spawn.
- * @param vAngle            The angle to the spawn.
- * @param sModel            The model path.   
- *
- * @return                  The entity index.                       
- **/
-stock int CreateProjectile(float vPosition[3], float vAngle[3], char[] sModel)
-{
-    // Create a static entity
-    int entityIndex = CreateEntityByName("hegrenade_projectile");
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Spawn the entity
-        DispatchSpawn(entityIndex);
-        TeleportEntity(entityIndex, vPosition, vAngle, NULL_VECTOR);
-        
-        // Sets the model
-        SetEntityModel(entityIndex, sModel);
-    }
-    
-    // Return index on the success
-    return entityIndex;
-}
-
-/**
- * @brief Create a stack of the smoke entity.
- * 
- * @param vPosition         The position to the spawn.
- * @param vAngle            The angle to the spawn.
- * @param sSpreadBase       (Optional) The amount of random spread in the origins of the smoke particles when they're spawned.     
- * @param sSpreadSpeed      (Optional) The amount of random spread in the velocity of the smoke particles after they're spawned.
- * @param sSpeed            (Optional) The speed at which the smoke particles move after they're spawned.
- * @param sStartSize        (Optional) The size of the smoke particles when they're first emitted.
- * @param sEndSize          (Optional) The size of the smoke particles at the point they fade out completely.
- * @param sDensity          (Optional) The rate at which to emit smoke particles (i.e. particles to emit per second).
- * @param sLength           (Optional) The length of the smokestack. Lifetime of the smoke particles is derived from this & particle speed.
- * @param sTwist            (Optional) The amount, in degrees per second, that the smoke particles twist around the origin.
- * @param sColor            The color of the light. (RGB)
- * @param sTransparency     The amount of an alpha (0-255)
- * @param sSpriteName       The sprite path.
- * @param flRemoveTime      The removing of the smoke.
- * @param flDurationTime    The duration of the smoke.
- *
- * @return                  The entity index.
- **/
-stock int CreateSmoke(float vPosition[3], float vAngle[3], char[] sSpreadBase = "100", char[] sSpreadSpeed = "70", char[] sSpeed = "80", char[] sStartSize = "200", char[] sEndSize = "2", char[] sDensity = "30", char[] sLength = "400", char[] sTwist = "20", char[] sColor, char[] sTransparency, char[] sSpriteName, float flRemoveTime, float flDurationTime)
-{
-    // Create a smokestack entity
-    int entityIndex = CreateEntityByName("env_smokestack");
-
-    // If entity isn't valid, then skip
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entityIndex, "origin", vPosition); 
-        DispatchKeyValueVector(entityIndex, "angles", vAngle);
-        DispatchKeyValue(entityIndex, "BaseSpread", sSpreadBase);
-        DispatchKeyValue(entityIndex, "SpreadSpeed", sSpreadSpeed);
-        DispatchKeyValue(entityIndex, "Speed", sSpeed);
-        DispatchKeyValue(entityIndex, "StartSize", sStartSize);
-        DispatchKeyValue(entityIndex, "EndSize", sEndSize);
-        DispatchKeyValue(entityIndex, "Rate", sDensity);
-        DispatchKeyValue(entityIndex, "JetLength", sLength);
-        DispatchKeyValue(entityIndex, "Twist", sTwist); 
-        DispatchKeyValue(entityIndex, "RenderColor", sColor);
-        DispatchKeyValue(entityIndex, "RenderAmt", sTransparency); 
-        DispatchKeyValue(entityIndex, "SmokeMaterial", sSpriteName);
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entityIndex);
-
-        // Activate the entity
-        AcceptEntityInput(entityIndex, "TurnOn");
-
-        // Initialize char
-        static char sTime[SMALL_LINE_LENGTH];
-        Format(sTime, sizeof(sTime), "OnUser1 !self:TurnOff::%f:1", flRemoveTime);
-        
-        // Sets modified flags on the entity
-        SetVariantString(sTime);
-        AcceptEntityInput(entityIndex, "AddOutput");
-        
-        // Initialize char
-        ///static char sTime[SMALL_LINE_LENGTH];
-        Format(sTime, sizeof(sTime), "OnUser1 !self:kill::%f:1", flDurationTime);
-        
-        // Sets modified flags on the entity
-        SetVariantString(sTime);
-        AcceptEntityInput(entityIndex, "AddOutput");
-        AcceptEntityInput(entityIndex, "FireUser1");
-    }
-    
-    // Return on the success
-    return entityIndex;
-}
-
-/**
  * @brief Play the animation of the entity.
  * 
  * @param entityIndex       The entity index.        
@@ -1720,6 +1361,24 @@ stock void SetAnimation(int entityIndex, char[] sAnim, int iBodyGroup = 0)
     // Play animation of the model
     SetVariantString(sAnim);
     AcceptEntityInput(entityIndex, "SetAnimation");
+}
+
+/**
+ * @brief Validate the entity's classname.
+ *
+ * @param entityIndex       The entity index.
+ * @param sClassname        The classname string.
+ * @param iMaxLen           The lenght of checking.
+ *
+ * @return                  True or false.
+ **/
+stock bool ValidateName(int entityIndex, char[] sClassname, int iMaxLen)
+{
+    static char sName[SMALL_LINE_LENGTH];
+    GetEntPropString(entityIndex, Prop_Data, "m_iName", sName, sizeof(sName));
+    
+    // Validate string
+    return (!strncmp(sName, sClassname, iMaxLen, false));
 }
 
 /**
