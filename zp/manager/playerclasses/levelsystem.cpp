@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -447,7 +447,7 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
         if(!IsPlayerAlive(clientIndex))
         {
             // Validate spectator mode
-            int iSpecMode = ToolsGetClientObserverMode(clientIndex);
+            int iSpecMode = ToolsGetObserverMode(clientIndex);
             if(iSpecMode != SPECMODE_FIRSTPERSON && iSpecMode != SPECMODE_3RDPERSON)
             {
                 // Allow timer
@@ -455,7 +455,7 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
             }
             
             // Gets the observer target
-            targetIndex = ToolsGetClientObserverTarget(clientIndex);
+            targetIndex = ToolsGetObserverTarget(clientIndex);
             
             // Validate target
             if(!IsPlayerExist(targetIndex)) 
@@ -562,9 +562,9 @@ public void LevelSystemChangeOnCvarHook(ConVar hConVar, char[] oldValue, char[] 
             if(IsPlayerExist(i))
             {
                 // Update variables
-                ToolsSetClientHealth(i, ClassGetHealth(gClientData[i].Class) + (RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i].Level))), true);
-                ToolsSetClientLMV(i, ClassGetSpeed(gClientData[i].Class) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i].Level)));
-                ToolsSetClientGravity(i, ClassGetGravity(gClientData[i].Class) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i].Level)));
+                ToolsSetHealth(i, ClassGetHealth(gClientData[i].Class) + (RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i].Level))), true);
+                ToolsSetLMV(i, ClassGetSpeed(gClientData[i].Class) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i].Level)));
+                ToolsSetGravity(i, ClassGetGravity(gClientData[i].Class) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i].Level)));
             }
         }
     }

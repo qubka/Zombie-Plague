@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -172,7 +172,7 @@ void HealthOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
             static float vPosition[3];
             
             // Gets client top position
-            ToolsGetClientAbsOrigin(clientIndex, vPosition); 
+            ToolsGetAbsOrigin(clientIndex, vPosition); 
             vPosition[2] += gCvarList[CVAR_VEFFECTS_HEALTH_HEIGHT].FloatValue; // Add height
             
             // Teleport the entity
@@ -187,7 +187,7 @@ void HealthOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
         }
 
         // Validate death/invisibility
-        if(iHealth <= 0 || ToolsGetClientRenderColor(clientIndex, ColorType_Alpha) <= 0) 
+        if(iHealth <= 0 || ToolsGetRenderColor(clientIndex, ColorType_Alpha) <= 0) 
         { 
             HealthHideAllSprites(clientIndex);
             return; 
@@ -247,7 +247,7 @@ public Action HealthOnClientSprite(Handle hTimer, int userID)
             if(userID)
             {
                 // Validate invisibility
-                if(ToolsGetClientRenderColor(userID, ColorType_Alpha) <= 0)
+                if(ToolsGetRenderColor(userID, ColorType_Alpha) <= 0)
                 {
                     // Make it invisible
                     AcceptEntityInput(entityIndex, "HideSprite");  
@@ -401,7 +401,7 @@ int HealthGetFrame(int clientIndex)
 {
     // Calculate the frames
     float flMaxFrames = gCvarList[CVAR_VEFFECTS_HEALTH_FRAMES].FloatValue - 1.0;
-    float flFrame = float(ToolsGetClientHealth(clientIndex)) / float(ClassGetHealth(gClientData[clientIndex].Class)) * flMaxFrames;
+    float flFrame = float(ToolsGetHealth(clientIndex)) / float(ClassGetHealth(gClientData[clientIndex].Class)) * flMaxFrames;
 
     // Return the frame position
     return (flFrame > flMaxFrames) ? RoundToNearest(flMaxFrames) : RoundToNearest(flFrame);

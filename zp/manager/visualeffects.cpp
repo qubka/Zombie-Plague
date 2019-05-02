@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -92,6 +92,17 @@ void VEffectsOnCvarInit(/*void*/)
     PlayerVEffectsOnCvarInit();
 }
 
+/**
+ * @brief Client has been joined.
+ * 
+ * @param clientIndex       The client index.  
+ **/
+void VEffectOnClientInit(int clientIndex)
+{
+    // Forward event to sub-modules
+    ParticlesOnClientInit(clientIndex);
+}
+
 /*
  * Effects main functions.
  */
@@ -105,6 +116,17 @@ void VEffectOnBlast(int clientIndex)
 {
     // Forward event to sub-modules
     VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 255, 255, 255});
+}
+
+/**
+ * @brief Client has been spawned.
+ * 
+ * @param clientIndex       The client index.
+ **/
+void VEffectOnClientSpawn(int clientIndex)
+{
+    // Forward event to sub-modules
+    ParticlesRemove(clientIndex);
 }
  
 /**
@@ -128,7 +150,7 @@ void VEffectOnClientDeath(int clientIndex)
 void VEffectOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
 {
     // Validate attacker
-    if(attackerIndex > 0)
+    if(attackerIndex > 0/* && attackerIndex < MaxClients*/)
     {
         // Forward event to sub-modules
         HealthOnClientHurt(clientIndex, attackerIndex, iHealth);

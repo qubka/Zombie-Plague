@@ -11,11 +11,11 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this program.  If not, see <http://www.gnu.org/licenses/>.
+ * this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * As a special exception, AlliedModders LLC gives you permission to link the
  * code of this program (as well as its derivative works) to "Half-Life 2," the
@@ -77,7 +77,7 @@ native void ZP_GetAttachment(int entityIndex, char[] attach, float origin[3], fl
  * @brief Gets the sequence of the entity.
  *
  * @param entityIndex       The entity index.
- * @param anim              The sequence name.
+ * @param anim              The sequence name. (activity name)
  *
  * @return                  The sequence index.
  **/
@@ -87,11 +87,59 @@ native int ZP_LookupSequence(int entityIndex, char[] anim);
  * @brief Gets the pose of the entity.
  *
  * @param entityIndex       The entity index.
- * @param name              The pose name.
+ * @param pose              The pose name.
  *
  * @return                  The pose parameter.
  **/
-native int ZP_LookupPoseParameter(int entityIndex, char[] name);
+native int ZP_LookupPoseParameter(int entityIndex, char[] pose);
+
+/**
+ * @brief Resets the sequence of the entity.
+ *
+ * @param entityIndex       The entity index.
+ * @param anim              The sequence name.
+ *
+ * @noreturn
+ **/
+native void ZP_ResetSequence(int entityIndex, char[] anim);
+
+/**
+ * @brief Gets the total sequence amount.
+ *
+ * @param entityIndex       The entity index.
+ *
+ * @return                  The sequence count.
+ **/
+native int ZP_GetSequenceCount(int entityIndex);
+
+/**
+ * @brief Gets the duration of a sequence.
+ *
+ * @param entityIndex       The entity index.
+ * @param sequence          The sequence index.
+ *
+ * @return                  The sequence duration. 
+ **/
+native float ZP_GetSequenceDuration(int entityIndex, int sequence);
+
+/**
+ * @brief Gets the activity of a sequence.
+ *
+ * @param entityIndex       The entity index.
+ * @param sequence          The sequence index.
+ *
+ * @return                  The activity index.
+ **/
+native int ZP_GetSequenceActivity(int entityIndex, int sequence);
+
+/**
+ * @brief Checks that the entity is a brush.
+ *
+ * @param entityIndex       The entity index.
+ *  
+ * @return                  True or false.
+ **/
+native bool ZP_IsBSPModel(int clientIndex);
 
 /**
  * @brief Respawn a player.
@@ -99,7 +147,7 @@ native int ZP_LookupPoseParameter(int entityIndex, char[] name);
  * @param clientIndex       The client index.
  *  
  * @return                  True or false.
- **/
+**/
 native bool ZP_RespawnClient(int clientIndex);
 
 /**
@@ -112,6 +160,23 @@ native bool ZP_RespawnClient(int clientIndex);
  * @return                  The client index.
  **/
 native int ZP_FindPlayerInSphere(int &it, float center[3], float radius);
+
+/**
+ * @brief Emulate 'bullet_shot' on the server and does the damage calculations.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param origin            The position to the spawn.
+ * @param angle             The angle to the spawn.
+ * @param mode              The mode index.
+ * @param seed              The randomizing seed.
+ * @param inaccuracy        The inaccuracy variable.
+ * @param spread            The spread variable.
+ * @param sound             The sound type.
+ *
+ * @return                  True or false.
+ **/
+native bool ZP_FireBullets(int clientIndex, int weaponIndex, float origin[3], float angle[3], int mode, int seed, float inaccuracy, float spread, int sound);
 
 /**
  * @brief Returns whether a player is in group or not.

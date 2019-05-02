@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -50,10 +50,6 @@ int gSound; ConVar hSoundLevel;
 int gWeapon;
 #pragma unused gWeapon
 
-// Decal index
-int decalSmoke; int decalBeam;
-#pragma unused decalSmoke, decalBeam
-
 // Timer index
 Handle Task_EmitterCreate[MAXPLAYERS+1] = null; 
 
@@ -63,38 +59,31 @@ enum
     ANIM_IDLE,
     ANIM_SHOOT,
     ANIM_DRAW,
-    ANIM_IDLE_TRIGGER_ON,
     ANIM_IDLE_TRIGGER_OFF,
-    ANIM_SWITCH_TRIGGER_ON,
+    ANIM_IDLE_TRIGGER_ON,
     ANIM_SWITCH_TRIGGER_OFF,
-    ANIM_SHOOT_TRIGGER_ON,
+    ANIM_SWITCH_TRIGGER_ON,
     ANIM_SHOOT_TRIGGER_OFF,
-    ANIM_DRAW_TRIGGER_ON,
-    ANIM_DRAW_TRIGGER_OFF
+    ANIM_SHOOT_TRIGGER_ON,
+    ANIM_DRAW_TRIGGER_OFF,
+    ANIM_DRAW_TRIGGER_ON
 };
 
 // Weapon states
 enum
 {
-    STATE_TRIGGER_ON,
-    STATE_TRIGGER_OFF
+    STATE_TRIGGER_OFF,
+    STATE_TRIGGER_ON
 };
 
-/**
- * @section Information about weapon.
- **/
-#define WEAPON_TIME_DELAY_SWITCH    1.5
-/**
- * @endsection
- **/
- 
 /**
  * @section Properties of the bombardier.
  **/
 #define BOMBARDING_HEIGHT               700.0
 #define BOMBARDING_EXPLOSION_TIME       2.0
-#define BOMBARDING_SPEED                "500"
-#define BOMBARDING_RADIUS               2000.0
+#define BOMBARDING_RADIUS               1500.0
+#define BOMBARDING_SPEED                500.0
+#define BOMBARDING_GRAVITY              0.01
 /**
  * @endsection
  **/
@@ -102,13 +91,16 @@ enum
 /**
  * @section Properties of the airdrop.
  **/
-#define AIRDROP_SPEED                   "100"
-#define AIRDROP_HEIGHT                  800.0
+#define AIRDROP_AMOUNT                  6
+#define AIRDROP_HEIGHT                  700.0
 #define AIRDROP_HEALTH                  300
+#define AIRDROP_ELASTICITY              0.01
+#define AIRDROP_SPEED                   175.0
 #define AIRDROP_EXPLOSIONS              3
 #define AIRDROP_WEAPONS                 15
 #define AIRDROP_SMOKE_REMOVE            14.0
 #define AIRDROP_SMOKE_TIME              17.0
+#define AIRDROP_LOCK                    20.0
 /**
  * @endsection
  **/
@@ -125,14 +117,32 @@ enum
 /**
  * @endsection
  **/
+
+/**
+ * @section Types of drop.
+ **/
+enum 
+{
+    SAFE,
+    EXPL,
+    HEAVY,
+    LIGHT,
+    PISTOL,
+    HPIST,
+    TOOLS,
+    HTOOL
+};
+/**
+ * @endsection
+ **/
  
 /**
  * @brief Plugin is loading.
  **/
 public void OnPluginStart(/*void*/)
 {
-    // Hooks entity path_track output events
-    HookEntityOutput("path_track", "OnPass", OnTrainPass);
+    // Hooks entities output events
+    HookEntityOutput("prop_physics_multiplayer", "OnPlayerUse", OnBagUse);
 
     // Load translations phrases used by plugin
     LoadTranslations("zombieplague.phrases");
@@ -163,27 +173,26 @@ public void OnClientDisconnect(int clientIndex)
 }
 
 /**
- * @brief Called when a entity touch 'path_track' node.
+ * @brief Called when a entity used by a client.
  *
  * @param sOutput               The output char. 
  * @param entityIndex           The entity index.
  * @param activatorIndex        The activator index.
  * @param flDelay               The delay of updating.
  **/ 
-public void OnTrainPass(char[] sOutput, int entityIndex, int activatorIndex, float flDelay)
+public void OnBagUse(char[] sOutput, int entityIndex, int activatorIndex, float flDelay)
 {
-    // Validate activator
-    if(IsValidEdict(activatorIndex))
+    // Is it bag ?
+    if(ValidateName(entityIndex, "bag", 3))
     {
-        // Is it end path ?
-        if(ValidateName(entityIndex, "safepath1", 9))
-        {
-            DropLandHook(activatorIndex);
-        }
-        else if(ValidateName(entityIndex, "nucpath1", 8))
-        {
-            BombLandHook(activatorIndex);
-        }
+        // Call method
+        BagUseHook(entityIndex);
+    }
+    // Is it safe ?
+    else if(ValidateName(entityIndex, "safe", 4))
+    {
+        // Call method
+        SafeUseHook(entityIndex);
     }
 }
 
@@ -233,7 +242,14 @@ public void ZP_OnEngineExecute(/*void*/)
     // Models
     PrecacheModel("models/f18/f18.mdl", true);
     PrecacheModel("models/props_survival/safe/safe_door.mdl", true);
-    PrecacheModel("models/props_survival/parachute/chute.mdl", true);
+    PrecacheModel("models/props_survival/cash/dufflebag.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy.mdl", true);
     PrecacheModel("particle/particle_smokegrenade1.vmt", true); 
     PrecacheModel("particle/particle_smokegrenade2.vmt", true); 
     PrecacheModel("particle/particle_smokegrenade3.vmt", true); 
@@ -242,8 +258,233 @@ public void ZP_OnEngineExecute(/*void*/)
     PrecacheModel("models/gibs/metal_gib3.mdl", true);
     PrecacheModel("models/gibs/metal_gib4.mdl", true);
     PrecacheModel("models/gibs/metal_gib5.mdl", true);
-    decalSmoke = PrecacheModel("materials/sprites/smoke.vmt", true);
-    decalBeam = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib001.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib002.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib003.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib004.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib005.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib006.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib007.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib008.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib009.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib010.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib011.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib012.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib013.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib014.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib015.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib016.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib017.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib018.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib019.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib020.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib021.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib022.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib023.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib024.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib025.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib026.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib027.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib028.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib029.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib030.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib031.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib032.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib033.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib034.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib035.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib036.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib037.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib038.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib039.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib040.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib041.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_heavy_weapon_gib042.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib001.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib002.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib003.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib004.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib005.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib006.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib007.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib008.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib009.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib010.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib011.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib012.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib013.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib014.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib015.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib016.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib017.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib018.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib019.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib020.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib021.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib022.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib023.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib024.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_explosive_gib025.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib001.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib002.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib003.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib004.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib005.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib006.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib007.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib008.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib009.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib010.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib011.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib012.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib013.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib014.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib015.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib016.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib017.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib018.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib019.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib020.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib021.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib022.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib023.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib024.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_gib025.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib001.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib002.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib003.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib004.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib005.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib006.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib007.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib008.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib009.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib010.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib011.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib012.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib013.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib014.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib015.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib016.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib017.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib018.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib019.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib020.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib021.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib022.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib023.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib024.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib025.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib026.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib027.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib028.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib029.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib030.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib031.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib032.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib033.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib034.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib035.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_tools_heavy_gib036.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib001.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib002.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib003.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib004.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib005.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib006.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib007.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib008.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib009.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib010.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib011.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib012.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib013.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib014.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib015.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib016.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib017.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib018.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib019.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib020.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib021.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib022.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib023.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib024.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib025.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib026.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib027.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib028.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib029.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib030.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib031.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib032.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib033.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib034.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib035.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_heavy_gib036.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib001.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib002.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib003.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib004.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib005.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib006.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib007.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib008.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib009.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib010.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib011.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib012.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib013.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib014.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib015.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib016.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib017.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib018.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib019.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib020.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib021.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib022.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib023.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib024.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_pistol_gib025.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib001.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib002.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib003.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib004.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib005.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib006.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib007.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib008.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib009.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib010.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib011.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib012.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib013.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib014.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib015.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib016.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib017.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib018.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib019.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib020.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib021.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib022.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib023.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib024.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib025.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib026.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib027.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib028.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib029.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib030.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib031.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib032.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib033.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib034.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib035.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib036.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib037.mdl", true);
+    PrecacheModel("models/props_survival/cases/case_light_weapon_gib038.mdl", true);
 }
 
 /**
@@ -255,7 +496,7 @@ public void ZP_OnGameModeStart(int modeIndex)
     if(ZP_IsGameModeHumanClass(modeIndex, "human") && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
     {
         // Get the random index of a human
-        int clientIndex = ZP_GetRandomHuman();
+        int clientIndex = 1;//ZP_GetRandomHuman();
 
         // Validate client
         if(clientIndex != INVALID_ENT_REFERENCE)
@@ -265,8 +506,8 @@ public void ZP_OnGameModeStart(int modeIndex)
             if((weaponIndex = ZP_IsPlayerHasWeapon(clientIndex, gWeapon)) != INVALID_ENT_REFERENCE)
             {
                 // Reset variables
-                SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_TRIGGER_OFF);
-                SetEntProp(weaponIndex, Prop_Data, "m_bIsAutoaimTarget", false);
+                SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", STATE_TRIGGER_OFF);
+                SetEntProp(weaponIndex, Prop_Data, "m_iHealth", STATE_TRIGGER_OFF);
                 SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
             }
             else
@@ -274,7 +515,8 @@ public void ZP_OnGameModeStart(int modeIndex)
                 // Give item and select it
                 ZP_GiveClientWeapon(clientIndex, gWeapon);
 
-                // Print info
+                // Show message
+                SetGlobalTransTarget(clientIndex);
                 PrintHintText(clientIndex, "%t", "airdrop info");
             }
         }
@@ -297,11 +539,32 @@ void Weapon_OnHolster(int clientIndex, int weaponIndex, int bTrigger, int iState
     delete Task_EmitterCreate[clientIndex];
 }
 
+void Weapon_OnIdle(int clientIndex, int weaponIndex, int bTrigger, int iStateMode, float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, bTrigger, iStateMode, flCurrentTime
+    
+    // Validate animation delay
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
+    {
+        return;
+    }
+    
+    // Sets the sequence index
+    int iSequence = !bTrigger ? ANIM_IDLE : !iStateMode ? ANIM_IDLE_TRIGGER_OFF : ANIM_IDLE_TRIGGER_ON;
+    
+    // Sets idle animation
+    ZP_SetWeaponAnimation(clientIndex, iSequence);
+    
+    // Sets next idle time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weaponIndex, iSequence));
+}
+
 void Weapon_OnDeploy(int clientIndex, int weaponIndex, int bTrigger, int iStateMode, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, bTrigger, iStateMode, flCurrentTime
     
     /// Block the real attack
+    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", flCurrentTime + 9999.9);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime + 9999.9);
 
@@ -309,7 +572,7 @@ void Weapon_OnDeploy(int clientIndex, int weaponIndex, int bTrigger, int iStateM
     SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
     
     // Sets draw animation
-    ZP_SetWeaponAnimation(clientIndex, !bTrigger ? ANIM_DRAW : iStateMode ? ANIM_DRAW_TRIGGER_ON : ANIM_DRAW_TRIGGER_OFF); 
+    ZP_SetWeaponAnimation(clientIndex, !bTrigger ? ANIM_DRAW : !iStateMode ? ANIM_DRAW_TRIGGER_OFF : ANIM_DRAW_TRIGGER_ON); 
 }
 
 void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int iStateMode, float flCurrentTime)
@@ -327,28 +590,24 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int 
     {
         return;
     }
-    
-    // Adds the delay to the game tick
-    flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
 
-    // Sets next attack time
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);   
-    
     // Initialize vectors
     static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
     // Validate trigger 
     if(!bTrigger)
     {
+        // Adds the delay to the game tick
+        flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+
         // Gets trace line
         GetClientEyePosition(clientIndex, vPosition);
         ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
 
         // Create the end-point trace
-        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, TraceFilter);
+        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
 
-        // Validate collisions
+        // Is hit world ?
         if(TR_DidHit() && TR_GetEntityIndex() < 1)
         {
             // Sets attack animation
@@ -356,13 +615,16 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int 
             
             // Create timer for emitter
             delete Task_EmitterCreate[clientIndex]; /// Bugfix
-            Task_EmitterCreate[clientIndex] = CreateTimer(ZP_GetWeaponSpeed(gWeapon), Weapon_OnCreateEmitter, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+            Task_EmitterCreate[clientIndex] = CreateTimer(ZP_GetWeaponSpeed(gWeapon) - 0.1, Weapon_OnCreateEmitter, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
         }
     }
     else
     {
+        // Adds the delay to the game tick
+        flCurrentTime += ZP_GetWeaponReload(gWeapon);
+
         // Gets the controller
-        int entityIndex = GetEntPropEnt(weaponIndex, Prop_Data, "m_hDamageFilter"); 
+        int entityIndex = GetEntPropEnt(weaponIndex, Prop_Send, "m_hEffectEntity"); 
 
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
@@ -373,7 +635,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int 
 
             // Create exp effect
             TE_SetupSparks(vPosition, NULL_VECTOR, 5000, 1000);
-            TE_SendToAllInRange(vPosition, RangeType_Visibility);
+            TE_SendToAll();
 
             // Switch mode
             switch(iStateMode)
@@ -409,11 +671,18 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, int bTrigger, int 
         }
         
         // Sets attack animation
-        ZP_SetWeaponAnimation(clientIndex, iStateMode ? ANIM_SHOOT_TRIGGER_ON : ANIM_SHOOT_TRIGGER_OFF);  
+        ZP_SetWeaponAnimation(clientIndex, !iStateMode ? ANIM_SHOOT_TRIGGER_OFF : ANIM_SHOOT_TRIGGER_ON);  
         
         // Remove trigger
-        CreateTimer(1.0, Weapon_OnRemove, EntIndexToEntRef(weaponIndex), TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(0.99, Weapon_OnRemove, EntIndexToEntRef(weaponIndex), TIMER_FLAG_NO_MAPCHANGE);
     }
+    
+    // Sets next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);   
+    
+    // Sets attack animation
+    ZP_SetPlayerAnimation(clientIndex, AnimType_FirePrimary);
 }
 
 void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int bTrigger, int iStateMode, float flCurrentTime)
@@ -427,16 +696,19 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int bTrigger, in
     }
     
     // Validate animation delay
-    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer") > flCurrentTime)
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
         return;
     }
-    
+
+    // Seta the sequence index
+    int iSequence = !iStateMode ? ANIM_SWITCH_TRIGGER_ON : ANIM_SWITCH_TRIGGER_OFF;
+
     // Sets change animation
-    ZP_SetWeaponAnimation(clientIndex, iStateMode ? ANIM_SWITCH_TRIGGER_OFF : ANIM_SWITCH_TRIGGER_ON);        
+    ZP_SetWeaponAnimation(clientIndex, iSequence);        
 
     // Adds the delay to the game tick
-    flCurrentTime += WEAPON_TIME_DELAY_SWITCH;
+    flCurrentTime += ZP_GetSequenceDuration(weaponIndex, iSequence);
 
     // Sets next attack time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -448,8 +720,9 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int bTrigger, in
     // Sets switching time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", flCurrentTime);
     
-    // Print info
-    PrintHintText(clientIndex, "%t", iStateMode ? "trigger on info" : "trigger off info");
+    // Show message
+    SetGlobalTransTarget(clientIndex);
+    PrintHintText(clientIndex, "%t", !iStateMode ? "trigger on info" : "trigger off info");
 }
 
 /**
@@ -477,9 +750,9 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
         ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
 
         // Create the end-point trace
-        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, TraceFilter);
+        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
 
-        // Validate collisions
+        // Is hit world ?
         if(TR_DidHit() && TR_GetEntityIndex() < 1)
         {
             // Returns the collision position/angle of a trace result
@@ -502,28 +775,21 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
                 
                 // Sets owner to the entity
                 SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex);
-                SetEntPropEnt(weaponIndex, Prop_Data, "m_hDamageFilter", entityIndex);
+                SetEntPropEnt(weaponIndex, Prop_Send, "m_hEffectEntity", entityIndex);
                 
                 // Emit sound
                 EmitSoundToAll("survival/breach_land_01.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
             
             // Sets trigger mode
-            SetEntProp(weaponIndex, Prop_Data, "m_bIsAutoaimTarget", true);
-            
-            // Adds the delay to the game tick
-            float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon) - 0.3;
-            
-            // Sets next attack time
-            SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-            SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime); 
-            
+            SetEntProp(weaponIndex, Prop_Data, "m_iHealth", STATE_TRIGGER_ON);
+
             // Placed successfully
             bHit = true;
         }
 
         // Adds the delay to the game tick
-        float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon) - 0.3;
+        float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon);
         
         // Sets next attack time
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -532,6 +798,9 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
         // Sets pickup animation
         ZP_SetWeaponAnimation(clientIndex, bHit ? ANIM_DRAW_TRIGGER_OFF : ANIM_DRAW);
     }
+    
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 /**
@@ -575,8 +844,9 @@ public Action Weapon_OnRemove(Handle hTimer, int referenceIndex)
         %1,             \
         %2,             \
                         \
-        GetEntProp(%2, Prop_Data, "m_bIsAutoaimTarget"), \
-        GetEntProp(%2, Prop_Data, "m_iMaxHealth"/**/), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"), \
+                        \
+        GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
                         \
         GetGameTime()   \
    )    
@@ -594,8 +864,8 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, STATE_TRIGGER_OFF);
-        SetEntProp(weaponIndex, Prop_Data, "m_bIsAutoaimTarget", false);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", STATE_TRIGGER_OFF);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth", STATE_TRIGGER_OFF);
         SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
     }
 }    
@@ -655,26 +925,14 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
         static float flApplyModeTime;
         if((flApplyModeTime = GetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer")) && flApplyModeTime <= GetGameTime())
         {
-            // Resets the switching time
+            // Sets the switching time
             SetEntPropFloat(weaponIndex, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 
             // Sets different mode
-            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, !GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/));
+            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", !GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"));
             
             // Emit sound
             EmitSoundToAll("survival/breach_activate_nobombs_01.wav", clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
-        }
-        else
-        {
-            // Validate state
-            if(GetEntProp(weaponIndex, Prop_Data, "m_bIsAutoaimTarget"))
-            {
-                // Switch animation
-                switch(ZP_GetWeaponAnimation(clientIndex))
-                {
-                    case ANIM_IDLE : ZP_SetWeaponAnimation(clientIndex, GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/) ? ANIM_IDLE_TRIGGER_ON : ANIM_IDLE_TRIGGER_OFF);
-                }
-            }
         }
     
         // Button primary attack press
@@ -693,6 +951,9 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
             iButtons &= (~IN_ATTACK2);
             return Plugin_Changed;
         }
+        
+        // Call event
+        _call.Idle(clientIndex, weaponIndex);
     }
 
     // Allow button
@@ -713,25 +974,35 @@ void CreateJet(float vPosition[3], float vAngle[3])
 {
     // Add to the position
     vPosition[2] += BOMBARDING_HEIGHT;
+
+    // Gets the world size
+    static float vMaxs[3];
+    GetEntPropVector(0, Prop_Data, "m_WorldMaxs", vMaxs);
+    
+    // Validate world size
+    float vMax = vMaxs[2] - 100.0;
+    if(vPosition[2] > vMax) vPosition[2] = vMax; 
     
     // Randomize animation
     //static char sAnim[SMALL_LINE_LENGTH];
     //FormatEx(sAnim, sizeof(sAnim), "flyby%i", GetRandomInt(1, 5));
 
     // Create a model entity
-    int entityIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/f18/f18.mdl", "flyby1");
+    int entityIndex = UTIL_CreateDynamic("f18", vPosition, vAngle, "models/f18/f18.mdl", "flyby1", false);
     
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Create thinks
         CreateTimer(2.7, JetBombHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
-        CreateTimer(6.6, HelicopterRemoveHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE); /// Use similar function
+
+        // Kill entity after delay
+        UTIL_RemoveEntity(entityIndex, 6.6);
     }
 }
 
 /**
- * @brief Main timer for spawn bomb.
+ * @brief Main timer for spawn bombs.
  *
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
@@ -745,53 +1016,51 @@ public Action JetBombHook(Handle hTimer, int referenceIndex)
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Emit sound
-        EmitSoundToAll("survival/rocketincoming.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+        EmitSoundToAll("survival/rocketincoming.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
         // Initialize vectors
-        static float vPosition[3]; static float vAngle[3];
+        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
 
         // Gets the position/angle
-        ZP_GetAttachment(entityIndex, "sound_maker", vPosition, vAngle);
+        ZP_GetAttachment(entityIndex, "sound_maker", vPosition, vAngle); vAngle[0] += 180.0;
         
-        // Create all paths and link them together
-        // This has to be done in reverse since target linking is done on entity activation
-        static char sTrack[SMALL_LINE_LENGTH]; static char sNextTrack[SMALL_LINE_LENGTH];
-        FormatEx(sTrack, sizeof(sTrack), "nucpath1%i", entityIndex); vPosition[2] -= BOMBARDING_HEIGHT;
-        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, "");
-        strcopy(sNextTrack, sizeof(sNextTrack), sTrack);
-        FormatEx(sTrack, sizeof(sTrack), "nucpath0%i", entityIndex); vPosition[2] += BOMBARDING_HEIGHT;
-        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, sNextTrack); 
-
-        // Spawn bomb
-        FormatEx(sNextTrack, sizeof(sNextTrack), "nuclear%i", entityIndex);
-        entityIndex = UTIL_CreateTrain(sNextTrack, vPosition, NULL_VECTOR, sTrack, BOMBARDING_SPEED, _, TRAIN_NOCONTROL | TRAIN_PASSABLE | TRAIN_UNBLOCKABLE);
+        // Create a bomb entity
+        entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/player/custom_player/zombie/bomb/bomb.mdl");
 
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            /// Fix angles (because of train attach)
-            vAngle[0] = 90.0; vAngle[1] = 90.0; vAngle[2] = 270.0;
+            // Correct angle
+            vAngle[0] -= 90.0;//45.0;
     
-            // Create a model entity
-            int modelIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/weapons/nucler/w_ailerons.mdl", "idle");
+            // Returns vectors in the direction of an angle
+            GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
 
-            // Validate entity
-            if(modelIndex != INVALID_ENT_REFERENCE)
-            {
-                // Sets the parent for the entity
-                SetVariantString("!activator");
-                AcceptEntityInput(modelIndex, "SetParent", entityIndex, modelIndex);
-            }
+            // Normalize the vector (equal magnitude at varying distances)
+            NormalizeVector(vVelocity, vVelocity);
+
+            // Apply the magnitude by scaling the vector
+            ScaleVector(vVelocity, BOMBARDING_SPEED);
+    
+            // Push the bomb
+            TeleportEntity(entityIndex, NULL_VECTOR, NULL_VECTOR, vVelocity);
+            
+             // Sets physics
+            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", BOMBARDING_GRAVITY);
+
+            // Create touch hook
+            SDKHook(entityIndex, SDKHook_Touch, BombTouchHook);
         }
     }
 }
 
 /**
- * @brief Called when a bomb touch the ground.
- *
- * @param entityIndex       The entity index.
- **/ 
-void BombLandHook(int entityIndex)
+ * @brief Bomb touch hook.
+ * 
+ * @param entityIndex           The entity index.        
+ * @param targetIndex           The target index.               
+ **/
+public Action BombTouchHook(int entityIndex, int targetIndex)
 {
     // Gets entity position
     static float vPosition[3];
@@ -818,12 +1087,12 @@ void BombLandHook(int entityIndex)
     // Emit sound
     switch(GetRandomInt(0, 5))
     {
-        case 0 : EmitSoundToAll("survival/missile_land_01.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-        case 1 : EmitSoundToAll("survival/missile_land_02.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-        case 2 : EmitSoundToAll("survival/missile_land_03.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-        case 3 : EmitSoundToAll("survival/missile_land_04.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-        case 4 : EmitSoundToAll("survival/missile_land_05.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
-        case 5 : EmitSoundToAll("survival/missile_land_06.wav", entityIndex, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+        case 0 : EmitSoundToAll("survival/missile_land_01.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        case 1 : EmitSoundToAll("survival/missile_land_02.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        case 2 : EmitSoundToAll("survival/missile_land_03.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        case 3 : EmitSoundToAll("survival/missile_land_04.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        case 4 : EmitSoundToAll("survival/missile_land_05.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        case 5 : EmitSoundToAll("survival/missile_land_06.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
     }
 
     // Remove the entity from the world
@@ -845,25 +1114,37 @@ void CreateHelicopter(float vPosition[3], float vAngle[3])
     // Add to the position
     vPosition[2] += AIRDROP_HEIGHT;
     
+    // Gets the world size
+    static float vMaxs[3];
+    GetEntPropVector(0, Prop_Data, "m_WorldMaxs", vMaxs);
+    
+    // Validate world size
+    float vMax = vMaxs[2] - 100.0;
+    if(vPosition[2] > vMax) vPosition[2] = vMax; 
+    
     // Create a model entity
-    int entityIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/buildables/helicopter_rescue_v2.mdl", "helicopter_coop_hostagepickup_flyin");
+    int entityIndex = UTIL_CreateDynamic("helicopter", vPosition, vAngle, "models/buildables/helicopter_rescue_v3.mdl", "helicopter_coop_hostagepickup_flyin");
     
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
         // Create thinks
-        CreateTimer(20.0, HelicopterDropHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(20.0, HelicopterStopHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
         CreateTimer(0.41, HelicopterSoundHook, EntIndexToEntRef(entityIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    
+        // Sets main parameters
+        SetEntProp(entityIndex, Prop_Data, "m_iHammerID", SAFE);
+        SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", AIRDROP_AMOUNT);
     }
 }
 
 /**
- * @brief Main timer for creating drop.
+ * @brief Main timer for stop helicopter.
  *
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action HelicopterDropHook(Handle hTimer, int referenceIndex)
+public Action HelicopterStopHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -871,75 +1152,11 @@ public Action HelicopterDropHook(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Initialize vectors
-        static float vPosition[3]; static float vAngle[3];
-
         // Set idle
         SetAnimation(entityIndex, "helicopter_coop_hostagepickup_idle");
 
-        // Gets the position/angle
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-        GetEntPropVector(entityIndex, Prop_Data, "m_angAbsRotation", vAngle);
-        
-        // Emit sound
-        EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, hSoundLevel.IntValue);
-        
-        // Create all paths and link them together
-        // This has to be done in reverse since target linking is done on entity activation
-        static char sTrack[SMALL_LINE_LENGTH]; static char sNextTrack[SMALL_LINE_LENGTH];
-        FormatEx(sTrack, sizeof(sTrack), "safepath1%i", entityIndex); vPosition[2] -= AIRDROP_HEIGHT;
-        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, "");
-        strcopy(sNextTrack, sizeof(sNextTrack), sTrack);
-        FormatEx(sTrack, sizeof(sTrack), "safepath0%i", entityIndex); vPosition[2] += AIRDROP_HEIGHT;
-        UTIL_CreatePath(sTrack, vPosition, NULL_VECTOR, sNextTrack); 
-        
         // Sets idle
         CreateTimer(5.0, HelicopterIdleHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
-        
-        // Spawn drop
-        FormatEx(sNextTrack, sizeof(sNextTrack), "safedrop%i", entityIndex);
-        entityIndex = UTIL_CreateTrain(sNextTrack, vPosition, NULL_VECTOR, sTrack, AIRDROP_SPEED, _, TRAIN_NOCONTROL | TRAIN_PASSABLE | TRAIN_UNBLOCKABLE);
-
-        // Validate entity
-        if(entityIndex != INVALID_ENT_REFERENCE)
-        {
-            /// Fix angles (because of train attach)
-            vAngle[0] = 0.0; vAngle[1] = 90.0; vAngle[2] = 270.0;
-    
-            // Create a model entity
-            int modelIndex = UTIL_CreateDynamic(vPosition, vAngle, "models/buildables/safe.mdl", "ref");
-
-            // Validate entity
-            if(modelIndex != INVALID_ENT_REFERENCE)
-            {
-                // Sets the parent for the entity
-                SetVariantString("!activator");
-                AcceptEntityInput(modelIndex, "SetParent", entityIndex, modelIndex);
-                SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", modelIndex);
-            }
-
-            // Create a model entity
-            int modelIndex2 = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, "models/props_survival/parachute/chute.mdl", "open");
-
-            // Validate entity
-            if(modelIndex2 != INVALID_ENT_REFERENCE)
-            {
-                // Emit sound
-                EmitSoundToAll("survival/dropzone_parachute_deploy.wav", modelIndex2, SNDCHAN_STATIC, hSoundLevel.IntValue);
-        
-                // Sets parent to the entity
-                SetVariantString("!activator"); 
-                AcceptEntityInput(modelIndex2, "SetParent", modelIndex, modelIndex2); 
-                SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", modelIndex2);
-
-                // Sets attachment to the entity
-                SetVariantString("forward");
-                AcceptEntityInput(modelIndex2, "SetParentAttachment", modelIndex, modelIndex2);
-                
-                // Sets idle
-                CreateTimer(0.3, ParachuteIdleHook, EntIndexToEntRef(modelIndex2), TIMER_FLAG_NO_MAPCHANGE);
-            }
-        }
     }
 }
 
@@ -964,7 +1181,7 @@ public Action HelicopterSoundHook(Handle hTimer, int referenceIndex)
         ZP_GetAttachment(entityIndex, "dropped", vPosition, vAngle); 
 
         // Play sound
-        ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_HELICOPTER); 
+        ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue); 
     }
     else
     {
@@ -992,19 +1209,25 @@ public Action HelicopterIdleHook(Handle hTimer, int referenceIndex)
     {
         // Set idle
         SetAnimation(entityIndex, "helicopter_coop_towerhover_idle");
+
+        // Emit sound
+        EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        
+        // Drops additional random staff
+        CreateTimer(1.0, HelicopterDropHook, EntIndexToEntRef(entityIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         
         // Sets flying
-        CreateTimer(6.6, HelicopterFlyHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(6.6, HelicopterRemoveHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
 /**
- * @brief Main timer for flyway of helicopter.
+ * @brief Main timer for creating drop.
  *
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
  **/
-public Action HelicopterFlyHook(Handle hTimer, int referenceIndex)
+public Action HelicopterDropHook(Handle hTimer, int referenceIndex)
 {
     // Gets entity index from reference key
     int entityIndex = EntRefToEntIndex(referenceIndex);
@@ -1012,16 +1235,135 @@ public Action HelicopterFlyHook(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Set idle
-        SetAnimation(entityIndex, "helicopter_coop_towerhover_flyaway");
+        // Validate cases
+        int iLeft = GetEntProp(entityIndex, Prop_Data, "m_iMaxHealth");
+        if(iLeft)
+        {
+            // Reduce amount
+            iLeft--;
+            
+            // Sets new amount
+            SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", iLeft);
+        }
+        else
+        {
+            // Destroy timer
+            return Plugin_Stop;
+        }
+
+        // Initialize vectors
+        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
         
-        // Sets flying
-        CreateTimer(8.3, HelicopterRemoveHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
+        // Gets the position/angle
+        ZP_GetAttachment(entityIndex, "dropped", vPosition, vAngle);
+        
+        // Gets the drop type
+        int iType = GetEntProp(entityIndex, Prop_Data, "m_iHammerID"); int dropIndex; int iCollision; int iDamage;
+        switch(iType)
+        {
+            case SAFE :
+            {
+                // Create safe
+                dropIndex = UTIL_CreatePhysics("safe", vPosition, NULL_VECTOR, "models/buildables/safe.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
+                
+                // Validate entity
+                if(dropIndex != INVALID_ENT_REFERENCE)
+                {
+                    // Sets physics
+                    iCollision = COLLISION_GROUP_PLAYER;
+                    iDamage = DAMAGE_EVENTS_ONLY;
+
+                    // Create damage hook
+                    SDKHook(dropIndex, SDKHook_OnTakeDamage, SafeDamageHook);
+                }
+                
+                // i = client index
+                for(int i = 1; i <= MaxClients; i++)
+                {
+                    // Validate human
+                    if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                    {
+                        // Show message
+                        SetGlobalTransTarget(i);
+                        PrintHintText(i, "%t", "airdrop safe", AIRDROP_EXPLOSIONS);
+                    }
+                }
+            }
+            
+            default :
+            {
+                // Create case
+                switch(iType)
+                {
+                    case EXPL   : dropIndex = UTIL_CreatePhysics("explos", vPosition, NULL_VECTOR, "models/props_survival/cases/case_explosive.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+                    case HEAVY  : dropIndex = UTIL_CreatePhysics("heavys", vPosition, NULL_VECTOR, "models/props_survival/cases/case_heavy_weapon.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+                    case LIGHT  : dropIndex = UTIL_CreatePhysics("lighst", vPosition, NULL_VECTOR, "models/props_survival/cases/case_light_weapon.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+                    case PISTOL : dropIndex = UTIL_CreatePhysics("pislol", vPosition, NULL_VECTOR, "models/props_survival/cases/case_pistol.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+                    case HPIST  : dropIndex = UTIL_CreatePhysics("pishev", vPosition, NULL_VECTOR, "models/props_survival/cases/case_pistol_heavy.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+                    case TOOLS  : dropIndex = UTIL_CreatePhysics("toolsl", vPosition, NULL_VECTOR, "models/props_survival/cases/case_tools.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+                    case HTOOL  : dropIndex = UTIL_CreatePhysics("toohev", vPosition, NULL_VECTOR, "models/props_survival/cases/case_tools_heavy.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+                }
+
+                // Validate entity
+                if(dropIndex != INVALID_ENT_REFERENCE)
+                {
+                    // Sets physics
+                    iCollision = COLLISION_GROUP_WEAPON;
+                    iDamage = DAMAGE_YES;
+
+                    // Create damage hook
+                    SDKHook(dropIndex, SDKHook_OnTakeDamage, CaseDamageHook);
+                }
+                
+                // Randomize yaw a bit 
+                vAngle[0] = GetRandomFloat(-45.0, 45.0);
+            }
+        }
+
+        // Randomize the drop types (except safe)
+        SetEntProp(entityIndex, Prop_Data, "m_iHammerID", GetRandomInt(EXPL, HTOOL));
+        
+        // Validate entity
+        if(dropIndex != INVALID_ENT_REFERENCE)
+        {
+            // Returns vectors in the direction of an angle
+            GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
+            
+            // Normalize the vector (equal magnitude at varying distances)
+            NormalizeVector(vVelocity, vVelocity);
+            
+            // Apply the magnitude by scaling the vector
+            ScaleVector(vVelocity, AIRDROP_SPEED);
+        
+            // Push the entity 
+            TeleportEntity(dropIndex, NULL_VECTOR, NULL_VECTOR, vVelocity);
+            
+            // Sets physics
+            SetEntProp(dropIndex, Prop_Send, "m_CollisionGroup", iCollision);
+            SetEntProp(dropIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+            SetEntPropFloat(dropIndex, Prop_Send, "m_flElasticity", AIRDROP_ELASTICITY);
+            
+            // Sets health
+            SetEntProp(dropIndex, Prop_Data, "m_takedamage", iDamage);
+            SetEntProp(dropIndex, Prop_Data, "m_iHealth", AIRDROP_HEALTH);
+            SetEntProp(dropIndex, Prop_Data, "m_iMaxHealth", AIRDROP_HEALTH);
+            
+            // Sets type
+            SetEntProp(dropIndex, Prop_Data, "m_iHammerID", iType);
+        }
     }
+    else
+    {
+        // Destroy timer
+        return Plugin_Stop;
+    }
+    
+    // Allow timer
+    return Plugin_Continue;
 }
 
 /**
- * @brief Main timer for idling helicopter.
+ * @brief Main timer for remove helicopter.
  *
  * @param hTimer            The timer handle.
  * @param referenceIndex    The reference index.
@@ -1034,143 +1376,31 @@ public Action HelicopterRemoveHook(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        /// Destroy
-        AcceptEntityInput(entityIndex, "Kill"); 
-    }
-}
-
-/**
- * @brief Main timer for idling parachute.
- *
- * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
- **/
-public Action ParachuteIdleHook(Handle hTimer, int referenceIndex)
-{
-    // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
         // Set idle
-        SetAnimation(entityIndex, "idle");
-        
-        // Emit sound
-        EmitSoundToAll("survival/dropzone_freefall.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        SetAnimation(entityIndex, "helicopter_coop_towerhover_flyaway");
+
+        // Kill entity after delay
+        UTIL_RemoveEntity(entityIndex, 8.3);
     }
 }
 
 /**
- * @brief Called when a drop touch the ground.
+ * @brief Called when a safe used by the player.
  *
  * @param entityIndex       The entity index.
  **/ 
-void DropLandHook(int entityIndex)
+void SafeUseHook(int entityIndex)
 {
-    // Gets the parachute entity
-    int modelIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
-    
-    // Validate entity
-    if(modelIndex != INVALID_ENT_REFERENCE)
+    // If safe open, then kill
+    if(GetEntProp(entityIndex, Prop_Send, "m_nBody"))
     {
-        // Set close
-        SetAnimation(modelIndex, "collapse");
-        
-        // Emit sound
-        EmitSoundToAll(GetRandomInt(0, 1) ? "survival/dropzone_parachute_success_02.wav" : "survival/dropzone_parachute_success.wav", modelIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-    }
-    
-    // Replace drop
-    CreateTimer(0.2, DropReplaceHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
-}
-
-/**
- * @brief Main timer for replace drop.
- *
- * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
- **/
-public Action DropReplaceHook(Handle hTimer, int referenceIndex)
-{
-    // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
-
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
-    {
-        // Initialize vectors
-        static float vPosition[3]; static float vAngle[3]; static float vMins[3]; static float vMaxs[3];
-
-        // Gets the safe
-        int modelIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_pParent");
-        
-        // Validate entity
-        if(modelIndex != INVALID_ENT_REFERENCE)
-        {
-            // Gets the position/angle/size
-            GetEntPropVector(modelIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-            GetEntPropVector(modelIndex, Prop_Data, "m_angAbsRotation", vAngle);
-            GetEntPropVector(modelIndex, Prop_Data, "m_vecMins", vMins);
-            GetEntPropVector(modelIndex, Prop_Data, "m_vecMaxs", vMaxs);
-        }
-
-        // Destroy!
-        AcceptEntityInput(entityIndex, "Kill");
-
-        // Create the hull trace
-        vPosition[2] += vMaxs[2] / 2; /// Move center of hull upward
-        TR_TraceHull(vPosition, vPosition, vMins, vMaxs, MASK_SOLID);
-        
-        // Validate collisions
-        if(TR_GetFraction() < 1.0)
-        {
-            // Gets victim index
-            int victimIndex = TR_GetEntityIndex();
-            
-            // Validate victim
-            if(IsPlayerExist(victimIndex))
-            {    
-                // Kill it
-                ForcePlayerSuicide(victimIndex);
-            }
-        }
-        
-        // Replace with physics object
-        entityIndex = UTIL_CreatePhysics("safe", vPosition, vAngle, "models/buildables/safe.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
-        
-        // Validate entity
-        if(entityIndex != INVALID_ENT_REFERENCE)
-        {
-            // Sets physics
-            SetEntProp(entityIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
-            SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-
-            // Sets health
-            SetEntProp(entityIndex, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
-            SetEntProp(entityIndex, Prop_Data, "m_iHealth", AIRDROP_HEALTH);
-            SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", AIRDROP_HEALTH);
-            
-            // Sets counter
-            SetEntProp(entityIndex, Prop_Data, "m_iHammerID", 0);
-            
-            // Create damage hook
-            SDKHook(entityIndex, SDKHook_OnTakeDamage, DropDamageHook);
-        }
-        
-        // Create landing effect
-        TE_SetupSmoke(vPosition, decalSmoke, 100.0, 10);
-        TE_SendToAllInRange(vPosition, RangeType_Visibility);
-        TE_SetupDust(vPosition, NULL_VECTOR, 50.0, 1.0);
-        TE_SendToAllInRange(vPosition, RangeType_Visibility);
-        
-        // Print info
-        PrintHintTextToAll("%t", "airdrop safe", AIRDROP_EXPLOSIONS);
+        // Call death
+        SafeExpload(entityIndex);
     }
 }
 
 /**
- * @brief Drop damage hook.
+ * @brief Safe damage hook.
  *
  * @param entityIndex       The entity index.    
  * @param attackerIndex     The attacker index.
@@ -1178,7 +1408,7 @@ public Action DropReplaceHook(Handle hTimer, int referenceIndex)
  * @param flDamage          The damage amount.
  * @param iBits             The damage type.
  **/
-public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
+public Action SafeDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
 {
     // Emit sound
     switch(GetRandomInt(0, 4))
@@ -1198,41 +1428,9 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflictor
 
         // Destroy entity
         if(!iHealth)
-        {
-            // Destroy damage hook
-            SDKUnhook(entityIndex, SDKHook_OnTakeDamage, DropDamageHook);
-
-            // Initialize vectors
-            static float vGibAngle[3]; float vShootAngle[3];
-            
-            // Create a breaked drone effect
-            static char sBuffer[SMALL_LINE_LENGTH];
-            for(int x = 0; x <= 4; x++)
-            {
-                // Find gib positions
-                vShootAngle[1] += 72.0; vGibAngle[0] = GetRandomFloat(0.0, 360.0); vGibAngle[1] = GetRandomFloat(-15.0, 15.0); vGibAngle[2] = GetRandomFloat(-15.0, 15.0); switch(x)
-                {
-                    case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
-                    case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");
-                    case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib3.mdl");
-                    case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib4.mdl");
-                    case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib5.mdl");
-                }
-
-                // Create gibs
-                UTIL_CreateShooter(entityIndex, "forward", _, MAT_METAL, sBuffer, vShootAngle, vGibAngle, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
-            }
-            
-            // Emit sound
-            switch(GetRandomInt(0, 2))
-            {
-                case 0 : EmitSoundToAll("survival/container_death_01.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                case 1 : EmitSoundToAll("survival/container_death_02.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                case 2 : EmitSoundToAll("survival/container_death_03.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-            }
-
-            // Kill after some duration
-            UTIL_RemoveEntity(entityIndex, 0.1);
+        {   
+            // Call death
+            SafeExpload(entityIndex);
         }
         else
         {
@@ -1242,95 +1440,82 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflictor
     }
     else
     {
-        // Validate inflicter
-        if(IsValidEdict(inflictorIndex))
+        // Entity was damaged by 'explosion'
+        if(iBits & DMG_BLAST)
         {
-            // Gets weapon classname
-            static char sClassname[PLATFORM_LINE_LENGTH];
-            GetEdictClassname(inflictorIndex, sClassname, sizeof(sClassname));
-        
-            // Validate c4 projectile
-            if(!strncmp(sClassname, "brea", 4, false))
+            // Validate inflicter
+            if(IsValidEdict(inflictorIndex))
             {
-                // Increment explosions
-                int iExp = GetEntProp(entityIndex, Prop_Data, "m_iHammerID") + 1;
-                SetEntProp(entityIndex, Prop_Data, "m_iHammerID", iExp);
-        
-                // Validate explosions
-                if(iExp >= AIRDROP_EXPLOSIONS)
+                // Gets weapon classname
+                static char sClassname[SMALL_LINE_LENGTH];
+                GetEdictClassname(inflictorIndex, sClassname, sizeof(sClassname));
+            
+                // Initialize vectors
+                static float vPosition[3]; static float vAngle[3];
+            
+                // Gets the position
+                ZP_GetAttachment(entityIndex, "door", vPosition, vAngle);
+                GetEntPropVector(inflictorIndex, Prop_Data, "m_vecAbsOrigin", vAngle);
+            
+                // Validate c4 projectile
+                if(!strncmp(sClassname, "brea", 4, false) && GetVectorDistance(vPosition, vAngle) <= AIRDROP_LOCK)
                 {
-                    // Initialize vectors
-                    static float vPosition[3]; static float vAngle[3];
-                    
-                    // Open door
-                    SetEntProp(entityIndex, Prop_Send, "m_nBody", 1);
-                    
-                    // x = weapon index
-                    for(int x = 0; x < AIRDROP_WEAPONS; x++)
+                    // Increment explosions
+                    int iExp = GetEntProp(entityIndex, Prop_Data, "m_iHammerID") + 1;
+                    SetEntProp(entityIndex, Prop_Data, "m_iHammerID", iExp);
+            
+                    // Validate explosions
+                    if(iExp >= AIRDROP_EXPLOSIONS)
                     {
-                        // Randomize position
+                        // Gets the position/angle
                         GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
                         GetEntPropVector(entityIndex, Prop_Data, "m_angAbsRotation", vAngle);
-                        vPosition[0] += GetRandomFloat(-5.0, 5.0);
-                        vPosition[1] += GetRandomFloat(-5.0, 5.0);
-                        vPosition[2] += 10.0 + GetRandomFloat(-5.0, 5.0);
                         
-                        // Randomize index
-                        int iD = GetRandomInt(0, ZP_GetNumberWeapon() - 1);
-                        
-                        // Validate class/drop/slot
-                        ZP_GetWeaponClass(iD, sClassname, sizeof(sClassname));
-                        if(StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(iD) || ZP_GetWeaponSlot(iD) == MenuType_Knifes)
-                        {
-                            x--;
-                            continue;
-                        }
-                        
-                        // Validate classname
-                        ZP_GetWeaponEntity(iD, sClassname, sizeof(sClassname));
-                        if(!strncmp(sClassname, "item_", 5, false))
-                        {
-                            x--;
-                            continue;
-                        }
-                        
-                        // Create a random weapon entity
-                        int weaponIndex = CreateEntityByName(sClassname);
+                        // Create bag
+                        int bagIndex = UTIL_CreatePhysics("bag", vPosition, vAngle, "models/props_survival/cash/dufflebag.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
                         
                         // Validate entity
-                        if(weaponIndex != INVALID_ENT_REFERENCE)
+                        if(bagIndex != INVALID_ENT_REFERENCE)
                         {
-                            // Spawn the entity into the world
-                            if(DispatchSpawn(weaponIndex))
+                            // Sets physics
+                            SetEntProp(bagIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
+                            SetEntProp(bagIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+
+                            // Sets health
+                            SetEntProp(bagIndex, Prop_Data, "m_takedamage", DAMAGE_NO);
+                            
+                            // Sets weapon amount
+                            SetEntProp(bagIndex, Prop_Data, "m_iHammerID", AIRDROP_WEAPONS);
+                        }
+
+                        // Gets the position/angle
+                        ZP_GetAttachment(entityIndex, "door", vPosition, vAngle);
+                        
+                        // Open door
+                        SetEntProp(entityIndex, Prop_Send, "m_nBody", 1);
+                        
+                        // Create door
+                        int doorIndex = UTIL_CreatePhysics("door", vPosition, vAngle, "models/props_survival/safe/safe_door.mdl", PHYS_FORCESERVERSIDE);
+                        
+                        // Validate entity
+                        if(doorIndex != INVALID_ENT_REFERENCE)
+                        {
+                            // Sets physics
+                            SetEntProp(doorIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
+                            SetEntProp(doorIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+                        }
+                        
+                        // i = client index
+                        for(int i = 1; i <= MaxClients; i++)
+                        {
+                            // Validate human
+                            if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
                             {
-                                // Teleport the entity
-                                TeleportEntity(weaponIndex, vPosition, vAngle, NULL_VECTOR);
-                            
-                                // Remove physics
-                                SetEntityMoveType(weaponIndex, MOVETYPE_NONE);
-                            
-                                // Sets the custom weapon id
-                                SetEntProp(weaponIndex, Prop_Data, "m_iHammerID", iD);
-                            
-                                // Sets the model
-                                ZP_GetWeaponModelDrop(iD, sClassname, sizeof(sClassname));
-                                if(sClassname[0] != '\0') SetEntityModel(weaponIndex, sClassname);
+                                // Show message
+                                SetGlobalTransTarget(i);
+                                PrintHintTextToAll("%t", "airdrop bag");
                             }
                         }
-                    }
-                    
-                    // Gets the position/angle
-                    ZP_GetAttachment(entityIndex, "door", vPosition, vAngle);
-                    
-                    // Create door
-                    entityIndex = UTIL_CreatePhysics("door", vPosition, vAngle, "models/props_survival/safe/safe_door.mdl", PHYS_FORCESERVERSIDE);
-                    
-                    // Validate entity
-                    if(entityIndex != INVALID_ENT_REFERENCE)
-                    {
-                        // Sets physics
-                        SetEntProp(entityIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
-                        SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
                     }
                 }
             }
@@ -1339,6 +1524,138 @@ public Action DropDamageHook(int entityIndex, int &attackerIndex, int &inflictor
     
     // Return on success
     return Plugin_Handled;
+}
+
+/**
+ * @brief Exploade safe.
+ * 
+ * @param entityIndex       The entity index.                    
+ **/
+void SafeExpload(int entityIndex)
+{
+    // Destroy damage hook
+    SDKUnhook(entityIndex, SDKHook_OnTakeDamage, SafeDamageHook);
+
+    // Initialize vectors
+    static float vGibAngle[3]; float vShootAngle[3];
+    
+    // Create a breaked drone effect
+    static char sBuffer[SMALL_LINE_LENGTH];
+    for(int x = 0; x <= 4; x++)
+    {
+        // Find gib positions
+        vShootAngle[1] += 72.0; vGibAngle[0] = GetRandomFloat(0.0, 360.0); vGibAngle[1] = GetRandomFloat(-15.0, 15.0); vGibAngle[2] = GetRandomFloat(-15.0, 15.0); switch(x)
+        {
+            case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
+            case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");
+            case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib3.mdl");
+            case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib4.mdl");
+            case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib5.mdl");
+        }
+
+        // Create gibs
+        UTIL_CreateShooter(entityIndex, "forward", _, MAT_METAL, sBuffer, vShootAngle, vGibAngle, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+    }
+    
+    // Emit sound
+    switch(GetRandomInt(0, 2))
+    {
+        case 0 : EmitSoundToAll("survival/container_death_01.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        case 1 : EmitSoundToAll("survival/container_death_02.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        case 2 : EmitSoundToAll("survival/container_death_03.wav", entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+    }
+
+    // Kill after some duration
+    UTIL_RemoveEntity(entityIndex, 0.1);
+}
+
+/**
+ * @brief Called when a bag used by the player.
+ *
+ * @param entityIndex       The entity index.
+ **/ 
+void BagUseHook(int entityIndex)
+{
+    // Initialize vectors
+    static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
+                    
+    // Gets entity position
+    GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+    GetEntPropVector(entityIndex, Prop_Data, "m_angAbsRotation", vAngle);
+    
+    // Randomize a bit
+    vPosition[2] += 10.0;
+    vVelocity[0] = GetRandomFloat(-360.0, 360.0);
+    vVelocity[1] = GetRandomFloat(-360.0, 360.0);
+    vVelocity[2] = 10.0 + GetRandomFloat(0.0, 10.0);
+
+    // Create random weapon
+    SpawnRandomWeapon(vPosition, vAngle, vVelocity);
+    
+    // Validate weapons
+    int iLeft = GetEntProp(entityIndex, Prop_Data, "m_iHammerID");
+    if(iLeft)
+    {
+        // Reduce amount
+        iLeft--;
+
+        // Sets new amount
+        SetEntProp(entityIndex, Prop_Data, "m_iHammerID", iLeft);
+
+        // Sets filling status
+        SetEntProp(entityIndex, Prop_Send, "m_nBody", LeftToBody(iLeft));
+    }
+    else
+    {
+        // Destroy!
+        AcceptEntityInput(entityIndex, "Kill");
+    }
+}
+
+/**
+ * @brief Case damage hook.
+ *
+ * @param entityIndex       The entity index.    
+ * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
+ * @param flDamage          The damage amount.
+ * @param iBits             The damage type.
+ **/
+public Action CaseDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits)
+{
+    // Calculate the damage
+    int iHealth = GetEntProp(entityIndex, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
+
+    // Validate death
+    int iType = GetEntProp(entityIndex, Prop_Data, "m_iHammerID");
+    if(!iHealth && iType != -1) /// Avoid double spawn
+    {
+        // Initialize vectors
+        static float vPosition[3]; static float vAngle[3];
+                        
+        // Gets entity position
+        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(entityIndex, Prop_Data, "m_angAbsRotation", vAngle);
+    
+        // Switch case type
+        MenuType mSlot;
+        switch(iType)
+        {
+            case EXPL   : mSlot = MenuType_Shotguns;
+            case HEAVY  : mSlot = MenuType_Machineguns;
+            case LIGHT  : mSlot = MenuType_Rifles;
+            case PISTOL : mSlot = MenuType_Pistols;
+            case HPIST  : mSlot = MenuType_Snipers;
+            case TOOLS  : mSlot = MenuType_Knifes;
+            case HTOOL  : mSlot = MenuType_Invisible;
+        }
+        
+        // Create random weapon
+        SpawnRandomWeapon(vPosition, vAngle, NULL_VECTOR, mSlot);
+        
+        // Block it
+        SetEntProp(entityIndex, Prop_Data, "m_iHammerID", -1);
+    }
 }
 
 //**********************************************
@@ -1364,6 +1681,132 @@ stock void SetAnimation(int entityIndex, char[] sAnim, int iBodyGroup = 0)
 }
 
 /**
+ * @brief Transform filling amount to body index.
+ * 
+ * @param iLeft             The amount which left.        
+ * @return                  The skin index.
+ **/
+stock int LeftToBody(int iLeft)
+{
+    // Calculate left percentage
+    float flLeft = float(iLeft) / AIRDROP_WEAPONS;
+    if(flLeft > 0.8)      return 0;    
+    else if(flLeft > 0.6) return 1;
+    else if(flLeft > 0.4) return 2;
+    else if(flLeft > 0.2) return 3;
+    return 4;   
+}
+
+/**
+ * @brief Spawn the random weapon.
+ *       
+ * @param vPosition         The origin of the spawn.
+ * @param vAngle            The angle of the spawn.
+ * @param vVelocity         The velocity of the spawn.
+ * @param mSlot             (Optional) The slot index selected.
+ **/
+stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3], float vVelocity[3], MenuType mSlot = MenuType_Invisible)
+{
+    // Valdiate random weapon id
+    int iD = FindRandomWeapon(mSlot);
+    if(iD != -1)
+    {
+        // Gets classname
+        static char sClassname[PLATFORM_LINE_LENGTH];
+        ZP_GetWeaponEntity(iD, sClassname, sizeof(sClassname));
+        
+        // Create a random weapon entity
+        int weaponIndex = CreateEntityByName(sClassname);
+        
+        // Validate entity
+        if(weaponIndex != INVALID_ENT_REFERENCE)
+        {
+            // Spawn the entity into the world
+            DispatchSpawn(weaponIndex);
+            
+            // Push the entity
+            TeleportEntity(weaponIndex, vPosition, vAngle, vVelocity);
+
+            // Sets the model
+            ZP_GetWeaponModelDrop(iD, sClassname, sizeof(sClassname));
+            if(hasLength(sClassname)) SetEntityModel(weaponIndex, sClassname);
+            
+            // Sets the custom weapon id
+            SetEntProp(weaponIndex, Prop_Data, "m_iHammerID", iD);
+        }
+    }
+}
+
+/**
+ * @brief Find the random id of any custom weapons.
+ *       
+ * @param mSlot             (Optional) The slot index selected.
+ * @return                  The weapon id.
+ **/
+stock int FindRandomWeapon(MenuType mSlot = MenuType_Invisible) 
+{
+    // Initialize name char
+    static char sClassname[SMALL_LINE_LENGTH];
+    
+    // Gets total amount of weapons
+    int iSize = ZP_GetNumberWeapon();
+    
+    // Dynamicly allocate array
+    int[] weaponID = new int[iSize]; int x;
+    
+    // Validate all types
+    if(mSlot == MenuType_Invisible)
+    {
+        // i = weapon id 
+        for(int i = 0; i < iSize; i++)
+        {
+            // Validate class/drop/slot
+            ZP_GetWeaponClass(i, sClassname, sizeof(sClassname));
+            if(StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i) || ZP_GetWeaponSlot(i) == MenuType_Knifes)
+            {
+                continue;
+            }
+
+            // Validate classname
+            ZP_GetWeaponEntity(i, sClassname, sizeof(sClassname));
+            if(!strncmp(sClassname, "item_", 5, false))
+            {
+                continue;
+            }
+            
+            // Append to list
+            weaponID[x++] = i;
+        }
+    }
+    else
+    {
+        // i = weapon id 
+        for(int i = 0; i < iSize; i++)
+        {
+            // Validate class/drop/slot
+            ZP_GetWeaponClass(i, sClassname, sizeof(sClassname));
+            if(StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i) || ZP_GetWeaponSlot(i) != mSlot)
+            {
+                continue;
+            }
+
+            // Validate classname
+            ZP_GetWeaponEntity(i, sClassname, sizeof(sClassname));
+            if(!strncmp(sClassname, "item_", 5, false))
+            {
+                continue;
+            }
+            
+            // Append to list
+            weaponID[x++] = i;
+        }
+    }
+    
+    // Return on success
+    return (x) ? weaponID[GetRandomInt(0, x-1)] : -1;
+}
+
+/**
  * @brief Validate the entity's classname.
  *
  * @param entityIndex       The entity index.
@@ -1379,16 +1822,4 @@ stock bool ValidateName(int entityIndex, char[] sClassname, int iMaxLen)
     
     // Validate string
     return (!strncmp(sName, sClassname, iMaxLen, false));
-}
-
-/**
- * @brief Trace filter.
- *
- * @param entityIndex       The entity index.  
- * @param contentsMask      The contents mask.
- * @return                  True or false.
- **/
-public bool TraceFilter(int entityIndex, int contentsMask)
-{
-    return !(1 <= entityIndex <= MaxClients);
 }

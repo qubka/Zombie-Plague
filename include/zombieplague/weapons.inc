@@ -11,11 +11,11 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this program.  If not, see <http://www.gnu.org/licenses/>.
+ * this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * As a special exception, AlliedModders LLC gives you permission to link the
  * code of this program (as well as its derivative works) to "Half-Life 2," the
@@ -247,15 +247,6 @@ native int ZP_GetClientViewModel(int clientIndex, bool custom);
  * @return                  The attachmodel index.
  **/
 native int ZP_GetClientAttachModel(int clientIndex, BitType bitType);
-
-/**
- * @brief Gets the custom weapon id from a given weapon index. 
- *
- * @param weaponIndex       The weapon index.
- *
- * @return                  The weapon ID or -1 if no weapon was found.
- **/
-native int ZP_GetWeaponID(int weaponIndex);
 
 /**
  * @brief Gets the custom weapon id from a given name.
@@ -540,10 +531,19 @@ native int ZP_GetWeaponModelSkin(int weaponID, ModelType modelType);
  * @brief Gets the muzzle name of a weapon at a given id.
  *
  * @param weaponID          The weapon ID.
- * @param muzzle            The string to return model in.
+ * @param muzzle            The string to return muzzle in.
  * @param maxlenght         The lenght of string.
  **/
-native void ZP_GetWeaponModelMuzzle(int weaponID, char[] muzzle, int maxlenght = 32); 
+native void ZP_GetWeaponModelMuzzle(int weaponID, char[] muzzle, int maxlenght = 64); 
+
+/**
+ * @brief Gets the shell name of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param shell             The string to return shell in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponModelShell(int weaponID, char[] shell, int maxlenght = 64); 
 
 /**
  * @brief Gets the heat amount of the weapon model.
@@ -575,7 +575,7 @@ stock int ZP_IsPlayerHasWeapon(int clientIndex, int weaponID)
         if(weaponIndex != INVALID_ENT_REFERENCE)
         {
             // If weapon find, then return
-            if(ZP_GetWeaponID(weaponIndex) == weaponID)
+            if(GetEntProp(weaponIndex, Prop_Data, "m_iHammerID") == weaponID)
             {
                 return weaponIndex;
             }
@@ -607,7 +607,7 @@ stock bool ZP_IsPlayerHoldWeapon(int clientIndex, int &weaponIndex, int weaponID
     }
 
     // Gets weapon index
-    weaponIndex = GetEntPropEnt(clientIndex, Prop_Data, "m_hActiveWeapon");
+    weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hActiveWeapon");
 
     // If entity isn't valid, then stop
     if(weaponIndex == INVALID_ENT_REFERENCE)
@@ -616,7 +616,7 @@ stock bool ZP_IsPlayerHoldWeapon(int clientIndex, int &weaponIndex, int weaponID
     }
 
     // If weapon didn't find, then stop
-    if(ZP_GetWeaponID(weaponIndex) != weaponID)
+    if(GetEntProp(weaponIndex, Prop_Data, "m_iHammerID") != weaponID)
     {
         return false;
     }
@@ -697,7 +697,7 @@ stock void ZP_SetWeaponAnimation(int clientIndex, int nSequence)
 }
 
 /**
- * @brief Sets the weapon animating paired index. (Important for animations, which should played in the not-repeatable row, like an attack)
+ * @brief Sets the weapon animating paired index. (Important for animations, which should played in the not-repeatable row, like an attack to avoid parity)
  *
  * @param clientIndex       The client index.
  * @param weaponIndex       The weapon index.
@@ -732,7 +732,7 @@ stock void ZP_SetWeaponAnimationPair(int clientIndex, int weaponIndex, int nSequ
  **/
 stock int ZP_GetWeaponIndex(int clientIndex, char[] sType)
 {
-    // Initialize classname char
+    // Initialize name char
     static char sClassname[SMALL_LINE_LENGTH];
 
     // i = weapon number

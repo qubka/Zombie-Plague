@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -81,6 +81,8 @@ enum CvarsList
     ConVar:CVAR_WEAPON_T_DEFAULT_MELEE,
     ConVar:CVAR_WEAPON_T_DEFAULT_SECONDARY,
     ConVar:CVAR_WEAPON_T_DEFAULT_PRIMARY,
+    ConVar:CVAR_WEAPON_PICKUP_RANGE,
+    ConVar:CVAR_WEAPON_DEFAULT_MELEE,
 
     ConVar:CVAR_LOG,
     ConVar:CVAR_LOG_MODULE_FILTER,

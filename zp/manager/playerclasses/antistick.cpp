@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -49,7 +49,7 @@ enum AntiStickBoxBound
     BoxBound_BUR,
     BoxBound_BUL,
     BoxBound_BDR,
-    BoxBound_BDL,
+    BoxBound_BDL
 };
 /**
  * @endsection
@@ -167,7 +167,7 @@ public void AntiStickOnStartTouch(int clientIndex, int entityIndex)
     // From this point we know that client and entity is more or less within eachother
     LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" and \"%N\" are intersecting. Removing collisions.", clientIndex, entityIndex);
 
-    // Gets current collision groups of client and entity
+    // Gets current collision groups of client
     int collisionGroup = AntiStickGetCollisionGroup(clientIndex);
 
     // Note: If players get stuck on change or stuck in a teleport, they'll
@@ -250,18 +250,12 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
     {
         return Plugin_Handled;
     }
-    
-    /* 
-     * Checks to see if a player would collide with MASK_SOLID. (i.e. they would be stuck)
-     * Inflates player mins/maxs a little bit for better protection against sticking.
-     * Thanks to Andersso for the basis of this function.
-     */
-    
+
     // Initialize vectors
     static float vPosition[3]; float vMaxs[3]; float vMins[3]; 
 
     // Get client's location
-    ToolsGetClientAbsOrigin(clientIndex, vPosition);
+    ToolsGetAbsOrigin(clientIndex, vPosition);
     
     // Get the client's min and max size vector
     GetClientMins(clientIndex, vMins);
@@ -273,6 +267,18 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
     // Returns if there was any kind of collision along the trace ray
     if(TR_DidHit())
     {
+        // Gets victim index
+        int victimIndex = TR_GetEntityIndex();
+        if(victimIndex > 0)
+        {
+            // Gets current collision groups of entity
+            switch(AntiStickGetCollisionGroup(victimIndex))
+            {
+                case COLLISION_GROUP_PLAYER, COLLISION_GROUP_NPC : { /* < empty statement > */ }
+                default : return Plugin_Handled;
+            }
+        }
+        
         // Gets spawn position
         SpawnGetRandomPosition(vPosition);
         
@@ -313,7 +319,7 @@ void AntiStickBuildModelBox(int clientIndex, float flBoundaries[AntiStickBoxBoun
     static float vFinalLoc[4][3];
 
     // Gets needed vector info
-    ToolsGetClientAbsOrigin(clientIndex, vClientLoc);
+    ToolsGetAbsOrigin(clientIndex, vClientLoc);
 
     // Sets pitch to 0
     vTwistAngle[1] = 90.0;
@@ -597,7 +603,7 @@ bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], 
  **/
 void AntiStickSetCollisionGroup(int clientIndex, int collisiongroup)
 {
-    SetEntData(clientIndex, g_iOffset_PlayerCollision, collisiongroup, _, true);
+    SetEntData(clientIndex, g_iOffset_Collision, collisiongroup, _, true);
 }
 
 /**
@@ -608,7 +614,7 @@ void AntiStickSetCollisionGroup(int clientIndex, int collisiongroup)
  **/
 int AntiStickGetCollisionGroup(int clientIndex)
 {
-    return GetEntData(clientIndex, g_iOffset_PlayerCollision);
+    return GetEntData(clientIndex, g_iOffset_Collision);
 }
 
 /**

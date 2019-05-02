@@ -34,7 +34,7 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: Melee",
+    name            = "[ZP] Weapon: Skull XI",
     author          = "qubka (Nikita Ushakov)",
     description     = "Addon of custom weapon",
     version         = "1.0",
@@ -42,8 +42,8 @@ public Plugin myinfo =
 }
 
 // Weapon index
-int gWeapon1; int gWeapon2; int gWeapon3; int gWeapon4; 
-#pragma unused gWeapon1, gWeapon2, gWeapon3, gWeapon4
+int gWeapon;
+#pragma unused gWeapon
 
 /**
  * @brief Called after a zombie core is loaded.
@@ -51,20 +51,54 @@ int gWeapon1; int gWeapon2; int gWeapon3; int gWeapon4;
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
-    gWeapon1 = ZP_GetWeaponNameID("fists");
-    if(gWeapon1 == -1) SetFailState("[ZP] Custom weapon ID from name : \"fists\" wasn't find");
-    gWeapon2 = ZP_GetWeaponNameID("spanner");
-    if(gWeapon2 == -1) SetFailState("[ZP] Custom weapon ID from name : \"spanner\" wasn't find");
-    gWeapon3 = ZP_GetWeaponNameID("axe");
-    if(gWeapon3 == -1) SetFailState("[ZP] Custom weapon ID from name : \"axe\" wasn't find");
-    gWeapon4 = ZP_GetWeaponNameID("hammer");
-    if(gWeapon4 == -1) SetFailState("[ZP] Custom weapon ID from name : \"hammer\" wasn't find");
+    gWeapon = ZP_GetWeaponNameID("skull11");
+    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull11\" wasn't find");
 }
 
 //*********************************************************************
 //*          Don't modify the code below this line unless             *
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
+
+void Weapon_OnReload(int clientIndex, int weaponIndex, float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, flCurrentTime
+
+    // Sets default FOV for the client
+    SetEntProp(clientIndex, Prop_Send, "m_iFOV", GetEntProp(clientIndex, Prop_Send, "m_iDefaultFOV"));
+}
+
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, flCurrentTime
+    
+    // Validate animation delay
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
+    {
+        return;
+    }
+    
+    // Sets next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 0.3);
+    
+    // Sets FOV for the client
+    int iDefaultFOV = GetEntProp(clientIndex, Prop_Send, "m_iDefaultFOV");
+    SetEntProp(clientIndex, Prop_Send, "m_iFOV", GetEntProp(clientIndex, Prop_Send, "m_iFOV") == iDefaultFOV ? 55 : iDefaultFOV);
+}
+
+//**********************************************
+//* Item (weapon) hooks.                       *
+//**********************************************
+
+#define _call.%0(%1,%2)         \
+                                \
+    Weapon_On%0                 \
+    (                           \
+        %1,                     \
+        %2,                     \
+                                \
+        GetGameTime()           \
+    )    
 
 /**
  * @brief Called on each frame of a weapon holding.
@@ -81,11 +115,13 @@ public void ZP_OnEngineExecute(/*void*/)
 public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon1 || weaponID == gWeapon2 || weaponID == gWeapon3 || weaponID == gWeapon4)
+    if(weaponID == gWeapon)
     {
         // Button secondary attack press
-        if(iButtons & IN_ATTACK2)
+        if(!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
         {
+            // Call event
+            _call.SecondaryAttack(clientIndex, weaponIndex);
             iButtons &= (~IN_ATTACK2); //! Bugfix
             return Plugin_Changed;
         }
@@ -93,4 +129,21 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
     
     // Allow button
     return Plugin_Continue;
+}
+
+/**
+ * @brief Called on reload of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponReload(int clientIndex, int weaponIndex, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Call event
+        _call.Reload(clientIndex, weaponIndex);
+    }
 }

@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -72,7 +72,7 @@ void SpawnOnCacheData(char[] sClassname)
     {
         // Gets the origin position
         static float vPosition[3];
-        ToolsGetEntityOrigin(entityIndex, vPosition); 
+        ToolsGetAbsOrigin(entityIndex, vPosition); 
         
         // Push data into array 
         gServerData.Spawns.PushArray(vPosition, sizeof(vPosition));
@@ -116,7 +116,7 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
         int iTeam = StringToInt(sArg);
 
         // Gets current team
-        switch(GetClientTeam(clientIndex))
+        switch(ToolsGetTeam(clientIndex))
         {
             case TEAM_NONE :
             {
@@ -130,7 +130,7 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
                         if(iDelay > gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP].IntValue || gServerData.RoundMode == -1)
                         {
                             // Switch team
-                            ToolsSetClientTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
+                            ToolsSetTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
                             
                             // If game round didn't start, then respawn
                             if(gServerData.RoundMode == -1)
@@ -172,7 +172,7 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
                         if(gServerData.RoundMode == -1)
                         {
                             // Switch team
-                            ToolsSetClientTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
+                            ToolsSetTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
                             
                             // Force client to respawn
                             ToolsForceToRespawn(clientIndex);
@@ -209,6 +209,7 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
         AccountOnClientSpawn(clientIndex);
         LevelSystemOnClientSpawn(clientIndex);
         VOverlayOnClientSpawn(clientIndex);
+        VEffectOnClientSpawn(clientIndex);
     }
     
     // Allow command

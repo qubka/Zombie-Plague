@@ -11,11 +11,11 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this program.  If not, see <http://www.gnu.org/licenses/>.
+ * this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * As a special exception, AlliedModders LLC gives you permission to link the
  * code of this program (as well as its derivative works) to "Half-Life 2," the
@@ -101,19 +101,7 @@
 /**
  * @endsection
  **/
- 
-/**
- * @section Physics explosion flags. 
- **/
-#define PEXP_NODAMAGE               (1<<0)      /// No Damage - Only Force (Players are not ever damaged by the explosion (regardless of this flag), only objects.)
-#define PEXP_PUSHPLAYERS            (1<<1)      /// Push players
-#define PEXP_PUSHRADIALLY           (1<<2)      /// Push radially - not as a sphere (Radially meaning as a circle/cylinder. No upward or downward force will be generated.)
-#define PEXP_TESTLOS                (1<<3)      /// Test LOS before pushing
-#define PEXP_DISORIENT              (1<<4)      /// Disorient player if pushed
-/**
- * @endsection
- **/
- 
+
 /**
  * @section Train flags.
  **/ 
@@ -348,12 +336,12 @@
 /**
  * @section Material types.
  **/ 
-#define MAT_NONE        "-1"	    
-#define MAT_GLASS       "0"	    
-#define MAT_WOOD        "1"	    
-#define MAT_METAL       "2"	    
-#define MAT_FLESH       "3"	    
-#define MAT_CONCRETE    "4"	    
+#define MAT_NONE        "-1"
+#define MAT_GLASS       "0"
+#define MAT_WOOD        "1"
+#define MAT_METAL       "2"
+#define MAT_FLESH       "3"    
+#define MAT_CONCRETE    "4"    
 /**
  * @endsection
  **/
@@ -526,19 +514,21 @@ stock int UTIL_CreatePhysics(char[] sClassname, float vPosition[3], float vAngle
 }
 
 /**
- * @brief Create a dynamic entity. (No collision)
+ * @brief Create a dynamic entity.
  * 
+ * @param sClassname        The classname string.
  * @param vPosition         The position to the spawn.
  * @param vAngle            The angle to the spawn.
  * @param sModel            The model path.
  * @param sDefaultAnim      (Optional) The default animation.
  * @param bOverride         (Optional) True for models with physics, false for fully dynamic models.
  * @param bHoldAnim         (Optional) If set, the prop will not loop its animation, but hold the last frame.
+ * @param bSolid            (Optional) If set, the prop will be solid.
  * @param iFlags            (Optional) The bits with some flags.
  *
  * @return                  The entity index.                       
  **/
-stock int UTIL_CreateDynamic(float vPosition[3], float vAngle[3], char[] sModel, char[] sDefaultAnim = "", bool bOverride = true, bool bHoldAnim = false, int iFlags = DYN_COLLISIONDISABLED)
+stock int UTIL_CreateDynamic(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, char[] sDefaultAnim = "", bool bOverride = true, bool bHoldAnim = false, bool bSolid = false, int iFlags = DYN_COLLISIONDISABLED)
 {
     // Create a prop_dynamic_override entity
     int entityIndex = CreateEntityByName(bOverride ? "prop_dynamic_override" : "prop_dynamic");
@@ -551,11 +541,12 @@ stock int UTIL_CreateDynamic(float vPosition[3], float vAngle[3], char[] sModel,
         IntToString(iFlags, sFlags, sizeof(sFlags));
 
         // Dispatch main values of the entity
+        DispatchKeyValue(entityIndex, "targetname", sClassname);
         DispatchKeyValueVector(entityIndex, "origin", vPosition); 
         DispatchKeyValueVector(entityIndex, "angles", vAngle);
         DispatchKeyValue(entityIndex, "model", sModel);
         DispatchKeyValue(entityIndex, "spawnflags", sFlags);
-        DispatchKeyValue(entityIndex, "solid", "0");
+        DispatchKeyValue(entityIndex, "solid", bSolid ? "1" : "0");
         DispatchKeyValue(entityIndex, "HoldAnimation", bHoldAnim ? "1" : "0");
         if(hasLength(sDefaultAnim)) DispatchKeyValue(entityIndex, "DefaultAnim", sDefaultAnim);
         
@@ -814,6 +805,77 @@ stock int UTIL_CreateExplosion(float vPosition[3]/*, float vAngle[3] = NULL_VECT
     // Return on the success
     return entityIndex;
 }
+
+/**
+ * @brief Create a point hurt entity.
+ * 
+ * @param parentIndex       (Optional) The parent index. 
+ * @param vPosition         (Optional) The origin of the spawn.
+ * @param attackerIndex     (Optional) The attacker index.
+ * @param flDamage          The amount of damage inflicted.
+ * @param flRadius          The radius in which the hurt damages entities.
+ * @param iBits             (Optional) The ditfield of damage types. 
+ * @param weaponID          (Optional) The weapon index or -1 for unspecified.
+ * @param sAttach           (Optional) The attachment name.
+ *
+ * @return                  The entity index.
+ **/
+stock int UTIL_CreateDamage(int parentIndex = INVALID_ENT_REFERENCE, float vPosition[3] = NULL_VECTOR, int attackerIndex = INVALID_ENT_REFERENCE, float flDamage, float flRadius, int iBits = DMG_GENERIC, int weaponID = -1, char[] sAttach = "")
+{
+    // Create a hurt entity
+    int entityIndex = CreateEntityByName("point_hurt");           
+
+    // Validate entity
+    if(entityIndex != INVALID_ENT_REFERENCE)
+    {
+        // Initialize variables
+        static char sDamage[SMALL_LINE_LENGTH];
+        
+        /*
+         * The specified amount of damage will be halved. 
+         * Consider multiplying your amount of damage by 2 and using it as the Value.
+         */
+        
+        // Dispatch main values of the entity
+        IntToString(RoundToNearest(flDamage) * 2, sDamage, sizeof(sDamage));
+        DispatchKeyValue(entityIndex, "Damage", sDamage);
+        IntToString(iBits, sDamage, sizeof(sDamage));
+        DispatchKeyValue(entityIndex, "DamageType", sDamage);
+        DispatchKeyValueFloat(entityIndex, "Radius", flRadius);
+        
+        // Spawn the entity into the world
+        DispatchSpawn(entityIndex);      
+        TeleportEntity(entityIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
+        
+        // Sets custom weapon id
+        SetEntProp(entityIndex, Prop_Data, "m_iHammerID", weaponID);
+
+        // Validate parent
+        if(parentIndex != INVALID_ENT_REFERENCE)
+        {
+            // Sets parent to the entity
+            SetVariantString("!activator"); 
+            AcceptEntityInput(entityIndex, "SetParent", parentIndex, entityIndex); 
+            SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", parentIndex);
+            
+            // Sets attachment to the entity
+            if(hasLength(sAttach))
+            { 
+                SetVariantString(sAttach); 
+                AcceptEntityInput(entityIndex, "SetParentAttachment", parentIndex, entityIndex);
+            }
+        }
+
+        // Activate the entity
+        AcceptEntityInput(entityIndex, "Hurt", attackerIndex);  
+        
+        // Remove the entity from the world
+        AcceptEntityInput(entityIndex, "Kill"); 
+    }   
+    
+    // Return on the success
+    return entityIndex;
+}  
 
 /**
  * @brief Create a sprite entity.
@@ -1263,7 +1325,7 @@ stock int UTIL_CreateLight(int parentIndex = INVALID_ENT_REFERENCE, float vPosit
 /**
  * @brief Sets the glowing on the entity.
  * 
- * @param entityIndex       The entity index. (Must be validate before)
+ * @param entityIndex       The entity index.
  * @param enableState       Sets to true to enable glowing, false to disable.
  * @param iType             (Optional) The type of the glowing.
  * @param iRed              (Optional) Amount of a red (0-255)
@@ -1315,7 +1377,7 @@ stock void UTIL_CreateTracer(int parentIndex, char[] sAttach, char[] sEffect, fl
                              /** Dont ask me how it works ;) **/
 
 
-    // Initialize muzzle char
+    // Initialize name char
     static char sClassname[SMALL_LINE_LENGTH];
 
     // Create an attach particle entity
@@ -1429,44 +1491,6 @@ stock void UTIL_CreateFadeScreen(int clientIndex, float flDuration, float flHold
 }
 
 /**
- * @brief Create a death event. *(Fake)
- * 
- * @param clientIndex       The victim index.
- * @param attackerIndex     The attacker index.
- * @param sIcon             The icon name.
- * @param bHead             (Optional) States the additional headshot icon.
- **/
-stock void UTIL_CreateIcon(int clientIndex, int attackerIndex, char[] sIcon, bool bHead = false)
-{
-    // Validate victim/attacker
-    if(/*!IsPlayerExist(clientIndex, false) || */!IsPlayerExist(attackerIndex, false))
-    {
-        return;
-    }
-    
-    // Creates and send custom death icon
-    Event hEvent = CreateEvent("player_death");
-    if(hEvent != null)
-    {
-        // Sets event properties
-        hEvent.SetInt("userid", GetClientUserId(clientIndex));
-        hEvent.SetInt("attacker", GetClientUserId(attackerIndex));
-        hEvent.SetString("weapon", sIcon);
-        hEvent.SetBool("headshot", bHead);
-        
-        // i = client index
-        for(int i = 1; i <= MaxClients; i++)
-        {
-            // Send fake event
-            if(IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
-        }
-        
-        // Close it
-        hEvent.Close();
-    }
-}
-
-/**
  * @brief Push a client with specific parameters.
  * 
  * @param clientIndex       The client index.
@@ -1480,7 +1504,7 @@ stock void UTIL_CreatePhysForce(int clientIndex, float vPosition[3], float vOrig
 {
     // Calculate the velocity vector
     static float vVelocity[3];
-    SubtractVectors(vOrigin, vPosition, vVelocity);
+    MakeVectorFromPoints(vPosition, vOrigin, vVelocity);
     
     // Calculate the push power
     float flKnockBack = flForce * (1.0 - (flDistance / flRadius));
@@ -1679,55 +1703,242 @@ stock void UTIL_PrecacheSound(char[] sSound)
     if(!FileExists(sPath)) return;
     AddFileToDownloadsTable(sPath);
     
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("soundprecache");
+    }
+
     // Precache sound
+    bool bSave = LockStringTables(false);
     FormatEx(sPath, sizeof(sPath), "*/%s", sSound);
-    AddToStringTable(FindStringTable("soundprecache"), sPath);
+    AddToStringTable(tableIndex, sPath);
+    LockStringTables(bSave);
 }
 
 /*_____________________________________________________________________________________________________________*/
 
 /**
- * @brief Dispatch an attached effect.
- * 
- * @param entityIndex       (Optional) The entity index.
- * @param sParticle         (Optional) The particle name.
- * @param sIndex            (Optional) The particle item.
- * @param vStart            (Optional) The start origin.
- * @param vEnd              (Optional) The end origin.
- * @param vAngle            (Optional) The angle vector.
- * @param iAttachment       (Optional) The attachment index.
+ * @brief Find the trace hull intersection.
+ *
+ * @param hTrace            The trace handle.
+ * @param vPosition         The entity position. 
+ * @param vMins             The mins vector.
+ * @param vMaxs             The maxs vector.
+ * @param entityIndex       The entity index.
  **/
-stock void TE_DispatchEffect(int entityIndex = 0, char[] sParticle = "", char[] sIndex = "", float vStart[3] = NULL_VECTOR, float vEnd[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, int iAttachment = 0) 
+stock void UTIL_FindHullIntersection(Handle &hTrace, float vPosition[3], const float vMins[3], const float vMaxs[3], int entityIndex)
 {
-    // Dispatch effect
-    TE_Start("EffectDispatch");
-    if(strlen(sParticle)) TE_WriteNum("m_nHitBox", GetParticleEffectIndex(sParticle));
-    if(strlen(sIndex)) TE_WriteNum("m_iEffectName", GetEffectIndex(sIndex));
-    TE_WriteFloat("m_vOrigin.x", vEnd[0]);
-    TE_WriteFloat("m_vOrigin.y", vEnd[1]);
-    TE_WriteFloat("m_vOrigin.z", vEnd[2]);
-    TE_WriteFloat("m_vStart.x", vStart[0]);
-    TE_WriteFloat("m_vStart.y", vStart[1]);
-    TE_WriteFloat("m_vStart.z", vStart[2]);
-    TE_WriteVector("m_vAngles", vAngle);
-    TE_WriteNum("entindex", entityIndex);
-    if(iAttachment) 
-    {
-        #define PATTACH_WORLDORIGIN 5
-        #define PARTICLE_DISPATCH_FROM_ENTITY (1<<0)
+    // Initialize vectors
+    static float vEndPosition[3]; static float vHullPosition[3]; static float vHullEnd[3]; static float vHullBox[2][3];
+
+    // Returns the collision position of a trace result
+    TR_GetEndPosition(vHullEnd, hTrace);
+
+    // Gets vector from the given starting and ending positions
+    MakeVectorFromPoints(vPosition, vHullEnd, vHullEnd);
     
-        TE_WriteNum("m_nDamageType", PATTACH_WORLDORIGIN);
-        TE_WriteNum("m_fFlags", PARTICLE_DISPATCH_FROM_ENTITY); /// https://developer.valvesoftware.com/wiki/SDK_Known_Issues_List_Fixed#Server%20Dispatching%20an%20Attached%20Particle%20Effect
-        TE_WriteNum("m_nAttachmentIndex", iAttachment);
+    // Apply the magnitude by scaling the vector
+    ScaleVector(vHullEnd, 2.0);
+    
+    // Adds two vectors
+    AddVectors(vHullEnd, vPosition, vHullEnd);
+    
+    // Create the end-point trace
+    Handle hTemp = TR_TraceRayFilterEx(vPosition, vHullEnd, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, entityIndex);
+    
+    // Validate collisions
+    if(TR_DidHit(hTemp))
+    {
+        // Close and clone trace
+        delete hTrace;
+        hTrace = hTemp;
+        return;
+    }
+
+    // Unrolled loop for copy vectors
+    vHullBox[0][0] = vMins[0];
+    vHullBox[0][1] = vMins[1];
+    vHullBox[0][2] = vMins[2];
+    vHullBox[1][0] = vMaxs[0];
+    vHullBox[1][1] = vMaxs[1];
+    vHullBox[1][2] = vMaxs[2];
+    
+    // Initialize some variables
+    float flDistance = 2147483647.0; float flLength;
+    
+    // i, j, k = dimentions
+    for(int i, j, k = 0; i < 2; i++)
+    {
+        for(j = 0; j < 2; j++)
+        {
+            for(k = 0; k < 2; k++)
+            {
+                // Calculate a hull position 
+                vHullPosition[0] = vHullEnd[0] + vHullBox[i][0];
+                vHullPosition[1] = vHullEnd[1] + vHullBox[j][1];
+                vHullPosition[2] = vHullEnd[2] + vHullBox[k][2];
+
+                // Create the end-point trace
+                hTemp = TR_TraceRayFilterEx(vPosition, vHullPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, entityIndex);
+                
+                // Validate collisions
+                if(TR_DidHit(hTemp))
+                {
+                    // Returns the collision position of a trace result
+                    TR_GetEndPosition(vEndPosition, hTemp);
+                    
+                    // Gets vector from the given starting and ending positions
+                    MakeVectorFromPoints(vPosition, vEndPosition, vEndPosition);
+
+                    // Store smallest length
+                    if((flLength = GetVectorLength(vEndPosition)) < flDistance)
+                    {
+                        // Close and clone trace
+                        delete hTrace;
+                        hTrace = hTemp;
+                        flDistance = flLength;
+                    }
+                }
+            }
+        }
     }
 }
+
+/**
+ * @brief Validate that the entity is can see the target.
+ *
+ * @note Check 3 spots, or else when standing right next to someone looking at their eyes, 
+ *       the angle will be too great to see their center. Thank to Pelipoika.
+ *
+ * @param entityIndex       The entity index. 
+ * @param targetIndex       The target index. 
+ * @param vPosition         The entity position.
+ *
+ * @return                  True of false.        
+ **/
+stock bool UTIL_CanSeeEachOther(int entityIndex, int targetIndex, float vPosition[3])
+{
+    // Initialize vectors
+    static float vOrigin[3]; static float vMaxs[3];
+
+    // Gets the target's bottom position
+    GetEntPropVector(targetIndex, Prop_Data, "m_vecAbsOrigin", vOrigin);
+    
+    // Validate a bot point
+    if(UTIL_TraceRay(entityIndex, targetIndex, vPosition, vOrigin))
+    {
+        return true;
+    }
+    
+    /*___________________________________________________________________________________________________________*/
+
+    // Gets the target's center position
+    GetClientMaxs(targetIndex, vMaxs); vOrigin[2] += vMaxs[2] / 2;
+    
+    // Validate a center point
+    if(UTIL_TraceRay(entityIndex, targetIndex, vPosition, vOrigin))
+    {
+        return true;
+    }
+    
+    /*___________________________________________________________________________________________________________*/
+
+    // Gets the target's eye position
+    GetClientEyePosition(targetIndex, vOrigin);
+    
+    // Validate a top point
+    if(UTIL_TraceRay(entityIndex, targetIndex, vPosition, vOrigin))
+    {
+        return true;
+    }
+        
+    // Return on unsuccess
+    return false;
+}
+
+/**
+ * @brief Starts up a new trace ray using a new trace result and a customized trace ray filter. 
+ *
+ * @param entityIndex       The entity index.
+ * @param targetIndex       The target index. 
+ * @param vStartPosition    The starting position of the ray.
+ * @param vEndPosition      The ending position of the ray.
+ *
+ * @return                  True of false.        
+ **/
+stock bool UTIL_TraceRay(int entityIndex, int targetIndex, float vStartPosition[3], float vEndPosition[3])
+{
+    // Starts up a new trace ray using a new trace result and a customized trace ray filter
+    TR_TraceRayFilter(vStartPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, entityIndex);
+
+    // Validate any kind of collision along the trace ray
+    bool bHit;
+    if(!TR_DidHit() || TR_GetEntityIndex() == targetIndex) 
+    {
+        // If trace hit, then stop
+        bHit = true;
+    }
+
+    // Return on the end
+    return bHit;
+}
+
+/**
+ * @brief Calculates the distance between two entities.
+ *
+ * @param clientIndex       The client index. 
+ * @param entityIndex       The entity index.
+ *
+ * @return                  The distance amount.        
+ **/
+stock float UTIL_GetDistanceBetween(int clientIndex, int entityIndex)
+{
+    // Initialize vectors
+    static float vPosition[3]; static float vEntPosition[3]; static float vMins[3]; static float vMaxs[3];
+
+    // Gets positions
+    GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+    GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vEntPosition);
+    
+    // Get the client's min and max size vector
+    GetClientMins(clientIndex, vMins); 
+    GetClientMaxs(clientIndex, vMaxs);
+    
+    // Gets height and distance
+    float flHeight = vMins[2] - vMaxs[2] + 10;
+    float fDistance = vPosition[2] - vEntPosition[2];
+    
+    // Move the calculation to 2D
+    if(fDistance > flHeight) 
+    {
+        vPosition[2] -= flHeight;
+    }
+    else if(fDistance < (-1.0 * flHeight)) 
+    {
+        vPosition[2] -= flHeight;
+    }
+    else 
+    {
+        vPosition[2] = vEntPosition[2];
+    }
+    
+    // Gets distance between them
+    return GetVectorDistance(vPosition, vEntPosition);
+} 
+
+/*_____________________________________________________________________________________________________________*/
 
 /**
  * @brief Searches for the index of a given string in a dispatch table.
  *
  * @param sEffect           The effect name.
  *
- * @return                  The item index.
+ * @return                  The string index.
  **/
 stock int GetEffectIndex(char[] sEffect)
 {
@@ -1759,7 +1970,7 @@ stock int GetEffectIndex(char[] sEffect)
  *
  * @param sEffect           The effect name.
  *
- * @return                  The item index.
+ * @return                  The string index.
  **/
 stock int GetParticleEffectIndex(char[] sEffect)
 {
@@ -1784,6 +1995,156 @@ stock int GetParticleEffectIndex(char[] sEffect)
 
     // Return on the unsuccess
     return 0;
+}
+
+/**
+ * @brief Precache the particle in the effect table. (for client)
+ *
+ * @param clientIndex       (Optional) The client index.
+ * @param sEffect           The effect name.
+ **/
+stock void PrecacheParticleFile(int clientIndex = 0, char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+    
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ExtraParticleFilesTable");
+    }
+
+    // Validate server
+    if(!clientIndex)
+    {
+        // Precache particle
+        bool bSave = LockStringTables(false);
+        AddToStringTable(tableIndex, sEffect);
+        LockStringTables(bSave);
+    }
+    else
+    {
+        // i = string index
+        int iCount = GetStringTableNumStrings(tableIndex);
+        for(int i = 0; i < iCount; i++)
+        {
+            static char iD[SMALL_LINE_LENGTH];
+            IntToString(clientIndex, iD, sizeof(iD));
+            SetStringTableData(tableIndex, i, iD, sizeof(iD));
+        }
+    }
+}
+
+/**
+ * @brief Precache the particle in the effect table.
+ *
+ * @param sEffect           The effect name.
+ **/
+stock void PrecacheParticleEffect(char[] sEffect)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+    
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ParticleEffectNames");
+    }
+    
+    // Precache particle
+    bool bSave = LockStringTables(false);
+    AddToStringTable(tableIndex, sEffect);
+    LockStringTables(bSave);
+}
+
+/**
+ * @brief Gets a string of a given index in a dispatch table.
+ *
+ * @param iIndex            The string index.
+ * @param sEffect           The string to return effect in.
+ * @param iMaxLen           The lenght of string.
+ **/
+stock void GetEffectName(int iIndex, char[] sEffect, int iMaxLen)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+    
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("EffectDispatch");
+    }
+
+    // Gets the string at a given index
+    ReadStringTable(tableIndex, iIndex, sEffect, iMaxLen);
+}
+
+/**
+ * @brief Gets a string of a given index in an effect table.
+ *
+ * @param iIndex            The string index.
+ * @param sEffect           The string to return effect in.
+ * @param iMaxLen           The lenght of string.
+ **/
+stock void GetParticleEffectName(int iIndex, char[] sEffect, int iMaxLen)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+    
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ParticleEffectNames");
+    }
+    
+    // Gets the string at a given index
+    ReadStringTable(tableIndex, iIndex, sEffect, iMaxLen);
+}
+
+/**
+ * @brief Gets a string count in a dispatch table.
+ *
+ * @return                  The table size.    
+ **/
+stock void GetEffectNameCount(/*void*/)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+    
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("EffectDispatch");
+    }
+
+    // Returns the count of strings that exist in a given table
+    return GetStringTableNumStrings(tableIndex);
+}
+
+/**
+ * @brief Gets a string count in an effect table.
+ *
+ * @return                  The table size.    
+ **/
+stock int GetParticleEffectCount(/*void*/)
+{
+    // Initialize the table index
+    static int tableIndex = INVALID_STRING_TABLE;
+    
+    // Validate table
+    if(tableIndex == INVALID_STRING_TABLE)
+    {
+        // Searches for a string table
+        tableIndex = FindStringTable("ParticleEffectNames");
+    }
+    
+    // Returns the count of strings that exist in a given table
+    return GetStringTableNumStrings(tableIndex);
 }
 
 /*_____________________________________________________________________________________________________________*/
@@ -1894,4 +2255,58 @@ stock bool IsPlayerInGroup(int clientIndex, char[] sGroup)
     
     // No groups or no match
     return false;
+}
+
+/*_____________________________________________________________________________________________________________*/
+
+/**
+ * @brief Returns the smaller of two provided values.
+ *  
+ * @param i1                The first value.
+ * @param i2                The second value.
+ *
+ * @return                  The smallest value.
+ **/
+stock any min(any i1, any i2) 
+{
+    return (i1 < i2 ? i1 : i2); 
+} 
+
+/**
+ * @brief Returns the bigger of two provided values.
+ *  
+ * @param i1                The first value.
+ * @param i2                The second value.
+ *
+ * @return                  The biggest value.
+ **/
+stock any max(any i1, any i2) 
+{
+    return (i1 > i2 ? i1 : i2); 
+}
+
+/**
+ * @brief Trace filter.
+ *  
+ * @param entityIndex       The entity index.
+ * @param contentsMask      The contents mask.
+ * @param filterIndex       The filter index.
+ *
+ * @return                  True or false.
+ **/
+public bool filter(int entityIndex, int contentsMask, int filterIndex)
+{
+    return (entityIndex != filterIndex);
+}
+
+/**
+ * @brief Trace filter.
+ *
+ * @param entityIndex       The entity index.  
+ * @param contentsMask      The contents mask.
+ * @return                  True or false.
+ **/
+public bool filter2(int entityIndex, int contentsMask)
+{
+    return !(1 <= entityIndex <= MaxClients);
 }

@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -77,7 +77,7 @@ void WeaponAttachOnUnload(/*void*/)
 void WeaponAttachSetAddons(int clientIndex)
 {
     // Gets current bits
-    int iBits = ToolsGetClientAddonBits(clientIndex); int iBitPurge; static int weaponIndex; static int iD;
+    int iBits = ToolsGetAddonBits(clientIndex); int iBitPurge; static int weaponIndex; static int iD;
     
     /*____________________________________________________________________________________________*/
     
@@ -121,7 +121,7 @@ void WeaponAttachSetAddons(int clientIndex)
             weaponIndex = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Secondary));
 
             // Validate taser slot
-            if(weaponIndex == ToolsGetClientActiveWeapon(clientIndex))
+            if(weaponIndex == ToolsGetActiveWeapon(clientIndex))
             {
                 // Gets weapon index
                 weaponIndex = WeaponsGetIndex(clientIndex, "weapon_taser");
@@ -395,7 +395,7 @@ void WeaponAttachSetAddons(int clientIndex)
         if(!(gClientData[clientIndex].AttachmentBits & CSAddon_DefuseKit))
         {
             // Validate defuser
-            if(ToolsGetClientDefuser(clientIndex))
+            if(ToolsGetDefuser(clientIndex))
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(clientIndex);
@@ -458,12 +458,12 @@ void WeaponAttachSetAddons(int clientIndex)
     }
     if(EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[BitType_DefuseKit]) != INVALID_ENT_REFERENCE)
     {
-        iBitPurge |= CSAddon_DefuseKit; if(!ToolsGetClientDefuser(clientIndex)) WeaponAttachRemoveAddons(clientIndex, BitType_DefuseKit);
+        iBitPurge |= CSAddon_DefuseKit; if(!ToolsGetDefuser(clientIndex)) WeaponAttachRemoveAddons(clientIndex, BitType_DefuseKit);
     }
     
     // Store the bits for next usage
     gClientData[clientIndex].AttachmentBits = iBits;
-    ToolsSetClientAddonBits(clientIndex, iBits &~ iBitPurge);
+    ToolsSetAddonBits(clientIndex, iBits &~ iBitPurge);
 }
 
 /**
@@ -490,23 +490,18 @@ void WeaponAttachCreateAddons(int clientIndex, int iD, BitType mBits, char[] sAt
             WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 
     
             // Create an attach addon entity 
-            int entityIndex = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, sModel);
+            int entityIndex = UTIL_CreateDynamic("backback", NULL_VECTOR, NULL_VECTOR, sModel);
             
             // If entity isn't valid, then skip
             if(entityIndex != INVALID_ENT_REFERENCE)
             {
-                // Sets bodygroup of the entity
-                SetVariantInt(WeaponsGetModelBody(iD, ModelType_Drop));
-                AcceptEntityInput(entityIndex, "SetBodyGroup");
-                
-                // Sets skin of the entity
-                SetVariantInt(WeaponsGetModelSkin(iD, ModelType_Drop));
-                AcceptEntityInput(entityIndex, "ModelSkin");
-        
+                // Sets bodygroup/skin for the entity
+                ToolsSetTextures(entityIndex, WeaponsGetModelBody(iD, ModelType_Drop), WeaponsGetModelSkin(iD, ModelType_Drop)); 
+
                 // Sets parent to the entity
                 SetVariantString("!activator");
                 AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
-                ToolsSetEntityOwner(entityIndex, clientIndex);
+                ToolsSetOwner(entityIndex, clientIndex);
                 
                 // Sets attachment to the entity
                 SetVariantString(sAttach);

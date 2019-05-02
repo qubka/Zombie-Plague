@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -41,6 +41,9 @@ public Plugin myinfo =
     version         = "2.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
+
+// Timer index
+Handle Task_TurretCreate[MAXPLAYERS+1] = null; 
 
 // Sound index
 int gSound; ConVar hSoundLevel;
@@ -76,11 +79,19 @@ int AnimatingOverlay_Count;
 /**
  * @section Properties of the turret.
  **/
-#define SENTRY_MODE_DEFAULT           GetRandomInt(SENTRY_MODE_NORMAL, SENTRY_MODE_ROCKET)
+#define SENTRY_ATTACK_NPC             // Uncomment to avoid attack chichens and npc
+#define SENTRY_BULLET_DAMAGE          20.0
+#define SENTRY_BULLET_RANGE           1100.0
+#define SENTRY_BULLET_RADIUS          5.0
+#define SENTRY_BULLET_TURN            2.0
+#define SENTRY_BULLET_THINK           0.05
+#define SENTRY_BULLET_SPEED           0.2
 #define SENTRY_EYE_OFFSET_LEVEL_1     32.0 
 #define SENTRY_EYE_OFFSET_LEVEL_2     40.0 
-#define SENTRY_EYE_OFFSET_LEVEL_3     46.0 
+#define SENTRY_EYE_OFFSET_LEVEL_3     46.0
+#define SENTRY_SHOOTER_OFFSET_LEVEL   66.0
 #define SENTRY_ROCKET_DELAY           3.0
+#define SENTRY_ROCKET_RELOAD          1.8
 #define SENTRY_ROCKET_SPEED           1000.0
 #define SENTRY_ROCKET_DAMAGE          300.0
 #define SENTRY_ROCKET_KNOCKBACK       300.0
@@ -89,7 +100,7 @@ int AnimatingOverlay_Count;
 #define SENTRY_ROCKET_EFFECT_TIME     5.0
 #define SENTRY_ROCKET_EXPLOSION_TIME  2.0
 /**
-    * @endsection
+ * @endsection
  **/
  
 /**
@@ -139,6 +150,14 @@ enum
 /**
  * @end
  **/
+ 
+// Animation sequences
+enum
+{
+    ANIM_IDLE,
+    ANIM_SHOOT,
+    ANIM_DRAW
+};
 
 /**
  * @brief Plugin is loading.
@@ -183,6 +202,20 @@ public void OnPluginStart(/*void*/)
 }
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // Hooks server sounds
+        AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
@@ -222,15 +255,15 @@ public void ZP_OnEngineExecute(/*void*/)
  * @brief Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Validate access
         if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
@@ -247,16 +280,40 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  * @brief Called after select an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, gWeapon);
     }
+}
+
+/**
+ * @brief The map is ending.
+ **/
+public void OnMapEnd(/*void*/)
+{
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Purge timer
+        Task_TurretCreate[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
+    }
+}
+
+/**
+ * @brief Called when a client is disconnecting from the server.
+ * 
+ * @param clientIndex       The client index.
+ **/
+public void OnClientDisconnect(int clientIndex)
+{
+    // Delete timers
+    delete Task_TurretCreate[clientIndex];
 }
 
 //*********************************************************************
@@ -378,15 +435,15 @@ methodmap CAnimationOverlay
 methodmap SentryGun /** Regards to Pelipoika **/
 {
     // Constructor
-    public SentryGun(int ownerIndex, float vPosition[3], float vAngle[3], int iUpgradeLevel) 
+    public SentryGun(int ownerIndex, float vPosition[3], float vAngle[3], int iHealth, int iAmmo, int iRocket, int iUpgradeLevel) 
     {
         // Gets the model for the current mode
-        static char sModel[PLATFORM_LINE_LENGTH];
+        static char sModel[PLATFORM_LINE_LENGTH]; int iSkin; int iBody;
         switch(iUpgradeLevel)
         {
-            case SENTRY_MODE_NORMAL    : strcopy(sModel, sizeof(sModel), "models/buildables/sentry1.mdl");
-            case SENTRY_MODE_AGRESSIVE : strcopy(sModel, sizeof(sModel), "models/buildables/sentry2.mdl");
-            case SENTRY_MODE_ROCKET    : strcopy(sModel, sizeof(sModel), "models/buildables/sentry3_fix.mdl");   
+            case SENTRY_MODE_NORMAL    : { strcopy(sModel, sizeof(sModel), "models/buildables/sentry1.mdl");      iSkin = GetRandomInt(0, 3); }
+            case SENTRY_MODE_AGRESSIVE : { strcopy(sModel, sizeof(sModel), "models/buildables/sentry2.mdl");      iSkin = GetRandomInt(0, 1); }
+            case SENTRY_MODE_ROCKET    : { strcopy(sModel, sizeof(sModel), "models/buildables/sentry3_fix2.mdl"); iSkin = GetRandomInt(0, 1); }
         }
     
         // Create a monster entity
@@ -420,25 +477,30 @@ methodmap SentryGun /** Regards to Pelipoika **/
             SetEntPropVector(entityIndex, Prop_Data, "m_vecStoredPathGoal", vGoalAngle);
             SetEntProp(entityIndex, Prop_Data, "m_bSpeedModActive", true); 
             SetEntProp(entityIndex, Prop_Data, "m_NPCState", SENTRY_STATE_SEARCHING); 
-
+            
             /**__________________________________________________________**/
 
             // Sets physics
             /*SetEntityMoveType(parentIndex, MOVETYPE_NONE);
             SetEntProp(parentIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_WEAPON); 
             SetEntProp(parentIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);*/
+            
+            // Sets effects
+            if(iSkin == 3) iBody = GetRandomInt(0, 1);
+            SetEntProp(entityIndex, Prop_Send, "m_nSkin", iSkin);
+            SetEntProp(entityIndex, Prop_Send, "m_nBody", iBody);
 
             // Sets health
             SetEntProp(entityIndex, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
-            SetEntProp(entityIndex, Prop_Data, "m_iHealth", ZP_GetWeaponClip(gWeapon));
-            SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", ZP_GetWeaponClip(gWeapon));
+            SetEntProp(entityIndex, Prop_Data, "m_iHealth", iHealth);
+            SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", iHealth);
 
             // Sets owner for the entity
             SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", ownerIndex); 
 
             // Sets ammunition and mode
-            SetEntProp(entityIndex, Prop_Data, "m_iAmmo", ZP_GetWeaponAmmo(gWeapon)); 
-            SetEntProp(entityIndex, Prop_Data, "m_iMySquadSlot", ZP_GetWeaponAmmunition(gWeapon)); 
+            SetEntProp(entityIndex, Prop_Data, "m_iAmmo", iAmmo); 
+            SetEntProp(entityIndex, Prop_Data, "m_iMySquadSlot", iRocket); 
             SetEntProp(entityIndex, Prop_Data, "m_iDesiredWeaponState", iUpgradeLevel); 
             
             // Create think/damage hook
@@ -603,6 +665,19 @@ methodmap SentryGun /** Regards to Pelipoika **/
         }
     }
     
+    property int Body
+    { 
+        public get() 
+        {  
+            return GetEntProp(this.Index, Prop_Send, "m_nBody");  
+        }
+
+        public set(int iBody) 
+        {
+            SetEntProp(this.Index, Prop_Send, "m_nBody", iBody); 
+        }
+    }
+    
     property int Rockets
     {
         public get() 
@@ -628,14 +703,6 @@ methodmap SentryGun /** Regards to Pelipoika **/
             SetEntProp(this.Index, Prop_Data, "m_iDesiredWeaponState", iLevel); 
         }
     }
-    
-    /*__________________________________________________________________________________________________*/
-    
-    public float GetTurnRate()   { return ZP_GetWeaponModelHeat(gWeapon); } 
-    public float GetThinkDelay() { return ZP_GetWeaponReload(gWeapon);    } 
-    public float GetDamage()     { return ZP_GetWeaponDamage(gWeapon);    } 
-    public float GetRange()      { return ZP_GetWeaponKnockBack(gWeapon); }
-    public float GetSpeed()      { return ZP_GetWeaponSpeed(gWeapon);     }
 
     /*__________________________________________________________________________________________________*/
     
@@ -673,6 +740,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
             case SENTRY_MODE_AGRESSIVE : vOutput[2] += SENTRY_EYE_OFFSET_LEVEL_2; 
             case SENTRY_MODE_ROCKET    : vOutput[2] += SENTRY_EYE_OFFSET_LEVEL_3; 
         }
+    } 
+    
+    public void GetLauncherPosition(float vOutput[3]) 
+    {
+        GetAbsOrigin(this.Index, vOutput); 
+        vOutput[2] += SENTRY_SHOOTER_OFFSET_LEVEL; 
     } 
 
     /*__________________________________________________________________________________________________*/
@@ -857,7 +930,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
     public bool ValidTargetPlayer(int targetIndex, float vStart[3], float vEnd[3]) 
     {
         // Create the end-point trace
-        TR_TraceRayFilter(vStart, vEnd, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, this.Index); 
+        TR_TraceRayFilter(vStart, vEnd, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter3, this.Index); 
         
         // Validate any kind of collision along the trace ray
         bool bHit;
@@ -877,7 +950,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
      
         // If we cannot see their GetCenterOrigin ( possible, as we do our target finding based 
         // on the eye position of the target) then fire at the eye position 
-        TR_TraceRayFilter(vStart, vMid, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, this.Index); 
+        TR_TraceRayFilter(vStart, vMid, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter3, this.Index); 
         
         // Validate collision
         if(TR_DidHit()) 
@@ -912,7 +985,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         }
         
         // Create a small delay
-        float flDelay = this.GetThinkDelay();
+        float flDelay = SENTRY_BULLET_THINK;
         this.State = SENTRY_STATE_ATTACKING; 
         this.NextAttack = GetGameTime() + flDelay; 
         if(this.NextRocket < GetGameTime()) 
@@ -931,20 +1004,25 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
         // If we have an enemy get his minimum distance to check against
         int targetIndex = INVALID_ENT_REFERENCE; int targetOldIndex = this.Enemy; 
-        float flMinDist = this.GetRange(); float flOldTargetDist = 2147483647.0; float flDist;
-        
-        // Find any players in the radius
-        int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, flMinDist)) != INVALID_ENT_REFERENCE)
+        float flMinDist = SENTRY_BULLET_RANGE; float flOldTargetDist = 2147483647.0; float flDist;
+
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++) 
         {
-            // Skip humans
-            if(ZP_IsPlayerHuman(i))
+            // Validate client
+            if(!IsPlayerExist(i))
+            {
+                continue;
+            }
+    
+            // Validate zombie
+            if(!ZP_IsPlayerZombie(i))
             {
                 continue;
             }
             
             // Gets victim origin
-            GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vMidEnemy);
+            GetAbsOrigin(i, vMidEnemy);
             
             // Gets target distance
             flDist = GetVectorDistance(vPosition, vMidEnemy);
@@ -969,6 +1047,68 @@ methodmap SentryGun /** Regards to Pelipoika **/
             }
         }
 
+        #if defined SENTRY_ATTACK_NPC
+        // Initialize name char
+        static char sClassname[SMALL_LINE_LENGTH];
+        
+        // If we already have a target, don't check objects
+        if(targetIndex == INVALID_ENT_REFERENCE) 
+        {
+            // i = entity index
+            int MaxEntities = GetMaxEntities();
+            for(int i = MaxClients; i <= MaxEntities; i++)
+            {
+                // Validate entity
+                if(IsValidEdict(i))
+                {
+                    // Gets valid edict classname
+                    GetEdictClassname(i, sClassname, sizeof(sClassname));
+
+                    // If entity is a chicken
+                    if(sClassname[0] == 'c' && sClassname[1] == 'h')
+                    {
+                    }
+                    // If entity is a monster generic
+                    else if(sClassname[0] == 'm' && sClassname[8] == 'g')
+                    {
+                        // Skip turrets
+                        if(IsEntityTurret(i))
+                        {
+                            continue;
+                        }
+                    }
+                    // Otherwise skip
+                    else continue;
+                
+                    // Gets victim origin
+                    GetAbsOrigin(i, vMidEnemy);
+                    
+                    // Gets target distance
+                    flDist = GetVectorDistance(vPosition, vMidEnemy);
+                    
+                    // Store the current target distance if we come across it 
+                    if(i == targetOldIndex) 
+                    { 
+                        flOldTargetDist = flDist; 
+                    } 
+                    
+                    // Check to see if the target is closer than the already validated target
+                    if(flDist > flMinDist) 
+                    {
+                        continue; 
+                    }
+                    
+                    // It is closer, check to see if the target is valid
+                    if(this.ValidTargetPlayer(i, vPosition, vMidEnemy)) 
+                    { 
+                        flMinDist = flDist; 
+                        targetIndex = i; 
+                    }
+                }
+            }
+        }
+        #endif
+        
         // We have a target
         if(targetIndex != INVALID_ENT_REFERENCE) 
         { 
@@ -996,8 +1136,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
     { 
         // Initialize variables
         bool bMoved = false; 
-        float flDelay = this.GetThinkDelay();
-        float flTurnRate = this.GetTurnRate(); 
+        float flDelay = SENTRY_BULLET_THINK;
+        float flTurnRate = SENTRY_BULLET_TURN; 
         
         // Start it rotating
         static float vGoalAngle[3]; static float vCurAngle[3];
@@ -1119,8 +1259,11 @@ methodmap SentryGun /** Regards to Pelipoika **/
     
     public void RocketCreate(float vPosition[3], float vAngle[3], float vVelocity[3])
     {
+        // Initialize buffer char
+        static char sBuffer[SMALL_LINE_LENGTH];
+    
         // Create a rocket entity
-        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/bazooka/w_bazooka_projectile.mdl");
+        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
@@ -1134,12 +1277,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
             AcceptEntityInput(entityIndex, "DisableShadow"); /// Prevents the entity from receiving shadows
             
             // Create a prop_dynamic_override entity
-            int rocketIndex = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, "models/buildables/sentry3_rockets.mdl", "idle");
+            int rocketIndex = UTIL_CreateDynamic("rocket", NULL_VECTOR, NULL_VECTOR, "models/buildables/sentry3_rockets.mdl", "idle", false);
 
             // Validate entity
             if(rocketIndex != INVALID_ENT_REFERENCE)
             {
-                // Sets parent/owner to the entity
+                // Sets parent to the entity
                 SetVariantString("!activator");
                 AcceptEntityInput(rocketIndex, "SetParent", entityIndex, rocketIndex);
                 
@@ -1148,11 +1291,10 @@ methodmap SentryGun /** Regards to Pelipoika **/
                 AcceptEntityInput(rocketIndex, "SetParentAttachment", entityIndex, rocketIndex);
             
                 // Create effects
-                static char sAttach[SMALL_LINE_LENGTH];
                 for(int i = 1; i <= 4; i++)
                 {
-                    FormatEx(sAttach, sizeof(sAttach), "rocket%d", i);
-                    UTIL_CreateParticle(rocketIndex, _, _, sAttach, "sentry_rocket", SENTRY_ROCKET_EFFECT_TIME);
+                    FormatEx(sBuffer, sizeof(sBuffer), "rocket%d", i);
+                    UTIL_CreateParticle(rocketIndex, _, _, sBuffer, "sentry_rocket", SENTRY_ROCKET_EFFECT_TIME);
                 }
             }
             
@@ -1160,10 +1302,118 @@ methodmap SentryGun /** Regards to Pelipoika **/
             SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", this.Index); 
 
             // Sets gravity
-            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", SENTRY_ROCKET_GRAVITY); 
+            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", SENTRY_ROCKET_GRAVITY);
+            
+            // Sets weapon ID
+            SetEntProp(entityIndex, Prop_Data, "m_iHammerID", gWeapon);
 
             // Create touch hook
             SDKHook(entityIndex, SDKHook_Touch, RocketTouchHook);
+        }
+        
+        // Make an effect
+        this.Body = 1;
+                
+        // Initialize flags char
+        FormatEx(sBuffer, sizeof(sBuffer), "OnUser2 !self:SetBodyGroup:0:%f:1", SENTRY_ROCKET_RELOAD);
+        
+        // Sets modified flags on the entity
+        SetVariantString(sBuffer);
+        AcceptEntityInput(entityIndex, "AddOutput");
+        AcceptEntityInput(entityIndex, "FireUser2"); /// Reset body
+    }
+    
+    public void BulletCreate(float vPosition[3], float vAngle[3], float flDistance, char[] sAttach) 
+    { 
+        // Initialize vectors
+        static float vEndPosition[3]; static float vVelocity[3]; 
+        
+        // Calculate a bullet path
+        vEndPosition[0] = vPosition[0] + vAngle[0] * flDistance;  
+        vEndPosition[1] = vPosition[1] + vAngle[1] * flDistance; 
+        vEndPosition[2] = vPosition[2] + vAngle[2] * flDistance; 
+         
+        // Fire a bullet 
+        TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter3, this.Index); 
+
+        // Validate collisions
+        if(TR_DidHit()) 
+        {
+            // Returns the collision position of a trace result
+            TR_GetEndPosition(vEndPosition); 
+        
+            // Sentryguns are perfectly accurate, but this doesn't look good for tracers
+            // Add a little noise to them, but not enough so that it looks like they're missing
+            vEndPosition[0] += GetRandomFloat(-10.0, 10.0); 
+            vEndPosition[1] += GetRandomFloat(-10.0, 10.0); 
+            vEndPosition[2] += GetRandomFloat(-10.0, 10.0); 
+
+            // Bullet tracer
+            UTIL_CreateTracer(this.Index, sAttach, "weapon_tracers_50cal", vEndPosition, 0.1);
+
+            // Gets victim index
+            int victimIndex = TR_GetEntityIndex();
+            
+            // Is hit world ?
+            if(victimIndex < 1)
+            {
+                // Returns the collision angle
+                TR_GetPlaneNormal(null, vVelocity); 
+                GetVectorAngles(vVelocity, vVelocity); 
+        
+                // Can't get surface properties from traces unfortunately
+                // Just another short sighting from the SM devs :/// 
+                UTIL_CreateParticle(this.Index, vEndPosition, _, _, "impact_dirt", 0.1);
+                
+                // Move the impact effect a bit out so it doesn't clip the wall
+                float flPercentage = 0.2 / (GetVectorDistance(vPosition, vEndPosition) / 100);
+                vEndPosition[0] = vEndPosition[0] + ((vPosition[0] - vEndPosition[0]) * flPercentage);
+                vEndPosition[1] = vEndPosition[1] + ((vPosition[1] - vEndPosition[1]) * flPercentage);
+                vEndPosition[2] = vEndPosition[2] + ((vPosition[2] - vEndPosition[2]) * flPercentage);
+
+                // Create an another impact effect
+                TE_Start("Impact"); 
+                TE_WriteVector("m_vecOrigin", vEndPosition); 
+                TE_WriteVector("m_vecNormal", vVelocity); 
+                TE_WriteNum("m_iType", GetRandomInt(1, 10)); 
+                TE_SendToAll();
+            }
+            else
+            {
+                // Create the damage for victims
+                UTIL_CreateDamage(_, vEndPosition, this.Index, SENTRY_BULLET_DAMAGE, SENTRY_BULLET_RADIUS, DMG_BULLET);
+        
+                // Validate victim
+                if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
+                {    
+                    // Create a blood effect
+                    UTIL_CreateParticle(victimIndex, vEndPosition, _, _, "blood_impact_heavy", 0.1);
+                
+                    // Validate knockback
+                    float flKnockBack = ZP_GetClassKnockBack(ZP_GetClientClass(victimIndex)) * ZP_GetWeaponKnockBack(gWeapon) * SENTRY_BULLET_DAMAGE; 
+                    if(flKnockBack > 0.0)
+                    {
+                        // Gets vector from the given starting and ending points
+                        MakeVectorFromPoints(vPosition, vEndPosition, vVelocity);
+
+                        // Normalize the vector (equal magnitude at varying distances)
+                        NormalizeVector(vVelocity, vVelocity);
+
+                        // Apply the magnitude by scaling the vector
+                        ScaleVector(vVelocity, flKnockBack);
+                        
+                        // Gets client velocity
+                        static float vSpeed[3];
+                        GetEntPropVector(victimIndex, Prop_Data, "m_vecVelocity", vSpeed);
+                        
+                        // Add to the current
+                        AddVectors(vSpeed, vVelocity, vVelocity);
+                    
+                        // Push the target
+                        TeleportEntity(victimIndex, NULL_VECTOR, NULL_VECTOR, vVelocity);
+                    }
+                }
+            }
         }
     }
 
@@ -1171,7 +1421,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
     { 
         // Initialize variables
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vMidEnemy[3];
-        float flSpeed = this.GetSpeed(); 
+        float flSpeed = SENTRY_BULLET_SPEED; 
         float flCurrentTime = GetGameTime();
         
         // Level 3 Turrets fire rockets every 3 seconds
@@ -1185,11 +1435,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
                 }
         
                 // Alternate between the 1 rocket launcher ports
-                this.GetAttachment("rocket", vPosition, vVelocity); 
+                ///this.GetAttachment("rocket", vPosition, vVelocity);  // Not work correctly
+                this.GetLauncherPosition(vPosition); 
 
                 // Calculate a velocity
                 GetCenterOrigin(this.Enemy, vMidEnemy); 
-                SubtractVectors(vMidEnemy, vPosition, vAngle); 
+                MakeVectorFromPoints(vPosition, vMidEnemy, vAngle);
                 NormalizeVector(vAngle, vAngle); 
                 GetVectorAngles(vAngle, vAngle); 
                 GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
@@ -1240,13 +1491,13 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
             // Track the enemy
             this.SelectTargetPoint(vPosition, vMidEnemy);
-            SubtractVectors(vMidEnemy, vPosition, vAngle); 
+            MakeVectorFromPoints(vPosition, vMidEnemy, vAngle);
             float flDistToTarget = GetVectorLength(vAngle); 
             NormalizeVector(vAngle, vAngle); 
              
             // Create a bullet
-            static char sMuzzle[SMALL_LINE_LENGTH];
-            FireBullet(this.Index, this.Owner, vPosition, vAngle, this.GetDamage(), flDistToTarget * 500, DMG_BULLET, sAttach, "weapon_tracers_50cal"); 
+            static char sMuzzle[NORMAL_LINE_LENGTH];
+            this.BulletCreate(vPosition, vAngle, flDistToTarget * 500, sAttach); 
             ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
             UTIL_CreateParticle(this.Index, _, _, sAttach, sMuzzle, flSpeed);
 
@@ -1348,7 +1599,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         // Track the enemy 
         GetCenterOrigin(this.Index, vMid); 
         this.SelectTargetPoint(vMid, vMidEnemy);
-        SubtractVectors(vMidEnemy, vMid, vDirToEnemy); 
+        MakeVectorFromPoints(vMid, vMidEnemy, vDirToEnemy);
         GetVectorAngles(vDirToEnemy, vAngle); 
      
         // Calculate angles
@@ -1373,7 +1624,9 @@ methodmap SentryGun /** Regards to Pelipoika **/
         vGoalAngle[0] = vAngle[0]; 
         this.SetGoalAngles(vGoalAngle);     
         this.MoveTurret(); 
-        SubtractVectors(vGoalAngle, vCurAngle, vSegment); 
+        
+        // Gets vector from the given starting and ending angles
+        MakeVectorFromPoints(vCurAngle, vGoalAngle, vSegment);
          
         // Fire on the target if it's within 10 units of being aimed right at it 
         if(this.NextAttack <= GetGameTime() && GetVectorLength(vSegment) <= 10.0) 
@@ -1435,11 +1688,29 @@ methodmap SentryGun /** Regards to Pelipoika **/
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+void Weapon_OnIdle(int clientIndex, int weaponIndex, float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, flCurrentTime
+    
+    // Validate animation delay
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
+    {
+        return;
+    }
+    
+    // Sets idle animation
+    ZP_SetWeaponAnimation(clientIndex, ANIM_IDLE); 
+    
+    // Sets next idle time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weaponIndex, ANIM_IDLE));
+}
+
 void Weapon_OnDeploy(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
     
     /// Block the real attack
+    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", flCurrentTime + 9999.9);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
 
     // Sets next attack time
@@ -1463,7 +1734,7 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
     }
     
     // Adds the delay to the game tick
-    flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+    flCurrentTime += ZP_GetWeaponReload(gWeapon);
 
     // Sets next attack time
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -1474,12 +1745,12 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
     
     // Gets trace line
     GetClientEyePosition(clientIndex, vPosition);
-    ZP_GetPlayerGunPosition(clientIndex, 150.0, 0.0, 0.0, vEndPosition);
+    ZP_GetPlayerGunPosition(clientIndex, 100.0, 0.0, 0.0, vEndPosition);
 
     // Create the end-point trace
-    TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, TraceFilter2);
+    TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
 
-    // Validate collisions
+    // Is hit world ?
     if(TR_DidHit() && TR_GetEntityIndex() < 1)
     {
         // Returns the collision position/angle of a trace result
@@ -1497,13 +1768,85 @@ void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTim
         // Validate no collisions
         if(!TR_DidHit())
         {
-            // Create a dronegun entity
-            SentryGun(clientIndex, vPosition, vAngle, SENTRY_MODE_DEFAULT); 
-            
-            // Forces a player to remove weapon
-            ZP_RemoveWeapon(clientIndex, weaponIndex);
+            // Sets shoot animation
+            ZP_SetWeaponAnimation(clientIndex, ANIM_SHOOT);
+
+            // Create timer for turret
+            delete Task_TurretCreate[clientIndex]; /// Bugfix
+            Task_TurretCreate[clientIndex] = CreateTimer(ZP_GetWeaponReload(gWeapon) - 0.1, Weapon_OnCreateTurret, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
         }
     }
+}
+
+/**
+ * Timer for creating turret.
+ *
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
+ **/
+public Action Weapon_OnCreateTurret(Handle hTimer, int userID)
+{
+    // Gets client index from the user ID
+    int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
+
+    // Clear timer 
+    Task_TurretCreate[clientIndex] = null;
+
+    // Validate client
+    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    {
+        // Initialize vectors
+        static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3]; 
+        
+        // Gets trace line
+        GetClientEyePosition(clientIndex, vPosition);
+        ZP_GetPlayerGunPosition(clientIndex, 100.0, 0.0, 0.0, vEndPosition);
+
+        // Create the end-point trace
+        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
+
+        // Is hit world ?
+        if(TR_DidHit() && TR_GetEntityIndex() < 1)
+        {
+            // Returns the collision position/angle of a trace result
+            TR_GetEndPosition(vPosition);
+            TR_GetPlaneNormal(null, vAngle); 
+            
+            // Initialize the hull intersection
+            static const float vMins[3] = { -13.0, -13.0, 0.0   }; 
+            static const float vMaxs[3] = {  13.0,  13.0, 72.0  }; 
+            
+            // Create the hull trace
+            vPosition[2] += vMaxs[2] / 2; /// Move center of hull upward
+            TR_TraceHull(vPosition, vPosition, vMins, vMaxs, MASK_SOLID);
+            
+            // Validate no collisions
+            if(!TR_DidHit())
+            {
+                // Create a dronegun entity
+                SentryGun(clientIndex, vPosition, vAngle, GetEntProp(weaponIndex, Prop_Data, "m_iHealth"), GetEntProp(weaponIndex, Prop_Data, "m_iAltFireHudHintCount"), GetEntProp(weaponIndex, Prop_Data, "m_iReloadHudHintCount"), GetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"));
+                
+                // Forces a player to remove weapon
+                ZP_RemoveWeapon(clientIndex, weaponIndex);
+                
+                // Destroy timer
+                return Plugin_Stop;
+            }
+        }
+
+        // Adds the delay to the game tick
+        float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon);
+        
+        // Sets next attack time
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
+
+        // Sets pickup animation
+        ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW);
+    }
+    
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 bool Weapon_OnPickupTurret(int clientIndex, int entityIndex, float flCurrentTime)
@@ -1518,24 +1861,21 @@ bool Weapon_OnPickupTurret(int clientIndex, int entityIndex, float flCurrentTime
     ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
 
     // Create the end-point trace
-    TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, TraceFilter2);
-    
-    // Returns the collision position of a trace result
-    TR_GetEndPosition(vEndPosition);
-    
+    TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
+
     // Validate collisions
-    if(TR_GetFraction() >= 1.0)
+    if(!TR_DidHit())
     {
         // Initialize the hull intersection
         static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
         static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
-        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SOLID, TraceFilter2);
+        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SOLID, filter2);
     }
     
     // Validate collisions
-    if(TR_GetFraction() < 1.0)
+    if(TR_DidHit())
     {
         // Gets entity index
         entityIndex = TR_GetEntityIndex();
@@ -1547,7 +1887,17 @@ bool Weapon_OnPickupTurret(int clientIndex, int entityIndex, float flCurrentTime
             if(GetEntPropEnt(entityIndex, Prop_Data, "m_pParent") == clientIndex)
             {
                 // Give item and select it
-                ZP_GiveClientWeapon(clientIndex, gWeapon);
+                int weaponIndex = ZP_GiveClientWeapon(clientIndex, gWeapon);
+                
+                // Valdiate weapon
+                if(weaponIndex != INVALID_ENT_REFERENCE)
+                {
+                    // Set variables
+                    SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", GetEntProp(entityIndex, Prop_Data, "m_iDesiredWeaponState"));
+                    SetEntProp(weaponIndex, Prop_Data, "m_iHealth", GetEntProp(entityIndex, Prop_Data, "m_iHealth"));
+                    SetEntProp(weaponIndex, Prop_Data, "m_iAltFireHudHintCount", GetEntProp(entityIndex, Prop_Data, "m_iAmmo"));
+                    SetEntProp(weaponIndex, Prop_Data, "m_iReloadHudHintCount", GetEntProp(entityIndex, Prop_Data, "m_iMySquadSlot"));
+                }
 
                 // Kill entity
                 AcceptEntityInput(entityIndex, "Kill");
@@ -1576,6 +1926,26 @@ bool Weapon_OnPickupTurret(int clientIndex, int entityIndex, float flCurrentTime
    )    
 
 /**
+ * @brief Called after a custom weapon is created.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Reset variables
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", GetRandomInt(SENTRY_MODE_NORMAL, SENTRY_MODE_ROCKET));
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth", ZP_GetWeaponClip(gWeapon));
+        SetEntProp(weaponIndex, Prop_Data, "m_iAltFireHudHintCount", ZP_GetWeaponAmmo(gWeapon));
+        SetEntProp(weaponIndex, Prop_Data, "m_iReloadHudHintCount", ZP_GetWeaponAmmunition(gWeapon));
+    }
+}   
+
+/**
  * @brief Called on deploy of a weapon.
  *
  * @param clientIndex       The client index.
@@ -1590,7 +1960,24 @@ public void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID)
         // Call event
         _call.Deploy(clientIndex, weaponIndex);
     }
-}    
+}
+
+/**
+ * @brief Called on holster of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID) 
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Delete timers
+        delete Task_TurretCreate[clientIndex];
+    }
+}
     
 /**
  * @brief Called on each frame of a weapon holding.
@@ -1617,6 +2004,9 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
             iButtons &= (~IN_ATTACK);
             return Plugin_Changed;
         }
+        
+        // Call event
+        _call.Idle(clientIndex, weaponIndex);
     }
 
     // Allow button
@@ -1647,6 +2037,47 @@ public Action ZP_OnClientValidateButton(int clientIndex)
     
     // Allow menu
     return Plugin_Continue;
+}
+
+/**
+ * @brief Called when a client take a fake damage.
+ * 
+ * @param clientIndex       The client index.
+ * @param attackerIndex     The attacker index.
+ * @param inflictorIndex    The inflictor index.
+ * @param damage            The amount of damage inflicted.
+ * @param bits              The ditfield of damage types.
+ * @param weaponIndex       The weapon index or -1 for unspecified.
+ **/
+public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+{
+    // Client was damaged by 'rocket'
+    if(iBits & DMG_BLAST)
+    {
+        // Validate rocket
+        if(IsEntityRocket(attackerIndex))
+        {
+            // Validate victim
+            if(ZP_IsPlayerHuman(clientIndex))
+            {
+                flDamage = 0.0;
+            }
+        }
+        
+    }
+    // Client was damaged by 'bullet'
+    else if(iBits & DMG_BULLET)
+    {
+        // Validate turret
+        if(IsEntityTurret(attackerIndex))
+        {
+            // Validate victim
+            if(ZP_IsPlayerHuman(clientIndex))
+            {
+                flDamage = 0.0;
+            }
+        }
+    }
 }
 
 //**********************************************
@@ -1700,7 +2131,7 @@ public Action SentryDamageHook(int entityIndex, int &attackerIndex, int &inflict
     // Validate attacker
     if(IsPlayerExist(attackerIndex))
     {
-        // Validate zombie/owner
+        // Validate zombie
         if(ZP_IsPlayerZombie(attackerIndex))
         {
             // Gets the object methods
@@ -1749,16 +2180,6 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
     // Validate target
     if(!IsEntityTurret(targetIndex))
     {
-        // Gets thrower index
-        int throwerIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_pParent");
-
-        // Validate thrower
-        if(throwerIndex != INVALID_ENT_REFERENCE)
-        {
-            // Gets owner index
-            throwerIndex = GetEntPropEnt(throwerIndex, Prop_Data, "m_pParent");
-        }
-        
         // Gets entity position
         static float vPosition[3];
         GetAbsOrigin(entityIndex, vPosition);
@@ -1767,7 +2188,7 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
         UTIL_CreateParticle(_, vPosition, _, _, "expl_coopmission_skyboom", SENTRY_ROCKET_EXPLOSION_TIME);
         
         // Create an explosion
-        UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, SENTRY_ROCKET_DAMAGE, SENTRY_ROCKET_RADIUS, "prop_exploding_barrel", throwerIndex, entityIndex);
+        UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, SENTRY_ROCKET_DAMAGE, SENTRY_ROCKET_RADIUS, "rocket", entityIndex, entityIndex);
 
         // Play sound
         ZP_EmitSoundToAll(gSound, SENTRY_SOUND_EXPLOAD, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -1781,105 +2202,6 @@ public Action RocketTouchHook(int entityIndex, int targetIndex)
 }
 
 /**
- * @brief Bullet trace.
- *
- * @param inflictorIndex    The inflictor index.  
- * @param attackerIndex     The attacker index.  
- * @param vPosition         The shoot position.
- * @param vAngle            The shoot direction.
- * @param flDamage          The damage value.
- * @param flDistance        The distance value.
- * @param nDamageType       The damage type.
- * @param sAttach           The tracer effect.
- * @param sEffect           The tracer effect.  
- **/
-public void FireBullet(int inflictorIndex, int attackerIndex, float vPosition[3], float vAngle[3], float flDamage, float flDistance, int nDamageType, char[] sAttach, char[] sEffect) 
-{ 
-    // Initialize vectors
-    static float vEndPosition[3]; static float vNormal[3]; 
-    
-    // Calculate a bullet path
-    vEndPosition[0] = vPosition[0] + vAngle[0] * flDistance;  
-    vEndPosition[1] = vPosition[1] + vAngle[1] * flDistance; 
-    vEndPosition[2] = vPosition[2] + vAngle[2] * flDistance; 
-     
-    // Fire a bullet 
-    TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, inflictorIndex); 
-
-    // Returns the collision position of a trace result
-    TR_GetEndPosition(vEndPosition);
-    
-    // Validate collisions
-    if(TR_GetFraction() >= 1.0)
-    {
-        // Initialize the hull intersection
-        static const float vMins[3] = { -16.0, -16.0, -18.0 }; 
-        static const float vMaxs[3] = {  16.0,  16.0,  18.0 }; 
-        
-        // Create the hull trace
-        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, inflictorIndex);
-    }
-
-    // Validate collisions
-    if(TR_GetFraction() < 1.0) 
-    {
-        // Gets victim index
-        int victimIndex = TR_GetEntityIndex();
-
-        // Returns the collision position of a trace result
-        TR_GetEndPosition(vEndPosition); 
-    
-        // Sentryguns are perfectly accurate, but this doesn't look good for tracers
-        // Add a little noise to them, but not enough so that it looks like they're missing
-        vEndPosition[0] += GetRandomFloat(-10.0, 10.0); 
-        vEndPosition[1] += GetRandomFloat(-10.0, 10.0); 
-        vEndPosition[2] += GetRandomFloat(-10.0, 10.0); 
-
-        // Bullet tracer
-        UTIL_CreateTracer(inflictorIndex, sAttach, sEffect, vEndPosition, 0.1);
-
-        // Validate victim
-        if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
-        {    
-            // Create the damage for a victim
-            if(!ZP_TakeDamage(victimIndex, attackerIndex, inflictorIndex, flDamage, nDamageType))
-            {
-                // Create a custom death event
-                static char sIcon[SMALL_LINE_LENGTH];
-                ZP_GetWeaponIcon(gWeapon, sIcon, sizeof(sIcon));
-                UTIL_CreateIcon(victimIndex, attackerIndex, sIcon);
-            }
-            
-            // Create a blood effect
-            UTIL_CreateParticle(victimIndex, vEndPosition, _, _, "blood_impact_heavy", 0.1);
-        }
-        else
-        {
-            // Returns the collision angle of a trace result
-            TR_GetPlaneNormal(null, vNormal); 
-            GetVectorAngles(vNormal, vNormal); 
-    
-            // Can't get surface properties from traces unfortunately
-            // Just another short sighting from the SM devs :/// 
-            UTIL_CreateParticle(inflictorIndex, vEndPosition, _, _, "impact_dirt", 0.1);
-            
-            // Move the impact effect a bit out so it doesn't clip the wall
-            float flPercentage = 0.2 / (GetVectorDistance(vPosition, vEndPosition) / 100);
-            vEndPosition[0] = vEndPosition[0] + ((vPosition[0] - vEndPosition[0]) * flPercentage);
-            vEndPosition[1] = vEndPosition[1] + ((vPosition[1] - vEndPosition[1]) * flPercentage);
-            vEndPosition[2] = vEndPosition[2] + ((vPosition[2] - vEndPosition[2]) * flPercentage);
-            
-            // Create an another impact effect
-            TE_Start("Impact"); 
-            TE_WriteVector("m_vecOrigin", vEndPosition); 
-            TE_WriteVector("m_vecNormal", vNormal); 
-            TE_WriteNum("m_iType", GetRandomInt(1, 10)); 
-            TE_SendToAllInRange(vEndPosition, RangeType_Visibility);
-        }
-    }
-}
-
-/**
  * @brief Trace filter.
  *
  * @param entityIndex       The entity index.  
@@ -1887,7 +2209,7 @@ public void FireBullet(int inflictorIndex, int attackerIndex, float vPosition[3]
  * @param filterIndex       The filter index.
  * @return                  True or false.
  **/
-public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
+public bool filter3(int entityIndex, int contentsMask, int filterIndex)
 {
     if(IsEntityTurret(entityIndex)) 
     {
@@ -1895,18 +2217,6 @@ public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
     }
     
     return (entityIndex != filterIndex); 
-}
-
-/**
- * @brief Trace filter.
- *
- * @param entityIndex       The entity index.  
- * @param contentsMask      The contents mask.
- * @return                  True or false.
- **/
-public bool TraceFilter2(int entityIndex, int contentsMask)
-{
-    return !(1 <= entityIndex <= MaxClients);
 }
 
 //**********************************************
@@ -1934,7 +2244,7 @@ stock void GetCenterOrigin(int entityIndex, float vOutput[3])
 { 
     GetAbsOrigin(entityIndex, vOutput); 
     static float vMax[3]; 
-    if(entityIndex <= MAXPLAYERS)
+    if(entityIndex < MaxClients)
     {
         GetClientMaxs(entityIndex, vMax);
     }
@@ -1953,7 +2263,7 @@ stock void GetCenterOrigin(int entityIndex, float vOutput[3])
  **/
 stock void GetEyePosition(int entityIndex, float vOutput[3]) 
 {
-    if(entityIndex <= MAXPLAYERS)
+    if(entityIndex < MaxClients)
     {
         GetClientEyePosition(entityIndex, vOutput);
     }
@@ -1980,12 +2290,34 @@ stock bool IsEntityTurret(int entityIndex)
         return false;
     }
     
-    // Gets classname
+    // Gets name
     static char sClassname[SMALL_LINE_LENGTH];
     GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
     
-    // Validate model
+    // Validate name
     return (!strcmp(sClassname, "turret", false));
+}
+
+/**
+ * @brief Validate a rocket.
+ *
+ * @param entityIndex       The entity index.
+ * @return                  True or false.
+ **/
+stock bool IsEntityRocket(int entityIndex)
+{
+    // Validate entity
+    if(entityIndex <= MaxClients || !IsValidEdict(entityIndex))
+    {
+        return false;
+    }
+    
+    // Gets name
+    static char sClassname[SMALL_LINE_LENGTH];
+    GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
+    
+    // Validate name
+    return (!strcmp(sClassname, "rocket", false));
 }
 
 /**
@@ -2020,4 +2352,42 @@ stock float AngleNormalize(float flAngle)
     } 
     
     return flAngle; 
-} 
+}
+
+/**
+ * @brief Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
+ *  
+ * @param clients           Array of client indexes.
+ * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
+ * @param sSample           Sound file name relative to the "sounds" folder.
+ * @param entityIndex       Entity emitting the sound.
+ * @param iChannel          Channel emitting the sound.
+ * @param flVolume          The sound volume.
+ * @param iLevel            The sound level.
+ * @param iPitch            The sound pitch.
+ * @param iFlags            The sound flags.
+ **/ 
+public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
+{
+    // Validate client
+    if(IsValidEdict(entityIndex))
+    {
+        // Validate custom arrow
+        if(GetEntProp(entityIndex, Prop_Data, "m_iHammerID") == gWeapon)
+        {
+            // Gets entity classname
+            static char sClassname[SMALL_LINE_LENGTH];
+            GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
+            
+            // Validate hegrenade projectile
+            if(!strncmp(sClassname, "he", 2, false))
+            {
+                // Block sounds
+                return Plugin_Stop; 
+            } 
+        }
+    }
+    
+    // Allow sounds
+    return Plugin_Continue;
+}

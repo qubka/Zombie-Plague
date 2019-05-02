@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -58,15 +58,15 @@ public void ZP_OnEngineExecute(/*void*/)
  * @brief Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
 {
     // Check the item's index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Initialize round type
         int modeIndex = ZP_GetCurrentGameMode();
@@ -86,12 +86,12 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  * @brief Called after select an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
 {
     // Check the item's index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Change class to human
         ZP_ChangeClient(clientIndex, _, "human");

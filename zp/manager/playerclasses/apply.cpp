@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -144,8 +144,8 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     gClientData[clientIndex].ResetTimers();
     
     // Resets some tools
-    ToolsSetClientFlashLight(clientIndex, false);
-    ToolsSetClientDetecting(clientIndex, false);
+    ToolsSetFlashLight(clientIndex, false);
+    ToolsSetDetecting(clientIndex, false);
     
     // Resets some variables
     gClientData[clientIndex].Skill = false;
@@ -167,13 +167,13 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     }
     
     // Sets health, speed and gravity and armor
-    ToolsSetClientHealth(clientIndex, ClassGetHealth(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0), true);
-    ToolsSetClientLMV(clientIndex, ClassGetSpeed(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
-    ToolsSetClientGravity(clientIndex, ClassGetGravity(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
-    ToolsSetClientArmor(clientIndex, (ToolsGetClientArmor(clientIndex) < ClassGetArmor(gClientData[clientIndex].Class)) ? ClassGetArmor(gClientData[clientIndex].Class) : ToolsGetClientArmor(clientIndex));
-    ToolsSetClientHud(clientIndex, ClassIsCross(gClientData[clientIndex].Class));
-    ToolsSetClientSpot(clientIndex, ClassIsSpot(gClientData[clientIndex].Class));
-    ToolsSetClientFov(clientIndex, ClassGetFov(gClientData[clientIndex].Class));
+    ToolsSetHealth(clientIndex, ClassGetHealth(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0), true);
+    ToolsSetLMV(clientIndex, ClassGetSpeed(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
+    ToolsSetGravity(clientIndex, ClassGetGravity(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
+    ToolsSetArmor(clientIndex, (ToolsGetArmor(clientIndex) < ClassGetArmor(gClientData[clientIndex].Class)) ? ClassGetArmor(gClientData[clientIndex].Class) : ToolsGetArmor(clientIndex));
+    ToolsSetHud(clientIndex, ClassIsCross(gClientData[clientIndex].Class));
+    ToolsSetSpot(clientIndex, ClassIsSpot(gClientData[clientIndex].Class));
+    ToolsSetFov(clientIndex, ClassGetFov(gClientData[clientIndex].Class));
 
     // Initialize model char
     static char sModel[PLATFORM_LINE_LENGTH];
@@ -184,7 +184,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     
     // Gets class arm models
     ClassGetArmModel(gClientData[clientIndex].Class, sModel, sizeof(sModel)); 
-    if(hasLength(sModel)) ToolsSetClientArm(clientIndex, sModel, sizeof(sModel));
+    if(hasLength(sModel)) ToolsSetArm(clientIndex, sModel, sizeof(sModel));
     
     // If help messages enabled, then show info
     if(gCvarList[CVAR_MESSAGES_CLASS_INFO].BoolValue)
@@ -204,11 +204,11 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
         // Create a fake death event
         static char sIcon[SMALL_LINE_LENGTH];
         gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
-        UTIL_CreateIcon(clientIndex, attackerIndex, sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
+        DeathCreateIcon(GetClientUserId(clientIndex), GetClientUserId(attackerIndex), sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
         
         // Increment kills and frags
-        ToolsSetClientScore(attackerIndex, true, ToolsGetClientScore(attackerIndex, true) + 1);
-        ToolsSetClientScore(clientIndex, false, ToolsGetClientScore(clientIndex, false) + 1);
+        ToolsSetScore(attackerIndex, true, ToolsGetScore(attackerIndex, true) + 1);
+        ToolsSetScore(clientIndex, false, ToolsGetScore(clientIndex, false) + 1);
         
         // Gets class exp and money bonuses
         static int iExp[6]; static int iMoney[6];
@@ -223,7 +223,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
         if(IsPlayerAlive(attackerIndex)) 
         {
             // Add lifesteal health
-            ToolsSetClientHealth(attackerIndex, ToolsGetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+            ToolsSetHealth(attackerIndex, ToolsGetHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
         }
     }
     // If change was done by server
@@ -276,15 +276,15 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
         if(gClientData[clientIndex].Zombie)
         {
             // Switch team
-            ToolsSetClientTeam(clientIndex, TEAM_ZOMBIE);
+            ToolsSetTeam(clientIndex, TEAM_ZOMBIE);
         }
         else
         {
             // Switch team
-            ToolsSetClientTeam(clientIndex, TEAM_HUMAN);
+            ToolsSetTeam(clientIndex, TEAM_HUMAN);
             
             // Sets glowing for the zombie vision
-            ToolsSetClientDetecting(clientIndex, ModesIsXRay(gServerData.RoundMode));
+            ToolsSetDetecting(clientIndex, ModesIsXRay(gServerData.RoundMode));
         }
         
         // Terminate the round
@@ -305,10 +305,10 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
 void ApplyOnClientTeam(int clientIndex, int iTeam)
 {
     // Switch team
-    bool bState = ToolsGetClientDefuser(clientIndex);
-    ToolsSetClientTeam(clientIndex, iTeam);
-    ToolsSetClientDefuser(clientIndex, bState); /// HACK~HACK
+    bool bState = ToolsGetDefuser(clientIndex);
+    ToolsSetTeam(clientIndex, iTeam);
+    ToolsSetDefuser(clientIndex, bState); /// HACK~HACK
 
     // Sets glowing for the zombie vision
-    ToolsSetClientDetecting(clientIndex, ModesIsXRay(gServerData.RoundMode));
+    ToolsSetDetecting(clientIndex, ModesIsXRay(gServerData.RoundMode));
 }   

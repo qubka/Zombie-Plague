@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -45,9 +45,9 @@ public Plugin myinfo =
  * @section Properties of the grenade.
  **/
 #define GRENADE_INFECT_RADIUS          200.0        // Infection size (radius)
-#define GRENADE_INFECT_LAST            false        // Can last human infect [false-no // true-yes]
+//#define GRENADE_INFECT_LAST          // Can last human infect [uncomment-no // comment-yes]
 #define GRENADE_INFECT_EXP_TIME        2.0          // Duration of the explosion effect in seconds
-#define GRENADE_INFECT_ATTACH          false        // If true, will be attached to the wall, false to bounce from wall
+//#define GRENADE_INFECT_ATTACH        // Will be attach to the wall [uncomment-no // comment-yes]
 /**
  * @endsection
  **/
@@ -103,15 +103,15 @@ public void ZP_OnEngineExecute(/*void*/)
  * @brief Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Validate access
         if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE || !ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
@@ -128,12 +128,12 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  * @brief Called after select an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, gWeapon);
@@ -150,7 +150,7 @@ public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
 public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
 {
     // Validate custom grenade
-    if(weaponID == gWeapon) /* OR if(ZP_GetWeaponID(grenadeIndex) == gWeapon)*/
+    if(weaponID == gWeapon) /* OR if(GetEntProp(grenadeIndex, Prop_Data, "m_iHammerID") == gWeapon)*/
     {
         // Hook entity callbacks
         SDKHook(grenadeIndex, SDKHook_Touch, TanadeTouchHook);
@@ -165,7 +165,7 @@ public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
  **/
 public Action TanadeTouchHook(int entityIndex, int targetIndex)
 {
-    #if GRENADE_INFECT_ATTACH == true
+    #if defined GRENADE_INFECT_ATTACH
     return Plugin_Continue;
     #else
     return Plugin_Handled;
@@ -198,7 +198,7 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
     if(IsValidEdict(grenadeIndex))
     {
         // Validate custom grenade
-        if(ZP_GetWeaponID(grenadeIndex) == gWeapon)
+        if(GetEntProp(grenadeIndex, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Validate infection round
             if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
@@ -212,28 +212,30 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
                     {
                         continue;
                     }
+
+                    // Validate visibility
+                    if(!UTIL_CanSeeEachOther(grenadeIndex, i, vEntPosition))
+                    {
+                        continue;
+                    }
                     
                     // Change class to zombie
-                    if(ZP_GetHumanAmount() > 1 || GRENADE_INFECT_LAST) ZP_ChangeClient(i, ownerIndex, "zombie");
-                }
-                
-                // i = client index
-                for(i = 1; i <= MaxClients; i++)
-                {
-                    // Reset glow on the next frame
-                    RequestFrame(view_as<RequestFrameCallback>(EventEntityTanadePost), GetClientUserId(i));
+                    #if defined GRENADE_INFECT_LAST
+                    ZP_ChangeClient(i, ownerIndex, "zombie");
+                    #else
+                    if(ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, ownerIndex, "zombie");
+                    #endif
                 }
             }
-            
-            // Gets weapon muzzleflesh
-            static char sMuzzle[SMALL_LINE_LENGTH];
-            ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
 
             // Create an explosion effect
-            UTIL_CreateParticle(_, vEntPosition, _, _, sMuzzle, GRENADE_INFECT_EXP_TIME);
+            UTIL_CreateParticle(_, vEntPosition, _, _, "explosion_hegrenade_dirt", GRENADE_INFECT_EXP_TIME);
             
             // Remove grenade
             AcceptEntityInput(grenadeIndex, "Kill");
+
+            // Reset glow on the next frame
+            RequestFrame(view_as<RequestFrameCallback>(EventEntityTanadePost));
         }
     }
 }
@@ -241,19 +243,18 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 /**
  * Event callback (tagrenade_detonate)
  * @brief The tagrenade was exployed. (Post)
- * 
- * @param userID            The user id.
  **/
-public void EventEntityTanadePost(int userID)
+public void EventEntityTanadePost(/*void*/)
 {
-    // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
-    
-    // Validate client
-    if(clientIndex && ZP_IsPlayerHuman(clientIndex)) 
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
     {
-        // Bugfix with tagrenade glow
-        SetEntPropFloat(clientIndex, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
+        // Validate human
+        if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+        {
+            // Bugfix with tagrenade glow
+            SetEntPropFloat(i, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
+        }
     }
 }
 
@@ -276,27 +277,33 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     if(IsValidEdict(entityIndex))
     {
         // Validate custom grenade
-        if(ZP_GetWeaponID(entityIndex) == gWeapon)
+        if(GetEntProp(entityIndex, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Validate sound
             if(!strncmp(sSample[30], "arm", 3, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 1, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Block sounds
+                return Plugin_Stop; 
             }
             else if(!strncmp(sSample[30], "det", 3, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Block sounds
+                return Plugin_Stop; 
             }
             else if(!strncmp(sSample[30], "exp", 3, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 3, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Block sounds
+                return Plugin_Stop; 
             }
-
-            // Block sounds
-            return Plugin_Stop; 
         }
     }
     

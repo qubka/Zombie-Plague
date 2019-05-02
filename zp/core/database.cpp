@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -68,7 +68,7 @@ enum ColumnType
     ColumnType_Costume,
     ColumnType_Vision,
     ColumnType_Time,
-    ColumnType_All,
+    ColumnType_All
 };
 /**
  * @endsection

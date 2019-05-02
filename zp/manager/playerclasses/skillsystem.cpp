@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -359,13 +359,13 @@ public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
         static float vVelocity[3];
         
         // Gets client velocity
-        ToolsGetClientVelocity(clientIndex, vVelocity);
+        ToolsGetVelocity(clientIndex, vVelocity);
         
         // If the client don't move, then check health
         if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
         {
             // If restoring is available, then do it
-            int iHealth = ToolsGetClientHealth(clientIndex); // Store for next usage
+            int iHealth = ToolsGetHealth(clientIndex); // Store for next usage
             if(iHealth < ClassGetHealth(gClientData[clientIndex].Class))
             {
                 // Initialize a new health amount
@@ -378,7 +378,7 @@ public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
                 }
                 
                 // Update health
-                ToolsSetClientHealth(clientIndex, iRegen);
+                ToolsSetHealth(clientIndex, iRegen);
 
                 // Forward event to modules
                 SoundsOnClientRegen(clientIndex);

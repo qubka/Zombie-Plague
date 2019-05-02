@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -42,7 +42,7 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about weapon.
+ * @section Information about the weapon.
  **/
 #define WEAPON_EXPLOSION_RATIO           6
 #define WEAPON_EXPLOSION_DAMAGE          300.0
@@ -82,15 +82,41 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnBullet(int clientIndex, int weaponIndex, int iCounter, float vBulletPosition[3])
+void Weapon_OnReload(int clientIndex, int weaponIndex, float vBulletPosition[3], int iCounter, float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, iCounter, vBulletPosition
+    #pragma unused clientIndex, weaponIndex, vBulletPosition, iCounter, flCurrentTime
+
+    // Sets default FOV for the client
+    SetEntProp(clientIndex, Prop_Send, "m_iFOV", GetEntProp(clientIndex, Prop_Send, "m_iDefaultFOV"));
+}
+
+void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, float vBulletPosition[3], int iCounter, float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, vBulletPosition, iCounter, flCurrentTime
+
+    // Validate animation delay
+    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
+    {
+        return;
+    }
+    
+    // Sets next attack time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 0.3);
+    
+    // Sets FOV for the client
+    int iDefaultFOV = GetEntProp(clientIndex, Prop_Send, "m_iDefaultFOV");
+    SetEntProp(clientIndex, Prop_Send, "m_iFOV", GetEntProp(clientIndex, Prop_Send, "m_iFOV") == iDefaultFOV ? 55 : iDefaultFOV);
+}
+
+void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3], int iCounter, float flCurrentTime)
+{
+    #pragma unused clientIndex, weaponIndex, vBulletPosition, iCounter, flCurrentTime
     
     // Validate counter
     if(iCounter > (ZP_GetWeaponClip(gWeapon) / WEAPON_EXPLOSION_RATIO))
     {
         // Create an explosion
-        UTIL_CreateExplosion(vBulletPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_EXPLOSION_DAMAGE, WEAPON_EXPLOSION_RADIUS, "prop_exploding_barrel", clientIndex, weaponIndex);
+        UTIL_CreateExplosion(vBulletPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_EXPLOSION_DAMAGE, WEAPON_EXPLOSION_RADIUS, "balrog7", clientIndex, weaponIndex);
 
         // Create an explosion effect
         UTIL_CreateParticle(_, vBulletPosition, _, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);
@@ -98,12 +124,12 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, int iCounter, float vBull
         // Play sound
         ZP_EmitAmbientSound(gSound, 1, vBulletPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue);
         
-        // Resets the shots count
+        // Sets the shots count
         iCounter = -1;
     }
     
     // Sets shots count
-    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, iCounter + 1);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth", iCounter + 1);
 }
 
 //**********************************************
@@ -116,10 +142,11 @@ void Weapon_OnBullet(int clientIndex, int weaponIndex, int iCounter, float vBull
     (                           \
         %1,                     \
         %2,                     \
+        %3,                     \
                                 \
-        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"), \
                                 \
-        %3                      \
+        GetGameTime()           \
     )    
 
 /**
@@ -135,9 +162,26 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth", 0);
     }
-}    
+}
+
+/**
+ * @brief Called on reload of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponReload(int clientIndex, int weaponIndex, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Call event
+        _call.Reload(clientIndex, weaponIndex, NULL_VECTOR);
+    }
+}
     
 /**
  * @brief Called on bullet of a weapon.
@@ -155,4 +199,35 @@ public void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int wea
         // Call event
         _call.Bullet(clientIndex, weaponIndex, vBulletPosition);
     }
+}
+
+/**
+ * @brief Called on each frame of a weapon holding.
+ *
+ * @param clientIndex       The client index.
+ * @param iButtons          The buttons buffer.
+ * @param iLastButtons      The last buttons buffer.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  Plugin_Continue to allow buttons. Anything else 
+ *                                (like Plugin_Changed) to change buttons.
+ **/
+public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Button secondary attack press
+        if(!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
+        {
+            // Call event
+            _call.SecondaryAttack(clientIndex, weaponIndex, NULL_VECTOR);
+            iButtons &= (~IN_ATTACK2); //! Bugfix
+            return Plugin_Changed;
+        }
+    }
+    
+    // Allow button
+    return Plugin_Continue;
 }

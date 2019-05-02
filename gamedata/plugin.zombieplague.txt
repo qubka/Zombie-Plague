@@ -13,13 +13,13 @@
             }
             "CBaseCombatWeapon::GetMaxClip1"
             {
-                "windows"   "350"
-                "linux"     "356"
+                "windows"   "351"
+                "linux"     "357"
             }
             "CBaseCombatWeapon::GetReserveAmmoMax"
             {
-                "windows"   "354"
-                "linux"     "360"
+                "windows"   "355"
+                "linux"     "361"
             }
             "CBasePlayer::RemoveAllItems"
             {
@@ -31,7 +31,7 @@
                 "windows"   "4"
                 "linux"     "4"
             }
-            "CParticleSystemMgr::GetParticleSystemCount" // Str: "PrecacheStandardParticleSystems()"
+            "CParticleSystemDictionary::Count" // Str: "PrecacheStandardParticleSystems()"
             {
                 "windows"   "38"
                 "linux"     "38"
@@ -125,41 +125,74 @@
             "CBaseAnimating::LookupPoseParameter" // Str: "Call to NULL CStudioHdr::GroupStudioHdr()\n" == "CStudioHdr::GroupStudioHdr" -> "CStudioHdr::pPoseParameter" -> "CStudioHdr::LookupPoseParameter"
             {
                 "library"   "server"
-                "windows"	"\x55\x8B\xEC\x57\x8B\x7D\x08\x85\xFF\x75\x2A\x33\xC0\x5F\x5D\xC2\x08\x00"
+                "windows"   "\x55\x8B\xEC\x57\x8B\x7D\x08\x85\xFF\x75\x2A\x33\xC0\x5F\x5D\xC2\x08\x00"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x31\xDB\x83\xEC\x1C\x8B\x75\x0C\x8B\x7D\x10"
             }
             "CBaseAnimating::LookupSequence" // Str: "Discarding missing sequence %s on load.\n"
             {
                 "library"   "server"
-                "windows"	"\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\xB7\xC0\x04\x00\x00\x85\xF6\x74\x2A\x83\x3E\x00\x74\x2A\x8B\xCE"
+                "windows"   "\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\xB7\xC0\x04\x00\x00\x85\xF6\x74\x2A\x83\x3E\x00\x74\x2A\x8B\xCE"
                 "linux"     "\x55\x89\xE5\x83\xEC\x48\xA1\x2A\x2A\x2A\x2A\x89\x75\xF8\x89\x7D\xFC\x8B\x75\x08"
+            }
+            "CBaseAnimating::ResetSequence" // Str: "ResetSequence : %s: %s -> %s\n"
+            {
+                "library"   "server"
+                "windows"   "\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x08\x53\x56\x8B\xD9"
+                "linux"     "\x55\x89\xE5\x83\xEC\x28\xA1\x2A\x2A\x2A\x2A\x89\x5D\xF4\x89\x75\xF8\x8B\x5D\x08\x89\x7D\xFC\x8B\x75\x0C\xC7\x04\x24\x2A\x2A\x2A\x2A\xFF\x50\x40"
+            }
+            "CBaseAnimating::SequenceDuration" // Str: "CBaseAnimating::SequenceDuration( %d )"
+            {
+                "library"   "server"
+                "windows"   "\x55\x8B\xEC\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6\x75\x2A\x8B\x47\x60"
+                "linux"     "\x55\x89\xE5\x83\xEC\x28\x89\x5D\xF4\x8B\x5D\x0C\x89\x75\xF8\x8B\x75\x10\x89\x7D\xFC\x8B\x7D\x08\x85\xDB"
+            }
+            "CBasePlayer::ValidateLineOfSight" // Str: ""
+            {
+                "library"   "server"
+                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\xE8\x00\x00\x00\x56\x8B\x75\x08"
+                "linux"     "\x55\x89\xE5\x57\x56\x53\x81\xEC\x7C\x01\x00\x00\x8B\x5D\x0C\x8B\x75\x08"
+            }
+            "CBaseEntity::IsBSPModel" // Str: "Weapon_Knife.Stab"
+            {
+                "library"   "server"
+                "windows"   "\x53\x8B\xD9\x57\x8B\x83\xF4\x00\x00\x00"
+                "linux"     "\x55\x89\xE5\x83\xEC\x28\x89\x5D\xF4\x8B\x5D\x08\x89\x75\xF8\x89\x7D\xFC\x8B\x83\xFC\x00\x00\x00\x8D\xB3\xFC\x00\x00\x00"
+            }
+            "FX_FireBullets" // Str: "FireBullets @ %10f [ %s ]: inaccuracy=%f  spread=%f  max dispersion=%f  mode=%2i  vel=%10f  seed=%3i  %s\n"
+            {
+                "library"   "server"
+                "linux"     "\x55\x89\xE5\x57\x56\x53\x81\xEC\x9C\x02\x00\x00\x8B\x5D\x10"
             }
             
             /*___________________________________________________________________________________________*/
             
             /*
-             * Linux: Every custom particle precached during a map is not removed from precache table on the map end. 
-             *        Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
-             *        and the custom particles used on the next maps will not show right but erros will appear in their place.
+             * Info: Every custom particle precached during a map is not removed from precache table on the map end. 
+             *       Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
+             *       and the custom particles used on the next maps will not show right but erros will appear in their place.
              */
             "CParticleSystemDictionary::~CParticleSystemDictionary" // Str: "CParticleSystemMgr::InitAttributeTable has an out-of-date attribute list! (element %d not set up)\n" | "CParticleSystemMgr::InitAttributeTable" -> "CParticleSystemMgr::CParticleSystemMgr" -> "CParticleSystemMgr::~CParticleSystemMgr" 
             {
                 "library"   "server"
+                "windows"   "\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x33\xF6\x8B\x47\x58"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x7D\x08\x8B\x47\x58\x85\xC0"
             }
             "CParticleSystemDefinition::ParseChildren" // Str: "DmeParticleSystemDefinition" and "children" and "preventNameBasedLookup"
             {
                 "library"   "server"
+                "windows"   "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\xF9\x51"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x45\x0C\xC7\x44\x24\x04"
             }
             "SV_ActivateServer" // Str: "SV_ActivateServer"
             {
                 "library"   "engine"
+                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\x1D\x2A\x2A\x2A\x2A"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A"
             }
             "CNetworkStringTable::DeleteAllStrings" // Str: "___clientsideitemsplaceholder0___"
             {
                 "library"   "engine"
+                "windows"   "\x56\x8B\xF1\x57\x8B\x4E\x40"
                 "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x43\x40"
             }
             
@@ -169,7 +202,7 @@
             {
                 "library"   "server"
                 "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x40\x00\x00\x00"
-                "linux"     "\x55\x89\xE5\x53\x81\xEC\xE4\x04\x00\x00"
+                "linux"     "\x55\x89\xE5\x53\x81\xEC\x34\x05\x00\x00\x80\x3D\x2A\x2A\x2A\x2A\x00\x75\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xC7\x44\x24\x0C\x2A\x2A\x2A\x2A\xC7\x44\x24\x08\x7C\x00\x00\x00"
             }
             "ServerClassInit<DT_BasePlayer::ignored>" // Str: "DT_BasePlayer"
             {
@@ -204,6 +237,11 @@
                     "read"  "0"
                     "read"  "140"
                 }
+                "windows"
+                {
+                    "read"  "401"
+                    "read"  "0"
+                }
             }
             "s_NetworkStringTable"
             {
@@ -211,6 +249,10 @@
                 "linux"
                 {
                     "read"  "34"
+                }
+                "windows"
+                {
+                    "read"  "997"
                 }
                 "read"      "0"
             }

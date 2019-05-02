@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -140,11 +140,54 @@ public Action DeathOnCommandListened(int clientIndex, char[] commandMsg, int iAr
  **/
 public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-    // Sets whether an event broadcasting will be disabled
-    if(!dontBroadcast) 
+    // Gets all required event info
+    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+
+    // Validate client
+    if(!IsPlayerExist(clientIndex, false))
     {
-        // Disable broadcasting
-        hEvent.BroadcastDisabled = true;
+        return;
+    }
+
+    // Validate human
+    if(!gClientData[clientIndex].Zombie)
+    {
+        // Gets the weapon index from the client
+        int weaponIndex = EntRefToEntIndex(gClientData[clientIndex].LastKnife);
+        
+        // Validate weapon
+        if(weaponIndex != INVALID_ENT_REFERENCE) 
+        {
+            // Drop weapon
+            WeaponsDrop(clientIndex, weaponIndex);
+
+            // Reset weapon index, which used to store knife
+            gClientData[clientIndex].LastKnife = INVALID_ENT_REFERENCE;
+        }
+    }
+    
+    // Validate custom index
+    int iD = gClientData[clientIndex].LastID;
+    if(iD != -1)
+    {
+        // Gets death icon
+        static char sIcon[SMALL_LINE_LENGTH];
+        WeaponsGetIcon(iD, sIcon, sizeof(sIcon));
+        if(hasLength(sIcon)) /// Use default name
+        {
+            // Sets whether an event broadcasting will be disabled
+            if(!dontBroadcast) 
+            {
+                // Disable broadcasting
+                hEvent.BroadcastDisabled = true;
+            }
+            
+            // Create a fake death event
+            DeathCreateIcon(hEvent.GetInt("userid"), hEvent.GetInt("attacker"), sIcon, hEvent.GetBool("headshot"), hEvent.GetBool("penetrated"), hEvent.GetBool("revenge"), hEvent.GetBool("dominated"), hEvent.GetInt("assister"));
+        }
+        
+        // Reset weapon id, which used to kill
+        gClientData[clientIndex].LastID = -1;
     }
 }
 
@@ -184,10 +227,10 @@ void DeathOnClientDeath(int clientIndex, int attackerIndex = 0)
     gClientData[clientIndex].ResetTimers();
     
     // Resets some tools
-    ToolsSetClientDetecting(clientIndex, false);
-    ToolsSetClientFlashLight(clientIndex, false);
-    ToolsSetClientHud(clientIndex, true);
-    ToolsSetClientFov(clientIndex);
+    ToolsSetDetecting(clientIndex, false);
+    ToolsSetFlashLight(clientIndex, false);
+    ToolsSetHud(clientIndex, true);
+    ToolsSetFov(clientIndex);
     
     // Call forward
     gForwardData._OnClientDeath(clientIndex, attackerIndex);
@@ -260,7 +303,7 @@ bool DeathOnClientRespawn(int clientIndex, int attackerIndex = 0,  bool bTimer =
         // Increment money/exp/health
         LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex].Exp + iExp[BonusType_Kill]);
         AccountSetClientCash(attackerIndex, gClientData[attackerIndex].Money + iMoney[BonusType_Kill]);
-        ToolsSetClientHealth(attackerIndex, ToolsGetClientHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+        ToolsSetHealth(attackerIndex, ToolsGetHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
     }
         
     // Validate timer
@@ -329,3 +372,47 @@ public MRESReturn DeathDhookOnCommitSuicide(int clientIndex)
     DeathOnClientDeath(clientIndex);
 }
 #endif
+
+/*
+ * Stocks death API.
+ */
+
+/**
+ * @brief Create a death icon.
+ * 
+ * @param userID            The user id who victim.
+ * @param attackerID        The user id who killed.
+ * @param sIcon             The icon name.
+ * @param bHead             (Optional) States the additional headshot icon.
+ * @param bPenetrated       (Optional) Number of objects shot penetrated before killing target.
+ * @param bRevenge          (Optional) Killer get revenge on victim with this kill.
+ * @param bDominated        (Optional) Did killer dominate victim with this kill.
+ * @param assisterID        (Optional) The user id who assisted in the kill.
+ **/
+void DeathCreateIcon(int userID, int attackerID, char[] sIcon, bool bHead = false, bool bPenetrated = false, bool bRevenge = false, bool bDominated = false, int assisterID = 0)
+{
+    // Creates and send custom death icon
+    Event hEvent = CreateEvent("player_death");
+    if(hEvent != null)
+    {
+        // Sets event properties
+        hEvent.SetInt("userid", userID);
+        hEvent.SetInt("attacker", attackerID);
+        hEvent.SetInt("assister", assisterID);
+        hEvent.SetString("weapon", sIcon);
+        hEvent.SetBool("headshot", bHead);
+        hEvent.SetBool("penetrated", bPenetrated);
+        hEvent.SetBool("revenge", bRevenge);
+        hEvent.SetBool("dominated", bDominated);
+
+        // i = client index
+        for(int i = 1; i <= MaxClients; i++)
+        {
+            // Send fake event
+            if(IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
+        }
+        
+        // Close it
+        hEvent.Close();
+    }
+}

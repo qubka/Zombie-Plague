@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -251,6 +251,22 @@ void HitGroupsOnClientInit(int clientIndex)
 }
 
 /**
+ * @brief Called when a entity is created.
+ *
+ * @param entityIndex       The entity index.
+ * @param sClassname        The string with returned name.
+ **/
+void HitGroupsOnEntityCreated(int entityIndex, const char[] sClassname)
+{
+    // Validate entity
+    if(entityIndex > INVALID_ENT_REFERENCE && !strcmp(sClassname[6], "hurt", false))
+    {
+        // Hook entity callbacks
+        SDKHook(entityIndex, SDKHook_SpawnPost, HitGroupsOnHurtSpawn);
+    }
+}
+
+/**
  * Cvar hook callback (zp_game_custom_hitgroups)
  * @brief Hit groups module initialization.
  * 
@@ -300,7 +316,7 @@ public Action HitGroupsOnTraceAttack(int clientIndex, int &attackerIndex, int &i
     if(IsPlayerAlive(clientIndex) && IsPlayerExist(attackerIndex))
     {
         // Validate team
-        if(GetClientTeam(clientIndex) == GetClientTeam(attackerIndex))
+        if(ToolsGetTeam(clientIndex) == ToolsGetTeam(attackerIndex))
         {
             // Stop trace
             return Plugin_Handled;
@@ -342,15 +358,17 @@ public Action HitGroupsOnTraceAttack(int clientIndex, int &attackerIndex, int &i
  **/
 public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex, float damageForce[3], float damagePosition[3]/*, int damagecustom*/)
 {
+    // Initialize name char
+    static char sClassname[SMALL_LINE_LENGTH]; sClassname[0] = '\0';
+    
     // Validate inflicter
     if(IsValidEdict(inflictorIndex))
     {
         // Gets classname of the inflicter
-        static char sClassname[SMALL_LINE_LENGTH];
         GetEdictClassname(inflictorIndex, sClassname, sizeof(sClassname));
 
-        // If entity is a trigger, then allow damage (Map is damaging client)
-        if(StrContains(sClassname, "trigger", false) > -1)
+        // If entity is a trigger, then allow damage, because map is damaging client
+        if(!strncmp(sClassname, "trigger", 7, false))
         {
             // Allow damage
             return Plugin_Continue;
@@ -365,7 +383,7 @@ public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &in
     }
 
     // Validate damage
-    if(!HitGroupsOnCalculateDamage(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex))
+    if(!HitGroupsOnCalculateDamage(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex, sClassname))
     {
         // Block damage
         return Plugin_Handled;
@@ -374,6 +392,18 @@ public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &in
     // Allow damage
     return Plugin_Changed;
 }
+
+/**
+ * Hook: HurtSpawnPost
+ * @brief Entity is spawned.
+ *
+ * @param entityIndex       The entity index.
+ **/
+public void HitGroupsOnHurtSpawn(int entityIndex)
+{
+    // Reset the weapon id
+    WeaponsSetCustomID(entityIndex, INVALID_ENT_REFERENCE);
+}    
  
 /**
  * @brief Calculate the real damage and knockback amount.
@@ -386,9 +416,10 @@ public Action HitGroupsOnTakeDamage(int clientIndex, int &attackerIndex, int &in
  * @param flDamage          The amount of damage inflicted.
  * @param iBits             The type of damage inflicted.
  * @param weaponIndex       The weapon index or -1 for unspecified.
+ * @param sClassname        The classname string.
  * @return                  True to allow real damage or false to block real damage.
  **/
-bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex, char[] sClassname)
 {
     // Validate victim
     if(!IsPlayerAlive(clientIndex))
@@ -398,10 +429,10 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     }
     
     // Initialize variables
-    int iIndex = -1; bool bInfectProtect = true; float flDamageRatio = 1.0; float flArmorRatio = 0.5; float flBonusRatio = 0.5; float flKnockRatio = ClassGetKnockBack(gClientData[clientIndex].Class); 
+    bool bInfectProtect = true; bool bSelfDamage = (clientIndex == attackerIndex); float flDamageRatio = 1.0; float flArmorRatio = 0.5; float flBonusRatio = 0.5; float flKnockRatio = ClassGetKnockBack(gClientData[clientIndex].Class); 
 
     // Gets the hitgroup index
-    int iHitGroup = ToolsGetClientHitGroup(clientIndex);
+    int iHitGroup = ToolsGetHitGroup(clientIndex);
 
     // Validate bit
     if(!HitGroupsValidateBits(clientIndex, iBits, iHitGroup))
@@ -430,7 +461,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
             flKnockRatio *= HitGroupsGetKnockBack(iHitIndex);
 
             // Validate heavy
-            bool bHeavySuit = ToolsGetClientHeavySuit(clientIndex);
+            bool bHeavySuit = ToolsGetHeavySuit(clientIndex);
             if(bHeavySuit)
             {
                 // Add multiplier
@@ -448,6 +479,18 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     
     /*_________________________________________________________________________________________________________________________________________*/
     
+    // Validate point_hurt
+    if(!strcmp(sClassname[6], "hurt", false))
+    {
+        /// Restore attacker
+        attackerIndex = ToolsGetActivator(inflictorIndex);
+        if(clientIndex == attackerIndex)
+        {
+            // Block damage
+            return false;
+        }
+    }
+    
     // Call forward
     gForwardData._OnClientDamaged(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex);
 
@@ -459,12 +502,12 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     }
 
     /*_________________________________________________________________________________________________________________________________________*/
-    
+
     // Validate attacker
     if(IsPlayerExist(attackerIndex, false))
     {
         // Validate team
-        if(clientIndex != attackerIndex && GetClientTeam(clientIndex) == GetClientTeam(attackerIndex))
+        if(!bSelfDamage && ToolsGetTeam(clientIndex) == ToolsGetTeam(attackerIndex))
         {
             // Block damage
             return false;
@@ -477,11 +520,12 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
             flDamageRatio *= float(gClientData[attackerIndex].Level) * gCvarList[CVAR_LEVEL_DAMAGE_RATIO].FloatValue + 1.0;
         }
 
-        // Validate weapon
-        if(IsValidEdict(weaponIndex))
+        /// Validate entity which is inflict damage
+        int iDealer = IsValidEdict(weaponIndex) ? weaponIndex : HitGroupsValidateInfclictor(sClassname) ? inflictorIndex : INVALID_ENT_REFERENCE;
+        if(iDealer != INVALID_ENT_REFERENCE)
         {
             // Validate custom index
-            int iD = WeaponsGetCustomID(weaponIndex);
+            int iD = WeaponsGetCustomID(iDealer);
             if(iD != -1)
             {
                 // Add multipliers
@@ -489,7 +533,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
                 flKnockRatio  *= WeaponsGetKnockBack(iD);
                 
                 // Store the weapon id for an icon 
-                iIndex = iD;
+                gClientData[clientIndex].LastID = iD;
             }
         }
     }
@@ -499,25 +543,13 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
         attackerIndex = 0; 
     }
     
-    // Validate grenade
-    if(IsValidEdict(inflictorIndex) && WeaponsValidateProjectile(inflictorIndex))
-    {
-        // Validate custom index
-        int iD = WeaponsGetCustomID(inflictorIndex);
-        if(iD != -1)
-        {
-            // Store the weapon id for an icon 
-            iIndex = iD;
-        }
-    }
-    
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Apply total multiplier
     flDamage *= flDamageRatio;
     
     // Armor doesn't protect against fall or drown damage!
-    int iArmor = ToolsGetClientArmor(clientIndex); 
+    int iArmor = ToolsGetArmor(clientIndex); 
     if(iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsValidateArmor(clientIndex, iHitGroup))
     {
         // Calculate reduced amount
@@ -544,7 +576,7 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
 
         // Sets a new armor amount
         iArmor -= iHit;
-        ToolsSetClientArmor(clientIndex, iArmor);
+        ToolsSetArmor(clientIndex, iArmor);
     }
     
     /*_________________________________________________________________________________________________________________________________________*/
@@ -553,10 +585,10 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     int iDamage = RoundToNearest(flDamage);
     
     // Counts the applied damage
-    int iHealth = ToolsGetClientHealth(clientIndex) - iDamage;
+    int iHealth = ToolsGetHealth(clientIndex) - iDamage;
     
     // Validate attacker
-    if(attackerIndex > 0 && clientIndex != attackerIndex)
+    if(attackerIndex > 0 && !bSelfDamage)
     {
         // Give rewards for applied damage
         HitGroupsGiveMoney(attackerIndex, iDamage);
@@ -615,26 +647,10 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
     if(iHealth > 0)
     {
         // Sets applied damage
-        ToolsSetClientHealth(clientIndex, iHealth);
+        ToolsSetHealth(clientIndex, iHealth);
         
         // Block damage
         return false;
-    }
-    
-    // Validate attacker
-    if(attackerIndex > 0 && iIndex != -1)
-    {
-        // Gets death icon
-        static char sIcon[SMALL_LINE_LENGTH];
-        WeaponsGetIcon(iIndex, sIcon, sizeof(sIcon));
-        if(!hasLength(sIcon)) /// Use default name
-        {
-            WeaponsGetEntity(iIndex, sIcon, sizeof(sIcon));
-            strcopy(sIcon, sizeof(sIcon), sIcon[7]);
-        }
-        
-        // Create a fake death event
-        UTIL_CreateIcon(clientIndex, attackerIndex, sIcon, (iHitGroup == HITGROUP_HEAD));
     }
 
     // Allow damage
@@ -650,7 +666,6 @@ bool HitGroupsOnCalculateDamage(int clientIndex, int &attackerIndex, int &inflic
  **/
 void HitGroupsOnNativeInit(/*void*/) 
 {
-    CreateNative("ZP_TakeDamage",           API_TakeDamage);
     CreateNative("ZP_GetNumberHitGroup",    API_GetNumberHitGroup);
     CreateNative("ZP_GetHitGroupID",        API_GetHitGroupID);
     CreateNative("ZP_GetHitGroupNameID",    API_GetHitGroupNameID);
@@ -662,47 +677,6 @@ void HitGroupsOnNativeInit(/*void*/)
     CreateNative("ZP_GetHitGroupBonus",     API_GetHitGroupBonus);
     CreateNative("ZP_GetHitGroupHeavy",     API_GetHitGroupHeavy);
     CreateNative("ZP_IsHitGroupProtect",    API_IsHitGroupProtect);
-}
- 
-/**
- * @brief Applies fake damage to a player.
- *
- * @note native bool ZP_TakeDamage(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex);
- **/
-public int API_TakeDamage(Handle hPlugin, int iNumParams)
-{
-    // Gets data from native cells
-    int clientIndex = GetNativeCell(1);
-    int attackerIndex = GetNativeCell(2);
-    int inflictorIndex = GetNativeCell(3);
-    float flDamage = GetNativeCell(4);
-    int iBits = GetNativeCell(5);
-    int weaponIndex = GetNativeCell(6);
-
-    // Validate client
-    if(!IsPlayerExist(clientIndex))
-    {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the client index (%d)", clientIndex);
-        return -1;
-    }
-    
-    // Call fake hook
-    Action resultHandle = HitGroupsOnTakeDamage(clientIndex, attackerIndex, inflictorIndex, flDamage, iBits, weaponIndex, NULL_VECTOR, NULL_VECTOR);
-    
-    // Validate damage 
-    if(resultHandle == Plugin_Changed)
-    {
-        // If attacker/inflicter doens't exist, then make a self damage
-        if(!IsPlayerExist(attackerIndex, false)) attackerIndex = clientIndex;
-        if(!IsValidEdict(inflictorIndex)) inflictorIndex = clientIndex;
-
-        // Create the damage to kill
-        SDKHooks_TakeDamage(clientIndex, inflictorIndex, attackerIndex, flDamage);
-        return false;
-    }
-    
-    // Return on success
-    return true;
 }
  
 /**
@@ -1200,7 +1174,7 @@ bool HitGroupsValidateArmor(int clientIndex, int iHitGroup)
     {
         case HITGROUP_HEAD :
         {
-            bApplyArmor = ToolsGetClientHelmet(clientIndex);
+            bApplyArmor = ToolsGetHelmet(clientIndex);
         }
         
         case HITGROUP_GENERIC, HITGROUP_CHEST, HITGROUP_STOMACH, HITGROUP_LEFTARM, HITGROUP_RIGHTARM :
@@ -1211,6 +1185,29 @@ bool HitGroupsValidateArmor(int clientIndex, int iHitGroup)
     
     // Return on success
     return bApplyArmor;
+}
+
+/**
+ * @brief Returns true if the entity is a projectile, false if not.
+ *
+ * @param inflictorIndex    The inflictor index.
+ *
+ * @return                  True or false.    
+ **/
+bool HitGroupsValidateInfclictor(char[] sClassname)
+{
+    // Gets string length
+    int iLen = strlen(sClassname) - 11;
+    
+    // Validate length
+    if(iLen > 0)
+    {
+        // Validate grenade
+        return (!strncmp(sClassname[iLen], "_proj", 5, false));
+    }
+
+    // Return on unsuccess
+    return (!strcmp(sClassname[6], "hurt", false));
 }
 
 /** 
@@ -1252,7 +1249,7 @@ void HitGroupsApplyKnockBack(int clientIndex, int attackerIndex, float flKnockBa
     ScaleVector(vVelocity, flKnockBack);
 
     // Adds the given vector to the client current velocity
-    ToolsClientVelocity(clientIndex, vVelocity);
+    ToolsSetVelocity(clientIndex, vVelocity);
 }
 
 /**

@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -42,7 +42,7 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about weapon.
+ * @section Information about the weapon.
  **/
 #define WEAPON_FIRE_DAMAGE      200.0
 #define WEAPON_FIRE_RADIUS      50.0
@@ -141,18 +141,18 @@ void Weapon_OnShoot(int clientIndex, int weaponIndex, int iCounter, int iAmmo, f
         if(iAmmo < ZP_GetWeaponClip(gWeapon))
         {
             // Sets clip count
-            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, iAmmo + 1);
+            SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", iAmmo + 1);
          
             // Play sound
             ZP_EmitSoundToAll(gSound, 2, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
             
-            // Resets the shots counter
+            // Sets the shots counter
             iCounter = -1;
         }
     }
-    
+
     // Sets shots count
-    SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, iCounter + 1);
+    SetEntProp(weaponIndex, Prop_Data, "m_iHealth", iCounter + 1);
 }
 
 void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, int iAmmo, float flCurrentTime)
@@ -177,24 +177,27 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
     {
         return;
     }
-
+    
     // Validate water
     if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
     {
         return;
     }
 
-    // Substract ammo
-    iAmmo -= 1; SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, iAmmo); 
-
+    // Sets next idle time
+    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weaponIndex, ANIM_SHOOT_BSC1));
+    
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
     
     // Sets next attack time
+    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime);
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 
+    // Substract ammo
+    iAmmo -= 1; SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", iAmmo); 
+    
     // Sets shots count
     SetEntProp(clientIndex, Prop_Send, "m_iShotsFired", GetEntProp(clientIndex, Prop_Send, "m_iShotsFired") + 1);
  
@@ -222,7 +225,7 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
     }
 
     // Initialize variables
-    static float vVelocity[3]; static int iFlags; iFlags = GetEntityFlags(clientIndex);
+    static float vVelocity[3]; int iFlags = GetEntityFlags(clientIndex);
 
     // Gets client velocity
     GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
@@ -245,13 +248,19 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, int iCounter, in
         ZP_CreateWeaponKickBack(clientIndex, 10.75, 10.75, 0.175, 0.0375, 10.75, 10.75, 8);
     }
     
-    // Gets weapon muzzleflesh
-    static char sMuzzle[SMALL_LINE_LENGTH];
-    ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
+    // Initialize name char
+    static char sName[NORMAL_LINE_LENGTH];
     
-    // Create a muzzleflesh / True for getting the custom viewmodel index
-    TE_DispatchEffect(ZP_GetClientViewModel(clientIndex, true), sMuzzle, "ParticleEffect", _, _, _, 1);
-    TE_SendToClient(clientIndex);
+    // Gets the viewmodel index
+    int viewIndex = ZP_GetClientViewModel(clientIndex, true);
+    
+    // Create a muzzle
+    ZP_GetWeaponModelMuzzle(gWeapon, sName, sizeof(sName));
+    UTIL_CreateParticle(viewIndex, _, _, "1", sName, 0.1);
+    
+    // Create a shell
+    ZP_GetWeaponModelShell(gWeapon, sName, sizeof(sName));
+    UTIL_CreateParticle(viewIndex, _, _, "2", sName, 0.1);
 }
 
 void Weapon_OnCreateFire(int clientIndex, int weaponIndex, float vPosition[3])
@@ -266,7 +275,7 @@ void Weapon_OnCreateFire(int clientIndex, int weaponIndex, float vPosition[3])
 
     // Gets client velocity
     GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
-
+    
     // Create a rocket entity
     int entityIndex = UTIL_CreateProjectile(vPosition, vAngle);
 
@@ -326,9 +335,9 @@ void Weapon_OnCreateFire(int clientIndex, int weaponIndex, float vPosition[3])
         %1,                     \
         %2,                     \
                                 \
-        GetEntProp(%2, Prop_Data, "m_iHealth"/**/), \
+        GetEntProp(%2, Prop_Data, "m_iHealth"), \
                                 \
-        GetEntProp(%2, Prop_Data, "m_iMaxHealth"/**/), \
+        GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
                                 \
         GetGameTime()           \
     )    
@@ -346,8 +355,8 @@ public void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
     if(weaponID == gWeapon)
     {
         // Reset variables
-        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth"/**/, 0);
-        SetEntProp(weaponIndex, Prop_Data, "m_iHealth"/**/, 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iMaxHealth", 0);
+        SetEntProp(weaponIndex, Prop_Data, "m_iHealth", 0);
     }
 }
 
@@ -446,7 +455,7 @@ public Action FireTouchHook(int entityIndex, int targetIndex)
         GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
         
         // Create an explosion
-        UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_FIRE_DAMAGE, WEAPON_FIRE_RADIUS, "prop_exploding_barrel", throwerIndex, entityIndex);
+        UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_FIRE_DAMAGE, WEAPON_FIRE_RADIUS, "balrog11", throwerIndex, entityIndex);
 
         // Create an explosion effect
         UTIL_CreateParticle(_, vPosition, _, _, "projectile_fireball_crit_red", WEAPON_FIRE_TIME);
@@ -481,10 +490,18 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     if(IsValidEdict(entityIndex))
     {
         // Validate custom grenade
-        if(ZP_GetWeaponID(entityIndex) == gWeapon)
+        if(GetEntProp(entityIndex, Prop_Data, "m_iHammerID") == gWeapon)
         {
-            // Block sounds
-            return Plugin_Stop; 
+            // Gets entity classname
+            static char sClassname[SMALL_LINE_LENGTH];
+            GetEdictClassname(entityIndex, sClassname, sizeof(sClassname));
+            
+            // Validate hegrenade projectile
+            if(!strncmp(sClassname, "he", 2, false))
+            {
+                // Block sounds
+                return Plugin_Stop; 
+            }
         }
     }
     

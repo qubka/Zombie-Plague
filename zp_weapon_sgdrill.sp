@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -42,11 +42,11 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about weapon.
+ * @section Information about the weapon.
  **/
 #define WEAPON_STAB_DAMAGE      500.0
+#define WEAPON_STAB_RADIUS      50.0
 #define WEAPON_STAB_DISTANCE    80.0
-#define WEAPON_STAB_TIME        1.2
 /**
  * @endsection
  **/
@@ -121,14 +121,6 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(int clientIndex, int weaponIndex, float flCurrentTime)
-{
-    #pragma unused clientIndex, weaponIndex, flCurrentTime
-
-    // Sets draw animation
-    ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW); 
-}
-
 void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, float flCurrentTime)
 {
     #pragma unused clientIndex, weaponIndex, flCurrentTime
@@ -139,19 +131,20 @@ void Weapon_OnSecondaryAttack(int clientIndex, int weaponIndex, float flCurrentT
         return;
     }
 
+    // Sets attack animation
+    ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_STAB1, ANIM_STAB2});
+    
     // Adds the delay to the game tick
-    flCurrentTime += WEAPON_STAB_TIME;
+    flCurrentTime += ZP_GetSequenceDuration(weaponIndex, ANIM_STAB1);
     
     // Sets next attack time
+    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime);
     SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 
     // Play sound
     ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_WEAPON, hSoundLevel.IntValue);
-    
-    // Sets attack animation
-    ZP_SetWeaponAnimationPair(clientIndex, weaponIndex, { ANIM_STAB1, ANIM_STAB2});
 
     // Create timer for stab
     delete Task_Stab[clientIndex];
@@ -163,59 +156,71 @@ void Weapon_OnSlash(int clientIndex, int weaponIndex)
     #pragma unused clientIndex, weaponIndex
 
     // Initialize variables
-    static float vPosition[3]; static float vEndPosition[3];  static float vPlaneNormal[3];
+    static float vPosition[3]; static float vEndPosition[3];
 
     // Gets weapon position
     ZP_GetPlayerGunPosition(clientIndex, 0.0, 0.0, 10.0, vPosition);
     ZP_GetPlayerGunPosition(clientIndex, WEAPON_STAB_DISTANCE, 0.0, 10.0, vEndPosition);
 
     // Create the end-point trace
-    TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TraceFilter, clientIndex);
+    Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, clientIndex);
 
+    // Initialize some variables
+    int victimIndex;
+    
     // Validate collisions
-    if(TR_GetFraction() >= 1.0)
+    if(!TR_DidHit(hTrace))
     {
-        // Initialize the hull intersection
+        // Initialize the hull box
         static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
         static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
-        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, TraceFilter, clientIndex);
+        hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, filter, clientIndex);
+        
+        // Validate collisions
+        if(TR_DidHit(hTrace))
+        {
+            // Gets victim index
+            victimIndex = TR_GetEntityIndex(hTrace);
+
+            // Is hit world ?
+            if(victimIndex < 1 || ZP_IsBSPModel(victimIndex))
+            {
+                UTIL_FindHullIntersection(hTrace, vPosition, vMins, vMaxs, clientIndex);
+            }
+        }
     }
     
     // Validate collisions
-    if(TR_GetFraction() < 1.0)
+    if(TR_DidHit(hTrace))
     {
         // Gets victim index
-        int victimIndex = TR_GetEntityIndex();
+        victimIndex = TR_GetEntityIndex(hTrace);
 
-        // Validate victim
-        if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
-        {    
-            // Create the damage for a victim
-            if(!ZP_TakeDamage(victimIndex, clientIndex, clientIndex, WEAPON_STAB_DAMAGE, DMG_SLASH))
-            {
-                // Create a custom death event
-                UTIL_CreateIcon(victimIndex, clientIndex, "radarjammer", true);
-            }
-
-            // Gets center position
-            GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition); vPosition[2] += 40.0;
-            
-            // Create a blood effect
-            UTIL_CreateParticle(victimIndex, vPosition, _, _, "blood", 0.3);
+        // Returns the collision position of a trace result
+        TR_GetEndPosition(vEndPosition, hTrace);
+        
+        // Is hit world ?
+        if(victimIndex < 1 || ZP_IsBSPModel(victimIndex))
+        {
+            // Returns the collision plane
+            static float vAngle[3];
+            TR_GetPlaneNormal(hTrace, vAngle); 
+    
+            // Create a sparks effect
+            TE_SetupSparks(vEndPosition, vAngle, 50, 2);
+            TE_SendToAll();
         }
         else
         {
-            // Returns the collision position/angle of a trace result
-            TR_GetEndPosition(vEndPosition);
-            TR_GetPlaneNormal(null, vPlaneNormal); 
-    
-            // Create a sparks effect
-            TE_SetupSparks(vEndPosition, vPlaneNormal, 50, 2);
-            TE_SendToAllInRange(vEndPosition, RangeType_Visibility);
+            // Create the damage for victims
+            UTIL_CreateDamage(_, vEndPosition, clientIndex, WEAPON_STAB_DAMAGE, WEAPON_STAB_RADIUS, gWeapon)
         }
     }
+    
+    // Close trace 
+    delete hTrace;
 }
 
 /**
@@ -255,23 +260,6 @@ public Action Weapon_OnStab(Handle hTimer, int userID)
         %2,                     \
         GetGameTime()           \
     )    
-
-/**
- * @brief Called on deploy of a weapon.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- * @param weaponID          The weapon id.
- **/
-public void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID) 
-{
-    // Validate custom weapon
-    if(weaponID == gWeapon)
-    {
-        // Call event
-        _call.Deploy(clientIndex, weaponIndex);
-    }
-}
 
 /**
  * @brief Called on holster of a weapon.
@@ -319,18 +307,4 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
     
     // Allow button
     return Plugin_Continue;
-}
-
-/**
- * @brief Trace filter.
- *  
- * @param entityIndex       The entity index.
- * @param contentsMask      The contents mask.
- * @param filterIndex       The filter index.
- *
- * @return                  True or false.
- **/
-public bool TraceFilter(int entityIndex, int contentsMask, int filterIndex)
-{
-    return (entityIndex != filterIndex);
 }

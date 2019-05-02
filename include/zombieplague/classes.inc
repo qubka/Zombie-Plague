@@ -11,11 +11,11 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this program.  If not, see <http://www.gnu.org/licenses/>.
+ * this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * As a special exception, AlliedModders LLC gives you permission to link the
  * code of this program (as well as its derivative works) to "Half-Life 2," the
@@ -45,6 +45,26 @@ enum /*BonusType*/
     BonusType_Win,                /** Win bonus */ 
     BonusType_Lose,               /** Lose bonus */    
     BonusType_Draw                /** Draw bonus */ 
+};
+/**
+ * @endsection
+ **/
+ 
+/**
+ * @section Number of valid animations.
+ **/ 
+enum AnimType
+{
+    AnimType_Invalid = -1,        /** Used as return value when an event doens't exist. */
+    
+    AnimType_FirePrimary,
+    AnimType_FireSecondary,
+    AnimType_ThrowGrenade,
+    AnimType_Jump,
+    AnimType_Reload,
+    AnimType_ReloadStart,
+    AnimType_ReloadLoop,
+    AnimType_ReloadEnd
 };
 /**
  * @endsection
@@ -660,4 +680,22 @@ stock bool ZP_IsPlayerType(int clientIndex, char[] sType)
     
     // Return on success
     return (!strcmp(sClassType, sType, false));
+}
+
+/**
+ * @brief Sets the player animating event.
+ *
+ * @param clientIndex       The client index.
+ * @param animType          The event type.
+ * @param iData             The activity index.
+ *
+ * @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/shared/ai_activity.h
+ **/
+stock void ZP_SetPlayerAnimation(int clientIndex, AnimType animType, int iData = 0)
+{
+    TE_Start("PlayerAnimEvent");
+    TE_WriteNum("m_hPlayer", EntIndexToEntRef(clientIndex) & 0x7FFF);
+    TE_WriteNum("m_iEvent", view_as<int>(animType));
+    TE_WriteNum("m_nData", iData);
+    TE_SendToAll();
 }

@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -394,7 +394,7 @@ bool PlayerSoundsOnClientShoot(int clientIndex, int iD)
 public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags)
 {
     // Gets real player index from event key 
-    int clientIndex = (IsValidEdict(entityIndex) && WeaponsValidateKnife(entityIndex)) ? WeaponsGetOwner(entityIndex) : entityIndex;
+    int clientIndex = (IsValidEdict(entityIndex) && WeaponsValidateMelee(entityIndex)) ? WeaponsGetOwner(entityIndex) : entityIndex;
 
     // Validate client
     if(IsPlayerExist(clientIndex))

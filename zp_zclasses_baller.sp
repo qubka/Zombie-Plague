@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -42,7 +42,7 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about zombie class.
+ * @section Information about the zombie class.
  **/
 #define ZOMBIE_CLASS_SKILL_COLOR_F          {186, 85, 211, 75}
 #define ZOMBIE_CLASS_SKILL_DURATION_F       2.3
@@ -246,44 +246,29 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Initialize vectors
-        static float vEntPosition[3]; static float vVictimPosition[3];
-
         // Gets entity position
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vEntPosition);
+        static float vPosition[3];
+        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
 
         // Create an explosion effect
-        UTIL_CreateParticle(_, vEntPosition, _, _, "Explosions_MA_Dustup_2", ZOMBIE_CLASS_SKILL_EXP_TIME);
-
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 5, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        UTIL_CreateParticle(_, vPosition, _, _, "Explosions_MA_Dustup_2", ZOMBIE_CLASS_SKILL_EXP_TIME);
         
-        // Gets blast owner
-        int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+        // Create the damage for victims
+        UTIL_CreateDamage(_, vPosition, GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower"), ZOMBIE_CLASS_SKILL_EXP_DAMAGE, ZOMBIE_CLASS_SKILL_EXP_RADIUS, DMG_SHOCK);
         
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vEntPosition, ZOMBIE_CLASS_SKILL_EXP_RADIUS)) != INVALID_ENT_REFERENCE)
+        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_EXP_RADIUS)) != INVALID_ENT_REFERENCE)
         {
             // Skip zombies
             if(ZP_IsPlayerZombie(i))
             {
                 continue;
             }
-            
-            // Gets victim origin
-            GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vVictimPosition);
 
             // Blaat the client
             SetEntityMoveType(i, MOVETYPE_NONE);
 
-            // Create the damage for a victim
-            if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_EXP_DAMAGE * (1.0 - (GetVectorDistance(vEntPosition, vVictimPosition) / ZOMBIE_CLASS_SKILL_EXP_RADIUS)), DMG_AIRBOAT))
-            {
-                // Create a custom death event
-                UTIL_CreateIcon(i, ownerIndex, "snowball", true);
-            }
-            
             // Create a fade
             UTIL_CreateFadeScreen(i, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);
             
@@ -294,6 +279,9 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
             delete Task_HumanBlasted[i];
             Task_HumanBlasted[i] = CreateTimer(ZOMBIE_CLASS_SKILL_DURATION, ClientRemoveBlastEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);    
         }
+        
+        // Play sound
+        ZP_EmitSoundToAll(gSound, 5, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
         // Remove entity from the world
         AcceptEntityInput(entityIndex, "Kill");

@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -609,7 +609,7 @@ void GameModesOnBegin(int modeIndex = -1, int targetIndex = INVALID_ENT_REFERENC
     {
         // Make zombies
         ApplyOnClientUpdate(clientIndex[i], _, sBuffer);
-        ToolsSetClientHealth(clientIndex[i], ToolsGetClientHealth(clientIndex[i]) + (iAlive * ModesGetHealth(gServerData.RoundMode))); /// Add health
+        ToolsSetHealth(clientIndex[i], ToolsGetHealth(clientIndex[i]) + (iAlive * ModesGetHealth(gServerData.RoundMode))); /// Add health
     }
     
     /*_________________________________________________________________________________________________________________________________________*/
@@ -3137,7 +3137,7 @@ void ModesBalanceTeams(/*void*/)
         if(IsPlayerExist(i, false))
         {
             // Validate team
-            if(GetClientTeam(i) <= TEAM_SPECTATOR)
+            if(ToolsGetTeam(i) <= TEAM_SPECTATOR)
             {
                 continue;
             }
@@ -3206,7 +3206,7 @@ void ModesReward(int rZombie, int rHuman, OverlayType nOverlay)
         if(IsPlayerExist(i, false))
         {
             // Validate team
-            if(GetClientTeam(i) <= TEAM_SPECTATOR)
+            if(ToolsGetTeam(i) <= TEAM_SPECTATOR)
             {
                 continue;
             }
@@ -3319,8 +3319,7 @@ void ModesMenu(int clientIndex, int targetIndex = INVALID_ENT_REFERENCE)
     }
     
     // Show target option
-    AnyToStream(sInfo, -1);
-    hMenu.AddItem(sInfo, sBuffer);
+    hMenu.AddItem("-1", sBuffer);
     
     // Initialize forward
     Action resultHandle;
@@ -3347,8 +3346,7 @@ void ModesMenu(int clientIndex, int targetIndex = INVALID_ENT_REFERENCE)
         FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (iAlive < ModesGetMinPlayers(i)) ? sOnline : "");
 
         // Show option
-        ///FormatEx(sInfo, sizeof(sInfo), "%d %d", i, targetIndex);
-        AnyToStream(sInfo, i, targetIndex);
+        FormatEx(sInfo, sizeof(sInfo), "%d %d", i, targetIndex);
         hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || iAlive < ModesGetMinPlayers(i)) ? false : true);
     }
     
@@ -3421,13 +3419,12 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             // Gets menu info
             static char sBuffer[SMALL_LINE_LENGTH];
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-            static int iD[2]; StreamToAny(sBuffer, iD);
-            ///static char sInfo[2][SMALL_LINE_LENGTH];
-            ///ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-            ///int iD = StringToInt(sInfo[0]); int targetIndex = StringToInt(sInfo[1]);
+            static char sInfo[2][SMALL_LINE_LENGTH];
+            ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            int iD = StringToInt(sInfo[0]); int targetIndex = StringToInt(sInfo[1]);
             
             // Validalite list option
-            if(iD[0] == -1)
+            if(iD == -1)
             {
                 // Creates a option menu
                 ModesOptionMenu(clientIndex);
@@ -3436,13 +3433,13 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
 
             // Call forward
             Action resultHandle;
-            gForwardData._OnClientValidateMode(clientIndex, iD[0], resultHandle);
+            gForwardData._OnClientValidateMode(clientIndex, iD, resultHandle);
             
             // Validate handle
             if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
             {
                 // Validate target
-                if(iD[1] != -1 && !IsPlayerExist(iD[1]))
+                if(targetIndex != INVALID_ENT_REFERENCE && !IsPlayerExist(targetIndex))
                 {
                     // Opens mode menu back
                     ModesMenu(clientIndex);
@@ -3456,10 +3453,10 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
                 }
                 
                 // Start the game mode
-                GameModesOnBegin(iD[0], iD[1]);
+                GameModesOnBegin(iD, targetIndex);
                 
                 // Gets mode name
-                ModesGetName(iD[0], sBuffer, sizeof(sBuffer));
+                ModesGetName(iD, sBuffer, sizeof(sBuffer));
                 
                 // Log action to game events
                 LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_GameModes, "Command", "Admin \"%N\" started a gamemode: \"%s\"", clientIndex, sBuffer);

@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -118,15 +118,15 @@ public void ZP_OnEngineExecute(/*void*/)
  * @brief Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Validate access
         if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
@@ -143,12 +143,12 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  * @brief Called after select an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, gWeapon);
@@ -174,7 +174,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
         if(IsValidEdict(inflictorIndex))
         {
             // Validate custom grenade
-            if(ZP_GetWeaponID(inflictorIndex) == gWeapon)
+            if(GetEntProp(inflictorIndex, Prop_Data, "m_iHammerID") == gWeapon)
             {
                 // Reset explosion damage
                 flDamage *= ZP_IsPlayerHuman(clientIndex) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
@@ -209,7 +209,7 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
     if(IsValidEdict(grenadeIndex))
     {
         // Validate custom grenade
-        if(ZP_GetWeaponID(grenadeIndex) == gWeapon)
+        if(GetEntProp(grenadeIndex, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Find any players in the radius
             int i; int it = 1; /// iterator
@@ -233,13 +233,9 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
                 // Create a shake
                 UTIL_CreateShakeScreen(i, GRENADE_HOLY_SHAKE_AMP, GRENADE_HOLY_SHAKE_FREQUENCY, GRENADE_HOLY_SHAKE_DURATION);
             }
-            
-            // Gets weapon muzzleflesh
-            static char sMuzzle[SMALL_LINE_LENGTH];
-            ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
-            
+
             // Create an explosion effect
-            UTIL_CreateParticle(_, vEntPosition, _, _, sMuzzle, GRENADE_HOLY_EXP_TIME);
+            UTIL_CreateParticle(_, vEntPosition, _, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
         }
     }
 }
@@ -263,22 +259,25 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     if(IsValidEdict(entityIndex))
     {
         // Validate custom grenade
-        if(ZP_GetWeaponID(entityIndex) == gWeapon)
+        if(GetEntProp(entityIndex, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Validate sound
             if(!strncmp(sSample[23], "bounce", 6, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Block sounds
+                return Plugin_Stop; 
             }
             else if(!strncmp(sSample[20], "explode", 7, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 1, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Block sounds
+                return Plugin_Stop; 
             }
-
-            // Block sounds
-            return Plugin_Stop; 
         }
     }
     

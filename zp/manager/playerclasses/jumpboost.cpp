@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -130,7 +130,7 @@ public void JumpBoostOnClientEntChanged(int clientIndex)
     if(GetEntityMoveType(clientIndex) != MOVETYPE_LADDER)
     {
         // Reset gravity
-        ToolsSetClientGravity(clientIndex, ClassGetGravity(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
+        ToolsSetGravity(clientIndex, ClassGetGravity(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
     }
 }
 
@@ -168,7 +168,7 @@ public void JumpBoostOnClientJumpPost(int userID)
         static float vVelocity[3];
         
         // Gets client velocity
-        ToolsGetClientVelocity(clientIndex, vVelocity);
+        ToolsGetVelocity(clientIndex, vVelocity);
         
         // Only apply horizontal multiplier if it not a bhop
         if(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0)) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
@@ -182,7 +182,7 @@ public void JumpBoostOnClientJumpPost(int userID)
         vVelocity[2] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
 
         // Sets new velocity
-        ToolsClientVelocity(clientIndex, vVelocity, true, false);
+        ToolsSetVelocity(clientIndex, vVelocity, true, false);
     }
 }
 
@@ -248,7 +248,7 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     static float vAngle[3]; static float vPosition[3]; static float vVelocity[3];
     
     // Gets client location and view direction
-    ToolsGetClientAbsOrigin(clientIndex, vPosition);
+    ToolsGetAbsOrigin(clientIndex, vPosition);
     GetClientEyeAngles(clientIndex, vAngle);
     
     // Store zero angle

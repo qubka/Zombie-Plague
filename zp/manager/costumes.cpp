@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -1177,23 +1177,18 @@ void CostumesCreateEntity(int clientIndex)
         CostumesGetModel(gClientData[clientIndex].Costume, sModel, sizeof(sModel));
         
         // Creates an attach addon entity 
-        int entityIndex = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, sModel);
+        int entityIndex = UTIL_CreateDynamic("costume", NULL_VECTOR, NULL_VECTOR, sModel);
         
         // If entity isn't valid, then skip
         if(entityIndex != INVALID_ENT_REFERENCE)
         {
-            // Sets bodygroup of the entity
-            SetVariantInt(CostumesGetBody(gClientData[clientIndex].Costume));
-            AcceptEntityInput(entityIndex, "SetBodyGroup");
-            
-            // Sets skin of the entity
-            SetVariantInt(CostumesGetSkin(gClientData[clientIndex].Costume));
-            AcceptEntityInput(entityIndex, "ModelSkin");
-    
+            // Sets bodygroup/skin for the entity
+            ToolsSetTextures(entityIndex, CostumesGetBody(gClientData[clientIndex].Costume), CostumesGetSkin(gClientData[clientIndex].Costume)); 
+
             // Sets parent to the entity
             SetVariantString("!activator");
             AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
-            ToolsSetEntityOwner(entityIndex, clientIndex);
+            ToolsSetOwner(entityIndex, clientIndex);
 
             // Gets costume attachment
             static char sAttach[SMALL_LINE_LENGTH];
@@ -1212,8 +1207,8 @@ void CostumesCreateEntity(int clientIndex)
                 static float vPosition[3]; static float vAngle[3]; static float vEntOrigin[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
 
                 // Gets client position
-                ToolsGetClientAbsOrigin(clientIndex, vPosition); 
-                ToolsGetClientAbsAngles(clientIndex, vAngle);
+                ToolsGetAbsOrigin(clientIndex, vPosition); 
+                ToolsGetAbsAngles(clientIndex, vAngle);
                 
                 // Gets costume position
                 CostumesGetPosition(gClientData[clientIndex].Costume, vEntOrigin);
@@ -1258,7 +1253,7 @@ void CostumesCreateEntity(int clientIndex)
 void CostumesBoneMerge(int entityIndex)
 {
     // Gets current effects
-    int iEffects = ToolsGetEntityEffect(entityIndex); 
+    int iEffects = ToolsGetEffect(entityIndex); 
 
     // Sets merging
     iEffects &= ~EF_NODRAW;
@@ -1266,7 +1261,7 @@ void CostumesBoneMerge(int entityIndex)
     iEffects |= EF_BONEMERGE_FASTCULL;
 
     // Sets value on the entity
-    ToolsSetEntityEffect(entityIndex, iEffects); 
+    ToolsSetEffect(entityIndex, iEffects); 
 }
 
 /**

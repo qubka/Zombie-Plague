@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -143,7 +143,7 @@ enum ConfigStructure
 {
     Structure_List,               /** Config is structured as a simple list of strings. */
     Structure_ArrayList,          /** Config is structured as an array list of strings. */
-    Structure_Keyvalue,           /** Config is a keyvalue structure */
+    Structure_Keyvalue            /** Config is a keyvalue structure */
 };
 /**
  * @endsection
@@ -200,7 +200,7 @@ enum ConfigKvAction
     KvAction_Create,    /** Creates a key. */
     KvAction_KVDelete,  /** Delete a key. */
     KvAction_KVSet,     /** Modify setting of a key. */
-    KvAction_KVGet,     /** Get setting of a key. */
+    KvAction_KVGet      /** Get setting of a key. */
 };
 /**
  * @endsection

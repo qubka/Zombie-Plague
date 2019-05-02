@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -41,10 +41,10 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about zombie class.
+ * @section Information about the zombie class.
  **/
+//#define ZOMBIE_CLASS_EXP_LAST         // Can a last human be infected [uncomment-no // comment-yes]
 #define ZOMBIE_CLASS_EXP_RADIUS         200.0
-#define ZOMBIE_CLASS_EXP_LAST           false   // Can a last human be infected
 #define ZOMBIE_CLASS_EXP_DURATION       2.0
 /**
  * @endsection
@@ -88,7 +88,7 @@ public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
     if(ZP_GetClientClass(clientIndex) == gZombie)
     {
         // Gets client origin
-        static float vPosition[3];
+        static float vPosition[3]; 
         GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
         
         // Validate infection round
@@ -103,23 +103,26 @@ public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
                 {
                     continue;
                 }
+
+                // Validate visibility
+                if(!UTIL_CanSeeEachOther(clientIndex, i, vPosition))
+                {
+                    continue;
+                }
                 
                 // Change class to zombie
-                if(ZP_GetHumanAmount() > 1 || ZOMBIE_CLASS_EXP_LAST) ZP_ChangeClient(i, clientIndex, "zombie");
+                #if defined ZOMBIE_CLASS_EXP_LAST
+                ZP_ChangeClient(i, clientIndex, "zombie");
+                #else
+                if(ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, clientIndex, "zombie");
+                #endif
             }
         }
         
-        // Gets ragdoll index
-        int ragdollIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hRagdoll");
+        // Create an effect
+        UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
 
-        // If the ragdoll is invalid, then stop
-        if(ragdollIndex != INVALID_ENT_REFERENCE) 
-        {
-            // Create an effect
-            UTIL_CreateParticle(ragdollIndex, vPosition, _, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
-            
-            // Play sound
-            ZP_EmitSoundToAll(gSound, 1, ragdollIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
-        }
+        // Play sound
+        ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue); 
     }
 }

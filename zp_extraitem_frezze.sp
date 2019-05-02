@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -177,15 +177,15 @@ public void ZP_OnClientUpdated(int clientIndex, int attackerIndex)
  * @brief Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Validate access
         if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
@@ -202,12 +202,12 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  * @brief Called after select an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     { 
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, gWeapon);
@@ -256,7 +256,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
     if(IsValidEdict(grenadeIndex))
     {
         // Validate custom grenade
-        if(ZP_GetWeaponID(grenadeIndex) == gWeapon)
+        if(GetEntProp(grenadeIndex, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Find any players in the radius
             int i; int it = 1; /// iterator
@@ -283,7 +283,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
                 vVictimAngle[1] = GetRandomFloat(0.0, 360.0);
        
                 // Create a prop_dynamic_override entity
-                int iceIndex = UTIL_CreateDynamic(vVictimPosition, vVictimAngle, "models/player/custom_player/zombie/ice/ice.mdl", "idle");
+                int iceIndex = UTIL_CreateDynamic("ice", vVictimPosition, vVictimAngle, "models/player/custom_player/zombie/ice/ice.mdl", "idle");
 
                 // Validate entity
                 if(iceIndex != INVALID_ENT_REFERENCE)
@@ -295,17 +295,13 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
                     ZP_EmitSoundToAll(gSound, 1, iceIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
                 }
             }
-            
-            // Gets weapon muzzleflesh
-            static char sMuzzle[SMALL_LINE_LENGTH];
-            ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
-            
+
             // Create an explosion effect
-            UTIL_CreateParticle(_, vEntPosition, _, _, sMuzzle, GRENADE_FREEZE_EXP_TIME);
+            UTIL_CreateParticle(_, vEntPosition, _, _, "explosion_hegrenade_snow", GRENADE_FREEZE_EXP_TIME);
             
             // Create sparks splash effect
             TE_SetupSparks(vEntPosition, NULL_VECTOR, 5000, 1000);
-            TE_SendToAllInRange(vEntPosition, RangeType_Visibility);
+            TE_SendToAll();
             
             // Remove grenade
             AcceptEntityInput(grenadeIndex, "Kill");
@@ -382,22 +378,25 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
     if(IsValidEdict(entityIndex))
     {
         // Validate custom grenade
-        if(ZP_GetWeaponID(entityIndex) == gWeapon)
+        if(GetEntProp(entityIndex, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Validate sound
             if(!strncmp(sSample[31], "hit", 3, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, GetRandomInt(4, 6), entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Block sounds
+                return Plugin_Stop; 
             }
             else if(!strncmp(sSample[29], "emit", 4, false))
             {
                 // Play sound
-               ZP_EmitSoundToAll(gSound, 3, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                ZP_EmitSoundToAll(gSound, 3, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+               
+                // Block sounds
+                return Plugin_Stop; 
             }
-
-            // Block sounds
-            return Plugin_Stop; 
         }
     }
     

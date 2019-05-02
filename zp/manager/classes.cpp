@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -566,7 +566,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
     int attackerIndex = GetNativeCell(2);
 
     // Validate attacker
-    if(attackerIndex && !IsPlayerExist(attackerIndex, false))
+    if(attackerIndex > 0 && !IsPlayerExist(attackerIndex, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the attacker index (%d)", attackerIndex);
         return false;

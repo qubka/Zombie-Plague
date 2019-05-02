@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -42,12 +42,11 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about weapon.
+ * @section Information about the weapon.
  **/
 #define WEAPON_BEAM_LIFE                2.5
 #define WEAPON_BEAM_WIDTH               "3.0"
 #define WEAPON_BEAM_COLOR               "255 69 0"
-#define WEAPON_BEAM_MODEL               "materials/sprites/laserbeam.vmt"
 /**
  * @endsection
  **/
@@ -57,7 +56,7 @@ int gWeapon;
 #pragma unused gWeapon
 
 /**
- * @brief Called after a zombie core is loaded.
+    * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
@@ -66,7 +65,7 @@ public void ZP_OnEngineExecute(/*void*/)
     if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"sfsniper\" wasn't find");
 
     // Models
-    PrecacheModel(WEAPON_BEAM_MODEL, true);
+    PrecacheModel("materials/sprites/laserbeam.vmt", true);
 }
 
 //*********************************************************************
@@ -74,22 +73,32 @@ public void ZP_OnEngineExecute(/*void*/)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnBullet(int clientIndex, int weaponIndex, float vBulletPosition[3])
+/**
+ * @brief Called on bullet of a weapon.
+ *
+ * @param clientIndex       The client index.
+ * @param vBulletPosition   The position of a bullet hit.
+ * @param weaponIndex       The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int weaponIndex, int weaponID)
 {
-    #pragma unused clientIndex, weaponIndex, vBulletPosition
-
-    // Gets weapon position
-    static float vPosition[3];
-    ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vPosition);
-    
-    // Create a beam entity
-    int entityIndex = UTIL_CreateBeam(vPosition, vBulletPosition, _, _, WEAPON_BEAM_WIDTH, _, _, _, _, _, _, WEAPON_BEAM_MODEL, _, _, BEAM_STARTSPARKS | BEAM_ENDSPARKS, _, _, _, WEAPON_BEAM_COLOR, 0.0, WEAPON_BEAM_LIFE + 1.0, "sflaser");
-    
-    // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    // Validate custom weapon
+    if(weaponID == gWeapon)
     {
-        // Create effect hook
-        CreateTimer(0.1, BeamEffectHook, EntIndexToEntRef(entityIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        // Gets weapon position
+        static float vPosition[3];
+        ZP_GetPlayerGunPosition(clientIndex, 30.0, 10.0, -5.0, vPosition);
+        
+        // Create a beam entity
+        int entityIndex = UTIL_CreateBeam(vPosition, vBulletPosition, _, _, WEAPON_BEAM_WIDTH, _, _, _, _, _, _, "materials/sprites/laserbeam.vmt", _, _, BEAM_STARTSPARKS | BEAM_ENDSPARKS, _, _, _, WEAPON_BEAM_COLOR, 0.0, WEAPON_BEAM_LIFE + 1.0, "sflaser");
+        
+        // Validate entity
+        if(entityIndex != INVALID_ENT_REFERENCE)
+        {
+            // Create effect hook
+            CreateTimer(0.1, BeamEffectHook, EntIndexToEntRef(entityIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        }
     }
 }
 
@@ -133,35 +142,4 @@ public Action BeamEffectHook(Handle hTimer, int referenceIndex)
     
     // Return on success
     return Plugin_Continue;
-}
-
-//**********************************************
-//* Item (weapon) hooks.                       *
-//**********************************************
-
-#define _call.%0(%1,%2,%3)      \
-                                \
-    Weapon_On%0                 \
-    (                           \
-        %1,                     \
-        %2,                     \
-        %3                      \
-    )    
-
-/**
- * @brief Called on bullet of a weapon.
- *
- * @param clientIndex       The client index.
- * @param vBulletPosition   The position of a bullet hit.
- * @param weaponIndex       The weapon index.
- * @param weaponID          The weapon id.
- **/
-public void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int weaponIndex, int weaponID)
-{
-    // Validate custom weapon
-    if(weaponID == gWeapon)
-    {
-        // Call event
-        _call.Bullet(clientIndex, weaponIndex, vBulletPosition);
-    }
 }

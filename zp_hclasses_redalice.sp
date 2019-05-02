@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -41,7 +41,7 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about human class.
+ * @section Information about the human class.
  **/
 #define HUMAN_CLASS_SKILL_SPEED         1.2
 /**

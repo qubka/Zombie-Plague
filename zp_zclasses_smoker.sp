@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -42,10 +42,11 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about zombie class.
+ * @section Information about the zombie class.
  **/
 #define ZOMBIE_CLASS_SKILL_RADIUS       200.0
-#define ZOMBIE_CLASS_SKILL_DAMAGE       1.0  // 10 damage per sec
+#define ZOMBIE_CLASS_SKILL_DAMAGE       5.0
+#define ZOMBIE_CLASS_SKILL_DELAY        0.5
 /**
  * @endsection
  **/
@@ -96,14 +97,17 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         static float vPosition[3];
         GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
         
-        // Create an smoke effect
-        int particleIndex = UTIL_CreateParticle(clientIndex, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
+        // Create a smoke effect
+        int particleIndex = UTIL_CreateParticle(_, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
         
         // Validate entity
         if(particleIndex != INVALID_ENT_REFERENCE)
         {
+            // Sets parent for the entity
+            SetEntPropEnt(particleIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
+    
             // Create gas damage task
-            CreateTimer(0.1, ClientOnToxicGas, EntIndexToEntRef(particleIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+            CreateTimer(ZOMBIE_CLASS_SKILL_DELAY, ClientOnToxicGas, EntIndexToEntRef(particleIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         }
     }
     
@@ -125,30 +129,12 @@ public Action ClientOnToxicGas(Handle hTimer, int referenceIndex)
     // Validate entity
     if(entityIndex != INVALID_ENT_REFERENCE)
     {
-        // Gets owner index
-        int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
-
         // Gets entity position
         static float vPosition[3];
         GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
  
-        // Find any players in the radius
-        int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != INVALID_ENT_REFERENCE)
-        {
-            // Skip zombies
-            if(ZP_IsPlayerZombie(i))
-            {
-                continue;
-            }
-    
-            // Create the damage for a victim
-            if(!ZP_TakeDamage(i, ownerIndex, entityIndex, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS))
-            {
-                // Create a custom death event
-                UTIL_CreateIcon(i, ownerIndex, "ammobox_threepack", true);
-            }
-        }
+        // Create the damage for victims
+        UTIL_CreateDamage(_, vPosition, GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity"), ZOMBIE_CLASS_SKILL_DAMAGE, ZOMBIE_CLASS_SKILL_RADIUS, DMG_NERVEGAS);
 
         // Allow scream
         return Plugin_Continue;

@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -55,20 +55,6 @@ Handle Task_ZombieBurned[MAXPLAYERS+1] = null; float flSpeed[MAXPLAYERS+1]; int 
 // Item index
 int gItem; int gWeapon; int gDublicat;
 #pragma unused gItem, gWeapon, gDublicat
-
-/**
- * @brief Called after a library is added that the current plugin references optionally. 
- *        A library is either a plugin name or extension name, as exposed via its include file.
- **/
-public void OnLibraryAdded(const char[] sLibrary)
-{
-    // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
-    {
-        // Hook player events
-        HookEvent("player_death", EventPlayerDeath, EventHookMode_Pre);
-    }
-}
 
 /**
  * @brief Called after a zombie core is loaded.
@@ -113,36 +99,6 @@ public void OnClientDisconnect(int clientIndex)
 }
 
 /**
- * Event callback (player_death)
- * @brief Client has been killed.
- * 
- * @param gEventHook        The event handle.
- * @param gEventName        The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
- **/
-public Action EventPlayerDeath(Event hEvent, char[] sName, bool dontBroadcast) 
-{
-    // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
-    int attackerIndex = GetClientOfUserId(hEvent.GetInt("attacker"));
-    
-    // Reset variable
-    flSpeed[clientIndex] = 0.0;
-
-    // Delete timer
-    delete Task_ZombieBurned[clientIndex];
-    
-    // Gets the icon name
-    static char sIcon[SMALL_LINE_LENGTH]; /// Fix with inferno icon, because inflictor not have custom weapon id
-    hEvent.GetString("weapon", sIcon, sizeof(sIcon));
-    if(!strcmp(sIcon, "inferno", false) && clientIndex && attackerIndex)
-    {
-        // Create a custom death event
-        UTIL_CreateIcon(clientIndex, attackerIndex, "inferno");
-    }
-}
-
-/**
  * @brief Called when a client became a zombie/human.
  * 
  * @param clientIndex       The client index.
@@ -161,15 +117,15 @@ public void ZP_OnClientUpdated(int clientIndex, int attackerIndex)
  * @brief Called before show an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
+public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Validate access
         if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE || 
@@ -187,12 +143,12 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int extraitemIndex)
  * @brief Called after select an extraitem in the equipment menu.
  * 
  * @param clientIndex       The client index.
- * @param extraitemIndex    The item index.
+ * @param itemID            The item index.
  **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int extraitemIndex)
+public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
 {
     // Check the item index
-    if(extraitemIndex == gItem)
+    if(itemID == gItem)
     {
         // Give item and select it
         ZP_GiveClientWeapon(clientIndex, gWeapon);
@@ -264,7 +220,7 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
                 }
                 else return;
                 
-                // Resets the last grenade index
+                // Sets the last grenade index
                 iD[clientIndex] = -1;
                 
                 // Put the fire on

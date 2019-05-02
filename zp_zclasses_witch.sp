@@ -17,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -42,7 +42,7 @@ public Plugin myinfo =
 }
 
 /**
- * @section Information about zombie class.
+ * @section Information about the zombie class.
  **/
 #define ZOMBIE_CLASS_SKILL_SPEED        1500.0
 #define ZOMBIE_CLASS_SKILL_GRAVITY      0.01
@@ -55,6 +55,7 @@ public Plugin myinfo =
 
 // Decal index
 int decalSmoke;
+#pragma unused decalSmoke
 
 // Sound index
 int gSound; ConVar hSoundLevel;
@@ -114,7 +115,7 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
         ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a bat entity
-        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/bazooka/w_bazooka_projectile.mdl");
+        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
         // Validate entity
         if(entityIndex != INVALID_ENT_REFERENCE)
@@ -143,12 +144,12 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
             AcceptEntityInput(entityIndex, "DisableShadow"); /// Prevents the entity from receiving shadows
             
             // Create a prop_dynamic_override entity
-            int batIndex = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly");
+            int batIndex = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly", false);
 
             // Validate entity
             if(batIndex != INVALID_ENT_REFERENCE)
             {
-                // Sets parent/owner to the entity
+                // Sets parent to the entity
                 SetVariantString("!activator");
                 AcceptEntityInput(batIndex, "SetParent", entityIndex, batIndex);
                 
@@ -212,12 +213,12 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
             GetEntPropVector(targetIndex, Prop_Data, "m_angAbsRotation", vVictimAngle);
     
             // Create a prop_dynamic_override entity
-            int batIndex = UTIL_CreateDynamic(NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly2");
+            int batIndex = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly2", false);
 
             // Validate entity
             if(batIndex != INVALID_ENT_REFERENCE)
             {
-                // Sets parent/owner to the entity
+                // Sets parent to the entity
                 SetVariantString("!activator");
                 AcceptEntityInput(batIndex, "SetParent", targetIndex, batIndex);
                 SetEntPropEnt(batIndex, Prop_Data, "m_pParent", targetIndex); 
@@ -250,7 +251,7 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
             
             // Create effect
             TE_SetupSmoke(vEntPosition, decalSmoke, 130.0, 10);
-            TE_SendToAllInRange(vEntPosition, RangeType_Visibility);
+            TE_SendToAll();
         }
 
         // Remove entity from world
@@ -283,15 +284,15 @@ public Action BatAttachHook(Handle hTimer, int referenceIndex)
         if(IsPlayerExist(ownerIndex) && IsPlayerExist(targetIndex))
         {
             // Initialize vectors
-            static float vEntVelocity[3]; static float vEntPosition[3]; static float vTargetPosition[3];
+            static float vEntVelocity[3]; static float vEntPosition[3]; static float vVictimPosition[3];
 
             // Gets owner/target eye position
             GetClientEyePosition(ownerIndex, vEntPosition);
-            GetClientEyePosition(targetIndex, vTargetPosition);
+            GetClientEyePosition(targetIndex, vVictimPosition);
 
             // Calculate the velocity vector
-            SubtractVectors(vEntPosition, vTargetPosition, vEntVelocity);
-
+            MakeVectorFromPoints(vVictimPosition, vEntPosition, vEntVelocity);
+            
             // Block vertical scale
             vEntVelocity[2] = 0.0;
 

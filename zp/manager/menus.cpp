@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -1053,8 +1053,7 @@ void SubMenu(int clientIndex, int iD)
         }
 
         // Show option
-        ///FormatEx(sInfo, sizeof(sInfo), "%d %d", iD, i);
-        AnyToStream(sInfo, iD, i);
+        FormatEx(sInfo, sizeof(sInfo), "%d %d", iD, i);
         hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || bHide ? false : true));
     }
     
@@ -1121,16 +1120,15 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSl
             // Gets menu info
             static char sBuffer[SMALL_LINE_LENGTH];
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-            static int iD[2]; StreamToAny(sBuffer, iD);
-            ///static char sInfo[2][SMALL_LINE_LENGTH];
-            ///ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-            ///int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
+            static char sInfo[2][SMALL_LINE_LENGTH];
+            ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
 
             // Validate access
-            if(MenusValidateClass(clientIndex, iD[0], iD[1])) 
+            if(MenusValidateClass(clientIndex, iD, i)) 
             {
                 // Gets menu command
-                MenusGetCommand(iD[0], sBuffer, sizeof(sBuffer), iD[1]);
+                MenusGetCommand(iD, sBuffer, sizeof(sBuffer), i);
                 
                 // Validate command
                 if(hasLength(sBuffer))

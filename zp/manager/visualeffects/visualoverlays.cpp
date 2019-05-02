@@ -20,7 +20,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * ============================================================================
  **/
@@ -83,8 +83,8 @@ void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
             sOverlay[0] = '\0'; 
             
             // Disable ngv and remove ngv ownership
-            ToolsSetClientNightVision(clientIndex, false);
-            ToolsSetClientNightVision(clientIndex, false, true);
+            ToolsSetNightVision(clientIndex, false);
+            ToolsSetNightVision(clientIndex, false, true);
         }
   
         // Sets 'Human Win' overlay
@@ -115,8 +115,8 @@ void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
         case Overlay_Vision : 
         {
             // Create ngv ownership and enable ngv 
-            ToolsSetClientNightVision(clientIndex, true, true);
-            ToolsSetClientNightVision(clientIndex, ClassIsNvgs(gClientData[clientIndex].Class));
+            ToolsSetNightVision(clientIndex, true, true);
+            ToolsSetNightVision(clientIndex, ClassIsNvgs(gClientData[clientIndex].Class));
 
             // Gets overlay path
             ClassGetOverlay(gClientData[clientIndex].Class, sOverlay, sizeof(sOverlay)); 
@@ -141,5 +141,5 @@ void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
 void VOverlayOnClientNvgs(int clientIndex)
 {
     // Switch on/off nightvision 
-    VOverlayOnClientUpdate(clientIndex, ToolsGetClientNightVision(clientIndex, true) ? Overlay_Reset : Overlay_Vision);
+    VOverlayOnClientUpdate(clientIndex, ToolsGetNightVision(clientIndex, true) ? Overlay_Reset : Overlay_Vision);
 }

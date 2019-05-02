@@ -1234,15 +1234,21 @@
         "ru"            "Чтобы открыть сейф взорвите C4 в кол-ве {1} шт."
     }
     
+    "airdrop bag" // Hint (no color)
+    {
+        "en"            "To get weapons from the bag, use E button"
+        "ru"            "Чтобы достать оружие из сумки, используйте кнопку E"
+    }
+    
     "trigger on info" // Hint (no color)
     {
-        "en"            "Call bomber with a nuclear bomb"
+        "en"            "Call air bomber with nicbomb"
         "ru"            "Вызов бомбордировщика с ядерной бомбой"
     }
     
     "trigger off info" // Hint (no color)
     {
-        "en"            "Call helicopter with an airdro"
+        "en"            "Call helicopter with airdrop"
         "ru"            "Вызов вертолета с дропом"
     }
     
@@ -1394,8 +1400,8 @@
     
     "skull11" // Menu
     {
-        "en"            "Skull I"
-        "ru"            "Скулл I"
+        "en"            "Skull XI"
+        "ru"            "Скулл XI"
     }
     
     "gatling" // Menu
@@ -1614,6 +1620,12 @@
         "ru"            "M134 Обезьяна"
     }
     
+    "sfmg" // Menu
+    {
+        "en"            "SF-MG"
+        "ru"            "SF-MG"
+    }
+    
     "sgdrill" // Menu
     {
         "en"            "SG-DRILL"
@@ -1685,7 +1697,25 @@
     "hammer" // Menu
     {
         "en"            "Hammer"
-        "ru"            "Молот"
+        "ru"            "Молоток"
+    }
+    
+    "sfsword" // Menu
+    {
+        "en"            "Laser Saber"
+        "ru"            "Световой меч"
+    }
+    
+    "skullaxe" // Menu
+    {
+        "en"            "Skull Axe"
+        "ru"            "Большой топор"
+    }
+    
+    "big hammer" // Menu
+    {
+        "en"            "Big Hammer"
+        "ru"            "Большой молот"
     }
     
     // Others
@@ -1763,11 +1793,53 @@
         "en"            "Strong <font color='#4B0082'>hit</font> on the right mouse button"
         "ru"            "Сильный <font color='#4B0082'>удар</font> на правую кнопку мыши"
     }
+    
+    "sfmg info" // Hint
+    {
+        "en"            "Switch <font color='#FE28B2'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#FE28B2'>режим</font> на правую кнопку мыши"
+    }
 
     "janus7 info" // Hint 
     {
         "en"            "Switch <font color='#4F273A'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#4F273A'>режим</font> на правую кнопку мыши"
+    }
+    
+    "sfsword info" // Hint 
+    {
+        "en"            "Switch <font color='#4F0F2E'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#4F0F2E'>режим</font> на правую кнопку мыши"
+    }
+
+    "hammer info" // Hint 
+    {
+        "en"            "Switch <font color='#4F1F36'>mode</font> on the right mouse button"
+        "ru"            "Переключить <font color='#4F1F36'>режим</font> на правую кнопку мыши"
+    }
+    
+    "balrog3 info" // Hint 
+    {
+        "en"            "Switch <font color='#6B3B82'>zoom</font> on the right mouse button"
+        "ru"            "Переключить <font color='#6B3B82'>зум</font> на правую кнопку мыши"
+    }
+    
+    "balrog7 info" // Hint 
+    {
+        "en"            "Switch <font color='#702E8F'>zoom</font> on the right mouse button"
+        "ru"            "Переключить <font color='#702E8F'>зум</font> на правую кнопку мыши"
+    }
+    
+    "m32 info" // Hint 
+    {
+        "en"            "Switch <font color='#432E8F'>zoom</font> on the right mouse button"
+        "ru"            "Переключить <font color='#432E8F'>зум</font> на правую кнопку мыши"
+    }
+    
+    "skull11 info" // Hint 
+    {
+        "en"            "Switch <font color='#5E46B8'>zoom</font> on the right mouse button"
+        "ru"            "Переключить <font color='#5E46B8'>зум</font> на правую кнопку мыши"
     }
     
     // ===========================
