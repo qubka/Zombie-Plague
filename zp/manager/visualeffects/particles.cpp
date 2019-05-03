@@ -46,7 +46,7 @@ int ParticleSystem_Count;
  **/
 void ParticlesOnInit(/*void*/)
 {
-    #if !defined USE_DHOOKS
+    #if !defined USE_DETOUR
     // If windows, then stop
     if(gServerData.Platform == OS_Windows)
     {
@@ -113,7 +113,7 @@ void ParticlesOnInit(/*void*/)
  **/
 void ParticlesOnLoad(/*void*/)
 {
-    #if !defined USE_DHOOKS
+    #if !defined USE_DETOUR
     // If windows, then stop
     if(gServerData.Platform == OS_Windows)
     {
@@ -135,7 +135,7 @@ void ParticlesOnLoad(/*void*/)
  **/
 void ParticlesOnPurge(/*void*/)
 {
-    #if !defined USE_DHOOKS
+    #if !defined USE_DETOUR
     // If windows, then stop
     if(gServerData.Platform == OS_Windows)
     {

@@ -82,7 +82,7 @@ enum StudioAnimDesc
  * @endsection
  **/
  
-#if defined USE_DHOOKS
+#if defined USE_DETOUR
 /**
  * Variables to store DHook calls handlers.
  **/
@@ -392,7 +392,7 @@ void ToolsOnInit(/*void*/)
     
     /*__________________________________________________________________________________________________*/
     
-    #if defined USE_DHOOKS
+    #if defined USE_DETOUR
     // Starts the preparation of a detour
     hDHookValidateLineOfSight = DHookCreateDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
     DHookSetFromConf(hDHookValidateLineOfSight, gServerData.Config, SDKConf_Signature, "CBasePlayer::ValidateLineOfSight");
@@ -470,7 +470,7 @@ public Action ToolsOnEntityTransmit(int entityIndex, int clientIndex)
     return Plugin_Continue;
 }
 
-#if defined USE_DHOOKS
+#if defined USE_DETOUR
 /**
  * DHook (Detour): Players can no longer pick up weapons through walls or without direct line-of-sight.
  * @note bool CBasePlayer::ValidateLineOfSight(int)

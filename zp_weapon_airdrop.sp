@@ -496,7 +496,7 @@ public void ZP_OnGameModeStart(int modeIndex)
     if(ZP_IsGameModeHumanClass(modeIndex, "human") && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
     {
         // Get the random index of a human
-        int clientIndex = 1;//ZP_GetRandomHuman();
+        int clientIndex = ZP_GetRandomHuman();
 
         // Validate client
         if(clientIndex != INVALID_ENT_REFERENCE)
