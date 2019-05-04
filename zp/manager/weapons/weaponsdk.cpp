@@ -28,7 +28,7 @@
 /**
  * @section Number of valid slots.
  **/
-enum SlotType
+enum /*SlotType*/
 { 
     SlotType_Invalid = -1,        /** Used as return value when a slot doens't exist. */
     
@@ -88,6 +88,7 @@ Handle hSDKCallWeaponSwitch;
  **/
 Handle hDHookGetMaxClip;
 Handle hDHookGetReserveAmmoMax;
+//Handle hDHookGetSlot;
 Handle hDHookWeaponCanUse;
 
 /**
@@ -95,6 +96,7 @@ Handle hDHookWeaponCanUse;
  **/
 int DHook_GetMaxClip1;
 int DHook_GetReserveAmmoMax;
+//int DHook_GetSlot;
 int DHook_WeaponCanUse;
 #endif
 
@@ -171,6 +173,7 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     // Load other offsets
     fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
     fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
+    //fnInitGameConfOffset(gServerData.Config, DHook_GetSlot, "CBaseCombatWeapon::GetSlot");
     fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CBasePlayer::*/"Weapon_CanUse");
     //fnInitGameConfOffset(gServerData.Config, DHook_GetMaxSpeed, "CBasePlayer::GetPlayerMaxSpeed");
 
@@ -196,6 +199,17 @@ void WeaponSDKOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
         return;
     }
+    
+    /// CBaseCombatWeapon::GetSlot(CBaseCombatWeapon *this)
+    /*hDHookGetSlot = DHookCreate(DHook_GetSlot, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetSlot);
+
+    // Validate hook
+    if(hDHookGetSlot == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }*/
     
     /// CBasePlayer::Weapon_CanUse(CBaseCombatWeapon *this)
     hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, WeaponDHookOnCanUse);
@@ -339,8 +353,9 @@ public void WeaponSDKOnWeaponSpawn(int weaponIndex)
     
     // Hook weapon callbacks
     SDKHook(weaponIndex, SDKHook_ReloadPost, WeaponSDKOnWeaponReload);
-    
     #if defined USE_DHOOKS
+        //DHookEntity(hDHookGetSlot, false, weaponIndex);
+
         // Apply fake spawn hook on the next frame
         _next.WeaponSDKOnWeaponSpawnPost(weaponIndex);
     #endif
@@ -1448,8 +1463,8 @@ public Action WeaponSDKOnCommandListened(int clientIndex, char[] commandMsg, int
                                 if(WeaponsGive(clientIndex, iIndex) == INVALID_ENT_REFERENCE)
                                 {
                                     // Try switching to any available weapon
-                                    int iPrimary = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Primary));
-                                    int iSecondary = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Secondary));
+                                    int iPrimary = GetPlayerWeaponSlot(clientIndex, SlotType_Primary);
+                                    int iSecondary = GetPlayerWeaponSlot(clientIndex, SlotType_Secondary);
                                     weaponIndex = (iPrimary != INVALID_ENT_REFERENCE) ? iPrimary : iSecondary;
 
                                     // Validate weapon
@@ -1527,6 +1542,19 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weaponIndex, Handle hReturn, Ha
     // Skip the hook
     return MRES_Ignored;
 }
+
+/**
+ * DHook: Unlock the primary and secondary slots of a weapon.
+ * @note int CBaseCombatWeapon::GetSlot(void)
+ *
+ * @param weaponIndex       The weapon index.
+ * @param hReturn           Handle to return structure.
+ **/
+/*public MRESReturn WeaponDHookOnGetSlot(int weaponIndex, Handle hReturn)
+{
+    DHookSetReturn(hReturn, GetEntData(weaponIndex, g_iOffset_ItemDefinitionIndex) + 10);
+    return MRES_Override;
+}*/
 
 /**
  * DHook: Allow to pick-up some weapons.

@@ -92,17 +92,6 @@ void VEffectsOnCvarInit(/*void*/)
     PlayerVEffectsOnCvarInit();
 }
 
-/**
- * @brief Client has been joined.
- * 
- * @param clientIndex       The client index.  
- **/
-void VEffectOnClientInit(int clientIndex)
-{
-    // Forward event to sub-modules
-    ParticlesOnClientInit(clientIndex);
-}
-
 /*
  * Effects main functions.
  */

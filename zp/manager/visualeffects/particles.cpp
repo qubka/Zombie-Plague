@@ -162,17 +162,6 @@ void ParticlesOnPurge(/*void*/)
 }
 
 /**
- * @brief Client has been joined.
- * 
- * @param clientIndex       The client index.  
- **/
-void ParticlesOnClientInit(int clientIndex)
-{
-    // Sets the extra particle table data
-    ParticlesOnPrecache(clientIndex);
-}
-
-/**
  * @brief Caches particles data from manifest file.
  **/
 void ParticlesOnCacheData(/*void*/)
@@ -224,10 +213,8 @@ void ParticlesOnCacheData(/*void*/)
 
 /**
  * @brief Caches particles data from the manifest file.
- *
- * @param clientIndex       (Optional) The client index.  
  **/
-void ParticlesOnPrecache(int clientIndex = INVALID_ENT_REFERENCE)
+void ParticlesOnPrecache(/*void*/)
 {
     // Initialize buffer char
     static char sBuffer[PLATFORM_LINE_LENGTH];
@@ -251,36 +238,15 @@ void ParticlesOnPrecache(int clientIndex = INVALID_ENT_REFERENCE)
     }
     else
     {
-        // Is the first set up ? 
-        if(clientIndex == INVALID_ENT_REFERENCE)
+        // i = string index
+        int iCount = gServerData.Particles.Length;
+        for(int i = 0; i < iCount; i++)
         {
-            // i = string index
-            int iCount = gServerData.Particles.Length;
-            for(int i = 0; i < iCount; i++)
-            {
-                // Gets the string at a given index
-                gServerData.Particles.GetString(i, sBuffer, sizeof(sBuffer));
-                
-                // Push data into table 
-                PrecacheParticleEffect(sBuffer);
-            }
-        }
-        else
-        {
-            // i = string index
-            int iCount = GetParticleEffectCount();
-            for(int i = 0; i < iCount; i++)
-            {
-                // Gets the string at a given index
-                GetParticleEffectName(i, sBuffer, sizeof(sBuffer));
-                
-                // Validate custom particle
-                if(gServerData.Particles.FindString(sBuffer) == -1)
-                {
-                    // Push data into table for a client
-                    PrecacheParticleFile(clientIndex, sBuffer);
-                }
-            }
+            // Gets the string at a given index
+            gServerData.Particles.GetString(i, sBuffer, sizeof(sBuffer));
+            
+            // Push data into table 
+            PrecacheParticleEffect(sBuffer);
         }
     }
 }

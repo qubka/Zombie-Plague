@@ -632,7 +632,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
     }
 
     // Validate slot
-    SlotType slotType = GetNativeCell(3);
+    int slotType = GetNativeCell(3);
     if(slotType != SlotType_Invalid)
     {
         // Drop weapon
@@ -2396,7 +2396,7 @@ void WeaponsDrop(int clientIndex, int weaponIndex, bool bToss = false, bool bRem
 void WeaponsReplace(int clientIndex, int weaponIndex)
 {
     // Gets weapon index
-    int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(SlotType_Melee));
+    int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, SlotType_Melee);
     
     // Validate weapon
     if(weaponIndex2 != INVALID_ENT_REFERENCE)

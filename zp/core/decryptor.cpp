@@ -573,9 +573,6 @@ bool DecryptPrecacheEffects(char[] sModel)
     
     // Add file to download table
     AddFileToDownloadsTable(sModel);
-    
-    // Add file to extra particle table
-    PrecacheParticleFile(0, sModel);
 
     // Extract value string
     static char sPath[PLATFORM_LINE_LENGTH];

@@ -31,8 +31,9 @@
  * ============================================================================
  */
  
-// Comment to remove a DHook module features (experimental branch)
+// Comment to remove a DHook module features
 #define USE_DHOOKS
+///#define USE_DETOUR
 
 // Sourcemod
 #include <sourcemod>
@@ -213,5 +214,4 @@ public void OnClientPostAdminCheck(int clientIndex)
     ClassesOnClientInit(clientIndex);
     DataBaseOnClientInit(clientIndex);
     CostumesOnClientInit(clientIndex);
-    VEffectOnClientInit(clientIndex);
 }

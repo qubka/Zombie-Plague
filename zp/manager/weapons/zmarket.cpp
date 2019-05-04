@@ -33,11 +33,7 @@
 void ZMarketOnClientUpdate(int clientIndex)
 {
     // Resets purchase counts for client
-    if(ZMarketRebuyMenu(clientIndex))
-    {
-        // Rebuy if auto-rebuy is enabled
-        ZMarketResetPurchaseCount(clientIndex);
-    }
+    ZMarketRebuyMenu(clientIndex);
     
     // Validate real client
     if(!IsFakeClient(clientIndex)) 
@@ -265,9 +261,31 @@ void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invis
     static char sOnline[SMALL_LINE_LENGTH];
     static char sGroup[SMALL_LINE_LENGTH];
 
-    // Creates menu handle
-    Menu hMenu = CreateMenu(ZMarketMenuSlots);
+    // Initialize variables
+    Action resultHandle; Menu hMenu; bool bMenu = mSlot != MenuType_Invisible; static bool bLock[MAXPLAYERS+1];
     
+    // Validate shop menu
+    if(bMenu)
+    {
+        // Creates menu handle
+        hMenu = CreateMenu(ZMarketMenuSlots1);
+        
+        // Clear history
+        if(!bLock[clientIndex]) 
+        {
+            ZMarketResetPurchaseCount(clientIndex);
+            bLock[clientIndex] = true;
+        }
+    }
+    else
+    {
+        // Boolean for reseting history
+        bLock[clientIndex] = false;
+        
+        // Creates menu handle
+        hMenu = CreateMenu(ZMarketMenuSlots2);
+    }
+
     // Sets language to target
     SetGlobalTransTarget(clientIndex);
     
@@ -276,10 +294,7 @@ void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invis
     
     // Sets title
     hMenu.SetTitle(sBuffer);
-    
-    // Initialize variables
-    Action resultHandle; bool bMenu = mSlot != MenuType_Invisible;
-    
+
     // i = array number
     int iCount = bMenu ? gServerData.Weapons.Length : gClientData[clientIndex].ShoppingCart.Length;
     for(int i = 0; i < iCount; i++)
@@ -347,7 +362,36 @@ void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invis
  * @param clientIndex       The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+{
+    // Call menu
+    ZMarketMenuSlots(hMenu, mAction, clientIndex, mSlot);
+}
+
+/**
+ * @brief Called when client selects option in the rebuy menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+{
+    // Call menu
+    ZMarketMenuSlots(hMenu, mAction, clientIndex, mSlot, true);
+}
+
+/**
+ * @brief Called when client selects option in the shop menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param clientIndex       The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ * @param bRebuy            (Optional) True to set the rebuy mode, false to set normal mode.
+ **/ 
+void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot, bool bRebuy = false)
 {
     // Switch the menu action
     switch(mAction)
@@ -411,7 +455,7 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                     if(strncmp(sBuffer[7], "tas", 3, false))
                     {
                         // Drop weapon
-                        WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == MenuType_Pistols) ? view_as<int>(SlotType_Secondary) : ((WeaponsGetSlot(iD) == MenuType_Knifes) ? view_as<int>(SlotType_Melee) : view_as<int>(SlotType_Primary))), true);
+                        WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == MenuType_Pistols) ? SlotType_Secondary : ((WeaponsGetSlot(iD) == MenuType_Knifes) ? SlotType_Melee : SlotType_Primary)), true);
                     }
 
                     // Give weapon for the player
@@ -432,34 +476,57 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                             WeaponsSetLimits(clientIndex, iD, WeaponsGetLimits(clientIndex, iD) + 1);
                         }
 
-                        // Validate unique id
-                        if(gClientData[clientIndex].ShoppingCart.FindValue(iD) == -1)
+                        // Gets the index of the id
+                        int iIndex = gClientData[clientIndex].ShoppingCart.FindValue(iD);
+                        
+                        // Is it rebuy menu ?
+                        if(bRebuy)
                         {
-                            // Push data into array
-                            gClientData[clientIndex].ShoppingCart.Push(iD);
-                            
-                            // If help messages enabled, then show info
-                            if(gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
+                            // Validate old id
+                            if(iIndex != -1)
                             {
-                                // Gets client name
-                                static char sClient[SMALL_LINE_LENGTH];
-                                GetClientName(clientIndex, sClient, sizeof(sClient));
+                                // Remove index from the history
+                                gClientData[clientIndex].ShoppingCart.Erase(iIndex);
 
-                                // Gets weapon name
-                                WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
-                                
-                                // Show item buying info
-                                TranslationPrintToChatAll("buy info", sClient, sBuffer);
+                                // Validate cart size
+                                if(gClientData[clientIndex].ShoppingCart.Length)
+                                {
+                                    // Reopen menu
+                                    ZMarketMenu(clientIndex, "rebuy");
+                                }
                             }
-                            
-                            // If help messages enabled, then show info
-                            if(gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
+                        }
+                        else
+                        {
+                            // Validate new id
+                            if(iIndex == -1)
                             {
-                                // Gets weapon info
-                                WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
+                                // Push data into array
+                                gClientData[clientIndex].ShoppingCart.Push(iD);
                                 
-                                // Show weapon personal info
-                                if(hasLength(sBuffer)) TranslationPrintHintText(clientIndex, sBuffer);
+                                // If help messages enabled, then show info
+                                if(gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
+                                {
+                                    // Gets client name
+                                    static char sClient[SMALL_LINE_LENGTH];
+                                    GetClientName(clientIndex, sClient, sizeof(sClient));
+
+                                    // Gets weapon name
+                                    WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
+                                    
+                                    // Show item buying info
+                                    TranslationPrintToChatAll("buy info", sClient, sBuffer);
+                                }
+                                
+                                // If help messages enabled, then show info
+                                if(gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
+                                {
+                                    // Gets weapon info
+                                    WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
+                                    
+                                    // Show weapon personal info
+                                    if(hasLength(sBuffer)) TranslationPrintHintText(clientIndex, sBuffer);
+                                }
                             }
                         }
                         
@@ -482,11 +549,11 @@ public int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
 }
 
 /**
- * @brief Rebuys weapons if auto-rebuy is enabled and player is a human (alive).
+ * @brief Rebuys weapons if auto-rebuy is enabled and player is a human. (alive)
  *
  * @param clientIndex       The client index.
  **/
-bool ZMarketRebuyMenu(int clientIndex)
+void ZMarketRebuyMenu(int clientIndex)
 {
     // If array hasn't been created, then create
     if(gClientData[clientIndex].ShoppingCart == null)
@@ -494,22 +561,23 @@ bool ZMarketRebuyMenu(int clientIndex)
         // Initialize a buy history array
         gClientData[clientIndex].ShoppingCart = CreateArray();
     }
-
-    // Validate cart size
-    if(!gClientData[clientIndex].ShoppingCart.Length)
+    else
     {
-        return false;
-    }
-    
-    // If auto-rebuy is disabled, then clear
-    if(!gClientData[clientIndex].AutoRebuy)
-    {
-        return true; /// Reset the shopping cart
-    }
+        // Validate cart size
+        if(!gClientData[clientIndex].ShoppingCart.Length)
+        {
+            return;
+        }
+        
+        // If auto-rebuy is disabled, then clear
+        if(!gClientData[clientIndex].AutoRebuy)
+        {
+            return;
+        }
 
-    // Opens weapons menu
-    ZMarketMenu(clientIndex, "rebuy");
-    return true;
+        // Opens rebuy menu
+        ZMarketMenu(clientIndex, "rebuy");
+    }
 }
 
 /**
@@ -519,8 +587,14 @@ bool ZMarketRebuyMenu(int clientIndex)
  **/
 void ZMarketResetPurchaseCount(int clientIndex)
 {
-    // If mode doesn't started yet, then reset
-    if(gServerData.RoundNew)
+    // If mode already started, then stop
+    if(!gServerData.RoundNew)
+    {
+        return;
+    }
+    
+    // If array hasn't been created, then stop
+    if(gClientData[clientIndex].ShoppingCart != null)
     {
         // Clear out the array of all data
         gClientData[clientIndex].ShoppingCart.Clear();
