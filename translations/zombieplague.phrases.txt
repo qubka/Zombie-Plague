@@ -22,7 +22,7 @@
 
     "general buttons reminder" // Hint
     {
-        "en"            "Press <font color='#FF0000'>F3/B</font> for open menu\nPress <font color='#FF0000'F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
+        "en"            "Press <font color='#FF0000'>F3/B</font> to open menu\nPress <font color='#FF0000'F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
         "ru"            "Нажмите F3/B для открытия меню\nНажмите F4 для способности зомби/людей\nНажмите F для включения фонарика"
     }
     
@@ -34,7 +34,7 @@
     
     "general blast reminder" // Hint
     {
-        "en"            "<font color='#D41114'>Warning!</font> Humans has launched a nuke over the infected area!"
+        "en"            "<font color='#D41114'>Warning!</font> Humans have launched a nuke over the infected area!"
         "ru"            "<font color='#D41114'>Внимание!</font> Люди запустил нюк по зараженной площади!"
     }
 
@@ -45,7 +45,7 @@
     "zombie comming" // Hint
     {
         "#format"       "{1:d}"
-        "en"            "<font color='#FFFF00'>Zombie comming</font>: <font color='#0000FF'>{1}</font>"
+        "en"            "<font color='#FFFF00'>Infection will begin in</font>: <font color='#0000FF'>{1}</font>"
         "ru"            "<font color='#FFFF00'>Заражение начнется</font>: <font color='#0000FF'>{1}</font>"
     }
 
@@ -200,7 +200,7 @@
     
     "using menu block" // Hint
     {
-        "en"            "You can't use menu!"
+        "en"            "You can't use the menu!"
         "ru"            "Вы не можете использовать меню!"
     }
 
@@ -225,7 +225,7 @@
     
     "unstucking prop block" // Hint
     {
-        "en"            "You aren't stuck in an another prop!"
+        "en"            "You are not stuck in another prop!"
         "ru"            "Вы не застряли в другом обьекте!"
     }
     
@@ -237,13 +237,13 @@
 
     "starting round block" // Hint
     {
-        "en"            "You can't start gamemode, because it already begin!"
+        "en"            "You can't start a gamemode, because one has already begun!"
         "ru"            "Вы не можете начать раунд, потому что он уже запущен!"
     }
     
     "classes round block" // Hint
     {
-        "en"            "You can't change class, because round didn't started yet!"
+        "en"            "You can't change your class, because the round hasn't started yet!"
         "ru"            "Вы не можете поменять класс, потому что раунд не начат!"
     }
     
@@ -319,43 +319,43 @@
     
     "mode multi" // DHUD
     {
-        "en"            "Multi round start!"
+        "en"            "Multi infection mode has started!"
         "ru"            "Мульти заражение!"
     }
 
     "mode swarm" // DHUD
     {
-        "en"            "Swarm round start!"
+        "en"            "Swarm mode has started!"
         "ru"            "Куча на кучу!"
     }
     
     "mode plague" // DHUD
     {
-        "en"            "Plague round start!"
+        "en"            "Plague mode has started!"
         "ru"            "Чума!"
     }
 
     "mode nemesis" // DHUD
     {
-        "en"            "Nemesis round start!"
+        "en"            "Nemesis mode has started!"
         "ru"            "Немезис появился!"
     }
 
     "mode survivor" // DHUD
     {
-        "en"            "Survivor round start!"
+        "en"            "Survivor mode has started!"
         "ru"            "Выживший появился!"
     }
     
     "mode sniper" // DHUD
     {
-        "en"            "Sniper round start!"
+        "en"            "Sniper mode has started!"
         "ru"            "Снайпер появился!"
     }
 
     "mode armageddon" // DHUD
     {
-        "en"            "Armageddon round start!"
+        "en"            "Armageddon mode has started!"
         "ru"            "Армагеддон!"
     }
 
@@ -902,7 +902,7 @@
 
     "anarhist" // Menu
     {
-        "en"            "Anarhist"
+        "en"            "Anarchist"
         "ru"            "Анархист"
     }
 
@@ -1053,7 +1053,7 @@
 
     "buy machineguns" // Menu
     {
-        "en"            "Machineguns"
+        "en"            "Machine guns"
         "ru"            "Пулеметы"
     }
     
@@ -1071,25 +1071,25 @@
     
     "antidot" // Menu
     {
-        "en"            "Antidot"
+        "en"            "Antidote"
         "ru"            "Антидот"
     }
 
     "infect bomb" // Menu
     {
-        "en"            "Infection bomb"
+        "en"            "Infection Bomb"
         "ru"            "Заражающая граната"
     }
     
     "jump bomb" // Menu
     {
-        "en"            "Jump bomb"
+        "en"            "Jump Bomb"
         "ru"            "Джамп граната"
     }
     
     "holy grenade" // Menu 
     {
-        "en"            "Holy grenade"
+        "en"            "Holy Grenade"
         "ru"            "Святая граната"
     }
 
@@ -1101,13 +1101,13 @@
 
     "inc grenade" // Menu
     {
-        "en"            "Inc grenade"
+        "en"            "Incendiary Grenade"
         "ru"            "Поджигающая"
     }
 
     "medi shot" // Menu
     {
-        "en"            "Medi shot"
+        "en"            "Medical Shot"
         "ru"            "Мед. Шприц"
     }
     
@@ -1119,13 +1119,13 @@
 
     "freeze grenade" // Menu
     {
-        "en"            "Freeze grenade"
+        "en"            "Freeze Grenade"
         "ru"            "Заморозка"
     }
 
     "flare grenade" // Menu
     {
-        "en"            "Flare grenade"
+        "en"            "Flare Grenade"
         "ru"            "Световая граната"
     }
     
@@ -1266,13 +1266,13 @@
     
     "jetpack empty" // Hint (no color)
     {
-        "en"            "Jetpack is empty. Wait please"
+        "en"            "Jetpack is empty. Please wait.."
         "ru"            "Джетпак перегрелся. Подождите"
     }
     
     "jetpack reloaded" // Hint (no color)
     {
-        "en"            "Jetpack reloaded"
+        "en"            "Jetpack recharged!"
         "ru"            "Джетпак остыл"
     }
     
@@ -1528,7 +1528,7 @@
     
     "plasmagun" // Menu
     {
-        "en"            "Plasmagun"
+        "en"            "Plasma Gun"
         "ru"            "Плазма пушка"
     }
     
