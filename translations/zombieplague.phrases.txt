@@ -200,7 +200,7 @@
     
     "using menu block" // Hint
     {
-        "en"            "You can't use menu!"
+        "en"            "You can't use the menu!"
         "ru"            "Вы не можете использовать меню!"
     }
 
@@ -225,7 +225,7 @@
     
     "unstucking prop block" // Hint
     {
-        "en"            "You aren't stuck in an another prop!"
+        "en"            "You are not stuck in another prop!"
         "ru"            "Вы не застряли в другом обьекте!"
     }
     
@@ -319,43 +319,43 @@
     
     "mode multi" // DHUD
     {
-        "en"            "Multi round start!"
+        "en"            "Multi infection mode has started!"
         "ru"            "Мульти заражение!"
     }
 
     "mode swarm" // DHUD
     {
-        "en"            "Swarm round start!"
+        "en"            "Swarm mode has started!"
         "ru"            "Куча на кучу!"
     }
     
     "mode plague" // DHUD
     {
-        "en"            "Plague round start!"
+        "en"            "Plague mode has started!"
         "ru"            "Чума!"
     }
 
     "mode nemesis" // DHUD
     {
-        "en"            "Nemesis round start!"
+        "en"            "Nemesis mode has started!"
         "ru"            "Немезис появился!"
     }
 
     "mode survivor" // DHUD
     {
-        "en"            "Survivor round start!"
+        "en"            "Survivor mode has started!"
         "ru"            "Выживший появился!"
     }
     
     "mode sniper" // DHUD
     {
-        "en"            "Sniper round start!"
+        "en"            "Sniper mode has started!"
         "ru"            "Снайпер появился!"
     }
 
     "mode armageddon" // DHUD
     {
-        "en"            "Armageddon round start!"
+        "en"            "Armageddon mode has started!"
         "ru"            "Армагеддон!"
     }
 
