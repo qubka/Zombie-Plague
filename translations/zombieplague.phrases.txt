@@ -288,8 +288,8 @@
     {
         "en"            "You are not stuck in another prop!"
         "ru"            "Вы не застряли в другом обьекте!"
-		"chi"            "你没有陷入另一个支撑物！"
-		"zho"            "妳沒有陷入另壹個支撐物！"
+		"chi"            "你没有陷入另一个支撑物！（卡住或者重叠）"
+		"zho"            "妳沒有陷入另壹個支撐物！（卡住或者重疊）"
     }
     
     "buying round block" // Hint
