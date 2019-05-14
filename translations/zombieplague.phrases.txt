@@ -1,4 +1,4 @@
-﻿"Phrases"
+"Phrases"
 {
     // ===========================
     // Color prefixes (Chat only)
@@ -18,24 +18,32 @@
     {
         "en"            "The game is @redHumans @greenvs. @redZombies@default, the goal for zombies is to infect all humans by knifing them."
         "ru"            "Битва @redлюдей @greenпротив @redзомби@default, цель для зомби — инфицировать всех людей, используя нож."
+		"chi"            "这个游戏是 @redHumans @greenvs。 @redZombies@default， 丧尸的目标是通过近战抓咬来感染所有人类。"
+		"zho"            "這個遊戲是 @redHumans @greenvs。 @redZombies@default， 喪尸的目標是通過近戰抓咬來感染所有人類。"
     }
 
     "general buttons reminder" // Hint
     {
         "en"            "Press <font color='#FF0000'>F3/B</font> to open menu\nPress <font color='#FF0000'F4</font> for zombie/human skill\nPress <font color='#FF0000'>F</font> to turn on flashlight"
         "ru"            "Нажмите F3/B для открытия меню\nНажмите F4 для способности зомби/людей\nНажмите F для включения фонарика"
+		"chi"            "按 <font color='#FF0000'>F3/B</font> 打开彩蛋\n按 <font color='#FF0000'F4</font> 打开 人类/丧尸 技能\n按 <font color='#FF0000'>F</font> 打开手电筒"
+		"zho"            "按 <font color='#FF0000'>F3/B</font> 打開彩蛋\n按 <font color='#FF0000'F4</font> 打開 人類/喪尸 技能\n按 <font color='#FF0000'>F</font> 打開手電筒"
     }
     
     "general ammunition reminder" // Chat
     {
         "en"            "Press @red,@default @greenor @red.@default to purchase ammunition."
         "ru"            "Нажмите @red,@default @greenили @red.@default для покупки патронов."
+		"chi"            "按 @red，@default @greenor @red。@default 购买弹药。"
+		"zho"            "按 @red，@default @greenor @red。@default 購買彈藥。"
     }
     
     "general blast reminder" // Hint
     {
         "en"            "<font color='#D41114'>Warning!</font> Humans have launched a nuke over the infected area!"
         "ru"            "<font color='#D41114'>Внимание!</font> Люди запустил нюк по зараженной площади!"
+		"chi"            "<font color='#D41114'>警告！</font> 人类在感染区域发射了核武器！"
+		"zho"            "<font color='#D41114'>警告！</font> 人類在感染區域發射了核武器！"
     }
 
     // ===========================
@@ -47,6 +55,8 @@
         "#format"       "{1:d}"
         "en"            "<font color='#FFFF00'>Infection will begin in</font>: <font color='#0000FF'>{1}</font>"
         "ru"            "<font color='#FFFF00'>Заражение начнется</font>: <font color='#0000FF'>{1}</font>"
+		"chi"            "<font color='#FFFF00'>感染即将开始</font>： <font color='#0000FF'>{1}</font>"
+		"zho"            "<font color='#FFFF00'>感染即將開始</font>： <font color='#0000FF'>{1}</font>"
     }
 
     "zombie left" // Hint
@@ -54,6 +64,8 @@
         "#format"       "{1:s}"
         "en"            "<font color='#B422A6'>The last zombie has left,</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>is the new zombie!</font>"
         "ru"            "<font color='#B422A6'>Последний зомби вышел, теперь</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>зомби!</font>"
+		"chi"            "<font color='#B422A6'>最后一个丧尸离开了，</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>是新的丧尸！</font>"
+		"zho"            "<font color='#B422A6'>最後壹個喪屍離開了，</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>是新的喪屍！</font>"
     }
 
     "human left" // Hint
@@ -61,12 +73,16 @@
         "#format"       "{1:s}"
         "en"            "<font color='#B422A6'>The last human has left,</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>is the new human!</font>"
         "ru"            "<font color='#B422A6'>Последний человек вышел, теперь</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>человек!</font>"
+		"chi"            "<font color='#B422A6'>最后一个人类离开了，</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>是新的人类！</font>"
+		"zho"            "<font color='#B422A6'>最後壹個人類離開了，</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>是新的人類！</font>"
     }
     
     "player left" // Hint
     {
         "en"            "<font color='#D67E76'>The last player has left the game</font>!"
         "ru"            "<font color='#D67E76'>Последний игрок вышел</font>!"
+		"chi"            "<font color='#D67E76'>最后一位玩家离开了游戏</font>！"
+		"zho"            "<font color='#D67E76'>最後壹位玩家離開了遊戲</font>！"
     }
     
     "account info" // DHUD (translated)
@@ -74,6 +90,8 @@
         "#format"       "{1:t},{2:d}"
         "en"            "{1}{2}"    
         "ru"            "{1}{2}"   
+		"chi"            "{1}{2}"   
+		"zho"            "{1}{2}"   
     }
 
     "level info" // DHUD (translated)
@@ -81,6 +99,8 @@
         "#format"       "{1:t},{2:d},{3:d},{4:d}"
         "en"            "CLASS:[{1}]\nLVL:[{2}] EXP:[{3}/{4}]"    
         "ru"            "КЛАСС:[{1}]\nУРОВЕНЬ:[{2}] ОПЫТ:[{3}/{4}]"    
+		"chi"            "职业：[{1}]\n等级：[{2}] 经验：[{3}/{4}]"   
+		"zho"            "職業：[{1}]\n等級：[{2}] 經驗：[{3}/{4}]"   
     }
 
     "class info" // Chat (translated)
@@ -88,13 +108,18 @@
         "#format"       "{1:t},{2:d},{3:d},{4:.1f}"
         "en"            "Class: @red[{1}] @defaultHP: @red[{2}] @defaultArmor: @red[{3}] @defaultSpeed: @red[{4}]" 
         "ru"            "Класс: @red[{1}] @defaultЗдоровье: @red[{2}] @defaultБроня: @red[{3}] @defaultСкорость: @red[{4}]" 
+		"chi"            "职业： @red[{1}] @default生命： @red[{2}] @default护甲： @red[{3}] @default速度： @red[{4}]" 
+		"zho"            "職業： @red[{1}] @default生命： @red[{2}] @default護甲： @red[{3}] @default速度： @red[{4}]" 
     }
     
     "damage info" // Hint
     {
         "#format"       "{1:d}"
         "en"            "<font color='#FFFFFF'>HP</font>: <font color='#FF0000'>{1}</font>"
-        "ru"            "<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>"    
+        "ru"            "<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>"
+		"chi"            "<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>"
+		"zho"            "<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>"
+		
     }
     
     "buy info" // Chat (translated)
@@ -102,6 +127,8 @@
         "#format"       "{1:s},{2:t}"
         "en"            "Player: @red[{1}] @defaultbuy: @red[{2}]"
         "ru"            "Игрок: @red[{1}] @defaultкупил: @red[{2}]"    
+		"chi"            "玩家： @red[{1}] @default购买： @red[{2}]"
+		"zho"            "玩家： @red[{1}] @default購買： @red[{2}]"
     }
 
     "donate info" // Chat (translated)
@@ -109,6 +136,8 @@
         "#format"       "{1:s},{2:d},{3:t},{4:s}"
         "en"            "Player: @red[{1}] @defaultdonate: @red[{2}{3}] @defaultto player: @red[{4}]"
         "ru"            "Игрок: @red[{1}] @defaultперевел: @red[{2}{3}] @defaultигроку: @red[{4}]"  
+		"chi"            "玩家： @red[{1}] @default捐赠： @red[{2}{3}] @default给玩家： @red[{4}]"
+		"zho"            "玩家： @red[{1}] @default捐贈： @red[{2}{3}] @default給玩家： @red[{4}]"
     }
     
     // ===========================
@@ -119,6 +148,8 @@
     {
         "en"            "<font color='#FF0000'>Skill ready</font>!"
         "ru"            "<font color='#FF0000'>Ваша способность готов</font>!"
+		"chi"            "<font color='#FF0000'>技能已就绪</font>！"
+		"zho"            "<font color='#FF0000'>技能已就緒</font>！"
     }
 
     "countdown" // Hint
@@ -126,6 +157,8 @@
         "#format"       "{1:d}"
         "en"            "<font color='#0EB411'>Countdown</font>: <font color='#0EB4A7'>{1}</font>"
         "ru"            "<font color='#0EB411'>Заряд способности</font>: <font color='#0EB4A7'>{1}</font>"
+		"chi"            "<font color='#0EB411'>冷却</font>： <font color='#0EB4A7'>{1}</font>"
+		"zho"            "<font color='#0EB411'>冷卻</font>： <font color='#0EB4A7'>{1}</font>"
     }
 
     "price" // Menu (translated)
@@ -133,6 +166,8 @@
         "#format"       "{1:d},{2:t}"
         "en"            "[{1}{2}]"
         "ru"            "[{1}{2}]"
+		"chi"            "[{1}{2}]"
+		"zho"            "[{1}{2}]"
     }
     
     "level" // Menu
@@ -140,6 +175,8 @@
         "#format"       "{1:d}"
         "en"            "[LVL:{1}]"
         "ru"            "[УРВ:{1}]"
+		"chi"            "[等级:{1}]"
+		"zho"            "[等級:{1}]"
     }
     
     "online" // Menu
@@ -147,6 +184,8 @@
         "#format"       "{1:d}"
         "en"            "[ONL:{1}]"
         "ru"            "[ОНЛ:{1}]"
+		"chi"            "[在线:{1}]"
+		"zho"            "[在綫:{1}]"
     }
     
     "limit" // Menu
@@ -154,12 +193,16 @@
         "#format"       "{1:d}"
         "en"            "[LMT:{1}]"
         "ru"            "[ЛМТ:{1}]"
+		"chi"            "[限制:{1}]"
+		"zho"            "[限制:{1}]"
     }
     
     "money" // Universal
     {
         "en"            "$"
         "ru"            "$"
+		"chi"            "$"
+		"zho"            "$"
     }
     
     "donate" // Menu (translated)
@@ -167,6 +210,8 @@
         "#format"       "{1:d},{2:t}"
         "en"            "Donate: [{1}{2}]"
         "ru"            "Переслать: [{1}{2}]"
+		"chi"            "捐赠： [{1}{2}]"
+		"zho"            "捐贈： [{1}{2}]"
     }
     
     "commission" // Menu (translated)
@@ -174,24 +219,32 @@
         "#format"       "{1:d},{2:t},{3:s}"
         "en"            "Amount: [{1}{2}] | Commission: [{3}]"
         "ru"            "Сумма: [{1}{2}] | Комиссия: [{3}]"
+		"chi"            "数量： [{1}{2}] | 佣金： [{3}]"
+		"zho"            "數量： [{1}{2}] | 傭金： [{3}]"
     }
     
     "empty" // Menu
     {
         "en"            "(Empty)"
         "ru"            "(Пусто)"
+		"chi"            "(空的)"
+		"zho"            "(空的)"
     }
     
     "increase" // Menu
     {
         "en"            "Increase"
         "ru"            "Увеличить"
+		"chi"            "增加"
+		"zho"            "增加"
     }
     
     "decrease" // Menu
     {
         "en"            "Decrease\n \n"
         "ru"            "Уменьшить\n \n"
+		"chi"            "减少\n \n"
+		"zho"            "減少\n \n"
     }
     
     // ===========================
@@ -202,6 +255,8 @@
     {
         "en"            "You can't use the menu!"
         "ru"            "Вы не можете использовать меню!"
+		"chi"            "你不能使用菜单！"
+		"zho"            "你不能使用菜單！"
     }
 
     "buying item block" // Hint (translated)
@@ -209,42 +264,56 @@
         "#format"       "{1:t}"
         "en"            "You can't buy: <font color='#FF0000'>{1}</font>"
         "ru"            "Вы не можете купить: <font color='#FF0000'>{1}</font>"  
+		"chi"            "你不能买： <font color='#FF0000'>{1}</font>"
+		"zho"            "妳不能買： <font color='#FF0000'>{1}</font>"
     }
     
     "buying ammunition block" // Hint
     {
         "en"            "You can't buy ammunition!"
         "ru"            "Вы не можете купить патроны!"
+		"chi"            "你不能买弹药！"
+		"zho"            "妳不能買彈藥！"
     }
     
     "selecting target block" // Hint
     {
         "en"            "Invalid target!"
         "ru"            "Неверная цель!"
+		"chi"            "无效目标！"
+		"zho"            "無效目標！"
     }
     
     "unstucking prop block" // Hint
     {
         "en"            "You are not stuck in another prop!"
         "ru"            "Вы не застряли в другом обьекте!"
+		"chi"            "你没有陷入另一个支撑物！"
+		"zho"            "妳沒有陷入另壹個支撐物！"
     }
     
     "buying round block" // Hint
     {
         "en"            "You can't buy during this round!"
         "ru"            "Вы не можете купить в течении этого раунда!"
+		"chi"            "本回合你不能购买！"
+		"zho"            "本回合妳不能購買！"
     }
 
     "starting round block" // Hint
     {
         "en"            "You can't start a gamemode, because one has already begun!"
         "ru"            "Вы не можете начать раунд, потому что он уже запущен!"
+		"chi"            "你无法启动一个游戏模式， 因为其中一个已经开始了!"
+		"zho"            "妳無法啟動壹個遊戲模式， 因為其中壹個已經開始了!"
     }
     
     "classes round block" // Hint
     {
         "en"            "You can't change your class, because the round hasn't started yet!"
         "ru"            "Вы не можете поменять класс, потому что раунд не начат!"
+		"chi"            "你不能改变你的职业，因为这回合还没有开始！"
+		"zho"            "妳不能改變妳的職業，因為這回合還沒有開始！"
     }
     
     // ===========================
@@ -255,114 +324,152 @@
     {
         "en"            "Change classes"
         "ru"            "Меню классов"
+		"chi"            "改变职业"
+		"zho"            "改變職業"
     }
     
     "modes menu" // Menu
     {
         "en"            "Game modes"
         "ru"            "Игровые режимы"
+		"chi"            "游戏模式"
+		"zho"            "遊戲模式"
     }
     
     "modes option" // Menu
     {
         "en"            "Player options"
         "ru"            "Игровые опции"
+		"chi"            "玩家选项"
+		"zho"            "玩家選項"
     }
     
     "normal mode" // Menu
     {
         "en"            "Normal infection"
         "ru"            "Обычная инфекция"
+		"chi"            "标准感染模式"
+		"zho"            "標準感染模式"
     }
     
     "plague mode" // Menu
     {
         "en"            "Plague mode"
         "ru"            "Чума"
+		"chi"            "瘟疫模式"
+		"zho"            "瘟疫模式"
     }
     
     "sniper mode" // Menu
     {
         "en"            "Sniper round"
         "ru"            "Снайпер раунд"
+		"chi"            "狙击手回合"
+		"zho"            "狙擊手回合"
     }
     
     "survivor mode" // Menu
     {
         "en"            "Survivor round"
         "ru"            "Выживший раунд"
+		"chi"            "生存者回合"
+		"zho"            "生存者回合"
     }
     
     "swarm mode" // Menu
     {
         "en"            "Swarm mode"
         "ru"            "Куча на кучу"
+		"chi"            "群拥模式"
+		"zho"            "群擁模式"
     }
     
     "armageddon mode" // Menu
     {
         "en"            "Armageddon"
         "ru"            "Армагеддон"
+		"chi"            "世界末日模式"
+		"zho"            "世界末日模式"
     }
     
     "multi mode" // Menu
     {
         "en"            "Multi infection"
         "ru"            "Мульти инфекция"
+		"chi"	         "多重感染模式"
+		"zho"	         "多重感染模式"
     }
     
     "nemesis mode" // Menu
     {
         "en"            "Nemesis round"
         "ru"            "Немезис раунд"
+		"chi"            "复仇女神回合"
+		"zho"            "復仇女神回合"
     }
     
     "mode multi" // DHUD
     {
         "en"            "Multi infection mode has started!"
         "ru"            "Мульти заражение!"
+		"chi"            "多重感染模式已经启动！"
+		"zho"            "多重感染模式已經啟動！"
     }
 
     "mode swarm" // DHUD
     {
         "en"            "Swarm mode has started!"
         "ru"            "Куча на кучу!"
+		"chi"            "群拥模式已经启动！"
+		"zho"            "群擁模式已經啟動！"
     }
     
     "mode plague" // DHUD
     {
         "en"            "Plague mode has started!"
         "ru"            "Чума!"
+		"chi"            "瘟疫模式已经启动！"
+		"zho"            "瘟疫模式已經啟動！"
     }
 
     "mode nemesis" // DHUD
     {
         "en"            "Nemesis mode has started!"
         "ru"            "Немезис появился!"
+		"chi"            "复仇女神模式已经启动！"
+		"zho"            "復仇女神模式已經啟動！"
     }
 
     "mode survivor" // DHUD
     {
         "en"            "Survivor mode has started!"
         "ru"            "Выживший появился!"
+		"chi"            "生存者模式已经启动！"
+		"zho"            "生存者模式已經啟動！"
     }
     
     "mode sniper" // DHUD
     {
         "en"            "Sniper mode has started!"
         "ru"            "Снайпер появился!"
+		"chi"            "狙击手模式已经启动！"
+		"zho"            "狙擊手模式已經啟動！"
     }
 
     "mode armageddon" // DHUD
     {
         "en"            "Armageddon mode has started!"
         "ru"            "Армагеддон!"
+		"chi"            "世界末日模式已经启动！"
+		"zho"            "世界末日模式已經啟動！"
     }
 
     "mode normal" // DHUD
     {
         "en"            "Normal infection!"
         "ru"            "Обычное заражение!"
+		"chi"            "标准感染模式！"
+		"zho"            "標準感染模式！"
     }
 
     // ===========================
@@ -373,63 +480,83 @@
     {
         "en"            "Generic flag:"
         "ru"            "Осн.флаг:"
+		"chi"            "通用标志："
+		"zho"            "通用標誌："
     }
 
     "log value" // Console
     {
         "en"            "Value:"
         "ru"            "3нaч:"
+		"chi"            "值："
+		"zho"            "值："
     }
 
     "log module" // Console
     {
         "en"            "Module:"
         "ru"            "Модуль:"
+		"chi"            "模块："
+		"zho"            "模塊："
     }
 
     "log status" // Console
     {
         "en"            "Filter status:"
         "ru"            "Статус фильтра:"
+		"chi"            "过滤状态："
+		"zho"            "過濾狀態："
     }
 
     "log module filter" // Console
     {
         "en"            "Module filtering:"
         "ru"            "Фильтрация модуля:"
+		"chi"            "模块过滤："
+		"zho"            "模塊過濾："
     }
 
     "log module short name" // Console
     {
         "en"            "Short name:"
         "ru"            "Краткое имя:"
+		"chi"            "短名："
+		"zho"            "短名："
     }
     
     "log module invalid args" // Console
     {
         "en"            "Add one or more modules to the module filter. Usage: zp_log_add_module <module> [module] ...\nSee zp_log_list to list available module names (short names)."
         "ru"            "Добавьте один или несколько модулей в фильтр модулей. Использование: zp_log_add_module <module> [module] ...\nСмотрите zp_log_list в списке доступных имен модуля (короткие имена)."
+		"chi"            "将一个或多个模块添加到模块过滤器。 用法： zp_log_add_module <模块> [模块] ……\n查看 zp_log_list 来列出可用的模块名称 (短名)."
+		"zho"            "將壹個或多個模塊添加到模塊過濾器。 用法： zp_log_add_module <模塊> [模塊] ……\n查看 zp_log_list 來列出可用的模塊名稱 (短名)."
     }
     
     "log module invalid name" // Console
     {
         "#format"       "{1:s}"    
-        "en"            "Invalid module name: \"%s\""
+        "en"            "Invalid module name: \"{1}\""
         "ru"            "Неправильное имя модуля: \"{1}\""
+		 "chi"            "无效的模块名称 \"{1}\""
+		 "zho"            "無效的模塊名稱 \"{1}\""
     }
     
     "log module filter added" // Console
     {
         "#format"       "{1:s}"
         "en"            "Added \"{1}\" to module filter."
-        "en"            "Модуль \"{1}\" добавлен в фильтр."
+        "ru"            "Модуль \"{1}\" добавлен в фильтр."
+		 "chi"            "已添加 \"{1}\" 到模块过滤器。"
+		 "zho"            "已添加 \"{1}\" 到模塊過濾器。"
     }
     
     "log module filter removed" // Console
     {
         "#format"       "{1:s}"
         "en"            "Removed \"{1}\" from module filter."
-        "en"            "Модуль \"{1}\" убран из фильтра."
+        "ru"            "Модуль \"{1}\" убран из фильтра."
+		"chi"            "已移除 \"{1}\" 从模块过滤器。"
+		"zho"            "已移除 \"{1}\" 從模塊過濾器。"
     }
 
     // ===========================
@@ -440,6 +567,8 @@
     {
         "en"            "Сonfigs"
         "ru"            "Конфиги"
+		"chi"            "配置"
+		"zho"            "配置"
     }
     
     "config menu reload" // Menu
@@ -447,18 +576,24 @@
         "#format"       "{1:s}"
         "en"            "Reload: \"{1}\""
         "ru"            "Загрузить: \"{1}\""
+		"chi"            "重新读取： \"{1}\""
+		"zho"            "重新讀取： \"{1}\""
     }
     
     "config reload" // Console
     {
         "en"            "Syntax: zp_reloadconfig <file alias1> [file alias2] ... - Reloads a config file."
         "ru"            "Синтаксис: zp_reloadconfig <алиас файла1> [алиас файла2] ... - Перезагрузить файл конфигурации."
+		"chi"            "语法： zp_reloadconfig <文件 别名1> [文件 别名2] …… - 重新加载配置文件。"
+		"zho"            "語法： zp_reloadconfig <文件 別名1> [文件 別名2] …… - 重新加載配置文件。"
     }
 
     "config reload commands" // Console
     {
         "en"            "Related command(s): zp_config_reloadall"
         "ru"            "Связанные команды: zp_config_reloadall"
+		"chi"            "相关命令(s): zp_config_reloadall"
+		"zho"            "相关命令(s): zp_config_reloadall"
     }
 
     "config reload commands aliases" // Console
@@ -466,6 +601,8 @@
         "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s},{11:s}"
         "en"            "File aliases:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
         "ru"            "Алиасы файла:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
+		"chi"            "文件别名：\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
+		"zho"            "文件別名：\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
     }
 
     "config reload invalid" // Console
@@ -473,6 +610,8 @@
         "#format"       "{1:s}"
         "en"            "Invalid file alias: \"{1}\""
         "ru"            "Неправильный алиас файла: \"{1}\""
+		"chi"            "无效的文件别名： \"{1}\""
+		"zho"            "無效的文件別名： \"{1}\""
     }
 
     "config reload not load" // Console
@@ -480,12 +619,16 @@
         "#format"       "{1:s}"
         "en"            "Config file \"{1}\" failed to load. (Either disabled or invalid file content.)"
         "ru"            "Не удалось загрузить файл конфигурации \"{1}\". (Отключен или неверное содержимое файла.)"
+		"chi"            "配置文件 \"{1}\" 无法加载。 （文件内容已经禁用或者无效。）"
+		"zho"            "配置文件 \"{1}\" 無法加載。 （文件內容已經禁用或者無效。）"
     }
 
     "config reload begin" // Console
     {
         "en"            "Reloading all Zombie Plague config files...\n------------------------------------------------"
         "ru"            "Перезагрузка всех файлов конфигурации Zombie Plague...\n------------------------------------------------"
+		"chi"  		     "重新加载所有僵尸感染配置文件……\n------------------------------------------------"
+		"zho"  		     "重新加載所有僵屍感染配置文件……\n------------------------------------------------"
     }
 
     "config reload finish" // Console
@@ -493,6 +636,8 @@
         "#format"       "{1:s}"
         "en"            "\"{1}\" - Successful."
         "ru"            "\"{1}\" - Готово."
+		"chi"            "\"{1}\" - 重新读取成功。"
+		"zho"            "\"{1}\" - 重新讀取成功。"
     }
 
     "config reload falied" // Console
@@ -500,12 +645,16 @@
         "#format"       "{1:s}"
         "en"            "\"{1}\" - Failed. (Either disabled or invalid file content.)"
         "ru"            "\"{1}\" - Ошибка. (Отключен или неверное содержимое файла.)"
+		"chi"            "\"{1}\" - 重新读取失败。 （文件内容已经禁用或者无效。）"
+		"zho"            "\"{1}\" - 重新讀取失敗。 （文件內容已經禁用或者無效。）"
     }
     
     "config dump class" // Console
     {
         "en"            "Dumps class data at a specified index. Usage: zp_class_dump <index|name>\n\n"
         "ru"            "Сброс информации о классе. Использование: zp_class_dump <index|name>\n\n"
+		"chi"            "转储指定索引处的类数据 用法： zp_class_dump <索引|名称>\n\n"
+		"zho"	         "轉儲指定索引處的類數據 用法： zp_class_dump <索引|名稱>\n\n"
     }
     
     "config dump class invalid" // Console
@@ -513,6 +662,8 @@
         "#format"       "{1:d}"
         "en"            "Invalid the class index ({1})"
         "ru"            "Неверный индекс класса ({1})"
+		"chi"            "类索引无效 ({1})"
+		"zho"            "類索引無效 ({1})"
     }
     
     "config dump class start" // Console
@@ -520,6 +671,8 @@
         "#format"       "{1:d}"
         "en"            "DUMPING CACHE: {1} classes total\n========================================\n"
         "ru"            "СБРОС КЭША: {1} классов надено\n========================================\n"
+		"chi"            "转储缓存 {1} 类总计\n========================================\n"
+		"zho"            "轉儲緩存 {1} 類總計\n========================================\n"
     }
     
     // ===========================
@@ -530,6 +683,8 @@
     {
         "en"            "Gives the money. Usage: zp_money_give <name> [amount]\n\n"
         "ru"            "Выдача денег. Использование: zp_money_give <name> [amount]\n\n"
+		"chi"            "给予金钱。 用法： zp_money_give <名称> [数量]\n\n"
+		"zho"            "給予金錢。 用法： zp_money_give <名稱> [數量]\n\n"
     }
     
     "account give invalid amount" // Console
@@ -537,12 +692,16 @@
         "#format"       "{1:d}"
         "en"            "Invalid money amount ({1})"
         "ru"            "Недействительная денежная сумма ({1})"
+		"chi"            "无效的金钱额度 ({1})"
+		"zho"            "無效的金錢額度 ({1})"
     }
 
     "level give invalid args" // Console
     {
         "en"            "Gives the level. Usage: zp_level_give <name> [amount]\n\n"
         "ru"            "Выдача уровня. Использование: zp_level_give <name> [amount]\n\n"
+		"chi"            "给予等级。 用法： zp_level_give <名称> [数量]\n\n"
+		"zho"            "給予等級。 用法： zp_level_give <名稱> [數量]\n\n"
     }
     
     "level give invalid amount" // Console
@@ -550,12 +709,16 @@
         "#format"       "{1:d}"
         "en"            "Invalid level amount ({1})"
         "ru"            "Недействительный уровень ({1})"
+		"chi"            "无效的等级数值 ({1})"
+		"zho"            "無效的等級數值 ({1})"
     }
     
     "experience give invalid args" // Console
     {
         "en"            "Gives the experience. Usage: zp_exp_give <name> [amount]\n\n"
         "ru"            "Выдача опыта. Использование: zp_exp_give <name> [amount]\n\n"
+		"chi"            "给予经验值。 用法： zp_exp_give <名称> [数量]\n\n"
+		"zho"            "給予經驗值。 用法： zp_exp_give <名稱> [數量]\n\n"
     }
     
     "experience give invalid amount" // Console
@@ -563,6 +726,8 @@
         "#format"       "{1:d}"
         "en"            "Invalid experience amount ({1})"
         "ru"            "Недействительный опыт ({1})"
+		"chi"            "无效的经验数值 ({1})"
+		"zho"            "無效的經驗數值 ({1})"
     }
     
     // ===========================
@@ -573,54 +738,72 @@
     {
         "en"            "Main menu"
         "ru"            "Главное меню"
+		"chi"            "主要菜单"
+		"zho"            "主要菜單"
     }
 
     "buy weapons" // Menu
     {
         "en"            "Buy weapons"
         "ru"            "Купить оружие"
+		"chi"            "购买武器"
+		"zho"            "購買武器"
     }
 
     "buy extraitems" // Menu
     {
         "en"            "Buy extra items"
         "ru"            "Купить extra предметы"
+		"chi"            "购买额外物品"
+		"zho"            "購買額外物品"
     }
 
     "choose zombieclass" // Menu
     {
         "en"            "Zombie classes"
         "ru"            "Зомби классы"
+		"chi"            "僵尸职业"
+		"zho"            "僵屍職業"
     }
 
     "choose humanclass" // Menu
     {
         "en"            "Human classes"
         "ru"            "Классы людей"
+		"chi"            "人类职业"
+		"zho"            "人類職業"
     }
 
     "costumes menu" // Menu
     {
         "en"            "Hats/Costumes"
         "ru"            "Шапки/Костюмы"
+		"chi"            "帽子/服装"
+		"zho"            "帽子/服裝"
     }
     
     "unstucks menu" // Menu
     {
         "en"            "Unstuck!"
         "ru"            "Застрял!"
+		"chi"            "逃脱！"
+		"zho"            "逃脫！"
     }
     
     "donates menu" // Menu
     {
         "en"            "Transactions"
         "ru"            "Транзакции"
+		"chi"            "交易"
+		"zho"            "交易"
     }
 
     "admin menu" // Menu
     {
         "en"            "Admin menu"
         "ru"            "Админ меню"
+		"chi"            "管理员菜单"
+		"zho"            "管理員菜單"
     }
 
     // ===========================
@@ -633,6 +816,8 @@
     {
         "en"            "Dead"
         "ru"            "Мертв"
+		"chi"            "死亡"
+		"zho"            "死亡"
     }
     
     // Zombie
@@ -641,90 +826,120 @@
     {
         "en"            "Nemesis"
         "ru"            "Немезис"
+		"chi"            "复仇女神"
+		"zho"            "復仇女神"
     }
     
     "girl" // Menu
     {
         "en"            "Deimos"
         "ru"            "Десмос"
+		"chi"            "妖女"
+		"zho"            "妖女"
     }
 
     "sleeper" // Menu
     {
         "en"            "Sleeper"
         "ru"            "Слепая"
+		"chi"            "沉眠者"
+		"zho"            "沈眠者"
     }
 
     "witch" // Menu
     {
         "en"            "Witch"
         "ru"            "Ведьма"
+		"chi"            "女巫"
+		"zho"            "女巫"
     }
 
     "smoker" // Menu
     {
         "en"            "Smoker"
         "ru"            "Дымовой"
+		"chi"            "烟鬼"
+		"zho"            "煙鬼"
     }
 
     "stamper" // Menu
     {
         "en"            "Stamper"
         "ru"            "Стампер"
+		"chi"            "定棺师"
+		"zho"            "定棺師"
     }
 
     "tesla" // Menu
     {
         "en"            "Tesla"
         "ru"            "Тесла"
+		"chi"            "特斯拉"
+		"zho"            "特斯拉"
     }
 
     "healer" // Menu
     {
         "en"            "Healer"
         "ru"            "Лекарь"
+		"chi"            "治疗者"
+		"zho"            "治療者"
     }
 
     "baller" // Menu
     {
         "en"            "Baller"
         "ru"            "Шаровой"
+		"chi"            "投球者"
+		"zho"            "投球者"
     }
 
     "range" // Menu
     {
         "en"            "Explosive"
         "ru"            "Взрывной"
+		"chi"            "自爆怪"
+		"zho"            "自爆怪"
     }
 
     "mutationheavy" // Menu
     {
         "en"            "Heavy"
         "ru"            "Тяжелый"
+		"chi"            "猎者"
+		"zho"            "獵者"
     }
 
     "mutationlight" // Menu
     {
         "en"            "Ghost"
         "ru"            "Призрак"
+		"chi"            "幽灵"
+		"zho"            "幽靈"
     }
 
     "fast" // Menu
     {
         "en"            "Fast"
         "ru"            "Быстрая"
+		"chi"            "迅捷者"
+		"zho"            "迅捷者"
     }
 
     "tank" // Menu
     {
         "en"            "Tank"
         "ru"            "Большой"
+		"chi"            "坦克"
+		"zho"            "坦克"
     }
 
     "psyh" // Menu
     {
         "en"            "Psyh"
         "ru"            "Псих"
+		"chi"            "疯子"
+		"zho"            "瘋子"
     }
     
     // Info
@@ -733,84 +948,112 @@
     {
         "en"            "Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Выстрел жалом</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能: <font color='#FF0000'>刺痛射击</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zhp"            "技能: <font color='#FF0000'>刺痛射擊</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "sleeper info" // Hint
     {
         "en"            "Passive skill: <font color='#FF0000'>Randomly dazzles the assailant</font>"
         "ru"            "Пассивная способность: <font color='#FF0000'>Случайно ослепляет нападавшего</font>"
+		"chi"            "被动技能： <font color='#FF0000'>随机致盲周围攻击者</font>"
+		"zho"            "被動技能： <font color='#FF0000'>隨機致盲周圍攻擊者</font>"
     }
 
     "witch info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Стая летучих мышей</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>蝙蝠蜂拥</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>蝙蝠蜂擁</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "smoker info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Toxic cloud</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Ядовитая завеса</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>毒雾</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>毒霧</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "stamper info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Explosive coffin</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Взрывной гроб</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>爆破棺材</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>爆破棺材</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "tesla info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Hallucination blast</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Галлюцинационный заряд</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>幻觉爆炸</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>幻覺爆炸</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "healer info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Healing for money rewards</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Лечение для получения денег</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>赏金治疗</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>賞金治療</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "baller info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Paralyzing ball</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Параличный шар</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>瘫痪球</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>癱瘓球</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "range info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Infection gas</font>\nActivation on <font color='#FF0000'>death</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Заражение</font>\nАктивация при <font color='#FF0000'>смерти</font>"
+		"chi"            "技能： <font color='#FF0000'>感染毒气</font>\n激活于 <font color='#FF0000'>死亡</font>"
+		"zho"            "技能： <font color='#FF0000'>感染毒氣</font>\n激活於 <font color='#FF0000'>死亡</font>"
     }
 
     "mutationheavy info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Traping for money rewards</font>\nPress button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Ловушки c получением денег</font>\nЗадержите кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>报酬陷阱</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>報酬陷阱</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "mutationheavy set" // Hint (no color)
     {
         "en"            "Trap installation in progress!"
         "ru"            "Идет установка ловушки!"
+		"chi"            "陷阱部署中！"
+		"zho"            "陷阱部署中！"
     }
     
     "mutationheavy success" // Hint (no color)
     {
         "en"            "The trap has been set!"
         "ru"            "Ловушка установлена!"
+		"chi"            "陷阱已部署!"
+		"zho"            "陷阱已部署!"
     }
     
     "mutationheavy catch" // Hint (no color)
     {
         "en"            "You've been trapped!"
         "ru"            "Вы были пойманы в ловушку!"
+		"chi"            "你落入陷阱了！"
+		"zho"            "妳落入陷阱了！"
     }
     
     "mutationheavy cancel" // Hint (no color)
     {
         "en"            "Cancel the installation!"
         "ru"            "Отмена установки!"
+		"chi"            "取消部署！"
+		"zho"            "取消部署！"
     }
     
     "mutationheavy catched" // Hint (no color)
@@ -818,30 +1061,40 @@
         "#format"       "{1:s}"
         "en"            "Player: {1} - trapped!"
         "ru"            "Игрок: {1} - попал в ловушку!"
+		"chi"            "玩家： {1} - 落入陷阱!"
+		"zho"            "玩家： {1} - 落入陷阱!"
     }
     
     "mutationlight info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>隐身</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>隱身</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "fast info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "Skill: <font color='#FF0000'>疾奔</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "Skill: <font color='#FF0000'>疾奔</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "tank info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Invulnerability</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Неуязвимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>无敌</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>無敵</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     "psyh info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Scream</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Крик</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>尖叫</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>尖叫</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
 
     // Humans
@@ -850,138 +1103,184 @@
     {
         "en"            "Human"
         "ru"            "Человек"
+		"chi"            "人类"
+		"zho"            "人類"
     }
     
     "zombie" // Menu
     {
         "en"            "Zombie"
         "ru"            "Зомби"
+		"chi"            "丧尸"
+		"zho"            "喪屍"
     }
     
     "survivor" // Menu
     {
         "en"            "Survivor"
         "ru"            "Выживший"
+		"chi"            "幸存者"
+		"zho"            "幸存者"
     }
     
     "sniper" // Menu
     {
         "en"            "Sniper"
         "ru"            "Снайпер"
+		"chi"            "狙击手"
+		"zho"            "狙擊手"
     }
 
     "black" // Menu
     {
         "en"            "Black"
         "ru"            "Охотник"
+		"chi"            "布莱克"
+		"zho"            "布萊克"
     }
 
     "carrie" // Menu
     {
         "en"            "Carrie"
         "ru"            "Кэри"
+		"chi"            "嘉利"
+		"zho"            "嘉利"
     }
 
     "choi" // Menu
     {
         "en"            "Choi"
         "ru"            "Чои"
+		"chi"            "蔡"
+		"zho"            "蔡"
     }
 
     "swat" // Menu
     {
         "en"            "SWAT"
         "ru"            "Полицейский"
+		"chi"            "斯瓦特"
+		"zho"            "斯瓦特"
     }
 
     "ct" // Menu
     {
         "en"            "CT"
         "ru"            "Спецназовец"
+		"chi"            "行动队"
+		"zho"            "行動隊"		
     }
 
     "anarhist" // Menu
     {
         "en"            "Anarchist"
         "ru"            "Анархист"
+		"chi"            "无政府主义者"
+		"zho"            "無政府主義者"
     }
 
     "emma" // Menu
     {
         "en"            "Emma"
         "ru"            "Эмма"
+		"chi"            "艾玛"
+		"zho"            "艾瑪"
     }
 
     "pirate" // Menu
     {
         "en"            "Pirate"
         "ru"            "Пират"
+		"chi"            "海盗"
+		"zho"            "海盜"
     }
 
     "lisa" // Menu
     {
         "en"            "Lisa"
         "ru"            "Лиза"
+		"chi"            "丽萨"
+		"zho"            "麗薩"
     }
 
     "mila" // Menu
     {
         "en"            "Mila"
         "ru"            "Мила"
+		"chi"            "米拉"
+		"zho"            "米拉"
     }
 
     "punisher" // Menu
     {
         "en"            "Punisher"
         "ru"            "Каратель"
+		"chi"            "惩罚者"
+		"zho"            "懲罰者"
     }
 
     "balkan" // Menu
     {
         "en"            "Balkan"
         "ru"            "Балкан"
+		"chi"            "巴尔干"
+		"zho"            "巴爾幹"
     }
 
     "fat" // Menu
     {
         "en"            "Fat"
         "ru"            "Толстяк"
+		"chi"			"胖子"
+		"zho"			"胖子"
     }
 
     "strong" // Menu
     {
         "en"            "Strong"
         "ru"            "Силач"
+		"chi"            "大块头"
+		"zho"            "大塊頭"
     }
 
     "phoenix" // Menu
     {
         "en"            "Phoenix"
         "ru"            "Феникс"
+		"chi"            "凤凰"
+		"zho"            "鳳凰"
     }
     
     "redtank" // Menu
     {
         "en"            "Red tank"
         "ru"            "Красный танк"
+		"chi"            "赤红坦克"
+		"zho"            "赤紅坦克"
     }
     
     "bluetank" // Menu
     {
         "en"            "Blue tank"
         "ru"            "Синий танк"
+		"chi"            "湛蓝坦克"
+		"zho"            "湛藍坦克"
     }
     
     "redalice" // Menu
     {
         "en"            "Red Alice"
         "ru"            "Красная Алиса"
+		"chi"            "赤红爱丽丝"
+		"zho"            "赤紅愛麗絲"
     }
     
     "bluealice" // Menu
     {
         "en"            "Blue Alice"
         "ru"            "Синяя Алиса"
+		"chi"            "湛蓝爱丽丝"
+		"zho"            "湛藍愛麗絲"
     }
     
     // Info
@@ -990,24 +1289,32 @@
     {
         "en"            "Skill: <font color='#FF0000'>Armorup</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Бронирование</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>铁壁</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>鐵壁</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
     
     "bluetank info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Regeneration</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Регенерация</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>再生</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>再生</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
     
     "redalice info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "Skill: <font color='#FF0000'>快跑</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "Skill: <font color='#FF0000'>快跑</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
     
     "bluealice info" // Hint
     {
         "en"            "Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
         "ru"            "Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+		"chi"            "技能： <font color='#FF0000'>无敌</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"zho"            "技能： <font color='#FF0000'>無敵</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
     }
     
     // ===========================
@@ -1018,6 +1325,8 @@
     {
         "en"            "Auto-rebuy"
         "ru"            "Авто-покупка"
+		"chi"            "自动重买"
+		"zho"            "自動重買"
     }
     
     "auto rebuy" // Menu
@@ -1025,42 +1334,56 @@
         "#format"       "{1:s}"
         "en"            "Auto-rebuy: {1}"
         "ru"            "Авто-покупка: {1}"
+		"chi"            "自动重买： {1}"
+		"zho"            "自動重買： {1}"
     }
     
     "buy pistols" // Menu
     {
         "en"            "Pistols"
         "ru"            "Пистолеты"
+		"chi"            "手枪"
+		"zho"            "手槍"
     }
 
     "buy shotguns" // Menu
     {
         "en"            "Shotguns"
         "ru"            "Дробовики"
+		"chi"            "霰弹枪"
+		"zho"            "霰彈槍"
     }
 
     "buy rifles" // Menu
     {
         "en"            "Rifles"
         "ru"            "Автоматы"
+		"chi"            "步枪"
+		"zho"            "步槍"
     }
 
     "buy snipers" // Menu
     {
         "en"            "Snipers"
         "ru"            "Винтовки"
+		"chi"            "狙击枪"
+		"zho"            "狙擊槍"
     }
 
     "buy machineguns" // Menu
     {
         "en"            "Machine guns"
         "ru"            "Пулеметы"
+		"chi"            "机枪"
+		"zho"            "機槍"
     }
     
     "buy knifes" // Menu
     {
         "en"            "Melee"
         "ru"            "Ножи"
+		"chi"            "肉搏"
+		"zho"            "肉搏"
     }
     
     // ===========================
@@ -1073,138 +1396,184 @@
     {
         "en"            "Antidote"
         "ru"            "Антидот"
+		"chi"            "解毒剂"
+		"zho"            "解毒劑"
     }
 
     "infect bomb" // Menu
     {
         "en"            "Infection Bomb"
         "ru"            "Заражающая граната"
+		"chi"            "感染炸弹"
+		"zho"            "感染炸彈"
     }
     
     "jump bomb" // Menu
     {
         "en"            "Jump Bomb"
         "ru"            "Джамп граната"
+		"chi"            "跳高手雷"
+		"zho"            "跳高手雷"
     }
     
     "holy grenade" // Menu 
     {
         "en"            "Holy Grenade"
         "ru"            "Святая граната"
+		"chi"            "神圣手雷"
+		"zho"            "神聖手雷"
     }
 
     "molotov" // Menu
     {
         "en"            "Molotov"
         "ru"            "Молотов"
+		"chi"            "莫洛托夫燃烧弹"
+		"zho"            "莫洛托夫燃燒彈"
     }
 
     "inc grenade" // Menu
     {
         "en"            "Incendiary Grenade"
         "ru"            "Поджигающая"
+		"chi"            "莫洛托夫燃烧弹"
+		"zho"            "莫洛托夫燃燒彈"
     }
 
     "medi shot" // Menu
     {
         "en"            "Medical Shot"
         "ru"            "Мед. Шприц"
+		"chi"            "医疗射击"
+		"zho"            "醫療射擊"
     }
     
     "drone gun" // Menu
     {
         "en"            "Auto turret"
         "ru"            "Авто турель"
+        "chi"            "自动炮塔"
+        "zho"            "自動炮塔"
     }
 
     "freeze grenade" // Menu
     {
         "en"            "Freeze Grenade"
         "ru"            "Заморозка"
+        "chi"            "冻结手雷"
+        "zho"            "凍結手雷"
     }
 
     "flare grenade" // Menu
     {
         "en"            "Flare Grenade"
         "ru"            "Световая граната"
+        "chi"            "闪光手雷"
+        "zho"            "閃光手雷"
     }
     
     "breachcharge" // Menu
     {
         "en"            "C4"
         "ru"            "C4"
+		"chi"            "C4炸药"
+		"zho"            "C4炸藥"
     }
 
     "kevlar" // Menu
     {
         "en"            "Armor"
         "ru"            "Броня"
+        "chi"            "护甲"
+        "zho"            "護甲"
     }
     
     "assaultsuit" // Menu
     {
         "en"            "Armor/Helmet"
         "ru"            "Броня/Шлем"
+        "chi"            "护甲/头盔"
+        "zho"            "護甲/頭盔"
     }
     
     "heavysuit" // Menu
     {
         "en"            "Heavy suit"
         "ru"            "Тяжелая броня"
+        "chi"            "重装"
+        "zho"            "重裝"
     }
     
     "bazooka" // Menu
     {
         "en"            "Bazooka"
         "ru"            "Базука"
+        "chi"            "火箭筒"
+        "zho"            "火箭筒"
     }
     
     "airdrop" // Menu
     {
         "en"            "Call airdrop"
         "ru"            "Вызов вертолета"
+        "chi"            "呼叫空投"
+        "zho"            "呼叫空投"
     }
     
     "m32" // Menu
     {
         "en"            "M32 Milkor"
         "ru"            "M32 Milkor"
+        "chi"            "M32 榴弹发射器"
+        "zho"            "M32 榴彈發射器"
     }
     
     "chainsaw" // Menu
     {
         "en"            "Chainsaw"
         "ru"            "Бензопила"
+        "chi"            "电锯"
+        "zho"            "電鋸"
     }
 
     "lasermine" // Menu
     {
         "en"            "Lasermine"
         "ru"            "Лазермина"
+        "chi"            "镭射采掘"
+        "zho"            "鐳射采掘"
     }
     
     "jetpack" // Menu
     {
         "en"            "Jetpack"
         "ru"            "Джетпак"
+        "chi"            "喷气背包"
+        "zho"            "噴氣背包"
     }
 
     "cannon" // Menu
     {
         "en"            "Dragon cannon"
         "ru"            "Огненный дракон"
+		"chi"            "龙炮"
+		"zho"            "龍炮"
     }
     
     "drillgun" // Menu
     {
         "en"            "Drill"
         "ru"            "Дрель"
+		"chi"            "钻头"
+		"zho"            "鉆頭"
     }
     
     "watercannon" // Menu
     {
         "en"            "Flamethrower"
         "ru"            "Огнемет"
+		"chi"            "喷火器"
+		"zho"            "噴火器"
     }
     
     // Info
@@ -1213,18 +1582,24 @@
     {
         "en"            "Strong <font color='#7A1A0B'>slash</font> on the right mouse button"
         "ru"            "Сильный <font color='#7A1A0B'>удар</font> на правую кнопку мыши"
+		"chi"            "加强 <font color='#7A1A0B'>削减</font> 通过鼠标右键"
+		"zho"            "加強 <font color='#7A1A0B'>削減</font> 通過鼠標右鍵"
     }
 
     "turret info" // Hint
     {
         "en"            "To remove <font color='#3D49C7'>a turret</font>, press the button to <font color='#1CA9C9'>open the menu</font>"
         "ru"            "Чтобы снять <font color='#3D49C7'>турель</font> нажмите кнопку для <font color='#1CA9C9'>открытия меню</font>"
+		"chi"            "想移除 <font color='#3D49C7'>一个炮塔</font>, 请激活按钮： <font color='#1CA9C9'>打开菜单</font>"
+		"zho"            "想移除 <font color='#3D49C7'>壹個炮塔</font>, 請激活按鈕： <font color='#1CA9C9'>打開菜單</font>"
     }
     
     "airdrop info" // Hint (no color)
     {
         "en"            "To activate the call, set the sensor and activate the remote"
         "ru"            "Чтобы активировать вызов, установите датчик и активитуйте пультом"
+		"chi"            "要激活呼叫，请设置传感器并激活遥控器"
+		"zho"            "要激活呼叫，請設置傳感器並激活遙控器"
     }
     
     "airdrop safe" // Hint (no color)
@@ -1232,48 +1607,64 @@
         "#format"       "{1:d}"
         "en"            "To open the safe, blow up C4 in quantity {1} PCs."
         "ru"            "Чтобы открыть сейф взорвите C4 в кол-ве {1} шт."
+		"chi"            "打开保险栓, 炸掉C4数量 {1} 台。"
+		"zho"            "打開保險栓, 炸掉C4數量 {1} 臺。"
     }
     
     "airdrop bag" // Hint (no color)
     {
         "en"            "To get weapons from the bag, use E button"
         "ru"            "Чтобы достать оружие из сумки, используйте кнопку E"
+		"chi"            "要从包中取出武器，请激活E按钮"
+		"zho"            "要從包中取出武器，請激活E按鈕"
     }
     
     "trigger on info" // Hint (no color)
     {
         "en"            "Call air bomber with nicbomb"
         "ru"            "Вызов бомбордировщика с ядерной бомбой"
+		"chi"            "呼叫空中轰炸机"
+		"zho"            "呼叫空中轟炸機"
     }
     
     "trigger off info" // Hint (no color)
     {
         "en"            "Call helicopter with airdrop"
         "ru"            "Вызов вертолета с дропом"
+		"chi"            "呼叫空投直升机"
+		"zho"            "呼叫空投直升機"
     }
     
     "lasermine info" // Hint
     {
         "en"            "To remove <font color='#F8173E'>a mine</font>, press the button to <font color='#1CA9C9'>open the menu</font>"
         "ru"            "Чтобы снять <font color='#F8173E'>мину</font> нажмите кнопку для <font color='#1CA9C9'>открытия меню</font>"
+		"chi"           "想删除 <font color='#F8173E'>一个地雷</font>, 请激活按钮： <font color='#1CA9C9'>打开菜单</font>"
+		"zho"           "想刪除 <font color='#F8173E'>壹個地雷</font>, 請激活按鈕： <font color='#1CA9C9'>打開菜單</font>"
     }
     
     "jetpack info" // Hint
     {
         "en"            "Press <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>SPACE</font> to use <font color='#FF033E'>jetpack</font>" 
         "ru"            "Нажмите <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>SPACE</font> чтобы использовать <font color='#FF033E'>джетпак</font>" 
+		"chi"           "按 <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>空格</font> 使用 <font color='#FF033E'>喷气包</font>" 
+		"zho"           "按 <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>空格</font> 使用 <font color='#FF033E'>噴氣包</font>" 
     }
     
     "jetpack empty" // Hint (no color)
     {
         "en"            "Jetpack is empty. Please wait.."
         "ru"            "Джетпак перегрелся. Подождите"
+		"chi"            "喷漆包空了，请等等……"
+		"zho"            "噴漆包空了，請等等……"
     }
     
     "jetpack reloaded" // Hint (no color)
     {
         "en"            "Jetpack recharged!"
         "ru"            "Джетпак остыл"
+		"chi"            "喷漆包已经重新充能！"
+		"zho"            "噴漆包已經重新充能！"
     }
     
     // ===========================
@@ -1286,90 +1677,120 @@
     {
         "en"            "Dual elite"
         "ru"            "Dual elite"
+        "chi"            "Dual elite"
+        "zho"            "Dual elite"
     }
     
     "deagle" // Menu
     {
         "en"            "Desert eagle"
         "ru"            "Пустынный орел"
+		"chi"            "沙漠之鹰"
+		"zho"            "沙漠之鹰"
     }
     
     "glock" // Menu
     {
         "en"            "Glock 18"
         "ru"            "Glock 18"
+		"chi"            "Glock 18"
+		"zho"            "Glock 18"
     }
     
     "usp" // Menu
     {
         "en"            "HK USP"
         "ru"            "HK USP"
+		"chi"            "HK USP"
+		"zho"            "HK USP"
     }
     
     "hpk" // Menu
     {
         "en"            "Heckler & Koch P2000"
         "ru"            "Heckler & Koch P2000"
+		"chi"            "Heckler & Koch P2000"
+		"zho"            "Heckler & Koch P2000"
     }
     
     "fiveseven" // Menu
     {
         "en"            "FN Five-seveN"
         "ru"            "FN Five-seveN"
+		"chi"            "FN Five-seveN"
+		"zho"            "FN Five-seveN"
     }
     
     "tec9" // Menu
     {
         "en"            "Intratec TEC-DC9"
         "ru"            "Intratec TEC-DC9"
+        "chi"            "Intratec TEC-DC9"
+        "zho"            "Intratec TEC-DC9"
     }
     
     "cz75a" // Menu
     {
         "en"            "CZ75A"
         "ru"            "CZ75A"
+        "chi"            "CZ75A"
+        "zho"            "CZ75A"
     }
     
     "p250" // Menu
     {
         "en"            "SIG Sauer P250"
         "ru"            "SIG Sauer P250"
+        "chi"            "SIG Sauer P250"
+        "zho"            "SIG Sauer P250"
     }
     
     "taser" // Menu
     {
         "en"            "Taser"
         "ru"            "Тасер"
+		"chi"            "电击枪"
+        "zho"            "電擊槍"
     }
     
     "revolver" // Menu
     {
         "en"            "Revolver"
         "ru"            "Револьвер"
+		"chi"            "左轮手枪"
+		"zho"            "左輪手槍"
     }
     
     "janus1" // Menu
     {
         "en"            "Janus I"
         "ru"            "Джанус I"
+		"chi"            "Janus I"
+		"zho"            "Janus I"
     }
     
     "skull1" // Menu
     {
         "en"            "Skull I"
         "ru"            "Скулл I"
+		"chi"            "Skull I"
+		"zho"            "Skull I"
     }
     
     "balrog1" // Menu
     {
         "en"            "Balrog I"
         "ru"            "Балрог I"
+		"chi"            "Balrog I"
+		"zho"            "Balrog I"
     }
     
     "sfpistol" // Menu
     {
         "en"            "SF-PISTOL"
         "ru"            "SF-PISTOL"
+		"chi"            "SF-PISTOL"
+		"zho"            "SF-PISTOL"
     }
     
     // Shotguns
@@ -1378,48 +1799,64 @@
     {
         "en"            "Benelli Nova"
         "ru"            "Benelli Nova"
+		"chi"            "Benelli Nova"
+		"zho"            "Benelli Nova"
     }
     
     "sawedoff" // Menu
     {
         "en"            "Sawed-Off"
         "ru"            "Sawed-Off"
+		"chi"            "Sawed-Off"
+		"zho"            "Sawed-Off"
     }
     
     "xm1014" // Menu
     {
         "en"            "XM1014"
         "ru"            "XM1014"
+		"chi"            "XM1014"
+		"zho"            "XM1014"
     }
     
     "mag7" // Menu
     {
         "en"            "MAG7"
         "ru"            "MAG7"
+		"chi"            "MAG7"
+		"zho"            "MAG7"
     }
     
     "skull11" // Menu
     {
         "en"            "Skull XI"
         "ru"            "Скулл XI"
+		"chi"            "Skull XI"
+		"zho"            "Skull XI"
     }
     
     "gatling" // Menu
     {
         "en"            "Gatling"
         "ru"            "Гатлинг"
+		"chi"            "Gatling"
+		"zho"            "Gatling"
     }
     
     "balrog11" // Menu
     {
         "en"            "Balrog XI"
         "ru"            "Балрог XI"
+		"chi"            "Balrog XI"
+		"zho"            "Balrog XI"
     }
     
     "janus11" // Menu
     {
         "en"            "Janus XI"
         "ru"            "Джанус XI"
+		"chi"            "Janus XI"
+		"zho"            "Janus XI"
     }
 
     // Rifles
@@ -1428,132 +1865,176 @@
     {
         "en"            "AK-47"
         "ru"            "AK-47"
+		"chi"            "AK-47"
+		"zho"            "AK-47"
     }
     
     "sg556" // Menu
     {
         "en"            "SIG SG 556"
         "ru"            "SIG SG 556"  
+		"chi"            "SIG SG 556"  
+		"zho"            "SIG SG 556"  
     }
     
     "aug" // Menu
     {
         "en"            "Steyr AUG"
         "ru"            "Steyr AUG"
+		"chi"             "Steyr AUG"
+		"zho"             "Steyr AUG"
     }
     
     "m4a4" // Menu
     {
         "en"            "M4A4"
         "ru"            "M4A4"
+		"chi"             "M4A4"
+		"zho"             "M4A4"
     }
     
     "m4a1" // Menu
     {
         "en"            "M4A1"
         "ru"            "M4A1"
+		"chi"             "M4A1"
+		"zho"             "M4A1"
     }
     
     "bizon" // Menu
     {
         "en"            "Bizon"
         "ru"            "ПП-19"
+		"chi"             "Bizon"
+		"zho"             "Bizon"
     }
     
     "famas" // Menu
     {
         "en"            "FAMAS"
         "ru"            "FAMAS"
+		"chi"             "FAMAS"
+		"zho"             "FAMAS"
     }
     
     "mac10" // Menu
     {
         "en"            "Ingram MAC-10"
         "ru"            "Ingram MAC-10"
+		"chi"             "Ingram MAC-10"
+		"zho"             "Ingram MAC-10"
     }
     
     "mp7" // Menu
     {
         "en"            "HK MP7"
         "ru"            "HK MP7"
+        "chi"            "HK MP7"
+        "zho"            "HK MP7"
     }
     
     "mp9" // Menu
     {
         "en"            "HK MP9"
         "ru"            "HK MP9"
+        "chi"            "HK MP9"
+        "zho"            "HK MP9"
     }
     
     "p90" // Menu
     {
         "en"            "FN P90"
         "ru"            "FN P90"
+        "chi"            "FN P90"
+        "zho"            "FN P90"
     }
     
     "ump45" // Menu
     {
         "en"            "HK UMP"
         "ru"            "HK UMP"
+        "chi"            "HK UMP"
+        "zho"            "HK UMP"
     }
     
     "galilar" // Menu
     {
         "en"            "Galil AR"
         "ru"            "Гагиль"
+		"chi"            "Galil AR"
+		"zho"            "Galil AR"
     }
     
     "lightninghz" // Menu
     {
         "en"            "Lightning HZ"
         "ru"            "Тяжелый зомбяк"
+		"chi"            "Lightning HZ"
+		"zho"            "Lightning HZ"
     }
     
     "lightninglz" // Menu
     {
         "en"            "Lightning LZ"
         "ru"            "Легкий зомбяк"
+		"chi"            "Lightning LZ"
+		"zho"            "Lightning LZ"
     }
     
     "blaster" // Menu
     {
         "en"            "SFGUN-1"
         "ru"            "Лазерный бластер"
+		"chi"            "SFGUN-1"
+		"zho"            "SFGUN-1"
     }
     
     "tempest" // Menu
     {
         "en"            "SF-TEMPEST"
         "ru"            "Лазерный тигр"
+		"chi"            "SF-TEMPEST"
+		"zho"            "SF-TEMPEST"
     }
     
     "plasmagun" // Menu
     {
         "en"            "Plasma Gun"
         "ru"            "Плазма пушка"
+		"chi"            "等离子枪"
+		"zho"            "等離子槍"
     }
     
     "cartblue" // Menu
     {
         "en"            "Cartblue"
         "ru"            "Синяя машинка"
+		"chi"            "Cartblue"
+		"zho"            "Cartblue"
     }
     
     "balrog3" // Menu
     {
         "en"            "Balrog III"
         "ru"            "Балрог III"
+		"chi"            "Balrog III"
+		"zho"            "Balrog III"
     }
     
     "janus3" // Menu
     {
         "en"            "Janus III"
         "ru"            "Джанус III"
+		"chi"            "Janus III"
+		"zho"            "Janus III"
     }
     
     "janus5" // Menu
     {
         "en"            "Janus V"
         "ru"            "Джанус V"
+		"chi"            "Janus V"
+		"zho"            "Janus V"
     }
     
     // Snipers
@@ -1562,6 +2043,8 @@
     {
         "en"            "L96A1"
         "ru"            "L96A1"
+		"chi"            "L96A1"
+		"zho"            "L96A1"
     }
     
     "ssg08" // Menu
@@ -1574,30 +2057,40 @@
     {
         "en"            "G3SG1"
         "ru"            "G3SG1"
+		"chi"            "G3SG1"
+		"zho"            "G3SG1"
     }
     
     "scar20" // Menu
     {
         "en"            "SCAR-20"
         "ru"            "SCAR-20"
+		"chi"            "SCAR-20"
+		"zho"            "SCAR-20"
     }
     
     "wa2000" // Menu
     {
         "en"            "Walther WA2000"
         "ru"            "Walther WA2000"
+		"chi"            "Walther WA2000"
+		"zho"            "Walther WA2000"
     }
     
     "airburster" // Menu
     {
         "en"            "Airburster"
         "ru"            "Воздушная пушка"
+		"chi"            "Airburster"
+		"zho"            "Airburster"
     }
     
     "skull5" // Menu
     {
         "en"            "Skull V"
         "ru"            "Скулл V"
+		"chi"            "Skull V"
+		"zho"            "Skull V"
     }
     
     // Machineguns
@@ -1606,42 +2099,56 @@
     {
         "en"            "M249 SAW"
         "ru"            "M249 SAW"
+		"chi"            "M249 SAW"
+		"zho"            "M249 SAW"
     }
 
     "negev" // Menu
     {
         "en"            "Negev"
         "ru"            "Негев"
+		"chi"            "Negev"
+		"zho"            "Negev"
     }
     
     "m134" // Menu
     {
         "en"            "M134 Monkey"
         "ru"            "M134 Обезьяна"
+		"chi"            "M134 猴子"
+		"zho"            "M134 猴子"
     }
     
     "sfmg" // Menu
     {
         "en"            "SF-MG"
         "ru"            "SF-MG"
+        "chi"            "SF-MG"
+        "zho"            "SF-MG"
     }
     
     "sgdrill" // Menu
     {
         "en"            "SG-DRILL"
         "ru"            "SG-Бур"
+		"chi"            "SG-DRILL"
+		"zho"            "SG-DRILL"
     }
     
     "balrog7" // Menu
     {
         "en"            "Balrog VII"
         "ru"            "Балрог VII"
+		"chi"            "Balrog VII"
+		"zho"            "Balrog VII"
     }
     
     "janus7" // Menu
     {
         "en"            "Janus VII"
         "ru"            "Джанус VII"
+		"chi"            "Janus VII"
+		"zho"            "Janus VII"
     }
     
     // Knife
@@ -1650,72 +2157,96 @@
     {
         "en"            "Fists"
         "ru"            "Кулаки"
+		"chi"            "拳头"
+		"zho"            "拳頭"
     }
     
     "ghost knife" // Menu
     {
         "en"            "Ghost Knife"
         "ru"            "Нож призрака"
+		"chi"            "幽灵之刀"
+		"zho"            "幽靈之刀"
     }
     
     "zombie claw" // Menu
     {
         "en"            "Zombie Claw"
         "ru"            "Зомби клешни"
+		"chi"            "丧尸之爪"
+		"zho"            "喪屍之爪"
     }
     
     "nemesis claw" // Menu
     {
         "en"            "Nemesis Claw"
         "ru"            "Немезис клешни"
+		"chi"            "复仇女神之爪"
+		"zho"            "復仇女神之爪"
     }
     
     "knife" // Menu
     {
         "en"            "Classic Knife"
         "ru"            "Обычный нож"
+		"chi"            "经典小刀"
+		"zho"            "經典小刀"
     }
     
     "knife t" // Menu
     {
         "en"            "Knife T"
         "ru"            "Нож террориста"
+		"chi"            "T刀"
+		"zho"            "T刀"
     }
     
     "spanner" // Menu
     {
         "en"            "Spanner"
         "ru"            "Гаечный ключ"
+		"chi"            "扳手"
+		"zho"            "扳手"
     }
     
     "axe" // Menu
     {
         "en"            "Axe"
         "ru"            "Топор"
+		"chi"            "斧头"
+		"zho"            "斧頭"
     }
     
     "hammer" // Menu
     {
         "en"            "Hammer"
         "ru"            "Молоток"
+		"chi"            "锤子"
+		"zho"            "锤子"
     }
     
     "sfsword" // Menu
     {
         "en"            "Laser Saber"
         "ru"            "Световой меч"
+		"chi"            "激光军刀"
+		"zho"            "激光軍刀"
     }
     
     "skullaxe" // Menu
     {
         "en"            "Skull Axe"
         "ru"            "Большой топор"
+		"chi"            "骷髅头"
+		"zho"            "骷髏頭"
     }
     
     "big hammer" // Menu
     {
         "en"            "Big Hammer"
         "ru"            "Большой молот"
+		"chi"            "大锤子"
+		"zho"            "大錘子"
     }
     
     // Others
@@ -1724,12 +2255,16 @@
     {
         "en"            "Etherial"
         "ru"            "Эфириал"
+		"chi"            "灵气"
+		"zho"            "靈氣"
     }
     
     "sfsniper" // Menu
     {
         "en"            "SF-SNIPER"
         "ru"            "Лазерная винтовка"
+		"chi"            "SF-SNIPER"
+		"zho"            "SF-SNIPER"
     }
     
     // Info
@@ -1738,108 +2273,144 @@
     {
         "en"            "Switch <font color='#E62E00'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#E62E00'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#E62E00'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#E62E00'>模式</font> 通過鼠標右鍵"
     }
 
     "balrog1 info" // Hint 
     {
         "en"            "Fire <font color='#FF6161'>explosion</font> on the right mouse button"
         "ru"            "Огненный <font color='#FF6161'>взрыв</font> на правую кнопку мыши"
+		"chi"            "开火 <font color='#FFD9FF'>爆炸</font> 通过鼠标右键"
+		"zho"            "開火 <font color='#FFD9FF'>爆炸</font> 通過鼠標右鍵"
     }
 
     "janus1 info" // Hint
     {
         "en"            "Switch <font color='#FFD9FF'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#FFD9FF'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#FFD9FF'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#FFD9FF'>模式</font> 通過鼠標右鍵"
     }
 
     "balrog11 info" // Hint 
     {
         "en"            "Fire <font color='#CD00CD'>rain</font> on the right mouse button"
         "ru"            "Огненный <font color='#CD00CD'>поток</font> на правую кнопку мыши"
+		"chi"            "开火 <font color='#CD00CD'>雨</font> 通过鼠标右键"
+		"zho"            "開火 <font color='#CD00CD'>雨</font> 通過鼠標右鍵"
     }
 
     "janus11 info" // Hint 
     {
         "en"            "Switch <font color='#FF33CC'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#FF33CC'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#FF33CC'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#FF33CC'>模式</font> 通過鼠標右鍵"
     }
 
     "cartblue info" // Hint
     {
         "en"            "Switch <font color='#FE28A2'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#FE28A2'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#FE28A2'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#FE28A2'>模式</font> 通過鼠標右鍵"
     }
 
     "janus3 info" // Hint 
     {
         "en"            "Switch <font color='#F754EA'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#F754EA'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#F754EA'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#F754EA'>模式</font> 通過鼠標右鍵"
     }
 
     "janus5 info" // Hint 
     {
         "en"            "Switch <font color='#C154C1'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#C154C1'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#C154C1'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#C154C1'>模式</font> 通過鼠標右鍵"
     }
 
     "airburster info" // Hint 
     {
         "en"            "Strong <font color='#BA66FF'>airburst</font> on the right mouse button"
         "ru"            "Сильный <font color='#BA66FF'>потом</font> на правую кнопку мыши"
+		"chi"            "增强 <font color='#BA66FF'>空投</font> 通过鼠标右键"
+		"zho"            "增強 <font color='#BA66FF'>空投</font> 通過鼠標右鍵"
     }
 
     "sgdrill info" // Hint
     {
         "en"            "Strong <font color='#4B0082'>hit</font> on the right mouse button"
         "ru"            "Сильный <font color='#4B0082'>удар</font> на правую кнопку мыши"
+		"chi"            "增强 <font color='#4B0082'>命中</font> 通过鼠标右键"
+		"zho"            "增強 <font color='#4B0082'>命中</font> 通過鼠標右鍵"
     }
     
     "sfmg info" // Hint
     {
         "en"            "Switch <font color='#FE28B2'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#FE28B2'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#FE28B2'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#FE28B2'>模式</font> 通過鼠標右鍵"
     }
 
     "janus7 info" // Hint 
     {
         "en"            "Switch <font color='#4F273A'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#4F273A'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#4F273A'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#4F273A'>模式</font> 通過鼠標右鍵"
     }
     
     "sfsword info" // Hint 
     {
         "en"            "Switch <font color='#4F0F2E'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#4F0F2E'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#4F0F2E'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#4F0F2E'>模式</font> 通過鼠標右鍵"
     }
 
     "hammer info" // Hint 
     {
         "en"            "Switch <font color='#4F1F36'>mode</font> on the right mouse button"
         "ru"            "Переключить <font color='#4F1F36'>режим</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#4F1F36'>模式</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#4F1F36'>模式</font> 通過鼠標右鍵"
     }
     
     "balrog3 info" // Hint 
     {
         "en"            "Switch <font color='#6B3B82'>zoom</font> on the right mouse button"
         "ru"            "Переключить <font color='#6B3B82'>зум</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#6B3B82'>放大</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#6B3B82'>放大</font> 通過鼠標右鍵"
     }
     
     "balrog7 info" // Hint 
     {
         "en"            "Switch <font color='#702E8F'>zoom</font> on the right mouse button"
         "ru"            "Переключить <font color='#702E8F'>зум</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#702E8F'>放大</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#702E8F'>放大</font> 通過鼠標右鍵"
     }
     
     "m32 info" // Hint 
     {
         "en"            "Switch <font color='#432E8F'>zoom</font> on the right mouse button"
         "ru"            "Переключить <font color='#432E8F'>зум</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#432E8F'>放大</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#432E8F'>放大</font> 通過鼠標右鍵"
     }
     
     "skull11 info" // Hint 
     {
         "en"            "Switch <font color='#5E46B8'>zoom</font> on the right mouse button"
         "ru"            "Переключить <font color='#5E46B8'>зум</font> на правую кнопку мыши"
+		"chi"            "切换 <font color='#5E46B8'>放大</font> 通过鼠标右键"
+		"zho"            "切換 <font color='#5E46B8'>放大</font> 通過鼠標右鍵"
     }
     
     // ===========================
@@ -1850,29 +2421,39 @@
     {
         "en"            "Pig head"
         "ru"            "Свинная голова"
+		"chi"            "猪头"
+		"zho"            "豬頭"
     }
     
     "horse head" // Menu
     {
         "en"            "Horse head"
         "ru"            "Лошадиная голова"
+		"chi"            "马头"
+		"zho"            "馬頭"
     }
     
     "head crab" // Menu
     {
         "en"            "Head crab"
         "ru"            "ХедКраб"
+		"chi"            "猎头蟹"
+		"zho"            "獵頭蟹"
     }
     
     "cow boy" // Menu
     {
         "en"            "Cow boy"
         "ru"            "Ковбой"
+		"chi"            "牛仔"
+		"zho"            "牛仔"
     }
     
     "chicken" // Menu
     {
         "en"            "Chicken"
         "ru"            "Куриная голова"
+		"chi"            "鸡"
+		"zho"            "雞"
     }  
 }
