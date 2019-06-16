@@ -181,7 +181,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
     
     // Sets reload animation
     ZP_SetWeaponAnimation(client, ANIM_RELOAD); 
-    ZP_DoAnimationEvent(client, AnimType_Reload);
+    ZP_SetPlayerAnimation(client, AnimType_Reload);
     
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponReload(gWeapon);
@@ -280,7 +280,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
-    ZP_DoAnimationEvent(client, AnimType_FirePrimary);
+    ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
     
     // Create a plasma
     Weapon_OnCreatePlasma(client, weapon);

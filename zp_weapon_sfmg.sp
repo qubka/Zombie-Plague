@@ -172,7 +172,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
     
     // Sets reload animation
     ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_RELOAD : ANIM_RELOAD2); 
-    ZP_DoAnimationEvent(client, AnimType_Reload);
+    ZP_SetPlayerAnimation(client, AnimType_Reload);
     
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponReload(gWeapon);
@@ -304,7 +304,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
     }
     
     // Sets attack animation
-    ///ZP_DoAnimationEvent(client, AnimType_FirePrimary);;
+    ///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
     // Sets shots count
     SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);

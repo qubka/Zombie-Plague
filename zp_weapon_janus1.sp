@@ -274,7 +274,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
     }
     
     // Sets attack animation
-    ZP_DoAnimationEvent(client, AnimType_FirePrimary);
+    ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
 
     // Sets shots count
     SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);

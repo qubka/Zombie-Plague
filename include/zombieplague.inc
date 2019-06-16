@@ -159,17 +159,6 @@ native bool ZP_IsBSPModel(int entity);
 native void ZP_UpdateTransmitState(int entity);
 
 /**
- * @brief Sets the player animating event.
- *
- * @param client            The client index.
- * @param anim              The event type.
- * @param data              The activity index.
- *
- * @noreturn
- **/
-native void ZP_DoAnimationEvent(int client, AnimType anim, int data = 0);
-
-/**
  * @brief Sets the player progress bar.
  *
  * @param client            The client index.

@@ -201,7 +201,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
     
     // Sets reload animation
     ZP_SetWeaponAnimation(client, ANIM_RELOAD); 
-    ZP_DoAnimationEvent(client, AnimType_Reload);
+    ZP_SetPlayerAnimation(client, AnimType_Reload);
     
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponReload(gWeapon);
@@ -283,7 +283,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
     // Sets attack animation
     ZP_SetWeaponAnimationPair(client, weapon, { ANIM_ATTACK_LOOP1, ANIM_ATTACK_LOOP2 });   
-    ZP_DoAnimationEvent(client, AnimType_FirePrimary);
+    ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
     
     // Sets attack state
     SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ATTACK);
@@ -357,7 +357,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
         
         // Sent a beam
         TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-        static int iClients[MAXPLAYERS+1]; int iCount;
+        int[] iClients = new int[MaxClients]; int iCount;
         for(int i = 1; i <= MaxClients; i++)
         {
             if(!IsPlayerExist(i, false) || i == client || IsFakeClient(i)) continue;

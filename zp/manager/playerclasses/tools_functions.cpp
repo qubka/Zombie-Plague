@@ -1090,18 +1090,6 @@ bool ToolsIsBSPModel(int entity)
 }
 
 /**
- * @brief Sets the player animating event.
- *
- * @param client            The client index.
- * @param nAnim             The event type.
- * @param iData             The activity index.
- **/
-void ToolsDoAnimationEvent(int client, AnimType nAnim, int iData)
-{
-    SDKCall(hSDKCallDoAnimationEvent, client, nAnim, iData);
-}
-
-/**
  * @brief Sets the player progress bar.
  *
  * @param client            The client index.

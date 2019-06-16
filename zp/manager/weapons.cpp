@@ -2401,7 +2401,7 @@ int WeaponsNameToIndex(char[] sName)
     
     // i = weapon index
     int iSize = gServerData.Weapons.Length;
-    for (int i = 0; i < iSize; i++)
+    for(int i = 0; i < iSize; i++)
     {
         // Gets weapon name 
         WeaponsGetName(i, sWeaponName, sizeof(sWeaponName));

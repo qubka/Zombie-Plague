@@ -199,7 +199,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
     
     // Sets reload animation
     ZP_SetWeaponAnimation(client, ANIM_RELOAD); 
-    ZP_DoAnimationEvent(client, AnimType_Reload);
+    ZP_SetPlayerAnimation(client, AnimType_Reload);
     
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponReload(gWeapon);

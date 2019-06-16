@@ -43,6 +43,8 @@
 #include <utils>
 #pragma semicolon 1
 #pragma newdecls required
+/** By default, plugins have 4KB of stack space, set 512KB **/
+//#pragma dynamic 131072
 
 // Main
 #include "zp/global.cpp"  

@@ -37,7 +37,6 @@ Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallGetSequenceDuration;
 Handle hSDKCallUpdateTransmitState;
 Handle hSDKCallIsBSPModel;
-Handle hSDKCallDoAnimationEvent;
 Handle hSDKCallSetProgressBarTime;
 
 /**
@@ -284,23 +283,7 @@ void ToolsOnInit(/*void*/)
     }
 
     /*__________________________________________________________________________________________________*/
-    
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CCSPlayer::DoAnimationEvent");
-    
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
-    // Validate call
-    if((hSDKCallDoAnimationEvent = EndPrepSDKCall()) == null)
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CCSPlayer::DoAnimationEvent\". Update signature in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }
-    
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
     PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CCSPlayer::SetProgressBarTime");
@@ -430,7 +413,6 @@ void ToolsOnNativeInit(/*void*/)
     CreateNative("ZP_UpdateTransmitState",  API_UpdateTransmitState);
     CreateNative("ZP_RespawnPlayer",        API_RespawnPlayer);
     CreateNative("ZP_FindPlayerInSphere",   API_FindPlayerInSphere);
-    CreateNative("ZP_DoAnimationEvent",     API_DoAnimationEvent);
     CreateNative("ZP_SetProgressBarTime",   API_SetProgressBarTime);
 }
 
@@ -770,27 +752,6 @@ public int API_FindPlayerInSphere(Handle hPlugin, int iNumParams)
     
     // Return on the success
     return client;
-}
-
-/**
- * @brief Sets the player animating event.
- *
- * @note native void ZP_DoAnimationEvent(client, anim, data);
- **/
-public int API_DoAnimationEvent(Handle hPlugin, int iNumParams)
-{
-    // Gets real player index from native cell 
-    int client = GetNativeCell(1);
-
-    // Validate client
-    if(!IsPlayerExist(client))
-    {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
-        return;
-    }
-    
-    // Play animation
-    ToolsDoAnimationEvent(client, GetNativeCell(2), GetNativeCell(3));
 }
 
 /**

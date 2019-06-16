@@ -264,7 +264,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
         ZP_SetWeaponAnimationPair(client, weapon, { ANIM_OFF_SLASH1, ANIM_OFF_SLASH2 });
 
         // Sets attack animation
-        ZP_DoAnimationEvent(client, AnimType_MeleeStab);
+        ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
         
         // Create timer for stab
         delete hWeaponStab[client];
@@ -301,7 +301,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
         }
 
         // Sets attack animation
-        ZP_DoAnimationEvent(client, AnimType_MeleeSlash);
+        ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
         
         // Create timer for swing
         delete hWeaponSwing[client];

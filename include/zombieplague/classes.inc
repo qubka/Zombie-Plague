@@ -701,3 +701,21 @@ stock int ZP_GetPlayerTeam(int client)
 {
     return ZP_IsPlayerHuman(client) ? TEAM_HUMAN : TEAM_ZOMBIE;
 }
+
+/**
+ * @brief Sets the player animating event.
+ *
+ * @param client            The client index.
+ * @param anim              The event type.
+ * @param data              The activity index.
+ *
+ * @noreturn
+ **/
+stock void ZP_SetPlayerAnimation(int client, AnimType anim, int data = 0)
+{
+    TE_Start("PlayerAnimEvent");
+    TE_WriteNum("m_hPlayer", EntIndexToEntRef(client) & 0x7FFF);
+    TE_WriteNum("m_iEvent", view_as<int>(anim));
+    TE_WriteNum("m_nData", data);
+    TE_SendToAll();
+}

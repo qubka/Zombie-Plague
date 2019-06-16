@@ -278,6 +278,15 @@
         "ro"            "Adăuga"
     }
     
+    "remove" // Menu
+    {
+        "en"            "Remove"
+        "ru"            "Убрать"
+        "chi"           "去掉"
+        "zho"           "去掉"
+        "ro"            "Elimina"
+    }
+    
     "increase" // Menu
     {
         "en"            "Increase"

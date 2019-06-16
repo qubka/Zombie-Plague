@@ -168,7 +168,7 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iReloadMod
 
             // Sets reload animation
             ZP_SetWeaponAnimationPair(client, weapon, { ANIM_INSERT1, ANIM_INSERT2 });
-            ZP_DoAnimationEvent(client, AnimType_ReloadLoop);
+            ZP_SetPlayerAnimation(client, AnimType_ReloadLoop);
             
             // Adds the delay to the game tick
             flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_INSERT1);
@@ -252,7 +252,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iReloadMo
     {
         // Sets start reload animation
         ZP_SetWeaponAnimation(client, ANIM_START_INSERT); 
-        ZP_DoAnimationEvent(client, AnimType_ReloadStart);
+        ZP_SetPlayerAnimation(client, AnimType_ReloadStart);
         
         // Adds the delay to the game tick
         flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_START_INSERT);
@@ -275,7 +275,7 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iRe
 
     // Sets end animation
     ZP_SetWeaponAnimation(client, ANIM_FINISH_INSERT);        
-    ZP_DoAnimationEvent(client, AnimType_ReloadEnd);
+    ZP_SetPlayerAnimation(client, AnimType_ReloadEnd);
     
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_FINISH_INSERT);
@@ -355,7 +355,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iR
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });
-    ZP_DoAnimationEvent(client, AnimType_FirePrimary);
+    ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
     
     // Create a grenade
     Weapon_OnCreateGrenade(client);

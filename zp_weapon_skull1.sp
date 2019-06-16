@@ -158,7 +158,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
     
     // Sets reload animation
     ZP_SetWeaponAnimation(client, ANIM_RELOAD); 
-    ZP_DoAnimationEvent(client, AnimType_Reload);
+    ZP_SetPlayerAnimation(client, AnimType_Reload);
     
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponReload(gWeapon);
@@ -249,7 +249,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
     ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets attack animation
-    ///ZP_DoAnimationEvent(client, AnimType_FirePrimary);;
+    ///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
     // Calculate the animation duration
     float flDelay = ZP_GetSequenceDuration(weapon, ANIM_SHOOT1);
@@ -324,7 +324,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, floa
     ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets attack animation
-    ///ZP_DoAnimationEvent(client, AnimType_FirePrimary);;
+    ///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
     // Calculate the animation duration
     float flDelay = ZP_GetSequenceDuration(weapon, ANIM_SHOOT1_SP);

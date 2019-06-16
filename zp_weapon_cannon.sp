@@ -198,7 +198,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
     
     // Sets attack animation
     ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });
-    ZP_DoAnimationEvent(client, AnimType_FirePrimary);
+    ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
     
     // Initialize vector
     static float vPosition[5][3];
