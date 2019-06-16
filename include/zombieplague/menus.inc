@@ -35,24 +35,24 @@
 /**
  * @brief Called before show a main menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
  *                              (like Plugin_Continue) to allow showing.
  **/
-forward Action ZP_OnClientValidateButton(int clientIndex);
+forward Action ZP_OnClientValidateButton(int client);
 
 /**
  * @brief Called before show a slot in the main/sub menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param menuID            The slot index.
  * @param iSub              The submenu index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-forward Action ZP_OnClientValidateMenu(int clientIndex, int menuID, int iSub);
+forward Action ZP_OnClientValidateMenu(int client, int menuID, int iSub);
 
 /**
  * @brief Gets the amount of all menus.
@@ -123,9 +123,9 @@ native void ZP_GetMenuCommand(int menuID, char[] command, int maxlenght = 32, in
 /**
  * Opens the submenu of the menu.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param menuID            The menu index.
  *
  * @note If a submenu is not exist will open the main menu instead.
  **/
-native void ZP_OpenMenuSub(int clientIndex, int menuID);
+native void ZP_OpenMenuSub(int client, int menuID);

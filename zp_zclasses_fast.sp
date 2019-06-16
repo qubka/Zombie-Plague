@@ -27,6 +27,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -57,13 +58,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("fast");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"fast\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"fast\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("FAST_SKILL_SOUNDS");
@@ -77,26 +96,26 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex        The client index.
+ * @param client             The client index.
  *
  * @return                   Plugin_Handled to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Sets a new speed
-        SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", ZOMBIE_CLASS_SKILL_SPEED);
+        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZOMBIE_CLASS_SKILL_SPEED);
         
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create effect
         static float vPosition[3];
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-        UTIL_CreateParticle(clientIndex, vPosition, _, _, "viy_viy_viy", ZP_GetClassSkillDuration(gZombie));
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+        UTIL_CreateParticle(client, vPosition, _, _, "viy_viy_viy", ZP_GetClassSkillDuration(gZombie));
     }
     
     // Allow usage
@@ -106,14 +125,14 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 /**
  * @brief Called when a skill duration is over.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void ZP_OnClientSkillOver(int clientIndex)
+public void ZP_OnClientSkillOver(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie) 
+    if(ZP_GetClientClass(client) == gZombie) 
     {
         // Sets previous speed
-        SetEntPropFloat(clientIndex, Prop_Data, "m_flLaggedMovementValue", ZP_GetClassSpeed(gZombie));
+        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZP_GetClassSpeed(gZombie));
     }
 }

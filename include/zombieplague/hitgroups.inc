@@ -35,16 +35,32 @@
 /**
  * @brief Called when a client take a fake damage.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index. (Not validated!)
- * @param inflicterIndex    The inflicter index. (Not validated!)
+ * @param client            The client index.
+ * @param attacker          The attacker index. (Not validated!)
+ * @param inflicter         The inflicter index. (Not validated!)
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
- * @param weaponIndex       The weapon index or -1 for unspecified.
+ * @param weapon            The weapon index or -1 for unspecified.
  *
  * @noreturn
  **/
-forward void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflicterIndex, float &damage, int &bits, int &weaponIndex);
+forward void ZP_OnClientDamaged(int client, int &attacker, int &inflicter, float &damage, int &bits, int &weapon);
+
+/**
+ * @brief Applies fake damage to an entity. 
+ *
+ * @param client            The client index.
+ * @param attacker          The attacker index.
+ * @param inflictor         The inflictor index.
+ * @param damage            The amount of damage inflicted.
+ * @param bits              (Optional) The ditfield of damage types. 
+ * @param weapon            (Optional) The weapon index or -1 for unspecified.
+ *
+ * @note Knockback will apply only on 'DMG_NEVERGIB' from the class and if the weapon index is state.
+ *
+ * @noreturn
+ **/
+native void ZP_TakeDamage(int client, int attacker, int inflictor, float damage, int bits = DMG_GENERIC, int weapon = -1);
 
 /**
  * @brief Gets the amount of all hitgrups.
@@ -101,7 +117,7 @@ native bool ZP_IsHitGroupDamage(int hitID);
  *
  * @param hitID             The hitgroup index.
  *
- * @return                  The knockback multiplier of the hitgroup.
+ * @return                  The generic knockback multiplier.
  **/
 native float ZP_GetHitGroupKnockBack(int hitID);
 
@@ -110,7 +126,7 @@ native float ZP_GetHitGroupKnockBack(int hitID);
  *
  * @param hitID             The hitgroup index.
  *
- * @return                  The armor multiplier of the hitgroup.
+ * @return                  The armor damage multiplier.
  **/
 native float ZP_GetHitGroupArmor(int hitID);
 
@@ -119,7 +135,7 @@ native float ZP_GetHitGroupArmor(int hitID);
  *
  * @param hitID             The hitgroup index.
  *
- * @return                  The bonus multiplier of the hitgroup.
+ * @return                  The bonus damage multiplier.
  **/
 native float ZP_GetHitGroupBonus(int hitID);
 
@@ -128,9 +144,18 @@ native float ZP_GetHitGroupBonus(int hitID);
  *
  * @param hitID             The hitgroup index.
  *
- * @return                  The heavy multiplier of the hitgroup.
+ * @return                  The heavy damage multiplier.
  **/
 native float ZP_GetHitGroupHeavy(int hitID);
+
+/**
+ * @brief Gets the shield value of the hitgroup.
+ *
+ * @param hitID             The hitgroup index.
+ *
+ * @return                  The shield damage multiplier.
+ **/
+native float ZP_GetHitGroupShield(int hitID);
 
 /**
  * @brief Checks the protect value of the hitgroup.

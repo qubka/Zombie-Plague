@@ -85,16 +85,16 @@ stock void TranslationPluginFormatString(char[] sText, int iMaxlen, bool bColor 
 /**
  * @brief Print console text to the client. (with style)
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param ...               Translation formatting parameters.  
  **/
-stock void TranslationPrintToConsole(int clientIndex, any ...)
+stock void TranslationPrintToConsole(int client, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(clientIndex))
+    if(!IsFakeClient(client))
     {
         // Sets translation target
-        SetGlobalTransTarget(clientIndex);
+        SetGlobalTransTarget(client);
         
         // Translate phrase
         static char sTranslation[CONSOLE_LINE_LENGTH];
@@ -104,7 +104,7 @@ stock void TranslationPrintToConsole(int clientIndex, any ...)
         TranslationPluginFormatString(sTranslation, sizeof(sTranslation), false);
         
         // Print translated phrase to the client console
-        PrintToConsole(clientIndex, sTranslation);
+        PrintToConsole(client, sTranslation);
     }
 }
 
@@ -164,23 +164,23 @@ stock void TranslationPrintToConsoleAll(bool bServer, any ...)
 /**
  * @brief Print hint center text to the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHintText(int clientIndex, any ...)
+stock void TranslationPrintHintText(int client, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(clientIndex))
+    if(!IsFakeClient(client))
     {
         // Sets translation target
-        SetGlobalTransTarget(clientIndex);
+        SetGlobalTransTarget(client);
 
         // Translate phrase
         static char sTranslation[CHAT_LINE_LENGTH];
         VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 2);
 
         // Print translated phrase to the client screen
-        UTIL_CreateClientHint(clientIndex, sTranslation);
+        UTIL_CreateClientHint(client, sTranslation);
     }
 }
 
@@ -220,7 +220,7 @@ stock void TranslationPrintHintTextAll(any ...)
  * @brief Print hud text to the client.
  * 
  * @param hSync             New HUD synchronization object.
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param x                 x coordinate, from 0 to 1. -1.0 is the center.
  * @param y                 y coordinate, from 0 to 1. -1.0 is the center.
  * @param holdTime          Number of seconds to hold the text.
@@ -234,20 +234,20 @@ stock void TranslationPrintHintTextAll(any ...)
  * @param fadeOut           Number of seconds to spend fading out.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHudText(Handle hSync, int clientIndex, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
+stock void TranslationPrintHudText(Handle hSync, int client, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(clientIndex))
+    if(!IsFakeClient(client))
     {
         // Sets translation target
-        SetGlobalTransTarget(clientIndex);
+        SetGlobalTransTarget(client);
 
         // Translate phrase
         static char sTranslation[CHAT_LINE_LENGTH];
         VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 14);
 
         // Print translated phrase to the client screen
-        UTIL_CreateClientHud(hSync, clientIndex, x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut, sTranslation);
+        UTIL_CreateClientHud(hSync, client, x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut, sTranslation);
     }
 }
 
@@ -298,16 +298,16 @@ stock void TranslationPrintHudTextAll(Handle hSync, float x, float y, float hold
 /**
  * @brief Print chat text to the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param ...               Formatting parameters. 
  **/
-stock void TranslationPrintToChat(int clientIndex, any ...)
+stock void TranslationPrintToChat(int client, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(clientIndex))
+    if(!IsFakeClient(client))
     {
         // Sets translation target
-        SetGlobalTransTarget(clientIndex);
+        SetGlobalTransTarget(client);
 
         // Translate phrase
         static char sTranslation[CHAT_LINE_LENGTH];
@@ -317,7 +317,7 @@ stock void TranslationPrintToChat(int clientIndex, any ...)
         TranslationPluginFormatString(sTranslation, CHAT_LINE_LENGTH);
 
         // Print translated phrase to the client chat
-        PrintToChat(clientIndex, sTranslation);
+        PrintToChat(client, sTranslation);
     }
 }
 
@@ -380,19 +380,19 @@ stock void TranslationPrintToServer(any:...)
 /**
  * @brief Print into console for client. (with style)
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param ...               Formatting parameters. 
  **/
-stock void TranslationReplyToCommand(int clientIndex, any ...)
+stock void TranslationReplyToCommand(int client, any ...)
 {
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
         return;
     }
     
     // Sets translation target
-    SetGlobalTransTarget(clientIndex);
+    SetGlobalTransTarget(client);
     
     // Translate phrase
     static char sTranslation[CONSOLE_LINE_LENGTH];
@@ -402,5 +402,5 @@ stock void TranslationReplyToCommand(int clientIndex, any ...)
     TranslationPluginFormatString(sTranslation, CONSOLE_LINE_LENGTH, false);
 
     // Print translated phrase to the client console
-    ReplyToCommand(clientIndex, sTranslation);
+    ReplyToCommand(client, sTranslation);
 }

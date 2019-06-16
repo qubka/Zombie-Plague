@@ -54,14 +54,15 @@ enum SlotType
  **/
 enum MenuType
 {
-     MenuType_Invisible,          /**  Used as return value when a menu doens't exist. */
-     
-     MenuType_Pistols,            /**  Pistol menu */
-     MenuType_Shotguns,           /**  Shotgun menu */
-     MenuType_Rifles,             /**  Rifle menu */
-     MenuType_Snipers,            /**  Sniper menu */
-     MenuType_Machineguns,        /**  Machineguns menu */
-     MenuType_Knifes              /**  Knife menu */
+    MenuType_Invalid = -1,        /** Used as return value when a menu doens't exist. */
+    
+    MenuType_Pistols,             /** Pistol menu */
+    MenuType_Shotguns,            /** Shotgun menu */
+    MenuType_Rifles,              /** Rifle menu */
+    MenuType_Snipers,             /** Sniper menu */
+    MenuType_Machineguns,         /** Machineguns menu */
+    MenuType_Knifes,              /** Knife menu */
+    MenuType_Equipments           /** Equipment menu */
 };
 /**
  * @endsection
@@ -84,7 +85,8 @@ enum BitType
     BitType_Knife,                /** Knife bit */
     BitType_TaGrenade,            /** Tagrenade bit */
     BitType_C4,                   /** C4 bit */
-    BitType_DefuseKit             /** Defuse bit */
+    BitType_DefuseKit,            /** Defuse bit */
+    BitType_Shield                /** Shield bit */
 };
 /**
  * @endsection
@@ -109,144 +111,183 @@ enum ModelType
 /**
  * @brief Called before show a weapon in the weapons menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param weaponID          The weapon index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-forward Action ZP_OnClientValidateWeapon(int clientIndex, int weaponID);
+forward Action ZP_OnClientValidateWeapon(int client, int weaponID);
  
 /**
  * @brief Called after a custom grenade is created. (Only for projectiles)
  *
- * @param clientIndex       The client index.
- * @param grenadeIndex      The grenade index.
+ * @param client            The client index.
+ * @param grenade           The grenade index.
  * @param weaponID          The weapon id.
  **/
-forward void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID);
- 
+forward void ZP_OnGrenadeCreated(int client, int grenade, int weaponID);
+
+/**
+ * @brief Called before a grenade sound is emitted.
+ *
+ * @param grenade           The grenade index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  Plugin_Continue to allow sounds. Anything else
+ *                              (like Plugin_Stop) to block sounds.
+ **/
+forward Action ZP_OnGrenadeSound(int grenade, int weaponID);
+
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-forward void ZP_OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID);
+forward void ZP_OnWeaponCreated(int client, int weapon, int weaponID);
 
 /**
  * @brief Called on each frame of a weapon holding.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iButtons          The buttons buffer.
  * @param iLastButtons      The last buttons buffer.
- * @param weaponIndex       The weapon index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @return                  Plugin_Continue to allow buttons. Anything else 
  *                                (like Plugin_Changed) to change buttons.
  **/
-forward Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID);
+forward Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID);
 
 /**
  * @brief Called on deploy of a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID);
+forward void ZP_OnWeaponDeploy(int client, int weapon, int weaponID);
 
 /**
  * @brief Called on holster of a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID);
+forward void ZP_OnWeaponHolster(int client, int weapon, int weaponID);
 
 /**
  * @brief Called on reload of a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponReload(int clientIndex, int weaponIndex, int weaponID);
+forward void ZP_OnWeaponReload(int client, int weapon, int weaponID);
 
 /**
  * @brief Called on bullet of a weapon.
  *
- * @param clientIndex       The client index.
- * @param vBulletPosition   The position of a bullet hit.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param vBullet           The position of a bullet hit.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponBullet(int clientIndex, float vBulletPosition[3], int weaponIndex, int weaponID);
+forward void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID);
 
 /**
  * @brief Called on shoot of a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID);
+forward void ZP_OnWeaponShoot(int client, int weapon, int weaponID);
 
 /**
  * @brief Called on fire of a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponFire(int clientIndex, int weaponIndex, int weaponID);
+forward void ZP_OnWeaponFire(int client, int weapon, int weaponID);
+
+/**
+ * @brief Called on drop of a weapon.
+ *
+ * @param weapon            The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @noreturn
+ **/
+forward void ZP_OnWeaponDrop(int weapon, int weaponID);
+
+/**
+ * @brief Creates the weapon by a given id.
+ *
+ * @param weaponID          The weapon id.
+ * @param origin            The origin of the spawn.
+ * @param angle             The angle of the spawn.
+ *
+ * @return                  The weapon index.
+ **/
+native int ZP_CreateWeapon(int weaponID, float origin[3], float angle[3]);
 
 /**
  * @brief Gives the weapon by a given name.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param weaponID          The weapon ID.
  * @param slot              (Optional) The slot index. (mod specific)
- * @param remove            (Optional) True to delete weapon or false to just drop weapon.
  *
  * @return                  The weapon index.
  **/
-native int ZP_GiveClientWeapon(int clientIndex, int weaponID, SlotType slot = SlotType_Invalid, bool remove = false);
+native int ZP_GiveClientWeapon(int client, int weaponID, SlotType slot = SlotType_Invalid);
+
+/**
+ * @brief Switches the weapon by an index.
+ *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ **/
+native void ZP_SwitchClientWeapon(int client, int weapon);
 
 /**
  * @brief Gets the client viewmodel. 
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param custom            True to gets the custom viewmodel, false the original.
  *           
  * @return                  The viewmodel index.
  **/
-native int ZP_GetClientViewModel(int clientIndex, bool custom);
+native int ZP_GetClientViewModel(int client, bool custom);
 
 /**
  * @brief Gets the client attachmodel. (On the player's backpack)
  *
- * @param clientIndex       The client index.
- * @param bitType           The bit type.
+ * @param client            The client index.
+ * @param bits              The bit type.
  *         
  * @return                  The attachmodel index.
  **/
-native int ZP_GetClientAttachModel(int clientIndex, BitType bitType);
+native int ZP_GetClientAttachModel(int client, BitType bits);
 
 /**
  * @brief Gets the custom weapon id from a given name.
@@ -283,13 +324,13 @@ native void ZP_GetWeaponName(int weaponID, char[] name, int maxlenght = 32);
 native void ZP_GetWeaponInfo(int weaponID, char[] info, int maxlenght = 128);
 
 /**
- * @brief Gets the entity of a weapon at a given id.
+ * @brief Gets the defenition index of the weapon.
  *
  * @param weaponID          The weapon ID.
- * @param entity            The string to return entity in.
- * @param maxlenght         The lenght of string.
+ *
+ * @return                  The def index. 
  **/
-native void ZP_GetWeaponEntity(int weaponID, char[] entity, int maxlenght = 32);
+native ItemDef ZP_GetWeaponDefIndex(int weaponID);
 
 /**
  * @brief Gets the group of a weapon at a given id.
@@ -319,7 +360,7 @@ native void ZP_GetWeaponClass(int weaponID, char[] class, int maxlenght = 128);
 native int ZP_GetWeaponCost(int weaponID);
 
 /**
- * @brief Gets the slot of the weapon.
+ * @brief Gets the menu slot of the weapon.
  * 
  * @param weaponID          The weapon ID.
  *
@@ -511,21 +552,21 @@ native int ZP_GetWeaponModelDropID(int weaponID);
  * @brief Gets the body index of the weapon model.
  *
  * @param weaponID          The weapon ID.
- * @param modelType         The model type.
+ * @param model             The model type.
  *
  * @return                  The body index.    
  **/
-native int ZP_GetWeaponModelBody(int weaponID, ModelType modelType);
+native int ZP_GetWeaponModelBody(int weaponID, ModelType model);
 
 /**
  * @brief Gets the skin index of the weapon model.
  *
  * @param weaponID          The weapon ID.
- * @param modelType         The model type.
+ * @param model             The model type.
  *
  * @return                  The skin index.    
  **/
-native int ZP_GetWeaponModelSkin(int weaponID, ModelType modelType);
+native int ZP_GetWeaponModelSkin(int weaponID, ModelType model);
 
 /**
  * @brief Gets the muzzle name of a weapon at a given id.
@@ -557,27 +598,27 @@ native float ZP_GetWeaponModelHeat(int weaponID);
 /**
  * @brief Returns index if the player has a current weapon.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param weaponID          The weapon id.
  *
  * @return                  The weapon index.
  **/
-stock int ZP_IsPlayerHasWeapon(int clientIndex, int weaponID)
+stock int ZP_IsPlayerHasWeapon(int client, int weaponID)
 {
     // i = weapon number
-    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(client, Prop_Data, "m_hMyWeapons");
     for (int i = 0; i < iSize; i++)
     {
         // Gets weapon index
-        int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
+        int weapon = GetEntPropEnt(client, Prop_Data, "m_hMyWeapons", i);
         
         // If entity isn't valid, then skip
-        if(weaponIndex != INVALID_ENT_REFERENCE)
+        if(weapon != -1)
         {
             // If weapon find, then return
-            if(GetEntProp(weaponIndex, Prop_Data, "m_iHammerID") == weaponID)
+            if(GetEntProp(weapon, Prop_Data, "m_iHammerID") == weaponID)
             {
-                return weaponIndex;
+                return weapon;
             }
         }
         
@@ -592,31 +633,31 @@ stock int ZP_IsPlayerHasWeapon(int clientIndex, int weaponID)
 /**
  * @brief Returns true if the player hold a current weapon, false if not.
  * 
- * @param clientIndex       The client index. 
- * @param weaponIndex       The weapon index.
+ * @param client            The client index. 
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  * 
  * @return                  True or false.
  **/
-stock bool ZP_IsPlayerHoldWeapon(int clientIndex, int &weaponIndex, int weaponID)
+stock bool ZP_IsPlayerHoldWeapon(int client, int &weapon, int weaponID)
 {
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return false;
     }
 
     // Gets weapon index
-    weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hActiveWeapon");
+    weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 
     // If entity isn't valid, then stop
-    if(weaponIndex == INVALID_ENT_REFERENCE)
+    if(weapon == -1)
     {
         return false;
     }
 
     // If weapon didn't find, then stop
-    if(GetEntProp(weaponIndex, Prop_Data, "m_iHammerID") != weaponID)
+    if(GetEntProp(weapon, Prop_Data, "m_iHammerID") != weaponID)
     {
         return false;
     }
@@ -628,49 +669,49 @@ stock bool ZP_IsPlayerHoldWeapon(int clientIndex, int &weaponIndex, int weaponID
 /**
  * @brief Gets the weapon shoot position.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param flForward         (Optional) The forward distance.
  * @param flRight           (Optional) The right distance. 
  * @param flVertical        (Optional) The vertical distance.
- * @param vPosition         The calculated position vector output.
+ * @param vOutput           The calculated position vector output.
  **/
-stock void ZP_GetPlayerGunPosition(int clientIndex, float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vPosition[3])
+stock void ZP_GetPlayerGunPosition(int client, float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOutput[3])
 {
     // Initialize vectors
-    static float vEntPosition[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
+    static float vPosition[3]; static float vAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
 
     // Gets client eye angle
-    GetClientEyePosition(clientIndex, vEntPosition);
+    GetClientEyePosition(client, vPosition);
     
     // Gets client eye angle
-    GetClientEyeAngles(clientIndex, vEntAngle);
+    GetClientEyeAngles(client, vAngle);
 
     // Returns vectors in the direction of an angle
-    GetAngleVectors(vEntAngle, vForward, vRight, vVertical);
+    GetAngleVectors(vAngle, vForward, vRight, vVertical);
 
     // Calculate ends point by applying all vectors distances 
-    vPosition[0] = vEntPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
-    vPosition[1] = vEntPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
-    vPosition[2] = vEntPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
+    vOutput[0] = vPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
+    vOutput[1] = vPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
+    vOutput[2] = vPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
 }
 
 /**
  * @brief Gets the weapon animating index.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  The sequence index.
  **/
-stock int ZP_GetWeaponAnimation(int clientIndex)
+stock int ZP_GetWeaponAnimation(int client)
 {
     // Gets client viewmodel
-    int viewModel = ZP_GetClientViewModel(clientIndex, true); /// Gets anims on the custom model 
+    int view = ZP_GetClientViewModel(client, true); /// Gets anims on the custom model 
 
     // Validate viewmodel
-    if(viewModel != INVALID_ENT_REFERENCE)
+    if(view != -1)
     {
         // Gets animation
-        return GetEntProp(viewModel, Prop_Send, "m_nSequence");
+        return GetEntProp(view, Prop_Send, "m_nSequence");
     }
     
     // Return on unsuccess
@@ -680,78 +721,78 @@ stock int ZP_GetWeaponAnimation(int clientIndex)
 /**
  * @brief Sets the weapon animating index.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param nSequence         The sequence index.
  **/
-stock void ZP_SetWeaponAnimation(int clientIndex, int nSequence)
+stock void ZP_SetWeaponAnimation(int client, int nSequence)
 {
     // Gets client viewmodel
-    int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
+    int view = ZP_GetClientViewModel(client, false); /// Play anims on the original model 
 
     // Validate viewmodel
-    if(viewModel != INVALID_ENT_REFERENCE)
+    if(view != -1)
     {
         // Sets animation
-        SetEntProp(viewModel, Prop_Send, "m_nSequence", nSequence);
+        SetEntProp(view, Prop_Send, "m_nSequence", nSequence);
     }
 }
 
 /**
  * @brief Sets the weapon animating paired index. (Important for animations, which should played in the not-repeatable row, like an attack to avoid parity)
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param nSequence         The sequence array.
  **/
-stock void ZP_SetWeaponAnimationPair(int clientIndex, int weaponIndex, int nSequence[2])
+stock void ZP_SetWeaponAnimationPair(int client, int weapon, int nSequence[2])
 {
     // Gets client viewmodel
-    int viewModel = ZP_GetClientViewModel(clientIndex, false); /// Play anims on the original model 
+    int view = ZP_GetClientViewModel(client, false); /// Play anims on the original model 
 
     // Validate viewmodel
-    if(viewModel != INVALID_ENT_REFERENCE)
+    if(view != -1)
     {
         // Gets the current played state of animation
-        bool bPrevAnim = view_as<bool>(GetEntProp(weaponIndex, Prop_Send, "m_bSilencerOn"));
+        bool bPrevAnim = view_as<bool>(GetEntProp(weapon, Prop_Send, "m_bSilencerOn"));
         
         // Sets animation
-        SetEntProp(viewModel, Prop_Send, "m_nSequence", nSequence[bPrevAnim ? 0 : 1]);
+        SetEntProp(view, Prop_Send, "m_nSequence", nSequence[bPrevAnim ? 0 : 1]);
         
         // Sets inversed played state
-        SetEntProp(weaponIndex, Prop_Send, "m_bSilencerOn", !bPrevAnim);
+        SetEntProp(weapon, Prop_Send, "m_bSilencerOn", !bPrevAnim);
     }
 }
 
 /**
  * @brief Returns index if the player has a weapon.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param sType             The weapon entity.
  *
  * @return                  The weapon index.
  **/
-stock int ZP_GetWeaponIndex(int clientIndex, char[] sType)
+stock int ZP_GetPlayerWeapon(int client, char[] sType)
 {
     // Initialize name char
     static char sClassname[SMALL_LINE_LENGTH];
 
     // i = weapon number
-    static int iSize; if(!iSize) iSize = GetEntPropArraySize(clientIndex, Prop_Send, "m_hMyWeapons");
+    static int iSize; if(!iSize) iSize = GetEntPropArraySize(client, Prop_Data, "m_hMyWeapons");
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index
-        int weaponIndex = GetEntPropEnt(clientIndex, Prop_Send, "m_hMyWeapons", i);
+        int weapon = GetEntPropEnt(client, Prop_Data, "m_hMyWeapons", i);
 
         // Validate weapon
-        if(weaponIndex != INVALID_ENT_REFERENCE)
+        if(weapon != -1)
         {
             // Gets weapon classname
-            GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
+            GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 
             // If weapon find, then return
             if(!strcmp(sClassname[7], sType[7], false))
             {
-                return weaponIndex;
+                return weapon;
             }
         }
     }
@@ -763,43 +804,39 @@ stock int ZP_GetWeaponIndex(int clientIndex, char[] sType)
 /**
  * @brief Remove a weapon from the player.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- * @param slotType          (Optional) The slot index to replace.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ * @param slot             (Optional) The slot index to replace.
  **/
-stock void ZP_RemoveWeapon(int clientIndex, int weaponIndex, SlotType slotType = SlotType_Melee)
+stock void ZP_RemoveWeapon(int client, int weapon, SlotType slot = SlotType_Melee)
 {
-    // Forces a player to remove weapon
-    RemovePlayerItem(clientIndex, weaponIndex);
-    AcceptEntityInput(weaponIndex, "Kill");
-    
-    //Gets weapon index
-    int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, view_as<int>(slotType));
+    // Gets weapon index
+    int weapon2 = GetPlayerWeaponSlot(client, view_as<int>(slot));
     
     // Validate weapon
-    if(weaponIndex2 != INVALID_ENT_REFERENCE)
+    if(weapon2 != -1)
     {
-        // Gets weapon classname
-        static char sClassname[SMALL_LINE_LENGTH];
-        GetEdictClassname(weaponIndex2, sClassname, sizeof(sClassname));
-        
-        // Switch the weapon
-        FakeClientCommand(clientIndex, "use %s", sClassname);
+        // Switch weapon
+        ZP_SwitchClientWeapon(client, weapon2);
     }
+    
+    // Forces a player to remove weapon
+    RemovePlayerItem(client, weapon);
+    AcceptEntityInput(weapon, "Kill");
 }
 
 /**
  * @brief Create the tracer to a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param sAttach1          The attachment name. (view)
  * @param sAttach2          The attachment name. (world)
  * @param sEffect           The effect name.
- * @param vBulletPosition   The position of a bullet hit.
+ * @param vBullet           The position of a bullet hit.
  * @param flDurationTime    The duration of life.
  **/
-stock void ZP_CreateWeaponTracer(int clientIndex, int weaponIndex, char[] sAttach1, char[] sAttach2, char[] sEffect, float vBulletPosition[3], float flDurationTime)
+stock void ZP_CreateWeaponTracer(int client, int weapon, char[] sAttach1, char[] sAttach2, char[] sEffect, float vBullet[3], float flDurationTime)
 {
     // Validate name
     if(!hasLength(sEffect))
@@ -815,110 +852,110 @@ stock void ZP_CreateWeaponTracer(int clientIndex, int weaponIndex, char[] sAttac
                              /** Dont ask me how it works ;) **/
 
     // Gets client view/world model
-    int viewModel = ZP_GetClientViewModel(clientIndex, true);
-    int worldModel = GetEntPropEnt(weaponIndex, Prop_Send, "m_hWeaponWorldModel");
+    int view = ZP_GetClientViewModel(client, true);
+    int world = GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel");
 
     // Validate models
-    if(viewModel == INVALID_ENT_REFERENCE || worldModel == INVALID_ENT_REFERENCE)
+    if(view == -1 || world == -1)
     {    
         return;
     }
 
     // Validate attachments
-    if((sAttach1[0] != '\0' && !ZP_LookupAttachment(viewModel, sAttach1)) || (sAttach2[0] != '\0' && !ZP_LookupAttachment(worldModel, sAttach2)))
+    if((sAttach1[0] != NULL_STRING[0] && !ZP_LookupAttachment(view, sAttach1)) || (sAttach2[0] != NULL_STRING[0] && !ZP_LookupAttachment(world, sAttach2)))
     {
         return;
     }
 
     // Create an attach particle entity
-    static int entityIndex[4];
-    entityIndex[ClientSrt] = CreateEntityByName("info_particle_system");
-    entityIndex[ClientEnd] = CreateEntityByName("info_particle_system");
-    entityIndex[ViewerSrt] = CreateEntityByName("info_particle_system");
-    entityIndex[ViewerEnd] = CreateEntityByName("info_particle_system");
+    static int entity[4];
+    entity[ClientSrt] = CreateEntityByName("info_particle_system");
+    entity[ClientEnd] = CreateEntityByName("info_particle_system");
+    entity[ViewerSrt] = CreateEntityByName("info_particle_system");
+    entity[ViewerEnd] = CreateEntityByName("info_particle_system");
 
     // If entity isn't valid, then skip
-    if(entityIndex[ViewerEnd] != INVALID_ENT_REFERENCE) /// Check the last entity ;)
+    if(entity[ViewerEnd] != -1) /// Check the last entity ;)
     {
         // Gets the client angle
         static float vAngle[3]; static float vEmpty[3];
-        GetEntPropVector(clientIndex, Prop_Data, "m_angAbsRotation", vAngle);
+        GetEntPropVector(client, Prop_Data, "m_angAbsRotation", vAngle);
         
         // Teleport the entity
-        TeleportEntity(entityIndex[ClientEnd], vBulletPosition, vAngle, NULL_VECTOR);
-        TeleportEntity(entityIndex[ViewerEnd], vBulletPosition, vAngle, NULL_VECTOR);
+        TeleportEntity(entity[ClientEnd], vBullet, vAngle, NULL_VECTOR);
+        TeleportEntity(entity[ViewerEnd], vBullet, vAngle, NULL_VECTOR);
 
         // Dispatch main values of the entity
         static char sClassname[SMALL_LINE_LENGTH];
-        FormatEx(sClassname, sizeof(sClassname), "particle%d", entityIndex[ClientSrt]);
-        DispatchKeyValue(entityIndex[ClientSrt], "targetname", sClassname);
-        DispatchKeyValue(entityIndex[ClientEnd], "effect_name", sEffect);
-        DispatchKeyValue(entityIndex[ClientEnd], "cpoint1", sClassname);
+        FormatEx(sClassname, sizeof(sClassname), "particle%d", entity[ClientSrt]);
+        DispatchKeyValue(entity[ClientSrt], "targetname", sClassname);
+        DispatchKeyValue(entity[ClientEnd], "effect_name", sEffect);
+        DispatchKeyValue(entity[ClientEnd], "cpoint1", sClassname);
         
         // Spawn the entity into the world
-        DispatchSpawn(entityIndex[ClientEnd]);
+        DispatchSpawn(entity[ClientEnd]);
         
         // Sets owner to the entity 
-        SetEntPropEnt(entityIndex[ClientEnd], Prop_Send, "m_hOwnerEntity", clientIndex);
+        SetEntPropEnt(entity[ClientEnd], Prop_Data, "m_hOwnerEntity", client);
         
         // Dispatch main values of the entity
-        FormatEx(sClassname, sizeof(sClassname), "particle%d",  entityIndex[ViewerSrt]);
-        DispatchKeyValue(entityIndex[ViewerSrt], "targetname", sClassname);
-        DispatchKeyValue(entityIndex[ViewerEnd], "effect_name", sEffect);
-        DispatchKeyValue(entityIndex[ViewerEnd], "cpoint1", sClassname);
+        FormatEx(sClassname, sizeof(sClassname), "particle%d",  entity[ViewerSrt]);
+        DispatchKeyValue(entity[ViewerSrt], "targetname", sClassname);
+        DispatchKeyValue(entity[ViewerEnd], "effect_name", sEffect);
+        DispatchKeyValue(entity[ViewerEnd], "cpoint1", sClassname);
         
         // Spawn the entity into the world
-        DispatchSpawn(entityIndex[ViewerEnd]);
+        DispatchSpawn(entity[ViewerEnd]);
         
         // Sets owner to the entity 
-        SetEntPropEnt(entityIndex[ViewerEnd], Prop_Send, "m_hOwnerEntity", clientIndex);
+        SetEntPropEnt(entity[ViewerEnd], Prop_Data, "m_hOwnerEntity", client);
 
         // Teleport the entity
-        TeleportEntity(entityIndex[ViewerSrt], NULL_VECTOR, vAngle, NULL_VECTOR);
+        TeleportEntity(entity[ViewerSrt], NULL_VECTOR, vAngle, NULL_VECTOR);
 
         // Sets parent to the entity
         SetVariantString("!activator");
-        AcceptEntityInput(entityIndex[ViewerSrt], "SetParent", worldModel,  entityIndex[ViewerSrt]);
+        AcceptEntityInput(entity[ViewerSrt], "SetParent", world,  entity[ViewerSrt]);
         
         // Sets attachment to the entity
         SetVariantString(sAttach2);
-        AcceptEntityInput(entityIndex[ViewerSrt], "SetParentAttachment",  entityIndex[ViewerSrt], entityIndex[ViewerSrt]);
+        AcceptEntityInput(entity[ViewerSrt], "SetParentAttachment",  entity[ViewerSrt], entity[ViewerSrt]);
 
         // Teleport the entity
-        TeleportEntity(entityIndex[ViewerSrt], vEmpty, NULL_VECTOR, NULL_VECTOR);
+        TeleportEntity(entity[ViewerSrt], vEmpty, NULL_VECTOR, NULL_VECTOR);
 
         // Sets parent to the entity
         SetVariantString("!activator");
-        AcceptEntityInput(entityIndex[ClientSrt], "SetParent", viewModel, entityIndex[ClientSrt]);
+        AcceptEntityInput(entity[ClientSrt], "SetParent", view, entity[ClientSrt]);
         
         // Sets attachment to the entity
         SetVariantString(sAttach1);
-        AcceptEntityInput(entityIndex[ClientSrt], "SetParentAttachment", entityIndex[ClientSrt], entityIndex[ClientSrt]);
+        AcceptEntityInput(entity[ClientSrt], "SetParentAttachment", entity[ClientSrt], entity[ClientSrt]);
 
         /*______________________________________________________________________________*/
         
         // Hook entity callbacks 
-        SDKHook(entityIndex[ClientEnd], SDKHook_SetTransmit, TracerClientTransmit);
-        SDKHook(entityIndex[ViewerEnd], SDKHook_SetTransmit, TracerViewerTransmit);
+        SDKHook(entity[ClientEnd], SDKHook_SetTransmit, TracerClientTransmit);
+        SDKHook(entity[ViewerEnd], SDKHook_SetTransmit, TracerViewerTransmit);
 
         // Activate the entity
-        ActivateEntity(entityIndex[ClientEnd]);
-        AcceptEntityInput(entityIndex[ClientEnd], "Start");
-        ActivateEntity(entityIndex[ViewerEnd]);
-        AcceptEntityInput(entityIndex[ViewerEnd], "Start");
+        ActivateEntity(entity[ClientEnd]);
+        AcceptEntityInput(entity[ClientEnd], "Start");
+        ActivateEntity(entity[ViewerEnd]);
+        AcceptEntityInput(entity[ViewerEnd], "Start");
 
         // Initialize time char
-        UTIL_RemoveEntity(entityIndex[ClientEnd], flDurationTime);
-        UTIL_RemoveEntity(entityIndex[ViewerEnd], flDurationTime);
-        UTIL_RemoveEntity(entityIndex[ClientSrt], flDurationTime);
-        UTIL_RemoveEntity(entityIndex[ViewerSrt], flDurationTime);
+        UTIL_RemoveEntity(entity[ClientEnd], flDurationTime);
+        UTIL_RemoveEntity(entity[ViewerEnd], flDurationTime);
+        UTIL_RemoveEntity(entity[ClientSrt], flDurationTime);
+        UTIL_RemoveEntity(entity[ViewerSrt], flDurationTime);
     }
 }
 
 /**
  * @brief Create the kickback effect to a weapon .
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param upBase            The upward base amount.
  * @param lateralBase       The lateral base amount.
  * @param upMod             The upward mod amount.
@@ -926,14 +963,14 @@ stock void ZP_CreateWeaponTracer(int clientIndex, int weaponIndex, char[] sAttac
  * @param upMax             The upward max amount.
  * @param directionChange   The direction seed.
  **/
-stock void ZP_CreateWeaponKickBack(int clientIndex, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
+stock void ZP_CreateWeaponKickBack(int client, float upBase, float lateralBase, float upMod, float lateralMod, float upMax, float lateralMax, int directionChange)
 {
     // Initialize variables
     static int iDirection; static int iShotsFired; static float vPunchAngle[3];
-    GetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
+    GetEntPropVector(client, Prop_Send, "m_aimPunchAngle", vPunchAngle);
 
     // Gets a shots fired
-    if((iShotsFired = GetEntProp(clientIndex, Prop_Send, "m_iShotsFired")) != 1)
+    if((iShotsFired = GetEntProp(client, Prop_Send, "m_iShotsFired")) != 1)
     {
         // Calculate a base power
         upBase += iShotsFired * upMod;
@@ -951,7 +988,7 @@ stock void ZP_CreateWeaponKickBack(int clientIndex, float upBase, float lateralB
     }
 
     // Gets a direction change
-    if((iDirection = GetEntProp(clientIndex, Prop_Send, "m_iDirection")))
+    if((iDirection = GetEntProp(client, Prop_Send, "m_iDirection")))
     {
         // Increase the angle
         vPunchAngle[1] += lateralBase;
@@ -978,12 +1015,12 @@ stock void ZP_CreateWeaponKickBack(int clientIndex, float upBase, float lateralB
     // Create a direction change
     if(!GetRandomInt(0, directionChange))
     {
-        SetEntProp(clientIndex, Prop_Send, "m_iDirection", !iDirection);
+        SetEntProp(client, Prop_Send, "m_iDirection", !iDirection);
     }
 
     // Sets a punch angle
-    SetEntPropVector(clientIndex, Prop_Send, "m_aimPunchAngle", vPunchAngle);
-    SetEntPropVector(clientIndex, Prop_Send, "m_viewPunchAngle", vPunchAngle);
+    SetEntPropVector(client, Prop_Send, "m_aimPunchAngle", vPunchAngle);
+    SetEntPropVector(client, Prop_Send, "m_viewPunchAngle", vPunchAngle);
 }
 
 //**********************************************
@@ -994,22 +1031,22 @@ stock void ZP_CreateWeaponKickBack(int clientIndex, float upBase, float lateralB
  * Hook: SetTransmit
  * @brief Called right before the entity transmitting to other entities.
  *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
+ * @param entity            The entity index.
+ * @param client            The client index.
  **/
-public Action TracerClientTransmit(int entityIndex, int clientIndex) 
+public Action TracerClientTransmit(int entity, int client) 
 {
     // Allow particle to be transmittable
-    if(GetEdictFlags(entityIndex) & FL_EDICT_ALWAYS)
+    if(GetEdictFlags(entity) & FL_EDICT_ALWAYS)
     {
-        SetEdictFlags(entityIndex, (GetEdictFlags(entityIndex) ^ FL_EDICT_ALWAYS));
+        SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
     }
     
     // Gets the owner of the entity
-    int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
+    int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
     
     // Validate observer mode
-    if(ownerIndex == clientIndex || (GetEntProp(clientIndex, Prop_Send, "m_iObserverMode") == SPECMODE_FIRSTPERSON && ownerIndex == GetEntPropEnt(clientIndex, Prop_Send, "m_hObserverTarget")))
+    if(owner == client || (GetEntProp(client, Prop_Data, "m_iObserverMode") == SPECMODE_FIRSTPERSON && owner == GetEntPropEnt(client, Prop_Data, "m_hObserverTarget")))
     {
         // Allow transmitting
         return Plugin_Continue;
@@ -1023,22 +1060,22 @@ public Action TracerClientTransmit(int entityIndex, int clientIndex)
  * Hook: SetTransmit
  * @brief Called right before the entity transmitting to other entities.
  *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
+ * @param entity            The entity index.
+ * @param client            The client index.
  **/
-public Action TracerViewerTransmit(int entityIndex, int clientIndex) 
+public Action TracerViewerTransmit(int entity, int client) 
 {
     // Allow particle to be transmittable
-    if(GetEdictFlags(entityIndex) & FL_EDICT_ALWAYS)
+    if(GetEdictFlags(entity) & FL_EDICT_ALWAYS)
     {
-        SetEdictFlags(entityIndex, (GetEdictFlags(entityIndex) ^ FL_EDICT_ALWAYS));
+        SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
     }
     
     // Gets the owner of the entity
-    int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
+    int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
     
     // Validate observer mode
-    if(ownerIndex == clientIndex || (GetEntProp(clientIndex, Prop_Send, "m_iObserverMode") == SPECMODE_FIRSTPERSON && ownerIndex == GetEntPropEnt(clientIndex, Prop_Send, "m_hObserverTarget")))
+    if(owner == client || (GetEntProp(client, Prop_Data, "m_iObserverMode") == SPECMODE_FIRSTPERSON && owner == GetEntPropEnt(client, Prop_Data, "m_hObserverTarget")))
     {
         // Block transmitting
         return Plugin_Handled;

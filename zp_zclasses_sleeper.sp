@@ -27,6 +27,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -60,13 +61,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
  public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("sleeper");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"sleeper\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"sleeper\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
@@ -80,43 +99,43 @@ int gZombie;
 /**
  * @brief Called when a client take a fake damage.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
+ * @param inflictor         The inflictor index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
- * @param weaponIndex       The weapon index or -1 for unspecified.
+ * @param weapon            The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
     // Validate attacker
-    if(!IsPlayerExist(attackerIndex))
+    if(!IsPlayerExist(attacker))
     {
         return;
     }
     
     // Initialize client chances
-    static int nChanceIndex[MAXPLAYERS+1];
+    static int iChance[MAXPLAYERS+1];
 
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Generate the chance
-        nChanceIndex[clientIndex] = GetRandomInt(0, 999);
+        iChance[client] = GetRandomInt(0, 999);
         
         // Validate chance
-        if(nChanceIndex[clientIndex] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
+        if(iChance[client] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
         {
             // Play sound
-            ZP_EmitSoundToAll(gSound, 1, attackerIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+            ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, hSoundLevel.IntValue);
             
             // Create an fade
-            UTIL_CreateFadeScreen(attackerIndex, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);
+            UTIL_CreateFadeScreen(attacker, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);
             
             // Create effect
             static float vPosition[3];
-            GetEntPropVector(attackerIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-            UTIL_CreateParticle(attackerIndex, vPosition, _, _, "sila_trail_apalaal", ZOMBIE_CLASS_SKILL_DURATION_F);
+            GetEntPropVector(attacker, Prop_Data, "m_vecAbsOrigin", vPosition);
+            UTIL_CreateParticle(attacker, vPosition, _, _, "sila_trail_apalaal", ZOMBIE_CLASS_SKILL_DURATION_F);
         }
     }
 }

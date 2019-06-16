@@ -59,12 +59,21 @@ enum AnimType
     
     AnimType_FirePrimary,
     AnimType_FireSecondary,
-    AnimType_ThrowGrenade,
+    AnimType_MeleeSlash,
+    AnimType_MeleeStab,
+    AnimType_FireSilent,
+    AnimType_SwitchSilent,
+    AnimType_ThrowStart,
+    AnimType_ThrowFinish,
     AnimType_Jump,
     AnimType_Reload,
     AnimType_ReloadStart,
     AnimType_ReloadLoop,
-    AnimType_ReloadEnd
+    AnimType_ReloadEnd,
+    AnimType_BombAbort,
+    AnimType_SwitchWeapon,
+    AnimType_ThrowAbort = 17,
+    AnimType_SwitchAbort
 };
 /**
  * @endsection
@@ -77,54 +86,54 @@ enum AnimType
 /**
  * @brief Called when a client became/spawn a zombie/human.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  *
  * @noreturn
  **/
-forward void ZP_OnClientUpdated(int clientIndex, int attackerIndex); 
+forward void ZP_OnClientUpdated(int client, int attacker); 
 
 /**
  * @brief Called when a client has been killed.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  *
  * @noreturn
  **/
-forward void ZP_OnClientDeath(int clientIndex, int attackerIndex);
+forward void ZP_OnClientDeath(int client, int attacker);
 
 /**
  * @brief Called right before a client is about to respawn.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled or Plugin_Stop to block respawn. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-forward Action ZP_OnClientRespawn(int clientIndex);
+forward Action ZP_OnClientRespawn(int client);
  
 /**
  * @brief Called before show a class in the class menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param classID           The class index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-forward Action ZP_OnClientValidateClass(int clientIndex, int classID);
+forward Action ZP_OnClientValidateClass(int client, int classID);
 
 /**
  * @brief Infect/humanize a player.
  *
- * @param clientIndex       The client index.
- * @param attackerIndex     (Optional) The attacker index.
+ * @param client            The client index.
+ * @param attacker          (Optional) The attacker index.
  * @param type              (Optional) The class type. (human/zombie - default)
  *  
  * @return                  True or false.
  **/
-native bool ZP_ChangeClient(int clientIndex, int attackerIndex = 0, char[] type = "zombie");
+native bool ZP_ChangeClient(int client, int attacker = 0, char[] type = "zombie");
 
 /**
  * @brief Gets the amount of all classes.
@@ -136,45 +145,45 @@ native int ZP_GetNumberClass();
 /**
  * @brief Gets the current class index of the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  The class index.    
  **/
-native int ZP_GetClientClass(int clientIndex);
+native int ZP_GetClientClass(int client);
 
 /**
  * @brief Gets the human next class index of the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  The class index.    
  **/
-native int ZP_GetClientHumanClassNext(int clientIndex);
+native int ZP_GetClientHumanClassNext(int client);
 
 /**
  * @brief Gets the zombie next class index of the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  The class index.    
  **/
-native int ZP_GetClientZombieClassNext(int clientIndex);
+native int ZP_GetClientZombieClassNext(int client);
 
 /**
  * @brief Sets the human next class index to the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param classID           The class index.    
  **/
-native void ZP_SetClientHumanClassNext(int clientIndex, int classID);
+native void ZP_SetClientHumanClassNext(int client, int classID);
 
 /**
  * @brief Sets the zombie next class index to the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param classID           The class index.    
  **/
-native void ZP_SetClientZombieClassNext(int clientIndex, int classID);
+native void ZP_SetClientZombieClassNext(int client, int classID);
 
 /**
  * @brief Gets the index of a class at a given name.
@@ -667,35 +676,28 @@ native int ZP_GetClassSoundJumpID(int classID);
 /**
  * @brief Returns true if the player is a type, false if not.
  *
- * @param clientIndex       The class index.
+ * @param client            The class index.
  * @param sType             The type name.
  *
  * @return                  True or false.
  **/
-stock bool ZP_IsPlayerType(int clientIndex, char[] sType)
+stock bool ZP_IsPlayerType(int client, char[] sType)
 {
     // Gets class type
     static char sClassType[SMALL_LINE_LENGTH];
-    ZP_GetClassType(ZP_GetClientClass(clientIndex), sClassType, sizeof(sClassType));
+    ZP_GetClassType(ZP_GetClientClass(client), sClassType, sizeof(sClassType));
     
     // Return on success
     return (!strcmp(sClassType, sType, false));
 }
 
 /**
- * @brief Sets the player animating event.
+ * @brief Gets the current team index of the player.
  *
- * @param clientIndex       The client index.
- * @param animType          The event type.
- * @param iData             The activity index.
- *
- * @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/shared/ai_activity.h
+ * @param client            The client index.
+ * @return                  The team index.
  **/
-stock void ZP_SetPlayerAnimation(int clientIndex, AnimType animType, int iData = 0)
+stock int ZP_GetPlayerTeam(int client)
 {
-    TE_Start("PlayerAnimEvent");
-    TE_WriteNum("m_hPlayer", EntIndexToEntRef(clientIndex) & 0x7FFF);
-    TE_WriteNum("m_iEvent", view_as<int>(animType));
-    TE_WriteNum("m_nData", iData);
-    TE_SendToAll();
+    return ZP_IsPlayerHuman(client) ? TEAM_HUMAN : TEAM_ZOMBIE;
 }

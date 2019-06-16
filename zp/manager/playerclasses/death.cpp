@@ -25,7 +25,6 @@
  * ============================================================================
  **/
 
-#if defined USE_DHOOKS
 /**
  * Variables to store DHook calls handlers.
  **/
@@ -35,7 +34,6 @@ Handle hDHookCommitSuicide;
  * Variables to store dynamic DHook offsets.
  **/
 int DHook_CommitSuicide;
-#endif  
  
 /**
  * @brief Death module init function.
@@ -45,8 +43,7 @@ void DeathOnInit(/*void*/)
     // Hook player events
     HookEvent("player_death", DeathOnClientDeathPre, EventHookMode_Pre);
     HookEvent("player_death", DeathOnClientDeathPost, EventHookMode_Post);
-    
-    #if defined USE_DHOOKS
+
     // Load offsets
     fnInitGameConfOffset(gServerData.SDKTools, DHook_CommitSuicide, /*CBasePlayer::*/"CommitSuicide");
     
@@ -54,7 +51,6 @@ void DeathOnInit(/*void*/)
     hDHookCommitSuicide = DHookCreate(DHook_CommitSuicide, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, DeathDhookOnCommitSuicide);
     DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
     DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
-    #endif
 }
 
 /**
@@ -97,30 +93,26 @@ void DeathOnCommandInit(/*void*/)
 /**
  * @brief Client has been joined.
  * 
- * @param clientIndex       The client index.  
+ * @param client            The client index.  
  **/
-void DeathOnClientInit(int clientIndex)
+void DeathOnClientInit(int client)
 {
-    #if defined USE_DHOOKS
     // Hook entity callbacks
-    DHookEntity(hDHookCommitSuicide, true, clientIndex);
-    #else
-        #pragma unused clientIndex
-    #endif
+    DHookEntity(hDHookCommitSuicide, true, client);
 }
 
 /**
  * Listener command callback (kill, explode, killvector)
  * @brief Blocks the suicide.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action DeathOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
+public Action DeathOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate client 
-    if(IsPlayerExist(clientIndex, false))
+    if(IsPlayerExist(client, false))
     {
         // Block command
         return Plugin_Handled;
@@ -141,33 +133,33 @@ public Action DeathOnCommandListened(int clientIndex, char[] commandMsg, int iAr
 public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
         return;
     }
 
     // Validate human
-    if(!gClientData[clientIndex].Zombie)
+    if(!gClientData[client].Zombie)
     {
-        // Gets the weapon index from the client
-        int weaponIndex = EntRefToEntIndex(gClientData[clientIndex].LastKnife);
+        // Gets weapon index from the client
+        int weapon = EntRefToEntIndex(gClientData[client].LastKnife);
         
         // Validate weapon
-        if(weaponIndex != INVALID_ENT_REFERENCE) 
+        if(weapon != -1) 
         {
             // Drop weapon
-            WeaponsDrop(clientIndex, weaponIndex);
+            WeaponsDrop(client, weapon);
 
-            // Reset weapon index, which used to store knife
-            gClientData[clientIndex].LastKnife = INVALID_ENT_REFERENCE;
+            // Resets weapon index, which used to store knife
+            gClientData[client].LastKnife = -1;
         }
     }
     
     // Validate custom index
-    int iD = gClientData[clientIndex].LastID;
+    int iD = gClientData[client].LastID;
     if(iD != -1)
     {
         // Gets death icon
@@ -186,8 +178,8 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
             DeathCreateIcon(hEvent.GetInt("userid"), hEvent.GetInt("attacker"), sIcon, hEvent.GetBool("headshot"), hEvent.GetBool("penetrated"), hEvent.GetBool("revenge"), hEvent.GetBool("dominated"), hEvent.GetInt("assister"));
         }
         
-        // Reset weapon id, which used to kill
-        gClientData[clientIndex].LastID = -1;
+        // Resets weapon id, which used to kill
+        gClientData[client].LastID = -1;
     }
 }
 
@@ -202,50 +194,50 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
 public Action DeathOnClientDeathPost(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
-    int clientIndex   = GetClientOfUserId(hEvent.GetInt("userid"));
-    int attackerIndex = GetClientOfUserId(hEvent.GetInt("attacker"));
+    int client   = GetClientOfUserId(hEvent.GetInt("userid"));
+    int attacker = GetClientOfUserId(hEvent.GetInt("attacker"));
     
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
         return;
     }
     
     // Forward event to sub-modules
-    DeathOnClientDeath(clientIndex, IsPlayerExist(attackerIndex, false) ? attackerIndex : 0);
+    DeathOnClientDeath(client, IsPlayerExist(attacker, false) ? attacker : 0);
 }
 
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.  
- * @param attackerIndex     (Optional) The attacker index.
+ * @param client            The client index.  
+ * @param attacker          (Optional) The attacker index.
  **/
-void DeathOnClientDeath(int clientIndex, int attackerIndex = 0)
+void DeathOnClientDeath(int client, int attacker = 0)
 {
     // Delete player timers
-    gClientData[clientIndex].ResetTimers();
+    gClientData[client].ResetTimers();
     
     // Resets some tools
-    ToolsSetDetecting(clientIndex, false);
-    ToolsSetFlashLight(clientIndex, false);
-    ToolsSetHud(clientIndex, true);
-    ToolsSetFov(clientIndex);
+    ToolsSetDetecting(client, false);
+    ToolsSetFlashLight(client, false);
+    ToolsSetHud(client, true);
+    ToolsSetFov(client);
     
     // Call forward
-    gForwardData._OnClientDeath(clientIndex, attackerIndex);
+    gForwardData._OnClientDeath(client, attacker);
     
     // Forward event to modules
-    RagdollOnClientDeath(clientIndex);
-    HealthOnClientDeath(clientIndex);
-    SoundsOnClientDeath(clientIndex);
-    VEffectOnClientDeath(clientIndex);
-    WeaponsOnClientDeath(clientIndex);
-    VOverlayOnClientDeath(clientIndex);
-    AccountOnClientDeath(clientIndex);
-    CostumesOnClientDeath(clientIndex);
-    LevelSystemOnClientDeath(clientIndex);
-    if(!DeathOnClientRespawn(clientIndex, attackerIndex))
+    RagdollOnClientDeath(client);
+    HealthOnClientDeath(client);
+    SoundsOnClientDeath(client);
+    VEffectsOnClientDeath(client);
+    WeaponsOnClientDeath(client);
+    VOverlayOnClientDeath(client);
+    AccountOnClientDeath(client);
+    CostumesOnClientDeath(client);
+    LevelSystemOnClientDeath(client);
+    if(!DeathOnClientRespawn(client, attacker))
     {
         // Terminate the round
         ModesValidateRound();
@@ -255,11 +247,11 @@ void DeathOnClientDeath(int clientIndex, int attackerIndex = 0)
 /**
  * @brief Validate respawning.
  *
- * @param clientIndex       The client index.
- * @param attackerIndex     (Optional) The attacker index.
+ * @param client            The client index.
+ * @param attacker          (Optional) The attacker index.
  * @param bTimer            If true, run the respawning timer, false to respawn instantly.
  **/
-bool DeathOnClientRespawn(int clientIndex, int attackerIndex = 0,  bool bTimer = true)
+bool DeathOnClientRespawn(int client, int attacker = 0,  bool bTimer = true)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
@@ -281,45 +273,45 @@ bool DeathOnClientRespawn(int clientIndex, int attackerIndex = 0,  bool bTimer =
     }
         
     // If player was killed by world, then stop
-    if(clientIndex == attackerIndex && !ModesIsSuicide(gServerData.RoundMode)) 
+    if(client == attacker && !ModesIsSuicide(gServerData.RoundMode)) 
     {
         return false;
     }
 
     // If respawn amount exceed limit, the stop
-    if(gClientData[clientIndex].RespawnTimes >= ModesGetAmount(gServerData.RoundMode))
+    if(gClientData[client].RespawnTimes >= ModesGetAmount(gServerData.RoundMode))
     {
         return false;
     }
 
     // Verify that the attacker is exist
-    if(IsPlayerExist(attackerIndex, false))
+    if(IsPlayerExist(attacker, false))
     {
         // Gets class exp and money bonuses
         static int iExp[6]; static int iMoney[6];
-        ClassGetExp(gClientData[attackerIndex].Class, iExp, sizeof(iExp));
-        ClassGetMoney(gClientData[attackerIndex].Class, iMoney, sizeof(iMoney));
+        ClassGetExp(gClientData[attacker].Class, iExp, sizeof(iExp));
+        ClassGetMoney(gClientData[attacker].Class, iMoney, sizeof(iMoney));
 
         // Increment money/exp/health
-        LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex].Exp + iExp[BonusType_Kill]);
-        AccountSetClientCash(attackerIndex, gClientData[attackerIndex].Money + iMoney[BonusType_Kill]);
-        ToolsSetHealth(attackerIndex, ToolsGetHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+        LevelSystemOnSetExp(attacker, gClientData[attacker].Exp + iExp[BonusType_Kill]);
+        AccountSetClientCash(attacker, gClientData[attacker].Money + iMoney[BonusType_Kill]);
+        ToolsSetHealth(attacker, ToolsGetHealth(attacker) + ClassGetLifeSteal(gClientData[attacker].Class));
     }
         
     // Validate timer
     if(bTimer)
     {
         // Increment count
-        gClientData[clientIndex].RespawnTimes++;
+        gClientData[client].RespawnTimes++;
     
         // Sets timer for respawn player
-        delete gClientData[clientIndex].RespawnTimer;
-        gClientData[clientIndex].RespawnTimer = CreateTimer(ModesGetDelay(gServerData.RoundMode), DeathOnClientRespawning, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        delete gClientData[client].RespawnTimer;
+        gClientData[client].RespawnTimer = CreateTimer(ModesGetDelay(gServerData.RoundMode), DeathOnClientRespawning, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
     }
     else
     {
         // Respawn a player
-        ToolsForceToRespawn(clientIndex);
+        ToolsForceToRespawn(client);
     }
     
     // Return on success
@@ -335,23 +327,23 @@ bool DeathOnClientRespawn(int clientIndex, int attackerIndex = 0,  bool bTimer =
 public Action DeathOnClientRespawning(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Clear timer
-    gClientData[clientIndex].RespawnTimer = null;    
+    gClientData[client].RespawnTimer = null;    
     
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Call forward
-        Action resultHandle;
-        gForwardData._OnClientRespawn(clientIndex, resultHandle);
+        Action hResult;
+        gForwardData._OnClientRespawn(client, hResult);
     
         // Validate handle
-        if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+        if(hResult == Plugin_Continue || hResult == Plugin_Changed)
         {
             // Call respawning
-            DeathOnClientRespawn(clientIndex, _, false);
+            DeathOnClientRespawn(client, _, false);
         }
     }
     
@@ -359,19 +351,17 @@ public Action DeathOnClientRespawning(Handle hTimer, int userID)
     return Plugin_Stop;
 }
 
-#if defined USE_DHOOKS
 /**
  * DHook: Suicide the current player.
  * @note void CBasePlayer::CommitSuicide(bool, bool)
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public MRESReturn DeathDhookOnCommitSuicide(int clientIndex)
+public MRESReturn DeathDhookOnCommitSuicide(int client)
 {
     // Forward event to sub-modules
-    DeathOnClientDeath(clientIndex);
+    DeathOnClientDeath(client);
 }
-#endif
 
 /*
  * Stocks death API.

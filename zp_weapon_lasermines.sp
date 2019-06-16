@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -45,23 +46,13 @@ public Plugin myinfo =
  * @section Information about the weapon.
  **/
 //#define WEAPON_MINE_IMPULSE /// Uncomment to use the classical beam instead.
-#define WEAPON_MINE_HEALTH           200     // health. ['0' = never breaked]
+#define WEAPON_MINE_SOLID     /// Uncomment to make mine solid.
 #define WEAPON_MINE_DAMAGE           150.0   // dmg amount
-#define WEAPON_MINE_RADIUS           10.0    // dmg radius
-#define WEAPON_MINE_EXPLOSION_DAMAGE 300.0   // exp damage
-#define WEAPON_MINE_EXPLOSION_RADIUS 150.0   // exp radius 
-#define WEAPON_MINE_ACTIVATION       2.0     // activation delay
-#define WEAPON_MINE_IMPACT           "weapons/taser/taser_hit.wav"   /// Only standart sounds (from engine)
-#define WEAPON_MINE_IMPACT_LEVEL     0.5      // impact sound level
-#define WEAPON_MINE_SHOOT            "weapons/taser/taser_shoot.wav" /// Only standart sounds (from engine)
-#define WEAPON_MINE_SHOOT_LEVEL      0.3      // shoot sound level
 #define WEAPON_BEAM_LIFE             0.1
 #define WEAPON_BEAM_WIDTH            3.0
 #define WEAPON_BEAM_COLOR            {0, 0, 255, 255}
 #define WEAPON_BEAM_COLOR_F          "0 0 255" // non impulse
 #define WEAPON_GLOW_COLOR            {0, 255, 0, 255} /// Only for impulse mode, because normal already have a child (beam)
-#define WEAPON_GLOW_STYLE            0
-#define WEAPON_GLOW_DISTANCE         10000.0
 /**
  * @endsection
  **/
@@ -69,12 +60,12 @@ public Plugin myinfo =
 /**
  * @section Properties of the gibs shooter.
  **/
-#define METAL_GIBS_AMOUNT                   5.0
-#define METAL_GIBS_DELAY                    0.05
-#define METAL_GIBS_SPEED                    500.0
-#define METAL_GIBS_VARIENCE                 1.0  
-#define METAL_GIBS_LIFE                     1.0  
-#define METAL_GIBS_DURATION                 2.0
+#define METAL_GIBS_AMOUNT            5.0
+#define METAL_GIBS_DELAY             0.05
+#define METAL_GIBS_SPEED             500.0
+#define METAL_GIBS_VARIENCE          1.0  
+#define METAL_GIBS_LIFE              1.0  
+#define METAL_GIBS_DURATION          2.0
 /**
  * @endsection
  **/
@@ -88,18 +79,19 @@ enum
 };
 
 // Timer index
-Handle Task_MineCreate[MAXPLAYERS+1] = null; 
+Handle hMineCreate[MAXPLAYERS+1] = null; 
 
 // Item index
-int gItem; int gWeapon;
-#pragma unused gItem, gWeapon
+int gWeapon;
+#pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
+int gSound; ConVar hSoundLevel; ConVar hKnockBack;
+#pragma unused gSound, hSoundLevel, hKnockBack
 
 // Decal index
-int decalBeam;
-#pragma unused decalBeam
+int gBeam;
+#pragma unused gBeam
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -110,10 +102,17 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if(!strcmp(sLibrary, "zombieplague", false))
     {
-        #if !defined WEAPON_MINE_IMPULSE
+#if !defined WEAPON_MINE_IMPULSE
         // Hooks entity events
         HookEntityOutput("env_beam", "OnTouchedByEntity", BeamTouchHook);
-        #endif
+#endif
+
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
     }
 }
 
@@ -122,81 +121,37 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Items
-    gItem = ZP_GetExtraItemNameID("lasermine");
-    if(gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"lasermine\" wasn't find");
-    
     // Weapons
     gWeapon = ZP_GetWeaponNameID("lasermine");
-    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"lasermine\" wasn't find");
+    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"lasermine\" wasn't find");
 
     // Sounds
     gSound = ZP_GetSoundKeyID("LASERMINE_SHOOT_SOUNDS");
     if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"LASERMINE_SHOOT_SOUNDS\" wasn't find");
-    PrecacheSound(WEAPON_MINE_IMPACT, true);
-    PrecacheSound(WEAPON_MINE_SHOOT, true);
-    
+
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
     if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
-    
+}
+
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
     // Models
-    decalBeam = PrecacheModel("materials/sprites/purplelaser1.vmt", true);
+    gBeam = PrecacheModel("materials/sprites/purplelaser1.vmt", true);
     PrecacheModel("models/gibs/metal_gib1.mdl", true);
     PrecacheModel("models/gibs/metal_gib2.mdl", true);
     PrecacheModel("models/gibs/metal_gib3.mdl", true);
     PrecacheModel("models/gibs/metal_gib4.mdl", true);
     PrecacheModel("models/gibs/metal_gib5.mdl", true);
     
-    #if defined WEAPON_MINE_IMPULSE
+#if defined WEAPON_MINE_IMPULSE
     // Sounds
-    PrecacheSound(WEAPON_MINE_IMPACT, true);
-    PrecacheSound(WEAPON_MINE_SHOOT, true);
-    #endif
-    
-    // Effects
-    PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
-}
-
-/**
- * @brief Called before show an extraitem in the equipment menu.
- * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
- *
- * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
- *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
- **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
-{
-    // Check the item index
-    if(itemID == gItem)
-    {
-        // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
-        {
-            return Plugin_Handled;
-        }
-    }
-    
-    // Allow showing
-    return Plugin_Continue;
-}
-
-/**
- * @brief Called after select an extraitem in the equipment menu.
- * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
- **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
-{
-    // Check the item index
-    if(itemID == gItem)
-    {
-        // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, gWeapon);
-    }
+    PrecacheSound("weapons/taser/taser_hit.wav", true);
+    PrecacheSound("weapons/taser/taser_shoot.wav", true);
+#endif
 }
 
 /**
@@ -208,19 +163,19 @@ public void OnMapEnd(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
-        Task_MineCreate[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
+        hMineCreate[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
 }
 
 /**
  * @brief Called when a client is disconnecting from the server.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void OnClientDisconnect(int clientIndex)
+public void OnClientDisconnect(int client)
 {
     // Delete timers
-    delete Task_MineCreate[clientIndex];
+    delete hMineCreate[client];
 }
 
 //*********************************************************************
@@ -228,135 +183,109 @@ public void OnClientDisconnect(int clientIndex)
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnDeploy(int clientIndex, int weaponIndex, float flCurrentTime)
+void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, flCurrentTime
+    #pragma unused client, weapon, flCurrentTime
     
     /// Block the real attack
-    SetEntPropFloat(clientIndex, Prop_Send, "m_flNextAttack", flCurrentTime + 9999.9);
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 9999.9);
+    SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
+    SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
 
     // Sets next attack time
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
-void Weapon_OnIdle(int clientIndex, int weaponIndex, float flCurrentTime)
+void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, flCurrentTime
+    #pragma unused client, weapon, flCurrentTime
     
     // Validate animation delay
-    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
+    if(GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
     {
         return;
     }
     
     // Sets idle animation
-    ZP_SetWeaponAnimation(clientIndex, ANIM_IDLE); 
+    ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weaponIndex, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
 }
 
-void Weapon_OnPrimaryAttack(int clientIndex, int weaponIndex, float flCurrentTime)
+void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused clientIndex, weaponIndex, flCurrentTime
+    #pragma unused client, weapon, flCurrentTime
 
     // Validate animation delay
-    if(GetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    if(GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
         return;
     }
 
     // Validate water
-    if(GetEntProp(clientIndex, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
+    if(GetEntProp(client, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
     {
         return;
     }
     
-    // Adds the delay to the game tick
-    flCurrentTime += ZP_GetWeaponReload(gWeapon);
-    
-    // Sets next attack time
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-    SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
-
     // Initialize vectors
-    static float vPosition[3]; static float vEndPosition[3];
+    static float vPosition[3]; static float vEndPosition[3]; bool bHit;
     
     // Gets trace line
-    GetClientEyePosition(clientIndex, vPosition);
-    ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
+    GetClientEyePosition(client, vPosition);
+    ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
     
     // Create the end-point trace
-    TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
+    TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
 
     // Is hit world ?
     if(TR_DidHit() && TR_GetEntityIndex() < 1)
     {
-        // Sets shoot animation
-        ZP_SetWeaponAnimation(clientIndex, ANIM_SHOOT);
+#if defined WEAPON_MINE_SOLID
+        // Returns the collision position/normal of a trace result
+        TR_GetEndPosition(vPosition);
 
-        // Create timer for mine
-        delete Task_MineCreate[clientIndex]; /// Bugfix
-        Task_MineCreate[clientIndex] = CreateTimer(ZP_GetWeaponReload(gWeapon) - 0.1, Weapon_OnCreateMine, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
-    }
-}
-
-bool Weapon_OnPickupMine(int clientIndex, int entityIndex, float flCurrentTime)
-{
-    #pragma unused clientIndex, entityIndex, flCurrentTime
-
-    // Initialize vectors
-    static float vPosition[3]; static float vEndPosition[3]; bool bSuccess;
-    
-    // Gets trace line
-    GetClientEyePosition(clientIndex, vPosition);
-    ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
-
-    // Create the end-point trace
-    TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
-
-    // Validate collisions
-    if(!TR_DidHit())
-    {
-        // Initialize the hull intersection
-        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+        // Initialize the hull vectors
+        static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
+        static const float vMaxs[3] = {  20.0,  20.0, 20.0  }; 
+        
+        // Create array of entities
+        ArrayList hList = new ArrayList();
         
         // Create the hull trace
-        TR_TraceHullFilter(vPosition, vEndPosition, vMins, vMaxs, MASK_SOLID, filter2);
-    }
+        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
 
-    // Validate collisions
-    if(TR_DidHit())
-    {
-        // Gets entity index
-        entityIndex = TR_GetEntityIndex();
-
-        // Validate entity
-        if(IsEntityLasermine(entityIndex))
+        // Is hit world only ?
+        if(!hList.Length)
         {
-            // Validate owner
-            if(GetEntPropEnt(entityIndex, Prop_Data, "m_pParent") == clientIndex)
-            {
-                // Give item and select it
-                ZP_GiveClientWeapon(clientIndex, gWeapon);
+#endif
+            // Sets shoot animation
+            ZP_SetWeaponAnimation(client, ANIM_SHOOT);
 
-                // Kill entity
-                AcceptEntityInput(entityIndex, "Kill");
-                
-                // Return on the success
-                bSuccess = true;
-            }
+            // Create timer for mine
+            delete hMineCreate[client]; /// Bugfix
+            hMineCreate[client] = CreateTimer(ZP_GetWeaponReload(gWeapon) - 0.1, Weapon_OnCreateMine, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+
+            // Return on the success
+            bHit = true;
+#if defined WEAPON_MINE_SOLID
         }
+        
+        // Remove array
+        delete hList;
+#endif
     }
-
-    // Return on success
-    return bSuccess;
+    
+    // Adds the delay to the game tick
+    flCurrentTime += bHit ? ZP_GetWeaponReload(gWeapon) : 0.1;
+    
+    // Sets next attack time
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 }
 
 /**
- * Timer for creating mine.
+ * @brief Timer for creating mine.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
@@ -364,94 +293,123 @@ bool Weapon_OnPickupMine(int clientIndex, int entityIndex, float flCurrentTime)
 public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); static int weaponIndex;
+    int client = GetClientOfUserId(userID); int weapon;
 
     // Clear timer 
-    Task_MineCreate[clientIndex] = null;
+    hMineCreate[client] = null;
 
     // Validate client
-    if(ZP_IsPlayerHoldWeapon(clientIndex, weaponIndex, gWeapon))
+    if(ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
     {
         // Initialize vectors
         static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3]; 
         
         // Gets trace line
-        GetClientEyePosition(clientIndex, vPosition);
-        ZP_GetPlayerGunPosition(clientIndex, 80.0, 0.0, 0.0, vEndPosition);
+        GetClientEyePosition(client, vPosition);
+        ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
 
         // Create the end-point trace
-        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, filter2);
+        TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
 
         // Is hit world ?
         if(TR_DidHit() && TR_GetEntityIndex() < 1)
         {
-            // Returns the collision position/angle of a trace result
+            // Returns the collision position/normal of a trace result
             TR_GetEndPosition(vPosition);
             TR_GetPlaneNormal(null, vAngle);
-            
-            // Gets angles of the trace vectors
-            GetVectorAngles(vAngle, vAngle); vAngle[0] += 90.0; /// Bugfix for w_
 
-            // Gets weapon dropped model
-            static char sModel[PLATFORM_LINE_LENGTH];
-            ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
+#if defined WEAPON_MINE_SOLID
+            // Initialize the hull vectors
+            static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
+            static const float vMaxs[3] = {  20.0,  20.0, 20.0  }; 
             
-            // Create a physics entity
-            int entityIndex = UTIL_CreatePhysics("mine", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+            // Create array of entities
+            ArrayList hList = new ArrayList();
             
-            // Validate entity
-            if(entityIndex != INVALID_ENT_REFERENCE)
+            // Create the hull trace
+            TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+
+            // Is hit world only ?
+            if(!hList.Length)
             {
-                // Sets physics
-                SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-                SetEntProp(entityIndex, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
+#endif
+                // Gets angles of the trace vectors
+                GetVectorAngles(vAngle, vAngle); vAngle[0] += 90.0; /// Bugfix for w_
 
-                #if WEAPON_MINE_HEALTH > 0
-                // Sets health     
-                SetEntProp(entityIndex, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
-                SetEntProp(entityIndex, Prop_Data, "m_iHealth", WEAPON_MINE_HEALTH);
-                SetEntProp(entityIndex, Prop_Data, "m_iMaxHealth", WEAPON_MINE_HEALTH);
+                // Gets weapon dropped model
+                static char sModel[PLATFORM_LINE_LENGTH];
+                ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
                 
-                // Create damage hook
-                SDKHook(entityIndex, SDKHook_OnTakeDamage, MineDamageHook);
-                #endif
+                // Create a physics entity
+                int entity = UTIL_CreatePhysics("mine", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
                 
-                // Create the angle trace
-                vAngle[0] -= 90.0; /// Bugfix for beam
-                TR_TraceRayFilter(vPosition, vAngle, MASK_SOLID, RayType_Infinite, filter3, entityIndex);
-                
-                // Returns the collision position of a trace result
-                TR_GetEndPosition(vEndPosition);
-                
-                // Store the end position
-                SetEntPropVector(entityIndex, Prop_Data, "m_vecViewOffset", vEndPosition);
-                
-                // Sets owner to the entity
-                SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
+                // Validate entity
+                if(entity != -1)
+                {
+                    // Sets physics
+                    SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+#if defined WEAPON_MINE_SOLID
+                    SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
+#else
+                    SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
+#endif
+                    // Gets health amount
+                    int iHealth = GetEntProp(weapon, Prop_Data, "m_iHealth");
+                    
+                    // Sets health     
+                    SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
+                    SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
+                    SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
+                    
+                    // Create damage/use hook
+                    SDKHook(entity, SDKHook_OnTakeDamage, MineDamageHook);
+                    SDKHook(entity, SDKHook_UsePost, MineUseHook);
+                    
+                    // Create the angle trace
+                    vAngle[0] -= 90.0; /// Bugfix for beam
+                    TR_TraceRayFilter(vPosition, vAngle, MASK_SOLID, RayType_Infinite, PlayerFilter, entity);
+                    
+                    // Returns the collision position of a trace result
+                    TR_GetEndPosition(vEndPosition);
+                    
+                    // Store the end position
+                    SetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
+                    
+                    // Sets owner to the entity
+                    SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 
-                // Create timer for activating 
-                CreateTimer(WEAPON_MINE_ACTIVATION, MineActivateHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
+                    // Create timer for activating 
+                    CreateTimer(ZP_GetWeaponModelHeat(gWeapon), MineActivateHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 3, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                    // Play sound
+                    ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                }
+                
+                // Forces a player to remove weapon
+                ZP_RemoveWeapon(client, weapon);
+                
+                // Remove array
+                delete hList;  
+                
+                // Destroy timer
+                return Plugin_Stop;
+#if defined WEAPON_MINE_SOLID
             }
             
-            // Forces a player to remove weapon
-            ZP_RemoveWeapon(clientIndex, weaponIndex);
-            
-            // Destroy timer
-            return Plugin_Stop;
+            // Remove array
+            delete hList;   
+#endif
         }
 
         // Adds the delay to the game tick
         float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon);
         
         // Sets next attack time
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-        SetEntPropFloat(weaponIndex, Prop_Send, "m_fLastShotTime", flCurrentTime);    
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+        SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
 
         // Sets pickup animation
-        ZP_SetWeaponAnimation(clientIndex, ANIM_DRAW);
+        ZP_SetWeaponAnimation(client, ANIM_DRAW);
     }
     
     // Destroy timer
@@ -469,55 +427,72 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
         %1,             \
         %2,             \
         GetGameTime()   \
-    )    
+    )
+    
+/**
+ * @brief Called after a custom weapon is created.
+ *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+{
+    // Validate custom weapon
+    if(weaponID == gWeapon)
+    {
+        // Reset variables
+        SetEntProp(weapon, Prop_Data, "m_iHealth", ZP_GetWeaponClip(gWeapon));
+    }
+}   
     
 /**
  * @brief Called on deploy of a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID) 
+public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
     if(weaponID == gWeapon)
     {
         // Call event
-        _call.Deploy(clientIndex, weaponIndex);
+        _call.Deploy(client, weapon);
     }
 }
 
 /**
  * @brief Called on holster of a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID) 
+public void ZP_OnWeaponHolster(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
     if(weaponID == gWeapon)
     {
         // Delete timers
-        delete Task_MineCreate[clientIndex];
+        delete hMineCreate[client];
     }
 }
 
 /**
  * @brief Called on each frame of a weapon holding.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iButtons          The buttons buffer.
  * @param iLastButtons      The last buttons buffer.
- * @param weaponIndex       The weapon index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @return                  Plugin_Continue to allow buttons. Anything else 
  *                                (like Plugin_Changed) to change buttons.
  **/
-public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID)
+public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
     if(weaponID == gWeapon)
@@ -526,84 +501,17 @@ public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons
         if(iButtons & IN_ATTACK)
         {
             // Call event
-            _call.PrimaryAttack(clientIndex, weaponIndex); 
+            _call.PrimaryAttack(client, weapon); 
             iButtons &= (~IN_ATTACK);
             return Plugin_Changed;
         }
         
         // Call event
-        _call.Idle(clientIndex, weaponIndex);
+        _call.Idle(client, weapon);
     }
 
     // Allow button
     return Plugin_Continue;
-}
-
-/**
- * @brief Called before show a main menu.
- * 
- * @param clientIndex       The client index.
- *
- * @return                  Plugin_Handled or Plugin_Stop to block showing. Anything else
- *                              (like Plugin_Continue) to allow showing.
-**/
-public Action ZP_OnClientValidateButton(int clientIndex)
-{
-    // Validate no weapon
-    static int weaponIndex;
-    if(ZP_IsPlayerHuman(clientIndex) && ZP_IsPlayerHasWeapon(clientIndex, gWeapon) == INVALID_ENT_REFERENCE)
-    {
-        // Call event
-        if(_call.PickupMine(clientIndex, weaponIndex))
-        {
-            // Block showing menu
-            return Plugin_Handled;
-        }
-    }
-    
-    // Allow menu
-    return Plugin_Continue;
-}
-
-/**
- * @brief Called when a client take a fake damage.
- * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
- * @param damage            The amount of damage inflicted.
- * @param bits              The ditfield of damage types.
- * @param weaponIndex       The weapon index or -1 for unspecified.
- **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
-{
-    // Client was damaged by 'explosion'
-    if(iBits & DMG_BLAST)
-    {
-        // Validate lasermine
-        if(IsEntityLasermine(attackerIndex))
-        {
-            // Validate victim
-            if(ZP_IsPlayerHuman(clientIndex))
-            {
-                flDamage = 0.0;
-            }
-        }
-        
-    }
-    // Client was damaged by 'beam'
-    else if(iBits & DMG_BULLET)
-    {
-        // Validate beam
-        if(IsEntityBeam(attackerIndex))
-        {
-            // Validate victim
-            if(ZP_IsPlayerHuman(clientIndex))
-            {
-                flDamage = 0.0;
-            }
-        }
-    }
 }
 
 //**********************************************
@@ -611,38 +519,71 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
 //**********************************************
 
 /**
+ * @brief Mine use hook.
+ *
+ * @param entity            The entity index.
+ * @param activator         The activator index.
+ * @param caller            The caller index.
+ * @param use               The use type.
+ * @param flValue           The value parameter.
+ **/ 
+public void MineUseHook(int entity, int activator, int caller, UseType use, float flValue)
+{
+    // Validate human
+    if(IsPlayerExist(activator) && ZP_IsPlayerHuman(activator) && ZP_IsPlayerHasWeapon(activator, gWeapon) == -1)
+    {
+        // Validate owner
+        if(GetEntPropEnt(entity, Prop_Data, "m_pParent") == activator)
+        {
+            // Give item and select it
+            int weapon = ZP_GiveClientWeapon(activator, gWeapon);
+            
+            // Validate weapon
+            if(weapon != -1)
+            {
+                // Set variables
+                SetEntProp(weapon, Prop_Data, "m_iHealth", GetEntProp(entity, Prop_Data, "m_iHealth"));
+                
+                // Kill entity
+                AcceptEntityInput(entity, "Kill");
+            }
+        }
+    }
+}
+
+/**
  * @brief Mine damage hook.
  * 
- * @param entityIndex       The entity index.
- * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param entity            The entity index.
+ * @param attacker          The attacker index.
+ * @param inflictor         The inflictor index.
  * @param damage            The amount of damage inflicted.
  * @param damageBits        The type of damage inflicted.
  **/
-public Action MineDamageHook(int entityIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &damageBits)
+public Action MineDamageHook(int entity, int &attacker, int &inflictor, float &flDamage, int &damageBits)
 {
     // Validate attacker
-    if(IsPlayerExist(attackerIndex))
+    if(IsPlayerExist(attacker))
     {
         // Validate zombie
-        if(ZP_IsPlayerZombie(attackerIndex))
+        if(ZP_IsPlayerZombie(attacker))
         {
             // Calculate the damage
-            int iHealth = GetEntProp(entityIndex, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
+            int iHealth = GetEntProp(entity, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
             // Destroy entity
             if(!iHealth)
             {
                 // Destroy damage hook
-                SDKUnhook(entityIndex, SDKHook_OnTakeDamage, MineDamageHook);
+                SDKUnhook(entity, SDKHook_OnTakeDamage, MineDamageHook);
         
                 // Expload it
-                MineExpload(entityIndex);
+                MineExpload(entity);
             }
             else
             {
                 // Apply damage
-                SetEntProp(entityIndex, Prop_Data, "m_iHealth", iHealth);
+                SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
             }
         }
     }
@@ -654,28 +595,28 @@ public Action MineDamageHook(int entityIndex, int &attackerIndex, int &inflictor
 /**
  * @brief Exploade mine.
  * 
- * @param entityIndex       The entity index.                    
+ * @param entity            The entity index.                    
  **/
-void MineExpload(int entityIndex)
+void MineExpload(int entity)
 {
     // Initialize vectors
-    static float vPosition[3]; static float vGibAngle[3]; float vShootAngle[3];
+    static float vPosition[3]; static float vGib[3]; float vShoot[3];
 
     // Gets entity position
-    GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+    GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
     // Create an explosion
-    UTIL_CreateExplosion(vPosition, /*EXP_NOFIREBALL | */EXP_NOSOUND, _, WEAPON_MINE_EXPLOSION_DAMAGE, WEAPON_MINE_EXPLOSION_RADIUS, "lasermine", entityIndex, entityIndex);
+    UTIL_CreateExplosion(vPosition, /*EXP_NOFIREBALL | */EXP_NOSOUND | EXP_NODAMAGE);
     
     // Play sound
-    ZP_EmitSoundToAll(gSound, 5, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+    ZP_EmitSoundToAll(gSound, 5, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
     
     // Create a breaked metal effect
     static char sBuffer[NORMAL_LINE_LENGTH];
     for(int x = 0; x <= 4; x++)
     {
         // Find gib positions
-        vShootAngle[1] += 72.0; vGibAngle[0] = GetRandomFloat(0.0, 360.0); vGibAngle[1] = GetRandomFloat(-15.0, 15.0); vGibAngle[2] = GetRandomFloat(-15.0, 15.0); switch(x)
+        vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch(x)
         {
             case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
             case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");
@@ -685,86 +626,86 @@ void MineExpload(int entityIndex)
         }
         
         // Create gibs
-        UTIL_CreateShooter(entityIndex, "1", _, MAT_METAL, sBuffer, vShootAngle, vGibAngle, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+        UTIL_CreateShooter(entity, "1", _, MAT_METAL, _, sBuffer, vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
     }
     
     // Kill after some duration
-    UTIL_RemoveEntity(entityIndex, 0.1);
+    UTIL_RemoveEntity(entity, 0.1);
 }
 
 /**
  * @brief Main timer for activate mine.
  *
  * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
+ * @param refID             The reference index.
  **/
-public Action MineActivateHook(Handle hTimer, int referenceIndex)
+public Action MineActivateHook(Handle hTimer, int refID)
 {
     // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
+    int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    if(entity != -1)
     {
         // Initialize vectors
         static float vPosition[3]; static float vEndPosition[3]; 
 
         // Gets mine position
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
         
-        #if defined WEAPON_MINE_IMPULSE
+#if defined WEAPON_MINE_IMPULSE
         // Create timer for updating 
-        CreateTimer(ZP_GetWeaponSpeed(gWeapon), MineUpdateHook, EntIndexToEntRef(entityIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(ZP_GetWeaponSpeed(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         
-        // Gets the angle
-        GetEntPropVector(entityIndex, Prop_Data, "m_angAbsRotation", vEndPosition);
+        // Gets angle
+        GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vEndPosition);
         
         // Gets mine model
         static char sModel[PLATFORM_LINE_LENGTH];
-        GetEntPropString(entityIndex, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+        GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
 
         // Create a prop_dynamic_override entity
-        int glowIndex = UTIL_CreateDynamic("glow", vPosition, vEndPosition, sModel, "dropped");
+        int glow = UTIL_CreateDynamic("glow", vPosition, vEndPosition, sModel, "dropped");
 
         // Validate entity
-        if(glowIndex != INVALID_ENT_REFERENCE)
+        if(glow != -1)
         {
             // Sets parent to the entity
             SetVariantString("!activator");
-            AcceptEntityInput(glowIndex, "SetParent", entityIndex, glowIndex);
+            AcceptEntityInput(glow, "SetParent", entity, glow);
 
             // Sets glowing mode
             static const int vColor[4] = WEAPON_GLOW_COLOR;
-            UTIL_CreateGlowing(glowIndex, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
+            UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
         }
-        #else
-        // Gets the end position
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecViewOffset", vEndPosition);
+#else
+        // Gets end position
+        GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
         
         // Create a beam entity
-        int beamIndex = UTIL_CreateBeam(vPosition, vEndPosition, _, _, _, _, _, _, _, _, _, "materials/sprites/purplelaser1.vmt", _, _, BEAM_STARTSPARKS | BEAM_ENDSPARKS, _, _, _, WEAPON_BEAM_COLOR_F, ZP_GetWeaponSpeed(gWeapon), 0.0, "mlaser");
+        int beam = UTIL_CreateBeam(vPosition, vEndPosition, _, _, _, _, _, _, _, _, _, "materials/sprites/purplelaser1.vmt", _, _, _, _, _, _, WEAPON_BEAM_COLOR_F, 0.002, 0.0, "beam");
         
         // Validate entity
-        if(beamIndex != INVALID_ENT_REFERENCE)
+        if(beam != -1)
         {
             // Sets parent to the entity
-            SetEntPropEnt(entityIndex, Prop_Data, "m_hMoveChild", beamIndex);
-            SetEntPropEnt(beamIndex, Prop_Data, "m_hEffectEntity", entityIndex);
+            SetEntPropEnt(entity, Prop_Data, "m_hMoveChild", beam);
+            SetEntPropEnt(beam, Prop_Data, "m_hEffectEntity", entity);
 
             // Gets owner of the entity
-            int ownerIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_pParent");
+            /*int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
             
             // Validate owner
-            if(ownerIndex != INVALID_ENT_REFERENCE)
+            if(owner != -1)
             {
                 // Sets owner to the entity
-                SetEntPropEnt(beamIndex, Prop_Data, "m_pParent", ownerIndex); 
-            }
+                SetEntPropEnt(beam, Prop_Data, "m_pParent", owner); 
+            }*/
         }
-        #endif
+#endif
     }
     
     // Destroy timer
@@ -775,94 +716,151 @@ public Action MineActivateHook(Handle hTimer, int referenceIndex)
  * @brief Main timer for update mine.
  *
  * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
+ * @param refID             The reference index.
  **/
 #if defined WEAPON_MINE_IMPULSE
-public Action MineUpdateHook(Handle hTimer, int referenceIndex)
+public Action MineUpdateHook(Handle hTimer, int refID)
 {
     // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
+    int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    if(entity != -1)
     {
         // Initialize vectors
-        static float vPosition[3]; static float vEndPosition[3];
+        static float vPosition[3]; static float vEndPosition[3]; static float vVelocity[3]; static float vSpeed[3];
         
         // Gets mine position/end pos
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecViewOffset", vEndPosition);
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
         // Create the end-point trace
-        TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter4, entityIndex);
+        TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, HumanFilter, entity);
 
         // Validate collisions
         if(TR_DidHit())
         {
             // Gets victim index
-            int victimIndex = TR_GetEntityIndex();
+            int victim = TR_GetEntityIndex();
 
             // Returns the collision position of a trace result
             TR_GetEndPosition(vEndPosition);
 
-            // Create the damage for victims
-            UTIL_CreateDamage(_, vEndPosition, entityIndex, WEAPON_MINE_DAMAGE, WEAPON_MINE_RADIUS, DMG_BULLET);
-
             // Validate victim
-            if(IsPlayerExist(victimIndex) && ZP_IsPlayerZombie(victimIndex))
+            if(IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
             {    
+                // Create the damage for victims
+                ZP_TakeDamage(victim, -1, entity, WEAPON_MINE_DAMAGE, DMG_BULLET);
+        
                 // Play sound
-                ZP_EmitSoundToAll(gSound, 4, victimIndex, SNDCHAN_ITEM, hSoundLevel.IntValue);
+                ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, hSoundLevel.IntValue);
+                
+                // Validate power
+                float flPower = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon) * WEAPON_MINE_DAMAGE; 
+                if(flPower <= 0.0)
+                {
+                    return;
+                }
+                
+                // If knockback system is enabled, then apply
+                if(hKnockBack.BoolValue)
+                {
+                    // Gets vector from the given starting and ending points
+                    MakeVectorFromPoints(vPosition, vEndPosition, vVelocity);
+
+                    // Normalize the vector (equal magnitude at varying distances)
+                    NormalizeVector(vVelocity, vVelocity);
+
+                    // Apply the magnitude by scaling the vector
+                    ScaleVector(vVelocity, flPower);
+                    
+                    // Gets client velocity
+                    GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vSpeed);
+                    
+                    // Add to the current
+                    AddVectors(vSpeed, vVelocity, vVelocity);
+                
+                    // Push the target
+                    TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, vVelocity);
+                }
+                else
+                {
+                    // Validate max
+                    if(flPower > 100.0) flPower = 100.0;
+                    else if(flPower <= 0.0) return;
+            
+                    // Apply the stamina-based slowdown
+                    SetEntPropFloat(victim, Prop_Send, "m_flStamina", flPower);
+                }
             }
             
             // Create a tracer effect 
-            TE_SetupBeamPoints(vPosition, vEndPosition, decalBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+            TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, WEAPON_BEAM_COLOR, 30);
             TE_SendToAll();
 
             // Emit the hit sounds
-            EmitAmbientSound(WEAPON_MINE_IMPACT, vEndPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue, SND_NOFLAGS, WEAPON_MINE_IMPACT_LEVEL, SNDPITCH_LOW);
-            EmitAmbientSound(WEAPON_MINE_SHOOT, vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue, SND_NOFLAGS, WEAPON_MINE_SHOOT_LEVEL, SNDPITCH_LOW);
+            EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
+            EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue, SND_NOFLAGS, 0.3, SNDPITCH_LOW);
         }
-        
-        // Allow timer
-        return Plugin_Continue;
     }
-        
-    // Destroy timer
-    return Plugin_Stop;
+    else
+    {
+        // Destroy timer
+        return Plugin_Stop;
+    }
+    
+    // Allow timer
+    return Plugin_Continue;
 }
 #else
 /**
  * @brief Beam touch hook.
  *
  * @param sOutput           The output char. 
- * @param entityIndex       The entity index.
- * @param activatorIndex    The activator index.
+ * @param entity            The entity index.
+ * @param activator         The activator index.
  * @param flDelay           The delay of updating.
  **/ 
-public void BeamTouchHook(char[] sOutput, int entityIndex, int activatorIndex, float flDelay)
+public void BeamTouchHook(char[] sOutput, int entity, int activator, float flDelay)
 {
     // Validate entity
-    if(IsEntityBeam(entityIndex))
+    if(IsEntityBeam(entity))
     {
         // Validate activator
-        if(IsValidEdict(activatorIndex))
+        if(IsPlayerExist(activator) && ZP_IsPlayerZombie(activator) && IsPlayerDamageble(activator, ZP_GetWeaponSpeed(gWeapon)))
         {
-            // Gets entity position
-            static float vPosition[3]; 
-            GetEntPropVector(activatorIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-    
             // Apply damage
-            UTIL_CreateDamage(_, vPosition, entityIndex, WEAPON_MINE_DAMAGE, WEAPON_MINE_RADIUS, DMG_BULLET);
-
-            // Validate victim
-            if(IsPlayerExist(activatorIndex) && ZP_IsPlayerZombie(activatorIndex)) 
-            {
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 4, activatorIndex, SNDCHAN_ITEM, hSoundLevel.IntValue);
-            }
+            ZP_TakeDamage(activator, -1, entity, WEAPON_MINE_DAMAGE, DMG_BULLET);
+        
+            // Play sound
+            ZP_EmitSoundToAll(gSound, 4, activator, SNDCHAN_ITEM, hSoundLevel.IntValue);
         }
     }
+}
+
+/**
+ * @brief Validate the damage delay.
+ * 
+ * @param client            The client index.
+ * @param flDamageDelay     The damege delay.
+ **/
+bool IsPlayerDamageble(int client, float flDamageDelay)
+{
+    // Initialize variable
+    static float flDamageTime[MAXPLAYERS+1];
+    
+    // Gets simulated game time
+    float flCurrentTime = GetTickedTime();
+    
+    // Validate delay
+    if((flCurrentTime - flDamageTime[client]) < flDamageDelay)
+    {
+        return false;
+    }
+    
+    // Update the damage delay
+    flDamageTime[client] = flCurrentTime;
+    return true;
 }
 #endif
 
@@ -873,42 +871,42 @@ public void BeamTouchHook(char[] sOutput, int entityIndex, int activatorIndex, f
 /**
  * @brief Validate a lasermine.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @return                  True or false.
  **/
-stock bool IsEntityBeam(int entityIndex)
+stock bool IsEntityBeam(int entity)
 {
     // Validate entity
-    if(entityIndex <= MaxClients || !IsValidEdict(entityIndex))
+    if(entity <= MaxClients || !IsValidEdict(entity))
     {
         return false;
     }
     
     // Gets classname
     static char sClassname[SMALL_LINE_LENGTH];
-    GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
+    GetEntPropString(entity, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
     
     // Validate model
-    return (!strncmp(sClassname, "mlaser", 6, false));
+    return (!strncmp(sClassname, "beam", 4, false));
 }
 
 /**
  * @brief Validate a lasermine.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @return                  True or false.
  **/
-stock bool IsEntityLasermine(int entityIndex)
+stock bool IsEntityLasermine(int entity)
 {
     // Validate entity
-    if(entityIndex <= MaxClients || !IsValidEdict(entityIndex))
+    if(entity <= MaxClients || !IsValidEdict(entity))
     {
         return false;
     }
     
     // Gets classname
     static char sClassname[SMALL_LINE_LENGTH];
-    GetEntPropString(entityIndex, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
+    GetEntPropString(entity, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
     
     // Validate model
     return (!strcmp(sClassname, "mine", false));
@@ -917,37 +915,72 @@ stock bool IsEntityLasermine(int entityIndex)
 /**
  * @brief Trace filter.
  *
- * @param entityIndex       The entity index.  
+ * @param entity            The entity index.  
  * @param contentsMask      The contents mask.
- * @param filterIndex       The filter index.
  * @return                  True or false.
  **/
-public bool filter3(int entityIndex, int contentsMask, int filterIndex)
+public bool ClientFilter(int entity, int contentsMask)
 {
-    if(IsPlayerExist(entityIndex)) 
-    {
-        return false;
-    }
-
-    return (entityIndex != filterIndex);
+    return !(1 <= entity <= MaxClients);
 }
 
 /**
  * @brief Trace filter.
  *
- * @param entityIndex       The entity index.  
+ * @param entity            The entity index.  
  * @param contentsMask      The contents mask.
- * @param filterIndex       The filter index.
+ * @param filter            The filter index.
  * @return                  True or false.
  **/
-#if defined WEAPON_MINE_IMPULSE
-public bool filter4(int entityIndex, int contentsMask, int filterIndex)
+public bool PlayerFilter(int entity, int contentsMask, int filter)
 {
-    if(IsPlayerExist(entityIndex) && ZP_IsPlayerHuman(entityIndex)) 
+    // Validate player
+    if(IsPlayerExist(entity)) 
     {
         return false;
     }
 
-    return (entityIndex != filterIndex);
+    return (entity != filter);
+}
+
+/**
+ * @brief Trace filter.
+ *
+ * @param entity            The entity index.  
+ * @param contentsMask      The contents mask.
+ * @param filter            The filter index.
+ * @return                  True or false.
+ **/
+#if defined WEAPON_MINE_IMPULSE
+public bool HumanFilter(int entity, int contentsMask, int filter)
+{
+    // Validate human
+    if(IsPlayerExist(entity) && ZP_IsPlayerHuman(entity)) 
+    {
+        return false;
+    }
+
+    return (entity != filter);
+}
+#endif
+
+/**
+ * @brief Called for each entity enumerated with EnumerateEntities*.
+ *
+ * @param entity            The entity index.
+ * @param hData             The array handle.
+ * @return                  True to continue enumerating, otherwise false.
+ **/
+#if defined WEAPON_MINE_SOLID
+public bool ClientEnumerator(int entity, ArrayList hData)
+{
+    // Validate player
+    if(IsPlayerExist(entity))
+    {
+        TR_ClipCurrentRayToEntity(MASK_ALL, entity);
+        if (TR_DidHit()) hData.Push(entity);
+    }
+        
+    return true;
 }
 #endif

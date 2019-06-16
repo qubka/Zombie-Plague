@@ -109,7 +109,31 @@ int LogModuleFilterCache[LogModule];
 void LogOnInit(/*void*/)
 {
     // Initialize a module filter array
-    gServerData.Logs = CreateArray(SMALL_LINE_LENGTH);
+    gServerData.Logs = new ArrayList(SMALL_LINE_LENGTH);
+    gServerData.Modules = new StringMap();
+
+    // Push data into map
+    gServerData.Modules.SetValue("engine", LogModule_Engine);
+    gServerData.Modules.SetValue("config", LogModule_Config);
+    gServerData.Modules.SetValue("debug", LogModule_Debug);
+    gServerData.Modules.SetValue("tools", LogModule_Tools);
+    gServerData.Modules.SetValue("database", LogModule_Database);
+    gServerData.Modules.SetValue("models", LogModule_Decrypt);
+    gServerData.Modules.SetValue("decrypt", LogModule_Sounds);
+    gServerData.Modules.SetValue("downloads", LogModule_Downloads);
+    gServerData.Modules.SetValue("weapons", LogModule_Weapons);
+    gServerData.Modules.SetValue("effects", LogModule_Effects);
+    gServerData.Modules.SetValue("menus", LogModule_Menus);
+    gServerData.Modules.SetValue("hitgroups", LogModule_HitGroups);
+    gServerData.Modules.SetValue("antistick", LogModule_AntiStick);
+    gServerData.Modules.SetValue("death", LogModule_Death);
+    gServerData.Modules.SetValue("levels", LogModule_Levels);
+    gServerData.Modules.SetValue("classes", LogModule_Classes);
+    gServerData.Modules.SetValue("extraitems", LogModule_ExtraItems);
+    gServerData.Modules.SetValue("costumes", LogModule_Costumes);
+    gServerData.Modules.SetValue("gamemodes", LogModule_GameModes);
+    gServerData.Modules.SetValue("admin", LogModule_Admin);
+    gServerData.Modules.SetValue("native", LogModule_Native);
 }
 
 /**
@@ -149,105 +173,28 @@ void LogOnCvarInit(/*void*/)
  **/
 LogModule LogGetModule(char[] sModuleName)
 {
-    if(!strcmp(sModuleName, "engine", false))
+    // Validate slots
+    LogModule iModule;
+    if(gServerData.Modules.GetValue(sModuleName, iModule))
     {
-        return LogModule_Engine;
-    }
-    else if(!strcmp(sModuleName, "config", false))
-    {
-        return LogModule_Config;
-    }
-    else if(!strcmp(sModuleName, "debug", false))
-    {
-        return LogModule_Debug;
-    }
-    else if(!strcmp(sModuleName, "tools", false))
-    {
-        return LogModule_Tools;
-    }
-    else if(!strcmp(sModuleName, "database", false))
-    {
-        return LogModule_Database;
-    }
-    else if(!strcmp(sModuleName, "models", false))
-    {
-        return LogModule_Decrypt;
-    }
-    else if(!strcmp(sModuleName, "decrypt", false))
-    {
-        return LogModule_Sounds;
-    }
-    else if(!strcmp(sModuleName, "downloads", false))
-    {
-        return LogModule_Downloads;
-    }
-    else if(!strcmp(sModuleName, "weapons", false))
-    {
-        return LogModule_Weapons;
-    }
-    else if(!strcmp(sModuleName, "effects", false))
-    {
-        return LogModule_Effects;
-    }
-    else if(!strcmp(sModuleName, "menus", false))
-    {
-        return LogModule_Menus;
-    }
-    else if(!strcmp(sModuleName, "hitgroups", false))
-    {
-        return LogModule_HitGroups;
-    }
-    else if(!strcmp(sModuleName, "antistick", false))
-    {
-        return LogModule_AntiStick;
-    }
-    else if(!strcmp(sModuleName, "death", false))
-    {
-        return LogModule_Death;
-    }
-    else if(!strcmp(sModuleName, "levels", false))
-    {
-        return LogModule_Levels;
-    }
-    else if(!strcmp(sModuleName, "classes", false))
-    {
-        return LogModule_Classes;
-    }
-    else if(!strcmp(sModuleName, "extraitems", false))
-    {
-        return LogModule_ExtraItems;
-    }
-    else if(!strcmp(sModuleName, "costumes", false))
-    {
-        return LogModule_Costumes;
-    }
-    else if(!strcmp(sModuleName, "gamemodes", false))
-    {
-        return LogModule_GameModes;
-    }
-    else if(!strcmp(sModuleName, "admin", false))
-    {
-        return LogModule_Admin;
-    }
-    else if(!strcmp(sModuleName, "native", false))
-    {
-        return LogModule_Native;
+        // Return index
+        return iModule;
     }
 
-    // No match
+    // Name doesn't exist
     return LogModule_Invalid;
 }
 
 /**
  * @brief Check if the specified log flag is set.
  *
- * @param eventType         The log flag to check.
+ * @param iEvent            The log flag to check.
  * @return                  True if set, false otherwise.
  **/
-bool LogCheckFlag(int eventType)
+bool LogCheckFlag(int iEvent)
 {
-    // Check if eventType is set
-    return eventType ? true : false;
+    // Check if event type is set
+    return iEvent ? true : false;
 }
 
 /**
@@ -269,7 +216,6 @@ bool LogCheckModuleFilter(LogModule iModule)
  * @param iMaxLen           The lenght of string.
  * @param iModule           Module type to convert.
  * @param shortName         Optional. Use short name instead of human readable names. Default is false
- *
  * @return                  Number of cells written.
  **/
 int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool shortName = false)
@@ -374,7 +320,7 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
  *                          regular log events. Default is false.
  * @param iType             Optional. Log type and action. Default is
  *                          LogType_Normal.
- * @param eventType         Optional. A log flag describing What kind of log event
+ * @param iEvent            Optional. A log flag describing What kind of log event
  *                          it is. Default is LOG_CORE_EVENTS.
  * @param iModule           Module the log event were executed in.
  * @param sDescription      Event type or function name. A short descriptive phrase
@@ -382,7 +328,7 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
  * @param sMessage          Log message. Can be formatted.
  * @param ...               Formatting parameters.
  **/
-void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int eventType = LOG_CORE_EVENTS, LogModule iModule = LogModule_Config, char[] sDescription, char[] sMessage, any ...)
+void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent = LOG_CORE_EVENTS, LogModule iModule = LogModule_Config, char[] sDescription, char[] sMessage, any ...)
 {    
     // Check filter overrides. Always log fatal errors, and check error override setting on error log types
     if((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
@@ -400,7 +346,7 @@ void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int eventT
         }
 
         // Check event type (log flag)
-        if(!LogCheckFlag(eventType))
+        if(!LogCheckFlag(iEvent))
         {
             return;
         }
@@ -536,7 +482,7 @@ bool LogModuleFilterRemove(LogModule iModule)
  **/
 void LogModuleFilterCacheUpdate(/*void*/)
 {
-    static char sModuleName[SMALL_LINE_LENGTH]; LogModule iModuleType;
+    static char sModuleName[SMALL_LINE_LENGTH]; LogModule iModule;
     
     // Clear all entries in module cache
     int iModuleCount = sizeof(LogModuleFilterCache);
@@ -553,13 +499,13 @@ void LogModuleFilterCacheUpdate(/*void*/)
         gServerData.Logs.GetString(i, sModuleName, sizeof(sModuleName));
         
         // Convert to type
-        iModuleType = LogGetModule(sModuleName);
+        iModule = LogGetModule(sModuleName);
         
         // Validate type
-        if(iModuleType != LogModule_Invalid)
+        if(iModule != LogModule_Invalid)
         {
             // Sets value in cache
-            LogModuleFilterCache[iModuleType] = true;
+            LogModuleFilterCache[iModule] = true;
         }
     }
 }
@@ -568,10 +514,10 @@ void LogModuleFilterCacheUpdate(/*void*/)
  * Console command callback (zp_log_list)
  * @brief Displays flags and module filter cache.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action LogListOnCommandCatched(int clientIndex, int iArguments)
+public Action LogListOnCommandCatched(int client, int iArguments)
 {
     // Initialize some chars
     static char sBuffer[FILE_LINE_LENGTH];
@@ -589,7 +535,7 @@ public Action LogListOnCommandCatched(int clientIndex, int iArguments)
     sBuffer[0] = 0;
     
     // Sets language
-    SetGlobalTransTarget(!clientIndex ? LANG_SERVER : clientIndex);
+    SetGlobalTransTarget(!client ? LANG_SERVER : client);
     
     // Gets phrases
     FormatEx(sPhraseGenericFlag, sizeof(sPhraseGenericFlag), "%t", "log generic flag");
@@ -617,7 +563,7 @@ public Action LogListOnCommandCatched(int clientIndex, int iArguments)
     FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG_DETAIL    16      %s\n", LogCheckFlag(LOG_DEBUG_DETAIL) ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
-    ReplyToCommand(clientIndex, sBuffer);
+    ReplyToCommand(client, sBuffer);
     sBuffer[0] = 0;
     
     // Module filtering status:
@@ -628,7 +574,7 @@ public Action LogListOnCommandCatched(int clientIndex, int iArguments)
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     StrCat(sBuffer, sizeof(sBuffer), "--------------------------------------------------------------------------------");
     
-    ReplyToCommand(clientIndex, sBuffer);
+    ReplyToCommand(client, sBuffer);
     sBuffer[0] = 0;
     
     // Module status:
@@ -638,7 +584,7 @@ public Action LogListOnCommandCatched(int clientIndex, int iArguments)
         LogGetModuleNameString(sModuleName, sizeof(sModuleName), view_as<LogModule>(i));
         LogGetModuleNameString(sPhraseShortName, sizeof(sPhraseShortName), view_as<LogModule>(i), true);
         FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[view_as<LogModule>(i)] ? "On" : "Off");
-        ReplyToCommand(clientIndex, sLineBuffer);
+        ReplyToCommand(client, sLineBuffer);
     }
     return Plugin_Handled;
 }
@@ -647,10 +593,10 @@ public Action LogListOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_log_add_module)
  * @brief Add one or modules to module filter.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action LogAddModuleOnCommandCatched(int clientIndex, int iArguments)
+public Action LogAddModuleOnCommandCatched(int client, int iArguments)
 {
     // Initialize argument char
     static char sArgument[SMALL_LINE_LENGTH];
@@ -662,7 +608,7 @@ public Action LogAddModuleOnCommandCatched(int clientIndex, int iArguments)
     if(iArguments < 1)
     {
         // Display syntax info
-        TranslationReplyToCommand(clientIndex, "log module invalid args");
+        TranslationReplyToCommand(client, "log module invalid args");
     }
 
     // Loop through each argument
@@ -678,13 +624,13 @@ public Action LogAddModuleOnCommandCatched(int clientIndex, int iArguments)
         if(iModule == LogModule_Invalid)
         {
             // Skip to next argument
-            TranslationReplyToCommand(clientIndex, "log module invalid name", sArgument);
+            TranslationReplyToCommand(client, "log module invalid name", sArgument);
             continue;
         }
 
         // Add filter
         LogModuleFilterAdd(iModule);
-        TranslationReplyToCommand(clientIndex, "log module filter added", sArgument);
+        TranslationReplyToCommand(client, "log module filter added", sArgument);
     }
 
     // Update cache
@@ -696,10 +642,10 @@ public Action LogAddModuleOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_log_remove_module)
  * @brief Remove one or modules to module filter.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/
-public Action LogRemoveModuleOnCommandCatched(int clientIndex, int iArguments)
+public Action LogRemoveModuleOnCommandCatched(int client, int iArguments)
 {
     // Initialize some chars
     static char sArgument[SMALL_LINE_LENGTH];
@@ -711,7 +657,7 @@ public Action LogRemoveModuleOnCommandCatched(int clientIndex, int iArguments)
     if(iArguments < 1)
     {
         // Display syntax info
-        TranslationReplyToCommand(clientIndex, "log module invalid args");
+        TranslationReplyToCommand(client, "log module invalid args");
     }
     
     // Loop through each argument
@@ -727,13 +673,13 @@ public Action LogRemoveModuleOnCommandCatched(int clientIndex, int iArguments)
         if(iModule == LogModule_Invalid)
         {
             // Skip to next argument
-            TranslationReplyToCommand(clientIndex, "log module invalid name", sArgument);
+            TranslationReplyToCommand(client, "log module invalid name", sArgument);
             continue;
         }
         
         // Remove filter
         LogModuleFilterRemove(iModule);
-        TranslationReplyToCommand(clientIndex, "log module filter removed", sArgument);
+        TranslationReplyToCommand(client, "log module filter removed", sArgument);
     }
     
     // Update cache.

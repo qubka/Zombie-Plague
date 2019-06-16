@@ -300,10 +300,7 @@ bool DecryptPrecacheSounds(char[] sModel)
         while(hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
-            if(StrContains(sPath, "//", false) != -1)
-            {
-                SplitString(sPath, "//", sPath, sizeof(sPath));
-            }
+            SplitString(sPath, "//", sPath, sizeof(sPath));
             
             // Trim off whitespace
             TrimString(sPath);
@@ -401,7 +398,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
         hFile.Seek(-1, SEEK_CUR);
         
         // Initialize a material list array
-        ArrayList hList = CreateArray(SMALL_LINE_LENGTH);
+        ArrayList hList = new ArrayList(SMALL_LINE_LENGTH);
 
         // Reverse loop throught the binary
         while(hFile.Position > 1 && hList.Length < iNumMat)
@@ -519,10 +516,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
         while(hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
-            if(StrContains(sPath, "//", false) != -1)
-            {
-                SplitString(sPath, "//", sPath, sizeof(sPath));
-            }
+            SplitString(sPath, "//", sPath, sizeof(sPath));
             
             // Trim off whitespace
             TrimString(sPath);
@@ -658,10 +652,7 @@ bool DecryptPrecacheEffects(char[] sModel)
         while(hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
-            if(StrContains(sPath, "//", false) != -1)
-            {
-                SplitString(sPath, "//", sPath, sizeof(sPath));
-            }
+            SplitString(sPath, "//", sPath, sizeof(sPath));
         
             // Trim off whitespace
             TrimString(sPath);
@@ -722,10 +713,7 @@ bool DecryptPrecacheTextures(char[] sPath)
     while(hFile.ReadLine(sTexture, sizeof(sTexture)))
     {
         // Cut out comments at the end of a line
-        if(StrContains(sTexture, "//", false) != -1)
-        {
-            SplitString(sTexture, "//", sTexture, sizeof(sTexture));
-        }
+        SplitString(sTexture, "//", sTexture, sizeof(sTexture));
 
         // i = texture type
         int iSize = sizeof(sTypes);

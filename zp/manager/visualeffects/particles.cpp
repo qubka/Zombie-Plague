@@ -46,13 +46,11 @@ int ParticleSystem_Count;
  **/
 void ParticlesOnInit(/*void*/)
 {
-    #if !defined USE_DETOUR
     // If windows, then stop
     if(gServerData.Platform == OS_Windows)
     {
         return;
     }
-    #endif
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Raw);
@@ -74,7 +72,7 @@ void ParticlesOnInit(/*void*/)
     
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); // 20CCStrike15ItemSchema
     
     // Validate call
     if((hSDKCallContainerFindTable = EndPrepSDKCall()) == null)
@@ -113,13 +111,11 @@ void ParticlesOnInit(/*void*/)
  **/
 void ParticlesOnLoad(/*void*/)
 {
-    #if !defined USE_DETOUR
     // If windows, then stop
     if(gServerData.Platform == OS_Windows)
     {
         return;
     }
-    #endif
 
     // Now copy data to array structure
     ParticlesOnCacheData();
@@ -135,13 +131,11 @@ void ParticlesOnLoad(/*void*/)
  **/
 void ParticlesOnPurge(/*void*/)
 {
-    #if !defined USE_DETOUR
     // If windows, then stop
     if(gServerData.Platform == OS_Windows)
     {
         return;
     }
-    #endif
     
     /// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L81
     SDKCall(hSDKCallDestructorParticleDictionary, pParticleSystemDictionary);
@@ -223,13 +217,13 @@ void ParticlesOnPrecache(/*void*/)
     if(gServerData.Particles == null)
     {
         // Initialize a particle list array
-        gServerData.Particles = CreateArray(NORMAL_LINE_LENGTH); 
+        gServerData.Particles = new ArrayList(NORMAL_LINE_LENGTH); 
 
         // i = string index
         int iCount = GetParticleEffectCount();
         for(int i = 0; i < iCount; i++)
         {
-            // Gets the string at a given index
+            // Gets string at a given index
             GetParticleEffectName(i, sBuffer, sizeof(sBuffer));
             
             // Push data into array 
@@ -242,32 +236,13 @@ void ParticlesOnPrecache(/*void*/)
         int iCount = gServerData.Particles.Length;
         for(int i = 0; i < iCount; i++)
         {
-            // Gets the string at a given index
+            // Gets string at a given index
             gServerData.Particles.GetString(i, sBuffer, sizeof(sBuffer));
             
             // Push data into table 
             PrecacheParticleEffect(sBuffer);
         }
     }
-}
-
-/**
- * Hook: SetTransmit
- * @brief Called right before the entity transmitting to other entities.
- *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
- **/
-public Action ParticlesOnTransmit(int entityIndex, int clientIndex)
-{
-    // Allow particle to be transmittable
-    if(GetEdictFlags(entityIndex) & FL_EDICT_ALWAYS)
-    {
-        SetEdictFlags(entityIndex, (GetEdictFlags(entityIndex) ^ FL_EDICT_ALWAYS));
-    }
-
-    // Validate transmitting
-    return ToolsOnEntityTransmit(entityIndex, clientIndex);
 }
 
 /*
@@ -277,18 +252,18 @@ public Action ParticlesOnTransmit(int entityIndex, int clientIndex)
 /**
  * @brief Create an attached particle entity.
  * 
- * @param parentIndex       The parent index.
+ * @param parent            The parent index.
  * @param sAttach           The attachment name.
  * @param sEffect           The particle name.
  * @param flDurationTime    The duration of an effect.
  * @return                  The entity index.
  **/
-int ParticlesCreate(int parentIndex, char[] sAttach, char[] sEffect, float flDurationTime)
+int ParticlesCreate(int parent, char[] sAttach, char[] sEffect, float flDurationTime)
 {
     // Validate name
-    if(!hasLength(sEffect) || (hasLength(sAttach) && !ToolsLookupAttachment(parentIndex, sAttach)))
+    if(!hasLength(sEffect) || (hasLength(sAttach) && !ToolsLookupAttachment(parent, sAttach)))
     {
-        return INVALID_ENT_REFERENCE;
+        return -1;
     }
     
     // Initialize vector variables
@@ -298,20 +273,20 @@ int ParticlesCreate(int parentIndex, char[] sAttach, char[] sEffect, float flDur
     if(!hasLength(sAttach))
     { 
         // Gets client position/angle
-        ToolsGetAbsOrigin(parentIndex, vPosition);
-        ToolsGetAbsAngles(parentIndex, vAngle);
+        ToolsGetAbsOrigin(parent, vPosition);
+        ToolsGetAbsAngles(parent, vAngle);
     }
 
     // Return on success
-    return UTIL_CreateParticle(parentIndex, vPosition, vAngle, sAttach, sEffect, flDurationTime);
+    return UTIL_CreateParticle(parent, vPosition, vAngle, sAttach, sEffect, flDurationTime);
 }
 
 /**
  * @brief Delete an attached particle from the entity.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ParticlesRemove(int clientIndex)
+void ParticlesRemove(int client)
 {
     // Initialize classname char
     static char sClassname[SMALL_LINE_LENGTH];
@@ -327,10 +302,10 @@ void ParticlesRemove(int clientIndex)
             GetEdictClassname(i, sClassname, sizeof(sClassname));
 
             // If entity is an attach particle entity
-            if(sClassname[0] == 'i' && sClassname[5] == 'p' && sClassname[6] == 'a')
+            if(sClassname[0] == 'i' && sClassname[5] == 'p' && sClassname[6] == 'a') // info_particle_system
             {
                 // Validate parent
-                if(ToolsGetOwner(i) == clientIndex)
+                if(ToolsGetOwner(i) == client)
                 {
                     AcceptEntityInput(i, "Kill"); /// Destroy
                 }

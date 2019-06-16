@@ -28,7 +28,7 @@
 /**
  * @brief Called when a clients movement buttons are being processed.
  *  
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iButtons          Copyback buffer containing the current commands. (as bitflags - see entity_prop_stocks.inc)
  * @param iImpulse          Copyback buffer containing the current impulse command.
  * @param flVelocity        Players desired velocity.
@@ -40,51 +40,41 @@
  * @param iSeed             Random seed. Used to determine weapon recoil, spread, and other predicted elements.
  * @param iMouse            Mouse direction (x, y).
  **/ 
-public Action OnPlayerRunCmd(int clientIndex, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
+public Action OnPlayerRunCmd(int client, int &iButtons, int &iImpulse, float flVelocity[3], float flAngles[3], int &weaponID, int &iSubType, int &iCmdNum, int &iTickCount, int &iSeed, int iMouse[2])
 {
     // Initialize variables
-    Action resultHandle; static int iLastButtons[MAXPLAYERS+1]; 
+    Action hResult; static int iLastButtons[MAXPLAYERS+1]; 
 
-    // Validate client
-    if(IsPlayerExist(clientIndex, false))
+    // If the client is alive, than continue
+    if(IsPlayerAlive(client))
     {
-        // If the client is alive, than continue
-        if(IsPlayerAlive(clientIndex))
+        // Button leap hook
+        if((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
         {
-            // Button leap hooks
-            if((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
-            {    
-                // Validate overtransmitting
-                if(!((iLastButtons[clientIndex] & IN_JUMP) && (iLastButtons[clientIndex] & IN_DUCK)))
-                {
-                    // Forward event to modules
-                    JumpBoostOnClientLeapJump(clientIndex);
-                }
+            // Validate overtransmitting
+            if(!((iLastButtons[client] & IN_JUMP) && (iLastButtons[client] & IN_DUCK)))
+            {
+                // Forward event to modules
+                JumpBoostOnClientLeapJump(client);
             }
+        }
 
-            // Dublicate the button buffer
-            int iButton = iButtons; /// for weapon forward
-            
-            // Forward event to modules
-            resultHandle = WeaponsOnRunCmd(clientIndex, iButtons, iLastButtons[clientIndex]);
-            
-            // Store the previous button
-            iLastButtons[clientIndex] = iButton;
-            
-            // Allow button
-            return resultHandle;
-        }
-        else
-        {
-            // Block button (Bot control)
-            iButtons &= (~IN_USE);
-            return Plugin_Changed;
-        }
+        // Dublicate the button buffer
+        int iButton = iButtons; /// for weapon forward
+        
+        // Forward event to modules
+        hResult = WeaponsOnRunCmd(client, iButtons, iLastButtons[client]);
+        
+        // Store the previous button
+        iLastButtons[client] = iButton;
+        
+        // Allow button
+        return hResult;
     }
-    
-    // Store the current button
-    iLastButtons[clientIndex] = iButtons;
-    
-    // Allow button
-    return Plugin_Continue;
+    else
+    {
+        // Block button (Bot control)
+        iButtons &= (~IN_USE);
+        return Plugin_Changed;
+    }
 }

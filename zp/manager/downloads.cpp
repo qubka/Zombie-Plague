@@ -42,11 +42,11 @@ enum
 void DownloadsOnLoad(/*void*/)
 {
     // Register config file
-    ConfigRegisterConfig(File_Downloads, Structure_List, CONFIG_FILE_ALIAS_DOWNLOADS);
+    ConfigRegisterConfig(File_Downloads, Structure_StringList, CONFIG_FILE_ALIAS_DOWNLOADS);
 
     // Gets downloads file path
     static char sPathDownloads[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_DOWNLOADS, sPathDownloads);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_DOWNLOADS, sPathDownloads, sizeof(sPathDownloads));
 
     // If file doesn't exist, then log and stop
     if(!bExists)

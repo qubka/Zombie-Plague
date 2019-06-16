@@ -36,8 +36,9 @@ Handle hSDKCallResetSequence;
 Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallGetSequenceDuration;
 Handle hSDKCallUpdateTransmitState;
-Handle hSDKCallFireBullets;
 Handle hSDKCallIsBSPModel;
+Handle hSDKCallDoAnimationEvent;
+Handle hSDKCallSetProgressBarTime;
 
 /**
  * Variables to store virtual SDK adresses.
@@ -49,8 +50,9 @@ Address pHealth;
 Address pClip;
 Address pPrimary;
 Address pSecondary;
+int Player_Spotted;
+int Player_SpottedByMask;
 int SendProp_iBits; 
-int Player_CanBeSpotted;
 int Animating_StudioHdr;
 int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
@@ -81,13 +83,6 @@ enum StudioAnimDesc
 /**
  * @endsection
  **/
- 
-#if defined USE_DETOUR
-/**
- * Variables to store DHook calls handlers.
- **/
-Handle hDHookValidateLineOfSight;
-#endif  
 
 // Tools Functions
 #include "zp/manager/playerclasses/tools_functions.cpp"
@@ -98,49 +93,10 @@ Handle hDHookValidateLineOfSight;
 void ToolsOnInit(/*void*/)
 {
     // Load player offsets
-    fnInitSendPropOffset(g_iOffset_LMV, "CBasePlayer", "m_flLaggedMovementValue");
-    fnInitSendPropOffset(g_iOffset_Render, "CBasePlayer", "m_clrRender");
-    fnInitSendPropOffset(g_iOffset_NightVisionOn, "CCSPlayer", "m_bNightVisionOn");
-    fnInitSendPropOffset(g_iOffset_HasNightVision, "CCSPlayer", "m_bHasNightVision");
-    fnInitSendPropOffset(g_iOffset_HasDefuser, "CCSPlayer", "m_bHasDefuser");
-    fnInitSendPropOffset(g_iOffset_Spotted, "CBasePlayer", "m_bSpotted");
-    fnInitSendPropOffset(g_iOffset_SpottedByMask, "CBasePlayer", "m_bSpottedByMask");
-    fnInitSendPropOffset(g_iOffset_Detected, "CCSPlayer", "m_flDetectedByEnemySensorTime");
-    fnInitSendPropOffset(g_iOffset_HUD, "CBasePlayer", "m_iHideHUD");
-    fnInitSendPropOffset(g_iOffset_HitGroup, "CBasePlayer", "m_LastHitGroup");
-    fnInitSendPropOffset(g_iOffset_Fov, "CCSPlayer", "m_iFOV");
-    fnInitSendPropOffset(g_iOffset_DefaultFOV, "CCSPlayer", "m_iDefaultFOV");
-    fnInitSendPropOffset(g_iOffset_Armor, "CCSPlayer", "m_ArmorValue");
-    fnInitSendPropOffset(g_iOffset_HasHeavyArmor, "CCSPlayer", "m_bHasHeavyArmor");
-    fnInitSendPropOffset(g_iOffset_HasHelmet, "CCSPlayer", "m_bHasHelmet"); 
-    fnInitSendPropOffset(g_iOffset_Health, "CBasePlayer", "m_iHealth");
-    fnInitSendPropOffset(g_iOffset_Collision, "CCSPlayer", "m_CollisionGroup");
-    fnInitSendPropOffset(g_iOffset_Ragdoll, "CCSPlayer", "m_hRagdoll");
-    fnInitSendPropOffset(g_iOffset_Account, "CCSPlayer", "m_iAccount");
-    fnInitSendPropOffset(g_iOffset_ActiveWeapon, "CBasePlayer", "m_hActiveWeapon");
-    fnInitSendPropOffset(g_iOffset_MyWeapons, "CBasePlayer", "m_hMyWeapons");
-    fnInitSendPropOffset(g_iOffset_ObserverMode, "CBasePlayer", "m_iObserverMode");
-    fnInitSendPropOffset(g_iOffset_ObserverTarget, "CBasePlayer", "m_hObserverTarget");
-    fnInitSendPropOffset(g_iOffset_Attack, "CBasePlayer", "m_flNextAttack");
-    fnInitSendPropOffset(g_iOffset_Arms, "CCSPlayer", "m_szArmsModel");
-    fnInitSendPropOffset(g_iOffset_AddonBits, "CCSPlayer", "m_iAddonBits");
-    fnInitSendPropOffset(g_iOffset_ShotsFired, "CCSPlayer", "m_iShotsFired");
-    fnInitSendPropOffset(g_iOffset_Direction, "CCSPlayer", "m_iDirection");
-    
-    // Load entity offsets
-    fnInitSendPropOffset(g_iOffset_Effects, "CBaseEntity", "m_fEffects");
-    fnInitSendPropOffset(g_iOffset_ModelIndex, "CBaseEntity", "m_nModelIndex");
-    fnInitSendPropOffset(g_iOffset_OwnerEntity, "CBaseEntity", "m_hOwnerEntity");
-    fnInitSendPropOffset(g_iOffset_Team, "CBaseEntity", "m_iTeamNum");
-    fnInitSendPropOffset(g_iOffset_Origin, "CBaseEntity", "m_vecOrigin");
-    fnInitSendPropOffset(g_iOffset_Effect, "CBaseEntity", "m_hEffectEntity");
-    fnInitSendPropOffset(g_iOffset_Body, "CBaseAnimating", "m_nBody");
-    fnInitSendPropOffset(g_iOffset_Skin, "CBaseAnimating", "m_nSkin");
-    fnInitSendPropOffset(g_iOffset_LightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
-    
+    fnInitSendPropOffset(Player_Spotted, "CBasePlayer", "m_bSpotted");
+    fnInitSendPropOffset(Player_SpottedByMask, "CBasePlayer", "m_bSpottedByMask");
+
     // Load other offsets
-    fnInitGameConfOffset(gServerData.Config, Player_CanBeSpotted, "CBasePlayer::CanBeSpotted");
-    g_iOffset_CanBeSpotted = g_iOffset_Spotted - Player_CanBeSpotted;
     fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "CSendProp::m_nBits");
     fnInitGameConfAddress(gServerData.Config, pSendTableCRC, "g_SendTableCRC");
     fnInitGameConfAddress(gServerData.Config, pArmorValue, "m_ArmorValue");
@@ -300,13 +256,13 @@ void ToolsOnInit(/*void*/)
     
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseViewModel::UpdateTransmitState");
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseEntity::UpdateTransmitState");
 
     // Validate call
     if((hSDKCallUpdateTransmitState = EndPrepSDKCall()) == null)
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseViewModel::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
         return;
     }
     
@@ -326,38 +282,38 @@ void ToolsOnInit(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
         return;
     }
-    
+
     /*__________________________________________________________________________________________________*/
     
-    // Validate unix 
-    if(gServerData.Platform != OS_Windows)
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Player);
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CCSPlayer::DoAnimationEvent");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+
+    // Validate call
+    if((hSDKCallDoAnimationEvent = EndPrepSDKCall()) == null)
     {
-        // Starts the preparation of an SDK call
-        StartPrepSDKCall(SDKCall_Static);
-        PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "FX_FireBullets");
-        
-        // Adds a parameter to the calling convention. This should be called in normal ascending order
-        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
-        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-        PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
-        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-        
-        // Validate call
-        if((hSDKCallFireBullets = EndPrepSDKCall()) == null)
-        {
-            // Log failure
-            LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
-            return;
-        }
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CCSPlayer::DoAnimationEvent\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Player);
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CCSPlayer::SetProgressBarTime");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    
+    // Validate call
+    if((hSDKCallSetProgressBarTime = EndPrepSDKCall()) == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CCSPlayer::SetProgressBarTime\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        return;
     }
     
     /*__________________________________________________________________________________________________*/
@@ -387,27 +343,10 @@ void ToolsOnInit(/*void*/)
     fnInitGameConfOffset(gServerData.Config, StudioHdrStruct_SequenceCount, "StudioHdrStruct::SequenceCount");
     fnInitGameConfOffset(gServerData.Config, VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct::SequenceVectorSize"); 
     
-    // StudioHdr offset in gameconf is only relative to the offset of m_hLightingOrigin, in order to make the offset more resilient to game updates
-    Animating_StudioHdr += g_iOffset_LightingOrigin;
-    
-    /*__________________________________________________________________________________________________*/
-    
-    #if defined USE_DETOUR
-    // Starts the preparation of a detour
-    hDHookValidateLineOfSight = DHookCreateDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
-    DHookSetFromConf(hDHookValidateLineOfSight, gServerData.Config, SDKConf_Signature, "CBasePlayer::ValidateLineOfSight");
-
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    DHookAddParam(hDHookValidateLineOfSight, HookParamType_Int);
-    
-    // Validate detour
-    if(!DHookEnableDetour(hDHookValidateLineOfSight, false, ToolsOnLineOfSight))
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load Detour \"CBasePlayer::ValidateLineOfSight\". Update signature in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }
-    #endif
+    // StudioHdr offset in gameconf is only relative to the offset of m_hLightingOrigin, in order to make the offset more resilient to game update
+    int iOffset_LightingOrigin;
+    fnInitSendPropOffset(iOffset_LightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
+    Animating_StudioHdr += iOffset_LightingOrigin;
 }
 
 /**
@@ -426,41 +365,41 @@ void ToolsOnPurge(/*void*/)
 /**
  * @brief Called once a client successfully connects.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ToolsOnClientConnect(int clientIndex)
+void ToolsOnClientConnect(int client)
 {
     // Forward event to modules
-    gClientData[clientIndex].ResetVars();
-    gClientData[clientIndex].ResetTimers();
+    gClientData[client].ResetVars();
+    gClientData[client].ResetTimers();
 }
 
 /**
  * @brief Called when a client is disconnected from the server.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ToolsOnClientDisconnectPost(int clientIndex)
+void ToolsOnClientDisconnectPost(int client)
 {
     // Forward event to modules
-    gClientData[clientIndex].ResetVars();
-    gClientData[clientIndex].ResetTimers();
+    gClientData[client].ResetVars();
+    gClientData[client].ResetTimers();
 }
 
 /**
  * Hook: SetTransmit
  * @brief Called right before the entity transmitting to other entities.
  *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
+ * @param entity            The entity index.
+ * @param client            The client index.
  **/
-public Action ToolsOnEntityTransmit(int entityIndex, int clientIndex)
+public Action ToolsOnEntityTransmit(int entity, int client)
 {
-    // Gets the owner of the entity
-    int ownerIndex = ToolsGetOwner(entityIndex);
+    // Gets owner of the entity
+    int owner = ToolsGetOwner(entity);
 
     // Validate observer mode
-    if(ownerIndex == clientIndex || (ToolsGetObserverMode(clientIndex) == SPECMODE_FIRSTPERSON && ownerIndex == ToolsGetObserverTarget(clientIndex)))
+    if(owner == client || (ToolsGetObserverMode(client) == SPECMODE_FIRSTPERSON && owner == ToolsGetObserverTarget(client)))
     {
         // Block transmitting
         return Plugin_Handled;
@@ -469,22 +408,6 @@ public Action ToolsOnEntityTransmit(int entityIndex, int clientIndex)
     // Allow transmitting
     return Plugin_Continue;
 }
-
-#if defined USE_DETOUR
-/**
- * DHook (Detour): Players can no longer pick up weapons through walls or without direct line-of-sight.
- * @note bool CBasePlayer::ValidateLineOfSight(int)
- *
- * @param pThis             The client address.
- * @param hReturn           Handle to return structure.
- * @param hParams           Handle with parameters.
- **/
-public MRESReturn ToolsOnLineOfSight(Address pThis, Handle hReturn, Handle hParams) 
-{
-    DHookSetReturn(hReturn, true);
-    return MRES_ChangedOverride;
-}
-#endif
 
 /*
  * Tools natives API.
@@ -504,25 +427,27 @@ void ToolsOnNativeInit(/*void*/)
     CreateNative("ZP_GetSequenceDuration",  API_GetSequenceDuration);
     CreateNative("ZP_GetSequenceCount",     API_GetSequenceCount);
     CreateNative("ZP_IsBSPModel",           API_IsBSPModel);
-    CreateNative("ZP_RespawnClient",        API_RespawnClient);
+    CreateNative("ZP_UpdateTransmitState",  API_UpdateTransmitState);
+    CreateNative("ZP_RespawnPlayer",        API_RespawnPlayer);
     CreateNative("ZP_FindPlayerInSphere",   API_FindPlayerInSphere);
-    CreateNative("ZP_FireBullets",          API_FireBullets);
+    CreateNative("ZP_DoAnimationEvent",     API_DoAnimationEvent);
+    CreateNative("ZP_SetProgressBarTime",   API_SetProgressBarTime);
 }
 
 /**
  * @brief Validate the attachment on the entity.
  *
- * @note native bool ZP_LookupAttachment(entityIndex, attach);
+ * @note native bool ZP_LookupAttachment(entity, attach);
  **/
 public int API_LookupAttachment(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
 
@@ -542,23 +467,23 @@ public int API_LookupAttachment(Handle hPlugin, int iNumParams)
     GetNativeString(2, sAttach, sizeof(sAttach));
     
     // Return on success
-    return ToolsLookupAttachment(entityIndex, sAttach);
+    return ToolsLookupAttachment(entity, sAttach);
 }
 
 /**
  * @brief Gets the attachment of the entity.
  *
- * @note native void ZP_GetAttachment(entityIndex, attach, origin, angles);
+ * @note native void ZP_GetAttachment(entity, attach, origin, angles);
  **/
 public int API_GetAttachment(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
     
@@ -580,7 +505,7 @@ public int API_GetAttachment(Handle hPlugin, int iNumParams)
     GetNativeString(2, sAttach, sizeof(sAttach));
     
     // Extract data
-    ToolsGetAttachment(entityIndex, sAttach, vPosition, vAngle);
+    ToolsGetAttachment(entity, sAttach, vPosition, vAngle);
     
     // Return on success
     SetNativeArray(3, vPosition, sizeof(vPosition)); return SetNativeArray(4, vAngle, sizeof(vAngle));
@@ -589,17 +514,17 @@ public int API_GetAttachment(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the sequence of the entity.
  *
- * @note native int ZP_LookupSequence(entityIndex, anim);
+ * @note native int ZP_LookupSequence(entity, anim);
  **/
 public int API_LookupSequence(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
     
@@ -619,23 +544,23 @@ public int API_LookupSequence(Handle hPlugin, int iNumParams)
     GetNativeString(2, sAnim, sizeof(sAnim));
     
     // Return on success
-    return ToolsLookupSequence(entityIndex, sAnim);
+    return ToolsLookupSequence(entity, sAnim);
 }
 
 /**
  * @brief Gets the pose of the entity.
  *
- * @note native int ZP_LookupPoseParameter(entityIndex, pose);
+ * @note native int ZP_LookupPoseParameter(entity, pose);
  **/
 public int API_LookupPoseParameter(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
     
@@ -655,23 +580,23 @@ public int API_LookupPoseParameter(Handle hPlugin, int iNumParams)
     GetNativeString(2, sPose, sizeof(sPose));
     
     // Return on success
-    return ToolsLookupPoseParameter(entityIndex, sPose);
+    return ToolsLookupPoseParameter(entity, sPose);
 } 
 
 /**
  * @brief Resets the sequence of the entity.
  *
- * @note native int ZP_ResetSequence(entityIndex, name);
+ * @note native int ZP_ResetSequence(entity, name);
  **/
 public int API_ResetSequence(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
     
@@ -691,7 +616,7 @@ public int API_ResetSequence(Handle hPlugin, int iNumParams)
     GetNativeString(2, sAnim, sizeof(sAnim));
     
     // Resetting animation
-    ToolsResetSequence(entityIndex, sAnim);
+    ToolsResetSequence(entity, sAnim);
     
     // Return on success
     return 1;
@@ -700,106 +625,127 @@ public int API_ResetSequence(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the total sequence amount.
  *
- * @note native int ZP_GetSequenceCount(entityIndex);
+ * @note native int ZP_GetSequenceCount(entity);
  **/
 public int API_GetSequenceCount(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
     
-    // Gets the total seq amount
-    return ToolsGetSequenceCount(entityIndex);
+    // Gets total seq amount
+    return ToolsGetSequenceCount(entity);
 }
 
 /**
  * @brief Gets the duration of a sequence.
  *
- * @note native float ZP_GetSequenceDuration(entityIndex, sequence);
+ * @note native float ZP_GetSequenceDuration(entity, sequence);
  **/
 public int API_GetSequenceDuration(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
     
-    // Gets the seq duration
-    return view_as<int>(ToolsGetSequenceDuration(entityIndex, GetNativeCell(2)));
+    // Gets seq duration
+    return view_as<int>(ToolsGetSequenceDuration(entity, GetNativeCell(2)));
 }
 
 /**
  * @brief Gets the activity of a sequence.
  *
- * @note native int ZP_GetSequenceActivity(entityIndex, sequence);
+ * @note native int ZP_GetSequenceActivity(entity, sequence);
  **/
 public int API_GetSequenceActivity(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
     }
 
-    // Gets the total seq activity
-    return ToolsGetSequenceActivity(entityIndex, GetNativeCell(2));
+    // Gets total seq activity
+    return ToolsGetSequenceActivity(entity, GetNativeCell(2));
 }
 
 /**
  * @brief Checks that the entity is a brush.
  *
- * @note native bool ZP_IsBSPModel(entityIndex);
+ * @note native bool ZP_IsBSPModel(entity);
  **/
 public int API_IsBSPModel(Handle hPlugin, int iNumParams)
 {
     // Gets entity index from native cell 
-    int entityIndex = GetNativeCell(1);
+    int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entityIndex))
+    if(!IsValidEdict(entity))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entityIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return false;
     }
     
     // Is it brush ?
-    return ToolsIsBSPModel(entityIndex);
+    return ToolsIsBSPModel(entity);
+}
+
+/**
+ * @brief Update a entity transmit state.
+ *
+ * @note native void ZP_UpdateTransmitState(entity);
+ **/
+public int API_UpdateTransmitState(Handle hPlugin, int iNumParams)
+{
+    // Gets entity index from native cell 
+    int entity = GetNativeCell(1);
+    
+    // Validate entity
+    if(!IsValidEdict(entity))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+        return;
+    }
+    
+    // Update transmit state
+    ToolsUpdateTransmitState(entity);
 }
 
 /**
  * @brief Respawn a player.
  *
- * @note native bool ZP_RespawnClient(clientIndex);
+ * @note native bool ZP_RespawnPlayer(client);
  **/
-public int API_RespawnClient(Handle hPlugin, int iNumParams)
+public int API_RespawnPlayer(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
         return false;
     }
     
     // Force client to respawn
-    return ToolsForceToRespawn(clientIndex);
+    return ToolsForceToRespawn(client);
 }
 
 /**
@@ -816,51 +762,54 @@ public int API_FindPlayerInSphere(Handle hPlugin, int iNumParams)
     static float vPosition[3];
     GetNativeArray(2, vPosition, sizeof(vPosition));
 
-    // Gets the client index, which colliding with the solid sphere
-    int clientIndex = AntiStickFindPlayerInSphere(it, vPosition, GetNativeCell(3));
+    // Gets client index, which colliding with the solid sphere
+    int client = AntiStickFindPlayerInSphere(it, vPosition, GetNativeCell(3));
     
     // Sets an iterator by reference
     SetNativeCellRef(1, it);
     
     // Return on the success
-    return clientIndex;
+    return client;
 }
 
 /**
- * @brief Emulate 'bullet_shot' on the server and does the damage calculations.
+ * @brief Sets the player animating event.
  *
- * @note native bool ZP_FireBullets(clientIndex, weaponIndex, origin, angle, mode, seed, inaccuracy, spread, sound);
+ * @note native void ZP_DoAnimationEvent(client, anim, data);
  **/
-public int API_FireBullets(Handle hPlugin, int iNumParams)
+public int API_DoAnimationEvent(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", clientIndex);
-        return false;
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
+        return;
     }
     
-    // Gets weapon index from native cell 
-    int weaponIndex = GetNativeCell(2);
-    
-    // Validate weapon
-    if(!IsValidEdict(weaponIndex))
+    // Play animation
+    ToolsDoAnimationEvent(client, GetNativeCell(2), GetNativeCell(3));
+}
+
+/**
+ * @brief Sets the player progress bar.
+ *
+ * @note native void ZP_SetProgressBarTime(client, duration);
+ **/
+public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
+{
+    // Gets real player index from native cell 
+    int client = GetNativeCell(1);
+
+    // Validate client
+    if(!IsPlayerExist(client))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the weapon index (%d)", weaponIndex);
-        return false;
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
+        return;
     }
     
-    // Gets origin vector
-    static float vPosition[3];
-    GetNativeArray(3, vPosition, sizeof(vPosition));
-    
-    // Gets angle vector
-    static float vAngle[3];
-    GetNativeArray(4, vAngle, sizeof(vAngle));
-    
-    // Emulate fire bullets
-    return ToolsFireBullets(clientIndex, weaponIndex, vPosition, vAngle, GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
+    // Sets progress bar
+    ToolsSetProgressBarTime(client, GetNativeCell(2));
 }

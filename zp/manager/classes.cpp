@@ -105,6 +105,35 @@ enum /*BonusType*/
  * @endsection
  **/
  
+/**
+ * @section Number of valid animations.
+ **/ 
+enum AnimType
+{
+    AnimType_Invalid = -1,        /** Used as return value when an event doens't exist. */
+    
+    AnimType_FirePrimary,
+    AnimType_FireSecondary,
+    AnimType_MeleeSlash,
+    AnimType_MeleeStab,
+    AnimType_FireSilent,
+    AnimType_SwitchSilent,
+    AnimType_ThrowStart,
+    AnimType_ThrowFinish,
+    AnimType_Jump,
+    AnimType_Reload,
+    AnimType_ReloadStart,
+    AnimType_ReloadLoop,
+    AnimType_ReloadEnd,
+    AnimType_BombAbort,
+    AnimType_SwitchWeapon,
+    AnimType_ThrowAbort = 17,
+    AnimType_SwitchAbort
+};
+/**
+ * @endsection
+ **/
+ 
 /*
  * Load other classes modules
  */
@@ -130,10 +159,9 @@ void ClassesOnInit(/*void*/)
     ToolsOnInit();
     SpawnOnInit();
     DeathOnInit();
-    LevelSystemOnInit();
-    SkillSystemOnInit();
     JumpBoostOnInit();
     AccountOnInit();
+    LevelSystemOnInit();
 }
 
 /**
@@ -159,7 +187,7 @@ void ClassesOnLoad(/*void*/)
 
     // Gets classes config path
     static char sPathClasses[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_CLASSES, sPathClasses);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CLASSES, sPathClasses, sizeof(sPathClasses));
 
     // If file doesn't exist, then log and stop
     if(!bExists)
@@ -215,7 +243,7 @@ void ClassesOnCacheData(/*void*/)
     if(gServerData.Types == null)
     {
         // Initialize a type list array
-        gServerData.Types = CreateArray(SMALL_LINE_LENGTH);
+        gServerData.Types = new ArrayList(SMALL_LINE_LENGTH);
     }
     else
     {
@@ -281,10 +309,10 @@ void ClassesOnCacheData(/*void*/)
         DecryptPrecacheModel(sPathClasses);
         kvClasses.GetString("claw_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 5
-        arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                    // Index: 6
+        arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                   // Index: 6
         kvClasses.GetString("gren_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 7
-        arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                    // Index: 8
+        arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                   // Index: 8
         kvClasses.GetString("arm_model", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 9
         DecryptPrecacheModel(sPathClasses);
@@ -435,37 +463,37 @@ void ClassesOnCvarInit(/*void*/)
 /**
  * @brief Client has been joined.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ClassesOnClientInit(int clientIndex)
+void ClassesOnClientInit(int client)
 {
     // Forward event to sub-modules
-    DeathOnClientInit(clientIndex);
-    AntiStickOnClientInit(clientIndex);
-    JumpBoostOnClientInit(clientIndex);
+    DeathOnClientInit(client);
+    AntiStickOnClientInit(client);
+    JumpBoostOnClientInit(client);
 }
 
 /**
  * @brief Called once a client successfully connects.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ClassesOnClientConnect(int clientIndex)
+void ClassesOnClientConnect(int client)
 {
     // Forward event to sub-modules
-    ToolsOnClientConnect(clientIndex);
+    ToolsOnClientConnect(client);
 }
 
 /**
  * @brief Called when a client is disconnected from the server.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ClassesOnClientDisconnectPost(int clientIndex)
+void ClassesOnClientDisconnectPost(int client)
 {
     // Forward event to sub-modules
-    ToolsOnClientDisconnectPost(clientIndex);
-    GameModesOnClientDisconnectPost(clientIndex);
+    ToolsOnClientDisconnectPost(client);
+    GameModesOnClientDisconnectPost(client);
 }
 
 /*
@@ -548,27 +576,27 @@ void ClassesOnNativeInit(/*void*/)
 /**
  * @brief Infect/humanize a player.
  *
- * @note native bool ZP_ChangeClient(clientIndex, attackerIndex, type);
+ * @note native bool ZP_ChangeClient(client, attacker, type);
  **/
 public int API_ChangeClient(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
         return false;
     }
     
     // Gets real player index from native cell 
-    int attackerIndex = GetNativeCell(2);
+    int attacker = GetNativeCell(2);
 
     // Validate attacker
-    if(attackerIndex > 0 && !IsPlayerExist(attackerIndex, false))
+    if(attacker > 0 && !IsPlayerExist(attacker, false))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the attacker index (%d)", attackerIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the attacker index (%d)", attacker);
         return false;
     }
     
@@ -590,7 +618,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
     GetNativeString(3, sType, sizeof(sType));
     
     // Force client to update
-    return ApplyOnClientUpdate(clientIndex, attackerIndex, sType);
+    return ApplyOnClientUpdate(client, attacker, sType);
 }
  
 /**
@@ -607,54 +635,54 @@ public int API_GetNumberClass(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the current class index of the client.
  *
- * @note native int ZP_GetClientClass(clientIndex);
+ * @note native int ZP_GetClientClass(client);
  **/
 public int API_GetClientClass(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].Class;
+    return gClientData[client].Class;
 }
 
 /**
  * @brief Gets the human next class index of the client.
  *
- * @note native int ZP_GetClientHumanClassNext(clientIndex);
+ * @note native int ZP_GetClientHumanClassNext(client);
  **/
 public int API_GetClientHumanClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].HumanClassNext;
+    return gClientData[client].HumanClassNext;
 }
 
 /**
  * @brief Gets the zombie next class index of the client.
  *
- * @note native int ZP_GetClientZombieClassNext(clientIndex);
+ * @note native int ZP_GetClientZombieClassNext(client);
  **/
 public int API_GetClientZombieClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].ZombieClassNext;
+    return gClientData[client].ZombieClassNext;
 }
 
 /**
  * @brief Sets the human next class index to the client.
  *
- * @note native void ZP_SetClientHumanClassNext(clientIndex, iD);
+ * @note native void ZP_SetClientHumanClassNext(client, iD);
  **/
 public int API_SetClientHumanClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Gets class index from native cell
     int iD = GetNativeCell(2);
@@ -667,14 +695,14 @@ public int API_SetClientHumanClassNext(Handle hPlugin, int iNumParams)
     }
     
     // Call forward
-    Action resultHandle;
-    gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
+    Action hResult;
+    gForwardData._OnClientValidateClass(client, iD, hResult);
 
     // Validate handle
-    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Sets next human class to the client
-        gClientData[clientIndex].HumanClassNext = iD;
+        gClientData[client].HumanClassNext = iD;
     }
 
     // Return on success
@@ -684,12 +712,12 @@ public int API_SetClientHumanClassNext(Handle hPlugin, int iNumParams)
 /**
  * @brief Sets the zombie next class index to the client.
  *
- * @note native void ZP_SetClientZombieClassNext(clientIndex, iD);
+ * @note native void ZP_SetClientZombieClassNext(client, iD);
  **/
 public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Gets class index from native cell
     int iD = GetNativeCell(2);
@@ -702,14 +730,14 @@ public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
     }
     
     // Call forward
-    Action resultHandle;
-    gForwardData._OnClientValidateClass(clientIndex, iD, resultHandle);
+    Action hResult;
+    gForwardData._OnClientValidateClass(client, iD, hResult);
 
     // Validate handle
-    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Sets next zombie class to the client
-        gClientData[clientIndex].ZombieClassNext = iD;
+        gClientData[client].ZombieClassNext = iD;
     }
 
     // Return on success
@@ -2871,17 +2899,17 @@ int ClassGetSoundJumpID(int iD)
 int ClassNameToIndex(char[] sName)
 {
     // Initialize name char
-    static char sClassName[SMALL_LINE_LENGTH];
+    static char sClassname[SMALL_LINE_LENGTH];
     
     // i = class index
     int iSize = gServerData.Classes.Length;
     for(int i = 0; i < iSize; i++)
     {
         // Gets class name 
-        ClassGetName(i, sClassName, sizeof(sClassName));
+        ClassGetName(i, sClassname, sizeof(sClassname));
         
         // If names match, then return index
-        if(!strcmp(sName, sClassName, false))
+        if(!strcmp(sName, sClassname, false))
         {
             // Return this index
             return i;
@@ -2904,7 +2932,7 @@ int ClassTypeToIndex(char[] sType)
     static char sClassType[SMALL_LINE_LENGTH]; 
     
     // i = class index
-    int iSize = gServerData.Classes.Length; int iRandom; static int classIndex[MAXPLAYERS+1];
+    int iSize = gServerData.Classes.Length; int iRandom; static int class[MAXPLAYERS+1];
     for(int i = 0; i < iSize; i++)
     {
         // Gets class type 
@@ -2914,10 +2942,10 @@ int ClassTypeToIndex(char[] sType)
         if(!strcmp(sClassType, sType, false))
         {
             // Increment amount
-            classIndex[iRandom++] = i;
+            class[iRandom++] = i;
         }
     }
     
     // Return index
-    return (iRandom) ? classIndex[GetRandomInt(0, iRandom-1)] : -1;
+    return (iRandom) ? class[GetRandomInt(0, iRandom-1)] : -1;
 }

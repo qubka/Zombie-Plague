@@ -52,9 +52,9 @@ void RagdollOnCvarInit(/*void*/)
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void RagdollOnClientDeath(int clientIndex)
+void RagdollOnClientDeath(int client)
 {
     // If true, the stop
     bool bRagDollRemove = gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue;
@@ -66,10 +66,10 @@ void RagdollOnClientDeath(int clientIndex)
     }
 
     // Gets ragdoll index
-    int iRagdoll = RagdollGetIndex(clientIndex);
+    int ragdoll = RagdollGetIndex(client);
 
     // If the ragdoll is invalid, then stop
-    if(iRagdoll == INVALID_ENT_REFERENCE)
+    if(ragdoll == -1)
     {
         return;
     }
@@ -78,69 +78,69 @@ void RagdollOnClientDeath(int clientIndex)
     float flDissolveDelay = gCvarList[CVAR_VEFFECTS_RAGDOLL_DELAY].FloatValue;
     if(!flDissolveDelay)
     {
-        RagdollOnEntityRemove(null, EntIndexToEntRef(iRagdoll));
+        RagdollOnEntityRemove(null, EntIndexToEntRef(ragdoll));
         return;
     }
 
     // Create a timer to remove/dissolve ragdoll
-    CreateTimer(flDissolveDelay, RagdollOnEntityRemove, EntIndexToEntRef(iRagdoll), TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(flDissolveDelay, RagdollOnEntityRemove, EntIndexToEntRef(ragdoll), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
  * @brief Timer callback, removed a client ragdoll.
  * 
  * @param hTimer            The timer handle. 
- * @param referenceIndex    The reference index.
+ * @param refID             The reference index.
  **/
-public Action RagdollOnEntityRemove(Handle hTimer, int referenceIndex)
+public Action RagdollOnEntityRemove(Handle hTimer, int refID)
 {
-    // Gets the ragdoll index from the reference
-    int iRagdoll = EntRefToEntIndex(referenceIndex);
+    // Gets ragdoll index from the reference
+    int ragdoll = EntRefToEntIndex(refID);
 
     // If the ragdoll is already gone, then stop
-    if(iRagdoll != INVALID_ENT_REFERENCE)
+    if(ragdoll != -1)
     {
         // Make sure this edict is still a ragdoll and not become a new valid entity
         static char sClassname[SMALL_LINE_LENGTH];
-        GetEdictClassname(iRagdoll, sClassname, sizeof(sClassname));
+        GetEdictClassname(ragdoll, sClassname, sizeof(sClassname));
 
         // Validate classname
         if(!strcmp(sClassname, "cs_ragdoll", false))
         {
             // Gets dissolve type
-            int iRagDollType = gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE].IntValue;
+            int iEffect = gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE].IntValue;
 
             // Check the dissolve type
-            if(iRagDollType == VEFFECTS_RAGDOLL_DISSOLVE_EFFECTLESS)
+            if(iEffect == VEFFECTS_RAGDOLL_DISSOLVE_EFFECTLESS)
             {
                 // Remove entity from world
-                AcceptEntityInput(iRagdoll, "Kill");
+                AcceptEntityInput(ragdoll, "Kill");
                 return;
             }
 
             // If random, set value to any between "energy" effect and "core" effect
-            if(iRagDollType == VEFFECTS_RAGDOLL_DISSOLVE_RANDOM)
+            if(iEffect == VEFFECTS_RAGDOLL_DISSOLVE_RANDOM)
             {
-                iRagDollType = GetRandomInt(VEFFECTS_RAGDOLL_DISSOLVE_ENERGY, VEFFECTS_RAGDOLL_DISSOLVE_CORE);
+                iEffect = GetRandomInt(VEFFECTS_RAGDOLL_DISSOLVE_ENERGY, VEFFECTS_RAGDOLL_DISSOLVE_CORE);
             }
 
             // Prep the ragdoll for dissolving
             static char sTarget[SMALL_LINE_LENGTH];
-            FormatEx(sTarget, sizeof(sTarget), "dissolve%d", iRagdoll);
-            DispatchKeyValue(iRagdoll, "targetname", sTarget);
+            FormatEx(sTarget, sizeof(sTarget), "dissolve%d", ragdoll);
+            DispatchKeyValue(ragdoll, "targetname", sTarget);
 
             // Prep the dissolve entity
             int iDissolver = CreateEntityByName("env_entity_dissolver");
             
             // If dissolve entity isn't valid, then stop
-            if(iDissolver != INVALID_ENT_REFERENCE)
+            if(iDissolver != -1)
             {
                 // Sets target to the ragdoll
                 DispatchKeyValue(iDissolver, "target", sTarget);
 
                 // Sets dissolve type
                 static char sDissolveType[SMALL_LINE_LENGTH];
-                FormatEx(sDissolveType, sizeof(sDissolveType), "%d", iRagDollType);
+                FormatEx(sDissolveType, sizeof(sDissolveType), "%d", iEffect);
                 DispatchKeyValue(iDissolver, "dissolvetype", sDissolveType);
 
                 // Tell the entity to dissolve the ragdoll
@@ -156,10 +156,10 @@ public Action RagdollOnEntityRemove(Handle hTimer, int referenceIndex)
 /**
  * @brief Gets the ragdoll index on a client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @return                  The ragdoll index.
  **/
-int RagdollGetIndex(int clientIndex)
+int RagdollGetIndex(int client)
 {
-    return GetEntDataEnt2(clientIndex, g_iOffset_Ragdoll);
+    return GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 }

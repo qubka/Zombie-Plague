@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -50,7 +51,7 @@ public Plugin myinfo =
  **/
 
 // Timer index
-Handle Task_HumanTrapped[MAXPLAYERS+1] = null;  bool bStandOnTrap[MAXPLAYERS+1];
+Handle hHumanTrapped[MAXPLAYERS+1] = null; bool bStandOnTrap[MAXPLAYERS+1];
 
 // Sound index
 int gSound; ConVar hSoundLevel;
@@ -71,6 +72,13 @@ public void OnLibraryAdded(const char[] sLibrary)
     {
         // Load translations phrases used by plugin
         LoadTranslations("zombieplague.phrases");
+
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
     }
 }
 
@@ -81,7 +89,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("mutationheavy");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"mutationheavy\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"mutationheavy\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("TRAP_SKILL_SOUNDS");
@@ -101,71 +109,71 @@ public void OnMapEnd(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
-        Task_HumanTrapped[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
+        hHumanTrapped[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
 }
 
 /**
  * @brief Called when a client is disconnecting from the server.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void OnClientDisconnect(int clientIndex)
+public void OnClientDisconnect(int client)
 {
     // Delete timer
-    delete Task_HumanTrapped[clientIndex];
+    delete hHumanTrapped[client];
 }
 
 /**
  * @brief Called when a client has been killed.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
+public void ZP_OnClientDeath(int client, int attacker)
 {
     // Delete timer
-    delete Task_HumanTrapped[clientIndex];
+    delete hHumanTrapped[client];
 }
 
 /**
  * @brief Called when a client became a zombie/human.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-public void ZP_OnClientUpdated(int clientIndex, int attackerIndex)
+public void ZP_OnClientUpdated(int client, int attacker)
 {
-    // Reset move
-    SetEntityMoveType(clientIndex, MOVETYPE_WALK);
+    // Resets move
+    SetEntityMoveType(client, MOVETYPE_WALK);
     
     // Delete timer
-    delete Task_HumanTrapped[clientIndex];
+    delete hHumanTrapped[client];
 }
 
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Validate place
-        if(bStandOnTrap[clientIndex])
+        if(bStandOnTrap[client])
         {
-            bStandOnTrap[clientIndex] = false; /// To avoid placing trap on the trap
+            bStandOnTrap[client] = false; /// To avoid placing trap on the trap
             return Plugin_Handled;
         }
         
         // Show message
-        SetGlobalTransTarget(clientIndex);
-        PrintHintText(clientIndex, "%t", "mutationheavy set");
+        SetGlobalTransTarget(client);
+        PrintHintText(client, "%t", "mutationheavy set");
     }
     
     // Allow usage
@@ -175,144 +183,146 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 /**
  * @brief Called when a skill duration is over.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void ZP_OnClientSkillOver(int clientIndex)
+public void ZP_OnClientSkillOver(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3];
         
         // Gets client position/angles
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-        GetClientEyeAngles(clientIndex, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetClientEyeAngles(client, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
 
         // Create a physics entity
-        int entityIndex = UTIL_CreatePhysics("trap", vPosition, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+        int entity = UTIL_CreatePhysics("trap", vPosition, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
 
         // Validate entity
-        if(entityIndex != INVALID_ENT_REFERENCE)
+        if(entity != -1)
         {
             // Sets physics
-            SetEntProp(entityIndex, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
-            SetEntProp(entityIndex, Prop_Send, "m_usSolidFlags", FSOLID_NOT_SOLID|FSOLID_TRIGGER); /// Make trigger
-            SetEntProp(entityIndex, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+            SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
+            SetEntProp(entity, Prop_Data, "m_usSolidFlags", FSOLID_NOT_SOLID|FSOLID_TRIGGER); /// Make trigger
+            SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
 
             // Create a prop_dynamic entity
-            int trapIndex = UTIL_CreateDynamic("trap", vPosition, vAngle, "models/player/custom_player/zombie/zombie_trap/trap.mdl", "idle", false);
+            int trap = UTIL_CreateDynamic("trap", vPosition, vAngle, "models/player/custom_player/zombie/zombie_trap/trap.mdl", "idle", false);
             
             // Validate entity
-            if(trapIndex != INVALID_ENT_REFERENCE)
+            if(trap != -1)
             {
                 // Sets parent to the entity
                 SetVariantString("!activator");
-                AcceptEntityInput(trapIndex, "SetParent", entityIndex, trapIndex);
+                AcceptEntityInput(trap, "SetParent", entity, trap);
 
                 // Sets owner to the entity
-                SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", trapIndex); /// Store for animating
+                SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", trap); /// Store for animating
                 
                 // Create transmit hook
-                SDKHook(trapIndex, SDKHook_SetTransmit, TrapTransmitHook);
+                SDKHook(trap, SDKHook_SetTransmit, TrapTransmitHook);
             }
             
             // Sets owner to the entity
-            SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
+            SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 
             // Sets an entity color
-            SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
-            SetEntityRenderColor(entityIndex, _, _, _, 0); 
-            AcceptEntityInput(entityIndex, "DisableShadow"); /// Prevents the entity from receiving shadows
+            UTIL_SetRenderColor(entity, Color_Alpha, 0);
+            AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
             
             // Play sound
-            ZP_EmitSoundToAll(gSound, 1, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
             
             // Create touch hook
-            SDKHook(entityIndex, SDKHook_Touch, TrapTouchHook);
+            SDKHook(entity, SDKHook_Touch, TrapTouchHook);
         }
         
         // Show message
-        SetGlobalTransTarget(clientIndex);
-        PrintHintText(clientIndex, "%t", "mutationheavy success");
+        SetGlobalTransTarget(client);
+        PrintHintText(client, "%t", "mutationheavy success");
     }
 }
 
 /**
  * @brief Trap touch hook.
  * 
- * @param entityIndex       The entity index.        
- * @param targetIndex       The target index.               
+ * @param entity            The entity index.        
+ * @param target            The target index.               
  **/
-public Action TrapTouchHook(int entityIndex, int targetIndex)
+public Action TrapTouchHook(int entity, int target)
 {
     // Validate target
-    if(IsPlayerExist(targetIndex))
+    if(IsPlayerExist(target))
     {
         // Validate human
-        if(ZP_IsPlayerHuman(targetIndex) && GetEntityMoveType(targetIndex) != MOVETYPE_NONE)
+        if(ZP_IsPlayerHuman(target) && GetEntityMoveType(target) != MOVETYPE_NONE)
         {
             // Initialize vectors
             static float vPosition[3]; static float vAngle[3];
 
             // Gets victim origin/angle
-            GetEntPropVector(targetIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-            GetEntPropVector(entityIndex, Prop_Data, "m_angAbsRotation", vAngle);
+            GetEntPropVector(target, Prop_Data, "m_vecAbsOrigin", vPosition);
+            GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
             
             // Teleport the entity
-            TeleportEntity(entityIndex, vPosition, vAngle, NULL_VECTOR);
+            TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
 
             // Trap the client
-            SetEntityMoveType(targetIndex, MOVETYPE_NONE);
+            SetEntityMoveType(target, MOVETYPE_NONE);
 
             // Create timer for removing freezing
-            delete Task_HumanTrapped[targetIndex];
-            Task_HumanTrapped[targetIndex] = CreateTimer(ZP_GetClassSkillDuration(gZombie), ClientRemoveTrapEffect, GetClientUserId(targetIndex), TIMER_FLAG_NO_MAPCHANGE);
+            delete hHumanTrapped[target];
+            hHumanTrapped[target] = CreateTimer(ZP_GetClassSkillDuration(gZombie), ClientRemoveTrapEffect, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);
 
             // Play sound
-            ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
             // Show message
-            SetGlobalTransTarget(targetIndex);
-            PrintHintText(targetIndex, "%t", "mutationheavy catch");
+            SetGlobalTransTarget(target);
+            PrintHintText(target, "%t", "mutationheavy catch");
             
             // Gets owner index
-            int ownerIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_pParent");
+            int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
 
             // Validate owner
-            if(IsPlayerExist(ownerIndex, false))
+            if(IsPlayerExist(owner, false))
             {
                 // Gets target name
                 static char sName[NORMAL_LINE_LENGTH];
-                GetClientName(targetIndex, sName, sizeof(sName));
+                GetClientName(target, sName, sizeof(sName));
         
                 // Show message
-                SetGlobalTransTarget(ownerIndex);
-                PrintHintText(ownerIndex, "%t", "mutationheavy catched", sName);
+                SetGlobalTransTarget(owner);
+                PrintHintText(owner, "%t", "mutationheavy catched", sName);
                 
                 // Give reward
-                ZP_SetClientMoney(ownerIndex, ZP_GetClientMoney(ownerIndex) + ZOMBIE_CLASS_SKILL_REWARD);
+                ZP_SetClientMoney(owner, ZP_GetClientMoney(owner) + ZOMBIE_CLASS_SKILL_REWARD);
             }
 
-            // Get the trap model 
-            int trapIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
+            // Gets trap model 
+            int trapIndex = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 
             // Validate entity
-            if(trapIndex != INVALID_ENT_REFERENCE)
+            if(trapIndex != -1)
             {
                 // Play animation of the model
                 SetVariantString("trap");
                 AcceptEntityInput(trapIndex, "SetAnimation");
+                
+                // Remove transmit hook
+                SDKUnhook(trapIndex, SDKHook_SetTransmit, TrapTransmitHook);
             }
-            
+
             // Kill after some duration
-            UTIL_RemoveEntity(entityIndex, ZP_GetClassSkillDuration(gZombie));
+            UTIL_RemoveEntity(entity, ZP_GetClassSkillDuration(gZombie));
             
             // Remove touch hook
-            SDKUnhook(entityIndex, SDKHook_Touch, TrapTouchHook);
+            SDKUnhook(entity, SDKHook_Touch, TrapTouchHook);
         }
         //Validate zombie
-        else if(ZP_IsPlayerZombie(targetIndex)) bStandOnTrap[targetIndex] = true; // Reset installing here!
+        else if(ZP_IsPlayerZombie(target)) bStandOnTrap[target] = true; // Resets installing here!
     }
 
     // Return on the success
@@ -322,13 +332,13 @@ public Action TrapTouchHook(int entityIndex, int targetIndex)
 /**
  * @brief Called right before the entity transmitting to other entities.
  *
- * @param entityIndex       The entity index.
- * @param clientIndex       The client index.
+ * @param entity            The entity index.
+ * @param client            The client index.
  **/
-public Action TrapTransmitHook(int entityIndex, int clientIndex)
+public Action TrapTransmitHook(int entity, int client)
 {
     // Validate human
-    if(ZP_IsPlayerHuman(clientIndex))
+    if(ZP_IsPlayerHuman(client))
     {
         // Block transmitting
         return Plugin_Handled;
@@ -347,16 +357,16 @@ public Action TrapTransmitHook(int entityIndex, int clientIndex)
 public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
     
     // Clear timer 
-    Task_HumanTrapped[clientIndex] = null;
+    hHumanTrapped[client] = null;
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {    
         // Untrap the client
-        SetEntityMoveType(clientIndex, MOVETYPE_WALK);
+        SetEntityMoveType(client, MOVETYPE_WALK);
     }
 
     // Destroy timer
@@ -366,35 +376,33 @@ public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
 /**
  * @brief Called on each frame of a weapon holding.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iButtons          The buttons buffer.
  * @param iLastButtons      The last buttons buffer.
- * @param weaponIndex       The weapon index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @return                  Plugin_Continue to allow buttons. Anything else 
  *                                (like Plugin_Changed) to change buttons.
  **/
-public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID)
+public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie && ZP_GetClientSkillUsage(clientIndex))
+    if(ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
     {
-        // Initialize vector
-        static float vVelocity[3];
-        
         // Gets client velocity
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
+        static float vVelocity[3];
+        GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
         // If the zombie move, then reset skill
-        if((SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
+        if(GetVectorLength(vVelocity) > 0.0)
         {
-            // Reset skill
-            ZP_ResetClientSkill(clientIndex);
+            // Resets skill
+            ZP_ResetClientSkill(client);
             
             // Show message
-            SetGlobalTransTarget(clientIndex);
-            PrintHintText(clientIndex, "%t", "mutationheavy cancel");
+            SetGlobalTransTarget(client);
+            PrintHintText(client, "%t", "mutationheavy cancel");
         }
     }
     

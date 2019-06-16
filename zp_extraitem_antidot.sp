@@ -27,6 +27,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -45,34 +46,52 @@ int gItem;
 #pragma unused gItem
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Items
     gItem = ZP_GetExtraItemNameID("antidot");
-    if(gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"antidot\" wasn't find");
+    //if(gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"antidot\" wasn't find");
 }
 
 /**
  * @brief Called before show an extraitem in the equipment menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
+public Action ZP_OnClientValidateExtraItem(int client, int itemID)
 {
     // Check the item's index
     if(itemID == gItem)
     {
         // Initialize round type
-        int modeIndex = ZP_GetCurrentGameMode();
+        int mode = ZP_GetCurrentGameMode();
         
         // Validate access
-        if(ZP_GetZombieAmount() <= 1 || !ZP_IsGameModeHumanClass(modeIndex, "human"))
+        if(ZP_GetZombieAmount() <= 1 || !ZP_IsGameModeHumanClass(mode, "human"))
         {
             return Plugin_Handled;
         }
@@ -85,15 +104,15 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
 /**
  * @brief Called after select an extraitem in the equipment menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param itemID            The item index.
  **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
+public void ZP_OnClientBuyExtraItem(int client, int itemID)
 {
     // Check the item's index
     if(itemID == gItem)
     {
         // Change class to human
-        ZP_ChangeClient(clientIndex, _, "human");
+        ZP_ChangeClient(client, _, "human");
     }
 }

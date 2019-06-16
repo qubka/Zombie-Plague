@@ -92,6 +92,17 @@ void VEffectsOnCvarInit(/*void*/)
     PlayerVEffectsOnCvarInit();
 }
 
+/**
+ * @brief Client has been joined.
+ * 
+ * @param client            The client index.  
+ **/
+void VEffectsOnClientInit(int client)
+{
+    // Forward event to sub-modules
+    VAmbienceOnClientInit(client);
+}
+
 /*
  * Effects main functions.
  */
@@ -99,112 +110,112 @@ void VEffectsOnCvarInit(/*void*/)
 /**
  * @brief The blast is started.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VEffectOnBlast(int clientIndex)
+void VEffectsOnBlast(int client)
 {
     // Forward event to sub-modules
-    VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 255, 255, 255});
+    VEffectsFadeClientScreen(client, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 255, 255, 255});
 }
 
 /**
  * @brief Client has been spawned.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VEffectOnClientSpawn(int clientIndex)
+void VEffectsOnClientSpawn(int client)
 {
     // Forward event to sub-modules
-    ParticlesRemove(clientIndex);
+    ParticlesRemove(client);
 }
  
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VEffectOnClientDeath(int clientIndex)
+void VEffectsOnClientDeath(int client)
 {
     // Forward event to sub-modules
-    ParticlesRemove(clientIndex);
+    ParticlesRemove(client);
 }
 
 /**
  * @brief Client has been hurt.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  * @param iHealth           The health amount.
  **/
-void VEffectOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
+void VEffectsOnClientHurt(int client, int attacker, int iHealth)
 {
     // Validate attacker
-    if(attackerIndex > 0/* && attackerIndex < MaxClients*/)
+    if(attacker > 0/* && attacker < MaxClients*/)
     {
         // Forward event to sub-modules
-        HealthOnClientHurt(clientIndex, attackerIndex, iHealth);
+        HealthOnClientHurt(client, attacker, iHealth);
     }
 }
 
 /**
  * @brief Client has been infected.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-void VEffectsOnClientInfected(int clientIndex, int attackerIndex)
+void VEffectsOnClientInfected(int client, int attacker)
 {
     // Forward event to sub-modules
-    ParticlesRemove(clientIndex);
-    VEffectsShakeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_SHAKE_AMP], gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY], gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]);
-    VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 0, 0, 50});
-    PlayerVEffectsOnClientInfected(clientIndex, attackerIndex);    
+    ParticlesRemove(client);
+    VEffectsShakeClientScreen(client, gCvarList[CVAR_VEFFECTS_SHAKE_AMP], gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY], gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]);
+    VEffectsFadeClientScreen(client, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 0, 0, 50});
+    PlayerVEffectsOnClientInfected(client, attacker);    
 }
 
 /**
  * @brief Client has been humanized.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VEffectsOnClientHumanized(int clientIndex)
+void VEffectsOnClientHumanized(int client)
 {
     // Forward event to sub-modules
-    ParticlesRemove(clientIndex);
-    PlayerVEffectsOnClientHumanized(clientIndex);
+    ParticlesRemove(client);
+    PlayerVEffectsOnClientHumanized(client);
 }
 
 /**
  * @brief Client has been changed class state.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VEffectsOnClientUpdate(int clientIndex)
+void VEffectsOnClientUpdate(int client)
 {
     // Forward event to sub-modules
-    HealthOnClientUpdate(clientIndex);
+    HealthOnClientUpdate(client);
 }
 
 /**
  * @brief Client has been regenerating.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VEffectsOnClientRegen(int clientIndex)
+void VEffectsOnClientRegen(int client)
 {
     // Forward event to sub-modules
-    VEffectsFadeClientScreen(clientIndex, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {0, 255, 0, 25});
-    PlayerVEffectsOnClientRegen(clientIndex);
+    VEffectsFadeClientScreen(client, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {0, 255, 0, 25});
+    PlayerVEffectsOnClientRegen(client);
 }
 
 /**
  * @brief Client has been leap jumped.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
- void VEffectsOnClientJump(int clientIndex)
+ void VEffectsOnClientJump(int client)
 {
     // Forward event to sub-modules
-    PlayerVEffectsOnClientJump(clientIndex);
+    PlayerVEffectsOnClientJump(client);
 }
 
 /*
@@ -214,12 +225,12 @@ void VEffectsOnClientRegen(int clientIndex)
 /**
  * @brief Shake a client screen with specific parameters.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param hAmplitude        The cvar with amplitude of shake.
  * @param hFrequency        The cvar with frequency of shake.
  * @param hDuration         The cvar with duration of shake in the seconds.
  **/
-void VEffectsShakeClientScreen(int clientIndex, ConVar hAmplitude, ConVar hFrequency, ConVar hDuration)
+void VEffectsShakeClientScreen(int client, ConVar hAmplitude, ConVar hFrequency, ConVar hDuration)
 {
     // If screen shake disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_SHAKE].BoolValue) 
@@ -228,19 +239,19 @@ void VEffectsShakeClientScreen(int clientIndex, ConVar hAmplitude, ConVar hFrequ
     }
     
     // Create message
-    UTIL_CreateShakeScreen(clientIndex, hAmplitude.FloatValue, hFrequency.FloatValue, hDuration.FloatValue);
+    UTIL_CreateShakeScreen(client, hAmplitude.FloatValue, hFrequency.FloatValue, hDuration.FloatValue);
 }
 
 /**
  * @brief Fade a client screen with specific parameters.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param hDuration         The cvar with duration of fade in the seconds.
  * @param hHoldTime         The cvar with holding time of fade in the seconds.
  * @param iFlags            The flags.
  * @param vColor            The array with RGB color.
  **/
-void VEffectsFadeClientScreen(int clientIndex, ConVar hDuration, ConVar hHoldTime, int iFlags, int vColor[4])
+void VEffectsFadeClientScreen(int client, ConVar hDuration, ConVar hHoldTime, int iFlags, int vColor[4])
 {
     // If screen fade disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_FADE].BoolValue) 
@@ -249,5 +260,5 @@ void VEffectsFadeClientScreen(int clientIndex, ConVar hDuration, ConVar hHoldTim
     }
     
     // Create message
-    UTIL_CreateFadeScreen(clientIndex, hDuration.FloatValue, hHoldTime.FloatValue, iFlags, vColor);
+    UTIL_CreateFadeScreen(client, hDuration.FloatValue, hHoldTime.FloatValue, iFlags, vColor);
 }

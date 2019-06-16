@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -60,13 +61,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("smoker");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"smoker\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"smoker\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
@@ -80,34 +99,34 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex        The client index.
+ * @param client            The client index.
  *
- * @return                   Plugin_Handled to block using skill. Anything else
- *                              (like Plugin_Continue) to allow use.
+ * @return                  Plugin_Handled to block using skill. Anything else
+ *                             (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Gets client origin
         static float vPosition[3];
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
         
         // Create a smoke effect
-        int particleIndex = UTIL_CreateParticle(_, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
+        int entity = UTIL_CreateParticle(_, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
         
         // Validate entity
-        if(particleIndex != INVALID_ENT_REFERENCE)
+        if(entity != -1)
         {
             // Sets parent for the entity
-            SetEntPropEnt(particleIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
+            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
     
             // Create gas damage task
-            CreateTimer(ZOMBIE_CLASS_SKILL_DELAY, ClientOnToxicGas, EntIndexToEntRef(particleIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+            CreateTimer(ZOMBIE_CLASS_SKILL_DELAY, ClientOnToxicGas, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         }
     }
     
@@ -119,27 +138,41 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
  * @brief Timer for the toxic gas process.
  *
  * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
+ * @param refID             The reference index.
  **/
-public Action ClientOnToxicGas(Handle hTimer, int referenceIndex)
+public Action ClientOnToxicGas(Handle hTimer, int refID)
 {
     // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
+    int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    if(entity != -1)
     {
         // Gets entity position
         static float vPosition[3];
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
  
-        // Create the damage for victims
-        UTIL_CreateDamage(_, vPosition, GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity"), ZOMBIE_CLASS_SKILL_DAMAGE, ZOMBIE_CLASS_SKILL_RADIUS, DMG_NERVEGAS);
+        // Gets owner index
+        int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+ 
+        // Find any players in the radius
+        int i; int it = 1; /// iterator
+        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+        {
+            // Skip zombies
+            if(ZP_IsPlayerZombie(i))
+            {
+                continue;
+            }
 
-        // Allow scream
+            // Create the damage for victim
+            ZP_TakeDamage(i, owner, owner, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS);
+        }
+        
+        // Allow timer
         return Plugin_Continue;
     }
 
-    // Destroy scream
+    // Destroy timer
     return Plugin_Stop;
 }

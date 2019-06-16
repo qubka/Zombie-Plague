@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -62,13 +63,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("healer");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"healer\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"healer\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
@@ -82,34 +101,34 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex        The client index.
+ * @param client            The client index.
  *
- * @return                   Plugin_Handled to block using skill. Anything else
- *                              (like Plugin_Continue) to allow use.
+ * @return                  Plugin_Handled to block using skill. Anything else
+ *                             (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
-        static float vEntPosition[3]; static float vVictimPosition[3];
+        static float vPosition[3]; static float vEnemy[3];
         
         // Gets client origin
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vEntPosition);
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
         
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
 
         // Create an fade
-        UTIL_CreateFadeScreen(clientIndex, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);  
+        UTIL_CreateFadeScreen(client, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);  
         
         // Create an effect
-        UTIL_CreateParticle(clientIndex, vEntPosition, _, _, "tornado", ZP_GetClassSkillDuration(gZombie));
+        UTIL_CreateParticle(client, vPosition, _, _, "tornado", ZP_GetClassSkillDuration(gZombie));
         
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vEntPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != INVALID_ENT_REFERENCE)
+        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
         {
             // Skip humans
             if(ZP_IsPlayerHuman(i))
@@ -135,12 +154,14 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
                     ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, hSoundLevel.IntValue);
                 }
                 
+                // Gets victim origin
+                GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+                
                 // Create an effect
-                GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vVictimPosition);
-                UTIL_CreateParticle(i, vVictimPosition, _, _, "heal_ss", ZP_GetClassSkillDuration(gZombie));
+                UTIL_CreateParticle(i, vEnemy, _, _, "heal_ss", ZP_GetClassSkillDuration(gZombie));
 
                 // Give reward
-                ZP_SetClientMoney(clientIndex, ZP_GetClientMoney(clientIndex) + ZOMBIE_CLASS_SKILL_REWARD);
+                ZP_SetClientMoney(client, ZP_GetClientMoney(client) + ZOMBIE_CLASS_SKILL_REWARD);
             }
         }
     }

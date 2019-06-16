@@ -30,7 +30,7 @@
  **/
 enum OverlayType
 {
-    Overlay_Reset,                /** Reset all overlay. */
+    Overlay_Reset,                /** Resets all overlay. */
     Overlay_HumanWin,             /** Human win overlay. */
     Overlay_ZombieWin,            /** Zombie win overlay. */
     Overlay_Draw,                 /** Draw overlay. */
@@ -43,32 +43,32 @@ enum OverlayType
 /**
  * @brief Client has been spawn.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VOverlayOnClientSpawn(int clientIndex)
+void VOverlayOnClientSpawn(int client)
 {
-    // Reset overlay on the team change
-    VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
+    // Resets overlay on the team change
+    VOverlayOnClientUpdate(client, Overlay_Reset);
 } 
 
 /**
  * @brief Client has been death.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VOverlayOnClientDeath(int clientIndex)
+void VOverlayOnClientDeath(int client)
 {
-    // Reset overlay on the death
-    VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
+    // Resets overlay on the death
+    VOverlayOnClientUpdate(client, Overlay_Reset);
 } 
  
 /**
  * @brief Client has been changed class state.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param nOverlay          The overlay type.
  **/
-void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
+void VOverlayOnClientUpdate(int client, OverlayType nOverlay)
 {
     // Initilize overlay char
     static char sOverlay[PLATFORM_LINE_LENGTH];
@@ -79,12 +79,12 @@ void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
         // Remove 'Any' overlay
         case Overlay_Reset : 
         {
-            // Reset overlay path
-            sOverlay[0] = '\0'; 
+            // Resets overlay path
+            sOverlay[0] = NULL_STRING[0]; 
             
             // Disable ngv and remove ngv ownership
-            ToolsSetNightVision(clientIndex, false);
-            ToolsSetNightVision(clientIndex, false, true);
+            ToolsSetNightVision(client, false);
+            ToolsSetNightVision(client, false, true);
         }
   
         // Sets 'Human Win' overlay
@@ -115,11 +115,11 @@ void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
         case Overlay_Vision : 
         {
             // Create ngv ownership and enable ngv 
-            ToolsSetNightVision(clientIndex, true, true);
-            ToolsSetNightVision(clientIndex, ClassIsNvgs(gClientData[clientIndex].Class));
+            ToolsSetNightVision(client, true, true);
+            ToolsSetNightVision(client, ClassIsNvgs(gClientData[client].Class));
 
             // Gets overlay path
-            ClassGetOverlay(gClientData[clientIndex].Class, sOverlay, sizeof(sOverlay)); 
+            ClassGetOverlay(gClientData[client].Class, sOverlay, sizeof(sOverlay)); 
             if(!hasLength(sOverlay)) return; // Stop here if the path empty
         }                        
     }
@@ -129,17 +129,17 @@ void VOverlayOnClientUpdate(int clientIndex, OverlayType nOverlay)
     
     // Display overlay to the client
     SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") &~ FCVAR_CHEAT); 
-    ClientCommand(clientIndex, sOverlay);
+    ClientCommand(client, sOverlay);
     SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") | FCVAR_CHEAT);
 }
 
 /**
  * @brief Client has been switch nightvision.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VOverlayOnClientNvgs(int clientIndex)
+void VOverlayOnClientNvgs(int client)
 {
     // Switch on/off nightvision 
-    VOverlayOnClientUpdate(clientIndex, ToolsGetNightVision(clientIndex, true) ? Overlay_Reset : Overlay_Vision);
+    VOverlayOnClientUpdate(client, ToolsGetNightVision(client, true) ? Overlay_Reset : Overlay_Vision);
 }

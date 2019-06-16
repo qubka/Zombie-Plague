@@ -84,10 +84,7 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
      */
 
     // Cut out comments at the end of a line
-    if(StrContains(sParamString, "//", false) != -1)
-    {
-        SplitString(sParamString, "//", sParamString, iMaxLen);
-    } 
+    SplitString(sParamString, "//", sParamString, iMaxLen);
      
     // Trim string
     TrimString(sParamString);
@@ -233,7 +230,7 @@ int StrExtract(char[] sBuffer, char[] sSource, int startPos, int endPos)
     // Validate length
     if(iMaxLen < 0)
     {
-        sBuffer[0] = '\0';
+        sBuffer[0] = NULL_STRING[0];
         return 0;
     }
     
@@ -272,13 +269,13 @@ bool StrContain(char[] sBuffer, char[] sSource, char cSeparator)
                 y = i - 1;
                 if(y != -1 && (sSource[y] != cSeparator && sSource[y] != ' '))
                 {
-                    x = 0; /// Reset counter
+                    x = 0; /// Resets counter
                 }
             }
         }
         else 
         {
-            x = 0; /// Reset counter
+            x = 0; /// Resets counter
         }
     }
     
@@ -328,4 +325,38 @@ void StringToLower(char[] sBuffer)
         // Character to convert
         sBuffer[i] = CharToLower(sBuffer[i]);
     }
+}
+
+/**
+ * @brief Sort comparison function by string length.
+ *
+ * @param iIndex1           The first index to compare.
+ * @param iIndex2           The second index to compare.
+ * @param hArrayList        The array that is being sorted (order is undefined).
+ * @param hCustom           Handle optionally passed in while sorting.
+ **/
+public int Sort_ByLength(int iIndex1, int iIndex2, ArrayList hArrayList, Handle hCustom)
+{
+    // Gets strings
+    static char sBuffer1[PLATFORM_LINE_LENGTH]; 
+    hArrayList.GetString(iIndex1, sBuffer1, sizeof(sBuffer1));
+    static char sBuffer2[PLATFORM_LINE_LENGTH];
+    hArrayList.GetString(iIndex2, sBuffer2, sizeof(sBuffer2));
+    
+    // Gets string lengths
+    int iLen1 = strlen(sBuffer1); int iLen2 = strlen(sBuffer2); 
+    
+    // Move left
+    if(iLen1 < iLen2)
+    {
+        return -1;
+    }
+    // Move right
+    else if(iLen1 > iLen2)
+    {
+        return 1;
+    }
+    
+    // Skip it
+    return 0;
 }

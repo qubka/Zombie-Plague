@@ -27,6 +27,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -49,13 +50,31 @@ int gHuman;
 #pragma unused gHuman
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gHuman = ZP_GetClassNameID("bluetank");
-    if(gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"bluetank\" wasn't find");
+    //if(gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"bluetank\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("BLUETANK_SKILL_SOUNDS");
@@ -69,33 +88,33 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the human class index
-    if(ZP_GetClientClass(clientIndex) == gHuman)
+    if(ZP_GetClientClass(client) == gHuman)
     {
         // Validate amount
         int iHealth = ZP_GetClassHealth(gHuman);
-        if(GetEntProp(clientIndex, Prop_Send, "m_iHealth") >= iHealth)
+        if(GetEntProp(client, Prop_Send, "m_iHealth") >= iHealth)
         {
             return Plugin_Handled;
         }
 
         // Sets health
-        SetEntProp(clientIndex, Prop_Send, "m_iHealth", iHealth, 1);
+        SetEntProp(client, Prop_Send, "m_iHealth", iHealth);
 
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create effect
         static float vPosition[3];
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-        UTIL_CreateParticle(clientIndex, vPosition, _, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+        UTIL_CreateParticle(client, vPosition, _, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
     }
     
     // Allow usage

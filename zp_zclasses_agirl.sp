@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -68,13 +69,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("girl");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"girl\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"girl\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("DEIMOS_SKILL_SOUNDS");
@@ -88,71 +107,71 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex        The client index.
+ * @param client            The client index.
  *
- * @return                   Plugin_Handled to block using skill. Anything else
- *                              (like Plugin_Continue) to allow use.
+ * @return                  Plugin_Handled to block using skill. Anything else
+ *                             (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
-        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
+        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
         
         // Gets client eye position
-        GetClientEyePosition(clientIndex, vPosition);
+        GetClientEyePosition(client, vPosition);
         
         // Gets client eye angle
-        GetClientEyeAngles(clientIndex, vAngle);
+        GetClientEyeAngles(client, vAngle);
 
         // Gets client speed
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
+        GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a bomb entity
-        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle);
+        int entity = UTIL_CreateProjectile(vPosition, vAngle);
         
         // Validate entity
-        if(entityIndex != INVALID_ENT_REFERENCE)
+        if(entity != -1)
         {
             // Sets bomb model scale
-            SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", 0.0);
+            SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 0.0);
             
             // Returns vectors in the direction of an angle
-            GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
+            GetAngleVectors(vAngle, vSpeed, NULL_VECTOR, NULL_VECTOR);
             
             // Normalize the vector (equal magnitude at varying distances)
-            NormalizeVector(vEntVelocity, vEntVelocity);
+            NormalizeVector(vSpeed, vSpeed);
             
             // Apply the magnitude by scaling the vector
-            ScaleVector(vEntVelocity, ZOMBIE_CLASS_SKILL_SPEED);
+            ScaleVector(vSpeed, ZOMBIE_CLASS_SKILL_SPEED);
 
             // Adds two vectors
-            AddVectors(vEntVelocity, vVelocity, vEntVelocity);
+            AddVectors(vSpeed, vVelocity, vSpeed);
 
             // Push the bomb
-            TeleportEntity(entityIndex, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
+            TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
 
             // Sets parent for the entity
-            SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+            SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
+            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
+            SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
             // Sets gravity
-            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", ZOMBIE_CLASS_SKILL_GRAVITY); 
+            SetEntPropFloat(entity, Prop_Data, "m_flGravity", ZOMBIE_CLASS_SKILL_GRAVITY); 
 
             // Put fire on it
-            UTIL_IgniteEntity(entityIndex, ZOMBIE_CLASS_SKILL_FIRE);
+            UTIL_IgniteEntity(entity, ZOMBIE_CLASS_SKILL_FIRE);
             
             // Create an effect
-            UTIL_CreateParticle(entityIndex, vPosition, _, _, "gamma_trail_xz", 5.0);
+            UTIL_CreateParticle(entity, vPosition, _, _, "gamma_trail_xz", 5.0);
     
             // Create touch hook
-            SDKHook(entityIndex, SDKHook_Touch, BombTouchHook);
+            SDKHook(entity, SDKHook_Touch, BombTouchHook);
         }
     }
     
@@ -163,16 +182,16 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 /**
  * @brief Bomb touch hook.
  * 
- * @param entityIndex       The entity index.        
- * @param targetIndex       The target index.               
+ * @param entity            The entity index.        
+ * @param target            The target index.               
  **/
-public Action BombTouchHook(int entityIndex, int targetIndex)
+public Action BombTouchHook(int entity, int target)
 {
     // Validate target
-    if(IsValidEdict(targetIndex))
+    if(IsValidEdict(target))
     {
         // Validate thrower
-        if(GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower") == targetIndex)
+        if(GetEntPropEnt(entity, Prop_Data, "m_hThrower") == target)
         {
             // Return on the unsuccess
             return Plugin_Continue;
@@ -180,17 +199,17 @@ public Action BombTouchHook(int entityIndex, int targetIndex)
 
         // Gets entity position
         static float vPosition[3];
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
         
         // Create an explosion effect
         UTIL_CreateParticle(_, vPosition, _, _, "pyrovision_explosion", ZOMBIE_CLASS_SKILL_EXP_TIME);
         
         // Play sound
-        ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_EXP_RADIUS)) != INVALID_ENT_REFERENCE)
+        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_EXP_RADIUS)) != -1)
         {
             // Skip zombies
             if(ZP_IsPlayerZombie(i))
@@ -206,7 +225,7 @@ public Action BombTouchHook(int entityIndex, int targetIndex)
         }
 
         // Remove entity from world
-        AcceptEntityInput(entityIndex, "Kill");
+        AcceptEntityInput(entity, "Kill");
     }
 
     // Return on the success

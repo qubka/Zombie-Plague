@@ -95,42 +95,42 @@ public void JumpBoostOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
 /**
  * @brief Client has been joined.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void JumpBoostOnClientInit(int clientIndex)
+void JumpBoostOnClientInit(int client)
 {
     // If jumpboost is disabled, then stop
     bool bJumpBoost = gCvarList[CVAR_JUMPBOOST].BoolValue;
     if(!bJumpBoost)
     {
         // Unhook entity callbacks
-        SDKUnhook(clientIndex, SDKHook_GroundEntChangedPost, JumpBoostOnClientEntChanged);
+        SDKUnhook(client, SDKHook_GroundEntChangedPost, JumpBoostOnClientEntChanged);
         return;
     }
     
     // Hook entity callbacks
-    SDKHook(clientIndex, SDKHook_GroundEntChangedPost, JumpBoostOnClientEntChanged);
+    SDKHook(client, SDKHook_GroundEntChangedPost, JumpBoostOnClientEntChanged);
 }
 
 /**
  * Hook: GroundEntChangedPost
  * @brief Called right after the entities touching ground.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void JumpBoostOnClientEntChanged(int clientIndex)
+public void JumpBoostOnClientEntChanged(int client)
 {
     // If not on the ground, then stop
-    if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
+    if(!(GetEntityFlags(client) & FL_ONGROUND))
     {
         return;
     }
     
     // Validate movetype
-    if(GetEntityMoveType(clientIndex) != MOVETYPE_LADDER)
+    if(GetEntityMoveType(client) != MOVETYPE_LADDER)
     {
-        // Reset gravity
-        ToolsSetGravity(clientIndex, ClassGetGravity(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
+        // Resets gravity
+        ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[client].Level)) : 0.0));
     }
 }
 
@@ -145,10 +145,10 @@ public void JumpBoostOnClientEntChanged(int clientIndex)
 public Action JumpBoostOnClientJump(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Creates a single use next frame hook
-    _call.JumpBoostOnClientJumpPost(clientIndex);
+    _call.JumpBoostOnClientJumpPost(client);
 }
 
 /**
@@ -159,19 +159,17 @@ public Action JumpBoostOnClientJump(Event hEvent, char[] sName, bool dontBroadca
 public void JumpBoostOnClientJumpPost(int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
-        // Initialize velocity vector
-        static float vVelocity[3];
-        
         // Gets client velocity
-        ToolsGetVelocity(clientIndex, vVelocity);
+        static float vVelocity[3];
+        ToolsGetVelocity(client, vVelocity);
         
         // Only apply horizontal multiplier if it not a bhop
-        if(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0)) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
+        if(GetVectorLength(vVelocity) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
         {
             // Apply horizontal multipliers to jump vector
             vVelocity[0] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
@@ -182,16 +180,16 @@ public void JumpBoostOnClientJumpPost(int userID)
         vVelocity[2] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
 
         // Sets new velocity
-        ToolsSetVelocity(clientIndex, vVelocity, true, false);
+        ToolsSetVelocity(client, vVelocity, true, false);
     }
 }
 
 /**
  * @brief Called when player want do the leap jump.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void JumpBoostOnClientLeapJump(int clientIndex)
+void JumpBoostOnClientLeapJump(int client)
 {
     // Validate access
     if(!ModesIsLeapJump(gServerData.RoundMode))
@@ -200,7 +198,7 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     }
     
     // If not on the ground, then stop
-    if(!(GetEntityFlags(clientIndex) & FL_ONGROUND))
+    if(!(GetEntityFlags(client) & FL_ONGROUND))
     {
         return;
     }
@@ -208,7 +206,7 @@ void JumpBoostOnClientLeapJump(int clientIndex)
    /*_________________________________________________________________________________________________________________________________________*/
    
     // Validate type of leap jump
-    switch(ClassGetLeapJump(gClientData[clientIndex].Class))
+    switch(ClassGetLeapJump(gClientData[client].Class))
     {
         // If leap disabled, then stop
         case 0 :
@@ -218,7 +216,7 @@ void JumpBoostOnClientLeapJump(int clientIndex)
         // If leap just for single player
         case 2 :
         {
-            if((gClientData[clientIndex].Zombie ? fnGetZombies() : fnGetHumans()) > 1) 
+            if((gClientData[client].Zombie ? fnGetZombies() : fnGetHumans()) > 1) 
             {
                 return;
             }
@@ -234,13 +232,13 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     float flCurrentTime = GetTickedTime();
     
     // Cooldown don't over yet, then stop
-    if(flCurrentTime - flDelay[clientIndex] < ClassGetLeapCountdown(gClientData[clientIndex].Class))
+    if(flCurrentTime - flDelay[client] < ClassGetLeapCountdown(gClientData[client].Class))
     {
         return;
     }
     
     // Update the leap jump delay
-    flDelay[clientIndex] = flCurrentTime;
+    flDelay[client] = flCurrentTime;
     
     /*_________________________________________________________________________________________________________________________________________*/
     
@@ -248,8 +246,8 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     static float vAngle[3]; static float vPosition[3]; static float vVelocity[3];
     
     // Gets client location and view direction
-    ToolsGetAbsOrigin(clientIndex, vPosition);
-    GetClientEyeAngles(clientIndex, vAngle);
+    ToolsGetAbsOrigin(client, vPosition);
+    GetClientEyeAngles(client, vAngle);
     
     // Store zero angle
     float flAngleZero = vAngle[0];    
@@ -259,15 +257,15 @@ void JumpBoostOnClientLeapJump(int clientIndex)
     GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
     
     // Scale vector for the boost
-    ScaleVector(vVelocity, ClassGetLeapForce(gClientData[clientIndex].Class));
+    ScaleVector(vVelocity, ClassGetLeapForce(gClientData[client].Class));
     
     // Restore eye angle
     vAngle[0] = flAngleZero;
     
     // Push the player
-    TeleportEntity(clientIndex, vPosition, vAngle, vVelocity);
+    TeleportEntity(client, vPosition, vAngle, vVelocity);
     
     // Forward event to modules
-    SoundsOnClientJump(clientIndex);
-    VEffectsOnClientJump(clientIndex);
+    SoundsOnClientJump(client);
+    VEffectsOnClientJump(client);
 }

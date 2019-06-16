@@ -27,6 +27,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -59,13 +60,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("range");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"range\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"range\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("RANGE_SKILL_SOUNDS");
@@ -79,24 +98,24 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief Called when a client has been killed.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
+public void ZP_OnClientDeath(int client, int attacker)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Gets client origin
         static float vPosition[3]; 
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
         
         // Validate infection round
         if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
         {
             // Find any players in the radius
             int i; int it = 1; /// iterator
-            while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_EXP_RADIUS)) != INVALID_ENT_REFERENCE)
+            while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_EXP_RADIUS)) != -1)
             {
                 // Skip zombies
                 if(ZP_IsPlayerZombie(i))
@@ -105,17 +124,17 @@ public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
                 }
 
                 // Validate visibility
-                if(!UTIL_CanSeeEachOther(clientIndex, i, vPosition))
+                if(!UTIL_CanSeeEachOther(client, i, vPosition, SelfFilter))
                 {
                     continue;
                 }
-                
+          
+#if defined ZOMBIE_CLASS_EXP_LAST
                 // Change class to zombie
-                #if defined ZOMBIE_CLASS_EXP_LAST
-                ZP_ChangeClient(i, clientIndex, "zombie");
+                ZP_ChangeClient(i, client, "zombie");
                 #else
-                if(ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, clientIndex, "zombie");
-                #endif
+                if(ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, client, "zombie");
+#endif
             }
         }
         
@@ -125,4 +144,18 @@ public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
         // Play sound
         ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue); 
     }
+}
+
+/**
+ * @brief Trace filter.
+ *  
+ * @param entity            The entity index.
+ * @param contentsMask      The contents mask.
+ * @param filter            The filter index.
+ *
+ * @return                  True or false.
+ **/
+public bool SelfFilter(int entity, int contentsMask, int filter)
+{
+    return (entity != filter);
 }

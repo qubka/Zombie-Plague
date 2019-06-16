@@ -63,7 +63,7 @@ void VAmbienceOnCvarInit(/*void*/)
     HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST],      VAmbienceOnCvarHookFog);
     HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_FARZ],         VAmbienceOnCvarHookFog);
 }
- 
+
 /**
  * Cvar hook callback (zp_veffects_lightstyle, zp_veffects_lightstyle_value)
  * @brief Enable or disable light feature on the server.
@@ -91,11 +91,19 @@ public void VAmbienceOnCvarHookLightStyle(ConVar iConVar, char[] oldValue, char[
  **/
 public void VAmbienceOnCvarHookSky(ConVar iConVar, char[] oldValue, char[] newValue)
 {
-    // If sky is disabled, then disable
+    // If sky is disabled, then stop
     bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue;
     
-    // Apply new sky
-    VAmbienceApplySky(!bSky);
+    // i = client index
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        // Validate real client
+        if(IsPlayerExist(i, false))
+        {
+            // Apply new sky
+            VAmbienceApplySky(i, !bSky);
+        }
+    }
 }
 
 /**
@@ -108,7 +116,7 @@ public void VAmbienceOnCvarHookSky(ConVar iConVar, char[] oldValue, char[] newVa
  **/
 public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, char[] oldValue, char[] newValue)
 {
-    // If sun is disabled, then disable
+    // If sun is disabled, then stop
     bool bSun = gCvarList[CVAR_VEFFECTS_SUN_DISABLE].BoolValue;
     
     // Apply sun
@@ -125,6 +133,24 @@ public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, char[] oldValue, char[
  **/
 public void VAmbienceOnCvarHookFog(ConVar iConVar, char[] oldValue, char[] newValue)
 {
+    // If fog is disabled, then stop
+    bool bFog = gCvarList[CVAR_VEFFECTS_FOG].BoolValue;
+    
+    // Apply fog
+    VAmbienceApplyFog(!bFog);
+}
+
+/**
+ * @brief Apply all cvar values on the server.
+ **/
+void VAmbienceOnLoad(/*void*/)
+{
+    // If lightstyle is disabled, then stop
+    bool bLightstyle = gCvarList[CVAR_VEFFECTS_LIGHTSTYLE].BoolValue;
+    
+    // Apply light style
+    VAmbienceApplyLightStyle(!bLightstyle);
+
     // If fog is disabled, then disable
     bool bFog = gCvarList[CVAR_VEFFECTS_FOG].BoolValue;
     
@@ -133,27 +159,17 @@ public void VAmbienceOnCvarHookFog(ConVar iConVar, char[] oldValue, char[] newVa
 }
 
 /**
- * @brief Apply all cvar values on server.
+ * @brief Client has been joined.
+ * 
+ * @param client            The client index.  
  **/
-void VAmbienceOnLoad(/*void*/)
+void VAmbienceOnClientInit(int client)
 {
-    // If lightstyle is disabled, then disable
-    bool bLightstyle = gCvarList[CVAR_VEFFECTS_LIGHTSTYLE].BoolValue;
-    
-    // Apply light style
-    VAmbienceApplyLightStyle(!bLightstyle);
-    
-    // If sky is disabled, then disable
-    bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue;
+    // If sky is disabled, then stop
+    bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue; 
     
     // Apply new sky
-    VAmbienceApplySky(!bSky);
-    
-    // If fog is disabled, then disable
-    bool bFog = gCvarList[CVAR_VEFFECTS_FOG].BoolValue;
-    
-    // Apply fog
-    VAmbienceApplyFog(!bFog);
+    VAmbienceApplySky(client, !bSky);
 }
 
 /*
@@ -161,7 +177,9 @@ void VAmbienceOnLoad(/*void*/)
  */
 
 /**
- * @brief Apply light style on server.
+ * @brief Apply light style on the server.
+ *
+ * @param bDisable          (Optional) State boolean.
  **/
 void VAmbienceApplyLightStyle(bool bDisable = false)
 {
@@ -174,7 +192,7 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
     }
 
     // Searching fog lights entities
-    int iLight = INVALID_ENT_REFERENCE;
+    int iLight = -1;
     while((iLight = FindEntityByClassname(iLight, "env_cascade_light")) != -1) 
     { 
         AcceptEntityInput(iLight, "Kill");
@@ -197,10 +215,19 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
 }
 
 /**
- * @brief Apply sky on server.
+ * @brief Apply sky on the client.
+ *
+ * @param client            The client index.
+ * @param bDisable          (Optional) State boolean. 
  **/
-void VAmbienceApplySky(bool bDisable = false)
+void VAmbienceApplySky(int client, bool bDisable = false)
 {
+    // Validate real client
+    if(IsFakeClient(client))
+    {
+        return;
+    }
+    
     // Default sky of current map
     static char VAmbienceDefaultSky[PLATFORM_LINE_LENGTH];
 
@@ -210,10 +237,11 @@ void VAmbienceApplySky(bool bDisable = false)
     // If default, then set to default sky
     if(bDisable)
     {
+        // Is it non empty ?
         if(hasLength(VAmbienceDefaultSky))
         {
-            // Sets default sky on all clients
-            gCvarList[CVAR_VEFFECTS_SKYNAME].SetString(VAmbienceDefaultSky, true);
+            // Sets default sky to the client
+            gCvarList[CVAR_VEFFECTS_SKYNAME].ReplicateToClient(client, VAmbienceDefaultSky);
         }
         return;
     }
@@ -222,38 +250,38 @@ void VAmbienceApplySky(bool bDisable = false)
     static char sSkyPath[PLATFORM_LINE_LENGTH];
     gCvarList[CVAR_VEFFECTS_SKY_PATH].GetString(sSkyPath, sizeof(sSkyPath));
 
-    // Sets new sky on all clients
-    gCvarList[CVAR_VEFFECTS_SKYNAME].SetString(sSkyPath, true);
+    // Sets new sky to the client
+    gCvarList[CVAR_VEFFECTS_SKYNAME].ReplicateToClient(client, sSkyPath);
 }
 
 /**
- * @brief Apply sun on server.
+ * @brief Apply sun on the server.
+ *
+ * @param bDisable          (Optional) State boolean.
  **/
 void VAmbienceApplySunDisable(bool bDisable = false)
 {
     // Find sun entity
-    int iSun = FindEntityByClassname(-1, "env_sun");
-    
-    // If sun is invalid, then stop
-    if(iSun == INVALID_ENT_REFERENCE)
+    int iSun = -1; 
+    while((iSun = FindEntityByClassname(iSun, "env_sun")) != -1)
     {
-        return;
+        // If default, then re-enable sun rendering
+        if(bDisable)
+        {
+            // Turn on sun rendering
+            AcceptEntityInput(iSun, "TurnOn");
+            return;
+        }
+        
+        // Turn off sun rendering
+        AcceptEntityInput(iSun, "TurnOff");
     }
-    
-    // If default, then re-enable sun rendering
-    if(bDisable)
-    {
-        // Turn on sun rendering
-        AcceptEntityInput(iSun, "TurnOn");
-        return;
-    }
-    
-    // Turn off sun rendering
-    AcceptEntityInput(iSun, "TurnOff");
 }
 
 /**
- * @brief Apply fog on server.
+ * @brief Apply fog on the server.
+ *
+ * @param bDisable          (Optional) State boolean.
  **/
 void VAmbienceApplyFog(bool bDisable = false)
 {
@@ -264,29 +292,29 @@ void VAmbienceApplyFog(bool bDisable = false)
     }
 
     // Searching fog controlling entity
-    int iFogControllerIndex = FindEntityByClassname(-1, "env_fog_controller");
+    int controller = FindEntityByClassname(-1, "env_fog_controller");
 
     // If fog controlling entity doens't exist, then create it
-    if(iFogControllerIndex == INVALID_ENT_REFERENCE)
+    if(controller == -1)
     {
-        iFogControllerIndex = CreateEntityByName("env_fog_controller");
-        if(iFogControllerIndex != INVALID_ENT_REFERENCE) DispatchSpawn(iFogControllerIndex); else return;
+        controller = CreateEntityByName("env_fog_controller");
+        if(controller != -1) DispatchSpawn(controller); else return;
     }
     
     // Sets density of the fog
-    DispatchKeyValueFloat(iFogControllerIndex, "fogmaxdensity", gCvarList[CVAR_VEFFECTS_FOG_DENSITY].FloatValue);
+    DispatchKeyValueFloat(controller, "fogmaxdensity", gCvarList[CVAR_VEFFECTS_FOG_DENSITY].FloatValue);
 
     // Sets start distance of the fog
     SetVariantInt(gCvarList[CVAR_VEFFECTS_FOG_STARTDIST].IntValue);
-    AcceptEntityInput(iFogControllerIndex, "SetStartDist");
+    AcceptEntityInput(controller, "SetStartDist");
 
     // Sets end distance of the fog
     SetVariantInt(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST].IntValue);
-    AcceptEntityInput(iFogControllerIndex, "SetEndDist");
+    AcceptEntityInput(controller, "SetEndDist");
 
     // Sets plain distance of the fog
     SetVariantInt(gCvarList[CVAR_VEFFECTS_FOG_FARZ].IntValue);
-    AcceptEntityInput(iFogControllerIndex, "SetFarZ");
+    AcceptEntityInput(controller, "SetFarZ");
 
     // Gets color
     static char sFogColor[16];
@@ -294,12 +322,12 @@ void VAmbienceApplyFog(bool bDisable = false)
     
     // Sets main color
     SetVariantString(sFogColor);
-    AcceptEntityInput(iFogControllerIndex, "SetColor");
+    AcceptEntityInput(controller, "SetColor");
 
     // Sets secondary color
     SetVariantString(sFogColor);
-    AcceptEntityInput(iFogControllerIndex, "SetColorSecondary");
+    AcceptEntityInput(controller, "SetColorSecondary");
     
     // Turn on fog rendering
-    AcceptEntityInput(iFogControllerIndex, "TurnOn");
+    AcceptEntityInput(controller, "TurnOn");
 }

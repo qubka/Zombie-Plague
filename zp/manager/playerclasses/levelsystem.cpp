@@ -41,11 +41,8 @@ enum
  **/
 void LevelSystemOnInit(/*void*/)
 {
-    // Prepare all levels data
-    LevelSystemOnLoad();
-
     // If level system disable, then stop
-    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !gCvarList[CVAR_LEVEL_HUD].BoolValue )
+    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !gCvarList[CVAR_LEVEL_HUD].BoolValue)
     {
         // Validate loaded map
         if(gServerData.MapLoaded)
@@ -80,6 +77,9 @@ void LevelSystemOnInit(/*void*/)
     // Validate loaded map
     if(gServerData.MapLoaded)
     {
+        // Prepare all levels data
+        LevelSystemOnLoad();
+
         // i = client index
         for(int i = 1; i <= MaxClients; i++)
         {
@@ -99,7 +99,7 @@ void LevelSystemOnInit(/*void*/)
 void LevelSystemOnLoad(/*void*/)
 {
     // Register config file
-    ConfigRegisterConfig(File_Levels, Structure_List, CONFIG_FILE_ALIAS_LEVELS);
+    ConfigRegisterConfig(File_Levels, Structure_IntegerList, CONFIG_FILE_ALIAS_LEVELS);
     
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -109,7 +109,7 @@ void LevelSystemOnLoad(/*void*/)
     
     // Gets levels config path
     static char sPathLevels[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_LEVELS, sPathLevels);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_LEVELS, sPathLevels, sizeof(sPathLevels));
 
     // If file doesn't exist, then log and stop
     if(!bExists)
@@ -159,20 +159,19 @@ void LevelSystemOnCacheData(/*void*/)
     }
     
     // Initialize a level list array
-    ArrayList hLevel = CreateArray();
+    ArrayList hLevel = new ArrayList();
 
     // i = level array index
     for(int i = 0; i < iLevels; i++)
     {
         // Gets level index
-        gServerData.Levels.GetString(i, sPathLevels, sizeof(sPathLevels));
-
+        int iLimit = gServerData.Levels.Get(i);
+        
         // Validate unique integer
-        int iLimit = StringToInt(sPathLevels);
         if(iLimit <= 0 || hLevel.FindValue(iLimit) != -1)
         {
             // Log level error info
-            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Levels, "Config Validation", "Incorrect level \"%s\"", sPathLevels);
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Levels, "Config Validation", "Incorrect level \"%s\" = %i , %i", sPathLevels, iLimit, i);
             
             // Remove level from array
             gServerData.Levels.Erase(i);
@@ -284,31 +283,31 @@ int LevelSystemGetLimit(int iLevel)
 /**
  * @brief Client has been spawned.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void LevelSystemOnClientSpawn(int clientIndex)
+void LevelSystemOnClientSpawn(int client)
 {
-    // Reset HUD on the team change
-    LevelSystemOnClientUpdate(clientIndex);
+    // Resets HUD on the team change
+    LevelSystemOnClientUpdate(client);
 }
 
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void LevelSystemOnClientDeath(int clientIndex)
+void LevelSystemOnClientDeath(int client)
 {
     // Enable HUD for spectator
-    LevelSystemOnClientUpdate(clientIndex);
+    LevelSystemOnClientUpdate(client);
 }
 
 /**
  * @brief Client has been changed class state.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void LevelSystemOnClientUpdate(int clientIndex)
+void LevelSystemOnClientUpdate(int client)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !gCvarList[CVAR_LEVEL_HUD].BoolValue)
@@ -317,21 +316,21 @@ void LevelSystemOnClientUpdate(int clientIndex)
     }
     
     // Validate real client
-    if(!IsFakeClient(clientIndex))
+    if(!IsFakeClient(client))
     {
         // Sets timer for player level HUD
-        delete gClientData[clientIndex].LevelTimer;
-        gClientData[clientIndex].LevelTimer = CreateTimer(1.0, LevelSystemOnClientHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        delete gClientData[client].LevelTimer;
+        gClientData[client].LevelTimer = CreateTimer(1.0, LevelSystemOnClientHUD, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
 /**
  * @brief Sets the client level and prevent it from overloading.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iLevel            The level amount.
  **/
-void LevelSystemOnSetLvl(int clientIndex, int iLevel)
+void LevelSystemOnSetLvl(int client, int iLevel)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -340,7 +339,7 @@ void LevelSystemOnSetLvl(int clientIndex, int iLevel)
     }
 
     // Call forward
-    gForwardData._OnClientLevel(clientIndex, iLevel);
+    gForwardData._OnClientLevel(client, iLevel);
 
     // If amount below 0, then set to 1
     if(iLevel <= 0)
@@ -349,38 +348,38 @@ void LevelSystemOnSetLvl(int clientIndex, int iLevel)
     }
 
     // Sets level
-    gClientData[clientIndex].Level = iLevel;
+    gClientData[client].Level = iLevel;
 
-    // Gets the max level
+    // Gets max level
     int iMaxLevel = gServerData.Levels.Length;
     
     // Validate level
-    if(gClientData[clientIndex].Level > iMaxLevel)
+    if(gClientData[client].Level > iMaxLevel)
     {
-        // Reset it
-        gClientData[clientIndex].Level = iMaxLevel;
+        // Resets it
+        gClientData[client].Level = iMaxLevel;
     }
     else
     {
         // Validate client
-        if(IsPlayerExist(clientIndex)) 
+        if(IsPlayerExist(client)) 
         {
             // Forward event to modules
-            SoundsOnClientLevelUp(clientIndex);
+            SoundsOnClientLevelUp(client);
         }
     }
     
     // Update level in the database
-    DataBaseOnClientUpdate(clientIndex, ColumnType_Level);
+    DataBaseOnClientUpdate(client, ColumnType_Level);
 }
 
 /**
  * @brief Sets the client experience, increasing level if it reach level experience limit and prevent it from overloading.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iExp              The experience amount.
  **/
-void LevelSystemOnSetExp(int clientIndex, int iExp)
+void LevelSystemOnSetExp(int client, int iExp)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -389,7 +388,7 @@ void LevelSystemOnSetExp(int clientIndex, int iExp)
     }
 
     // Call forward
-    gForwardData._OnClientExp(clientIndex, iExp);
+    gForwardData._OnClientExp(client, iExp);
     
     // If amount below 0, then set to 0
     if(iExp < 0)
@@ -398,29 +397,29 @@ void LevelSystemOnSetExp(int clientIndex, int iExp)
     }
 
     // Sets experience
-    gClientData[clientIndex].Exp = iExp;
+    gClientData[client].Exp = iExp;
 
-    // Gets the max level
+    // Gets max level
     int iMaxLevel = gServerData.Levels.Length;
     
     // Give experience to the player
-    if(gClientData[clientIndex].Level == iMaxLevel && gClientData[clientIndex].Exp > LevelSystemGetLimit(gClientData[clientIndex].Level))
+    if(gClientData[client].Level == iMaxLevel && gClientData[client].Exp > LevelSystemGetLimit(gClientData[client].Level))
     {
-        // Reset it
-        gClientData[clientIndex].Exp = LevelSystemGetLimit(gClientData[clientIndex].Level);
+        // Resets it
+        gClientData[client].Exp = LevelSystemGetLimit(gClientData[client].Level);
     }
     else
     {
         // Count through experience
-        while(gClientData[clientIndex].Level < iMaxLevel && gClientData[clientIndex].Exp >= LevelSystemGetLimit(gClientData[clientIndex].Level))
+        while(gClientData[client].Level < iMaxLevel && gClientData[client].Exp >= LevelSystemGetLimit(gClientData[client].Level))
         {
             // Increase level
-            LevelSystemOnSetLvl(clientIndex, gClientData[clientIndex].Level + 1);
+            LevelSystemOnSetLvl(client, gClientData[client].Level + 1);
         }
     }
     
     // Update experience in the database
-    DataBaseOnClientUpdate(clientIndex, ColumnType_Exp);
+    DataBaseOnClientUpdate(client, ColumnType_Exp);
 }
 
 /**
@@ -432,33 +431,33 @@ void LevelSystemOnSetExp(int clientIndex, int iExp)
 public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); 
+    int client = GetClientOfUserId(userID); 
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Initialize color array
         static int iColor[4];
 
         // Store the default index
-        int targetIndex = clientIndex;
+        int target = client;
 
         // Validate spectator 
-        if(!IsPlayerAlive(clientIndex))
+        if(!IsPlayerAlive(client))
         {
             // Validate spectator mode
-            int iSpecMode = ToolsGetObserverMode(clientIndex);
+            int iSpecMode = ToolsGetObserverMode(client);
             if(iSpecMode != SPECMODE_FIRSTPERSON && iSpecMode != SPECMODE_3RDPERSON)
             {
                 // Allow timer
                 return Plugin_Continue;
             }
             
-            // Gets the observer target
-            targetIndex = ToolsGetObserverTarget(clientIndex);
+            // Gets observer target
+            target = ToolsGetObserverTarget(client);
             
             // Validate target
-            if(!IsPlayerExist(targetIndex)) 
+            if(!IsPlayerExist(target)) 
             {
                 // Allow timer
                 return Plugin_Continue;
@@ -473,7 +472,7 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
         else
         {
             // Validate zombie hud
-            if(gClientData[clientIndex].Zombie)
+            if(gClientData[client].Zombie)
             {
                 // Gets colors 
                 iColor[0] = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R].IntValue;
@@ -494,17 +493,17 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
 
         // Gets class name
         static char sInfo[SMALL_LINE_LENGTH];
-        ClassGetName(gClientData[targetIndex].Class, sInfo, sizeof(sInfo));
+        ClassGetName(gClientData[target].Class, sInfo, sizeof(sInfo));
 
         // Print hud text to the client
-        TranslationPrintHudText(gServerData.LevelSync, clientIndex, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[targetIndex].Level, gClientData[targetIndex].Exp, LevelSystemGetLimit(gClientData[targetIndex].Level));
+        TranslationPrintHudText(gServerData.LevelSync, client, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[target].Level, gClientData[target].Exp, LevelSystemGetLimit(gClientData[target].Level));
 
         // Allow timer
         return Plugin_Continue;
     }
     
     // Clear timer
-    gClientData[clientIndex].LevelTimer = null;
+    gClientData[client].LevelTimer = null;
     
     // Destroy timer
     return Plugin_Stop;
@@ -574,10 +573,10 @@ public void LevelSystemChangeOnCvarHook(ConVar hConVar, char[] oldValue, char[] 
  * Console command callback (zp_level_give)
  * @brief Gives the level.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action LevelSystemLevelOnCommandCatched(int clientIndex, int iArguments)
+public Action LevelSystemLevelOnCommandCatched(int client, int iArguments)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -589,7 +588,7 @@ public Action LevelSystemLevelOnCommandCatched(int clientIndex, int iArguments)
     if(iArguments < 2)
     {
         // Write syntax info
-        TranslationReplyToCommand(clientIndex, "level give invalid args");
+        TranslationReplyToCommand(client, "level give invalid args");
         return Plugin_Handled;
     }
     
@@ -598,10 +597,10 @@ public Action LevelSystemLevelOnCommandCatched(int clientIndex, int iArguments)
     
     // Gets target index
     GetCmdArg(1, sArgument, sizeof(sArgument));
-    int targetIndex = FindTarget(clientIndex, sArgument, true, false);
+    int target = FindTarget(client, sArgument, true, false);
 
     // Validate target
-    if(targetIndex < 0)
+    if(target < 0)
     {
         // Note: FindTarget automatically write error messages
         return Plugin_Handled;
@@ -615,15 +614,15 @@ public Action LevelSystemLevelOnCommandCatched(int clientIndex, int iArguments)
     if(iLevel <= 0)
     {
         // Write error info
-        TranslationReplyToCommand(clientIndex, "level give invalid amount", iLevel);
+        TranslationReplyToCommand(client, "level give invalid amount", iLevel);
         return Plugin_Handled;
     }
 
     // Sets level for the target 
-    LevelSystemOnSetLvl(targetIndex, gClientData[targetIndex].Level + iLevel);
+    LevelSystemOnSetLvl(target, gClientData[target].Level + iLevel);
 
     // Log action to game events
-    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" gived level: \"%d\" to Player \"%N\"", clientIndex, iLevel, targetIndex);
+    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" gived level: \"%d\" to Player \"%N\"", client, iLevel, target);
     return Plugin_Handled;
 }
 
@@ -631,10 +630,10 @@ public Action LevelSystemLevelOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_exp_give)
  * @brief Gives the experience.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action LevelSystemExpOnCommandCatched(int clientIndex, int iArguments)
+public Action LevelSystemExpOnCommandCatched(int client, int iArguments)
 {
     // If level system disabled, then stop
     if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
@@ -646,7 +645,7 @@ public Action LevelSystemExpOnCommandCatched(int clientIndex, int iArguments)
     if(iArguments < 2)
     {
         // Write syntax info
-        TranslationReplyToCommand(clientIndex, "experience give invalid args");
+        TranslationReplyToCommand(client, "experience give invalid args");
         return Plugin_Handled;
     }
     
@@ -655,10 +654,10 @@ public Action LevelSystemExpOnCommandCatched(int clientIndex, int iArguments)
     
     // Gets target index
     GetCmdArg(1, sArgument, sizeof(sArgument));
-    int targetIndex = FindTarget(clientIndex, sArgument, true, false);
+    int target = FindTarget(client, sArgument, true, false);
 
     // Validate target
-    if(targetIndex < 0)
+    if(target < 0)
     {
         // Note: FindTarget automatically write error messages
         return Plugin_Handled;
@@ -672,15 +671,15 @@ public Action LevelSystemExpOnCommandCatched(int clientIndex, int iArguments)
     if(iExp <= 0)
     {
         // Write error info
-        TranslationReplyToCommand(clientIndex, "experience give invalid amount", iExp);
+        TranslationReplyToCommand(client, "experience give invalid amount", iExp);
         return Plugin_Handled;
     }
 
     // Sets experience for the target 
-    LevelSystemOnSetExp(targetIndex, gClientData[targetIndex].Exp + iExp);
+    LevelSystemOnSetExp(target, gClientData[target].Exp + iExp);
 
     // Log action to game events
-    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" gived experience: \"%d\" to Player \"%N\"", clientIndex, iExp, targetIndex);
+    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" gived experience: \"%d\" to Player \"%N\"", client, iExp, target);
     return Plugin_Handled;
 }
 
@@ -736,55 +735,55 @@ public int API_GetLevelLimit(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the player level.
  *
- * @note native int ZP_GetClientLevel(clientIndex);
+ * @note native int ZP_GetClientLevel(client);
  **/
 public int API_GetClientLevel(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].Level;
+    return gClientData[client].Level;
 }
 
 /**
  * @brief Sets the player level.
  *
- * @note native void ZP_SetClientLevel(clientIndex, iD);
+ * @note native void ZP_SetClientLevel(client, iD);
  **/
 public int API_SetClientLevel(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Sets level for the client
-    LevelSystemOnSetLvl(clientIndex, GetNativeCell(2));
+    LevelSystemOnSetLvl(client, GetNativeCell(2));
 }
 
 /**
  * @brief Gets the player exp.
  *
- * @note native int ZP_GetClientExp(clientIndex);
+ * @note native int ZP_GetClientExp(client);
  **/
 public int API_GetClientExp(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].Exp;
+    return gClientData[client].Exp;
 }
 
 /**
  * @brief Sets the player exp.
  *
- * @note native void ZP_SetClientExp(clientIndex, iD);
+ * @note native void ZP_SetClientExp(client, iD);
  **/
 public int API_SetClientExp(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Sets exp for the client
-    LevelSystemOnSetExp(clientIndex, GetNativeCell(2));
+    LevelSystemOnSetExp(client, GetNativeCell(2));
 }

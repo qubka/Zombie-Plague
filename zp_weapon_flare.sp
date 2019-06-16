@@ -28,15 +28,16 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] ExtraItem: Flare",
+    name            = "[ZP] Weapon: Flare",
     author          = "qubka (Nikita Ushakov)",     
-    description     = "Addon of extra items",
+    description     = "Addon of custom weapon",
     version         = "1.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
@@ -57,21 +58,35 @@ int gSound; ConVar hSoundLevel;
 #pragma unused gSound, hSoundLevel
 
 // Item index
-int gItem; int gWeapon;
-#pragma unused gItem, gWeapon
+int gWeapon;
+#pragma unused gWeapon
+
+/**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
 
 /**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Items
-    gItem = ZP_GetExtraItemNameID("flare grenade");
-    if(gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"flare grenade\" wasn't find");
-    
     // Weapons
     gWeapon = ZP_GetWeaponNameID("flare grenade");
-    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"flare grenade\" wasn't find");
+    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"flare grenade\" wasn't find");
 
     // Sounds
     gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
@@ -83,73 +98,32 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * @brief Called before show an extraitem in the equipment menu.
- * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
- *
- * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
- *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
- **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
-{
-    // Check the item index
-    if(itemID == gItem)
-    {
-        // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
-        {
-            return Plugin_Handled;
-        }
-    }
-
-    // Allow showing
-    return Plugin_Continue;
-}
-
-/**
- * @brief Called after select an extraitem in the equipment menu.
- * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
- **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
-{
-    // Check the item index
-    if(itemID == gItem)
-    {
-        // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, gWeapon);
-    }
-}
-
-/**
  * @brief Called after a custom grenade is created.
  *
- * @param clientIndex       The client index.
- * @param grenadeIndex      The grenade index.
+ * @param client            The client index.
+ * @param grenade           The grenade index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
+public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
     // Validate custom grenade
-    if(weaponID == gWeapon) /* OR if(GetEntProp(grenadeIndex, Prop_Data, "m_iHammerID") == gWeapon)*/
+    if(weaponID == gWeapon) /* OR if(GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
     {
         // Block grenade
-        SetEntProp(grenadeIndex, Prop_Data, "m_nNextThinkTick", -1);
+        SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
 
         // Gets parent position
         static float vPosition[3];
-        GetEntPropVector(grenadeIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, grenadeIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
         // Create effects
-        UTIL_CreateLight(grenadeIndex, vPosition, _, _, _, _, _, _, _, GRENADE_FLARE_COLOR, GRENADE_FLARE_DISTANCE, GRENADE_FLARE_RADIUS, GRENADE_FLARE_DURATION);
-        UTIL_CreateParticle(grenadeIndex, vPosition, _, _, "smoking", GRENADE_FLARE_DURATION);
+        UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, GRENADE_FLARE_COLOR, GRENADE_FLARE_DISTANCE, GRENADE_FLARE_RADIUS, GRENADE_FLARE_DURATION);
+        UTIL_CreateParticle(grenade, vPosition, _, _, "smoking", GRENADE_FLARE_DURATION);
 
         // Kill after some duration
-        UTIL_RemoveEntity(grenadeIndex, GRENADE_FLARE_DURATION);
+        UTIL_RemoveEntity(grenade, GRENADE_FLARE_DURATION);
     }
 }

@@ -1,0 +1,51 @@
+"Games"
+{
+    "csgo"
+    {
+        // Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
+        // You can update them only by yourself using tutorial in the link
+        "Signatures"
+        {
+            "nav_update_lighting" // Str: "Computed lighting for %d/%d areas\n"
+            {
+                "library"   "server"
+                "windows"   "\x55\x8B\xEC\x8B\x45\x08\x57\x33\xFF"
+                "linux"     "\x55\x89\xE5\x56\x53\x83\xEC\x10\x8B\x45\x08\x83\x38\x02"
+            }
+        }
+        
+        // Addr from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
+        // You can update them only by yourself using tutorial in the link
+        "Addresses"
+        {
+            "TheNavAreas"
+            {
+                "signature" "nav_update_lighting"
+                "linux"
+                {
+                    "read"  "33"
+                    "read"  "0"
+                }
+                "windows"
+                {
+                    "read"  "63"
+                    "read"  "0"
+                }
+            }
+            "TheNavAreas::Count"
+            {
+                "signature" "nav_update_lighting"
+                "linux"
+                {
+                    "read"  "50"
+                    "read"  "0"
+                }
+                "windows"
+                {
+                    "read"  "121"
+                    "read"  "0"
+                }
+            }
+        }
+    }
+}

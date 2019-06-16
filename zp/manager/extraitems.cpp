@@ -44,15 +44,6 @@ enum
  **/
  
 /**
- * @brief Extraitems module init function.
- **/
-void ExtraItemsOnInit(/*void*/)
-{
-    // Prepare all extraitem data
-    ExtraItemsOnLoad();
-}
-
-/**
  * @brief Prepare all extraitem data.
  **/
 void ExtraItemsOnLoad(/*void*/)
@@ -62,7 +53,7 @@ void ExtraItemsOnLoad(/*void*/)
 
     // Gets extraitems config path
     static char sPathItems[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_EXTRAITEMS, sPathItems);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_EXTRAITEMS, sPathItems, sizeof(sPathItems));
 
     // If file doesn't exist, then log and stop
     if(!bExists)
@@ -191,12 +182,12 @@ void ExtraItemsOnCommandInit(/*void*/)
  * Console command callback (zp_item_menu)
  * @brief Opens the extra items menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ExtraItemsOnCommandCatched(int clientIndex, int iArguments)
+public Action ExtraItemsOnCommandCatched(int client, int iArguments)
 {
-    ItemsMenu(clientIndex);
+    ItemsMenu(client);
     return Plugin_Handled;
 }
 
@@ -227,17 +218,17 @@ void ExtraItemsOnNativeInit(/*void*/)
 /**
  * @brief Give the extra item to the client.
  *
- * @note native bool ZP_GiveClientExtraItem(clientIndex, iD);
+ * @note native bool ZP_GiveClientExtraItem(client, iD);
  **/
 public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
     
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
         return -1;
     }
     
@@ -252,14 +243,14 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
     }
 
     // Call forward
-    Action resultHandle;
-    gForwardData._OnClientValidateExtraItem(clientIndex, iD, resultHandle);
+    Action hResult;
+    gForwardData._OnClientValidateExtraItem(client, iD, hResult);
 
     // Validate handle
-    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Call forward
-        gForwardData._OnClientBuyExtraItem(clientIndex, iD); /// Buy item
+        gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
         return true;
     }
     
@@ -270,17 +261,17 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
 /**
  * @brief Sets the buy limit of the current player item.
  *
- * @note native void ZP_SetClientExtraItemLimit(clientIndex, iD, limit);
+ * @note native void ZP_SetClientExtraItemLimit(client, iD, limit);
  **/
 public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
     
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
         return -1;
     }
     
@@ -295,7 +286,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
     }
     
     // Sets buy limit of the current player item
-    ItemsSetLimits(clientIndex, iD, GetNativeCell(3));
+    ItemsSetLimits(client, iD, GetNativeCell(3));
     
     // Return on success
     return iD;
@@ -304,17 +295,17 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the buy limit of the current player item.
  *
- * @note native int ZP_GetClientExtraItemLimit(clientIndex, iD);
+ * @note native int ZP_GetClientExtraItemLimit(client, iD);
  **/
 public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
     
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
         return -1;
     }
     
@@ -329,7 +320,7 @@ public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
     }
     
     // Return buy limit of the current player item
-    return ItemsGetLimits(clientIndex, iD);
+    return ItemsGetLimits(client, iD);
 }
 
 /**
@@ -692,35 +683,35 @@ int ItemsGetLimit(int iD)
 /**
  * @brief Remove the buy limit of the all client items.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ItemsRemoveLimits(int clientIndex)
+void ItemsRemoveLimits(int client)
 {
     // If array hasn't been created, then create
-    if(gClientData[clientIndex].ItemLimit == null)
+    if(gClientData[client].ItemLimit == null)
     {
         // Initialize a buy limit array
-        gClientData[clientIndex].ItemLimit = new StringMap();
+        gClientData[client].ItemLimit = new StringMap();
     }
 
     // Clear out the array of all data
-    gClientData[clientIndex].ItemLimit.Clear();
+    gClientData[client].ItemLimit.Clear();
 }
 
 /**
  * @brief Sets the buy limit of the current client item.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The item index.
  * @param iLimit            The limit value.    
  **/
-void ItemsSetLimits(int clientIndex, int iD, int iLimit)
+void ItemsSetLimits(int client, int iD, int iLimit)
 {
     // If array hasn't been created, then create
-    if(gClientData[clientIndex].ItemLimit == null)
+    if(gClientData[client].ItemLimit == null)
     {
         // Initialize a buy limit array
-        gClientData[clientIndex].ItemLimit = new StringMap();
+        gClientData[client].ItemLimit = new StringMap();
     }
 
     // Initialize key char
@@ -728,22 +719,22 @@ void ItemsSetLimits(int clientIndex, int iD, int iLimit)
     IntToString(iD, sKey, sizeof(sKey));
     
     // Sets buy limit for the client
-    gClientData[clientIndex].ItemLimit.SetValue(sKey, iLimit);
+    gClientData[client].ItemLimit.SetValue(sKey, iLimit);
 }
 
 /**
  * @brief Gets the buy limit of the current client item.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The item index.
  **/
-int ItemsGetLimits(int clientIndex, int iD)
+int ItemsGetLimits(int client, int iD)
 {
     // If array hasn't been created, then create
-    if(gClientData[clientIndex].ItemLimit == null)
+    if(gClientData[client].ItemLimit == null)
     {
         // Initialize a buy limit array
-        gClientData[clientIndex].ItemLimit = new StringMap();
+        gClientData[client].ItemLimit = new StringMap();
     }
     
     // Initialize key char
@@ -751,7 +742,7 @@ int ItemsGetLimits(int clientIndex, int iD)
     IntToString(iD, sKey, sizeof(sKey));
     
     // Gets buy limit for the client
-    int iLimit; gClientData[clientIndex].ItemLimit.GetValue(sKey, iLimit);
+    int iLimit; gClientData[client].ItemLimit.GetValue(sKey, iLimit);
     return iLimit;
 }
 
@@ -824,12 +815,11 @@ int ItemsNameToIndex(char[] sName)
 /**
  * @brief Returns true if the player has an access by the class to the item id, false if not.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The item id.
- *
  * @return                  True or false.    
  **/
-bool ItemsValidateClass(int clientIndex, int iD)
+bool ItemsValidateClass(int client, int iD)
 {
     // Gets item class
     static char sClass[BIG_LINE_LENGTH];
@@ -840,7 +830,7 @@ bool ItemsValidateClass(int clientIndex, int iD)
     {
         // Gets class type 
         static char sType[SMALL_LINE_LENGTH];
-        ClassGetType(gClientData[clientIndex].Class, sType, sizeof(sType));
+        ClassGetType(gClientData[client].Class, sType, sizeof(sType));
         
         // If class find, then return
         return (hasLength(sType) && StrContain(sType, sClass, ','));
@@ -857,12 +847,12 @@ bool ItemsValidateClass(int clientIndex, int iD)
 /**
  * @brief Creates the extra items menu.
  *  
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/ 
-void ItemsMenu(int clientIndex)
+void ItemsMenu(int client)
 {
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return;
     }
@@ -871,10 +861,10 @@ void ItemsMenu(int clientIndex)
     if(gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode))
     {
         // Show block info
-        TranslationPrintHintText(clientIndex, "buying round block");     
+        TranslationPrintHintText(client, "buying round block");     
 
         // Emit error sound
-        ClientCommand(clientIndex, "play buttons/button11.wav");
+        ClientCommand(client, "play buttons/weapon_cant_buy.wav");
         return;
     }
 
@@ -888,32 +878,38 @@ void ItemsMenu(int clientIndex)
     static char sGroup[SMALL_LINE_LENGTH];
     
     // Creates extra items menu handle
-    Menu hMenu = CreateMenu(ItemsMenuSlots);
+    Menu hMenu = new Menu(ItemsMenuSlots);
 
     // Sets language to target
-    SetGlobalTransTarget(clientIndex);
+    SetGlobalTransTarget(client);
     
     // Sets title
     hMenu.SetTitle("%t", "buy extraitems");
     
-    // Initialize forward
-    Action resultHandle;
+    // Format some chars for showing in menu
+    FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "buy equipments");
     
+    // Show add option
+    hMenu.AddItem("-1", sBuffer);
+    
+    // Initialize forward
+    Action hResult;
+
     // i = extraitem index
-    int iSize = gServerData.ExtraItems.Length;
+    int iSize = gServerData.ExtraItems.Length; int iAmount;
     for(int i = 0; i < iSize; i++)
     {
         // Call forward
-        gForwardData._OnClientValidateExtraItem(clientIndex, i, resultHandle);
+        gForwardData._OnClientValidateExtraItem(client, i, hResult);
         
         // Skip, if item is disabled
-        if(resultHandle == Plugin_Stop)
+        if(hResult == Plugin_Stop)
         {
             continue;
         }
         
         // Skip some item, if class isn't equal
-        if(!ItemsValidateClass(clientIndex, i)) 
+        if(!ItemsValidateClass(client, i)) 
         {
             continue;
         }
@@ -926,15 +922,18 @@ void ItemsMenu(int clientIndex)
         FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
         FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
         FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
-        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
+        FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (gClientData[client].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(clientIndex, i) || gClientData[clientIndex].Money < ItemsGetCost(i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i) || gClientData[client].Money < ItemsGetCost(i) ? false : true));
+    
+        // Increment amount
+        iAmount++;
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iSize)
+    if(!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -946,7 +945,7 @@ void ItemsMenu(int clientIndex)
     
     // Sets options and display it
     hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+    hMenu.Display(client, MENU_TIME_FOREVER); 
 }
 
 /**
@@ -954,10 +953,10 @@ void ItemsMenu(int clientIndex)
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -975,7 +974,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_item_menu");
-                if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+                if(iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -983,7 +982,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(clientIndex))
+            if(!IsPlayerExist(client))
             {
                 return;
             }
@@ -992,10 +991,10 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             if((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode)) || gServerData.RoundEnd)
             {
                 // Show block info
-                TranslationPrintHintText(clientIndex, "buying round block");
+                TranslationPrintHintText(client, "buying round block");
 
                 // Emit error sound
-                ClientCommand(clientIndex, "play buttons/button11.wav");    
+                ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
                 return;
             }
 
@@ -1004,68 +1003,83 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int m
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
             int iD = StringToInt(sBuffer);
             
-            // Gets extra item name
-            ItemsGetName(iD, sBuffer, sizeof(sBuffer));
-            
-            // Call forward
-            Action resultHandle;
-            gForwardData._OnClientValidateExtraItem(clientIndex, iD, resultHandle);
-
-            // Validate handle
-            if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+            // Validate button info
+            switch(iD)
             {
-                // Validate access
-                if(ItemsValidateClass(clientIndex, iD)) 
+                // Client hit 'Redirect' button
+                case -1 :
                 {
-                    // Call forward
-                    gForwardData._OnClientBuyExtraItem(clientIndex, iD); /// Buy item
+                    // Opens market menu
+                    ZMarketMenu(client, "buy equipments"); 
+                }
             
-                    // If help messages enabled, then show info
-                    if(gCvarList[CVAR_MESSAGES_ITEM_ALL].BoolValue)
-                    {
-                        // Gets client name
-                        static char sClient[SMALL_LINE_LENGTH];
-                        GetClientName(clientIndex, sClient, sizeof(sClient));
+                // Client hit 'Item' button
+                default :
+                {
+                    // Gets extra item name
+                    ItemsGetName(iD, sBuffer, sizeof(sBuffer));
+                    
+                    // Call forward
+                    Action hResult;
+                    gForwardData._OnClientValidateExtraItem(client, iD, hResult);
 
-                        // Show item buying info
-                        TranslationPrintToChatAll("buy info", sClient, sBuffer);
-                    }
-                
-                    // If help messages enabled, then show info
-                    if(gCvarList[CVAR_MESSAGES_ITEM_INFO].BoolValue)
+                    // Validate handle
+                    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
                     {
-                        // Gets item info
-                        ItemsGetInfo(iD, sBuffer, sizeof(sBuffer));
+                        // Validate access
+                        if(ItemsValidateClass(client, iD)) 
+                        {
+                            // Call forward
+                            gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
+                    
+                            // If help messages enabled, then show info
+                            if(gCvarList[CVAR_MESSAGES_ITEM_ALL].BoolValue)
+                            {
+                                // Gets client name
+                                static char sInfo[SMALL_LINE_LENGTH];
+                                GetClientName(client, sInfo, sizeof(sInfo));
+
+                                // Show item buying info
+                                TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+                            }
                         
-                        // Show item personal info
-                        if(hasLength(sBuffer)) TranslationPrintHintText(clientIndex, sBuffer);
+                            // If help messages enabled, then show info
+                            if(gCvarList[CVAR_MESSAGES_ITEM_INFO].BoolValue)
+                            {
+                                // Gets item info
+                                ItemsGetInfo(iD, sBuffer, sizeof(sBuffer));
+                                
+                                // Show item personal info
+                                if(hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+                            }
+                            
+                            // If item has a cost
+                            if(ItemsGetCost(iD))
+                            {
+                                // Remove money and store it for returning if player will be first zombie
+                                AccountSetClientCash(client, gClientData[client].Money - ItemsGetCost(iD));
+                                gClientData[client].LastPurchase += ItemsGetCost(iD);
+                            }
+                            
+                            // If item has a limit
+                            if(ItemsGetLimit(iD))
+                            {
+                                // Increment count
+                                ItemsSetLimits(client, iD, ItemsGetLimits(client, iD) + 1);
+                            }
+                            
+                            // Return on success
+                            return;
+                        }
                     }
-                    
-                    // If item has a cost
-                    if(ItemsGetCost(iD))
-                    {
-                        // Remove money and store it for returning if player will be first zombie
-                        AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - ItemsGetCost(iD));
-                        gClientData[clientIndex].LastPurchase += ItemsGetCost(iD);
-                    }
-                    
-                    // If item has a limit
-                    if(ItemsGetLimit(iD))
-                    {
-                        // Increment count
-                        ItemsSetLimits(clientIndex, iD, ItemsGetLimits(clientIndex, iD) + 1);
-                    }
-                    
-                    // Return on success
-                    return;
+
+                    // Show block info
+                    TranslationPrintHintText(client, "buying item block", sBuffer);
+            
+                    // Emit error sound
+                    ClientCommand(client, "play buttons/weapon_cant_buy.wav");
                 }
             }
-
-            // Show block info
-            TranslationPrintHintText(clientIndex, "buying item block", sBuffer);
-    
-            // Emit error sound
-            ClientCommand(clientIndex, "play buttons/button11.wav");    
         }
     }
 }

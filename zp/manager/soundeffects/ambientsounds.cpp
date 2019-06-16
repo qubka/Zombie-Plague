@@ -60,9 +60,9 @@ void AmbientSoundsOnGameModeStart(/*void*/)
 /**
  * @brief Client has been changed class state.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void AmbientSoundsOnClientUpdate(int clientIndex)
+void AmbientSoundsOnClientUpdate(int client)
 {
     // If mode doesn't started yet, then stop
     if(!gServerData.RoundStart)
@@ -85,14 +85,14 @@ void AmbientSoundsOnClientUpdate(int clientIndex)
     }
     
     // Stop sound before playing again
-    SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), clientIndex, SNDCHAN_STATIC);
+    SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
     // Emit ambient sound
-    SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, clientIndex, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue, _, flAmbientVolume);
+    SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue, _, flAmbientVolume);
 
     // Start repeating timer
-    delete gClientData[clientIndex].AmbientTimer;
-    gClientData[clientIndex].AmbientTimer = CreateTimer(flAmbientDuration, AmbientSoundsOnMP3Repeat, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    delete gClientData[client].AmbientTimer;
+    gClientData[client].AmbientTimer = CreateTimer(flAmbientDuration, AmbientSoundsOnMP3Repeat, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
  
 /**
@@ -104,34 +104,34 @@ void AmbientSoundsOnClientUpdate(int clientIndex)
 public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Gets ambient sound volume
         float flAmbientVolume = ModesGetSoundVolume(gServerData.RoundMode);
         if(!flAmbientVolume || !ModesGetSoundDuration(gServerData.RoundMode))
         {
             // Clear timer
-            gClientData[clientIndex].AmbientTimer = null;
+            gClientData[client].AmbientTimer = null;
     
             // Destroy timer
             return Plugin_Stop;
         }
     
         // Stop sound before playing again
-        SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), clientIndex, SNDCHAN_STATIC);
+        SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
         // Emit ambient sound
-        SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, clientIndex, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue, _, flAmbientVolume);
+        SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue, _, flAmbientVolume);
 
         // Allow timer
         return Plugin_Continue;
     }
 
     // Clear timer
-    gClientData[clientIndex].AmbientTimer = null;
+    gClientData[client].AmbientTimer = null;
     
     // Destroy timer
     return Plugin_Stop;

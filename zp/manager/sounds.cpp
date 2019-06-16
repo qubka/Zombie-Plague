@@ -64,7 +64,7 @@ void SoundsOnLoad(/*void*/)
 
     // Gets sounds file path
     static char sPathSounds[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_SOUNDS, sPathSounds);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_SOUNDS, sPathSounds, sizeof(sPathSounds));
 
     // If file doesn't exist, then log and stop
     if(!bExists)
@@ -168,7 +168,7 @@ void SoundsOnCacheData(/*void*/)
 }
 
 /**
- * @brief Called when configs are being reloaded.
+    * @brief Called when configs are being reloaded.
  * 
  * @param iConfig           The config being reloaded. (only if 'all' is false)
  **/
@@ -216,9 +216,9 @@ void SoundsOnCounterStart(/*void*/)
 /**
  * @brief The round is ending.
  *
- * @param reasonIndex       The reason index.
+ * @param reason            The reason index.
  **/
-void SoundsOnRoundEnd(CSRoundEndReason reasonIndex)
+void SoundsOnRoundEnd(CSRoundEndReason reason)
 {
     // Forward event to sub-modules
     VoiceOnRoundEnd();
@@ -226,7 +226,7 @@ void SoundsOnRoundEnd(CSRoundEndReason reasonIndex)
     
     // Create timer for emit sounds
     delete gServerData.EndTimer;
-    gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reasonIndex, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
+    gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reason, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
 }
 
 /**
@@ -264,126 +264,126 @@ void SoundsOnGameModeStart(/*void*/)
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientDeath(int clientIndex)
+void SoundsOnClientDeath(int client)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientDeath(clientIndex);
+    PlayerSoundsOnClientDeath(client);
 }
 
 /**
  * @brief Client has been hurt.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iBits             The type of damage inflicted.
  **/
-void SoundsOnClientHurt(int clientIndex, int iBits)
+void SoundsOnClientHurt(int client, int iBits)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientHurt(clientIndex, ((iBits & DMG_BURN) || (iBits & DMG_DIRECT)));
+    PlayerSoundsOnClientHurt(client, ((iBits & DMG_BURN) || (iBits & DMG_DIRECT)));
 }
 
 /**
  * @brief Client has been infected.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-void SoundsOnClientInfected(int clientIndex, int attackerIndex)
+void SoundsOnClientInfected(int client, int attacker)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientInfected(clientIndex, attackerIndex);
+    PlayerSoundsOnClientInfected(client, attacker);
 }
 
 /**
  * @brief Client has been changed class state.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientUpdate(int clientIndex)
+void SoundsOnClientUpdate(int client)
 {
     // Forward event to sub-modules
-    VoiceOnClientUpdate(clientIndex);
-    AmbientSoundsOnClientUpdate(clientIndex);
+    VoiceOnClientUpdate(client);
+    AmbientSoundsOnClientUpdate(client);
 }
 
 /**
  * @brief Client has been regenerating.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientRegen(int clientIndex)
+void SoundsOnClientRegen(int client)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientRegen(clientIndex);
+    PlayerSoundsOnClientRegen(client);
 }
 
 /**
  * @brief Client has been leap jumped.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientJump(int clientIndex)
+void SoundsOnClientJump(int client)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientJump(clientIndex);
+    PlayerSoundsOnClientJump(client);
 }
 
 /**
  * @brief Client has been swith nightvision.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientNvgs(int clientIndex)
+void SoundsOnClientNvgs(int client)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientNvgs(clientIndex);
+    PlayerSoundsOnClientNvgs(client);
 }
 
 /**
  * @brief Client has been swith flashlight.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientFlashLight(int clientIndex)
+void SoundsOnClientFlashLight(int client)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientFlashLight(clientIndex);
+    PlayerSoundsOnClientFlashLight(client);
 }
 
 /**
  * @brief Client has been buy ammunition.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientAmmunition(int clientIndex)
+void SoundsOnClientAmmunition(int client)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientAmmunition(clientIndex);
+    PlayerSoundsOnClientAmmunition(client);
 }
 
 /**
  * @brief Client has been level up.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SoundsOnClientLevelUp(int clientIndex)
+void SoundsOnClientLevelUp(int client)
 {
     // Forward event to sub-modules
-    PlayerSoundsOnClientLevelUp(clientIndex);
+    PlayerSoundsOnClientLevelUp(client);
 }
 
 /**
  * @brief Client has been shoot.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The weapon id.
  **/
-Action SoundsOnClientShoot(int clientIndex, int iD)
+Action SoundsOnClientShoot(int client, int iD)
 {
     // Forward event to sub-modules
-    return PlayerSoundsOnClientShoot(clientIndex, iD) ? Plugin_Stop : Plugin_Continue;
+    return PlayerSoundsOnClientShoot(client, iD) ? Plugin_Stop : Plugin_Continue;
 }
 
 /*
@@ -446,7 +446,7 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
     }
     
     // Initialize sound char
-    static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = '\0';
+    static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
     
     // Gets sound path
     SoundsGetPath(GetNativeCell(1), sSound, sizeof(sSound), GetNativeCell(4));
@@ -558,10 +558,10 @@ void SoundsGetPath(int iKey, char[] sPath, int iMaxLen, int iNum = 0)
  * @brief Stops a sound list at a given key.
  * 
  * @param iKey              The sound array index.
- * @param clientIndex       (Optional) The client index.
+ * @param client            (Optional) The client index.
  * @param iChannel          (Optional) The channel to emit with.
  **/
-void SoundsStopAll(int iKey, int clientIndex = -1, int iChannel = SNDCHAN_AUTO)
+void SoundsStopAll(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
 {
     // Validate key
     if(iKey == -1)
@@ -589,10 +589,10 @@ void SoundsStopAll(int iKey, int clientIndex = -1, int iChannel = SNDCHAN_AUTO)
             Format(sSound, sizeof(sSound), "*/%s", sSound);
             
             // Validate client
-            if(IsPlayerExist(clientIndex, false) && !IsFakeClient(clientIndex))
+            if(IsPlayerExist(client, false) && !IsFakeClient(client))
             {
                 // Stop sound
-                StopSound(clientIndex, iChannel, sSound);
+                StopSound(client, iChannel, sSound);
             }
             else
             {
@@ -627,7 +627,7 @@ int SoundsKeyToIndex(char[] sKey)
     static char sSoundKey[SMALL_LINE_LENGTH]; 
     
     // i = block index
-    int iSize = gServerData.Sounds.Length; int iRandom; static int keyIndex[MAXPLAYERS+1];
+    int iSize = gServerData.Sounds.Length; int iRandom; static int keyID[MAXPLAYERS+1];
     for(int i = 0; i < iSize; i++)
     {
         // Gets sound key 
@@ -637,12 +637,12 @@ int SoundsKeyToIndex(char[] sKey)
         if(!strcmp(sSoundKey, sKey, false))
         {
             // Increment amount
-            keyIndex[iRandom++] = i;
+            keyID[iRandom++] = i;
         }
     }
     
     // Return index
-    return (iRandom) ? keyIndex[GetRandomInt(0, iRandom-1)] : -1;
+    return (iRandom) ? keyID[GetRandomInt(0, iRandom-1)] : -1;
 }
 
 /**
@@ -677,24 +677,24 @@ bool SoundsPrecacheQuirk(char[] sPath)
     if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
     {
         // Initialize the table index
-        static int tableIndex = INVALID_STRING_TABLE;
+        static int table = INVALID_STRING_TABLE;
 
         // Validate table
-        if(tableIndex == INVALID_STRING_TABLE)
+        if(table == INVALID_STRING_TABLE)
         {
             // Searches for a string table
-            tableIndex = FindStringTable("soundprecache");
+            table = FindStringTable("soundprecache");
         }
 
         // If sound doesn't precache yet, then continue
-        if(FindStringIndex(tableIndex, sSound) == INVALID_STRING_INDEX)
+        if(FindStringIndex(table, sSound) == INVALID_STRING_INDEX)
         {
             // Add file to download table
             AddFileToDownloadsTable(sPath);
 
             // Precache sound
             ///bool bSave = LockStringTables(false);
-            AddToStringTable(tableIndex, sSound);
+            AddToStringTable(table, sSound);
             ///LockStringTables(bSave);
         }
     }

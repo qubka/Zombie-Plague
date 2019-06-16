@@ -26,36 +26,6 @@
  **/
 
 /**
- * Bar max length.
- **/
-#define BAR_MAX_LENGTH  50
- 
-/**
- * @section Properties of the skill bar.
- **/ 
-#define SKILL_HUD_X     0.3
-#define SKILL_HUD_Y     0.185
-/**
- * @endsection
- **/
-
-/**
- * Arrays to store the skill bar.
- **/
-char SkillSystemBar[MAXPLAYERS+1][BAR_MAX_LENGTH+1];
-static char SkillSystemMax[BAR_MAX_LENGTH] = "__________________________________________________";
- 
-/**
- * @brief Skill module init function.
- **/
-void SkillSystemOnInit(/*void*/)
-{
-    // Creates HUD synchronization objects
-    gServerData.SkillSync[0] = CreateHudSynchronizer();
-    gServerData.SkillSync[1] = CreateHudSynchronizer();
-} 
- 
-/**
  * @brief Hook skills cvar changes.
  **/
 void SkillSystemOnCvarInit(/*void*/)
@@ -124,11 +94,11 @@ public void SkillSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newVal
  * Listener command callback (any)
  * @brief Usage of the skill for human/zombie.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SkillSystemOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
+public Action SkillSystemOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate access
     if(!ModesIsSkill(gServerData.RoundMode))
@@ -137,10 +107,10 @@ public Action SkillSystemOnCommandListened(int clientIndex, char[] commandMsg, i
     }
         
     // Validate client 
-    if(IsPlayerExist(clientIndex))
+    if(IsPlayerExist(client))
     {
         // Do the skill
-        SkillSystemOnClientStart(clientIndex);
+        SkillSystemOnClientStart(client);
         return Plugin_Handled;
     }
     
@@ -151,10 +121,13 @@ public Action SkillSystemOnCommandListened(int clientIndex, char[] commandMsg, i
 /**
  * @brief Client has been changed class state.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SkillSystemOnClientUpdate(int clientIndex)
+void SkillSystemOnClientUpdate(int client)
 {
+    // Resets the progress bar 
+    ToolsSetProgressBarTime(client, 0);
+    
     // If health restoring disabled, then stop
     if(!ModesIsRegen(gServerData.RoundMode))
     {
@@ -162,106 +135,58 @@ void SkillSystemOnClientUpdate(int clientIndex)
     }
 
     // Validate class regen interval/amount
-    float flInterval = ClassGetRegenInterval(gClientData[clientIndex].Class);
-    if(!flInterval || !ClassGetRegenHealth(gClientData[clientIndex].Class))
+    float flInterval = ClassGetRegenInterval(gClientData[client].Class);
+    if(!flInterval || !ClassGetRegenHealth(gClientData[client].Class))
     {
         return;
     }
     
     // Sets timer for restoring health
-    delete gClientData[clientIndex].HealTimer;
-    gClientData[clientIndex].HealTimer = CreateTimer(flInterval, SkillSystemOnClientRegen, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    delete gClientData[client].HealTimer;
+    gClientData[client].HealTimer = CreateTimer(flInterval, SkillSystemOnClientRegen, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
  * @brief Called when player press drop button.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void SkillSystemOnClientStart(int clientIndex)
+void SkillSystemOnClientStart(int client)
 {
     // Validate class skill duration/countdown
-    float flInterval = ClassGetSkillDuration(gClientData[clientIndex].Class);
-    if(!flInterval && (!ClassGetSkillCountdown(gClientData[clientIndex].Class)))
+    float flInterval = ClassGetSkillDuration(gClientData[client].Class);
+    if(!flInterval && (!ClassGetSkillCountdown(gClientData[client].Class)))
     {
         return;
     }
     
     // Verify that the skills are avalible
-    if(!gClientData[clientIndex].Skill && gClientData[clientIndex].SkillCounter <= 0.0)
+    if(!gClientData[client].Skill && gClientData[client].SkillCounter <= 0.0)
     {
         // Call forward
-        Action resultHandle; 
-        gForwardData._OnClientSkillUsed(clientIndex, resultHandle);
+        Action hResult; 
+        gForwardData._OnClientSkillUsed(client, hResult);
         
         // Block skill usage
-        if(resultHandle == Plugin_Handled || resultHandle == Plugin_Stop)
+        if(hResult == Plugin_Handled || hResult == Plugin_Stop)
         {
             return;
         }
 
         // Sets skill usage
-        gClientData[clientIndex].Skill = true;
+        gClientData[client].Skill = true;
         
         // Validate skill bar
-        if(ClassIsSkillBar(gClientData[clientIndex].Class) && !IsFakeClient(clientIndex))
+        if(ClassIsSkillBar(gClientData[client].Class))
         {
-            // Resets bar string 
-            strcopy(SkillSystemBar[clientIndex], sizeof(SkillSystemBar[]), SkillSystemMax);
-            gClientData[clientIndex].SkillCounter = flInterval; /// Update skill time usage
-        
-            // Sets timer for showing bar
-            delete gClientData[clientIndex].BarTimer;
-            gClientData[clientIndex].BarTimer = CreateTimer(0.1, SkillSystemOnClientHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+            // Sets progress bar 
+            ToolsSetProgressBarTime(client, RoundToNearest(flInterval));
         }
         
         // Sets timer for removing skill usage
-        delete gClientData[clientIndex].SkillTimer;
-        gClientData[clientIndex].SkillTimer = CreateTimer(flInterval, SkillSystemOnClientEnd, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        delete gClientData[client].SkillTimer;
+        gClientData[client].SkillTimer = CreateTimer(flInterval, SkillSystemOnClientEnd, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
     }
-}
-
-/**
- * @brief Timer callback, show HUD bar within information about skill duration.
- *
- * @param hTimer            The timer handle.
- * @param userID            The user id.
- **/
-public Action SkillSystemOnClientHUD(Handle hTimer, int userID)
-{
-    // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID); 
-
-    // Validate client
-    if(clientIndex)
-    {
-        // If skill is over, then stop
-        if(!gClientData[clientIndex].Skill)
-        {
-            // Clear timer
-            gClientData[clientIndex].BarTimer = null;
-            
-            // Destroy timer
-            return Plugin_Stop;
-        }
-        
-        // Update duration bar
-        gClientData[clientIndex].SkillCounter -= 0.1;
-        SkillSystemBar[clientIndex][RoundToNearest((gClientData[clientIndex].SkillCounter * BAR_MAX_LENGTH) / ClassGetSkillDuration(gClientData[clientIndex].Class))] = '\0';
-
-        // Show health bar
-        UTIL_CreateClientHud(gServerData.SkillSync[0], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemMax);
-        UTIL_CreateClientHud(gServerData.SkillSync[1], clientIndex, SKILL_HUD_X, SKILL_HUD_Y, 0.11, 255, 255, 0, 255, 0, 0.0, 0.0, 0.0, SkillSystemBar[clientIndex]);
-
-        // Allow timer
-        return Plugin_Continue;
-    }
-    
-    // Clear timer
-    gClientData[clientIndex].BarTimer = null;
-    
-    // Destroy timer
-    return Plugin_Stop;
 }
 
 /**
@@ -273,24 +198,27 @@ public Action SkillSystemOnClientHUD(Handle hTimer, int userID)
 public Action SkillSystemOnClientEnd(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Clear timer
-    gClientData[clientIndex].SkillTimer = null;
+    gClientData[client].SkillTimer = null;
     
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Remove skill usage and set countdown time
-        gClientData[clientIndex].Skill = false;
-        gClientData[clientIndex].SkillCounter = ClassGetSkillCountdown(gClientData[clientIndex].Class);
+        gClientData[client].Skill = false;
+        gClientData[client].SkillCounter = ClassGetSkillCountdown(gClientData[client].Class);
+        
+        // Resets the progress bar 
+        ToolsSetProgressBarTime(client, 0);
         
         // Sets timer for countdown
-        delete gClientData[clientIndex].CounterTimer;
-        gClientData[clientIndex].CounterTimer = CreateTimer(1.0, SkillSystemOnClientCount, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        delete gClientData[client].CounterTimer;
+        gClientData[client].CounterTimer = CreateTimer(1.0, SkillSystemOnClientCount, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         
         // Call forward
-        gForwardData._OnClientSkillOver(clientIndex);
+        gForwardData._OnClientSkillOver(client);
     }
 
     // Destroy timer
@@ -306,36 +234,36 @@ public Action SkillSystemOnClientEnd(Handle hTimer, int userID)
 public Action SkillSystemOnClientCount(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Substitute counter
-        gClientData[clientIndex].SkillCounter--;
+        gClientData[client].SkillCounter--;
         
         // If counter is over, then stop
-        if(gClientData[clientIndex].SkillCounter <= 0.0)
+        if(gClientData[client].SkillCounter <= 0.0)
         {
             // Show message
-            TranslationPrintHintText(clientIndex, "skill ready");
+            TranslationPrintHintText(client, "skill ready");
 
             // Clear timer
-            gClientData[clientIndex].CounterTimer = null;
+            gClientData[client].CounterTimer = null;
             
             // Destroy timer
             return Plugin_Stop;
         }
 
         // Show counter
-        TranslationPrintHintText(clientIndex, "countdown", RoundToNearest(gClientData[clientIndex].SkillCounter));
+        TranslationPrintHintText(client, "countdown", RoundToNearest(gClientData[client].SkillCounter));
         
         // Allow timer
         return Plugin_Continue;
     }
     
     // Clear timer
-    gClientData[clientIndex].CounterTimer = null;
+    gClientData[client].CounterTimer = null;
     
     // Destroy timer
     return Plugin_Stop;
@@ -350,39 +278,37 @@ public Action SkillSystemOnClientCount(Handle hTimer, int userID)
 public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
-        // Initialize vector
-        static float vVelocity[3];
-        
         // Gets client velocity
-        ToolsGetVelocity(clientIndex, vVelocity);
+        static float vVelocity[3];
+        ToolsGetVelocity(client, vVelocity);
         
         // If the client don't move, then check health
-        if(!(SquareRoot(Pow(vVelocity[0], 2.0) + Pow(vVelocity[1], 2.0))))
+        if(GetVectorLength(vVelocity) <= 0.0)
         {
             // If restoring is available, then do it
-            int iHealth = ToolsGetHealth(clientIndex); // Store for next usage
-            if(iHealth < ClassGetHealth(gClientData[clientIndex].Class))
+            int iHealth = ToolsGetHealth(client); // Store for next usage
+            if(iHealth < ClassGetHealth(gClientData[client].Class))
             {
                 // Initialize a new health amount
-                int iRegen = iHealth + ClassGetRegenHealth(gClientData[clientIndex].Class);
+                int iRegen = iHealth + ClassGetRegenHealth(gClientData[client].Class);
                 
                 // If new health more, than set default class health
-                if(iRegen > ClassGetHealth(gClientData[clientIndex].Class))
+                if(iRegen > ClassGetHealth(gClientData[client].Class))
                 {
-                    iRegen = ClassGetHealth(gClientData[clientIndex].Class);
+                    iRegen = ClassGetHealth(gClientData[client].Class);
                 }
                 
                 // Update health
-                ToolsSetHealth(clientIndex, iRegen);
+                ToolsSetHealth(client, iRegen);
 
                 // Forward event to modules
-                SoundsOnClientRegen(clientIndex);
-                VEffectsOnClientRegen(clientIndex);
+                SoundsOnClientRegen(client);
+                VEffectsOnClientRegen(client);
             }
         }
 
@@ -391,7 +317,7 @@ public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
     }
 
     // Clear timer
-    gClientData[clientIndex].HealTimer = null;
+    gClientData[client].HealTimer = null;
     
     // Destroy timer
     return Plugin_Stop;
@@ -414,45 +340,58 @@ void SkillSystemOnNativeInit(/*void*/)
 /**
  * @brief Gets the player skill state.
  *
- * @note native bool ZP_GetClientSkillUsage(clientIndex);
+ * @note native bool ZP_GetClientSkillUsage(client);
  **/
 public int API_GetClientSkillUsage(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value
-    return gClientData[clientIndex].Skill;
+    return gClientData[client].Skill;
 }
 
 /**
  * @brief Gets the player skill countdown.
  *
- * @note native float ZP_GetClientSkillCountdown(clientIndex);
+ * @note native float ZP_GetClientSkillCountdown(client);
  **/
 public int API_GetClientSkillCountdown(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value (Float fix)
-    return view_as<int>(gClientData[clientIndex].SkillCounter);
+    return view_as<int>(gClientData[client].SkillCounter);
 }
 
 /**
  * @brief Stop the player skill or countdown. 
  *
- * @note native void ZP_ResetClientSkill(clientIndex);
+ * @note native void ZP_ResetClientSkill(client);
  **/
 public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
     
-    // Reset the values
-    delete gClientData[clientIndex].SkillTimer;
-    delete gClientData[clientIndex].BarTimer;
-    delete gClientData[clientIndex].CounterTimer;
-    gClientData[clientIndex].Skill = false;
-    gClientData[clientIndex].SkillCounter = 0.0;
+    // Validate client
+    if(!IsPlayerExist(client, false))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
+        return;
+    }
+    
+    // Resets the values
+    delete gClientData[client].SkillTimer;
+    delete gClientData[client].CounterTimer;
+    gClientData[client].Skill = false;
+    gClientData[client].SkillCounter = 0.0;
+    
+    // Validate skill bar
+    if(ClassIsSkillBar(gClientData[client].Class))
+    {
+        // Resets the progress bar 
+        ToolsSetProgressBarTime(client, 0);
+    }
 }

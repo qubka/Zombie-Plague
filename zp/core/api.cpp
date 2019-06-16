@@ -60,6 +60,7 @@ enum struct ForwardData
     Handle OnClientLevel;
     Handle OnClientExp;
     Handle OnGrenadeCreated;
+    Handle OnGrenadeSound;
     Handle OnWeaponCreated;
     Handle OnWeaponRunCmd;
     Handle OnWeaponDeploy;
@@ -68,6 +69,7 @@ enum struct ForwardData
     Handle OnWeaponBullet;
     Handle OnWeaponShoot;
     Handle OnWeaponFire;
+    Handle OnWeaponDrop;
     Handle OnGameModeStart;
     Handle OnGameModeEnd;
     Handle OnEngineExecute;
@@ -95,6 +97,7 @@ enum struct ForwardData
         this.OnClientLevel           = CreateGlobalForward("ZP_OnClientLevel", ET_Ignore, Param_Cell, Param_CellByRef);
         this.OnClientExp             = CreateGlobalForward("ZP_OnClientExp", ET_Ignore, Param_Cell, Param_CellByRef);
         this.OnGrenadeCreated        = CreateGlobalForward("ZP_OnGrenadeCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+        this.OnGrenadeSound          = CreateGlobalForward("ZP_OnGrenadeSound", ET_Hook, Param_Cell, Param_Cell);
         this.OnWeaponCreated         = CreateGlobalForward("ZP_OnWeaponCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
         this.OnWeaponRunCmd          = CreateGlobalForward("ZP_OnWeaponRunCmd", ET_Hook, Param_Cell, Param_CellByRef, Param_Cell, Param_Cell, Param_Cell);
         this.OnWeaponDeploy          = CreateGlobalForward("ZP_OnWeaponDeploy", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
@@ -103,6 +106,7 @@ enum struct ForwardData
         this.OnWeaponBullet          = CreateGlobalForward("ZP_OnWeaponBullet", ET_Ignore, Param_Cell, Param_Array, Param_Cell, Param_Cell);
         this.OnWeaponShoot           = CreateGlobalForward("ZP_OnWeaponShoot", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
         this.OnWeaponFire            = CreateGlobalForward("ZP_OnWeaponFire", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+        this.OnWeaponDrop            = CreateGlobalForward("ZP_OnWeaponDrop", ET_Ignore, Param_Cell, Param_Cell);
         this.OnGameModeStart         = CreateGlobalForward("ZP_OnGameModeStart", ET_Ignore, Param_Cell);
         this.OnGameModeEnd           = CreateGlobalForward("ZP_OnGameModeEnd", ET_Ignore, Param_Cell);
         this.OnEngineExecute         = CreateGlobalForward("ZP_OnEngineExecute", ET_Ignore);
@@ -111,238 +115,238 @@ enum struct ForwardData
     /**
      * @brief Called when a client became/spawn a zombie/human.
      * 
-     * @param clientIndex       The client index.
-     * @param attackerIndex     The attacker index.
+     * @param client            The client index.
+     * @param attacker          The attacker index.
      **/
-    void _OnClientUpdated(int clientIndex, int attackerIndex)
+    void _OnClientUpdated(int client, int attacker)
     {
         Call_StartForward(this.OnClientUpdated);
-        Call_PushCell(clientIndex);
-        Call_PushCell(attackerIndex);
+        Call_PushCell(client);
+        Call_PushCell(attacker);
         Call_Finish();
     }
     
     /**
      * @brief Called when a client has been killed.
      * 
-     * @param clientIndex       The client index.
-     * @param attackerIndex     The attacker index.
+     * @param client            The client index.
+     * @param attacker          The attacker index.
      **/
-    void _OnClientDeath(int clientIndex, int attackerIndex)
+    void _OnClientDeath(int client, int attacker)
     {
         Call_StartForward(this.OnClientDeath);
-        Call_PushCell(clientIndex);
-        Call_PushCell(attackerIndex);
+        Call_PushCell(client);
+        Call_PushCell(attacker);
         Call_Finish();
     }
     
     /**
      * @brief Called right before a client is about to respawn.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      *
-     * @param resultHandle      Plugin_Handled or Plugin_Stop to block respawn. Anything else
+     * @param hResult           Plugin_Handled or Plugin_Stop to block respawn. Anything else
      *                              (like Plugin_Continue) to allow use.
      **/
-    void _OnClientRespawn(int clientIndex, Action &resultHandle)
+    void _OnClientRespawn(int client, Action &hResult)
     {
         Call_StartForward(this.OnClientRespawn);
-        Call_PushCell(clientIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called when a client take a fake damage.
      * 
-     * @param clientIndex       The client index.
-     * @param attackerIndex     The attacker index.
-     * @param inflictorIndex    The inflictor index.
+     * @param client            The client index.
+     * @param attacker          The attacker index.
+     * @param inflictor         The inflictor index.
      * @param flDamage          The amount of damage inflicted.
      * @param iBits             The ditfield of damage types.
-     * @param weaponIndex       The weapon index or -1 for unspecified.
+     * @param weapon            The weapon index or -1 for unspecified.
      **/
-    void _OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+    void _OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
     {
         Call_StartForward(this.OnClientDamaged);
-        Call_PushCell(clientIndex);
-        Call_PushCellRef(attackerIndex);
-        Call_PushCellRef(inflictorIndex);
+        Call_PushCell(client);
+        Call_PushCellRef(attacker);
+        Call_PushCellRef(inflictor);
         Call_PushFloatRef(flDamage);
         Call_PushCellRef(iBits);
-        Call_PushCellRef(weaponIndex);
+        Call_PushCellRef(weapon);
         Call_Finish();
     }
 
     /**
      * @brief Called before show an extraitem in the equipment menu.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      * @param itemID            The item index.
      *
-     * @param resultHandle      Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+     * @param hResult           Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
      *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
      **/
-    void _OnClientValidateExtraItem(int clientIndex, int itemIndex, Action &resultHandle)
+    void _OnClientValidateExtraItem(int client, int item, Action &hResult)
     {
         Call_StartForward(this.OnClientValidateItem);
-        Call_PushCell(clientIndex);
-        Call_PushCell(itemIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_PushCell(item);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called after select an extraitem in equipment menu.
      * 
-     * @param clientIndex       The client index.
-     * @param itemIndex         The item index.
+     * @param client            The client index.
+     * @param item              The item index.
      **/
-    void _OnClientBuyExtraItem(int clientIndex, int itemIndex)
+    void _OnClientBuyExtraItem(int client, int item)
     {
         Call_StartForward(this.OnClientBuyItem);
-        Call_PushCell(clientIndex);
-        Call_PushCell(itemIndex);
+        Call_PushCell(client);
+        Call_PushCell(item);
         Call_Finish();
     }
 
     /**
      * @brief Called before show a class in the class menu.
      * 
-     * @param clientIndex       The client index.
-     * @param classIndex        The class index.
+     * @param client            The client index.
+     * @param class             The class index.
      *
-     * @param resultHandle      Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+     * @param hResult           Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
      *                              (like Plugin_Continue) to allow showing and selecting.
      **/
-    void _OnClientValidateClass(int clientIndex, int classIndex, Action &resultHandle)
+    void _OnClientValidateClass(int client, int class, Action &hResult)
     {
         Call_StartForward(this.OnClientValidateClass);
-        Call_PushCell(clientIndex);
-        Call_PushCell(classIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_PushCell(class);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called before show a costume in the costumes menu.
      * 
-     * @param clientIndex       The client index.
-     * @param costumeID         The costume index.
+     * @param client            The client index.
+     * @param costume           The costume index.
      *
-     * @param resultHandle      Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+     * @param hResult           Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
      *                              (like Plugin_Continue) to allow showing and selecting.
      **/
-    void _OnClientValidateCostume(int clientIndex, int costumeIndex, Action &resultHandle)
+    void _OnClientValidateCostume(int client, int costume, Action &hResult)
     {
         Call_StartForward(this.OnClientValidateCostume);
-        Call_PushCell(clientIndex);
-        Call_PushCell(costumeIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_PushCell(costume);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called before show a weapon in the weapons menu.
      * 
-     * @param clientIndex       The client index.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param weapon            The weapon index.
      *
-     * @param resultHandle      Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+     * @param hResult           Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
      *                              (like Plugin_Continue) to allow showing and selecting.
      **/
-    void _OnClientValidateWeapon(int clientIndex, int weaponIndex, Action &resultHandle)
+    void _OnClientValidateWeapon(int client, int weapon, Action &hResult)
     {
         Call_StartForward(this.OnClientValidateWeapon);
-        Call_PushCell(clientIndex);
-        Call_PushCell(weaponIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_PushCell(weapon);
+        Call_Finish(hResult);
     }
     
     /**
      * @brief Called before show a game mode in the modes menu.
      * 
-     * @param clientIndex       The client index.
-     * @param modeIndex         The mode index.
+     * @param client            The client index.
+     * @param mode              The mode index.
      *
-     * @param resultHandle      Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+     * @param hResult           Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
      *                              (like Plugin_Continue) to allow showing and selecting.
      **/
-    void _OnClientValidateMode(int clientIndex, int modeIndex, Action &resultHandle)
+    void _OnClientValidateMode(int client, int mode, Action &hResult)
     {
         Call_StartForward(this.OnClientValidateMode);
-        Call_PushCell(clientIndex);
-        Call_PushCell(modeIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_PushCell(mode);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called before show a main menu.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      *
-     * @param resultHandle      Plugin_Handled or Plugin_Stop to block showing. Anything else
+     * @param hResult           Plugin_Handled or Plugin_Stop to block showing. Anything else
      *                              (like Plugin_Continue) to allow showing.
      **/
-    void _OnClientValidateButton(int clientIndex, Action &resultHandle)
+    void _OnClientValidateButton(int client, Action &hResult)
     {
         Call_StartForward(this.OnClientValidateButton);
-        Call_PushCell(clientIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_Finish(hResult);
     }
     
     /**
      * @brief Called before show a slot in the main/sub menu.
      * 
-     * @param clientIndex       The client index.
-     * @param slotIndex         The slot index.
-     * @param subIndex          (Optional) The submenu index.
+     * @param client            The client index.
+     * @param slot              The slot index.
+     * @param sub               (Optional) The submenu index.
      *
-     * @param resultHandle      Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+     * @param hResult           Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
      *                              (like Plugin_Continue) to allow showing and selecting.
      **/
-    void _OnClientValidateMenu(int clientIndex, int slotIndex, int subIndex = 0, Action &resultHandle)
+    void _OnClientValidateMenu(int client, int slot, int sub = 0, Action &hResult)
     {
         Call_StartForward(this.OnClientValidateMenu);
-        Call_PushCell(clientIndex);
-        Call_PushCell(slotIndex);
-        Call_PushCell(subIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_PushCell(slot);
+        Call_PushCell(sub);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called when a client use a zombie skill.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      *
-     * @param resultHandle      Plugin_Handled or Plugin_Stop to block using skill. Anything else
+     * @param hResult           Plugin_Handled or Plugin_Stop to block using skill. Anything else
      *                                (like Plugin_Continue) to allow use.
      **/
-    void _OnClientSkillUsed(int clientIndex, Action &resultHandle)
+    void _OnClientSkillUsed(int client, Action &hResult)
     {
         Call_StartForward(this.OnClientSkillUsed);
-        Call_PushCell(clientIndex);
-        Call_Finish(resultHandle);
+        Call_PushCell(client);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called when a zombie skill duration is over.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      **/
-    void _OnClientSkillOver(int clientIndex)
+    void _OnClientSkillOver(int client)
     {
         Call_StartForward(this.OnClientSkillOver);
-        Call_PushCell(clientIndex);
+        Call_PushCell(client);
         Call_Finish();
     }
     
     /**
      * @brief Called when a client receive money.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      * @param iMoney            The money amount.
      **/
-    void _OnClientMoney(int clientIndex, int &iMoney)
+    void _OnClientMoney(int client, int &iMoney)
     {
         Call_StartForward(this.OnClientMoney);
-        Call_PushCell(clientIndex);
+        Call_PushCell(client);
         Call_PushCellRef(iMoney);
         Call_Finish();
     }
@@ -350,13 +354,13 @@ enum struct ForwardData
     /**
      * @brief Called when a client receive level.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      * @param iLevel            The level amount.
      **/
-    void _OnClientLevel(int clientIndex, int &iLevel)
+    void _OnClientLevel(int client, int &iLevel)
     {
         Call_StartForward(this.OnClientLevel);
-        Call_PushCell(clientIndex);
+        Call_PushCell(client);
         Call_PushCellRef(iLevel);
         Call_Finish();
     }
@@ -364,13 +368,13 @@ enum struct ForwardData
     /**
      * @brief Called when a client receive experience.
      * 
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      * @param iExp              The experience amount.
      **/
-    void _OnClientExp(int clientIndex, int &iExp)
+    void _OnClientExp(int client, int &iExp)
     {
         Call_StartForward(this.OnClientExp);
-        Call_PushCell(clientIndex);
+        Call_PushCell(client);
         Call_PushCellRef(iExp);
         Call_Finish();
     }
@@ -378,31 +382,48 @@ enum struct ForwardData
     /**
      * @brief Called after a custom grenade is created.
      *
-     * @param clientIndex       The client index.
-     * @param grenadeIndex      The grenade index.
+     * @param client            The client index.
+     * @param grenade           The grenade index.
      * @param weaponID          The weapon id.
      **/
-    void _OnGrenadeCreated(int clientIndex, int grenadeIndex, int weaponID)
+    void _OnGrenadeCreated(int client, int grenade, int weaponID)
     {
         Call_StartForward(this.OnGrenadeCreated);
-        Call_PushCell(clientIndex);
-        Call_PushCell(grenadeIndex);
+        Call_PushCell(client);
+        Call_PushCell(grenade);
         Call_PushCell(weaponID);
         Call_Finish();
     }
-
+    
+    /**
+     * @brief Called before a grenade sound is emitted.
+     *
+     * @param grenade           The grenade index.
+     * @param weaponID          The weapon id.
+     *
+     * @param hResult           Plugin_Continue to allow sounds. Anything else
+     *                                (like Plugin_Stop) to block sounds.
+     **/
+    void _OnGrenadeSound(int grenade, int weaponID, Action &hResult)
+    {
+        Call_StartForward(this.OnGrenadeSound);
+        Call_PushCell(grenade);
+        Call_PushCell(weaponID);
+        Call_Finish(hResult);
+    }
+    
     /**
      * @brief Called after a custom weapon is created.
      *
-     * @param clientIndex       The client index.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      **/
-    void _OnWeaponCreated(int clientIndex, int weaponIndex, int weaponID)
+    void _OnWeaponCreated(int client, int weapon, int weaponID)
     {
         Call_StartForward(this.OnWeaponCreated);
-        Call_PushCell(clientIndex);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(client);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
         Call_Finish();
     }
@@ -410,38 +431,38 @@ enum struct ForwardData
     /**
      * @brief Called on each frame of a weapon holding.
      *
-     * @param clientIndex       The client index.
+     * @param client            The client index.
      * @param iButtons          The buttons buffer.
      * @param iLastButtons      The last buttons buffer.
-     * @param weaponIndex       The weapon index.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      *
-     * @param resultHandle      Plugin_Continue to allow buttons. Anything else
+     * @param hResult           Plugin_Continue to allow buttons. Anything else
      *                                (like Plugin_Changed) to change buttons.
      **/
-    void _OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID, Action &resultHandle)
+    void _OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID, Action &hResult)
     {
         Call_StartForward(this.OnWeaponRunCmd);
-        Call_PushCell(clientIndex);
+        Call_PushCell(client);
         Call_PushCellRef(iButtons);
         Call_PushCell(iLastButtons);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
-        Call_Finish(resultHandle);
+        Call_Finish(hResult);
     }
 
     /**
      * @brief Called on deploy of a weapon.
      *
-     * @param clientIndex       The client index.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      **/
-    void _OnWeaponDeploy(int clientIndex, int weaponIndex, int weaponID)
+    void _OnWeaponDeploy(int client, int weapon, int weaponID)
     {
         Call_StartForward(this.OnWeaponDeploy);
-        Call_PushCell(clientIndex);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(client);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
         Call_Finish();
     }
@@ -449,15 +470,15 @@ enum struct ForwardData
     /**
      * @brief Called on holster of a weapon.
      *
-     * @param clientIndex       The client index.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      **/
-    void _OnWeaponHolster(int clientIndex, int weaponIndex, int weaponID)
+    void _OnWeaponHolster(int client, int weapon, int weaponID)
     {
         Call_StartForward(this.OnWeaponHolster);
-        Call_PushCell(clientIndex);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(client);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
         Call_Finish();
     }
@@ -465,15 +486,15 @@ enum struct ForwardData
     /**
      * @brief Called on reload of a weapon.
      *
-     * @param clientIndex       The client index.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      **/
-    void _OnWeaponReload(int clientIndex, int weaponIndex, int weaponID)
+    void _OnWeaponReload(int client, int weapon, int weaponID)
     {
         Call_StartForward(this.OnWeaponReload);
-        Call_PushCell(clientIndex);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(client);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
         Call_Finish();
     }
@@ -481,19 +502,19 @@ enum struct ForwardData
     /**
      * @brief Called on bullet of a weapon.
      *
-     * @param clientIndex       The client index.
-     * @param vBulletPosition   The position of a bullet hit.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param vBullet           The position of a bullet hit.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      *
      * @noreturn
      **/
-    void _OnWeaponBullet(int clientIndex, float vBulletPosition[3], int weaponIndex, int weaponID)
+    void _OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
     {
         Call_StartForward(this.OnWeaponBullet);
-        Call_PushCell(clientIndex);
-        Call_PushArray(vBulletPosition, 3);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(client);
+        Call_PushArray(vBullet, 3);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
         Call_Finish();
     }
@@ -501,15 +522,15 @@ enum struct ForwardData
     /**
      * @brief Called on shoot of a weapon.
      *
-     * @param clientIndex       The client index.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      **/
-    void _OnWeaponShoot(int clientIndex, int weaponIndex, int weaponID)
+    void _OnWeaponShoot(int client, int weapon, int weaponID)
     {
         Call_StartForward(this.OnWeaponShoot);
-        Call_PushCell(clientIndex);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(client);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
         Call_Finish();
     }
@@ -517,15 +538,29 @@ enum struct ForwardData
     /**
      * @brief Called on fire of a weapon.
      *
-     * @param clientIndex       The client index.
-     * @param weaponIndex       The weapon index.
+     * @param client            The client index.
+     * @param weapon            The weapon index.
      * @param weaponID          The weapon id.
      **/
-    void _OnWeaponFire(int clientIndex, int weaponIndex, int weaponID)
+    void _OnWeaponFire(int client, int weapon, int weaponID)
     {
         Call_StartForward(this.OnWeaponFire);
-        Call_PushCell(clientIndex);
-        Call_PushCell(weaponIndex);
+        Call_PushCell(client);
+        Call_PushCell(weapon);
+        Call_PushCell(weaponID);
+        Call_Finish();
+    }
+    
+    /**
+     * @brief Called on drop of a weapon.
+     *
+     * @param weapon            The weapon index.
+     * @param weaponID          The weapon id.
+     **/
+    void _OnWeaponDrop(int weapon, int weaponID)
+    {
+        Call_StartForward(this.OnWeaponDrop);
+        Call_PushCell(weapon);
         Call_PushCell(weaponID);
         Call_Finish();
     }
@@ -533,24 +568,24 @@ enum struct ForwardData
     /**
      * @brief Called after a zombie round is started.
      * 
-     * @param modeIndex         The mode index.
+     * @param mode              The mode index.
      **/
-    void _OnGameModeStart(int modeIndex)
+    void _OnGameModeStart(int mode)
     {
         Call_StartForward(this.OnGameModeStart);
-        Call_PushCell(modeIndex);
+        Call_PushCell(mode);
         Call_Finish();
     }
     
     /**
      * @brief Called after a zombie round is ended.
      * 
-     * @param reasonIndex       The reason index.
+     * @param reason            The reason index.
      **/
-    void _OnGameModeEnd(CSRoundEndReason reasonIndex)
+    void _OnGameModeEnd(CSRoundEndReason reason)
     {
         Call_StartForward(this.OnGameModeEnd);
-        Call_PushCell(reasonIndex);
+        Call_PushCell(reason);
         Call_Finish();
     }
 
@@ -610,6 +645,8 @@ void APIOnNativeInit(/*void*/)
     CreateNative("ZP_IsPlayerInGroup",  API_IsPlayerInGroup);
     CreateNative("ZP_IsPlayerZombie",   API_IsPlayerZombie);
     CreateNative("ZP_IsPlayerHuman",    API_IsPlayerHuman);
+    CreateNative("ZP_GetPlayerTime",    API_GetPlayerTime);
+    CreateNative("ZP_IsMapLoaded",      API_IsMapLoaded);
     CreateNative("ZP_IsNewRound",       API_IsNewRound);
     CreateNative("ZP_IsEndRound",       API_IsEndRound);
     CreateNative("ZP_IsStartedRound",   API_IsStartedRound);
@@ -625,65 +662,75 @@ void APIOnNativeInit(/*void*/)
 /**
  * @brief Returns whether a player is in group or not.
  *
- * @note native bool ZP_IsPlayerInGroup(clientIndex, group);
+ * @note native bool ZP_IsPlayerInGroup(client, group);
  **/
 public int API_IsPlayerInGroup(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Initialize group char
     static char sGroup[SMALL_LINE_LENGTH];
     GetNativeString(2, sGroup, sizeof(sGroup));
     
     // Return the value
-    return IsPlayerInGroup(clientIndex, sGroup);
+    return IsPlayerInGroup(client, sGroup);
 }
 
 /**
  * @brief Returns true if the player is a zombie, false if not. 
  *
- * @note native bool ZP_IsPlayerZombie(clientIndex);
+ * @note native bool ZP_IsPlayerZombie(client);
  **/
 public int API_IsPlayerZombie(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value
-    return gClientData[clientIndex].Zombie;
+    return gClientData[client].Zombie;
 }
 
 /**
  * @brief Returns true if the player is a human, false if not.
  *
- * @note native bool ZP_IsPlayerHuman(clientIndex);
+ * @note native bool ZP_IsPlayerHuman(client);
  **/
 public int API_IsPlayerHuman(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value
-    return !gClientData[clientIndex].Zombie;
+    return !gClientData[client].Zombie;
 }
 
 /**
  * @brief Gets the last player disconnected time.
  *
- * @note native int ZP_GetClientTime(clientIndex);
+ * @note native int ZP_GetPlayerTime(client);
  **/
-public int API_GetClientTime(Handle hPlugin, int iNumParams)
+public int API_GetPlayerTime(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].Time;
+    return gClientData[client].Time;
 }
 
-
 /*________________________________________________________________________*/
+
+/**
+ * @brief Gets the map load state.
+ *
+ * @note native bool ZP_IsMapLoaded();
+ **/
+public int API_IsMapLoaded(Handle hPlugin, int iNumParams)
+{
+    // Return the value 
+    return gServerData.MapLoaded;
+}
 
 /**
  * @brief Gets the new round state.

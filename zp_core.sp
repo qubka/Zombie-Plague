@@ -30,22 +30,17 @@
  *
  * ============================================================================
  */
- 
-// Comment to remove a DHook module features
-#define USE_DHOOKS
-///#define USE_DETOUR
 
-// Sourcemod
+// Extension
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <cstrike>
+#include <dhooks>   
+#include <ptah>
+
+// Helper
 #include <utils>
-
-#if defined USE_DHOOKS
-    #tryinclude <dhooks>   
-#endif
-
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -123,13 +118,11 @@ public void OnPluginStart(/*void*/)
     GameEngineOnInit();
     ClassesOnInit();
     CostumesOnInit(); 
-    HitGroupsOnInit();
     SoundsOnInit();
     DataBaseOnInit();
     GameModesOnInit();
     WeaponsOnInit();
     VEffectsOnInit();
-    ExtraItemsOnInit();
 }
 
 /**
@@ -138,6 +131,8 @@ public void OnPluginStart(/*void*/)
 public void OnMapStart(/*void*/)
 {
     // Forward event to modules
+    ConfigOnLoad();
+    MenusOnLoad();
     SoundsOnLoad();
     WeaponsOnLoad();
     VEffectsOnLoad();
@@ -145,6 +140,9 @@ public void OnMapStart(/*void*/)
     ClassesOnLoad();
     CostumesOnLoad();
     GameModesOnLoad();
+    ExtraItemsOnLoad();
+    HitGroupsOnLoad();
+    LevelSystemOnLoad();
     VersionOnLoad();
     GameEngineOnLoad();
 }
@@ -176,25 +174,25 @@ public void OnPluginEnd(/*void*/)
 /**
  * @brief Called once a client successfully connects.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void OnClientConnected(int clientIndex)
+public void OnClientConnected(int client)
 {
     // Forward event to modules
-    ClassesOnClientConnect(clientIndex);
-    DataBaseOnClientConnect(clientIndex);
+    ClassesOnClientConnect(client);
+    DataBaseOnClientConnect(client);
 }
 
 /**
  * @brief Called when a client is disconnected from the server.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void OnClientDisconnect_Post(int clientIndex)
+public void OnClientDisconnect_Post(int client)
 {
     // Forward event to modules
-    DataBaseOnClientDisconnectPost(clientIndex);
-    ClassesOnClientDisconnectPost(clientIndex);
+    DataBaseOnClientDisconnectPost(client);
+    ClassesOnClientDisconnectPost(client);
 }
 
 /**
@@ -204,14 +202,15 @@ public void OnClientDisconnect_Post(int clientIndex)
  * @note  This callback is gauranteed to occur on all clients, and always 
  *        after each OnClientPutInServer() call.
  * 
- * @param clientIndex       The client index. 
+ * @param client            The client index. 
  **/
-public void OnClientPostAdminCheck(int clientIndex)
+public void OnClientPostAdminCheck(int client)
 {
     // Forward event to modules
-    HitGroupsOnClientInit(clientIndex);
-    WeaponsOnClientInit(clientIndex);
-    ClassesOnClientInit(clientIndex);
-    DataBaseOnClientInit(clientIndex);
-    CostumesOnClientInit(clientIndex);
+    HitGroupsOnClientInit(client);
+    WeaponsOnClientInit(client);
+    ClassesOnClientInit(client);
+    DataBaseOnClientInit(client);
+    CostumesOnClientInit(client);
+    VEffectsOnClientInit(client);
 }

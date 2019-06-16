@@ -50,10 +50,10 @@ void PlayerVEffectsOnCvarInit(/*void*/)
 /**
  * @brief Client has been infected.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-void PlayerVEffectsOnClientInfected(int clientIndex, int attackerIndex)
+void PlayerVEffectsOnClientInfected(int client, int attacker)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -63,7 +63,7 @@ void PlayerVEffectsOnClientInfected(int clientIndex, int attackerIndex)
     static float flDuration;
 
     // Validate respawn
-    if(gServerData.RoundStart && !attackerIndex)
+    if(gServerData.RoundStart && !attacker)
     {
         // If respawn effect disabled, then stop
         if(!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
@@ -91,27 +91,27 @@ void PlayerVEffectsOnClientInfected(int clientIndex, int attackerIndex)
         }
         
         // If the duration is zero, then stop
-        flDuration = ClassGetEffectTime(gClientData[clientIndex].Class);
+        flDuration = ClassGetEffectTime(gClientData[client].Class);
         if(!flDuration)
         {
             return;
         }
 
         // Gets infect particle
-        ClassGetEffectName(gClientData[clientIndex].Class, sParticle, sizeof(sParticle)); 
-        ClassGetEffectAttach(gClientData[clientIndex].Class, sAttachment, sizeof(sAttachment));
+        ClassGetEffectName(gClientData[client].Class, sParticle, sizeof(sParticle)); 
+        ClassGetEffectAttach(gClientData[client].Class, sAttachment, sizeof(sAttachment));
     }
 
     // Emit a infect effect
-    ParticlesCreate(clientIndex, sAttachment, sParticle, flDuration);
+    ParticlesCreate(client, sAttachment, sParticle, flDuration);
 }
 
 /**
  * @brief Client has been humanized.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void PlayerVEffectsOnClientHumanized(int clientIndex)
+void PlayerVEffectsOnClientHumanized(int client)
 {
     // Initialize particles char
     static char sParticle[SMALL_LINE_LENGTH];
@@ -149,27 +149,27 @@ void PlayerVEffectsOnClientHumanized(int clientIndex)
         }
         
         // If the duration is zero, then stop
-        flDuration = ClassGetEffectTime(gClientData[clientIndex].Class);
+        flDuration = ClassGetEffectTime(gClientData[client].Class);
         if(!flDuration)
         {
             return;
         }
 
         // Gets humanize particle
-        ClassGetEffectName(gClientData[clientIndex].Class, sParticle, sizeof(sParticle)); 
-        ClassGetEffectAttach(gClientData[clientIndex].Class, sAttachment, sizeof(sAttachment));
+        ClassGetEffectName(gClientData[client].Class, sParticle, sizeof(sParticle)); 
+        ClassGetEffectAttach(gClientData[client].Class, sAttachment, sizeof(sAttachment));
     }
     
     // Emit a humanize effect
-    ParticlesCreate(clientIndex, sAttachment, sParticle, flDuration);
+    ParticlesCreate(client, sAttachment, sParticle, flDuration);
 }
 
 /**
  * @brief Client has been regenerating.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void PlayerVEffectsOnClientRegen(int clientIndex)
+void PlayerVEffectsOnClientRegen(int client)
 {
     // If regeneration effect disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
@@ -193,15 +193,15 @@ void PlayerVEffectsOnClientRegen(int clientIndex)
     gCvarList[CVAR_VEFFECTS_HEAL_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     
     // Emit a heal effect
-    ParticlesCreate(clientIndex, sAttachment, sParticle, flDuration);
+    ParticlesCreate(client, sAttachment, sParticle, flDuration);
 }
 
 /**
  * @brief Client has been leap jumped.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void PlayerVEffectsOnClientJump(int clientIndex)
+void PlayerVEffectsOnClientJump(int client)
 {
     // If jump effect disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_LEAP].BoolValue) 
@@ -225,5 +225,5 @@ void PlayerVEffectsOnClientJump(int clientIndex)
     gCvarList[CVAR_VEFFECTS_LEAP_ATTACH].GetString(sAttachment, sizeof(sAttachment));
     
     // Emit a jump effect
-    ParticlesCreate(clientIndex, sAttachment, sParticle, flDuration);
+    ParticlesCreate(client, sAttachment, sParticle, flDuration);
 }

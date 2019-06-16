@@ -28,29 +28,29 @@
 /**
  * @brief Client has been spawned.
  * 
- * @param clientIndex       The victim index.
- * @param attackerIndex     The attacker index.
+ * @param client            The victim index.
+ * @param attacker          The attacker index.
  **/
-void ApplyOnClientSpawn(int clientIndex)
+void ApplyOnClientSpawn(int client)
 { 
     // If mode doesn't started yet, then reset
     if(gServerData.RoundNew) 
     {
         // Resets some variables
-        gClientData[clientIndex].RespawnTimes = 0;
-        gClientData[clientIndex].Respawn = TEAM_HUMAN;
-        gClientData[clientIndex].LastPurchase = 0;
+        gClientData[client].RespawnTimes = 0;
+        gClientData[client].Respawn = TEAM_HUMAN;
+        gClientData[client].LastPurchase = 0;
         
         // Resets limit of weapons/items
-        ItemsRemoveLimits(clientIndex);
-        WeaponsRemoveLimits(clientIndex);
+        ItemsRemoveLimits(client);
+        WeaponsRemoveLimits(client);
     }
     
     // Initialize type char
     static char sType[SMALL_LINE_LENGTH];
     
     // Validate respawn
-    switch(gClientData[clientIndex].Respawn)
+    switch(gClientData[client].Respawn)
     {
         // Respawn as zombie?
         case TEAM_ZOMBIE : 
@@ -59,7 +59,7 @@ void ApplyOnClientSpawn(int clientIndex)
             ModesGetZombieClass(gServerData.RoundMode, sType, sizeof(sType));
     
             // Make zombies
-            ApplyOnClientUpdate(clientIndex, _, hasLength(sType) ? sType : "zombie");
+            ApplyOnClientUpdate(client, _, hasLength(sType) ? sType : "zombie");
         }
         
         // Respawn as human ?
@@ -69,7 +69,7 @@ void ApplyOnClientSpawn(int clientIndex)
             ModesGetHumanClass(gServerData.RoundMode, sType, sizeof(sType));
         
             // Make humans
-            ApplyOnClientUpdate(clientIndex, _, hasLength(sType) ? sType : "human");
+            ApplyOnClientUpdate(client, _, hasLength(sType) ? sType : "human");
         }
     }    
 }
@@ -77,15 +77,15 @@ void ApplyOnClientSpawn(int clientIndex)
 /**
  * @brief Infects/humanize a client.
  *
- * @param clientIndex       The victim index.
- * @param attackerIndex     (Optional) The attacker index.
+ * @param client            The victim index.
+ * @param attacker          (Optional) The attacker index.
  * @param sType             (Optional) The class type.
  * @return                  True or false.
  **/
-bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = "zombie")
+bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 {
     // Validate client 
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return false;
     }
@@ -96,8 +96,8 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     if(!strcmp(sType, "human", false))
     {
         // Update class class
-        gClientData[clientIndex].Class = gClientData[clientIndex].HumanClassNext; HumanValidateClass(clientIndex);
-        gClientData[clientIndex].Zombie = false;
+        gClientData[client].Class = gClientData[client].HumanClassNext; HumanValidateClass(client);
+        gClientData[client].Zombie = false;
         
         // If mode doesn't started yet, then allow
         if(gServerData.RoundNew)
@@ -106,7 +106,7 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
             if(gCvarList[CVAR_HUMAN_MENU].BoolValue)
             {
                 // Opens the human classes menu
-                ClassMenu(clientIndex, "choose humanclass", "human", gClientData[clientIndex].HumanClassNext, true);
+                ClassMenu(client, "choose humanclass", "human", gClientData[client].HumanClassNext, true);
             }
         }
     }
@@ -114,14 +114,14 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     else if(!strcmp(sType, "zombie", false))
     {
         // Update class class
-        gClientData[clientIndex].Class = gClientData[clientIndex].ZombieClassNext; ZombieValidateClass(clientIndex);
-        gClientData[clientIndex].Zombie = true;
+        gClientData[client].Class = gClientData[client].ZombieClassNext; ZombieValidateClass(client);
+        gClientData[client].Zombie = true;
         
         // If instant zombie class menu enable, then open 
         if(gCvarList[CVAR_ZOMBIE_MENU].BoolValue)
         {
             // Opens the zombie classes menu
-            ClassMenu(clientIndex, "choose zombieclass", "zombie", gClientData[clientIndex].ZombieClassNext, true);
+            ClassMenu(client, "choose zombieclass", "zombie", gClientData[client].ZombieClassNext, true);
         }
     }
     // Validate custom
@@ -136,155 +136,151 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
         }
 
         // Update class class
-        gClientData[clientIndex].Class = iD;
-        gClientData[clientIndex].Zombie = ClassIsZombie(gClientData[clientIndex].Class);
+        gClientData[client].Class = iD;
+        gClientData[client].Zombie = ClassIsZombie(gClientData[client].Class);
     }
     
     // Delete player timers
-    gClientData[clientIndex].ResetTimers();
+    gClientData[client].ResetTimers();
     
     // Resets some tools
-    ToolsSetFlashLight(clientIndex, false);
-    ToolsSetDetecting(clientIndex, false);
+    ToolsSetFlashLight(client, false);
+    ToolsSetDetecting(client, false);
     
     // Resets some variables
-    gClientData[clientIndex].Skill = false;
-    gClientData[clientIndex].SkillCounter = 0.0;
+    gClientData[client].Skill = false;
+    gClientData[client].SkillCounter = 0.0;
     
     // Remove player weapons
-    if(WeaponsRemoveAll(clientIndex)) /// Give default
+    if(WeaponsRemove(client)) /// Give default
     {
         // Gets class weapons
         static int iWeapon[SMALL_LINE_LENGTH];
-        ClassGetWeapon(gClientData[clientIndex].Class, iWeapon, sizeof(iWeapon));
+        ClassGetWeapon(gClientData[client].Class, iWeapon, sizeof(iWeapon));
         
         // i = weapon id
         for(int i = 0; i < sizeof(iWeapon); i++)
         {
             // Give weapons
-            WeaponsGive(clientIndex, iWeapon[i]);
+            WeaponsGive(client, iWeapon[i]);
         }
     }
     
     // Sets health, speed and gravity and armor
-    ToolsSetHealth(clientIndex, ClassGetHealth(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0), true);
-    ToolsSetLMV(clientIndex, ClassGetSpeed(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
-    ToolsSetGravity(clientIndex, ClassGetGravity(gClientData[clientIndex].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[clientIndex].Level)) : 0.0));
-    ToolsSetArmor(clientIndex, (ToolsGetArmor(clientIndex) < ClassGetArmor(gClientData[clientIndex].Class)) ? ClassGetArmor(gClientData[clientIndex].Class) : ToolsGetArmor(clientIndex));
-    ToolsSetHud(clientIndex, ClassIsCross(gClientData[clientIndex].Class));
-    ToolsSetSpot(clientIndex, ClassIsSpot(gClientData[clientIndex].Class));
-    ToolsSetFov(clientIndex, ClassGetFov(gClientData[clientIndex].Class));
+    ToolsSetHealth(client, ClassGetHealth(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[client].Level)) : 0), true);
+    ToolsSetLMV(client, ClassGetSpeed(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[client].Level)) : 0.0));
+    ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[client].Level)) : 0.0));
+    ToolsSetArmor(client, (ToolsGetArmor(client) < ClassGetArmor(gClientData[client].Class)) ? ClassGetArmor(gClientData[client].Class) : ToolsGetArmor(client));
+    ToolsSetHud(client, ClassIsCross(gClientData[client].Class));
+    ToolsSetSpot(client, ClassIsSpot(gClientData[client].Class));
+    ToolsSetFov(client, ClassGetFov(gClientData[client].Class));
 
     // Initialize model char
     static char sModel[PLATFORM_LINE_LENGTH];
     
     // Gets class player models
-    ClassGetModel(gClientData[clientIndex].Class, sModel, sizeof(sModel));
-    if(hasLength(sModel)) SetEntityModel(clientIndex, sModel);
+    ClassGetModel(gClientData[client].Class, sModel, sizeof(sModel));
+    if(hasLength(sModel)) SetEntityModel(client, sModel);
     
     // Gets class arm models
-    ClassGetArmModel(gClientData[clientIndex].Class, sModel, sizeof(sModel)); 
-    if(hasLength(sModel)) ToolsSetArm(clientIndex, sModel, sizeof(sModel));
+    ClassGetArmModel(gClientData[client].Class, sModel, sizeof(sModel)); 
+    if(hasLength(sModel)) ToolsSetArm(client, sModel);
     
     // If help messages enabled, then show info
     if(gCvarList[CVAR_MESSAGES_CLASS_INFO].BoolValue)
     {
         // Gets class info
-        ClassGetInfo(gClientData[clientIndex].Class, sModel, sizeof(sModel));
+        ClassGetInfo(gClientData[client].Class, sModel, sizeof(sModel));
         
         // Show personal info
-        if(hasLength(sModel)) TranslationPrintHintText(clientIndex, sModel);
+        if(hasLength(sModel)) TranslationPrintHintText(client, sModel);
     }
 
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate attacker
-    if(IsPlayerExist(attackerIndex, false)) 
+    if(IsPlayerExist(attacker, false)) 
     {
         // Create a fake death event
         static char sIcon[SMALL_LINE_LENGTH];
         gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
-        DeathCreateIcon(GetClientUserId(clientIndex), GetClientUserId(attackerIndex), sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
+        DeathCreateIcon(GetClientUserId(client), GetClientUserId(attacker), sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
         
         // Increment kills and frags
-        ToolsSetScore(attackerIndex, true, ToolsGetScore(attackerIndex, true) + 1);
-        ToolsSetScore(clientIndex, false, ToolsGetScore(clientIndex, false) + 1);
+        ToolsSetScore(attacker, true, ToolsGetScore(attacker, true) + 1);
+        ToolsSetScore(client, false, ToolsGetScore(client, false) + 1);
         
         // Gets class exp and money bonuses
         static int iExp[6]; static int iMoney[6];
-        ClassGetExp(gClientData[attackerIndex].Class, iExp, sizeof(iExp));
-        ClassGetMoney(gClientData[attackerIndex].Class, iMoney, sizeof(iMoney));
+        ClassGetExp(gClientData[attacker].Class, iExp, sizeof(iExp));
+        ClassGetMoney(gClientData[attacker].Class, iMoney, sizeof(iMoney));
         
         // Increment money/exp
-        LevelSystemOnSetExp(attackerIndex, gClientData[attackerIndex].Exp + iExp[BonusType_Infect]);
-        AccountSetClientCash(attackerIndex, gClientData[attackerIndex].Money + iMoney[BonusType_Infect]);
+        LevelSystemOnSetExp(attacker, gClientData[attacker].Exp + iExp[BonusType_Infect]);
+        AccountSetClientCash(attacker, gClientData[attacker].Money + iMoney[BonusType_Infect]);
         
         // If attacker is alive, then give lifesteal 
-        if(IsPlayerAlive(attackerIndex)) 
+        if(IsPlayerAlive(attacker)) 
         {
             // Add lifesteal health
-            ToolsSetHealth(attackerIndex, ToolsGetHealth(attackerIndex) + ClassGetLifeSteal(gClientData[attackerIndex].Class));
+            ToolsSetHealth(attacker, ToolsGetHealth(attacker) + ClassGetLifeSteal(gClientData[attacker].Class));
         }
     }
     // If change was done by server
-    else if(!attackerIndex)
+    else if(!attacker)
     {
         // Return money, which was spent before server change
-        AccountSetClientCash(clientIndex, gClientData[clientIndex].Money + gClientData[clientIndex].LastPurchase);
+        AccountSetClientCash(client, gClientData[client].Money + gClientData[client].LastPurchase);
         
         // Validate respawn on the change
         if(ModesIsEscape(gServerData.RoundMode))
         {
-            // Gets spawn position
-            static float vPosition[3];
-            SpawnGetRandomPosition(vPosition);
-            
             // Teleport player back on the spawn point
-            TeleportEntity(clientIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
+            AntiStickTeleportToRespawn(client);
         }
-    } gClientData[clientIndex].LastPurchase = 0; /// Reset purhase amount
+    } gClientData[client].LastPurchase = 0; /// Resets purhase amount
     
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate zombie
-    if(gClientData[clientIndex].Zombie)
+    if(gClientData[client].Zombie)
     {
         // Forward event to modules
-        SoundsOnClientInfected(clientIndex, attackerIndex);
-        VEffectsOnClientInfected(clientIndex, attackerIndex);
+        SoundsOnClientInfected(client, attacker);
+        VEffectsOnClientInfected(client, attacker);
     }
     else
     {
         // Forward event to modules
-        VEffectsOnClientHumanized(clientIndex);
+        VEffectsOnClientHumanized(client);
     }
     
     // Forward event to modules
-    SoundsOnClientUpdate(clientIndex);
-    SkillSystemOnClientUpdate(clientIndex);
-    LevelSystemOnClientUpdate(clientIndex);
-    VEffectsOnClientUpdate(clientIndex);
-    VOverlayOnClientUpdate(clientIndex, Overlay_Reset);
-    if(gClientData[clientIndex].Vision) VOverlayOnClientUpdate(clientIndex, Overlay_Vision); /// HACK~HACK
-    _call.AccountOnClientUpdate(clientIndex);
-    _call.WeaponsOnClientUpdate(clientIndex);
+    SoundsOnClientUpdate(client);
+    SkillSystemOnClientUpdate(client);
+    LevelSystemOnClientUpdate(client);
+    VEffectsOnClientUpdate(client);
+    VOverlayOnClientUpdate(client, Overlay_Reset);
+    if(gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision); /// HACK~HACK
+    _call.AccountOnClientUpdate(client);
+    _call.WeaponsOnClientUpdate(client);
     
     // If mode already started, then change team
     if(!gServerData.RoundNew)
     {
         // Validate zombie
-        if(gClientData[clientIndex].Zombie)
+        if(gClientData[client].Zombie)
         {
             // Switch team
-            ToolsSetTeam(clientIndex, TEAM_ZOMBIE);
+            ToolsSetTeam(client, TEAM_ZOMBIE);
         }
         else
         {
             // Switch team
-            ToolsSetTeam(clientIndex, TEAM_HUMAN);
+            ToolsSetTeam(client, TEAM_HUMAN);
             
             // Sets glowing for the zombie vision
-            ToolsSetDetecting(clientIndex, ModesIsXRay(gServerData.RoundMode));
+            ToolsSetDetecting(client, ModesIsXRay(gServerData.RoundMode));
         }
         
         // Terminate the round
@@ -292,23 +288,23 @@ bool ApplyOnClientUpdate(int clientIndex, int attackerIndex = 0, char[] sType = 
     }
 
     // Call forward
-    gForwardData._OnClientUpdated(clientIndex, attackerIndex);
+    gForwardData._OnClientUpdated(client, attacker);
     return true;
 }
 
 /**
  * @brief Sets a client team index. (Alive only)
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iTeam             The team index.
  **/
-void ApplyOnClientTeam(int clientIndex, int iTeam)
+void ApplyOnClientTeam(int client, int iTeam)
 {
     // Switch team
-    bool bState = ToolsGetDefuser(clientIndex);
-    ToolsSetTeam(clientIndex, iTeam);
-    ToolsSetDefuser(clientIndex, bState); /// HACK~HACK
+    bool bState = ToolsGetDefuser(client);
+    ToolsSetTeam(client, iTeam);
+    ToolsSetDefuser(client, bState); /// HACK~HACK
 
     // Sets glowing for the zombie vision
-    ToolsSetDetecting(clientIndex, ModesIsXRay(gServerData.RoundMode));
+    ToolsSetDetecting(client, ModesIsXRay(gServerData.RoundMode));
 }   

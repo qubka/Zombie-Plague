@@ -35,12 +35,12 @@
 /**
  * @brief Called when a client receive level.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param level             The level amount.
  *
  * @noreturn
  **/
-forward void ZP_OnClientLevel(int clientIndex, int &level);
+forward void ZP_OnClientLevel(int client, int &level);
 
 /**
  * @brief Gets the maximum level.
@@ -61,47 +61,47 @@ native int ZP_GetLevelLimit(int level);
 /**
  * @brief Called when a client receive experience.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param exp               The experience amount.
  *
  * @noreturn
  **/
-forward void ZP_OnClientExp(int clientIndex, int &exp);
+forward void ZP_OnClientExp(int client, int &exp);
 
 /**
  * @brief Gets the player level.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  The level amount.
  **/
-native int ZP_GetClientLevel(int clientIndex);
+native int ZP_GetClientLevel(int client);
 
 /**
  * @brief Sets the player level.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param level             The level amount.
  *  
  * @noreturn
  **/
-native int ZP_SetClientLevel(int clientIndex, int level);
+native int ZP_SetClientLevel(int client, int level);
 
 /**
  * @brief Gets the player experience.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  The experience amount.
  **/
-native int ZP_GetClientExp(int clientIndex);
+native int ZP_GetClientExp(int client);
 
 /**
  * @brief Sets the player experience.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param exp               The experience amount.
  *  
  * @noreturn
  **/
-native int ZP_SetClientExp(int clientIndex, int exp);
+native int ZP_SetClientExp(int client, int exp);

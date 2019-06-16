@@ -37,7 +37,7 @@ enum
 {
     WEAPONS_DATA_NAME,
     WEAPONS_DATA_INFO,
-    WEAPONS_DATA_ENTITY,
+    WEAPONS_DATA_DEFINDEX,
     WEAPONS_DATA_GROUP,
     WEAPONS_DATA_CLASS,
     WEAPONS_DATA_COST,
@@ -77,7 +77,7 @@ enum
 /*
  * Load other weapons modules
  */
-#include "zp/manager/weapons/weaponsdk.cpp"
+#include "zp/manager/weapons/weaponmod.cpp"
 #include "zp/manager/weapons/weaponhdr.cpp"
 #include "zp/manager/weapons/weaponattach.cpp"
 #include "zp/manager/weapons/zmarket.cpp"
@@ -96,7 +96,8 @@ void WeaponsOnInit(/*void*/)
     AddTempEntHook("Shotgun Shot", WeaponsOnShoot);
     
     // Forward event to sub-modules
-    WeaponSDKOnInit();
+    WeaponMODOnInit();
+    ZMarketOnInit();
 }
 
 /**
@@ -109,7 +110,7 @@ void WeaponsOnLoad(/*void*/)
 
     // Gets weapons config path
     static char sPathWeapons[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_WEAPONS, sPathWeapons);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_WEAPONS, sPathWeapons, sizeof(sPathWeapons));
 
     // If file doesn't exist, then log and stop
     if(!bExists)
@@ -139,6 +140,9 @@ void WeaponsOnLoad(/*void*/)
     ConfigSetConfigLoaded(File_Weapons, true);
     ConfigSetConfigReloadFunc(File_Weapons, GetFunctionByName(GetMyHandle(), "WeaponsOnConfigReload"));
     ConfigSetConfigHandle(File_Weapons, gServerData.Weapons);
+    
+    // Forward event to sub-modules
+    WeaponMODOnLoad();
 }
 
 /**
@@ -203,13 +207,20 @@ void WeaponsOnCacheData(/*void*/)
         }
         arrayWeapon.PushString(sPathWeapons);                             // Index: 1
         kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                             // Index: 2
+        CEconItemDefinition pItemDefinition = PTaH_GetItemDefinitionByName(sPathWeapons);
+        if(!pItemDefinition)
+        {
+            // Log weapon error
+            LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
+        }    
+        arrayWeapon.Push(pItemDefinition.GetDefinitionIndex());           // Index: 2
         kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 3
         kvWeapons.GetString("class", sPathWeapons, sizeof(sPathWeapons), "human");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 4
         arrayWeapon.Push(kvWeapons.GetNum("cost", 0));                    // Index: 5
-        arrayWeapon.Push(kvWeapons.GetNum("slot", 0));                    // Index: 6
+        kvWeapons.GetString("slot", sPathWeapons, sizeof(sPathWeapons), "");
+        arrayWeapon.Push(ZMarketNameToIndex(sPathWeapons));               // Index: 6
         arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 7
         arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 8
         arrayWeapon.Push(kvWeapons.GetNum("limit", 0));                   // Index: 9
@@ -265,7 +276,7 @@ void WeaponsOnUnload(/*void*/)
 {
     // Forward event to sub-modules
     WeaponAttachOnUnload();
-    WeaponSDKOnUnload();
+    WeaponMODOnUnload();
 }
 
 /**
@@ -284,18 +295,18 @@ void WeaponsOnCommandInit(/*void*/)
 {
     // Forward event to sub-modules
     ZMarketOnCommandInit();
-    WeaponSDKOnCommandInit();
+    WeaponMODOnCommandInit();
 }
 
 /**
  * @brief Client has been joined.
  * 
- * @param clientIndex       The client index.  
+ * @param client            The client index.  
  **/
-void WeaponsOnClientInit(int clientIndex)
+void WeaponsOnClientInit(int client)
 {
     // Forward event to sub-modules
-    WeaponSDKOnClientInit(clientIndex);
+    WeaponMODOnClientInit(client);
 }
 
 /**
@@ -306,6 +317,9 @@ void WeaponsOnCvarInit(/*void*/)
     // Create cvars
     gCvarList[CVAR_WEAPON_GIVE_TASER]           = FindConVar("mp_weapons_allow_zeus");
     gCvarList[CVAR_WEAPON_GIVE_BOMB]            = FindConVar("mp_give_player_c4");
+    gCvarList[CVAR_WEAPON_DROP_GRENADE]         = FindConVar("mp_drop_grenade_enable");
+    gCvarList[CVAR_WEAPON_DROP_KNIFE]           = FindConVar("mp_drop_knife_enable");
+    gCvarList[CVAR_WEAPON_DROP_BREACH]          = FindConVar("mp_death_drop_breachcharge");
     gCvarList[CVAR_WEAPON_ALLOW_MAP]            = FindConVar("mp_weapons_allow_map_placed");
     gCvarList[CVAR_WEAPON_CT_DEFAULT_GRENADES]  = FindConVar("mp_ct_default_grenades");
     gCvarList[CVAR_WEAPON_CT_DEFAULT_MELEE]     = FindConVar("mp_ct_default_melee");
@@ -317,11 +331,14 @@ void WeaponsOnCvarInit(/*void*/)
     gCvarList[CVAR_WEAPON_T_DEFAULT_PRIMARY]    = FindConVar("mp_t_default_primary");
     gCvarList[CVAR_WEAPON_PICKUP_RANGE]         = FindConVar("zp_pickup_range");
     gCvarList[CVAR_WEAPON_DEFAULT_MELEE]        = FindConVar("zp_default_melee");
-    
+
     // Sets locked cvars to their locked value
-    gCvarList[CVAR_WEAPON_GIVE_TASER].IntValue  = 1;
-    gCvarList[CVAR_WEAPON_GIVE_BOMB].IntValue   = 1;
-    gCvarList[CVAR_WEAPON_ALLOW_MAP].IntValue   = 0;
+    gCvarList[CVAR_WEAPON_GIVE_TASER].IntValue   = 1;
+    gCvarList[CVAR_WEAPON_GIVE_BOMB].IntValue    = 0;
+    gCvarList[CVAR_WEAPON_DROP_GRENADE].IntValue = 1;
+    gCvarList[CVAR_WEAPON_DROP_BREACH].IntValue  = 1;
+    gCvarList[CVAR_WEAPON_DROP_KNIFE].IntValue   = 0;
+    gCvarList[CVAR_WEAPON_ALLOW_MAP].IntValue    = 0;
     gCvarList[CVAR_WEAPON_CT_DEFAULT_GRENADES].SetString("");
     gCvarList[CVAR_WEAPON_CT_DEFAULT_MELEE].SetString("");
     gCvarList[CVAR_WEAPON_CT_DEFAULT_SECONDARY].SetString("");
@@ -333,7 +350,10 @@ void WeaponsOnCvarInit(/*void*/)
     
     // Hook locked cvars to prevent it from changing
     HookConVarChange(gCvarList[CVAR_WEAPON_GIVE_TASER],           CvarsUnlockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_WEAPON_GIVE_BOMB],            CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_WEAPON_GIVE_BOMB],            CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_WEAPON_DROP_GRENADE],         CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_WEAPON_DROP_BREACH],          CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList[CVAR_WEAPON_DROP_KNIFE],           CvarsLockOnCvarHook); 
     HookConVarChange(gCvarList[CVAR_WEAPON_ALLOW_MAP],            CvarsLockOnCvarHook);   
     HookConVarChange(gCvarList[CVAR_WEAPON_CT_DEFAULT_GRENADES],  CvarsLockOnCvarHook3);
     HookConVarChange(gCvarList[CVAR_WEAPON_CT_DEFAULT_MELEE],     CvarsLockOnCvarHook3);
@@ -343,6 +363,9 @@ void WeaponsOnCvarInit(/*void*/)
     HookConVarChange(gCvarList[CVAR_WEAPON_T_DEFAULT_MELEE],      CvarsLockOnCvarHook3);
     HookConVarChange(gCvarList[CVAR_WEAPON_T_DEFAULT_SECONDARY],  CvarsLockOnCvarHook3);
     HookConVarChange(gCvarList[CVAR_WEAPON_T_DEFAULT_PRIMARY],    CvarsLockOnCvarHook3);
+    
+    // Forward event to sub-modules
+    ZMarketOnCvarInit();
 }
 
 /*
@@ -360,25 +383,25 @@ void WeaponsOnCvarInit(/*void*/)
 public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return;
     }
 
     // Gets active weapon index from the client
-    int weaponIndex = ToolsGetActiveWeapon(clientIndex);
+    int weapon = ToolsGetActiveWeapon(client);
     
     // Validate weapon
-    if(weaponIndex == INVALID_ENT_REFERENCE)
+    if(weapon == -1)
     {
         return;
     }
     
     // Forward event to sub-modules
-    WeaponSDKOnFire(clientIndex, weaponIndex);
+    WeaponMODOnFire(client, weapon);
 }
 
 /**
@@ -392,33 +415,33 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
 public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return;
     }
 
     // Gets active weapon index from the client
-    int weaponIndex = ToolsGetActiveWeapon(clientIndex);
+    int weapon = ToolsGetActiveWeapon(client);
     
     // Validate weapon
-    if(weaponIndex == INVALID_ENT_REFERENCE)
+    if(weapon == -1)
     {
         return;
     }
     
     // Initialize vector
-    static float vBulletPosition[3];
+    static float vBullet[3];
 
     // Gets bullet position
-    vBulletPosition[0] = hEvent.GetFloat("x");
-    vBulletPosition[1] = hEvent.GetFloat("y");
-    vBulletPosition[2] = hEvent.GetFloat("z");
+    vBullet[0] = hEvent.GetFloat("x");
+    vBullet[1] = hEvent.GetFloat("y");
+    vBullet[2] = hEvent.GetFloat("z");
     
     // Forward event to sub-modules
-    WeaponSDKOnBullet(clientIndex, vBulletPosition, weaponIndex);
+    WeaponMODOnBullet(client, vBullet, weapon);
 }
 
 /**
@@ -432,16 +455,16 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
 public Action WeaponsOnHostage(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return;
     }
     
     // Forward event to sub-modules
-    WeaponSDKOnHostage(clientIndex);
+    WeaponMODOnHostage(client);
 }
 
 /**
@@ -456,35 +479,35 @@ public Action WeaponsOnHostage(Event hEvent, char[] sName, bool dontBroadcast)
 public Action WeaponsOnShoot(char[] sTEName, int[] iPlayers, int numClients, float flDelay) 
 { 
     // Gets all required event info
-    int clientIndex = TE_ReadNum("m_iPlayer") + 1;
+    int client = TE_ReadNum("m_iPlayer") + 1;
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return Plugin_Continue;
     }
     
     // Gets active weapon index from the client
-    int weaponIndex = ToolsGetActiveWeapon(clientIndex);
+    int weapon = ToolsGetActiveWeapon(client);
     
     // Validate weapon
-    if(weaponIndex == INVALID_ENT_REFERENCE)
+    if(weapon == -1)
     {
         return Plugin_Continue;
     }
     
     // Forward event to sub-modules
-    return WeaponSDKOnShoot(clientIndex, weaponIndex);
+    return WeaponMODOnShoot(client, weapon);
 }
 
 /**
  * @brief Called on each frame of a weapon holding.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iButtons          The button buffer.
  * @param iLastButtons      The last button buffer.
  **/
-Action WeaponsOnRunCmd(int clientIndex, int &iButtons, int iLastButtons)
+Action WeaponsOnRunCmd(int client, int &iButtons, int iLastButtons)
 {
     // Validate use hook
     if(iButtons & IN_USE)
@@ -493,21 +516,21 @@ Action WeaponsOnRunCmd(int clientIndex, int &iButtons, int iLastButtons)
         if(!(iLastButtons & IN_USE))
         {
             // Forward event to sub-modules
-            WeaponSDKOnUse(clientIndex);
+            WeaponMODOnUse(client);
         }
     }
     
     // Gets active weapon index from the client
-    static int weaponIndex; weaponIndex = ToolsGetActiveWeapon(clientIndex);
+    static int weapon; weapon = ToolsGetActiveWeapon(client);
 
     // Validate weapon and access to hook
-    if(weaponIndex == INVALID_ENT_REFERENCE || !gClientData[clientIndex].RunCmd)
+    if(weapon == -1 || !gClientData[client].RunCmd)
     {
         return Plugin_Continue;
     }
 
     // Forward event to sub-modules
-    return WeaponSDKOnRunCmd(clientIndex, iButtons, iLastButtons, weaponIndex);
+    return WeaponMODOnRunCmd(client, iButtons, iLastButtons, weapon);
 }
 
 /**
@@ -518,41 +541,54 @@ Action WeaponsOnRunCmd(int clientIndex, int &iButtons, int iLastButtons)
 public void WeaponsOnClientUpdate(int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
     
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Forward event to sub-modules
-        WeaponSDKOnClientUpdate(clientIndex);
-        ZMarketOnClientUpdate(clientIndex);
+        WeaponAttachOnClientUpdate(client);
+        WeaponMODOnClientUpdate(client);
+        ZMarketOnClientUpdate(client);
     }
+}
+
+/**
+ * @brief Client has been spawned.
+ *
+ * @param client            The client index.
+ **/
+void WeaponsOnClientSpawn(int client)
+{
+    // Forward event to sub-modules
+    WeaponAttachOnClientSpawn(client);
 }
 
 /**
  * @brief Client has been killed.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void WeaponsOnClientDeath(int clientIndex)
+void WeaponsOnClientDeath(int client)
 {
     // Forward event to sub-modules
-    WeaponSDKOnClientDeath(clientIndex);
+    WeaponAttachOnClientDeath(client);
+    WeaponMODOnClientDeath(client);
 }
 
 /**
  * @brief Called when a weapon is created.
  *
- * @param weaponIndex       The weapon index.
+ * @param weapon            The weapon index.
  * @param sClassname        The string with returned name.
  **/
-void WeaponOnEntityCreated(int weaponIndex, const char[] sClassname)
+void WeaponOnEntityCreated(int weapon, const char[] sClassname)
 {
     // Validate entity
-    if(weaponIndex > INVALID_ENT_REFERENCE)
+    if(weapon > -1)
     {
         // Forward event to sub-modules
-        WeaponSDKOnEntityCreated(weaponIndex, sClassname);
+        WeaponMODOnEntityCreated(weapon, sClassname);
     }
 }
 
@@ -565,14 +601,16 @@ void WeaponOnEntityCreated(int weaponIndex, const char[] sClassname)
  **/
 void WeaponsOnNativeInit(/*void*/) 
 {
+    CreateNative("ZP_CreateWeapon",          API_CreateWeapon);
     CreateNative("ZP_GiveClientWeapon",      API_GiveClientWeapon);
+    CreateNative("ZP_SwitchClientWeapon",    API_SwitchClientWeapon);
     CreateNative("ZP_GetClientViewModel",    API_GetClientViewModel);
     CreateNative("ZP_GetClientAttachModel",  API_GetClientAttachModel);
     CreateNative("ZP_GetWeaponNameID",       API_GetWeaponNameID);
     CreateNative("ZP_GetNumberWeapon",       API_GetNumberWeapon);
     CreateNative("ZP_GetWeaponName",         API_GetWeaponName);
     CreateNative("ZP_GetWeaponInfo",         API_GetWeaponInfo);
-    CreateNative("ZP_GetWeaponEntity",       API_GetWeaponEntity);
+    CreateNative("ZP_GetWeaponDefIndex",     API_GetWeaponDefIndex);
     CreateNative("ZP_GetWeaponGroup",        API_GetWeaponGroup);
     CreateNative("ZP_GetWeaponClass",        API_GetWeaponClass);
     CreateNative("ZP_GetWeaponCost",         API_GetWeaponCost);
@@ -603,21 +641,49 @@ void WeaponsOnNativeInit(/*void*/)
     CreateNative("ZP_GetWeaponModelShell",   API_GetWeaponModelShell);
     CreateNative("ZP_GetWeaponModelHeat",    API_GetWeaponModelHeat); 
 }
- 
+
+/**
+ * @brief Creates the weapon by a given id.
+ *
+ * @note native int ZP_CreateWeapon(id, origin, angle);
+ **/
+public int API_CreateWeapon(Handle hPlugin, int iNumParams)
+{
+    // Gets weapon index from native cell
+    int iD = GetNativeCell(1);
+    
+    // Validate index
+    if(iD >= gServerData.Weapons.Length)
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+        return -1;
+    }
+    
+    // Initialize variables
+    static float vPosition[3]; static float vAngle[3];
+
+    // General
+    GetNativeArray(2, vPosition, sizeof(vPosition));
+    GetNativeArray(3, vAngle, sizeof(vAngle));
+    
+    // Spawn weapon
+    return WeaponsCreate(iD, vPosition, vAngle);
+}
+
 /**
  * @brief Gives the weapon by a given id.
  *
- * @note native int ZP_GiveClientWeapon(client, id, slot, remove);
+ * @note native int ZP_GiveClientWeapon(client, id, slot);
  **/
 public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
         return -1;
     }
     
@@ -632,22 +698,22 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
     }
 
     // Validate slot
-    int slotType = GetNativeCell(3);
-    if(slotType != SlotType_Invalid)
+    int mSlot = GetNativeCell(3);
+    if(mSlot != SlotType_Invalid)
     {
         // Drop weapon
-        WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, view_as<int>(slotType)), true, GetNativeCell(4));
+        WeaponsDrop(client, GetPlayerWeaponSlot(client, mSlot));
     }
     
     // Call forward
-    Action resultHandle;
-    gForwardData._OnClientValidateWeapon(clientIndex, iD, resultHandle);
+    Action hResult;
+    gForwardData._OnClientValidateWeapon(client, iD, hResult);
 
     // Validate handle
-    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Give weapon
-        return WeaponsGive(clientIndex, iD);
+        return WeaponsGive(client, iD);
     }
     
     // Return on unsuccess
@@ -655,53 +721,84 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Switches to the weapon by an index.
+ *
+ * @note native void ZP_SwitchClientWeapon(client, weapon);
+ **/
+public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
+{
+    // Gets real player index from native cell 
+    int client = GetNativeCell(1);
+
+    // Validate client
+    if(!IsPlayerExist(client))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
+        return;
+    }
+    
+    // Gets weapon index from native cell 
+    int weapon = GetNativeCell(2);
+    
+    // Validate weapon
+    if(!IsValidEdict(weapon))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weapon);
+        return;
+    }
+    
+    // Switch weapon
+    WeaponsSwitch(client, weapon);
+}
+
+/**
  * @brief Gets the client viewmodel.
  *
- * @note native int ZP_GetClientViewModel(clientIndex, custom);
+ * @note native int ZP_GetClientViewModel(client, custom);
  **/
 public int API_GetClientViewModel(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
         return -1;
     }
     
     // Gets viewmodel
-    return EntRefToEntIndex(gClientData[clientIndex].ViewModels[GetNativeCell(2)]);
+    return EntRefToEntIndex(gClientData[client].ViewModels[GetNativeCell(2)]);
 }
 
 /**
  * @brief Gets the client attachmodel.
  *
- * @note native int ZP_GetClientAttachModel(clientIndex, bit);
+ * @note native int ZP_GetClientAttachModel(client, bit);
  **/
 public int API_GetClientAttachModel(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", clientIndex);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
         return -1;
     }
     
     // Validate bit
-    BitType bitType = GetNativeCell(2);
-    if(bitType == BitType_Invalid)
+    BitType mBits = GetNativeCell(2);
+    if(mBits == BitType_Invalid)
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the bit index (%d)", bitType);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the bit index (%d)", mBits);
         return -1;
     }
     
     // Gets attachmodel
-    return EntRefToEntIndex(gClientData[clientIndex].AttachmentAddons[bitType]);
+    return EntRefToEntIndex(gClientData[client].AttachmentAddons[mBits]);
 }
 
 /**
@@ -882,11 +979,11 @@ public int API_GetWeaponClass(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the entity of a weapon at a given id.
+ * @brief Gets the defenition index of the weapon.
  *
- * @note native void ZP_GetWeaponEntity(iD, entity, maxlen);
+ * @note native ItemDef ZP_GetWeaponDefIndex(iD);
  **/
-public int API_GetWeaponEntity(Handle hPlugin, int iNumParams)
+public int API_GetWeaponDefIndex(Handle hPlugin, int iNumParams)
 {
     // Gets weapon index from native cell
     int iD = GetNativeCell(1);
@@ -898,22 +995,8 @@ public int API_GetWeaponEntity(Handle hPlugin, int iNumParams)
         return -1;
     }
     
-    // Gets string size from native cell
-    int maxLen = GetNativeCell(3);
-
-    // Validate size
-    if(!maxLen)
-    {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
-        return -1;
-    }
-    
-    // Initialize weapon classname
-    static char sEntity[SMALL_LINE_LENGTH];
-    WeaponsGetEntity(iD, sEntity, sizeof(sEntity));
-
-    // Return on success
-    return SetNativeString(2, sEntity, maxLen);
+    // Return the value 
+    return view_as<int>(WeaponsGetDefIndex(iD));
 }
 
 /**
@@ -1452,15 +1535,15 @@ public int API_GetWeaponModelBody(Handle hPlugin, int iNumParams)
     }
     
     // Validate type
-    ModelType modelType = GetNativeCell(2);
-    if(modelType == ModelType_Invalid)
+    ModelType nModel = GetNativeCell(2);
+    if(nModel == ModelType_Invalid)
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", modelType);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
         return -1;
     }
     
     // Return the value
-    return WeaponsGetModelBody(iD, modelType);
+    return WeaponsGetModelBody(iD, nModel);
 }
 
 /**
@@ -1481,15 +1564,15 @@ public int API_GetWeaponModelSkin(Handle hPlugin, int iNumParams)
     }
 
     // Validate type
-    ModelType modelType = GetNativeCell(2);
-    if(modelType == ModelType_Invalid)
+    ModelType nModel = GetNativeCell(2);
+    if(nModel == ModelType_Invalid)
     {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", modelType);
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
         return -1;
     }
     
     // Return the value
-    return WeaponsGetModelSkin(iD, modelType);
+    return WeaponsGetModelSkin(iD, nModel);
 }
 
 /**
@@ -1652,19 +1735,18 @@ void WeaponsGetClass(int iD, char[] sClass, int iMaxLen)
 }
 
 /**
- * @brief Gets the entity of a weapon at a given id.
+ * @brief Gets the defenition index of the weapon.
  *
  * @param iD                The weapon id.
- * @param sType             The string to return entity in.
- * @param iMaxLen           The lenght of string.
+ * @return                  The def index.
  **/
-void WeaponsGetEntity(int iD, char[] sType, int iMaxLen)
+ItemDef WeaponsGetDefIndex(int iD)
 {
     // Gets array handle of weapon at given index
     ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
     
-    // Gets weapon type
-    arrayWeapon.GetString(WEAPONS_DATA_ENTITY, sType, iMaxLen);
+    // Gets defenition index
+    return arrayWeapon.Get(WEAPONS_DATA_DEFINDEX);
 }
 
 /**
@@ -1745,35 +1827,35 @@ int WeaponsGetLimit(int iD)
 /**
  * @brief Remove the buy limit of the all client weapons.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void WeaponsRemoveLimits(int clientIndex)
+void WeaponsRemoveLimits(int client)
 {
     // If array hasn't been created, then create
-    if(gClientData[clientIndex].WeaponLimit == null)
+    if(gClientData[client].WeaponLimit == null)
     {
         // Initialize a buy limit array
-        gClientData[clientIndex].WeaponLimit = new StringMap();
+        gClientData[client].WeaponLimit = new StringMap();
     }
 
     // Clear out the array of all data
-    gClientData[clientIndex].WeaponLimit.Clear();
+    gClientData[client].WeaponLimit.Clear();
 }
 
 /**
  * @brief Sets the buy limit of the current client weapon.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The weapon id.
  * @param iLimit            The limit value.    
  **/
-void WeaponsSetLimits(int clientIndex, int iD, int iLimit)
+void WeaponsSetLimits(int client, int iD, int iLimit)
 {
     // If array hasn't been created, then create
-    if(gClientData[clientIndex].WeaponLimit == null)
+    if(gClientData[client].WeaponLimit == null)
     {
         // Initialize a buy limit array
-        gClientData[clientIndex].WeaponLimit = new StringMap();
+        gClientData[client].WeaponLimit = new StringMap();
     }
 
     // Initialize key char
@@ -1781,22 +1863,22 @@ void WeaponsSetLimits(int clientIndex, int iD, int iLimit)
     IntToString(iD, sKey, sizeof(sKey));
     
     // Sets buy limit for the client
-    gClientData[clientIndex].WeaponLimit.SetValue(sKey, iLimit);
+    gClientData[client].WeaponLimit.SetValue(sKey, iLimit);
 }
 
 /**
  * @brief Gets the buy limit of the current client weapon.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The weapon id.
  **/
-int WeaponsGetLimits(int clientIndex, int iD)
+int WeaponsGetLimits(int client, int iD)
 {
     // If array hasn't been created, then create
-    if(gClientData[clientIndex].WeaponLimit == null)
+    if(gClientData[client].WeaponLimit == null)
     {
         // Initialize a buy limit array
-        gClientData[clientIndex].WeaponLimit = new StringMap();
+        gClientData[client].WeaponLimit = new StringMap();
     }
     
     // Initialize key char
@@ -1804,7 +1886,7 @@ int WeaponsGetLimits(int clientIndex, int iD)
     IntToString(iD, sKey, sizeof(sKey));
     
     // Gets buy limit for the client
-    int iLimit; gClientData[clientIndex].WeaponLimit.GetValue(sKey, iLimit);
+    int iLimit; gClientData[client].WeaponLimit.GetValue(sKey, iLimit);
     return iLimit;
 }
 
@@ -2241,83 +2323,69 @@ void WeaponsClearSequenceSwap(int iD)
 }
 
 /*
- * Stocks weapons API.
+ * Generic weapons API.
  */
  
 /**
  * @brief Gets the custom weapon ID.
  *
- * @param weaponIndex       The weapon index.
- *
+ * @param weapon            The weapon index.
  * @return                  The weapon id.    
  **/
-int WeaponsGetCustomID(int weaponIndex)
+int WeaponsGetCustomID(int weapon)
 {
-    // Find the datamap
-    if(!g_iOffset_HammerID)
-    {
-        g_iOffset_HammerID = FindDataMapInfo(weaponIndex, "m_iHammerID");
-    }
-    
     // Gets value on the weapon
-    return GetEntData(weaponIndex, g_iOffset_HammerID);
+    return GetEntProp(weapon, Prop_Data, "m_iHammerID");
 }
 
 /**
  * @brief Sets the custom weapon ID.
  *
- * @param weaponIndex       The weapon index.
+ * @param weapon            The weapon index.
  * @param iD                The weapon id.
  **/
-void WeaponsSetCustomID(int weaponIndex, int iD)
+void WeaponsSetCustomID(int weapon, int iD)
 {
-    // Find the datamap
-    if(!g_iOffset_HammerID)
-    {
-        g_iOffset_HammerID = FindDataMapInfo(weaponIndex, "m_iHammerID");
-    }
-
     // Sets value on the weapon
-    SetEntData(weaponIndex, g_iOffset_HammerID, iD, _, true);
+    SetEntProp(weapon, Prop_Data, "m_iHammerID", iD);
 }
 
 /**
  * @brief Gets the weapon owner.
  *
- * @param weaponIndex       The weapon index.
- *
+ * @param weapon            The weapon index.
  * @return                  The owner index.    
  **/
-int WeaponsGetOwner(int weaponIndex)
+int WeaponsGetOwner(int weapon)
 {
     // Gets value on the weapon
-    return GetEntDataEnt2(weaponIndex, g_iOffset_Owner);
+    return GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
 }
 
 /**
  * @brief Sets the custom weapon ID.
  *
- * @param weaponIndex       The weapon index.
- * @param ownerIndex        The owner index.  
+ * @param weapon            The weapon index.
+ * @param owner             The owner index.  
  **/
-void WeaponsSetOwner(int weaponIndex, int ownerIndex)
+void WeaponsSetOwner(int weapon, int owner)
 {
     // Sets value on the weapon
-    SetEntDataEnt2(weaponIndex, g_iOffset_Owner, ownerIndex, true);
+    SetEntPropEnt(weapon, Prop_Send, "m_hOwner", owner);
 }
 
 /**
  * @brief Sets the animation delay.
  *
- * @param weaponIndex       The weapon index.
+ * @param weapon            The weapon index.
  * @param flDelay           The delay duration.  
  **/
-void WeaponsSetAnimating(int weaponIndex, float flDelay)
+void WeaponsSetAnimating(int weapon, float flDelay)
 {
     // Sets value on the weapon
-    SetEntDataFloat(weaponIndex, g_iOffset_PrimaryAttack, flDelay, true);
-    SetEntDataFloat(weaponIndex, g_iOffset_SecondaryAttack, flDelay, true);
-    SetEntDataFloat(weaponIndex, g_iOffset_TimeIdle, flDelay, true);
+    SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flDelay);
+    SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", flDelay);
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flDelay);
 }
 
 /**
@@ -2349,297 +2417,326 @@ int WeaponsNameToIndex(char[] sName)
     // Name doesn't exist
     return -1;
 }
- 
+
 /**
  * @brief Drop/remove a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- * @param bToss             (Optional) True to apply toss to weapon or false to skip.
- * @param bRemove           (Optional) True to delete weapon or false to just drop weapon.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  **/
-void WeaponsDrop(int clientIndex, int weaponIndex, bool bToss = false, bool bRemove = false)
+void WeaponsDrop(int client, int weapon)
 {
     // Validate weapon
-    if(IsValidEdict(weaponIndex)) 
+    if(IsValidEdict(weapon)) 
     {
-        // Gets the owner of the weapon
-        int ownerIndex = ToolsGetOwner(weaponIndex);
+        // Gets owner of the weapon
+        int owner = ToolsGetOwner(weapon);
 
         // If owner index is different, so set it again
-        if(ownerIndex != clientIndex)
+        if(owner != client)
         {
-            ToolsSetOwner(weaponIndex, clientIndex);
+            ToolsSetOwner(weapon, client);
         }
 
-        // Validate delete
-        if(bRemove)
-        {
-            // Forces a player to remove weapon
-            RemovePlayerItem(clientIndex, weaponIndex);
-            AcceptEntityInput(weaponIndex, "Kill"); /// Destroy
-        }
-        else
-        {
-            // Forces a player to drop weapon
-            CS_DropWeapon(clientIndex, weaponIndex, bToss, false);
-        }
+        // Forces a player to drop weapon
+        CS_DropWeapon(client, weapon, false, false);
     }
 }
 
 /**
- * @brief Replace a weapon.
+ * @brief Equip a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ * @param bReplace          (Optional) True to replace a slot or false to skip.
  **/
-void WeaponsReplace(int clientIndex, int weaponIndex)
+void WeaponsEquip(int client, int weapon, bool bReplace = false)
 {
-    // Gets weapon index
-    int weaponIndex2 = GetPlayerWeaponSlot(clientIndex, SlotType_Melee);
+    // Initialize weapon index
+    int weapon2 = -1;
+    
+    // Validate replace mode
+    if(bReplace)
+    {
+        // Gets weapon index
+        weapon2 = GetPlayerWeaponSlot(client, SlotType_Melee);
+    }
+    else
+    {
+        // Gets weapon classname
+        static char sClassname[SMALL_LINE_LENGTH];
+        GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+        
+        // Gets weapon index
+        weapon2 = WeaponsFindByName(client, sClassname);
+    }
     
     // Validate weapon
-    if(weaponIndex2 != INVALID_ENT_REFERENCE)
+    if(weapon2 != -1)
     {
-        // Is it new weapon ?
-        if(weaponIndex2 != weaponIndex) 
-        {
-            // Drop weapon
-            WeaponsDrop(clientIndex, weaponIndex2, true);
-        }
+        // Drop weapon
+        WeaponsDrop(client, weapon2);
     }
     
     // Give weapon
-    EquipPlayerWeapon(clientIndex, weaponIndex); 
+    EquipPlayerWeapon(client, weapon); 
     
     // Switch weapon
-    WeaponsSelect(clientIndex, weaponIndex);
+    WeaponsSwitch(client, weapon);
 }
+
 /**
- * @brief Select a weapon.
+ * @brief Switch a weapon.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  **/
-void WeaponsSelect(int clientIndex, int weaponIndex) 
+void WeaponsSwitch(int client, int weapon) 
 {
-    // Gets weapon classname
-    static char sClassname[SMALL_LINE_LENGTH];
-    GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
+    // Gets active weapon index from the client
+    int weapon2 = ToolsGetActiveWeapon(client);
+    
+    // Validate switch to the same slot
+    if(weapon2 == -1 || SDKCall(hSDKCallGetSlot, weapon) == SDKCall(hSDKCallGetSlot, weapon2))
+    {
+        // Create call to the switch weapons
+        SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
+    }
+    else
+    {
+        // Gets weapon classname
+        static char sClassname[SMALL_LINE_LENGTH];
+        GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 
-    // Update any weapon
-    FakeClientCommand(clientIndex, "use %s", sClassname);
-    ToolsSetActiveWeapon(clientIndex, weaponIndex);
-    SDKCall(hSDKCallWeaponSwitch, clientIndex, weaponIndex, 0);
+        // Switch with a client command
+        FakeClientCommand(client, "use %s", sClassname);
+    }
 }
 
 /**
- * @brief Remove all weapons and give default weapon.
+ * @brief Remove a weapon.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @return                  True on success, false if client has access. 
  **/
-bool WeaponsRemoveAll(int clientIndex)
+bool WeaponsRemove(int client)
 {
+    // Initialize variables
+    int iAmount; int bRemove;
+    
     // i = weapon number
-    int iSize = ToolsGetMyWeapons();
+    int iSize = ToolsGetMyWeapons(client); 
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index
-        int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_MyWeapons + (i * 4));
+        int weapon = ToolsGetWeapon(client, i);
         
         // Validate weapon
-        if(weaponIndex != INVALID_ENT_REFERENCE)
+        if(weapon != -1)
         {
+            // Increment amount
+            iAmount++;
+    
             // Validate custom index
-            int iD = WeaponsGetCustomID(weaponIndex);
+            int iD = WeaponsGetCustomID(weapon);
             if(iD != -1)
             {
                 // Validate access
-                if(WeaponsValidateClass(clientIndex, iD)) 
+                if(!WeaponsValidateClass(client, iD)) 
                 {
-                    // Stop here!
-                    return false;
+                    // Forces a player to remove weapon
+                    RemovePlayerItem(client, weapon);
+                    AcceptEntityInput(weapon, "Kill"); /// Destroy
+                    
+                    // Sets for return
+                    bRemove = true;
                 }
             }
         }
     }
     
-    // Remove all weapons
-    SDKCall(hSDKCallRemoveAllItems, clientIndex, true);
-    
+    // If something was removed
+    if(bRemove)
+    {
+        // Resets all suits
+        ToolsSetHelmet(client, false);
+        ToolsSetArmor(client, 0);
+        ToolsSetHeavySuit(client, false);
+        ToolsSetDefuser(client, false);
+    }
+
     // Return on success
-    return true;
+    return (bRemove || !iAmount);
 }
 
 /**
  * @brief Give weapon from a id.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The weapon id.
  * @return                  The weapon index.
  **/
-int WeaponsGive(int clientIndex, int iD)
+int WeaponsGive(int client, int iD)
 {
-    // Initialize index
-    int weaponIndex = INVALID_ENT_REFERENCE;
-
     // Validate weapon index
     if(iD != -1)   
     {
         // Validate access
-        if(!WeaponsValidateClass(clientIndex, iD)) 
+        if(!WeaponsValidateClass(client, iD)) 
         {
-            return weaponIndex;
+            return -1;
         }
-        
-        // Initialize name char
-        static char sWeaponName[SMALL_LINE_LENGTH];
 
-        // Gets weapon classname
-        WeaponsGetEntity(iD, sWeaponName, sizeof(sWeaponName));
-
-        // Validate weapons
-        if(sWeaponName[0] == 'w' && sWeaponName[1] == 'e' && sWeaponName[6] == '_')
-        {   
-            // Gets weapon index
-            weaponIndex = WeaponsGetIndex(clientIndex, sWeaponName);
-            
-            // Validate index
-            if(weaponIndex != INVALID_ENT_REFERENCE) 
+        // Gets weapon def index
+        ItemDef iItem = WeaponsGetDefIndex(iD);
+        switch(iItem)
+        {
+            /// item_defuser, item_cutters
+            case ItemDef_Defuser, ItemDef_Cutters : 
             {
-                // Drop weapon
-                WeaponsDrop(clientIndex, weaponIndex, true);
+                // Sets item id
+                WeaponsSetCustomID(client, iD);
+                
+                // Sets defuser
+                ToolsSetDefuser(client, true);
+                
+                // Return on success
+                return 0;
             }
-    
-            // Validate exceptions
-            if(!strncmp(sWeaponName[7], "fis", 3, false) || !strncmp(sWeaponName[12], "_g", 2, false) || 
-               !strncmp(sWeaponName[7], "spa", 3, false) || !strncmp(sWeaponName[7], "tab", 3, false) ||
-               !strcmp(sWeaponName[7], "axe", false) || !strncmp(sWeaponName[7], "ha", 2, false) || 
-               !strncmp(sWeaponName[7], "br", 2, false) || !strncmp(sWeaponName[7], "sn", 2, false) ||
-               !strcmp(sWeaponName[7], "c4", false) || !strcmp(sWeaponName[12], "_t", false))
+            
+            /// item_heavyassaultsuit
+            case ItemDef_HeavySuit :
+            {
+                // Sets heavy suit
+                ToolsSetHelmet(client, true);
+                ToolsSetArmor(client, WeaponsGetClip(iD));
+                ToolsSetHeavySuit(client, true);
+                
+                // Return on success
+                return 0;
+            }
+            
+             /// item_nvgs
+            case ItemDef_NGVs :
+            {
+                // Sets nightvision
+                ToolsSetNightVision(client, true, true);
+                ToolsSetNightVision(client, true);
+                
+                // Return on success
+                return 0;
+            }
+                    
+            /// item_kevlar
+            case ItemDef_Kevlar :
+            {
+                // Sets armor
+                ToolsSetHelmet(client, false);
+                ToolsSetArmor(client, WeaponsGetClip(iD));
+                ToolsSetHeavySuit(client, false);
+                
+                // Return on success
+                return 0;
+            }
+                
+            /// item_assaultsuit
+            case ItemDef_KevlarHelmet :
+            {
+                // Sets kevlar
+                ToolsSetHelmet(client, true);
+                ToolsSetArmor(client, WeaponsGetClip(iD));
+                ToolsSetHeavySuit(client, false);
+                
+                // Return on success
+                return 0;
+            }
+
+            /// any weapon_*
+            default :
             {
                 // Create a weapon entity
-                weaponIndex = CreateEntityByName(sWeaponName);
+                int weapon = WeaponsCreate(iD);
+                
+                // Validate weapon
+                if(weapon != -1) 
+                {
+                    // Give weapon
+                    WeaponsEquip(client, weapon);
 
-                // Validate index
-                if(weaponIndex != INVALID_ENT_REFERENCE) 
-                {
-                    // Spawn the entity into the world
-                    if(DispatchSpawn(weaponIndex))
-                    {
-                        // Give weapon
-                        EquipPlayerWeapon(clientIndex, weaponIndex);
-                    }
-                }
-            }
-            else 
-            {
-                // Give weapon
-                weaponIndex = GivePlayerItem(clientIndex, sWeaponName);
-            }
-            
-            // Validate index
-            if(weaponIndex != INVALID_ENT_REFERENCE) 
-            {
-                // Sets weapon id
-                WeaponsSetCustomID(weaponIndex, iD);
-        
-                // Switch weapon
-                WeaponsSelect(clientIndex, weaponIndex);
-                
-                // Call forward
-                gForwardData._OnWeaponCreated(clientIndex, weaponIndex, iD);
-            }
-        }
-        // Validate items
-        else if(sWeaponName[0] == 'i' && sWeaponName[1] == 't')
-        {
-            // Gets existing items 
-            switch(sWeaponName[5])
-            {
-                /// item_assaultsuit
-                case 'a' : 
-                {
-                    // Sets kevlar
-                    ToolsSetHelmet(clientIndex, true);
-                    ToolsSetArmor(clientIndex, WeaponsGetClip(iD));
-                    ToolsSetHeavySuit(clientIndex, false);
+                    // Call forward
+                    gForwardData._OnWeaponCreated(client, weapon, iD);
                 }
                 
-                /// item_kevlar
-                case 'k' :
-                {
-                    // Sets armor
-                    ToolsSetHelmet(clientIndex, false);
-                    ToolsSetArmor(clientIndex, WeaponsGetClip(iD));
-                    ToolsSetHeavySuit(clientIndex, false);
-                }
-                
-                /// item_heavyassaultsuit
-                case 'h' :
-                {
-                    // Sets heavy suit
-                    ToolsSetHelmet(clientIndex, true);
-                    ToolsSetArmor(clientIndex, WeaponsGetClip(iD));
-                    ToolsSetHeavySuit(clientIndex, true);
-                }
-                
-                /// item_defuser
-                case 'd' :
-                {
-                    // Sets item id
-                    WeaponsSetCustomID(clientIndex, iD);
-                    
-                    // Sets defuser
-                    ToolsSetDefuser(clientIndex, true);
-                }
-                
-                /// item_nvgs
-                case 'n' :
-                {
-                    // Sets nightvision
-                    ToolsSetNightVision(clientIndex, true, true);
-                    ToolsSetNightVision(clientIndex, true);
-                }
+                // Return on success
+                return weapon;  
             }
         }
     }
 
     // Return on success
-    return weaponIndex;
+    return -1;
 }
+
+/**
+ * @brief Create a weapon.
+ *
+ * @param iD                The weapon id.
+ * @param vPosition         (Optional) The origin of the spawn.
+ * @param vAngle            (Optional) The angle of the spawn.
+ * @return                  The weapon index.
+ **/
+int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
+{
+    // Create weapon
+    int weapon = PTaH_SpawnItemFromDefIndex(view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle);
+    
+    // Validate weapon
+    if(weapon != -1)
+    {
+        // Sets weapon id
+        WeaponsSetCustomID(weapon, iD);
+
+        // Apply dropped model
+        WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
+    }
+    
+    // Return on success
+    return weapon;
+}
+
+/*
+ * Stocks weapons API.
+ */
 
 /**
  * @brief Returns index if the player has a weapon.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param sType             The weapon entity.
- *
  * @return                  The weapon index.
  **/
-int WeaponsGetIndex(int clientIndex, char[] sType)
+int WeaponsFindByName(int client, char[] sType)
 {
     // Initialize classname char
     static char sClassname[SMALL_LINE_LENGTH];
 
     // i = weapon number
-    int iSize = ToolsGetMyWeapons();
+    int iSize = ToolsGetMyWeapons(client);
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index
-        int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_MyWeapons + (i * 4));
+        int weapon = ToolsGetWeapon(client, i);
 
         // Validate weapon
-        if(weaponIndex != INVALID_ENT_REFERENCE)
+        if(weapon != -1)
         {
             // Gets weapon classname
-            GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
+            GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 
             // If weapon find, then return
             if(!strcmp(sClassname[7], sType[7], false))
             {
-                return weaponIndex;
+                return weapon;
             }
         }
     }
@@ -2649,39 +2746,26 @@ int WeaponsGetIndex(int clientIndex, char[] sType)
 }
 
 /**
- * @brief Returns item defenition of the weapon.
- *
- * @param clientIndex       The client index.
- *
- * @return                  The defenition address.
- **/
-int WeaponsGetItemDefenition(int weaponIndex)
-{
-    return view_as<int>(GetEntityAddress(weaponIndex) + view_as<Address>(g_iOffset_ItemDefinition));
-}
-
-/**
  * @brief Returns true if the player has a weapon, false if not.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iD                The weapon id.
- *
  * @return                  True or false.
  **/
-bool WeaponsValidateID(int clientIndex, int iD)
+bool WeaponsValidateByID(int client, int iD)
 {
     // i = weapon number
-    int iSize = ToolsGetMyWeapons();
+    int iSize = ToolsGetMyWeapons(client);
     for(int i = 0; i < iSize; i++)
     {
         // Gets weapon index
-        int weaponIndex = GetEntDataEnt2(clientIndex, g_iOffset_MyWeapons + (i * 4));
+        int weapon = ToolsGetWeapon(client, i);
         
         // Validate weapon
-        if(weaponIndex != INVALID_ENT_REFERENCE)
+        if(weapon != -1)
         {
             // If weapon find, then return
-            if(WeaponsGetCustomID(weaponIndex) == iD)
+            if(WeaponsGetCustomID(weapon) == iD)
             {
                 return true;
             }
@@ -2693,14 +2777,37 @@ bool WeaponsValidateID(int clientIndex, int iD)
 }
 
 /**
- * @brief Returns true if the player has an access by the class to the weapon id, false if not.
+ * @brief Returns true if the class of the weapon id, false if not.
  *
- * @param clientIndex       The client index.
  * @param iD                The weapon id.
- *
+ * @param sType             The class type.
  * @return                  True or false.    
  **/
-bool WeaponsValidateClass(int clientIndex, int iD)
+bool WeaponsValidateByClass(int iD, char[] sType)
+{
+    // Gets weapon class
+    static char sClass[BIG_LINE_LENGTH];
+    WeaponsGetClass(iD, sClass, sizeof(sClass));
+    
+    // Validate length
+    if(hasLength(sClass))
+    {
+        // If class find, then return
+        return (hasLength(sType) && StrContain(sType, sClass, ','));
+    }
+    
+    // Return on success
+    return true;
+}
+
+/**
+ * @brief Returns true if the player has an access by the class to the weapon id, false if not.
+ *
+ * @param client            The client index.
+ * @param iD                The weapon id.
+ * @return                  True or false.    
+ **/
+bool WeaponsValidateClass(int client, int iD)
 {
     // Gets weapon class
     static char sClass[BIG_LINE_LENGTH];
@@ -2711,7 +2818,7 @@ bool WeaponsValidateClass(int clientIndex, int iD)
     {
         // Gets class type 
         static char sType[SMALL_LINE_LENGTH];
-        ClassGetType(gClientData[clientIndex].Class, sType, sizeof(sType));
+        ClassGetType(gClientData[client].Class, sType, sizeof(sType));
         
         // If class find, then return
         return (hasLength(sType) && StrContain(sType, sClass, ','));
@@ -2724,19 +2831,18 @@ bool WeaponsValidateClass(int clientIndex, int iD)
 /**
  * @brief Returns true if the player has an access to use the weapon, false if not.
  *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
  * @return                  True or false.    
  **/
-bool WeaponsValidateAccess(int clientIndex, int weaponIndex)
+bool WeaponsValidateAccess(int client, int weapon)
 {
     // Validate custom index
-    int iD = WeaponsGetCustomID(weaponIndex);
+    int iD = WeaponsGetCustomID(weapon);
     if(iD != -1)
     {
         // Block pickup it, if not available
-        if(!WeaponsValidateClass(clientIndex, iD)) 
+        if(!WeaponsValidateClass(client, iD)) 
         {
             return false;
         }
@@ -2748,7 +2854,7 @@ bool WeaponsValidateAccess(int clientIndex, int weaponIndex)
         }
 
         // Block pickup it, if level too low
-        if(gClientData[clientIndex].Level < WeaponsGetLevel(iD))
+        if(gClientData[client].Level < WeaponsGetLevel(iD))
         {
             return false;
         }
@@ -2756,103 +2862,4 @@ bool WeaponsValidateAccess(int clientIndex, int weaponIndex)
     
     // Return on success
     return true;
-}
-
-/**
- * @brief Returns true if the weapon is a melee, false if not.
- *
- * @param weaponIndex       The weapon index.
- *
- * @return                  True or false.    
- **/
-bool WeaponsValidateMelee(int weaponIndex)
-{
-    // Gets weapon classname
-    static char sClassname[SMALL_LINE_LENGTH];
-    GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
-
-    // Validate melee
-    if(sClassname[0] == 'w' && sClassname[1] == 'e')
-    {
-        return (sClassname[7] == 'k' || (sClassname[7] == 'm' && sClassname[8] == 'e') || (sClassname[7] == 'f' && sClassname[9] == 's'));
-    }
-    
-    // Return on unsuccess 
-    return false;
-}
-
-
-/**
- * @brief Returns true if the weapon is a knife, false if not.
- *
- * @param weaponIndex       The weapon index.
- *
- * @return                  True or false.    
- **/
-bool WeaponsValidateKnife(int weaponIndex)
-{
-    // Gets weapon classname
-    static char sClassname[SMALL_LINE_LENGTH];
-    GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
-
-    // Validate knife
-    if(sClassname[0] == 'w' && sClassname[1] == 'e')
-    {
-        return (sClassname[7] == 'k' || (sClassname[7] == 'm' && sClassname[8] == 'e'));
-    }
-    
-    // Return on unsuccess 
-    return false;
-}
-
-/**
- * @brief Returns true if the weapon is a taser, false if not.
- *
- * @param weaponIndex       The weapon index.
- *
- * @return                  True or false.    
- **/
-bool WeaponsValidateTaser(int weaponIndex)
-{
-    // Gets weapon classname
-    static char sClassname[SMALL_LINE_LENGTH];
-    GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
-
-    // Return on success
-    return (!strncmp(sClassname[7], "tas", 3, false));
-}
-
-/**
- * @brief Returns true if the weapon is a c4, false if not.
- *
- * @param weaponIndex       The weapon index.
- *
- * @return                  True or false.    
- **/
-bool WeaponsValidateBomb(int weaponIndex)
-{
-    // Gets weapon classname
-    static char sClassname[SMALL_LINE_LENGTH];
-    GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
-
-    // Return on success
-    return (!strcmp(sClassname[7], "c4", false));
-}
-
-/**
- * @brief Returns true if the weapon is a grenade, false if not.
- *
- * @param weaponIndex       The weapon index.
- *
- * @return                  True or false.    
- **/
-bool WeaponsValidateGrenade(int weaponIndex)
-{
-    // Gets weapon classname
-    static char sClassname[SMALL_LINE_LENGTH];
-    GetEdictClassname(weaponIndex, sClassname, sizeof(sClassname));
-
-    // Return on success
-    return (!strncmp(sClassname[7], "heg", 3, false) || !strncmp(sClassname[7], "dec", 3, false) || !strncmp(sClassname[7], "fla", 3, false) || !strncmp(sClassname[7], "inc", 3, false) ||
-            !strncmp(sClassname[7], "mol", 3, false) || !strncmp(sClassname[7], "smo", 3, false) || !strncmp(sClassname[7], "tag", 3, false));
 }

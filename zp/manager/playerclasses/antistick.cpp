@@ -79,21 +79,21 @@ void AntiStickOnInit(/*void*/)
 /**
  * @brief Client has been joined.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void AntiStickOnClientInit(int clientIndex)
+void AntiStickOnClientInit(int client)
 {
     // If antistick is disabled, then unhook
     bool bAntiStick = gCvarList[CVAR_ANTISTICK].BoolValue;
     if(!bAntiStick)
     {
         // Unhook entity callbacks
-        SDKUnhook(clientIndex, SDKHook_StartTouch, AntiStickOnStartTouch);
+        SDKUnhook(client, SDKHook_StartTouch, AntiStickOnStartTouch);
         return;
     }
     
     // Hook entity callbacks
-    SDKHook(clientIndex, SDKHook_StartTouch, AntiStickOnStartTouch);
+    SDKHook(client, SDKHook_StartTouch, AntiStickOnStartTouch);
 }
 
 /**
@@ -141,34 +141,34 @@ public void AntiStickOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
  * Hook: StartTouch
  * @brief Called right before the entities touch each other.
  * 
- * @param clientIndex       The client index.
- * @param entityIndex       The entity index of the entity being touched.
+ * @param client            The client index.
+ * @param entity            The entity index of the entity being touched.
  **/
-public void AntiStickOnStartTouch(int clientIndex, int entityIndex)
+public void AntiStickOnStartTouch(int client, int entity)
 {
     // If client is touching themselves, then leave them alone :P
-    if(clientIndex == entityIndex)
+    if(client == entity)
     {
         return;
     }
 
     // If touched entity isn't a valid client, then stop
-    if(!IsPlayerExist(entityIndex))
+    if(!IsPlayerExist(entity))
     {
         return;
     }
 
     // If the clients aren't colliding, then stop
-    if(!AntiStickIsModelBoxColliding(clientIndex, entityIndex))
+    if(!AntiStickIsModelBoxColliding(client, entity))
     {
         return;
     }
 
     // From this point we know that client and entity is more or less within eachother
-    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" and \"%N\" are intersecting. Removing collisions.", clientIndex, entityIndex);
+    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" and \"%N\" are intersecting. Removing collisions.", client, entity);
 
     // Gets current collision groups of client
-    int collisionGroup = AntiStickGetCollisionGroup(clientIndex);
+    int collisionGroup = AntiStickGetCollisionGroup(client);
 
     // Note: If players get stuck on change or stuck in a teleport, they'll
     //       get the COLLISION_GROUP_PUSHAWAY collision group, so check this
@@ -178,8 +178,8 @@ public void AntiStickOnStartTouch(int clientIndex, int entityIndex)
     if(collisionGroup != COLLISION_GROUP_PUSHAWAY)
     {
         // Disable collisions to unstick, and start timers to re-solidify
-        AntiStickSetCollisionGroup(clientIndex, COLLISION_GROUP_PUSHAWAY);
-        CreateTimer(0.0, AntiStickOnClientSolidify, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        AntiStickSetCollisionGroup(client, COLLISION_GROUP_PUSHAWAY);
+        CreateTimer(0.0, AntiStickOnClientSolidify, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
@@ -192,16 +192,16 @@ public void AntiStickOnStartTouch(int clientIndex, int entityIndex)
 public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Verify that the client is exist
-    if(!clientIndex)
+    if(!client)
     {
         return Plugin_Stop;
     }
 
     // If the client collisions are already on, then stop
-    if(AntiStickGetCollisionGroup(clientIndex) == COLLISION_GROUP_PLAYER)
+    if(AntiStickGetCollisionGroup(client) == COLLISION_GROUP_PLAYER)
     {
         return Plugin_Stop;
     }
@@ -216,23 +216,23 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
         }
         
         // Don't compare the same clients
-        if(clientIndex == i)
+        if(client == i)
         {
             continue;
         }
         
         // If the client is colliding with a client, then allow timer to continue
-        if(AntiStickIsModelBoxColliding(clientIndex, i))
+        if(AntiStickIsModelBoxColliding(client, i))
         {
             return Plugin_Continue;
         }
     }
 
     // Change collisions back to normal
-    AntiStickSetCollisionGroup(clientIndex, COLLISION_GROUP_PLAYER);
+    AntiStickSetCollisionGroup(client, COLLISION_GROUP_PLAYER);
 
     // Debug message. May be useful when calibrating antistick
-    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" is no longer intersecting anyone. Applying normal collisions.", clientIndex);
+    LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_AntiStick, "Collision", "Player \"%N\" is no longer intersecting anyone. Applying normal collisions.", client);
     return Plugin_Stop;
 }
 
@@ -240,13 +240,13 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
  * Console command callback (zp_antistick_prop)
  * @brief Unstucks player from the another prop.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
+public Action AntiStickOnCommandCatched(int client, int iArguments)
 {
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return Plugin_Handled;
     }
@@ -254,44 +254,41 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
     // Initialize vectors
     static float vPosition[3]; float vMaxs[3]; float vMins[3]; 
 
-    // Get client's location
-    ToolsGetAbsOrigin(clientIndex, vPosition);
+    // Gets client's location
+    ToolsGetAbsOrigin(client, vPosition);
     
-    // Get the client's min and max size vector
-    GetClientMins(clientIndex, vMins);
-    GetClientMaxs(clientIndex, vMaxs);
+    // Gets client's min and max size vector
+    GetClientMins(client, vMins);
+    GetClientMaxs(client, vMaxs);
 
     // Create the hull trace
-    TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, clientIndex);
+    TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, client);
 
     // Returns if there was any kind of collision along the trace ray
     if(TR_DidHit())
     {
         // Gets victim index
-        int victimIndex = TR_GetEntityIndex();
-        if(victimIndex > 0)
+        int victim = TR_GetEntityIndex();
+        if(victim > 0)
         {
             // Gets current collision groups of entity
-            switch(AntiStickGetCollisionGroup(victimIndex))
+            switch(AntiStickGetCollisionGroup(victim))
             {
                 case COLLISION_GROUP_PLAYER, COLLISION_GROUP_NPC : { /* < empty statement > */ }
                 default : return Plugin_Handled;
             }
         }
-        
-        // Gets spawn position
-        SpawnGetRandomPosition(vPosition);
-        
+
         // Teleport player back on the spawn point
-        TeleportEntity(clientIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
+        AntiStickTeleportToRespawn(client);
     }
     else
     {
         // Show block info
-        TranslationPrintHintText(clientIndex, "unstucking prop block");
+        TranslationPrintHintText(client, "unstucking prop block");
                 
         // Emit error sound
-        ClientCommand(clientIndex, "play buttons/button11.wav");    
+        ClientCommand(client, "play buttons/button10.wav");    
     }
     
     // Return on success
@@ -301,34 +298,65 @@ public Action AntiStickOnCommandCatched(int clientIndex, int iArguments)
 /*
  * Stocks antistick API.
  */
+ 
+/**
+ * @brief Teleport client to a random spawn position.
+ * 
+ * @param client            The client index.
+ **/
+void AntiStickTeleportToRespawn(int client)
+{
+    // Initialize vectors
+    static float vPosition[3]; float vMaxs[3]; float vMins[3]; 
+
+    // Gets client's min and max size vector
+    GetClientMins(client, vMins);
+    GetClientMaxs(client, vMaxs);
+
+    // i = origin index
+    int iSize = gServerData.Spawns.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets random array
+        gServerData.Spawns.GetArray(i, vPosition, sizeof(vPosition));
+        
+        // Create the hull trace
+        TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, client);
+        
+        // Returns if there was any kind of collision along the trace ray
+        if(!TR_DidHit())
+        {
+            // Teleport player back on the spawn point
+            TeleportEntity(client, vPosition, NULL_VECTOR, NULL_VECTOR);
+            return;
+        }
+    }
+}
 
 /**
  * @brief Build the model box by finding all vertices.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param flBoundaries      Array with 'AntiStickBoxBounds' for indexes to return bounds into.
  * @param width             The width of the model box.
  **/
-void AntiStickBuildModelBox(int clientIndex, float flBoundaries[AntiStickBoxBound][3], float flWidth)
+void AntiStickBuildModelBox(int client, float flBoundaries[AntiStickBoxBound][3], float flWidth)
 {
     // Initialize vector variables
-    static float vClientLoc[3];
-    static float vTwistAngle[3];
-    static float vCornerAngle[3];
-    static float vSideLoc[3];
-    static float vFinalLoc[4][3];
+    static float vTwistAngle[3]; static float vCornerAngle[3]; static float vOriginLoc[3]; static float vSideLoc[3]; static float vFinalLoc[4][3];
 
     // Gets needed vector info
-    ToolsGetAbsOrigin(clientIndex, vClientLoc);
+    ToolsGetAbsOrigin(client, vOriginLoc);
 
     // Sets pitch to 0
     vTwistAngle[1] = 90.0;
     vCornerAngle[1] = 0.0;
 
+    // i = side index
     for(int x = 0; x < 4; x++)
     {
         // Jump to point on player left side.
-        AntiStickJumpToPoint(vClientLoc, vTwistAngle, flWidth / 2, vSideLoc);
+        AntiStickJumpToPoint(vOriginLoc, vTwistAngle, flWidth / 2, vSideLoc);
 
         // From this point, jump to the corner, which would be half the width from the middle of a side
         AntiStickJumpToPoint(vSideLoc, vCornerAngle, flWidth / 2, vFinalLoc[x]);
@@ -369,16 +397,16 @@ void AntiStickBuildModelBox(int clientIndex, float flBoundaries[AntiStickBoxBoun
 
     // Sets Z bounds
     static float vEyeLoc[3];
-    GetClientEyePosition(clientIndex, vEyeLoc);
+    GetClientEyePosition(client, vEyeLoc);
 
     flBoundaries[BoxBound_FUR][2] = vEyeLoc[2];
     flBoundaries[BoxBound_FUL][2] = vEyeLoc[2];
-    flBoundaries[BoxBound_FDR][2] = vClientLoc[2] + 15.0;
-    flBoundaries[BoxBound_FDL][2] = vClientLoc[2] + 15.0;
+    flBoundaries[BoxBound_FDR][2] = vOriginLoc[2] + 15.0;
+    flBoundaries[BoxBound_FDL][2] = vOriginLoc[2] + 15.0;
     flBoundaries[BoxBound_BUR][2] = vEyeLoc[2];
     flBoundaries[BoxBound_BUL][2] = vEyeLoc[2];
-    flBoundaries[BoxBound_BDR][2] = vClientLoc[2] + 15.0;
-    flBoundaries[BoxBound_BDL][2] = vClientLoc[2] + 15.0;
+    flBoundaries[BoxBound_BDR][2] = vOriginLoc[2] + 15.0;
+    flBoundaries[BoxBound_BDL][2] = vOriginLoc[2] + 15.0;
 }
 
 /**
@@ -392,19 +420,19 @@ void AntiStickBuildModelBox(int clientIndex, float flBoundaries[AntiStickBoxBoun
 void AntiStickJumpToPoint(float vVector[3], float vAngle[3], float flDistance, float vResult[3])
 {
     // Initialize vector variable
-    static float vViewVector[3];
+    static float vViewLoc[3];
     
     // Turn client angle, into a vector
-    GetAngleVectors(vAngle, vViewVector, NULL_VECTOR, NULL_VECTOR);
+    GetAngleVectors(vAngle, vViewLoc, NULL_VECTOR, NULL_VECTOR);
     
     // Normalize vector
-    NormalizeVector(vViewVector, vViewVector);
+    NormalizeVector(vViewLoc, vViewLoc);
     
     // Scale to the given distance
-    ScaleVector(vViewVector, flDistance);
+    ScaleVector(vViewLoc, flDistance);
     
     // Add the vectors together
-    AddVectors(vVector, vViewVector, vResult);
+    AddVectors(vVector, vViewLoc, vResult);
 }
 
 /**
@@ -440,8 +468,8 @@ float AntiStickGetBoxMaxBoundary(int iAxis, float flBoundaries[AntiStickBoxBound
 /**
  * @brief Checks if a player is currently stuck within another player.
  *
- * @param clientIndex1      The first client index.
- * @param clientIndex2      The second client index.
+ * @param client     1      The first client index.
+ * @param client     2      The second client index.
  * @return                  True if they are stuck together, false if not.
  **/
 bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
@@ -546,7 +574,7 @@ bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], 
 
     /// Unrolled the loop.. this is a big cycle stealer...
     
-    // Compare z values
+    // Compare x values
     float maxBx = AntiStickGetBoxMaxBoundary(0, flBoundaries);
     float minBx = AntiStickGetBoxMaxBoundary(0, flBoundaries, true);  
 
@@ -598,35 +626,34 @@ bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], 
 /**
  * @brief Sets the collision group on a client.
  *
- * @param clientIndex       The client index.
- * @param collisiongroup    Collision group flag.
+ * @param client            The client index.
+ * @param collisionGroup    The group flag.
  **/
-void AntiStickSetCollisionGroup(int clientIndex, int collisiongroup)
+void AntiStickSetCollisionGroup(int client, int collisionGroup)
 {
-    SetEntData(clientIndex, g_iOffset_Collision, collisiongroup, _, true);
+    SetEntProp(client, Prop_Data, "m_CollisionGroup", collisionGroup);
 }
 
 /**
  * @brief Gets the collision group on a client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @return                  The collision group on the client.
  **/
-int AntiStickGetCollisionGroup(int clientIndex)
+int AntiStickGetCollisionGroup(int client)
 {
-    return GetEntData(clientIndex, g_iOffset_Collision);
+    return GetEntProp(client, Prop_Data, "m_CollisionGroup");
 }
 
 /**
  * @brief Trace filter.
  *  
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @param contentsMask      The contents mask.
- * @param clientIndex       The client index.
- *
+ * @param client            The client index.
  * @return                  True or false.
  **/
-public bool AntiStickFilter(int entityIndex, int contentsMask, int clientIndex) 
+public bool AntiStickFilter(int entity, int contentsMask, int client) 
 {
-    return (entityIndex != clientIndex);
+    return (entity != client);
 }

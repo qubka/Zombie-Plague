@@ -48,10 +48,12 @@ enum CvarsList
     ConVar:CVAR_MENU_BUTTON,
     ConVar:CVAR_SKILL_BUTTON,
     ConVar:CVAR_LIGHT_BUTTON,
+    ConVar:CVAR_BUY_BUTTON,
     ConVar:CVAR_HUMAN_MENU,
     ConVar:CVAR_ZOMBIE_MENU,
     
     ConVar:CVAR_HITGROUP,
+    ConVar:CVAR_HITGROUP_KNOCKBACK,
     ConVar:CVAR_HITGROUP_FRIENDLY_FIRE,
     ConVar:CVAR_HITGROUP_FRIENDLY_GRENADE,
     ConVar:CVAR_HITGROUP_FRIENDLY_BULLETS,
@@ -72,6 +74,9 @@ enum CvarsList
     
     ConVar:CVAR_WEAPON_GIVE_TASER,
     ConVar:CVAR_WEAPON_GIVE_BOMB,
+    ConVar:CVAR_WEAPON_DROP_GRENADE,
+    ConVar:CVAR_WEAPON_DROP_BREACH,
+    ConVar:CVAR_WEAPON_DROP_KNIFE,
     ConVar:CVAR_WEAPON_ALLOW_MAP,
     ConVar:CVAR_WEAPON_CT_DEFAULT_GRENADES,
     ConVar:CVAR_WEAPON_CT_DEFAULT_MELEE,
@@ -204,6 +209,7 @@ enum CvarsList
     ConVar:CVAR_MESSAGES_DONATE,
     ConVar:CVAR_MESSAGES_CLASS_INFO,
     ConVar:CVAR_MESSAGES_CLASS_CHOOSE,
+    ConVar:CVAR_MESSAGES_CLASS_DUMP,
     ConVar:CVAR_MESSAGES_ITEM_INFO,
     ConVar:CVAR_MESSAGES_ITEM_ALL,
     ConVar:CVAR_MESSAGES_WEAPON_INFO,
@@ -258,7 +264,7 @@ void CvarsOnLoad(/*void*/)
 
     // Gets cvars file path
     static char sPathCvars[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_CVARS, sPathCvars, false);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CVARS, sPathCvars, sizeof(sPathCvars), false);
 
     // If file doesn't exist, then log and stop
     if(!bExists)

@@ -36,6 +36,14 @@
   #include <sdkhooks>
 #endif
 
+#if !defined _sdktools_included
+  #include <sdktools>
+#endif
+
+#if !defined _PTaH_included
+  #include <ptah>
+#endif
+
 //*********************************************************************
 //*                       CORE MAIN FORWARDS                          *
 //*********************************************************************
@@ -54,101 +62,122 @@ forward void ZP_OnEngineExecute(/*void*/);
 /**
  * Validate the attachment on the entity.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @param attach            The attachment name.
  *
  * @return                  True or false.
  **/
-native bool ZP_LookupAttachment(int entityIndex, char[] attach);
+native bool ZP_LookupAttachment(int entity, char[] attach);
 
 /**
  * Gets the attachment of the entity.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @param attach            The attachment name.
  * @param origin            The origin output.
  * @param angle             The angle output.
  *
  * @noreturn
  **/
-native void ZP_GetAttachment(int entityIndex, char[] attach, float origin[3], float angles[3]);
+native void ZP_GetAttachment(int entity, char[] attach, float origin[3], float angles[3]);
 
 /**
  * @brief Gets the sequence of the entity.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @param anim              The sequence name. (activity name)
  *
  * @return                  The sequence index.
  **/
-native int ZP_LookupSequence(int entityIndex, char[] anim);
+native int ZP_LookupSequence(int entity, char[] anim);
 
 /**
  * @brief Gets the pose of the entity.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @param pose              The pose name.
  *
  * @return                  The pose parameter.
  **/
-native int ZP_LookupPoseParameter(int entityIndex, char[] pose);
+native int ZP_LookupPoseParameter(int entity, char[] pose);
 
 /**
  * @brief Resets the sequence of the entity.
  *
- * @param entityIndex       The entity index.
- * @param anim              The sequence name.
+ * @param entity            The entity index.
+ * @param anim              The sequence name. (activity name)
  *
  * @noreturn
  **/
-native void ZP_ResetSequence(int entityIndex, char[] anim);
+native void ZP_ResetSequence(int entity, char[] anim);
 
 /**
  * @brief Gets the total sequence amount.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  *
  * @return                  The sequence count.
  **/
-native int ZP_GetSequenceCount(int entityIndex);
+native int ZP_GetSequenceCount(int entity);
 
 /**
  * @brief Gets the duration of a sequence.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @param sequence          The sequence index.
  *
  * @return                  The sequence duration. 
  **/
-native float ZP_GetSequenceDuration(int entityIndex, int sequence);
+native float ZP_GetSequenceDuration(int entity, int sequence);
 
 /**
  * @brief Gets the activity of a sequence.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  * @param sequence          The sequence index.
  *
  * @return                  The activity index.
  **/
-native int ZP_GetSequenceActivity(int entityIndex, int sequence);
+native int ZP_GetSequenceActivity(int entity, int sequence);
 
 /**
  * @brief Checks that the entity is a brush.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  *  
  * @return                  True or false.
  **/
-native bool ZP_IsBSPModel(int clientIndex);
+native bool ZP_IsBSPModel(int entity);
 
 /**
- * @brief Respawn a player.
+ * @brief Update a entity transmit state.
  *
- * @param clientIndex       The client index.
- *  
- * @return                  True or false.
-**/
-native bool ZP_RespawnClient(int clientIndex);
+ * @param entity            The entity index.
+ *
+ * @noreturn
+ **/
+native void ZP_UpdateTransmitState(int entity);
+
+/**
+ * @brief Sets the player animating event.
+ *
+ * @param client            The client index.
+ * @param anim              The event type.
+ * @param data              The activity index.
+ *
+ * @noreturn
+ **/
+native void ZP_DoAnimationEvent(int client, AnimType anim, int data = 0);
+
+/**
+ * @brief Sets the player progress bar.
+ *
+ * @param client            The client index.
+ * @param duration          The duration in the seconds.
+ *
+ * @noreturn
+ **/
+native void ZP_SetProgressBarTime(int client, int duration);
 
 /**
  * @brief Used to iterate all the clients collision within a sphere.
@@ -162,62 +191,61 @@ native bool ZP_RespawnClient(int clientIndex);
 native int ZP_FindPlayerInSphere(int &it, float center[3], float radius);
 
 /**
- * @brief Emulate 'bullet_shot' on the server and does the damage calculations.
- *
- * @param clientIndex       The client index.
- * @param weaponIndex       The weapon index.
- * @param origin            The position to the spawn.
- * @param angle             The angle to the spawn.
- * @param mode              The mode index.
- * @param seed              The randomizing seed.
- * @param inaccuracy        The inaccuracy variable.
- * @param spread            The spread variable.
- * @param sound             The sound type.
- *
- * @return                  True or false.
- **/
-native bool ZP_FireBullets(int clientIndex, int weaponIndex, float origin[3], float angle[3], int mode, int seed, float inaccuracy, float spread, int sound);
-
-/**
  * @brief Returns whether a player is in group or not.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param group             The group name.
  *  
  * @return                  True or false.
  **/
-native bool ZP_IsPlayerInGroup(int clientIndex, char[] group);
+native bool ZP_IsPlayerInGroup(int client, char[] group);
 
 /**
  * @brief Returns true if the player is a zombie, false if not. 
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  True or false.
  **/
-native bool ZP_IsPlayerZombie(int clientIndex);
+native bool ZP_IsPlayerZombie(int client);
 
 /**
  * @brief Returns true if the player is a human, false if not.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  True or false.
  **/
-native bool ZP_IsPlayerHuman(int clientIndex);
+native bool ZP_IsPlayerHuman(int client);
 
 /**
  * @brief Gets the last player disconnected time.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  The 32bit timestamp. (Number of seconds since unix epoch)
  **/
-native int ZP_GetClientTime(int clientIndex);
+native int ZP_GetPlayerTime(int client);
+
+/**
+ * @brief Respawn a player.
+ *
+ * @param client            The client index.
+ *  
+ * @return                  True or false.
+**/
+native bool ZP_RespawnPlayer(int client);
 
 //*********************************************************************
 //*                       CORE USEFUL NATIVES                         *
 //*********************************************************************
+
+/**
+ * @brief Gets the map load state.
+ *
+ * @return                  True or false.
+ **/
+native bool ZP_IsMapLoaded();
 
 /**
  * @brief Gets the new round state.

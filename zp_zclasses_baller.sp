@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -64,7 +65,7 @@ public Plugin myinfo =
  **/
 
 // Timer index
-Handle Task_HumanBlasted[MAXPLAYERS+1] = null;
+Handle hHumanBlasted[MAXPLAYERS+1] = null;
  
 // Sound index
 int gSound; ConVar hSoundLevel;
@@ -75,13 +76,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("baller");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"baller\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"baller\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("BALLER_SKILL_SOUNDS");
@@ -101,115 +120,116 @@ public void OnMapEnd(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
-        Task_HumanBlasted[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
+        hHumanBlasted[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
 }
 
 /**
  * @brief Called when a client is disconnecting from the server.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void OnClientDisconnect(int clientIndex)
+public void OnClientDisconnect(int client)
 {
     // Delete timer
-    delete Task_HumanBlasted[clientIndex];
+    delete hHumanBlasted[client];
 }
 
 /**
  * @brief Called when a client became a zombie/human.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-public void ZP_OnClientUpdated(int clientIndex, int attackerIndex)
+public void ZP_OnClientUpdated(int client, int attacker)
 {
-    // Reset move
-    SetEntityMoveType(clientIndex, MOVETYPE_WALK);
+    // Resets move
+    SetEntityMoveType(client, MOVETYPE_WALK);
     
     // Delete timer
-    delete Task_HumanBlasted[clientIndex];
+    delete hHumanBlasted[client];
 }
 
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
-        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
+        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
         
         // Gets client eye position
-        GetClientEyePosition(clientIndex, vPosition);
+        GetClientEyePosition(client, vPosition);
         
         // Gets client eye angle
-        GetClientEyeAngles(clientIndex, vAngle);
+        GetClientEyeAngles(client, vAngle);
 
         // Gets client speed
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
+        GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a blast entity
-        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/player/custom_player/zombie/aura_shield/aura_shield2.mdl");
+        int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/player/custom_player/zombie/aura_shield/aura_shield2.mdl");
         
         // Validate entity
-        if(entityIndex != INVALID_ENT_REFERENCE)
+        if(entity != -1)
         {
             // Sets blast model scale
-            SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", ZOMBIE_CLASS_SKILL_SIZE);
+            SetEntPropFloat(entity, Prop_Send, "m_flModelScale", ZOMBIE_CLASS_SKILL_SIZE);
             
             // Returns vectors in the direction of an angle
-            GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
+            GetAngleVectors(vAngle, vSpeed, NULL_VECTOR, NULL_VECTOR);
             
             // Normalize the vector (equal magnitude at varying distances)
-            NormalizeVector(vEntVelocity, vEntVelocity);
+            NormalizeVector(vSpeed, vSpeed);
             
             // Apply the magnitude by scaling the vector
-            ScaleVector(vEntVelocity, ZOMBIE_CLASS_SKILL_SPEED);
+            ScaleVector(vSpeed, ZOMBIE_CLASS_SKILL_SPEED);
 
             // Adds two vectors
-            AddVectors(vEntVelocity, vVelocity, vEntVelocity);
+            AddVectors(vSpeed, vVelocity, vSpeed);
 
             // Push the blast
-            TeleportEntity(entityIndex, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
+            TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
+            TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
 
             // Sets parent for the entity
-            SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+            SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
+            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
+            SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
             
             // Sets gravity
-            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", ZOMBIE_CLASS_SKILL_GRAVITY);
-            SetEntPropFloat(entityIndex, Prop_Send, "m_flElasticity", ZOMBIE_CLASS_SKILL_ELASTICITY);
+            SetEntPropFloat(entity, Prop_Data, "m_flGravity", ZOMBIE_CLASS_SKILL_GRAVITY);
+            SetEntPropFloat(entity, Prop_Data, "m_flElasticity", ZOMBIE_CLASS_SKILL_ELASTICITY);
             
             // Play sound
-            ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
             
             // Create an effect
-            UTIL_CreateParticle(entityIndex, vPosition, _, _, "gamma_blue", ZP_GetClassSkillDuration(gZombie));
+            UTIL_CreateParticle(entity, vPosition, _, _, "gamma_blue", ZP_GetClassSkillDuration(gZombie));
             
             // Put fire on it
-            UTIL_IgniteEntity(entityIndex, ZP_GetClassSkillDuration(gZombie));
+            UTIL_IgniteEntity(entity, ZP_GetClassSkillDuration(gZombie));
 
             // Sets blue render color
-            SetEntityRenderMode(entityIndex, RENDER_TRANSCOLOR);
-            SetEntityRenderColor(entityIndex, 186, 85, 211, 255);
-
+            SetEntityRenderMode(entity, RENDER_TRANSCOLOR);
+            SetEntityRenderColor(entity, 186, 85, 211, 255);
+            
             // Create touch hook
-            SDKHook(entityIndex, SDKHook_Touch, BlastTouchHook);
+            SDKHook(entity, SDKHook_Touch, BlastTouchHook);
             
             // Create remove timer
-            CreateTimer(ZP_GetClassSkillDuration(gZombie), BlastExploadHook, EntIndexToEntRef(entityIndex), TIMER_FLAG_NO_MAPCHANGE);
+            CreateTimer(ZP_GetClassSkillDuration(gZombie), BlastExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
         }
     }
     
@@ -220,13 +240,13 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 /**
  * @brief Blast touch hook.
  * 
- * @param entityIndex       The entity index.        
- * @param targetIndex       The target index.               
+ * @param entity            The entity index.        
+ * @param target            The target index.               
  **/
-public Action BlastTouchHook(int entityIndex, int targetIndex)
+public Action BlastTouchHook(int entity, int target)
 {
     // Play sound
-    ZP_EmitSoundToAll(gSound, GetRandomInt(3, 4), entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+    ZP_EmitSoundToAll(gSound, GetRandomInt(3, 4), entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
     
     // Return on the success
     return Plugin_Continue;
@@ -236,29 +256,29 @@ public Action BlastTouchHook(int entityIndex, int targetIndex)
  * @brief Main timer for exploade blast.
  * 
  * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.                    
+ * @param refID             The reference index.                    
  **/
-public Action BlastExploadHook(Handle hTimer, int referenceIndex)
+public Action BlastExploadHook(Handle hTimer, int refID)
 {
     // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
+    int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    if(entity != -1)
     {
         // Gets entity position
         static float vPosition[3];
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
         // Create an explosion effect
         UTIL_CreateParticle(_, vPosition, _, _, "Explosions_MA_Dustup_2", ZOMBIE_CLASS_SKILL_EXP_TIME);
         
-        // Create the damage for victims
-        UTIL_CreateDamage(_, vPosition, GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower"), ZOMBIE_CLASS_SKILL_EXP_DAMAGE, ZOMBIE_CLASS_SKILL_EXP_RADIUS, DMG_SHOCK);
+        // Gets thrower index
+        int thrower = GetEntPropEnt(entity, Prop_Data, "m_hThrower");
         
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_EXP_RADIUS)) != INVALID_ENT_REFERENCE)
+        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_EXP_RADIUS)) != -1)
         {
             // Skip zombies
             if(ZP_IsPlayerZombie(i))
@@ -266,9 +286,12 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
                 continue;
             }
 
-            // Blaat the client
+            // Blast the client
             SetEntityMoveType(i, MOVETYPE_NONE);
 
+            // Create the damage for victim
+            ZP_TakeDamage(i, thrower, thrower, ZOMBIE_CLASS_SKILL_EXP_DAMAGE, DMG_SHOCK);
+            
             // Create a fade
             UTIL_CreateFadeScreen(i, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);
             
@@ -276,16 +299,19 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
             UTIL_CreateShakeScreen(i, ZOMBIE_CLASS_SKILL_SHAKE_AMP, ZOMBIE_CLASS_SKILL_SHAKE_FREQUENCY, ZOMBIE_CLASS_SKILL_SHAKE_DURATION);
             
             // Create timer for removing freezing
-            delete Task_HumanBlasted[i];
-            Task_HumanBlasted[i] = CreateTimer(ZOMBIE_CLASS_SKILL_DURATION, ClientRemoveBlastEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);    
+            delete hHumanBlasted[i];
+            hHumanBlasted[i] = CreateTimer(ZOMBIE_CLASS_SKILL_DURATION, ClientRemoveBlastEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);    
         }
         
         // Play sound
-        ZP_EmitSoundToAll(gSound, 5, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 5, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
         // Remove entity from the world
-        AcceptEntityInput(entityIndex, "Kill");
+        AcceptEntityInput(entity, "Kill");
     }
+    
+    // Destroy timer
+    return Plugin_Stop;
 }
 
 /**
@@ -297,16 +323,16 @@ public Action BlastExploadHook(Handle hTimer, int referenceIndex)
 public Action ClientRemoveBlastEffect(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
     
     // Clear timer 
-    Task_HumanBlasted[clientIndex] = null;
+    hHumanBlasted[client] = null;
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {    
         // Untrap the client
-        SetEntityMoveType(clientIndex, MOVETYPE_WALK);
+        SetEntityMoveType(client, MOVETYPE_WALK);
     }
 
     // Destroy timer

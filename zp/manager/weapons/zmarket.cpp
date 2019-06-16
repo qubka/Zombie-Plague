@@ -26,40 +26,89 @@
  **/
 
 /**
+ * @brief Market module init function.
+ **/
+void ZMarketOnInit(/*void*/)
+{
+    // Initialize map containg market names and types
+    gServerData.Market = new StringMap();
+    
+    // Push data into map
+    gServerData.Market.SetValue("pistol", MenuType_Pistols);
+    gServerData.Market.SetValue("shotgun", MenuType_Shotguns);
+    gServerData.Market.SetValue("rifle", MenuType_Rifles);
+    gServerData.Market.SetValue("sniper", MenuType_Snipers);
+    gServerData.Market.SetValue("machinegun", MenuType_Machineguns);
+    gServerData.Market.SetValue("knife",  MenuType_Knifes);
+    gServerData.Market.SetValue("equipment", MenuType_Equipments);
+    gServerData.Market.SetValue("custom", MenuType_Invalid);
+}
+
+/**
  * @brief Client has been changed class state. *(Post)
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ZMarketOnClientUpdate(int clientIndex)
+void ZMarketOnClientUpdate(int client)
 {
     // Resets purchase counts for client
-    ZMarketRebuyMenu(clientIndex);
+    ZMarketRebuyMenu(client);
     
     // Validate real client
-    if(!IsFakeClient(clientIndex)) 
+    if(gCvarList[CVAR_BUY_BUTTON].BoolValue && !IsFakeClient(client)) 
     {
         // Unlock VGUI buy panel
-        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(clientIndex, "1");
+        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "1");
     }
 }
 
 /**
  * @brief Creates commands for market module.
  **/
- void ZMarketOnCommandInit(/*void*/)
+void ZMarketOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_rebuy_menu", ZMarketRebuyOnCommandCatched, "Changes the rebuy state.");
+    RegConsoleCmd("zp_rebuy_menu", ZMarketRebuyOnCommandCatched, "Opens the rebuy menu.");
     RegConsoleCmd("zp_pistol_menu", ZMarketPistolsOnCommandCatched, "Opens the pistols menu.");
     RegConsoleCmd("zp_shotgun_menu", ZMarketShotgunsOnCommandCatched, "Opens the shotguns menu.");
     RegConsoleCmd("zp_rifle_menu", ZMarketRiflesOnCommandCatched, "Opens the rifles menu.");
     RegConsoleCmd("zp_sniper_menu", ZMarketSnipersOnCommandCatched, "Opens the snipers menu.");
     RegConsoleCmd("zp_machinegun_menu", ZMarketMachinegunsOnCommandCatched, "Opens the machineguns menu.");
     RegConsoleCmd("zp_knife_menu", ZMarketKnifesOnCommandCatched, "Opens the knifes menu.");
+    RegConsoleCmd("zp_equipment_menu", ZMarketEquipsOnCommandCatched, "Opens the equipments menu.");
+}
+
+/**
+ * @brief Hook market cvar changes.
+ **/
+void ZMarketOnCvarInit(/*void*/)
+{
+    // Creates cvars
+    gCvarList[CVAR_BUY_BUTTON] = FindConVar("zp_buy_button");
     
-    // Hook listeners
-    AddCommandListener(ZMarketOnCommandListened, "open_buymenu");
-    //AddCommandListener(ZMarketOnCommandListened, "close_buymenu");
+    // Hook cvars
+    HookConVarChange(gCvarList[CVAR_BUY_BUTTON], ZMarketOnCvarHook);
+    
+    // Load cvars
+    ZMarketOnCvarLoad();
+}
+
+/**
+ * @brief Load market listeners changes.
+ **/
+void ZMarketOnCvarLoad(/*void*/)
+{
+    // Validate buy button
+    if(gCvarList[CVAR_BUY_BUTTON].BoolValue)
+    {
+        // Hook listeners
+        AddCommandListener(ZMarketOnCommandListened, "open_buymenu");
+    }
+    else
+    {
+        // Unhook listeners
+        RemoveCommandListener2(ZMarketOnCommandListened, "open_buymenu");
+    }
 }
 
 /*
@@ -67,28 +116,48 @@ void ZMarketOnClientUpdate(int clientIndex)
  */
 
 /**
+ * Cvar hook callback (zp_buy_button)
+ * @brief Buymenu button hooks initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ZMarketOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+{
+    // Validate new value
+    if(!strcmp(oldValue, newValue, false))
+    {
+        return;
+    }
+    
+    // Forward event to modules
+    ZMarketOnCvarLoad();
+}
+ 
+/**
  * Listener command callback (open_buymenu)
  * @brief Buying of the weapons.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action ZMarketOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
+public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate real client
-    if(IsPlayerExist(clientIndex) && !IsFakeClient(clientIndex))
+    if(IsPlayerExist(client) && !IsFakeClient(client))
     {
         // Lock VGUI buy panel
-        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(clientIndex, "0");
+        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "0");
         
         // Opens weapon menu
-        int iD[2]; iD = MenusCommandToArray("zp_rebuy_menu");
-        if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+        int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+        if(iD[0] != -1) SubMenu(client, iD[0]);
         
         // Sets timer for reseting command
-        delete gClientData[clientIndex].BuyTimer;
-        gClientData[clientIndex].BuyTimer = CreateTimer(1.0, ZMarketOnClientBuyMenu, GetClientUserId(clientIndex), TIMER_FLAG_NO_MAPCHANGE);
+        delete gClientData[client].BuyTimer;
+        gClientData[client].BuyTimer = CreateTimer(1.0, ZMarketOnClientBuyMenu, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
@@ -101,16 +170,16 @@ public Action ZMarketOnCommandListened(int clientIndex, char[] commandMsg, int i
 public Action ZMarketOnClientBuyMenu(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Clear timer
-    gClientData[clientIndex].BuyTimer = null;
+    gClientData[client].BuyTimer = null;
     
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Unlock VGUI buy panel
-        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(clientIndex, "1");
+        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "1");
     }
     
     // Destroy timer
@@ -119,10 +188,10 @@ public Action ZMarketOnClientBuyMenu(Handle hTimer, int userID)
 /**
  * @brief Called when a player attempts to purchase an item.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param sName             The weapon name.
  **/
-public Action CS_OnBuyCommand(int clientIndex, const char[] sName)
+public Action CS_OnBuyCommand(int client, const char[] sName)
 {
     // Block buy
     return Plugin_Handled;
@@ -132,15 +201,12 @@ public Action CS_OnBuyCommand(int clientIndex, const char[] sName)
  * Console command callback (zp_rebuy_menu)
  * @brief Changes the rebuy state.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketRebuyOnCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketRebuyOnCommandCatched(int client, int iArguments)
 {
-    gClientData[clientIndex].AutoRebuy = !gClientData[clientIndex].AutoRebuy; 
-    DataBaseOnClientUpdate(clientIndex, ColumnType_Rebuy);
-    int iD[2]; iD = MenusCommandToArray("zp_rebuy_menu");
-    if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+    ZMarketOptionMenu(client);
     return Plugin_Handled;
 }
 
@@ -148,12 +214,12 @@ public Action ZMarketRebuyOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_pistols_menu)
  * @brief Opens the pistols menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketPistolsOnCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketPistolsOnCommandCatched(int client, int iArguments)
 {
-    ZMarketMenu(clientIndex, "buy pistols", MenuType_Pistols); 
+    ZMarketMenu(client, "buy pistols", MenuType_Pistols); 
     return Plugin_Handled;
 }
 
@@ -161,12 +227,12 @@ public Action ZMarketPistolsOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_shotguns_menu)
  * @brief Opens the shotguns menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketShotgunsOnCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketShotgunsOnCommandCatched(int client, int iArguments)
 {
-    ZMarketMenu(clientIndex, "buy shotguns", MenuType_Shotguns); 
+    ZMarketMenu(client, "buy shotguns", MenuType_Shotguns); 
     return Plugin_Handled;
 }
 
@@ -174,12 +240,12 @@ public Action ZMarketShotgunsOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_rifles_menu)
  * @brief Opens the rifles menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketRiflesOnCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketRiflesOnCommandCatched(int client, int iArguments)
 {
-    ZMarketMenu(clientIndex, "buy rifles", MenuType_Rifles); 
+    ZMarketMenu(client, "buy rifles", MenuType_Rifles); 
     return Plugin_Handled;
 }
 
@@ -187,12 +253,12 @@ public Action ZMarketRiflesOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_snipers_menu)
  * @brief Opens the snipers menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketSnipersOnCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketSnipersOnCommandCatched(int client, int iArguments)
 {
-    ZMarketMenu(clientIndex, "buy snipers", MenuType_Snipers); 
+    ZMarketMenu(client, "buy snipers", MenuType_Snipers); 
     return Plugin_Handled;
 }
 
@@ -200,12 +266,12 @@ public Action ZMarketSnipersOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_machineguns_menu)
  * @brief Opens the machineguns menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketMachinegunsOnCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketMachinegunsOnCommandCatched(int client, int iArguments)
 {
-    ZMarketMenu(clientIndex, "buy machineguns", MenuType_Machineguns); 
+    ZMarketMenu(client, "buy machineguns", MenuType_Machineguns); 
     return Plugin_Handled;
 }
 
@@ -213,30 +279,44 @@ public Action ZMarketMachinegunsOnCommandCatched(int clientIndex, int iArguments
  * Console command callback (zp_knifes_menu)
  * @brief Opens the knifes menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketKnifesOnCommandCatched(int clientIndex, int iArguments)
+public Action ZMarketKnifesOnCommandCatched(int client, int iArguments)
 {
-    ZMarketMenu(clientIndex, "buy knifes", MenuType_Knifes); 
+    ZMarketMenu(client, "buy knifes", MenuType_Knifes); 
+    return Plugin_Handled;
+}
+
+/**
+ * Console command callback (zp_equipment_menu)
+ * @brief Opens the equipments menu.
+ * 
+ * @param client            The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action ZMarketEquipsOnCommandCatched(int client, int iArguments)
+{
+    ZMarketMenu(client, "buy equipments", MenuType_Equipments); 
     return Plugin_Handled;
 }
 
 /*
- * Stocks market API.
+ * Market functions.
  */
 
 /**
  * @brief Creates the weapons menu.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param sTitle            The menu title.
- * @param mSlot             The slot index selected. (starting from 0)
+ * @param mSlot             (Optional) The slot index.
+ * @param sType             (Optional) The class type.
  **/
-void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invisible) 
+void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments, char[] sType = "") 
 {
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return;
     }
@@ -245,10 +325,10 @@ void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invis
     if(gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode))
     {
         // Show block info
-        TranslationPrintHintText(clientIndex, "buying round block"); 
+        TranslationPrintHintText(client, "buying round block"); 
 
         // Emit error sound
-        ClientCommand(clientIndex, "play buttons/button11.wav");
+        ClientCommand(client, "play buttons/weapon_cant_buy.wav");
         return;
     }
 
@@ -260,86 +340,110 @@ void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invis
     static char sLimit[SMALL_LINE_LENGTH];
     static char sOnline[SMALL_LINE_LENGTH];
     static char sGroup[SMALL_LINE_LENGTH];
-
-    // Initialize variables
-    Action resultHandle; Menu hMenu; bool bMenu = mSlot != MenuType_Invisible; static bool bLock[MAXPLAYERS+1];
+    static char sClass[MAXPLAYERS+1][SMALL_LINE_LENGTH];
     
-    // Validate shop menu
-    if(bMenu)
-    {
-        // Creates menu handle
-        hMenu = CreateMenu(ZMarketMenuSlots1);
-        
-        // Clear history
-        if(!bLock[clientIndex]) 
-        {
-            ZMarketResetPurchaseCount(clientIndex);
-            bLock[clientIndex] = true;
-        }
-    }
-    else
-    {
-        // Boolean for reseting history
-        bLock[clientIndex] = false;
-        
-        // Creates menu handle
-        hMenu = CreateMenu(ZMarketMenuSlots2);
-    }
+    // Update class type mode
+    if(hasLength(sType)) strcopy(sClass[client], sizeof(sClass[]), sType);
+    
+    // Initialize variables
+    Action hResult; Menu hMenu = ZMarketSlotToHandle(client, mSlot); bool bMenu = (mSlot != MenuType_Rebuy); bool bRebuy = (mSlot == MenuType_Add || mSlot == MenuType_Option);
 
     // Sets language to target
-    SetGlobalTransTarget(clientIndex);
+    SetGlobalTransTarget(client);
+
+    // Validate add menu
+    if(mSlot == MenuType_Option)
+    {
+        // Format some chars for showing in menu
+        FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "add");
+        
+        // Show add option
+        hMenu.AddItem("-1", sBuffer);
+    }
     
     // Format title for showing in menu
-    FormatEx(sBuffer, sizeof(sBuffer), "%t", sTitle);
-    
+    FormatEx(sBuffer, sizeof(sBuffer), "%t", bRebuy && hasLength(sClass[client]) ? sClass[client] : sTitle);
+
     // Sets title
     hMenu.SetTitle(sBuffer);
 
     // i = array number
-    int iCount = bMenu ? gServerData.Weapons.Length : gClientData[clientIndex].ShoppingCart.Length;
-    for(int i = 0; i < iCount; i++)
+    int iSize = ZMarketSlotToCount(client, mSlot); int iAmount;
+    for(int i = 0; i < iSize; i++)
     {
         // Gets weapon id from the list
-        int iD = bMenu ? i : gClientData[clientIndex].ShoppingCart.Get(i);
-        
-        // Call forward
-        gForwardData._OnClientValidateWeapon(clientIndex, iD, resultHandle);
-        
-        // Skip, if weapon is disabled
-        if(resultHandle == Plugin_Stop)
-        {
-            continue;
-        }
-        
-        // Skip some weapons, if slot isn't equal
-        if(bMenu && WeaponsGetSlot(iD) != mSlot) 
-        {
-            continue;
-        }
-        
-        // Skip some weapons, if class isn't equal
-        if(!WeaponsValidateClass(clientIndex, iD))
-        {
-            continue;
-        }    
-    
-        // Gets weapon data
-        WeaponsGetName(iD, sName, sizeof(sName));
-        WeaponsGetGroup(iD, sGroup, sizeof(sGroup));
-        
-        // Format some chars for showing in menu
-        FormatEx(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(iD));
-        FormatEx(sLimit, sizeof(sLimit), "%t", "limit", WeaponsGetLimit(iD));
-        FormatEx(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(iD));      
-        FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%t  %s  %t" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[clientIndex].Level < WeaponsGetLevel(iD)) ? sLevel : (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(clientIndex, iD)) ? sLimit : (fnGetPlaying() < WeaponsGetOnline(iD)) ? sOnline : "", "price", WeaponsGetCost(iD), "money");
+        int iD = ZMarketSlotToIndex(client, mSlot, i);
 
-        // Show option
-        IntToString(iD, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || WeaponsValidateID(clientIndex, iD) || gClientData[clientIndex].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(clientIndex, iD) || gClientData[clientIndex].Money < WeaponsGetCost(iD) ? false : true));
+        // Validate add/option menu
+        if(bRebuy)
+        {
+            // Skip some weapons, if class isn't equal
+            if(!WeaponsValidateByClass(iD, sClass[client]))
+            {
+                continue;
+            }
+            
+            // Skip some weapons, if slot isn't equal
+            if(WeaponsGetSlot(iD) == MenuType_Invalid) 
+            {
+                continue;
+            }
+            
+            // Gets weapon data
+            WeaponsGetName(iD, sName, sizeof(sName));
+
+            // Format some chars for showing in menu    
+            FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+
+            // Show option
+            IntToString(iD, sInfo, sizeof(sInfo));
+            hMenu.AddItem(sInfo, sBuffer);
+        }
+        // Default menu
+        else
+        {
+            // Call forward
+            gForwardData._OnClientValidateWeapon(client, iD, hResult);
+            
+            // Skip, if weapon is disabled
+            if(hResult == Plugin_Stop)
+            {
+                continue;
+            }
+            
+            // Skip some weapons, if slot isn't equal
+            if(bMenu && WeaponsGetSlot(iD) != mSlot) 
+            {
+                continue;
+            }
+            
+            // Skip some weapons, if class isn't equal
+            if(!WeaponsValidateClass(client, iD))
+            {
+                continue;
+            }    
+
+            // Gets weapon data
+            WeaponsGetName(iD, sName, sizeof(sName));
+            WeaponsGetGroup(iD, sGroup, sizeof(sGroup));
+            
+            // Format some chars for showing in menu
+            FormatEx(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(iD));
+            FormatEx(sLimit, sizeof(sLimit), "%t", "limit", WeaponsGetLimit(iD));
+            FormatEx(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(iD));      
+            FormatEx(sBuffer, sizeof(sBuffer), (WeaponsGetCost(iD)) ? "%t  %s  %t" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[client].Level < WeaponsGetLevel(iD)) ? sLevel : (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD)) ? sLimit : (fnGetPlaying() < WeaponsGetOnline(iD)) ? sOnline : "", "price", WeaponsGetCost(iD), "money");
+
+            // Show option
+            IntToString(iD, sInfo, sizeof(sInfo));
+            hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || WeaponsValidateByID(client, iD) || gClientData[client].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD) || gClientData[client].Money < WeaponsGetCost(iD) ? false : true));
+        }
+        
+        // Increment amount
+        iAmount++;
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iCount)
+    if(!iAmount)
     {   
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -351,21 +455,7 @@ void ZMarketMenu(int clientIndex, char[] sTitle, MenuType mSlot = MenuType_Invis
 
     // Sets options and display it
     hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
-}
-
-/**
- * @brief Called when client selects option in the shop menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
-{
-    // Call menu
-    ZMarketMenuSlots(hMenu, mAction, clientIndex, mSlot);
+    hMenu.Display(client, MENU_TIME_FOREVER); 
 }
 
 /**
@@ -373,25 +463,10 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int clientIndex, in
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
-{
-    // Call menu
-    ZMarketMenuSlots(hMenu, mAction, clientIndex, mSlot, true);
-}
-
-/**
- * @brief Called when client selects option in the shop menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
- * @param mSlot             The slot index selected (starting from 0).
- * @param bRebuy            (Optional) True to set the rebuy mode, false to set normal mode.
- **/ 
-void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot, bool bRebuy = false)
+public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -408,8 +483,8 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot
             if(mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
-                int iD[2]; iD = MenusCommandToArray("zp_rebuy_menu");
-                if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+                int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+                if(iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -417,7 +492,173 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(clientIndex))
+            if(!IsPlayerExist(client, false))
+            {
+                return;
+            }
+           
+            // Gets menu info
+            static char sBuffer[BIG_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            int iD = StringToInt(sBuffer);
+
+            // Validate button info
+            switch(iD)
+            {
+                // Client hit 'Add' button
+                case -1 :
+                {
+                    // Opens market menu back
+                    ZMarketMenu(client, "add", MenuType_Add);
+                }
+                
+                // Client hit 'Weapon' button
+                default :
+                {
+                    // Validate index
+                    int iIndex = gClientData[client].DefaultCart.FindValue(iD);
+                    if(iIndex != -1)
+                    {
+                        // Remove index from the history
+                        gClientData[client].DefaultCart.Erase(iIndex);
+                    }
+                    
+                    // Gets weapon name
+                    WeaponsGetName(iD, sBuffer, sizeof(sBuffer));
+                    
+                    // Remove weapon from the database
+                    DataBaseOnClientUpdate(client, ColumnType_Weapon, FactoryType_Delete, sBuffer);
+                    
+                    // Opens market menu back
+                    ZMarketMenu(client, "rebuy", MenuType_Option);
+                }
+            }
+        }
+    }
+}
+
+/**
+ * @brief Called when client selects option in the rebuy menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
+{
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Opens market menu back
+                ZMarketMenu(client, "rebuy", MenuType_Option);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(client, false))
+            {
+                return;
+            }
+           
+            // Gets menu info
+            static char sBuffer[BIG_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+            int iD = StringToInt(sBuffer);
+
+            // Gets weapon name
+            WeaponsGetName(iD, sBuffer, sizeof(sBuffer));
+            
+            // Add index to the history
+            gClientData[client].DefaultCart.Push(iD);
+
+            // Insert weapon in the database
+            DataBaseOnClientUpdate(client, ColumnType_Weapon, FactoryType_Insert, sBuffer);
+            
+            // Opens market menu back
+            ZMarketMenu(client, "rebuy", MenuType_Option);
+        }
+    }
+}
+
+/**
+ * @brief Called when client selects option in the rebuy menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSlot)
+{
+    // Call menu
+    ZMarketMenuSlots(hMenu, mAction, client, mSlot, true);
+}
+
+/**
+ * @brief Called when client selects option in the shop menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketMenuSlots4(Menu hMenu, MenuAction mAction, int client, int mSlot)
+{
+    // Call menu
+    ZMarketMenuSlots(hMenu, mAction, client, mSlot);
+}
+
+/**
+ * @brief Called when client selects option in the shop menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ * @param bRebuy            (Optional) True to set the rebuy mode, false to set normal mode.
+ **/ 
+void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bRebuy = false)
+{
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Opens menu back
+                int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+                if(iD[0] != -1) SubMenu(client, iD[0]);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(client))
             {
                 return;
             }
@@ -426,10 +667,10 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot
             if((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
             {
                 // Show block info
-                TranslationPrintHintText(clientIndex, "buying round block");
+                TranslationPrintHintText(client, "buying round block");
         
                 // Emit error sound
-                ClientCommand(clientIndex, "play buttons/button11.wav");    
+                ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
                 return;
             }
 
@@ -439,94 +680,83 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot
             int iD = StringToInt(sBuffer);
 
             // Call forward
-            Action resultHandle; 
-            gForwardData._OnClientValidateWeapon(clientIndex, iD, resultHandle);
+            Action hResult; 
+            gForwardData._OnClientValidateWeapon(client, iD, hResult);
             
             // Validate handle
-            if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+            if(hResult == Plugin_Continue || hResult == Plugin_Changed)
             {
                 // Validate access
-                if(!WeaponsValidateID(clientIndex, iD) && WeaponsValidateClass(clientIndex, iD))
+                if(!WeaponsValidateByID(client, iD) && WeaponsValidateClass(client, iD))
                 {
-                    // Gets weapon classname
-                    WeaponsGetEntity(iD, sBuffer, sizeof(sBuffer));
-
                     // Validate primary/secondary weapon
-                    if(strncmp(sBuffer[7], "tas", 3, false))
+                    ItemDef iItem = WeaponsGetDefIndex(iD);
+                    if(!IsGrenade(iItem) && !IsItem(iItem) && iItem != ItemDef_Taser)
                     {
                         // Drop weapon
-                        WeaponsDrop(clientIndex, GetPlayerWeaponSlot(clientIndex, (WeaponsGetSlot(iD) == MenuType_Pistols) ? SlotType_Secondary : ((WeaponsGetSlot(iD) == MenuType_Knifes) ? SlotType_Melee : SlotType_Primary)), true);
+                        WeaponsDrop(client, GetPlayerWeaponSlot(client, (WeaponsGetSlot(iD) == MenuType_Pistols) ? SlotType_Secondary : ((WeaponsGetSlot(iD) == MenuType_Knifes) ? SlotType_Melee : SlotType_Primary)));
                     }
-
+                    
                     // Give weapon for the player
-                    if(WeaponsGive(clientIndex, iD) != INVALID_ENT_REFERENCE)
+                    if(WeaponsGive(client, iD) != -1)
                     {
                         // If weapon has a cost
                         if(WeaponsGetCost(iD))
                         {
                             // Remove money and store it for returning if player will be first zombie
-                            AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - WeaponsGetCost(iD));
-                            gClientData[clientIndex].LastPurchase += WeaponsGetCost(iD);
+                            AccountSetClientCash(client, gClientData[client].Money - WeaponsGetCost(iD));
+                            gClientData[client].LastPurchase += WeaponsGetCost(iD);
                         }
                         
                         // If weapon has a limit
                         if(WeaponsGetLimit(iD))
                         {
                             // Increment count
-                            WeaponsSetLimits(clientIndex, iD, WeaponsGetLimits(clientIndex, iD) + 1);
+                            WeaponsSetLimits(client, iD, WeaponsGetLimits(client, iD) + 1);
                         }
 
-                        // Gets the index of the id
-                        int iIndex = gClientData[clientIndex].ShoppingCart.FindValue(iD);
-                        
                         // Is it rebuy menu ?
                         if(bRebuy)
                         {
-                            // Validate old id
+                            // Validate index
+                            int iIndex = gClientData[client].ShoppingCart.FindValue(iD);
                             if(iIndex != -1)
                             {
                                 // Remove index from the history
-                                gClientData[clientIndex].ShoppingCart.Erase(iIndex);
+                                gClientData[client].ShoppingCart.Erase(iIndex);
 
                                 // Validate cart size
-                                if(gClientData[clientIndex].ShoppingCart.Length)
+                                if(gClientData[client].ShoppingCart.Length)
                                 {
                                     // Reopen menu
-                                    ZMarketMenu(clientIndex, "rebuy");
+                                    ZMarketMenu(client, "rebuy", MenuType_Rebuy);
                                 }
                             }
                         }
                         else
                         {
-                            // Validate new id
-                            if(iIndex == -1)
+                            // If help messages enabled, then show info
+                            if(gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
                             {
-                                // Push data into array
-                                gClientData[clientIndex].ShoppingCart.Push(iD);
-                                
-                                // If help messages enabled, then show info
-                                if(gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
-                                {
-                                    // Gets client name
-                                    static char sClient[SMALL_LINE_LENGTH];
-                                    GetClientName(clientIndex, sClient, sizeof(sClient));
+                                // Gets client name
+                                static char sInfo[SMALL_LINE_LENGTH];
+                                GetClientName(client, sInfo, sizeof(sInfo));
 
-                                    // Gets weapon name
-                                    WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
-                                    
-                                    // Show item buying info
-                                    TranslationPrintToChatAll("buy info", sClient, sBuffer);
-                                }
+                                // Gets weapon name
+                                WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
                                 
-                                // If help messages enabled, then show info
-                                if(gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
-                                {
-                                    // Gets weapon info
-                                    WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
-                                    
-                                    // Show weapon personal info
-                                    if(hasLength(sBuffer)) TranslationPrintHintText(clientIndex, sBuffer);
-                                }
+                                // Show item buying info
+                                TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+                            }
+                            
+                            // If help messages enabled, then show info
+                            if(gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
+                            {
+                                // Gets weapon info
+                                WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
+                                
+                                // Show weapon personal info
+                                if(hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
                             }
                         }
                         
@@ -540,52 +770,151 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot
             WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
     
             // Show block info
-            TranslationPrintHintText(clientIndex, "buying item block", sBuffer);
+            TranslationPrintHintText(client, "buying item block", sBuffer);
             
             // Emit error sound
-            ClientCommand(clientIndex, "play buttons/button11.wav");    
+            ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
         }
     }
 }
+
+/**
+ * @brief Creates a market option menu.
+ *
+ * @param client            The client index.
+ **/
+void ZMarketOptionMenu(int client)
+{
+    // Initialize variables
+    static char sBuffer[NORMAL_LINE_LENGTH]; 
+    static char sType[SMALL_LINE_LENGTH];
+    static char sInfo[SMALL_LINE_LENGTH];
+    
+    // Creates menu handle
+    Menu hMenu = new Menu(ZMarketListMenuSlots);
+    
+    // Sets language to target
+    SetGlobalTransTarget(client);
+    
+    // Sets title
+    hMenu.SetTitle("%t", "rebuy");
+    
+    // i = array index
+    int iSize = gServerData.Types.Length;
+    for(int i = 0; i < iSize; i++)
+    {
+        // Gets type data
+        gServerData.Types.GetString(i, sType, sizeof(sType));
+        
+        // Format some chars for showing in menu
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", sType);
+        
+        // Show option
+        FormatEx(sInfo, sizeof(sInfo), "%s", sType);
+        hMenu.AddItem(sInfo, sBuffer);
+    }
+    
+    // If there are no cases, add an "(Empty)" line
+    if(!iSize)
+    {
+        // Format some chars for showing in menu
+        FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+        hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
+    }
+    
+    // Sets exit and back button
+    hMenu.ExitBackButton = true;
+
+    // Sets options and display it
+    hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
+    hMenu.Display(client, MENU_TIME_FOREVER); 
+}
+
+/**
+ * @brief Called when client selects option in the market option menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
+{   
+    // Switch the menu action
+    switch(mAction)
+    {
+        // Client hit 'Exit' button
+        case MenuAction_End :
+        {
+            delete hMenu;
+        }
+        
+        // Client hit 'Back' button
+        case MenuAction_Cancel :
+        {
+            if(mSlot == MenuCancel_ExitBack)
+            {
+                // Opens menu back
+                int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+                if(iD[0] != -1) SubMenu(client, iD[0]);
+            }
+        }
+        
+        // Client selected an option
+        case MenuAction_Select :
+        {
+            // Validate client
+            if(!IsPlayerExist(client, false))
+            {
+                return;
+            }
+
+            // Gets menu info
+            static char sInfo[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
+
+            // Opens market menu back
+            ZMarketMenu(client, "rebuy", MenuType_Option, sInfo);
+        }
+    }
+}
+
+/*
+ * Stocks market API.
+ */
 
 /**
  * @brief Rebuys weapons if auto-rebuy is enabled and player is a human. (alive)
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ZMarketRebuyMenu(int clientIndex)
+void ZMarketRebuyMenu(int client)
 {
     // If array hasn't been created, then create
-    if(gClientData[clientIndex].ShoppingCart == null)
+    if(gClientData[client].DefaultCart == null)
     {
-        // Initialize a buy history array
-        gClientData[clientIndex].ShoppingCart = CreateArray();
+        // Initialize a default cart array
+        gClientData[client].DefaultCart = new ArrayList();
     }
-    else
+    
+    // Validate cart size
+    if(gClientData[client].DefaultCart.Length)
     {
-        // Validate cart size
-        if(!gClientData[clientIndex].ShoppingCart.Length)
-        {
-            return;
-        }
+        // Recreate shopping cart array
+        delete gClientData[client].ShoppingCart;
+        gClientData[client].ShoppingCart = gClientData[client].DefaultCart.Clone();
         
-        // If auto-rebuy is disabled, then clear
-        if(!gClientData[clientIndex].AutoRebuy)
-        {
-            return;
-        }
-
         // Opens rebuy menu
-        ZMarketMenu(clientIndex, "rebuy");
+        ZMarketMenu(client, "rebuy", MenuType_Rebuy);
     }
 }
 
 /**
- * @brief Reset the purchase history for a client.
+ * @brief Resets the purchase history for a client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void ZMarketResetPurchaseCount(int clientIndex)
+void ZMarketResetPurchaseCount(int client)
 {
     // If mode already started, then stop
     if(!gServerData.RoundNew)
@@ -594,9 +923,152 @@ void ZMarketResetPurchaseCount(int clientIndex)
     }
     
     // If array hasn't been created, then stop
-    if(gClientData[clientIndex].ShoppingCart != null)
+    if(gClientData[client].ShoppingCart != null)
     {
         // Clear out the array of all data
-        gClientData[clientIndex].ShoppingCart.Clear();
+        gClientData[client].ShoppingCart.Clear();
+    }
+}
+
+/**
+ * @brief Find the type at which the slot name is at.
+ * 
+ * @param sName             The slot name.
+ * @return                  The type index.
+ **/
+MenuType ZMarketNameToIndex(char[] sName)
+{
+    // Validate slots
+    MenuType nMenu;
+    if(gServerData.Market.GetValue(sName, nMenu))
+    {
+        // Return index
+        return nMenu;
+    }
+    
+    // Name doesn't exist, may be that number ?
+    return view_as<MenuType>(StringToInt(sName));
+}
+
+/**
+ * @brief Find the handle at which the slot type is at.
+ * 
+ * @param client            The client index.
+ * @param mSlot             The slot index selected.
+ * @return                  The menu handle.
+ **/
+Menu ZMarketSlotToHandle(int client, MenuType mSlot)
+{
+    // Intitialize bool variable
+    static bool bLock[MAXPLAYERS+1];
+    
+    // Validate shop menu
+    switch(mSlot)
+    {
+        // Option menu
+        case MenuType_Option :
+        {
+            // Creates menu handle
+            return new Menu(ZMarketMenuSlots1);
+        }
+        
+        // Add menu
+        case MenuType_Add :
+        {
+            // Creates menu handle
+            return new Menu(ZMarketMenuSlots2);
+        }
+
+        // Rebuy menu
+        case MenuType_Rebuy :
+        {
+            // Boolean for reseting history
+            bLock[client] = false;
+        
+            // Creates menu handle
+            return new Menu(ZMarketMenuSlots3);
+        }
+        
+        // Default menu
+        default :
+        {
+            // Creates menu handle
+            Menu hMenu = new Menu(ZMarketMenuSlots4);
+            
+            // Clear history
+            if(!bLock[client]) 
+            {
+                ZMarketResetPurchaseCount(client);
+                bLock[client] = true;
+            }
+            
+            // Return on success
+            return hMenu;
+        }
+    }
+}
+
+/**
+ * @brief Find the index at which the slot type is at.
+ * 
+ * @param client            The client index.
+ * @param mSlot             The slot index selected.
+ * @param iIndex            The index variable.
+ * @return                  The index amount.
+ **/
+int ZMarketSlotToIndex(int client, MenuType mSlot, int iIndex)
+{
+    // Validate shop menu
+    switch(mSlot)
+    {
+        // Option menu
+        case MenuType_Option :
+        {
+            return gClientData[client].DefaultCart.Get(iIndex);
+        }
+
+        // Rebuy menu
+        case MenuType_Rebuy :
+        {
+            return gClientData[client].ShoppingCart.Get(iIndex);
+        }
+        
+        // Default menu
+        default :
+        {
+            return iIndex;
+        }
+    }
+}
+
+/**
+ * @brief Find the count at which the slot type is at.
+ * 
+ * @param client            The client index.
+ * @param mSlot             The slot index selected.
+ * @return                  The amount variable.
+ **/
+int ZMarketSlotToCount(int client, MenuType mSlot)
+{
+    // Validate shop menu
+    switch(mSlot)
+    {
+        // Option menu
+        case MenuType_Option :
+        {
+            return gClientData[client].DefaultCart.Length;
+        }
+   
+        // Rebuy menu
+        case MenuType_Rebuy :
+        {
+            return gClientData[client].ShoppingCart.Length;
+        }
+        
+        // Default menu
+        default :
+        {
+            return gServerData.Weapons.Length;
+        }
     }
 }

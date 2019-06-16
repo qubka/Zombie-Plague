@@ -28,15 +28,16 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] ExtraItem: HolyGrenade",
+    name            = "[ZP] Weapon: HolyGrenade",
     author          = "qubka (Nikita Ushakov)",     
-    description     = "Addon of extra items",
+    description     = "Addon of custom weapon",
     version         = "1.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
@@ -57,12 +58,12 @@ public Plugin myinfo =
 /**
  * @section Properties of the gibs shooter.
  **/
-#define GLASS_GIBS_AMOUNT               5.0
-#define GLASS_GIBS_DELAY                0.05
-#define GLASS_GIBS_SPEED                500.0
-#define GLASS_GIBS_VARIENCE             1.0  
-#define GLASS_GIBS_LIFE                 1.0  
-#define GLASS_GIBS_DURATION             2.0
+#define GLASS_GIBS_AMOUNT              5.0
+#define GLASS_GIBS_DELAY               0.05
+#define GLASS_GIBS_SPEED               500.0
+#define GLASS_GIBS_VARIENCE            1.0  
+#define GLASS_GIBS_LIFE                1.0  
+#define GLASS_GIBS_DURATION            2.0
 /**
  * @endsection
  **/
@@ -72,8 +73,8 @@ int gSound; ConVar hSoundLevel;
 #pragma unused gSound, hSoundLevel
  
 // Item index
-int gItem; int gWeapon;
-#pragma unused gItem, gWeapon
+int gWeapon;
+#pragma unused gWeapon
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -86,9 +87,16 @@ public void OnLibraryAdded(const char[] sLibrary)
     {
         // Hook entity events
         HookEvent("hegrenade_detonate", EventEntityNapalm, EventHookMode_Post);
-        
-        // Hooks server sounds
+
+        // Hook server sounds
         AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
+        
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
     }
 }
 
@@ -97,13 +105,9 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Items
-    gItem = ZP_GetExtraItemNameID("holy grenade");
-    if(gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"holy grenade\" wasn't find");
-
     // Weapons
     gWeapon = ZP_GetWeaponNameID("holy grenade");
-    if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"holy grenade\" wasn't find");
+    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"holy grenade\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("HOLY_GRENADE_SOUNDS");
@@ -115,69 +119,28 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * @brief Called before show an extraitem in the equipment menu.
- * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
- *
- * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
- *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
- **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
-{
-    // Check the item index
-    if(itemID == gItem)
-    {
-        // Validate access
-        if(ZP_IsPlayerHasWeapon(clientIndex, gWeapon) != INVALID_ENT_REFERENCE)
-        {
-            return Plugin_Handled;
-        }
-    }
-
-    // Allow showing
-    return Plugin_Continue;
-}
-
-/**
- * @brief Called after select an extraitem in the equipment menu.
- * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
- **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
-{
-    // Check the item index
-    if(itemID == gItem)
-    {
-        // Give item and select it
-        ZP_GiveClientWeapon(clientIndex, gWeapon);
-    }
-}
-
-/**
  * @brief Called when a client take a fake damage.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
- * @param inflictorIndex    The inflictor index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
+ * @param inflictor         The inflictor index.
  * @param damage            The amount of damage inflicted.
  * @param bits              The ditfield of damage types.
- * @param weaponIndex       The weapon index or -1 for unspecified.
+ * @param weapon            The weapon index or -1 for unspecified.
  **/
-public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflictorIndex, float &flDamage, int &iBits, int &weaponIndex)
+public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
     // Client was damaged by 'explosion'
     if(iBits & DMG_BLAST)
     {
         // Validate inflicter
-        if(IsValidEdict(inflictorIndex))
+        if(IsValidEdict(inflictor))
         {
             // Validate custom grenade
-            if(GetEntProp(inflictorIndex, Prop_Data, "m_iHammerID") == gWeapon)
+            if(GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
             {
-                // Reset explosion damage
-                flDamage *= ZP_IsPlayerHuman(clientIndex) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
+                // Resets explosion damage
+                flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
             }
         }
     }
@@ -194,26 +157,26 @@ public void ZP_OnClientDamaged(int clientIndex, int &attackerIndex, int &inflict
 public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets real player index from event key
-    ///int ownerIndex = GetClientOfUserId(hEvent.GetInt("userid")); 
+    ///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
     // Initialize vectors
-    static float vEntPosition[3]; static float vVictimPosition[3];
+    static float vPosition[3]; static float vEnemy[3];
 
     // Gets all required event info
-    int grenadeIndex = hEvent.GetInt("entityid");
-    vEntPosition[0] = hEvent.GetFloat("x"); 
-    vEntPosition[1] = hEvent.GetFloat("y"); 
-    vEntPosition[2] = hEvent.GetFloat("z");
+    int grenade = hEvent.GetInt("entityid");
+    vPosition[0] = hEvent.GetFloat("x"); 
+    vPosition[1] = hEvent.GetFloat("y"); 
+    vPosition[2] = hEvent.GetFloat("z");
 
     // Validate entity
-    if(IsValidEdict(grenadeIndex))
+    if(IsValidEdict(grenade))
     {
         // Validate custom grenade
-        if(GetEntProp(grenadeIndex, Prop_Data, "m_iHammerID") == gWeapon)
+        if(GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Find any players in the radius
             int i; int it = 1; /// iterator
-            while((i = ZP_FindPlayerInSphere(it, vEntPosition, GRENADE_HOLY_RADIUS)) != INVALID_ENT_REFERENCE)
+            while((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_HOLY_RADIUS)) != -1)
             {
                 // Skip humans
                 if(ZP_IsPlayerHuman(i))
@@ -222,20 +185,20 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
                 }
                 
                 // Gets victim origin
-                GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vVictimPosition);
+                GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
                 
                 // Put the fire on
                 UTIL_IgniteEntity(i, GRENADE_HOLY_IGNITE_TIME);   
                 
                 // Create a knockback
-                UTIL_CreatePhysForce(i, vEntPosition, vVictimPosition, GetVectorDistance(vEntPosition, vVictimPosition), ZP_GetWeaponKnockBack(gWeapon), GRENADE_HOLY_RADIUS);
+                UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), ZP_GetWeaponKnockBack(gWeapon), GRENADE_HOLY_RADIUS);
                 
                 // Create a shake
                 UTIL_CreateShakeScreen(i, GRENADE_HOLY_SHAKE_AMP, GRENADE_HOLY_SHAKE_FREQUENCY, GRENADE_HOLY_SHAKE_DURATION);
             }
 
             // Create an explosion effect
-            UTIL_CreateParticle(_, vEntPosition, _, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
+            UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
         }
     }
 }
@@ -246,26 +209,26 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
  * @param clients           Array of client indexes.
  * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
  * @param sSample           Sound file name relative to the "sounds" folder.
- * @param entityIndex       Entity emitting the sound.
+ * @param entity            Entity emitting the sound.
  * @param iChannel          Channel emitting the sound.
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
  * @param iFlags            The sound flags.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entityIndex, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
+public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
 {
     // Validate client
-    if(IsValidEdict(entityIndex))
+    if(IsValidEdict(entity))
     {
         // Validate custom grenade
-        if(GetEntProp(entityIndex, Prop_Data, "m_iHammerID") == gWeapon)
+        if(GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Validate sound
             if(!strncmp(sSample[23], "bounce", 6, false))
             {
                 // Play sound
-                ZP_EmitSoundToAll(gSound, 2, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
                 
                 // Block sounds
                 return Plugin_Stop; 
@@ -273,7 +236,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
             else if(!strncmp(sSample[20], "explode", 7, false))
             {
                 // Play sound
-                ZP_EmitSoundToAll(gSound, 1, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
                 
                 // Block sounds
                 return Plugin_Stop; 

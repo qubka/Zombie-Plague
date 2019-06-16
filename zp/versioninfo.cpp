@@ -29,7 +29,7 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "X.018"
+#define PLUGIN_VERSION      "X.019"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
@@ -37,7 +37,7 @@
 #define PLUGIN_BRANCH       "master"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "03-May-2019T11:03:00-GMT+03:00"
+#define PLUGIN_DATE         "16-June-2019T11:03:00-GMT+03:00"
 /**
  * @endsection
  **/
@@ -63,14 +63,14 @@ void VersionOnLoad(/*void*/)
  * Console command callback (zp_version)
  * @brief Prints version info about this plugin.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action VersionOnCommandCatched(int clientIndex, int iArguments)
+public Action VersionOnCommandCatched(int client, int iArguments)
 {
     // Initialize variables
-    static char sBuffer[HUGE_LINE_LENGTH]; sBuffer[0] = '\0';
-    static char sLine[BIG_LINE_LENGTH]; sLine[0] = '\0';
+    static char sBuffer[HUGE_LINE_LENGTH]; sBuffer[0] = NULL_STRING[0];
+    static char sLine[BIG_LINE_LENGTH]; sLine[0] = NULL_STRING[0];
 
     /// Format strings
     FormatEx(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
@@ -89,6 +89,6 @@ public Action VersionOnCommandCatched(int clientIndex, int iArguments)
     StrCat(sBuffer, sizeof(sBuffer), sLine);
 
     // Send information into the console
-    ReplyToCommand(clientIndex, sBuffer);
+    ReplyToCommand(client, sBuffer);
     return Plugin_Handled;
 }

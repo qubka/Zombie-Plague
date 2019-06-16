@@ -35,47 +35,47 @@
 /**
  * @brief Called when a client receive money.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param money             The money amount.
  *
  * @noreturn
  **/
-forward void ZP_OnClientMoney(int clientIndex, int &money);
+forward void ZP_OnClientMoney(int client, int &money);
 
 /**
  * @brief Gets the player amount of money.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  The money amount.
  **/
-native int ZP_GetClientMoney(int clientIndex);
+native int ZP_GetClientMoney(int client);
 
 /**
  * @brief Sets the player amount of money.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param money             The money amount.
  *  
  * @noreturn
  **/
-native void ZP_SetClientMoney(int clientIndex, int money);
+native void ZP_SetClientMoney(int client, int money);
 
 /**
  * @brief Gets the player amount of previous money spended.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  The money amount.
  **/
-native int ZP_GetClientLastPurchase(int clientIndex);
+native int ZP_GetClientLastPurchase(int client);
 
 /**
  * @brief Sets the player amount of money spending.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param money             The money amount.
  *  
  * @noreturn
  **/
-native void ZP_SetClientLastPurchase(int clientIndex, int money);
+native void ZP_SetClientLastPurchase(int client, int money);

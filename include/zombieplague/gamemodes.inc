@@ -37,31 +37,31 @@
 /**
  * @brief Called after a round is started.
  *
- * @param modeIndex         The mode index. 
+ * @param mode              The mode index. 
  *
  * @noreturn
  **/
-forward void ZP_OnGameModeStart(int modeIndex);
+forward void ZP_OnGameModeStart(int mode);
 
 /**
  * @brief Called after a round is ended.
  *
- * @param reasonIndex       The reason index. 
+ * @param reason            The reason index. 
  *
  * @noreturn
  **/
-forward void ZP_OnGameModeEnd(CSRoundEndReason reasonIndex);
+forward void ZP_OnGameModeEnd(CSRoundEndReason reason);
 
 /**
  * @brief Called before show a game mode in the modes menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param modeID            The mode index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-forward Action ZP_OnClientValidateMode(int clientIndex, int modeID);
+forward Action ZP_OnClientValidateMode(int client, int modeID);
 
 /**
  * @brief Gets the current game mode.
@@ -88,9 +88,9 @@ native int ZP_GetNumberGameMode();
  * @brief Start the game mode.
  * 
  * @param modeID            The mode index.
- * @param targetIndex       (Optional) The target index. (Which need to be infected/herozied, if value has -1, mode will be choose players randomly)    
+ * @param target            (Optional) The target index. (Which need to be infected/herozied, if value has -1, mode will be choose players randomly)    
  **/
-native void ZP_StartGameMode(int modeID, int targetIndex = -1);
+native void ZP_StartGameMode(int modeID, int target = -1);
 
 /**
  * @brief Gets the index of a game mode at a given name.

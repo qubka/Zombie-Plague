@@ -289,7 +289,7 @@ stock int fnGetAlive(/*void*/)
 stock int fnGetRandomHuman(/*void*/)
 {
     // Initialize variables
-    int iRandom; static int clientIndex[MAXPLAYERS+1];
+    int iRandom; static int client[MAXPLAYERS+1];
 
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -298,12 +298,12 @@ stock int fnGetRandomHuman(/*void*/)
         if(IsPlayerExist(i) && !gClientData[i].Zombie)
         {
             // Increment amount
-            clientIndex[iRandom++] = i;
+            client[iRandom++] = i;
         }
     }
 
     // Return index
-    return (iRandom) ? clientIndex[GetRandomInt(0, iRandom-1)] : -1;
+    return (iRandom) ? client[GetRandomInt(0, iRandom-1)] : -1;
 }
 
 /**
@@ -314,7 +314,7 @@ stock int fnGetRandomHuman(/*void*/)
 stock int fnGetRandomZombie(/*void*/)
 {
     // Initialize variables
-    int iRandom; static int clientIndex[MAXPLAYERS+1];
+    int iRandom; static int client[MAXPLAYERS+1];
 
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
@@ -323,23 +323,23 @@ stock int fnGetRandomZombie(/*void*/)
         if(IsPlayerExist(i) && gClientData[i].Zombie)
         {
             // Increment amount
-            clientIndex[iRandom++] = i;
+            client[iRandom++] = i;
         }
     }
 
     // Return index
-    return (iRandom) ? clientIndex[GetRandomInt(0, iRandom-1)] : -1;
+    return (iRandom) ? client[GetRandomInt(0, iRandom-1)] : -1;
 }
 
 /**
  * @brief Gets random array of total alive players.
  *
- * @param clientIndex       The array containing target player indexes.
- * @param targetIndex       (Optional) The target index.
+ * @param client            The array containing target player indexes.
+ * @param target            (Optional) The target index.
  * @param bZombie           (Optional) True to state zombie, false for human on the target index.
  * @return                  The random array of total alive players.
  **/
-stock void fnGetRandomAlive(int clientIndex[MAXPLAYERS+1], int targetIndex = INVALID_ENT_REFERENCE, bool bZombie = false)
+stock void fnGetRandomAlive(int client[MAXPLAYERS+1], int target = -1, bool bZombie = false)
 {
     // Initialize index
     int iAmount;
@@ -351,7 +351,7 @@ stock void fnGetRandomAlive(int clientIndex[MAXPLAYERS+1], int targetIndex = INV
         if(IsPlayerExist(i))
         {
             // Increment amount
-            clientIndex[iAmount++] = i;
+            client[iAmount++] = i;
         }
     }
 
@@ -362,24 +362,24 @@ stock void fnGetRandomAlive(int clientIndex[MAXPLAYERS+1], int targetIndex = INV
         int x = GetRandomInt(0, i);
 
         // Simple swap
-        int y = clientIndex[x];
-        clientIndex[x] = clientIndex[i];
-        clientIndex[i] = y;
+        int y = client[x];
+        client[x] = client[i];
+        client[i] = y;
     }
     
     // Validate target
-    if(targetIndex != INVALID_ENT_REFERENCE)
+    if(target != -1)
     {
         // i = client index
-        int x = bZombie ? 0 : iAmount - 1; int y = clientIndex[x];
+        int x = bZombie ? 0 : iAmount - 1; int y = client[x];
         for(int i = 0; i < iAmount; i++)
         {
             // Find index
-            if(clientIndex[i] == targetIndex)
+            if(client[i] == target)
             {
                 // Simple swap
-                clientIndex[x] = targetIndex;
-                clientIndex[i] = y;
+                client[x] = target;
+                client[i] = y;
                 break;
             }    
         }
@@ -419,18 +419,34 @@ stock void fnInitGameConfAddress(Handle gameConf, Address &pAddress, char[] sKey
 }
 
 /**
- * @brief Given a server classname, finds a networkable send property offset.
+ * @brief Given an entity classname, finds a networkable send property offset.
  *
  * @param iOffset           An offset, or -1 on failure.
- * @param sServerClass      The classname.
+ * @param sClass            The entity classname.
  * @param sProp             The property name.
  **/
-stock void fnInitSendPropOffset(int &iOffset, char[] sServerClass, char[] sProp)
+stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp)
 {
     // Validate prop
-    if((iOffset = FindSendPropInfo(sServerClass, sProp)) < 1)
+    if((iOffset = FindSendPropInfo(sClass, sProp)) < 1)
     {
-        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find prop: \"%s\"", sProp);
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find send prop: \"%s\"", sProp);
+    }
+}
+
+/**
+ * @brief Given an entity index, finds a networkable data property offset.
+ *
+ * @param iOffset           An offset, or -1 on failure.
+ * @param entity            The entity index.
+ * @param sProp             The property name.
+ **/
+stock void fnInitDataPropOffset(int &iOffset, int entity, char[] sProp)
+{
+    // Validate prop
+    if((iOffset = FindDataMapInfo(entity, sProp)) < 1)
+    {
+        LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find data prop: \"%s\"", sProp);
     }
 }
 

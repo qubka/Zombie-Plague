@@ -35,45 +35,45 @@
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled or Plugin_Stop to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-forward Action ZP_OnClientSkillUsed(int clientIndex);
+forward Action ZP_OnClientSkillUsed(int client);
 
 /**
  * @brief Called when a skill duration is over.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @noreturn
  **/
-forward void ZP_OnClientSkillOver(int clientIndex);
+forward void ZP_OnClientSkillOver(int client);
 
 /**
  * @brief Gets the player skill state.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  True or false.
  **/
-native bool ZP_GetClientSkillUsage(int clientIndex);
+native bool ZP_GetClientSkillUsage(int client);
 
 /**
  * @brief Gets the player skill countdown.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @return                  The current countdown.
  **/
-native float ZP_GetClientSkillCountdown(int clientIndex);
+native float ZP_GetClientSkillCountdown(int client);
 
 /**
  * @brief Stop the player skill or countdown. 
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *  
  * @noreturn
  **/
-native void ZP_ResetClientSkill(int clientIndex);
+native void ZP_ResetClientSkill(int client);

@@ -38,25 +38,23 @@ void ClassCommandsOnCommandInit(/*void*/)
  * Console command callback (zp_class_dump)
  * @brief Dumps class data at a specified index.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ClassDumpOnCommandCatched(int clientIndex, int iArguments)
+public Action ClassDumpOnCommandCatched(int client, int iArguments)
 {
     // If not enough arguments given, then stop
     if(iArguments < 1)
     {
         // Write syntax info
-        TranslationReplyToCommand(clientIndex, "config dump class");
+        TranslationReplyToCommand(client, "config dump class");
         return Plugin_Handled;
     }
     
-    // Initialize variables
+    // Initialize argument char
     static char sArgument[SMALL_LINE_LENGTH];
-    static char sBuffer[FILE_LINE_LENGTH]; sBuffer[0] = '\0';
-    static char sMessage[CONSOLE_LINE_LENGTH]; sMessage[0] = '\0';
 
-    // Get class index
+    // Gets class index
     GetCmdArg(1, sArgument, sizeof(sArgument));
     
     // Validate class
@@ -72,26 +70,51 @@ public Action ClassDumpOnCommandCatched(int clientIndex, int iArguments)
     if(iD >= iSize || iD <= -1)
     {
         // Write error info
-        TranslationReplyToCommand(clientIndex, "config dump class invalid", iD);
+        TranslationReplyToCommand(client, "config dump class invalid", iD);
         return Plugin_Handled;
     }
     
+    // Print data into console
+    TranslationReplyToCommand(client, "config dump class start", iSize);
+    ClassDump(client, iD);
+
+    // Log action to game events
+    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" dumped: \"%d\" class", client, iD);
+    return Plugin_Handled;
+}
+
+/**
+ * @brief Dumps class data at a specified index.
+ *
+ * @param client            The client index.
+ * @param iD                The class index.
+ **/
+void ClassDump(int client, int iD)
+{
+    // Initialize variables
+    static char sBuffer[FILE_LINE_LENGTH]; sBuffer[0] = NULL_STRING[0];
+    static char sMessage[CONSOLE_LINE_LENGTH]; sMessage[0] = NULL_STRING[0];
+
     // Dump the specified cache
-    TranslationReplyToCommand(clientIndex, "config dump class start", iSize);
     ClassDumpData(iD, sBuffer, sizeof(sBuffer));
 
     // Print all data to client
-    int iPos; int iCellsWritten = 1; // Initialize for the loop
-    while(iCellsWritten)
+    int iPos; int iCell = 1; // Initialize for the loop
+    while(iCell)
     {
-        iCellsWritten = strcopy(sMessage, sizeof(sMessage), sBuffer[iPos]);
-        ReplyToCommand(clientIndex, sMessage);
-        iPos += iCellsWritten;
+        iCell = strcopy(sMessage, sizeof(sMessage), sBuffer[iPos]);
+        iPos += iCell;
+        
+        /// Instead of 'ReplyToCommand'
+        if(client) 
+        {
+            PrintToConsole(client, sMessage);
+        }
+        else 
+        {
+            PrintToServer(sMessage); 
+        }
     }
-
-    // Log action to game events
-    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" dumped: \"%d\" class", clientIndex, iD);
-    return Plugin_Handled;
 }
 
 /**
@@ -101,7 +124,7 @@ public Action ClassDumpOnCommandCatched(int clientIndex, int iArguments)
  * @param sBuffer           The string to return dump in.
  * @param iMaxLen           The lenght of string.
  * @return                  The number of cells written.
- */
+ **/
 int ClassDumpData(int iD, char[] sBuffer, int iMaxLen)
 {
     // Initialize variables

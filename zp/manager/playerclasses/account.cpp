@@ -102,6 +102,7 @@ void AccountOnCommandInit(/*void*/)
 {
     // Hook commands
     RegAdminCmd("zp_money_give", AccountGiveOnCommandCatched, ADMFLAG_GENERIC, "Gives the money. Usage: zp_money_give <name> [amount]");
+    RegConsoleCmd("zp_money_donate", AccountDonateOnCommandCatched, "Donates the money. Usage: zp_money_donate <name> [amount]");
     RegConsoleCmd("zp_donate_menu", AccountMenuOnCommandCatched, "Opens the donates menu.");
 }
 
@@ -161,23 +162,23 @@ public void AccountOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 /**
  * @brief Client has been spawned.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void AccountOnClientSpawn(int clientIndex)
+void AccountOnClientSpawn(int client)
 {
-    // Reset HUD on the team change
-    _call.AccountOnClientUpdate(clientIndex);
+    // Resets HUD on the team change
+    _call.AccountOnClientUpdate(client);
 }
 
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void AccountOnClientDeath(int clientIndex)
+void AccountOnClientDeath(int client)
 {
     // Enable HUD for spectator
-    _call.AccountOnClientUpdate(clientIndex);
+    _call.AccountOnClientUpdate(client);
 }
 
 /**
@@ -188,40 +189,40 @@ void AccountOnClientDeath(int clientIndex)
 public void AccountOnClientUpdate(int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Validate real client
-        if(!IsFakeClient(clientIndex))
+        if(!IsFakeClient(client))
         {
             // Manipulate with account type
-            delete gClientData[clientIndex].AccountTimer;
+            delete gClientData[client].AccountTimer;
             switch(gCvarList[CVAR_ACCOUNT_MONEY].IntValue)
             {
                 case AccountType_Disabled : 
                 {
                     // Hide money bar panel
-                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "0");
+                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(client, "0");
                 }
                 
                 case AccountType_Classic : 
                 {
                     // Show money bar panel
-                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "1");
+                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(client, "1");
                     
                     // Update client money
-                    AccountSetMoney(clientIndex, gClientData[clientIndex].Money);
+                    AccountSetMoney(client, gClientData[client].Money);
                 }
                 
                 case AccountType_Custom : 
                 {
                     // Hide money bar panel
-                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(clientIndex, "0");
+                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(client, "0");
                     
                     // Sets timer for player account HUD
-                    gClientData[clientIndex].AccountTimer = CreateTimer(1.0, AccountOnClientHUD, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+                    gClientData[client].AccountTimer = CreateTimer(1.0, AccountOnClientHUD, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
                 }
             }
         }
@@ -237,30 +238,30 @@ public void AccountOnClientUpdate(int userID)
 public Action AccountOnClientHUD(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Store the default index
-        int targetIndex = clientIndex;
+        int target = client;
 
         // Validate spectator 
-        if(!IsPlayerAlive(clientIndex))
+        if(!IsPlayerAlive(client))
         {
             // Validate spectator mode
-            int iSpecMode = ToolsGetObserverMode(clientIndex);
+            int iSpecMode = ToolsGetObserverMode(client);
             if(iSpecMode != SPECMODE_FIRSTPERSON && iSpecMode != SPECMODE_3RDPERSON)
             {
                 // Allow timer
                 return Plugin_Continue;
             }
             
-            // Gets the observer target
-            targetIndex = ToolsGetObserverTarget(clientIndex);
+            // Gets observer target
+            target = ToolsGetObserverTarget(client);
             
             // Validate target
-            if(!IsPlayerExist(targetIndex)) 
+            if(!IsPlayerExist(target)) 
             {
                 // Allow timer
                 return Plugin_Continue;
@@ -268,14 +269,14 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
         }
         
         // Print hud text to the client
-        TranslationPrintHudText(gServerData.AccountSync, clientIndex, gCvarList[CVAR_ACCOUNT_HUD_X].FloatValue, gCvarList[CVAR_ACCOUNT_HUD_Y].FloatValue, 1.1, gCvarList[CVAR_ACCOUNT_HUD_R].IntValue, gCvarList[CVAR_ACCOUNT_HUD_G].IntValue, gCvarList[CVAR_ACCOUNT_HUD_B].IntValue, gCvarList[CVAR_ACCOUNT_HUD_A].IntValue, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[targetIndex].Money);
+        TranslationPrintHudText(gServerData.AccountSync, client, gCvarList[CVAR_ACCOUNT_HUD_X].FloatValue, gCvarList[CVAR_ACCOUNT_HUD_Y].FloatValue, 1.1, gCvarList[CVAR_ACCOUNT_HUD_R].IntValue, gCvarList[CVAR_ACCOUNT_HUD_G].IntValue, gCvarList[CVAR_ACCOUNT_HUD_B].IntValue, gCvarList[CVAR_ACCOUNT_HUD_A].IntValue, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[target].Money);
 
         // Allow timer
         return Plugin_Continue;
     }
 
     // Clear timer
-    gClientData[clientIndex].AccountTimer = null;
+    gClientData[client].AccountTimer = null;
 
     // Destroy timer
     return Plugin_Stop;
@@ -285,16 +286,16 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
  * Console command callback (zp_money_give)
  * @brief Gives the money.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action AccountGiveOnCommandCatched(int clientIndex, int iArguments)
+public Action AccountGiveOnCommandCatched(int client, int iArguments)
 {
     // If not enough arguments given, then stop
     if(iArguments < 2)
     {
         // Write syntax info
-        TranslationReplyToCommand(clientIndex, "account give invalid args");
+        TranslationReplyToCommand(client, "account give invalid args");
         return Plugin_Handled;
     }
     
@@ -303,10 +304,10 @@ public Action AccountGiveOnCommandCatched(int clientIndex, int iArguments)
     
     // Gets target index
     GetCmdArg(1, sArgument, sizeof(sArgument));
-    int targetIndex = FindTarget(clientIndex, sArgument, true, false);
+    int target = FindTarget(client, sArgument, true, false);
 
     // Validate target
-    if(targetIndex < 0)
+    if(target < 0)
     {
         // Note: FindTarget automatically write error messages
         return Plugin_Handled;
@@ -320,15 +321,99 @@ public Action AccountGiveOnCommandCatched(int clientIndex, int iArguments)
     if(iMoney <= 0)
     {
         // Write error info
-        TranslationReplyToCommand(clientIndex, "account give invalid amount", iMoney);
+        TranslationReplyToCommand(client, "account give invalid amount", iMoney);
         return Plugin_Handled;
     }
 
     // Sets money for the target 
-    AccountSetClientCash(targetIndex, gClientData[targetIndex].Money + iMoney);
+    AccountSetClientCash(target, gClientData[target].Money + iMoney);
 
     // Log action to game events
-    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" gived money: \"%d\" to Player \"%N\"", clientIndex, iMoney, targetIndex);
+    LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_Classes, "Command", "Admin \"%N\" gived money: \"%d\" to Player \"%N\"", client, iMoney, target);
+    return Plugin_Handled;
+}
+
+/**
+ * Console command callback (zp_money_donate)
+ * @brief Donates the money.
+ * 
+ * @param client            The client index.
+ * @param iArguments        The number of arguments that were in the argument string.
+ **/ 
+public Action AccountDonateOnCommandCatched(int client, int iArguments)
+{
+    // Validate client
+    if(!IsPlayerExist(client, false))
+    {
+        return Plugin_Handled;
+    }
+    
+    // If not enough arguments given, then stop
+    if(iArguments < 2)
+    {
+        // Write syntax info
+        TranslationReplyToCommand(client, "account donate invalid args");
+        return Plugin_Handled;
+    }
+    
+    // Initialize argument char
+    static char sArgument[SMALL_LINE_LENGTH];
+    
+    // Gets target index
+    GetCmdArg(1, sArgument, sizeof(sArgument));
+    int target = FindTarget(client, sArgument, true, false);
+
+    // Validate target
+    if(target < 0)
+    {
+        // Note: FindTarget automatically write error messages
+        return Plugin_Handled;
+    }
+    
+    // Gets money amount
+    GetCmdArg(2, sArgument, sizeof(sArgument));
+    
+    // Validate amount
+    int iMoney = StringToInt(sArgument); int iBet = gCvarList[CVAR_ACCOUNT_BET].IntValue;
+    if(iMoney < gClientData[client].Money || iMoney < iBet)
+    {
+        // Write error info
+        TranslationReplyToCommand(client, "account give invalid amount", iMoney);
+        return Plugin_Handled;
+    }
+
+    // Validate commision
+    int iAmount; float flCommision = gCvarList[CVAR_ACCOUNT_COMMISION].FloatValue - ((float(iMoney) / float(iBet)) * gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+    if(flCommision <= 0.0)
+    {
+        // Sets amount
+        iAmount = iMoney;
+    }
+    else
+    {
+        // Calculate amount
+        iAmount = RoundToNearest(float(iMoney) * (1.0 - flCommision));
+    }
+    
+    // Sets money for the client
+    AccountSetClientCash(client, gClientData[client].Money - iMoney);
+    
+    // Sets money for the target 
+    AccountSetClientCash(target, gClientData[target].Money + iAmount);
+    
+    // If help messages enabled, then show info
+    if(gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
+    {
+        // Gets client/target name
+        static char sInfo[2][SMALL_LINE_LENGTH];
+        GetClientName(client, sInfo[0], sizeof(sInfo[]));
+        GetClientName(target, sInfo[1], sizeof(sInfo[]));
+        
+        // Show message of successful transaction
+        TranslationPrintToChatAll("donate info", sInfo[0], iAmount, "money", sInfo[1]);
+    }
+    
+    // Return on success
     return Plugin_Handled;
 }
 
@@ -336,12 +421,12 @@ public Action AccountGiveOnCommandCatched(int clientIndex, int iArguments)
  * Console command callback (zp_donate_menu)
  * @brief Opens the donates menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action AccountMenuOnCommandCatched(int clientIndex, int iArguments)
+public Action AccountMenuOnCommandCatched(int client, int iArguments)
 {
-    AccountMenu(clientIndex, gCvarList[CVAR_ACCOUNT_BET].IntValue, gCvarList[CVAR_ACCOUNT_COMMISION].FloatValue);
+    AccountMenu(client, gCvarList[CVAR_ACCOUNT_BET].IntValue, gCvarList[CVAR_ACCOUNT_COMMISION].FloatValue);
     return Plugin_Handled;
 }
 
@@ -363,57 +448,57 @@ void AccountOnNativeInit(/*void*/)
 /**
  * @brief Gets the player amount of money.
  *
- * @note native int ZP_GetClientMoney(clientIndex);
+ * @note native int ZP_GetClientMoney(client);
  **/
 public int API_GetClientMoney(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].Money;
+    return gClientData[client].Money;
 }
 
 /**
  * @brief Sets the player amount of money.
  *
- * @note native void ZP_SetClientMoney(clientIndex, iD);
+ * @note native void ZP_SetClientMoney(client, iD);
  **/
 public int API_SetClientMoney(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Sets money for the client
-    AccountSetClientCash(clientIndex, GetNativeCell(2));
+    AccountSetClientCash(client, GetNativeCell(2));
 }
 
 /**
  * @brief Gets the player amount of previous money spended.
  *
- * @note native int ZP_GetClientLastPurchase(clientIndex);
+ * @note native int ZP_GetClientLastPurchase(client);
  **/
 public int API_GetClientLastPurchase(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].LastPurchase;
+    return gClientData[client].LastPurchase;
 }
 
 /**
  * @brief Sets the player amount of money spending.
  *
- * @note native void ZP_SetClientLastPurchase(clientIndex, iD);
+ * @note native void ZP_SetClientLastPurchase(client, iD);
  **/
 public int API_SetClientLastPurchase(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Sets purchase for the client
-    gClientData[clientIndex].LastPurchase = GetNativeCell(2);
+    gClientData[client].LastPurchase = GetNativeCell(2);
 }
 
 /*
@@ -423,13 +508,13 @@ public int API_SetClientLastPurchase(Handle hPlugin, int iNumParams)
 /**
  * @brief Sets a client account value.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iMoney            The money amount.
  **/
-void AccountSetClientCash(int clientIndex, int iMoney)
+void AccountSetClientCash(int client, int iMoney)
 {
     // Call forward
-    gForwardData._OnClientMoney(clientIndex, iMoney);
+    gForwardData._OnClientMoney(client, iMoney);
     
     // If value below 0, then set to 0
     if(iMoney < 0)
@@ -438,10 +523,10 @@ void AccountSetClientCash(int clientIndex, int iMoney)
     }
 
     // Sets money
-    gClientData[clientIndex].Money = iMoney;
+    gClientData[client].Money = iMoney;
     
     // Update money in the database
-    DataBaseOnClientUpdate(clientIndex, ColumnType_Money);
+    DataBaseOnClientUpdate(client, ColumnType_Money);
 
     // If account disabled, then stop
     if(gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Classic)
@@ -450,18 +535,18 @@ void AccountSetClientCash(int clientIndex, int iMoney)
     }
     
     // Update client money
-    AccountSetMoney(clientIndex, gClientData[clientIndex].Money);
+    AccountSetMoney(client, gClientData[client].Money);
 }
 
 /**
  * @brief Sets the money on a client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iMoney            The money amount.
  **/
-void AccountSetMoney(int clientIndex, int iMoney)
+void AccountSetMoney(int client, int iMoney)
 {
-    SetEntData(clientIndex, g_iOffset_Account, iMoney, _, true);
+    SetEntProp(client, Prop_Send, "m_iAccount", iMoney);
 }
 
 /*
@@ -471,11 +556,11 @@ void AccountSetMoney(int clientIndex, int iMoney)
 /**
  * @brief Creates the donates menu.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iMoney            The money amount.   
  * @param flCommision       The commission amount.
  **/
-void AccountMenu(int clientIndex, int iMoney, float flCommision) 
+void AccountMenu(int client, int iMoney, float flCommision) 
 {
     // If amount below bet, then set to default
     int iBet = gCvarList[CVAR_ACCOUNT_BET].IntValue;
@@ -485,7 +570,7 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     }
 
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
         return;
     }
@@ -495,10 +580,10 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     static char sInfo[SMALL_LINE_LENGTH];
     
     // Creates menu handle
-    Menu hMenu = CreateMenu(AccountMenuSlots);
+    Menu hMenu = new Menu(AccountMenuSlots);
     
     // Sets language to target
-    SetGlobalTransTarget(clientIndex);
+    SetGlobalTransTarget(client);
 
     // Validate commission
     if(flCommision <= 0.0)
@@ -518,7 +603,7 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     
     // Show increase option
     FormatEx(sInfo, sizeof(sInfo), "0 %d %f", iMoney, flCommision);
-    hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[clientIndex].Money));
+    hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
 
     // Format some chars for showing in menu
     FormatEx(sBuffer, sizeof(sBuffer), "%t", "decrease");
@@ -528,11 +613,11 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
     hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney > iBet));
     
     // i = client index
-    int iCount;
+    int iAmount;
     for(int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(!IsPlayerExist(i, false) || clientIndex == i)
+        if(!IsPlayerExist(i, false) || client == i)
         {
             continue;
         }
@@ -542,14 +627,14 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
 
         // Show option
         FormatEx(sInfo, sizeof(sInfo), "%d %d %f", i, iMoney, flCommision);
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[clientIndex].Money));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
 
-        // Increment count
-        iCount++;
+        // Increment amount
+        iAmount++;
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iCount)
+    if(!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -561,7 +646,7 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
 
     // Sets options and display it
     hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+    hMenu.Display(client, MENU_TIME_FOREVER); 
 }
 
 /**
@@ -569,10 +654,10 @@ void AccountMenu(int clientIndex, int iMoney, float flCommision)
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {   
     // Switch the menu action
     switch(mAction)
@@ -590,7 +675,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_donate_menu");
-                if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+                if(iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -598,7 +683,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(clientIndex, false))
+            if(!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -608,35 +693,35 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
             static char sInfo[3][SMALL_LINE_LENGTH];
             ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-            int targetIndex = StringToInt(sInfo[0]); int iMoney = StringToInt(sInfo[1]); 
+            int target = StringToInt(sInfo[0]); int iMoney = StringToInt(sInfo[1]); 
             float flCommision = StringToFloat(sInfo[2]);
 
             // Validate button info
-            switch(targetIndex)
+            switch(target)
             {
                 // Client hit 'Decrease' button 
                 case -1 :
                 {
-                    AccountMenu(clientIndex, iMoney - gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision + gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+                    AccountMenu(client, iMoney - gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision + gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
                 }
                 
                 // Client hit 'Increase' button
                 case 0  :
                 {
-                    AccountMenu(clientIndex, iMoney + gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision - gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+                    AccountMenu(client, iMoney + gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision - gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
                 }
                 
                 // Client hit 'Target' button
                 default :
                 {
                     // Validate target
-                    if(!IsPlayerExist(targetIndex, false))
+                    if(!IsPlayerExist(target, false))
                     {
                         // Show block info
-                        TranslationPrintHintText(clientIndex, "selecting target block");
+                        TranslationPrintHintText(client, "selecting target block");
                     
                         // Emit error sound
-                        ClientCommand(clientIndex, "play buttons/button11.wav"); 
+                        ClientCommand(client, "play buttons/button10.wav"); 
                         return;
                     }
                     
@@ -654,17 +739,17 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int
                     }
                     
                     // Sets money for the client
-                    AccountSetClientCash(clientIndex, gClientData[clientIndex].Money - iMoney);
+                    AccountSetClientCash(client, gClientData[client].Money - iMoney);
                     
                     // Sets money for the target 
-                    AccountSetClientCash(targetIndex, gClientData[targetIndex].Money + iAmount);
+                    AccountSetClientCash(target, gClientData[target].Money + iAmount);
                     
                     // If help messages enabled, then show info
                     if(gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
                     {
                         // Gets client/target name
-                        GetClientName(clientIndex, sInfo[0], sizeof(sInfo[]));
-                        GetClientName(targetIndex, sInfo[1], sizeof(sInfo[]));
+                        GetClientName(client, sInfo[0], sizeof(sInfo[]));
+                        GetClientName(target, sInfo[1], sizeof(sInfo[]));
                         
                         // Show message of successful transaction
                         TranslationPrintToChatAll("donate info", sInfo[0], iAmount, "money", sInfo[1]);

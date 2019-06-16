@@ -45,8 +45,7 @@ enum
 /**
  * @endsection
  **/
- 
-#if defined USE_DHOOKS
+
 /**
  * Variables to store DHook calls handlers.
  **/
@@ -56,7 +55,6 @@ Handle hDHookSetEntityModel;
  * Variables to store dynamic DHook offsets.
  **/
 int DHook_SetEntityModel;
-#endif
 
 /**
  * Сostumes module init function.
@@ -85,7 +83,7 @@ void CostumesOnInit(/*void*/)
         // No costumes?
         if(gServerData.Costumes == null)
         {
-            // Reset value
+            // Resets value
             gCvarList[CVAR_COSTUMES].BoolValue = false;
         
             // Log failure
@@ -93,8 +91,7 @@ void CostumesOnInit(/*void*/)
             return;
         }
     }
-    
-    #if defined USE_DHOOKS
+
     // Load offsets
     fnInitGameConfOffset(gServerData.SDKTools, DHook_SetEntityModel, /*CBasePlayer::*/"SetEntityModel");
 
@@ -109,7 +106,6 @@ void CostumesOnInit(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "GameData Validation", "Failed to create DHook for \"CBasePlayer::SetEntityModel\". Update \"SourceMod\"");
         return;
     }
-    #endif
 }
 
 /**
@@ -128,7 +124,7 @@ void CostumesOnLoad(/*void*/)
     
     // Gets costumes config path
     static char sPathCostumes[PLATFORM_LINE_LENGTH];
-    bool bExists = ConfigGetFullPath(CONFIG_PATH_COSTUMES, sPathCostumes);
+    bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_COSTUMES, sPathCostumes, sizeof(sPathCostumes));
 
     // If file doesn't exist, then log and stop
     if(!bExists)
@@ -286,11 +282,10 @@ void CostumesOnCvarInit(/*void*/)
 /**
  * @brief Client has been joined.
  * 
- * @param clientIndex       The client index.  
+ * @param client            The client index.  
  **/
-void CostumesOnClientInit(int clientIndex)
+void CostumesOnClientInit(int client)
 {
-    #if defined USE_DHOOKS
     // Initialize id
     static int iD[MAXPLAYERS+1] = {-1, ...};
     
@@ -298,43 +293,40 @@ void CostumesOnClientInit(int clientIndex)
     if(!gCvarList[CVAR_COSTUMES].BoolValue)
     {
         // Validate hook
-        if(iD[clientIndex] != -1) 
+        if(iD[client] != -1) 
         {
             // Unhook entity callbacks
-            DHookRemoveHookID(iD[clientIndex]); 
-            iD[clientIndex] = -1;
+            DHookRemoveHookID(iD[client]); 
+            iD[client] = -1;
         }
         return;
     }
     
     // Hook entity callbacks
-    iD[clientIndex] = DHookEntity(hDHookSetEntityModel, true, clientIndex);
-    #else
-        #pragma unused clientIndex
-    #endif
+    iD[client] = DHookEntity(hDHookSetEntityModel, true, client);
 }
 
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void CostumesOnClientDeath(int clientIndex)
+void CostumesOnClientDeath(int client)
 {
     // Remove current costume
-    CostumesRemove(clientIndex);
+    CostumesRemove(client);
 }
 
 /**
  * Console command callback (zp_costume_menu)
  * @brief Opens the costumes menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action CostumesOnCommandCatched(int clientIndex, int iArguments)
+public Action CostumesOnCommandCatched(int client, int iArguments)
 {
-    CostumesMenu(clientIndex);
+    CostumesMenu(client);
     return Plugin_Handled;
 }
 
@@ -398,26 +390,26 @@ public int API_GetNumberCostumes(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the costume index of the client.
  *
- * @note native int ZP_GetClientCostume(clientIndex);
+ * @note native int ZP_GetClientCostume(client);
  **/
 public int API_GetClientCostume(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Return the value 
-    return gClientData[clientIndex].Costume;
+    return gClientData[client].Costume;
 }
 
 /**
  * @brief Sets the costume index to the client.
  *
- * @note native void ZP_SetClientCostume(clientIndex, iD);
+ * @note native void ZP_SetClientCostume(client, iD);
  **/
 public int API_SetClientCostume(Handle hPlugin, int iNumParams)
 {
     // Gets real player index from native cell 
-    int clientIndex = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     // Gets class index from native cell
     int iD = GetNativeCell(2);
@@ -430,14 +422,14 @@ public int API_SetClientCostume(Handle hPlugin, int iNumParams)
     }
     
     // Call forward
-    Action resultHandle;
-    gForwardData._OnClientValidateCostume(clientIndex, iD, resultHandle);
+    Action hResult;
+    gForwardData._OnClientValidateCostume(client, iD, hResult);
 
     // Validate handle
-    if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Sets costume to the client
-        gClientData[clientIndex].Costume = iD;
+        gClientData[client].Costume = iD;
     }
 
     // Return on success
@@ -780,6 +772,13 @@ public int API_GetCostumeLevel(Handle hPlugin, int iNumParams)
  **/
 void CostumesGetName(int iD, char[] sName, int iMaxLen)
 {
+    // Validate no costume
+    if(iD == -1)
+    {
+        strcopy(sName, iMaxLen, "");
+        return;
+    }
+    
     // Gets array handle of costume at given index
     ArrayList arrayCostume = gServerData.Costumes.Get(iD);
     
@@ -977,9 +976,9 @@ int CostumesNameToIndex(char[] sName)
 /**
  * @brief Creates a costume menu.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void CostumesMenu(int clientIndex)
+void CostumesMenu(int client)
 {
     // If module is disabled, then stop
     if(!gCvarList[CVAR_COSTUMES].BoolValue)
@@ -988,7 +987,7 @@ void CostumesMenu(int clientIndex)
     }
     
     // Validate client
-    if(!IsPlayerExist(clientIndex, false))
+    if(!IsPlayerExist(client, false))
     {
         return;
     }
@@ -1001,26 +1000,26 @@ void CostumesMenu(int clientIndex)
     static char sGroup[SMALL_LINE_LENGTH];
     
     // Creates menu handle
-    Menu hMenu = CreateMenu(CostumesMenuSlots);
+    Menu hMenu = new Menu(CostumesMenuSlots);
     
     // Sets language to target
-    SetGlobalTransTarget(clientIndex);
+    SetGlobalTransTarget(client);
     
     // Sets title
     hMenu.SetTitle("%t", "costumes menu");
     
     // Initialize forward
-    Action resultHandle;
+    Action hResult;
     
     // i = array index
-    int iSize = gServerData.Costumes.Length;
+    int iSize = gServerData.Costumes.Length; int iAmount;
     for(int i = 0; i < iSize; i++)
     {
         // Call forward
-        gForwardData._OnClientValidateCostume(clientIndex, i, resultHandle);
+        gForwardData._OnClientValidateCostume(client, i, hResult);
         
         // Skip, if class is disabled
-        if(resultHandle == Plugin_Stop)
+        if(hResult == Plugin_Stop)
         {
             continue;
         }
@@ -1031,15 +1030,18 @@ void CostumesMenu(int clientIndex)
         
         // Format some chars for showing in menu
         FormatEx(sLevel, sizeof(sLevel), "%t", "level", CostumesGetLevel(i));
-        FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) ? sGroup : (gClientData[clientIndex].Level < CostumesGetLevel(i)) ? sLevel : "");
+        FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (gClientData[client].Level < CostumesGetLevel(i)) ? sLevel : "");
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(resultHandle == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup)) || gClientData[clientIndex].Level < CostumesGetLevel(i) || gClientData[clientIndex].Costume == i) ? false : true);
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < CostumesGetLevel(i) || gClientData[client].Costume == i) ? false : true);
+    
+        // Increment amount
+        iAmount++;
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iSize)
+    if(!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -1051,7 +1053,7 @@ void CostumesMenu(int clientIndex)
 
     // Sets options and display it
     hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-    hMenu.Display(clientIndex, MENU_TIME_FOREVER); 
+    hMenu.Display(client, MENU_TIME_FOREVER); 
 }
 
 /**
@@ -1059,10 +1061,10 @@ void CostumesMenu(int clientIndex)
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, int mSlot)
+public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
     switch(mAction)
@@ -1080,7 +1082,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, in
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_costume_menu");
-                if(iD[0] != -1) SubMenu(clientIndex, iD[0]);
+                if(iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -1088,7 +1090,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, in
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(clientIndex, false))
+            if(!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -1099,54 +1101,52 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int clientIndex, in
             int iD = StringToInt(sBuffer);
             
             // Call forward
-            Action resultHandle;
-            gForwardData._OnClientValidateCostume(clientIndex, iD, resultHandle);
+            Action hResult;
+            gForwardData._OnClientValidateCostume(client, iD, hResult);
             
             // Validate handle
-            if(resultHandle == Plugin_Continue || resultHandle == Plugin_Changed)
+            if(hResult == Plugin_Continue || hResult == Plugin_Changed)
             {
                 // Sets costume to the client
-                gClientData[clientIndex].Costume = iD;
+                gClientData[client].Costume = iD;
                 
                 // Update costume in the database
-                DataBaseOnClientUpdate(clientIndex, ColumnType_Costume);
+                DataBaseOnClientUpdate(client, ColumnType_Costume);
                 
                 // Sets costume
-                CostumesCreateEntity(clientIndex);
+                CostumesCreateEntity(client);
             }
         }
     }
 }
 
-#if defined USE_DHOOKS
 /**
  * DHook: Sets the model to a given player.
  * @note void CBasePlayer::SetModel(char const*)
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public MRESReturn CostumesDhookOnSetEntityModel(int clientIndex)
+public MRESReturn CostumesDhookOnSetEntityModel(int client)
 {
     // Update costume
-    CostumesCreateEntity(clientIndex);
+    CostumesCreateEntity(client);
 }
-#endif
 
 /**
  * @brief Creates an attachment costume entity for the client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void CostumesCreateEntity(int clientIndex)
+void CostumesCreateEntity(int client)
 {
     // Validate client
-    if(IsPlayerExist(clientIndex))
+    if(IsPlayerExist(client))
     {
         // Remove current costume
-        CostumesRemove(clientIndex);
+        CostumesRemove(client);
 
         // Validate zombie
-        if(gClientData[clientIndex].Zombie)
+        if(gClientData[client].Zombie)
         {
             return;
         }
@@ -1155,51 +1155,51 @@ void CostumesCreateEntity(int clientIndex)
         int iSize = gServerData.Costumes.Length;
 
         // Validate costume
-        if(gClientData[clientIndex].Costume == -1 || iSize <= gClientData[clientIndex].Costume)
+        if(gClientData[client].Costume == -1 || iSize <= gClientData[client].Costume)
         {
-            gClientData[clientIndex].Costume = -1;
+            gClientData[client].Costume = -1;
             return;
         }
         
         // Gets costume group
         static char sGroup[SMALL_LINE_LENGTH];
-        CostumesGetGroup(gClientData[clientIndex].Costume, sGroup, sizeof(sGroup));
+        CostumesGetGroup(gClientData[client].Costume, sGroup, sizeof(sGroup));
         
         // Validate access
-        if(hasLength(sGroup) && !IsPlayerInGroup(clientIndex, sGroup))
+        if(hasLength(sGroup) && !IsPlayerInGroup(client, sGroup))
         {
-            gClientData[clientIndex].Costume = -1;
+            gClientData[client].Costume = -1;
             return;
         }
 
         // Gets costume model
         static char sModel[PLATFORM_LINE_LENGTH];
-        CostumesGetModel(gClientData[clientIndex].Costume, sModel, sizeof(sModel));
+        CostumesGetModel(gClientData[client].Costume, sModel, sizeof(sModel));
         
         // Creates an attach addon entity 
-        int entityIndex = UTIL_CreateDynamic("costume", NULL_VECTOR, NULL_VECTOR, sModel);
+        int entity = UTIL_CreateDynamic("costume", NULL_VECTOR, NULL_VECTOR, sModel);
         
         // If entity isn't valid, then skip
-        if(entityIndex != INVALID_ENT_REFERENCE)
+        if(entity != -1)
         {
             // Sets bodygroup/skin for the entity
-            ToolsSetTextures(entityIndex, CostumesGetBody(gClientData[clientIndex].Costume), CostumesGetSkin(gClientData[clientIndex].Costume)); 
+            ToolsSetTextures(entity, CostumesGetBody(gClientData[client].Costume), CostumesGetSkin(gClientData[client].Costume)); 
 
             // Sets parent to the entity
             SetVariantString("!activator");
-            AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
-            ToolsSetOwner(entityIndex, clientIndex);
+            AcceptEntityInput(entity, "SetParent", client, entity);
+            ToolsSetOwner(entity, client);
 
             // Gets costume attachment
             static char sAttach[SMALL_LINE_LENGTH];
-            CostumesGetAttach(gClientData[clientIndex].Costume, sAttach, sizeof(sAttach)); 
+            CostumesGetAttach(gClientData[client].Costume, sAttach, sizeof(sAttach)); 
 
             // Validate attachment
-            if(ToolsLookupAttachment(clientIndex, sAttach))
+            if(ToolsLookupAttachment(client, sAttach))
             {
                 // Sets attachment to the entity
                 SetVariantString(sAttach);
-                AcceptEntityInput(entityIndex, "SetParentAttachment", clientIndex, entityIndex);
+                AcceptEntityInput(entity, "SetParentAttachment", client, entity);
             }
             else
             {
@@ -1207,17 +1207,15 @@ void CostumesCreateEntity(int clientIndex)
                 static float vPosition[3]; static float vAngle[3]; static float vEntOrigin[3]; static float vEntAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
 
                 // Gets client position
-                ToolsGetAbsOrigin(clientIndex, vPosition); 
-                ToolsGetAbsAngles(clientIndex, vAngle);
+                ToolsGetAbsOrigin(client, vPosition); 
+                ToolsGetAbsAngles(client, vAngle);
                 
                 // Gets costume position
-                CostumesGetPosition(gClientData[clientIndex].Costume, vEntOrigin);
-                CostumesGetAngle(gClientData[clientIndex].Costume, vEntAngle);
+                CostumesGetPosition(gClientData[client].Costume, vEntOrigin);
+                CostumesGetAngle(gClientData[client].Costume, vEntAngle);
                 
-                // Gets location angles
-                vAngle[0] += vEntAngle[0];
-                vAngle[1] += vEntAngle[1];
-                vAngle[2] += vEntAngle[2];
+                // Add location angles
+                AddVectors(vAngle, vEntAngle, vAngle);
                 
                 // Returns vectors in the direction of an angle
                 GetAngleVectors(vAngle, vForward, vRight, vVertical);
@@ -1228,19 +1226,19 @@ void CostumesCreateEntity(int clientIndex)
                 vPosition[2] += (vForward[2] * vEntOrigin[0]) + (vRight[2] * vEntOrigin[1]) + (vVertical[2] * vEntOrigin[2]);
 
                 // Teleport the entity
-                ///DispatchKeyValueVector(entityIndex, "origin", vPosition);
-                ///DispatchKeyValueVector(entityIndex, "angles", vAngle);
-                TeleportEntity(entityIndex, vPosition, vAngle, NULL_VECTOR);
+                ///DispatchKeyValueVector(entity, "origin", vPosition);
+                ///DispatchKeyValueVector(entity, "angles", vAngle);
+                TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
             }
         
             // Validate merging
-            if(CostumesIsMerge(gClientData[clientIndex].Costume)) CostumesBoneMerge(entityIndex);
+            if(CostumesIsMerge(gClientData[client].Costume)) CostumesBoneMerge(entity);
 
             // Hook entity callbacks
-            if(CostumesIsHide(gClientData[clientIndex].Costume)) SDKHook(entityIndex, SDKHook_SetTransmit, ToolsOnEntityTransmit);
+            if(CostumesIsHide(gClientData[client].Costume)) SDKHook(entity, SDKHook_SetTransmit, ToolsOnEntityTransmit);
             
             // Store the client cache
-            gClientData[clientIndex].AttachmentCostume = EntIndexToEntRef(entityIndex);
+            gClientData[client].AttachmentCostume = EntIndexToEntRef(entity);
         }
     }
 }
@@ -1248,12 +1246,12 @@ void CostumesCreateEntity(int clientIndex)
 /**
  * @brief Performs a bone merge on the client side.
  *
- * @param entityIndex       The entity index.
+ * @param entity            The entity index.
  **/
-void CostumesBoneMerge(int entityIndex)
+void CostumesBoneMerge(int entity)
 {
     // Gets current effects
-    int iEffects = ToolsGetEffect(entityIndex); 
+    int iEffects = ToolsGetEffect(entity); 
 
     // Sets merging
     iEffects &= ~EF_NODRAW;
@@ -1261,22 +1259,22 @@ void CostumesBoneMerge(int entityIndex)
     iEffects |= EF_BONEMERGE_FASTCULL;
 
     // Sets value on the entity
-    ToolsSetEffect(entityIndex, iEffects); 
+    ToolsSetEffect(entity, iEffects); 
 }
 
 /**
  * @brief Remove a costume entities from the client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void CostumesRemove(int clientIndex)
+void CostumesRemove(int client)
 {
     // Gets current costume from the client reference
-    int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentCostume);
+    int entity = EntRefToEntIndex(gClientData[client].AttachmentCostume);
 
     // Validate costume
-    if(entityIndex != INVALID_ENT_REFERENCE) 
+    if(entity != -1) 
     {
-        AcceptEntityInput(entityIndex, "Kill"); /// Destroy
+        AcceptEntityInput(entity, "Kill"); /// Destroy
     }
 }

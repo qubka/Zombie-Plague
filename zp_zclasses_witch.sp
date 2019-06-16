@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -54,8 +55,8 @@ public Plugin myinfo =
  **/
 
 // Decal index
-int decalSmoke;
-#pragma unused decalSmoke
+int gSmoke;
+#pragma unused gSmoke
 
 // Sound index
 int gSound; ConVar hSoundLevel;
@@ -66,13 +67,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("witch");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"witch\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"witch\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("WITCH_SKILL_SOUNDS");
@@ -81,93 +100,98 @@ public void ZP_OnEngineExecute(/*void*/)
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
     if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
-    
+}
+
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
     // Models
-    decalSmoke = PrecacheModel("sprites/steam1.vmt", true);
+    gSmoke = PrecacheModel("sprites/steam1.vmt", true);
 }
 
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
-        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEntVelocity[3];
+        static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
         // Gets client eye position
-        GetClientEyePosition(clientIndex, vPosition);
+        GetClientEyePosition(client, vPosition);
 
         // Gets client eye angle
-        GetClientEyeAngles(clientIndex, vAngle);
+        GetClientEyeAngles(client, vAngle);
 
         // Gets client speed
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecVelocity", vVelocity);
+        GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
         
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create a bat entity
-        int entityIndex = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
+        int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
         // Validate entity
-        if(entityIndex != INVALID_ENT_REFERENCE)
+        if(entity != -1)
         {
             // Sets bat model scale
-            SetEntPropFloat(entityIndex, Prop_Send, "m_flModelScale", 9.0);
+            SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 9.0);
             
             // Returns vectors in the direction of an angle
-            GetAngleVectors(vAngle, vEntVelocity, NULL_VECTOR, NULL_VECTOR);
+            GetAngleVectors(vAngle, vSpeed, NULL_VECTOR, NULL_VECTOR);
 
             // Normalize the vector (equal magnitude at varying distances)
-            NormalizeVector(vEntVelocity, vEntVelocity);
+            NormalizeVector(vSpeed, vSpeed);
 
             // Apply the magnitude by scaling the vector
-            ScaleVector(vEntVelocity, ZOMBIE_CLASS_SKILL_SPEED);
+            ScaleVector(vSpeed, ZOMBIE_CLASS_SKILL_SPEED);
 
             // Adds two vectors
-            AddVectors(vEntVelocity, vVelocity, vEntVelocity);
+            AddVectors(vSpeed, vVelocity, vSpeed);
 
             // Push the bat
-            TeleportEntity(entityIndex, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
+            TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
 
             // Sets an entity color
-            SetEntityRenderMode(entityIndex, RENDER_TRANSALPHA); 
-            SetEntityRenderColor(entityIndex, _, _, _, 0);
-            AcceptEntityInput(entityIndex, "DisableShadow"); /// Prevents the entity from receiving shadows
+            UTIL_SetRenderColor(entity, Color_Alpha, 0);
+            AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
             
             // Create a prop_dynamic_override entity
-            int batIndex = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly", false);
+            int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly", false);
 
             // Validate entity
-            if(batIndex != INVALID_ENT_REFERENCE)
+            if(bat != -1)
             {
                 // Sets parent to the entity
                 SetVariantString("!activator");
-                AcceptEntityInput(batIndex, "SetParent", entityIndex, batIndex);
+                AcceptEntityInput(bat, "SetParent", entity, bat);
                 
                 // Sets attachment to the projectile
                 SetVariantString("1"); 
-                AcceptEntityInput(batIndex, "SetParentAttachment", entityIndex, batIndex);
+                AcceptEntityInput(bat, "SetParentAttachment", entity, bat);
             }
 
             // Sets parent for the entity
-            SetEntPropEnt(entityIndex, Prop_Data, "m_pParent", clientIndex); 
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity", clientIndex);
-            SetEntPropEnt(entityIndex, Prop_Send, "m_hThrower", clientIndex);
+            SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
+            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
+            SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
             // Sets gravity
-            SetEntPropFloat(entityIndex, Prop_Data, "m_flGravity", ZOMBIE_CLASS_SKILL_GRAVITY);
+            SetEntPropFloat(entity, Prop_Data, "m_flGravity", ZOMBIE_CLASS_SKILL_GRAVITY);
 
             // Create touch hook
-            SDKHook(entityIndex, SDKHook_Touch, BatTouchHook);
+            SDKHook(entity, SDKHook_Touch, BatTouchHook);
         }
     }
 
@@ -179,83 +203,75 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 /**
  * @brief Bat touch hook.
  * 
- * @param entityIndex       The entity index.        
- * @param targetIndex       The target index.               
+ * @param entity            The entity index.        
+ * @param target            The target index.               
  **/
-public Action BatTouchHook(int entityIndex, int targetIndex)
+public Action BatTouchHook(int entity, int target)
 {
     // Validate target
-    if(IsValidEdict(targetIndex))
+    if(IsValidEdict(target))
     {
         // Gets thrower index
-        int throwerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hThrower");
+        int thrower = GetEntPropEnt(entity, Prop_Data, "m_hThrower");
         
         // Validate thrower
-        if(throwerIndex == targetIndex)
+        if(thrower == target)
         {
             // Return on the unsuccess
             return Plugin_Continue;
         }
         
-        // Initialize variables
-        static float vEntPosition[3]; static float vVictimPosition[3]; static float vVictimAngle[3];
-
         // Gets entity position
-        GetEntPropVector(entityIndex, Prop_Data, "m_vecAbsOrigin", vEntPosition);
+        static float vPosition[3];
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
         // Validate target
-        if(IsPlayerExist(targetIndex))
+        if(IsPlayerExist(target))
         {
-            // Gets victim origin
-            GetEntPropVector(targetIndex, Prop_Data, "m_vecAbsOrigin", vVictimPosition);
-    
-            // Gets victim origin angle
-            GetEntPropVector(targetIndex, Prop_Data, "m_angAbsRotation", vVictimAngle);
-    
             // Create a prop_dynamic_override entity
-            int batIndex = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly2", false);
+            int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly2", false);
 
             // Validate entity
-            if(batIndex != INVALID_ENT_REFERENCE)
+            if(bat != -1)
             {
                 // Sets parent to the entity
                 SetVariantString("!activator");
-                AcceptEntityInput(batIndex, "SetParent", targetIndex, batIndex);
-                SetEntPropEnt(batIndex, Prop_Data, "m_pParent", targetIndex); 
-                if(throwerIndex != INVALID_ENT_REFERENCE)
+                AcceptEntityInput(bat, "SetParent", target, bat);
+                SetEntPropEnt(bat, Prop_Data, "m_pParent", target); 
+                if(thrower != -1)
                 {
-                    SetEntPropEnt(batIndex, Prop_Send, "m_hOwnerEntity", throwerIndex);
+                    SetEntPropEnt(bat, Prop_Data, "m_hOwnerEntity", thrower);
                 }
                 
                 // Sets attachment to the client
                 SetVariantString("eholster"); 
-                AcceptEntityInput(batIndex, "SetParentAttachment", targetIndex, batIndex);
+                AcceptEntityInput(bat, "SetParentAttachment", target, bat);
 
                 // Kill after some duration
-                UTIL_RemoveEntity(batIndex, ZOMBIE_CLASS_SKILL_DURATION);
+                UTIL_RemoveEntity(bat, ZOMBIE_CLASS_SKILL_DURATION);
 
                 // Create a connection
-                CreateTimer(0.1, BatAttachHook, EntIndexToEntRef(batIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+                CreateTimer(0.1, BatAttachHook, EntIndexToEntRef(bat), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             }
 
             // Play sound
-            ZP_EmitSoundToAll(gSound, 2, targetIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+            ZP_EmitSoundToAll(gSound, 2, target, SNDCHAN_VOICE, hSoundLevel.IntValue);
         }
         else
         {
             // Create an blood effect
-            UTIL_CreateParticle(_, vEntPosition, _, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);
+            UTIL_CreateParticle(_, vPosition, _, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);
             
             // Play sound
-            ZP_EmitSoundToAll(gSound, 3, entityIndex, SNDCHAN_STATIC, hSoundLevel.IntValue);
+            ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
             
             // Create effect
-            TE_SetupSmoke(vEntPosition, decalSmoke, 130.0, 10);
+            TE_SetupSmoke(vPosition, gSmoke, 130.0, 10);
             TE_SendToAll();
         }
 
         // Remove entity from world
-        AcceptEntityInput(entityIndex, "Kill");
+        AcceptEntityInput(entity, "Kill");
     }
 
     // Return on the success
@@ -266,44 +282,44 @@ public Action BatTouchHook(int entityIndex, int targetIndex)
  * @brief Main timer for attach bat hook.
  *
  * @param hTimer            The timer handle.
- * @param referenceIndex    The reference index.
+ * @param refID             The reference index.
  **/
-public Action BatAttachHook(Handle hTimer, int referenceIndex)
+public Action BatAttachHook(Handle hTimer, int refID)
 {
     // Gets entity index from reference key
-    int entityIndex = EntRefToEntIndex(referenceIndex);
+    int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    if(entity != -1)
     {
         // Gets owner/target index
-        int ownerIndex = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
-        int targetIndex = GetEntPropEnt(entityIndex, Prop_Data, "m_pParent"); 
+        int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+        int target = GetEntPropEnt(entity, Prop_Data, "m_pParent"); 
 
         // Validate owner/target
-        if(IsPlayerExist(ownerIndex) && IsPlayerExist(targetIndex))
+        if(IsPlayerExist(owner) && IsPlayerExist(target))
         {
             // Initialize vectors
-            static float vEntVelocity[3]; static float vEntPosition[3]; static float vVictimPosition[3];
+            static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
 
             // Gets owner/target eye position
-            GetClientEyePosition(ownerIndex, vEntPosition);
-            GetClientEyePosition(targetIndex, vVictimPosition);
+            GetClientEyePosition(owner, vPosition);
+            GetClientEyePosition(target, vAngle);
 
             // Calculate the velocity vector
-            MakeVectorFromPoints(vVictimPosition, vEntPosition, vEntVelocity);
+            MakeVectorFromPoints(vAngle, vPosition, vVelocity);
             
             // Block vertical scale
-            vEntVelocity[2] = 0.0;
+            vVelocity[2] = 0.0;
 
             // Normalize the vector (equal magnitude at varying distances)
-            NormalizeVector(vEntVelocity, vEntVelocity);
+            NormalizeVector(vVelocity, vVelocity);
 
             // Apply the magnitude by scaling the vector
-            ScaleVector(vEntVelocity, ZOMBIE_CLASS_SKILL_ATTACH);
+            ScaleVector(vVelocity, ZOMBIE_CLASS_SKILL_ATTACH);
 
             // Push the target
-            TeleportEntity(targetIndex, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
+            TeleportEntity(target, NULL_VECTOR, NULL_VECTOR, vVelocity);
 
             // Allow timer
             return Plugin_Continue;
@@ -311,7 +327,7 @@ public Action BatAttachHook(Handle hTimer, int referenceIndex)
         else
         {
             // Remove entity from world
-            AcceptEntityInput(entityIndex, "Kill");
+            AcceptEntityInput(entity, "Kill");
         }
     }
 

@@ -27,15 +27,16 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] ExtraItem: Armor",
+    name            = "[ZP] Weapon: Armor",
     author          = "qubka (Nikita Ushakov)",     
-    description     = "Addon of extra items",
+    description     = "Addon of custom weapon",
     version         = "1.0",
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
@@ -45,22 +46,32 @@ int gSound; ConVar hSoundLevel;
 #pragma unused gSound, hSoundLevel
  
 // Item index
-int gItemKevlar; int gItemAssault; int gItemHeavy; int gWeaponKevlar; int gWeaponAssault; int gWeaponHeavy;
-#pragma unused gItemKevlar, gItemAssault, gItemHeavy, gWeaponKevlar, gWeaponAssault, gWeaponHeavy
+int gWeaponKevlar; int gWeaponAssault; int gWeaponHeavy;
+#pragma unused gWeaponKevlar, gWeaponAssault, gWeaponHeavy
+
+/**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
 
 /**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Items
-    gItemKevlar = ZP_GetExtraItemNameID("kevlar");
-    if(gItemKevlar == -1) SetFailState("[ZP] Custom extraitem ID from name : \"kevlar\" wasn't find");
-    gItemAssault = ZP_GetExtraItemNameID("assaultsuit");
-    if(gItemAssault == -1) SetFailState("[ZP] Custom extraitem ID from name : \"assaultsuit\" wasn't find");
-    gItemHeavy = ZP_GetExtraItemNameID("heavysuit");
-    if(gItemHeavy == -1) SetFailState("[ZP] Custom extraitem ID from name : \"heavysuit\" wasn't find");
-
     // Weapons
     gWeaponKevlar = ZP_GetWeaponNameID("kevlar");
     if(gWeaponKevlar == -1) SetFailState("[ZP] Custom weapon ID from name : \"kevlar\" wasn't find");
@@ -79,37 +90,37 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
- * @brief Called before show an extraitem in the equipment menu.
+ * @brief Called before show a weapon in the weapons menu.
  * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
+ * @param client            The client index.
+ * @param weaponID          The weapon index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
- *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
+ *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
+public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 {
-    // Check the item's index
-    if(itemID == gItemKevlar)
+    // Check the weapon index
+    if(weaponID == gWeaponKevlar)
     {
         // Validate access
-        if(GetEntProp(clientIndex, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponKevlar))
+        if(GetEntProp(client, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponKevlar))
         {
             return Plugin_Handled;
         }
     }
-    else if(itemID == gItemAssault)
+    else if(weaponID == gWeaponAssault)
     {
         // Validate access
-        if(GetEntProp(clientIndex, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponAssault) || GetEntProp(clientIndex, Prop_Send, "m_bHasHelmet"))
+        if(GetEntProp(client, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponAssault) || GetEntProp(client, Prop_Send, "m_bHasHelmet"))
         {
             return Plugin_Handled;
         }
     }
-    else if(itemID == gItemHeavy)
+    else if(weaponID == gWeaponHeavy)
     {
         // Validate access
-        if(GetEntProp(clientIndex, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponHeavy) || GetEntProp(clientIndex, Prop_Send, "m_bHasHeavyArmor"))
+        if(GetEntProp(client, Prop_Send, "m_ArmorValue") >= ZP_GetWeaponClip(gWeaponHeavy) || GetEntProp(client, Prop_Send, "m_bHasHeavyArmor"))
         {
             return Plugin_Handled;
         }
@@ -117,30 +128,4 @@ public Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID)
     
     // Allow showing
     return Plugin_Continue;
-}
-
-/**
- * @brief Called after select an extraitem in the equipment menu.
- * 
- * @param clientIndex       The client index.
- * @param itemID            The item index.
- **/
-public void ZP_OnClientBuyExtraItem(int clientIndex, int itemID)
-{
-    // Check the item's index
-    if(itemID == gItemKevlar)
-    {
-        // Give item
-        ZP_GiveClientWeapon(clientIndex, gWeaponKevlar);
-    }
-    else if(itemID == gItemAssault)
-    {
-        // Give item
-        ZP_GiveClientWeapon(clientIndex, gWeaponAssault);
-    }
-    else if(itemID == gItemHeavy)
-    {
-        // Give item
-        ZP_GiveClientWeapon(clientIndex, gWeaponHeavy);
-    }
 }

@@ -35,50 +35,50 @@
 /**
  * @brief Called before show an extraitem in the equipment menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param itemID            The item index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-forward Action ZP_OnClientValidateExtraItem(int clientIndex, int itemID);
+forward Action ZP_OnClientValidateExtraItem(int client, int itemID);
 
 /**
  * @brief Called after select an extraitem in the equipment menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param itemID            The item index.
  **/
-forward void ZP_OnClientBuyExtraItem(int clientIndex, int itemID);
+forward void ZP_OnClientBuyExtraItem(int client, int itemID);
 
 /**
  * @brief Give the extra item to the client.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param itemID            The item index.
  *
  * @param                   True or false.
  **/
-native bool ZP_GiveClientExtraItem(int clientIndex, int itemID);
+native bool ZP_GiveClientExtraItem(int client, int itemID);
 
 /**
  * @brief Sets the buy limit of the current player item.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param itemID            The item index.
  * @param limit             The limit amount.
  **/
-native void ZP_SetClientExtraItemLimit(int clientIndex, int itemID, int limit);
+native void ZP_SetClientExtraItemLimit(int client, int itemID, int limit);
 
 /**
  * @brief Gets the buy limit of the current player item.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param itemID            The item index.
  *
  * @return                  The limit amount.
  **/
-native int ZP_GetClientExtraItemLimit(int clientIndex, int itemID);
+native int ZP_GetClientExtraItemLimit(int client, int itemID);
 
 /**
  * @brief Gets the amount of all extra items.

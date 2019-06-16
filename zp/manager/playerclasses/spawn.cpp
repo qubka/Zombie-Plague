@@ -34,7 +34,7 @@ void SpawnOnInit(/*void*/)
     HookEvent("player_spawn", SpawnOnClientSpawn, EventHookMode_Post);
     
     // Initialize a spawn position array
-    gServerData.Spawns = CreateArray(3); 
+    gServerData.Spawns = new ArrayList(3); 
 }
 
 /**
@@ -67,12 +67,12 @@ void SpawnOnLoad(/*void*/)
 void SpawnOnCacheData(char[] sClassname)
 {
     // Loop throught all entities
-    int entityIndex;
-    while((entityIndex = FindEntityByClassname(entityIndex, sClassname)) != INVALID_ENT_REFERENCE)
+    int entity;
+    while((entity = FindEntityByClassname(entity, sClassname)) != -1)
     {
-        // Gets the origin position
+        // Gets origin position
         static float vPosition[3];
-        ToolsGetAbsOrigin(entityIndex, vPosition); 
+        ToolsGetAbsOrigin(entity, vPosition); 
         
         // Push data into array 
         gServerData.Spawns.PushArray(vPosition, sizeof(vPosition));
@@ -92,14 +92,14 @@ void SpawnOnCommandInit(/*void*/)
  * Listener command callback (jointeam)
  * @brief Selects the correct team.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iArguments)
+public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate client 
-    if(IsPlayerExist(clientIndex, false))
+    if(IsPlayerExist(client, false))
     {
         // Retrieves a command argument given its index
         static char sArg[SMALL_LINE_LENGTH];
@@ -116,7 +116,7 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
         int iTeam = StringToInt(sArg);
 
         // Gets current team
-        switch(ToolsGetTeam(clientIndex))
+        switch(ToolsGetTeam(client))
         {
             case TEAM_NONE :
             {
@@ -126,32 +126,32 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
                     case TEAM_HUMAN, TEAM_ZOMBIE :
                     {
                         // Validate last disconnection delay
-                        int iDelay = RoundToNearest(float(GetTime() - gClientData[clientIndex].Time) / 60.0);
+                        int iDelay = RoundToNearest(float(GetTime() - gClientData[client].Time) / 60.0);
                         if(iDelay > gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP].IntValue || gServerData.RoundMode == -1)
                         {
                             // Switch team
-                            ToolsSetTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
+                            ToolsSetTeam(client, (client & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
                             
                             // If game round didn't start, then respawn
                             if(gServerData.RoundMode == -1)
                             {
                                 // Force client to respawn
-                                ToolsForceToRespawn(clientIndex);
+                                ToolsForceToRespawn(client);
                             }
                             else
                             {   
                                 // Call respawning
-                                DeathOnClientRespawn(clientIndex, _, false);
+                                DeathOnClientRespawn(client, _, false);
                             }
 
                             // Validate first connection
-                            if(gClientData[clientIndex].Time <= 0) 
+                            if(gClientData[client].Time <= 0) 
                             {
                                 // Sets time of disconnection
-                                gClientData[clientIndex].Time = GetTime();
+                                gClientData[client].Time = GetTime();
                                 
                                 // Update time in the database
-                                DataBaseOnClientUpdate(clientIndex, ColumnType_Time);
+                                DataBaseOnClientUpdate(client, ColumnType_Time);
                             }
                             
                             // Block command
@@ -172,10 +172,10 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
                         if(gServerData.RoundMode == -1)
                         {
                             // Switch team
-                            ToolsSetTeam(clientIndex, (clientIndex & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
+                            ToolsSetTeam(client, (client & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
                             
                             // Force client to respawn
-                            ToolsForceToRespawn(clientIndex);
+                            ToolsForceToRespawn(client);
                             
                             // Block command
                             return Plugin_Handled;
@@ -206,10 +206,11 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
         }
         
         // Forward event to modules
-        AccountOnClientSpawn(clientIndex);
-        LevelSystemOnClientSpawn(clientIndex);
-        VOverlayOnClientSpawn(clientIndex);
-        VEffectOnClientSpawn(clientIndex);
+        AccountOnClientSpawn(client);
+        LevelSystemOnClientSpawn(client);
+        VOverlayOnClientSpawn(client);
+        VEffectsOnClientSpawn(client);
+        WeaponsOnClientSpawn(client);
     }
     
     // Allow command
@@ -227,33 +228,14 @@ public Action SpawnOnCommandListened(int clientIndex, char[] commandMsg, int iAr
 public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast) 
 {
     // Gets all required event info
-    int clientIndex = GetClientOfUserId(hEvent.GetInt("userid"));
+    int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(clientIndex))
+    if(!IsPlayerExist(client))
     {
         return;
     }
     
     // Forward event to modules
-    ApplyOnClientSpawn(clientIndex);
-}
-
-/**
- * @brief Gets the random spawn position.
- * 
- * @param vPosition         The origin output.
- **/
-void SpawnGetRandomPosition(float vPosition[3])
-{
-    // Validate lenght
-    int iSize = gServerData.Spawns.Length;
-    if(!iSize)
-    {
-        LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't find any spawn locations.");
-        return;
-    }
-    
-    // Gets random array
-    gServerData.Spawns.GetArray(GetRandomInt(0, iSize - 1), vPosition, sizeof(vPosition));
+    ApplyOnClientSpawn(client);
 }

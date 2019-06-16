@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -52,11 +53,11 @@ public Plugin myinfo =
  **/
 
 // Decal index
-int decalTrail;
-#pragma unused decalTrail
+int gTrail;
+#pragma unused gTrail
 
 // Timer index
-Handle Task_ZombieScream[MAXPLAYERS+1] = null; 
+Handle hZombieScream[MAXPLAYERS+1] = null; 
 
 // Sound index
 int gSound; ConVar hSoundLevel;
@@ -67,13 +68,31 @@ int gZombie;
 #pragma unused gZombie
 
 /**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("psyh");
-    if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"psyh\" wasn't find");
+    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"psyh\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("PSYH_SKILL_SOUNDS");
@@ -82,9 +101,15 @@ public void ZP_OnEngineExecute(/*void*/)
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
     if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
-    
+}
+
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
     // Models
-    decalTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+    gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 }
 
 /**
@@ -96,69 +121,69 @@ public void OnMapEnd(/*void*/)
     for(int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
-        Task_ZombieScream[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
+        hZombieScream[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
     }
 }
 
 /**
  * @brief Called when a client is disconnecting from the server.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void OnClientDisconnect(int clientIndex)
+public void OnClientDisconnect(int client)
 {
     // Delete timer
-    delete Task_ZombieScream[clientIndex];
+    delete hZombieScream[client];
 }
 
 /**
  * @brief Called when a client has been killed.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-public void ZP_OnClientDeath(int clientIndex, int attackerIndex)
+public void ZP_OnClientDeath(int client, int attacker)
 {
     // Delete timer
-    delete Task_ZombieScream[clientIndex];
+    delete hZombieScream[client];
 }
 
 /**
  * @brief Called when a client became a zombie/human.
  * 
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  **/
-public void ZP_OnClientUpdated(int clientIndex, int attackerIndex)
+public void ZP_OnClientUpdated(int client, int attacker)
 {
     // Delete timer
-    delete Task_ZombieScream[clientIndex];
+    delete hZombieScream[client];
 }
 
 /**
  * @brief Called when a client use a skill.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  Plugin_Handled to block using skill. Anything else
  *                              (like Plugin_Continue) to allow use.
  **/
-public Action ZP_OnClientSkillUsed(int clientIndex)
+public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie)
+    if(ZP_GetClientClass(client) == gZombie)
     {
         // Create scream damage task
-        delete Task_ZombieScream[clientIndex];
-        Task_ZombieScream[clientIndex] = CreateTimer(0.1, ClientOnScreaming, GetClientUserId(clientIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        delete hZombieScream[client];
+        hZombieScream[client] = CreateTimer(0.1, ClientOnScreaming, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
         // Play sound
-        ZP_EmitSoundToAll(gSound, 1, clientIndex, SNDCHAN_VOICE, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
         
         // Create effect
         static float vPosition[3];
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition);
-        UTIL_CreateParticle(clientIndex, vPosition, _, _, "hell_end", ZP_GetClassSkillDuration(gZombie));
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+        UTIL_CreateParticle(client, vPosition, _, _, "hell_end", ZP_GetClassSkillDuration(gZombie));
     }
     
     // Allow usage
@@ -168,15 +193,15 @@ public Action ZP_OnClientSkillUsed(int clientIndex)
 /**
  * @brief Called when a skill duration is over.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-public void ZP_OnClientSkillOver(int clientIndex)
+public void ZP_OnClientSkillOver(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(clientIndex) == gZombie) 
+    if(ZP_GetClientClass(client) == gZombie) 
     {
         // Delete timer
-        delete Task_ZombieScream[clientIndex];
+        delete hZombieScream[client];
     }
 }
 
@@ -189,20 +214,31 @@ public void ZP_OnClientSkillOver(int clientIndex)
 public Action ClientOnScreaming(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
     
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Gets client origin
         static float vPosition[3];
-        GetEntPropVector(clientIndex, Prop_Data, "m_vecAbsOrigin", vPosition); vPosition[2] += 25.0;  
+        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition); vPosition[2] += 25.0;  
 
-        // Create the damage for victims
-        UTIL_CreateDamage(_, vPosition, clientIndex, ZOMBIE_CLASS_SKILL_DAMAGE, ZOMBIE_CLASS_SKILL_RADIUS, DMG_SONIC);
+        // Find any players in the radius
+        int i; int it = 1; /// iterator
+        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+        {
+            // Skip zombies
+            if(ZP_IsPlayerZombie(i))
+            {
+                continue;
+            }
             
+            // Create the damage for victim
+            ZP_TakeDamage(i, client, client, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_SONIC);
+        }
+       
         // Create a beamring effect               <Diameter>
-        TE_SetupBeamRingPoint(vPosition, 50.0, ZOMBIE_CLASS_SKILL_RADIUS * 2.0, decalTrail, 0, 1, 10, 1.0, 15.0, 0.0, ZOMBIE_CLASS_SKILL_COLOR, 50, 0);
+        TE_SetupBeamRingPoint(vPosition, 50.0, ZOMBIE_CLASS_SKILL_RADIUS * 2.0, gTrail, 0, 1, 10, 1.0, 15.0, 0.0, ZOMBIE_CLASS_SKILL_COLOR, 50, 0);
         TE_SendToAll();
         
         // Allow timer
@@ -210,7 +246,7 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
     }
 
     // Clear timer
-    Task_ZombieScream[clientIndex] = null;
+    hZombieScream[client] = null;
 
     // Destroy timer
     return Plugin_Stop;

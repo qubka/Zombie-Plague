@@ -28,6 +28,7 @@
 #include <zombieplague>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 /**
  * @brief Record plugin info.
@@ -42,8 +43,26 @@ public Plugin myinfo =
 }
 
 // Weapon index
-int gWeapon1; int gWeapon2; int gWeapon3; int gWeapon4; 
-#pragma unused gWeapon1, gWeapon2, gWeapon3, gWeapon4
+int gWeaponSpanner; int gWeaponAxe; int gWeaponHammer; 
+#pragma unused gWeaponSpanner, gWeaponAxe, gWeaponHammer
+
+/**
+ * @brief Called after a library is added that the current plugin references optionally. 
+ *        A library is either a plugin name or extension name, as exposed via its include file.
+ **/
+public void OnLibraryAdded(const char[] sLibrary)
+{
+    // Validate library
+    if(!strcmp(sLibrary, "zombieplague", false))
+    {
+        // If map loaded, then run custom forward
+        if(ZP_IsMapLoaded())
+        {
+            // Execute it
+            ZP_OnEngineExecute();
+        }
+    }
+}
 
 /**
  * @brief Called after a zombie core is loaded.
@@ -51,14 +70,12 @@ int gWeapon1; int gWeapon2; int gWeapon3; int gWeapon4;
 public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
-    gWeapon1 = ZP_GetWeaponNameID("fists");
-    if(gWeapon1 == -1) SetFailState("[ZP] Custom weapon ID from name : \"fists\" wasn't find");
-    gWeapon2 = ZP_GetWeaponNameID("spanner");
-    if(gWeapon2 == -1) SetFailState("[ZP] Custom weapon ID from name : \"spanner\" wasn't find");
-    gWeapon3 = ZP_GetWeaponNameID("axe");
-    if(gWeapon3 == -1) SetFailState("[ZP] Custom weapon ID from name : \"axe\" wasn't find");
-    gWeapon4 = ZP_GetWeaponNameID("hammer");
-    if(gWeapon4 == -1) SetFailState("[ZP] Custom weapon ID from name : \"hammer\" wasn't find");
+    gWeaponSpanner = ZP_GetWeaponNameID("spanner");
+    if(gWeaponSpanner == -1) SetFailState("[ZP] Custom weapon ID from name : \"spanner\" wasn't find");
+    gWeaponAxe = ZP_GetWeaponNameID("axe");
+    if(gWeaponAxe == -1) SetFailState("[ZP] Custom weapon ID from name : \"axe\" wasn't find");
+    gWeaponHammer = ZP_GetWeaponNameID("hammer");
+    if(gWeaponHammer == -1) SetFailState("[ZP] Custom weapon ID from name : \"hammer\" wasn't find");
 }
 
 //*********************************************************************
@@ -69,19 +86,19 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief Called on each frame of a weapon holding.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iButtons          The buttons buffer.
  * @param iLastButtons      The last buttons buffer.
- * @param weaponIndex       The weapon index.
+ * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  *
  * @return                  Plugin_Continue to allow buttons. Anything else 
  *                                (like Plugin_Changed) to change buttons.
  **/
-public Action ZP_OnWeaponRunCmd(int clientIndex, int &iButtons, int iLastButtons, int weaponIndex, int weaponID)
+public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon1 || weaponID == gWeapon2 || weaponID == gWeapon3 || weaponID == gWeapon4)
+    if(weaponID == gWeaponSpanner || weaponID == gWeaponAxe || weaponID == gWeaponHammer)
     {
         // Button secondary attack press
         if(iButtons & IN_ATTACK2)

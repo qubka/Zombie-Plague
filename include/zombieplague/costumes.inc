@@ -35,13 +35,13 @@
 /**
  * @brief Called before show a costume in the costumes menu.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param costumeID         The costume index.
  *
  * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
  *                              (like Plugin_Continue) to allow showing and selecting.
  **/
-forward Action ZP_OnClientValidateCostume(int clientIndex, int costumeID);
+forward Action ZP_OnClientValidateCostume(int client, int costumeID);
 
 /**
  * @brief Gets the amount of all costumes.
@@ -51,19 +51,19 @@ native int ZP_GetNumberCostume();
 /**
  * @brief Gets the costume index of the client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  *
  * @return                  The costume index.  
  **/
-native int ZP_GetClientCostume(int clientIndex);
+native int ZP_GetClientCostume(int client);
 
 /**
  * @brief Sets the costume index to the client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param costumeID         The costume index. 
  **/
-native void ZP_SetClientCostume(int clientIndex, int costumeID);
+native void ZP_SetClientCostume(int client, int costumeID);
 
 /**
  * @brief Gets the index of a costume at a given name.

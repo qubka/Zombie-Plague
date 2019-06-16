@@ -26,22 +26,6 @@
  **/
 
 /**
- * @section Number of valid colors.
- **/
-enum ColorType
-{ 
-    ColorType_Invalid = -1,       /** Used as return value when a color offset doens't exist. */
-    
-    ColorType_Red,                /** Red offset */
-    ColorType_Green,              /** Green offset */
-    ColorType_Blue,               /** Blue offset */
-    ColorType_Alpha               /** Alpha offset */
-};
-/**
- * @endsection
- **/ 
- 
-/**
  * @brief Health module load function.
  **/         
 void HealthOnLoad(/*void*/)
@@ -60,7 +44,7 @@ void HealthOnLoad(/*void*/)
         // Precache material
         Format(sSprite, sizeof(sSprite), "materials/%s", sSprite);
         DecryptPrecacheTextures(sSprite);
-        PrecacheModel(sSprite, true);
+        PrecacheGeneric(sSprite, true);
     }
 } 
 
@@ -103,12 +87,42 @@ public void HealthOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
     HealthOnLoad();
 }
 
+
+/**
+ * Hook: SetTransmit
+ * @brief Called right before the entity transmitting to other entities.
+ *
+ * @param entity            The entity index.
+ * @param client            The client index.
+ **/
+public Action HealthOnTransmit(int entity, int client)
+{
+    // Allow particle to be transmittable
+    if(GetEdictFlags(entity) & FL_EDICT_ALWAYS)
+    {
+        SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
+    }
+
+    // Gets parent of the entity
+    int parent = ToolsGetParent(entity);
+
+    // Validate observer mode
+    if(parent == client || (ToolsGetObserverMode(client) == SPECMODE_FIRSTPERSON && parent == ToolsGetObserverTarget(client)))
+    {
+        // Block transmitting
+        return Plugin_Handled;
+    }
+
+    // Allow transmitting
+    return Plugin_Continue;
+}
+
 /**
  * @brief Client has been changed class state.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void HealthOnClientUpdate(int clientIndex)
+void HealthOnClientUpdate(int client)
 {
     // If health sprite disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue)
@@ -117,19 +131,19 @@ void HealthOnClientUpdate(int clientIndex)
     }
 
     // Create a sprite
-    if(!HealthCreateSprite(clientIndex))
+    if(!HealthCreateSprite(client))
     {
         // If it exists, then hide sprite
-        HealthHideSprite(clientIndex);
+        HealthHideSprite(client);
     }
 }
 
 /**
  * @brief Client has been killed.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void HealthOnClientDeath(int clientIndex)
+void HealthOnClientDeath(int client)
 {
     // If health sprite disabled, then stop
     if(!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue)
@@ -138,71 +152,70 @@ void HealthOnClientDeath(int clientIndex)
     }
     
     // If it exists, then hide sprite 
-    HealthHideSprite(clientIndex);
+    HealthHideSprite(client);
 }
 
 /**
  * @brief Client has been hurt.
  *
- * @param clientIndex       The client index.
- * @param attackerIndex     The attacker index.
+ * @param client            The client index.
+ * @param attacker          The attacker index.
  * @param iHealth           The health amount.
  **/ 
-void HealthOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
+void HealthOnClientHurt(int client, int attacker, int iHealth)
 {
     // If health sprite disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue || !ClassIsHealthSprite(gClientData[clientIndex].Class))
+    if(!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue || !ClassIsHealthSprite(gClientData[client].Class))
     {
         return;
     }
 
     // Gets current sprite from the client reference
-    int entityIndex = EntRefToEntIndex(gClientData[attackerIndex].AttachmentHealth);
+    int entity = EntRefToEntIndex(gClientData[attacker].AttachmentHealth);
     
     // Validate sprite
-    if(entityIndex != INVALID_ENT_REFERENCE) 
+    if(entity != -1) 
     {
         // If if a new victim, then re-parent
-        if(GetClientOfUserId(gClientData[attackerIndex].LastAttacker) != clientIndex)
+        if(GetClientOfUserId(gClientData[attacker].LastAttacker) != client)
         {
             // Remove parent of the entity
-            AcceptEntityInput(entityIndex, "ClearParent");
-            
-            // Initialize vector variables
-            static float vPosition[3];
-            
+            AcceptEntityInput(entity, "ClearParent");
+
             // Gets client top position
-            ToolsGetAbsOrigin(clientIndex, vPosition); 
+            static float vPosition[3];
+            ToolsGetAbsOrigin(client, vPosition); 
             vPosition[2] += gCvarList[CVAR_VEFFECTS_HEALTH_HEIGHT].FloatValue; // Add height
             
             // Teleport the entity
-            TeleportEntity(entityIndex, vPosition, NULL_VECTOR, NULL_VECTOR);
+            TeleportEntity(entity, vPosition, NULL_VECTOR, NULL_VECTOR);
             
             // Sets parent to the entity
             SetVariantString("!activator");
-            AcceptEntityInput(entityIndex, "SetParent", clientIndex, entityIndex);
+            AcceptEntityInput(entity, "SetParent", client, entity);
+            ToolsSetParent(entity, client);
             
             // Store the client cache
-            gClientData[attackerIndex].LastAttacker = GetClientUserId(clientIndex);
+            gClientData[attacker].LastAttacker = GetClientUserId(client);
         }
 
         // Validate death/invisibility
-        if(iHealth <= 0 || ToolsGetRenderColor(clientIndex, ColorType_Alpha) <= 0) 
+        if(iHealth <= 0 || UTIL_GetRenderColor(client, Color_Alpha) <= 0) 
         { 
-            HealthHideAllSprites(clientIndex);
+            HealthHideAllSprites(client);
             return; 
         }
         
         // Make it visible
-        AcceptEntityInput(entityIndex, "ShowSprite");
+        AcceptEntityInput(entity, "ShowSprite");
         
         // Calculate frame and update sprite
-        HealthShowSprite(attackerIndex, HealthGetFrame(clientIndex));
+        HealthShowSprite(attacker, HealthGetFrame(client));
         
         // Sets timer for updating sprite
-        gClientData[attackerIndex].HealthDuration = gCvarList[CVAR_VEFFECTS_HEALTH_DURATION].FloatValue;
-        delete gClientData[attackerIndex].SpriteTimer;
-        gClientData[attackerIndex].SpriteTimer = CreateTimer(0.1, HealthOnClientSprite, GetClientUserId(attackerIndex), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+        gClientData[attacker].HealthDuration = gCvarList[CVAR_VEFFECTS_HEALTH_DURATION].FloatValue;
+        delete gClientData[attacker].SpriteTimer;
+        gClientData[attacker].SpriteTimer = CreateTimer(0.1, HealthOnClientSprite, GetClientUserId(attacker), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
@@ -215,52 +228,52 @@ void HealthOnClientHurt(int clientIndex, int attackerIndex, int iHealth)
 public Action HealthOnClientSprite(Handle hTimer, int userID)
 {
     // Gets client index from the user ID
-    int clientIndex = GetClientOfUserId(userID);
+    int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(clientIndex)
+    if(client)
     {
         // Gets current sprite from the client reference
-        int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentHealth);
+        int entity = EntRefToEntIndex(gClientData[client].AttachmentHealth);
         
         // Validate sprite
-        if(entityIndex != INVALID_ENT_REFERENCE) 
+        if(entity != -1) 
         {
             // If duration is over, then stop
-            if(gClientData[clientIndex].HealthDuration <= 0.0)
+            if(gClientData[client].HealthDuration <= 0.0)
             {
                 // Make it invisible
-                AcceptEntityInput(entityIndex, "HideSprite");  
+                AcceptEntityInput(entity, "HideSprite");  
         
                 // Clear timer
-                gClientData[clientIndex].SpriteTimer = null;
+                gClientData[client].SpriteTimer = null;
                 
                 // Destroy timer
                 return Plugin_Stop;
             }
             
             // Substitute counter
-            gClientData[clientIndex].HealthDuration -= 0.1;
+            gClientData[client].HealthDuration -= 0.1;
             
-            // Gets the victim index
-            userID = GetClientOfUserId(gClientData[clientIndex].LastAttacker);
+            // Gets victim index
+            userID = GetClientOfUserId(gClientData[client].LastAttacker);
             if(userID)
             {
                 // Validate invisibility
-                if(ToolsGetRenderColor(userID, ColorType_Alpha) <= 0)
+                if(UTIL_GetRenderColor(userID, Color_Alpha) <= 0)
                 {
                     // Make it invisible
-                    AcceptEntityInput(entityIndex, "HideSprite");  
+                    AcceptEntityInput(entity, "HideSprite");  
             
                     // Clear timer
-                    gClientData[clientIndex].SpriteTimer = null;
+                    gClientData[client].SpriteTimer = null;
                     
                     // Destroy timer
                     return Plugin_Stop;
                 }
         
                 // Calculate frame and update sprite
-                HealthShowSprite(clientIndex, HealthGetFrame(userID));
+                HealthShowSprite(client, HealthGetFrame(userID));
 
                 // Allow timer
                 return Plugin_Continue;
@@ -269,7 +282,7 @@ public Action HealthOnClientSprite(Handle hTimer, int userID)
     }
 
     // Clear timer
-    gClientData[clientIndex].SpriteTimer = null;
+    gClientData[client].SpriteTimer = null;
     
     // Destroy timer
     return Plugin_Stop;
@@ -282,14 +295,14 @@ public Action HealthOnClientSprite(Handle hTimer, int userID)
 /**
  * @brief Create an attachment health sprite for the client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @return                  True on the creation, false otherwise.
  **/ 
-bool HealthCreateSprite(int clientIndex)
+bool HealthCreateSprite(int client)
 {
     // Validate entities
-    if(EntRefToEntIndex(gClientData[clientIndex].AttachmentHealth) != INVALID_ENT_REFERENCE ||
-       EntRefToEntIndex(gClientData[clientIndex].AttachmentController) != INVALID_ENT_REFERENCE) 
+    if(EntRefToEntIndex(gClientData[client].AttachmentHealth) != -1 ||
+       EntRefToEntIndex(gClientData[client].AttachmentController) != -1) 
     {
         return false;
     }
@@ -305,32 +318,32 @@ bool HealthCreateSprite(int clientIndex)
     gCvarList[CVAR_VEFFECTS_HEALTH_SCALE].GetString(sScale, sizeof(sScale));
     
     // Create an attach sprite
-    int entityIndex = UTIL_CreateSprite(clientIndex, _, _, _, sSprite, sScale, "7");
+    int entity = UTIL_CreateSprite(client, _, _, _, sSprite, sScale, "7");
     
     // Validate entity
-    if(entityIndex != INVALID_ENT_REFERENCE)
+    if(entity != -1)
     {
         // Hide it
-        AcceptEntityInput(entityIndex, "HideSprite");
+        AcceptEntityInput(entity, "HideSprite");
 
         // Hook entity callbacks
-        SDKHook(entityIndex, SDKHook_SetTransmit, ParticlesOnTransmit);
+        SDKHook(entity, SDKHook_SetTransmit, HealthOnTransmit);
 
         // Store the client cache
-        gClientData[clientIndex].AttachmentHealth = EntIndexToEntRef(entityIndex);
+        gClientData[client].AttachmentHealth = EntIndexToEntRef(entity);
     }
 
     // Gets sprite var
     gCvarList[CVAR_VEFFECTS_HEALTH_VAR].GetString(sScale, sizeof(sScale));
     
     // Create a shader controller sprite
-    int controllerIndex = UTIL_CreateSpriteController(entityIndex, sSprite, sScale); 
+    int controller = UTIL_CreateSpriteController(entity, sSprite, sScale); 
     
     // Validate entity
-    if(controllerIndex != INVALID_ENT_REFERENCE)
+    if(controller != -1)
     {
         // Store the client cache
-        gClientData[clientIndex].AttachmentController = EntIndexToEntRef(controllerIndex);
+        gClientData[client].AttachmentController = EntIndexToEntRef(controller);
     }   
 
     // Validate success
@@ -340,15 +353,15 @@ bool HealthCreateSprite(int clientIndex)
 /**
  * @brief Hide the health sprite to all attackers.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/ 
-void HealthHideAllSprites(int clientIndex)
+void HealthHideAllSprites(int client)
 {
     // i = client index
     for(int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(GetClientOfUserId(gClientData[i].LastAttacker) == clientIndex)
+        if(GetClientOfUserId(gClientData[i].LastAttacker) == client)
         {
             // Hide it!
             HealthHideSprite(i);
@@ -359,28 +372,28 @@ void HealthHideAllSprites(int clientIndex)
 /**
  * @brief Hide the health sprite to the client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/ 
-void HealthHideSprite(int clientIndex)
+void HealthHideSprite(int client)
 {
     // Gets current sprite from the client reference
-    int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentHealth);
-    if(entityIndex != INVALID_ENT_REFERENCE) AcceptEntityInput(entityIndex, "HideSprite");
+    int entity = EntRefToEntIndex(gClientData[client].AttachmentHealth);
+    if(entity != -1) AcceptEntityInput(entity, "HideSprite");
 }
 
 /**
  * @brief Show the health sprite to the client.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iFrame            The frame index.
  **/ 
-void HealthShowSprite(int clientIndex, int iFrame)
+void HealthShowSprite(int client, int iFrame)
 {
     // Gets current controller from the client reference
-    int entityIndex = EntRefToEntIndex(gClientData[clientIndex].AttachmentController);
+    int entity = EntRefToEntIndex(gClientData[client].AttachmentController);
 
     // Validate controller
-    if(entityIndex != INVALID_ENT_REFERENCE) 
+    if(entity != -1) 
     {
         // Initialize frame char
         static char sFrame[SMALL_LINE_LENGTH];
@@ -388,20 +401,20 @@ void HealthShowSprite(int clientIndex, int iFrame)
         
         // Sets modified flags on the entity
         SetVariantString(sFrame);
-        AcceptEntityInput(entityIndex, "StartAnimSequence");
+        AcceptEntityInput(entity, "StartAnimSequence");
     }
 }
 
 /**
  * @brief Gets the frame index.
  *
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/ 
-int HealthGetFrame(int clientIndex)
+int HealthGetFrame(int client)
 {
     // Calculate the frames
     float flMaxFrames = gCvarList[CVAR_VEFFECTS_HEALTH_FRAMES].FloatValue - 1.0;
-    float flFrame = float(ToolsGetHealth(clientIndex)) / float(ClassGetHealth(gClientData[clientIndex].Class)) * flMaxFrames;
+    float flFrame = float(ToolsGetHealth(client)) / float(ClassGetHealth(gClientData[client].Class)) * flMaxFrames;
 
     // Return the frame position
     return (flFrame > flMaxFrames) ? RoundToNearest(flMaxFrames) : RoundToNearest(flFrame);

@@ -38,10 +38,10 @@ void DebugOnCommandInit(/*void*/)
  * Console command callback (zp_debug)
  * @brief Creates the debug log.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action DebugOnCommandCatched(int clientIndex, int iArguments)
+public Action DebugOnCommandCatched(int client, int iArguments)
 {
     // Validate mode
     static bool bDebug;
@@ -57,7 +57,7 @@ public Action DebugOnCommandCatched(int clientIndex, int iArguments)
     {
         // Initialize path
         static char sPath[PLATFORM_LINE_LENGTH];
-        BuildPath(Path_SM, sPath, PLATFORM_LINE_LENGTH, "logs/debug_");
+        BuildPath(Path_SM, sPath, sizeof(sPath), "logs/debug_");
 
         // Initialize variables
         static char sLog[PLATFORM_LINE_LENGTH];
@@ -74,7 +74,7 @@ public Action DebugOnCommandCatched(int clientIndex, int iArguments)
         LogEvent(false, LogType_Normal, LOG_DEBUG_DETAIL, LogModule_Debug, "Debug Tool", "Stop the dump debug logging. Results was saved in \"%s\"", sLine);
     }
 
-    // Reset the variable
+    // Resets the variable
     bDebug = !bDebug;
     return Plugin_Handled;
 }

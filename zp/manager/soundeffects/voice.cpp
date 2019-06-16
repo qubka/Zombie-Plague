@@ -71,16 +71,16 @@ void VoiceOnGameModeStart(/*void*/)
 /**
  * @brief Client has been changed class state.
  * 
- * @param clientIndex       The client index.
+ * @param client            The client index.
  **/
-void VoiceOnClientUpdate(int clientIndex)
+void VoiceOnClientUpdate(int client)
 {
     // If zombie mute is disabled, then skip
     bool bVoiceMute = gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE].BoolValue;
     if(bVoiceMute)
     {
         // Apply new voice flags
-        SetClientListeningFlags(clientIndex, gClientData[clientIndex].Zombie ? VOICE_MUTED : VOICE_NORMAL);
+        SetClientListeningFlags(client, gClientData[client].Zombie ? VOICE_MUTED : VOICE_NORMAL);
     }
 }
 
@@ -114,7 +114,7 @@ public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 
 /**
  * Cvar hook callback (zp_seffects_voice_zombies_mute)
- * @brief Reset the mute variable on zombie.
+ * @brief Resets the mute variable on zombie.
  * 
  * @param hConVar           The cvar handle.
  * @param oldValue          The value before the attempted change.
