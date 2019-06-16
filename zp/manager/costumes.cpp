@@ -1008,6 +1008,12 @@ void CostumesMenu(int client)
     // Sets title
     hMenu.SetTitle("%t", "costumes menu");
     
+    // Format some chars for showing in menu
+    FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "remove");
+    
+    // Show add option
+    hMenu.AddItem("-1", sBuffer);
+    
     // Initialize forward
     Action hResult;
     
@@ -1100,21 +1106,39 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
             int iD = StringToInt(sBuffer);
             
-            // Call forward
-            Action hResult;
-            gForwardData._OnClientValidateCostume(client, iD, hResult);
-            
-            // Validate handle
-            if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+            // Validate button info
+            switch(iD)
             {
-                // Sets costume to the client
-                gClientData[client].Costume = iD;
-                
-                // Update costume in the database
-                DataBaseOnClientUpdate(client, ColumnType_Costume);
-                
-                // Sets costume
-                CostumesCreateEntity(client);
+                // Client hit 'Remove' button
+                case -1 :
+                {
+                    // Remove current costume
+                    CostumesRemove(client);
+                    
+                    // Sets costume to the client
+                    gClientData[client].Costume = -1;
+                }
+            
+                // Client hit 'Costume' button
+                default :
+                {
+                    // Call forward
+                    Action hResult;
+                    gForwardData._OnClientValidateCostume(client, iD, hResult);
+                    
+                    // Validate handle
+                    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+                    {
+                        // Sets costume to the client
+                        gClientData[client].Costume = iD;
+                        
+                        // Update costume in the database
+                        DataBaseOnClientUpdate(client, ColumnType_Costume);
+                        
+                        // Sets costume
+                        CostumesCreateEntity(client);
+                    }
+                }
             }
         }
     }
