@@ -45,9 +45,9 @@ public Plugin myinfo =
 /**
  * @section Properties of the grenade.
  **/
-#define GRENADE_FREEZE_TIME           4.0     // Freeze duration in seconds
-#define GRENADE_FREEZE_RADIUS         200.0   // Freeze size (radius)
-#define GRENADE_FREEZE_EXP_TIME       2.0     // Duration of the explosion effect in seconds
+#define GRENADE_FREEZE_TIME           GetRandomFloat(3.0, 5.0)  // Freeze duration in seconds
+#define GRENADE_FREEZE_RADIUS         200.0                     // Freeze size (radius)
+#define GRENADE_FREEZE_EXP_TIME       2.0                       // Duration of the explosion effect in seconds
 /**
  * @endsection
  **/

@@ -948,7 +948,36 @@ methodmap SentryGun /** Regards to Pelipoika **/
                 vMid[2] -= 5.0; 
             }
         }
-    } 
+    }
+    
+    public bool CanUpgrade() 
+    {
+        // Gets the entity center
+        static float vPosition[3];
+        GetCenterOrigin(this.Index, vPosition); 
+        
+        // Initialize the hull vectors
+        static const float vMins[3] = { -40.0, -40.0, 0.0   }; 
+        static const float vMaxs[3] = {  40.0,  40.0, 72.0  }; 
+        
+        // Create array of entities
+        ArrayList hList = new ArrayList();
+        
+        // Create the hull trace
+        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+
+        // Is hit any client ?
+        if(hList.Length)
+        {
+            // Return on unsuccess
+            delete hList;
+            return false; /// Stop here
+        }
+        
+        // Return on success
+        delete hList;
+        return true;
+    }
     
     public void EmitSound(int iIndex)
     {
@@ -1614,7 +1643,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         }*/
         
         // Upgrade sentry
-        if(this.UpgradeState != this.UpgradeLevel)
+        if(this.UpgradeState != this.UpgradeLevel && this.CanUpgrade())
         {
             this.Upgrade();
             return;
@@ -2567,33 +2596,25 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
 }
 
 /**
- * @brief Trace filter.
+ * @brief Called before a grenade sound is emitted.
  *
- * @param entity            The entity index.  
- * @param contentsMask      The contents mask.
- * @return                  True or false.
- **/
-public bool ClientFilter(int entity, int contentsMask)
-{
-    return !(1 <= entity <= MaxClients);
-}
-
-/**
- * @brief Trace filter.
+ * @param grenade           The grenade index.
+ * @param weaponID          The weapon id.
  *
- * @param entity            The entity index.  
- * @param contentsMask      The contents mask.
- * @param filter            The filter index.
- * @return                  True or false.
+ * @return                  Plugin_Continue to allow sounds. Anything else
+ *                              (like Plugin_Stop) to block sounds.
  **/
-public bool TurretFilter(int entity, int contentsMask, int filter)
+public Action ZP_OnGrenadeSound(int grenade, int weaponID)
 {
-    if(IsEntityTurret(entity)) 
+    // Validate custom grenade
+    if(weaponID == gWeapon)
     {
-        return false;
+        // Block sounds
+        return Plugin_Stop; 
     }
     
-    return (entity != filter); 
+    // Allow sounds
+    return Plugin_Continue;
 }
 
 //**********************************************
@@ -2693,9 +2714,6 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
                 {
                     return;
                 }
-                
-                // Remove some money from the client
-                ZP_SetClientMoney(client, ZP_GetClientMoney(client) - iCost);
         
                 // Gets object methods
                 SentryGun sentry = view_as<SentryGun>(entity); 
@@ -2706,27 +2724,34 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
                     // Button 'Upgrade' was pressed
                     case 0 :
                     {
+                        // Increment mode
                         sentry.UpgradeState++;
                     }
                     
                     // Button 'HP' was pressed
                     case 1 :
                     {
+                        // Reset health
                         sentry.Health = ZP_GetWeaponClip(gWeapon);
                     }
                     
                     // Button 'Ammo' was pressed
                     case 2 :
                     {
+                        // Reset ammo
                         sentry.Ammo = ZP_GetWeaponAmmo(gWeapon);
                     }
                     
                     // Button 'Rocket' was pressed
                     case 3 :
                     {
+                        // Reset rocket
                         sentry.Rockets = ZP_GetWeaponAmmunition(gWeapon);
                     }
                 }
+                
+                // Remove some money from the client
+                ZP_SetClientMoney(client, ZP_GetClientMoney(client) - iCost);
                 
                 // Open menu
                 SentryMenu(client, entity);
@@ -2790,6 +2815,27 @@ stock void GetEyePosition(int entity, float vOutput[3])
         GetEntPropVector(entity, Prop_Data, "m_vecMaxs", vMaxs); 
         vOutput[2] += vMaxs[2]; 
     }
+}
+
+/**
+ * @brief Gets the cost from the percentage.
+ *
+ * @param flPercentage      The percentage input.  
+ * @return                  The cost ouput.
+ **/
+int GetCost(float flPercentage)
+{
+    return RoundToCeil(float(ZP_GetWeaponCost(gWeapon)) * flPercentage);
+}
+
+/**
+ * @brief Return itemdraw flag for radio menus.
+ * 
+ * @param menuCondition     If this is true, item will be drawn normally.
+ **/
+int GetDraw(bool menuCondition)
+{
+    return menuCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
 }
 
 /**
@@ -2871,44 +2917,50 @@ stock float AngleNormalize(float flAngle)
 }
 
 /**
- * @brief Gets the cost from the percentage.
+ * @brief Trace filter.
  *
- * @param flPercentage      The percentage input.  
- * @return                  The cost ouput.
+ * @param entity            The entity index.  
+ * @param contentsMask      The contents mask.
+ * @return                  True or false.
  **/
-int GetCost(float flPercentage)
+public bool ClientFilter(int entity, int contentsMask)
 {
-    return RoundToCeil(float(ZP_GetWeaponCost(gWeapon)) * flPercentage);
+    return !(1 <= entity <= MaxClients);
 }
 
 /**
- * @brief Return itemdraw flag for radio menus.
- * 
- * @param menuCondition     If this is true, item will be drawn normally.
- **/
-int GetDraw(bool menuCondition)
-{
-    return menuCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
-}
-
-/**
- * @brief Called before a grenade sound is emitted.
+ * @brief Called for each entity enumerated with EnumerateEntities*.
  *
- * @param grenade           The grenade index.
- * @param weaponID          The weapon id.
- *
- * @return                  Plugin_Continue to allow sounds. Anything else
- *                              (like Plugin_Stop) to block sounds.
+ * @param entity            The entity index.
+ * @param hData             The array handle.
+ * @return                  True to continue enumerating, otherwise false.
  **/
-public Action ZP_OnGrenadeSound(int grenade, int weaponID)
+public bool ClientEnumerator(int entity, ArrayList hData)
 {
-    // Validate custom grenade
-    if(weaponID == gWeapon)
+    // Validate player
+    if(IsPlayerExist(entity))
     {
-        // Block sounds
-        return Plugin_Stop; 
+        TR_ClipCurrentRayToEntity(MASK_ALL, entity);
+        if (TR_DidHit()) hData.Push(entity);
+    }
+        
+    return true;
+}
+
+/**
+ * @brief Trace filter.
+ *
+ * @param entity            The entity index.  
+ * @param contentsMask      The contents mask.
+ * @param filter            The filter index.
+ * @return                  True or false.
+ **/
+public bool TurretFilter(int entity, int contentsMask, int filter)
+{
+    if(IsEntityTurret(entity)) 
+    {
+        return false;
     }
     
-    // Allow sounds
-    return Plugin_Continue;
+    return (entity != filter); 
 }

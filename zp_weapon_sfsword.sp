@@ -185,7 +185,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
     }
     
     // Resets sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 
     // Validate mode
     if(iChangeMode)
@@ -205,7 +205,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
     
         // Play sound
-        ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
 }
 
@@ -219,7 +219,7 @@ void Weapon_OnHolster(int client, int weapon, int iStep, int iChangeMode, float 
     delete hWeaponSwingAgain[client];
     
     // Stop sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 }
 
 void Weapon_OnDeploy(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
@@ -255,7 +255,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
     }
     
     // Resets sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 
     // Validate mode
     if(iChangeMode)
@@ -330,7 +330,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode
     }
 
     // Resets sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
     
     // Validate mode
     if(iChangeMode)

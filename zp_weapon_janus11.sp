@@ -390,7 +390,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
     {
         ZP_CreateWeaponKickBack(client, 6.0, 3.0, 0.4, 0.15, 7.0, 5.0, 5);
         flInaccuracy = 0.04;
-        flSpread = 0.2;
+        flSpread = 0.05;
     }
     else if(iFlags & FL_DUCKING)
     {

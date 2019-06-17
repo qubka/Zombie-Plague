@@ -172,7 +172,7 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
     SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
     
     // Stop sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 }
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -197,7 +197,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
     }
     
     // Resets sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
     
     // Validate clip
     if(iClip)
@@ -209,7 +209,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
     
         // Play sound
-        ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, hSoundLevel.IntValue);
+        ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
     else
     {
@@ -256,7 +256,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
     // Stop sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
     
     // Remove the delay to the game tick
     flCurrentTime -= 0.5;
@@ -338,7 +338,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
     }
     
     // Resets sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 
     // Switch mode
     switch(iStateMode)
@@ -447,7 +447,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
     }
     
     // Resets sound
-    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_STATIC, SNDLEVEL_NONE, SND_STOP, 0.0);
+    ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 
     // Validate no ammo
     if(!iClip)

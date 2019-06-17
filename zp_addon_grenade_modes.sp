@@ -194,17 +194,6 @@ public void OnMapStart(/*void*/)
 }
 
 /**
- * @brief Called once a client successfully connects.
- *
- * @param client            The client index.
- **/
-public void OnClientConnected(int client)
-{
-    // Create array
-    hGrenadeList[client] = new ArrayList();
-}
-
-/**
  * @brief Called when a client is disconnecting from the server.
  *
  * @param client            The client index.
@@ -213,9 +202,6 @@ public void OnClientDisconnect(int client)
 {
     // Activate list
     GrenadeActivate(client);
-    
-    // Delete array
-    delete hGrenadeList[client];
 }
 
 /**
@@ -411,8 +397,8 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
                     // Hook the grenade touch function
                     SDKHook(grenade, SDKHook_Touch, GrenadeSatchelTouch);
                     
-                    // Push ref into array
-                    hGrenadeList[client].Push(EntIndexToEntRef(grenade));
+                    // Push grenade to the list
+                    GrenadePush(client, grenade);
                     
                     // Show message
                     SetGlobalTransTarget(client);
@@ -1547,20 +1533,46 @@ stock void GrenadeDetonate(int grenade)
  **/
 stock void GrenadeActivate(int client)
 {
-    int i; int grenade; /// Pop all grenades in the list
-    while((i = hGrenadeList[client].Length - 1) != -1)
+    // Validate array
+    if(hGrenadeList[client] != null)
     {
-        // Validate grenade
-        grenade = EntRefToEntIndex(hGrenadeList[client].Get(i));
-        if(grenade != -1)
+        int i; int grenade; /// Pop all grenades in the list
+        while((i = hGrenadeList[client].Length - 1) != -1)
         {
-            // Detonate the grenade
-            CreateTimer(GetRandomFloat(0.3, 0.5), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
+            // Validate grenade
+            grenade = EntRefToEntIndex(hGrenadeList[client].Get(i));
+            if(grenade != -1)
+            {
+                // Detonate the grenade
+                CreateTimer(GetRandomFloat(0.3, 0.5), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
+            }
+            
+            // Remove index from array
+            hGrenadeList[client].Erase(i);
         }
         
-        // Remove index from array
-        hGrenadeList[client].Erase(i);
+        // Delete array
+        delete hGrenadeList[client];
     }
+}
+
+/**
+ * @brief Push the grenade to a list.
+ *
+ * @param client            The client index.
+ * @param grenade           The grenade index.
+ **/
+stock void GrenadePush(int client, int grenade)
+{
+    // If array hasn't been created, then create
+    if(hGrenadeList[client] == null)
+    {
+        // Initialize a default list array
+        hGrenadeList[client] = new ArrayList();
+    }
+    
+    // Push ref into array
+    hGrenadeList[client].Push(EntIndexToEntRef(grenade));
 }
 
 /**
