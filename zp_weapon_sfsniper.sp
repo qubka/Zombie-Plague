@@ -520,7 +520,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 //**********************************************
 
 /**
- * @brief Beam effect think.
+ * @brief Timer for creating a beam effect.
  *
  * @param hThink            The think handle.    
  * @param refID             The reference index.    

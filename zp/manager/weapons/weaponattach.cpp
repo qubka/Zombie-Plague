@@ -122,7 +122,7 @@ void WeaponAttachSetAddons(int client)
         if(!(gClientData[client].AttachmentBits & CSAddon_PrimaryWeapon))
         {
             // Gets weapon index
-            weapon = GetPlayerWeaponSlot(client, SlotType_Primary);
+            weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Primary));
             
             // Validate weapon
             if(weapon != -1)
@@ -152,7 +152,7 @@ void WeaponAttachSetAddons(int client)
         if(!(gClientData[client].AttachmentBits & CSAddon_SecondaryWeapon))
         {
             // Gets weapon index
-            weapon = GetPlayerWeaponSlot(client, SlotType_Secondary);
+            weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Secondary));
 
             // Validate taser slot
             if(weapon == ToolsGetActiveWeapon(client))
@@ -339,7 +339,7 @@ void WeaponAttachSetAddons(int client)
         if(!(gClientData[client].AttachmentBits & CSAddon_Knife))
         {
             // Gets weapon index
-            weapon = GetPlayerWeaponSlot(client, SlotType_Melee);
+            weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Melee));
             
             // Validate weapon
             if(weapon != -1)
@@ -399,7 +399,7 @@ void WeaponAttachSetAddons(int client)
         if(!(gClientData[client].AttachmentBits & CSAddon_C4))
         {
             // Gets weapon index
-            weapon = GetPlayerWeaponSlot(client, SlotType_C4);
+            weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_C4));
             
             // Validate weapon
             if(weapon != -1)

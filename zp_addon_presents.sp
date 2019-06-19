@@ -470,7 +470,7 @@ public void ZP_OnGameModeStart(int mode)
     // Validate access
     if(ZP_IsGameModeHumanClass(mode, "human"))
     {
-        // Create timer for spawing
+        // Create spawing hook
         delete hPresentSpawn;
         hPresentSpawn = CreateTimer(PRESENT_DELAY, CaseSpawnHook, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }

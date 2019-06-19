@@ -137,8 +137,8 @@ void ParticlesOnPurge(/*void*/)
         return;
     }
     
-    /// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L81
-    SDKCall(hSDKCallDestructorParticleDictionary, pParticleSystemDictionary);
+    // Clear particles in the dictionary
+    ParticlesClear();
 
     // Clear particles in the effect table
     Address pTable = ParticlesFindTable("ParticleEffectNames");
@@ -333,6 +333,16 @@ void ParticlesClearTable(Address pTable)
 {
     SDKCall(hSDKCallTableDeleteAllStrings, pTable);
 }
+
+/**
+ * @brief Delete all precached particles in the dictionary.
+ *
+ * @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L81                 
+ **/
+void ParticlesClear(/*void*/)
+{
+    SDKCall(hSDKCallDestructorParticleDictionary, pParticleSystemDictionary);
+}   
 
 /**
  * @brief Gets the amount of precached particles in the dictionary.

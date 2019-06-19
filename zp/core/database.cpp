@@ -728,6 +728,12 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
                             }
                             case ColumnType_Costume :
                             {
+                                // If costumes is disabled, then skip
+                                if(!gCvarList[CVAR_COSTUMES].BoolValue)
+                                {
+                                    return;
+                                }
+                                
                                 hResult.FetchString(i, sColumn, sizeof(sColumn));
                                 gClientData[client].Costume = CostumesNameToIndex(sColumn);
                             }

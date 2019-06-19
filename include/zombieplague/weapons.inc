@@ -255,11 +255,10 @@ native int ZP_CreateWeapon(int weaponID, float origin[3], float angle[3]);
  *
  * @param client            The client index.
  * @param weaponID          The weapon ID.
- * @param slot              (Optional) The slot index. (mod specific)
  *
  * @return                  The weapon index.
  **/
-native int ZP_GiveClientWeapon(int client, int weaponID, SlotType slot = SlotType_Invalid);
+native int ZP_GiveClientWeapon(int client, int weaponID);
 
 /**
  * @brief Switches the weapon by an index.
@@ -806,7 +805,7 @@ stock int ZP_GetPlayerWeapon(int client, char[] sType)
  *
  * @param client            The client index.
  * @param weapon            The weapon index.
- * @param slot             (Optional) The slot index to replace.
+ * @param slot              (Optional) The slot index to replace.
  **/
 stock void ZP_RemoveWeapon(int client, int weapon, SlotType slot = SlotType_Melee)
 {

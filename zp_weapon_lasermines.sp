@@ -46,7 +46,6 @@ public Plugin myinfo =
  * @section Information about the weapon.
  **/
 //#define WEAPON_MINE_IMPULSE /// Uncomment to use the classical beam instead.
-#define WEAPON_MINE_SOLID     /// Uncomment to make mine solid.
 #define WEAPON_MINE_DAMAGE           150.0   // dmg amount
 #define WEAPON_BEAM_LIFE             0.1
 #define WEAPON_BEAM_WIDTH            3.0
@@ -229,7 +228,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
     }
     
     // Initialize vectors
-    static float vPosition[3]; static float vEndPosition[3]; bool bHit;
+    static float vPosition[3]; static float vEndPosition[3];
     
     // Gets trace line
     GetClientEyePosition(client, vPosition);
@@ -241,43 +240,21 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
     // Is hit world ?
     if(TR_DidHit() && TR_GetEntityIndex() < 1)
     {
-#if defined WEAPON_MINE_SOLID
-        // Returns the collision position/normal of a trace result
-        TR_GetEndPosition(vPosition);
+        // Adds the delay to the game tick
+        flCurrentTime += ZP_GetWeaponReload(gWeapon);
 
-        // Initialize the hull vectors
-        static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
-        static const float vMaxs[3] = {  20.0,  20.0, 20.0  }; 
-        
-        // Create array of entities
-        ArrayList hList = new ArrayList();
-        
-        // Create the hull trace
-        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+        // Sets shoot animation
+        ZP_SetWeaponAnimation(client, ANIM_SHOOT);
 
-        // Is hit world only ?
-        if(!hList.Length)
-        {
-#endif
-            // Sets shoot animation
-            ZP_SetWeaponAnimation(client, ANIM_SHOOT);
-
-            // Create timer for mine
-            delete hMineCreate[client]; /// Bugfix
-            hMineCreate[client] = CreateTimer(ZP_GetWeaponReload(gWeapon) - 0.1, Weapon_OnCreateMine, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-
-            // Return on the success
-            bHit = true;
-#if defined WEAPON_MINE_SOLID
-        }
-        
-        // Remove array
-        delete hList;
-#endif
+        // Create timer for mine
+        delete hMineCreate[client]; /// Bugfix
+        hMineCreate[client] = CreateTimer(ZP_GetWeaponReload(gWeapon) - 0.1, Weapon_OnCreateMine, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
     }
-    
-    // Adds the delay to the game tick
-    flCurrentTime += bHit ? ZP_GetWeaponReload(gWeapon) : 0.1;
+    else
+    {
+        // Adds the delay to the game tick
+        flCurrentTime += 0.1;
+    }
     
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -318,87 +295,61 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
             TR_GetEndPosition(vPosition);
             TR_GetPlaneNormal(null, vAngle);
 
-#if defined WEAPON_MINE_SOLID
-            // Initialize the hull vectors
-            static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
-            static const float vMaxs[3] = {  20.0,  20.0, 20.0  }; 
-            
-            // Create array of entities
-            ArrayList hList = new ArrayList();
-            
-            // Create the hull trace
-            TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+            // Gets angles of the trace vectors
+            GetVectorAngles(vAngle, vAngle); vAngle[0] += 90.0; /// Bugfix for w_
 
-            // Is hit world only ?
-            if(!hList.Length)
+            // Gets weapon dropped model
+            static char sModel[PLATFORM_LINE_LENGTH];
+            ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
+            
+            // Create a physics entity
+            int entity = UTIL_CreatePhysics("mine", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
+            
+            // Validate entity
+            if(entity != -1)
             {
-#endif
-                // Gets angles of the trace vectors
-                GetVectorAngles(vAngle, vAngle); vAngle[0] += 90.0; /// Bugfix for w_
+                // Sets physics
+                SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+                SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
 
-                // Gets weapon dropped model
-                static char sModel[PLATFORM_LINE_LENGTH];
-                ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
+                // Gets health amount
+                int iHealth = GetEntProp(weapon, Prop_Data, "m_iHealth");
                 
-                // Create a physics entity
-                int entity = UTIL_CreatePhysics("mine", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
+                // Sets health     
+                SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
+                SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
+                SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
                 
-                // Validate entity
-                if(entity != -1)
-                {
-                    // Sets physics
-                    SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-#if defined WEAPON_MINE_SOLID
-                    SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
-#else
-                    SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
-#endif
-                    // Gets health amount
-                    int iHealth = GetEntProp(weapon, Prop_Data, "m_iHealth");
-                    
-                    // Sets health     
-                    SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
-                    SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
-                    SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
-                    
-                    // Create damage/use hook
-                    SDKHook(entity, SDKHook_OnTakeDamage, MineDamageHook);
-                    SDKHook(entity, SDKHook_UsePost, MineUseHook);
-                    
-                    // Create the angle trace
-                    vAngle[0] -= 90.0; /// Bugfix for beam
-                    TR_TraceRayFilter(vPosition, vAngle, MASK_SOLID, RayType_Infinite, PlayerFilter, entity);
-                    
-                    // Returns the collision position of a trace result
-                    TR_GetEndPosition(vEndPosition);
-                    
-                    // Store the end position
-                    SetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
-                    
-                    // Sets owner to the entity
-                    SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
+                // Create damage/use hook
+                SDKHook(entity, SDKHook_OnTakeDamage, MineDamageHook);
+                SDKHook(entity, SDKHook_UsePost, MineUseHook);
+                
+                // Create the angle trace
+                vAngle[0] -= 90.0; /// Bugfix for beam
+                TR_TraceRayFilter(vPosition, vAngle, MASK_SOLID, RayType_Infinite, PlayerFilter, entity);
+                
+                // Returns the collision position of a trace result
+                TR_GetEndPosition(vEndPosition);
+                
+                // Store the end position
+                SetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
+                
+                // Sets owner to the entity
+                SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 
-                    // Create timer for activating 
-                    CreateTimer(ZP_GetWeaponModelHeat(gWeapon), MineActivateHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-
-                    // Play sound
-                    ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                }
+                // Create activating/solid hook
+                CreateTimer(ZP_GetWeaponModelHeat(gWeapon), MineActivateHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
+                CreateTimer(0.1, MineSolidHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
                 
-                // Forces a player to remove weapon
-                ZP_RemoveWeapon(client, weapon);
-                
-                // Remove array
-                delete hList;  
-                
-                // Destroy timer
-                return Plugin_Stop;
-#if defined WEAPON_MINE_SOLID
+                // Play sound
+                ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
             }
             
-            // Remove array
-            delete hList;   
-#endif
+            // Forces a player to remove weapon
+            ZP_RemoveWeapon(client, weapon);
+            
+            // Destroy timer
+            return Plugin_Stop;
         }
 
         // Adds the delay to the game tick
@@ -657,7 +608,7 @@ public Action MineActivateHook(Handle hTimer, int refID)
         ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
         
 #if defined WEAPON_MINE_IMPULSE
-        // Create timer for updating 
+        // Create update hook
         CreateTimer(ZP_GetWeaponSpeed(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         
         // Gets angle
@@ -711,6 +662,54 @@ public Action MineActivateHook(Handle hTimer, int refID)
     // Destroy timer
     return Plugin_Stop;
 } 
+
+/**
+ * @brief Main timer for making solid mine.
+ *
+ * @param hTimer            The timer handle.
+ * @param refID             The reference index.
+ **/
+public Action MineSolidHook(Handle hTimer, int refID)
+{
+    // Gets entity index from reference key
+    int entity = EntRefToEntIndex(refID);
+
+    // Validate entity
+    if(entity != -1)
+    {
+        // Gets entity position
+        static float vPosition[3];
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
+
+        // Initialize the hull vectors
+        static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
+        static const float vMaxs[3] = {  20.0,  20.0, 20.0  }; 
+        
+        // Create array of entities
+        ArrayList hList = new ArrayList();
+        
+        // Create the hull trace
+        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+
+        // Is hit world only ?
+        if(!hList.Length)
+        {
+            // Sets physics
+            SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
+            
+            // Destroy timer
+            return Plugin_Stop;
+        }
+    }
+    else
+    {
+        // Destroy timer
+        return Plugin_Stop;
+    }
+    
+    // Allow timer
+    return Plugin_Continue;
+}
 
 /**
  * @brief Main timer for update mine.
@@ -965,22 +964,20 @@ public bool HumanFilter(int entity, int contentsMask, int filter)
 #endif
 
 /**
- * @brief Called for each entity enumerated with EnumerateEntities*.
+ * @brief Hull filter.
  *
  * @param entity            The entity index.
  * @param hData             The array handle.
  * @return                  True to continue enumerating, otherwise false.
  **/
-#if defined WEAPON_MINE_SOLID
 public bool ClientEnumerator(int entity, ArrayList hData)
 {
     // Validate player
     if(IsPlayerExist(entity))
     {
         TR_ClipCurrentRayToEntity(MASK_ALL, entity);
-        if (TR_DidHit()) hData.Push(entity);
+        if(TR_DidHit()) hData.Push(entity);
     }
         
     return true;
 }
-#endif

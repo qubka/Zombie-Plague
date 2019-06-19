@@ -689,14 +689,6 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
                 // Validate access
                 if(!WeaponsValidateByID(client, iD) && WeaponsValidateClass(client, iD))
                 {
-                    // Validate primary/secondary weapon
-                    ItemDef iItem = WeaponsGetDefIndex(iD);
-                    if(!IsGrenade(iItem) && !IsItem(iItem) && iItem != ItemDef_Taser)
-                    {
-                        // Drop weapon
-                        WeaponsDrop(client, GetPlayerWeaponSlot(client, (WeaponsGetSlot(iD) == MenuType_Pistols) ? SlotType_Secondary : ((WeaponsGetSlot(iD) == MenuType_Knifes) ? SlotType_Melee : SlotType_Primary)));
-                    }
-                    
                     // Give weapon for the player
                     if(WeaponsGive(client, iD) != -1)
                     {

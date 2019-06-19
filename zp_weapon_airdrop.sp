@@ -101,7 +101,7 @@ enum
 #define AIRDROP_WEAPONS                 15
 #define AIRDROP_SMOKE_REMOVE            14.0
 #define AIRDROP_SMOKE_TIME              17.0
-#define AIRDROP_LOCK                    20.0
+#define AIRDROP_LOCK                    25.0
 /**
  * @endsection
  **/
@@ -743,7 +743,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
     if(ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
     {
          // Initialize vectors
-        static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3]; bool bHit;
+        static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
         // Gets trace line
         GetClientEyePosition(client, vPosition);
@@ -779,13 +779,21 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
                 
                 // Emit sound
                 EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+                
+                // Create solid hook
+                CreateTimer(0.1, EmitterSolidHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             }
             
             // Sets trigger mode
             SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_TRIGGER_ON);
 
-            // Placed successfully
-            bHit = true;
+            // Sets pickup animation
+            ZP_SetWeaponAnimation(client, ANIM_DRAW_TRIGGER_OFF);
+        }
+        else
+        {
+            // Sets pickup animation
+            ZP_SetWeaponAnimation(client, ANIM_DRAW);
         }
 
         // Adds the delay to the game tick
@@ -794,9 +802,6 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
         SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
-
-        // Sets pickup animation
-        ZP_SetWeaponAnimation(client, bHit ? ANIM_DRAW_TRIGGER_OFF : ANIM_DRAW);
     }
     
     // Destroy timer
@@ -1759,6 +1764,58 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 }*/
 
 //**********************************************
+//* Item (both) functions.                     *
+//**********************************************
+
+/**
+ * @brief Main timer for making solid emitter.
+ *
+ * @param hTimer            The timer handle.
+ * @param refID             The reference index.
+ **/
+public Action EmitterSolidHook(Handle hTimer, int refID)
+{
+    // Gets entity index from reference key
+    int entity = EntRefToEntIndex(refID);
+
+    // Validate entity
+    if(entity != -1)
+    {
+        // Gets entity position
+        static float vPosition[3];
+        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
+
+        // Initialize the hull vectors
+        static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
+        static const float vMaxs[3] = {  20.0,  20.0, 20.0  }; 
+        
+        // Create array of entities
+        ArrayList hList = new ArrayList();
+        
+        // Create the hull trace
+        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+
+        // Is hit world only ?
+        if(!hList.Length)
+        {
+            // Sets physics
+            SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
+            
+            // Destroy timer
+            return Plugin_Stop;
+        }
+    }
+    else
+    {
+        // Destroy timer
+        return Plugin_Stop;
+    }
+    
+    // Allow timer
+    return Plugin_Continue;
+}
+
+//**********************************************
 //* Item (npc) stocks.                         *
 //**********************************************
 
@@ -1772,6 +1829,25 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 public bool ClientFilter(int entity, int contentsMask)
 {
     return !(1 <= entity <= MaxClients);
+}
+
+/**
+ * @brief Hull filter.
+ *
+ * @param entity            The entity index.
+ * @param hData             The array handle.
+ * @return                  True to continue enumerating, otherwise false.
+ **/
+public bool ClientEnumerator(int entity, ArrayList hData)
+{
+    // Validate player
+    if(IsPlayerExist(entity))
+    {
+        TR_ClipCurrentRayToEntity(MASK_ALL, entity);
+        if (TR_DidHit()) hData.Push(entity);
+    }
+        
+    return true;
 }
 
 /**

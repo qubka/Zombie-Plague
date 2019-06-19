@@ -250,7 +250,7 @@ public Action BatTouchHook(int entity, int target)
                 // Kill after some duration
                 UTIL_RemoveEntity(bat, ZOMBIE_CLASS_SKILL_DURATION);
 
-                // Create a connection
+                // Create a attach timer
                 CreateTimer(0.1, BatAttachHook, EntIndexToEntRef(bat), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             }
 

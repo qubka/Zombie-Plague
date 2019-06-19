@@ -28,7 +28,7 @@
 /**
  * @section Number of valid slots.
  **/
-enum /*SlotType*/
+enum SlotType
 { 
     SlotType_Invalid = -1,        /** Used as return value when a slot doens't exist. */
     
@@ -1284,7 +1284,7 @@ void WeaponMODOnUse(int client)
             }
             
             // Replace weapon
-            WeaponsEquip(client, entity, true);
+            WeaponsEquip(client, entity);
         }
     }
 }
@@ -1445,8 +1445,8 @@ public Action WeaponMODOnCommandListened(int client, char[] commandMsg, int iArg
                             if(WeaponsGive(client, gServerData.Melee) == -1)
                             {
                                 // Try switching to any available weapon
-                                int iPrimary = GetPlayerWeaponSlot(client, SlotType_Primary);
-                                int iSecondary = GetPlayerWeaponSlot(client, SlotType_Secondary);
+                                int iPrimary = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Primary));
+                                int iSecondary = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Secondary));
                                 weapon = (iPrimary != -1) ? iPrimary : iSecondary;
 
                                 // Validate weapon

@@ -673,7 +673,7 @@ public int API_CreateWeapon(Handle hPlugin, int iNumParams)
 /**
  * @brief Gives the weapon by a given id.
  *
- * @note native int ZP_GiveClientWeapon(client, id, slot);
+ * @note native int ZP_GiveClientWeapon(client, id);
  **/
 public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 {
@@ -697,14 +697,6 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
         return -1;
     }
 
-    // Validate slot
-    int mSlot = GetNativeCell(3);
-    if(mSlot != SlotType_Invalid)
-    {
-        // Drop weapon
-        WeaponsDrop(client, GetPlayerWeaponSlot(client, mSlot));
-    }
-    
     // Call forward
     Action hResult;
     gForwardData._OnClientValidateWeapon(client, iD, hResult);
@@ -2448,27 +2440,33 @@ void WeaponsDrop(int client, int weapon)
  *
  * @param client            The client index.
  * @param weapon            The weapon index.
- * @param bReplace          (Optional) True to replace a slot or false to skip.
  **/
-void WeaponsEquip(int client, int weapon, bool bReplace = false)
+void WeaponsEquip(int client, int weapon)
 {
     // Initialize weapon index
     int weapon2 = -1;
-    
-    // Validate replace mode
-    if(bReplace)
+
+    // Gets weapon slot
+    SlotType mSlot = WeaponsGetSlotType(weapon);
+    switch(mSlot)
     {
-        // Gets weapon index
-        weapon2 = GetPlayerWeaponSlot(client, SlotType_Melee);
-    }
-    else
-    {
-        // Gets weapon classname
-        static char sClassname[SMALL_LINE_LENGTH];
-        GetEdictClassname(weapon, sClassname, sizeof(sClassname));
-        
-        // Gets weapon index
-        weapon2 = WeaponsFindByName(client, sClassname);
+        // Multi slot
+        case SlotType_Equipment, SlotType_C4 :
+        {
+            // Gets weapon classname
+            static char sClassname[SMALL_LINE_LENGTH];
+            GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+            
+            // Gets weapon index
+            weapon2 = WeaponsFindByName(client, sClassname);
+        }
+
+        // Single slot
+        default : 
+        {
+            // Gets weapon index
+            weapon2 = GetPlayerWeaponSlot(client, view_as<int>(mSlot));
+        }
     }
     
     // Validate weapon
@@ -2497,7 +2495,7 @@ void WeaponsSwitch(int client, int weapon)
     int weapon2 = ToolsGetActiveWeapon(client);
     
     // Validate switch to the same slot
-    if(weapon2 == -1 || SDKCall(hSDKCallGetSlot, weapon) == SDKCall(hSDKCallGetSlot, weapon2))
+    if(weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2))
     {
         // Create call to the switch weapons
         SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
@@ -2743,6 +2741,17 @@ int WeaponsFindByName(int client, char[] sType)
 
     // Weapon doesn't exist
     return -1;
+}
+
+/**
+ * @brief Gets the slot type of a weapon.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The slot index.
+ **/
+SlotType WeaponsGetSlotType(int weapon)
+{
+    return view_as<SlotType>(SDKCall(hSDKCallGetSlot, weapon));
 }
 
 /**

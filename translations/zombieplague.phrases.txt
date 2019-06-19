@@ -141,11 +141,11 @@
     "full damage info" // Hint
     {
         "#format"       "{1:d},{2:d}"
-        "en"            "<font color='#FFFFFF'>HP</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Armor</font>: <font color='#FF0000'>{1}</font>"
-        "ru"            "<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Броня</font>: <font color='#FF0000'>{1}</font>"
-        "chi"           "<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>盔甲</font>: <font color='#FF0000'>{1}</font>"
-        "zho"           "<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>盔甲</font>: <font color='#FF0000'>{1}</font>"
-        "ro"            "<font color='#FFFFFF'>VIATA</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Armura</font>: <font color='#FF0000'>{1}</font>"
+        "en"            "<font color='#FFFFFF'>HP</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Armor</font>: <font color='#FF0000'>{2}</font>"
+        "ru"            "<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Броня</font>: <font color='#FF0000'>{2}</font>"
+        "chi"           "<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>盔甲</font>: <font color='#FF0000'>{2}</font>"
+        "zho"           "<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>盔甲</font>: <font color='#FF0000'>{2}</font>"
+        "ro"            "<font color='#FFFFFF'>VIATA</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Armura</font>: <font color='#FF0000'>{2}</font>"
     }
     
     "buy info" // Chat (translated)

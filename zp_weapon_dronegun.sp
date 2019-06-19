@@ -952,9 +952,9 @@ methodmap SentryGun /** Regards to Pelipoika **/
     
     public bool CanUpgrade() 
     {
-        // Gets the entity center
+        // Gets entity position
         static float vPosition[3];
-        GetCenterOrigin(this.Index, vPosition); 
+        GetAbsOrigin(this.Index, vPosition); 
         
         // Initialize the hull vectors
         static const float vMins[3] = { -40.0, -40.0, 0.0   }; 
@@ -964,19 +964,19 @@ methodmap SentryGun /** Regards to Pelipoika **/
         ArrayList hList = new ArrayList();
         
         // Create the hull trace
+        vPosition[2] += vMaxs[2];
         TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
 
-        // Is hit any client ?
-        if(hList.Length)
+        // Is hit world only ?
+        bool bHit;
+        if(!hList.Length)
         {
-            // Return on unsuccess
-            delete hList;
-            return false; /// Stop here
+            bHit = true;
         }
         
         // Return on success
         delete hList;
-        return true;
+        return bHit;
     }
     
     public void EmitSound(int iIndex)
@@ -2412,7 +2412,7 @@ public void SentryThinkHook(int entity)
 }
 
 /**
- * @brief Sentry activate hook.
+ * @brief Timer for a sentry activation.
  *
  * @param hTimer            The timer handle.
  * @param refID             The reference index.
@@ -2532,7 +2532,7 @@ public Action RocketTouchHook(int entity, int target)
 }
 
 /**
- * @brief Rocket exploade hook.
+ * @brief Timer for a rocket exploade.
  *
  * @param hTimer            The timer handle.
  * @param refID             The reference index.
@@ -2929,7 +2929,7 @@ public bool ClientFilter(int entity, int contentsMask)
 }
 
 /**
- * @brief Called for each entity enumerated with EnumerateEntities*.
+ * @brief Hull filter.
  *
  * @param entity            The entity index.
  * @param hData             The array handle.
@@ -2941,7 +2941,7 @@ public bool ClientEnumerator(int entity, ArrayList hData)
     if(IsPlayerExist(entity))
     {
         TR_ClipCurrentRayToEntity(MASK_ALL, entity);
-        if (TR_DidHit()) hData.Push(entity);
+        if(TR_DidHit()) hData.Push(entity);
     }
         
     return true;
