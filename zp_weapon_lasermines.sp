@@ -52,6 +52,7 @@ public Plugin myinfo =
 #define WEAPON_BEAM_COLOR            {0, 0, 255, 255}
 #define WEAPON_BEAM_COLOR_F          "0 0 255" // non impulse
 #define WEAPON_GLOW_COLOR            {0, 255, 0, 255} /// Only for impulse mode, because normal already have a child (beam)
+#define WEAPON_IDLE_TIME             1.66
 /**
  * @endsection
  **/
@@ -208,7 +209,7 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)

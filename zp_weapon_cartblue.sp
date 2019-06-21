@@ -47,6 +47,9 @@ public Plugin myinfo =
  * @section Information about the weapon.
  **/
 #define WEAPON_ACTIVE_MULTIPLIER    2.0
+#define WEAPON_IDLE_TIME            5.33
+#define WEAPON_ATTACK_TIME          0.83
+#define WEAPON_SWITCH_TIME          4.8
 /**
  * @endsection
  **/
@@ -226,15 +229,12 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
     {
         return;
     }
-    
-    // Sets sequence index
-    int iSequence = !iStateMode ? ANIM_IDLE : ANIM_IDLE2;
-    
+
     // Sets idle animation
-    ZP_SetWeaponAnimation(client, iSequence); 
+    ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_IDLE : ANIM_IDLE2); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, iSequence));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -286,9 +286,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
     
         // Creates a muzzle
         UTIL_CreateParticle(view, _, _, "1", sName, 0.1);
-        
-        // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT2_1));
     }
     else
     {
@@ -303,10 +300,10 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
         
         // Creates a muzzle
         UTIL_CreateParticle(view, _, _, "3", sName, 0.1);
-        
-        // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1));
     }
+    
+    // Sets next idle time
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     
     // Sets attack animation
     ///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
@@ -356,14 +353,11 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
         return;
     }
     
-    // Seta the sequence index
-    int iSequence = iStateMode ? ANIM_CHANGE2 : ANIM_CHANGE;
-
     // Sets change animation
-    ZP_SetWeaponAnimation(client, iSequence);        
+    ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_CHANGE : ANIM_CHANGE2);        
 
     // Adds the delay to the game tick
-    flCurrentTime += ZP_GetSequenceDuration(weapon, iSequence);
+    flCurrentTime += WEAPON_SWITCH_TIME;
 
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);

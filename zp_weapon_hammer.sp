@@ -50,6 +50,8 @@ public Plugin myinfo =
 #define WEAPON_SLASH_DISTANCE          90.0
 #define WEAPON_STAB_DISTANCE           80.0
 #define WEAPON_RADIUS_DAMAGE           50.0
+#define WEAPON_IDLESTAB_TIME           1.33
+#define WEAPON_IDLESLASH_TIME          4.0
 /**
  * @endsection
  **/
@@ -180,7 +182,7 @@ void Weapon_OnIdle(int client, int weapon, int iChangeMode, float flCurrentTime)
         ZP_SetWeaponAnimation(client, ANIM_IDLESTAB); 
     
         // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLESTAB));
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLESTAB_TIME);
     }
     else
     {
@@ -188,7 +190,7 @@ void Weapon_OnIdle(int client, int weapon, int iChangeMode, float flCurrentTime)
         ZP_SetWeaponAnimation(client, ANIM_IDLESLASH); 
     
         // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLESLASH));
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLESLASH_TIME);
     }
 }
 

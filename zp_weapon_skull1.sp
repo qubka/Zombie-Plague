@@ -46,7 +46,9 @@ public Plugin myinfo =
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_TIME_DELAY_ATTACK   0.2
+#define WEAPON_IDLE_TIME            1.66
+#define WEAPON_ATTACK_TIME          1.0
+#define WEAPON_ATTACK_SP_TIME       0.2
 /**
  * @endsection
  **/
@@ -217,7 +219,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
@@ -251,14 +253,11 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
     // Sets attack animation
     ///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
-    // Calculate the animation duration
-    float flDelay = ZP_GetSequenceDuration(weapon, ANIM_SHOOT1);
-    
     // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? flDelay : ZP_GetWeaponSpeed(gWeapon)));       
+    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? WEAPON_ATTACK_TIME : ZP_GetWeaponSpeed(gWeapon)));       
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + flDelay);
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     
     // Sets shots count
     SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
@@ -326,14 +325,11 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, floa
     // Sets attack animation
     ///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
-    // Calculate the animation duration
-    float flDelay = ZP_GetSequenceDuration(weapon, ANIM_SHOOT1_SP);
-    
     // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? flDelay : WEAPON_TIME_DELAY_ATTACK));       
+    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? WEAPON_ATTACK_TIME : WEAPON_ATTACK_SP_TIME));       
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + flDelay);
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
 
     // Sets shots count
     SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);

@@ -65,6 +65,14 @@ int AnimatingOverlay_Count;
  **/
  
 /**
+ * @section Information about the weapon.
+ **/
+#define WEAPON_IDLE_TIME              1.63
+/**
+ * @endsection
+ **/
+ 
+/**
  * @section Properties of the gibs shooter.
  **/
 #define METAL_GIBS_AMOUNT             5.0
@@ -76,7 +84,7 @@ int AnimatingOverlay_Count;
 /**
  * @endsection
  **/
-
+ 
 /**
  * @section Properties of the turret.
  **/
@@ -1873,7 +1881,7 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
     
     // Validate helper message
     if(!GetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget"))

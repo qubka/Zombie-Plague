@@ -48,6 +48,7 @@ public Plugin myinfo =
 #define WEAPON_PUNCH_DAMAGE            100.0
 #define WEAPON_RADIUS_DAMAGE           50.0
 #define WEAPON_PUNCH_DISTANCE          60.0
+#define WEAPON_IDLE_TIME               1.3
 /**
  * @endsection
  **/
@@ -178,7 +179,7 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 
     // Allow hand punch
     SetEntProp(weapon, Prop_Data, "m_iMaxHealth", PUNCH_ALLOW);

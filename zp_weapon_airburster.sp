@@ -51,7 +51,9 @@ public Plugin myinfo =
 #define WEAPON_AIR_SPEED           1000.0
 #define WEAPON_AIR_GRAVITY         0.01
 #define WEAPON_AIR_LIFE            0.8
-#define WEAPON_TIME_DELAY_ATTACK   0.075
+#define WEAPON_ATTACK_TIME         0.075
+#define WEAPON_IDLE_TIME           2.0
+#define WEAPON_ATTACK_END_TIME     2.06
 /**
  * @endsection
  **/
@@ -260,7 +262,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
     ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -299,7 +301,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1_MAIN));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     
     // Sets shots count
     SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
@@ -364,7 +366,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
     iAmmo -= 1; SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 
     // Adds the delay to the game tick
-    flCurrentTime += WEAPON_TIME_DELAY_ATTACK;
+    flCurrentTime += WEAPON_ATTACK_END_TIME;
     
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
@@ -491,7 +493,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
         SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_SHOOT_END);
+        flCurrentTime += WEAPON_ATTACK_END_TIME;
         
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);

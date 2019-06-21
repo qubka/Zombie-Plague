@@ -47,6 +47,8 @@ public Plugin myinfo =
  * @section Information about the weapon.
  **/
 #define WEAPON_BEAM_COLOR           {185, 212, 11, 255}
+#define WEAPON_IDLE_TIME            3.33
+#define WEAPON_ATTACK_END_TIME      0.5
 /**
  * @endsection
  **/
@@ -173,7 +175,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
     ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -381,7 +383,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
         SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
 
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_ATTACK_END);
+        flCurrentTime += WEAPON_ATTACK_END_TIME;
         
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);

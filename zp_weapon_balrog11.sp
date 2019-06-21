@@ -52,6 +52,7 @@ public Plugin myinfo =
 #define WEAPON_FIRE_COUNTER     4
 #define WEAPON_FIRE_LIFE        0.5
 #define WEAPON_FIRE_TIME        2.0
+#define WEAPON_ATTACK_TIME      1.0
 /**
  * @endsection
  **/
@@ -190,7 +191,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
     }
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT_BSC1));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     
     // Adds the delay to the game tick
     flCurrentTime += ZP_GetWeaponSpeed(gWeapon);

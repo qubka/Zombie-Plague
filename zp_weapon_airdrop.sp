@@ -76,6 +76,17 @@ enum
     STATE_TRIGGER_ON
 };
 
+
+/**
+ * @section Information about the weapon.
+ **/
+#define WEAPON_IDLE_TIME                1.66  
+#define WEAPON_IDLE2_TIME               2.0
+#define WEAPON_SWITCH_TIME              1.0
+/**
+ * @endsection
+ **/
+ 
 /**
  * @section Properties of the bombardier.
  **/
@@ -547,14 +558,23 @@ void Weapon_OnIdle(int client, int weapon, int bTrigger, int iStateMode, float f
         return;
     }
     
-    // Sets sequence index
-    int iSequence = !bTrigger ? ANIM_IDLE : !iStateMode ? ANIM_IDLE_TRIGGER_OFF : ANIM_IDLE_TRIGGER_ON;
+    // Validate trigger
+    if(!bTrigger)
+    {
+        // Sets idle animation
+        ZP_SetWeaponAnimation(client, ANIM_IDLE);
     
-    // Sets idle animation
-    ZP_SetWeaponAnimation(client, iSequence);
-    
-    // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, iSequence));
+        // Sets next idle time
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
+    }
+    else 
+    {
+        // Sets idle animation
+        ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_IDLE_TRIGGER_OFF : ANIM_IDLE_TRIGGER_ON);
+        
+        // Sets next idle time
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE2_TIME);
+    }
 }
 
 void Weapon_OnDeploy(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
@@ -701,14 +721,11 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int bTrigger, int iStateMo
         return;
     }
 
-    // Seta the sequence index
-    int iSequence = !iStateMode ? ANIM_SWITCH_TRIGGER_ON : ANIM_SWITCH_TRIGGER_OFF;
-
     // Sets change animation
-    ZP_SetWeaponAnimation(client, iSequence);        
-
+    ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_SWITCH_TRIGGER_ON : ANIM_SWITCH_TRIGGER_OFF);
+    
     // Adds the delay to the game tick
-    flCurrentTime += ZP_GetSequenceDuration(weapon, iSequence);
+    flCurrentTime += WEAPON_SWITCH_TIME;
 
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);

@@ -50,6 +50,11 @@ public Plugin myinfo =
 #define WEAPON_SLASH_DISTANCE          80.0
 #define WEAPON_RADIUS_DAMAGE           10.0
 #define WEAPON_STAB_DISTANCE           90.0
+#define WEAPON_IDLE_TIME               5.0
+#define WEAPON_IDLE2_TIME              1.66
+#define WEAPON_ATTACK_TIME             1.5
+#define WEAPON_ATTACK_START_TIME       0.5
+#define WEAPON_ATTACK_END_TIME         1.5
 /**
  * @endsection
  **/
@@ -206,7 +211,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
         ZP_SetWeaponAnimation(client, ANIM_IDLE); 
         
         // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
     
         // Play sound
         ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
@@ -217,7 +222,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
         ZP_SetWeaponAnimation(client, ANIM_EMPTY_IDLE);
         
         // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_EMPTY_IDLE));
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE2_TIME);
     }
 }
 
@@ -352,7 +357,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
             SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ATTACK);
 
             // Adds the delay to the game tick
-            flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_ATTACK_START);
+            flCurrentTime += WEAPON_ATTACK_START_TIME;
             
             // Sets next attack time
             SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -454,9 +459,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
     {
         // Sets attack animation  
         ZP_SetWeaponAnimationPair(client, weapon, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
-
-        // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_EMPTY_SHOOT1);
         
         // Play sound
         ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
@@ -466,12 +468,12 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
         // Sets attack animation
         ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });     
 
-        // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_SHOOT1);
-        
         // Play sound
         ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     }
+    
+    // Adds the delay to the game tick
+    flCurrentTime += WEAPON_ATTACK_TIME;
 
     // Create timer for stab
     delete hWeaponStab[client];
@@ -577,7 +579,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
         SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
 
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_ATTACK_END);
+        flCurrentTime += WEAPON_ATTACK_END_TIME;
         
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);

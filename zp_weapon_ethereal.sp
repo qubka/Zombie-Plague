@@ -43,6 +43,15 @@ public Plugin myinfo =
     url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+/**
+ * @section Information about the weapon.
+ **/
+#define WEAPON_IDLE_TIME                10.0
+#define WEAPON_ATTACK_TIME              1.0
+/**
+ * @endsection
+ **/
+
 // Weapon index
 int gWeapon;
 #pragma unused gWeapon
@@ -219,7 +228,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
     ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
@@ -258,7 +267,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     
     // Sets shots count
     SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);

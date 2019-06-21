@@ -47,7 +47,8 @@ public Plugin myinfo =
  * @section Information about the weapon.
  **/
 #define WEAPON_ACTIVE_COUNTER       15
-#define WEAPON_TIME_DELAY_ACTIVE    0.083
+#define WEAPON_IDLE_TIME            10.0
+#define WEAPON_ATTACK_TIME          0.83
 /**
  * @endsection
  **/
@@ -228,7 +229,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iCounter, i
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
 
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
@@ -283,9 +284,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
         
         // Sets attack animation
         ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1_M, ANIM_SHOOT2_M });
-        
-        // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1_M));
     }
     else
     {
@@ -297,10 +295,10 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
         
         // Sets attack animation
         ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
-        
-        // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1));
     }
+    
+    // Sets next idle time
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
 
     // Sets attack animation
     ///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;

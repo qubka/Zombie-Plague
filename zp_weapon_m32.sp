@@ -51,6 +51,11 @@ public Plugin myinfo =
 #define WEAPON_GRENADE_RADIUS           300.0
 #define WEAPON_EXPLOSION_TIME           2.0
 #define WEAPON_EFFECT_TIME              5.0
+#define WEAPON_IDLE_TIME                2.0
+#define WEAPON_ATTACK_TIME              1.0
+#define WEAPON_INSERT_TIME              0.86
+#define WEAPON_INSERT_START_TIME        0.7
+#define WEAPON_INSERT_END_TIME          0.73
 /**
  * @endsection
  **/
@@ -171,7 +176,7 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iReloadMod
             ZP_SetPlayerAnimation(client, AnimType_ReloadLoop);
             
             // Adds the delay to the game tick
-            flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_INSERT1);
+            flCurrentTime += WEAPON_INSERT_TIME;
             
             // Sets next attack time
             SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -222,7 +227,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iReloadMode
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
@@ -255,7 +260,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iReloadMo
         ZP_SetPlayerAnimation(client, AnimType_ReloadStart);
         
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_START_INSERT);
+        flCurrentTime += WEAPON_INSERT_START_TIME;
         
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -278,7 +283,7 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iRe
     ZP_SetPlayerAnimation(client, AnimType_ReloadEnd);
     
     // Adds the delay to the game tick
-    flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_FINISH_INSERT);
+    flCurrentTime += WEAPON_INSERT_END_TIME;
     
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -344,7 +349,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iR
     iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 
     // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));    
 
     // Sets shots count

@@ -1028,25 +1028,6 @@ int ToolsGetSequenceCount(int entity)
 }
 
 /**
- * @brief Gets the duration of a sequence.
- * 
- * @param entity            The entity index.
- * @param iSequence         The sequence index.
- * @return                  The sequence duration.  
- **/
-float ToolsGetSequenceDuration(int entity, int iSequence)
-{
-    // Gets 'CStudioHdr' class
-    Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-    if(pStudioHdrClass == Address_Null)
-    {
-        return 0.0;
-    }
-
-    return SDKCall(hSDKCallGetSequenceDuration, entity, pStudioHdrClass, iSequence);
-}
-
-/**
  * @brief Gets the activity of a sequence.
  *
  * @param entity            The entity index.

@@ -54,7 +54,9 @@ public Plugin myinfo =
 #define WEAPON_BEAM_WIDTH            2.0
 #define WEAPON_BEAM_WIDTH_END        1.0
 #define WEAPON_BEAM_FRAMERATE        1
-#define WEAPON_BEAM_COLOR            {255, 255, 255, 255}    
+#define WEAPON_BEAM_COLOR            {255, 255, 255, 255}   
+#define WEAPON_ATTACK_TIME           1.0
+#define WEAPON_IDLE_TIME             1.66
 /**
  * @endsection
  **/
@@ -163,15 +165,12 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
     {
         return;
     }
-    
-    // Sets sequence index
-    int iSequence = !iClip ? ANIM_IDLE_EMPTY : ANIM_IDLE;
-    
+
     // Sets idle animation
-    ZP_SetWeaponAnimation(client, iSequence); 
+    ZP_SetWeaponAnimation(client, !iClip ? ANIM_IDLE_EMPTY : ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, iSequence));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
@@ -273,7 +272,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
     iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 
     // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
 
     // Sets shots count

@@ -121,16 +121,6 @@ native void ZP_ResetSequence(int entity, char[] anim);
 native int ZP_GetSequenceCount(int entity);
 
 /**
- * @brief Gets the duration of a sequence.
- *
- * @param entity            The entity index.
- * @param sequence          The sequence index.
- *
- * @return                  The sequence duration. 
- **/
-native float ZP_GetSequenceDuration(int entity, int sequence);
-
-/**
  * @brief Gets the activity of a sequence.
  *
  * @param entity            The entity index.

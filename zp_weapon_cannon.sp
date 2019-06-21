@@ -45,13 +45,15 @@ public Plugin myinfo =
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_FIRE_SPEED       1000.0
-#define WEAPON_FIRE_DAMAGE      400.0
-#define WEAPON_FIRE_GRAVITY     0.01
-#define WEAPON_FIRE_RADIUS      200.0
-#define WEAPON_FIRE_LIFE        0.7
-#define WEAPON_FIRE_TIME        0.5
-#define WEAPON_IGNITE_TIME      3.0
+#define WEAPON_FIRE_SPEED               1000.0
+#define WEAPON_FIRE_DAMAGE              400.0
+#define WEAPON_FIRE_GRAVITY             0.01
+#define WEAPON_FIRE_RADIUS              200.0
+#define WEAPON_FIRE_LIFE                0.7
+#define WEAPON_FIRE_TIME                0.5
+#define WEAPON_IGNITE_TIME              3.0
+#define WEAPON_IDLE_TIME                1.66
+#define WEAPON_ATTACK_TIME              5.0
 /**
  * @endsection
  **/
@@ -147,7 +149,7 @@ void Weapon_OnIdle(int client, int weapon, int iAmmo, float flCurrentTime)
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnHolster(int client, int weapon, int iAmmo, float flCurrentTime)
@@ -187,7 +189,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
     iAmmo -= 1; SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 
     // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));
 
     // Sets shots count

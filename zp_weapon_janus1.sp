@@ -53,6 +53,11 @@ public Plugin myinfo =
 #define WEAPON_GRENADE_RADIUS           400.0
 #define WEAPON_EFFECT_TIME              5.0
 #define WEAPON_EXPLOSION_TIME           2.0
+#define WEAPON_IDLE_TIME                2.0
+#define WEAPON_SWITCH_TIME              2.0
+#define WEAPON_SWITCH2_TIME             1.66
+#define WEAPON_ATTACK_TIME              2.8
+#define WEAPON_ATTACK2_TIME             1.0
 /**
  * @endsection
  **/
@@ -156,15 +161,12 @@ void Weapon_OnIdle(int client, int weapon, int iAmmo, int iCounter, int iStateMo
     {
         return;
     }
-    
-    // Sets sequence index
-    int iSequence = (iStateMode == STATE_ACTIVE) ? ANIM_IDLE_B : (iStateMode == STATE_SIGNAL) ? ANIM_IDLE_SIGNAL : ANIM_IDLE_A;
-    
+
     // Sets idle animation
-    ZP_SetWeaponAnimation(client, iSequence);
+    ZP_SetWeaponAnimation(client, (iStateMode == STATE_ACTIVE) ? ANIM_IDLE_B : (iStateMode == STATE_SIGNAL) ? ANIM_IDLE_SIGNAL : ANIM_IDLE_A);
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, iSequence));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnDeploy(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
@@ -216,7 +218,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
         ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1_B, ANIM_SHOOT2_B});
 
         // Sets next attack time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT1_B));
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK2_TIME);
         SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));    
     
         // Play sound
@@ -258,15 +260,20 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
         {
             // Sets attack animation
             ZP_SetWeaponAnimation(client, (iStateMode == STATE_SIGNAL) ? ANIM_SHOOT_EMPTY_SIGNAL : ANIM_SHOOT2_EMPTY_A);
+        
+            // Sets next idle time
+            SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK2_TIME);
         }
         else
         {
             // Sets attack animation
             ZP_SetWeaponAnimationPair(client, weapon, (iStateMode == STATE_SIGNAL) ? { ANIM_SHOOT_SIGNAL_1, ANIM_SHOOT_SIGNAL_2 } : { ANIM_SHOOT1_A, ANIM_SHOOT2_A});
+        
+            // Sets next idle time
+            SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
         }
    
         // Sets next attack time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_SHOOT_SIGNAL_1));
         SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));  
         
         // Play sound
@@ -340,7 +347,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iAmmo, int iCounter, i
         SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
         
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_CHANGE_A);
+        flCurrentTime += WEAPON_SWITCH_TIME;
                 
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -371,7 +378,7 @@ void Weapon_OnFinish(int client, int weapon, int iAmmo, int iCounter, int iState
     SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 
     // Adds the delay to the game tick
-    flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_CHANGE_B);
+    flCurrentTime += WEAPON_SWITCH2_TIME;
                 
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);

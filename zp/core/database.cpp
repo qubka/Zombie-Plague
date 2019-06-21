@@ -731,7 +731,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
                                 // If costumes is disabled, then skip
                                 if(!gCvarList[CVAR_COSTUMES].BoolValue)
                                 {
-                                    return;
+                                    continue;
                                 }
                                 
                                 hResult.FetchString(i, sColumn, sizeof(sColumn));

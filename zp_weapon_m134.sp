@@ -71,6 +71,16 @@ enum
 };
 
 /**
+ * @section Information about the weapon.
+ **/
+#define WEAPON_IDLE_TIME              2.0
+#define WEAPON_ATTACK_START_TIME      1.0
+#define WEAPON_ATTACK_END_TIME        1.0
+/**
+ * @endsection
+ **/
+
+/**
  * @brief Called after a library is added that the current plugin references optionally. 
  *        A library is either a plugin name or extension name, as exposed via its include file.
  **/
@@ -147,7 +157,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
     ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -266,7 +276,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
             SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ATTACK);
 
             // Adds the delay to the game tick
-            flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_ATTACK_START);
+            flCurrentTime += WEAPON_ATTACK_START_TIME;
             
             // Sets next attack time
             SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -350,7 +360,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
         SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
 
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_ATTACK_END);
+        flCurrentTime += WEAPON_ATTACK_END_TIME;
         
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);

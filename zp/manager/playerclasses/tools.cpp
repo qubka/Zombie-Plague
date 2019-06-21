@@ -34,7 +34,6 @@ Handle hSDKCallLookupAttachment;
 Handle hSDKCallGetAttachment;
 Handle hSDKCallResetSequence; 
 Handle hSDKCallGetSequenceActivity;
-Handle hSDKCallGetSequenceDuration;
 Handle hSDKCallUpdateTransmitState;
 Handle hSDKCallIsBSPModel;
 Handle hSDKCallSetProgressBarTime;
@@ -222,32 +221,13 @@ void ToolsOnInit(/*void*/)
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
 
     // Validate call
     if((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }
-    
-    /*_________________________________________________________________________________________________________________________________________*/
-    
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::SequenceDuration");
-
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
-
-    // Validate call
-    if((hSDKCallGetSequenceDuration = EndPrepSDKCall()) == null)
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::SequenceDuration\". Update signature in \"%s\"", PLUGIN_CONFIG);
         return;
     }
     
@@ -407,7 +387,6 @@ void ToolsOnNativeInit(/*void*/)
     CreateNative("ZP_LookupPoseParameter",  API_LookupPoseParameter);
     CreateNative("ZP_ResetSequence",        API_ResetSequence);
     CreateNative("ZP_GetSequenceActivity",  API_GetSequenceActivity);
-    CreateNative("ZP_GetSequenceDuration",  API_GetSequenceDuration);
     CreateNative("ZP_GetSequenceCount",     API_GetSequenceCount);
     CreateNative("ZP_IsBSPModel",           API_IsBSPModel);
     CreateNative("ZP_UpdateTransmitState",  API_UpdateTransmitState);
@@ -623,27 +602,6 @@ public int API_GetSequenceCount(Handle hPlugin, int iNumParams)
     
     // Gets total seq amount
     return ToolsGetSequenceCount(entity);
-}
-
-/**
- * @brief Gets the duration of a sequence.
- *
- * @note native float ZP_GetSequenceDuration(entity, sequence);
- **/
-public int API_GetSequenceDuration(Handle hPlugin, int iNumParams)
-{
-    // Gets entity index from native cell 
-    int entity = GetNativeCell(1);
-    
-    // Validate entity
-    if(!IsValidEdict(entity))
-    {
-        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-        return -1;
-    }
-    
-    // Gets seq duration
-    return view_as<int>(ToolsGetSequenceDuration(entity, GetNativeCell(2)));
 }
 
 /**

@@ -48,6 +48,11 @@ public Plugin myinfo =
 #define WEAPON_EXPLOSION_DAMAGE         300.0
 #define WEAPON_EXPLOSION_RADIUS         150.0
 #define WEAPON_EXPLOSION_TIME           2.0
+#define WEAPON_IDLE2_TIME               1.66
+#define WEAPON_ATTACK2_TIME             3.0
+#define WEAPON_RELOAD2_TIME             2.96
+#define WEAPON_SWITCH_TIME              2.0
+#define WEAPON_SWITCH2_TIME             1.26
 /**
  * @endsection
  **/
@@ -164,7 +169,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
     ZP_SetWeaponAnimationPair(client, weapon, { ANIM_IDLE2_1, ANIM_IDLE2_2});
     
     // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE2_1));
+    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE2_TIME);
 }
 
 bool Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -193,7 +198,7 @@ bool Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
     ZP_SetWeaponAnimation(client, ANIM_RELOAD2); 
     
     // Adds the delay to the game tick
-    flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_RELOAD2);
+    flCurrentTime += WEAPON_RELOAD2_TIME;
     
     // Sets next attack time
     SetEntPropFloat(client, Prop_Send, "m_flNextAttack", flCurrentTime);
@@ -262,7 +267,7 @@ bool Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
     }
     
     // Adds the delay to the game tick
-    flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_SHOOT2_1);
+    flCurrentTime += WEAPON_ATTACK2_TIME;
     
     // Sets next attack time
     SetEntPropFloat(client, Prop_Send, "m_flNextAttack", flCurrentTime);
@@ -332,7 +337,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
         ZP_SetWeaponAnimation(client, ANIM_CHANGE); 
         
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_CHANGE);
+        flCurrentTime += WEAPON_SWITCH_TIME;
         
         // Sets next attack time
         SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -347,7 +352,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
         ZP_SetWeaponAnimation(client, ANIM_CHANGE2); 
 
         // Adds the delay to the game tick
-        flCurrentTime += ZP_GetSequenceDuration(weapon, ANIM_CHANGE2);
+        flCurrentTime += WEAPON_SWITCH2_TIME;
 
         // Sets next attack time
         SetEntPropFloat(client, Prop_Send, "m_flNextAttack", flCurrentTime);

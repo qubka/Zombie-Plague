@@ -50,6 +50,8 @@ public Plugin myinfo =
 #define WEAPON_RADIUS_DAMAGE           10.0
 #define WEAPON_SLASH_DISTANCE          70.0
 #define WEAPON_STAB_DISTANCE           35.0
+#define WEAPON_IDLE_ON_TIME            10.0
+#define WEAPON_IDLE_OFF_TIME           5.0
 /**
  * @endsection
  **/
@@ -194,7 +196,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
         ZP_SetWeaponAnimation(client, ANIM_OFF_IDLE); 
     
         // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_OFF_IDLE));
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_OFF_TIME);
     }
     else
     {
@@ -202,7 +204,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
         ZP_SetWeaponAnimation(client, ANIM_IDLE); 
     
         // Sets next idle time
-        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + ZP_GetSequenceDuration(weapon, ANIM_IDLE));
+        SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_ON_TIME);
     
         // Play sound
         ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
