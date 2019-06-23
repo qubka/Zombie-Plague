@@ -221,7 +221,7 @@ void ToolsOnInit(/*void*/)
 
     // Adds a parameter to the calling convention. This should be called in normal ascending order
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
     // Validate call
     if((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)

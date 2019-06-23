@@ -444,7 +444,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
     
     // If there are no cases, add an "(Empty)" line
     if(!iAmount)
-    {   
+    {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
         hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
