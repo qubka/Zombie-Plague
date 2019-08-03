@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  *
- *   Plague
+ *  Zombie Plague
  *
  *  File:          classcommands.cpp
  *  Type:          Module 

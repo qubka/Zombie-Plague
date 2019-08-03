@@ -193,16 +193,71 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
     // If dropmodel exist, then apply it
     if(WeaponsGetModelDropID(iD))
     {
-        // Gets weapon dropmodel
-        static char sModel[PLATFORM_LINE_LENGTH];
-        WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
+        // Sets render mode
+        UTIL_SetRenderColor(weapon, Color_Alpha, 0);
         
-        // Sets dropped model for the weapon
-        SetEntityModel(weapon, sModel);
-        
-        // Sets body/skin index for the weapon
-        ToolsSetTextures(weapon, WeaponsGetModelBody(iD, nModel), WeaponsGetModelSkin(iD, nModel));
+        // If dropped model wasn't created, then do
+        if(GetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter") == -1)
+        {
+            // Initialize vector variables
+            static float vPosition[3]; static float vAngle[3];
+
+            // Gets weapon position
+            ToolsGetAbsOrigin(weapon, vPosition); 
+            ToolsGetAbsAngles(weapon, vAngle);
+    
+            // Gets weapon dropmodel
+            static char sModel[PLATFORM_LINE_LENGTH];
+            WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
+    
+            // Creates an attach weapon entity 
+            int entity = UTIL_CreateDynamic("dropped", vPosition, vAngle, sModel);
+            
+            // If entity isn't valid, then skip
+            if(entity != -1)
+            {
+                // Sets bodygroup/skin for the entity
+                ToolsSetTextures(entity, WeaponsGetModelBody(iD, nModel), WeaponsGetModelSkin(iD, nModel));
+
+                // Sets parent to the entity
+                SetVariantString("!activator");
+                AcceptEntityInput(entity, "SetParent", weapon, entity);
+                ToolsSetOwner(entity, weapon);
+                SetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter", entity);
+                
+                // Hook entity callbacks
+                SDKHook(entity, SDKHook_SetTransmit, WeaponHDROnDroppedTransmit);
+            }
+        }
     }
+}
+
+/**
+ * Hook: SetTransmit
+ * @brief Called right before the entity transmitting to other entities.
+ *
+ * @param entity            The entity index.
+ * @param client            The client index.
+ **/
+public Action WeaponHDROnDroppedTransmit(int entity, int client)
+{
+    // Gets weapon of the entity
+    int weapon = ToolsGetOwner(entity);
+
+    // Validate weapon
+    if(weapon != -1)
+    {
+        // Validate owner
+        int owner = WeaponsGetOwner(weapon);
+        if(IsPlayerExist(owner))
+        {
+            // Block transmitting
+            return Plugin_Handled;
+        }
+    }
+
+    // Allow transmitting
+    return Plugin_Continue;
 }
 
 /**

@@ -330,6 +330,8 @@ void WeaponsOnCvarInit(/*void*/)
     gCvarList[CVAR_WEAPON_T_DEFAULT_SECONDARY]  = FindConVar("mp_t_default_secondary");
     gCvarList[CVAR_WEAPON_T_DEFAULT_PRIMARY]    = FindConVar("mp_t_default_primary");
     gCvarList[CVAR_WEAPON_PICKUP_RANGE]         = FindConVar("zp_pickup_range");
+    gCvarList[CVAR_WEAPON_PICKUP_LEVEL]         = FindConVar("zp_pickup_level");
+    gCvarList[CVAR_WEAPON_PICKUP_ONLINE]        = FindConVar("zp_pickup_online");
     gCvarList[CVAR_WEAPON_DEFAULT_MELEE]        = FindConVar("zp_default_melee");
 
     // Sets locked cvars to their locked value
@@ -2857,13 +2859,13 @@ bool WeaponsValidateAccess(int client, int weapon)
         }
 
         // Block pickup it, if online too low
-        if(fnGetPlaying() < WeaponsGetOnline(iD))
+        if(gCvarList[CVAR_WEAPON_PICKUP_ONLINE].BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
         {
             return false;
         }
 
         // Block pickup it, if level too low
-        if(gClientData[client].Level < WeaponsGetLevel(iD))
+        if(gCvarList[CVAR_WEAPON_PICKUP_LEVEL].BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
         {
             return false;
         }

@@ -509,6 +509,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
         static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
         
         // Create the hull trace
+        delete hTrace;
         hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, SelfFilter, client);
         
         // Validate collisions

@@ -699,8 +699,12 @@ public Action MineSolidHook(Handle hTimer, int refID)
             SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
             
             // Destroy timer
+            delete hList;
             return Plugin_Stop;
         }
+        
+        // Delete list
+        delete hList;
     }
     else
     {

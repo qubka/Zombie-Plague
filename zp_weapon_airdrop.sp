@@ -798,7 +798,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
                 EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
                 
                 // Create solid hook
-                CreateTimer(0.1, EmitterSolidHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+                //CreateTimer(0.1, EmitterSolidHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             }
             
             // Sets trigger mode
@@ -1819,8 +1819,12 @@ public Action EmitterSolidHook(Handle hTimer, int refID)
             SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
             
             // Destroy timer
+            delete hList;
             return Plugin_Stop;
         }
+        
+        // Delete list
+        delete hList;
     }
     else
     {

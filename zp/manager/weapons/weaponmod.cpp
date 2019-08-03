@@ -872,8 +872,12 @@ public void WeaponMODOnDeployPost(int client, int weapon)
             WeaponHDRSetWeaponVisibility(view2, true);
             ToolsUpdateTransmitState(view2);
             
-            // Sets model entity for the weapon
-            SetEntityModel(weapon, sModel);
+            // Remove dropped model entity for the weapon
+            int owner = GetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter");
+            if(owner > MAXPLAYERS)
+            {
+                AcceptEntityInput(owner, "Kill"); /// Destroy
+            }
 
             // If the sequence for the weapon didn't build yet
             if(WeaponsGetSequenceCount(iD) == -1)

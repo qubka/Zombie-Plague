@@ -432,7 +432,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     }
     
     // Initialize variables
-    bool bInfectProtect = true; bool bSelfDamage = (client == attacker); bool bHasShield = (WeaponsFindByName(client, "weapon_shield") != -1); 
+    bool bInfectProtect = true; bool bSelfDamage = (client == attacker); bool bHasShield = (WeaponsFindByName(client, "weapon_shield") != -1); bool bHasHeavySuit = ToolsGetHeavySuit(client);
     float flDamageRatio = 1.0; float flArmorRatio = 0.5; float flBonusRatio = 0.5; float flKnockRatio = ClassGetKnockBack(gClientData[client].Class); 
 
     // Gets hitgroup index
@@ -465,7 +465,6 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
             flKnockRatio *= HitGroupsGetKnockBack(iHitIndex);
 
             // Validate heavysuit
-            bool bHasHeavySuit = ToolsGetHeavySuit(client);
             if(bHasHeavySuit)
             {
                 // Add multiplier
@@ -588,6 +587,13 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
         // Sets a new armor amount
         iArmor -= iHit;
         ToolsSetArmor(client, iArmor);
+    }
+    
+    // Validate heavy armor
+    if(bHasHeavySuit && !iArmor)
+    {
+        // Removes a heavy suit for returning movement speed
+        ToolsSetHeavySuit(client, false);
     }
     
     /*_________________________________________________________________________________________________________________________________________*/

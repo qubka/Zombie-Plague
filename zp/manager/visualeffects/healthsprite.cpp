@@ -87,7 +87,6 @@ public void HealthOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
     HealthOnLoad();
 }
 
-
 /**
  * Hook: SetTransmit
  * @brief Called right before the entity transmitting to other entities.

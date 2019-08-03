@@ -805,6 +805,7 @@ void GrenadeTripwireTrackWall(int grenade)
             static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
             
             // Create the hull trace
+            delete hTrace;
             hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, PlayerFilter, grenade);
             
             // Validate collisions
@@ -1140,6 +1141,7 @@ void GrenadeSatchelTrackWall(int grenade)
             static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
             
             // Create the hull trace
+            delete hTrace;
             hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, PlayerFilter, grenade);
             
             // Validate collisions
