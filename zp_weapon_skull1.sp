@@ -81,10 +81,10 @@ enum
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -99,15 +99,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("skull1");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull1\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull1\" wasn't find");
 
     // Sounds
     gSound = ZP_GetSoundKeyID("SKULLI_SHOOT_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SKULLI_SHOOT_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SKULLI_SHOOT_SOUNDS\" wasn't find");
 
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -147,13 +147,13 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
     #pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
     // Validate clip
-    if(min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
+    if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
     {
         return;
     }
 
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
         return;
     }
@@ -199,10 +199,10 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
     #pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
     // Validate clip
-    if(iClip <= 0)
+    if (iClip <= 0)
     {
         // Validate ammo
-        if(iAmmo)
+        if (iAmmo)
         {
             Weapon_OnReload(client, weapon, iClip, iAmmo, flCurrentTime);
             return; /// Execute fake reload
@@ -210,7 +210,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
     }
     
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
     {
         return;
     }
@@ -227,13 +227,13 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
     #pragma unused client, weapon, iClip, iAmmo, flCurrentTime
     
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
         return;
     }
 
     // Validate clip
-    if(iClip <= 0)
+    if (iClip <= 0)
     {
         // Emit empty sound
         ClientCommand(client, "play weapons/clipempty_rifle.wav");
@@ -270,17 +270,17 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
     GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
     // Apply kick back
-    if(GetVectorLength(vVelocity) <= 0.0)
+    if (GetVectorLength(vVelocity) <= 0.0)
     {
         ZP_CreateWeaponKickBack(client, 2.5, 1.5, 0.15, 0.05, 5.5, 4.5, 7);
     }
-    else if(!(iFlags & FL_ONGROUND))
+    else if (!(iFlags & FL_ONGROUND))
     {
         ZP_CreateWeaponKickBack(client, 5.0, 2.0, 0.4, 0.15, 7.0, 5.0, 5);
         flInaccuracy = 0.02;
         flSpread = 0.05;
     }
-    else if(iFlags & FL_DUCKING)
+    else if (iFlags & FL_DUCKING)
     {
         ZP_CreateWeaponKickBack(client, 2.5, 0.5, 0.1, 0.025, 5.1, 6.3, 9);
         flInaccuracy = 0.01;
@@ -299,13 +299,13 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, floa
     #pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
         return;
     }
 
     // Validate clip
-    if(iClip <= 0)
+    if (iClip <= 0)
     {
         // Emit empty sound
         ClientCommand(client, "play weapons/clipempty_rifle.wav");
@@ -342,17 +342,17 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, floa
     GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
     // Apply kick back
-    if(GetVectorLength(vVelocity) <= 0.0)
+    if (GetVectorLength(vVelocity) <= 0.0)
     {
         ZP_CreateWeaponKickBack(client, 2.5, 1.5, 0.15, 0.05, 5.5, 4.5, 7);
     }
-    else if(!(iFlags & FL_ONGROUND))
+    else if (!(iFlags & FL_ONGROUND))
     {
         ZP_CreateWeaponKickBack(client, 5.0, 2.0, 0.4, 0.15, 7.0, 5.0, 5);
         flInaccuracy = 0.02;
         flSpread = 0.05;
     }
-    else if(iFlags & FL_DUCKING)
+    else if (iFlags & FL_DUCKING)
     {
         ZP_CreateWeaponKickBack(client, 2.5, 0.5, 0.1, 0.025, 5.1, 6.3, 9);
         flInaccuracy = 0.01;
@@ -411,7 +411,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Resets variables
         SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
@@ -428,7 +428,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Deploy(client, weapon);
@@ -445,7 +445,7 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
 public void ZP_OnWeaponHolster(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Holster(client, weapon);
@@ -467,11 +467,11 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Time to reload weapon
         static float flReloadTime;
-        if((flReloadTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flReloadTime <= GetGameTime())
+        if ((flReloadTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flReloadTime <= GetGameTime())
         {
             // Call event
             _call.ReloadFinish(client, weapon);
@@ -479,7 +479,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
         else
         {
             // Button reload press
-            if(iButtons & IN_RELOAD)
+            if (iButtons & IN_RELOAD)
             {
                 // Call event
                 _call.Reload(client, weapon);
@@ -489,7 +489,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
         }
         
          // Button secondary attack press
-        if(iButtons & IN_ATTACK2)
+        if (iButtons & IN_ATTACK2)
         {
             // Call event
             _call.SecondaryAttack(client, weapon);
@@ -498,7 +498,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
         }
         
         // Button primary attack press
-        if(iButtons & IN_ATTACK && !(iLastButtons & IN_ATTACK))
+        if (iButtons & IN_ATTACK && !(iLastButtons & IN_ATTACK))
         {
             // Call event
             _call.PrimaryAttack(client, weapon);

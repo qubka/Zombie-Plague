@@ -67,10 +67,10 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -85,15 +85,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("smoker");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"smoker\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"smoker\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SMOKE_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SMOKE_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -107,7 +107,7 @@ public void ZP_OnEngineExecute(/*void*/)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Play sound
         ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
@@ -120,7 +120,7 @@ public Action ZP_OnClientSkillUsed(int client)
         int entity = UTIL_CreateParticle(_, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
         
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {
             // Sets parent for the entity
             SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
@@ -146,7 +146,7 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Gets entity position
         static float vPosition[3];
@@ -157,10 +157,10 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
  
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+        while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
         {
             // Skip zombies
-            if(ZP_IsPlayerZombie(i))
+            if (ZP_IsPlayerZombie(i))
             {
                 continue;
             }

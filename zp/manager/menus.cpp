@@ -54,7 +54,7 @@ void MenusOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_MENUS, sPathMenus, sizeof(sPathMenus));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Missing menus config file: \"%s\"", sPathMenus);
@@ -68,7 +68,7 @@ void MenusOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_Menus, gServerData.Menus);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathMenus);
         return;
@@ -97,7 +97,7 @@ void MenusOnCacheData(/*void*/)
     bool bSuccess = ConfigOpenConfigFile(File_Menus, kvMenus);
 
     // Validate config
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error caching data from menus config file: \"%s\"", sPathMenus);
         return;
@@ -105,19 +105,19 @@ void MenusOnCacheData(/*void*/)
 
     // Validate size
     int iSize = gServerData.Menus.Length;
-    if(!iSize)
+    if (!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sPathMenus);
         return;
     }
     
     // i = array index
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // General
         MenusGetName(i, sPathMenus, sizeof(sPathMenus)); // Index: 0
         kvMenus.Rewind();
-        if(!kvMenus.JumpToKey(sPathMenus))
+        if (!kvMenus.JumpToKey(sPathMenus))
         {
             // Log menu fatal
             LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sPathMenus);
@@ -126,7 +126,7 @@ void MenusOnCacheData(/*void*/)
         
         // Validate translation
         StringToLower(sPathMenus);
-        if(!TranslationPhraseExists(sPathMenus))
+        if (!TranslationPhraseExists(sPathMenus))
         {
             // Log menu error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu name: \"%s\" (check translation file)", sPathMenus);
@@ -143,14 +143,14 @@ void MenusOnCacheData(/*void*/)
         arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: 3
         kvMenus.GetString("command", sPathMenus, sizeof(sPathMenus), "");
         arrayMenu.PushString(sPathMenus);                             // Index: 4
-        if(hasLength(sPathMenus)) 
+        if (hasLength(sPathMenus)) 
         {
             AddCommandListener(MenusCommandOnCommandListened, sPathMenus);
         }
-        else if(kvMenus.JumpToKey("submenu"))                         // Index: 5
+        else if (kvMenus.JumpToKey("submenu"))                         // Index: 5
         {
             // Read keys in the file
-            if(kvMenus.GotoFirstSubKey())
+            if (kvMenus.GotoFirstSubKey())
             {
                 do
                 {
@@ -159,7 +159,7 @@ void MenusOnCacheData(/*void*/)
                     
                     // Validate translation
                     StringToLower(sPathMenus);
-                    if(!TranslationPhraseExists(sPathMenus))
+                    if (!TranslationPhraseExists(sPathMenus))
                     {
                         // Log menu error
                         LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache submenu name: \"%s\" (check translation file)", sPathMenus);
@@ -175,12 +175,12 @@ void MenusOnCacheData(/*void*/)
                     arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no"));    // Index: i + 3
                     kvMenus.GetString("command", sPathMenus, sizeof(sPathMenus), "");
                     arrayMenu.PushString(sPathMenus);                                // Index: i + 4
-                    if(hasLength(sPathMenus)) 
+                    if (hasLength(sPathMenus)) 
                     {
                         AddCommandListener(MenusCommandOnCommandListened, sPathMenus);
                     }
                 }
-                while(kvMenus.GotoNextKey());
+                while (kvMenus.GotoNextKey());
             }
             
             // Jumps back to the main section
@@ -235,7 +235,7 @@ void MenusOnCvarLoad(/*void*/)
     static char sCommand[SMALL_LINE_LENGTH];
     
     // Validate alias
-    if(hasLength(sCommand))
+    if (hasLength(sCommand))
     {
         // Unhook listeners
         RemoveCommandListener2(MenusMainOnCommandListened, sCommand);
@@ -245,7 +245,7 @@ void MenusOnCvarLoad(/*void*/)
     gCvarList[CVAR_MENU_BUTTON].GetString(sCommand, sizeof(sCommand));
     
     // Validate alias
-    if(!hasLength(sCommand))
+    if (!hasLength(sCommand))
     {
         // Unhook listeners
         RemoveCommandListener2(MenusMainOnCommandListened, sCommand);
@@ -270,7 +270,7 @@ void MenusOnCvarLoad(/*void*/)
 public Action MenusOnCommandCatched(int client, int iArguments)
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return Plugin_Handled;
     }
@@ -280,7 +280,7 @@ public Action MenusOnCommandCatched(int client, int iArguments)
     gForwardData._OnClientValidateButton(client, hResult);
     
     // Validate handle
-    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         MainMenu(client);
     }
@@ -313,14 +313,14 @@ public Action MenusMainOnCommandListened(int client, char[] commandMsg, int iArg
 public Action MenusCommandOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         // Block command
         return Plugin_Handled;
     }
     
     // Validate access
-    if(!MenusValidateByCommand(client, commandMsg))
+    if (!MenusValidateByCommand(client, commandMsg))
     {
         // Show block info
         TranslationPrintHintText(client, "using menu block"); 
@@ -347,7 +347,7 @@ public Action MenusCommandOnCommandListened(int client, char[] commandMsg, int i
 public void MenusOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(!strcmp(oldValue, newValue, false))
+    if (!strcmp(oldValue, newValue, false))
     {
         return;
     }
@@ -397,7 +397,7 @@ public int API_GetMenuName(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Menus.Length)
+    if (iD >= gServerData.Menus.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -407,7 +407,7 @@ public int API_GetMenuName(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
         return -1;
@@ -432,7 +432,7 @@ public int API_GetMenuGroup(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Menus.Length)
+    if (iD >= gServerData.Menus.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -442,7 +442,7 @@ public int API_GetMenuGroup(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
         return -1;
@@ -467,7 +467,7 @@ public int API_GetMenuClass(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Menus.Length)
+    if (iD >= gServerData.Menus.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -477,7 +477,7 @@ public int API_GetMenuClass(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
         return -1;
@@ -502,7 +502,7 @@ public int API_IsMenuHide(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Menus.Length)
+    if (iD >= gServerData.Menus.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -524,7 +524,7 @@ public int API_GetMenuCommandID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Can't find menu with an empty command");
         return -1;
@@ -555,7 +555,7 @@ public int API_GetMenuCommand(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Menus.Length)
+    if (iD >= gServerData.Menus.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -565,7 +565,7 @@ public int API_GetMenuCommand(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
         return -1;
@@ -590,7 +590,7 @@ public int API_OpenMenuSub(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the client index (%d)", client);
         return -1;
@@ -600,7 +600,7 @@ public int API_OpenMenuSub(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= gServerData.Menus.Length)
+    if (iD >= gServerData.Menus.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
         return -1;
@@ -721,20 +721,20 @@ int[] MenusCommandToArray(char[] sCommand)
     
     // i = menu index
     int iSize = gServerData.Menus.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets array handle of menu at given index
         ArrayList arrayMenu = gServerData.Menus.Get(i);
         
         // x = submenu index
         int iCount = arrayMenu.Length;
-        for(int x = 0; x < iCount; x += MENUS_DATA_SUBMENU)
+        for (int x = 0; x < iCount; x += MENUS_DATA_SUBMENU)
         {
             // Gets menu command 
             MenusGetCommand(i, sMenuCommand, sizeof(sMenuCommand), x);
             
             // If commands match, then return index
-            if(!strcmp(sCommand, sMenuCommand, false))
+            if (!strcmp(sCommand, sMenuCommand, false))
             {
                 // Sets indexes
                 iD[0] = i; iD[1] = x;
@@ -760,14 +760,14 @@ bool MenusValidateByCommand(int client, char[] sCommand)
 {
     // Validate menu index
     int iD[2]; iD = MenusCommandToArray(sCommand);
-    if(iD[0] != -1)
+    if (iD[0] != -1)
     {
         // Gets menu group
         static char sGroup[SMALL_LINE_LENGTH];
         MenusGetGroup(iD[0], sGroup, sizeof(sGroup), iD[1]);
 
         // Validate access
-        if(hasLength(sGroup) && !IsPlayerInGroup(client, sGroup) || !MenusValidateClass(client, iD[0], iD[1]))
+        if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup) || !MenusValidateClass(client, iD[0], iD[1]))
         {
             return false;
         }
@@ -792,7 +792,7 @@ bool MenusValidateClass(int client, int iD, int iSubMenu = 0)
     MenusGetClass(iD, sClass, sizeof(sClass), iSubMenu);
     
     // Validate length
-    if(hasLength(sClass))
+    if (hasLength(sClass))
     {
         // Gets class type 
         static char sType[SMALL_LINE_LENGTH];
@@ -846,13 +846,13 @@ void MainMenu(int client)
     
     // i = menu index
     int iSize = gServerData.Menus.Length; int iAmount;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Call forward
         gForwardData._OnClientValidateMenu(client, i, _, hResult);
         
         // Skip, if menu is disabled
-        if(hResult == Plugin_Stop)
+        if (hResult == Plugin_Stop)
         {
             continue;
         }
@@ -864,7 +864,7 @@ void MainMenu(int client)
         bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusValidateClass(client, i));
 
         // Skip, if menu is hided
-        if(bHide && MenusIsHide(i))
+        if (bHide && MenusIsHide(i))
         {
             continue;
         }
@@ -884,7 +884,7 @@ void MainMenu(int client)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -910,7 +910,7 @@ void MainMenu(int client)
 public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -922,7 +922,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -933,13 +933,13 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
             int iD = StringToInt(sBuffer);
             
             // Validate access
-            if(MenusValidateClass(client, iD)) 
+            if (MenusValidateClass(client, iD)) 
             {
                 // Gets menu command
                 MenusGetCommand(iD, sBuffer, sizeof(sBuffer));
                 
                 // Validate command
-                if(hasLength(sBuffer))
+                if (hasLength(sBuffer))
                 {
                     // Run the command
                     FakeClientCommand(client, sBuffer);
@@ -971,7 +971,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 void SubMenu(int client, int iD)
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
@@ -981,7 +981,7 @@ void SubMenu(int client, int iD)
 
     // Validate size
     int iSize = arrayMenu.Length;
-    if(!(iSize - MENUS_DATA_SUBMENU))
+    if (!(iSize - MENUS_DATA_SUBMENU))
     {
         // Opens main menu back
         MainMenu(client);
@@ -1010,13 +1010,13 @@ void SubMenu(int client, int iD)
     
     // i = submenu index
     int iAmount;
-    for(int i = MENUS_DATA_SUBMENU; i < iSize; i += MENUS_DATA_SUBMENU)
+    for (int i = MENUS_DATA_SUBMENU; i < iSize; i += MENUS_DATA_SUBMENU)
     {
         // Call forward
         gForwardData._OnClientValidateMenu(client, iD, i, hResult);
         
         // Skip, if menu is disabled
-        if(hResult == Plugin_Stop)
+        if (hResult == Plugin_Stop)
         {
             continue;
         }
@@ -1028,7 +1028,7 @@ void SubMenu(int client, int iD)
         bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusValidateClass(client, iD, i));
 
         // Skip, if menu is hided
-        if(bHide && MenusIsHide(iD, i))
+        if (bHide && MenusIsHide(iD, i))
         {
             continue;
         }
@@ -1048,7 +1048,7 @@ void SubMenu(int client, int iD)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -1074,7 +1074,7 @@ void SubMenu(int client, int iD)
 public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -1085,10 +1085,10 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Validate client
-                if(!IsPlayerExist(client, false))
+                if (!IsPlayerExist(client, false))
                 {
                     return;
                 }
@@ -1102,7 +1102,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -1115,13 +1115,13 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
             int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
 
             // Validate access
-            if(MenusValidateClass(client, iD, i)) 
+            if (MenusValidateClass(client, iD, i)) 
             {
                 // Gets menu command
                 MenusGetCommand(iD, sBuffer, sizeof(sBuffer), i);
                 
                 // Validate command
-                if(hasLength(sBuffer))
+                if (hasLength(sBuffer))
                 {
                     // Run the command
                     FakeClientCommand(client, sBuffer);

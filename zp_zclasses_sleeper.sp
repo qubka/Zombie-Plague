@@ -67,10 +67,10 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -85,15 +85,15 @@ public void OnLibraryAdded(const char[] sLibrary)
 {
     // Classes
     gZombie = ZP_GetClassNameID("sleeper");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"sleeper\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"sleeper\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SLEEPER_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SLEEPER_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -109,7 +109,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
     // Validate attacker
-    if(!IsPlayerExist(attacker))
+    if (!IsPlayerExist(attacker))
     {
         return;
     }
@@ -118,13 +118,13 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
     static int iChance[MAXPLAYERS+1];
 
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Generate the chance
         iChance[client] = GetRandomInt(0, 999);
         
         // Validate chance
-        if(iChance[client] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
+        if (iChance[client] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
         {
             // Play sound
             ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, hSoundLevel.IntValue);

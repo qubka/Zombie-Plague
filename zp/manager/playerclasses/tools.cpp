@@ -126,7 +126,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
     // Validate call
-    if((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
+    if ((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -140,7 +140,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetAttachment");
 
     // Validate windows
-    if(gServerData.Platform == OS_Windows)
+    if (gServerData.Platform == OS_Windows)
     {
         PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
     }
@@ -154,7 +154,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
     
     // Validate call
-    if((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
+    if ((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -171,7 +171,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
     
     // Validate call
-    if((hSDKCallLookupPoseParameter = EndPrepSDKCall()) == null) 
+    if ((hSDKCallLookupPoseParameter = EndPrepSDKCall()) == null) 
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupPoseParameter\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -189,7 +189,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
 
     // Validate call
-    if((hSDKCallLookupSequence = EndPrepSDKCall()) == null) 
+    if ((hSDKCallLookupSequence = EndPrepSDKCall()) == null) 
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -206,7 +206,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);  
     
     // Validate call
-    if((hSDKCallResetSequence = EndPrepSDKCall()) == null) 
+    if ((hSDKCallResetSequence = EndPrepSDKCall()) == null) 
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -224,7 +224,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
     // Validate call
-    if((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)
+    if ((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -238,7 +238,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseEntity::UpdateTransmitState");
 
     // Validate call
-    if((hSDKCallUpdateTransmitState = EndPrepSDKCall()) == null)
+    if ((hSDKCallUpdateTransmitState = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
@@ -255,7 +255,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
     
     // Validate call
-    if((hSDKCallIsBSPModel = EndPrepSDKCall()) == null)
+    if ((hSDKCallIsBSPModel = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -272,7 +272,7 @@ void ToolsOnInit(/*void*/)
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
     
     // Validate call
-    if((hSDKCallSetProgressBarTime = EndPrepSDKCall()) == null)
+    if ((hSDKCallSetProgressBarTime = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CCSPlayer::SetProgressBarTime\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -318,7 +318,7 @@ void ToolsOnInit(/*void*/)
 void ToolsOnPurge(/*void*/)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Purge player timers
         gClientData[i].PurgeTimers();
@@ -362,7 +362,7 @@ public Action ToolsOnEntityTransmit(int entity, int client)
     int owner = ToolsGetOwner(entity);
 
     // Validate observer mode
-    if(owner == client || (ToolsGetObserverMode(client) == SPECMODE_FIRSTPERSON && owner == ToolsGetObserverTarget(client)))
+    if (owner == client || (ToolsGetObserverMode(client) == SPECMODE_FIRSTPERSON && owner == ToolsGetObserverTarget(client)))
     {
         // Block transmitting
         return Plugin_Handled;
@@ -406,7 +406,7 @@ public int API_LookupAttachment(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
@@ -417,7 +417,7 @@ public int API_LookupAttachment(Handle hPlugin, int iNumParams)
     GetNativeStringLength(2, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
         return -1;
@@ -442,7 +442,7 @@ public int API_GetAttachment(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
@@ -453,7 +453,7 @@ public int API_GetAttachment(Handle hPlugin, int iNumParams)
     GetNativeStringLength(2, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
         return -1;
@@ -483,7 +483,7 @@ public int API_LookupSequence(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
@@ -494,7 +494,7 @@ public int API_LookupSequence(Handle hPlugin, int iNumParams)
     GetNativeStringLength(2, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
         return -1;
@@ -519,7 +519,7 @@ public int API_LookupPoseParameter(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
@@ -530,7 +530,7 @@ public int API_LookupPoseParameter(Handle hPlugin, int iNumParams)
     GetNativeStringLength(2, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
         return -1;
@@ -555,7 +555,7 @@ public int API_ResetSequence(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
@@ -566,7 +566,7 @@ public int API_ResetSequence(Handle hPlugin, int iNumParams)
     GetNativeStringLength(2, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
         return -1;
@@ -594,7 +594,7 @@ public int API_GetSequenceCount(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
@@ -615,7 +615,7 @@ public int API_GetSequenceActivity(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return -1;
@@ -636,7 +636,7 @@ public int API_IsBSPModel(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return false;
@@ -657,7 +657,7 @@ public int API_UpdateTransmitState(Handle hPlugin, int iNumParams)
     int entity = GetNativeCell(1);
     
     // Validate entity
-    if(!IsValidEdict(entity))
+    if (!IsValidEdict(entity))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
         return;
@@ -678,7 +678,7 @@ public int API_RespawnPlayer(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
         return false;
@@ -723,7 +723,7 @@ public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
         return;

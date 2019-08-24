@@ -77,7 +77,7 @@ void VoiceOnClientUpdate(int client)
 {
     // If zombie mute is disabled, then skip
     bool bVoiceMute = gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE].BoolValue;
-    if(bVoiceMute)
+    if (bVoiceMute)
     {
         // Apply new voice flags
         SetClientListeningFlags(client, gClientData[client].Zombie ? VOICE_MUTED : VOICE_NORMAL);
@@ -95,16 +95,16 @@ void VoiceOnClientUpdate(int client)
 public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
     
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // Reload only if round is started
-        if(gServerData.RoundStart)
+        if (gServerData.RoundStart)
         {
             // Change the voice permissions based on custom cvar
             gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = StringToInt(newValue);
@@ -123,22 +123,22 @@ public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 public void VoiceMuteOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
     
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // If zombie mute is disabled, then reset flags
         bool bVoiceMute = view_as<bool>(StringToInt(newValue));
     
         // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        for (int i = 1; i <= MaxClients; i++)
         {
             // Validate zombie
-            if(IsPlayerExist(i, false) && gClientData[i].Zombie)
+            if (IsPlayerExist(i, false) && gClientData[i].Zombie)
             {
                 // Update variables
                 SetClientListeningFlags(i, bVoiceMute ? VOICE_MUTED : VOICE_NORMAL);

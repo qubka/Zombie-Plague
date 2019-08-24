@@ -269,7 +269,7 @@ void CvarsOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CVARS, sPathCvars, sizeof(sPathCvars), false);
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure and stop plugin
         SetFailState("Missing cvars file: \"%s\"", sPathCvars);
@@ -282,7 +282,7 @@ void CvarsOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_Cvars, gServerData.Cvars, PLATFORM_LINE_LENGTH);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         SetFailState("Unexpected error encountered loading: \"%s\"", sPathCvars);
     }
@@ -307,19 +307,19 @@ void CvarsOnCacheData(/*void*/)
 
     // Validate cvar config
     int iCvars = gServerData.Cvars.Length;
-    if(!iCvars)
+    if (!iCvars)
     {
         SetFailState("No usable data found in cvar config file: \"%s\"", sPathCvars);
     }
     
     // i = cvar array index
-    for(int i = 0; i < iCvars; i++)
+    for (int i = 0; i < iCvars; i++)
     {
         // Gets array line
         ArrayList arrayCvar = CvarsGetKey(i, sPathCvars, sizeof(sPathCvars), true);
 
         // Parses a parameter string in key="value" format
-        if(ParamParseString(arrayCvar, sPathCvars, sizeof(sPathCvars), ' ') == PARAM_ERROR_NO)
+        if (ParamParseString(arrayCvar, sPathCvars, sizeof(sPathCvars), ' ') == PARAM_ERROR_NO)
         {
             // Gets cvar key
             arrayCvar.GetString(CVARS_DATA_KEY, sPathCvars, sizeof(sPathCvars));
@@ -362,7 +362,7 @@ public void CvarsOnConfigReload(ConfigFile iConfig)
     ConfigGetConfigPath(File_Cvars, sPathCvars, sizeof(sPathCvars));
 
     // If file is exist, then execute
-    if(FileExists(sPathCvars))
+    if (FileExists(sPathCvars))
     {
         // Reloads cvars config
         ServerCommand("exec %s", sPathCvars[4]);
@@ -390,7 +390,7 @@ ArrayList CvarsGetKey(int iD, char[] sKey, int iMaxLen, bool bDelete = false)
     arrayCvar.GetString(CVARS_DATA_KEY, sKey, iMaxLen);
     
     // Shifting array value
-    if(bDelete) arrayCvar.Erase(CVARS_DATA_KEY);
+    if (bDelete) arrayCvar.Erase(CVARS_DATA_KEY);
     
     // Return array list
     return arrayCvar;

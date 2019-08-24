@@ -60,7 +60,7 @@ void RagdollOnClientDeath(int client)
     bool bRagDollRemove = gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue;
 
     // If ragdoll removal is disabled, then stop
-    if(!bRagDollRemove)
+    if (!bRagDollRemove)
     {
         return;
     }
@@ -69,14 +69,14 @@ void RagdollOnClientDeath(int client)
     int ragdoll = RagdollGetIndex(client);
 
     // If the ragdoll is invalid, then stop
-    if(ragdoll == -1)
+    if (ragdoll == -1)
     {
         return;
     }
 
     // If the delay is zero, then remove right now
     float flDissolveDelay = gCvarList[CVAR_VEFFECTS_RAGDOLL_DELAY].FloatValue;
-    if(!flDissolveDelay)
+    if (!flDissolveDelay)
     {
         RagdollOnEntityRemove(null, EntIndexToEntRef(ragdoll));
         return;
@@ -98,20 +98,20 @@ public Action RagdollOnEntityRemove(Handle hTimer, int refID)
     int ragdoll = EntRefToEntIndex(refID);
 
     // If the ragdoll is already gone, then stop
-    if(ragdoll != -1)
+    if (ragdoll != -1)
     {
         // Make sure this edict is still a ragdoll and not become a new valid entity
         static char sClassname[SMALL_LINE_LENGTH];
         GetEdictClassname(ragdoll, sClassname, sizeof(sClassname));
 
         // Validate classname
-        if(!strcmp(sClassname, "cs_ragdoll", false))
+        if (!strcmp(sClassname, "cs_ragdoll", false))
         {
             // Gets dissolve type
             int iEffect = gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE].IntValue;
 
             // Check the dissolve type
-            if(iEffect == VEFFECTS_RAGDOLL_DISSOLVE_EFFECTLESS)
+            if (iEffect == VEFFECTS_RAGDOLL_DISSOLVE_EFFECTLESS)
             {
                 // Remove entity from world
                 AcceptEntityInput(ragdoll, "Kill");
@@ -119,7 +119,7 @@ public Action RagdollOnEntityRemove(Handle hTimer, int refID)
             }
 
             // If random, set value to any between "energy" effect and "core" effect
-            if(iEffect == VEFFECTS_RAGDOLL_DISSOLVE_RANDOM)
+            if (iEffect == VEFFECTS_RAGDOLL_DISSOLVE_RANDOM)
             {
                 iEffect = GetRandomInt(VEFFECTS_RAGDOLL_DISSOLVE_ENERGY, VEFFECTS_RAGDOLL_DISSOLVE_CORE);
             }
@@ -133,7 +133,7 @@ public Action RagdollOnEntityRemove(Handle hTimer, int refID)
             int iDissolver = CreateEntityByName("env_entity_dissolver");
             
             // If dissolve entity isn't valid, then stop
-            if(iDissolver != -1)
+            if (iDissolver != -1)
             {
                 // Sets target to the ragdoll
                 DispatchKeyValue(iDissolver, "target", sTarget);

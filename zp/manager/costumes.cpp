@@ -62,13 +62,13 @@ int DHook_SetEntityModel;
 void CostumesOnInit(/*void*/)
 {
     // If module is disabled, then stop
-    if(!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList[CVAR_COSTUMES].BoolValue)
     {
         // Validate loaded map
-        if(gServerData.MapLoaded)
+        if (gServerData.MapLoaded)
         {
             // Is costumes was load
-            if(gServerData.Costumes != null)
+            if (gServerData.Costumes != null)
             {
                 // Destroy costumes
                 CostumesOnUnload();
@@ -78,10 +78,10 @@ void CostumesOnInit(/*void*/)
     }
     
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // No costumes?
-        if(gServerData.Costumes == null)
+        if (gServerData.Costumes == null)
         {
             // Resets value
             gCvarList[CVAR_COSTUMES].BoolValue = false;
@@ -100,7 +100,7 @@ void CostumesOnInit(/*void*/)
     DHookAddParam(hDHookSetEntityModel, HookParamType_CharPtr);
     
     // Validate hook
-    if(hDHookSetEntityModel == null)
+    if (hDHookSetEntityModel == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "GameData Validation", "Failed to create DHook for \"CBasePlayer::SetEntityModel\". Update \"SourceMod\"");
@@ -117,7 +117,7 @@ void CostumesOnLoad(/*void*/)
     ConfigRegisterConfig(File_Costumes, Structure_Keyvalue, CONFIG_FILE_ALIAS_COSTUMES);
 
     // If costumes is disabled, then stop
-    if(!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList[CVAR_COSTUMES].BoolValue)
     {
         return;
     }
@@ -127,7 +127,7 @@ void CostumesOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_COSTUMES, sPathCostumes, sizeof(sPathCostumes));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Missing costumes config file: %s", sPathCostumes);
@@ -141,7 +141,7 @@ void CostumesOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_Costumes, gServerData.Costumes);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sPathCostumes);
         return;
@@ -170,7 +170,7 @@ void CostumesOnCacheData(/*void*/)
     bool bSuccess = ConfigOpenConfigFile(File_Costumes, kvCostumes);
 
     // Validate config
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error caching data from costumes config file: %s", sPathCostumes);
         return;
@@ -178,19 +178,19 @@ void CostumesOnCacheData(/*void*/)
 
     // Validate size
     int iSize = gServerData.Costumes.Length;
-    if(!iSize)
+    if (!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sPathCostumes);
         return;
     }
     
     // i = array index
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // General
         CostumesGetName(i, sPathCostumes, sizeof(sPathCostumes)); // Index: 0
         kvCostumes.Rewind();
-        if(!kvCostumes.JumpToKey(sPathCostumes))
+        if (!kvCostumes.JumpToKey(sPathCostumes))
         {
             // Log costume fatal
             LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sPathCostumes);
@@ -199,7 +199,7 @@ void CostumesOnCacheData(/*void*/)
         
         // Validate translation
         StringToLower(sPathCostumes);
-        if(!TranslationPhraseExists(sPathCostumes))
+        if (!TranslationPhraseExists(sPathCostumes))
         {
             // Log costume error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sPathCostumes);
@@ -238,10 +238,10 @@ void CostumesOnCacheData(/*void*/)
 void CostumesOnUnload(/*void*/) 
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++) 
+    for (int i = 1; i <= MaxClients; i++) 
     {
         // Validate client
-        if(IsPlayerExist(i, false)) 
+        if (IsPlayerExist(i, false)) 
         {
             // Remove current costume
             CostumesRemove(i);
@@ -290,10 +290,10 @@ void CostumesOnClientInit(int client)
     static int iD[MAXPLAYERS+1] = {-1, ...};
     
     // If module is disabled, then stop
-    if(!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList[CVAR_COSTUMES].BoolValue)
     {
         // Validate hook
-        if(iD[client] != -1) 
+        if (iD[client] != -1) 
         {
             // Unhook entity callbacks
             DHookRemoveHookID(iD[client]); 
@@ -341,7 +341,7 @@ public Action CostumesOnCommandCatched(int client, int iArguments)
 public void CostumesOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
@@ -415,7 +415,7 @@ public int API_SetClientCostume(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
 
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -426,7 +426,7 @@ public int API_SetClientCostume(Handle hPlugin, int iNumParams)
     gForwardData._OnClientValidateCostume(client, iD, hResult);
 
     // Validate handle
-    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Sets costume to the client
         gClientData[client].Costume = iD;
@@ -448,7 +448,7 @@ public int API_GetCostumeNameID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Can't find costume with an empty name");
         return -1;
@@ -475,7 +475,7 @@ public int API_GetCostumeName(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -485,7 +485,7 @@ public int API_GetCostumeName(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
         return -1;
@@ -510,7 +510,7 @@ public int API_GetCostumeModel(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -520,7 +520,7 @@ public int API_GetCostumeModel(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
         return -1;
@@ -545,7 +545,7 @@ public int API_GetCostumeBody(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -566,7 +566,7 @@ public int API_GetCostumeSkin(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -587,7 +587,7 @@ public int API_GetCostumeAttach(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -597,7 +597,7 @@ public int API_GetCostumeAttach(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
         return -1;
@@ -622,7 +622,7 @@ public int API_GetCostumePosition(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -647,7 +647,7 @@ public int API_GetCostumeAngle(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -672,7 +672,7 @@ public int API_GetCostumeGroup(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -682,7 +682,7 @@ public int API_GetCostumeGroup(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
         return -1;
@@ -707,7 +707,7 @@ public int API_IsCostumeHide(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -728,7 +728,7 @@ public int API_IsCostumeMerge(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -749,7 +749,7 @@ public int API_GetCostumeLevel(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Costumes.Length)
+    if (iD >= gServerData.Costumes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
         return -1;
@@ -773,7 +773,7 @@ public int API_GetCostumeLevel(Handle hPlugin, int iNumParams)
 void CostumesGetName(int iD, char[] sName, int iMaxLen)
 {
     // Validate no costume
-    if(iD == -1)
+    if (iD == -1)
     {
         strcopy(sName, iMaxLen, "");
         return;
@@ -956,13 +956,13 @@ int CostumesNameToIndex(char[] sName)
     
     // i = costume index
     int iSize = gServerData.Costumes.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets costume name 
         CostumesGetName(i, sCostumeName, sizeof(sCostumeName));
         
         // If names match, then return index
-        if(!strcmp(sName, sCostumeName, false))
+        if (!strcmp(sName, sCostumeName, false))
         {
             // Return this index
             return i;
@@ -981,13 +981,13 @@ int CostumesNameToIndex(char[] sName)
 void CostumesMenu(int client)
 {
     // If module is disabled, then stop
-    if(!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList[CVAR_COSTUMES].BoolValue)
     {
         return;
     }
     
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
@@ -1019,13 +1019,13 @@ void CostumesMenu(int client)
     
     // i = array index
     int iSize = gServerData.Costumes.Length; int iAmount;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Call forward
         gForwardData._OnClientValidateCostume(client, i, hResult);
         
         // Skip, if class is disabled
-        if(hResult == Plugin_Stop)
+        if (hResult == Plugin_Stop)
         {
             continue;
         }
@@ -1047,7 +1047,7 @@ void CostumesMenu(int client)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -1073,7 +1073,7 @@ void CostumesMenu(int client)
 public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -1084,11 +1084,11 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_costume_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -1096,7 +1096,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -1107,7 +1107,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
             int iD = StringToInt(sBuffer);
             
             // Validate button info
-            switch(iD)
+            switch (iD)
             {
                 // Client hit 'Remove' button
                 case -1 :
@@ -1127,7 +1127,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
                     gForwardData._OnClientValidateCostume(client, iD, hResult);
                     
                     // Validate handle
-                    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+                    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
                     {
                         // Sets costume to the client
                         gClientData[client].Costume = iD;
@@ -1164,13 +1164,13 @@ public MRESReturn CostumesDhookOnSetEntityModel(int client)
 void CostumesCreateEntity(int client)
 {
     // Validate client
-    if(IsPlayerExist(client))
+    if (IsPlayerExist(client))
     {
         // Remove current costume
         CostumesRemove(client);
 
         // Validate zombie
-        if(gClientData[client].Zombie)
+        if (gClientData[client].Zombie)
         {
             return;
         }
@@ -1179,7 +1179,7 @@ void CostumesCreateEntity(int client)
         int iSize = gServerData.Costumes.Length;
 
         // Validate costume
-        if(gClientData[client].Costume == -1 || iSize <= gClientData[client].Costume)
+        if (gClientData[client].Costume == -1 || iSize <= gClientData[client].Costume)
         {
             gClientData[client].Costume = -1;
             return;
@@ -1190,7 +1190,7 @@ void CostumesCreateEntity(int client)
         CostumesGetGroup(gClientData[client].Costume, sGroup, sizeof(sGroup));
         
         // Validate access
-        if(hasLength(sGroup) && !IsPlayerInGroup(client, sGroup))
+        if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup))
         {
             gClientData[client].Costume = -1;
             return;
@@ -1204,7 +1204,7 @@ void CostumesCreateEntity(int client)
         int entity = UTIL_CreateDynamic("costume", NULL_VECTOR, NULL_VECTOR, sModel);
         
         // If entity isn't valid, then skip
-        if(entity != -1)
+        if (entity != -1)
         {
             // Sets bodygroup/skin for the entity
             ToolsSetTextures(entity, CostumesGetBody(gClientData[client].Costume), CostumesGetSkin(gClientData[client].Costume)); 
@@ -1219,7 +1219,7 @@ void CostumesCreateEntity(int client)
             CostumesGetAttach(gClientData[client].Costume, sAttach, sizeof(sAttach)); 
 
             // Validate attachment
-            if(ToolsLookupAttachment(client, sAttach))
+            if (ToolsLookupAttachment(client, sAttach))
             {
                 // Sets attachment to the entity
                 SetVariantString(sAttach);
@@ -1256,10 +1256,10 @@ void CostumesCreateEntity(int client)
             }
         
             // Validate merging
-            if(CostumesIsMerge(gClientData[client].Costume)) CostumesBoneMerge(entity);
+            if (CostumesIsMerge(gClientData[client].Costume)) CostumesBoneMerge(entity);
 
             // Hook entity callbacks
-            if(CostumesIsHide(gClientData[client].Costume)) SDKHook(entity, SDKHook_SetTransmit, ToolsOnEntityTransmit);
+            if (CostumesIsHide(gClientData[client].Costume)) SDKHook(entity, SDKHook_SetTransmit, ToolsOnEntityTransmit);
             
             // Store the client cache
             gClientData[client].AttachmentCostume = EntIndexToEntRef(entity);
@@ -1297,7 +1297,7 @@ void CostumesRemove(int client)
     int entity = EntRefToEntIndex(gClientData[client].AttachmentCostume);
 
     // Validate costume
-    if(entity != -1) 
+    if (entity != -1) 
     {
         AcceptEntityInput(entity, "Kill"); /// Destroy
     }

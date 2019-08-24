@@ -67,10 +67,10 @@ int gSound; ConVar hSoundLevel;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -85,15 +85,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("balrog7");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"balrog7\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"balrog7\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("BALROGVII2_SHOOT_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGVII2_SHOOT_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGVII2_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -114,7 +114,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float vBullet[3], int iCou
     #pragma unused client, weapon, vBullet, iCounter, flCurrentTime
 
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
     {
         return;
     }
@@ -132,7 +132,7 @@ void Weapon_OnBullet(int client, int weapon, float vBullet[3], int iCounter, flo
     #pragma unused client, weapon, vBullet, iCounter, flCurrentTime
     
     // Validate counter
-    if(iCounter > (ZP_GetWeaponClip(gWeapon) / WEAPON_EXPLOSION_RATIO))
+    if (iCounter > (ZP_GetWeaponClip(gWeapon) / WEAPON_EXPLOSION_RATIO))
     {
         // Create an explosion
         UTIL_CreateExplosion(vBullet, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_EXPLOSION_DAMAGE, WEAPON_EXPLOSION_RADIUS, "balrog7", client, weapon);
@@ -178,7 +178,7 @@ void Weapon_OnBullet(int client, int weapon, float vBullet[3], int iCounter, flo
 public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Resets variables
         SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
@@ -195,7 +195,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 public void ZP_OnWeaponReload(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Reload(client, weapon, NULL_VECTOR);
@@ -213,7 +213,7 @@ public void ZP_OnWeaponReload(int client, int weapon, int weaponID)
 public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Bullet(client, weapon, vBullet);
@@ -235,10 +235,10 @@ public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weap
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Button secondary attack press
-        if(!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
+        if (!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
         {
             // Call event
             _call.SecondaryAttack(client, weapon, NULL_VECTOR);

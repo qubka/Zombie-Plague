@@ -64,7 +64,7 @@ void TranslationOnInit(/*void*/)
  **/
 stock void TranslationPluginFormatString(char[] sText, int iMaxlen, bool bColor = true)
 {
-    if(bColor)
+    if (bColor)
     {
         // Format prefix onto the string
         Format(sText, iMaxlen, " @green%s @default%s", TRANSLATION_PHRASE_PREFIX, sText);
@@ -91,7 +91,7 @@ stock void TranslationPluginFormatString(char[] sText, int iMaxlen, bool bColor 
 stock void TranslationPrintToConsole(int client, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(client))
+    if (!IsFakeClient(client))
     {
         // Sets translation target
         SetGlobalTransTarget(client);
@@ -119,7 +119,7 @@ stock void TranslationPrintToConsoleAll(bool bServer, any ...)
     static char sTranslation[CONSOLE_LINE_LENGTH];
 
     // Validate server
-    if(bServer)
+    if (bServer)
     {
         // Sets translation target
         SetGlobalTransTarget(LANG_SERVER);
@@ -135,16 +135,16 @@ stock void TranslationPrintToConsoleAll(bool bServer, any ...)
     }
 
     // x = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(!IsPlayerExist(i, false))
+        if (!IsPlayerExist(i, false))
         {
             continue;
         }
         
         // Validate real client
-        if(!IsFakeClient(i))
+        if (!IsFakeClient(i))
         {
             // Sets translation target
             SetGlobalTransTarget(i);
@@ -170,7 +170,7 @@ stock void TranslationPrintToConsoleAll(bool bServer, any ...)
 stock void TranslationPrintHintText(int client, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(client))
+    if (!IsFakeClient(client))
     {
         // Sets translation target
         SetGlobalTransTarget(client);
@@ -192,16 +192,16 @@ stock void TranslationPrintHintText(int client, any ...)
 stock void TranslationPrintHintTextAll(any ...)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(!IsPlayerExist(i, false))
+        if (!IsPlayerExist(i, false))
         {
             continue;
         }
         
         // Validate real client
-        if(!IsFakeClient(i))
+        if (!IsFakeClient(i))
         {
             // Sets translation target
             SetGlobalTransTarget(i);
@@ -237,7 +237,7 @@ stock void TranslationPrintHintTextAll(any ...)
 stock void TranslationPrintHudText(Handle hSync, int client, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(client))
+    if (!IsFakeClient(client))
     {
         // Sets translation target
         SetGlobalTransTarget(client);
@@ -271,16 +271,16 @@ stock void TranslationPrintHudText(Handle hSync, int client, float x, float y, f
 stock void TranslationPrintHudTextAll(Handle hSync, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, any ...)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(!IsPlayerExist(i, false))
+        if (!IsPlayerExist(i, false))
         {
             continue;
         }
         
         // Validate real client
-        if(!IsFakeClient(i))
+        if (!IsFakeClient(i))
         {
             // Sets translation target
             SetGlobalTransTarget(i);
@@ -304,7 +304,7 @@ stock void TranslationPrintHudTextAll(Handle hSync, float x, float y, float hold
 stock void TranslationPrintToChat(int client, any ...)
 {
     // Validate real client
-    if(!IsFakeClient(client))
+    if (!IsFakeClient(client))
     {
         // Sets translation target
         SetGlobalTransTarget(client);
@@ -329,16 +329,16 @@ stock void TranslationPrintToChat(int client, any ...)
 stock void TranslationPrintToChatAll(any ...)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(!IsPlayerExist(i, false))
+        if (!IsPlayerExist(i, false))
         {
             continue;
         }
         
         // Validate real client
-        if(!IsFakeClient(i))
+        if (!IsFakeClient(i))
         {
             // Sets translation target
             SetGlobalTransTarget(i);
@@ -386,7 +386,7 @@ stock void TranslationPrintToServer(any:...)
 stock void TranslationReplyToCommand(int client, any ...)
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }

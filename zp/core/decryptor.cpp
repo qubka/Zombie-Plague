@@ -36,16 +36,16 @@
 int DecryptPrecacheModel(char[] sModel)
 {
     // If model path is empty, then stop
-    if(!hasLength(sModel))
+    if (!hasLength(sModel))
     {
         return 0;
     }
     
     // If model didn't exist, then
-    if(!FileExists(sModel))
+    if (!FileExists(sModel))
     {
         // Try to find file in .vpk
-        if(FileExists(sModel, true))
+        if (FileExists(sModel, true))
         {
             // Return on success
             return PrecacheModel(sModel, true);
@@ -57,7 +57,7 @@ int DecryptPrecacheModel(char[] sModel)
     }
     
     // If model doesn't precache yet, then continue
-    if(!IsModelPrecached(sModel))
+    if (!IsModelPrecached(sModel))
     {
         // Precache model materails
         DecryptPrecacheMaterials(sModel);
@@ -79,16 +79,16 @@ int DecryptPrecacheModel(char[] sModel)
 int DecryptPrecacheWeapon(char[] sModel)
 {
     // If model path is empty, then stop
-    if(!hasLength(sModel))
+    if (!hasLength(sModel))
     {
         return 0;
     }
     
     // If model didn't exist, then
-    if(!FileExists(sModel))
+    if (!FileExists(sModel))
     {
         // Try to find file in .vpk
-        if(FileExists(sModel, true))
+        if (FileExists(sModel, true))
         {
             // Return on success
             return PrecacheModel(sModel, true);
@@ -100,7 +100,7 @@ int DecryptPrecacheWeapon(char[] sModel)
     }
 
     // If model doesn't precache yet, then continue
-    if(!IsModelPrecached(sModel))
+    if (!IsModelPrecached(sModel))
     {
         // Precache model sounds
         DecryptPrecacheSounds(sModel);
@@ -125,16 +125,16 @@ int DecryptPrecacheWeapon(char[] sModel)
 int DecryptPrecacheParticle(char[] sModel)
 {
     // If model path is empty, then stop
-    if(!hasLength(sModel))
+    if (!hasLength(sModel))
     {
         return 0;
     }
     
     // If model didn't exist, then
-    if(!FileExists(sModel))
+    if (!FileExists(sModel))
     {
         // Try to find file in .vpk
-        if(FileExists(sModel, true))
+        if (FileExists(sModel, true))
         {
             // Return on success
             return PrecacheGeneric(sModel, true);
@@ -146,7 +146,7 @@ int DecryptPrecacheParticle(char[] sModel)
     }
 
     // If model doesn't precache yet, then continue
-    /**if(!IsGenericPrecached(sModel))**/
+    /**if (!IsGenericPrecached(sModel))**/
     // Thanks Valve!
     
     // Precache model effects
@@ -175,7 +175,7 @@ void DecryptPrecacheResources(char[] sModel)
     
     // i = resource type
     int iSize = sizeof(sTypes);
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Extract value string
         StrExtract(sResource, sModel, 0, iFormat);
@@ -184,7 +184,7 @@ void DecryptPrecacheResources(char[] sModel)
         StrCat(sResource, sizeof(sResource), sTypes[i]);
         
         // Validate resource
-        if(FileExists(sResource)) 
+        if (FileExists(sResource)) 
         {
             // Add file to download table
             AddFileToDownloadsTable(sResource);
@@ -204,7 +204,7 @@ bool DecryptPrecacheSounds(char[] sModel)
     int iFormat = FindCharInString(sModel, '.', true);
     
     // If model path is don't have format, then log, and stop
-    if(iFormat == -1)
+    if (iFormat == -1)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Missing file format: %s", sModel);
         return false;
@@ -224,13 +224,13 @@ bool DecryptPrecacheSounds(char[] sModel)
     File hBase = OpenFile(sPath, "at+");
 
     // If file doesn't exist, then write it
-    if(!bExists)
+    if (!bExists)
     {
         // Opens the file
         File hFile = OpenFile(sModel, "rb");
 
         // If doesn't exist stop
-        if(hFile == null)
+        if (hFile == null)
         {
             DeleteFile(sPath);
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sModel);
@@ -251,7 +251,7 @@ bool DecryptPrecacheSounds(char[] sModel)
             hFile.Seek(2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar == 0);
+        while (iChar == 0);
 
         // Shift the cursor a bit
         hFile.Seek(1, SEEK_CUR);
@@ -261,10 +261,10 @@ bool DecryptPrecacheSounds(char[] sModel)
             hFile.Seek(2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar);
+        while (iChar);
 
         // Loop throught the binary
-        while(!hFile.EndOfFile())
+        while (!hFile.EndOfFile())
         {
             // Reads a UTF8 or ANSI string from a file
             hFile.ReadString(sPath, sizeof(sPath));
@@ -273,10 +273,10 @@ bool DecryptPrecacheSounds(char[] sModel)
             iFormat = FindCharInString(sPath, '.', true);
 
             // Validate format
-            if(iFormat != -1) 
+            if (iFormat != -1) 
             {
                 // Validate sound format
-                if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
+                if (!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
                 {
                     // Format full path to file
                     Format(sPath, sizeof(sPath), "sound/%s", sPath);
@@ -297,7 +297,7 @@ bool DecryptPrecacheSounds(char[] sModel)
     else
     {
         // Read lines in the file
-        while(hBase.ReadLine(sPath, sizeof(sPath)))
+        while (hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
             SplitString(sPath, "//", sPath, sizeof(sPath));
@@ -306,7 +306,7 @@ bool DecryptPrecacheSounds(char[] sModel)
             TrimString(sPath);
 
             // If line is empty, then stop
-            if(!hasLength(sPath))
+            if (!hasLength(sPath))
             {
                 continue;
             }
@@ -333,7 +333,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
     int iFormat = FindCharInString(sModel, '.', true);
     
     // If model path is don't have format, then log, and stop
-    if(iFormat == -1)
+    if (iFormat == -1)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Missing file format: %s", sModel);
         return false;
@@ -353,13 +353,13 @@ bool DecryptPrecacheMaterials(char[] sModel)
     File hBase = OpenFile(sPath, "at+");
 
     // If file doesn't exist, then write it
-    if(!bExists)
+    if (!bExists)
     {
         // Opens the file
         File hFile = OpenFile(sModel, "rb");
 
         // If doesn't exist stop
-        if(hFile == null)
+        if (hFile == null)
         {
             DeleteFile(sPath);
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sModel);
@@ -379,7 +379,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
             hFile.Seek(-2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar == 0);
+        while (iChar == 0);
 
         // Shift the cursor a bit
         hFile.Seek(-1, SEEK_CUR);
@@ -389,7 +389,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
             hFile.Seek(-2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar);
+        while (iChar);
 
         // Reads a UTF8 or ANSI string from a file
         int iPosIndex = hFile.Position;
@@ -401,14 +401,14 @@ bool DecryptPrecacheMaterials(char[] sModel)
         ArrayList hList = new ArrayList(SMALL_LINE_LENGTH);
 
         // Reverse loop throught the binary
-        while(hFile.Position > 1 && hList.Length < iNumMat)
+        while (hFile.Position > 1 && hList.Length < iNumMat)
         {
             do /// Reads a single binary char
             {
                 hFile.Seek(-2, SEEK_CUR);
                 hFile.ReadInt8(iChar);
             } 
-            while(iChar);
+            while (iChar);
 
             // Reads a UTF8 or ANSI string from a file
             iPosIndex = hFile.Position;
@@ -417,7 +417,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
             hFile.Seek(-1, SEEK_CUR);
 
             // Validate size
-            if(!hasLength(sPath))
+            if (!hasLength(sPath))
             {
                 continue;
             }
@@ -426,7 +426,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
             iFormat = FindCharInString(sPath, '\\', true);
 
             // Validate no format
-            if(iFormat != -1)
+            if (iFormat != -1)
             {
                 // Format full path to directory
                 Format(sPath, sizeof(sPath), "materials\\%s", sPath);
@@ -435,7 +435,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
                 DirectoryListing hDirectory = OpenDirectory(sPath);
                 
                 // If doesn't exist stop
-                if(hDirectory == null)
+                if (hDirectory == null)
                 {
                     LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening folder: \"%s\"", sPath);
                     continue;
@@ -445,22 +445,22 @@ bool DecryptPrecacheMaterials(char[] sModel)
                 static char sFile[PLATFORM_LINE_LENGTH]; FileType hType;
                 
                 // Search files in the directory
-                while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
+                while (hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
                 {
                     // Validate file type
-                    if(hType == FileType_File) 
+                    if (hType == FileType_File) 
                     {
                         // Finds the first occurrence of a character in a string
                         iFormat = FindCharInString(sFile, '.', true);
                 
                         // Validate format
-                        if(iFormat != -1) 
+                        if (iFormat != -1) 
                         {
                             // Validate material format
-                            if(!strcmp(sFile[iFormat], ".vmt", false))
+                            if (!strcmp(sFile[iFormat], ".vmt", false))
                             {
                                 // Validate unique material
-                                if(hList.FindString(sFile) == -1)
+                                if (hList.FindString(sFile) == -1)
                                 {
                                     // Push data into array
                                     hList.PushString(sFile);
@@ -488,7 +488,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
                 StrCat(sPath, sizeof(sPath), ".vmt");
         
                 // Validate unique key
-                if(hList.FindString(sPath) == -1)
+                if (hList.FindString(sPath) == -1)
                 {
                     // Push data into array
                     hList.PushString(sPath);
@@ -513,7 +513,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
     else
     {
         // Read lines in the file
-        while(hBase.ReadLine(sPath, sizeof(sPath)))
+        while (hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
             SplitString(sPath, "//", sPath, sizeof(sPath));
@@ -522,7 +522,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
             TrimString(sPath);
 
             // If line is empty, then stop
-            if(!hasLength(sPath))
+            if (!hasLength(sPath))
             {
                 continue;
             }
@@ -549,7 +549,7 @@ bool DecryptPrecacheEffects(char[] sModel)
     int iFormat = FindCharInString(sModel, '.', true);
     
     // If model path is don't have format, then log, and stop
-    if(iFormat == -1)
+    if (iFormat == -1)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Missing file format: %s", sModel);
         return false;
@@ -582,13 +582,13 @@ bool DecryptPrecacheEffects(char[] sModel)
     File hBase = OpenFile(sPath, "at+");
 
     // If file doesn't exist, then write it
-    if(!bExists)
+    if (!bExists)
     {
         // Opens the file
         File hFile = OpenFile(sModel, "rb");
 
         // If doesn't exist stop
-        if(hFile == null)
+        if (hFile == null)
         {
             DeleteFile(sPath);
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sModel);
@@ -603,7 +603,7 @@ bool DecryptPrecacheEffects(char[] sModel)
             hFile.Seek(2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar == 0);
+        while (iChar == 0);
 
         // Shift the cursor a bit
         hFile.Seek(1, SEEK_CUR);
@@ -613,10 +613,10 @@ bool DecryptPrecacheEffects(char[] sModel)
             hFile.Seek(2, SEEK_CUR);
             hFile.ReadInt8(iChar);
         } 
-        while(iChar);
+        while (iChar);
 
         // Loop throught the binary
-        while(!hFile.EndOfFile())
+        while (!hFile.EndOfFile())
         {
             // Reads a UTF8 or ANSI string from a file
             hFile.ReadString(sPath, sizeof(sPath));
@@ -625,10 +625,10 @@ bool DecryptPrecacheEffects(char[] sModel)
             iFormat = FindCharInString(sPath, '.', true);
 
             // Validate format
-            if(iFormat != -1)
+            if (iFormat != -1)
             {
                 // Validate material format
-                if(!strcmp(sPath[iFormat], ".vmt", false))
+                if (!strcmp(sPath[iFormat], ".vmt", false))
                 {
                     // Format full path to file
                     Format(sPath, sizeof(sPath), "materials\\%s", sPath);
@@ -649,7 +649,7 @@ bool DecryptPrecacheEffects(char[] sModel)
     else
     {
         // Read lines in the file
-        while(hBase.ReadLine(sPath, sizeof(sPath)))
+        while (hBase.ReadLine(sPath, sizeof(sPath)))
         {
             // Cut out comments at the end of a line
             SplitString(sPath, "//", sPath, sizeof(sPath));
@@ -658,7 +658,7 @@ bool DecryptPrecacheEffects(char[] sModel)
             TrimString(sPath);
 
             // If line is empty, then stop
-            if(!hasLength(sPath))
+            if (!hasLength(sPath))
             {
                 continue;
             }
@@ -687,7 +687,7 @@ bool DecryptPrecacheTextures(char[] sPath)
     strcopy(sTexture, sizeof(sTexture), sPath);
 
     // If doesn't exist stop
-    if(!FileExists(sTexture))
+    if (!FileExists(sTexture))
     {
         LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid material path. File not found: \"%s\"", sTexture);
         return false;
@@ -703,37 +703,37 @@ bool DecryptPrecacheTextures(char[] sPath)
     File hFile = OpenFile(sTexture, "rt");
     
     // If doesn't exist stop
-    if(hFile == null)
+    if (hFile == null)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error opening file: \"%s\"", sTexture);
         return false;
     }
     
     // Read lines in the file
-    while(hFile.ReadLine(sTexture, sizeof(sTexture)))
+    while (hFile.ReadLine(sTexture, sizeof(sTexture)))
     {
         // Cut out comments at the end of a line
         SplitString(sTexture, "//", sTexture, sizeof(sTexture));
 
         // i = texture type
         int iSize = sizeof(sTypes);
-        for(int x = 0; x < iSize; x++)
+        for (int x = 0; x < iSize; x++)
         {
             // Avoid the reoccurrence 
-            if(bFound[x]) 
+            if (bFound[x]) 
             {
                 continue;
             }
             
             // Validate type
-            if((iShift = StrContains(sTexture, sTypes[x], false)) != -1)
+            if ((iShift = StrContains(sTexture, sTypes[x], false)) != -1)
             {
                 // Shift the type away
                 iShift += strlen(sTypes[x]) + 1;
 
                 // Checks if string has incorrect quotes
                 int iQuotes = CountCharInString(sTexture[iShift], '"');
-                if(iQuotes != 2)
+                if (iQuotes != 2)
                 {
                     LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Error with parsing \"%s\" in file: \"%s\"", sTypes[x], sPath);
                 }
@@ -752,7 +752,7 @@ bool DecryptPrecacheTextures(char[] sPath)
                     StripQuotes(sTexture);
 
                     // Validate size
-                    if(!hasLength(sTexture))
+                    if (!hasLength(sTexture))
                     {
                         continue;
                     }
@@ -761,7 +761,7 @@ bool DecryptPrecacheTextures(char[] sPath)
                     Format(sTexture, sizeof(sTexture), "materials\\%s.vtf", sTexture);
 
                     // Validate material
-                    if(FileExists(sTexture))
+                    if (FileExists(sTexture))
                     {
                         // Add file to download table
                         AddFileToDownloadsTable(sTexture);
@@ -769,7 +769,7 @@ bool DecryptPrecacheTextures(char[] sPath)
                     else
                     {
                         // Validate non default textures
-                        if(!FileExists(sTexture, true))
+                        if (!FileExists(sTexture, true))
                         {
                             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid texture path. File not found: \"%s\"", sTexture);
                         }

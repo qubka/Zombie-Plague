@@ -67,14 +67,14 @@ int gDamageOffset; int gDetonateOffset; //ConVar hHealthMax;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // Load custom offsets
         gDamageOffset = FindSendPropInfo("CWeaponShield", "m_iBurstShotsRemaining") + 16;
         gDetonateOffset = FindSendPropInfo("CBaseCSGrenadeProjectile", "m_hThrower") + 36;
 
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -89,7 +89,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("shield");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"shield\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"shield\" wasn't find");
     
     // Cvars
     //hHealthMax = FindConVar("sv_shield_hitpoints");
@@ -146,16 +146,16 @@ void Weapon_OnFire(int client, int weapon, float flCurrentTime)
 
     // i = entity index
     int MaxEntities = GetMaxEntities();
-    for(int i = MaxClients; i <= MaxEntities; i++)
+    for (int i = MaxClients; i <= MaxEntities; i++)
     {
         // Validate projectile
-        if(IsEntityProjectile(i))
+        if (IsEntityProjectile(i))
         {
             // Gets grenade position
             GetEntPropVector(i, Prop_Data, "m_vecOrigin", vEntPosition);
 
             // Validate distance
-            if(GetVectorDistance(vCenter, vEntPosition) > SHIELD_MAX_DEFLECT_DISTANCE)
+            if (GetVectorDistance(vCenter, vEntPosition) > SHIELD_MAX_DEFLECT_DISTANCE)
             {
                 continue;
             }
@@ -170,7 +170,7 @@ void Weapon_OnFire(int client, int weapon, float flCurrentTime)
             float flAngle = GetVectorDotProduct(vEntAngle, vAngle);
             
             // Validate PVS
-            if(flAngle > SHIELD_DOT_PRODUCT)
+            if (flAngle > SHIELD_DOT_PRODUCT)
             {
                 // Adds the given vector to the client current velocity
                 TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
@@ -185,7 +185,7 @@ void Weapon_OnFire(int client, int weapon, float flCurrentTime)
     }
     
     // Emit deflect sound
-    if(bDeflect) EmitAmbientSound("physics/metal/metal_barrel_impact_soft2.wav", vPosition);
+    if (bDeflect) EmitAmbientSound("physics/metal/metal_barrel_impact_soft2.wav", vPosition);
 }
 
 //**********************************************
@@ -214,7 +214,7 @@ void Weapon_OnFire(int client, int weapon, float flCurrentTime)
 public void ZP_OnWeaponFire(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Fire(client, weapon);
@@ -236,7 +236,7 @@ public void ZP_OnWeaponFire(int client, int weapon, int weaponID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Resets damage
         SetEntDataFloat(weapon, gDamageOffset, 0.0, true);
@@ -255,7 +255,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 bool IsEntityProjectile(int entity)
 {
     // Validate entity
-    if(entity <= MaxClients || !IsValidEdict(entity))
+    if (entity <= MaxClients || !IsValidEdict(entity))
     {
         return false;
     }
@@ -268,7 +268,7 @@ bool IsEntityProjectile(int entity)
     int iLen = strlen(sClassname) - 11;
     
     // Validate length
-    if(iLen > 0)
+    if (iLen > 0)
     {
         // Validate grenade
         return (!strncmp(sClassname[iLen], "_proj", 5, false));

@@ -135,7 +135,7 @@ public Action PlayerSoundsOnRoundEndPost(Handle hTimer, CSRoundEndReason reason)
     gServerData.EndTimer = null;
     
     // Gets reason
-    switch(reason)
+    switch (reason)
     {
         // Emit sounds
         case CSRoundEnd_TerroristWin : SEffectsInputEmitToAll(ModesGetSoundEndZombieID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);   
@@ -191,7 +191,7 @@ void PlayerSoundsOnClientDeath(int client)
 {
     // If death sound cvar is disabled, then stop
     bool bDeath = gCvarList[CVAR_SEFFECTS_DEATH].BoolValue;
-    if(!bDeath)
+    if (!bDeath)
     {
         return;
     }
@@ -210,19 +210,19 @@ void PlayerSoundsOnClientHurt(int client, bool bBurning)
 {
     // Gets groan factor, if 0, then stop
     int iGroan = gCvarList[CVAR_SEFFECTS_GROAN].IntValue;
-    if(!iGroan)
+    if (!iGroan)
     {
         return;
     }
 
     // 1 in 'groan' chance of groaning
-    if(GetRandomInt(1, iGroan) == 1)
+    if (GetRandomInt(1, iGroan) == 1)
     {
         // Validate burning
-        if(bBurning)
+        if (bBurning)
         {
             // If burn sounds disabled, then skip
-            if(gCvarList[CVAR_SEFFECTS_BURN].BoolValue) 
+            if (gCvarList[CVAR_SEFFECTS_BURN].BoolValue) 
             {
                 // Emit burn sound
                 SEffectsInputEmitToAll(ClassGetSoundBurnID(gClientData[client].Class), _, client, SNDCHAN_BODY, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -244,10 +244,10 @@ void PlayerSoundsOnClientHurt(int client, bool bBurning)
 void PlayerSoundsOnClientInfected(int client, int attacker)
 {
     // If infect sound cvar is disabled, then skip
-    if(gCvarList[CVAR_SEFFECTS_INFECT].BoolValue) 
+    if (gCvarList[CVAR_SEFFECTS_INFECT].BoolValue) 
     {
         // If change was done by server
-        if(!attacker)
+        if (!attacker)
         {
             // Emit respawn sound
             SEffectsInputEmitToAll(ClassGetSoundRespawnID(gClientData[client].Class), _, client, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -261,7 +261,7 @@ void PlayerSoundsOnClientInfected(int client, int attacker)
     
     // If interval is set to 0, then stop
     float flInterval = gCvarList[CVAR_SEFFECTS_MOAN].FloatValue;
-    if(!flInterval)
+    if (!flInterval)
     {
         return;
     }
@@ -283,7 +283,7 @@ public Action PlayerSoundsOnMoanRepeat(Handle hTimer, int userID)
     int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(client)
+    if (client)
     {
         // Emit moan sound
         SEffectsInputEmitToAll(ClassGetSoundIdleID(gClientData[client].Class), _, client, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue);
@@ -394,30 +394,30 @@ bool PlayerSoundsOnClientShoot(int client, int iD)
 public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags)
 {
     // Validate entity 
-    if(IsValidEdict(entity))
+    if (IsValidEdict(entity))
     {
         // Gets entity classname
         static char sClassname[SMALL_LINE_LENGTH];
         GetEdictClassname(entity, sClassname, sizeof(sClassname));
 
         // Validate client
-        if(IsPlayerExist(entity))
+        if (IsPlayerExist(entity))
         {
             // If a footstep sounds, then proceed
-            if(StrContains(sSample, "footsteps", false) != -1)
+            if (StrContains(sSample, "footsteps", false) != -1)
             {
                 // If the client is frozen, then stop
-                if(GetEntityMoveType(entity) == MOVETYPE_NONE)
+                if (GetEntityMoveType(entity) == MOVETYPE_NONE)
                 {
                     // Block sounds
                     return Plugin_Stop; 
                 }
 
                 // If footstep sounds disabled, then stop
-                if(gCvarList[CVAR_SEFFECTS_FOOTSTEPS].BoolValue) 
+                if (gCvarList[CVAR_SEFFECTS_FOOTSTEPS].BoolValue) 
                 {
                     // Emit footstep sound
-                    if(SEffectsInputEmitToAll(ClassGetSoundFootID(gClientData[entity].Class), _, entity, SNDCHAN_STREAM, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue))
+                    if (SEffectsInputEmitToAll(ClassGetSoundFootID(gClientData[entity].Class), _, entity, SNDCHAN_STREAM, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue))
                     {
                         // Block sounds
                         return Plugin_Stop; 
@@ -426,23 +426,23 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients,
             }
         }
         // Validate melee
-        else if(sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && // weapon_
+        else if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && // weapon_
                (sClassname[7] == 'k' || // knife
                (sClassname[7] == 'm' && sClassname[8] == 'e') ||  // melee
                (sClassname[7] == 'f' && sClassname[9] == 's'))) // fists
         {
             // If a knife sounds, then proceed 
-            if(StrContains(sSample, "knife", false) != -1)
+            if (StrContains(sSample, "knife", false) != -1)
             {
                 // If attack sounds disabled, then stop
-                if(gCvarList[CVAR_SEFFECTS_CLAWS].BoolValue) 
+                if (gCvarList[CVAR_SEFFECTS_CLAWS].BoolValue) 
                 {
                     // Validate client
                     int client = ToolsGetOwner(entity);
-                    if(IsPlayerExist(client))
+                    if (IsPlayerExist(client))
                     {
                         // Emit slash sound
-                        if(SEffectsInputEmitToAll(ClassGetSoundAttackID(gClientData[client].Class), _, entity, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue))
+                        if (SEffectsInputEmitToAll(ClassGetSoundAttackID(gClientData[client].Class), _, entity, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue))
                         {
                             // Block sounds
                             return Plugin_Stop; 
@@ -457,10 +457,10 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients,
             int iLen = strlen(sClassname) - 11;
             
             // Validate length
-            if(iLen > 0)
+            if (iLen > 0)
             {
                 // Validate grenade
-                if(!strncmp(sClassname[iLen], "_proj", 5, false))
+                if (!strncmp(sClassname[iLen], "_proj", 5, false))
                 {
                     // Call forward
                     Action hResult;
@@ -486,13 +486,13 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients,
 public void PlayerSoundsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {    
     // Validate new value
-    if(!strcmp(oldValue, newValue, false))
+    if (!strcmp(oldValue, newValue, false))
     {
         return;
     }
     
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // Forward event to modules
         PlayerSoundsOnOnLoad();

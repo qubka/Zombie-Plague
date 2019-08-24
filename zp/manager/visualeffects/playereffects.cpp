@@ -63,17 +63,17 @@ void PlayerVEffectsOnClientInfected(int client, int attacker)
     static float flDuration;
 
     // Validate respawn
-    if(gServerData.RoundStart && !attacker)
+    if (gServerData.RoundStart && !attacker)
     {
         // If respawn effect disabled, then stop
-        if(!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
+        if (!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
         flDuration = gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION].FloatValue;
-        if(!flDuration)
+        if (!flDuration)
         {
             return;
         }
@@ -85,14 +85,14 @@ void PlayerVEffectsOnClientInfected(int client, int attacker)
     else
     {
         // If infect effect disabled, then stop
-        if(!gCvarList[CVAR_VEFFECTS_INFECT].BoolValue) 
+        if (!gCvarList[CVAR_VEFFECTS_INFECT].BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
         flDuration = ClassGetEffectTime(gClientData[client].Class);
-        if(!flDuration)
+        if (!flDuration)
         {
             return;
         }
@@ -121,17 +121,17 @@ void PlayerVEffectsOnClientHumanized(int client)
     static float flDuration;
     
     // Validate respawn
-    if(gServerData.RoundNew)
+    if (gServerData.RoundNew)
     {
         // If respawn effect disabled, then stop
-        if(!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
+        if (!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
         flDuration = gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION].FloatValue;
-        if(!flDuration)
+        if (!flDuration)
         {
             return;
         }
@@ -143,14 +143,14 @@ void PlayerVEffectsOnClientHumanized(int client)
     else
     {
         // If humanize effect disabled, then stop
-        if(!gCvarList[CVAR_VEFFECTS_HUMANIZE].BoolValue) 
+        if (!gCvarList[CVAR_VEFFECTS_HUMANIZE].BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
         flDuration = ClassGetEffectTime(gClientData[client].Class);
-        if(!flDuration)
+        if (!flDuration)
         {
             return;
         }
@@ -172,14 +172,14 @@ void PlayerVEffectsOnClientHumanized(int client)
 void PlayerVEffectsOnClientRegen(int client)
 {
     // If regeneration effect disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
+    if (!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
     {
         return;
     }
     
     // If the duration is zero, then stop
     float flDuration = gCvarList[CVAR_VEFFECTS_HEAL_DURATION].FloatValue;
-    if(!flDuration)
+    if (!flDuration)
     {
         return;
     }
@@ -204,14 +204,14 @@ void PlayerVEffectsOnClientRegen(int client)
 void PlayerVEffectsOnClientJump(int client)
 {
     // If jump effect disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_LEAP].BoolValue) 
+    if (!gCvarList[CVAR_VEFFECTS_LEAP].BoolValue) 
     {
         return;
     }
     
     // If the duration is zero, then stop
     float flDuration = gCvarList[CVAR_VEFFECTS_LEAP_DURATION].FloatValue;
-    if(!flDuration)
+    if (!flDuration)
     {
         return;
     }

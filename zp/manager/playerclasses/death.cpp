@@ -61,11 +61,11 @@ void DeathOnLoad(/*void*/)
     // Gets infect icon
     static char sIcon[NORMAL_LINE_LENGTH];
     gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
-    if(hasLength(sIcon))
+    if (hasLength(sIcon))
     {
         // Precache custom icon
         Format(sIcon, sizeof(sIcon), "materials/panorama/images/icons/equipment/%s.svg", sIcon);
-        if(FileExists(sIcon)) AddFileToDownloadsTable(sIcon); 
+        if (FileExists(sIcon)) AddFileToDownloadsTable(sIcon); 
     }
 }
 
@@ -112,7 +112,7 @@ void DeathOnClientInit(int client)
 public Action DeathOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate client 
-    if(IsPlayerExist(client, false))
+    if (IsPlayerExist(client, false))
     {
         // Block command
         return Plugin_Handled;
@@ -136,19 +136,19 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
     int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
 
     // Validate human
-    if(!gClientData[client].Zombie)
+    if (!gClientData[client].Zombie)
     {
         // Gets weapon index from the client
         int weapon = EntRefToEntIndex(gClientData[client].LastKnife);
         
         // Validate weapon
-        if(weapon != -1) 
+        if (weapon != -1) 
         {
             // Drop weapon
             WeaponsDrop(client, weapon);
@@ -160,15 +160,15 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
     
     // Validate custom index
     int iD = gClientData[client].LastID;
-    if(iD != -1)
+    if (iD != -1)
     {
         // Gets death icon
         static char sIcon[SMALL_LINE_LENGTH];
         WeaponsGetIcon(iD, sIcon, sizeof(sIcon));
-        if(hasLength(sIcon)) /// Use default name
+        if (hasLength(sIcon)) /// Use default name
         {
             // Sets whether an event broadcasting will be disabled
-            if(!dontBroadcast) 
+            if (!dontBroadcast) 
             {
                 // Disable broadcasting
                 hEvent.BroadcastDisabled = true;
@@ -198,7 +198,7 @@ public Action DeathOnClientDeathPost(Event hEvent, char[] sName, bool dontBroadc
     int attacker = GetClientOfUserId(hEvent.GetInt("attacker"));
     
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
@@ -237,7 +237,7 @@ void DeathOnClientDeath(int client, int attacker = 0)
     AccountOnClientDeath(client);
     CostumesOnClientDeath(client);
     LevelSystemOnClientDeath(client);
-    if(!DeathOnClientRespawn(client, attacker))
+    if (!DeathOnClientRespawn(client, attacker))
     {
         // Terminate the round
         ModesValidateRound();
@@ -254,38 +254,38 @@ void DeathOnClientDeath(int client, int attacker = 0)
 bool DeathOnClientRespawn(int client, int attacker = 0,  bool bTimer = true)
 {
     // If mode doesn't started yet, then stop
-    if(!gServerData.RoundStart)
+    if (!gServerData.RoundStart)
     {
         return true; /// Avoid double check in 'ModesValidateRound'
     }
 
     // If respawn disabled on the current game mode, then stop
-    if(!ModesIsRespawn(gServerData.RoundMode))
+    if (!ModesIsRespawn(gServerData.RoundMode))
     {
         return false;
     }
     
     // If any last humans/zombies are left, then stop
     int iLast = ModesGetLast(gServerData.RoundMode);
-    if(fnGetHumans() < iLast || fnGetZombies() < iLast)
+    if (fnGetHumans() < iLast || fnGetZombies() < iLast)
     {
         return false;
     }
         
     // If player was killed by world, then stop
-    if(client == attacker && !ModesIsSuicide(gServerData.RoundMode)) 
+    if (client == attacker && !ModesIsSuicide(gServerData.RoundMode)) 
     {
         return false;
     }
 
     // If respawn amount exceed limit, the stop
-    if(gClientData[client].RespawnTimes >= ModesGetAmount(gServerData.RoundMode))
+    if (gClientData[client].RespawnTimes >= ModesGetAmount(gServerData.RoundMode))
     {
         return false;
     }
 
     // Verify that the attacker is exist
-    if(IsPlayerExist(attacker, false))
+    if (IsPlayerExist(attacker, false))
     {
         // Gets class exp and money bonuses
         static int iExp[6]; static int iMoney[6];
@@ -299,7 +299,7 @@ bool DeathOnClientRespawn(int client, int attacker = 0,  bool bTimer = true)
     }
         
     // Validate timer
-    if(bTimer)
+    if (bTimer)
     {
         // Increment count
         gClientData[client].RespawnTimes++;
@@ -333,14 +333,14 @@ public Action DeathOnClientRespawning(Handle hTimer, int userID)
     gClientData[client].RespawnTimer = null;    
     
     // Validate client
-    if(client)
+    if (client)
     {
         // Call forward
         Action hResult;
         gForwardData._OnClientRespawn(client, hResult);
     
         // Validate handle
-        if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+        if (hResult == Plugin_Continue || hResult == Plugin_Changed)
         {
             // Call respawning
             DeathOnClientRespawn(client, _, false);
@@ -383,7 +383,7 @@ void DeathCreateIcon(int userID, int attackerID, char[] sIcon, bool bHead = fals
 {
     // Creates and send custom death icon
     Event hEvent = CreateEvent("player_death");
-    if(hEvent != null)
+    if (hEvent != null)
     {
         // Sets event properties
         hEvent.SetInt("userid", userID);
@@ -396,10 +396,10 @@ void DeathCreateIcon(int userID, int attackerID, char[] sIcon, bool bHead = fals
         hEvent.SetBool("dominated", bDominated);
 
         // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        for (int i = 1; i <= MaxClients; i++)
         {
             // Send fake event
-            if(IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
+            if (IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
         }
         
         // Close it

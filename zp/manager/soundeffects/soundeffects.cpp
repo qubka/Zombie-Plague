@@ -52,7 +52,7 @@ bool SEffectsInputEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAY
     SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
     
     // Validate sound
-    if(hasLength(sSound))
+    if (hasLength(sSound))
     {
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);
@@ -94,7 +94,7 @@ bool SEffectsInputEmitToClient(int iKey, int iNum = 0, int client, int entity = 
     SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
     
     // Validate sound
-    if(hasLength(sSound))
+    if (hasLength(sSound))
     {
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);
@@ -131,7 +131,7 @@ bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int en
     SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
     
     // Validate sound
-    if(hasLength(sSound))
+    if (hasLength(sSound))
     {
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);
@@ -164,10 +164,10 @@ void SEffectsInputStopSound(int iKey, int client = -1, int iChannel = SNDCHAN_AU
 void SEffectsInputStopAll(/*void*/)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate real client
-        if(IsPlayerExist(i, false) && !IsFakeClient(i))
+        if (IsPlayerExist(i, false) && !IsFakeClient(i))
         {
             // Stop sound
             ClientCommand(i, "playgamesound Music.StopAllExceptMusic");
@@ -185,7 +185,7 @@ void SEffectsInputStopAll(/*void*/)
 /*void SEffectsInputClientWeapon(int client, ItemDef iItem, bool bEnable)
 {
     // Validate real client
-    if(IsFakeClient(client))
+    if (IsFakeClient(client))
     {
         return;
     }
@@ -193,7 +193,7 @@ void SEffectsInputStopAll(/*void*/)
     /// Format sound
     static char sSound[NORMAL_LINE_LENGTH];
     FormatEx(sSound, sizeof(sSound), "snd_setsoundparam ");
-    switch(iItem)
+    switch (iItem)
     {
         case ItemDef_Deagle : 
         {

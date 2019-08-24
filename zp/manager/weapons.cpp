@@ -113,7 +113,7 @@ void WeaponsOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_WEAPONS, sPathWeapons, sizeof(sPathWeapons));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Missing weapons config file: \"%s\"", sPathWeapons);
@@ -127,7 +127,7 @@ void WeaponsOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_Weapons, gServerData.Weapons);
     
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathWeapons);
         return;
@@ -159,7 +159,7 @@ void WeaponsOnCacheData(/*void*/)
     bool bSuccess = ConfigOpenConfigFile(File_Weapons, kvWeapons);
 
     // Validate config
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sPathWeapons);
         return;
@@ -167,19 +167,19 @@ void WeaponsOnCacheData(/*void*/)
     
     // Validate size
     int iSize = gServerData.Weapons.Length;
-    if(!iSize)
+    if (!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
         return;
     }
 
     // i = array index
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // General
         WeaponsGetName(i, sPathWeapons, sizeof(sPathWeapons)); // Index: 0
         kvWeapons.Rewind();
-        if(!kvWeapons.JumpToKey(sPathWeapons))
+        if (!kvWeapons.JumpToKey(sPathWeapons))
         {
             // Log weapon fatal
             LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
@@ -188,7 +188,7 @@ void WeaponsOnCacheData(/*void*/)
         
         // Validate translation
         StringToLower(sPathWeapons);
-        if(!TranslationPhraseExists(sPathWeapons))
+        if (!TranslationPhraseExists(sPathWeapons))
         {
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sPathWeapons);
@@ -200,7 +200,7 @@ void WeaponsOnCacheData(/*void*/)
  
         // Push data into array
         kvWeapons.GetString("info", sPathWeapons, sizeof(sPathWeapons), ""); StringToLower(sPathWeapons);
-        if(!TranslationPhraseExists(sPathWeapons) && hasLength(sPathWeapons))
+        if (!TranslationPhraseExists(sPathWeapons) && hasLength(sPathWeapons))
         {
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sPathWeapons);
@@ -208,7 +208,7 @@ void WeaponsOnCacheData(/*void*/)
         arrayWeapon.PushString(sPathWeapons);                             // Index: 1
         kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
         CEconItemDefinition pItemDefinition = PTaH_GetItemDefinitionByName(sPathWeapons);
-        if(!pItemDefinition)
+        if (!pItemDefinition)
         {
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
@@ -237,11 +237,11 @@ void WeaponsOnCacheData(/*void*/)
         arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));                 // Index: 19
         kvWeapons.GetString("icon", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 20
-        if(hasLength(sPathWeapons))
+        if (hasLength(sPathWeapons))
         {
             // Precache custom icon
             Format(sPathWeapons, sizeof(sPathWeapons), "materials/panorama/images/icons/equipment/%s.svg", sPathWeapons);
-            if(FileExists(sPathWeapons)) AddFileToDownloadsTable(sPathWeapons); 
+            if (FileExists(sPathWeapons)) AddFileToDownloadsTable(sPathWeapons); 
         }
         kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 21    
@@ -388,7 +388,7 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
     int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return;
     }
@@ -397,7 +397,7 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
     int weapon = ToolsGetActiveWeapon(client);
     
     // Validate weapon
-    if(weapon == -1)
+    if (weapon == -1)
     {
         return;
     }
@@ -420,7 +420,7 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
     int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return;
     }
@@ -429,7 +429,7 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
     int weapon = ToolsGetActiveWeapon(client);
     
     // Validate weapon
-    if(weapon == -1)
+    if (weapon == -1)
     {
         return;
     }
@@ -460,7 +460,7 @@ public Action WeaponsOnHostage(Event hEvent, char[] sName, bool dontBroadcast)
     int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return;
     }
@@ -484,7 +484,7 @@ public Action WeaponsOnShoot(char[] sTEName, int[] iPlayers, int numClients, flo
     int client = TE_ReadNum("m_iPlayer") + 1;
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return Plugin_Continue;
     }
@@ -493,7 +493,7 @@ public Action WeaponsOnShoot(char[] sTEName, int[] iPlayers, int numClients, flo
     int weapon = ToolsGetActiveWeapon(client);
     
     // Validate weapon
-    if(weapon == -1)
+    if (weapon == -1)
     {
         return Plugin_Continue;
     }
@@ -512,10 +512,10 @@ public Action WeaponsOnShoot(char[] sTEName, int[] iPlayers, int numClients, flo
 Action WeaponsOnRunCmd(int client, int &iButtons, int iLastButtons)
 {
     // Validate use hook
-    if(iButtons & IN_USE)
+    if (iButtons & IN_USE)
     {
         // Validate overtransmitting
-        if(!(iLastButtons & IN_USE))
+        if (!(iLastButtons & IN_USE))
         {
             // Forward event to sub-modules
             WeaponMODOnUse(client);
@@ -526,7 +526,7 @@ Action WeaponsOnRunCmd(int client, int &iButtons, int iLastButtons)
     static int weapon; weapon = ToolsGetActiveWeapon(client);
 
     // Validate weapon and access to hook
-    if(weapon == -1 || !gClientData[client].RunCmd)
+    if (weapon == -1 || !gClientData[client].RunCmd)
     {
         return Plugin_Continue;
     }
@@ -546,7 +546,7 @@ public void WeaponsOnClientUpdate(int userID)
     int client = GetClientOfUserId(userID);
     
     // Validate client
-    if(client)
+    if (client)
     {
         // Forward event to sub-modules
         WeaponAttachOnClientUpdate(client);
@@ -587,7 +587,7 @@ void WeaponsOnClientDeath(int client)
 void WeaponOnEntityCreated(int weapon, const char[] sClassname)
 {
     // Validate entity
-    if(weapon > -1)
+    if (weapon > -1)
     {
         // Forward event to sub-modules
         WeaponMODOnEntityCreated(weapon, sClassname);
@@ -655,7 +655,7 @@ public int API_CreateWeapon(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -683,7 +683,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
         return -1;
@@ -693,7 +693,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -704,7 +704,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
     gForwardData._OnClientValidateWeapon(client, iD, hResult);
 
     // Validate handle
-    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Give weapon
         return WeaponsGive(client, iD);
@@ -725,7 +725,7 @@ public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
         return;
@@ -735,7 +735,7 @@ public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
     int weapon = GetNativeCell(2);
     
     // Validate weapon
-    if(!IsValidEdict(weapon))
+    if (!IsValidEdict(weapon))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weapon);
         return;
@@ -756,7 +756,7 @@ public int API_GetClientViewModel(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
         return -1;
@@ -777,7 +777,7 @@ public int API_GetClientAttachModel(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
         return -1;
@@ -785,7 +785,7 @@ public int API_GetClientAttachModel(Handle hPlugin, int iNumParams)
     
     // Validate bit
     BitType mBits = GetNativeCell(2);
-    if(mBits == BitType_Invalid)
+    if (mBits == BitType_Invalid)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the bit index (%d)", mBits);
         return -1;
@@ -807,7 +807,7 @@ public int API_GetWeaponNameID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Can't find weapon with an empty name");
         return -1;
@@ -843,7 +843,7 @@ public int API_GetWeaponName(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -853,7 +853,7 @@ public int API_GetWeaponName(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -878,7 +878,7 @@ public int API_GetWeaponInfo(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -888,7 +888,7 @@ public int API_GetWeaponInfo(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -913,7 +913,7 @@ public int API_GetWeaponGroup(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -923,7 +923,7 @@ public int API_GetWeaponGroup(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -948,7 +948,7 @@ public int API_GetWeaponClass(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -958,7 +958,7 @@ public int API_GetWeaponClass(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -983,7 +983,7 @@ public int API_GetWeaponDefIndex(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1004,7 +1004,7 @@ public int API_GetWeaponCost(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1025,7 +1025,7 @@ public int API_GetWeaponSlot(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1046,7 +1046,7 @@ public int API_GetWeaponLevel(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1067,7 +1067,7 @@ public int API_GetWeaponOnline(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1088,7 +1088,7 @@ public int API_GetWeaponLimit(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1109,7 +1109,7 @@ public int API_GetWeaponDamage(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1130,7 +1130,7 @@ public int API_GetWeaponKnockBack(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1151,7 +1151,7 @@ public int API_GetWeaponClip(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1172,7 +1172,7 @@ public int API_GetWeaponAmmo(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1193,7 +1193,7 @@ public int API_GetWeaponAmmunition(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1214,7 +1214,7 @@ public int API_IsWeaponDrop(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1235,7 +1235,7 @@ public int API_GetWeaponSpeed(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1256,7 +1256,7 @@ public int API_GetWeaponReload(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1277,7 +1277,7 @@ public int API_GetWeaponDeploy(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1298,7 +1298,7 @@ public int API_GetWeaponSoundID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1319,7 +1319,7 @@ public int API_GetWeaponIcon(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1329,7 +1329,7 @@ public int API_GetWeaponIcon(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -1354,7 +1354,7 @@ public int API_GetWeaponModelView(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1364,7 +1364,7 @@ public int API_GetWeaponModelView(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -1389,7 +1389,7 @@ public int API_GetWeaponModelViewID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1410,7 +1410,7 @@ public int API_GetWeaponModelWorld(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1420,7 +1420,7 @@ public int API_GetWeaponModelWorld(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -1445,7 +1445,7 @@ public int API_GetWeaponModelWorldID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1466,7 +1466,7 @@ public int API_GetWeaponModelDrop(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1476,7 +1476,7 @@ public int API_GetWeaponModelDrop(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -1501,7 +1501,7 @@ public int API_GetWeaponModelDropID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1522,7 +1522,7 @@ public int API_GetWeaponModelBody(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1530,7 +1530,7 @@ public int API_GetWeaponModelBody(Handle hPlugin, int iNumParams)
     
     // Validate type
     ModelType nModel = GetNativeCell(2);
-    if(nModel == ModelType_Invalid)
+    if (nModel == ModelType_Invalid)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
         return -1;
@@ -1551,7 +1551,7 @@ public int API_GetWeaponModelSkin(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1559,7 +1559,7 @@ public int API_GetWeaponModelSkin(Handle hPlugin, int iNumParams)
 
     // Validate type
     ModelType nModel = GetNativeCell(2);
-    if(nModel == ModelType_Invalid)
+    if (nModel == ModelType_Invalid)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
         return -1;
@@ -1580,7 +1580,7 @@ public int API_GetWeaponModelMuzzle(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1590,7 +1590,7 @@ public int API_GetWeaponModelMuzzle(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -1615,7 +1615,7 @@ public int API_GetWeaponModelShell(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1625,7 +1625,7 @@ public int API_GetWeaponModelShell(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
         return -1;
@@ -1650,7 +1650,7 @@ public int API_GetWeaponModelHeat(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Weapons.Length)
+    if (iD >= gServerData.Weapons.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
         return -1;
@@ -1826,7 +1826,7 @@ int WeaponsGetLimit(int iD)
 void WeaponsRemoveLimits(int client)
 {
     // If array hasn't been created, then create
-    if(gClientData[client].WeaponLimit == null)
+    if (gClientData[client].WeaponLimit == null)
     {
         // Initialize a buy limit array
         gClientData[client].WeaponLimit = new StringMap();
@@ -1846,7 +1846,7 @@ void WeaponsRemoveLimits(int client)
 void WeaponsSetLimits(int client, int iD, int iLimit)
 {
     // If array hasn't been created, then create
-    if(gClientData[client].WeaponLimit == null)
+    if (gClientData[client].WeaponLimit == null)
     {
         // Initialize a buy limit array
         gClientData[client].WeaponLimit = new StringMap();
@@ -1869,7 +1869,7 @@ void WeaponsSetLimits(int client, int iD, int iLimit)
 int WeaponsGetLimits(int client, int iD)
 {
     // If array hasn't been created, then create
-    if(gClientData[client].WeaponLimit == null)
+    if (gClientData[client].WeaponLimit == null)
     {
         // Initialize a buy limit array
         gClientData[client].WeaponLimit = new StringMap();
@@ -2395,13 +2395,13 @@ int WeaponsNameToIndex(char[] sName)
     
     // i = weapon index
     int iSize = gServerData.Weapons.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets weapon name 
         WeaponsGetName(i, sWeaponName, sizeof(sWeaponName));
 
         // If names match, then return index
-        if(!strcmp(sName, sWeaponName, false))
+        if (!strcmp(sName, sWeaponName, false))
         {
             // Return this index
             return i;
@@ -2421,13 +2421,13 @@ int WeaponsNameToIndex(char[] sName)
 void WeaponsDrop(int client, int weapon)
 {
     // Validate weapon
-    if(IsValidEdict(weapon)) 
+    if (IsValidEdict(weapon)) 
     {
         // Gets owner of the weapon
         int owner = ToolsGetOwner(weapon);
 
         // If owner index is different, so set it again
-        if(owner != client)
+        if (owner != client)
         {
             ToolsSetOwner(weapon, client);
         }
@@ -2450,7 +2450,7 @@ void WeaponsEquip(int client, int weapon)
 
     // Gets weapon slot
     SlotType mSlot = WeaponsGetSlotType(weapon);
-    switch(mSlot)
+    switch (mSlot)
     {
         // Multi slot
         case SlotType_Equipment, SlotType_C4 :
@@ -2472,7 +2472,7 @@ void WeaponsEquip(int client, int weapon)
     }
     
     // Validate weapon
-    if(weapon2 != -1)
+    if (weapon2 != -1)
     {
         // Drop weapon
         WeaponsDrop(client, weapon2);
@@ -2497,7 +2497,7 @@ void WeaponsSwitch(int client, int weapon)
     int weapon2 = ToolsGetActiveWeapon(client);
     
     // Validate switch to the same slot
-    if(weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2))
+    if (weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2))
     {
         // Create call to the switch weapons
         SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
@@ -2526,23 +2526,23 @@ bool WeaponsRemove(int client)
     
     // i = weapon number
     int iSize = ToolsGetMyWeapons(client); 
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets weapon index
         int weapon = ToolsGetWeapon(client, i);
         
         // Validate weapon
-        if(weapon != -1)
+        if (weapon != -1)
         {
             // Increment amount
             iAmount++;
     
             // Validate custom index
             int iD = WeaponsGetCustomID(weapon);
-            if(iD != -1)
+            if (iD != -1)
             {
                 // Validate access
-                if(!WeaponsValidateClass(client, iD)) 
+                if (!WeaponsValidateClass(client, iD)) 
                 {
                     // Forces a player to remove weapon
                     RemovePlayerItem(client, weapon);
@@ -2556,7 +2556,7 @@ bool WeaponsRemove(int client)
     }
     
     // If something was removed
-    if(bRemove)
+    if (bRemove)
     {
         // Resets all suits
         ToolsSetHelmet(client, false);
@@ -2579,17 +2579,17 @@ bool WeaponsRemove(int client)
 int WeaponsGive(int client, int iD)
 {
     // Validate weapon index
-    if(iD != -1)   
+    if (iD != -1)   
     {
         // Validate access
-        if(!WeaponsValidateClass(client, iD)) 
+        if (!WeaponsValidateClass(client, iD)) 
         {
             return -1;
         }
 
         // Gets weapon def index
         ItemDef iItem = WeaponsGetDefIndex(iD);
-        switch(iItem)
+        switch (iItem)
         {
             /// item_defuser, item_cutters
             case ItemDef_Defuser, ItemDef_Cutters : 
@@ -2658,7 +2658,7 @@ int WeaponsGive(int client, int iD)
                 int weapon = WeaponsCreate(iD);
                 
                 // Validate weapon
-                if(weapon != -1) 
+                if (weapon != -1) 
                 {
                     // Give weapon
                     WeaponsEquip(client, weapon);
@@ -2691,7 +2691,7 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
     int weapon = PTaH_SpawnItemFromDefIndex(view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle);
     
     // Validate weapon
-    if(weapon != -1)
+    if (weapon != -1)
     {
         // Sets weapon id
         WeaponsSetCustomID(weapon, iD);
@@ -2722,19 +2722,19 @@ int WeaponsFindByName(int client, char[] sType)
 
     // i = weapon number
     int iSize = ToolsGetMyWeapons(client);
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets weapon index
         int weapon = ToolsGetWeapon(client, i);
 
         // Validate weapon
-        if(weapon != -1)
+        if (weapon != -1)
         {
             // Gets weapon classname
             GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 
             // If weapon find, then return
-            if(!strcmp(sClassname[7], sType[7], false))
+            if (!strcmp(sClassname[7], sType[7], false))
             {
                 return weapon;
             }
@@ -2767,16 +2767,16 @@ bool WeaponsValidateByID(int client, int iD)
 {
     // i = weapon number
     int iSize = ToolsGetMyWeapons(client);
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets weapon index
         int weapon = ToolsGetWeapon(client, i);
         
         // Validate weapon
-        if(weapon != -1)
+        if (weapon != -1)
         {
             // If weapon find, then return
-            if(WeaponsGetCustomID(weapon) == iD)
+            if (WeaponsGetCustomID(weapon) == iD)
             {
                 return true;
             }
@@ -2801,7 +2801,7 @@ bool WeaponsValidateByClass(int iD, char[] sType)
     WeaponsGetClass(iD, sClass, sizeof(sClass));
     
     // Validate length
-    if(hasLength(sClass))
+    if (hasLength(sClass))
     {
         // If class find, then return
         return (hasLength(sType) && StrContain(sType, sClass, ','));
@@ -2825,7 +2825,7 @@ bool WeaponsValidateClass(int client, int iD)
     WeaponsGetClass(iD, sClass, sizeof(sClass));
     
     // Validate length
-    if(hasLength(sClass))
+    if (hasLength(sClass))
     {
         // Gets class type 
         static char sType[SMALL_LINE_LENGTH];
@@ -2850,22 +2850,22 @@ bool WeaponsValidateAccess(int client, int weapon)
 {
     // Validate custom index
     int iD = WeaponsGetCustomID(weapon);
-    if(iD != -1)
+    if (iD != -1)
     {
         // Block pickup it, if not available
-        if(!WeaponsValidateClass(client, iD)) 
+        if (!WeaponsValidateClass(client, iD)) 
         {
             return false;
         }
 
         // Block pickup it, if online too low
-        if(gCvarList[CVAR_WEAPON_PICKUP_ONLINE].BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
+        if (gCvarList[CVAR_WEAPON_PICKUP_ONLINE].BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
         {
             return false;
         }
 
         // Block pickup it, if level too low
-        if(gCvarList[CVAR_WEAPON_PICKUP_LEVEL].BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
+        if (gCvarList[CVAR_WEAPON_PICKUP_LEVEL].BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
         {
             return false;
         }

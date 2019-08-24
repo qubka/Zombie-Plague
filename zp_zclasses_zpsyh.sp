@@ -74,10 +74,10 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -92,15 +92,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("psyh");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"psyh\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"psyh\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("PSYH_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PSYH_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PSYH_SKILL_SOUNDS\" wasn't find");
 
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -118,7 +118,7 @@ public void OnMapStart(/*void*/)
 public void OnMapEnd(/*void*/)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
         hZombieScream[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
@@ -171,7 +171,7 @@ public void ZP_OnClientUpdated(int client, int attacker)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Create scream damage task
         delete hZombieScream[client];
@@ -198,7 +198,7 @@ public Action ZP_OnClientSkillUsed(int client)
 public void ZP_OnClientSkillOver(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie) 
+    if (ZP_GetClientClass(client) == gZombie) 
     {
         // Delete timer
         delete hZombieScream[client];
@@ -217,7 +217,7 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
     int client = GetClientOfUserId(userID);
     
     // Validate client
-    if(client)
+    if (client)
     {
         // Gets client origin
         static float vPosition[3];
@@ -225,10 +225,10 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
 
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+        while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
         {
             // Skip zombies
-            if(ZP_IsPlayerZombie(i))
+            if (ZP_IsPlayerZombie(i))
             {
                 continue;
             }

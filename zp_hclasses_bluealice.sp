@@ -56,10 +56,10 @@ int gHuman;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -74,15 +74,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gHuman = ZP_GetClassNameID("bluealice");
-    //if(gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"bluealice\" wasn't find");
+    //if (gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"bluealice\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("BLUEALICE_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BLUEALICE_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BLUEALICE_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -108,7 +108,7 @@ public void ZP_OnClientUpdated(int client, int attacker)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the human class index
-    if(ZP_GetClientClass(client) == gHuman)
+    if (ZP_GetClientClass(client) == gHuman)
     {
         // Make model invisible
         UTIL_SetRenderColor(client, Color_Alpha, 0);
@@ -134,7 +134,7 @@ public Action ZP_OnClientSkillUsed(int client)
 public void ZP_OnClientSkillOver(int client)
 {
     // Validate the human class index
-    if(ZP_GetClientClass(client) == gHuman)
+    if (ZP_GetClientClass(client) == gHuman)
     {
         // Resets visibility
         UTIL_SetRenderColor(client, Color_Alpha, 255);

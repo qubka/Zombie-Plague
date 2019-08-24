@@ -69,10 +69,10 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -87,15 +87,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("healer");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"healer\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"healer\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HEALER_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HEALER_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -109,7 +109,7 @@ public void ZP_OnEngineExecute(/*void*/)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vEnemy[3];
@@ -128,10 +128,10 @@ public Action ZP_OnClientSkillUsed(int client)
         
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+        while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
         {
             // Skip humans
-            if(ZP_IsPlayerHuman(i))
+            if (ZP_IsPlayerHuman(i))
             {
                 continue;
             }
@@ -142,13 +142,13 @@ public Action ZP_OnClientSkillUsed(int client)
             int iSound = ZP_GetClassSoundRegenID(iClass);
 
             // Validate lower health
-            if(GetEntProp(i, Prop_Send, "m_iHealth") < iHealth)
+            if (GetEntProp(i, Prop_Send, "m_iHealth") < iHealth)
             {
                 // Sets a new health 
                 SetEntProp(i, Prop_Send, "m_iHealth", iHealth); 
                 
                 // Validate sound key
-                if(iSound != -1)
+                if (iSound != -1)
                 {
                     // Play sound
                     ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, hSoundLevel.IntValue);

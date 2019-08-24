@@ -44,19 +44,19 @@ enum /*AccountType*/
 void AccountOnInit(/*void*/)
 {
     // If custom disabled, then remove hud
-    if(gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Custom)
+    if (gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Custom)
     {
         // Validate loaded map
-        if(gServerData.MapLoaded)
+        if (gServerData.MapLoaded)
         {
             // Validate sync
-            if(gServerData.AccountSync != null)
+            if (gServerData.AccountSync != null)
             {
                 // i = client index
-                for(int i = 1; i <= MaxClients; i++)
+                for (int i = 1; i <= MaxClients; i++)
                 {
                     // Validate client
-                    if(IsPlayerExist(i))
+                    if (IsPlayerExist(i))
                     {
                         // Remove timer
                         delete gClientData[i].AccountTimer;
@@ -70,23 +70,23 @@ void AccountOnInit(/*void*/)
     }
     
     // If custom enabled, then create sync
-    if(gCvarList[CVAR_ACCOUNT_MONEY].IntValue == AccountType_Custom)
+    if (gCvarList[CVAR_ACCOUNT_MONEY].IntValue == AccountType_Custom)
     {
         // Creates a HUD synchronization object
-        if(gServerData.AccountSync == null)
+        if (gServerData.AccountSync == null)
         {
             gServerData.AccountSync = CreateHudSynchronizer();
         }
     }
     
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        for (int i = 1; i <= MaxClients; i++)
         {
             // Validate client
-            if(IsPlayerExist(i, false))
+            if (IsPlayerExist(i, false))
             {
                 // Enable account system
                 _call.AccountOnClientUpdate(i);
@@ -150,7 +150,7 @@ void AccountOnCvarInit(/*void*/)
 public void AccountOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
@@ -192,14 +192,14 @@ public void AccountOnClientUpdate(int userID)
     int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(client)
+    if (client)
     {
         // Validate real client
-        if(!IsFakeClient(client))
+        if (!IsFakeClient(client))
         {
             // Manipulate with account type
             delete gClientData[client].AccountTimer;
-            switch(gCvarList[CVAR_ACCOUNT_MONEY].IntValue)
+            switch (gCvarList[CVAR_ACCOUNT_MONEY].IntValue)
             {
                 case AccountType_Disabled : 
                 {
@@ -241,17 +241,17 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
     int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(client)
+    if (client)
     {
         // Store the default index
         int target = client;
 
         // Validate spectator 
-        if(!IsPlayerAlive(client))
+        if (!IsPlayerAlive(client))
         {
             // Validate spectator mode
             int iSpecMode = ToolsGetObserverMode(client);
-            if(iSpecMode != SPECMODE_FIRSTPERSON && iSpecMode != SPECMODE_3RDPERSON)
+            if (iSpecMode != SPECMODE_FIRSTPERSON && iSpecMode != SPECMODE_3RDPERSON)
             {
                 // Allow timer
                 return Plugin_Continue;
@@ -261,7 +261,7 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
             target = ToolsGetObserverTarget(client);
             
             // Validate target
-            if(!IsPlayerExist(target)) 
+            if (!IsPlayerExist(target)) 
             {
                 // Allow timer
                 return Plugin_Continue;
@@ -292,7 +292,7 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
 public Action AccountGiveOnCommandCatched(int client, int iArguments)
 {
     // If not enough arguments given, then stop
-    if(iArguments < 2)
+    if (iArguments < 2)
     {
         // Write syntax info
         TranslationReplyToCommand(client, "account give invalid args");
@@ -307,7 +307,7 @@ public Action AccountGiveOnCommandCatched(int client, int iArguments)
     int target = FindTarget(client, sArgument, true, false);
 
     // Validate target
-    if(target < 0)
+    if (target < 0)
     {
         // Note: FindTarget automatically write error messages
         return Plugin_Handled;
@@ -318,7 +318,7 @@ public Action AccountGiveOnCommandCatched(int client, int iArguments)
     
     // Validate amount
     int iMoney = StringToInt(sArgument);
-    if(iMoney <= 0)
+    if (iMoney <= 0)
     {
         // Write error info
         TranslationReplyToCommand(client, "account give invalid amount", iMoney);
@@ -343,13 +343,13 @@ public Action AccountGiveOnCommandCatched(int client, int iArguments)
 public Action AccountDonateOnCommandCatched(int client, int iArguments)
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return Plugin_Handled;
     }
     
     // If not enough arguments given, then stop
-    if(iArguments < 2)
+    if (iArguments < 2)
     {
         // Write syntax info
         TranslationReplyToCommand(client, "account donate invalid args");
@@ -364,7 +364,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     int target = FindTarget(client, sArgument, true, false);
 
     // Validate target
-    if(target < 0)
+    if (target < 0)
     {
         // Note: FindTarget automatically write error messages
         return Plugin_Handled;
@@ -375,7 +375,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     
     // Validate amount
     int iMoney = StringToInt(sArgument); int iBet = gCvarList[CVAR_ACCOUNT_BET].IntValue;
-    if(iMoney < gClientData[client].Money || iMoney < iBet)
+    if (iMoney < gClientData[client].Money || iMoney < iBet)
     {
         // Write error info
         TranslationReplyToCommand(client, "account give invalid amount", iMoney);
@@ -384,7 +384,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
 
     // Validate commision
     int iAmount; float flCommision = gCvarList[CVAR_ACCOUNT_COMMISION].FloatValue - ((float(iMoney) / float(iBet)) * gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
-    if(flCommision <= 0.0)
+    if (flCommision <= 0.0)
     {
         // Sets amount
         iAmount = iMoney;
@@ -402,7 +402,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     AccountSetClientCash(target, gClientData[target].Money + iAmount);
     
     // If help messages enabled, then show info
-    if(gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
+    if (gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
     {
         // Gets client/target name
         static char sInfo[2][SMALL_LINE_LENGTH];
@@ -517,7 +517,7 @@ void AccountSetClientCash(int client, int iMoney)
     gForwardData._OnClientMoney(client, iMoney);
     
     // If value below 0, then set to 0
-    if(iMoney < 0)
+    if (iMoney < 0)
     {
         iMoney = 0;
     }
@@ -529,7 +529,7 @@ void AccountSetClientCash(int client, int iMoney)
     DataBaseOnClientUpdate(client, ColumnType_Money);
 
     // If account disabled, then stop
-    if(gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Classic)
+    if (gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Classic)
     {
         return;
     }
@@ -564,13 +564,13 @@ void AccountMenu(int client, int iMoney, float flCommision)
 {
     // If amount below bet, then set to default
     int iBet = gCvarList[CVAR_ACCOUNT_BET].IntValue;
-    if(iMoney < iBet)
+    if (iMoney < iBet)
     {
         iMoney = iBet;
     }
 
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
@@ -586,7 +586,7 @@ void AccountMenu(int client, int iMoney, float flCommision)
     SetGlobalTransTarget(client);
 
     // Validate commission
-    if(flCommision <= 0.0)
+    if (flCommision <= 0.0)
     {
         // Sets donate title
         hMenu.SetTitle("%t", "donate", iMoney, "money");
@@ -614,10 +614,10 @@ void AccountMenu(int client, int iMoney, float flCommision)
     
     // i = client index
     int iAmount;
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(!IsPlayerExist(i, false) || client == i)
+        if (!IsPlayerExist(i, false) || client == i)
         {
             continue;
         }
@@ -634,7 +634,7 @@ void AccountMenu(int client, int iMoney, float flCommision)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -660,7 +660,7 @@ void AccountMenu(int client, int iMoney, float flCommision)
 public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {   
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -671,11 +671,11 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_donate_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -683,7 +683,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -697,7 +697,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
             float flCommision = StringToFloat(sInfo[2]);
 
             // Validate button info
-            switch(target)
+            switch (target)
             {
                 // Client hit 'Decrease' button 
                 case -1 :
@@ -715,7 +715,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
                 default :
                 {
                     // Validate target
-                    if(!IsPlayerExist(target, false))
+                    if (!IsPlayerExist(target, false))
                     {
                         // Show block info
                         TranslationPrintHintText(client, "selecting target block");
@@ -727,7 +727,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
                     
                     // Validate commision
                     int iAmount;
-                    if(flCommision <= 0.0)
+                    if (flCommision <= 0.0)
                     {
                         // Sets amount
                         iAmount = iMoney;
@@ -745,7 +745,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
                     AccountSetClientCash(target, gClientData[target].Money + iAmount);
                     
                     // If help messages enabled, then show info
-                    if(gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
+                    if (gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
                     {
                         // Gets client/target name
                         GetClientName(client, sInfo[0], sizeof(sInfo[]));

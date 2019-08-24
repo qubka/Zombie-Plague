@@ -49,7 +49,7 @@ void SkillSystemOnCvarLoad(/*void*/)
     static char sCommand[SMALL_LINE_LENGTH];
     
     // Validate alias
-    if(hasLength(sCommand))
+    if (hasLength(sCommand))
     {
         // Unhook listeners
         RemoveCommandListener2(SkillSystemOnCommandListened, sCommand);
@@ -59,7 +59,7 @@ void SkillSystemOnCvarLoad(/*void*/)
     gCvarList[CVAR_SKILL_BUTTON].GetString(sCommand, sizeof(sCommand));
     
     // Validate alias
-    if(!hasLength(sCommand))
+    if (!hasLength(sCommand))
     {
         // Unhook listeners
         RemoveCommandListener2(SkillSystemOnCommandListened, sCommand);
@@ -81,7 +81,7 @@ void SkillSystemOnCvarLoad(/*void*/)
 public void SkillSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(!strcmp(oldValue, newValue, false))
+    if (!strcmp(oldValue, newValue, false))
     {
         return;
     }
@@ -101,13 +101,13 @@ public void SkillSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newVal
 public Action SkillSystemOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate access
-    if(!ModesIsSkill(gServerData.RoundMode))
+    if (!ModesIsSkill(gServerData.RoundMode))
     {
         return Plugin_Handled;
     }
         
     // Validate client 
-    if(IsPlayerExist(client))
+    if (IsPlayerExist(client))
     {
         // Do the skill
         SkillSystemOnClientStart(client);
@@ -129,14 +129,14 @@ void SkillSystemOnClientUpdate(int client)
     ToolsSetProgressBarTime(client, 0);
     
     // If health restoring disabled, then stop
-    if(!ModesIsRegen(gServerData.RoundMode))
+    if (!ModesIsRegen(gServerData.RoundMode))
     {
         return;
     }
 
     // Validate class regen interval/amount
     float flInterval = ClassGetRegenInterval(gClientData[client].Class);
-    if(!flInterval || !ClassGetRegenHealth(gClientData[client].Class))
+    if (!flInterval || !ClassGetRegenHealth(gClientData[client].Class))
     {
         return;
     }
@@ -155,20 +155,20 @@ void SkillSystemOnClientStart(int client)
 {
     // Validate class skill duration/countdown
     float flInterval = ClassGetSkillDuration(gClientData[client].Class);
-    if(!flInterval && (!ClassGetSkillCountdown(gClientData[client].Class)))
+    if (!flInterval && (!ClassGetSkillCountdown(gClientData[client].Class)))
     {
         return;
     }
     
     // Verify that the skills are avalible
-    if(!gClientData[client].Skill && gClientData[client].SkillCounter <= 0.0)
+    if (!gClientData[client].Skill && gClientData[client].SkillCounter <= 0.0)
     {
         // Call forward
         Action hResult; 
         gForwardData._OnClientSkillUsed(client, hResult);
         
         // Block skill usage
-        if(hResult == Plugin_Handled || hResult == Plugin_Stop)
+        if (hResult == Plugin_Handled || hResult == Plugin_Stop)
         {
             return;
         }
@@ -177,7 +177,7 @@ void SkillSystemOnClientStart(int client)
         gClientData[client].Skill = true;
         
         // Validate skill bar
-        if(ClassIsSkillBar(gClientData[client].Class))
+        if (ClassIsSkillBar(gClientData[client].Class))
         {
             // Sets progress bar 
             ToolsSetProgressBarTime(client, RoundToNearest(flInterval));
@@ -204,7 +204,7 @@ public Action SkillSystemOnClientEnd(Handle hTimer, int userID)
     gClientData[client].SkillTimer = null;
     
     // Validate client
-    if(client)
+    if (client)
     {
         // Remove skill usage and set countdown time
         gClientData[client].Skill = false;
@@ -237,13 +237,13 @@ public Action SkillSystemOnClientCount(Handle hTimer, int userID)
     int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(client)
+    if (client)
     {
         // Substitute counter
         gClientData[client].SkillCounter--;
         
         // If counter is over, then stop
-        if(gClientData[client].SkillCounter <= 0.0)
+        if (gClientData[client].SkillCounter <= 0.0)
         {
             // Show message
             TranslationPrintHintText(client, "skill ready");
@@ -281,24 +281,24 @@ public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
     int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(client)
+    if (client)
     {
         // Gets client velocity
         static float vVelocity[3];
         ToolsGetVelocity(client, vVelocity);
         
         // If the client don't move, then check health
-        if(GetVectorLength(vVelocity) <= 0.0)
+        if (GetVectorLength(vVelocity) <= 0.0)
         {
             // If restoring is available, then do it
             int iHealth = ToolsGetHealth(client); // Store for next usage
-            if(iHealth < ClassGetHealth(gClientData[client].Class))
+            if (iHealth < ClassGetHealth(gClientData[client].Class))
             {
                 // Initialize a new health amount
                 int iRegen = iHealth + ClassGetRegenHealth(gClientData[client].Class);
                 
                 // If new health more, than set default class health
-                if(iRegen > ClassGetHealth(gClientData[client].Class))
+                if (iRegen > ClassGetHealth(gClientData[client].Class))
                 {
                     iRegen = ClassGetHealth(gClientData[client].Class);
                 }
@@ -376,7 +376,7 @@ public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
     
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
         return;
@@ -389,7 +389,7 @@ public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
     gClientData[client].SkillCounter = 0.0;
     
     // Validate skill bar
-    if(ClassIsSkillBar(gClientData[client].Class))
+    if (ClassIsSkillBar(gClientData[client].Class))
     {
         // Resets the progress bar 
         ToolsSetProgressBarTime(client, 0);

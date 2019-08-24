@@ -56,7 +56,7 @@ void ExtraItemsOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_EXTRAITEMS, sPathItems, sizeof(sPathItems));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
@@ -70,7 +70,7 @@ void ExtraItemsOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_ExtraItems, gServerData.ExtraItems);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathItems);
         return;
@@ -99,7 +99,7 @@ void ExtraItemsOnCacheData(/*void*/)
     bool bSuccess = ConfigOpenConfigFile(File_ExtraItems, kvExtraItems);
 
     // Validate config
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
         return;
@@ -107,19 +107,19 @@ void ExtraItemsOnCacheData(/*void*/)
     
     // Validate size
     int iSize = gServerData.ExtraItems.Length;
-    if(!iSize)
+    if (!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
         return;
     }
 
     // i = array index
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // General
         ItemsGetName(i, sPathItems, sizeof(sPathItems)); // Index: 0
         kvExtraItems.Rewind();
-        if(!kvExtraItems.JumpToKey(sPathItems))
+        if (!kvExtraItems.JumpToKey(sPathItems))
         {
             // Log extraitem fatal
             LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sPathItems);
@@ -128,7 +128,7 @@ void ExtraItemsOnCacheData(/*void*/)
         
         // Validate translation
         StringToLower(sPathItems);
-        if(!TranslationPhraseExists(sPathItems))
+        if (!TranslationPhraseExists(sPathItems))
         {
             // Log extraitem error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sPathItems);
@@ -140,7 +140,7 @@ void ExtraItemsOnCacheData(/*void*/)
 
         // Push data into array
         kvExtraItems.GetString("info", sPathItems, sizeof(sPathItems), ""); StringToLower(sPathItems);
-        if(!TranslationPhraseExists(sPathItems) && hasLength(sPathItems))
+        if (!TranslationPhraseExists(sPathItems) && hasLength(sPathItems))
         {
             // Log extraitem error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sPathItems);
@@ -226,7 +226,7 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
     
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
         return -1;
@@ -236,7 +236,7 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -247,7 +247,7 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
     gForwardData._OnClientValidateExtraItem(client, iD, hResult);
 
     // Validate handle
-    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Call forward
         gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
@@ -269,7 +269,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
     
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
         return -1;
@@ -279,7 +279,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -303,7 +303,7 @@ public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
     
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
         return -1;
@@ -313,7 +313,7 @@ public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
     
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -345,7 +345,7 @@ public int API_GetExtraItemNameID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Can't find item with an empty name");
         return -1;
@@ -372,7 +372,7 @@ public int API_GetExtraItemName(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -382,7 +382,7 @@ public int API_GetExtraItemName(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
@@ -407,7 +407,7 @@ public int API_GetExtraItemInfo(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -417,7 +417,7 @@ public int API_GetExtraItemInfo(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
@@ -442,7 +442,7 @@ public int API_GetExtraItemCost(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -463,7 +463,7 @@ public int API_GetExtraItemLevel(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -484,7 +484,7 @@ public int API_GetExtraItemOnline(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -505,7 +505,7 @@ public int API_GetExtraItemLimit(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -526,7 +526,7 @@ public int API_GetExtraItemGroup(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -536,7 +536,7 @@ public int API_GetExtraItemGroup(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
@@ -561,7 +561,7 @@ public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.ExtraItems.Length)
+    if (iD >= gServerData.ExtraItems.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
         return -1;
@@ -571,7 +571,7 @@ public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
         return -1;
@@ -688,7 +688,7 @@ int ItemsGetLimit(int iD)
 void ItemsRemoveLimits(int client)
 {
     // If array hasn't been created, then create
-    if(gClientData[client].ItemLimit == null)
+    if (gClientData[client].ItemLimit == null)
     {
         // Initialize a buy limit array
         gClientData[client].ItemLimit = new StringMap();
@@ -708,7 +708,7 @@ void ItemsRemoveLimits(int client)
 void ItemsSetLimits(int client, int iD, int iLimit)
 {
     // If array hasn't been created, then create
-    if(gClientData[client].ItemLimit == null)
+    if (gClientData[client].ItemLimit == null)
     {
         // Initialize a buy limit array
         gClientData[client].ItemLimit = new StringMap();
@@ -731,7 +731,7 @@ void ItemsSetLimits(int client, int iD, int iLimit)
 int ItemsGetLimits(int client, int iD)
 {
     // If array hasn't been created, then create
-    if(gClientData[client].ItemLimit == null)
+    if (gClientData[client].ItemLimit == null)
     {
         // Initialize a buy limit array
         gClientData[client].ItemLimit = new StringMap();
@@ -795,13 +795,13 @@ int ItemsNameToIndex(char[] sName)
     
     // i = item index
     int iSize = gServerData.ExtraItems.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets item name 
         ItemsGetName(i, sItemName, sizeof(sItemName));
         
         // If names match, then return index
-        if(!strcmp(sName, sItemName, false))
+        if (!strcmp(sName, sItemName, false))
         {
             // Return this index
             return i;
@@ -826,7 +826,7 @@ bool ItemsValidateClass(int client, int iD)
     ItemsGetClass(iD, sClass, sizeof(sClass));
     
     // Validate length
-    if(hasLength(sClass))
+    if (hasLength(sClass))
     {
         // Gets class type 
         static char sType[SMALL_LINE_LENGTH];
@@ -852,13 +852,13 @@ bool ItemsValidateClass(int client, int iD)
 void ItemsMenu(int client)
 {
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return;
     }
 
     // If mode already started, then stop
-    if(gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode))
+    if (gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode))
     {
         // Show block info
         TranslationPrintHintText(client, "buying round block");     
@@ -897,19 +897,19 @@ void ItemsMenu(int client)
 
     // i = extraitem index
     int iSize = gServerData.ExtraItems.Length; int iAmount;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Call forward
         gForwardData._OnClientValidateExtraItem(client, i, hResult);
         
         // Skip, if item is disabled
-        if(hResult == Plugin_Stop)
+        if (hResult == Plugin_Stop)
         {
             continue;
         }
         
         // Skip some item, if class isn't equal
-        if(!ItemsValidateClass(client, i)) 
+        if (!ItemsValidateClass(client, i)) 
         {
             continue;
         }
@@ -933,7 +933,7 @@ void ItemsMenu(int client)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -959,7 +959,7 @@ void ItemsMenu(int client)
 public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -970,11 +970,11 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_item_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -982,13 +982,13 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client))
+            if (!IsPlayerExist(client))
             {
                 return;
             }
             
             // If mode already started, then stop
-            if((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode)) || gServerData.RoundEnd)
+            if ((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode)) || gServerData.RoundEnd)
             {
                 // Show block info
                 TranslationPrintHintText(client, "buying round block");
@@ -1004,7 +1004,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
             int iD = StringToInt(sBuffer);
             
             // Validate button info
-            switch(iD)
+            switch (iD)
             {
                 // Client hit 'Redirect' button
                 case -1 :
@@ -1024,16 +1024,16 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
                     gForwardData._OnClientValidateExtraItem(client, iD, hResult);
 
                     // Validate handle
-                    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+                    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
                     {
                         // Validate access
-                        if(ItemsValidateClass(client, iD)) 
+                        if (ItemsValidateClass(client, iD)) 
                         {
                             // Call forward
                             gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
                     
                             // If help messages enabled, then show info
-                            if(gCvarList[CVAR_MESSAGES_ITEM_ALL].BoolValue)
+                            if (gCvarList[CVAR_MESSAGES_ITEM_ALL].BoolValue)
                             {
                                 // Gets client name
                                 static char sInfo[SMALL_LINE_LENGTH];
@@ -1044,17 +1044,17 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
                             }
                         
                             // If help messages enabled, then show info
-                            if(gCvarList[CVAR_MESSAGES_ITEM_INFO].BoolValue)
+                            if (gCvarList[CVAR_MESSAGES_ITEM_INFO].BoolValue)
                             {
                                 // Gets item info
                                 ItemsGetInfo(iD, sBuffer, sizeof(sBuffer));
                                 
                                 // Show item personal info
-                                if(hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+                                if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
                             }
                             
                             // If item has a cost
-                            if(ItemsGetCost(iD))
+                            if (ItemsGetCost(iD))
                             {
                                 // Remove money and store it for returning if player will be first zombie
                                 AccountSetClientCash(client, gClientData[client].Money - ItemsGetCost(iD));
@@ -1062,7 +1062,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
                             }
                             
                             // If item has a limit
-                            if(ItemsGetLimit(iD))
+                            if (ItemsGetLimit(iD))
                             {
                                 // Increment count
                                 ItemsSetLimits(client, iD, ItemsGetLimits(client, iD) + 1);

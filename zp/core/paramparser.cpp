@@ -93,14 +93,14 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
     int iLen = strlen(sParamString);
     
     // Check if string is empty
-    if(!iLen)
+    if (!iLen)
     {
         strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_EMPTY]);
         return PARAM_ERROR_EMPTY;
     }
 
     // Check if there space left in the destination buffer
-    if(iMaxLen > PLATFORM_LINE_LENGTH || iLen > PLATFORM_LINE_LENGTH)
+    if (iMaxLen > PLATFORM_LINE_LENGTH || iLen > PLATFORM_LINE_LENGTH)
     {
         // Exit loop. No more parameters can be parsed
         strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_FULL]);
@@ -116,7 +116,7 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
     int iSeparatorPos = FindCharInString(sParamString, cSeparator, false);
 
     // Parse error
-    if(iSeparatorPos == -1)
+    if (iSeparatorPos == -1)
     {
         strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_MISSING_SEPARATOR]);
         return PARAM_ERROR_MISSING_SEPARATOR;
@@ -134,7 +134,7 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
     StripQuotes(sValue[0]);
     
     // Check if string is empty, then stop
-    if(!hasLength(sValue[0]))
+    if (!hasLength(sValue[0]))
     {
         strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_UNEXPECTED_KEY]);
         return PARAM_ERROR_UNEXPECTED_KEY;
@@ -152,7 +152,7 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
     TrimString(sParamString);
     
     // Check if string is empty, then stop
-    if(!hasLength(sParamString))
+    if (!hasLength(sParamString))
     {
         strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_UNEXPECTED_END]);
         return PARAM_ERROR_UNEXPECTED_END;
@@ -160,14 +160,14 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
 
     // Checks if string has incorrect quotes
     int iQuotes = CountCharInString(sParamString, '"');
-    if(iQuotes & 1) /// Is odd ?
+    if (iQuotes & 1) /// Is odd ?
     {
         strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_MISSING_QUOTES]);
         return PARAM_ERROR_MISSING_QUOTES;
     }
 
     // Only for one "value"
-    if(iQuotes == 2)
+    if (iQuotes == 2)
     {
         // Strips a quote pair off a string 
         StripQuotes(sParamString);
@@ -181,14 +181,14 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
         int iAmount = ExplodeString(sParamString, ",", sValue, sizeof(sValue), sizeof(sValue[]));
         
         // i = value index
-        for(int i = 0; i < iAmount; i++)
+        for (int i = 0; i < iAmount; i++)
         {
             // Trim string
             TrimString(sValue[i]);
             
             // Checks if string has incorrect quotes
             iQuotes = CountCharInString(sValue[i], '"');
-            if(iQuotes & 1) /// Is odd ?
+            if (iQuotes & 1) /// Is odd ?
             {
                 strcopy(sParamString, iMaxLen, sParamError[PARAM_ERROR_MISSING_QUOTES]);
                 return PARAM_ERROR_MISSING_QUOTES;
@@ -228,7 +228,7 @@ int StrExtract(char[] sBuffer, char[] sSource, int startPos, int endPos)
     int iMaxLen = endPos - startPos + 1;
     
     // Validate length
-    if(iMaxLen < 0)
+    if (iMaxLen < 0)
     {
         sBuffer[0] = NULL_STRING[0];
         return 0;
@@ -249,25 +249,25 @@ bool StrContain(char[] sBuffer, char[] sSource, char cSeparator)
 {
     // i = char index
     int iLen1 = strlen(sSource); int iLen2 = strlen(sBuffer); int x; int y;
-    for(int i = 0; i < iLen1; i++) 
+    for (int i = 0; i < iLen1; i++) 
     {
         // Validate char
-        if(sSource[i] == sBuffer[x])
+        if (sSource[i] == sBuffer[x])
         {
-            if(++x == iLen2) /// Check length 
+            if (++x == iLen2) /// Check length 
             {
                 // Validate delimitter
                 y = i + 1;
-                if(y >= iLen1 || (sSource[y] == cSeparator || sSource[y] == ' '))
+                if (y >= iLen1 || (sSource[y] == cSeparator || sSource[y] == ' '))
                 {
                     return true;
                 }
             }
-            else if(x == 1) /// Check first comparator
+            else if (x == 1) /// Check first comparator
             {
                 // Validate prefix
                 y = i - 1;
-                if(y != -1 && (sSource[y] != cSeparator && sSource[y] != ' '))
+                if (y != -1 && (sSource[y] != cSeparator && sSource[y] != ' '))
                 {
                     x = 0; /// Resets counter
                 }
@@ -297,7 +297,7 @@ int CountCharInString(char[] sBuffer, char cSymbol)
     
     // i = char index
     int iLen = strlen(sBuffer);
-    for(int i = 0; i < iLen; i++) 
+    for (int i = 0; i < iLen; i++) 
     {
         // Validate char
         if (sBuffer[i] == cSymbol)
@@ -320,7 +320,7 @@ void StringToLower(char[] sBuffer)
 {
     // i = char index
     int iLen = strlen(sBuffer);
-    for(int i = 0; i < iLen; i++) 
+    for (int i = 0; i < iLen; i++) 
     {
         // Character to convert
         sBuffer[i] = CharToLower(sBuffer[i]);
@@ -347,12 +347,12 @@ public int Sort_ByLength(int iIndex1, int iIndex2, ArrayList hArrayList, Handle 
     int iLen1 = strlen(sBuffer1); int iLen2 = strlen(sBuffer2); 
     
     // Move left
-    if(iLen1 < iLen2)
+    if (iLen1 < iLen2)
     {
         return -1;
     }
     // Move right
-    else if(iLen1 > iLen2)
+    else if (iLen1 > iLen2)
     {
         return 1;
     }

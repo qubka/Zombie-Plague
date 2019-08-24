@@ -60,13 +60,13 @@ int gWeapon;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // Load translations phrases used by plugin
         LoadTranslations("zombieplague.phrases");
         
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -80,7 +80,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 public void OnMapEnd(/*void*/)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Purge timers
         hItemReload[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
@@ -95,15 +95,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("jetpack");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"jetpack\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"jetpack\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("JETPACK_FLY_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JETPACK_FLY_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JETPACK_FLY_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -156,10 +156,10 @@ public void ZP_OnClientUpdated(int client, int attacker)
 public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 {
     // Check the weapon index
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Validate access
-        if(GetEntProp(client, Prop_Send, "m_bHasDefuser"))
+        if (GetEntProp(client, Prop_Send, "m_bHasDefuser"))
         {
             return Plugin_Handled;
         }
@@ -177,19 +177,19 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 void Item_OnActive(int client)
 {
     // Validate delay
-    if(IsItemActive(client, 0.1))
+    if (IsItemActive(client, 0.1))
     {
         return;
     }
     
     // If jetpack is reloaded, then stop
-    if(hItemReload[client] != null)
+    if (hItemReload[client] != null)
     {
         return;
     }
     
     // If jetpack isn't started, then begin
-    if(hItemDuration[client] == null)
+    if (hItemDuration[client] == null)
     {
         // Get the working duration
         float flDuration = ZP_GetWeaponDeploy(gWeapon);
@@ -223,7 +223,7 @@ void Item_OnActive(int client)
     int entity = ZP_GetClientAttachModel(client, BitType_DefuseKit);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Gets attachment position
         ZP_GetAttachment(entity, "1", vPosition, vAngle);
@@ -252,7 +252,7 @@ public Action Item_OnDisable(Handle hTimer, int userID)
     hItemDuration[client] = null;
     
     // Validate client
-    if(client)
+    if (client)
     {
         // Resets the progress bar
         ZP_SetProgressBarTime(client, 0);
@@ -285,7 +285,7 @@ public Action Item_OnReload(Handle hTimer, int userID)
     hItemReload[client] = null;
     
     // Validate client
-    if(client)
+    if (client)
     {
         // Show message
         SetGlobalTransTarget(client);
@@ -322,10 +322,10 @@ public Action Item_OnReload(Handle hTimer, int userID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Button jump/duck press
-    if((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
+    if ((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
     {
         // Validate defuser
-        if(GetEntProp(client, Prop_Send, "m_bHasDefuser"))
+        if (GetEntProp(client, Prop_Send, "m_bHasDefuser"))
         {
             // Call event
             _call.Active(client);
@@ -355,7 +355,7 @@ stock bool IsItemActive(int client, float flTimeDelay)
     float flCurrentTime = GetTickedTime();
     
     // Validate delay
-    if((flCurrentTime - flActiveTime[client]) < flTimeDelay)
+    if ((flCurrentTime - flActiveTime[client]) < flTimeDelay)
     {
         return true;
     }

@@ -31,13 +31,13 @@
 void JumpBoostOnInit(/*void*/)
 {
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        for (int i = 1; i <= MaxClients; i++)
         {
             // Validate client
-            if(IsPlayerExist(i, false))
+            if (IsPlayerExist(i, false))
             {
                 // Update the client data
                 JumpBoostOnClientInit(i);
@@ -47,7 +47,7 @@ void JumpBoostOnInit(/*void*/)
     
     // If jump boost disabled, then unhook
     bool bJumpBoost = gCvarList[CVAR_JUMPBOOST].BoolValue;
-    if(!bJumpBoost)
+    if (!bJumpBoost)
     {
         // Unhook player events
         UnhookEvent2("player_jump", JumpBoostOnClientJump, EventHookMode_Post);
@@ -83,7 +83,7 @@ void JumpBoostOnCvarInit(/*void*/)
 public void JumpBoostOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
@@ -101,7 +101,7 @@ void JumpBoostOnClientInit(int client)
 {
     // If jumpboost is disabled, then stop
     bool bJumpBoost = gCvarList[CVAR_JUMPBOOST].BoolValue;
-    if(!bJumpBoost)
+    if (!bJumpBoost)
     {
         // Unhook entity callbacks
         SDKUnhook(client, SDKHook_GroundEntChangedPost, JumpBoostOnClientEntChanged);
@@ -121,13 +121,13 @@ void JumpBoostOnClientInit(int client)
 public void JumpBoostOnClientEntChanged(int client)
 {
     // If not on the ground, then stop
-    if(!(GetEntityFlags(client) & FL_ONGROUND))
+    if (!(GetEntityFlags(client) & FL_ONGROUND))
     {
         return;
     }
     
     // Validate movetype
-    if(GetEntityMoveType(client) != MOVETYPE_LADDER)
+    if (GetEntityMoveType(client) != MOVETYPE_LADDER)
     {
         // Resets gravity
         ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[client].Level)) : 0.0));
@@ -162,14 +162,14 @@ public void JumpBoostOnClientJumpPost(int userID)
     int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(client)
+    if (client)
     {
         // Gets client velocity
         static float vVelocity[3];
         ToolsGetVelocity(client, vVelocity);
         
         // Only apply horizontal multiplier if it not a bhop
-        if(GetVectorLength(vVelocity) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
+        if (GetVectorLength(vVelocity) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
         {
             // Apply horizontal multipliers to jump vector
             vVelocity[0] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
@@ -192,13 +192,13 @@ public void JumpBoostOnClientJumpPost(int userID)
 void JumpBoostOnClientLeapJump(int client)
 {
     // Validate access
-    if(!ModesIsLeapJump(gServerData.RoundMode))
+    if (!ModesIsLeapJump(gServerData.RoundMode))
     {
         return;
     }
     
     // If not on the ground, then stop
-    if(!(GetEntityFlags(client) & FL_ONGROUND))
+    if (!(GetEntityFlags(client) & FL_ONGROUND))
     {
         return;
     }
@@ -206,7 +206,7 @@ void JumpBoostOnClientLeapJump(int client)
    /*_________________________________________________________________________________________________________________________________________*/
    
     // Validate type of leap jump
-    switch(ClassGetLeapJump(gClientData[client].Class))
+    switch (ClassGetLeapJump(gClientData[client].Class))
     {
         // If leap disabled, then stop
         case 0 :
@@ -216,7 +216,7 @@ void JumpBoostOnClientLeapJump(int client)
         // If leap just for single player
         case 2 :
         {
-            if((gClientData[client].Zombie ? fnGetZombies() : fnGetHumans()) > 1) 
+            if ((gClientData[client].Zombie ? fnGetZombies() : fnGetHumans()) > 1) 
             {
                 return;
             }
@@ -232,7 +232,7 @@ void JumpBoostOnClientLeapJump(int client)
     float flCurrentTime = GetTickedTime();
     
     // Cooldown don't over yet, then stop
-    if(flCurrentTime - flDelay[client] < ClassGetLeapCountdown(gClientData[client].Class))
+    if (flCurrentTime - flDelay[client] < ClassGetLeapCountdown(gClientData[client].Class))
     {
         return;
     }

@@ -47,7 +47,7 @@ int ParticleSystem_Count;
 void ParticlesOnInit(/*void*/)
 {
     // If windows, then stop
-    if(gServerData.Platform == OS_Windows)
+    if (gServerData.Platform == OS_Windows)
     {
         return;
     }
@@ -57,7 +57,7 @@ void ParticlesOnInit(/*void*/)
     PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemDictionary::~CParticleSystemDictionary");
     
     // Validate call
-    if((hSDKCallDestructorParticleDictionary = EndPrepSDKCall()) == null)
+    if ((hSDKCallDestructorParticleDictionary = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CParticleSystemDictionary::~CParticleSystemDictionary\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -75,7 +75,7 @@ void ParticlesOnInit(/*void*/)
     PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); // 20CCStrike15ItemSchema
     
     // Validate call
-    if((hSDKCallContainerFindTable = EndPrepSDKCall()) == null)
+    if ((hSDKCallContainerFindTable = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CNetworkStringTableContainer::FindTable\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
@@ -89,7 +89,7 @@ void ParticlesOnInit(/*void*/)
     PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CNetworkStringTable::DeleteAllStrings");
     
     // Validate call
-    if((hSDKCallTableDeleteAllStrings = EndPrepSDKCall()) == null)
+    if ((hSDKCallTableDeleteAllStrings = EndPrepSDKCall()) == null)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CNetworkStringTable::DeleteAllStrings\". Update signature in \"%s\"", PLUGIN_CONFIG);
@@ -112,7 +112,7 @@ void ParticlesOnInit(/*void*/)
 void ParticlesOnLoad(/*void*/)
 {
     // If windows, then stop
-    if(gServerData.Platform == OS_Windows)
+    if (gServerData.Platform == OS_Windows)
     {
         return;
     }
@@ -132,7 +132,7 @@ void ParticlesOnLoad(/*void*/)
 void ParticlesOnPurge(/*void*/)
 {
     // If windows, then stop
-    if(gServerData.Platform == OS_Windows)
+    if (gServerData.Platform == OS_Windows)
     {
         return;
     }
@@ -142,14 +142,14 @@ void ParticlesOnPurge(/*void*/)
 
     // Clear particles in the effect table
     Address pTable = ParticlesFindTable("ParticleEffectNames");
-    if(pTable != Address_Null)   
+    if (pTable != Address_Null)   
     {
         ParticlesClearTable(pTable);
     }
 
     // Clear particles in the extra effect table
     pTable = ParticlesFindTable("ExtraParticleFilesTable");
-    if(pTable != Address_Null)   
+    if (pTable != Address_Null)   
     {
         ParticlesClearTable(pTable);
     }
@@ -162,13 +162,13 @@ void ParticlesOnCacheData(/*void*/)
 {
     // Validate that table is exist and it empty
     Address pTable = ParticlesFindTable("ParticleEffectNames");
-    if(pTable != Address_Null && !ParticlesCount())
+    if (pTable != Address_Null && !ParticlesCount())
     {
         // Opens the file
         File hFile = OpenFile("particles/particles_manifest.txt", "rt", true);
         
         // If doesn't exist stop
-        if(hFile == null)
+        if (hFile == null)
         {
             LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Effects, "Config Validation", "Error opening file: \"particles/particles_manifest.txt\"");
             return;
@@ -176,11 +176,11 @@ void ParticlesOnCacheData(/*void*/)
 
         // Read lines in the file
         static char sPath[PLATFORM_LINE_LENGTH];
-        while(hFile.ReadLine(sPath, sizeof(sPath)))
+        while (hFile.ReadLine(sPath, sizeof(sPath)))
         {
             // Checks if string has correct quotes
             int iQuotes = CountCharInString(sPath, '"');
-            if(iQuotes == 4)
+            if (iQuotes == 4)
             {
                 // Trim string
                 TrimString(sPath);
@@ -195,7 +195,7 @@ void ParticlesOnCacheData(/*void*/)
                 StripQuotes(sPath);
 
                 // Precache model
-                int i; if(sPath[i] == '!') i++;
+                int i; if (sPath[i] == '!') i++;
                 PrecacheGeneric(sPath[i], true);
                 ParticlesClearTable(pTable); /// HACK~HACK
                 /// Clear tables after each file because some of them contains
@@ -214,14 +214,14 @@ void ParticlesOnPrecache(/*void*/)
     static char sBuffer[PLATFORM_LINE_LENGTH];
 
     // If array hasn't been created, then create
-    if(gServerData.Particles == null)
+    if (gServerData.Particles == null)
     {
         // Initialize a particle list array
         gServerData.Particles = new ArrayList(NORMAL_LINE_LENGTH); 
 
         // i = string index
         int iCount = GetParticleEffectCount();
-        for(int i = 0; i < iCount; i++)
+        for (int i = 0; i < iCount; i++)
         {
             // Gets string at a given index
             GetParticleEffectName(i, sBuffer, sizeof(sBuffer));
@@ -234,7 +234,7 @@ void ParticlesOnPrecache(/*void*/)
     {
         // i = string index
         int iCount = gServerData.Particles.Length;
-        for(int i = 0; i < iCount; i++)
+        for (int i = 0; i < iCount; i++)
         {
             // Gets string at a given index
             gServerData.Particles.GetString(i, sBuffer, sizeof(sBuffer));
@@ -261,7 +261,7 @@ void ParticlesOnPrecache(/*void*/)
 int ParticlesCreate(int parent, char[] sAttach, char[] sEffect, float flDurationTime)
 {
     // Validate name
-    if(!hasLength(sEffect) || (hasLength(sAttach) && !ToolsLookupAttachment(parent, sAttach)))
+    if (!hasLength(sEffect) || (hasLength(sAttach) && !ToolsLookupAttachment(parent, sAttach)))
     {
         return -1;
     }
@@ -270,7 +270,7 @@ int ParticlesCreate(int parent, char[] sAttach, char[] sEffect, float flDuration
     static float vPosition[3]; static float vAngle[3]; 
     
     // Validate no attach
-    if(!hasLength(sAttach))
+    if (!hasLength(sAttach))
     { 
         // Gets client position/angle
         ToolsGetAbsOrigin(parent, vPosition);
@@ -293,19 +293,19 @@ void ParticlesRemove(int client)
 
     // i = entity index
     int MaxEntities = GetMaxEntities();
-    for(int i = MaxClients; i <= MaxEntities; i++)
+    for (int i = MaxClients; i <= MaxEntities; i++)
     {
         // Validate entity
-        if(IsValidEdict(i))
+        if (IsValidEdict(i))
         {
             // Gets valid edict classname
             GetEdictClassname(i, sClassname, sizeof(sClassname));
 
             // If entity is an attach particle entity
-            if(sClassname[0] == 'i' && sClassname[5] == 'p' && sClassname[6] == 'a') // info_particle_system
+            if (sClassname[0] == 'i' && sClassname[5] == 'p' && sClassname[6] == 'a') // info_particle_system
             {
                 // Validate parent
-                if(ToolsGetOwner(i) == client)
+                if (ToolsGetOwner(i) == client)
                 {
                     AcceptEntityInput(i, "Kill"); /// Destroy
                 }

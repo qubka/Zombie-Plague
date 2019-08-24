@@ -68,13 +68,13 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // Load translations phrases used by plugin
         LoadTranslations("zombieplague.phrases");
 
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -89,15 +89,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("mutationheavy");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"mutationheavy\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"mutationheavy\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("TRAP_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TRAP_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TRAP_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -106,7 +106,7 @@ public void ZP_OnEngineExecute(/*void*/)
 public void OnMapEnd(/*void*/)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
         hHumanTrapped[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
@@ -162,10 +162,10 @@ public void ZP_OnClientUpdated(int client, int attacker)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Validate place
-        if(bStandOnTrap[client])
+        if (bStandOnTrap[client])
         {
             bStandOnTrap[client] = false; /// To avoid placing trap on the trap
             return Plugin_Handled;
@@ -188,7 +188,7 @@ public Action ZP_OnClientSkillUsed(int client)
 public void ZP_OnClientSkillOver(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3];
@@ -201,7 +201,7 @@ public void ZP_OnClientSkillOver(int client)
         int entity = UTIL_CreatePhysics("trap", vPosition, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
 
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {
             // Sets physics
             SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
@@ -212,7 +212,7 @@ public void ZP_OnClientSkillOver(int client)
             int trap = UTIL_CreateDynamic("trap", vPosition, vAngle, "models/player/custom_player/zombie/zombie_trap/trap.mdl", "idle", false);
             
             // Validate entity
-            if(trap != -1)
+            if (trap != -1)
             {
                 // Sets parent to the entity
                 SetVariantString("!activator");
@@ -254,10 +254,10 @@ public void ZP_OnClientSkillOver(int client)
 public Action TrapTouchHook(int entity, int target)
 {
     // Validate target
-    if(IsPlayerExist(target))
+    if (IsPlayerExist(target))
     {
         // Validate human
-        if(ZP_IsPlayerHuman(target) && GetEntityMoveType(target) != MOVETYPE_NONE)
+        if (ZP_IsPlayerHuman(target) && GetEntityMoveType(target) != MOVETYPE_NONE)
         {
             // Initialize vectors
             static float vPosition[3]; static float vAngle[3];
@@ -287,7 +287,7 @@ public Action TrapTouchHook(int entity, int target)
             int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
 
             // Validate owner
-            if(IsPlayerExist(owner, false))
+            if (IsPlayerExist(owner, false))
             {
                 // Gets target name
                 static char sName[NORMAL_LINE_LENGTH];
@@ -305,7 +305,7 @@ public Action TrapTouchHook(int entity, int target)
             int trapIndex = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 
             // Validate entity
-            if(trapIndex != -1)
+            if (trapIndex != -1)
             {
                 // Play animation of the model
                 SetVariantString("trap");
@@ -322,7 +322,7 @@ public Action TrapTouchHook(int entity, int target)
             SDKUnhook(entity, SDKHook_Touch, TrapTouchHook);
         }
         //Validate zombie
-        else if(ZP_IsPlayerZombie(target)) bStandOnTrap[target] = true; // Resets installing here!
+        else if (ZP_IsPlayerZombie(target)) bStandOnTrap[target] = true; // Resets installing here!
     }
 
     // Return on the success
@@ -338,7 +338,7 @@ public Action TrapTouchHook(int entity, int target)
 public Action TrapTransmitHook(int entity, int client)
 {
     // Validate human
-    if(ZP_IsPlayerHuman(client))
+    if (ZP_IsPlayerHuman(client))
     {
         // Block transmitting
         return Plugin_Handled;
@@ -363,7 +363,7 @@ public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
     hHumanTrapped[client] = null;
 
     // Validate client
-    if(client)
+    if (client)
     {    
         // Untrap the client
         SetEntityMoveType(client, MOVETYPE_WALK);
@@ -388,14 +388,14 @@ public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
+    if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
     {
         // Gets client velocity
         static float vVelocity[3];
         GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
         // If the zombie move, then reset skill
-        if(GetVectorLength(vVelocity) > 0.0)
+        if (GetVectorLength(vVelocity) > 0.0)
         {
             // Resets skill
             ZP_ResetClientSkill(client);

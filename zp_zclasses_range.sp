@@ -66,10 +66,10 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -84,15 +84,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("range");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"range\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"range\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("RANGE_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"RANGE_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"RANGE_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -104,27 +104,27 @@ public void ZP_OnEngineExecute(/*void*/)
 public void ZP_OnClientDeath(int client, int attacker)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Gets client origin
         static float vPosition[3]; 
         GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
         
         // Validate infection round
-        if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
+        if (ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
         {
             // Find any players in the radius
             int i; int it = 1; /// iterator
-            while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_EXP_RADIUS)) != -1)
+            while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_EXP_RADIUS)) != -1)
             {
                 // Skip zombies
-                if(ZP_IsPlayerZombie(i))
+                if (ZP_IsPlayerZombie(i))
                 {
                     continue;
                 }
 
                 // Validate visibility
-                if(!UTIL_CanSeeEachOther(client, i, vPosition, SelfFilter))
+                if (!UTIL_CanSeeEachOther(client, i, vPosition, SelfFilter))
                 {
                     continue;
                 }
@@ -133,7 +133,7 @@ public void ZP_OnClientDeath(int client, int attacker)
                 // Change class to zombie
                 ZP_ChangeClient(i, client, "zombie");
                 #else
-                if(ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, client, "zombie");
+                if (ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, client, "zombie");
 #endif
             }
         }

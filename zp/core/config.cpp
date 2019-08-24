@@ -236,7 +236,7 @@ void ConfigOnCacheData(/*void*/)
     DirectoryListing hDirectory = OpenDirectory(sPath);
     
     // If doesn't exist stop
-    if(hDirectory == null)
+    if (hDirectory == null)
     {
         ///LogEvent(false, _, _, _, "Config Validation", "Error opening folder: \"%s\"", sPath);
         return;
@@ -249,13 +249,13 @@ void ConfigOnCacheData(/*void*/)
     GetCurrentMap(sName, sizeof(sName));
     
     // Search folders in the directory
-    while(hDirectory.GetNext(sPath, sizeof(sPath), hType)) 
+    while (hDirectory.GetNext(sPath, sizeof(sPath), hType)) 
     {
         // Validate folfer type
-        if(hType == FileType_Directory) 
+        if (hType == FileType_Directory) 
         {
             // Validate prefix
-            if(!strncmp(sName, sPath, strlen(sPath), false))
+            if (!strncmp(sName, sPath, strlen(sPath), false))
             {
                 // Push data into string
                 hList.PushString(sPath);
@@ -271,7 +271,7 @@ void ConfigOnCacheData(/*void*/)
 
      // i = folder array index
     int iSize = hList.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets directory path
         hList.GetString(i, sPath, sizeof(sPath));
@@ -283,7 +283,7 @@ void ConfigOnCacheData(/*void*/)
         hDirectory = OpenDirectory(sPath);
         
         // If doesn't exist stop
-        if(hDirectory == null)
+        if (hDirectory == null)
         {
             // Log config error info
             LogEvent(false, _, _, _, "Config Validation", "Error opening folder: \"%s\"", sPath);
@@ -300,19 +300,19 @@ void ConfigOnCacheData(/*void*/)
         }
         
         // Search folders in the directory
-        while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
+        while (hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
         {
             // Validate file type
-            if(hType == FileType_File) 
+            if (hType == FileType_File) 
             {
                 // Finds the first occurrence of a character in a string
                 iFormat = FindCharInString(sFile, '.', true);
         
                 // Validate format
-                if(iFormat != -1) 
+                if (iFormat != -1) 
                 {
                     // Validate config format
-                    if(!strcmp(sFile[iFormat], ".ini", false))
+                    if (!strcmp(sFile[iFormat], ".ini", false))
                     {
                          // Format full path to config 
                         FormatEx(sName, sizeof(sName), "%s/%s", sPath, sFile);
@@ -522,7 +522,7 @@ stock void ConfigGetConfigAlias(ConfigFile iConfig, char[] sAlias, int iMaxLen)
 stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int blockSize = NORMAL_LINE_LENGTH)
 {
     // If array hasn't been created, then create
-    if(arrayConfig == null)
+    if (arrayConfig == null)
     {
         // Creates array in handle
         arrayConfig = new ArrayList(blockSize);
@@ -535,7 +535,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
 
     // Validate structure
-    switch(iStructure)
+    switch (iStructure)
     {
         case Structure_StringList :
         {
@@ -544,7 +544,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             bool bSuccess = ConfigOpenConfigFile(iConfig, hFile);
 
             // If config file failed to open, then stop
-            if(!bSuccess)
+            if (!bSuccess)
             {
                 return false;
             }
@@ -553,7 +553,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             arrayConfig.Clear();
 
             // Read lines in the file
-            while(hFile.ReadLine(sLine, sizeof(sLine)))
+            while (hFile.ReadLine(sLine, sizeof(sLine)))
             {
                 // Cut out comments at the end of a line
                 SplitString(sLine, "//", sLine, sizeof(sLine));
@@ -565,7 +565,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
                 StripQuotes(sLine);
 
                 // If line is empty, then stop
-                if(!hasLength(sLine))
+                if (!hasLength(sLine))
                 {
                     continue;
                 }
@@ -586,7 +586,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             bool bSuccess = ConfigOpenConfigFile(iConfig, hFile);
 
             // If config file failed to open, then stop
-            if(!bSuccess)
+            if (!bSuccess)
             {
                 return false;
             }
@@ -595,7 +595,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             arrayConfig.Clear();
 
             // Read lines in the file
-            while(hFile.ReadLine(sLine, sizeof(sLine)))
+            while (hFile.ReadLine(sLine, sizeof(sLine)))
             {
                 // Cut out comments at the end of a line
                 SplitString(sLine, "//", sLine, sizeof(sLine));
@@ -607,7 +607,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
                 StripQuotes(sLine);
 
                 // If line is empty, then stop
-                if(!hasLength(sLine))
+                if (!hasLength(sLine))
                 {
                     continue;
                 }
@@ -628,7 +628,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             bool bSuccess = ConfigOpenConfigFile(iConfig, hFile);
             
             // If config file failed to open, then stop
-            if(!bSuccess)
+            if (!bSuccess)
             {
                 return false;
             }
@@ -637,7 +637,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             ConfigClearKvArray(arrayConfig);
 
             // Read lines in the file
-            while(hFile.ReadLine(sLine, sizeof(sLine)))
+            while (hFile.ReadLine(sLine, sizeof(sLine)))
             {
                 // Cut out comments at the end of a line
                 SplitString(sLine, "//", sLine, sizeof(sLine));
@@ -646,7 +646,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
                 TrimString(sLine);
 
                 // If line is empty, then stop
-                if(!hasLength(sLine))
+                if (!hasLength(sLine))
                 {
                     continue;
                 }
@@ -673,7 +673,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             bool bSuccess = ConfigOpenConfigFile(iConfig, hKeyvalue);
             
             // If config file failed to open, then stop
-            if(!bSuccess)
+            if (!bSuccess)
             {
                 return false;
             }
@@ -682,7 +682,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
             ConfigClearKvArray(arrayConfig);
             
             // Read keys in the file
-            if(hKeyvalue.GotoFirstSubKey())
+            if (hKeyvalue.GotoFirstSubKey())
             {
                 do
                 {
@@ -702,7 +702,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
                     // Store this handle in the main array
                     arrayConfig.Push(arrayConfigEntry);
                 } 
-                while(hKeyvalue.GotoNextKey());
+                while (hKeyvalue.GotoNextKey());
             }
             
             // We're done this file for now, so now we can destory it from memory 
@@ -725,7 +725,7 @@ stock bool ConfigReloadConfig(ConfigFile iConfig)
 {
     // If file isn't loaded, then stop
     bool bLoaded = ConfigIsConfigLoaded(iConfig);
-    if(!bLoaded)
+    if (!bLoaded)
     {
         return false;
     }
@@ -762,7 +762,7 @@ stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
     ConfigGetConfigAlias(iConfig, sConfigAlias, sizeof(sConfigAlias));
     
     // Validate structure
-    switch(iStructure)
+    switch (iStructure)
     {
         case Structure_Keyvalue :
         {
@@ -777,7 +777,7 @@ stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
             hConfig = OpenFile(sConfigPath, "r");
             
             // If file couldn't be opened, then stop
-            if(hConfig == null)
+            if (hConfig == null)
             {
                 return false;
             }
@@ -809,7 +809,7 @@ stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction mAction 
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
     
     // If the config is any other structure beside keyvalue, then stop
-    if(iStructure != Structure_Keyvalue)
+    if (iStructure != Structure_Keyvalue)
     {
         return false;
     }
@@ -819,7 +819,7 @@ stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction mAction 
     bool bSuccess = ConfigOpenConfigFile(iConfig, hConfig);
     
     // If the file couldn't be opened, then stop
-    if(!bSuccess)
+    if (!bSuccess)
     {
         return false;
     }
@@ -829,10 +829,10 @@ stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction mAction 
     
     // i = keys index.
     // Traverse into the keygroup, stop if it fails
-    for(int i = 0; i < keysMax; v++)
+    for (int i = 0; i < keysMax; v++)
     {
         // If key is empty, then break the loop
-        if(!hasLength(sKeys[i]))
+        if (!hasLength(sKeys[i]))
         {
             break;
         }
@@ -841,7 +841,7 @@ stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction mAction 
         bool bExists = hConfig.JumpToKey(sKeys[i], (mAction == KvAction_Create));
         
         // If exists is false, then stop
-        if(!bExists)
+        if (!bExists)
         {
             // Key doesn't exist
             return false;
@@ -849,11 +849,11 @@ stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction mAction 
     }
     
     // Switch the kv action
-    switch(mAction)
+    switch (mAction)
     {
         case KvAction_Create :
         {
-            if(!hasLength(sSetting) || !hasLength(sValue))
+            if (!hasLength(sSetting) || !hasLength(sValue))
             {
                 // We created the key already, so return true
                 return true;
@@ -895,7 +895,7 @@ stock void ConfigClearKvArray(ArrayList arrayKv)
 {
     // i = array index
     int iSize = arrayKv.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Destroy nested arrays
         ArrayList arrayKvKey = arrayKv.Get(i);
@@ -917,13 +917,13 @@ stock ConfigFile ConfigAliasToConfigFile(char[] sAlias)
     static char sCheckAlias[NORMAL_LINE_LENGTH];
     
     // i = config file entry index
-    for(int i = 0; i < sizeof(gConfigData); i++)
+    for (int i = 0; i < sizeof(gConfigData); i++)
     {
         // Gets config alias.
         ConfigGetConfigAlias(view_as<ConfigFile>(i), sCheckAlias, sizeof(sCheckAlias));
         
         // If alias doesn't match, then skip
-        if(!strcmp(sAlias, sCheckAlias, false))
+        if (!strcmp(sAlias, sCheckAlias, false))
         {
             // Return config file entry
             return view_as<ConfigFile>(i);
@@ -946,10 +946,10 @@ stock ConfigFile ConfigAliasToConfigFile(char[] sAlias)
 stock bool ConfigGetFullPath(char[] sAlias, char[] sPath, int iMaxLen, bool bRoot = true)
 {
     // Validate root
-    if(bRoot)
+    if (bRoot)
     {
         // Gets path in return string
-        if(!gServerData.Configs.GetString(sAlias, sPath, iMaxLen))
+        if (!gServerData.Configs.GetString(sAlias, sPath, iMaxLen))
         {
             // Build default path in return string
             BuildPath(Path_SM, sPath, iMaxLen, "%s/%s.ini", CONFIG_PATH_DEFAULT, sAlias);
@@ -974,7 +974,7 @@ stock bool ConfigGetFullPath(char[] sAlias, char[] sPath, int iMaxLen, bool bRoo
 stock bool ConfigSettingToBool(char[] sOption)
 {
     // If option is equal to "yes", then return true
-    if(!strcmp(sOption, "yes", false) || !strcmp(sOption, "on", false) || !strcmp(sOption, "true", false) || !strcmp(sOption, "1", false))
+    if (!strcmp(sOption, "yes", false) || !strcmp(sOption, "on", false) || !strcmp(sOption, "true", false) || !strcmp(sOption, "1", false))
     {
         return true;
     }
@@ -1001,10 +1001,10 @@ stock void ConfigBoolToSetting(bool bOption, char[] sOption, int iMaxLen, bool b
     SetGlobalTransTarget(target);
     
     // If option is true, then copy "yes" to return string
-    if(bOption)
+    if (bOption)
     {
         // Gets yes/no translations for the target
-        if(bYesNo)
+        if (bYesNo)
         {
             FormatEx(sBuffer, sizeof(sBuffer), "%t", "Yes");  
             strcopy(sOption, iMaxLen, sBuffer);
@@ -1019,7 +1019,7 @@ stock void ConfigBoolToSetting(bool bOption, char[] sOption, int iMaxLen, bool b
     else
     {
         // Gets yes/no translations for the target
-        if(bYesNo)
+        if (bYesNo)
         {
             FormatEx(sBuffer, sizeof(sBuffer), "%t", "No");     
             strcopy(sOption, iMaxLen, sBuffer);
@@ -1072,7 +1072,7 @@ public Action ConfigMenuOnCommandCatched(int client, int iArguments)
 public Action ConfigReloadOnCommandCatched(int client, int iArguments)
 {
     // If not enough arguments given, then stop
-    if(iArguments < 1)
+    if (iArguments < 1)
     {
         // Write syntax info
         TranslationReplyToCommand(client, "config reload");
@@ -1088,14 +1088,14 @@ public Action ConfigReloadOnCommandCatched(int client, int iArguments)
 
     // i = config file entry index
     int iArgs = GetCmdArgs();
-    for(int i = 1; i <= iArgs; i++)
+    for (int i = 1; i <= iArgs; i++)
     {
         // Gets alias to restrict
         GetCmdArg(i, sAlias, sizeof(sAlias));
 
         // If alias is invalid, then stop
         ConfigFile iConfig = ConfigAliasToConfigFile(sAlias);
-        if(iConfig == File_Invalid)
+        if (iConfig == File_Invalid)
         {
             // Write error info
             TranslationReplyToCommand(client, "config reload invalid", sAlias);
@@ -1112,7 +1112,7 @@ public Action ConfigReloadOnCommandCatched(int client, int iArguments)
         FormatEx(sMessage, sizeof(sMessage), "Admin \"%N\" reloaded config file \"%s\". (zp_config_reload)", client, sPath);
 
         // If file isn't loaded then tell client, then stop
-        if(!bLoaded)
+        if (!bLoaded)
         {
             // Write error info
             TranslationReplyToCommand(client, "config reload not load", sAlias);
@@ -1148,7 +1148,7 @@ public Action ConfigReloadAllOnCommandCatched(int client, int iArguments)
     static char sAlias[NORMAL_LINE_LENGTH];
 
     // i = config file entry index
-    for(int i = 0; i < sizeof(gConfigData); i++)
+    for (int i = 0; i < sizeof(gConfigData); i++)
     {
         // Reloads config file
         bool bSuccessful = ConfigReloadConfig(view_as<ConfigFile>(i));
@@ -1157,7 +1157,7 @@ public Action ConfigReloadAllOnCommandCatched(int client, int iArguments)
         ConfigGetConfigAlias(view_as<ConfigFile>(i), sAlias, sizeof(sAlias));
 
         // Validate load
-        if(bSuccessful)
+        if (bSuccessful)
         {
             TranslationReplyToCommand(client, "config reload finish", sAlias);
         }
@@ -1189,7 +1189,7 @@ public Action ConfigReloadAllOnCommandCatched(int client, int iArguments)
 void ConfigMenu(int client) 
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
@@ -1210,7 +1210,7 @@ void ConfigMenu(int client)
     
     // i = config file entry index
     int iSize = sizeof(gConfigData);
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets config alias
         ConfigGetConfigAlias(view_as<ConfigFile>(i), sAlias, sizeof(sAlias));
@@ -1224,7 +1224,7 @@ void ConfigMenu(int client)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iSize)
+    if (!iSize)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -1250,7 +1250,7 @@ void ConfigMenu(int client)
 public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -1261,11 +1261,11 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_config_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -1273,7 +1273,7 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -1290,7 +1290,7 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
             bool bSuccessful = ConfigReloadConfig(iD);
             
             // Validate load
-            if(bSuccessful)
+            if (bSuccessful)
             {
                 TranslationPrintToChat(client, "config reload finish", sBuffer);
             }

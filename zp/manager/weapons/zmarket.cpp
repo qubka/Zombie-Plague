@@ -55,7 +55,7 @@ void ZMarketOnClientUpdate(int client)
     ZMarketRebuyMenu(client);
     
     // Validate real client
-    if(gCvarList[CVAR_BUY_BUTTON].BoolValue && !IsFakeClient(client)) 
+    if (gCvarList[CVAR_BUY_BUTTON].BoolValue && !IsFakeClient(client)) 
     {
         // Unlock VGUI buy panel
         gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "1");
@@ -99,7 +99,7 @@ void ZMarketOnCvarInit(/*void*/)
 void ZMarketOnCvarLoad(/*void*/)
 {
     // Validate buy button
-    if(gCvarList[CVAR_BUY_BUTTON].BoolValue)
+    if (gCvarList[CVAR_BUY_BUTTON].BoolValue)
     {
         // Hook listeners
         AddCommandListener(ZMarketOnCommandListened, "open_buymenu");
@@ -126,7 +126,7 @@ void ZMarketOnCvarLoad(/*void*/)
 public void ZMarketOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(!strcmp(oldValue, newValue, false))
+    if (!strcmp(oldValue, newValue, false))
     {
         return;
     }
@@ -146,14 +146,14 @@ public void ZMarketOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate real client
-    if(IsPlayerExist(client) && !IsFakeClient(client))
+    if (IsPlayerExist(client) && !IsFakeClient(client))
     {
         // Lock VGUI buy panel
         gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "0");
         
         // Opens weapon menu
         int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
-        if(iD[0] != -1) SubMenu(client, iD[0]);
+        if (iD[0] != -1) SubMenu(client, iD[0]);
         
         // Sets timer for reseting command
         delete gClientData[client].BuyTimer;
@@ -176,7 +176,7 @@ public Action ZMarketOnClientBuyMenu(Handle hTimer, int userID)
     gClientData[client].BuyTimer = null;
     
     // Validate client
-    if(client)
+    if (client)
     {
         // Unlock VGUI buy panel
         gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "1");
@@ -316,13 +316,13 @@ public Action ZMarketEquipsOnCommandCatched(int client, int iArguments)
 void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments, char[] sType = "") 
 {
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return;
     }
 
     // If mode already started, then stop
-    if(gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode))
+    if (gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode))
     {
         // Show block info
         TranslationPrintHintText(client, "buying round block"); 
@@ -343,7 +343,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
     static char sClass[MAXPLAYERS+1][SMALL_LINE_LENGTH];
     
     // Update class type mode
-    if(hasLength(sType)) strcopy(sClass[client], sizeof(sClass[]), sType);
+    if (hasLength(sType)) strcopy(sClass[client], sizeof(sClass[]), sType);
     
     // Initialize variables
     Action hResult; Menu hMenu = ZMarketSlotToHandle(client, mSlot); bool bMenu = (mSlot != MenuType_Rebuy); bool bRebuy = (mSlot == MenuType_Add || mSlot == MenuType_Option);
@@ -352,7 +352,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
     SetGlobalTransTarget(client);
 
     // Validate add menu
-    if(mSlot == MenuType_Option)
+    if (mSlot == MenuType_Option)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "add");
@@ -369,22 +369,22 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
 
     // i = array number
     int iSize = ZMarketSlotToCount(client, mSlot); int iAmount;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets weapon id from the list
         int iD = ZMarketSlotToIndex(client, mSlot, i);
 
         // Validate add/option menu
-        if(bRebuy)
+        if (bRebuy)
         {
             // Skip some weapons, if class isn't equal
-            if(!WeaponsValidateByClass(iD, sClass[client]))
+            if (!WeaponsValidateByClass(iD, sClass[client]))
             {
                 continue;
             }
             
             // Skip some weapons, if slot isn't equal
-            if(WeaponsGetSlot(iD) == MenuType_Invalid) 
+            if (WeaponsGetSlot(iD) == MenuType_Invalid) 
             {
                 continue;
             }
@@ -406,19 +406,19 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
             gForwardData._OnClientValidateWeapon(client, iD, hResult);
             
             // Skip, if weapon is disabled
-            if(hResult == Plugin_Stop)
+            if (hResult == Plugin_Stop)
             {
                 continue;
             }
             
             // Skip some weapons, if slot isn't equal
-            if(bMenu && WeaponsGetSlot(iD) != mSlot) 
+            if (bMenu && WeaponsGetSlot(iD) != mSlot) 
             {
                 continue;
             }
             
             // Skip some weapons, if class isn't equal
-            if(!WeaponsValidateClass(client, iD))
+            if (!WeaponsValidateClass(client, iD))
             {
                 continue;
             }    
@@ -443,7 +443,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -469,7 +469,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
 public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -480,11 +480,11 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -492,7 +492,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -503,7 +503,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
             int iD = StringToInt(sBuffer);
 
             // Validate button info
-            switch(iD)
+            switch (iD)
             {
                 // Client hit 'Add' button
                 case -1 :
@@ -517,7 +517,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
                 {
                     // Validate index
                     int iIndex = gClientData[client].DefaultCart.FindValue(iD);
-                    if(iIndex != -1)
+                    if (iIndex != -1)
                     {
                         // Remove index from the history
                         gClientData[client].DefaultCart.Erase(iIndex);
@@ -548,7 +548,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
 public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -559,7 +559,7 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens market menu back
                 ZMarketMenu(client, "rebuy", MenuType_Option);
@@ -570,7 +570,7 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -635,7 +635,7 @@ public int ZMarketMenuSlots4(Menu hMenu, MenuAction mAction, int client, int mSl
 void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bRebuy = false)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -646,11 +646,11 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -658,13 +658,13 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client))
+            if (!IsPlayerExist(client))
             {
                 return;
             }
             
             // If mode already started, then stop
-            if((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
+            if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
             {
                 // Show block info
                 TranslationPrintHintText(client, "buying round block");
@@ -684,16 +684,16 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
             gForwardData._OnClientValidateWeapon(client, iD, hResult);
             
             // Validate handle
-            if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+            if (hResult == Plugin_Continue || hResult == Plugin_Changed)
             {
                 // Validate access
-                if(!WeaponsValidateByID(client, iD) && WeaponsValidateClass(client, iD))
+                if (!WeaponsValidateByID(client, iD) && WeaponsValidateClass(client, iD))
                 {
                     // Give weapon for the player
-                    if(WeaponsGive(client, iD) != -1)
+                    if (WeaponsGive(client, iD) != -1)
                     {
                         // If weapon has a cost
-                        if(WeaponsGetCost(iD))
+                        if (WeaponsGetCost(iD))
                         {
                             // Remove money and store it for returning if player will be first zombie
                             AccountSetClientCash(client, gClientData[client].Money - WeaponsGetCost(iD));
@@ -701,24 +701,24 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
                         }
                         
                         // If weapon has a limit
-                        if(WeaponsGetLimit(iD))
+                        if (WeaponsGetLimit(iD))
                         {
                             // Increment count
                             WeaponsSetLimits(client, iD, WeaponsGetLimits(client, iD) + 1);
                         }
 
                         // Is it rebuy menu ?
-                        if(bRebuy)
+                        if (bRebuy)
                         {
                             // Validate index
                             int iIndex = gClientData[client].ShoppingCart.FindValue(iD);
-                            if(iIndex != -1)
+                            if (iIndex != -1)
                             {
                                 // Remove index from the history
                                 gClientData[client].ShoppingCart.Erase(iIndex);
 
                                 // Validate cart size
-                                if(gClientData[client].ShoppingCart.Length)
+                                if (gClientData[client].ShoppingCart.Length)
                                 {
                                     // Reopen menu
                                     ZMarketMenu(client, "rebuy", MenuType_Rebuy);
@@ -728,7 +728,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
                         else
                         {
                             // If help messages enabled, then show info
-                            if(gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
+                            if (gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
                             {
                                 // Gets client name
                                 static char sInfo[SMALL_LINE_LENGTH];
@@ -742,13 +742,13 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
                             }
                             
                             // If help messages enabled, then show info
-                            if(gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
+                            if (gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
                             {
                                 // Gets weapon info
                                 WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
                                 
                                 // Show weapon personal info
-                                if(hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+                                if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
                             }
                         }
                         
@@ -793,7 +793,7 @@ void ZMarketOptionMenu(int client)
     
     // i = array index
     int iSize = gServerData.Types.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets type data
         gServerData.Types.GetString(i, sType, sizeof(sType));
@@ -807,7 +807,7 @@ void ZMarketOptionMenu(int client)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iSize)
+    if (!iSize)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -833,7 +833,7 @@ void ZMarketOptionMenu(int client)
 public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {   
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -844,11 +844,11 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -856,7 +856,7 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -883,14 +883,14 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 void ZMarketRebuyMenu(int client)
 {
     // If array hasn't been created, then create
-    if(gClientData[client].DefaultCart == null)
+    if (gClientData[client].DefaultCart == null)
     {
         // Initialize a default cart array
         gClientData[client].DefaultCart = new ArrayList();
     }
     
     // Validate cart size
-    if(gClientData[client].DefaultCart.Length)
+    if (gClientData[client].DefaultCart.Length)
     {
         // Recreate shopping cart array
         delete gClientData[client].ShoppingCart;
@@ -909,13 +909,13 @@ void ZMarketRebuyMenu(int client)
 void ZMarketResetPurchaseCount(int client)
 {
     // If mode already started, then stop
-    if(!gServerData.RoundNew)
+    if (!gServerData.RoundNew)
     {
         return;
     }
     
     // If array hasn't been created, then stop
-    if(gClientData[client].ShoppingCart != null)
+    if (gClientData[client].ShoppingCart != null)
     {
         // Clear out the array of all data
         gClientData[client].ShoppingCart.Clear();
@@ -932,7 +932,7 @@ MenuType ZMarketNameToIndex(char[] sName)
 {
     // Validate slots
     MenuType nMenu;
-    if(gServerData.Market.GetValue(sName, nMenu))
+    if (gServerData.Market.GetValue(sName, nMenu))
     {
         // Return index
         return nMenu;
@@ -955,7 +955,7 @@ Menu ZMarketSlotToHandle(int client, MenuType mSlot)
     static bool bLock[MAXPLAYERS+1];
     
     // Validate shop menu
-    switch(mSlot)
+    switch (mSlot)
     {
         // Option menu
         case MenuType_Option :
@@ -988,7 +988,7 @@ Menu ZMarketSlotToHandle(int client, MenuType mSlot)
             Menu hMenu = new Menu(ZMarketMenuSlots4);
             
             // Clear history
-            if(!bLock[client]) 
+            if (!bLock[client]) 
             {
                 ZMarketResetPurchaseCount(client);
                 bLock[client] = true;
@@ -1011,7 +1011,7 @@ Menu ZMarketSlotToHandle(int client, MenuType mSlot)
 int ZMarketSlotToIndex(int client, MenuType mSlot, int iIndex)
 {
     // Validate shop menu
-    switch(mSlot)
+    switch (mSlot)
     {
         // Option menu
         case MenuType_Option :
@@ -1043,7 +1043,7 @@ int ZMarketSlotToIndex(int client, MenuType mSlot, int iIndex)
 int ZMarketSlotToCount(int client, MenuType mSlot)
 {
     // Validate shop menu
-    switch(mSlot)
+    switch (mSlot)
     {
         // Option menu
         case MenuType_Option :

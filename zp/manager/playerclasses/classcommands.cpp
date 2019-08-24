@@ -44,7 +44,7 @@ void ClassCommandsOnCommandInit(/*void*/)
 public Action ClassDumpOnCommandCatched(int client, int iArguments)
 {
     // If not enough arguments given, then stop
-    if(iArguments < 1)
+    if (iArguments < 1)
     {
         // Write syntax info
         TranslationReplyToCommand(client, "config dump class");
@@ -59,7 +59,7 @@ public Action ClassDumpOnCommandCatched(int client, int iArguments)
     
     // Validate class
     int iD = StringToInt(sArgument);
-    if(strlen(sArgument) > 1 && iD == 0)
+    if (strlen(sArgument) > 1 && iD == 0)
     {
         // Find index by name
         iD = ClassNameToIndex(sArgument);
@@ -67,7 +67,7 @@ public Action ClassDumpOnCommandCatched(int client, int iArguments)
 
     // Validate index
     int iSize = gServerData.Classes.Length;
-    if(iD >= iSize || iD <= -1)
+    if (iD >= iSize || iD <= -1)
     {
         // Write error info
         TranslationReplyToCommand(client, "config dump class invalid", iD);
@@ -100,13 +100,13 @@ void ClassDump(int client, int iD)
 
     // Print all data to client
     int iPos; int iCell = 1; // Initialize for the loop
-    while(iCell)
+    while (iCell)
     {
         iCell = strcopy(sMessage, sizeof(sMessage), sBuffer[iPos]);
         iPos += iCell;
         
         /// Instead of 'ReplyToCommand'
-        if(client) 
+        if (client) 
         {
             PrintToConsole(client, sMessage);
         }
@@ -133,7 +133,7 @@ int ClassDumpData(int iD, char[] sBuffer, int iMaxLen)
     static char sFormat[PLATFORM_LINE_LENGTH];
     
     // Validate lenght
-    if(!iMaxLen)
+    if (!iMaxLen)
     {
         return 0;
     }
@@ -240,27 +240,27 @@ int ClassDumpData(int iD, char[] sBuffer, int iMaxLen)
     
     ClassGetWeapon(iD, iFormat, sizeof(iFormat));
     FormatEx(sAttribute, sizeof(sAttribute), "weapon:     ");
-    for(int i = 0; i < sizeof(iFormat); i++)
+    for (int i = 0; i < sizeof(iFormat); i++)
     {
-        if(iFormat[i] != -1) Format(sAttribute, sizeof(sAttribute), "%s \"%d\"", sAttribute, iFormat[i]);
+        if (iFormat[i] != -1) Format(sAttribute, sizeof(sAttribute), "%s \"%d\"", sAttribute, iFormat[i]);
     } 
     StrCat(sAttribute, sizeof(sAttribute), "\n");
     iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
     
     ClassGetMoney(iD, iFormat, sizeof(iFormat));
     FormatEx(sAttribute, sizeof(sAttribute), "money:      ");
-    for(int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
-        if(iFormat[i] != -1) Format(sAttribute, sizeof(sAttribute), "%s \"%d\"", sAttribute, iFormat[i]);
+        if (iFormat[i] != -1) Format(sAttribute, sizeof(sAttribute), "%s \"%d\"", sAttribute, iFormat[i]);
     } 
     StrCat(sAttribute, sizeof(sAttribute), "\n");
     iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
     
     ClassGetMoney(iD, iFormat, sizeof(iFormat));
     FormatEx(sAttribute, sizeof(sAttribute), "experience: ");
-    for(int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
-        if(iFormat[i] != -1) Format(sAttribute, sizeof(sAttribute), "%s \"%d\"", sAttribute, iFormat[i]);
+        if (iFormat[i] != -1) Format(sAttribute, sizeof(sAttribute), "%s \"%d\"", sAttribute, iFormat[i]);
     } 
     StrCat(sAttribute, sizeof(sAttribute), "\n");
     iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);

@@ -61,13 +61,13 @@ enum AntiStickBoxBound
 void AntiStickOnInit(/*void*/)
 {
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        for (int i = 1; i <= MaxClients; i++)
         {
             // Validate client
-            if(IsPlayerExist(i, false))
+            if (IsPlayerExist(i, false))
             {
                 // Update the client data
                 AntiStickOnClientInit(i);
@@ -85,7 +85,7 @@ void AntiStickOnClientInit(int client)
 {
     // If antistick is disabled, then unhook
     bool bAntiStick = gCvarList[CVAR_ANTISTICK].BoolValue;
-    if(!bAntiStick)
+    if (!bAntiStick)
     {
         // Unhook entity callbacks
         SDKUnhook(client, SDKHook_StartTouch, AntiStickOnStartTouch);
@@ -128,7 +128,7 @@ void AntiStickOnCvarInit(/*void*/)
 public void AntiStickOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
@@ -147,19 +147,19 @@ public void AntiStickOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
 public void AntiStickOnStartTouch(int client, int entity)
 {
     // If client is touching themselves, then leave them alone :P
-    if(client == entity)
+    if (client == entity)
     {
         return;
     }
 
     // If touched entity isn't a valid client, then stop
-    if(!IsPlayerExist(entity))
+    if (!IsPlayerExist(entity))
     {
         return;
     }
 
     // If the clients aren't colliding, then stop
-    if(!AntiStickIsModelBoxColliding(client, entity))
+    if (!AntiStickIsModelBoxColliding(client, entity))
     {
         return;
     }
@@ -175,7 +175,7 @@ public void AntiStickOnStartTouch(int client, int entity)
     //       one too.
 
     // If the client is in any other collision group than "off", than we must set them to off, to unstick
-    if(collisionGroup != COLLISION_GROUP_PUSHAWAY)
+    if (collisionGroup != COLLISION_GROUP_PUSHAWAY)
     {
         // Disable collisions to unstick, and start timers to re-solidify
         AntiStickSetCollisionGroup(client, COLLISION_GROUP_PUSHAWAY);
@@ -195,34 +195,34 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
     int client = GetClientOfUserId(userID);
 
     // Verify that the client is exist
-    if(!client)
+    if (!client)
     {
         return Plugin_Stop;
     }
 
     // If the client collisions are already on, then stop
-    if(AntiStickGetCollisionGroup(client) == COLLISION_GROUP_PLAYER)
+    if (AntiStickGetCollisionGroup(client) == COLLISION_GROUP_PLAYER)
     {
         return Plugin_Stop;
     }
 
     // Loop through all clients and check if client is stuck in them
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // If the client is dead, then skip it
-        if(!IsPlayerExist(i))
+        if (!IsPlayerExist(i))
         {
             continue;
         }
         
         // Don't compare the same clients
-        if(client == i)
+        if (client == i)
         {
             continue;
         }
         
         // If the client is colliding with a client, then allow timer to continue
-        if(AntiStickIsModelBoxColliding(client, i))
+        if (AntiStickIsModelBoxColliding(client, i))
         {
             return Plugin_Continue;
         }
@@ -246,7 +246,7 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
 public Action AntiStickOnCommandCatched(int client, int iArguments)
 {
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return Plugin_Handled;
     }
@@ -265,14 +265,14 @@ public Action AntiStickOnCommandCatched(int client, int iArguments)
     TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, client);
 
     // Returns if there was any kind of collision along the trace ray
-    if(TR_DidHit())
+    if (TR_DidHit())
     {
         // Gets victim index
         int victim = TR_GetEntityIndex();
-        if(victim > 0)
+        if (victim > 0)
         {
             // Gets current collision groups of entity
-            switch(AntiStickGetCollisionGroup(victim))
+            switch (AntiStickGetCollisionGroup(victim))
             {
                 case COLLISION_GROUP_PLAYER, COLLISION_GROUP_NPC : { /* < empty statement > */ }
                 default : return Plugin_Handled;
@@ -315,7 +315,7 @@ void AntiStickTeleportToRespawn(int client)
 
     // i = origin index
     int iSize = gServerData.Spawns.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets random array
         gServerData.Spawns.GetArray(i, vPosition, sizeof(vPosition));
@@ -324,7 +324,7 @@ void AntiStickTeleportToRespawn(int client)
         TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, client);
         
         // Returns if there was any kind of collision along the trace ray
-        if(!TR_DidHit())
+        if (!TR_DidHit())
         {
             // Teleport player back on the spawn point
             TeleportEntity(client, vPosition, NULL_VECTOR, NULL_VECTOR);
@@ -353,7 +353,7 @@ void AntiStickBuildModelBox(int client, float flBoundaries[AntiStickBoxBound][3]
     vCornerAngle[1] = 0.0;
 
     // i = side index
-    for(int x = 0; x < 4; x++)
+    for (int x = 0; x < 4; x++)
     {
         // Jump to point on player left side.
         AntiStickJumpToPoint(vOriginLoc, vTwistAngle, flWidth / 2, vSideLoc);
@@ -366,12 +366,12 @@ void AntiStickBuildModelBox(int client, float flBoundaries[AntiStickBoxBound][3]
         vCornerAngle[1] += 90.0;
 
         // Fix angles
-        if(vTwistAngle[1] > 180.0)
+        if (vTwistAngle[1] > 180.0)
         {
             vTwistAngle[1] -= 360.0;
         }
 
-        if(vCornerAngle[1] > 180.0)
+        if (vCornerAngle[1] > 180.0)
         {
             vCornerAngle[1] -= 360.0;
         }
@@ -449,13 +449,13 @@ float AntiStickGetBoxMaxBoundary(int iAxis, float flBoundaries[AntiStickBoxBound
     
     // x = Boundary index. (Start at 1 because we initialized 'outlier' with the 0 index value)
     int iSize = sizeof(flBoundaries);
-    for(int x = 1; x < iSize; x++)
+    for (int x = 1; x < iSize; x++)
     {
-        if(!bMin && flBoundaries[x][iAxis] > flOutlier)
+        if (!bMin && flBoundaries[x][iAxis] > flOutlier)
         {
             flOutlier = flBoundaries[x][iAxis];
         }
-        else if(bMin && flBoundaries[x][iAxis] < flOutlier)
+        else if (bMin && flBoundaries[x][iAxis] < flOutlier)
         {
             flOutlier = flBoundaries[x][iAxis];
         }
@@ -488,7 +488,7 @@ bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
     float min1x = AntiStickGetBoxMaxBoundary(0, client1modelbox, true);
     float min2x = AntiStickGetBoxMaxBoundary(0, client2modelbox, true);
     
-    if(max1x < min2x || min1x > max2x)
+    if (max1x < min2x || min1x > max2x)
     {
         return false;
     }
@@ -499,7 +499,7 @@ bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
     float min1y = AntiStickGetBoxMaxBoundary(1, client1modelbox, true);
     float min2y = AntiStickGetBoxMaxBoundary(1, client2modelbox, true);
     
-    if(max1y < min2y || min1y > max2y)
+    if (max1y < min2y || min1y > max2y)
     {
         return false;
     }
@@ -510,7 +510,7 @@ bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
     float min1z = AntiStickGetBoxMaxBoundary(2, client1modelbox, true);
     float min2z = AntiStickGetBoxMaxBoundary(2, client2modelbox, true);
     
-    if(max1z < min2z || min1z > max2z)
+    if (max1z < min2z || min1z > max2z)
     {
         return false;
     }
@@ -532,16 +532,16 @@ int AntiStickFindPlayerInSphere(int &it, float vPosition[3], float flRadius)
     float clientmodelbox[AntiStickBoxBound][3];
 
     // i = client index
-    for(int i = it; i <= MaxClients; i++)
+    for (int i = it; i <= MaxClients; i++)
     {
         // Validate client
-        if(IsPlayerExist(i))
+        if (IsPlayerExist(i))
         {
             // Build model boxes for client
             AntiStickBuildModelBox(i, clientmodelbox, ANTISTICK_DEFAULT_HULL_WIDTH);
 
             // Validate collision
-            if(AntiStickIsBoxIntersectingSphere(clientmodelbox, vPosition, flRadius))
+            if (AntiStickIsBoxIntersectingSphere(clientmodelbox, vPosition, flRadius))
             { 
                 // Move iterator
                 it = i + 1;
@@ -578,12 +578,12 @@ bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], 
     float maxBx = AntiStickGetBoxMaxBoundary(0, flBoundaries);
     float minBx = AntiStickGetBoxMaxBoundary(0, flBoundaries, true);  
 
-    if(vPosition[0] < minBx) 
+    if (vPosition[0] < minBx) 
     {
         flDelta = vPosition[0] - minBx;
         flDistance += flDelta * flDelta;
     }
-    else if(vPosition[0] > maxBx) 
+    else if (vPosition[0] > maxBx) 
     {   
         flDelta = vPosition[0] - maxBx;
         flDistance += flDelta * flDelta;   
@@ -593,12 +593,12 @@ bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], 
     float maxBy = AntiStickGetBoxMaxBoundary(1, flBoundaries);
     float minBy = AntiStickGetBoxMaxBoundary(1, flBoundaries, true);  
     
-    if(vPosition[1] < minBy) 
+    if (vPosition[1] < minBy) 
     {
         flDelta = vPosition[1] - minBy;
         flDistance += flDelta * flDelta;
     }
-    else if(vPosition[1] > maxBy) 
+    else if (vPosition[1] > maxBy) 
     {   
         flDelta = vPosition[1] - maxBy;
         flDistance += flDelta * flDelta;   
@@ -608,12 +608,12 @@ bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], 
     float maxBz = AntiStickGetBoxMaxBoundary(2, flBoundaries);
     float minBz = AntiStickGetBoxMaxBoundary(2, flBoundaries, true); 
     
-    if(vPosition[2] < minBz) 
+    if (vPosition[2] < minBz) 
     {
         flDelta = vPosition[2] - minBz;
         flDistance += flDelta * flDelta;
     }
-    else if(vPosition[2] > maxBz) 
+    else if (vPosition[2] > maxBz) 
     {   
         flDelta = vPosition[2] - maxBz;
         flDistance += flDelta * flDelta;   

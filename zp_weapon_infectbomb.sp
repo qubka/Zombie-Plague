@@ -68,7 +68,7 @@ int gWeapon;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // Hook entity events
         HookEvent("tagrenade_detonate", EventEntityTanade, EventHookMode_Post);
@@ -77,7 +77,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
         
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -92,15 +92,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("infect bomb");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"infect bomb\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"infect bomb\" wasn't find");
 
     // Sounds
     gSound = ZP_GetSoundKeyID("INFECT_GRENADE_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"INFECT_GRENADE_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"INFECT_GRENADE_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -115,10 +115,10 @@ public void ZP_OnEngineExecute(/*void*/)
 public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 {
     // Check the weapon index
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Validate access
-        if(!ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
+        if (!ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
         {
             return Plugin_Handled;
         }
@@ -138,7 +138,7 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
     // Validate custom grenade
-    if(weaponID == gWeapon) /* OR if(GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
+    if (weaponID == gWeapon) /* OR if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
     {
         // Hook entity callbacks
         SDKHook(grenade, SDKHook_Touch, TanadeTouchHook);
@@ -183,26 +183,26 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
     vPosition[2] = hEvent.GetFloat("z");
 
     // Validate entity
-    if(IsValidEdict(grenade))
+    if (IsValidEdict(grenade))
     {
         // Validate custom grenade
-        if(GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
+        if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Validate infection round
-            if(ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
+            if (ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
             {
                 // Find any players in the radius
                 int i; int it = 1; /// iterator
-                while((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_INFECT_RADIUS)) != -1)
+                while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_INFECT_RADIUS)) != -1)
                 {
                     // Skip zombies
-                    if(ZP_IsPlayerZombie(i))
+                    if (ZP_IsPlayerZombie(i))
                     {
                         continue;
                     }
 
                     // Validate visibility
-                    if(!UTIL_CanSeeEachOther(grenade, i, vPosition, SelfFilter))
+                    if (!UTIL_CanSeeEachOther(grenade, i, vPosition, SelfFilter))
                     {
                         continue;
                     }
@@ -211,7 +211,7 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
                     // Change class to zombie
                     ZP_ChangeClient(i, owner, "zombie");
 #else
-                    if(ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, owner, "zombie");
+                    if (ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, owner, "zombie");
 #endif
                 }
             }
@@ -235,10 +235,10 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 public void EventEntityTanadePost(/*void*/)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate human
-        if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+        if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
         {
             // Bugfix with tagrenade glow
             SetEntPropFloat(i, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
@@ -262,13 +262,13 @@ public void EventEntityTanadePost(/*void*/)
 public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
 {
     // Validate client
-    if(IsValidEdict(entity))
+    if (IsValidEdict(entity))
     {
         // Validate custom grenade
-        if(GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
+        if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
         {
             // Validate sound
-            if(!strncmp(sSample[30], "arm", 3, false))
+            if (!strncmp(sSample[30], "arm", 3, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -276,7 +276,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
                 // Block sounds
                 return Plugin_Stop; 
             }
-            else if(!strncmp(sSample[30], "det", 3, false))
+            else if (!strncmp(sSample[30], "det", 3, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -284,7 +284,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
                 // Block sounds
                 return Plugin_Stop; 
             }
-            else if(!strncmp(sSample[30], "exp", 3, false))
+            else if (!strncmp(sSample[30], "exp", 3, false))
             {
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);

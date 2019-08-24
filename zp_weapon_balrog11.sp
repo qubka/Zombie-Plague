@@ -85,10 +85,10 @@ int gSound; ConVar hSoundLevel;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -103,15 +103,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("balrog11");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"balrog11\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"balrog11\" wasn't find");
 
     // Sounds
     gSound = ZP_GetSoundKeyID("BALROGXI2_SHOOT_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGXI2_SHOOT_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGXI2_SHOOT_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -135,16 +135,16 @@ void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCur
     #pragma unused client, weapon, iCounter, iAmmo, flCurrentTime
     
     // Validate ammo
-    if(!GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount"))
+    if (!GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount"))
     {
         return;
     }
     
     // Validate counter
-    if(iCounter > WEAPON_FIRE_COUNTER)
+    if (iCounter > WEAPON_FIRE_COUNTER)
     {
         // Validate clip
-        if(iAmmo < ZP_GetWeaponClip(gWeapon))
+        if (iAmmo < ZP_GetWeaponClip(gWeapon))
         {
             // Sets clip count
             SetEntProp(weapon, Prop_Data, "m_iMaxHealth", iAmmo + 1);
@@ -167,25 +167,25 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 
     // Validate reload
     int iAnim = ZP_GetWeaponAnimation(client);
-    if(iAnim == ANIM_START_RELOAD || iAnim == ANIM_INSERT)
+    if (iAnim == ANIM_START_RELOAD || iAnim == ANIM_INSERT)
     {
         return;
     }
     
     // Validate ammo
-    if(iAmmo <= 0)
+    if (iAmmo <= 0)
     {
         return;
     }
 
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
     {
         return;
     }
     
     // Validate water
-    if(GetEntProp(client, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
+    if (GetEntProp(client, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
     {
         return;
     }
@@ -224,7 +224,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
     ZP_GetPlayerGunPosition(client, 50.0, -60.0, -10.0, vPosition[4]);
 
     // i - fire index
-    for(int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         // Create a fire
         Weapon_OnCreateFire(client, weapon, vPosition[i]);
@@ -237,15 +237,15 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
     GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
     // Apply kick back
-    if(GetVectorLength(vVelocity) <= 0.0)
+    if (GetVectorLength(vVelocity) <= 0.0)
     {
         ZP_CreateWeaponKickBack(client, 10.5, 7.5, 0.225, 0.05, 10.5, 7.5, 7);
     }
-    else if(!(iFlags & FL_ONGROUND))
+    else if (!(iFlags & FL_ONGROUND))
     {
         ZP_CreateWeaponKickBack(client, 14.0, 10.0, 0.5, 0.35, 14.0, 10.0, 5);
     }
-    else if(iFlags & FL_DUCKING)
+    else if (iFlags & FL_DUCKING)
     {
         ZP_CreateWeaponKickBack(client, 10.5, 6.5, 0.15, 0.025, 10.5, 6.5, 9);
     }
@@ -286,7 +286,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
     int entity = UTIL_CreateProjectile(vPosition, vAngle);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Sets grenade model scale
         SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 10.0);
@@ -357,7 +357,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Resets variables
         SetEntProp(weapon, Prop_Data, "m_iMaxHealth", 0);
@@ -375,7 +375,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Deploy(client, weapon);
@@ -397,10 +397,10 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Button secondary attack press
-        if(!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
+        if (!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
         {
             // Call event
             _call.SecondaryAttack(client, weapon);
@@ -423,7 +423,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 public void ZP_OnWeaponShoot(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Shoot(client, weapon);
@@ -443,13 +443,13 @@ public void ZP_OnWeaponShoot(int client, int weapon, int weaponID)
 public Action FireTouchHook(int entity, int target)
 {
     // Validate target
-    if(IsValidEdict(target))
+    if (IsValidEdict(target))
     {
         // Gets thrower index
         int thrower = GetEntPropEnt(entity, Prop_Data, "m_hThrower");
 
         // Validate thrower
-        if(thrower == target)
+        if (thrower == target)
         {
             // Return on the unsuccess
             return Plugin_Continue;
@@ -488,7 +488,7 @@ public Action FireTouchHook(int entity, int target)
 public Action ZP_OnGrenadeSound(int grenade, int weaponID)
 {
     // Validate custom grenade
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Block sounds
         return Plugin_Stop; 

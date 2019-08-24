@@ -150,7 +150,7 @@ void VEffectsOnClientDeath(int client)
 void VEffectsOnClientHurt(int client, int attacker, int iHealth)
 {
     // Validate attacker
-    if(attacker > 0/* && attacker < MaxClients*/)
+    if (attacker > 0/* && attacker < MaxClients*/)
     {
         // Forward event to sub-modules
         HealthOnClientHurt(client, attacker, iHealth);
@@ -233,7 +233,7 @@ void VEffectsOnClientRegen(int client)
 void VEffectsShakeClientScreen(int client, ConVar hAmplitude, ConVar hFrequency, ConVar hDuration)
 {
     // If screen shake disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_SHAKE].BoolValue) 
+    if (!gCvarList[CVAR_VEFFECTS_SHAKE].BoolValue) 
     {
         return;
     }
@@ -254,7 +254,7 @@ void VEffectsShakeClientScreen(int client, ConVar hAmplitude, ConVar hFrequency,
 void VEffectsFadeClientScreen(int client, ConVar hDuration, ConVar hHoldTime, int iFlags, int vColor[4])
 {
     // If screen fade disabled, then stop
-    if(!gCvarList[CVAR_VEFFECTS_FADE].BoolValue) 
+    if (!gCvarList[CVAR_VEFFECTS_FADE].BoolValue) 
     {
         return;
     }

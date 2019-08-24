@@ -86,10 +86,10 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -104,15 +104,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("stamper");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"stamper\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"stamper\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("COFFIN_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"COFFIN_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"COFFIN_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -139,7 +139,7 @@ public void OnMapStart(/*void*/)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3];
@@ -157,13 +157,13 @@ public Action ZP_OnClientSkillUsed(int client)
         TR_TraceHull(vPosition, vPosition, vMins, vMaxs, MASK_SOLID);
         
         // Validate no collisions
-        if(!TR_DidHit())
+        if (!TR_DidHit())
         {
             // Create a physics entity
             int entity = UTIL_CreatePhysics("coffin", vPosition, vAngle, "models/player/custom_player/zombie/zombiepile/zombiepile.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
 
             // Validate entity
-            if(entity != -1)
+            if (entity != -1)
             {
                 // Sets physics
                 SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
@@ -212,7 +212,7 @@ public Action CoffinDamageHook(int entity, int &attacker, int &inflictor, float 
     int iHealth = GetEntProp(entity, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
     // Destroy entity
-    if(!iHealth)
+    if (!iHealth)
     {
         // Destroy damage hook
         SDKUnhook(entity, SDKHook_OnTakeDamage, CoffinDamageHook);
@@ -245,7 +245,7 @@ public Action CoffinIdleHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Play sound
         ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, hSoundLevel.IntValue);
@@ -272,7 +272,7 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEnemy[3];  
@@ -282,16 +282,16 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
     
         // Find any players in the radius
         int i; int it = 1; /// iterator
-        while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+        while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
         {
             // Skip zombies
-            if(ZP_IsPlayerZombie(i))
+            if (ZP_IsPlayerZombie(i))
             {
                 continue;
             }
 
             // Validate visibility
-            if(!UTIL_CanSeeEachOther(entity, i, vPosition, SelfFilter))
+            if (!UTIL_CanSeeEachOther(entity, i, vPosition, SelfFilter))
             {
                 continue;
             }
@@ -326,7 +326,7 @@ public Action CoffinExploadHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Expload it
         CoffinExpload(entity);
@@ -351,7 +351,7 @@ void CoffinExpload(int entity)
 
     // Find any players in the radius
     int i; int it = 1; /// iterator
-    while((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+    while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
     {
         // Gets victim origin
         GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
@@ -371,10 +371,10 @@ void CoffinExpload(int entity)
     
     // Create a breaked metal effect
     static char sBuffer[NORMAL_LINE_LENGTH];
-    for(int x = 0; x <= 4; x++)
+    for (int x = 0; x <= 4; x++)
     {
         // Find gib positions
-        vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch(x)
+        vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
         {
             case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
             case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");

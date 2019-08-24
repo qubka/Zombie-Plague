@@ -155,13 +155,13 @@ enum
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // Load translations phrases used by plugin
         LoadTranslations("zombieplague.phrases");
         
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -175,7 +175,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 public void OnMapEnd(/*void*/)
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Purge timer
         hEmitterCreate[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
@@ -200,15 +200,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("airdrop");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
 
     // Sounds
     gSound = ZP_GetSoundKeyID("HELICOPTER_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HELICOPTER_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HELICOPTER_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -496,23 +496,23 @@ public void OnMapStart(/*void*/)
 public void ZP_OnGameModeStart(int mode)
 {
     // If addon is unload, then stop
-    if(gWeapon == -1)
+    if (gWeapon == -1)
     {
         return;
     }
     
     // Validate access
-    if(ZP_IsGameModeHumanClass(mode, "human") && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
+    if (ZP_IsGameModeHumanClass(mode, "human") && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
     {
         // Gets random index of a human
         int client = ZP_GetRandomHuman();
 
         // Validate client
-        if(client != -1)
+        if (client != -1)
         {
             // Validate weapon
             int weapon;
-            if((weapon = ZP_IsPlayerHasWeapon(client, gWeapon)) != -1)
+            if ((weapon = ZP_IsPlayerHasWeapon(client, gWeapon)) != -1)
             {
                 // Resets variables
                 SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_TRIGGER_OFF);
@@ -553,13 +553,13 @@ void Weapon_OnIdle(int client, int weapon, int bTrigger, int iStateMode, float f
     #pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
     
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
     {
         return;
     }
     
     // Validate trigger
-    if(!bTrigger)
+    if (!bTrigger)
     {
         // Sets idle animation
         ZP_SetWeaponAnimation(client, ANIM_IDLE);
@@ -598,13 +598,13 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
     #pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
         return;
     }
 
     // Validate water
-    if(GetEntProp(client, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
+    if (GetEntProp(client, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
     {
         return;
     }
@@ -613,7 +613,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
     static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
     // Validate trigger 
-    if(!bTrigger)
+    if (!bTrigger)
     {
         // Gets trace line
         GetClientEyePosition(client, vPosition);
@@ -623,7 +623,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
         TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
 
         // Is hit world ?
-        if(TR_DidHit() && TR_GetEntityIndex() < 1)
+        if (TR_DidHit() && TR_GetEntityIndex() < 1)
         {
             // Adds the delay to the game tick
             flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
@@ -650,7 +650,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
         int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity"); 
 
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {    
             // Gets position/angle
             GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
@@ -661,7 +661,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
             TE_SendToAll();
 
             // Switch mode
-            switch(iStateMode)
+            switch (iStateMode)
             {
                 case STATE_TRIGGER_OFF : 
                 {
@@ -672,7 +672,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
                     CreateHelicopter(vPosition, vAngle);
                     
                     // Validate entity
-                    if(smoke != -1)
+                    if (smoke != -1)
                     {
                         // Emit sound
                         EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -710,13 +710,13 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int bTrigger, int iStateMo
     #pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 
     // Validate trigger
-    if(!bTrigger)
+    if (!bTrigger)
     {
         return;
     }
     
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
     {
         return;
     }
@@ -757,7 +757,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
     hEmitterCreate[client] = null;
 
     // Validate client
-    if(ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
+    if (ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
     {
          // Initialize vectors
         static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
@@ -770,7 +770,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
         TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
 
         // Is hit world ?
-        if(TR_DidHit() && TR_GetEntityIndex() < 1)
+        if (TR_DidHit() && TR_GetEntityIndex() < 1)
         {
             // Returns the collision position/normal of a trace result
             TR_GetEndPosition(vPosition);
@@ -784,7 +784,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
             int entity = UTIL_CreatePhysics("emitter", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
             
             // Validate entity
-            if(entity != -1)
+            if (entity != -1)
             {
                 // Sets physics
                 SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
@@ -837,13 +837,13 @@ public Action Weapon_OnRemove(Handle hTimer, int refID)
     int weapon = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(weapon != -1)
+    if (weapon != -1)
     {
         // Gets active user
         int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
 
         // Validate client
-        if(IsPlayerExist(client, false))
+        if (IsPlayerExist(client, false))
         {
             // Forces a player to remove weapon
             ZP_RemoveWeapon(client, weapon);
@@ -886,7 +886,7 @@ public Action Weapon_OnRemove(Handle hTimer, int refID)
 public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Resets variables
         SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_TRIGGER_OFF);
@@ -905,7 +905,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Deploy(client, weapon);
@@ -922,7 +922,7 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
 public void ZP_OnWeaponHolster(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Holster(client, weapon);
@@ -944,11 +944,11 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Time to apply new mode
         static float flApplyModeTime;
-        if((flApplyModeTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flApplyModeTime <= GetGameTime())
+        if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flApplyModeTime <= GetGameTime())
         {
             // Sets switching time
             SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
@@ -961,7 +961,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
         }
     
         // Button primary attack press
-        if(iButtons & IN_ATTACK)
+        if (iButtons & IN_ATTACK)
         {
             // Call event
             _call.PrimaryAttack(client, weapon); 
@@ -969,7 +969,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
             return Plugin_Changed;
         }
         // Button secondary attack press
-        else if(iButtons & IN_ATTACK2)
+        else if (iButtons & IN_ATTACK2)
         {
             // Call event
             _call.SecondaryAttack(client, weapon);
@@ -1006,7 +1006,7 @@ void CreateJet(float vPosition[3], float vAngle[3])
     
     // Validate world size
     float vMax = vMaxs[2] - 100.0;
-    if(vPosition[2] > vMax) vPosition[2] = vMax; 
+    if (vPosition[2] > vMax) vPosition[2] = vMax; 
     
     // Randomize animation
     //static char sAnim[SMALL_LINE_LENGTH];
@@ -1016,7 +1016,7 @@ void CreateJet(float vPosition[3], float vAngle[3])
     int entity = UTIL_CreateDynamic("f18", vPosition, vAngle, "models/f18/f18.mdl", "flyby1", false);
     
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Create thinks
         CreateTimer(2.7, JetBombHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
@@ -1038,7 +1038,7 @@ public Action JetBombHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Emit sound
         EmitSoundToAll("survival/rocketincoming.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -1053,7 +1053,7 @@ public Action JetBombHook(Handle hTimer, int refID)
         entity = UTIL_CreateProjectile(vPosition, vAngle, "models/player/custom_player/zombie/bomb/bomb.mdl");
 
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {
             // Correct angle
             vAngle[0] -= 90.0;//45.0;
@@ -1100,10 +1100,10 @@ public Action BombTouchHook(int entity, int target)
     
     // Find any players in the radius
     int i; int it = 1; /// iterator
-    while((i = ZP_FindPlayerInSphere(it, vPosition, BOMBARDING_RADIUS)) != -1)
+    while ((i = ZP_FindPlayerInSphere(it, vPosition, BOMBARDING_RADIUS)) != -1)
     {
         // Skip humans
-        if(ZP_IsPlayerHuman(i))
+        if (ZP_IsPlayerHuman(i))
         {
             continue;
         }
@@ -1113,7 +1113,7 @@ public Action BombTouchHook(int entity, int target)
     }
     
     // Emit sound
-    switch(GetRandomInt(0, 5))
+    switch (GetRandomInt(0, 5))
     {
         case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
         case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -1148,13 +1148,13 @@ void CreateHelicopter(float vPosition[3], float vAngle[3])
     
     // Validate world size
     float vMax = vMaxs[2] - 100.0;
-    if(vPosition[2] > vMax) vPosition[2] = vMax; 
+    if (vPosition[2] > vMax) vPosition[2] = vMax; 
     
     // Create a model entity
     int entity = UTIL_CreateDynamic("helicopter", vPosition, vAngle, "models/buildables/helicopter_rescue_fix.mdl", "helicopter_coop_hostagepickup_flyin", false);
     
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Create thinks
         CreateTimer(20.0, HelicopterStopHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
@@ -1178,7 +1178,7 @@ public Action HelicopterStopHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Sets idle
         SetVariantString("helicopter_coop_hostagepickup_idle");
@@ -1204,7 +1204,7 @@ public Action HelicopterSoundHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3];
@@ -1237,7 +1237,7 @@ public Action HelicopterIdleHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Sets idle
         SetVariantString("helicopter_coop_towerhover_idle");
@@ -1269,11 +1269,11 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Validate cases
         int iLeft = GetEntProp(entity, Prop_Data, "m_iMaxHealth");
-        if(iLeft)
+        if (iLeft)
         {
             // Reduce amount
             iLeft--;
@@ -1295,7 +1295,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
         
         // Gets drop type
         int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int drop; int iCollision; int iDamage;
-        switch(iType)
+        switch (iType)
         {
             case SAFE :
             {
@@ -1303,7 +1303,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
                 drop = UTIL_CreatePhysics("safe", vPosition, NULL_VECTOR, "models/buildables/safe.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
                 
                 // Validate entity
-                if(drop != -1)
+                if (drop != -1)
                 {
                     // Sets physics
                     iCollision = COLLISION_GROUP_PLAYER;
@@ -1315,10 +1315,10 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
                 }
                 
                 // i = client index
-                for(int i = 1; i <= MaxClients; i++)
+                for (int i = 1; i <= MaxClients; i++)
                 {
                     // Validate human
-                    if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                    if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
                     {
                         // Show message
                         SetGlobalTransTarget(i);
@@ -1331,7 +1331,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
             {
                 // Gets model path
                 static char sModel[PLATFORM_LINE_LENGTH]; static int vColor[4];
-                switch(iType)
+                switch (iType)
                 {
                     case EXPL : 
                     { 
@@ -1374,7 +1374,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
                 drop = UTIL_CreatePhysics("case", vPosition, NULL_VECTOR, sModel, PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
                 
                 // Validate entity
-                if(drop != -1)
+                if (drop != -1)
                 {
                     // Sets physics
                     iCollision = COLLISION_GROUP_WEAPON;
@@ -1388,7 +1388,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
                     int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
 
                     // Validate entity
-                    if(glow != -1)
+                    if (glow != -1)
                     {
                         // Sets parent to the entity
                         SetVariantString("!activator");
@@ -1412,7 +1412,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
         SetEntProp(entity, Prop_Data, "m_iHammerID", GetRandomInt(EXPL, HTOOL));
         
         // Validate entity
-        if(drop != -1)
+        if (drop != -1)
         {
             // Returns vectors in the direction of an angle
             GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
@@ -1462,7 +1462,7 @@ public Action HelicopterRemoveHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Sets idle
         SetVariantString("helicopter_coop_towerhover_flyaway");
@@ -1488,7 +1488,7 @@ public Action HelicopterRemoveHook(Handle hTimer, int refID)
 public void SafeUseHook(int entity, int activator, int caller, UseType use, float flValue)
 {
     // If safe open, then kill
-    if(GetEntProp(entity, Prop_Send, "m_nBody"))
+    if (GetEntProp(entity, Prop_Send, "m_nBody"))
     {
         // Call death
         SafeExpload(entity);
@@ -1507,7 +1507,7 @@ public void SafeUseHook(int entity, int activator, int caller, UseType use, floa
 public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &flDamage, int &iBits)
 {
     // Emit sound
-    switch(GetRandomInt(0, 4))
+    switch (GetRandomInt(0, 4))
     {
         case 0 : EmitSoundToAll("survival/container_damage_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
         case 1 : EmitSoundToAll("survival/container_damage_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -1517,13 +1517,13 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
     }
     
     // Validate mode
-    if(GetEntProp(entity, Prop_Send, "m_nBody"))
+    if (GetEntProp(entity, Prop_Send, "m_nBody"))
     {
         // Calculate the damage
         int iHealth = GetEntProp(entity, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
         // Destroy entity
-        if(!iHealth)
+        if (!iHealth)
         {   
             // Call death
             SafeExpload(entity);
@@ -1537,10 +1537,10 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
     else
     {
         // Entity was damaged by 'explosion'
-        if(iBits & DMG_BLAST)
+        if (iBits & DMG_BLAST)
         {
             // Validate inflicter
-            if(IsValidEdict(inflictor))
+            if (IsValidEdict(inflictor))
             {
                 // Gets weapon classname
                 static char sClassname[SMALL_LINE_LENGTH];
@@ -1554,14 +1554,14 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
                 GetEntPropVector(inflictor, Prop_Data, "m_vecAbsOrigin", vAngle);
             
                 // Validate c4 projectile
-                if(!strncmp(sClassname, "brea", 4, false) && GetVectorDistance(vPosition, vAngle) <= AIRDROP_LOCK)
+                if (!strncmp(sClassname, "brea", 4, false) && GetVectorDistance(vPosition, vAngle) <= AIRDROP_LOCK)
                 {
                     // Increment explosions
                     int iExp = GetEntProp(entity, Prop_Data, "m_iHammerID") + 1;
                     SetEntProp(entity, Prop_Data, "m_iHammerID", iExp);
             
                     // Validate explosions
-                    if(iExp >= AIRDROP_EXPLOSIONS)
+                    if (iExp >= AIRDROP_EXPLOSIONS)
                     {
                         // Gets position/angle
                         GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
@@ -1571,7 +1571,7 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
                         int bag = UTIL_CreatePhysics("bag", vPosition, vAngle, "models/props_survival/cash/dufflebag.mdl", PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
                         
                         // Validate entity
-                        if(bag != -1)
+                        if (bag != -1)
                         {
                             // Sets physics
                             SetEntProp(bag, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
@@ -1597,7 +1597,7 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
                         int door = UTIL_CreatePhysics("door", vPosition, vAngle, "models/props_survival/safe/safe_door.mdl", PHYS_FORCESERVERSIDE);
                         
                         // Validate entity
-                        if(door != -1)
+                        if (door != -1)
                         {
                             // Sets physics
                             SetEntProp(door, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
@@ -1605,10 +1605,10 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
                         }
                         
                         // i = client index
-                        for(int i = 1; i <= MaxClients; i++)
+                        for (int i = 1; i <= MaxClients; i++)
                         {
                             // Validate human
-                            if(IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+                            if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
                             {
                                 // Show message
                                 SetGlobalTransTarget(i);
@@ -1640,10 +1640,10 @@ void SafeExpload(int entity)
     
     // Create a breaked drone effect
     static char sBuffer[SMALL_LINE_LENGTH];
-    for(int x = 0; x <= 4; x++)
+    for (int x = 0; x <= 4; x++)
     {
         // Find gib positions
-        vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch(x)
+        vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
         {
             case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
             case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");
@@ -1657,7 +1657,7 @@ void SafeExpload(int entity)
     }
     
     // Emit sound
-    switch(GetRandomInt(0, 2))
+    switch (GetRandomInt(0, 2))
     {
         case 0 : EmitSoundToAll("survival/container_death_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
         case 1 : EmitSoundToAll("survival/container_death_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -1697,7 +1697,7 @@ public void BagUseHook(int entity, int activator, int caller, UseType use, float
     
     // Validate weapons
     int iLeft = GetEntProp(entity, Prop_Data, "m_iHammerID");
-    if(iLeft)
+    if (iLeft)
     {
         // Reduce amount
         iLeft--;
@@ -1731,7 +1731,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 
     // Validate death
     int iType = GetEntProp(entity, Prop_Data, "m_iHammerID");
-    if(!iHealth && iType != -1) /// Avoid double spawn
+    if (!iHealth && iType != -1) /// Avoid double spawn
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3];
@@ -1742,7 +1742,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
     
         // Switch case type
         MenuType mSlot;
-        switch(iType)
+        switch (iType)
         {
             case EXPL   : mSlot = MenuType_Shotguns;
             case HEAVY  : mSlot = MenuType_Machineguns;
@@ -1770,7 +1770,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 /*public Action CaseTransmitHook(int entity, int client)
 {
     // Validate zombie
-    if(ZP_IsPlayerZombie(client))
+    if (ZP_IsPlayerZombie(client))
     {
         // Block transmitting
         return Plugin_Handled;
@@ -1796,7 +1796,7 @@ public Action EmitterSolidHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Gets entity position
         static float vPosition[3];
@@ -1813,7 +1813,7 @@ public Action EmitterSolidHook(Handle hTimer, int refID)
         TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
 
         // Is hit world only ?
-        if(!hList.Length)
+        if (!hList.Length)
         {
             // Sets physics
             SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
@@ -1862,7 +1862,7 @@ public bool ClientFilter(int entity, int contentsMask)
 public bool ClientEnumerator(int entity, ArrayList hData)
 {
     // Validate player
-    if(IsPlayerExist(entity))
+    if (IsPlayerExist(entity))
     {
         TR_ClipCurrentRayToEntity(MASK_ALL, entity);
         if (TR_DidHit()) hData.Push(entity);
@@ -1881,10 +1881,10 @@ stock int LeftToBody(int iLeft)
 {
     // Calculate left percentage
     float flLeft = float(iLeft) / AIRDROP_WEAPONS;
-    if(flLeft > 0.8)      return 0;    
-    else if(flLeft > 0.6) return 1;
-    else if(flLeft > 0.4) return 2;
-    else if(flLeft > 0.2) return 3;
+    if (flLeft > 0.8)      return 0;    
+    else if (flLeft > 0.6) return 1;
+    else if (flLeft > 0.4) return 2;
+    else if (flLeft > 0.2) return 3;
     return 4;   
 }
 
@@ -1900,13 +1900,13 @@ stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3], float vVelocit
 {
     // Valdiate random weapon id
     int iD = FindRandomWeapon(mSlot);
-    if(iD != -1)
+    if (iD != -1)
     {
         // Create a random weapon entity
         int weapon = ZP_CreateWeapon(iD, vPosition, vAngle);
         
         // Validate entity
-        if(weapon != -1)
+        if (weapon != -1)
         {
             // Push the entity
             TeleportEntity(weapon, NULL_VECTOR, NULL_VECTOR, vVelocity);
@@ -1932,21 +1932,21 @@ stock int FindRandomWeapon(MenuType mSlot = MenuType_Invalid)
     int[] weaponID = new int[iSize]; int x;
     
     // Validate all types
-    if(mSlot == MenuType_Invalid)
+    if (mSlot == MenuType_Invalid)
     {
         // i = weapon id 
-        for(int i = 0; i < iSize; i++)
+        for (int i = 0; i < iSize; i++)
         {
             // Validate class/drop/slot
             ZP_GetWeaponClass(i, sClassname, sizeof(sClassname));
-            if(StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i))
+            if (StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i))
             {
                 continue;
             }
 
             // Validate def index
             ItemDef iItem = ZP_GetWeaponDefIndex(i);
-            if(IsItem(iItem) || iItem == ItemDef_Fists)
+            if (IsItem(iItem) || iItem == ItemDef_Fists)
             {
                 continue;
             }
@@ -1958,18 +1958,18 @@ stock int FindRandomWeapon(MenuType mSlot = MenuType_Invalid)
     else
     {
         // i = weapon id 
-        for(int i = 0; i < iSize; i++)
+        for (int i = 0; i < iSize; i++)
         {
             // Validate class/drop/slot
             ZP_GetWeaponClass(i, sClassname, sizeof(sClassname));
-            if(StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i) || ZP_GetWeaponSlot(i) != mSlot)
+            if (StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i) || ZP_GetWeaponSlot(i) != mSlot)
             {
                 continue;
             }
 
             // Validate def index
             ItemDef iItem = ZP_GetWeaponDefIndex(i);
-            if(IsItem(iItem) || iItem == ItemDef_Fists)
+            if (IsItem(iItem) || iItem == ItemDef_Fists)
             {
                 continue;
             }

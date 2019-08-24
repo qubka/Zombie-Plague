@@ -61,10 +61,10 @@ int gWeapon; int gDublicat;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -80,7 +80,7 @@ public void ZP_OnEngineExecute(/*void*/)
     // Weapons
     gWeapon = ZP_GetWeaponNameID("molotov");
     gDublicat = ZP_GetWeaponNameID("inc grenade"); /// Bugfix
-    if(gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"molotov\" or \"inc grenade\" wasn't find");
+    if (gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"molotov\" or \"inc grenade\" wasn't find");
 }
 
 /**
@@ -95,18 +95,18 @@ public void ZP_OnEngineExecute(/*void*/)
 public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 {
     // Check the weapon index
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Validate access
-        if(ZP_IsPlayerHasWeapon(client, gDublicat) != -1)
+        if (ZP_IsPlayerHasWeapon(client, gDublicat) != -1)
         {
             return Plugin_Handled;
         }
     }
-    else if(weaponID == gDublicat)
+    else if (weaponID == gDublicat)
     {
         // Validate access
-        if(ZP_IsPlayerHasWeapon(client, gWeapon) != -1)
+        if (ZP_IsPlayerHasWeapon(client, gWeapon) != -1)
         {
             return Plugin_Handled;
         }
@@ -125,7 +125,7 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 public void ZP_OnClientUpdated(int client, int attacker)
 {
     // Validate human
-    if(ZP_IsPlayerHuman(client))
+    if (ZP_IsPlayerHuman(client))
     {
         // This instead of 'ExtinguishEntity' function
         UTIL_ExtinguishEntity(client);
@@ -145,13 +145,13 @@ public void ZP_OnClientUpdated(int client, int attacker)
 public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
     // Client was damaged by 'fire' or 'burn'
-    if(iBits & DMG_BURN || iBits & DMG_DIRECT)
+    if (iBits & DMG_BURN || iBits & DMG_DIRECT)
     {
         // Verify that the victim is zombie
-        if(ZP_IsPlayerZombie(client))
+        if (ZP_IsPlayerZombie(client))
         {
             // If the victim is in the water or freezed
-            if(GetEntProp(client, Prop_Data, "m_nWaterLevel") > WLEVEL_CSGO_FEET || GetEntityMoveType(client) == MOVETYPE_NONE)
+            if (GetEntProp(client, Prop_Data, "m_nWaterLevel") > WLEVEL_CSGO_FEET || GetEntityMoveType(client) == MOVETYPE_NONE)
             {
                 // This instead of 'ExtinguishEntity' function
                 UTIL_ExtinguishEntity(client);
@@ -162,7 +162,7 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
                 float flStamina; float flDuration; int iD = GetEntProp(inflictor, Prop_Data, "m_iHammerID");
         
                 // Validate custom grenade
-                if(iD == gDublicat)
+                if (iD == gDublicat)
                 {
                     // Return damage multiplier
                     flDamage *= ZP_GetWeaponDamage(gDublicat);
@@ -173,7 +173,7 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
                     // Sets duration
                     flDuration = ZP_GetWeaponModelHeat(gDublicat);
                 }
-                else if(iD == gWeapon)
+                else if (iD == gWeapon)
                 {
                     // Return damage multiplier
                     flDamage *= ZP_GetWeaponDamage(gWeapon);
@@ -187,7 +187,7 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
                 else return;
 
                 // Put the fire on
-                if(iBits & DMG_BURN) UTIL_IgniteEntity(client, flDuration);
+                if (iBits & DMG_BURN) UTIL_IgniteEntity(client, flDuration);
 
                 // Apply the stamina-based slowdown
                 SetEntPropFloat(client, Prop_Send, "m_flStamina", flStamina);

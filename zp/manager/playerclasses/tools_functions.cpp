@@ -76,7 +76,7 @@ void ToolsOnCommandLoad(/*void*/)
     static char sCommand[SMALL_LINE_LENGTH];
     
     // Validate alias
-    if(hasLength(sCommand))
+    if (hasLength(sCommand))
     {
         // Unhook listeners
         RemoveCommandListener2(ToolsOnCommandListened, sCommand);
@@ -86,7 +86,7 @@ void ToolsOnCommandLoad(/*void*/)
     gCvarList[CVAR_LIGHT_BUTTON].GetString(sCommand, sizeof(sCommand));
     
     // Validate alias
-    if(!hasLength(sCommand))
+    if (!hasLength(sCommand))
     {
         // Unhook listeners
         RemoveCommandListener2(ToolsOnCommandListened, sCommand);
@@ -109,7 +109,7 @@ void ToolsOnCommandLoad(/*void*/)
 public void ToolsFOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(!strcmp(oldValue, newValue, false))
+    if (!strcmp(oldValue, newValue, false))
     {
         return;
     }
@@ -129,17 +129,17 @@ public void ToolsFOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 public Action ToolsOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate client 
-    if(IsPlayerExist(client))
+    if (IsPlayerExist(client))
     {
         // Gets class overlay
         static char sOverlay[PLATFORM_LINE_LENGTH];
         ClassGetOverlay(gClientData[client].Class, sOverlay, sizeof(sOverlay));
 
         // Validate nvgs
-        if(ClassIsNvgs(gClientData[client].Class) || hasLength(sOverlay)) 
+        if (ClassIsNvgs(gClientData[client].Class) || hasLength(sOverlay)) 
         {
             // If mode doesn't ended yet, then stop
-            if(gServerData.RoundEnd) /// Avoid reset round end overlays
+            if (gServerData.RoundEnd) /// Avoid reset round end overlays
             {
                 // Block command
                 return Plugin_Handled;
@@ -209,20 +209,20 @@ public Action ToolsOnMessageHook(UserMsg iMessage, BfRead hBuffer, int[] iPlayer
 bool ToolsForceToRespawn(int client)
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return false;
     }
     
     // Verify that the client is dead
-    if(IsPlayerAlive(client))
+    if (IsPlayerAlive(client))
     {
         return false;
     }
     
     // Respawn as human ?
     int iDeathMatch = ModesGetMatch(gServerData.RoundMode);
-    if(iDeathMatch == 1 || (iDeathMatch == 2 && GetRandomInt(0, 1)) || (iDeathMatch == 3 && fnGetHumans() < fnGetAlive() / 2))
+    if (iDeathMatch == 1 || (iDeathMatch == 2 && GetRandomInt(0, 1)) || (iDeathMatch == 3 && fnGetHumans() < fnGetAlive() / 2))
     {
         gClientData[client].Respawn = TEAM_HUMAN;
     }
@@ -251,7 +251,7 @@ bool ToolsForceToRespawn(int client)
 void ToolsSetVelocity(int entity, float vVelocity[3], bool bApply = true, bool bStack = true)
 {
     // If retrieve if true, then get entity velocity
-    if(!bApply)
+    if (!bApply)
     {
         // Gets entity velocity
         ToolsGetVelocity(entity, vVelocity);
@@ -261,7 +261,7 @@ void ToolsSetVelocity(int entity, float vVelocity[3], bool bApply = true, bool b
     }
     
     // If stack is true, then add entity velocity
-    if(bStack)
+    if (bStack)
     {
         // Gets entity velocity
         static float vSpeed[3];
@@ -362,7 +362,7 @@ void ToolsSetHealth(int entity, int iValue, bool bSet = false)
     SetEntProp(entity, Prop_Send, "m_iHealth", iValue);
     
     // If set is true, then set max health
-    if(bSet) 
+    if (bSet) 
     {
         // Sets max health of the entity
         SetEntProp(entity, Prop_Data, "m_iMaxHealth", iValue);
@@ -438,7 +438,7 @@ int ToolsGetTeam(int entity)
 void ToolsSetTeam(int entity, int iValue)
 {
     // Validate team
-    if(ToolsGetTeam(entity) <= TEAM_SPECTATOR) /// Fix, thanks to inklesspen!
+    if (ToolsGetTeam(entity) <= TEAM_SPECTATOR) /// Fix, thanks to inklesspen!
     {
         // Sets team of the entity
         ChangeClientTeam(entity, iValue);
@@ -681,7 +681,7 @@ void ToolsSetGravity(int entity, float flValue)
 void ToolsSetSpot(int entity, bool bEnable)
 {
     // If retrieve if true, then reset variables
-    if(!bEnable)
+    if (!bEnable)
     {
         // Sets value on the entity
         SetEntData(entity, Player_Spotted, false, 1, true);
@@ -778,8 +778,8 @@ void ToolsSetFov(int entity, int iValue = 90)
  **/
 void ToolsSetTextures(int entity, int iBody = -1, int iSkin = -1)
 {
-    if(iBody != -1) SetEntProp(entity, Prop_Send, "m_nBody", iBody);
-    if(iSkin != -1) SetEntProp(entity, Prop_Send, "m_nSkin", iSkin);
+    if (iBody != -1) SetEntProp(entity, Prop_Send, "m_nBody", iBody);
+    if (iSkin != -1) SetEntProp(entity, Prop_Send, "m_nSkin", iSkin);
 }
 
 /**
@@ -903,14 +903,14 @@ bool ToolsLookupAttachment(int entity, char[] sAttach)
 void ToolsGetAttachment(int entity, char[] sAttach, float vPosition[3], float vAngle[3])
 {
     // Validate windows
-    if(gServerData.Platform == OS_Windows)
+    if (gServerData.Platform == OS_Windows)
     {
         SDKCall(hSDKCallGetAttachment, entity, sAttach, vPosition, vAngle); 
     }
     else
     {
         int iAttach = SDKCall(hSDKCallLookupAttachment, entity, sAttach);
-        if(iAttach)
+        if (iAttach)
         {
             SDKCall(hSDKCallGetAttachment, entity, iAttach, vPosition, vAngle); 
         }
@@ -927,7 +927,7 @@ void ToolsGetAttachment(int entity, char[] sAttach, float vPosition[3], float vA
 int ToolsLookupSequence(int entity, char[] sAnim)
 {
     // Validate windows
-    if(gServerData.Platform == OS_Windows)
+    if (gServerData.Platform == OS_Windows)
     {
         return SDKCall(hSDKCallLookupSequence, entity, sAnim); 
     }
@@ -935,7 +935,7 @@ int ToolsLookupSequence(int entity, char[] sAnim)
     {
         // Gets 'CStudioHdr' class
         Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-        if(pStudioHdrClass == Address_Null)
+        if (pStudioHdrClass == Address_Null)
         {
             return -1;
         }
@@ -955,7 +955,7 @@ int ToolsLookupPoseParameter(int entity, char[] sPose)
 {
     // Gets 'CStudioHdr' class
     Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-    if(pStudioHdrClass == Address_Null)
+    if (pStudioHdrClass == Address_Null)
     {
         return -1;
     }
@@ -973,7 +973,7 @@ void ToolsResetSequence(int entity, char[] sAnim)
 { 
     // Find the sequence index
     int iSequence = ToolsLookupSequence(entity, sAnim); 
-    if(iSequence < 0) 
+    if (iSequence < 0) 
     {
         return; 
     }
@@ -1000,17 +1000,17 @@ int ToolsGetSequenceCount(int entity)
 {
     // Gets 'CStudioHdr' class
     Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-    if(pStudioHdrClass == Address_Null)
+    if (pStudioHdrClass == Address_Null)
     {
         return -1;
     }
     
     // Gets 'studiohdr_t' class
     Address pStudioHdrStruct = view_as<Address>(LoadFromAddress(pStudioHdrClass + view_as<Address>(StudioHdrClass_StudioHdrStruct), NumberType_Int32));
-    if(pStudioHdrStruct != Address_Null)
+    if (pStudioHdrStruct != Address_Null)
     {
         int localSequenceCount = LoadFromAddress(pStudioHdrStruct + view_as<Address>(StudioHdrStruct_SequenceCount), NumberType_Int32);
-        if(localSequenceCount)
+        if (localSequenceCount)
         {
             return localSequenceCount;
         }
@@ -1018,7 +1018,7 @@ int ToolsGetSequenceCount(int entity)
     
     // Gets 'virtualmodel_t' class
     Address pVirtualModelStruct = view_as<Address>(LoadFromAddress(pStudioHdrClass + view_as<Address>(StudioHdrClass_VirualModelStruct), NumberType_Int32));
-    if(pVirtualModelStruct != Address_Null)
+    if (pVirtualModelStruct != Address_Null)
     {
         return LoadFromAddress(pVirtualModelStruct + view_as<Address>(VirtualModelStruct_SequenceVector_Size), NumberType_Int32);
     }

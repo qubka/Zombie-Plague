@@ -64,10 +64,10 @@ int gHuman;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -82,15 +82,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gHuman = ZP_GetClassNameID("redalice");
-    //if(gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"redalice\" wasn't find");
+    //if (gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"redalice\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("REDALICE_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDALICE_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDALICE_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -104,7 +104,7 @@ public void ZP_OnEngineExecute(/*void*/)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the human class index
-    if(ZP_GetClientClass(client) == gHuman)
+    if (ZP_GetClientClass(client) == gHuman)
     {
         // Sets a new speed
         SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", HUMAN_CLASS_SKILL_SPEED);
@@ -130,7 +130,7 @@ public Action ZP_OnClientSkillUsed(int client)
 public void ZP_OnClientSkillOver(int client)
 {
     // Validate the human class index
-    if(ZP_GetClientClass(client) == gHuman) 
+    if (ZP_GetClientClass(client) == gHuman) 
     {
         // Sets previous speed
         SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZP_GetClassSpeed(gHuman));

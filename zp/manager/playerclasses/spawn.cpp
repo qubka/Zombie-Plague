@@ -50,7 +50,7 @@ void SpawnOnLoad(/*void*/)
     SpawnOnCacheData("info_player_counterterrorist");
     
     // If team spawns weren't found
-    if(!gServerData.Spawns.Length)
+    if (!gServerData.Spawns.Length)
     {
         // Now copy positions to array structure
         SpawnOnCacheData("info_player_deathmatch");
@@ -68,7 +68,7 @@ void SpawnOnCacheData(char[] sClassname)
 {
     // Loop throught all entities
     int entity;
-    while((entity = FindEntityByClassname(entity, sClassname)) != -1)
+    while ((entity = FindEntityByClassname(entity, sClassname)) != -1)
     {
         // Gets origin position
         static float vPosition[3];
@@ -99,14 +99,14 @@ void SpawnOnCommandInit(/*void*/)
 public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
     // Validate client 
-    if(IsPlayerExist(client, false))
+    if (IsPlayerExist(client, false))
     {
         // Retrieves a command argument given its index
         static char sArg[SMALL_LINE_LENGTH];
         GetCmdArg(1, sArg, sizeof(sArg));
 
         // Validate arguments
-        if(!hasLength(sArg))
+        if (!hasLength(sArg))
         {
             // Allow command
             return Plugin_Continue;
@@ -116,24 +116,24 @@ public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArgumen
         int iTeam = StringToInt(sArg);
 
         // Gets current team
-        switch(ToolsGetTeam(client))
+        switch (ToolsGetTeam(client))
         {
             case TEAM_NONE :
             {
                 // Switch new team
-                switch(iTeam)
+                switch (iTeam)
                 {
                     case TEAM_HUMAN, TEAM_ZOMBIE :
                     {
                         // Validate last disconnection delay
                         int iDelay = RoundToNearest(float(GetTime() - gClientData[client].Time) / 60.0);
-                        if(iDelay > gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP].IntValue || gServerData.RoundMode == -1)
+                        if (iDelay > gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP].IntValue || gServerData.RoundMode == -1)
                         {
                             // Switch team
                             ToolsSetTeam(client, (client & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
                             
                             // If game round didn't start, then respawn
-                            if(gServerData.RoundMode == -1)
+                            if (gServerData.RoundMode == -1)
                             {
                                 // Force client to respawn
                                 ToolsForceToRespawn(client);
@@ -145,7 +145,7 @@ public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArgumen
                             }
 
                             // Validate first connection
-                            if(gClientData[client].Time <= 0) 
+                            if (gClientData[client].Time <= 0) 
                             {
                                 // Sets time of disconnection
                                 gClientData[client].Time = GetTime();
@@ -164,12 +164,12 @@ public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArgumen
             case TEAM_SPECTATOR :
             {
                 // Validate new team
-                switch(iTeam)
+                switch (iTeam)
                 {
                     case TEAM_HUMAN, TEAM_ZOMBIE :
                     {
                         // If game round didn't start, then respawn
-                        if(gServerData.RoundMode == -1)
+                        if (gServerData.RoundMode == -1)
                         {
                             // Switch team
                             ToolsSetTeam(client, (client & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);
@@ -187,7 +187,7 @@ public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArgumen
             case TEAM_ZOMBIE :
             {
                 // Validate new team
-                switch(iTeam)
+                switch (iTeam)
                 {
                     // Block command     
                     case TEAM_NONE, TEAM_HUMAN : return Plugin_Handled;
@@ -197,7 +197,7 @@ public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArgumen
             case TEAM_HUMAN :
             {
                 // Validate new team
-                switch(iTeam)
+                switch (iTeam)
                 {
                     // Block command     
                     case TEAM_NONE, TEAM_ZOMBIE : return Plugin_Handled;
@@ -231,7 +231,7 @@ public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast)
     int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return;
     }

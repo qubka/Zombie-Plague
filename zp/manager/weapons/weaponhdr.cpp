@@ -43,13 +43,13 @@ void WeaponHDRToggleViewModel(int client, int view, int iD)
     int weapon;
 
     // Resets toggle
-    if((gClientData[client].ToggleSequence = !gClientData[client].ToggleSequence))
+    if ((gClientData[client].ToggleSequence = !gClientData[client].ToggleSequence))
     {
         // Gets swapped weapon index from the reference
         weapon = EntRefToEntIndex(gClientData[client].SwapWeapon);
 
         // Validate no weapon, then create a swaped pair 
-        if(weapon == -1)
+        if (weapon == -1)
         {
             weapon = WeaponHDRCreateSwapWeapon(iD, client);
             gClientData[client].SwapWeapon = EntIndexToEntRef(weapon);
@@ -79,13 +79,13 @@ int WeaponHDRCreateSwapWeapon(int iD, int client)
 
     // i = weapon number
     int iSize = ToolsGetMyWeapons(client);
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets weapon index
         int weapon2 = ToolsGetWeapon(client, i);
         
         // Validate swapped weapon
-        if(weapon2 != -1 && weapon1 != weapon2)
+        if (weapon2 != -1 && weapon1 != weapon2)
         {
             return weapon2;
         }
@@ -95,7 +95,7 @@ int WeaponHDRCreateSwapWeapon(int iD, int client)
     weapon1 = WeaponsCreate(iD);
 
     // Validate weapon
-    if(weapon1 != -1)
+    if (weapon1 != -1)
     {
         // Sets parent to the entity
         WeaponsSetOwner(weapon1, client);
@@ -163,7 +163,7 @@ void WeaponHDRSetPlayerWorldModel(int weapon, int iD, ModelType nModel = ModelTy
     int world = WeaponHDRGetPlayerWorldModel(weapon);
 
     // Validate worldmodel
-    if(world != -1)
+    if (world != -1)
     {
         // Gets weapon worldmodel
         int iModel = WeaponsGetModelWorldID(iD);
@@ -172,7 +172,7 @@ void WeaponHDRSetPlayerWorldModel(int weapon, int iD, ModelType nModel = ModelTy
         ToolsSetModelIndex(world, iModel);
         
         // Validate model
-        if(iModel) 
+        if (iModel) 
         {
             // Sets body/skin index for the worldmodel
             ToolsSetTextures(world, WeaponsGetModelBody(iD, nModel));
@@ -191,42 +191,58 @@ void WeaponHDRSetPlayerWorldModel(int weapon, int iD, ModelType nModel = ModelTy
 void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_Invalid)
 {
     // If dropmodel exist, then apply it
-    if(WeaponsGetModelDropID(iD))
+    if (WeaponsGetModelDropID(iD))
     {
-        // Sets render mode
-        UTIL_SetRenderColor(weapon, Color_Alpha, 0);
-        
-        // If dropped model wasn't created, then do
-        if(GetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter") == -1)
+        // Validate projectile type
+        if (nModel == ModelType_Projectile)
         {
-            // Initialize vector variables
-            static float vPosition[3]; static float vAngle[3];
-
-            // Gets weapon position
-            ToolsGetAbsOrigin(weapon, vPosition); 
-            ToolsGetAbsAngles(weapon, vAngle);
-    
             // Gets weapon dropmodel
             static char sModel[PLATFORM_LINE_LENGTH];
             WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
     
-            // Creates an attach weapon entity 
-            int entity = UTIL_CreateDynamic("dropped", vPosition, vAngle, sModel);
+            // Sets model for the weapon
+            SetEntityModel(weapon, sModel);
+        
+            // Sets body/skin index for the weapon
+            ToolsSetTextures(weapon, WeaponsGetModelBody(iD, nModel), WeaponsGetModelSkin(iD, nModel));
+        }
+        else
+        {
+            // Sets render mode
+            UTIL_SetRenderColor(weapon, Color_Alpha, 0);
             
-            // If entity isn't valid, then skip
-            if(entity != -1)
+            // If dropped model wasn't created, then do
+            if (GetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter") == -1)
             {
-                // Sets bodygroup/skin for the entity
-                ToolsSetTextures(entity, WeaponsGetModelBody(iD, nModel), WeaponsGetModelSkin(iD, nModel));
+                // Initialize vector variables
+                static float vPosition[3]; static float vAngle[3];
 
-                // Sets parent to the entity
-                SetVariantString("!activator");
-                AcceptEntityInput(entity, "SetParent", weapon, entity);
-                ToolsSetOwner(entity, weapon);
-                SetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter", entity);
+                // Gets weapon position
+                ToolsGetAbsOrigin(weapon, vPosition); 
+                ToolsGetAbsAngles(weapon, vAngle);
+        
+                // Gets weapon dropmodel
+                static char sModel[PLATFORM_LINE_LENGTH];
+                WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
+        
+                // Creates an attach weapon entity 
+                int entity = UTIL_CreateDynamic("dropped", vPosition, vAngle, sModel);
                 
-                // Hook entity callbacks
-                SDKHook(entity, SDKHook_SetTransmit, WeaponHDROnDroppedTransmit);
+                // If entity isn't valid, then skip
+                if (entity != -1)
+                {
+                    // Sets bodygroup/skin for the entity
+                    ToolsSetTextures(entity, WeaponsGetModelBody(iD, nModel), WeaponsGetModelSkin(iD, nModel));
+
+                    // Sets parent to the entity
+                    SetVariantString("!activator");
+                    AcceptEntityInput(entity, "SetParent", weapon, entity);
+                    ToolsSetOwner(entity, weapon);
+                    SetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter", entity);
+                    
+                    // Hook entity callbacks
+                    SDKHook(entity, SDKHook_SetTransmit, WeaponHDROnDroppedTransmit);
+                }
             }
         }
     }
@@ -245,11 +261,11 @@ public Action WeaponHDROnDroppedTransmit(int entity, int client)
     int weapon = ToolsGetOwner(entity);
 
     // Validate weapon
-    if(weapon != -1)
+    if (weapon != -1)
     {
         // Validate owner
         int owner = WeaponsGetOwner(weapon);
-        if(IsPlayerExist(owner))
+        if (IsPlayerExist(owner))
         {
             // Block transmitting
             return Plugin_Handled;
@@ -289,13 +305,13 @@ int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], int iS
     int iValue = iSequences[iIndex]; int iSwap = -1;
 
     // Validate empty sequence
-    if(!iValue)
+    if (!iValue)
     {
         // Continue to next if sequence wasn't an activity
-        if((iValue = iSequences[iIndex] = ToolsGetSequenceActivity(weapon, iIndex)) == -1)
+        if ((iValue = iSequences[iIndex] = ToolsGetSequenceActivity(weapon, iIndex)) == -1)
         {
             // Validate not a filled sequence
-            if(++iIndex < iSequenceCount)
+            if (++iIndex < iSequenceCount)
             {
                 WeaponHDRBuildSwapSequenceArray(iSequences, iSequenceCount, weapon, iIndex);
                 return -1;
@@ -306,10 +322,10 @@ int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], int iS
         }
     }
     // Shift a big
-    else if(iValue == -1)
+    else if (iValue == -1)
     {
         // Validate not a filled sequence
-        if(++iIndex < iSequenceCount)
+        if (++iIndex < iSequenceCount)
         {
             WeaponHDRBuildSwapSequenceArray(iSequences, iSequenceCount, weapon, iIndex);
             return -1;
@@ -318,7 +334,7 @@ int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], int iS
         return 0;
     }
     // Validate equality
-    else if(iValue & SWAP_SEQ_PAIRED)
+    else if (iValue & SWAP_SEQ_PAIRED)
     {
         // Gets index
         iSwap = (iValue & ~SWAP_SEQ_PAIRED) >> 16;
@@ -333,13 +349,13 @@ int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], int iS
     }
 
     // i = sequence index
-    for(int i = iIndex + 1; i < iSequenceCount; i++)
+    for (int i = iIndex + 1; i < iSequenceCount; i++)
     {
         // Find next sequence
         int iNext = WeaponHDRBuildSwapSequenceArray(iSequences, iSequenceCount, weapon, i);
 
         // Validate cell
-        if(iValue == iNext)
+        if (iValue == iNext)
         {
             // Update
             iSwap = i;

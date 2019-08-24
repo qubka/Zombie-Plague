@@ -66,13 +66,13 @@ enum
 void HitGroupsOnInit(/*void*/)
 {
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         // i = client index
-        for(int i = 1; i <= MaxClients; i++)
+        for (int i = 1; i <= MaxClients; i++)
         {
             // Validate client
-            if(IsPlayerExist(i, false))
+            if (IsPlayerExist(i, false))
             {
                 // Update the client data
                 HitGroupsOnClientInit(i);
@@ -93,7 +93,7 @@ void HitGroupsOnLoad(/*void*/)
     ConfigRegisterConfig(File_HitGroups, Structure_Keyvalue, CONFIG_FILE_ALIAS_HITGROUPS);
 
     // If hitgroups is disabled, then stop
-    if(!gCvarList[CVAR_HITGROUP].BoolValue)
+    if (!gCvarList[CVAR_HITGROUP].BoolValue)
     {
         return;
     }
@@ -103,7 +103,7 @@ void HitGroupsOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_HITGROUPS, sPathGroups, sizeof(sPathGroups));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Missing hitgroups config file: %s", sPathGroups);
@@ -117,7 +117,7 @@ void HitGroupsOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_HitGroups, gServerData.HitGroups);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error encountered loading: %s", sPathGroups);
         return;
@@ -146,7 +146,7 @@ void HitGroupsOnCacheData(/*void*/)
     bool bSuccess = ConfigOpenConfigFile(File_HitGroups, kvHitGroups);
     
     // Validate config
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error caching data from hitgroups config file: %s", sPathGroups);
         return;
@@ -154,19 +154,19 @@ void HitGroupsOnCacheData(/*void*/)
     
     // Validate size
     int iSize = gServerData.HitGroups.Length;
-    if(!iSize)
+    if (!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "No usable data found in hitgroups config file: %s", sPathGroups);
         return;
     }
 
     // i = array index
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // General
         HitGroupsGetName(i, sPathGroups, sizeof(sPathGroups)); // Index: 0
         kvHitGroups.Rewind();
-        if(!kvHitGroups.JumpToKey(sPathGroups))
+        if (!kvHitGroups.JumpToKey(sPathGroups))
         {
             LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Couldn't cache hitgroup data for: %s (check hitgroup config)", sPathGroups);
             continue;
@@ -240,7 +240,7 @@ void HitGroupsOnClientInit(int client)
 {
     // If gamemodes is disabled, then unhook
     int iDamage = gCvarList[CVAR_GAMEMODE].IntValue;
-    if(!iDamage)
+    if (!iDamage)
     {
         // Unhook entity callbacks
         SDKUnhook(client, SDKHook_TraceAttack,  HitGroupsOnTraceAttack);
@@ -262,7 +262,7 @@ void HitGroupsOnClientInit(int client)
 void HitGroupsOnEntityCreated(int entity, const char[] sClassname)
 {
     // Validate entity
-    if(entity > -1 && !strcmp(sClassname[6], "hurt", false))
+    if (entity > -1 && !strcmp(sClassname[6], "hurt", false))
     {
         // Hook entity callbacks
         SDKHook(entity, SDKHook_SpawnPost, HitGroupsOnHurtSpawn);
@@ -280,7 +280,7 @@ void HitGroupsOnEntityCreated(int entity, const char[] sClassname)
 public void HitGroupsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
@@ -309,17 +309,17 @@ public void HitGroupsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
 public Action HitGroupsOnTraceAttack(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &iAmmo, int iHitBox, int iHitGroup)
 {
     // If mode doesn't started yet, then stop
-    if(!gServerData.RoundStart)
+    if (!gServerData.RoundStart)
     {
         // Stop trace
         return Plugin_Handled;
     }
     
     // Validate victim/attacker
-    if(IsPlayerAlive(client) && IsPlayerExist(attacker))
+    if (IsPlayerAlive(client) && IsPlayerExist(attacker))
     {
         // Validate team
-        if(ToolsGetTeam(client) == ToolsGetTeam(attacker))
+        if (ToolsGetTeam(client) == ToolsGetTeam(attacker))
         {
             // Stop trace
             return Plugin_Handled;
@@ -327,14 +327,14 @@ public Action HitGroupsOnTraceAttack(int client, int &attacker, int &inflictor, 
     }
 
     // If custom hitgroups enabled, then apply multipliers
-    if(gCvarList[CVAR_HITGROUP].BoolValue)
+    if (gCvarList[CVAR_HITGROUP].BoolValue)
     {
         // Validate hitgroup index
         int iHitIndex = HitGroupToIndex(iHitGroup);
-        if(iHitIndex != -1)
+        if (iHitIndex != -1)
         {
             // Validate damage
-            if(!HitGroupsIsDamage(iHitIndex))
+            if (!HitGroupsIsDamage(iHitIndex))
             {
                 // Stop trace
                 return Plugin_Handled;
@@ -365,13 +365,13 @@ public Action HitGroupsOnTakeDamage(int client, int &attacker, int &inflictor, f
     static char sClassname[SMALL_LINE_LENGTH]; sClassname[0] = NULL_STRING[0];
     
     // Validate inflicter
-    if(IsValidEdict(inflictor))
+    if (IsValidEdict(inflictor))
     {
         // Gets classname of the inflicter
         GetEdictClassname(inflictor, sClassname, sizeof(sClassname));
 
         // If entity is a trigger, then allow damage, because map is damaging client
-        if(!strncmp(sClassname, "trigger", 7, false))
+        if (!strncmp(sClassname, "trigger", 7, false))
         {
             // Allow damage
             return Plugin_Continue;
@@ -379,14 +379,14 @@ public Action HitGroupsOnTakeDamage(int client, int &attacker, int &inflictor, f
     }
 
     // If mode doesn't started yet, then stop
-    if(!gServerData.RoundStart)
+    if (!gServerData.RoundStart)
     {
         // Block damage
         return Plugin_Handled;
     }
 
     // Validate damage
-    if(!HitGroupsOnCalculateDamage(client, attacker, inflictor, flDamage, iBits, weapon, sClassname))
+    if (!HitGroupsOnCalculateDamage(client, attacker, inflictor, flDamage, iBits, weapon, sClassname))
     {
         // Block damage
         return Plugin_Handled;
@@ -425,7 +425,7 @@ public void HitGroupsOnHurtSpawn(int entity)
 bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon, char[] sClassname)
 {
     // Validate victim
-    if(!IsPlayerAlive(client))
+    if (!IsPlayerAlive(client))
     {
         // Block damage
         return false;
@@ -439,7 +439,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     int iHitGroup = ToolsGetHitGroup(client);
 
     // Validate bit
-    if(!HitGroupsValidateBits(client, iBits, iHitGroup))
+    if (!HitGroupsValidateBits(client, iBits, iHitGroup))
     {
         // Block damage
         return false;
@@ -448,11 +448,11 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     /*_________________________________________________________________________________________________________________________________________*/
     
     // If custom hitgroups enabled, then apply multipliers
-    if(gCvarList[CVAR_HITGROUP].BoolValue)
+    if (gCvarList[CVAR_HITGROUP].BoolValue)
     {
         // Validate hitgroup index
         int iHitIndex = HitGroupToIndex(iHitGroup);
-        if(iHitIndex != -1)
+        if (iHitIndex != -1)
         {
             // Resets new multipliers
             flArmorRatio = HitGroupsGetArmor(iHitIndex);
@@ -465,21 +465,21 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
             flKnockRatio *= HitGroupsGetKnockBack(iHitIndex);
 
             // Validate heavysuit
-            if(bHasHeavySuit)
+            if (bHasHeavySuit)
             {
                 // Add multiplier
                 flDamageRatio *= HitGroupsGetHeavy(iHitIndex);
             }
             
             // Validate shield
-            if(bHasShield)
+            if (bHasShield)
             {
                 // Add multiplier
                 flDamageRatio *= HitGroupsGetShield(iHitIndex);
             }
             
             // Validate damage
-            if(!HitGroupsIsDamage(iHitIndex))
+            if (!HitGroupsIsDamage(iHitIndex))
             {
                 // Block damage
                 return false;
@@ -490,11 +490,11 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate point_hurt
-    if(!strcmp(sClassname[6], "hurt", false))
+    if (!strcmp(sClassname[6], "hurt", false))
     {
         /// Restore attacker
         attacker = ToolsGetActivator(inflictor);
-        if(client == attacker)
+        if (client == attacker)
         {
             // Block damage
             return false;
@@ -505,7 +505,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     gForwardData._OnClientDamaged(client, attacker, inflictor, flDamage, iBits, weapon);
 
     // Validate damage
-    if(flDamage < 0.0)
+    if (flDamage < 0.0)
     {
         // Block damage
         return false;
@@ -514,17 +514,17 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     /*_________________________________________________________________________________________________________________________________________*/
 
     // Validate attacker
-    if(IsPlayerExist(attacker, false))
+    if (IsPlayerExist(attacker, false))
     {
         // Validate team
-        if(!bSelfDamage && ToolsGetTeam(client) == ToolsGetTeam(attacker))
+        if (!bSelfDamage && ToolsGetTeam(client) == ToolsGetTeam(attacker))
         {
             // Block damage
             return false;
         }
 
         // If level system enabled, then apply multiplier
-        if(gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+        if (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
         {
             // Add multiplier
             flDamageRatio *= float(gClientData[attacker].Level) * gCvarList[CVAR_LEVEL_DAMAGE_RATIO].FloatValue + 1.0;
@@ -532,11 +532,11 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 
         /// Validate entity which is inflict damage
         int dealer = IsValidEdict(weapon) ? weapon : HitGroupsValidateInfclictor(sClassname) ? inflictor : -1;
-        if(dealer != -1)
+        if (dealer != -1)
         {
             // Validate custom index
             int iD = WeaponsGetCustomID(dealer);
-            if(iD != -1)
+            if (iD != -1)
             {
                 // Add multipliers
                 flDamageRatio *= WeaponsGetDamage(iD); 
@@ -560,14 +560,14 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     
     // Armor doesn't protect against fall or drown damage!
     int iArmor = ToolsGetArmor(client); 
-    if(iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsValidateArmor(client, iHitGroup))
+    if (iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsValidateArmor(client, iHitGroup))
     {
         // Calculate reduced amount
         float flReduce = flDamage * flArmorRatio;
         int iHit = RoundToNearest((flDamage - flReduce) * flBonusRatio);
 
         // Does this use more armor than we have?
-        if(iHit > iArmor)
+        if (iHit > iArmor)
         {
             flReduce = flDamage - iArmor;
             iHit = iArmor;
@@ -575,7 +575,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
         else
         {   
             // Validate high reduce
-            if(iHit < 0)
+            if (iHit < 0)
             {
                 iHit = 1;
             }
@@ -590,7 +590,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     }
     
     // Validate heavy armor
-    if(bHasHeavySuit && !iArmor)
+    if (bHasHeavySuit && !iArmor)
     {
         // Removes a heavy suit for returning movement speed
         ToolsSetHeavySuit(client, false);
@@ -605,36 +605,36 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     int iHealth = ToolsGetHealth(client) - iDamage;
     
     // Validate attacker
-    if(attacker > 0 && !bSelfDamage)
+    if (attacker > 0 && !bSelfDamage)
     {
         // Give rewards for applied damage
         HitGroupsGiveMoney(attacker, iDamage);
         HitGroupsGiveExp(attacker, iDamage);
         
         // If help messages enabled, then show info
-        if(gCvarList[CVAR_MESSAGES_DAMAGE].BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "full damage info" : "damage info", (iHealth > 0) ? iHealth : 0, iArmor);
+        if (gCvarList[CVAR_MESSAGES_DAMAGE].BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "full damage info" : "damage info", (iHealth > 0) ? iHealth : 0, iArmor);
 
         // Client was damaged by 'bullet' or 'knife'
-        if(iBits & DMG_NEVERGIB)
+        if (iBits & DMG_NEVERGIB)
         {
             // Apply knock
             HitGroupsApplyKnock(client, attacker, flKnockRatio * flDamage); /// Calculate knockback based on the damage amount and knockback multiplier
 
             // Validate zombie
-            if(gClientData[attacker].Zombie)
+            if (gClientData[attacker].Zombie)
             {
                 // If victim is zombie, then stop
-                if(gClientData[client].Zombie)
+                if (gClientData[client].Zombie)
                 {
                     // Block damage
                     return false;
                 }
 
                 // If the gamemode allow infection, then apply it
-                if(ModesIsInfection(gServerData.RoundMode))
+                if (ModesIsInfection(gServerData.RoundMode))
                 {
                     // Validate lethal damage
-                    if(iHealth <= 0 || (!bHasShield && !iArmor)) /// Checks for shield protection
+                    if (iHealth <= 0 || (!bHasShield && !iArmor)) /// Checks for shield protection
                     {
                         // Gets default zombie type
                         static char sType[SMALL_LINE_LENGTH];
@@ -646,7 +646,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
                     }
                     
                     // Validate infection protect
-                    if(bInfectProtect && !bHasShield) 
+                    if (bInfectProtect && !bHasShield) 
                     {
                         // Block damage
                         return false;
@@ -661,7 +661,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     VEffectsOnClientHurt(client, attacker, iHealth);
     
     // Validate health
-    if(iHealth > 0)
+    if (iHealth > 0)
     {
         // Sets applied damage
         ToolsSetHealth(client, iHealth);
@@ -717,13 +717,13 @@ public int API_TakeDamage(Handle hPlugin, const int iNumParams)
     Action hResult = HitGroupsOnTakeDamage(client, attacker, inflictor, flDamage, iBits, weapon, NULL_VECTOR, NULL_VECTOR);
     
     // Validate damage 
-    if(hResult == Plugin_Changed)
+    if (hResult == Plugin_Changed)
     {
         // If inflictor doesn't exist, then make a self damage
-        if(!IsValidEdict(inflictor)) inflictor = client;
+        if (!IsValidEdict(inflictor)) inflictor = client;
 
         // If attacker doesn't exist, then make a self damage
-        if(!IsPlayerExist(attacker, false)) attacker = client;
+        if (!IsPlayerExist(attacker, false)) attacker = client;
 
         // Create the damage to kill
         SDKHooks_TakeDamage(client, inflictor, attacker, flDamage);
@@ -764,7 +764,7 @@ public int API_GetHitGroupNameID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Can't find hitgroup with an empty name");
         return -1;
@@ -791,7 +791,7 @@ public int API_GetHitGroupName(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -801,7 +801,7 @@ public int API_GetHitGroupName(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "No buffer size");
         return -1;
@@ -826,7 +826,7 @@ public int API_GetHitGroupIndex(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -847,7 +847,7 @@ public int API_IsHitGroupDamage(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -868,7 +868,7 @@ public int API_GetHitGroupKnockBack(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -889,7 +889,7 @@ public int API_GetHitGroupArmor(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -910,7 +910,7 @@ public int API_GetHitGroupBonus(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -931,7 +931,7 @@ public int API_GetHitGroupHeavy(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -952,7 +952,7 @@ public int API_GetHitGroupShield(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -973,7 +973,7 @@ public int API_IsHitGroupProtect(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.HitGroups.Length)
+    if (iD >= gServerData.HitGroups.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
         return -1;
@@ -1140,13 +1140,13 @@ int HitGroupsNameToIndex(char[] sName)
     
     // i = box index
     int iSize = gServerData.HitGroups.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets hitbox name 
         HitGroupsGetName(i, sHitGroupName, sizeof(sHitGroupName));
         
         // If names match, then return index
-        if(!strcmp(sName, sHitGroupName, false))
+        if (!strcmp(sName, sHitGroupName, false))
         {
             // Return this index
             return i;
@@ -1167,13 +1167,13 @@ int HitGroupToIndex(int iHitGroup)
 {
     // i = box index
     int iSize = gServerData.HitGroups.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets hitgroup index at this array index
         int iIndex = HitGroupsGetIndex(i);
         
         // If hitgroup indexes match, then return array index
-        if(iHitGroup == iIndex)
+        if (iHitGroup == iIndex)
         {
             // Return this index
             return i;
@@ -1195,20 +1195,20 @@ int HitGroupToIndex(int iHitGroup)
 bool HitGroupsValidateBits(int client, int iBits, int &iHitGroup)
 {
     // Validate bits
-    if(iBits & (DMG_BURN | DMG_DIRECT))
+    if (iBits & (DMG_BURN | DMG_DIRECT))
     {
         iHitGroup = HITGROUP_CHEST;
     }
-    else if(iBits & DMG_FALL)
+    else if (iBits & DMG_FALL)
     {
-        if(!ClassIsFall(gClientData[client].Class)) return false;
+        if (!ClassIsFall(gClientData[client].Class)) return false;
         iHitGroup = GetRandomInt(HITGROUP_LEFTLEG, HITGROUP_RIGHTLEG); 
     }
-    else if(iBits & DMG_BLAST)
+    else if (iBits & DMG_BLAST)
     {
         iHitGroup = HITGROUP_GENERIC; 
     }
-    else if(iBits & (DMG_NERVEGAS | DMG_DROWN))
+    else if (iBits & (DMG_NERVEGAS | DMG_DROWN))
     {
         iHitGroup = HITGROUP_HEAD;
     }
@@ -1216,31 +1216,31 @@ bool HitGroupsValidateBits(int client, int iBits, int &iHitGroup)
     // Return on success
     return true;
 /*
-    else if(iBits & DMG_GENERIC)    
-    else if(iBits & DMG_CRUSH)
-    else if(iBits & DMG_BULLET)
-    else if(iBits & DMG_SLASH)    
-    else if(iBits & DMG_CLUB)
-    else if(iBits & DMG_SHOCK)
-    else if(iBits & DMG_SONIC)
-    else if(iBits & DMG_ENERGYBEAM)
-    else if(iBits & DMG_PREVENT_PHYSICS_FORCE)
-    else if(iBits & DMG_NEVERGIB)
-    else if(iBits & DMG_ALWAYSGIB)
-    else if(iBits & DMG_PARALYZE)
-    else if(iBits & DMG_VEHICLE)
-    else if(iBits & DMG_POISON)
-    else if(iBits & DMG_RADIATION)
-    else if(iBits & DMG_DROWNRECOVER)
-    else if(iBits & DMG_ACID)
-    else if(iBits & DMG_SLOWBURN)
-    else if(iBits & DMG_REMOVENORAGDOLL)
-    else if(iBits & DMG_PHYSGUN)
-    else if(iBits & DMG_PLASMA)
-    else if(iBits & DMG_AIRBOAT)
-    else if(iBits & DMG_DISSOLVE)
-    else if(iBits & DMG_BLAST_SURFACE)
-    else if(iBits & DMG_BUCKSHOT)
+    else if (iBits & DMG_GENERIC)    
+    else if (iBits & DMG_CRUSH)
+    else if (iBits & DMG_BULLET)
+    else if (iBits & DMG_SLASH)    
+    else if (iBits & DMG_CLUB)
+    else if (iBits & DMG_SHOCK)
+    else if (iBits & DMG_SONIC)
+    else if (iBits & DMG_ENERGYBEAM)
+    else if (iBits & DMG_PREVENT_PHYSICS_FORCE)
+    else if (iBits & DMG_NEVERGIB)
+    else if (iBits & DMG_ALWAYSGIB)
+    else if (iBits & DMG_PARALYZE)
+    else if (iBits & DMG_VEHICLE)
+    else if (iBits & DMG_POISON)
+    else if (iBits & DMG_RADIATION)
+    else if (iBits & DMG_DROWNRECOVER)
+    else if (iBits & DMG_ACID)
+    else if (iBits & DMG_SLOWBURN)
+    else if (iBits & DMG_REMOVENORAGDOLL)
+    else if (iBits & DMG_PHYSGUN)
+    else if (iBits & DMG_PLASMA)
+    else if (iBits & DMG_AIRBOAT)
+    else if (iBits & DMG_DISSOLVE)
+    else if (iBits & DMG_BLAST_SURFACE)
+    else if (iBits & DMG_BUCKSHOT)
 */
 }
 
@@ -1257,7 +1257,7 @@ bool HitGroupsValidateArmor(int client, int iHitGroup)
     bool bApplyArmor;
 
     // Gets hitbox
-    switch(iHitGroup)
+    switch (iHitGroup)
     {
         case HITGROUP_HEAD :
         {
@@ -1286,7 +1286,7 @@ bool HitGroupsValidateInfclictor(char[] sClassname)
     int iLen = strlen(sClassname) - 11;
     
     // Validate length
-    if(iLen > 0)
+    if (iLen > 0)
     {
         // Validate grenade
         return (!strncmp(sClassname[iLen], "_proj", 5, false));
@@ -1306,13 +1306,13 @@ bool HitGroupsValidateInfclictor(char[] sClassname)
 void HitGroupsApplyKnock(int client, int attacker, float flPower)
 {
     // Validate amount
-    if(flPower <= 0.0)
+    if (flPower <= 0.0)
     {
         return;
     }
     
     // If knockback system is enabled, then apply
-    if(gCvarList[CVAR_HITGROUP_KNOCKBACK].BoolValue) 
+    if (gCvarList[CVAR_HITGROUP_KNOCKBACK].BoolValue) 
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEndPosition[3];
@@ -1342,8 +1342,8 @@ void HitGroupsApplyKnock(int client, int attacker, float flPower)
     else
     {
         // Validate max
-        if(flPower > 100.0) flPower = 100.0;
-        else if(flPower <= 0.0) return;
+        if (flPower > 100.0) flPower = 100.0;
+        else if (flPower <= 0.0) return;
         
         // Apply the stamina-based slowdown
         SetEntPropFloat(client, Prop_Send, "m_flStamina", flPower); 
@@ -1370,14 +1370,14 @@ void HitGroupsGiveMoney(int client, int iDamage)
     
     // Validate limit
     int iLimit = iMoney[BonusType_Damage];
-    if(!iLimit)
+    if (!iLimit)
     {
         return;
     }
 
     // Validate bonus
     int iBonus = iAppliedDamage[client] / iLimit;
-    if(!iBonus) 
+    if (!iBonus) 
     {
         return;
     }
@@ -1398,7 +1398,7 @@ void HitGroupsGiveMoney(int client, int iDamage)
 void HitGroupsGiveExp(int client, int iDamage)
 {
     // If level system disabled, then stop
-    if(!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
     {
         return;
     }
@@ -1415,14 +1415,14 @@ void HitGroupsGiveExp(int client, int iDamage)
     
     // Validate limit
     int iLimit = iExp[BonusType_Damage];
-    if(!iLimit)
+    if (!iLimit)
     {
         return;
     }
     
     // Validate bonus
     int iBonus = iAppliedDamage[client] / iLimit;
-    if(!iBonus) 
+    if (!iBonus) 
     {
         return;
     }

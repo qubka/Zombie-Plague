@@ -175,7 +175,7 @@ LogModule LogGetModule(char[] sModuleName)
 {
     // Validate slots
     LogModule iModule;
-    if(gServerData.Modules.GetValue(sModuleName, iModule))
+    if (gServerData.Modules.GetValue(sModuleName, iModule))
     {
         // Return index
         return iModule;
@@ -220,7 +220,7 @@ bool LogCheckModuleFilter(LogModule iModule)
  **/
 int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool shortName = false)
 {
-    switch(iModule)
+    switch (iModule)
     {
         case LogModule_Engine :
         {
@@ -331,31 +331,31 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
 void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent = LOG_CORE_EVENTS, LogModule iModule = LogModule_Config, char[] sDescription, char[] sMessage, any ...)
 {    
     // Check filter overrides. Always log fatal errors, and check error override setting on error log types
-    if((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
+    if ((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
     {
         // Check iflogging is disabled
-        if(!gCvarList[CVAR_LOG].BoolValue)
+        if (!gCvarList[CVAR_LOG].BoolValue)
         {
             return;
         }
 
         // Check if console is ignored
-        if(isConsole && gCvarList[CVAR_LOG_IGNORE_CONSOLE].BoolValue)
+        if (isConsole && gCvarList[CVAR_LOG_IGNORE_CONSOLE].BoolValue)
         {
             return;
         }
 
         // Check event type (log flag)
-        if(!LogCheckFlag(iEvent))
+        if (!LogCheckFlag(iEvent))
         {
             return;
         }
 
         // Check ifmodule filtering is enabled
-        if(gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue)
+        if (gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue)
         {
             // Check if the specified module is enabled
-            if(!LogCheckModuleFilter(iModule))
+            if (!LogCheckModuleFilter(iModule))
             {
                 return;
             }
@@ -374,7 +374,7 @@ void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent
     Format(sLogBuffer, sizeof(sLogBuffer), "[%s] [%s] %s", sModule, sDescription, sLogBuffer);
 
     // Format other parameters onto the log text
-    switch(iType)
+    switch (iType)
     {
         case LogType_Normal:
         {
@@ -403,7 +403,7 @@ void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent
     }
 
     // Check if printing log events to public chat is enabled
-    if(gCvarList[CVAR_LOG_PRINT_CHAT].BoolValue)
+    if (gCvarList[CVAR_LOG_PRINT_CHAT].BoolValue)
     {
         // Print text to public chat
         PrintToChatAll(sLogBuffer);
@@ -423,7 +423,7 @@ bool LogModuleFilterAdd(LogModule iModule)
     static char sModuleName[SMALL_LINE_LENGTH];
     
     // Check ifempty
-    if(!hasLength(sModuleName))
+    if (!hasLength(sModuleName))
     {
         return false;
     }
@@ -432,7 +432,7 @@ bool LogModuleFilterAdd(LogModule iModule)
     LogGetModuleNameString(sModuleName, sizeof(sModuleName), iModule, true);
     
     // Check if the module isn't already is listed
-    if(gServerData.Logs.FindString(sModuleName) == -1)
+    if (gServerData.Logs.FindString(sModuleName) == -1)
     {
         // Add module to filter
         gServerData.Logs.PushString(sModuleName);
@@ -455,7 +455,7 @@ bool LogModuleFilterRemove(LogModule iModule)
     static char sModuleName[SMALL_LINE_LENGTH]; int iModuleIndex;
     
     // Check ifempty
-    if(!hasLength(sModuleName))
+    if (!hasLength(sModuleName))
     {
         return false;
     }
@@ -467,7 +467,7 @@ bool LogModuleFilterRemove(LogModule iModule)
     iModuleIndex = gServerData.Logs.FindString(sModuleName);
     
     // Check if successful
-    if(iModuleIndex)
+    if (iModuleIndex)
     {
         // Remove module from filter
         gServerData.Logs.Erase(iModuleIndex);
@@ -486,14 +486,14 @@ void LogModuleFilterCacheUpdate(/*void*/)
     
     // Clear all entries in module cache
     int iModuleCount = sizeof(LogModuleFilterCache);
-    for(int i = 1; i < iModuleCount; i++)
+    for (int i = 1; i < iModuleCount; i++)
     {
         LogModuleFilterCache[view_as<LogModule>(i)] = false;
     }
     
     // Loop through the module array
     int iSize = gServerData.Logs.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets module name
         gServerData.Logs.GetString(i, sModuleName, sizeof(sModuleName));
@@ -502,7 +502,7 @@ void LogModuleFilterCacheUpdate(/*void*/)
         iModule = LogGetModule(sModuleName);
         
         // Validate type
-        if(iModule != LogModule_Invalid)
+        if (iModule != LogModule_Invalid)
         {
             // Sets value in cache
             LogModuleFilterCache[iModule] = true;
@@ -579,7 +579,7 @@ public Action LogListOnCommandCatched(int client, int iArguments)
     
     // Module status:
     int iModulecount = sizeof(LogModuleFilterCache);
-    for(int i = 1; i < iModulecount; i++)
+    for (int i = 1; i < iModulecount; i++)
     {
         LogGetModuleNameString(sModuleName, sizeof(sModuleName), view_as<LogModule>(i));
         LogGetModuleNameString(sPhraseShortName, sizeof(sPhraseShortName), view_as<LogModule>(i), true);
@@ -605,14 +605,14 @@ public Action LogAddModuleOnCommandCatched(int client, int iArguments)
     LogModule iModule;
 
     // Check if no arguments
-    if(iArguments < 1)
+    if (iArguments < 1)
     {
         // Display syntax info
         TranslationReplyToCommand(client, "log module invalid args");
     }
 
     // Loop through each argument
-    for(int i = 1; i <= iArguments; i++)
+    for (int i = 1; i <= iArguments; i++)
     {
         // Gets argument string
         GetCmdArg(i, sArgument, sizeof(sArgument));
@@ -621,7 +621,7 @@ public Action LogAddModuleOnCommandCatched(int client, int iArguments)
         iModule = LogGetModule(sArgument);
 
         // Check ifinvalid
-        if(iModule == LogModule_Invalid)
+        if (iModule == LogModule_Invalid)
         {
             // Skip to next argument
             TranslationReplyToCommand(client, "log module invalid name", sArgument);
@@ -654,14 +654,14 @@ public Action LogRemoveModuleOnCommandCatched(int client, int iArguments)
     LogModule iModule;
     
     // Check if no arguments
-    if(iArguments < 1)
+    if (iArguments < 1)
     {
         // Display syntax info
         TranslationReplyToCommand(client, "log module invalid args");
     }
     
     // Loop through each argument
-    for(int i = 1; i <= iArguments; i++)
+    for (int i = 1; i <= iArguments; i++)
     {
         // Gets argument string
         GetCmdArg(i, sArgument, sizeof(sArgument));
@@ -670,7 +670,7 @@ public Action LogRemoveModuleOnCommandCatched(int client, int iArguments)
         iModule = LogGetModule(sArgument);
         
         // Check ifinvalid
-        if(iModule == LogModule_Invalid)
+        if (iModule == LogModule_Invalid)
         {
             // Skip to next argument
             TranslationReplyToCommand(client, "log module invalid name", sArgument);

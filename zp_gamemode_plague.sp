@@ -52,10 +52,10 @@ int gGameMode;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -70,7 +70,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Initialize mode
     gGameMode = ZP_GetGameModeNameID("plague mode");
-    //if(gGameMode == -1) SetFailState("[ZP] Custom gamemode ID from name : \"plague mode\" wasn't find");
+    //if (gGameMode == -1) SetFailState("[ZP] Custom gamemode ID from name : \"plague mode\" wasn't find");
 }
 
 /**
@@ -79,7 +79,7 @@ public void ZP_OnEngineExecute(/*void*/)
 public void ZP_OnGameModeStart(int mode)
 {
     // Validate plague mode
-    if(mode == gGameMode) /* OR if(ZP_GetCurrentGameMode() == ZP_GetGameModeNameID("plague mode"))*/
+    if (mode == gGameMode) /* OR if (ZP_GetCurrentGameMode() == ZP_GetGameModeNameID("plague mode"))*/
     {
         // Make a random nemesis/survivor
         ZP_ChangeClient(ZP_GetRandomZombie(), _, "nemesis");

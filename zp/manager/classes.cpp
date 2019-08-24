@@ -190,7 +190,7 @@ void ClassesOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CLASSES, sPathClasses, sizeof(sPathClasses));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Missing classes config file: \"%s\"", sPathClasses);
@@ -204,7 +204,7 @@ void ClassesOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_Classes, gServerData.Classes);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathClasses);
         return;
@@ -233,14 +233,14 @@ void ClassesOnCacheData(/*void*/)
     bool bSuccess = ConfigOpenConfigFile(File_Classes, kvClasses);
 
     // Validate config
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error caching data from classes config file: \"%s\"", sPathClasses);
         return;
     }
     
     // If array hasn't been created, then create
-    if(gServerData.Types == null)
+    if (gServerData.Types == null)
     {
         // Initialize a type list array
         gServerData.Types = new ArrayList(SMALL_LINE_LENGTH);
@@ -253,19 +253,19 @@ void ClassesOnCacheData(/*void*/)
     
     // Validate size
     int iSize = gServerData.Classes.Length;
-    if(!iSize)
+    if (!iSize)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sPathClasses);
         return;
     }
     
     // i = array index
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // General
         ClassGetName(i, sPathClasses, sizeof(sPathClasses)); // Index: 0
         kvClasses.Rewind();
-        if(!kvClasses.JumpToKey(sPathClasses))
+        if (!kvClasses.JumpToKey(sPathClasses))
         {
             // Log class fatal
             LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class data for: \"%s\" (check classes config)", sPathClasses);
@@ -274,7 +274,7 @@ void ClassesOnCacheData(/*void*/)
         
         // Validate translation
         StringToLower(sPathClasses);
-        if(!TranslationPhraseExists(sPathClasses))
+        if (!TranslationPhraseExists(sPathClasses))
         {
             // Log class error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class name: \"%s\" (check translation file)", sPathClasses);
@@ -286,20 +286,20 @@ void ClassesOnCacheData(/*void*/)
 
         // Push data into array
         kvClasses.GetString("info", sPathClasses, sizeof(sPathClasses), ""); StringToLower(sPathClasses);
-        if(!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
+        if (!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
         {
             // Log class error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class info: \"%s\" (check translation file)", sPathClasses);
         }
         arrayClass.PushString(sPathClasses);                                    // Index: 1
         kvClasses.GetString("type", sPathClasses, sizeof(sPathClasses), ""); StringToLower(sPathClasses);
-        if(!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
+        if (!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
         {
             // Log class error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\" (check translation file)", sPathClasses);
         }
         arrayClass.PushString(sPathClasses);                                    // Index: 2
-        if(gServerData.Types.FindString(sPathClasses) == -1)
+        if (gServerData.Types.FindString(sPathClasses) == -1)
         {
             gServerData.Types.PushString(sPathClasses); /// Unique type catched
         }
@@ -339,7 +339,7 @@ void ClassesOnCacheData(/*void*/)
         arrayClass.Push(ConfigKvGetStringBool(kvClasses, "nvgs", "no"));        // Index: 29
         kvClasses.GetString("overlay", sPathClasses, sizeof(sPathClasses), "");
         arrayClass.PushString(sPathClasses);                                    // Index: 30
-        if(hasLength(sPathClasses)) 
+        if (hasLength(sPathClasses)) 
         {
             // Precache material
             Format(sPathClasses, sizeof(sPathClasses), "materials/%s", sPathClasses);
@@ -348,7 +348,7 @@ void ClassesOnCacheData(/*void*/)
         kvClasses.GetString("weapon", sPathClasses, sizeof(sPathClasses), "");
         static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH]; int iWeapon[SMALL_LINE_LENGTH] = { -1, ... };
         int nWeapon = ExplodeString(sPathClasses, ",", sWeapon, sizeof(sWeapon), sizeof(sWeapon[]));
-        for(int x = 0; x < nWeapon; x++)
+        for (int x = 0; x < nWeapon; x++)
         {
             // Trim string
             TrimString(sWeapon[x]);
@@ -360,7 +360,7 @@ void ClassesOnCacheData(/*void*/)
         kvClasses.GetString("money", sPathClasses, sizeof(sPathClasses), "");
         static char sMoney[6][SMALL_LINE_LENGTH]; int iMoney[6];
         int nMoney = ExplodeString(sPathClasses, ",", sMoney, sizeof(sMoney), sizeof(sMoney[]));
-        for(int x = 0; x < nMoney; x++)
+        for (int x = 0; x < nMoney; x++)
         {
             // Trim string
             TrimString(sWeapon[x]);
@@ -372,7 +372,7 @@ void ClassesOnCacheData(/*void*/)
         kvClasses.GetString("experience", sPathClasses, sizeof(sPathClasses), "");
         static char sExp[6][SMALL_LINE_LENGTH]; int iExp[6];
         int nExp = ExplodeString(sPathClasses, ",", sExp, sizeof(sExp), sizeof(sExp[]));
-        for(int x = 0; x < nExp; x++)
+        for (int x = 0; x < nExp; x++)
         {
             // Trim string
             TrimString(sWeapon[x]);
@@ -584,7 +584,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
         return false;
@@ -594,7 +594,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
     int attacker = GetNativeCell(2);
 
     // Validate attacker
-    if(attacker > 0 && !IsPlayerExist(attacker, false))
+    if (attacker > 0 && !IsPlayerExist(attacker, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the attacker index (%d)", attacker);
         return false;
@@ -605,7 +605,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
     GetNativeStringLength(3, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty name");
         return false;
@@ -688,7 +688,7 @@ public int API_SetClientHumanClassNext(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -699,7 +699,7 @@ public int API_SetClientHumanClassNext(Handle hPlugin, int iNumParams)
     gForwardData._OnClientValidateClass(client, iD, hResult);
 
     // Validate handle
-    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Sets next human class to the client
         gClientData[client].HumanClassNext = iD;
@@ -723,7 +723,7 @@ public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(2);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -734,7 +734,7 @@ public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
     gForwardData._OnClientValidateClass(client, iD, hResult);
 
     // Validate handle
-    if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
     {
         // Sets next zombie class to the client
         gClientData[client].ZombieClassNext = iD;
@@ -756,7 +756,7 @@ public int API_GetClassNameID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty name");
         return -1;
@@ -783,7 +783,7 @@ public int API_GetClassName(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -793,7 +793,7 @@ public int API_GetClassName(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -818,7 +818,7 @@ public int API_GetClassInfo(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -828,7 +828,7 @@ public int API_GetClassInfo(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -854,7 +854,7 @@ public int API_GetClassTypeID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty type");
         return -1;
@@ -881,7 +881,7 @@ public int API_GetClassType(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -891,7 +891,7 @@ public int API_GetClassType(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -916,7 +916,7 @@ public int API_IsClassZombie(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -937,7 +937,7 @@ public int API_GetClassModel(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -947,7 +947,7 @@ public int API_GetClassModel(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -972,7 +972,7 @@ public int API_GetClassClaw(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -982,7 +982,7 @@ public int API_GetClassClaw(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1007,7 +1007,7 @@ public int API_GetClassGrenade(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1017,7 +1017,7 @@ public int API_GetClassGrenade(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1042,7 +1042,7 @@ public int API_GetClassArm(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1052,7 +1052,7 @@ public int API_GetClassArm(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1077,7 +1077,7 @@ public int API_GetClassBody(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1098,7 +1098,7 @@ public int API_GetClassSkin(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1119,7 +1119,7 @@ public int API_GetClassHealth(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1140,7 +1140,7 @@ public int API_GetClassSpeed(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1161,7 +1161,7 @@ public int API_GetClassGravity(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1182,7 +1182,7 @@ public int API_GetClassKnockBack(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1203,7 +1203,7 @@ public int API_GetClassArmor(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1224,7 +1224,7 @@ public int API_GetClassLevel(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1245,7 +1245,7 @@ public int API_GetClassGroup(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1255,7 +1255,7 @@ public int API_GetClassGroup(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1280,7 +1280,7 @@ public int API_GetClassSkillDuration(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1301,7 +1301,7 @@ public int API_GetClassSkillCountdown(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1322,7 +1322,7 @@ public int API_IsClassSkillBar(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1343,7 +1343,7 @@ public int API_IsClassHealthSprite(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1364,7 +1364,7 @@ public int API_GetClassRegenHealth(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1385,7 +1385,7 @@ public int API_GetClassRegenInterval(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1406,7 +1406,7 @@ public int API_IsClassFall(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1427,7 +1427,7 @@ public int API_IsClassSpot(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1448,7 +1448,7 @@ public int API_GetClassFov(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1469,7 +1469,7 @@ public int API_IsClassCross(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1490,7 +1490,7 @@ public int API_IsClassNvgs(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1511,7 +1511,7 @@ public int API_GetClassOverlay(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1521,7 +1521,7 @@ public int API_GetClassOverlay(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1546,7 +1546,7 @@ public int API_GetClassWeapon(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1556,7 +1556,7 @@ public int API_GetClassWeapon(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1581,7 +1581,7 @@ public int API_GetClassMoney(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1591,7 +1591,7 @@ public int API_GetClassMoney(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1616,7 +1616,7 @@ public int API_GetClassExperience(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1626,7 +1626,7 @@ public int API_GetClassExperience(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1651,7 +1651,7 @@ public int API_GetClassLifeSteal(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1672,7 +1672,7 @@ public int API_GetClassAmmunition(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1693,7 +1693,7 @@ public int API_GetClassLeapJump(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1714,7 +1714,7 @@ public int API_GetClassLeapForce(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1735,7 +1735,7 @@ public int API_GetClassLeapCountdown(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1756,7 +1756,7 @@ public int API_GetClassEffectName(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1766,7 +1766,7 @@ public int API_GetClassEffectName(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1791,7 +1791,7 @@ public int API_GetClassEffectAttach(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1801,7 +1801,7 @@ public int API_GetClassEffectAttach(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
         return -1;
@@ -1826,7 +1826,7 @@ public int API_GetClassEffectTime(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1847,7 +1847,7 @@ public int API_GetClassClawID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1868,7 +1868,7 @@ public int API_GetClassGrenadeID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
     
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1889,7 +1889,7 @@ public int API_GetClassSoundDeathID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1910,7 +1910,7 @@ public int API_GetClassSoundHurtID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1931,7 +1931,7 @@ public int API_GetClassSoundIdleID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1952,7 +1952,7 @@ public int API_GetClassSoundInfectID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1973,7 +1973,7 @@ public int API_GetClassSoundRespawnID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -1994,7 +1994,7 @@ public int API_GetClassSoundBurnID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -2015,7 +2015,7 @@ public int API_GetClassSoundAttackID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -2036,7 +2036,7 @@ public int API_GetClassSoundFootID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -2057,7 +2057,7 @@ public int API_GetClassSoundRegenID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -2078,7 +2078,7 @@ public int API_GetClassSoundJumpID(Handle hPlugin, int iNumParams)
     int iD = GetNativeCell(1);
 
     // Validate index
-    if(iD >= gServerData.Classes.Length)
+    if (iD >= gServerData.Classes.Length)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
         return -1;
@@ -2903,13 +2903,13 @@ int ClassNameToIndex(char[] sName)
     
     // i = class index
     int iSize = gServerData.Classes.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets class name 
         ClassGetName(i, sClassname, sizeof(sClassname));
         
         // If names match, then return index
-        if(!strcmp(sName, sClassname, false))
+        if (!strcmp(sName, sClassname, false))
         {
             // Return this index
             return i;
@@ -2933,13 +2933,13 @@ int ClassTypeToIndex(char[] sType)
     
     // i = class index
     int iSize = gServerData.Classes.Length; int iRandom; static int class[MAXPLAYERS+1];
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets class type 
         ClassGetType(i, sClassType, sizeof(sClassType));
         
         // If types match, then store index
-        if(!strcmp(sClassType, sType, false))
+        if (!strcmp(sClassType, sType, false))
         {
             // Increment amount
             class[iRandom++] = i;

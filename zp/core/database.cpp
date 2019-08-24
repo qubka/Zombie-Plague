@@ -122,13 +122,13 @@ char SteamID[MAXPLAYERS+1][STEAMID_MAX_LENGTH+1];
 void DataBaseOnInit(/*void*/)
 {
     // If database disabled, then stop
-    if(!gCvarList[CVAR_DATABASE].IntValue)
+    if (!gCvarList[CVAR_DATABASE].IntValue)
     {
         // If database already created, then close
-        if(gServerData.DBI != null)
+        if (gServerData.DBI != null)
         {
             // Validate loaded map
-            if(gServerData.MapLoaded)
+            if (gServerData.MapLoaded)
             {    
                 //!! Store all current data !!//
                 DataBaseOnUnload();
@@ -149,7 +149,7 @@ void DataBaseOnInit(/*void*/)
     }
     
     // If list wasn't created, then create
-    if(gServerData.Cols == null)
+    if (gServerData.Cols == null)
     {        
         // Initialize map containg columns names and types
         gServerData.Cols = new StringMap();
@@ -174,7 +174,7 @@ void DataBaseOnInit(/*void*/)
     Database.Connect(SQLBaseConnect_Callback, DATABASE_SECTION, (gCvarList[CVAR_DATABASE].IntValue == DatabaseType_Drop));
 
     // Validate loaded map
-    if(gServerData.MapLoaded)
+    if (gServerData.MapLoaded)
     {
         //!! Get all data !!//
         DataBaseOnLoad();
@@ -193,7 +193,7 @@ void DataBaseOnInit(/*void*/)
 void DataBaseOnLoad(/*void*/)
 {
     // If database doesn't exist, then stop
-    if(gServerData.DBI == null)
+    if (gServerData.DBI == null)
     {
         return;
     }
@@ -205,19 +205,19 @@ void DataBaseOnLoad(/*void*/)
     Transaction hTxn = new Transaction();
     
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // If client was loaded, then skip
-        if(gClientData[i].Loaded || hasLength(SteamID[i]))
+        if (gClientData[i].Loaded || hasLength(SteamID[i]))
         {
             continue;
         }
 
         // Verify that the client is a real player
-        if(IsPlayerExist(i, false) && !IsFakeClient(i))
+        if (IsPlayerExist(i, false) && !IsFakeClient(i))
         {
             // Validate client authentication string (SteamID)
-            if(GetClientAuthId(i, AuthId_Steam2, SteamID[i], sizeof(SteamID[])))
+            if (GetClientAuthId(i, AuthId_Steam2, SteamID[i], sizeof(SteamID[])))
             { 
                 // Generate request
                 SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Select, i);
@@ -238,7 +238,7 @@ void DataBaseOnLoad(/*void*/)
 void DataBaseOnUnload(/*void*/)
 {
     // If database doesn't exist, then stop
-    if(gServerData.DBI == null)
+    if (gServerData.DBI == null)
     {
         return;
     }
@@ -250,10 +250,10 @@ void DataBaseOnUnload(/*void*/)
     Transaction hTxn = new Transaction();
     
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // If client wasn't loaded, then skip
-        if(!gClientData[i].Loaded || !hasLength(SteamID[i]))
+        if (!gClientData[i].Loaded || !hasLength(SteamID[i]))
         {
             continue;
         }
@@ -285,10 +285,10 @@ void DataBaseOnUnload(/*void*/)
 public Action DataBaseOnCommandListened(int entity, char[] commandMsg, int iArguments)
 {
     // Validate server
-    if(!entity)
+    if (!entity)
     {
         // Switches server commands
-        switch(commandMsg[0])
+        switch (commandMsg[0])
         {
             // Exit/disabling/restart server
             case 'e', 'q', 'r', '_' : 
@@ -326,7 +326,7 @@ void DataBaseOnCvarInit(/*void*/)
 public void DataBaseOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // Validate new value
-    if(oldValue[0] == newValue[0])
+    if (oldValue[0] == newValue[0])
     {
         return;
     }
@@ -343,19 +343,19 @@ public void DataBaseOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 void DataBaseOnClientInit(int client)
 {
     // If database doesn't exist, then stop
-    if(gServerData.DBI == null)
+    if (gServerData.DBI == null)
     {
         return;
     }
     
     // Verify that the client is a real player
-    if(!IsFakeClient(client))
+    if (!IsFakeClient(client))
     {
         // Initialize request char
         static char sRequest[HUGE_LINE_LENGTH]; 
 
         // Validate client authentication string (SteamID)
-        if(GetClientAuthId(client, AuthId_Steam2, SteamID[client], sizeof(SteamID[])))
+        if (GetClientAuthId(client, AuthId_Steam2, SteamID[client], sizeof(SteamID[])))
         {
             // Generate request
             SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Select, client);
@@ -402,13 +402,13 @@ void DataBaseOnClientDisconnectPost(int client)
 void DataBaseOnClientUpdate(int client, ColumnType nColumn, FactoryType mFactory = FactoryType_Update, char[] sData = "")
 {
     // If database doesn't exist, then stop
-    if(gServerData.DBI == null)
+    if (gServerData.DBI == null)
     {
         return;
     }
     
     // If client wasn't loaded, then stop
-    if(!gClientData[client].Loaded || !hasLength(SteamID[client]))
+    if (!gClientData[client].Loaded || !hasLength(SteamID[client]))
     {
         return;
     }
@@ -439,7 +439,7 @@ void DataBaseOnClientUpdate(int client, ColumnType nColumn, FactoryType mFactory
 public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType mTransaction, int numQueries, DBResultSet[] hResults, int[] client)
 {
     // Gets transaction type
-    switch(mTransaction)
+    switch (mTransaction)
     {
         /*
             case TransactionType_Create :
@@ -449,7 +449,7 @@ public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType mTransact
         case TransactionType_Load :
         {
             // i = request index
-            for(int i = 0; i < numQueries; i++)
+            for (int i = 0; i < numQueries; i++)
             {
                 SQLBaseSelect_Callback(hDatabase, hResults[i], "", client[i]);
             }
@@ -458,7 +458,7 @@ public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType mTransact
         case TransactionType_Describe, TransactionType_Info :
         {
             // Validate request
-            if(numQueries <= view_as<int>(TransactionType_Info)) /// If drop include, then stop
+            if (numQueries <= view_as<int>(TransactionType_Info)) /// If drop include, then stop
             {
                 SQLBaseAdd_Callback(hDatabase, hResults[1], (mTransaction == TransactionType_Describe));
             }
@@ -479,7 +479,7 @@ public void SQLTxnSuccess_Callback(Database hDatabase, TransactionType mTransact
 public void SQLTxnFailure_Callback(Database hDatabase, TransactionType mTransaction, int numQueries, char[] sError, int iFail, int[] client)
 {
     // If invalid query handle, then log error
-    if(hDatabase == null || hasLength(sError))
+    if (hDatabase == null || hasLength(sError))
     {
         // Unexpected error, log it
         LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "Query", "ID: \"%d\" - \"%s\"", iFail, sError);
@@ -501,7 +501,7 @@ public void SQLTxnFailure_Callback(Database hDatabase, TransactionType mTransact
 public void SQLBaseConnect_Callback(Database hDatabase, char[] sError, bool bDropping)
 {
     // If invalid query handle, then log error
-    if(hDatabase == null || hasLength(sError))
+    if (hDatabase == null || hasLength(sError))
     {
         // Unexpected error, log it
         LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "Query", "%s", sError);
@@ -509,10 +509,10 @@ public void SQLBaseConnect_Callback(Database hDatabase, char[] sError, bool bDro
     else
     {
         // Validate a global database handler
-        if(gServerData.DBI != null)
+        if (gServerData.DBI != null)
         {
             // Validate a new database is the same connection as old database
-            if(hDatabase.IsSameConnection(gServerData.DBI))
+            if (hDatabase.IsSameConnection(gServerData.DBI))
             {
                 return;
             }
@@ -533,7 +533,7 @@ public void SQLBaseConnect_Callback(Database hDatabase, char[] sError, bool bDro
         static char sRequest[HUGE_LINE_LENGTH]; 
         
         // Drop existing database
-        if(bDropping)
+        if (bDropping)
         {
             // Generate request
             SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Drop);
@@ -553,7 +553,7 @@ public void SQLBaseConnect_Callback(Database hDatabase, char[] sError, bool bDro
 
         // Execute requests
         static const FactoryType mFactory[4] = { FactoryType_Create, FactoryType_Dump, FactoryType_Keys, FactoryType_Parent };
-        for(int x = 0; x < sizeof(mFactory); x++)
+        for (int x = 0; x < sizeof(mFactory); x++)
         {        
             // Generate request
             SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), ColumnType_Default, mFactory[x]);
@@ -584,13 +584,13 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
     ArrayList hColumn = new ArrayList(SMALL_LINE_LENGTH);
     
     // Info was found, get name from the rows
-    while(hResult.FetchRow())
+    while (hResult.FetchRow())
     {
         // Extract row name
         hResult.FetchString(!MySQL, sColumn, sizeof(sColumn));
 
         // Validate unique column
-        if(hColumn.FindString(sColumn) == -1)
+        if (hColumn.FindString(sColumn) == -1)
         {
             // Push data into array
             hColumn.PushString(sColumn);
@@ -605,13 +605,13 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
     
     // i = column index
     int iSize = gServerData.Cols.Size;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets string from the map
         gServerData.Columns.GetKey(i, sColumn, sizeof(sColumn));
         
         // Validate non exist column
-        if(hColumn.FindString(sColumn) == -1)
+        if (hColumn.FindString(sColumn) == -1)
         {
             // Gets column type
             gServerData.Cols.GetValue(sColumn, nColumn);
@@ -626,16 +626,16 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 
     // i = column index
     iSize = hColumn.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets string from the array
         hColumn.GetString(i, sColumn, sizeof(sColumn));
         
         // Validate not exist column
-        if(!gServerData.Cols.GetValue(sColumn, nColumn))
+        if (!gServerData.Cols.GetValue(sColumn, nColumn))
         {
             /// SQlite doesn't have column drop feature
-            if(MySQL)
+            if (MySQL)
             {
                 // Generate request
                 SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Remove, _, sColumn);
@@ -646,7 +646,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
             else
             {
                 // x = step index
-                for(int x = 0; x < 4; x++)
+                for (int x = 0; x < 4; x++)
                 {
                     // Generate request
                     SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Remove, x);
@@ -680,10 +680,10 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int client)
 {
     // Make sure the client didn't disconnect while the thread was running
-    if(IsPlayerExist(client, false))
+    if (IsPlayerExist(client, false))
     {
         // If invalid query handle, then log error
-        if(hDatabase == null || hResult == null || hasLength(sError))
+        if (hDatabase == null || hResult == null || hasLength(sError))
         {
             // Unexpected error, log it
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "Query", "%s", sError);
@@ -694,23 +694,23 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
             static char sRequest[HUGE_LINE_LENGTH]; 
 
             // Client was found, get data from the row
-            if(hResult.FetchRow())
+            if (hResult.FetchRow())
             {
                 // Initialize some variables 
                 static char sColumn[SMALL_LINE_LENGTH]; ColumnType nColumn; int iIndex;
  
                 // i = field index
                 int iCount = hResult.FieldCount;
-                for(int i = 0; i < iCount; i++)
+                for (int i = 0; i < iCount; i++)
                 {
                     // Gets name of the field
                     hResult.FieldNumToName(i, sColumn, sizeof(sColumn));
 
                     // Validate that field is exist
-                    if(gServerData.Cols.GetValue(sColumn, nColumn))
+                    if (gServerData.Cols.GetValue(sColumn, nColumn))
                     {
                         // Sets client data
-                        switch(nColumn)
+                        switch (nColumn)
                         {
                             case ColumnType_ID :     gClientData[client].DataID = hResult.FetchInt(i); 
                             case ColumnType_Money :  gClientData[client].Money  = hResult.FetchInt(i); 
@@ -729,7 +729,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
                             case ColumnType_Costume :
                             {
                                 // If costumes is disabled, then skip
-                                if(!gCvarList[CVAR_COSTUMES].BoolValue)
+                                if (!gCvarList[CVAR_COSTUMES].BoolValue)
                                 {
                                     continue;
                                 }
@@ -776,10 +776,10 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
 public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int client)
 {
     // Make sure the client didn't disconnect while the thread was running
-    if(IsPlayerExist(client, false))
+    if (IsPlayerExist(client, false))
     {
         // If invalid query handle, then log error
-        if(hDatabase == null || hResult == null || hasLength(sError))
+        if (hDatabase == null || hResult == null || hasLength(sError))
         {
             // Unexpected error, log it
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "Query", "%s", sError);
@@ -787,7 +787,7 @@ public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, cha
         else
         {
             // Client was found, get data from all rows
-            while(hResult.FetchRow())
+            while (hResult.FetchRow())
             {
                 // Gets weapon name from the table 
                 static char sWeapon[SMALL_LINE_LENGTH];
@@ -795,10 +795,10 @@ public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, cha
                 
                 // Validate index
                 int iIndex = WeaponsNameToIndex(sWeapon);
-                if(iIndex != -1)
+                if (iIndex != -1)
                 {   
                     // If array hasn't been created, then create
-                    if(gClientData[client].DefaultCart == null)
+                    if (gClientData[client].DefaultCart == null)
                     {
                         // Initialize a default cart array
                         gClientData[client].DefaultCart = new ArrayList();
@@ -824,10 +824,10 @@ public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, cha
 public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int client)
 {
     // Make sure the client didn't disconnect while the thread was running
-    if(IsPlayerExist(client, false))
+    if (IsPlayerExist(client, false))
     {
         // If invalid query handle, then log error
-        if(hDatabase == null || hResult == null || hasLength(sError))
+        if (hDatabase == null || hResult == null || hasLength(sError))
         {
             // Unexpected error, log it
             LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "Query", "%s", sError);
@@ -853,7 +853,7 @@ public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, char
 public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int client)
 {
     // If invalid query handle, then log error
-    if(hDatabase == null || hResult == null || hasLength(sError))
+    if (hDatabase == null || hResult == null || hasLength(sError))
     {
         // Unexpected error, log it
         LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "Query", "%s", sError);
@@ -878,7 +878,7 @@ public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, char
 void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnType nColumn, FactoryType mFactory, int client = 0, char[] sData = "")
 {   
     // Gets factory mode
-    switch(mFactory)
+    switch (mFactory)
     {
         case FactoryType_Create :
         {
@@ -964,7 +964,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         {
             /// Format request
             FormatEx(sRequest, iMaxLen, "ALTER TABLE `%s` ", DATABASE_MAIN);
-            switch(nColumn)
+            switch (nColumn)
             {
                 case ColumnType_ID :
                 {
@@ -1061,7 +1061,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         case FactoryType_Remove :
         {
             /// Format request
-            if(MySQL)
+            if (MySQL)
             {
                 FormatEx(sRequest, iMaxLen, "ALTER TABLE `%s` DROP COLUMN `%s`;", DATABASE_MAIN, sData);
             }
@@ -1069,7 +1069,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             {
                 /// @brief Backup table and rename.
                 /// @link https://grasswiki.osgeo.org/wiki/Sqlite_Drop_Column
-                switch(client)
+                switch (client)
                 {
                     case 0 : FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `backup` \
                                                           (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
@@ -1095,7 +1095,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         {
             /// Format request
             FormatEx(sRequest, iMaxLen, "SELECT ");    
-            switch(nColumn)
+            switch (nColumn)
             {
                 case ColumnType_Default :
                 {
@@ -1156,7 +1156,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             Format(sRequest, iMaxLen, "%s FROM `%s`", sRequest, DATABASE_MAIN);
             
             // Validate row id
-            if(gClientData[client].DataID < 1)
+            if (gClientData[client].DataID < 1)
             {
                 Format(sRequest, iMaxLen, "%s WHERE `steam_id` = '%s';", sRequest, SteamID[client]);
             }
@@ -1172,7 +1172,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         
             /// Format request
             FormatEx(sRequest, iMaxLen, "UPDATE `%s` SET", DATABASE_MAIN);    
-            switch(nColumn)
+            switch (nColumn)
             {
                 case ColumnType_Default :
                 {
@@ -1242,7 +1242,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             }
             
             // Validate row id
-            if(gClientData[client].DataID < 1)
+            if (gClientData[client].DataID < 1)
             {
                 Format(sRequest, iMaxLen, "%s WHERE `steam_id` = '%s';", sRequest, SteamID[client]);
             }
@@ -1255,7 +1255,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
         case FactoryType_Insert :
         {
             /// Format request
-            switch(nColumn)
+            switch (nColumn)
             {
                 case ColumnType_SteamID :
                 {

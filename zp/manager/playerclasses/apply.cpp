@@ -34,7 +34,7 @@
 void ApplyOnClientSpawn(int client)
 { 
     // If mode doesn't started yet, then reset
-    if(gServerData.RoundNew) 
+    if (gServerData.RoundNew) 
     {
         // Resets some variables
         gClientData[client].RespawnTimes = 0;
@@ -50,7 +50,7 @@ void ApplyOnClientSpawn(int client)
     static char sType[SMALL_LINE_LENGTH];
     
     // Validate respawn
-    switch(gClientData[client].Respawn)
+    switch (gClientData[client].Respawn)
     {
         // Respawn as zombie?
         case TEAM_ZOMBIE : 
@@ -85,7 +85,7 @@ void ApplyOnClientSpawn(int client)
 bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 {
     // Validate client 
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         return false;
     }
@@ -93,17 +93,17 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate human
-    if(!strcmp(sType, "human", false))
+    if (!strcmp(sType, "human", false))
     {
         // Update class class
         gClientData[client].Class = gClientData[client].HumanClassNext; HumanValidateClass(client);
         gClientData[client].Zombie = false;
         
         // If mode doesn't started yet, then allow
-        if(gServerData.RoundNew)
+        if (gServerData.RoundNew)
         {
             // If instant human class menu enable, then open 
-            if(gCvarList[CVAR_HUMAN_MENU].BoolValue)
+            if (gCvarList[CVAR_HUMAN_MENU].BoolValue)
             {
                 // Opens the human classes menu
                 ClassMenu(client, "choose humanclass", "human", gClientData[client].HumanClassNext, true);
@@ -111,14 +111,14 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
         }
     }
     // Validate zombie
-    else if(!strcmp(sType, "zombie", false))
+    else if (!strcmp(sType, "zombie", false))
     {
         // Update class class
         gClientData[client].Class = gClientData[client].ZombieClassNext; ZombieValidateClass(client);
         gClientData[client].Zombie = true;
         
         // If instant zombie class menu enable, then open 
-        if(gCvarList[CVAR_ZOMBIE_MENU].BoolValue)
+        if (gCvarList[CVAR_ZOMBIE_MENU].BoolValue)
         {
             // Opens the zombie classes menu
             ClassMenu(client, "choose zombieclass", "zombie", gClientData[client].ZombieClassNext, true);
@@ -129,7 +129,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     {
         // Validate class index
         int iD = ClassTypeToIndex(sType);
-        if(iD == -1)
+        if (iD == -1)
         {
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\"", sType);
             return false;
@@ -152,14 +152,14 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     gClientData[client].SkillCounter = 0.0;
     
     // Remove player weapons
-    if(WeaponsRemove(client)) /// Give default
+    if (WeaponsRemove(client)) /// Give default
     {
         // Gets class weapons
         static int iWeapon[SMALL_LINE_LENGTH];
         ClassGetWeapon(gClientData[client].Class, iWeapon, sizeof(iWeapon));
         
         // i = weapon id
-        for(int i = 0; i < sizeof(iWeapon); i++)
+        for (int i = 0; i < sizeof(iWeapon); i++)
         {
             // Give weapons
             WeaponsGive(client, iWeapon[i]);
@@ -180,26 +180,26 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     
     // Gets class player models
     ClassGetModel(gClientData[client].Class, sModel, sizeof(sModel));
-    if(hasLength(sModel)) SetEntityModel(client, sModel);
+    if (hasLength(sModel)) SetEntityModel(client, sModel);
     
     // Gets class arm models
     ClassGetArmModel(gClientData[client].Class, sModel, sizeof(sModel)); 
-    if(hasLength(sModel)) ToolsSetArm(client, sModel);
+    if (hasLength(sModel)) ToolsSetArm(client, sModel);
     
     // If help messages enabled, then show info
-    if(gCvarList[CVAR_MESSAGES_CLASS_INFO].BoolValue)
+    if (gCvarList[CVAR_MESSAGES_CLASS_INFO].BoolValue)
     {
         // Gets class info
         ClassGetInfo(gClientData[client].Class, sModel, sizeof(sModel));
         
         // Show personal info
-        if(hasLength(sModel)) TranslationPrintHintText(client, sModel);
+        if (hasLength(sModel)) TranslationPrintHintText(client, sModel);
     }
 
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate attacker
-    if(IsPlayerExist(attacker, false)) 
+    if (IsPlayerExist(attacker, false)) 
     {
         // Create a fake death event
         static char sIcon[SMALL_LINE_LENGTH];
@@ -220,20 +220,20 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
         AccountSetClientCash(attacker, gClientData[attacker].Money + iMoney[BonusType_Infect]);
         
         // If attacker is alive, then give lifesteal 
-        if(IsPlayerAlive(attacker)) 
+        if (IsPlayerAlive(attacker)) 
         {
             // Add lifesteal health
             ToolsSetHealth(attacker, ToolsGetHealth(attacker) + ClassGetLifeSteal(gClientData[attacker].Class));
         }
     }
     // If change was done by server
-    else if(!attacker)
+    else if (!attacker)
     {
         // Return money, which was spent before server change
         AccountSetClientCash(client, gClientData[client].Money + gClientData[client].LastPurchase);
         
         // Validate respawn on the change
-        if(ModesIsEscape(gServerData.RoundMode))
+        if (ModesIsEscape(gServerData.RoundMode))
         {
             // Teleport player back on the spawn point
             AntiStickTeleportToRespawn(client);
@@ -243,7 +243,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     /*_________________________________________________________________________________________________________________________________________*/
     
     // Validate zombie
-    if(gClientData[client].Zombie)
+    if (gClientData[client].Zombie)
     {
         // Forward event to modules
         SoundsOnClientInfected(client, attacker);
@@ -261,15 +261,15 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     LevelSystemOnClientUpdate(client);
     VEffectsOnClientUpdate(client);
     VOverlayOnClientUpdate(client, Overlay_Reset);
-    if(gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision); /// HACK~HACK
+    if (gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision); /// HACK~HACK
     _call.AccountOnClientUpdate(client);
     _call.WeaponsOnClientUpdate(client);
     
     // If mode already started, then change team
-    if(!gServerData.RoundNew)
+    if (!gServerData.RoundNew)
     {
         // Validate zombie
-        if(gClientData[client].Zombie)
+        if (gClientData[client].Zombie)
         {
             // Switch team
             ToolsSetTeam(client, TEAM_ZOMBIE);

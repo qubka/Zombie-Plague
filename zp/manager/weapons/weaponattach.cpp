@@ -55,10 +55,10 @@ enum BitType
 void WeaponAttachOnUnload(/*void*/) 
 {
     // i = client index
-    for(int i = 1; i <= MaxClients; i++) 
+    for (int i = 1; i <= MaxClients; i++) 
     {
         // Validate client
-        if(IsPlayerExist(i, false)) 
+        if (IsPlayerExist(i, false)) 
         {
             // Remove all addons
             WeaponAttachRemoveAddons(i);
@@ -116,20 +116,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate primary bits
-    if(iBits & CSAddon_PrimaryWeapon)
+    if (iBits & CSAddon_PrimaryWeapon)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_PrimaryWeapon))
+        if (!(gClientData[client].AttachmentBits & CSAddon_PrimaryWeapon))
         {
             // Gets weapon index
             weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Primary));
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_PrimaryWeapon, "primary");
@@ -137,7 +137,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_PrimaryWeapon)
+    else if (gClientData[client].AttachmentBits & CSAddon_PrimaryWeapon)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_PrimaryWeapon);
@@ -146,27 +146,27 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate secondary bits
-    if(iBits & CSAddon_SecondaryWeapon)
+    if (iBits & CSAddon_SecondaryWeapon)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_SecondaryWeapon))
+        if (!(gClientData[client].AttachmentBits & CSAddon_SecondaryWeapon))
         {
             // Gets weapon index
             weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Secondary));
 
             // Validate taser slot
-            if(weapon == ToolsGetActiveWeapon(client))
+            if (weapon == ToolsGetActiveWeapon(client))
             {
                 // Gets weapon index
                 weapon = WeaponsFindByName(client, "weapon_taser");
             }
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_SecondaryWeapon, "pistol");
@@ -174,7 +174,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
         }
-    else if(gClientData[client].AttachmentBits & CSAddon_SecondaryWeapon)
+    else if (gClientData[client].AttachmentBits & CSAddon_SecondaryWeapon)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_SecondaryWeapon);
@@ -183,20 +183,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate flashbang1 bits
-    if(iBits & CSAddon_Flashbang1)
+    if (iBits & CSAddon_Flashbang1)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_Flashbang1))
+        if (!(gClientData[client].AttachmentBits & CSAddon_Flashbang1))
         {
             // Gets weapon index
             weapon = WeaponsFindByName(client, "weapon_flashbang");
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_Flashbang1, "grenade0");
@@ -204,7 +204,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_Flashbang1)
+    else if (gClientData[client].AttachmentBits & CSAddon_Flashbang1)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_Flashbang1);
@@ -213,20 +213,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate flashbang2 bits
-    if(iBits & CSAddon_Flashbang2)
+    if (iBits & CSAddon_Flashbang2)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_Flashbang2))
+        if (!(gClientData[client].AttachmentBits & CSAddon_Flashbang2))
         {
             // Gets weapon index
             weapon = WeaponsFindByName(client, "weapon_flashbang");
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_Flashbang2, "eholster");
@@ -234,7 +234,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_Flashbang2)
+    else if (gClientData[client].AttachmentBits & CSAddon_Flashbang2)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_Flashbang2);
@@ -243,20 +243,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate hegrenade bits
-    if(iBits & CSAddon_HEGrenade)
+    if (iBits & CSAddon_HEGrenade)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_HEGrenade))
+        if (!(gClientData[client].AttachmentBits & CSAddon_HEGrenade))
         {
             // Gets weapon index
             weapon = WeaponsFindByName(client, "weapon_hegrenade");
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_HEGrenade, "grenade1");
@@ -264,7 +264,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_HEGrenade)
+    else if (gClientData[client].AttachmentBits & CSAddon_HEGrenade)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_HEGrenade);
@@ -273,20 +273,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate smokegrenade bits
-    if(iBits & CSAddon_SmokeGrenade)
+    if (iBits & CSAddon_SmokeGrenade)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_SmokeGrenade))
+        if (!(gClientData[client].AttachmentBits & CSAddon_SmokeGrenade))
         {
             // Gets weapon index
             weapon = WeaponsFindByName(client, "weapon_smokegrenade");
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_SmokeGrenade, "grenade2");
@@ -294,7 +294,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_SmokeGrenade)
+    else if (gClientData[client].AttachmentBits & CSAddon_SmokeGrenade)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_SmokeGrenade);
@@ -303,20 +303,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate decoy bits
-    if(iBits & CSAddon_Decoy)
+    if (iBits & CSAddon_Decoy)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_Decoy))
+        if (!(gClientData[client].AttachmentBits & CSAddon_Decoy))
         {
             // Gets weapon index
             weapon = WeaponsFindByName(client, "weapon_decoy");
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_Decoy, "grenade3");
@@ -324,7 +324,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_Decoy)
+    else if (gClientData[client].AttachmentBits & CSAddon_Decoy)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_Decoy);
@@ -333,20 +333,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate knife bits
-    if(iBits & CSAddon_Knife)
+    if (iBits & CSAddon_Knife)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_Knife))
+        if (!(gClientData[client].AttachmentBits & CSAddon_Knife))
         {
             // Gets weapon index
             weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Melee));
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_Knife, "knife");
@@ -354,7 +354,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_Knife)
+    else if (gClientData[client].AttachmentBits & CSAddon_Knife)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_Knife);
@@ -363,20 +363,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate tagrenade bits
-    if(iBits & CSAddon_TaGrenade)
+    if (iBits & CSAddon_TaGrenade)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_TaGrenade))
+        if (!(gClientData[client].AttachmentBits & CSAddon_TaGrenade))
         {
             // Gets weapon index
             weapon = WeaponsFindByName(client, "weapon_tagrenade");
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_TaGrenade, "grenade4");
@@ -384,7 +384,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_TaGrenade)
+    else if (gClientData[client].AttachmentBits & CSAddon_TaGrenade)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_TaGrenade);
@@ -393,20 +393,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate c4 bits 
-    if(iBits & CSAddon_C4)
+    if (iBits & CSAddon_C4)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_C4))
+        if (!(gClientData[client].AttachmentBits & CSAddon_C4))
         {
             // Gets weapon index
             weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_C4));
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_C4, "c4");
@@ -414,7 +414,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_C4)
+    else if (gClientData[client].AttachmentBits & CSAddon_C4)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_C4);
@@ -423,17 +423,17 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate defuser bits 
-    if(iBits & CSAddon_DefuseKit)
+    if (iBits & CSAddon_DefuseKit)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_DefuseKit))
+        if (!(gClientData[client].AttachmentBits & CSAddon_DefuseKit))
         {
             // Validate defuser
-            if(ToolsGetDefuser(client))
+            if (ToolsGetDefuser(client))
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(client);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_DefuseKit, "c4");
@@ -441,7 +441,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    /*else if(gClientData[client].AttachmentBits & CSAddon_DefuseKit)
+    /*else if (gClientData[client].AttachmentBits & CSAddon_DefuseKit)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_DefuseKit);
@@ -450,20 +450,20 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate shield bits 
-    if(iBits & CSAddon_Shield)
+    if (iBits & CSAddon_Shield)
     {
         // Gets client bits
-        if(!(gClientData[client].AttachmentBits & CSAddon_Shield))
+        if (!(gClientData[client].AttachmentBits & CSAddon_Shield))
         {
             // Gets weapon index
             weapon = WeaponsFindByName(client, "weapon_shield");
             
             // Validate weapon
-            if(weapon != -1)
+            if (weapon != -1)
             {
                 // Validate custom index
                 iD = WeaponsGetCustomID(weapon);
-                if(iD != -1)
+                if (iD != -1)
                 {
                     // Create weapon addons
                     WeaponAttachCreateAddons(client, iD, BitType_Shield, "c4");
@@ -471,7 +471,7 @@ void WeaponAttachSetAddons(int client)
             }
         }
     }
-    else if(gClientData[client].AttachmentBits & CSAddon_Shield)
+    else if (gClientData[client].AttachmentBits & CSAddon_Shield)
     {
         // Remove current addons
         WeaponAttachRemoveAddons(client, BitType_Shield);
@@ -480,51 +480,51 @@ void WeaponAttachSetAddons(int client)
     /*____________________________________________________________________________________________*/
     
     // Validate addons
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_PrimaryWeapon]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_PrimaryWeapon]) != -1)
     {
         iBitPurge |= CSAddon_PrimaryWeapon;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_SecondaryWeapon]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_SecondaryWeapon]) != -1)
     {
         iBitPurge |= CSAddon_SecondaryWeapon;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Flashbang1]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Flashbang1]) != -1)
     {
         iBitPurge |= CSAddon_Flashbang1;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Flashbang2]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Flashbang2]) != -1)
     {
         iBitPurge |= CSAddon_Flashbang2;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_HEGrenade]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_HEGrenade]) != -1)
     {
         iBitPurge |= CSAddon_HEGrenade;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_SmokeGrenade]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_SmokeGrenade]) != -1)
     {
         iBitPurge |= CSAddon_SmokeGrenade;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Decoy]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Decoy]) != -1)
     {
         iBitPurge |= CSAddon_Decoy;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Knife]) != -1 || gClientData[client].Zombie)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Knife]) != -1 || gClientData[client].Zombie)
     {
         iBitPurge |= CSAddon_Knife; iBitPurge |= CSAddon_Holster;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_TaGrenade]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_TaGrenade]) != -1)
     {
         iBitPurge |= CSAddon_TaGrenade;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_C4]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_C4]) != -1)
     {
         iBitPurge |= CSAddon_C4;
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_DefuseKit]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_DefuseKit]) != -1)
     {
-        iBitPurge |= CSAddon_DefuseKit; if(!ToolsGetDefuser(client)) WeaponAttachRemoveAddons(client, BitType_DefuseKit);
+        iBitPurge |= CSAddon_DefuseKit; if (!ToolsGetDefuser(client)) WeaponAttachRemoveAddons(client, BitType_DefuseKit);
     }
-    if(EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Shield]) != -1)
+    if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Shield]) != -1)
     {
         iBitPurge |= CSAddon_Shield;
     }
@@ -548,10 +548,10 @@ void WeaponAttachCreateAddons(int client, int iD, BitType mBits, char[] sAttach)
     WeaponAttachRemoveAddons(client, mBits);
 
     // If dropmodel exist, then apply it
-    if(WeaponsGetModelDropID(iD))
+    if (WeaponsGetModelDropID(iD))
     {
         // Validate attachment
-        if(ToolsLookupAttachment(client, sAttach))
+        if (ToolsLookupAttachment(client, sAttach))
         {
             // Gets weapon dropmodel
             static char sModel[PLATFORM_LINE_LENGTH];
@@ -561,7 +561,7 @@ void WeaponAttachCreateAddons(int client, int iD, BitType mBits, char[] sAttach)
             int entity = UTIL_CreateDynamic("backpack", NULL_VECTOR, NULL_VECTOR, sModel);
             
             // If entity isn't valid, then skip
-            if(entity != -1)
+            if (entity != -1)
             {
                 // Sets bodygroup/skin for the entity
                 ToolsSetTextures(entity, WeaponsGetModelBody(iD, ModelType_Drop), WeaponsGetModelSkin(iD, ModelType_Drop)); 
@@ -594,16 +594,16 @@ void WeaponAttachCreateAddons(int client, int iD, BitType mBits, char[] sAttach)
 void WeaponAttachRemoveAddons(int client, BitType mBits = BitType_Invalid) 
 {
     // Validate all
-    if(mBits == BitType_Invalid)
+    if (mBits == BitType_Invalid)
     {
         // i = slot index
-        for(BitType i = BitType_PrimaryWeapon; i <= BitType_Shield; i++)
+        for (BitType i = BitType_PrimaryWeapon; i <= BitType_Shield; i++)
         {
             // Gets current addon from the client reference
             int entity = EntRefToEntIndex(gClientData[client].AttachmentAddons[i]);
     
             // Validate addon
-            if(entity != -1) 
+            if (entity != -1) 
             {
                 AcceptEntityInput(entity, "Kill");
             }
@@ -619,7 +619,7 @@ void WeaponAttachRemoveAddons(int client, BitType mBits = BitType_Invalid)
         int entity = EntRefToEntIndex(gClientData[client].AttachmentAddons[mBits]);
 
         // Validate addon
-        if(entity != -1) 
+        if (entity != -1) 
         {
             AcceptEntityInput(entity, "Kill");
         }

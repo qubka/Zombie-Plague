@@ -67,7 +67,7 @@ void SoundsOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_SOUNDS, sPathSounds, sizeof(sPathSounds));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure and stop plugin
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
@@ -81,7 +81,7 @@ void SoundsOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_Sounds, gServerData.Sounds, PLATFORM_LINE_LENGTH);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathSounds);
         return;
@@ -118,24 +118,24 @@ void SoundsOnCacheData(/*void*/)
     
     // Validate sound config
     int iSounds = iSoundCount = gServerData.Sounds.Length;
-    if(!iSounds)
+    if (!iSounds)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sPathSounds);
         return;
     }
     
     // i = sound array index
-    for(int i = 0; i < iSounds; i++)
+    for (int i = 0; i < iSounds; i++)
     {
         // Gets array line
         ArrayList arraySound = SoundsGetKey(i, sPathSounds, sizeof(sPathSounds), true);
 
         // Parses a parameter string in key="value" format
-        if(ParamParseString(arraySound, sPathSounds, sizeof(sPathSounds), '=') == PARAM_ERROR_NO)
+        if (ParamParseString(arraySound, sPathSounds, sizeof(sPathSounds), '=') == PARAM_ERROR_NO)
         {
             // i = block index
             int iSize = arraySound.Length;
-            for(int x = 1; x < iSize; x++)
+            for (int x = 1; x < iSize; x++)
             {
                 // Gets sound path
                 arraySound.GetString(x, sPathSounds, sizeof(sPathSounds));
@@ -144,7 +144,7 @@ void SoundsOnCacheData(/*void*/)
                 Format(sPathSounds, sizeof(sPathSounds), "sound/%s", sPathSounds);
 
                 // Add to server precache list
-                if(DownloadsOnPrecache(sPathSounds)) iSoundValidCount++; else iSoundUnValidCount++;
+                if (DownloadsOnPrecache(sPathSounds)) iSoundValidCount++; else iSoundUnValidCount++;
             }
         }
         else
@@ -414,7 +414,7 @@ public int API_GetSoundKeyID(Handle hPlugin, int iNumParams)
     GetNativeStringLength(1, maxLen);
 
     // Validate size
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Sounds, "Native Validation", "Can't find key with an empty name");
         return -1;
@@ -439,7 +439,7 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
     int maxLen = GetNativeCell(3);
 
     // Validate s
-    if(!maxLen)
+    if (!maxLen)
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Sounds, "Native Validation", "No buffer size");
         return -1;
@@ -452,7 +452,7 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
     SoundsGetPath(GetNativeCell(1), sSound, sizeof(sSound), GetNativeCell(4));
     
     // Validate sound
-    if(hasLength(sSound))
+    if (hasLength(sSound))
     {
         // Format sound
         Format(sSound, sizeof(sSound), "*/%s", sSound);
@@ -520,7 +520,7 @@ ArrayList SoundsGetKey(int iKey, char[] sKey, int iMaxLen, bool bDelete = false)
     arraySound.GetString(SOUNDS_DATA_KEY, sKey, iMaxLen);
     
     // Shifting array value
-    if(bDelete) arraySound.Erase(SOUNDS_DATA_KEY);
+    if (bDelete) arraySound.Erase(SOUNDS_DATA_KEY);
     
     // Return array list
     return arraySound;
@@ -537,7 +537,7 @@ ArrayList SoundsGetKey(int iKey, char[] sKey, int iMaxLen, bool bDelete = false)
 void SoundsGetPath(int iKey, char[] sPath, int iMaxLen, int iNum = 0)
 {
     // Validate key
-    if(iKey == -1)
+    if (iKey == -1)
     {
         return;
     }
@@ -547,7 +547,7 @@ void SoundsGetPath(int iKey, char[] sPath, int iMaxLen, int iNum = 0)
 
     // Validate size
     int iSize = arraySound.Length;
-    if(iNum < iSize)
+    if (iNum < iSize)
     {
         // Gets sound path
         arraySound.GetString(iNum ? iNum : GetRandomInt(SOUNDS_DATA_VALUE, iSize - 1), sPath, iMaxLen);
@@ -564,7 +564,7 @@ void SoundsGetPath(int iKey, char[] sPath, int iMaxLen, int iNum = 0)
 void SoundsStopAll(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
 {
     // Validate key
-    if(iKey == -1)
+    if (iKey == -1)
     {
         return;
     }
@@ -577,19 +577,19 @@ void SoundsStopAll(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
 
     // i = sound index
     int iSize = arraySound.Length;
-    for(int i = 1; i < iSize; i++)
+    for (int i = 1; i < iSize; i++)
     {
         // Gets sound path
         arraySound.GetString(i, sSound, sizeof(sSound));
         
         // Validate sound
-        if(hasLength(sSound))
+        if (hasLength(sSound))
         {
             // Format sound
             Format(sSound, sizeof(sSound), "*/%s", sSound);
             
             // Validate client
-            if(IsPlayerExist(client, false) && !IsFakeClient(client))
+            if (IsPlayerExist(client, false) && !IsFakeClient(client))
             {
                 // Stop sound
                 StopSound(client, iChannel, sSound);
@@ -597,10 +597,10 @@ void SoundsStopAll(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
             else
             {
                 // x = client index
-                for(int x = 1; x <= MaxClients; x++)
+                for (int x = 1; x <= MaxClients; x++)
                 {
                     // Validate real client
-                    if(IsPlayerExist(x, false) && !IsFakeClient(x))
+                    if (IsPlayerExist(x, false) && !IsFakeClient(x))
                     {
                         // Stop sound
                         StopSound(x, iChannel, sSound);
@@ -628,13 +628,13 @@ int SoundsKeyToIndex(char[] sKey)
     
     // i = block index
     int iSize = gServerData.Sounds.Length; int iRandom; static int keyID[MAXPLAYERS+1];
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets sound key 
         SoundsGetKey(i, sSoundKey, sizeof(sSoundKey));
         
         // If keys match, then store index
-        if(!strcmp(sSoundKey, sKey, false))
+        if (!strcmp(sSoundKey, sKey, false))
         {
             // Increment amount
             keyID[iRandom++] = i;
@@ -654,10 +654,10 @@ int SoundsKeyToIndex(char[] sKey)
 bool SoundsPrecacheQuirk(char[] sPath)
 {
     // If sound didn't exist, then
-    if(!FileExists(sPath))
+    if (!FileExists(sPath))
     {
         // Try to find file in .vpk
-        if(FileExists(sPath, true))
+        if (FileExists(sPath, true))
         {
             // Return on success
             PrecacheSound(sPath, true);
@@ -674,20 +674,20 @@ bool SoundsPrecacheQuirk(char[] sPath)
     strcopy(sSound, sizeof(sSound), sPath);
 
     /// @link https://wiki.alliedmods.net/Csgo_quirks#Fake_precaching_and_EmitSound
-    if(ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
+    if (ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
     {
         // Initialize the table index
         static int table = INVALID_STRING_TABLE;
 
         // Validate table
-        if(table == INVALID_STRING_TABLE)
+        if (table == INVALID_STRING_TABLE)
         {
             // Searches for a string table
             table = FindStringTable("soundprecache");
         }
 
         // If sound doesn't precache yet, then continue
-        if(FindStringIndex(table, sSound) == INVALID_STRING_INDEX)
+        if (FindStringIndex(table, sSound) == INVALID_STRING_INDEX)
         {
             // Add file to download table
             AddFileToDownloadsTable(sPath);

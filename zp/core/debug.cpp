@@ -45,7 +45,7 @@ public Action DebugOnCommandCatched(int client, int iArguments)
 {
     // Validate mode
     static bool bDebug;
-    if(!bDebug)
+    if (!bDebug)
     {
         // Start the dump
         ServerCommand("sm prof start");

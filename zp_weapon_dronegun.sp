@@ -191,7 +191,7 @@ enum
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // Loads a game config file
         Handle hConfig = LoadGameConfigFile("plugin.turret"); 
@@ -199,7 +199,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         /*__________________________________________________________________________________________________*/
         
         // Load other offsets
-        if((AnimatingOverlay_Count = GameConfGetOffset(hConfig, "CBaseAnimatingOverlay::Count")) == -1) SetFailState("Failed to get offset: \"CBaseAnimatingOverlay::Count\". Update offset in \"plugin.turret\""); 
+        if ((AnimatingOverlay_Count = GameConfGetOffset(hConfig, "CBaseAnimatingOverlay::Count")) == -1) SetFailState("Failed to get offset: \"CBaseAnimatingOverlay::Count\". Update offset in \"plugin.turret\""); 
 
         /*__________________________________________________________________________________________________*/
         
@@ -208,7 +208,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimatingOverlay::StudioFrameAdvance"); 
         
         // Validate call
-        if((hSDKCallStudioFrameAdvance = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::StudioFrameAdvance\". Update signature in \"plugin.turret\"");      
+        if ((hSDKCallStudioFrameAdvance = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::StudioFrameAdvance\". Update signature in \"plugin.turret\"");      
         
         /*__________________________________________________________________________________________________*/
         
@@ -222,7 +222,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
         // Validate call
-        if((hSDKCallAddLayeredSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::AddLayeredSequence\". Update signature in \"plugin.turret\""); 
+        if ((hSDKCallAddLayeredSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::AddLayeredSequence\". Update signature in \"plugin.turret\""); 
         
         /*__________________________________________________________________________________________________*/
 
@@ -233,7 +233,7 @@ public void OnLibraryAdded(const char[] sLibrary)
         LoadTranslations("zombieplague.phrases");
         
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -248,19 +248,19 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("drone gun");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
     
     // Sounds
     gSoundShoot = ZP_GetSoundKeyID("TURRET_SOUNDS");
-    if(gSoundShoot == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_SOUNDS\" wasn't find");
+    if (gSoundShoot == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_SOUNDS\" wasn't find");
     gSoundUpgrade = ZP_GetSoundKeyID("TURRET_UP_SOUNDS");
-    if(gSoundUpgrade == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_UP_SOUNDS\" wasn't find");
+    if (gSoundUpgrade == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_UP_SOUNDS\" wasn't find");
 
     // Cvars
     hKnockBack = FindConVar("zp_knockback"); 
-    if(hKnockBack == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_knockback\" wasn't find");
+    if (hKnockBack == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_knockback\" wasn't find");
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -381,7 +381,7 @@ methodmap CAnimationOverlay
     // @link https://github.com/droozynuu/swarm-sdk-template/blob/79af61e7756be2921eebf917e35a42577c9ca9ec/src/game/server/BaseAnimatingOverlay.cpp#L1025
     public void SetLayerAutokill(int iLayer, bool bAutokill)
     {
-        if(bAutokill)
+        if (bAutokill)
         {
             this.AutoKill(iLayer);
         }
@@ -407,7 +407,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         int entity = UTIL_CreateMonster("turret", vPosition, vAngle, "models/buildables/sentry1.mdl", NPC_GAG | NPC_WAITFORSCRIPT | NPC_DONTDROPWEAPONS | NPC_IGNOREPLAYERPUSH);
         
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {
             // Initialize vectors
             static float vGoal[3]; static float vCurrent[3]; 
@@ -415,7 +415,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             // Sets boundaries
             int iRightBound = RoundToNearest(AngleMod(vAngle[1] - 50.0)); 
             int iLeftBound  = RoundToNearest(AngleMod(vAngle[1] + 50.0)); 
-            if(iRightBound > iLeftBound) 
+            if (iRightBound > iLeftBound) 
             {
                 iRightBound = iLeftBound; 
                 iLeftBound = RoundToNearest(AngleMod(vAngle[1] - 50.0)); 
@@ -470,7 +470,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             int upgrade = UTIL_CreateDynamic("upgrade", vPosition, vAngle, "models/buildables/sentry1_heavy.mdl", "build");
 
             // Validate entity
-            if(upgrade != -1)
+            if (upgrade != -1)
             {
                 // Sets effects
                 SetEntProp(upgrade, Prop_Send, "m_nSkin", iSkin);
@@ -781,7 +781,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
     public void GetGunPosition(float vOutput[3]) 
     {
         GetAbsOrigin(this.Index, vOutput); 
-        switch(this.UpgradeLevel) 
+        switch (this.UpgradeLevel) 
         { 
             case SENTRY_MODE_NORMAL    : vOutput[2] += SENTRY_EYE_OFFSET_LEVEL_1; 
             case SENTRY_MODE_AGRESSIVE : vOutput[2] += SENTRY_EYE_OFFSET_LEVEL_2; 
@@ -800,22 +800,22 @@ methodmap SentryGun /** Regards to Pelipoika **/
     public CAnimationOverlay CBaseAnimatingOverlay() 
     { 
         static int iOffset;
-        if(!iOffset) iOffset = FindDataMapInfo(this.Index, "m_AnimOverlay");
+        if (!iOffset) iOffset = FindDataMapInfo(this.Index, "m_AnimOverlay");
         return CAnimationOverlay(GetEntData(this.Index, iOffset));
     }
 
     public int AnimOverlayCount()
     {
         static int iOffset;
-        if(!iOffset) iOffset = FindDataMapInfo(this.Index, "m_AnimOverlay") + AnimatingOverlay_Count;
+        if (!iOffset) iOffset = FindDataMapInfo(this.Index, "m_AnimOverlay") + AnimatingOverlay_Count;
         return GetEntData(this.Index, iOffset);
     }
     
     public void SetPoseParameter(int iParameter, float flStart, float flEnd, float flValue)    
     { 
         float flCtl = (flValue - flStart) / (flEnd - flStart); 
-        if(flCtl < 0) flCtl = 0.0; 
-        if(flCtl > 1) flCtl = 1.0; 
+        if (flCtl < 0) flCtl = 0.0; 
+        if (flCtl > 1) flCtl = 1.0; 
          
         SetEntPropFloat(this.Index, Prop_Send, "m_flPoseParameter", flCtl, iParameter); 
     } 
@@ -827,30 +827,30 @@ methodmap SentryGun /** Regards to Pelipoika **/
     {
         // Find the sequence index
         int iSequence = ZP_LookupSequence(this.Index, sAnim); 
-        if(iSequence < 0) 
+        if (iSequence < 0) 
         {
             return -1; 
         }
 
         // Validate address
         CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
-        if(pOverlay.isNull) 
+        if (pOverlay.isNull) 
         {
             return -1; 
         }
         
         // i = layer index
         int iCount = this.AnimOverlayCount();
-        for(int i = 0; i < iCount; i++) 
+        for (int i = 0; i < iCount; i++) 
         {
             // Validate layer
-            if(!pOverlay.IsAlive(i)) 
+            if (!pOverlay.IsAlive(i)) 
             {
                 continue; 
             }
 
             // Validate sequence
-            if(pOverlay.GetLayerSequence(i) == iSequence) 
+            if (pOverlay.GetLayerSequence(i) == iSequence) 
             {
                 return i; 
             }
@@ -865,21 +865,21 @@ methodmap SentryGun /** Regards to Pelipoika **/
     { 
         // Find the sequence index
         int iSequence = ZP_LookupSequence(this.Index, sAnim); 
-        if(iSequence < 0) 
+        if (iSequence < 0) 
         {
             return -1; 
         }
 
         // Validate address
         CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
-        if(pOverlay.isNull) 
+        if (pOverlay.isNull) 
         {
             return -1; 
         }
         
         // Create a new layer
         int iLayer = SDKCall(hSDKCallAddLayeredSequence, this.Index, iSequence, 0); 
-        if(iLayer >= 0 && iLayer < this.AnimOverlayCount() && pOverlay.IsActive(iLayer))
+        if (iLayer >= 0 && iLayer < this.AnimOverlayCount() && pOverlay.IsActive(iLayer))
         {
             // Sets main properties
             pOverlay.SetLayerAutokill(iLayer, bAutoKill);
@@ -900,14 +900,14 @@ methodmap SentryGun /** Regards to Pelipoika **/
     { 
         // Validate layer
         int iLayer = this.FindGestureLayer(sAnim); 
-        if(iLayer == -1) 
+        if (iLayer == -1) 
         {
             return; 
         }
 
         // Validate address
         CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
-        if(pOverlay.isNull) 
+        if (pOverlay.isNull) 
         {
             return;
         }
@@ -925,7 +925,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         
         // Validate any kind of collision along the trace ray
         bool bHit;
-        if(!TR_DidHit() || TR_GetEntityIndex() == target) 
+        if (!TR_DidHit() || TR_GetEntityIndex() == target) 
         { 
             bHit = true; 
         }
@@ -944,11 +944,11 @@ methodmap SentryGun /** Regards to Pelipoika **/
         TR_TraceRayFilter(vStart, vMid, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
         
         // Validate collision
-        if(TR_DidHit()) 
+        if (TR_DidHit()) 
         {
             // Validate victim
             int victim = TR_GetEntityIndex();
-            if(victim >= MaxClients || victim <= 0)
+            if (victim >= MaxClients || victim <= 0)
             {
                 // Hack it lower a little bit
                 // The eye position is not always within the hitboxes for a standing CS player 
@@ -977,7 +977,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
         // Is hit world only ?
         bool bHit;
-        if(!hList.Length)
+        if (!hList.Length)
         {
             bHit = true;
         }
@@ -999,7 +999,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         this.Enemy = target; 
         
         // Validate ammunition
-        if(this.Ammo > 0 || (this.Rockets > 0 && this.UpgradeLevel == SENTRY_MODE_ROCKET))
+        if (this.Ammo > 0 || (this.Rockets > 0 && this.UpgradeLevel == SENTRY_MODE_ROCKET))
         {
             this.EmitSound(GetRandomInt(SENTRY_SOUND_SPOT, SENTRY_SOUND_SPOT2));
         }
@@ -1011,7 +1011,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         float flDelay = SENTRY_BULLET_THINK;
         this.State = SENTRY_STATE_ATTACKING; 
         this.NextAttack = flCurrentTime + flDelay; 
-        if(this.NextRocket < flCurrentTime) 
+        if (this.NextRocket < flCurrentTime) 
         { 
             this.NextRocket = flCurrentTime + flDelay * 10.0; 
         } 
@@ -1030,22 +1030,22 @@ methodmap SentryGun /** Regards to Pelipoika **/
         float flMinDistance = SENTRY_BULLET_RANGE; float flOldDistance = MAX_FLOAT; float flNewDistance;
 
         // i = client index
-        for(int i = 1; i <= MaxClients; i++) 
+        for (int i = 1; i <= MaxClients; i++) 
         {
             // Validate client
-            if(!IsPlayerExist(i))
+            if (!IsPlayerExist(i))
             {
                 continue;
             }
     
             // Validate zombie
-            if(!ZP_IsPlayerZombie(i))
+            if (!ZP_IsPlayerZombie(i))
             {
                 continue;
             }
 
             // Validate visiblity
-            if(UTIL_GetRenderColor(i, Color_Alpha) < SENTRY_ATTACK_VISIVILTY)
+            if (UTIL_GetRenderColor(i, Color_Alpha) < SENTRY_ATTACK_VISIVILTY)
             {
                 continue;
             }
@@ -1057,19 +1057,19 @@ methodmap SentryGun /** Regards to Pelipoika **/
             flNewDistance = GetVectorDistance(vPosition, vEnemy);
             
             // Store the current target distance if we come across it 
-            if(i == old) 
+            if (i == old) 
             { 
                 flOldDistance = flNewDistance; 
             } 
             
             // Check to see if the target is closer than the already validated target
-            if(flNewDistance > flMinDistance) 
+            if (flNewDistance > flMinDistance) 
             {
                 continue; 
             }
             
             // It is closer, check to see if the target is valid
-            if(this.ValidTargetPlayer(i, vPosition, vEnemy)) 
+            if (this.ValidTargetPlayer(i, vPosition, vEnemy)) 
             { 
                 flMinDistance = flNewDistance; 
                 target = i; 
@@ -1081,27 +1081,27 @@ methodmap SentryGun /** Regards to Pelipoika **/
         static char sClassname[SMALL_LINE_LENGTH];
         
         // If we already have a target, don't check objects
-        if(target == -1) 
+        if (target == -1) 
         {
             // i = entity index
             int MaxEntities = GetMaxEntities();
-            for(int i = MaxClients; i <= MaxEntities; i++)
+            for (int i = MaxClients; i <= MaxEntities; i++)
             {
                 // Validate entity
-                if(IsValidEdict(i))
+                if (IsValidEdict(i))
                 {
                     // Gets valid edict classname
                     GetEdictClassname(i, sClassname, sizeof(sClassname));
 
                     // If entity is a chicken
-                    if(sClassname[0] == 'c' && sClassname[1] == 'h') // chicken
+                    if (sClassname[0] == 'c' && sClassname[1] == 'h') // chicken
                     {
                     }
                     // If entity is a npc
-                    else if(sClassname[0] == 'm' && sClassname[8] == 'g') // monster_generic
+                    else if (sClassname[0] == 'm' && sClassname[8] == 'g') // monster_generic
                     {
                         // Skip turrets
-                        if(IsEntityTurret(i))
+                        if (IsEntityTurret(i))
                         {
                             continue;
                         }
@@ -1116,19 +1116,19 @@ methodmap SentryGun /** Regards to Pelipoika **/
                     flNewDistance = GetVectorDistance(vPosition, vEnemy);
                     
                     // Store the current target distance if we come across it 
-                    if(i == old) 
+                    if (i == old) 
                     { 
                         flOldDistance = flNewDistance; 
                     } 
                     
                     // Check to see if the target is closer than the already validated target
-                    if(flNewDistance > flMinDistance) 
+                    if (flNewDistance > flMinDistance) 
                     {
                         continue; 
                     }
                     
                     // It is closer, check to see if the target is valid
-                    if(this.ValidTargetPlayer(i, vPosition, vEnemy)) 
+                    if (this.ValidTargetPlayer(i, vPosition, vEnemy)) 
                     { 
                         flMinDistance = flNewDistance; 
                         target = i; 
@@ -1139,15 +1139,15 @@ methodmap SentryGun /** Regards to Pelipoika **/
 #endif
         
         // We have a target
-        if(target != -1) 
+        if (target != -1) 
         { 
             // Is it new target ?
-            if(target != old) 
+            if (target != old) 
             { 
                 // flMinDistance is the new target's distance 
                 // flOldDistance is the old target's distance 
                 // Don't switch unless the new target is closer by some percentage 
-                if(flMinDistance < (flOldDistance * 0.75)) 
+                if (flMinDistance < (flOldDistance * 0.75)) 
                 { 
                     this.FoundTarget(target); 
                 } 
@@ -1174,20 +1174,20 @@ methodmap SentryGun /** Regards to Pelipoika **/
         this.GetCurAngles(vCurrent);
         
         // Any x movement? 
-        if(vCurrent[0] != vGoal[0]) 
+        if (vCurrent[0] != vGoal[0]) 
         { 
             float flDir = vGoal[0] > vCurrent[0] ? 1.0 : -1.0 ; 
             vCurrent[0] += flDelay * (flTurnRate * 5) * flDir; 
      
             // if we started below the goal, and now we're past, peg to goal 
-            if(flDir == 1) 
+            if (flDir == 1) 
             { 
-                if(vCurrent[0] > vGoal[0]) 
+                if (vCurrent[0] > vGoal[0]) 
                     vCurrent[0] = vGoal[0]; 
             }  
             else 
             { 
-                if(vCurrent[0] < vGoal[0]) 
+                if (vCurrent[0] < vGoal[0]) 
                     vCurrent[0] = vGoal[0]; 
             } 
      
@@ -1196,13 +1196,13 @@ methodmap SentryGun /** Regards to Pelipoika **/
         } 
          
         // Any y movement?  
-        if(vCurrent[1] != vGoal[1]) 
+        if (vCurrent[1] != vGoal[1]) 
         { 
             float flDir = vGoal[1] > vCurrent[1] ? 1.0 : -1.0 ; 
             float flNewDistance = FloatAbs(vGoal[1] - vCurrent[1]); 
             bool bReversed = false; 
      
-            if(flNewDistance > 180.0) 
+            if (flNewDistance > 180.0) 
             { 
                 flNewDistance = 360.0 - flNewDistance; 
                 flDir = -flDir; 
@@ -1210,26 +1210,26 @@ methodmap SentryGun /** Regards to Pelipoika **/
             } 
      
             // Target not exist
-            if(this.Enemy == -1) 
+            if (this.Enemy == -1) 
             { 
-                if(flNewDistance > 30.0) 
+                if (flNewDistance > 30.0) 
                 { 
-                    if(this.TurnRate < flTurnRate * 10.0) 
+                    if (this.TurnRate < flTurnRate * 10.0) 
                         this.TurnRate += flTurnRate; 
                 } 
                 else 
                 { 
                     // Slow down 
-                    if(this.TurnRate > (flTurnRate * 5.0)) 
+                    if (this.TurnRate > (flTurnRate * 5.0)) 
                         this.TurnRate -= flTurnRate; 
                 } 
             } 
             else 
             { 
                 // When tracking enemies, move faster and don't slow 
-                if(flNewDistance > 30.0) 
+                if (flNewDistance > 30.0) 
                 { 
-                    if(this.TurnRate < flTurnRate * 30.0) 
+                    if (this.TurnRate < flTurnRate * 30.0) 
                         this.TurnRate += flTurnRate * 3.0; 
                 } 
             } 
@@ -1237,9 +1237,9 @@ methodmap SentryGun /** Regards to Pelipoika **/
             vCurrent[1] += flDelay * this.TurnRate * flDir; 
      
             // if we passed over the goal, peg right to it now 
-            if(flDir == -1) 
+            if (flDir == -1) 
             { 
-                if((bReversed == false && vGoal[1] > vCurrent[1]) || 
+                if ((bReversed == false && vGoal[1] > vCurrent[1]) || 
                     (bReversed == true  && vGoal[1] < vCurrent[1])) 
                 { 
                     vCurrent[1] = vGoal[1]; 
@@ -1247,23 +1247,23 @@ methodmap SentryGun /** Regards to Pelipoika **/
             }  
             else 
             { 
-                if((bReversed == false && vGoal[1] < vCurrent[1]) || 
+                if ((bReversed == false && vGoal[1] < vCurrent[1]) || 
                     (bReversed == true  && vGoal[1] > vCurrent[1])) 
                 { 
                     vCurrent[1] = vGoal[1]; 
                 } 
             } 
      
-            if(vCurrent[1] < 0.0) 
+            if (vCurrent[1] < 0.0) 
             { 
                 vCurrent[1] += 360.0; 
             } 
-            else if(vCurrent[1] >= 360.0) 
+            else if (vCurrent[1] >= 360.0) 
             { 
                 vCurrent[1] -= 360.0; 
             } 
      
-            if(flNewDistance < (flDelay * 0.5 * flTurnRate)) 
+            if (flNewDistance < (flDelay * 0.5 * flTurnRate)) 
             { 
                 vCurrent[1] = vGoal[1]; 
             } 
@@ -1278,7 +1278,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             bMoved = true; 
         } 
      
-        if(!bMoved || this.TurnRate <= 0.0) 
+        if (!bMoved || this.TurnRate <= 0.0) 
         { 
             this.TurnRate = flTurnRate * 5.0; 
         } 
@@ -1295,7 +1295,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {
             // Push the rocket
             TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vVelocity);
@@ -1311,7 +1311,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             int rocket = UTIL_CreateDynamic("rocket", NULL_VECTOR, NULL_VECTOR, "models/buildables/sentry3_rockets.mdl", "idle", false);
 
             // Validate entity
-            if(rocket != -1)
+            if (rocket != -1)
             {
                 // Sets parent to the entity
                 SetVariantString("!activator");
@@ -1322,7 +1322,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
                 AcceptEntityInput(rocket, "SetParentAttachment", entity, rocket);
             
                 // Create effects
-                for(int i = 1; i <= 4; i++)
+                for (int i = 1; i <= 4; i++)
                 {
                     FormatEx(sBuffer, sizeof(sBuffer), "rocket%d", i);
                     UTIL_CreateParticle(rocket, _, _, sBuffer, "sentry_rocket", SENTRY_ROCKET_EFFECT_TIME);
@@ -1373,7 +1373,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
 
         // Validate collisions
-        if(TR_DidHit())
+        if (TR_DidHit())
         {
             // Returns the collision position of a trace result
             TR_GetEndPosition(vEndPosition); 
@@ -1385,7 +1385,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             int victim = TR_GetEntityIndex();
             
             // Is hit world ?
-            if(victim < 1)
+            if (victim < 1)
             {
                 // Create a decal effect
                 TE_Start("BSP Decal");
@@ -1400,17 +1400,17 @@ methodmap SentryGun /** Regards to Pelipoika **/
                 UTIL_CreateDamage(_, vEndPosition, this.Index, SENTRY_BULLET_DAMAGE, SENTRY_BULLET_RADIUS, DMG_BULLET);
         
                 // Validate victim
-                if(IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+                if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
                 {
                     // Validate power
                     float flPower = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon) * SENTRY_BULLET_DAMAGE; 
-                    if(flPower <= 0.0)
+                    if (flPower <= 0.0)
                     {
                         return;
                     }
                     
                     // If knockback system is enabled, then apply
-                    if(hKnockBack.BoolValue)
+                    if (hKnockBack.BoolValue)
                     {
                         // Gets vector from the given starting and ending points
                         MakeVectorFromPoints(vPosition, vEndPosition, vVelocity);
@@ -1433,8 +1433,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
                     else
                     {
                         // Validate max
-                        if(flPower > 100.0) flPower = 100.0;
-                        else if(flPower <= 0.0) return;
+                        if (flPower > 100.0) flPower = 100.0;
+                        else if (flPower <= 0.0) return;
                 
                         // Apply the stamina-based slowdown
                         SetEntPropFloat(victim, Prop_Send, "m_flStamina", flPower);
@@ -1452,12 +1452,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
         float flCurrentTime = GetGameTime();
         
         // Level 3 Turrets fire rockets every 3 seconds
-        if(this.UpgradeLevel == SENTRY_MODE_ROCKET && this.NextRocket < flCurrentTime)
+        if (this.UpgradeLevel == SENTRY_MODE_ROCKET && this.NextRocket < flCurrentTime)
         {
-            if(this.Rockets > 0) 
+            if (this.Rockets > 0) 
             { 
                 // Add layers
-                if(!this.IsPlayingGesture("ACT_RANGE_ATTACK2")) 
+                if (!this.IsPlayingGesture("ACT_RANGE_ATTACK2")) 
                 {
                     this.AddGesture("ACT_RANGE_ATTACK2");
                 }
@@ -1486,7 +1486,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             else
             {
                 // Kill layers
-                /*if(this.IsPlayingGesture("ACT_RANGE_ATTACK2")) 
+                /*if (this.IsPlayingGesture("ACT_RANGE_ATTACK2")) 
                 { 
                     this.RemoveGesture("ACT_RANGE_ATTACK2"); 
                 }*/
@@ -1497,25 +1497,25 @@ methodmap SentryGun /** Regards to Pelipoika **/
         }
         
         // All turrets fire shells 
-        if(this.Ammo > 0) 
+        if (this.Ammo > 0) 
         { 
             // If turret is upgraded remove low gesture
-            if(this.UpgradeLevel > SENTRY_MODE_NORMAL) 
+            if (this.UpgradeLevel > SENTRY_MODE_NORMAL) 
             {
-                if(this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW")) 
+                if (this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW")) 
                 { 
                     this.RemoveGesture("ACT_RANGE_ATTACK1_LOW"); 
                 }
             }
             
             // Add layers
-            if(!this.IsPlayingGesture("ACT_RANGE_ATTACK1")) 
+            if (!this.IsPlayingGesture("ACT_RANGE_ATTACK1")) 
             {
                 this.AddGesture("ACT_RANGE_ATTACK1"); 
             }
 
             // Play sound
-            switch(this.UpgradeLevel) 
+            switch (this.UpgradeLevel) 
             { 
                 case SENTRY_MODE_NORMAL    : this.EmitSound(GetRandomInt(0, 1) ? SENTRY_SOUND_SHOOT : SENTRY_SOUND_SHOOT4); 
                 case SENTRY_MODE_AGRESSIVE : this.EmitSound(SENTRY_SOUND_SHOOT2); 
@@ -1539,7 +1539,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             UTIL_CreateParticle(this.Index, _, _, sAttach, sMuzzle, flSpeed);
 
             // Sets delay for the next attack
-            if(this.UpgradeLevel > SENTRY_MODE_NORMAL) flSpeed *= 0.5;
+            if (this.UpgradeLevel > SENTRY_MODE_NORMAL) flSpeed *= 0.5;
             this.NextAttack = flCurrentTime + flSpeed;
             this.Ammo--;
             this.Lock = false;
@@ -1547,9 +1547,9 @@ methodmap SentryGun /** Regards to Pelipoika **/
         else 
         {
             // If turret is upgraded add low gesture
-            /*if(this.UpgradeLevel > SENTRY_MODE_NORMAL) 
+            /*if (this.UpgradeLevel > SENTRY_MODE_NORMAL) 
             {
-                if(!this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW")) 
+                if (!this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW")) 
                 { 
                     this.RemoveGesture("ACT_RANGE_ATTACK1"); 
                     this.AddGesture("ACT_RANGE_ATTACK1_LOW");
@@ -1567,7 +1567,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
     {
         // Gets upgrade for the current mode
         static char sModel[PLATFORM_LINE_LENGTH];
-        switch(this.UpgradeLevel)
+        switch (this.UpgradeLevel)
         {
             case SENTRY_MODE_NORMAL :    strcopy(sModel, sizeof(sModel), "models/buildables/sentry2_heavy.mdl");
             case SENTRY_MODE_AGRESSIVE : strcopy(sModel, sizeof(sModel), "models/buildables/sentry3_heavy.mdl");
@@ -1593,7 +1593,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         int upgrade = UTIL_CreateDynamic("upgrade", vPosition, vAngle, sModel, "upgrade");
 
         // Validate entity
-        if(upgrade != -1)
+        if (upgrade != -1)
         {
             // Sets effects
             SetEntProp(upgrade, Prop_Send, "m_nSkin", this.Skin);
@@ -1621,7 +1621,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         this.Lock = true;
 
         // Gets model for the current mode
-        switch(this.UpgradeLevel)
+        switch (this.UpgradeLevel)
         {
             case SENTRY_MODE_AGRESSIVE : strcopy(sModel, sizeof(sModel), "models/buildables/sentry2.mdl");
             case SENTRY_MODE_ROCKET :    strcopy(sModel, sizeof(sModel), "models/buildables/sentry3_fix2.mdl");
@@ -1637,36 +1637,36 @@ methodmap SentryGun /** Regards to Pelipoika **/
     public void Rotate() 
     { 
         // If we're playing a fire gesture, stop it 
-        if(this.IsPlayingGesture("ACT_RANGE_ATTACK1")) 
+        if (this.IsPlayingGesture("ACT_RANGE_ATTACK1")) 
         { 
             this.RemoveGesture("ACT_RANGE_ATTACK1"); 
         } 
-        /*if(this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW")) 
+        /*if (this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW")) 
         { 
             this.RemoveGesture("ACT_RANGE_ATTACK1_LOW"); 
         }
-        if(this.IsPlayingGesture("ACT_RANGE_ATTACK2")) 
+        if (this.IsPlayingGesture("ACT_RANGE_ATTACK2")) 
         { 
             this.RemoveGesture("ACT_RANGE_ATTACK2"); 
         }*/
         
         // Upgrade sentry
-        if(this.UpgradeState != this.UpgradeLevel && this.CanUpgrade())
+        if (this.UpgradeState != this.UpgradeLevel && this.CanUpgrade())
         {
             this.Upgrade();
             return;
         }
      
         // Look for a target 
-        if(this.FindTarget()) 
+        if (this.FindTarget()) 
         { 
             return; 
         } 
         
         // If turret is upgraded add low gesture
-        if(this.UpgradeLevel > SENTRY_MODE_NORMAL) 
+        if (this.UpgradeLevel > SENTRY_MODE_NORMAL) 
         { 
-            if(!this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW") && !this.Lock) 
+            if (!this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW") && !this.Lock) 
             { 
                 this.AddGesture("ACT_RANGE_ATTACK1_LOW");
                 this.EmitSound(SENTRY_SOUND_FINISH);
@@ -1675,16 +1675,16 @@ methodmap SentryGun /** Regards to Pelipoika **/
         }
      
         // Rotate a bit
-        if(!this.Move()) 
+        if (!this.Move()) 
         {
             // Gets the current game tick
             float flCurrentTime = GetGameTime();
         
             // Validate delay
-            if(this.NextSound <= flCurrentTime)
+            if (this.NextSound <= flCurrentTime)
             {
                 // Play sound
-                switch(this.UpgradeLevel) 
+                switch (this.UpgradeLevel) 
                 { 
                     case SENTRY_MODE_NORMAL    : this.EmitSound(SENTRY_SOUND_SCAN); 
                     case SENTRY_MODE_AGRESSIVE : this.EmitSound(SENTRY_SOUND_SCAN2); 
@@ -1698,7 +1698,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             this.GetGoalAngles(vGoal);
      
             // Switch rotation direction 
-            if(this.TurningRight) 
+            if (this.TurningRight) 
             { 
                 this.TurningRight = false; 
                 vGoal[1] = float(this.LeftBound); 
@@ -1710,7 +1710,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
             } 
 
             // Randomly look up and down a bit 
-            if(GetRandomFloat(0.0, 1.0) < 0.3) 
+            if (GetRandomFloat(0.0, 1.0) < 0.3) 
             { 
                 vGoal[0] = GetRandomFloat(-10.0, 10.0); 
             }
@@ -1723,7 +1723,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
     public void Attack() 
     {
         // Validate target
-        if(!this.FindTarget()) 
+        if (!this.FindTarget()) 
         {
             this.State = SENTRY_STATE_SEARCHING;
             return; 
@@ -1740,16 +1740,16 @@ methodmap SentryGun /** Regards to Pelipoika **/
      
         // Calculate angles
         vAngle[1] = AngleMod(vAngle[1]); 
-        if(vAngle[0] < -180.0) 
+        if (vAngle[0] < -180.0) 
             vAngle[0] += 360.0; 
-        if(vAngle[0] > 180.0) 
+        if (vAngle[0] > 180.0) 
             vAngle[0] -= 360.0; 
      
         // now all numbers should be in [1...360] 
         // pin to turret limitations to [-50...50] 
-        if(vAngle[0] > 50.0) 
+        if (vAngle[0] > 50.0) 
             vAngle[0] = 50.0; 
-        else if(vAngle[0] < -50.0) 
+        else if (vAngle[0] < -50.0) 
             vAngle[0] = -50.0; 
 
         // Start it rotating
@@ -1768,24 +1768,24 @@ methodmap SentryGun /** Regards to Pelipoika **/
         float flCurrentTime = GetGameTime();
         
         // Fire on the target if it's within 10 units of being aimed right at it 
-        if(this.NextAttack <= flCurrentTime && GetVectorLength(vRange) <= 10.0) 
+        if (this.NextAttack <= flCurrentTime && GetVectorLength(vRange) <= 10.0) 
         { 
             this.Fire(); 
         } 
          
         // Validate range
-        if(GetVectorLength(vRange) > 10.0) 
+        if (GetVectorLength(vRange) > 10.0) 
         { 
             // If we're playing a fire gesture, stop it 
-            if(this.IsPlayingGesture("ACT_RANGE_ATTACK1")) 
+            if (this.IsPlayingGesture("ACT_RANGE_ATTACK1")) 
             { 
                 this.RemoveGesture("ACT_RANGE_ATTACK1"); 
             } 
             
             // If turret is upgraded add low gesture
-            if(this.UpgradeLevel > SENTRY_MODE_NORMAL) 
+            if (this.UpgradeLevel > SENTRY_MODE_NORMAL) 
             { 
-                if(!this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW") && !this.Lock) 
+                if (!this.IsPlayingGesture("ACT_RANGE_ATTACK1_LOW") && !this.Lock) 
                 { 
                     this.AddGesture("ACT_RANGE_ATTACK1_LOW");
                     this.EmitSound(SENTRY_SOUND_FINISH);
@@ -1811,10 +1811,10 @@ methodmap SentryGun /** Regards to Pelipoika **/
         
         // Create a breaked drone effect
         static char sBuffer[NORMAL_LINE_LENGTH];
-        for(int x = 0; x <= 3; x++)
+        for (int x = 0; x <= 3; x++)
         {
             // Find gib positions
-            vShoot[1] += 90.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch(x)
+            vShoot[1] += 90.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
             {
                 case 0 : strcopy(sBuffer, sizeof(sBuffer), (this.UpgradeLevel == SENTRY_MODE_ROCKET) ? "models/buildables/gibs/sentry3_gib1.mdl" : (this.UpgradeLevel ? "models/buildables/gibs/sentry2_gib1.mdl" : "models/buildables/gibs/sentry1_gib1.mdl"));
                 case 1 : strcopy(sBuffer, sizeof(sBuffer), this.UpgradeLevel ? "models/buildables/gibs/sentry2_gib2.mdl" : "models/buildables/gibs/sentry1_gib2.mdl");
@@ -1830,7 +1830,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
         int entity = this.UpgradeModel; 
         
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {
             // Kill entity
             AcceptEntityInput(entity, "Kill");
@@ -1865,14 +1865,14 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
     int entity = ZP_GetClientViewModel(client, true);
     
     // Validate model 
-    if(entity != -1)
+    if (entity != -1)
     {
         // Sets skin index
         SetEntProp(entity, Prop_Send, "m_nSkin", GetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount"));
     }
     
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
     {
         return;
     }
@@ -1884,7 +1884,7 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
     SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
     
     // Validate helper message
-    if(!GetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget"))
+    if (!GetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget"))
     {
         // Show message
         SetGlobalTransTarget(client);
@@ -1935,7 +1935,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 
     // Gets rotation angle
     float flAngle = GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") + 0.5;
-    if(flAngle > 360.0) flAngle = 0.0;
+    if (flAngle > 360.0) flAngle = 0.0;
 
     // Sets new rotation angle
     SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flAngle);
@@ -1949,12 +1949,12 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
     int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 
     // Go to mode
-    switch(iMode)
+    switch (iMode)
     {
         case EFFECT_CREATE :
         {
             // Validate entity 
-            if(entity != -1)
+            if (entity != -1)
             {
                 return;
             }
@@ -1963,7 +1963,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
             entity = UTIL_CreateDynamic("plan", NULL_VECTOR, NULL_VECTOR, "models/buildables/sentry1_blueprint.mdl", "reject");
             
             // Validate entity
-            if(entity != -1)
+            if (entity != -1)
             {
                 // Sets effect index
                 SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", entity);
@@ -1973,7 +1973,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
         case EFFECT_KILL : 
         {
             // Validate entity 
-            if(entity == -1)
+            if (entity == -1)
             {
                 return;
             }
@@ -1985,7 +1985,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
         default :
         {
             // Validate entity 
-            if(entity == -1)
+            if (entity == -1)
             {
                 return;
             }
@@ -2005,10 +2005,10 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
             TR_GetPlaneNormal(null, vAngle);
             
             // Validate water
-            if(GetEntProp(client, Prop_Data, "m_nWaterLevel") != WLEVEL_CSGO_FULL)
+            if (GetEntProp(client, Prop_Data, "m_nWaterLevel") != WLEVEL_CSGO_FULL)
             {
                 // Is hit world ?
-                if(TR_DidHit() && TR_GetEntityIndex() < 1)
+                if (TR_DidHit() && TR_GetEntityIndex() < 1)
                 {
                     bHit = true;
                 }
@@ -2021,7 +2021,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
                     TR_TraceRayFilter(vEndPosition, vPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
                     
                     // Is hit world ?
-                    if(TR_DidHit() && TR_GetEntityIndex() < 1)
+                    if (TR_DidHit() && TR_GetEntityIndex() < 1)
                     {
                         bHit = true;
                     }
@@ -2039,7 +2039,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
             TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
             
             // Validate hit
-            if(bHit)
+            if (bHit)
             {
                 // Initialize the hull vectors
                 static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
@@ -2050,10 +2050,10 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
                 TR_TraceHull(vPosition, vPosition, vMins, vMaxs, MASK_SOLID);
                 
                 // Validate no collisions
-                if(!TR_DidHit())
+                if (!TR_DidHit())
                 {
                     // Validate place mode
-                    if(iMode == EFFECT_PLACE)
+                    if (iMode == EFFECT_PLACE)
                     {
                         // Create a dronegun entity
                         SentryGun(client, vPosition, vAngle, 
@@ -2106,7 +2106,7 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
     TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
 
     // Validate collisions
-    if(!TR_DidHit())
+    if (!TR_DidHit())
     {
         // Initialize the hull vectors
         static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
@@ -2117,25 +2117,25 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
     }
     
     // Validate collisions
-    if(TR_DidHit())
+    if (TR_DidHit())
     {
         // Gets entity index
         entity = TR_GetEntityIndex();
 
         // Validate entity
-        if(IsEntityTurret(entity))
+        if (IsEntityTurret(entity))
         {
             // Gets object methods
             SentryGun sentry = view_as<SentryGun>(entity); 
     
             // Validate owner
-            if(sentry.Owner == client)
+            if (sentry.Owner == client)
             {
                 // Give item and select it
                 int weapon = ZP_GiveClientWeapon(client, gWeapon);
                 
                 // Valdiate weapon
-                if(weapon != -1)
+                if (weapon != -1)
                 {
                     // Sets variables
                     SetEntProp(weapon, Prop_Data, "m_iHealth", sentry.Health);
@@ -2148,7 +2148,7 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
                     int upgrade = sentry.UpgradeModel; 
 
                     // Validate entity
-                    if(upgrade != -1)
+                    if (upgrade != -1)
                     {
                         // Kill entity
                         AcceptEntityInput(upgrade, "Kill");
@@ -2183,7 +2183,7 @@ bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
     TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
 
     // Validate collisions
-    if(!TR_DidHit())
+    if (!TR_DidHit())
     {
         // Initialize the hull vectors
         static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
@@ -2194,19 +2194,19 @@ bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
     }
     
     // Validate collisions
-    if(TR_DidHit())
+    if (TR_DidHit())
     {
         // Gets entity index
         entity = TR_GetEntityIndex();
 
         // Validate entity
-        if(IsEntityTurret(entity))
+        if (IsEntityTurret(entity))
         {
             // Gets object methods
             SentryGun sentry = view_as<SentryGun>(entity); 
     
             // Validate owner
-            if(sentry.Owner == client)
+            if (sentry.Owner == client)
             {
                 // Open menu
                 SentryMenu(client, entity);
@@ -2244,7 +2244,7 @@ bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
 public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Reset variables
         SetEntProp(weapon, Prop_Data, "m_iHealth", ZP_GetWeaponClip(gWeapon));
@@ -2267,7 +2267,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Deploy(client, weapon);
@@ -2284,7 +2284,7 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
 public void ZP_OnWeaponHolster(int client, int weapon, int weaponID) 
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Holster(client, weapon);
@@ -2300,7 +2300,7 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
 public void ZP_OnWeaponDrop(int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Drop(-1, weapon);
@@ -2322,10 +2322,10 @@ public void ZP_OnWeaponDrop(int weapon, int weaponID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Button primary attack press
-        if(iButtons & IN_ATTACK)
+        if (iButtons & IN_ATTACK)
         {
             // Call event
             _call.PrimaryAttack(client, weapon); 
@@ -2337,7 +2337,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
         _call.Idle(client, weapon);
 
         // Button secondary attack press
-        if(iButtons & IN_ATTACK2)
+        if (iButtons & IN_ATTACK2)
         {
             // Call event
             _call.SecondaryAttack(client, weapon); 
@@ -2348,14 +2348,14 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
     else
     {
         // Button use press
-        if(iButtons & IN_USE && !(iLastButtons & IN_USE))
+        if (iButtons & IN_USE && !(iLastButtons & IN_USE))
         {
             // Validate no weapon
-            if(ZP_IsPlayerHuman(client) && ZP_IsPlayerHasWeapon(client, gWeapon) == -1)
+            if (ZP_IsPlayerHuman(client) && ZP_IsPlayerHasWeapon(client, gWeapon) == -1)
             {
                 // Call event
                 int entity; /// Initialize index
-                if(_call.PickupTurret(client, entity))
+                if (_call.PickupTurret(client, entity))
                 {
                     iButtons &= (~IN_USE);
                     return Plugin_Changed;
@@ -2379,11 +2379,11 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 public Action ZP_OnClientValidateButton(int client)
 {
     // Validate human
-    if(ZP_IsPlayerHuman(client))
+    if (ZP_IsPlayerHuman(client))
     {
         // Call event
         int entity; /// Initialize index
-        if(_call.MenuTurret(client, entity))
+        if (_call.MenuTurret(client, entity))
         {
             // Block showing menu
             return Plugin_Handled;
@@ -2412,7 +2412,7 @@ public void SentryThinkHook(int entity)
     SentryGun sentry = view_as<SentryGun>(entity); 
     
     // Sets state
-    switch(sentry.State)
+    switch (sentry.State)
     { 
         case SENTRY_STATE_SEARCHING : sentry.Rotate();
         case SENTRY_STATE_ATTACKING : sentry.Attack();
@@ -2431,13 +2431,13 @@ public Action SentryActivateHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Gets sentry index
         int sentry = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
       
         // validate sentry
-        if(sentry != -1)
+        if (sentry != -1)
         {
             // Reset visibility
             UTIL_SetRenderColor(sentry, Color_Alpha, 255);
@@ -2466,10 +2466,10 @@ public Action SentryActivateHook(Handle hTimer, int refID)
 public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float &flDamage, int &damageBits)
 {
     // Validate attacker
-    if(IsPlayerExist(attacker))
+    if (IsPlayerExist(attacker))
     {
         // Validate zombie
-        if(ZP_IsPlayerZombie(attacker))
+        if (ZP_IsPlayerZombie(attacker))
         {
             // Gets object methods
             SentryGun sentry = view_as<SentryGun>(entity); 
@@ -2478,7 +2478,7 @@ public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float 
             int iHealth = sentry.Health - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
             // Destroy entity
-            if(!iHealth)
+            if (!iHealth)
             {
                 // Destroy damage/think hook
                 SDKUnhook(entity, SDKHook_OnTakeDamage, SentryDamageHook);
@@ -2493,7 +2493,7 @@ public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float 
                 sentry.Health = iHealth; 
                 
                 // Emit sound
-                switch(GetRandomInt(0, 2))
+                switch (GetRandomInt(0, 2))
                 {
                     case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
                     case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
@@ -2516,7 +2516,7 @@ public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float 
 public Action RocketTouchHook(int entity, int target)
 {
     // Validate target
-    if(!IsEntityTurret(target))
+    if (!IsEntityTurret(target))
     {
         // Gets entity position
         static float vPosition[3];
@@ -2551,7 +2551,7 @@ public Action RocketExploadHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Explode it
         RocketTouchHook(entity, 0);
@@ -2574,13 +2574,13 @@ public Action RocketExploadHook(Handle hTimer, int refID)
 public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
     // Client was damaged by 'turret'
-    if(iBits & DMG_BULLET)
+    if (iBits & DMG_BULLET)
     {
         // Validate rocket
-        if(IsEntityTurret(attacker))
+        if (IsEntityTurret(attacker))
         {
             // Validate human
-            if(ZP_IsPlayerHuman(client))
+            if (ZP_IsPlayerHuman(client))
             {
                 // Reset damage
                 flDamage = 0.0;
@@ -2588,13 +2588,13 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
         }
     }
     // Client was damaged by 'explosion'
-    else if(iBits & DMG_BLAST)
+    else if (iBits & DMG_BLAST)
     {
         // Validate rocket
-        if(IsEntityRocket(inflictor))
+        if (IsEntityRocket(inflictor))
         {
             // Validate human
-            if(ZP_IsPlayerHuman(client))
+            if (ZP_IsPlayerHuman(client))
             {
                 // Reset damage
                 flDamage = 0.0;
@@ -2615,7 +2615,7 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
 public Action ZP_OnGrenadeSound(int grenade, int weaponID)
 {
     // Validate custom grenade
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Block sounds
         return Plugin_Stop; 
@@ -2671,7 +2671,7 @@ void SentryMenu(int client, int entity)
     hMenu.AddItem(sInfo, sBuffer, GetDraw(ZP_GetClientMoney(client) < iRefill || sentry.Ammo >= ZP_GetWeaponAmmo(gWeapon) ? false : true));
     
     // Validate mode
-    if(sentry.UpgradeLevel >= SENTRY_MODE_ROCKET)
+    if (sentry.UpgradeLevel >= SENTRY_MODE_ROCKET)
     {
         // Show option
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "turret rockets", sentry.Rockets);
@@ -2697,7 +2697,7 @@ void SentryMenu(int client, int entity)
 public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -2714,11 +2714,11 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
             int entity = StringToInt(sBuffer);
             
             // Validate entity
-            if(IsValidEdict(entity))
+            if (IsValidEdict(entity))
             {
                 // Validate cost
                 int iCost = GetCost(!mSlot ? SENTRY_CONTROL_UPGRADE_RATIO : SENTRY_CONTROL_REFILL_RATIO); 
-                if(ZP_GetClientMoney(client) < iCost)
+                if (ZP_GetClientMoney(client) < iCost)
                 {
                     return;
                 }
@@ -2727,7 +2727,7 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
                 SentryGun sentry = view_as<SentryGun>(entity); 
         
                 // Checks button
-                switch(mSlot)
+                switch (mSlot)
                 {
                     // Button 'Upgrade' was pressed
                     case 0 :
@@ -2793,7 +2793,7 @@ stock void GetCenterOrigin(int entity, float vOutput[3])
 { 
     GetAbsOrigin(entity, vOutput); 
     static float vMaxs[3]; 
-    if(entity <= MaxClients)
+    if (entity <= MaxClients)
     {
         GetClientMaxs(entity, vMaxs);
     }
@@ -2812,7 +2812,7 @@ stock void GetCenterOrigin(int entity, float vOutput[3])
  **/
 stock void GetEyePosition(int entity, float vOutput[3]) 
 {
-    if(entity <= MaxClients)
+    if (entity <= MaxClients)
     {
         GetClientEyePosition(entity, vOutput);
     }
@@ -2855,7 +2855,7 @@ int GetDraw(bool menuCondition)
 stock bool IsEntityTurret(int entity)
 {
     // Validate entity
-    if(entity <= MaxClients || !IsValidEdict(entity))
+    if (entity <= MaxClients || !IsValidEdict(entity))
     {
         return false;
     }
@@ -2877,7 +2877,7 @@ stock bool IsEntityTurret(int entity)
 stock bool IsEntityRocket(int entity)
 {
     // Validate entity
-    if(entity <= MaxClients || !IsValidEdict(entity))
+    if (entity <= MaxClients || !IsValidEdict(entity))
     {
         return false;
     }
@@ -2912,11 +2912,11 @@ stock float AngleNormalize(float flAngle)
 { 
     flAngle = flAngle - 360.0 * RoundToFloor(flAngle / 360.0);
     
-    if(flAngle > 180.0)  
+    if (flAngle > 180.0)  
     { 
         flAngle -= 360.0; 
     } 
-    if(flAngle < -180.0) 
+    if (flAngle < -180.0) 
     { 
         flAngle += 360.0; 
     } 
@@ -2946,10 +2946,10 @@ public bool ClientFilter(int entity, int contentsMask)
 public bool ClientEnumerator(int entity, ArrayList hData)
 {
     // Validate player
-    if(IsPlayerExist(entity))
+    if (IsPlayerExist(entity))
     {
         TR_ClipCurrentRayToEntity(MASK_ALL, entity);
-        if(TR_DidHit()) hData.Push(entity);
+        if (TR_DidHit()) hData.Push(entity);
     }
         
     return true;
@@ -2965,7 +2965,7 @@ public bool ClientEnumerator(int entity, ArrayList hData)
  **/
 public bool TurretFilter(int entity, int contentsMask, int filter)
 {
-    if(IsEntityTurret(entity)) 
+    if (IsEntityTurret(entity)) 
     {
         return false;
     }

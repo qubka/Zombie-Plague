@@ -72,10 +72,10 @@ enum
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -90,15 +90,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("mutationlight");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"mutationlight\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"mutationlight\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("GHOST_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"GHOST_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"GHOST_SKILL_SOUNDS\" wasn't find");
     
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -124,7 +124,7 @@ public void ZP_OnClientUpdated(int client, int attacker)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Make model invisible
         UTIL_SetRenderColor(client, Color_Alpha, 0);
@@ -136,7 +136,7 @@ public Action ZP_OnClientSkillUsed(int client)
         int view = ZP_GetClientViewModel(client, true);
         
         // Validate entity
-        if(view != -1)
+        if (view != -1)
         {
             // Sets body index
             SetEntProp(view, Prop_Send, "m_nBody", STATE_INVISIBLE);
@@ -155,7 +155,7 @@ public Action ZP_OnClientSkillUsed(int client)
 public void ZP_OnClientSkillOver(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Resets visibility
         UTIL_SetRenderColor(client, Color_Alpha, 255);
@@ -167,7 +167,7 @@ public void ZP_OnClientSkillOver(int client)
         int view = ZP_GetClientViewModel(client, true);
         
         // Validate entity
-        if(view != -1)
+        if (view != -1)
         {
             // Sets body index
             SetEntProp(view, Prop_Send, "m_nBody", STATE_NORMAL);
@@ -185,13 +185,13 @@ public void ZP_OnClientSkillOver(int client)
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
+    if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
     {
         // Gets client viewmodel
         int view = ZP_GetClientViewModel(client, true);
         
         // Validate entity
-        if(view != -1)
+        if (view != -1)
         {
             // Sets body index
             SetEntProp(view, Prop_Send, "m_nBody", STATE_INVISIBLE);
@@ -215,7 +215,7 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
+    if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
     {
         // Gets client velocity
         static float vVelocity[3];

@@ -32,23 +32,23 @@ void AmbientSoundsOnGameModeStart(/*void*/)
 {
     // Gets ambient sound duration
     float flAmbientDuration = ModesGetSoundDuration(gServerData.RoundMode);
-    if(!flAmbientDuration)
+    if (!flAmbientDuration)
     {
         return;
     }
     
     // Gets ambient sound volume
     float flAmbientVolume = ModesGetSoundVolume(gServerData.RoundMode);
-    if(!flAmbientVolume)
+    if (!flAmbientVolume)
     {
         return;
     }
 
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate real client
-        if(IsPlayerExist(i, false) && !IsFakeClient(i))
+        if (IsPlayerExist(i, false) && !IsFakeClient(i))
         {
             // Start repeating timer
             delete gClientData[i].AmbientTimer;
@@ -65,21 +65,21 @@ void AmbientSoundsOnGameModeStart(/*void*/)
 void AmbientSoundsOnClientUpdate(int client)
 {
     // If mode doesn't started yet, then stop
-    if(!gServerData.RoundStart)
+    if (!gServerData.RoundStart)
     {
         return;
     }
     
     // Gets ambient sound duration
     float flAmbientDuration = ModesGetSoundDuration(gServerData.RoundMode);
-    if(!flAmbientDuration)
+    if (!flAmbientDuration)
     {
         return;
     }
     
     // Gets ambient sound volume
     float flAmbientVolume = ModesGetSoundVolume(gServerData.RoundMode);
-    if(!flAmbientVolume)
+    if (!flAmbientVolume)
     {
         return;
     }
@@ -107,11 +107,11 @@ public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
     int client = GetClientOfUserId(userID);
 
     // Validate client
-    if(client)
+    if (client)
     {
         // Gets ambient sound volume
         float flAmbientVolume = ModesGetSoundVolume(gServerData.RoundMode);
-        if(!flAmbientVolume || !ModesGetSoundDuration(gServerData.RoundMode))
+        if (!flAmbientVolume || !ModesGetSoundDuration(gServerData.RoundMode))
         {
             // Clear timer
             gClientData[client].AmbientTimer = null;

@@ -49,7 +49,7 @@ void DownloadsOnLoad(/*void*/)
     bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_DOWNLOADS, sPathDownloads, sizeof(sPathDownloads));
 
     // If file doesn't exist, then log and stop
-    if(!bExists)
+    if (!bExists)
     {
         // Log failure and stop plugin
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sPathDownloads);
@@ -63,7 +63,7 @@ void DownloadsOnLoad(/*void*/)
     bool bSuccess = ConfigLoadConfig(File_Downloads, gServerData.Downloads, PLATFORM_LINE_LENGTH);
 
     // Unexpected error, stop plugin
-    if(!bSuccess)
+    if (!bSuccess)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "Unexpected error encountered loading: %s", sPathDownloads);
         return;
@@ -97,23 +97,23 @@ void DownloadsOnCacheData(/*void*/)
     
     // Validate downloads config
     int iDownloads = iDownloadCount = gServerData.Downloads.Length;
-    if(!iDownloads)
+    if (!iDownloads)
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sPathDownloads);
         return;
     }
 
     // i = download array index
-    for(int i = 0; i < iDownloads; i++)
+    for (int i = 0; i < iDownloads; i++)
     {
         // Gets download path
         gServerData.Downloads.GetString(i, sPathDownloads, sizeof(sPathDownloads));
 
         // If file exist
-        if(FileExists(sPathDownloads) || FileExists(sPathDownloads, true)) 
+        if (FileExists(sPathDownloads) || FileExists(sPathDownloads, true)) 
         {
             // Add to server precache list
-            if(DownloadsOnPrecache(sPathDownloads)) iDownloadValidCount++; else iDownloadUnValidCount++;
+            if (DownloadsOnPrecache(sPathDownloads)) iDownloadValidCount++; else iDownloadUnValidCount++;
         }
         // If doesn't exist, it might be directory ?
         else
@@ -122,14 +122,14 @@ void DownloadsOnCacheData(/*void*/)
             DirectoryListing hDirectory = OpenDirectory(sPathDownloads);
             
             // If directory doesn't exist, try to open folder in .vpk
-            if(hDirectory == null)
+            if (hDirectory == null)
             {
                 // Opens directory
                 hDirectory = OpenDirectory(sPathDownloads, true);
             }
 
             // If directory doesn't exist, then log, and stop
-            if(hDirectory == null)
+            if (hDirectory == null)
             {
                 // Log download error info
                 LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sPathDownloads);
@@ -149,16 +149,16 @@ void DownloadsOnCacheData(/*void*/)
             static char sFile[PLATFORM_LINE_LENGTH]; FileType hType;
             
             // Search any files in the directory and precache them
-            while(hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
+            while (hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
             {
                 // Validate file type
-                if(hType == FileType_File) 
+                if (hType == FileType_File) 
                 {
                     // Format full path to file
                     Format(sFile, sizeof(sFile), "%s%s", sPathDownloads, sFile);
                     
                     // Add to server precache list
-                    if(DownloadsOnPrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
+                    if (DownloadsOnPrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;
                 }
             }
         
@@ -198,32 +198,32 @@ bool DownloadsOnPrecache(char[] sPath)
     int iFormat = FindCharInString(sPath, '.', true);
     
     // If path is don't have format, then log, and stop
-    if(iFormat == -1)
+    if (iFormat == -1)
     {
         LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);
         return false;
     }
     
     // Validate sound format
-    if(!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
+    if (!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false))
     {
         // Precache sound
         return SoundsPrecacheQuirk(sPath);
     }
     // Validate model format
-    else if(!strcmp(sPath[iFormat], ".mdl", false))
+    else if (!strcmp(sPath[iFormat], ".mdl", false))
     {
         // Precache model
         return DecryptPrecacheModel(sPath) ? true : false;   
     }
     // Validate particle format 
-    else if(!strcmp(sPath[iFormat], ".pcf", false))
+    else if (!strcmp(sPath[iFormat], ".pcf", false))
     {
         // Precache paricle
         return DecryptPrecacheParticle(sPath) ? true : false; 
     }
     // Validate meterial format
-    else if(!strcmp(sPath[iFormat], ".vmt", false))
+    else if (!strcmp(sPath[iFormat], ".vmt", false))
     {
         // Precache textures
         return DecryptPrecacheTextures(sPath);

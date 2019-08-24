@@ -46,13 +46,13 @@ public Action OnPlayerRunCmd(int client, int &iButtons, int &iImpulse, float flV
     Action hResult; static int iLastButtons[MAXPLAYERS+1]; 
 
     // If the client is alive, than continue
-    if(IsPlayerAlive(client))
+    if (IsPlayerAlive(client))
     {
         // Button leap hook
-        if((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
+        if ((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
         {
             // Validate overtransmitting
-            if(!((iLastButtons[client] & IN_JUMP) && (iLastButtons[client] & IN_DUCK)))
+            if (!((iLastButtons[client] & IN_JUMP) && (iLastButtons[client] & IN_DUCK)))
             {
                 // Forward event to modules
                 JumpBoostOnClientLeapJump(client);

@@ -93,7 +93,7 @@ void ZombieValidateClass(int client)
 {
     // Validate class
     int iClass = ClassValidateIndex(client, "zombie");
-    switch(iClass)
+    switch (iClass)
     {
         case -2 : LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"zombie\" class");
         
@@ -120,7 +120,7 @@ void HumanValidateClass(int client)
 {
     // Validate class
     int iClass = ClassValidateIndex(client, "human");
-    switch(iClass)
+    switch (iClass)
     {
         case -2 : LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"human\" class");
         
@@ -151,11 +151,11 @@ int ClassValidateIndex(int client, char[] sType)
     int iSize = gServerData.Classes.Length;
 
     // Choose random class for the bot
-    if(IsFakeClient(client) || iSize <= gClientData[client].Class)
+    if (IsFakeClient(client) || iSize <= gClientData[client].Class)
     {
         // Validate class index
         int iD = ClassTypeToIndex(sType);
-        if(iD == -1)
+        if (iD == -1)
         {
             return -2;
         }
@@ -173,27 +173,27 @@ int ClassValidateIndex(int client, char[] sType)
     ClassGetType(gClientData[client].Class, sClassType, sizeof(sClassType));
     
     // Find any accessable class 
-    if((hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || strcmp(sClassType, sType, false))
+    if ((hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || strcmp(sClassType, sType, false))
     {
         // Choose any accessable class
-        for(int i = 0; i < iSize; i++)
+        for (int i = 0; i < iSize; i++)
         {
             // Skip some classes, if group isn't accessable
             ClassGetGroup(i, sClassGroup, sizeof(sClassGroup));
-            if(hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup))
+            if (hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup))
             {
                 continue;
             }
             
             // Skip some classes, if types isn't equal
             ClassGetType(i, sClassType, sizeof(sClassType));
-            if(strcmp(sClassType, sType, false))
+            if (strcmp(sClassType, sType, false))
             {
                 continue;
             }
             
             // Skip some classes, if level too low
-            if(ClassGetLevel(i) > gClientData[client].Level)
+            if (ClassGetLevel(i) > gClientData[client].Level)
             {
                 continue;
             }
@@ -225,7 +225,7 @@ int ClassValidateIndex(int client, char[] sType)
 void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstant = false) 
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
@@ -251,13 +251,13 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
     
     // i = class index
     int iSize = gServerData.Classes.Length; int iAmount;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Call forward
         gForwardData._OnClientValidateClass(client, i, hResult);
         
         // Skip, if class is disabled
-        if(hResult == Plugin_Stop)
+        if (hResult == Plugin_Stop)
         {
             continue;
         }
@@ -266,7 +266,7 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
         ClassGetType(i, sName, sizeof(sName));
         
         // Skip some classes, if types isn't equal
-        if(strcmp(sName, sType, false))
+        if (strcmp(sName, sType, false))
         {
             continue;
         }
@@ -288,7 +288,7 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -372,7 +372,7 @@ public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, int client, int 
 void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, int mSlot, bool bInstant = false)
 {
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -383,11 +383,11 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray(sCommand);
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -395,7 +395,7 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
@@ -410,13 +410,13 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
             gForwardData._OnClientValidateClass(client, iD, hResult);
 
             // Validate handle
-            if(hResult == Plugin_Continue || hResult == Plugin_Changed)
+            if (hResult == Plugin_Continue || hResult == Plugin_Changed)
             {
                 // Gets class type
                 ClassGetType(iD, sBuffer, sizeof(sBuffer));
                 
                 // Validate human
-                if(!strcmp(sBuffer, "human", false))
+                if (!strcmp(sBuffer, "human", false))
                 {
                     // Sets next human class
                     gClientData[client].HumanClassNext = iD;
@@ -425,14 +425,14 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
                     DataBaseOnClientUpdate(client, ColumnType_Human);
                         
                     // Validate instant change
-                    if(bInstant)
+                    if (bInstant)
                     {
                         // Make human
                         ApplyOnClientUpdate(client, _, "human");
                     }
                 }
                 // Validate zombie
-                else if(!strcmp(sBuffer, "zombie", false))
+                else if (!strcmp(sBuffer, "zombie", false))
                 {
                     // Sets next zombie class
                     gClientData[client].ZombieClassNext = iD;
@@ -441,7 +441,7 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
                     DataBaseOnClientUpdate(client, ColumnType_Zombie);
                     
                     // Validate instant change
-                    if(bInstant)
+                    if (bInstant)
                     {
                         // Make zombie
                         ApplyOnClientUpdate(client, _, "zombie");
@@ -458,10 +458,10 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
                 ClassGetName(iD, sBuffer, sizeof(sBuffer));
   
                 // If help messages enabled, then show info
-                if(gCvarList[CVAR_MESSAGES_CLASS_CHOOSE].BoolValue) TranslationPrintToChat(client, "class info", sBuffer, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
+                if (gCvarList[CVAR_MESSAGES_CLASS_CHOOSE].BoolValue) TranslationPrintToChat(client, "class info", sBuffer, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
             
                 // If help messages enabled, then show info
-                if(gCvarList[CVAR_MESSAGES_CLASS_DUMP].BoolValue) 
+                if (gCvarList[CVAR_MESSAGES_CLASS_DUMP].BoolValue) 
                 {
                     // Print data into console
                     ClassDump(client, iD);
@@ -482,13 +482,13 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
 void ClassesMenu(int client) 
 {
     // Validate client
-    if(!IsPlayerExist(client, false))
+    if (!IsPlayerExist(client, false))
     {
         return;
     }
 
     // If mode doesn't started yet, then stop
-    if(!gServerData.RoundStart)
+    if (!gServerData.RoundStart)
     {
         // Show block info
         TranslationPrintHintText(client, "classes round block"); 
@@ -514,10 +514,10 @@ void ClassesMenu(int client)
 
     // i = client index
     int iAmount;
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(!IsPlayerExist(i, false))
+        if (!IsPlayerExist(i, false))
         {
             continue;
         }
@@ -537,7 +537,7 @@ void ClassesMenu(int client)
     }
     
     // If there are no clients, add an "(Empty)" line
-    if(!iAmount)
+    if (!iAmount)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -563,7 +563,7 @@ void ClassesMenu(int client)
 public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {   
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -574,11 +574,11 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
                 int iD[2]; iD = MenusCommandToArray("zp_class_menu");
-                if(iD[0] != -1) SubMenu(client, iD[0]);
+                if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
         
@@ -586,13 +586,13 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
             
             // If mode doesn't started yet, then stop
-            if(!gServerData.RoundStart)
+            if (!gServerData.RoundStart)
             {
                 // Show block info
                 TranslationPrintHintText(client, "using menu block");
@@ -608,10 +608,10 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
             int target = StringToInt(sBuffer);
             
             // Validate target
-            if(IsPlayerExist(target, false))
+            if (IsPlayerExist(target, false))
             {
                 // Validate dead
-                if(!IsPlayerAlive(target))
+                if (!IsPlayerAlive(target))
                 {
                     // Force client to respawn
                     ToolsForceToRespawn(target);
@@ -662,7 +662,7 @@ void ClassesOptionMenu(int client, int target)
     
     // i = array index
     int iSize = gServerData.Types.Length;
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         // Gets type data
         gServerData.Types.GetString(i, sType, sizeof(sType));
@@ -676,7 +676,7 @@ void ClassesOptionMenu(int client, int target)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if(!iSize)
+    if (!iSize)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
@@ -702,7 +702,7 @@ void ClassesOptionMenu(int client, int target)
 public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {   
     // Switch the menu action
-    switch(mAction)
+    switch (mAction)
     {
         // Client hit 'Exit' button
         case MenuAction_End :
@@ -713,7 +713,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
         // Client hit 'Back' button
         case MenuAction_Cancel :
         {
-            if(mSlot == MenuCancel_ExitBack)
+            if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens classes menu back
                 ClassesMenu(client);
@@ -724,13 +724,13 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
         case MenuAction_Select :
         {
             // Validate client
-            if(!IsPlayerExist(client, false))
+            if (!IsPlayerExist(client, false))
             {
                 return;
             }
             
             // If mode doesn't started yet, then stop
-            if(!gServerData.RoundStart)
+            if (!gServerData.RoundStart)
             {
                 // Show block info
                 TranslationPrintHintText(client, "using menu block");
@@ -748,7 +748,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
             int target = StringToInt(sInfo[1]);
 
             // Validate target
-            if(IsPlayerExist(target))
+            if (IsPlayerExist(target))
             {
                 // Force client to update
                 ApplyOnClientUpdate(target, _, sInfo[0]);

@@ -53,10 +53,10 @@ int gWeaponSpanner; int gWeaponAxe; int gWeaponHammer;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -71,11 +71,11 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeaponSpanner = ZP_GetWeaponNameID("spanner");
-    if(gWeaponSpanner == -1) SetFailState("[ZP] Custom weapon ID from name : \"spanner\" wasn't find");
+    if (gWeaponSpanner == -1) SetFailState("[ZP] Custom weapon ID from name : \"spanner\" wasn't find");
     gWeaponAxe = ZP_GetWeaponNameID("axe");
-    if(gWeaponAxe == -1) SetFailState("[ZP] Custom weapon ID from name : \"axe\" wasn't find");
+    if (gWeaponAxe == -1) SetFailState("[ZP] Custom weapon ID from name : \"axe\" wasn't find");
     gWeaponHammer = ZP_GetWeaponNameID("hammer");
-    if(gWeaponHammer == -1) SetFailState("[ZP] Custom weapon ID from name : \"hammer\" wasn't find");
+    if (gWeaponHammer == -1) SetFailState("[ZP] Custom weapon ID from name : \"hammer\" wasn't find");
 }
 
 //*********************************************************************
@@ -98,10 +98,10 @@ public void ZP_OnEngineExecute(/*void*/)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeaponSpanner || weaponID == gWeaponAxe || weaponID == gWeaponHammer)
+    if (weaponID == gWeaponSpanner || weaponID == gWeaponAxe || weaponID == gWeaponHammer)
     {
         // Button secondary attack press
-        if(iButtons & IN_ATTACK2)
+        if (iButtons & IN_ATTACK2)
         {
             iButtons &= (~IN_ATTACK2); //! Bugfix
             return Plugin_Changed;

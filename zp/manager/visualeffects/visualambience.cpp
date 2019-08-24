@@ -95,10 +95,10 @@ public void VAmbienceOnCvarHookSky(ConVar iConVar, char[] oldValue, char[] newVa
     bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue;
     
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate real client
-        if(IsPlayerExist(i, false))
+        if (IsPlayerExist(i, false))
         {
             // Apply new sky
             VAmbienceApplySky(i, !bSky);
@@ -184,7 +184,7 @@ void VAmbienceOnClientInit(int client)
 void VAmbienceApplyLightStyle(bool bDisable = false)
 {
     // If default, then set to normal light style
-    if(bDisable)
+    if (bDisable)
     {
         // Sets light style
         SetLightStyle(0, "n");
@@ -193,7 +193,7 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
 
     // Searching fog lights entities
     int iLight = -1;
-    while((iLight = FindEntityByClassname(iLight, "env_cascade_light")) != -1) 
+    while ((iLight = FindEntityByClassname(iLight, "env_cascade_light")) != -1) 
     { 
         AcceptEntityInput(iLight, "Kill");
     }
@@ -203,7 +203,7 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
     gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE].GetString(sLightStyleValue, sizeof(sLightStyleValue));
 
     // If light value contants 'a', render of textures will be remove
-    if(StrContains(sLightStyleValue, "a", true) != -1)
+    if (StrContains(sLightStyleValue, "a", true) != -1)
     {
         // Sets darkest light style
         SetLightStyle(0, "b");
@@ -223,7 +223,7 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
 void VAmbienceApplySky(int client, bool bDisable = false)
 {
     // Validate real client
-    if(IsFakeClient(client))
+    if (IsFakeClient(client))
     {
         return;
     }
@@ -235,10 +235,10 @@ void VAmbienceApplySky(int client, bool bDisable = false)
     gCvarList[CVAR_VEFFECTS_SKYNAME].GetString(VAmbienceDefaultSky, sizeof(VAmbienceDefaultSky));
 
     // If default, then set to default sky
-    if(bDisable)
+    if (bDisable)
     {
         // Is it non empty ?
-        if(hasLength(VAmbienceDefaultSky))
+        if (hasLength(VAmbienceDefaultSky))
         {
             // Sets default sky to the client
             gCvarList[CVAR_VEFFECTS_SKYNAME].ReplicateToClient(client, VAmbienceDefaultSky);
@@ -263,10 +263,10 @@ void VAmbienceApplySunDisable(bool bDisable = false)
 {
     // Find sun entity
     int iSun = -1; 
-    while((iSun = FindEntityByClassname(iSun, "env_sun")) != -1)
+    while ((iSun = FindEntityByClassname(iSun, "env_sun")) != -1)
     {
         // If default, then re-enable sun rendering
-        if(bDisable)
+        if (bDisable)
         {
             // Turn on sun rendering
             AcceptEntityInput(iSun, "TurnOn");
@@ -286,7 +286,7 @@ void VAmbienceApplySunDisable(bool bDisable = false)
 void VAmbienceApplyFog(bool bDisable = false)
 {
     // If fog is disabled, then stop
-    if(bDisable)
+    if (bDisable)
     {
         return;
     }
@@ -295,10 +295,10 @@ void VAmbienceApplyFog(bool bDisable = false)
     int controller = FindEntityByClassname(-1, "env_fog_controller");
 
     // If fog controlling entity doens't exist, then create it
-    if(controller == -1)
+    if (controller == -1)
     {
         controller = CreateEntityByName("env_fog_controller");
-        if(controller != -1) DispatchSpawn(controller); else return;
+        if (controller != -1) DispatchSpawn(controller); else return;
     }
     
     // Sets density of the fog

@@ -60,7 +60,7 @@
 void GameEngineOnInit(/*void*/)
 {
     // Gets engine of the game
-    switch(GetEngineVersion(/*void*/))
+    switch (GetEngineVersion(/*void*/))
     {
         case Engine_Unknown :    
         {
@@ -192,10 +192,10 @@ stock int fnGetPlaying(/*void*/)
     int iPlaying;
 
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(IsPlayerExist(i, false))
+        if (IsPlayerExist(i, false))
         {
             // Increment amount
             iPlaying++;
@@ -217,10 +217,10 @@ stock int fnGetHumans(/*void*/)
     int iHumans;
     
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate human
-        if(IsPlayerExist(i) && !gClientData[i].Zombie)
+        if (IsPlayerExist(i) && !gClientData[i].Zombie)
         {
             // Increment amount
             iHumans++;
@@ -242,10 +242,10 @@ stock int fnGetZombies(/*void*/)
     int iZombies;
     
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate zombie
-        if(IsPlayerExist(i) && gClientData[i].Zombie)
+        if (IsPlayerExist(i) && gClientData[i].Zombie)
         {
             // Increment amount    
             iZombies++;
@@ -267,10 +267,10 @@ stock int fnGetAlive(/*void*/)
     int iAlive;
 
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(IsPlayerExist(i))
+        if (IsPlayerExist(i))
         {
             // Increment amount
             iAlive++;
@@ -292,10 +292,10 @@ stock int fnGetRandomHuman(/*void*/)
     int iRandom; static int client[MAXPLAYERS+1];
 
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate human
-        if(IsPlayerExist(i) && !gClientData[i].Zombie)
+        if (IsPlayerExist(i) && !gClientData[i].Zombie)
         {
             // Increment amount
             client[iRandom++] = i;
@@ -317,10 +317,10 @@ stock int fnGetRandomZombie(/*void*/)
     int iRandom; static int client[MAXPLAYERS+1];
 
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate zombie
-        if(IsPlayerExist(i) && gClientData[i].Zombie)
+        if (IsPlayerExist(i) && gClientData[i].Zombie)
         {
             // Increment amount
             client[iRandom++] = i;
@@ -345,10 +345,10 @@ stock void fnGetRandomAlive(int client[MAXPLAYERS+1], int target = -1, bool bZom
     int iAmount;
 
     // i = client index
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         // Validate client
-        if(IsPlayerExist(i))
+        if (IsPlayerExist(i))
         {
             // Increment amount
             client[iAmount++] = i;
@@ -356,7 +356,7 @@ stock void fnGetRandomAlive(int client[MAXPLAYERS+1], int target = -1, bool bZom
     }
 
     // i = client index
-    for(int i = iAmount - 1; i > 0; i--)
+    for (int i = iAmount - 1; i > 0; i--)
     {
         // Gets random index
         int x = GetRandomInt(0, i);
@@ -368,14 +368,14 @@ stock void fnGetRandomAlive(int client[MAXPLAYERS+1], int target = -1, bool bZom
     }
     
     // Validate target
-    if(target != -1)
+    if (target != -1)
     {
         // i = client index
         int x = bZombie ? 0 : iAmount - 1; int y = client[x];
-        for(int i = 0; i < iAmount; i++)
+        for (int i = 0; i < iAmount; i++)
         {
             // Find index
-            if(client[i] == target)
+            if (client[i] == target)
             {
                 // Simple swap
                 client[x] = target;
@@ -396,7 +396,7 @@ stock void fnGetRandomAlive(int client[MAXPLAYERS+1], int target = -1, bool bZom
 stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, char[] sKey)
 {
     // Validate offset
-    if((iOffset = GameConfGetOffset(gameConf, sKey)) == -1)
+    if ((iOffset = GameConfGetOffset(gameConf, sKey)) == -1)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get offset: \"%s\"", sKey);
     }
@@ -412,7 +412,7 @@ stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, char[] sKey)
 stock void fnInitGameConfAddress(Handle gameConf, Address &pAddress, char[] sKey)
 {
     // Validate address
-    if((pAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
+    if ((pAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get address: \"%s\"", sKey);
     }
@@ -428,7 +428,7 @@ stock void fnInitGameConfAddress(Handle gameConf, Address &pAddress, char[] sKey
 stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp)
 {
     // Validate prop
-    if((iOffset = FindSendPropInfo(sClass, sProp)) < 1)
+    if ((iOffset = FindSendPropInfo(sClass, sProp)) < 1)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find send prop: \"%s\"", sProp);
     }
@@ -444,7 +444,7 @@ stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp)
 stock void fnInitDataPropOffset(int &iOffset, int entity, char[] sProp)
 {
     // Validate prop
-    if((iOffset = FindDataMapInfo(entity, sProp)) < 1)
+    if ((iOffset = FindDataMapInfo(entity, sProp)) < 1)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find data prop: \"%s\"", sProp);
     }

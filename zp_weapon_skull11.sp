@@ -53,10 +53,10 @@ int gWeapon;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -71,7 +71,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Weapons
     gWeapon = ZP_GetWeaponNameID("skull11");
-    //if(gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull11\" wasn't find");
+    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull11\" wasn't find");
 }
 
 //*********************************************************************
@@ -92,7 +92,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
     #pragma unused client, weapon, flCurrentTime
     
     // Validate animation delay
-    if(GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
+    if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
     {
         return;
     }
@@ -134,10 +134,10 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Button secondary attack press
-        if(!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
+        if (!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
         {
             // Call event
             _call.SecondaryAttack(client, weapon);
@@ -160,7 +160,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 public void ZP_OnWeaponReload(int client, int weapon, int weaponID)
 {
     // Validate custom weapon
-    if(weaponID == gWeapon)
+    if (weaponID == gWeapon)
     {
         // Call event
         _call.Reload(client, weapon);

@@ -73,10 +73,10 @@ int gZombie;
 public void OnLibraryAdded(const char[] sLibrary)
 {
     // Validate library
-    if(!strcmp(sLibrary, "zombieplague", false))
+    if (!strcmp(sLibrary, "zombieplague", false))
     {
         // If map loaded, then run custom forward
-        if(ZP_IsMapLoaded())
+        if (ZP_IsMapLoaded())
         {
             // Execute it
             ZP_OnEngineExecute();
@@ -91,15 +91,15 @@ public void ZP_OnEngineExecute(/*void*/)
 {
     // Classes
     gZombie = ZP_GetClassNameID("witch");
-    //if(gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"witch\" wasn't find");
+    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"witch\" wasn't find");
     
     // Sounds
     gSound = ZP_GetSoundKeyID("WITCH_SKILL_SOUNDS");
-    if(gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"WITCH_SKILL_SOUNDS\" wasn't find");
+    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"WITCH_SKILL_SOUNDS\" wasn't find");
 
     // Cvars
     hSoundLevel = FindConVar("zp_seffects_level");
-    if(hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -122,7 +122,7 @@ public void OnMapStart(/*void*/)
 public Action ZP_OnClientSkillUsed(int client)
 {
     // Validate the zombie class index
-    if(ZP_GetClientClass(client) == gZombie)
+    if (ZP_GetClientClass(client) == gZombie)
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
@@ -143,7 +143,7 @@ public Action ZP_OnClientSkillUsed(int client)
         int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
         // Validate entity
-        if(entity != -1)
+        if (entity != -1)
         {
             // Sets bat model scale
             SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 9.0);
@@ -171,7 +171,7 @@ public Action ZP_OnClientSkillUsed(int client)
             int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly", false);
 
             // Validate entity
-            if(bat != -1)
+            if (bat != -1)
             {
                 // Sets parent to the entity
                 SetVariantString("!activator");
@@ -209,13 +209,13 @@ public Action ZP_OnClientSkillUsed(int client)
 public Action BatTouchHook(int entity, int target)
 {
     // Validate target
-    if(IsValidEdict(target))
+    if (IsValidEdict(target))
     {
         // Gets thrower index
         int thrower = GetEntPropEnt(entity, Prop_Data, "m_hThrower");
         
         // Validate thrower
-        if(thrower == target)
+        if (thrower == target)
         {
             // Return on the unsuccess
             return Plugin_Continue;
@@ -226,19 +226,19 @@ public Action BatTouchHook(int entity, int target)
         GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
         // Validate target
-        if(IsPlayerExist(target))
+        if (IsPlayerExist(target))
         {
             // Create a prop_dynamic_override entity
             int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly2", false);
 
             // Validate entity
-            if(bat != -1)
+            if (bat != -1)
             {
                 // Sets parent to the entity
                 SetVariantString("!activator");
                 AcceptEntityInput(bat, "SetParent", target, bat);
                 SetEntPropEnt(bat, Prop_Data, "m_pParent", target); 
-                if(thrower != -1)
+                if (thrower != -1)
                 {
                     SetEntPropEnt(bat, Prop_Data, "m_hOwnerEntity", thrower);
                 }
@@ -290,14 +290,14 @@ public Action BatAttachHook(Handle hTimer, int refID)
     int entity = EntRefToEntIndex(refID);
 
     // Validate entity
-    if(entity != -1)
+    if (entity != -1)
     {
         // Gets owner/target index
         int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
         int target = GetEntPropEnt(entity, Prop_Data, "m_pParent"); 
 
         // Validate owner/target
-        if(IsPlayerExist(owner) && IsPlayerExist(target))
+        if (IsPlayerExist(owner) && IsPlayerExist(target))
         {
             // Initialize vectors
             static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
