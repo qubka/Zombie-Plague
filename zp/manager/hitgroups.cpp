@@ -559,12 +559,13 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     flDamage *= flDamageRatio;
     
     // Armor doesn't protect against fall or drown damage!
-    int iArmor = ToolsGetArmor(client); 
+    int iArmor = ToolsGetArmor(client);
+    int iHit = 0;
     if (iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsValidateArmor(client, iHitGroup))
     {
         // Calculate reduced amount
         float flReduce = flDamage * flArmorRatio;
-        int iHit = RoundToNearest((flDamage - flReduce) * flBonusRatio);
+        iHit = RoundToNearest((flDamage - flReduce) * flBonusRatio);
 
         // Does this use more armor than we have?
         if (iHit > iArmor)
@@ -659,7 +660,10 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     // Forward event to modules
     SoundsOnClientHurt(client, iBits);
     VEffectsOnClientHurt(client, attacker, iHealth);
-    
+
+    // we pass data to forward after all calculations
+    gForwardData._OnClientDamagedPost(client, attacker, iHealth, iArmor, iDamage, iHit, iBits, weapon);
+
     // Validate health
     if (iHealth > 0)
     {

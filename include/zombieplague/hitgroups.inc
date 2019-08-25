@@ -47,6 +47,22 @@
 forward void ZP_OnClientDamaged(int client, int &attacker, int &inflicter, float &damage, int &bits, int &weapon);
 
 /**
+* @brief Called after client takes a damage.
+*
+* @param client            The client index.
+* @param attacker          The attacker index. (Not validated!)
+* @param cHealth           The health of client after being damaged
+* @param cArmor            The armor of client after being damaged
+* @param cHealthDamage      The amount of damage to health.
+* @param cArmorDamage       The amount of damage to armor.
+* @param bits              The bitfield of damage types.
+* @param weapon            The weapon index or -1 for unspecified.
+*
+* @noreturn
+**/
+forward void ZP_OnClientDamagedPost(int client, int attacker, int cHealth,int cArmor, int cHealthDamage,int cArmorDamage ,int bits, int weapon);
+
+/**
  * @brief Applies fake damage to an entity. 
  *
  * @param client            The client index.
