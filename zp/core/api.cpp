@@ -46,6 +46,7 @@ enum struct ForwardData
     Handle OnClientDeath;
     Handle OnClientRespawn;
     Handle OnClientDamaged;
+    Handle OnClientDamagedPost;
     Handle OnClientValidateItem;
     Handle OnClientBuyItem;
     Handle OnClientValidateClass;
@@ -83,6 +84,7 @@ enum struct ForwardData
         this.OnClientDeath           = CreateGlobalForward("ZP_OnClientDeath", ET_Ignore, Param_Cell, Param_Cell);
         this.OnClientRespawn         = CreateGlobalForward("ZP_OnClientRespawn", ET_Hook, Param_Cell);
         this.OnClientDamaged         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_CellByRef, Param_CellByRef, Param_FloatByRef, Param_CellByRef, Param_CellByRef);
+        this.OnClientDamagedPost     = CreateGlobalForward("ZP_OnClientDamagedPost", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell,Param_Cell,Param_Cell);
         this.OnClientValidateItem    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
         this.OnClientBuyItem         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
         this.OnClientValidateClass   = CreateGlobalForward("ZP_OnClientValidateClass", ET_Hook, Param_Cell, Param_Cell);
@@ -174,6 +176,34 @@ enum struct ForwardData
         Call_PushFloatRef(flDamage);
         Call_PushCellRef(iBits);
         Call_PushCellRef(weapon);
+        Call_Finish();
+    }
+
+    /**
+    * @brief Called after client takes a damage.
+    *
+    * @param client            The client index.
+    * @param attacker          The attacker index. (Not validated!)
+    * @param cHealth           The health of client after being damaged
+    * @param cArmor            The armor of client after being damaged
+    * @param cHealthDamage      The amount of damage to health.
+    * @param cArmorDamage       The amount of damage to armor.
+    * @param bits              The bitfield of damage types.
+    * @param weapon            The weapon index or -1 for unspecified.
+    *
+    * @noreturn
+    **/
+    void _OnClientDamagedPost(int client, int attacker, int cHealth,int cArmor, int cHealthDamage,int cArmorDamage ,int bits, int weapon)
+    {
+        Call_StartForward(this.OnClientDamagedPost);
+        Call_PushCell(client);
+        Call_PushCell(attacker);
+        Call_PushCell(cHealth);
+        Call_PushCell(cArmor);
+        Call_PushCell(cHealthDamage);
+        Call_PushCell(cArmorDamage);
+        Call_PushCell(bits);
+        Call_PushCell(weapon);
         Call_Finish();
     }
 
