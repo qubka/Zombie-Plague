@@ -765,6 +765,10 @@ public Action GrenadeTripwireTouch(int grenade, int target)
         }
     }
     
+    // Make grenade non-physical entity in order to prevent players and bots blocking
+    SetEntProp(grenade, Prop_Data, "m_nSolidType", 0);
+    SetEntProp(grenade, Prop_Send, "m_CollisionGroup", 0);
+
     // Block touch
     return Plugin_Handled;
 }
