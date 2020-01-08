@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   API for offsets/signatures exposed in tools.cpp
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,14 +24,35 @@
  *
  * ============================================================================
  **/
+ 
+/**
+ * Handles for storing messages id.
+ **/
+UserMsg hTextMsg; UserMsg hHintText; char sEmpty[FILE_LINE_LENGTH] = "";
 
 /**
  * @brief Creates commands for tools module.
  **/
 void ToolsOnCommandInit(/*void*/)
 {
+    // Returns the ID of a given message
+    hTextMsg = GetUserMessageId("TextMsg");
+    hHintText = GetUserMessageId("HintText");
+    
+    // Validate an empty string
+    if (!hasLength(sEmpty))
+    {
+        // Fill the string with spaces
+        for (int i = 0; i < sizeof(sEmpty) - 1; i++) 
+        {
+            sEmpty[i] = ' ';
+        }
+    }
+
     // Hook messages
-    HookUserMessage(GetUserMessageId("TextMsg"), ToolsOnMessageHook, true);
+    HookUserMessage(hTextMsg, ToolsOnMessageHook, true);
+    HookUserMessage(hTextMsg, ToolsOnHintHook, true);
+    HookUserMessage(hHintText, ToolsOnHintHook, true);
 }
 
 /**
@@ -40,28 +61,28 @@ void ToolsOnCommandInit(/*void*/)
 void ToolsOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_LIGHT_BUTTON]          = FindConVar("zp_light_button");  
-    gCvarList[CVAR_MESSAGES_OBJECTIVE]    = FindConVar("zp_messages_objective");
-    gCvarList[CVAR_MESSAGES_COUNTER]      = FindConVar("zp_messages_counter");
-    gCvarList[CVAR_MESSAGES_BLAST]        = FindConVar("zp_messages_blast");
-    gCvarList[CVAR_MESSAGES_DAMAGE]       = FindConVar("zp_messages_damage");
-    gCvarList[CVAR_MESSAGES_DONATE]       = FindConVar("zp_messages_donate");
-    gCvarList[CVAR_MESSAGES_CLASS_INFO]   = FindConVar("zp_messages_class_info");
-    gCvarList[CVAR_MESSAGES_CLASS_CHOOSE] = FindConVar("zp_messages_class_choose");
-    gCvarList[CVAR_MESSAGES_CLASS_DUMP]   = FindConVar("zp_messages_class_dump");
-    gCvarList[CVAR_MESSAGES_ITEM_INFO]    = FindConVar("zp_messages_item_info");
-    gCvarList[CVAR_MESSAGES_ITEM_ALL]     = FindConVar("zp_messages_item_all");
-    gCvarList[CVAR_MESSAGES_WEAPON_INFO]  = FindConVar("zp_messages_weapon_info");
-    gCvarList[CVAR_MESSAGES_WEAPON_ALL]   = FindConVar("zp_messages_weapon_all");
-    gCvarList[CVAR_MESSAGES_BLOCK]        = FindConVar("zp_messages_block");
-    gCvarList[CVAR_SEND_TABLES]           = FindConVar("sv_sendtables");
+    gCvarList.LIGHT_BUTTON          = FindConVar("zp_light_button");  
+    gCvarList.MESSAGES_OBJECTIVE    = FindConVar("zp_messages_objective");
+    gCvarList.MESSAGES_COUNTER      = FindConVar("zp_messages_counter");
+    gCvarList.MESSAGES_BLAST        = FindConVar("zp_messages_blast");
+    gCvarList.MESSAGES_DAMAGE       = FindConVar("zp_messages_damage");
+    gCvarList.MESSAGES_DONATE       = FindConVar("zp_messages_donate");
+    gCvarList.MESSAGES_CLASS_INFO   = FindConVar("zp_messages_class_info");
+    gCvarList.MESSAGES_CLASS_CHOOSE = FindConVar("zp_messages_class_choose");
+    gCvarList.MESSAGES_CLASS_DUMP   = FindConVar("zp_messages_class_dump");
+    gCvarList.MESSAGES_ITEM_INFO    = FindConVar("zp_messages_item_info");
+    gCvarList.MESSAGES_ITEM_ALL     = FindConVar("zp_messages_item_all");
+    gCvarList.MESSAGES_WEAPON_INFO  = FindConVar("zp_messages_weapon_info");
+    gCvarList.MESSAGES_WEAPON_ALL   = FindConVar("zp_messages_weapon_all");
+    gCvarList.MESSAGES_BLOCK        = FindConVar("zp_messages_block");
+    gCvarList.SEND_TABLES           = FindConVar("sv_sendtables");
     
     // Sets locked cvars to their locked value
-    gCvarList[CVAR_SEND_TABLES].IntValue = 1;
+    gCvarList.SEND_TABLES.IntValue = 1;
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_LIGHT_BUTTON], ToolsFOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_SEND_TABLES],  CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList.LIGHT_BUTTON, ToolsFOnCvarHook);
+    HookConVarChange(gCvarList.SEND_TABLES,  CvarsUnlockOnCvarHook);
     
     // Load cvars
     ToolsOnCommandLoad();
@@ -83,7 +104,7 @@ void ToolsOnCommandLoad(/*void*/)
     }
     
     // Gets flashlight command alias
-    gCvarList[CVAR_LIGHT_BUTTON].GetString(sCommand, sizeof(sCommand));
+    gCvarList.LIGHT_BUTTON.GetString(sCommand, sizeof(sCommand));
     
     // Validate alias
     if (!hasLength(sCommand))
@@ -173,27 +194,135 @@ public Action ToolsOnCommandListened(int client, char[] commandMsg, int iArgumen
 }
 
 /**
- * @brief Hook client messages.
+ * @brief Hook client chat messages.
  *
- * @param iMessage          The message index.
- * @param hBuffer           Handle to the input bit buffer.
+ * @param hMessage          The message index.
+ * @param hMsg              Handle to the input bit buffer.
  * @param iPlayers          Array containing player indexes.
  * @param playersNum        Number of players in the array.
  * @param bReliable         True if message is reliable, false otherwise.
  * @param bInit             True if message is an initmsg, false otherwise.
  **/
-public Action ToolsOnMessageHook(UserMsg iMessage, BfRead hBuffer, int[] iPlayers, int playersNum, bool bReliable, bool bInit)
+public Action ToolsOnMessageHook(UserMsg hMessage, Protobuf hMsg, const int[] iPlayers, int playersNum, bool bReliable, bool bInit)
 {
-    // Initialize engine message
-    static char sTxtMsg[PLATFORM_LINE_LENGTH]; 
-    PbReadString(hBuffer, "params", sTxtMsg, sizeof(sTxtMsg), 0); 
+    // Initialize message
+    static char sBuffer[PLATFORM_LINE_LENGTH]; 
+    hMsg.ReadString("params", sBuffer, sizeof(sBuffer), 0);
 
     // Initialize block message list
-    static char sBlockMsg[PLATFORM_LINE_LENGTH];
-    gCvarList[CVAR_MESSAGES_BLOCK].GetString(sBlockMsg, sizeof(sBlockMsg)); 
+    static char sBlock[PLATFORM_LINE_LENGTH];
+    gCvarList.MESSAGES_BLOCK.GetString(sBlock, sizeof(sBlock)); 
 
     // Block messages on the matching
-    return (StrContains(sBlockMsg, sTxtMsg, false) != -1) ? Plugin_Handled : Plugin_Continue; 
+    return (StrContains(sBlock, sBuffer, false) != -1) ? Plugin_Handled : Plugin_Continue; 
+}
+
+/**
+ * @brief Hook client hint messages.
+ *
+ * @param hMessage          The message index.
+ * @param hMsg              Handle to the input bit buffer.
+ * @param iPlayers          Array containing player indexes.
+ * @param playersNum        Number of players in the array.
+ * @param bReliable         True if message is reliable, false otherwise.
+ * @param bInit             True if message is an initmsg, false otherwise.
+ **/
+public Action ToolsOnHintHook(UserMsg hMessage, Protobuf hMsg, const int[] iPlayers, int playersNum, bool bReliable, bool bInit)
+{
+    // Initialize message
+    static char sBuffer[FILE_LINE_LENGTH];
+    
+    // Gets the string from a protobuf
+    if (hMessage == hHintText)
+    {
+        hMsg.ReadString("text", sBuffer, sizeof(sBuffer));
+    }
+    else if (hMsg.ReadInt("msg_dst") == 4)
+    {
+        hMsg.ReadString("params", sBuffer, sizeof(sBuffer), 0);
+    }
+    else
+    {
+        return Plugin_Continue;
+    }
+    
+    // Validate html tags
+    if (StrContains(sBuffer, "</font>") != -1 || StrContains(sBuffer, "</span>") != -1)
+    {
+        DataPack hPack = new DataPack();
+        /// Initialize pack
+        hPack.WriteCell(playersNum);
+        for (int i = 0; i < playersNum; i++)
+        {
+            hPack.WriteCell(iPlayers[i]);
+        }
+        hPack.WriteString(sBuffer);
+        hPack.Reset();
+        
+        // Execute fix on the next frame
+        RequestFrame(ToolsOnMessageFix, hPack);
+        
+        // Block message
+        return Plugin_Handled;
+    }
+    
+    // Allow message
+    return Plugin_Continue;
+}
+
+/**
+ * @brief Called after a default hint message is created.
+ *
+ * @param hPack             The pack handle.
+ **/
+public void ToolsOnMessageFix(DataPack hPack)
+{
+    // Intitialize some variables
+    int iCount = 0; int iCountAll = hPack.ReadCell();
+    static int iPlayers[MAXPLAYERS+1];
+    
+    // i = incrementer index 
+    for (int i = 0, client; i < iCountAll; i++)
+    {
+        /// Extract data from pack
+        client = hPack.ReadCell();
+        
+        // Validate client
+        if (IsPlayerExist(client, false))
+        {
+            iPlayers[iCount++] = client;
+        }
+    }
+    
+    // Validate player count
+    if (iCount != 0)
+    {
+        // Gets the string from the pack
+        static char sBuffer[FILE_LINE_LENGTH];
+        hPack.ReadString(sBuffer, sizeof(sBuffer));
+
+        // Create message
+        Protobuf hMessage = view_as<Protobuf>(StartMessageEx(hTextMsg, iPlayers, iCount, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+        
+        // Validate message
+        if (hMessage != null)
+        {
+            hMessage.SetInt("msg_dst", 4);
+            hMessage.AddString("params", "#SFUI_ContractKillStart");
+            Format(sBuffer, sizeof(sBuffer), "</font>%s%s", sBuffer, sEmpty);
+            hMessage.AddString("params", sBuffer);
+            hMessage.AddString("params", NULL_STRING);
+            hMessage.AddString("params", NULL_STRING);
+            hMessage.AddString("params", NULL_STRING);
+            hMessage.AddString("params", NULL_STRING);
+            
+            // Ends a previously started network message
+            EndMessage();
+        }
+    }
+    
+    // Close pack 
+    delete hPack;
 }
 
 /*

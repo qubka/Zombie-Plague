@@ -46,7 +46,7 @@ void JumpBoostOnInit(/*void*/)
     } 
     
     // If jump boost disabled, then unhook
-    bool bJumpBoost = gCvarList[CVAR_JUMPBOOST].BoolValue;
+    bool bJumpBoost = gCvarList.JUMPBOOST.BoolValue;
     if (!bJumpBoost)
     {
         // Unhook player events
@@ -64,12 +64,12 @@ void JumpBoostOnInit(/*void*/)
 void JumpBoostOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_JUMPBOOST]            = FindConVar("zp_jumpboost");
-    gCvarList[CVAR_JUMPBOOST_MULTIPLIER] = FindConVar("zp_jumpboost_multiplier");
-    gCvarList[CVAR_JUMPBOOST_MAX]        = FindConVar("zp_jumpboost_max"); 
+    gCvarList.JUMPBOOST            = FindConVar("zp_jumpboost");
+    gCvarList.JUMPBOOST_MULTIPLIER = FindConVar("zp_jumpboost_multiplier");
+    gCvarList.JUMPBOOST_MAX        = FindConVar("zp_jumpboost_max"); 
 
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_JUMPBOOST], JumpBoostOnCvarHook);
+    HookConVarChange(gCvarList.JUMPBOOST, JumpBoostOnCvarHook);
 }
 
 /**
@@ -100,7 +100,7 @@ public void JumpBoostOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
 void JumpBoostOnClientInit(int client)
 {
     // If jumpboost is disabled, then stop
-    bool bJumpBoost = gCvarList[CVAR_JUMPBOOST].BoolValue;
+    bool bJumpBoost = gCvarList.JUMPBOOST.BoolValue;
     if (!bJumpBoost)
     {
         // Unhook entity callbacks
@@ -130,7 +130,7 @@ public void JumpBoostOnClientEntChanged(int client)
     if (GetEntityMoveType(client) != MOVETYPE_LADDER)
     {
         // Resets gravity
-        ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[client].Level)) : 0.0));
+        ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_GRAVITY_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0));
     }
 }
 
@@ -169,15 +169,15 @@ public void JumpBoostOnClientJumpPost(int userID)
         ToolsGetVelocity(client, vVelocity);
         
         // Only apply horizontal multiplier if it not a bhop
-        if (GetVectorLength(vVelocity) < gCvarList[CVAR_JUMPBOOST_MAX].FloatValue)
+        if (GetVectorLength(vVelocity) < gCvarList.JUMPBOOST_MAX.FloatValue)
         {
             // Apply horizontal multipliers to jump vector
-            vVelocity[0] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
-            vVelocity[1] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
+            vVelocity[0] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
+            vVelocity[1] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
         }
 
         // Apply height multiplier to jump vector
-        vVelocity[2] *= gCvarList[CVAR_JUMPBOOST_MULTIPLIER].FloatValue;
+        vVelocity[2] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
 
         // Sets new velocity
         ToolsSetVelocity(client, vVelocity, true, false);

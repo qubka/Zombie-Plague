@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Plays ambient sounds to the clients.
  *
- *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ void AmbientSoundsOnClientUpdate(int client)
     SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
     // Emit ambient sound
-    SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue, _, flAmbientVolume);
+    SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList.SEFFECTS_LEVEL.IntValue, _, flAmbientVolume);
 
     // Start repeating timer
     delete gClientData[client].AmbientTimer;
@@ -124,7 +124,7 @@ public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
         SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
         // Emit ambient sound
-        SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList[CVAR_SEFFECTS_LEVEL].IntValue, _, flAmbientVolume);
+        SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList.SEFFECTS_LEVEL.IntValue, _, flAmbientVolume);
 
         // Allow timer
         return Plugin_Continue;

@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   Menus constructor.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -217,10 +217,10 @@ void MenusOnCommandInit(/*void*/)
 void MenusOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_MENU_BUTTON] = FindConVar("zp_menu_button");
+    gCvarList.MENU_BUTTON = FindConVar("zp_menu_button");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_MENU_BUTTON], MenusOnCvarHook);
+    HookConVarChange(gCvarList.MENU_BUTTON, MenusOnCvarHook);
     
     // Load cvars
     MenusOnCvarLoad();
@@ -242,7 +242,7 @@ void MenusOnCvarLoad(/*void*/)
     }
     
     // Gets menu command alias
-    gCvarList[CVAR_MENU_BUTTON].GetString(sCommand, sizeof(sCommand));
+    gCvarList.MENU_BUTTON.GetString(sCommand, sizeof(sCommand));
     
     // Validate alias
     if (!hasLength(sCommand))

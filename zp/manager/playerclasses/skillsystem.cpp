@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Provides functions for zombie skills system.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,10 +31,10 @@
 void SkillSystemOnCvarInit(/*void*/)
 {    
     // Creates cvars
-    gCvarList[CVAR_SKILL_BUTTON] = FindConVar("zp_skill_button");  
+    gCvarList.SKILL_BUTTON = FindConVar("zp_skill_button");  
 
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_SKILL_BUTTON], SkillSystemOnCvarHook);
+    HookConVarChange(gCvarList.SKILL_BUTTON, SkillSystemOnCvarHook);
     
     // Load cvars
     SkillSystemOnCvarLoad();
@@ -56,7 +56,7 @@ void SkillSystemOnCvarLoad(/*void*/)
     }
     
     // Gets skill command alias
-    gCvarList[CVAR_SKILL_BUTTON].GetString(sCommand, sizeof(sCommand));
+    gCvarList.SKILL_BUTTON.GetString(sCommand, sizeof(sCommand));
     
     // Validate alias
     if (!hasLength(sCommand))

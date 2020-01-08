@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Spawn event.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -127,7 +127,7 @@ public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArgumen
                     {
                         // Validate last disconnection delay
                         int iDelay = RoundToNearest(float(GetTime() - gClientData[client].Time) / 60.0);
-                        if (iDelay > gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP].IntValue || gServerData.RoundMode == -1)
+                        if (iDelay > gCvarList.GAMEMODE_ROUNDTIME_ZP.IntValue || gServerData.RoundMode == -1)
                         {
                             // Switch team
                             ToolsSetTeam(client, (client & 1) ? TEAM_ZOMBIE : TEAM_HUMAN);

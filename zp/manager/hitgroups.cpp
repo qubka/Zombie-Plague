@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading hitgroup specific settings.
  *
- *  Copyright (C) 2015-2019 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ void HitGroupsOnLoad(/*void*/)
     ConfigRegisterConfig(File_HitGroups, Structure_Keyvalue, CONFIG_FILE_ALIAS_HITGROUPS);
 
     // If hitgroups is disabled, then stop
-    if (!gCvarList[CVAR_HITGROUP].BoolValue)
+    if (!gCvarList.HITGROUP.BoolValue)
     {
         return;
     }
@@ -205,30 +205,30 @@ public void HitGroupsOnConfigReload(/*void*/)
 void HitGroupsOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_HITGROUP]                  = FindConVar("zp_hitgroup"); 
-    gCvarList[CVAR_HITGROUP_KNOCKBACK]        = FindConVar("zp_knockback"); 
-    gCvarList[CVAR_HITGROUP_FRIENDLY_FIRE]    = FindConVar("mp_friendlyfire");
-    gCvarList[CVAR_HITGROUP_FRIENDLY_GRENADE] = FindConVar("ff_damage_reduction_grenade");
-    gCvarList[CVAR_HITGROUP_FRIENDLY_BULLETS] = FindConVar("ff_damage_reduction_bullets");
-    gCvarList[CVAR_HITGROUP_FRIENDLY_OTHER]   = FindConVar("ff_damage_reduction_other");
-    gCvarList[CVAR_HITGROUP_FRIENDLY_SELF]    = FindConVar("ff_damage_reduction_grenade_self");
+    gCvarList.HITGROUP                  = FindConVar("zp_hitgroup"); 
+    gCvarList.HITGROUP_KNOCKBACK        = FindConVar("zp_knockback"); 
+    gCvarList.HITGROUP_FRIENDLY_FIRE    = FindConVar("mp_friendlyfire");
+    gCvarList.HITGROUP_FRIENDLY_GRENADE = FindConVar("ff_damage_reduction_grenade");
+    gCvarList.HITGROUP_FRIENDLY_BULLETS = FindConVar("ff_damage_reduction_bullets");
+    gCvarList.HITGROUP_FRIENDLY_OTHER   = FindConVar("ff_damage_reduction_other");
+    gCvarList.HITGROUP_FRIENDLY_SELF    = FindConVar("ff_damage_reduction_grenade_self");
     
     // Sets locked cvars to their locked value
-    gCvarList[CVAR_HITGROUP_FRIENDLY_FIRE].IntValue          = 0;
-    CvarsOnCheatSet(gCvarList[CVAR_HITGROUP_FRIENDLY_GRENADE], 0);
-    CvarsOnCheatSet(gCvarList[CVAR_HITGROUP_FRIENDLY_BULLETS], 0);
-    CvarsOnCheatSet(gCvarList[CVAR_HITGROUP_FRIENDLY_OTHER],   0);
-    CvarsOnCheatSet(gCvarList[CVAR_HITGROUP_FRIENDLY_SELF],    0);
+    gCvarList.HITGROUP_FRIENDLY_FIRE.IntValue          = 0;
+    CvarsOnCheatSet(gCvarList.HITGROUP_FRIENDLY_GRENADE, 0);
+    CvarsOnCheatSet(gCvarList.HITGROUP_FRIENDLY_BULLETS, 0);
+    CvarsOnCheatSet(gCvarList.HITGROUP_FRIENDLY_OTHER,   0);
+    CvarsOnCheatSet(gCvarList.HITGROUP_FRIENDLY_SELF,    0);
 
     // Hook locked cvars to prevent it from changing
-    HookConVarChange(gCvarList[CVAR_HITGROUP_FRIENDLY_FIRE],    CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_HITGROUP_FRIENDLY_GRENADE], CvarsLockOnCvarHook2);
-    HookConVarChange(gCvarList[CVAR_HITGROUP_FRIENDLY_BULLETS], CvarsLockOnCvarHook2);
-    HookConVarChange(gCvarList[CVAR_HITGROUP_FRIENDLY_OTHER],   CvarsLockOnCvarHook2);
-    HookConVarChange(gCvarList[CVAR_HITGROUP_FRIENDLY_SELF],    CvarsLockOnCvarHook2);
+    HookConVarChange(gCvarList.HITGROUP_FRIENDLY_FIRE,    CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.HITGROUP_FRIENDLY_GRENADE, CvarsLockOnCvarHook2);
+    HookConVarChange(gCvarList.HITGROUP_FRIENDLY_BULLETS, CvarsLockOnCvarHook2);
+    HookConVarChange(gCvarList.HITGROUP_FRIENDLY_OTHER,   CvarsLockOnCvarHook2);
+    HookConVarChange(gCvarList.HITGROUP_FRIENDLY_SELF,    CvarsLockOnCvarHook2);
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_HITGROUP], HitGroupsOnCvarHook);
+    HookConVarChange(gCvarList.HITGROUP, HitGroupsOnCvarHook);
 }
 
 /**
@@ -239,7 +239,7 @@ void HitGroupsOnCvarInit(/*void*/)
 void HitGroupsOnClientInit(int client)
 {
     // If gamemodes is disabled, then unhook
-    int iDamage = gCvarList[CVAR_GAMEMODE].IntValue;
+    int iDamage = gCvarList.GAMEMODE.IntValue;
     if (!iDamage)
     {
         // Unhook entity callbacks
@@ -327,7 +327,7 @@ public Action HitGroupsOnTraceAttack(int client, int &attacker, int &inflictor, 
     }
 
     // If custom hitgroups enabled, then apply multipliers
-    if (gCvarList[CVAR_HITGROUP].BoolValue)
+    if (gCvarList.HITGROUP.BoolValue)
     {
         // Validate hitgroup index
         int iHitIndex = HitGroupToIndex(iHitGroup);
@@ -448,7 +448,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     /*_________________________________________________________________________________________________________________________________________*/
     
     // If custom hitgroups enabled, then apply multipliers
-    if (gCvarList[CVAR_HITGROUP].BoolValue)
+    if (gCvarList.HITGROUP.BoolValue)
     {
         // Validate hitgroup index
         int iHitIndex = HitGroupToIndex(iHitGroup);
@@ -502,9 +502,9 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
     }
     
     // Call forward
-    gForwardData._OnClientDamaged(client, attacker, inflictor, flDamage, iBits, weapon);
+    gForwardData._OnClientValidateDamage(client, attacker, inflictor, flDamage, iBits, weapon);
 
-    // Validate damage
+    // Validate result
     if (flDamage < 0.0)
     {
         // Block damage
@@ -524,10 +524,10 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
         }
 
         // If level system enabled, then apply multiplier
-        if (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+        if (gCvarList.LEVEL_SYSTEM.BoolValue)
         {
             // Add multiplier
-            flDamageRatio *= float(gClientData[attacker].Level) * gCvarList[CVAR_LEVEL_DAMAGE_RATIO].FloatValue + 1.0;
+            flDamageRatio *= float(gClientData[attacker].Level) * gCvarList.LEVEL_DAMAGE_RATIO.FloatValue + 1.0;
         }
 
         /// Validate entity which is inflict damage
@@ -612,7 +612,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
         HitGroupsGiveExp(attacker, iDamage);
         
         // If help messages enabled, then show info
-        if (gCvarList[CVAR_MESSAGES_DAMAGE].BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "full damage info" : "damage info", (iHealth > 0) ? iHealth : 0, iArmor);
+        if (gCvarList.MESSAGES_DAMAGE.BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "full damage info" : "damage info", (iHealth > 0) ? iHealth : 0, iArmor);
 
         // Client was damaged by 'bullet' or 'knife'
         if (iBits & DMG_NEVERGIB)
@@ -655,10 +655,13 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
             }
         }
     }
-    
+
     // Forward event to modules
     SoundsOnClientHurt(client, iBits);
     VEffectsOnClientHurt(client, attacker, iHealth);
+    
+    // Call forward
+    gForwardData._OnClientDamaged(client, attacker, inflictor, flDamage, iBits, weapon, iHealth, iArmor);
     
     // Validate health
     if (iHealth > 0)
@@ -1312,7 +1315,7 @@ void HitGroupsApplyKnock(int client, int attacker, float flPower)
     }
     
     // If knockback system is enabled, then apply
-    if (gCvarList[CVAR_HITGROUP_KNOCKBACK].BoolValue) 
+    if (gCvarList.HITGROUP_KNOCKBACK.BoolValue) 
     {
         // Initialize vectors
         static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEndPosition[3];
@@ -1398,7 +1401,7 @@ void HitGroupsGiveMoney(int client, int iDamage)
 void HitGroupsGiveExp(int client, int iDamage)
 {
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue)
     {
         return;
     }

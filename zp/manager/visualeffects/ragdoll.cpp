@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Remove ragdolls with optional effects.
  *
- *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,9 +44,9 @@
 void RagdollOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE]   = FindConVar("zp_veffects_ragdoll_remove");
-    gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE] = FindConVar("zp_veffects_ragdoll_dissolve");
-    gCvarList[CVAR_VEFFECTS_RAGDOLL_DELAY]    = FindConVar("zp_veffects_ragdoll_delay");
+    gCvarList.VEFFECTS_RAGDOLL_REMOVE   = FindConVar("zp_veffects_ragdoll_remove");
+    gCvarList.VEFFECTS_RAGDOLL_DISSOLVE = FindConVar("zp_veffects_ragdoll_dissolve");
+    gCvarList.VEFFECTS_RAGDOLL_DELAY    = FindConVar("zp_veffects_ragdoll_delay");
 }
  
 /**
@@ -57,7 +57,7 @@ void RagdollOnCvarInit(/*void*/)
 void RagdollOnClientDeath(int client)
 {
     // If true, the stop
-    bool bRagDollRemove = gCvarList[CVAR_VEFFECTS_RAGDOLL_REMOVE].BoolValue;
+    bool bRagDollRemove = gCvarList.VEFFECTS_RAGDOLL_REMOVE.BoolValue;
 
     // If ragdoll removal is disabled, then stop
     if (!bRagDollRemove)
@@ -75,7 +75,7 @@ void RagdollOnClientDeath(int client)
     }
 
     // If the delay is zero, then remove right now
-    float flDissolveDelay = gCvarList[CVAR_VEFFECTS_RAGDOLL_DELAY].FloatValue;
+    float flDissolveDelay = gCvarList.VEFFECTS_RAGDOLL_DELAY.FloatValue;
     if (!flDissolveDelay)
     {
         RagdollOnEntityRemove(null, EntIndexToEntRef(ragdoll));
@@ -108,7 +108,7 @@ public Action RagdollOnEntityRemove(Handle hTimer, int refID)
         if (!strcmp(sClassname, "cs_ragdoll", false))
         {
             // Gets dissolve type
-            int iEffect = gCvarList[CVAR_VEFFECTS_RAGDOLL_DISSOLVE].IntValue;
+            int iEffect = gCvarList.VEFFECTS_RAGDOLL_DISSOLVE.IntValue;
 
             // Check the dissolve type
             if (iEffect == VEFFECTS_RAGDOLL_DISSOLVE_EFFECTLESS)

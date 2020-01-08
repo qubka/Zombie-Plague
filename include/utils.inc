@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Entity Utilities Copyright (C) 2019 Nikita Ushakov (Ireland, Dublin).
+ * Entity Utilities Copyright (C) 2020 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague and NPC Cores.

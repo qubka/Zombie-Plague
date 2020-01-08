@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -102,11 +102,6 @@ public void OnLibraryAdded(const char[] sLibrary)
     // Validate library
     if (!strcmp(sLibrary, "zombieplague", false))
     {
-#if !defined WEAPON_MINE_IMPULSE
-        // Hooks entity events
-        HookEntityOutput("env_beam", "OnTouchedByEntity", BeamTouchHook);
-#endif
-
         // If map loaded, then run custom forward
         if (ZP_IsMapLoaded())
         {
@@ -608,10 +603,10 @@ public Action MineActivateHook(Handle hTimer, int refID)
         // Play sound
         ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
         
-#if defined WEAPON_MINE_IMPULSE
         // Create update hook
         CreateTimer(ZP_GetWeaponSpeed(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-        
+
+#if defined WEAPON_MINE_IMPULSE
         // Gets angle
         GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vEndPosition);
         
@@ -690,7 +685,7 @@ public Action MineSolidHook(Handle hTimer, int refID)
         ArrayList hList = new ArrayList();
         
         // Create the hull trace
-        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, HullEnumerator, hList);
 
         // Is hit world only ?
         if (!hList.Length)
@@ -722,7 +717,6 @@ public Action MineSolidHook(Handle hTimer, int refID)
  * @param hTimer            The timer handle.
  * @param refID             The reference index.
  **/
-#if defined WEAPON_MINE_IMPULSE
 public Action MineUpdateHook(Handle hTimer, int refID)
 {
     // Gets entity index from reference key
@@ -732,12 +726,15 @@ public Action MineUpdateHook(Handle hTimer, int refID)
     if (entity != -1)
     {
         // Initialize vectors
-        static float vPosition[3]; static float vEndPosition[3]; static float vVelocity[3]; static float vSpeed[3];
+        static float vPosition[3]; static float vEndPosition[3];
         
         // Gets mine position/end pos
         GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
         GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
+#if defined WEAPON_MINE_IMPULSE
+        static float vVelocity[3]; static float vSpeed[3];
+    
         // Create the end-point trace
         TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, HumanFilter, entity);
 
@@ -806,6 +803,33 @@ public Action MineUpdateHook(Handle hTimer, int refID)
             EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
             EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue, SND_NOFLAGS, 0.3, SNDPITCH_LOW);
         }
+#else
+        // Create array of entities
+        ArrayList hList = new ArrayList();
+
+        // Create the ray trace
+        TR_EnumerateEntities(vPosition, vEndPosition, false, RayType_EndPoint, RayEnumerator, hList);
+        
+        // Is hit some one ?
+        for(int i = 0; i < hList.Length; i++)
+        {
+            // Gets the index from a list
+            int victim = hList.Get(i);
+            
+            // Validate victim
+            if(IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+            {
+                // Apply damage
+                ZP_TakeDamage(victim, -1, entity, WEAPON_MINE_DAMAGE, DMG_BULLET);
+            
+                // Play sound
+                ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, hSoundLevel.IntValue);
+            }
+        }
+
+        // Delete list
+        delete hList;
+#endif
     }
     else
     {
@@ -816,57 +840,6 @@ public Action MineUpdateHook(Handle hTimer, int refID)
     // Allow timer
     return Plugin_Continue;
 }
-#else
-/**
- * @brief Beam touch hook.
- *
- * @param sOutput           The output char. 
- * @param entity            The entity index.
- * @param activator         The activator index.
- * @param flDelay           The delay of updating.
- **/ 
-public void BeamTouchHook(char[] sOutput, int entity, int activator, float flDelay)
-{
-    // Validate entity
-    if (IsEntityBeam(entity))
-    {
-        // Validate activator
-        if (IsPlayerExist(activator) && ZP_IsPlayerZombie(activator) && IsPlayerDamageble(activator, ZP_GetWeaponSpeed(gWeapon)))
-        {
-            // Apply damage
-            ZP_TakeDamage(activator, -1, entity, WEAPON_MINE_DAMAGE, DMG_BULLET);
-        
-            // Play sound
-            ZP_EmitSoundToAll(gSound, 4, activator, SNDCHAN_ITEM, hSoundLevel.IntValue);
-        }
-    }
-}
-
-/**
- * @brief Validate the damage delay.
- * 
- * @param client            The client index.
- * @param flDamageDelay     The damege delay.
- **/
-bool IsPlayerDamageble(int client, float flDamageDelay)
-{
-    // Initialize variable
-    static float flDamageTime[MAXPLAYERS+1];
-    
-    // Gets simulated game time
-    float flCurrentTime = GetTickedTime();
-    
-    // Validate delay
-    if ((flCurrentTime - flDamageTime[client]) < flDamageDelay)
-    {
-        return false;
-    }
-    
-    // Update the damage delay
-    flDamageTime[client] = flCurrentTime;
-    return true;
-}
-#endif
 
 //**********************************************
 //* Useful stocks.                             *
@@ -975,7 +948,26 @@ public bool HumanFilter(int entity, int contentsMask, int filter)
  * @param hData             The array handle.
  * @return                  True to continue enumerating, otherwise false.
  **/
-public bool ClientEnumerator(int entity, ArrayList hData)
+public bool HullEnumerator(int entity, ArrayList hData)
+{
+    // Validate player
+    if (IsPlayerExist(entity))
+    {
+        TR_ClipCurrentRayToEntity(MASK_ALL, entity);
+        if (TR_DidHit()) hData.Push(entity);
+    }
+        
+    return true;
+}
+
+/**
+ * @brief Ray filter.
+ *
+ * @param entity            The entity index.
+ * @param hData             The array handle.
+ * @return                  True to continue enumerating, otherwise false.
+ **/
+public bool RayEnumerator(int entity, ArrayList hData)
 {
     // Validate player
     if (IsPlayerExist(entity))

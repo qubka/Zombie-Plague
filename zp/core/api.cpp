@@ -7,7 +7,7 @@
  *  Type:          Main 
  *  Description:   Native handlers for the ZP API.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@ enum struct ForwardData
     Handle OnClientDeath;
     Handle OnClientRespawn;
     Handle OnClientDamaged;
+    Handle OnClientValidateDamage;
     Handle OnClientValidateItem;
     Handle OnClientBuyItem;
     Handle OnClientValidateClass;
@@ -82,7 +83,8 @@ enum struct ForwardData
         this.OnClientUpdated         = CreateGlobalForward("ZP_OnClientUpdated", ET_Ignore, Param_Cell, Param_Cell);
         this.OnClientDeath           = CreateGlobalForward("ZP_OnClientDeath", ET_Ignore, Param_Cell, Param_Cell);
         this.OnClientRespawn         = CreateGlobalForward("ZP_OnClientRespawn", ET_Hook, Param_Cell);
-        this.OnClientDamaged         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_CellByRef, Param_CellByRef, Param_FloatByRef, Param_CellByRef, Param_CellByRef);
+        this.OnClientDamaged         = CreateGlobalForward("ZP_OnClientDamaged", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Float, Param_Cell, Param_Cell, Param_Cell, Param_Cell); 
+        this.OnClientValidateDamage  = CreateGlobalForward("ZP_OnClientValidateDamage", ET_Ignore, Param_Cell, Param_CellByRef, Param_CellByRef, Param_FloatByRef, Param_CellByRef, Param_CellByRef);
         this.OnClientValidateItem    = CreateGlobalForward("ZP_OnClientValidateExtraItem", ET_Hook, Param_Cell, Param_Cell);
         this.OnClientBuyItem         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
         this.OnClientValidateClass   = CreateGlobalForward("ZP_OnClientValidateClass", ET_Hook, Param_Cell, Param_Cell);
@@ -154,9 +156,9 @@ enum struct ForwardData
         Call_PushCell(client);
         Call_Finish(hResult);
     }
-
+    
     /**
-     * @brief Called when a client take a fake damage.
+     * @brief Called after a client take a fake damage.
      * 
      * @param client            The client index.
      * @param attacker          The attacker index.
@@ -164,10 +166,38 @@ enum struct ForwardData
      * @param flDamage          The amount of damage inflicted.
      * @param iBits             The ditfield of damage types.
      * @param weapon            The weapon index or -1 for unspecified.
+     * @param iHealth           The current health amount of a victim.
+     * @param iArmor            The current armor amount of a victim.
      **/
-    void _OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
+    void _OnClientDamaged(int client, int attacker, int inflictor, float flDamage, int iBits, int weapon, int iHealth, int iArmor)
     {
         Call_StartForward(this.OnClientDamaged);
+        Call_PushCell(client);
+        Call_PushCell(attacker);
+        Call_PushCell(inflictor);
+        Call_PushFloat(flDamage);
+        Call_PushCell(iBits);
+        Call_PushCell(weapon);
+        Call_PushCell(iHealth);
+        Call_PushCell(iArmor);
+        Call_Finish();
+    }
+
+    /**
+     * @brief Called before a client take a fake damage.
+     * 
+     * @param client            The client index.
+     * @param attacker          The attacker index.
+     * @param inflictor         The inflictor index.
+     * @param flDamage          The amount of damage inflicted.
+     * @param iBits             The ditfield of damage types.
+     * @param weapon            The weapon index or -1 for unspecified.
+     *
+     * @note To block damage reset the damage to zero.
+     **/
+    void _OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
+    {
+        Call_StartForward(this.OnClientValidateDamage);
         Call_PushCell(client);
         Call_PushCellRef(attacker);
         Call_PushCellRef(inflictor);

@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -97,16 +97,18 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
- * @brief Called when a client take a fake damage.
+ * @brief Called after a client take a fake damage.
  * 
  * @param client            The client index.
  * @param attacker          The attacker index.
  * @param inflictor         The inflictor index.
- * @param damage            The amount of damage inflicted.
- * @param bits              The ditfield of damage types.
+ * @param flDamage          The amount of damage inflicted.
+ * @param iBits             The ditfield of damage types.
  * @param weapon            The weapon index or -1 for unspecified.
+ * @param iHealth           The current health amount of a victim.
+ * @param iArmor            The current armor amount of a victim.
  **/
-public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
+public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float flDamage, int iBits, int weapon, int iHealth, int iArmor)
 {
     // Validate attacker
     if (!IsPlayerExist(attacker))
@@ -130,7 +132,7 @@ public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float 
             ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, hSoundLevel.IntValue);
             
             // Create an fade
-            UTIL_CreateFadeScreen(attacker, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, 0x0001, ZOMBIE_CLASS_SKILL_COLOR_F);
+            UTIL_CreateFadeScreen(attacker, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);
             
             // Create effect
             static float vPosition[3];

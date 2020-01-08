@@ -7,7 +7,7 @@
  *  Type:          Core 
  *  Description:   Logging API.
  *
- *  Copyright (C) 2015-2019 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -70,29 +70,31 @@ enum LogType
  **/
 enum LogModule
 {
-    bool:LogModule_Invalid,            /** Used as return value when an error occoured.*/
+    LogModule_Invalid,            /** Used as return value when an error occoured.*/
 
-    bool:LogModule_Engine,
-    bool:LogModule_Config,
-    bool:LogModule_Debug,
-    bool:LogModule_Tools,
-    bool:LogModule_Database,
-    bool:LogModule_Decrypt,
-    bool:LogModule_Sounds,
-    bool:LogModule_Downloads,
-    bool:LogModule_Weapons,
-    bool:LogModule_Effects,
-    bool:LogModule_Menus,
-    bool:LogModule_HitGroups,
-    bool:LogModule_AntiStick,
-    bool:LogModule_Death,
-    bool:LogModule_Levels,
-    bool:LogModule_Classes,
-    bool:LogModule_ExtraItems,
-    bool:LogModule_Costumes,
-    bool:LogModule_GameModes,
-    bool:LogModule_Admin,
-    bool:LogModule_Native
+    LogModule_Engine,
+    LogModule_Config,
+    LogModule_Debug,
+    LogModule_Tools,
+    LogModule_Database,
+    LogModule_Decrypt,
+    LogModule_Sounds,
+    LogModule_Downloads,
+    LogModule_Weapons,
+    LogModule_Effects,
+    LogModule_Menus,
+    LogModule_HitGroups,
+    LogModule_AntiStick,
+    LogModule_Death,
+    LogModule_Levels,
+    LogModule_Classes,
+    LogModule_ExtraItems,
+    LogModule_Costumes,
+    LogModule_GameModes,
+    LogModule_Admin,
+    LogModule_Native,
+    
+    LogModule_Size
 };
 /**
  * @endsection
@@ -101,7 +103,7 @@ enum LogModule
 /**
  * Cache of current module filter settings. For fast and easy access.
  **/
-int LogModuleFilterCache[LogModule];
+bool LogModuleFilterCache[LogModule_Size];
 
 /**
  * @brief List of modules that write log events. 
@@ -153,11 +155,11 @@ void LogOnCommandInit(/*void*/)
 void LogOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_LOG]                = FindConVar("zp_log");
-    gCvarList[CVAR_LOG_MODULE_FILTER]  = FindConVar("zp_log_module_filter");
-    gCvarList[CVAR_LOG_IGNORE_CONSOLE] = FindConVar("zp_log_ignore_console");
-    gCvarList[CVAR_LOG_ERROR_OVERRIDE] = FindConVar("zp_log_error_override");
-    gCvarList[CVAR_LOG_PRINT_CHAT]     = FindConVar("zp_log_print_chat");
+    gCvarList.LOG                = FindConVar("zp_log");
+    gCvarList.LOG_MODULE_FILTER  = FindConVar("zp_log_module_filter");
+    gCvarList.LOG_IGNORE_CONSOLE = FindConVar("zp_log_ignore_console");
+    gCvarList.LOG_ERROR_OVERRIDE = FindConVar("zp_log_error_override");
+    gCvarList.LOG_PRINT_CHAT     = FindConVar("zp_log_print_chat");
 }
 
 /*
@@ -331,16 +333,16 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
 void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent = LOG_CORE_EVENTS, LogModule iModule = LogModule_Config, char[] sDescription, char[] sMessage, any ...)
 {    
     // Check filter overrides. Always log fatal errors, and check error override setting on error log types
-    if ((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList[CVAR_LOG_ERROR_OVERRIDE].BoolValue))
+    if ((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList.LOG_ERROR_OVERRIDE.BoolValue))
     {
         // Check iflogging is disabled
-        if (!gCvarList[CVAR_LOG].BoolValue)
+        if (!gCvarList.LOG.BoolValue)
         {
             return;
         }
 
         // Check if console is ignored
-        if (isConsole && gCvarList[CVAR_LOG_IGNORE_CONSOLE].BoolValue)
+        if (isConsole && gCvarList.LOG_IGNORE_CONSOLE.BoolValue)
         {
             return;
         }
@@ -352,7 +354,7 @@ void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent
         }
 
         // Check ifmodule filtering is enabled
-        if (gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue)
+        if (gCvarList.LOG_MODULE_FILTER.BoolValue)
         {
             // Check if the specified module is enabled
             if (!LogCheckModuleFilter(iModule))
@@ -403,7 +405,7 @@ void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent
     }
 
     // Check if printing log events to public chat is enabled
-    if (gCvarList[CVAR_LOG_PRINT_CHAT].BoolValue)
+    if (gCvarList.LOG_PRINT_CHAT.BoolValue)
     {
         // Print text to public chat
         PrintToChatAll(sLogBuffer);
@@ -488,7 +490,7 @@ void LogModuleFilterCacheUpdate(/*void*/)
     int iModuleCount = sizeof(LogModuleFilterCache);
     for (int i = 1; i < iModuleCount; i++)
     {
-        LogModuleFilterCache[view_as<LogModule>(i)] = false;
+        LogModuleFilterCache[i] = false;
     }
     
     // Loop through the module array
@@ -567,7 +569,7 @@ public Action LogListOnCommandCatched(int client, int iArguments)
     sBuffer[0] = 0;
     
     // Module filtering status:
-    FormatEx(sLineBuffer, sizeof(sLineBuffer), "%t %s\n\n", "log module filter", gCvarList[CVAR_LOG_MODULE_FILTER].BoolValue ? "On" : "Off");
+    FormatEx(sLineBuffer, sizeof(sLineBuffer), "%t %s\n\n", "log module filter", gCvarList.LOG_MODULE_FILTER.BoolValue ? "On" : "Off");
     StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
     
     FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "log status");
@@ -583,7 +585,7 @@ public Action LogListOnCommandCatched(int client, int iArguments)
     {
         LogGetModuleNameString(sModuleName, sizeof(sModuleName), view_as<LogModule>(i));
         LogGetModuleNameString(sPhraseShortName, sizeof(sPhraseShortName), view_as<LogModule>(i), true);
-        FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[view_as<LogModule>(i)] ? "On" : "Off");
+        FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[i] ? "On" : "Off");
         ReplyToCommand(client, sLineBuffer);
     }
     return Plugin_Handled;

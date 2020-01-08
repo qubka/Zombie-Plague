@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -553,16 +553,18 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 }
 
 /**
- * @brief Called when a client take a fake damage.
+ * @brief Called before a client take a fake damage.
  * 
  * @param client            The client index.
- * @param attacker          The attacker index.
- * @param inflictor         The inflictor index.
- * @param damage            The amount of damage inflicted.
- * @param bits              The ditfield of damage types.
+ * @param attacker          The attacker index. (Not validated!)
+ * @param inflicter         The inflicter index. (Not validated!)
+ * @param flDamage          The amount of damage inflicted.
+ * @param iBits             The ditfield of damage types.
  * @param weapon            The weapon index or -1 for unspecified.
+ *
+ * @note To block damage reset the damage to zero. 
  **/
-public void ZP_OnClientDamaged(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
+public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
     // Client was damaged by 'bullet'
     if (iBits & DMG_NEVERGIB)

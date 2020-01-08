@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   Downloads validation.
  *
- *  Copyright (C) 2015-2019 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -173,10 +173,8 @@ void DownloadsOnCacheData(/*void*/)
 
 /**
  * @brief Called when configs are being reloaded.
- * 
- * @param iConfig           The config being reloaded. (only if 'all' is false)
  **/
-public void DownloadsOnConfigReload(ConfigFile iConfig)
+public void DownloadsOnConfigReload(/*void*/)
 {
     // Reloads download config
     DownloadsOnLoad();

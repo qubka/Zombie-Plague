@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -297,7 +297,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
     hPack.WriteCell(weaponID);
     
     // Execute forward on the next frame
-    RequestFrame(view_as<RequestFrameCallback>(ZP_OnGrenadeCreatedPost), hPack);
+    RequestFrame(ZP_OnGrenadeCreatedPost, hPack);
 }
 
 /**
@@ -764,6 +764,10 @@ public Action GrenadeTripwireTouch(int grenade, int target)
             GrenadeTripwireTrackWall(grenade);
         }
     }
+    
+    // Make grenade non-physical entity in order to prevent players and bots blocking
+    SetEntProp(grenade, Prop_Data, "m_nSolidType", SOLID_NONE);
+    SetEntProp(grenade, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_NONE);
     
     // Block touch
     return Plugin_Handled;

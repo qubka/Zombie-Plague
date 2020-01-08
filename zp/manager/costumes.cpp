@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading costumes specific variables.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ int DHook_SetEntityModel;
 void CostumesOnInit(/*void*/)
 {
     // If module is disabled, then stop
-    if (!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList.COSTUMES.BoolValue)
     {
         // Validate loaded map
         if (gServerData.MapLoaded)
@@ -84,7 +84,7 @@ void CostumesOnInit(/*void*/)
         if (gServerData.Costumes == null)
         {
             // Resets value
-            gCvarList[CVAR_COSTUMES].BoolValue = false;
+            gCvarList.COSTUMES.BoolValue = false;
         
             // Log failure
             LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "You can't enable costume module after map start!");
@@ -117,7 +117,7 @@ void CostumesOnLoad(/*void*/)
     ConfigRegisterConfig(File_Costumes, Structure_Keyvalue, CONFIG_FILE_ALIAS_COSTUMES);
 
     // If costumes is disabled, then stop
-    if (!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList.COSTUMES.BoolValue)
     {
         return;
     }
@@ -273,10 +273,10 @@ void CostumesOnCommandInit(/*void*/)
 void CostumesOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_COSTUMES] = FindConVar("zp_costume");
+    gCvarList.COSTUMES = FindConVar("zp_costume");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_COSTUMES], CostumesOnCvarHook);
+    HookConVarChange(gCvarList.COSTUMES, CostumesOnCvarHook);
 }
 
 /**
@@ -290,7 +290,7 @@ void CostumesOnClientInit(int client)
     static int iD[MAXPLAYERS+1] = {-1, ...};
     
     // If module is disabled, then stop
-    if (!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList.COSTUMES.BoolValue)
     {
         // Validate hook
         if (iD[client] != -1) 
@@ -981,7 +981,7 @@ int CostumesNameToIndex(char[] sName)
 void CostumesMenu(int client)
 {
     // If module is disabled, then stop
-    if (!gCvarList[CVAR_COSTUMES].BoolValue)
+    if (!gCvarList.COSTUMES.BoolValue)
     {
         return;
     }

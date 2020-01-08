@@ -7,7 +7,7 @@
  *  Type:          Main 
  *  Description:   General plugin functions and defines.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -415,6 +415,23 @@ stock void fnInitGameConfAddress(Handle gameConf, Address &pAddress, char[] sKey
     if ((pAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get address: \"%s\"", sKey);
+    }
+}
+
+/**
+ * @brief Returns the value of a key from a given config.
+ *
+ * @param gameConf          The game config handle.
+ * @param sKey              Key to retrieve from the key section.
+ * @param sIdentifier       The string to return identifier in.
+ * @param iMaxLen           The lenght of string.
+ **/
+stock void fnInitGameConfKey(Handle gameConf, char[] sKey, char[] sIdentifier, int iMaxLen)
+{
+    // Validate key
+    if (!GameConfGetKeyValue(gameConf, sKey, sIdentifier, iMaxLen)) 
+    {
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get key: \"%s\"", sKey);
     }
 }
 

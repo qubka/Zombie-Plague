@@ -40,7 +40,7 @@
  * U = Upper
  * D = Down
  **/
-enum AntiStickBoxBound
+enum /*AntiStickBoxBound*/
 {
     BoxBound_FUR,       /** Front upper right */
     BoxBound_FUL,       /** etc.. */
@@ -49,7 +49,9 @@ enum AntiStickBoxBound
     BoxBound_BUR,
     BoxBound_BUL,
     BoxBound_BDR,
-    BoxBound_BDL
+    BoxBound_BDL,
+    
+    AntiStickBoxBound
 };
 /**
  * @endsection
@@ -84,7 +86,7 @@ void AntiStickOnInit(/*void*/)
 void AntiStickOnClientInit(int client)
 {
     // If antistick is disabled, then unhook
-    bool bAntiStick = gCvarList[CVAR_ANTISTICK].BoolValue;
+    bool bAntiStick = gCvarList.ANTISTICK.BoolValue;
     if (!bAntiStick)
     {
         // Unhook entity callbacks
@@ -111,10 +113,10 @@ void AntiStickOnCommandInit(/*void*/)
 void AntiStickOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_ANTISTICK] = FindConVar("zp_antistick");
+    gCvarList.ANTISTICK = FindConVar("zp_antistick");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_ANTISTICK], AntiStickOnCvarHook);
+    HookConVarChange(gCvarList.ANTISTICK, AntiStickOnCvarHook);
 }
 
 /**
@@ -559,7 +561,7 @@ int AntiStickFindPlayerInSphere(int &it, float vPosition[3], float flRadius)
 /**
  * @brief Returns true if there's an intersection between box and sphere.
  * 
- * @param flBoundaries      Array with 'AntiStickBoxBounds' for indexes to return bounds into.
+ * @param flBoundaries      Array with 'AntiStickBoxBound' for indexes to return bounds into.
  * @param vPosition         The sphere center.
  * @param flRadius          The sphere radius.
  * 

@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Functions for applying attributes of class on a client.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
         if (gServerData.RoundNew)
         {
             // If instant human class menu enable, then open 
-            if (gCvarList[CVAR_HUMAN_MENU].BoolValue)
+            if (gCvarList.HUMAN_MENU.BoolValue)
             {
                 // Opens the human classes menu
                 ClassMenu(client, "choose humanclass", "human", gClientData[client].HumanClassNext, true);
@@ -118,7 +118,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
         gClientData[client].Zombie = true;
         
         // If instant zombie class menu enable, then open 
-        if (gCvarList[CVAR_ZOMBIE_MENU].BoolValue)
+        if (gCvarList.ZOMBIE_MENU.BoolValue)
         {
             // Opens the zombie classes menu
             ClassMenu(client, "choose zombieclass", "zombie", gClientData[client].ZombieClassNext, true);
@@ -167,9 +167,9 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     }
     
     // Sets health, speed and gravity and armor
-    ToolsSetHealth(client, ClassGetHealth(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[client].Level)) : 0), true);
-    ToolsSetLMV(client, ClassGetSpeed(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[client].Level)) : 0.0));
-    ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList[CVAR_LEVEL_SYSTEM].BoolValue ? (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[client].Level)) : 0.0));
+    ToolsSetHealth(client, ClassGetHealth(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? RoundToNearest(gCvarList.LEVEL_HEALTH_RATIO.FloatValue * float(gClientData[client].Level)) : 0), true);
+    ToolsSetLMV(client, ClassGetSpeed(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0));
+    ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_GRAVITY_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0));
     ToolsSetArmor(client, (ToolsGetArmor(client) < ClassGetArmor(gClientData[client].Class)) ? ClassGetArmor(gClientData[client].Class) : ToolsGetArmor(client));
     ToolsSetHud(client, ClassIsCross(gClientData[client].Class));
     ToolsSetSpot(client, ClassIsSpot(gClientData[client].Class));
@@ -187,7 +187,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     if (hasLength(sModel)) ToolsSetArm(client, sModel);
     
     // If help messages enabled, then show info
-    if (gCvarList[CVAR_MESSAGES_CLASS_INFO].BoolValue)
+    if (gCvarList.MESSAGES_CLASS_INFO.BoolValue)
     {
         // Gets class info
         ClassGetInfo(gClientData[client].Class, sModel, sizeof(sModel));
@@ -203,8 +203,8 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
     {
         // Create a fake death event
         static char sIcon[SMALL_LINE_LENGTH];
-        gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
-        DeathCreateIcon(GetClientUserId(client), GetClientUserId(attacker), sIcon, gCvarList[CVAR_ICON_HEAD].BoolValue);
+        gCvarList.ICON_INFECT.GetString(sIcon, sizeof(sIcon));
+        DeathCreateIcon(GetClientUserId(client), GetClientUserId(attacker), sIcon, gCvarList.ICON_HEAD.BoolValue);
         
         // Increment kills and frags
         ToolsSetScore(attacker, true, ToolsGetScore(attacker, true) + 1);

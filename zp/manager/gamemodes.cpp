@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading gamemodes specific variables.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -296,34 +296,34 @@ public void GameModesOnConfigReload(/*void*/)
 void GameModesOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_GAMEMODE]               = FindConVar("zp_gamemode");
-    gCvarList[CVAR_GAMEMODE_BLAST_TIME]    = FindConVar("zp_blast_time");
-    gCvarList[CVAR_GAMEMODE_TEAM_BALANCE]  = FindConVar("mp_autoteambalance"); 
-    gCvarList[CVAR_GAMEMODE_LIMIT_TEAMS]   = FindConVar("mp_limitteams");
-    gCvarList[CVAR_GAMEMODE_WARMUP_TIME]   = FindConVar("mp_warmuptime");
-    gCvarList[CVAR_GAMEMODE_WARMUP_PERIOD] = FindConVar("mp_do_warmup_period");
-    gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP]  = FindConVar("mp_roundtime");
-    gCvarList[CVAR_GAMEMODE_ROUNDTIME_CS]  = FindConVar("mp_roundtime_hostage");
-    gCvarList[CVAR_GAMEMODE_ROUNDTIME_DE]  = FindConVar("mp_roundtime_defuse");
-    gCvarList[CVAR_GAMEMODE_ROUND_RESTART] = FindConVar("mp_restartgame");
-    gCvarList[CVAR_GAMEMODE_RESTART_DELAY] = FindConVar("mp_round_restart_delay");
+    gCvarList.GAMEMODE               = FindConVar("zp_gamemode");
+    gCvarList.GAMEMODE_BLAST_TIME    = FindConVar("zp_blast_time");
+    gCvarList.GAMEMODE_TEAM_BALANCE  = FindConVar("mp_autoteambalance"); 
+    gCvarList.GAMEMODE_LIMIT_TEAMS   = FindConVar("mp_limitteams");
+    gCvarList.GAMEMODE_WARMUP_TIME   = FindConVar("mp_warmuptime");
+    gCvarList.GAMEMODE_WARMUP_PERIOD = FindConVar("mp_do_warmup_period");
+    gCvarList.GAMEMODE_ROUNDTIME_ZP  = FindConVar("mp_roundtime");
+    gCvarList.GAMEMODE_ROUNDTIME_CS  = FindConVar("mp_roundtime_hostage");
+    gCvarList.GAMEMODE_ROUNDTIME_DE  = FindConVar("mp_roundtime_defuse");
+    gCvarList.GAMEMODE_ROUND_RESTART = FindConVar("mp_restartgame");
+    gCvarList.GAMEMODE_RESTART_DELAY = FindConVar("mp_round_restart_delay");
     
     // Sets locked cvars to their locked value
-    gCvarList[CVAR_GAMEMODE_TEAM_BALANCE].IntValue  = 0;
-    gCvarList[CVAR_GAMEMODE_LIMIT_TEAMS].IntValue   = 0;
-    gCvarList[CVAR_GAMEMODE_WARMUP_TIME].IntValue   = 0;
-    gCvarList[CVAR_GAMEMODE_WARMUP_PERIOD].IntValue = 0;
+    gCvarList.GAMEMODE_TEAM_BALANCE.IntValue  = 0;
+    gCvarList.GAMEMODE_LIMIT_TEAMS.IntValue   = 0;
+    gCvarList.GAMEMODE_WARMUP_TIME.IntValue   = 0;
+    gCvarList.GAMEMODE_WARMUP_PERIOD.IntValue = 0;
     
     // Hook locked cvars to prevent it from changing
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_TEAM_BALANCE],  CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_LIMIT_TEAMS],   CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_WARMUP_TIME],   CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_WARMUP_PERIOD], CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP],  GameModesTimeOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_ROUNDTIME_CS],  GameModesTimeOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_ROUNDTIME_DE],  GameModesTimeOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE_ROUND_RESTART], GameModesRestartOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_GAMEMODE],               GameModesOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_TEAM_BALANCE,  CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_LIMIT_TEAMS,   CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_WARMUP_TIME,   CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_WARMUP_PERIOD, CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_ZP,  GameModesTimeOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_CS,  GameModesTimeOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_DE,  GameModesTimeOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE_ROUND_RESTART, GameModesRestartOnCvarHook);
+    HookConVarChange(gCvarList.GAMEMODE,               GameModesOnCvarHook);
 }
 
 /**
@@ -396,10 +396,10 @@ public void GameModesOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
 public void GameModesTimeOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
     // If cvar is mp_roundtime_hostage or mp_roundtime_defuse, then continue
-    if (hConVar == gCvarList[CVAR_GAMEMODE_ROUNDTIME_CS] || hConVar == gCvarList[CVAR_GAMEMODE_ROUNDTIME_DE])
+    if (hConVar == gCvarList.GAMEMODE_ROUNDTIME_CS || hConVar == gCvarList.GAMEMODE_ROUNDTIME_DE)
     {
         // Revert to specific value
-        hConVar.IntValue = gCvarList[CVAR_GAMEMODE_ROUNDTIME_ZP].IntValue;
+        hConVar.IntValue = gCvarList.GAMEMODE_ROUNDTIME_ZP.IntValue;
     }
     
     // If value was invalid, then stop
@@ -487,10 +487,10 @@ public Action GameModesOnCounter(Handle hTimer)
         if (gServerData.RoundCount)
         {
             // Validate beginning
-            if (gServerData.RoundCount == (gCvarList[CVAR_GAMEMODE].IntValue - 2))
+            if (gServerData.RoundCount == (gCvarList.GAMEMODE.IntValue - 2))
             {
                 // If help messages enabled, then show info
-                if (gCvarList[CVAR_MESSAGES_OBJECTIVE].BoolValue)
+                if (gCvarList.MESSAGES_OBJECTIVE.BoolValue)
                 {
                     // Show help information
                     TranslationPrintToChatAll("general round objective");
@@ -506,7 +506,7 @@ public Action GameModesOnCounter(Handle hTimer)
             if (SoundsOnCounter()) /// (2)
             {
                 // If help messages enabled, then show info
-                if (gCvarList[CVAR_MESSAGES_COUNTER].BoolValue)
+                if (gCvarList.MESSAGES_COUNTER.BoolValue)
                 {
                     // Show help information
                     TranslationPrintHintTextAll("zombie comming", gServerData.RoundCount);
@@ -676,7 +676,7 @@ public Action GameModesOnStartPre(Event hEvent, char[] sName, bool dontBroadcast
     // Update server grobal variables
     gServerData.RoundMode  = -1;
     gServerData.RoundNumber++;
-    gServerData.RoundCount = gCvarList[CVAR_GAMEMODE].IntValue;
+    gServerData.RoundCount = gCvarList.GAMEMODE.IntValue;
     
     // Clear server counter
     delete gServerData.CounterTimer;
@@ -3011,7 +3011,7 @@ int ModesNameToIndex(char[] sName)
 bool ModesValidateRound(/*void*/)
 {
     // If gamemodes disabled, then stop
-    if (!gCvarList[CVAR_GAMEMODE].IntValue)
+    if (!gCvarList.GAMEMODE.IntValue)
     {
         return false;
     }
@@ -3035,17 +3035,17 @@ bool ModesValidateRound(/*void*/)
     // If there are no zombies, that means there must be humans, they win the round
     if (!iZombies && iHumans)
     {
-        CS_TerminateRound(gCvarList[CVAR_GAMEMODE_RESTART_DELAY].FloatValue, CSRoundEnd_CTWin, false);
+        CS_TerminateRound(gCvarList.GAMEMODE_RESTART_DELAY.FloatValue, CSRoundEnd_CTWin, false);
     }
     // If there are zombies, then zombies win the round
     else if (iZombies && !iHumans)
     {
-        CS_TerminateRound(gCvarList[CVAR_GAMEMODE_RESTART_DELAY].FloatValue, CSRoundEnd_TerroristWin, false);
+        CS_TerminateRound(gCvarList.GAMEMODE_RESTART_DELAY.FloatValue, CSRoundEnd_TerroristWin, false);
     }
     // We know here, that either zombies or humans is 0 (not both)
     else
     {
-        CS_TerminateRound(gCvarList[CVAR_GAMEMODE_RESTART_DELAY].FloatValue, CSRoundEnd_Draw, false);
+        CS_TerminateRound(gCvarList.GAMEMODE_RESTART_DELAY.FloatValue, CSRoundEnd_Draw, false);
     }
 
     // Round is over
@@ -3058,7 +3058,7 @@ bool ModesValidateRound(/*void*/)
 void ModesDisconnectLast(/*void*/)
 {
     // If gamemodes disabled, then stop
-    if (!gCvarList[CVAR_GAMEMODE].IntValue)
+    if (!gCvarList.GAMEMODE.IntValue)
     {
         return;
     }
@@ -3116,7 +3116,7 @@ void ModesDisconnectLast(/*void*/)
     else if (!iZombies && !iHumans)
     {
         // Terminate the round with draw reason
-        CS_TerminateRound(gCvarList[CVAR_GAMEMODE_RESTART_DELAY].FloatValue, CSRoundEnd_Draw, false);
+        CS_TerminateRound(gCvarList.GAMEMODE_RESTART_DELAY.FloatValue, CSRoundEnd_Draw, false);
         
         // Show message
         TranslationPrintHintTextAll("player left"); 
@@ -3240,14 +3240,14 @@ void ModesBlast(float flDelay)
     }
 
     // Validate blast time
-    float flTime = gCvarList[CVAR_GAMEMODE_BLAST_TIME].FloatValue;
+    float flTime = gCvarList.GAMEMODE_BLAST_TIME.FloatValue;
     if (flTime < flDelay)
     {
         // Forward event to modules
         SoundsOnBlast();
         
         // If help messages enabled, then show info
-        if (gCvarList[CVAR_MESSAGES_BLAST].BoolValue)
+        if (gCvarList.MESSAGES_BLAST.BoolValue)
         {
             // Show help information
             TranslationPrintHintTextAll("general blast reminder");

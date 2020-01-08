@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Alter listening/speaking states of humans/zombies.
  *
- *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,14 +31,14 @@
 void VoiceOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_SEFFECTS_ALLTALK]            = FindConVar("sv_alltalk");
-    gCvarList[CVAR_SEFFECTS_VOICE]              = FindConVar("zp_seffects_voice");
-    gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE] = FindConVar("zp_seffects_voice_zombies_mute");
+    gCvarList.SEFFECTS_ALLTALK            = FindConVar("sv_alltalk");
+    gCvarList.SEFFECTS_VOICE              = FindConVar("zp_seffects_voice");
+    gCvarList.SEFFECTS_VOICE_ZOMBIES_MUTE = FindConVar("zp_seffects_voice_zombies_mute");
     
     // Hook cvars
-    //HookConVarChange(gCvarList[CVAR_SEFFECTS_ALLTALK],            VoiceOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_SEFFECTS_VOICE],              VoiceOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE], VoiceMuteOnCvarHook);
+    //HookConVarChange(gCvarList.SEFFECTS_ALLTALK],            VoiceOnCvarHook);
+    HookConVarChange(gCvarList.SEFFECTS_VOICE,              VoiceOnCvarHook);
+    HookConVarChange(gCvarList.SEFFECTS_VOICE_ZOMBIES_MUTE, VoiceMuteOnCvarHook);
 }
 
 /**
@@ -47,7 +47,7 @@ void VoiceOnCvarInit(/*void*/)
 void VoiceOnRoundStart(/*void*/)
 {
     // Allow everyone to listen/speak with each other
-    gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = 1;
+    gCvarList.SEFFECTS_ALLTALK.IntValue = 1;
 }
 
 /**
@@ -56,7 +56,7 @@ void VoiceOnRoundStart(/*void*/)
 void VoiceOnRoundEnd(/*void*/)
 {
     // Allow everyone to listen/speak with each other
-    gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = 1;
+    gCvarList.SEFFECTS_ALLTALK.IntValue = 1;
 }
 
 /**
@@ -65,7 +65,7 @@ void VoiceOnRoundEnd(/*void*/)
 void VoiceOnGameModeStart(/*void*/)
 {
     // Change the voice permissions based on custom cvar
-    gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = gCvarList[CVAR_SEFFECTS_VOICE].BoolValue;
+    gCvarList.SEFFECTS_ALLTALK.IntValue = gCvarList.SEFFECTS_VOICE.BoolValue;
 }
 
 /**
@@ -76,7 +76,7 @@ void VoiceOnGameModeStart(/*void*/)
 void VoiceOnClientUpdate(int client)
 {
     // If zombie mute is disabled, then skip
-    bool bVoiceMute = gCvarList[CVAR_SEFFECTS_VOICE_ZOMBIES_MUTE].BoolValue;
+    bool bVoiceMute = gCvarList.SEFFECTS_VOICE_ZOMBIES_MUTE.BoolValue;
     if (bVoiceMute)
     {
         // Apply new voice flags
@@ -107,7 +107,7 @@ public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
         if (gServerData.RoundStart)
         {
             // Change the voice permissions based on custom cvar
-            gCvarList[CVAR_SEFFECTS_ALLTALK].IntValue = StringToInt(newValue);
+            gCvarList.SEFFECTS_ALLTALK.IntValue = StringToInt(newValue);
         }
     }
 }

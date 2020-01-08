@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1810,7 +1810,7 @@ public Action EmitterSolidHook(Handle hTimer, int refID)
         ArrayList hList = new ArrayList();
         
         // Create the hull trace
-        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, ClientEnumerator, hList);
+        TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, HullEnumerator, hList);
 
         // Is hit world only ?
         if (!hList.Length)
@@ -1859,7 +1859,7 @@ public bool ClientFilter(int entity, int contentsMask)
  * @param hData             The array handle.
  * @return                  True to continue enumerating, otherwise false.
  **/
-public bool ClientEnumerator(int entity, ArrayList hData)
+public bool HullEnumerator(int entity, ArrayList hData)
 {
     // Validate player
     if (IsPlayerExist(entity))

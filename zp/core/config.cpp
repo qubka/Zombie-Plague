@@ -7,7 +7,7 @@
  *  Type:          Core
  *  Description:   Config API and executing.
  *
- *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@ enum ConfigStructure
 /**
  * @section List of config files used by the plugin.
  **/
-enum ConfigFile
+enum /*ConfigFile*/
 {
     File_Invalid = -1,            /** Invalid config file. */
     File_Cvars,                   /** <game root>cfg/sourcemod/zombieplague.cfg (default) */
@@ -150,7 +150,9 @@ enum ConfigFile
     File_ExtraItems,              /** <sourcemod root>/zombieplague/extraitems.ini (default) */
     File_GameModes,               /** <sourcemod root>/zombieplague/gamemodes.ini (default) */
     File_Classes,                 /** <sourcemod root>/zombieplague/classes.ini (default) */
-    File_Levels                   /** <sourcemod root>/zombieplague/levels.ini (default) */
+    File_Levels,                  /** <sourcemod root>/zombieplague/levels.ini (default) */
+
+    File_Size
 };
 /**
  * @endsection
@@ -175,7 +177,7 @@ enum struct ConfigData
 /**
  * Array to store the config data.
  **/
-ConfigData gConfigData[ConfigFile]; 
+ConfigData gConfigData[File_Size]; 
 
 /**
  * @section Actions to use when working on key/values.
@@ -358,7 +360,7 @@ void ConfigOnCommandInit(/*void*/)
  * @param iFile             Config file entry to register.
  * @param sAlias            Config file alias, used for client interaction.
  **/
-stock void ConfigRegisterConfig(ConfigFile iFile, ConfigStructure iStructure, char[] sAlias = "")
+stock void ConfigRegisterConfig(int iFile, ConfigStructure iStructure, char[] sAlias = "")
 {
     // Copy file info to data container
     gConfigData[iFile].Loaded = false;
@@ -375,7 +377,7 @@ stock void ConfigRegisterConfig(ConfigFile iFile, ConfigStructure iStructure, ch
  * @param iConfig           Config file to set load state of.
  * @param bLoaded           True to set as loaded, false to set as unloaded.
  **/
-stock void ConfigSetConfigLoaded(ConfigFile iConfig, bool bLoaded)
+stock void ConfigSetConfigLoaded(int iConfig, bool bLoaded)
 {
     // Sets load state
     gConfigData[iConfig].Loaded = bLoaded;
@@ -387,7 +389,7 @@ stock void ConfigSetConfigLoaded(ConfigFile iConfig, bool bLoaded)
  * @param iConfig           Config file to set structure type of.
  * @param iStructure        Structure to set as.
  **/
-stock void ConfigSetConfigStructure(ConfigFile iConfig, ConfigStructure iStructure)
+stock void ConfigSetConfigStructure(int iConfig, ConfigStructure iStructure)
 {
     // Sets load state
     gConfigData[iConfig].Structure = iStructure;
@@ -399,7 +401,7 @@ stock void ConfigSetConfigStructure(ConfigFile iConfig, ConfigStructure iStructu
  * @param iConfig           Config file to set reload function of.
  * @param iReloadfunc       Reloads function.
  **/
-stock void ConfigSetConfigReloadFunc(ConfigFile iConfig, Function iReloadfunc)
+stock void ConfigSetConfigReloadFunc(int iConfig, Function iReloadfunc)
 {
     // Sets reload function.
     gConfigData[iConfig].ReloadFunc = iReloadfunc;
@@ -411,7 +413,7 @@ stock void ConfigSetConfigReloadFunc(ConfigFile iConfig, Function iReloadfunc)
  * @param iConfig           Config file to set handle of.
  * @param iFile             Config file handle.
 **/
-stock void ConfigSetConfigHandle(ConfigFile iConfig, ArrayList iFile)
+stock void ConfigSetConfigHandle(int iConfig, ArrayList iFile)
 {
     // Sets file handle
     gConfigData[iConfig].Handler = iFile;
@@ -423,7 +425,7 @@ stock void ConfigSetConfigHandle(ConfigFile iConfig, ArrayList iFile)
  * @param iConfig           Config file to set file path of.
  * @param sPath             File path.
  **/
-stock void ConfigSetConfigPath(ConfigFile iConfig, char[] sPath)
+stock void ConfigSetConfigPath(int iConfig, char[] sPath)
 {
     // Sets config file path
     strcopy(gConfigData[iConfig].Path, PLATFORM_LINE_LENGTH, sPath);
@@ -435,7 +437,7 @@ stock void ConfigSetConfigPath(ConfigFile iConfig, char[] sPath)
  * @param iConfig           Config file to set alias of.
  * @param sAlias            Alias of the config file entry.
  **/
-stock void ConfigSetConfigAlias(ConfigFile iConfig, char[] sAlias)
+stock void ConfigSetConfigAlias(int iConfig, char[] sAlias)
 {
     // Sets config alias
     strcopy(gConfigData[iConfig].Alias, NORMAL_LINE_LENGTH, sAlias);
@@ -447,7 +449,7 @@ stock void ConfigSetConfigAlias(ConfigFile iConfig, char[] sAlias)
  * @param iConfig           Config file to check load status of.
  * @return                  True if config is loaded, false otherwise.
  **/
-stock bool ConfigIsConfigLoaded(ConfigFile iConfig)
+stock bool ConfigIsConfigLoaded(int iConfig)
 {
     // Return load status
     return gConfigData[iConfig].Loaded;
@@ -459,7 +461,7 @@ stock bool ConfigIsConfigLoaded(ConfigFile iConfig)
  * @param iConfig           Config file to get structure type of.
  * @return                  Config structure type.
  **/
-stock ConfigStructure ConfigGetConfigStructure(ConfigFile iConfig)
+stock ConfigStructure ConfigGetConfigStructure(int iConfig)
 {
     // Return load status
     return gConfigData[iConfig].Structure;
@@ -471,7 +473,7 @@ stock ConfigStructure ConfigGetConfigStructure(ConfigFile iConfig)
  * @param iConfig           Config file to get reload function of.
  * @return                  Config reload function.
  **/
-stock Function ConfigGetConfigReloadFunc(ConfigFile iConfig)
+stock Function ConfigGetConfigReloadFunc(int iConfig)
 {
     // Return load status
     return gConfigData[iConfig].ReloadFunc;
@@ -483,7 +485,7 @@ stock Function ConfigGetConfigReloadFunc(ConfigFile iConfig)
  * @param iConfig           Config file to get file handle of.
  * @return                  Config file handle.
  **/
-stock ArrayList ConfigGetConfigHandle(ConfigFile iConfig)
+stock ArrayList ConfigGetConfigHandle(int iConfig)
 {
     // Return load status
     return gConfigData[iConfig].Handler;
@@ -492,9 +494,9 @@ stock ArrayList ConfigGetConfigHandle(ConfigFile iConfig)
 /**
  * @brief Returns the path for a given config file entry.
  * 
- * @param iConfig           Config file to get path of. (see ConfigFile enum)
+ * @param iConfig           Config file to get path of. (see int enum)
  **/
-stock void ConfigGetConfigPath(ConfigFile iConfig, char[] sPath, int iMaxLen)
+stock void ConfigGetConfigPath(int iConfig, char[] sPath, int iMaxLen)
 {
     // Copy path to return string
     strcopy(sPath, iMaxLen, gConfigData[iConfig].Path);
@@ -503,9 +505,9 @@ stock void ConfigGetConfigPath(ConfigFile iConfig, char[] sPath, int iMaxLen)
 /**
  * @brief Returns the alias for a given config file entry.
  * 
- * @param iConfig           Config file to get alias of. (see ConfigFile enum)
+ * @param iConfig           Config file to get alias of. (see int enum)
  **/
-stock void ConfigGetConfigAlias(ConfigFile iConfig, char[] sAlias, int iMaxLen)
+stock void ConfigGetConfigAlias(int iConfig, char[] sAlias, int iMaxLen)
 {
     // Copy alias to return string
     strcopy(sAlias, iMaxLen, gConfigData[iConfig].Alias);
@@ -519,7 +521,7 @@ stock void ConfigGetConfigAlias(ConfigFile iConfig, char[] sAlias, int iMaxLen)
  * @param blockSize         (Optional) The number of cells each member of the array can hold. 
  * @return                  True if file was loaded successfuly, false otherwise.
  **/
-stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int blockSize = NORMAL_LINE_LENGTH)
+stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize = NORMAL_LINE_LENGTH)
 {
     // If array hasn't been created, then create
     if (arrayConfig == null)
@@ -721,7 +723,7 @@ stock bool ConfigLoadConfig(ConfigFile iConfig, ArrayList &arrayConfig, int bloc
  * @param iConfig           The config file entry to reload.
  * @return                  True if the config is loaded, false if not.
  **/
-stock bool ConfigReloadConfig(ConfigFile iConfig)
+stock bool ConfigReloadConfig(int iConfig)
 {
     // If file isn't loaded, then stop
     bool bLoaded = ConfigIsConfigLoaded(iConfig);
@@ -748,7 +750,7 @@ stock bool ConfigReloadConfig(ConfigFile iConfig)
  * @param iStructure        The structure of the config file.
  * @param hConfig           The handle of the opened file.
  **/
-stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
+stock bool ConfigOpenConfigFile(int iConfig, Handle &hConfig)
 {
     // Gets config structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
@@ -803,7 +805,7 @@ stock bool ConfigOpenConfigFile(ConfigFile iConfig, Handle &hConfig)
  * @param iMaxLen           (Optional) The maxlength of the retrieved value.
  * @return                  True if the change was made successfully, false otherwise. 
  **/
-stock bool ConfigKeyvalueTreeSetting(ConfigFile iConfig, ConfigKvAction mAction = KvAction_Create, char[][] sKeys, int keysMax, char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
+stock bool ConfigKeyvalueTreeSetting(int iConfig, ConfigKvAction mAction = KvAction_Create, char[][] sKeys, int keysMax, char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
 {
     // Gets config file structure
     ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
@@ -912,21 +914,21 @@ stock void ConfigClearKvArray(ArrayList arrayKv)
  * @param sAlias            The alias to find config file entry of.
  * @return                  Config file entry, ConfigInvalid is returned if alias was not found.
  **/
-stock ConfigFile ConfigAliasToConfigFile(char[] sAlias)
+stock int ConfigAliasToConfigFile(char[] sAlias)
 {
     static char sCheckAlias[NORMAL_LINE_LENGTH];
     
     // i = config file entry index
-    for (int i = 0; i < sizeof(gConfigData); i++)
+    for (int i = File_Cvars; i < File_Size; i++)
     {
         // Gets config alias.
-        ConfigGetConfigAlias(view_as<ConfigFile>(i), sCheckAlias, sizeof(sCheckAlias));
+        ConfigGetConfigAlias(i, sCheckAlias, sizeof(sCheckAlias));
         
         // If alias doesn't match, then skip
         if (!strcmp(sAlias, sCheckAlias, false))
         {
             // Return config file entry
-            return view_as<ConfigFile>(i);
+            return i;
         }
     }
     
@@ -1094,7 +1096,7 @@ public Action ConfigReloadOnCommandCatched(int client, int iArguments)
         GetCmdArg(i, sAlias, sizeof(sAlias));
 
         // If alias is invalid, then stop
-        ConfigFile iConfig = ConfigAliasToConfigFile(sAlias);
+        int iConfig = ConfigAliasToConfigFile(sAlias);
         if (iConfig == File_Invalid)
         {
             // Write error info
@@ -1148,13 +1150,13 @@ public Action ConfigReloadAllOnCommandCatched(int client, int iArguments)
     static char sAlias[NORMAL_LINE_LENGTH];
 
     // i = config file entry index
-    for (int i = 0; i < sizeof(gConfigData); i++)
+    for (int i = File_Cvars; i < File_Size; i++)
     {
         // Reloads config file
-        bool bSuccessful = ConfigReloadConfig(view_as<ConfigFile>(i));
+        bool bSuccessful = ConfigReloadConfig(i);
 
         // Gets config alias
-        ConfigGetConfigAlias(view_as<ConfigFile>(i), sAlias, sizeof(sAlias));
+        ConfigGetConfigAlias(i, sAlias, sizeof(sAlias));
 
         // Validate load
         if (bSuccessful)
@@ -1209,11 +1211,10 @@ void ConfigMenu(int client)
     hMenu.SetTitle("%t", "configs menu");
     
     // i = config file entry index
-    int iSize = sizeof(gConfigData);
-    for (int i = 0; i < iSize; i++)
+    for (int i = File_Cvars; i < File_Size; i++)
     {
         // Gets config alias
-        ConfigGetConfigAlias(view_as<ConfigFile>(i), sAlias, sizeof(sAlias));
+        ConfigGetConfigAlias(i, sAlias, sizeof(sAlias));
         
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "config menu reload", sAlias);
@@ -1224,12 +1225,12 @@ void ConfigMenu(int client)
     }
     
     // If there are no cases, add an "(Empty)" line
-    if (!iSize)
+    /*if (!iSize)
     {
         // Format some chars for showing in menu
         FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
         hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
-    }
+    }*/
     
     // Sets exit and back button
     hMenu.ExitBackButton = true;
@@ -1281,7 +1282,7 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
             // Gets menu info
             static char sBuffer[SMALL_LINE_LENGTH];
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-            ConfigFile iD = view_as<ConfigFile>(StringToInt(sBuffer));
+            int iD = StringToInt(sBuffer);
             
             // Gets config alias
             ConfigGetConfigAlias(iD, sBuffer, sizeof(sBuffer));

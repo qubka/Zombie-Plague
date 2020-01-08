@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   Visual effects.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -70,20 +70,20 @@ void VEffectsOnPurge(/*void*/)
 void VEffectsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_VEFFECTS_SHAKE]           = FindConVar("zp_veffects_shake"); 
-    gCvarList[CVAR_VEFFECTS_SHAKE_AMP]       = FindConVar("zp_veffects_shake_amp");
-    gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY] = FindConVar("zp_veffects_shake_frequency");
-    gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]  = FindConVar("zp_veffects_shake_duration"); 
-    gCvarList[CVAR_VEFFECTS_FADE]            = FindConVar("zp_veffects_fade"); 
-    gCvarList[CVAR_VEFFECTS_FADE_TIME]       = FindConVar("zp_veffects_fade_time"); 
-    gCvarList[CVAR_VEFFECTS_FADE_DURATION]   = FindConVar("zp_veffects_fade_duration"); 
-    gCvarList[CVAR_VEFFECTS_IMMUNITY_ALPHA]  = FindConVar("sv_disable_immunity_alpha");
+    gCvarList.VEFFECTS_SHAKE           = FindConVar("zp_veffects_shake"); 
+    gCvarList.VEFFECTS_SHAKE_AMP       = FindConVar("zp_veffects_shake_amp");
+    gCvarList.VEFFECTS_SHAKE_FREQUENCY = FindConVar("zp_veffects_shake_frequency");
+    gCvarList.VEFFECTS_SHAKE_DURATION  = FindConVar("zp_veffects_shake_duration"); 
+    gCvarList.VEFFECTS_FADE            = FindConVar("zp_veffects_fade"); 
+    gCvarList.VEFFECTS_FADE_TIME       = FindConVar("zp_veffects_fade_time"); 
+    gCvarList.VEFFECTS_FADE_DURATION   = FindConVar("zp_veffects_fade_duration"); 
+    gCvarList.VEFFECTS_IMMUNITY_ALPHA  = FindConVar("sv_disable_immunity_alpha");
     
     // Sets locked cvars to their locked value
-    gCvarList[CVAR_VEFFECTS_IMMUNITY_ALPHA].IntValue = 1;
+    gCvarList.VEFFECTS_IMMUNITY_ALPHA.IntValue = 1;
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_IMMUNITY_ALPHA],  CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList.VEFFECTS_IMMUNITY_ALPHA,  CvarsUnlockOnCvarHook);
     
     // Forward event to sub-modules
     VAmbienceOnCvarInit();
@@ -115,7 +115,7 @@ void VEffectsOnClientInit(int client)
 void VEffectsOnBlast(int client)
 {
     // Forward event to sub-modules
-    VEffectsFadeClientScreen(client, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 255, 255, 255});
+    VEffectsFadeClientScreen(client, gCvarList.VEFFECTS_FADE_DURATION, gCvarList.VEFFECTS_FADE_TIME, FFADE_IN, {255, 255, 255, 255});
 }
 
 /**
@@ -167,8 +167,8 @@ void VEffectsOnClientInfected(int client, int attacker)
 {
     // Forward event to sub-modules
     ParticlesRemove(client);
-    VEffectsShakeClientScreen(client, gCvarList[CVAR_VEFFECTS_SHAKE_AMP], gCvarList[CVAR_VEFFECTS_SHAKE_FREQUENCY], gCvarList[CVAR_VEFFECTS_SHAKE_DURATION]);
-    VEffectsFadeClientScreen(client, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], FFADE_IN, {255, 0, 0, 50});
+    VEffectsShakeClientScreen(client, gCvarList.VEFFECTS_SHAKE_AMP, gCvarList.VEFFECTS_SHAKE_FREQUENCY, gCvarList.VEFFECTS_SHAKE_DURATION);
+    VEffectsFadeClientScreen(client, gCvarList.VEFFECTS_FADE_DURATION, gCvarList.VEFFECTS_FADE_TIME, FFADE_IN, {255, 0, 0, 50});
     PlayerVEffectsOnClientInfected(client, attacker);    
 }
 
@@ -203,7 +203,7 @@ void VEffectsOnClientUpdate(int client)
 void VEffectsOnClientRegen(int client)
 {
     // Forward event to sub-modules
-    VEffectsFadeClientScreen(client, gCvarList[CVAR_VEFFECTS_FADE_DURATION], gCvarList[CVAR_VEFFECTS_FADE_TIME], 0x0001, {0, 255, 0, 25});
+    VEffectsFadeClientScreen(client, gCvarList.VEFFECTS_FADE_DURATION, gCvarList.VEFFECTS_FADE_TIME, FFADE_IN, {0, 255, 0, 25});
     PlayerVEffectsOnClientRegen(client);
 }
 
@@ -233,7 +233,7 @@ void VEffectsOnClientRegen(int client)
 void VEffectsShakeClientScreen(int client, ConVar hAmplitude, ConVar hFrequency, ConVar hDuration)
 {
     // If screen shake disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_SHAKE].BoolValue) 
+    if (!gCvarList.VEFFECTS_SHAKE.BoolValue) 
     {
         return;
     }
@@ -254,7 +254,7 @@ void VEffectsShakeClientScreen(int client, ConVar hAmplitude, ConVar hFrequency,
 void VEffectsFadeClientScreen(int client, ConVar hDuration, ConVar hHoldTime, int iFlags, int vColor[4])
 {
     // If screen fade disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_FADE].BoolValue) 
+    if (!gCvarList.VEFFECTS_FADE.BoolValue) 
     {
         return;
     }

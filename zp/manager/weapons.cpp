@@ -7,7 +7,7 @@
  *  Type:          Manager
  *  Description:   API for all weapon-related functions.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -315,56 +315,56 @@ void WeaponsOnClientInit(int client)
 void WeaponsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_WEAPON_GIVE_TASER]           = FindConVar("mp_weapons_allow_zeus");
-    gCvarList[CVAR_WEAPON_GIVE_BOMB]            = FindConVar("mp_give_player_c4");
-    gCvarList[CVAR_WEAPON_DROP_GRENADE]         = FindConVar("mp_drop_grenade_enable");
-    gCvarList[CVAR_WEAPON_DROP_KNIFE]           = FindConVar("mp_drop_knife_enable");
-    gCvarList[CVAR_WEAPON_DROP_BREACH]          = FindConVar("mp_death_drop_breachcharge");
-    gCvarList[CVAR_WEAPON_ALLOW_MAP]            = FindConVar("mp_weapons_allow_map_placed");
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_GRENADES]  = FindConVar("mp_ct_default_grenades");
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_MELEE]     = FindConVar("mp_ct_default_melee");
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_SECONDARY] = FindConVar("mp_ct_default_secondary");
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_PRIMARY]   = FindConVar("mp_ct_default_primary");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_GRENADES]   = FindConVar("mp_t_default_grenades");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_MELEE]      = FindConVar("mp_t_default_melee");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_SECONDARY]  = FindConVar("mp_t_default_secondary");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_PRIMARY]    = FindConVar("mp_t_default_primary");
-    gCvarList[CVAR_WEAPON_PICKUP_RANGE]         = FindConVar("zp_pickup_range");
-    gCvarList[CVAR_WEAPON_PICKUP_LEVEL]         = FindConVar("zp_pickup_level");
-    gCvarList[CVAR_WEAPON_PICKUP_ONLINE]        = FindConVar("zp_pickup_online");
-    gCvarList[CVAR_WEAPON_DEFAULT_MELEE]        = FindConVar("zp_default_melee");
+    gCvarList.WEAPON_GIVE_TASER           = FindConVar("mp_weapons_allow_zeus");
+    gCvarList.WEAPON_GIVE_BOMB            = FindConVar("mp_give_player_c4");
+    gCvarList.WEAPON_DROP_GRENADE         = FindConVar("mp_drop_grenade_enable");
+    gCvarList.WEAPON_DROP_KNIFE           = FindConVar("mp_drop_knife_enable");
+    gCvarList.WEAPON_DROP_BREACH          = FindConVar("mp_death_drop_breachcharge");
+    gCvarList.WEAPON_ALLOW_MAP            = FindConVar("mp_weapons_allow_map_placed");
+    gCvarList.WEAPON_CT_DEFAULT_GRENADES  = FindConVar("mp_ct_default_grenades");
+    gCvarList.WEAPON_CT_DEFAULT_MELEE     = FindConVar("mp_ct_default_melee");
+    gCvarList.WEAPON_CT_DEFAULT_SECONDARY = FindConVar("mp_ct_default_secondary");
+    gCvarList.WEAPON_CT_DEFAULT_PRIMARY   = FindConVar("mp_ct_default_primary");
+    gCvarList.WEAPON_T_DEFAULT_GRENADES   = FindConVar("mp_t_default_grenades");
+    gCvarList.WEAPON_T_DEFAULT_MELEE      = FindConVar("mp_t_default_melee");
+    gCvarList.WEAPON_T_DEFAULT_SECONDARY  = FindConVar("mp_t_default_secondary");
+    gCvarList.WEAPON_T_DEFAULT_PRIMARY    = FindConVar("mp_t_default_primary");
+    gCvarList.WEAPON_PICKUP_RANGE         = FindConVar("zp_pickup_range");
+    gCvarList.WEAPON_PICKUP_LEVEL         = FindConVar("zp_pickup_level");
+    gCvarList.WEAPON_PICKUP_ONLINE        = FindConVar("zp_pickup_online");
+    gCvarList.WEAPON_DEFAULT_MELEE        = FindConVar("zp_default_melee");
 
     // Sets locked cvars to their locked value
-    gCvarList[CVAR_WEAPON_GIVE_TASER].IntValue   = 1;
-    gCvarList[CVAR_WEAPON_GIVE_BOMB].IntValue    = 0;
-    gCvarList[CVAR_WEAPON_DROP_GRENADE].IntValue = 1;
-    gCvarList[CVAR_WEAPON_DROP_BREACH].IntValue  = 1;
-    gCvarList[CVAR_WEAPON_DROP_KNIFE].IntValue   = 0;
-    gCvarList[CVAR_WEAPON_ALLOW_MAP].IntValue    = 0;
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_GRENADES].SetString("");
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_MELEE].SetString("");
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_SECONDARY].SetString("");
-    gCvarList[CVAR_WEAPON_CT_DEFAULT_PRIMARY].SetString("");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_GRENADES].SetString("");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_MELEE].SetString("");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_SECONDARY].SetString("");
-    gCvarList[CVAR_WEAPON_T_DEFAULT_PRIMARY].SetString("");
+    gCvarList.WEAPON_GIVE_TASER.IntValue   = 1;
+    gCvarList.WEAPON_GIVE_BOMB.IntValue    = 0;
+    gCvarList.WEAPON_DROP_GRENADE.IntValue = 1;
+    gCvarList.WEAPON_DROP_BREACH.IntValue  = 1;
+    gCvarList.WEAPON_DROP_KNIFE.IntValue   = 0;
+    gCvarList.WEAPON_ALLOW_MAP.IntValue    = 0;
+    gCvarList.WEAPON_CT_DEFAULT_GRENADES.SetString("");
+    gCvarList.WEAPON_CT_DEFAULT_MELEE.SetString("");
+    gCvarList.WEAPON_CT_DEFAULT_SECONDARY.SetString("");
+    gCvarList.WEAPON_CT_DEFAULT_PRIMARY.SetString("");
+    gCvarList.WEAPON_T_DEFAULT_GRENADES.SetString("");
+    gCvarList.WEAPON_T_DEFAULT_MELEE.SetString("");
+    gCvarList.WEAPON_T_DEFAULT_SECONDARY.SetString("");
+    gCvarList.WEAPON_T_DEFAULT_PRIMARY.SetString("");
     
     // Hook locked cvars to prevent it from changing
-    HookConVarChange(gCvarList[CVAR_WEAPON_GIVE_TASER],           CvarsUnlockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_WEAPON_GIVE_BOMB],            CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_WEAPON_DROP_GRENADE],         CvarsUnlockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_WEAPON_DROP_BREACH],          CvarsUnlockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_WEAPON_DROP_KNIFE],           CvarsLockOnCvarHook); 
-    HookConVarChange(gCvarList[CVAR_WEAPON_ALLOW_MAP],            CvarsLockOnCvarHook);   
-    HookConVarChange(gCvarList[CVAR_WEAPON_CT_DEFAULT_GRENADES],  CvarsLockOnCvarHook3);
-    HookConVarChange(gCvarList[CVAR_WEAPON_CT_DEFAULT_MELEE],     CvarsLockOnCvarHook3);
-    HookConVarChange(gCvarList[CVAR_WEAPON_CT_DEFAULT_SECONDARY], CvarsLockOnCvarHook3);
-    HookConVarChange(gCvarList[CVAR_WEAPON_CT_DEFAULT_PRIMARY],   CvarsLockOnCvarHook3);
-    HookConVarChange(gCvarList[CVAR_WEAPON_T_DEFAULT_GRENADES],   CvarsLockOnCvarHook3);
-    HookConVarChange(gCvarList[CVAR_WEAPON_T_DEFAULT_MELEE],      CvarsLockOnCvarHook3);
-    HookConVarChange(gCvarList[CVAR_WEAPON_T_DEFAULT_SECONDARY],  CvarsLockOnCvarHook3);
-    HookConVarChange(gCvarList[CVAR_WEAPON_T_DEFAULT_PRIMARY],    CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_GIVE_TASER,           CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList.WEAPON_GIVE_BOMB,            CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.WEAPON_DROP_GRENADE,         CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList.WEAPON_DROP_BREACH,          CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList.WEAPON_DROP_KNIFE,           CvarsLockOnCvarHook); 
+    HookConVarChange(gCvarList.WEAPON_ALLOW_MAP,            CvarsLockOnCvarHook);   
+    HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_GRENADES,  CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_MELEE,     CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_SECONDARY, CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_PRIMARY,   CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_T_DEFAULT_GRENADES,   CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_T_DEFAULT_MELEE,      CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_T_DEFAULT_SECONDARY,  CvarsLockOnCvarHook3);
+    HookConVarChange(gCvarList.WEAPON_T_DEFAULT_PRIMARY,    CvarsLockOnCvarHook3);
     
     // Forward event to sub-modules
     ZMarketOnCvarInit();
@@ -2859,13 +2859,13 @@ bool WeaponsValidateAccess(int client, int weapon)
         }
 
         // Block pickup it, if online too low
-        if (gCvarList[CVAR_WEAPON_PICKUP_ONLINE].BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
+        if (gCvarList.WEAPON_PICKUP_ONLINE.BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
         {
             return false;
         }
 
         // Block pickup it, if level too low
-        if (gCvarList[CVAR_WEAPON_PICKUP_LEVEL].BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
+        if (gCvarList.WEAPON_PICKUP_LEVEL.BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
         {
             return false;
         }

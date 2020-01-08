@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Handles client accounts. (cash)
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ enum /*AccountType*/
 void AccountOnInit(/*void*/)
 {
     // If custom disabled, then remove hud
-    if (gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Custom)
+    if (gCvarList.ACCOUNT_MONEY.IntValue != AccountType_Custom)
     {
         // Validate loaded map
         if (gServerData.MapLoaded)
@@ -70,7 +70,7 @@ void AccountOnInit(/*void*/)
     }
     
     // If custom enabled, then create sync
-    if (gCvarList[CVAR_ACCOUNT_MONEY].IntValue == AccountType_Custom)
+    if (gCvarList.ACCOUNT_MONEY.IntValue == AccountType_Custom)
     {
         // Creates a HUD synchronization object
         if (gServerData.AccountSync == null)
@@ -112,31 +112,31 @@ void AccountOnCommandInit(/*void*/)
 void AccountOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_ACCOUNT_CASH_AWARD]   = FindConVar("mp_playercashawards");
-    gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE] = FindConVar("mp_buy_anywhere");
-    gCvarList[CVAR_ACCOUNT_BUY_IMMUNITY] = FindConVar("mp_buy_during_immunity");
-    gCvarList[CVAR_ACCOUNT_MONEY]        = FindConVar("zp_account_money");
-    gCvarList[CVAR_ACCOUNT_CONNECT]      = FindConVar("zp_account_connect");
-    gCvarList[CVAR_ACCOUNT_BET]          = FindConVar("zp_account_bet");
-    gCvarList[CVAR_ACCOUNT_COMMISION]    = FindConVar("zp_account_commision");
-    gCvarList[CVAR_ACCOUNT_DECREASE]     = FindConVar("zp_account_decrease");
-    gCvarList[CVAR_ACCOUNT_HUD_R]        = FindConVar("zp_account_hud_R");
-    gCvarList[CVAR_ACCOUNT_HUD_G]        = FindConVar("zp_account_hud_G");
-    gCvarList[CVAR_ACCOUNT_HUD_B]        = FindConVar("zp_account_hud_B");
-    gCvarList[CVAR_ACCOUNT_HUD_A]        = FindConVar("zp_account_hud_A");
-    gCvarList[CVAR_ACCOUNT_HUD_X]        = FindConVar("zp_account_hud_X");
-    gCvarList[CVAR_ACCOUNT_HUD_Y]        = FindConVar("zp_account_hud_Y");
+    gCvarList.ACCOUNT_CASH_AWARD   = FindConVar("mp_playercashawards");
+    gCvarList.ACCOUNT_BUY_ANYWHERE = FindConVar("mp_buy_anywhere");
+    gCvarList.ACCOUNT_BUY_IMMUNITY = FindConVar("mp_buy_during_immunity");
+    gCvarList.ACCOUNT_MONEY        = FindConVar("zp_account_money");
+    gCvarList.ACCOUNT_CONNECT      = FindConVar("zp_account_connect");
+    gCvarList.ACCOUNT_BET          = FindConVar("zp_account_bet");
+    gCvarList.ACCOUNT_COMMISION    = FindConVar("zp_account_commision");
+    gCvarList.ACCOUNT_DECREASE     = FindConVar("zp_account_decrease");
+    gCvarList.ACCOUNT_HUD_R        = FindConVar("zp_account_hud_R");
+    gCvarList.ACCOUNT_HUD_G        = FindConVar("zp_account_hud_G");
+    gCvarList.ACCOUNT_HUD_B        = FindConVar("zp_account_hud_B");
+    gCvarList.ACCOUNT_HUD_A        = FindConVar("zp_account_hud_A");
+    gCvarList.ACCOUNT_HUD_X        = FindConVar("zp_account_hud_X");
+    gCvarList.ACCOUNT_HUD_Y        = FindConVar("zp_account_hud_Y");
     
     // Sets locked cvars to their locked values
-    gCvarList[CVAR_ACCOUNT_CASH_AWARD].IntValue   = 0;
-    gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].IntValue = 1;
-    gCvarList[CVAR_ACCOUNT_BUY_IMMUNITY].IntValue = 0;
+    gCvarList.ACCOUNT_CASH_AWARD.IntValue   = 0;
+    gCvarList.ACCOUNT_BUY_ANYWHERE.IntValue = 1;
+    gCvarList.ACCOUNT_BUY_IMMUNITY.IntValue = 0;
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_ACCOUNT_MONEY],        AccountOnCvarHook); 
-    HookConVarChange(gCvarList[CVAR_ACCOUNT_CASH_AWARD],   CvarsLockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE], CvarsUnlockOnCvarHook);
-    HookConVarChange(gCvarList[CVAR_ACCOUNT_BUY_IMMUNITY], CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.ACCOUNT_MONEY,        AccountOnCvarHook); 
+    HookConVarChange(gCvarList.ACCOUNT_CASH_AWARD,   CvarsLockOnCvarHook);
+    HookConVarChange(gCvarList.ACCOUNT_BUY_ANYWHERE, CvarsUnlockOnCvarHook);
+    HookConVarChange(gCvarList.ACCOUNT_BUY_IMMUNITY, CvarsLockOnCvarHook);
 }
 
 /**
@@ -199,18 +199,18 @@ public void AccountOnClientUpdate(int userID)
         {
             // Manipulate with account type
             delete gClientData[client].AccountTimer;
-            switch (gCvarList[CVAR_ACCOUNT_MONEY].IntValue)
+            switch (gCvarList.ACCOUNT_MONEY.IntValue)
             {
                 case AccountType_Disabled : 
                 {
                     // Hide money bar panel
-                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(client, "0");
+                    gCvarList.ACCOUNT_CASH_AWARD.ReplicateToClient(client, "0");
                 }
                 
                 case AccountType_Classic : 
                 {
                     // Show money bar panel
-                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(client, "1");
+                    gCvarList.ACCOUNT_CASH_AWARD.ReplicateToClient(client, "1");
                     
                     // Update client money
                     AccountSetMoney(client, gClientData[client].Money);
@@ -219,7 +219,7 @@ public void AccountOnClientUpdate(int userID)
                 case AccountType_Custom : 
                 {
                     // Hide money bar panel
-                    gCvarList[CVAR_ACCOUNT_CASH_AWARD].ReplicateToClient(client, "0");
+                    gCvarList.ACCOUNT_CASH_AWARD.ReplicateToClient(client, "0");
                     
                     // Sets timer for player account HUD
                     gClientData[client].AccountTimer = CreateTimer(1.0, AccountOnClientHUD, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -269,7 +269,7 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
         }
         
         // Print hud text to the client
-        TranslationPrintHudText(gServerData.AccountSync, client, gCvarList[CVAR_ACCOUNT_HUD_X].FloatValue, gCvarList[CVAR_ACCOUNT_HUD_Y].FloatValue, 1.1, gCvarList[CVAR_ACCOUNT_HUD_R].IntValue, gCvarList[CVAR_ACCOUNT_HUD_G].IntValue, gCvarList[CVAR_ACCOUNT_HUD_B].IntValue, gCvarList[CVAR_ACCOUNT_HUD_A].IntValue, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[target].Money);
+        TranslationPrintHudText(gServerData.AccountSync, client, gCvarList.ACCOUNT_HUD_X.FloatValue, gCvarList.ACCOUNT_HUD_Y.FloatValue, 1.1, gCvarList.ACCOUNT_HUD_R.IntValue, gCvarList.ACCOUNT_HUD_G.IntValue, gCvarList.ACCOUNT_HUD_B.IntValue, gCvarList.ACCOUNT_HUD_A.IntValue, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[target].Money);
 
         // Allow timer
         return Plugin_Continue;
@@ -374,7 +374,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     GetCmdArg(2, sArgument, sizeof(sArgument));
     
     // Validate amount
-    int iMoney = StringToInt(sArgument); int iBet = gCvarList[CVAR_ACCOUNT_BET].IntValue;
+    int iMoney = StringToInt(sArgument); int iBet = gCvarList.ACCOUNT_BET.IntValue;
     if (iMoney < gClientData[client].Money || iMoney < iBet)
     {
         // Write error info
@@ -383,7 +383,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     }
 
     // Validate commision
-    int iAmount; float flCommision = gCvarList[CVAR_ACCOUNT_COMMISION].FloatValue - ((float(iMoney) / float(iBet)) * gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+    int iAmount; float flCommision = gCvarList.ACCOUNT_COMMISION.FloatValue - ((float(iMoney) / float(iBet)) * gCvarList.ACCOUNT_DECREASE.FloatValue);
     if (flCommision <= 0.0)
     {
         // Sets amount
@@ -402,7 +402,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     AccountSetClientCash(target, gClientData[target].Money + iAmount);
     
     // If help messages enabled, then show info
-    if (gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
+    if (gCvarList.MESSAGES_DONATE.BoolValue)
     {
         // Gets client/target name
         static char sInfo[2][SMALL_LINE_LENGTH];
@@ -426,7 +426,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
  **/ 
 public Action AccountMenuOnCommandCatched(int client, int iArguments)
 {
-    AccountMenu(client, gCvarList[CVAR_ACCOUNT_BET].IntValue, gCvarList[CVAR_ACCOUNT_COMMISION].FloatValue);
+    AccountMenu(client, gCvarList.ACCOUNT_BET.IntValue, gCvarList.ACCOUNT_COMMISION.FloatValue);
     return Plugin_Handled;
 }
 
@@ -529,7 +529,7 @@ void AccountSetClientCash(int client, int iMoney)
     DataBaseOnClientUpdate(client, ColumnType_Money);
 
     // If account disabled, then stop
-    if (gCvarList[CVAR_ACCOUNT_MONEY].IntValue != AccountType_Classic)
+    if (gCvarList.ACCOUNT_MONEY.IntValue != AccountType_Classic)
     {
         return;
     }
@@ -563,7 +563,7 @@ void AccountSetMoney(int client, int iMoney)
 void AccountMenu(int client, int iMoney, float flCommision) 
 {
     // If amount below bet, then set to default
-    int iBet = gCvarList[CVAR_ACCOUNT_BET].IntValue;
+    int iBet = gCvarList.ACCOUNT_BET.IntValue;
     if (iMoney < iBet)
     {
         iMoney = iBet;
@@ -702,13 +702,13 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
                 // Client hit 'Decrease' button 
                 case -1 :
                 {
-                    AccountMenu(client, iMoney - gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision + gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+                    AccountMenu(client, iMoney - gCvarList.ACCOUNT_BET.IntValue, flCommision + gCvarList.ACCOUNT_DECREASE.FloatValue);
                 }
                 
                 // Client hit 'Increase' button
                 case 0  :
                 {
-                    AccountMenu(client, iMoney + gCvarList[CVAR_ACCOUNT_BET].IntValue, flCommision - gCvarList[CVAR_ACCOUNT_DECREASE].FloatValue);
+                    AccountMenu(client, iMoney + gCvarList.ACCOUNT_BET.IntValue, flCommision - gCvarList.ACCOUNT_DECREASE.FloatValue);
                 }
                 
                 // Client hit 'Target' button
@@ -745,7 +745,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
                     AccountSetClientCash(target, gClientData[target].Money + iAmount);
                     
                     // If help messages enabled, then show info
-                    if (gCvarList[CVAR_MESSAGES_DONATE].BoolValue)
+                    if (gCvarList.MESSAGES_DONATE.BoolValue)
                     {
                         // Gets client/target name
                         GetClientName(client, sInfo[0], sizeof(sInfo[]));

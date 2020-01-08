@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   ZMarket module, provides menu of weapons to buy from.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -55,10 +55,10 @@ void ZMarketOnClientUpdate(int client)
     ZMarketRebuyMenu(client);
     
     // Validate real client
-    if (gCvarList[CVAR_BUY_BUTTON].BoolValue && !IsFakeClient(client)) 
+    if (gCvarList.BUY_BUTTON.BoolValue && !IsFakeClient(client)) 
     {
         // Unlock VGUI buy panel
-        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "1");
+        gCvarList.ACCOUNT_BUY_ANYWHERE.ReplicateToClient(client, "1");
     }
 }
 
@@ -84,10 +84,10 @@ void ZMarketOnCommandInit(/*void*/)
 void ZMarketOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_BUY_BUTTON] = FindConVar("zp_buy_button");
+    gCvarList.BUY_BUTTON = FindConVar("zp_buy_button");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_BUY_BUTTON], ZMarketOnCvarHook);
+    HookConVarChange(gCvarList.BUY_BUTTON, ZMarketOnCvarHook);
     
     // Load cvars
     ZMarketOnCvarLoad();
@@ -99,7 +99,7 @@ void ZMarketOnCvarInit(/*void*/)
 void ZMarketOnCvarLoad(/*void*/)
 {
     // Validate buy button
-    if (gCvarList[CVAR_BUY_BUTTON].BoolValue)
+    if (gCvarList.BUY_BUTTON.BoolValue)
     {
         // Hook listeners
         AddCommandListener(ZMarketOnCommandListened, "open_buymenu");
@@ -149,7 +149,7 @@ public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArgum
     if (IsPlayerExist(client) && !IsFakeClient(client))
     {
         // Lock VGUI buy panel
-        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "0");
+        gCvarList.ACCOUNT_BUY_ANYWHERE.ReplicateToClient(client, "0");
         
         // Opens weapon menu
         int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
@@ -179,7 +179,7 @@ public Action ZMarketOnClientBuyMenu(Handle hTimer, int userID)
     if (client)
     {
         // Unlock VGUI buy panel
-        gCvarList[CVAR_ACCOUNT_BUY_ANYWHERE].ReplicateToClient(client, "1");
+        gCvarList.ACCOUNT_BUY_ANYWHERE.ReplicateToClient(client, "1");
     }
     
     // Destroy timer
@@ -728,7 +728,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
                         else
                         {
                             // If help messages enabled, then show info
-                            if (gCvarList[CVAR_MESSAGES_WEAPON_ALL].BoolValue)
+                            if (gCvarList.MESSAGES_WEAPON_ALL.BoolValue)
                             {
                                 // Gets client name
                                 static char sInfo[SMALL_LINE_LENGTH];
@@ -742,7 +742,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
                             }
                             
                             // If help messages enabled, then show info
-                            if (gCvarList[CVAR_MESSAGES_WEAPON_INFO].BoolValue)
+                            if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
                             {
                                 // Gets weapon info
                                 WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));

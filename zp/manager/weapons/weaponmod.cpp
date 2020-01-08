@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Weapon MOD functions.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin). Regards to Andersso
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin). Regards to Andersso
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -96,6 +96,7 @@ int Player_ViewModel;
 /**
  * Variables to store DHook calls handlers.
  **/
+Handle hDHookPrecacheModel;
 Handle hDHookGetMaxClip;
 Handle hDHookGetReserveAmmoMax;
 Handle hDHookWeaponCanUse;
@@ -127,7 +128,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update \"SourceMod\"");
         return;
     }
-    
+
     /*_________________________________________________________________________________________________________________________________________*/
 
     // Starts the preparation of an SDK call
@@ -154,7 +155,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
     fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
     fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CBasePlayer::*/"Weapon_CanUse");
-
+   
     /// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
     hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
     
@@ -181,6 +182,30 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     /// CBasePlayer::Weapon_CanUse(CBaseCombatWeapon *this)
     hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, WeaponDHookOnCanUse);
     DHookAddParam(hDHookWeaponCanUse, HookParamType_CBaseEntity);
+    
+    // Validate hook
+    if (hDHookWeaponCanUse == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"Weapon_CanUse\". Update \"SourceMod\"");
+        return;
+    }
+    
+    /// CBaseEntity::PrecacheModel(char const*, bool)
+    hDHookPrecacheModel = DHookCreateDetour(Address_Null, gServerData.Platform == OS_Windows ? CallConv_THISCALL : CallConv_CDECL, ReturnType_Int, ThisPointer_Ignore);
+    DHookSetFromConf(hDHookPrecacheModel, gServerData.Config, SDKConf_Signature, "CBaseEntity::PrecacheModel");
+
+    // Add all parameters
+    DHookAddParam(hDHookPrecacheModel, HookParamType_CharPtr);
+    DHookAddParam(hDHookPrecacheModel, HookParamType_Bool);
+
+    // Validate detour
+    if (!DHookEnableDetour(hDHookPrecacheModel, false, WeaponDHookOnPrecacheModel))
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create Detour for \"CBaseEntity::PrecacheModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
 }
 
 /**
@@ -190,7 +215,7 @@ void WeaponMODOnLoad(/*void*/)
 {
     // Gets weapon name
     static char sWeapon[SMALL_LINE_LENGTH];
-    gCvarList[CVAR_WEAPON_DEFAULT_MELEE].GetString(sWeapon, sizeof(sWeapon));
+    gCvarList.WEAPON_DEFAULT_MELEE.GetString(sWeapon, sizeof(sWeapon));
     
     // Store index
     gServerData.Melee = WeaponsNameToIndex(sWeapon);
@@ -1275,7 +1300,7 @@ void WeaponMODOnUse(int client)
             }
             
             // If too far, then stop
-            if (UTIL_GetDistanceBetween(client, entity) > gCvarList[CVAR_WEAPON_PICKUP_RANGE].FloatValue) 
+            if (UTIL_GetDistanceBetween(client, entity) > gCvarList.WEAPON_PICKUP_RANGE.FloatValue) 
             {
                 return;
             }
@@ -1557,6 +1582,30 @@ public MRESReturn WeaponDHookOnCanUse(int client, Handle hReturn, Handle hParams
                 return MRES_Override;
             }
         }
+    }
+    
+    // Skip the hook
+    return MRES_Ignored;
+}
+
+/**
+ * DHook: Block to precache some arms models.
+ * @note int CBaseEntity::PrecacheModel(char const*, bool)
+ *
+ * @param hReturn           Handle to return structure.
+ * @param hParams           Handle with parameters.
+ **/
+public MRESReturn WeaponDHookOnPrecacheModel(Handle hReturn, Handle hParams)
+{
+    // Gets model from parameters
+    static char sPath[NORMAL_LINE_LENGTH];
+    DHookGetParamString(hParams, 1, sPath, sizeof(sPath));
+    
+    // Block this model for be precached
+    if (!strncmp(sPath, "models/weapons/v_models/arms/glove_hardknuckle/", 47, false))
+    {
+        DHookSetReturn(hReturn, 0);
+        return MRES_Supercede;
     }
     
     // Skip the hook

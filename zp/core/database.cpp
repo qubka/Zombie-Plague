@@ -7,7 +7,7 @@
  *  Type:          Main 
  *  Description:   MySQL/SQlite database storage.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ char SteamID[MAXPLAYERS+1][STEAMID_MAX_LENGTH+1];
 void DataBaseOnInit(/*void*/)
 {
     // If database disabled, then stop
-    if (!gCvarList[CVAR_DATABASE].IntValue)
+    if (!gCvarList.DATABASE.IntValue)
     {
         // If database already created, then close
         if (gServerData.DBI != null)
@@ -171,7 +171,7 @@ void DataBaseOnInit(/*void*/)
     }
 
     // Connects to a database asynchronously, so the game thread is not blocked.
-    Database.Connect(SQLBaseConnect_Callback, DATABASE_SECTION, (gCvarList[CVAR_DATABASE].IntValue == DatabaseType_Drop));
+    Database.Connect(SQLBaseConnect_Callback, DATABASE_SECTION, (gCvarList.DATABASE.IntValue == DatabaseType_Drop));
 
     // Validate loaded map
     if (gServerData.MapLoaded)
@@ -309,10 +309,10 @@ public Action DataBaseOnCommandListened(int entity, char[] commandMsg, int iArgu
 void DataBaseOnCvarInit(/*void*/)
 {    
     // Creates cvars
-    gCvarList[CVAR_DATABASE] = FindConVar("zp_database");  
+    gCvarList.DATABASE = FindConVar("zp_database");  
 
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_DATABASE], DataBaseOnCvarHook);
+    HookConVarChange(gCvarList.DATABASE, DataBaseOnCvarHook);
 }
 
 /**
@@ -729,7 +729,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
                             case ColumnType_Costume :
                             {
                                 // If costumes is disabled, then skip
-                                if (!gCvarList[CVAR_COSTUMES].BoolValue)
+                                if (!gCvarList.COSTUMES.BoolValue)
                                 {
                                     continue;
                                 }
@@ -836,7 +836,7 @@ public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, char
         {
             // Sets client data
             gClientData[client].DataID = hResult.InsertId;
-            gClientData[client].Money  = gCvarList[CVAR_ACCOUNT_CONNECT].IntValue;
+            gClientData[client].Money  = gCvarList.ACCOUNT_CONNECT.IntValue;
         }
     } 
 }

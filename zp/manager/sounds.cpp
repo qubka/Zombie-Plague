@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   Basic sound-management API.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -168,11 +168,9 @@ void SoundsOnCacheData(/*void*/)
 }
 
 /**
-    * @brief Called when configs are being reloaded.
- * 
- * @param iConfig           The config being reloaded. (only if 'all' is false)
+ * @brief Called when configs are being reloaded.
  **/
-public void SoundsOnConfigReload(ConfigFile iConfig)
+public void SoundsOnConfigReload(/*void*/)
 {
     // Reloads download config
     SoundsOnLoad();
@@ -184,7 +182,7 @@ public void SoundsOnConfigReload(ConfigFile iConfig)
 void SoundsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_SEFFECTS_LEVEL] = FindConVar("zp_seffects_level");
+    gCvarList.SEFFECTS_LEVEL = FindConVar("zp_seffects_level");
     
     // Forward event to sub-modules
     VoiceOnCvarInit();

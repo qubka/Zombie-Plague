@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading extraitems specific variables.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1033,7 +1033,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
                             gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
                     
                             // If help messages enabled, then show info
-                            if (gCvarList[CVAR_MESSAGES_ITEM_ALL].BoolValue)
+                            if (gCvarList.MESSAGES_ITEM_ALL.BoolValue)
                             {
                                 // Gets client name
                                 static char sInfo[SMALL_LINE_LENGTH];
@@ -1044,7 +1044,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
                             }
                         
                             // If help messages enabled, then show info
-                            if (gCvarList[CVAR_MESSAGES_ITEM_INFO].BoolValue)
+                            if (gCvarList.MESSAGES_ITEM_INFO.BoolValue)
                             {
                                 // Gets item info
                                 ItemsGetInfo(iD, sBuffer, sizeof(sBuffer));

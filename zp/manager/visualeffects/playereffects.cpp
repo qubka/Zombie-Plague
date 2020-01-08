@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Player visual effects.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,20 +31,20 @@
 void PlayerVEffectsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_VEFFECTS_INFECT]           = FindConVar("zp_veffects_infect"); 
-    gCvarList[CVAR_VEFFECTS_HUMANIZE]         = FindConVar("zp_veffects_humanize"); 
-    gCvarList[CVAR_VEFFECTS_RESPAWN]          = FindConVar("zp_veffects_respawn"); 
-    gCvarList[CVAR_VEFFECTS_RESPAWN_NAME]     = FindConVar("zp_veffects_respawn_name");
-    gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH]   = FindConVar("zp_veffects_respawn_attachment"); 
-    gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION] = FindConVar("zp_veffects_respawn_duration");
-    gCvarList[CVAR_VEFFECTS_HEAL]             = FindConVar("zp_veffects_heal"); 
-    gCvarList[CVAR_VEFFECTS_HEAL_NAME]        = FindConVar("zp_veffects_heal_name");
-    gCvarList[CVAR_VEFFECTS_HEAL_ATTACH]      = FindConVar("zp_veffects_heal_attachment"); 
-    gCvarList[CVAR_VEFFECTS_HEAL_DURATION]    = FindConVar("zp_veffects_heal_duration");
-    gCvarList[CVAR_VEFFECTS_LEAP]             = FindConVar("zp_veffects_leap"); 
-    gCvarList[CVAR_VEFFECTS_LEAP_NAME]        = FindConVar("zp_veffects_leap_name");
-    gCvarList[CVAR_VEFFECTS_LEAP_ATTACH]      = FindConVar("zp_veffects_leap_attachment"); 
-    gCvarList[CVAR_VEFFECTS_LEAP_DURATION]    = FindConVar("zp_veffects_leap_duration");
+    gCvarList.VEFFECTS_INFECT           = FindConVar("zp_veffects_infect"); 
+    gCvarList.VEFFECTS_HUMANIZE         = FindConVar("zp_veffects_humanize"); 
+    gCvarList.VEFFECTS_RESPAWN          = FindConVar("zp_veffects_respawn"); 
+    gCvarList.VEFFECTS_RESPAWN_NAME     = FindConVar("zp_veffects_respawn_name");
+    gCvarList.VEFFECTS_RESPAWN_ATTACH   = FindConVar("zp_veffects_respawn_attachment"); 
+    gCvarList.VEFFECTS_RESPAWN_DURATION = FindConVar("zp_veffects_respawn_duration");
+    gCvarList.VEFFECTS_HEAL             = FindConVar("zp_veffects_heal"); 
+    gCvarList.VEFFECTS_HEAL_NAME        = FindConVar("zp_veffects_heal_name");
+    gCvarList.VEFFECTS_HEAL_ATTACH      = FindConVar("zp_veffects_heal_attachment"); 
+    gCvarList.VEFFECTS_HEAL_DURATION    = FindConVar("zp_veffects_heal_duration");
+    gCvarList.VEFFECTS_LEAP             = FindConVar("zp_veffects_leap"); 
+    gCvarList.VEFFECTS_LEAP_NAME        = FindConVar("zp_veffects_leap_name");
+    gCvarList.VEFFECTS_LEAP_ATTACH      = FindConVar("zp_veffects_leap_attachment"); 
+    gCvarList.VEFFECTS_LEAP_DURATION    = FindConVar("zp_veffects_leap_duration");
 }
 
 /**
@@ -66,26 +66,26 @@ void PlayerVEffectsOnClientInfected(int client, int attacker)
     if (gServerData.RoundStart && !attacker)
     {
         // If respawn effect disabled, then stop
-        if (!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
+        if (!gCvarList.VEFFECTS_RESPAWN.BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
-        flDuration = gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION].FloatValue;
+        flDuration = gCvarList.VEFFECTS_RESPAWN_DURATION.FloatValue;
         if (!flDuration)
         {
             return;
         }
 
         // Gets respawn particle
-        gCvarList[CVAR_VEFFECTS_RESPAWN_NAME].GetString(sParticle, sizeof(sParticle));
-        gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH].GetString(sAttachment, sizeof(sAttachment));
+        gCvarList.VEFFECTS_RESPAWN_NAME.GetString(sParticle, sizeof(sParticle));
+        gCvarList.VEFFECTS_RESPAWN_ATTACH.GetString(sAttachment, sizeof(sAttachment));
     }
     else
     {
         // If infect effect disabled, then stop
-        if (!gCvarList[CVAR_VEFFECTS_INFECT].BoolValue) 
+        if (!gCvarList.VEFFECTS_INFECT.BoolValue) 
         {
             return;
         }
@@ -124,26 +124,26 @@ void PlayerVEffectsOnClientHumanized(int client)
     if (gServerData.RoundNew)
     {
         // If respawn effect disabled, then stop
-        if (!gCvarList[CVAR_VEFFECTS_RESPAWN].BoolValue) 
+        if (!gCvarList.VEFFECTS_RESPAWN.BoolValue) 
         {
             return;
         }
         
         // If the duration is zero, then stop
-        flDuration = gCvarList[CVAR_VEFFECTS_RESPAWN_DURATION].FloatValue;
+        flDuration = gCvarList.VEFFECTS_RESPAWN_DURATION.FloatValue;
         if (!flDuration)
         {
             return;
         }
 
         // Gets respawn particle
-        gCvarList[CVAR_VEFFECTS_RESPAWN_NAME].GetString(sParticle, sizeof(sParticle));
-        gCvarList[CVAR_VEFFECTS_RESPAWN_ATTACH].GetString(sAttachment, sizeof(sAttachment));
+        gCvarList.VEFFECTS_RESPAWN_NAME.GetString(sParticle, sizeof(sParticle));
+        gCvarList.VEFFECTS_RESPAWN_ATTACH.GetString(sAttachment, sizeof(sAttachment));
     }
     else
     {
         // If humanize effect disabled, then stop
-        if (!gCvarList[CVAR_VEFFECTS_HUMANIZE].BoolValue) 
+        if (!gCvarList.VEFFECTS_HUMANIZE.BoolValue) 
         {
             return;
         }
@@ -172,13 +172,13 @@ void PlayerVEffectsOnClientHumanized(int client)
 void PlayerVEffectsOnClientRegen(int client)
 {
     // If regeneration effect disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_HEAL].BoolValue) 
+    if (!gCvarList.VEFFECTS_HEAL.BoolValue) 
     {
         return;
     }
     
     // If the duration is zero, then stop
-    float flDuration = gCvarList[CVAR_VEFFECTS_HEAL_DURATION].FloatValue;
+    float flDuration = gCvarList.VEFFECTS_HEAL_DURATION.FloatValue;
     if (!flDuration)
     {
         return;
@@ -189,8 +189,8 @@ void PlayerVEffectsOnClientRegen(int client)
     static char sAttachment[SMALL_LINE_LENGTH];
     
     // Gets healing particle
-    gCvarList[CVAR_VEFFECTS_HEAL_NAME].GetString(sParticle, sizeof(sParticle));
-    gCvarList[CVAR_VEFFECTS_HEAL_ATTACH].GetString(sAttachment, sizeof(sAttachment));
+    gCvarList.VEFFECTS_HEAL_NAME.GetString(sParticle, sizeof(sParticle));
+    gCvarList.VEFFECTS_HEAL_ATTACH.GetString(sAttachment, sizeof(sAttachment));
     
     // Emit a heal effect
     ParticlesCreate(client, sAttachment, sParticle, flDuration);
@@ -204,13 +204,13 @@ void PlayerVEffectsOnClientRegen(int client)
 void PlayerVEffectsOnClientJump(int client)
 {
     // If jump effect disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_LEAP].BoolValue) 
+    if (!gCvarList.VEFFECTS_LEAP.BoolValue) 
     {
         return;
     }
     
     // If the duration is zero, then stop
-    float flDuration = gCvarList[CVAR_VEFFECTS_LEAP_DURATION].FloatValue;
+    float flDuration = gCvarList.VEFFECTS_LEAP_DURATION.FloatValue;
     if (!flDuration)
     {
         return;
@@ -221,8 +221,8 @@ void PlayerVEffectsOnClientJump(int client)
     static char sAttachment[SMALL_LINE_LENGTH];
     
     // Gets jump particle
-    gCvarList[CVAR_VEFFECTS_LEAP_NAME].GetString(sParticle, sizeof(sParticle)); 
-    gCvarList[CVAR_VEFFECTS_LEAP_ATTACH].GetString(sAttachment, sizeof(sAttachment));
+    gCvarList.VEFFECTS_LEAP_NAME.GetString(sParticle, sizeof(sParticle)); 
+    gCvarList.VEFFECTS_LEAP_ATTACH.GetString(sAttachment, sizeof(sAttachment));
     
     // Emit a jump effect
     ParticlesCreate(client, sAttachment, sParticle, flDuration);

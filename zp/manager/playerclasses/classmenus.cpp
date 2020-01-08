@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Provides functions for managing class menus.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -458,10 +458,10 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
                 ClassGetName(iD, sBuffer, sizeof(sBuffer));
   
                 // If help messages enabled, then show info
-                if (gCvarList[CVAR_MESSAGES_CLASS_CHOOSE].BoolValue) TranslationPrintToChat(client, "class info", sBuffer, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
+                if (gCvarList.MESSAGES_CLASS_CHOOSE.BoolValue) TranslationPrintToChat(client, "class info", sBuffer, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
             
                 // If help messages enabled, then show info
-                if (gCvarList[CVAR_MESSAGES_CLASS_DUMP].BoolValue) 
+                if (gCvarList.MESSAGES_CLASS_DUMP.BoolValue) 
                 {
                     // Print data into console
                     ClassDump(client, iD);

@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ public Plugin myinfo =
 #define WEAPON_AIR_SPEED           1000.0
 #define WEAPON_AIR_GRAVITY         0.01
 #define WEAPON_AIR_LIFE            0.8
-#define WEAPON_ATTACK_TIME         0.075
+#define WEAPON_ATTACK_TIME         1.0
 #define WEAPON_IDLE_TIME           2.0
 #define WEAPON_ATTACK_END_TIME     2.06
 /**

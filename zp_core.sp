@@ -3,7 +3,7 @@
  *  
  *  Zombie Plague
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *  
  *  Regards to Greyscale and Richard Helgeby, a lot of useful code
  *  was taken from the great plugin for Counter Strike: Source

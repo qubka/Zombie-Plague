@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Show a health bar above a player.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,14 +31,14 @@
 void HealthOnLoad(/*void*/)
 {
     // If health sprite disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue)
+    if (!gCvarList.VEFFECTS_HEALTH.BoolValue)
     {
         return;
     }
     
     // Load health sprite material
     static char sSprite[PLATFORM_LINE_LENGTH];
-    gCvarList[CVAR_VEFFECTS_HEALTH_SPRITE].GetString(sSprite, sizeof(sSprite));
+    gCvarList.VEFFECTS_HEALTH_SPRITE.GetString(sSprite, sizeof(sSprite));
     if (hasLength(sSprite))
     {
         // Precache material
@@ -54,17 +54,17 @@ void HealthOnLoad(/*void*/)
 void HealthOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList[CVAR_VEFFECTS_HEALTH]          = FindConVar("zp_veffects_health");
-    gCvarList[CVAR_VEFFECTS_HEALTH_SPRITE]   = FindConVar("zp_veffects_health_sprite");
-    gCvarList[CVAR_VEFFECTS_HEALTH_SCALE]    = FindConVar("zp_veffects_health_scale");
-    gCvarList[CVAR_VEFFECTS_HEALTH_VAR]      = FindConVar("zp_veffects_health_var");
-    gCvarList[CVAR_VEFFECTS_HEALTH_FRAMES]   = FindConVar("zp_veffects_health_frames");
-    gCvarList[CVAR_VEFFECTS_HEALTH_DURATION] = FindConVar("zp_veffects_health_duration");
-    gCvarList[CVAR_VEFFECTS_HEALTH_HEIGHT]   = FindConVar("zp_veffects_health_height");
+    gCvarList.VEFFECTS_HEALTH          = FindConVar("zp_veffects_health");
+    gCvarList.VEFFECTS_HEALTH_SPRITE   = FindConVar("zp_veffects_health_sprite");
+    gCvarList.VEFFECTS_HEALTH_SCALE    = FindConVar("zp_veffects_health_scale");
+    gCvarList.VEFFECTS_HEALTH_VAR      = FindConVar("zp_veffects_health_var");
+    gCvarList.VEFFECTS_HEALTH_FRAMES   = FindConVar("zp_veffects_health_frames");
+    gCvarList.VEFFECTS_HEALTH_DURATION = FindConVar("zp_veffects_health_duration");
+    gCvarList.VEFFECTS_HEALTH_HEIGHT   = FindConVar("zp_veffects_health_height");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_HEALTH],        HealthOnCvarHook);    
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_HEALTH_SPRITE], HealthOnCvarHook);  
+    HookConVarChange(gCvarList.VEFFECTS_HEALTH,        HealthOnCvarHook);    
+    HookConVarChange(gCvarList.VEFFECTS_HEALTH_SPRITE, HealthOnCvarHook);  
 }
 
 /**
@@ -124,7 +124,7 @@ public Action HealthOnTransmit(int entity, int client)
 void HealthOnClientUpdate(int client)
 {
     // If health sprite disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue)
+    if (!gCvarList.VEFFECTS_HEALTH.BoolValue)
     {
         return;
     }
@@ -145,7 +145,7 @@ void HealthOnClientUpdate(int client)
 void HealthOnClientDeath(int client)
 {
     // If health sprite disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue)
+    if (!gCvarList.VEFFECTS_HEALTH.BoolValue)
     {
         return;
     }
@@ -164,7 +164,7 @@ void HealthOnClientDeath(int client)
 void HealthOnClientHurt(int client, int attacker, int iHealth)
 {
     // If health sprite disabled, then stop
-    if (!gCvarList[CVAR_VEFFECTS_HEALTH].BoolValue || !ClassIsHealthSprite(gClientData[client].Class))
+    if (!gCvarList.VEFFECTS_HEALTH.BoolValue || !ClassIsHealthSprite(gClientData[client].Class))
     {
         return;
     }
@@ -184,7 +184,7 @@ void HealthOnClientHurt(int client, int attacker, int iHealth)
             // Gets client top position
             static float vPosition[3];
             ToolsGetAbsOrigin(client, vPosition); 
-            vPosition[2] += gCvarList[CVAR_VEFFECTS_HEALTH_HEIGHT].FloatValue; // Add height
+            vPosition[2] += gCvarList.VEFFECTS_HEALTH_HEIGHT.FloatValue; // Add height
             
             // Teleport the entity
             TeleportEntity(entity, vPosition, NULL_VECTOR, NULL_VECTOR);
@@ -212,7 +212,7 @@ void HealthOnClientHurt(int client, int attacker, int iHealth)
         HealthShowSprite(attacker, HealthGetFrame(client));
         
         // Sets timer for updating sprite
-        gClientData[attacker].HealthDuration = gCvarList[CVAR_VEFFECTS_HEALTH_DURATION].FloatValue;
+        gClientData[attacker].HealthDuration = gCvarList.VEFFECTS_HEALTH_DURATION.FloatValue;
         delete gClientData[attacker].SpriteTimer;
         gClientData[attacker].SpriteTimer = CreateTimer(0.1, HealthOnClientSprite, GetClientUserId(attacker), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
     }
@@ -311,10 +311,10 @@ bool HealthCreateSprite(int client)
     static char sScale[SMALL_LINE_LENGTH];
     
     // Gets health sprite
-    gCvarList[CVAR_VEFFECTS_HEALTH_SPRITE].GetString(sSprite, sizeof(sSprite));
+    gCvarList.VEFFECTS_HEALTH_SPRITE.GetString(sSprite, sizeof(sSprite));
     
     // Gets sprite scale
-    gCvarList[CVAR_VEFFECTS_HEALTH_SCALE].GetString(sScale, sizeof(sScale));
+    gCvarList.VEFFECTS_HEALTH_SCALE.GetString(sScale, sizeof(sScale));
     
     // Create an attach sprite
     int entity = UTIL_CreateSprite(client, _, _, _, sSprite, sScale, "7");
@@ -333,7 +333,7 @@ bool HealthCreateSprite(int client)
     }
 
     // Gets sprite var
-    gCvarList[CVAR_VEFFECTS_HEALTH_VAR].GetString(sScale, sizeof(sScale));
+    gCvarList.VEFFECTS_HEALTH_VAR.GetString(sScale, sizeof(sScale));
     
     // Create a shader controller sprite
     int controller = UTIL_CreateSpriteController(entity, sSprite, sScale); 
@@ -412,7 +412,7 @@ void HealthShowSprite(int client, int iFrame)
 int HealthGetFrame(int client)
 {
     // Calculate the frames
-    float flMaxFrames = gCvarList[CVAR_VEFFECTS_HEALTH_FRAMES].FloatValue - 1.0;
+    float flMaxFrames = gCvarList.VEFFECTS_HEALTH_FRAMES.FloatValue - 1.0;
     float flFrame = float(ToolsGetHealth(client)) / float(ClassGetHealth(gClientData[client].Class)) * flMaxFrames;
 
     // Return the frame position

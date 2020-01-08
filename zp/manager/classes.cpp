@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading classes specific variables.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -419,10 +419,8 @@ void ClassesOnCacheData(/*void*/)
 
 /**
  * @brief Called when configs are being reloaded.
- * 
- * @param iConfig           The config being reloaded. (only if 'all' is false)
  **/
-public void ClassesOnConfigReload(ConfigFile iConfig)
+public void ClassesOnConfigReload(/*void*/)
 {
     // Reloads class config
     ClassesOnLoad();
@@ -456,8 +454,8 @@ void ClassesOnCvarInit(/*void*/)
     AntiStickOnCvarInit();
     
     // Creates cvars
-    gCvarList[CVAR_HUMAN_MENU]  = FindConVar("zp_human_menu");
-    gCvarList[CVAR_ZOMBIE_MENU] = FindConVar("zp_zombie_menu");
+    gCvarList.HUMAN_MENU  = FindConVar("zp_human_menu");
+    gCvarList.ZOMBIE_MENU = FindConVar("zp_zombie_menu");
 }
 
 /**

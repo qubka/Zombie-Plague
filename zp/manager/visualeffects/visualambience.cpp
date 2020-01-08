@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Fog, light style, sky, sun rendering, etc
  *
- *  Copyright (C) 2015-2019  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2020  Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,37 +31,37 @@
 void VAmbienceOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE] = FindConVar("zp_veffects_lightstyle_value");
-    gCvarList[CVAR_VEFFECTS_LIGHTSTYLE]       = FindConVar("zp_veffects_lightstyle");       
-    gCvarList[CVAR_VEFFECTS_SKY_PATH]         = FindConVar("zp_veffects_sky_path");
-    gCvarList[CVAR_VEFFECTS_SKY]              = FindConVar("zp_veffects_sky");              
-    gCvarList[CVAR_VEFFECTS_SKYNAME]          = FindConVar("sv_skyname");
-    gCvarList[CVAR_VEFFECTS_SUN_DISABLE]      = FindConVar("zp_veffects_sun_disable");      
-    gCvarList[CVAR_VEFFECTS_FOG_COLOR]        = FindConVar("zp_veffects_fog_color");
-    gCvarList[CVAR_VEFFECTS_FOG_DENSITY]      = FindConVar("zp_veffects_fog_density");
-    gCvarList[CVAR_VEFFECTS_FOG_STARTDIST]    = FindConVar("zp_veffects_fog_startdist");
-    gCvarList[CVAR_VEFFECTS_FOG_ENDDIST]      = FindConVar("zp_veffects_fog_enddist");
-    gCvarList[CVAR_VEFFECTS_FOG_FARZ]         = FindConVar("zp_veffects_fog_farz");
-    gCvarList[CVAR_VEFFECTS_FOG]              = FindConVar("zp_veffects_fog");   
+    gCvarList.VEFFECTS_LIGHTSTYLE_VALUE = FindConVar("zp_veffects_lightstyle_value");
+    gCvarList.VEFFECTS_LIGHTSTYLE       = FindConVar("zp_veffects_lightstyle");       
+    gCvarList.VEFFECTS_SKY_PATH         = FindConVar("zp_veffects_sky_path");
+    gCvarList.VEFFECTS_SKY              = FindConVar("zp_veffects_sky");              
+    gCvarList.VEFFECTS_SKYNAME          = FindConVar("sv_skyname");
+    gCvarList.VEFFECTS_SUN_DISABLE      = FindConVar("zp_veffects_sun_disable");      
+    gCvarList.VEFFECTS_FOG_COLOR        = FindConVar("zp_veffects_fog_color");
+    gCvarList.VEFFECTS_FOG_DENSITY      = FindConVar("zp_veffects_fog_density");
+    gCvarList.VEFFECTS_FOG_STARTDIST    = FindConVar("zp_veffects_fog_startdist");
+    gCvarList.VEFFECTS_FOG_ENDDIST      = FindConVar("zp_veffects_fog_enddist");
+    gCvarList.VEFFECTS_FOG_FARZ         = FindConVar("zp_veffects_fog_farz");
+    gCvarList.VEFFECTS_FOG              = FindConVar("zp_veffects_fog");   
     
     // Hook lightstyle cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE],       VAmbienceOnCvarHookLightStyle);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE], VAmbienceOnCvarHookLightStyle);
+    HookConVarChange(gCvarList.VEFFECTS_LIGHTSTYLE,       VAmbienceOnCvarHookLightStyle);
+    HookConVarChange(gCvarList.VEFFECTS_LIGHTSTYLE_VALUE, VAmbienceOnCvarHookLightStyle);
     
     // Hook sky cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY],              VAmbienceOnCvarHookSky);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SKY_PATH],         VAmbienceOnCvarHookSky);
+    HookConVarChange(gCvarList.VEFFECTS_SKY,              VAmbienceOnCvarHookSky);
+    HookConVarChange(gCvarList.VEFFECTS_SKY_PATH,         VAmbienceOnCvarHookSky);
     
     // Hook sun cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_SUN_DISABLE],      VAmbienceOnCvarHookSunDisable);
+    HookConVarChange(gCvarList.VEFFECTS_SUN_DISABLE,      VAmbienceOnCvarHookSunDisable);
     
     // Hook fog cvars
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG],              VAmbienceOnCvarHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_COLOR],        VAmbienceOnCvarHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_DENSITY],      VAmbienceOnCvarHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_STARTDIST],    VAmbienceOnCvarHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST],      VAmbienceOnCvarHookFog);
-    HookConVarChange(gCvarList[CVAR_VEFFECTS_FOG_FARZ],         VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList.VEFFECTS_FOG,              VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList.VEFFECTS_FOG_COLOR,        VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList.VEFFECTS_FOG_DENSITY,      VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList.VEFFECTS_FOG_STARTDIST,    VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList.VEFFECTS_FOG_ENDDIST,      VAmbienceOnCvarHookFog);
+    HookConVarChange(gCvarList.VEFFECTS_FOG_FARZ,         VAmbienceOnCvarHookFog);
 }
 
 /**
@@ -75,7 +75,7 @@ void VAmbienceOnCvarInit(/*void*/)
 public void VAmbienceOnCvarHookLightStyle(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If lightstyle is disabled, then disable
-    bool bLightStyle = gCvarList[CVAR_VEFFECTS_LIGHTSTYLE].BoolValue;
+    bool bLightStyle = gCvarList.VEFFECTS_LIGHTSTYLE.BoolValue;
     
     // Apply light style.
     VAmbienceApplyLightStyle(!bLightStyle);
@@ -92,7 +92,7 @@ public void VAmbienceOnCvarHookLightStyle(ConVar iConVar, char[] oldValue, char[
 public void VAmbienceOnCvarHookSky(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If sky is disabled, then stop
-    bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue;
+    bool bSky = gCvarList.VEFFECTS_SKY.BoolValue;
     
     // i = client index
     for (int i = 1; i <= MaxClients; i++)
@@ -117,7 +117,7 @@ public void VAmbienceOnCvarHookSky(ConVar iConVar, char[] oldValue, char[] newVa
 public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If sun is disabled, then stop
-    bool bSun = gCvarList[CVAR_VEFFECTS_SUN_DISABLE].BoolValue;
+    bool bSun = gCvarList.VEFFECTS_SUN_DISABLE.BoolValue;
     
     // Apply sun
     VAmbienceApplySunDisable(!bSun);
@@ -134,7 +134,7 @@ public void VAmbienceOnCvarHookSunDisable(ConVar iConVar, char[] oldValue, char[
 public void VAmbienceOnCvarHookFog(ConVar iConVar, char[] oldValue, char[] newValue)
 {
     // If fog is disabled, then stop
-    bool bFog = gCvarList[CVAR_VEFFECTS_FOG].BoolValue;
+    bool bFog = gCvarList.VEFFECTS_FOG.BoolValue;
     
     // Apply fog
     VAmbienceApplyFog(!bFog);
@@ -146,13 +146,13 @@ public void VAmbienceOnCvarHookFog(ConVar iConVar, char[] oldValue, char[] newVa
 void VAmbienceOnLoad(/*void*/)
 {
     // If lightstyle is disabled, then stop
-    bool bLightstyle = gCvarList[CVAR_VEFFECTS_LIGHTSTYLE].BoolValue;
+    bool bLightstyle = gCvarList.VEFFECTS_LIGHTSTYLE.BoolValue;
     
     // Apply light style
     VAmbienceApplyLightStyle(!bLightstyle);
 
     // If fog is disabled, then disable
-    bool bFog = gCvarList[CVAR_VEFFECTS_FOG].BoolValue;
+    bool bFog = gCvarList.VEFFECTS_FOG.BoolValue;
     
     // Apply fog
     VAmbienceApplyFog(!bFog);
@@ -166,7 +166,7 @@ void VAmbienceOnLoad(/*void*/)
 void VAmbienceOnClientInit(int client)
 {
     // If sky is disabled, then stop
-    bool bSky = gCvarList[CVAR_VEFFECTS_SKY].BoolValue; 
+    bool bSky = gCvarList.VEFFECTS_SKY.BoolValue; 
     
     // Apply new sky
     VAmbienceApplySky(client, !bSky);
@@ -200,7 +200,7 @@ void VAmbienceApplyLightStyle(bool bDisable = false)
 
     // Gets light value
     static char sLightStyleValue[4];
-    gCvarList[CVAR_VEFFECTS_LIGHTSTYLE_VALUE].GetString(sLightStyleValue, sizeof(sLightStyleValue));
+    gCvarList.VEFFECTS_LIGHTSTYLE_VALUE.GetString(sLightStyleValue, sizeof(sLightStyleValue));
 
     // If light value contants 'a', render of textures will be remove
     if (StrContains(sLightStyleValue, "a", true) != -1)
@@ -232,7 +232,7 @@ void VAmbienceApplySky(int client, bool bDisable = false)
     static char VAmbienceDefaultSky[PLATFORM_LINE_LENGTH];
 
     // Store map default sky before applying new one
-    gCvarList[CVAR_VEFFECTS_SKYNAME].GetString(VAmbienceDefaultSky, sizeof(VAmbienceDefaultSky));
+    gCvarList.VEFFECTS_SKYNAME.GetString(VAmbienceDefaultSky, sizeof(VAmbienceDefaultSky));
 
     // If default, then set to default sky
     if (bDisable)
@@ -241,17 +241,17 @@ void VAmbienceApplySky(int client, bool bDisable = false)
         if (hasLength(VAmbienceDefaultSky))
         {
             // Sets default sky to the client
-            gCvarList[CVAR_VEFFECTS_SKYNAME].ReplicateToClient(client, VAmbienceDefaultSky);
+            gCvarList.VEFFECTS_SKYNAME.ReplicateToClient(client, VAmbienceDefaultSky);
         }
         return;
     }
 
     // Gets sky path
     static char sSkyPath[PLATFORM_LINE_LENGTH];
-    gCvarList[CVAR_VEFFECTS_SKY_PATH].GetString(sSkyPath, sizeof(sSkyPath));
+    gCvarList.VEFFECTS_SKY_PATH.GetString(sSkyPath, sizeof(sSkyPath));
 
     // Sets new sky to the client
-    gCvarList[CVAR_VEFFECTS_SKYNAME].ReplicateToClient(client, sSkyPath);
+    gCvarList.VEFFECTS_SKYNAME.ReplicateToClient(client, sSkyPath);
 }
 
 /**
@@ -302,23 +302,23 @@ void VAmbienceApplyFog(bool bDisable = false)
     }
     
     // Sets density of the fog
-    DispatchKeyValueFloat(controller, "fogmaxdensity", gCvarList[CVAR_VEFFECTS_FOG_DENSITY].FloatValue);
+    DispatchKeyValueFloat(controller, "fogmaxdensity", gCvarList.VEFFECTS_FOG_DENSITY.FloatValue);
 
     // Sets start distance of the fog
-    SetVariantInt(gCvarList[CVAR_VEFFECTS_FOG_STARTDIST].IntValue);
+    SetVariantInt(gCvarList.VEFFECTS_FOG_STARTDIST.IntValue);
     AcceptEntityInput(controller, "SetStartDist");
 
     // Sets end distance of the fog
-    SetVariantInt(gCvarList[CVAR_VEFFECTS_FOG_ENDDIST].IntValue);
+    SetVariantInt(gCvarList.VEFFECTS_FOG_ENDDIST.IntValue);
     AcceptEntityInput(controller, "SetEndDist");
 
     // Sets plain distance of the fog
-    SetVariantInt(gCvarList[CVAR_VEFFECTS_FOG_FARZ].IntValue);
+    SetVariantInt(gCvarList.VEFFECTS_FOG_FARZ.IntValue);
     AcceptEntityInput(controller, "SetFarZ");
 
     // Gets color
     static char sFogColor[16];
-    gCvarList[CVAR_VEFFECTS_FOG_COLOR].GetString(sFogColor, sizeof(sFogColor));
+    gCvarList.VEFFECTS_FOG_COLOR.GetString(sFogColor, sizeof(sFogColor));
     
     // Sets main color
     SetVariantString(sFogColor);

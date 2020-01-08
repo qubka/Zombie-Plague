@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Provides functions for level system.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ enum
 void LevelSystemOnInit(/*void*/)
 {
     // If level system disable, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !gCvarList[CVAR_LEVEL_HUD].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue || !gCvarList.LEVEL_HUD.BoolValue)
     {
         // Validate loaded map
         if (gServerData.MapLoaded)
@@ -102,7 +102,7 @@ void LevelSystemOnLoad(/*void*/)
     ConfigRegisterConfig(File_Levels, Structure_IntegerList, CONFIG_FILE_ALIAS_LEVELS);
     
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue)
     {
         return;
     }
@@ -206,10 +206,8 @@ void LevelSystemOnCacheData(/*void*/)
 
 /**
  * @brief Called when configs are being reloaded.
- * 
- * @param iConfig           The config being reloaded. (only if 'all' is false)
  **/
-public void LevelSystemOnConfigReload(ConfigFile iConfig)
+public void LevelSystemOnConfigReload(/*void*/)
 {
     // Reloads level config
     LevelSystemOnLoad();
@@ -231,33 +229,33 @@ void LevelSystemOnCommandInit(/*void*/)
 void LevelSystemOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_LEVEL_SYSTEM]          = FindConVar("zp_level_system");
-    gCvarList[CVAR_LEVEL_HEALTH_RATIO]    = FindConVar("zp_level_health_ratio");
-    gCvarList[CVAR_LEVEL_SPEED_RATIO]     = FindConVar("zp_level_speed_ratio");
-    gCvarList[CVAR_LEVEL_GRAVITY_RATIO]   = FindConVar("zp_level_gravity_ratio");
-    gCvarList[CVAR_LEVEL_DAMAGE_RATIO]    = FindConVar("zp_level_damage_ratio");
-    gCvarList[CVAR_LEVEL_HUD]             = FindConVar("zp_level_hud");
-    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R]    = FindConVar("zp_level_hud_zombie_R");
-    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_G]    = FindConVar("zp_level_hud_zombie_G");
-    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B]    = FindConVar("zp_level_hud_zombie_B");
-    gCvarList[CVAR_LEVEL_HUD_ZOMBIE_A]    = FindConVar("zp_level_hud_zombie_A");
-    gCvarList[CVAR_LEVEL_HUD_HUMAN_R]     = FindConVar("zp_level_hud_human_R");
-    gCvarList[CVAR_LEVEL_HUD_HUMAN_G]     = FindConVar("zp_level_hud_human_G");
-    gCvarList[CVAR_LEVEL_HUD_HUMAN_B]     = FindConVar("zp_level_hud_human_B");
-    gCvarList[CVAR_LEVEL_HUD_HUMAN_A]     = FindConVar("zp_level_hud_human_A");
-    gCvarList[CVAR_LEVEL_HUD_SPECTATOR_R] = FindConVar("zp_level_hud_spectator_R");
-    gCvarList[CVAR_LEVEL_HUD_SPECTATOR_G] = FindConVar("zp_level_hud_spectator_G");
-    gCvarList[CVAR_LEVEL_HUD_SPECTATOR_B] = FindConVar("zp_level_hud_spectator_B");    
-    gCvarList[CVAR_LEVEL_HUD_SPECTATOR_A] = FindConVar("zp_level_hud_spectator_A");
-    gCvarList[CVAR_LEVEL_HUD_X]           = FindConVar("zp_level_hud_X");
-    gCvarList[CVAR_LEVEL_HUD_Y]           = FindConVar("zp_level_hud_Y");
+    gCvarList.LEVEL_SYSTEM          = FindConVar("zp_level_system");
+    gCvarList.LEVEL_HEALTH_RATIO    = FindConVar("zp_level_health_ratio");
+    gCvarList.LEVEL_SPEED_RATIO     = FindConVar("zp_level_speed_ratio");
+    gCvarList.LEVEL_GRAVITY_RATIO   = FindConVar("zp_level_gravity_ratio");
+    gCvarList.LEVEL_DAMAGE_RATIO    = FindConVar("zp_level_damage_ratio");
+    gCvarList.LEVEL_HUD             = FindConVar("zp_level_hud");
+    gCvarList.LEVEL_HUD_ZOMBIE_R    = FindConVar("zp_level_hud_zombie_R");
+    gCvarList.LEVEL_HUD_ZOMBIE_G    = FindConVar("zp_level_hud_zombie_G");
+    gCvarList.LEVEL_HUD_ZOMBIE_B    = FindConVar("zp_level_hud_zombie_B");
+    gCvarList.LEVEL_HUD_ZOMBIE_A    = FindConVar("zp_level_hud_zombie_A");
+    gCvarList.LEVEL_HUD_HUMAN_R     = FindConVar("zp_level_hud_human_R");
+    gCvarList.LEVEL_HUD_HUMAN_G     = FindConVar("zp_level_hud_human_G");
+    gCvarList.LEVEL_HUD_HUMAN_B     = FindConVar("zp_level_hud_human_B");
+    gCvarList.LEVEL_HUD_HUMAN_A     = FindConVar("zp_level_hud_human_A");
+    gCvarList.LEVEL_HUD_SPECTATOR_R = FindConVar("zp_level_hud_spectator_R");
+    gCvarList.LEVEL_HUD_SPECTATOR_G = FindConVar("zp_level_hud_spectator_G");
+    gCvarList.LEVEL_HUD_SPECTATOR_B = FindConVar("zp_level_hud_spectator_B");    
+    gCvarList.LEVEL_HUD_SPECTATOR_A = FindConVar("zp_level_hud_spectator_A");
+    gCvarList.LEVEL_HUD_X           = FindConVar("zp_level_hud_X");
+    gCvarList.LEVEL_HUD_Y           = FindConVar("zp_level_hud_Y");
     
     // Hook cvars
-    HookConVarChange(gCvarList[CVAR_LEVEL_SYSTEM],        LevelSystemOnCvarHook);       
-    HookConVarChange(gCvarList[CVAR_LEVEL_HUD],           LevelSystemOnCvarHook); 
-    HookConVarChange(gCvarList[CVAR_LEVEL_HEALTH_RATIO],  LevelSystemChangeOnCvarHook);         
-    HookConVarChange(gCvarList[CVAR_LEVEL_SPEED_RATIO],   LevelSystemChangeOnCvarHook);           
-    HookConVarChange(gCvarList[CVAR_LEVEL_GRAVITY_RATIO], LevelSystemChangeOnCvarHook); 
+    HookConVarChange(gCvarList.LEVEL_SYSTEM,        LevelSystemOnCvarHook);       
+    HookConVarChange(gCvarList.LEVEL_HUD,           LevelSystemOnCvarHook); 
+    HookConVarChange(gCvarList.LEVEL_HEALTH_RATIO,  LevelSystemChangeOnCvarHook);         
+    HookConVarChange(gCvarList.LEVEL_SPEED_RATIO,   LevelSystemChangeOnCvarHook);           
+    HookConVarChange(gCvarList.LEVEL_GRAVITY_RATIO, LevelSystemChangeOnCvarHook); 
 }
 
 /*
@@ -310,7 +308,7 @@ void LevelSystemOnClientDeath(int client)
 void LevelSystemOnClientUpdate(int client)
 {
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue || !gCvarList[CVAR_LEVEL_HUD].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue || !gCvarList.LEVEL_HUD.BoolValue)
     {
         return;
     }
@@ -333,7 +331,7 @@ void LevelSystemOnClientUpdate(int client)
 void LevelSystemOnSetLvl(int client, int iLevel)
 {
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue)
     {
         return;
     }
@@ -382,7 +380,7 @@ void LevelSystemOnSetLvl(int client, int iLevel)
 void LevelSystemOnSetExp(int client, int iExp)
 {
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue)
     {
         return;
     }
@@ -464,10 +462,10 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
             }
             
             // Gets colors 
-            iColor[0] = gCvarList[CVAR_LEVEL_HUD_SPECTATOR_R].IntValue;
-            iColor[1] = gCvarList[CVAR_LEVEL_HUD_SPECTATOR_G].IntValue;
-            iColor[2] = gCvarList[CVAR_LEVEL_HUD_SPECTATOR_B].IntValue;
-            iColor[3] = gCvarList[CVAR_LEVEL_HUD_SPECTATOR_A].IntValue;
+            iColor[0] = gCvarList.LEVEL_HUD_SPECTATOR_R.IntValue;
+            iColor[1] = gCvarList.LEVEL_HUD_SPECTATOR_G.IntValue;
+            iColor[2] = gCvarList.LEVEL_HUD_SPECTATOR_B.IntValue;
+            iColor[3] = gCvarList.LEVEL_HUD_SPECTATOR_A.IntValue;
         }
         else
         {
@@ -475,19 +473,19 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
             if (gClientData[client].Zombie)
             {
                 // Gets colors 
-                iColor[0] = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_R].IntValue;
-                iColor[1] = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_G].IntValue;
-                iColor[2] = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_B].IntValue;
-                iColor[3] = gCvarList[CVAR_LEVEL_HUD_ZOMBIE_A].IntValue;
+                iColor[0] = gCvarList.LEVEL_HUD_ZOMBIE_R.IntValue;
+                iColor[1] = gCvarList.LEVEL_HUD_ZOMBIE_G.IntValue;
+                iColor[2] = gCvarList.LEVEL_HUD_ZOMBIE_B.IntValue;
+                iColor[3] = gCvarList.LEVEL_HUD_ZOMBIE_A.IntValue;
             }
             // Otherwise, show human hud
             else
             {
                 // Gets colors 
-                iColor[0] = gCvarList[CVAR_LEVEL_HUD_HUMAN_R].IntValue;
-                iColor[1] = gCvarList[CVAR_LEVEL_HUD_HUMAN_G].IntValue;
-                iColor[2] = gCvarList[CVAR_LEVEL_HUD_HUMAN_B].IntValue;
-                iColor[3] = gCvarList[CVAR_LEVEL_HUD_HUMAN_A].IntValue;
+                iColor[0] = gCvarList.LEVEL_HUD_HUMAN_R.IntValue;
+                iColor[1] = gCvarList.LEVEL_HUD_HUMAN_G.IntValue;
+                iColor[2] = gCvarList.LEVEL_HUD_HUMAN_B.IntValue;
+                iColor[3] = gCvarList.LEVEL_HUD_HUMAN_A.IntValue;
             }
         }
 
@@ -496,7 +494,7 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
         ClassGetName(gClientData[target].Class, sInfo, sizeof(sInfo));
 
         // Print hud text to the client
-        TranslationPrintHudText(gServerData.LevelSync, client, gCvarList[CVAR_LEVEL_HUD_X].FloatValue, gCvarList[CVAR_LEVEL_HUD_Y].FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[target].Level, gClientData[target].Exp, LevelSystemGetLimit(gClientData[target].Level));
+        TranslationPrintHudText(gServerData.LevelSync, client, gCvarList.LEVEL_HUD_X.FloatValue, gCvarList.LEVEL_HUD_Y.FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[target].Level, gClientData[target].Exp, LevelSystemGetLimit(gClientData[target].Level));
 
         // Allow timer
         return Plugin_Continue;
@@ -540,7 +538,7 @@ public void LevelSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newVal
 public void LevelSystemChangeOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {    
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue)
     {
         return;
     }
@@ -561,9 +559,9 @@ public void LevelSystemChangeOnCvarHook(ConVar hConVar, char[] oldValue, char[] 
             if (IsPlayerExist(i))
             {
                 // Update variables
-                ToolsSetHealth(i, ClassGetHealth(gClientData[i].Class) + (RoundToNearest(gCvarList[CVAR_LEVEL_HEALTH_RATIO].FloatValue * float(gClientData[i].Level))), true);
-                ToolsSetLMV(i, ClassGetSpeed(gClientData[i].Class) + (gCvarList[CVAR_LEVEL_SPEED_RATIO].FloatValue * float(gClientData[i].Level)));
-                ToolsSetGravity(i, ClassGetGravity(gClientData[i].Class) + (gCvarList[CVAR_LEVEL_GRAVITY_RATIO].FloatValue * float(gClientData[i].Level)));
+                ToolsSetHealth(i, ClassGetHealth(gClientData[i].Class) + (RoundToNearest(gCvarList.LEVEL_HEALTH_RATIO.FloatValue * float(gClientData[i].Level))), true);
+                ToolsSetLMV(i, ClassGetSpeed(gClientData[i].Class) + (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[i].Level)));
+                ToolsSetGravity(i, ClassGetGravity(gClientData[i].Class) + (gCvarList.LEVEL_GRAVITY_RATIO.FloatValue * float(gClientData[i].Level)));
             }
         }
     }
@@ -579,7 +577,7 @@ public void LevelSystemChangeOnCvarHook(ConVar hConVar, char[] oldValue, char[] 
 public Action LevelSystemLevelOnCommandCatched(int client, int iArguments)
 {
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue)
     {
         return Plugin_Handled;
     }
@@ -636,7 +634,7 @@ public Action LevelSystemLevelOnCommandCatched(int client, int iArguments)
 public Action LevelSystemExpOnCommandCatched(int client, int iArguments)
 {
     // If level system disabled, then stop
-    if (!gCvarList[CVAR_LEVEL_SYSTEM].BoolValue)
+    if (!gCvarList.LEVEL_SYSTEM.BoolValue)
     {
         return Plugin_Handled;
     }

@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague X Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -33,7 +33,7 @@
 #define _higrouplist_included
 
 /**
- * @brief Called when a client take a fake damage.
+ * @brief Called before a client take a fake damage.
  * 
  * @param client            The client index.
  * @param attacker          The attacker index. (Not validated!)
@@ -42,9 +42,27 @@
  * @param bits              The ditfield of damage types.
  * @param weapon            The weapon index or -1 for unspecified.
  *
+ * @note To block damage reset the damage to zero. 
+ *
+ * @noreturn 
+ **/
+forward void ZP_OnClientValidateDamage(int client, int &attacker, int &inflicter, float &damage, int &bits, int &weapon);
+
+/**
+ * @brief Called after a client take a fake damage.
+ * 
+ * @param client            The client index.
+ * @param attacker          The attacker index. (Not validated!)
+ * @param inflicter         The inflicter index. (Not validated!)
+ * @param damage            The amount of damage inflicted.
+ * @param bits              The ditfield of damage types.
+ * @param weapon            The weapon index or -1 for unspecified.
+ * @param health            The current health amount of a victim.
+ * @param armor             The current armor amount of a victim.
+ *
  * @noreturn
  **/
-forward void ZP_OnClientDamaged(int client, int &attacker, int &inflicter, float &damage, int &bits, int &weapon);
+forward void ZP_OnClientDamaged(int client, int attacker, int inflicter, float damage, int bits, int weapon, int health, int armor);
 
 /**
  * @brief Applies fake damage to an entity. 

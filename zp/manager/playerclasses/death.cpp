@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Death event.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ void DeathOnLoad(/*void*/)
 {
     // Gets infect icon
     static char sIcon[NORMAL_LINE_LENGTH];
-    gCvarList[CVAR_ICON_INFECT].GetString(sIcon, sizeof(sIcon));
+    gCvarList.ICON_INFECT.GetString(sIcon, sizeof(sIcon));
     if (hasLength(sIcon))
     {
         // Precache custom icon
@@ -75,8 +75,8 @@ void DeathOnLoad(/*void*/)
 void DeathOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList[CVAR_ICON_INFECT] = FindConVar("zp_icon_infect");
-    gCvarList[CVAR_ICON_HEAD]   = FindConVar("zp_icon_head");
+    gCvarList.ICON_INFECT = FindConVar("zp_icon_infect");
+    gCvarList.ICON_HEAD   = FindConVar("zp_icon_head");
 }
 
 /**

@@ -7,7 +7,7 @@
  *  Type:          Main
  *  Description:   General plugin functions.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -292,8 +292,8 @@ ClientData gClientData[MAXPLAYERS+1];
 /**
  * @section Core useful functions.
  **/
-#define _call.%0(%1)  RequestFrame(view_as<RequestFrameCallback>(%0), GetClientUserId(%1))
-#define _exec.%0(%1)  RequestFrame(view_as<RequestFrameCallback>(%0), EntIndexToEntRef(%1))
+#define _call.%0(%1)  RequestFrame(%0, GetClientUserId(%1))
+#define _exec.%0(%1)  RequestFrame(%0, EntIndexToEntRef(%1))
 /**
  * @endsection
  **/

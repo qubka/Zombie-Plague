@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Weapon HDR models functions.
  *
- *  Copyright (C) 2015-2019 Nikita Ushakov (Ireland, Dublin), Andersso
+ *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin), Andersso
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
