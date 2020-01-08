@@ -52,6 +52,7 @@ public Plugin myinfo =
 #define WEAPON_AIR_GRAVITY         0.01
 #define WEAPON_AIR_LIFE            0.8
 #define WEAPON_ATTACK_TIME         1.0
+#define WEAPON_ATTACK_AIR_TIME     0.075
 #define WEAPON_IDLE_TIME           2.0
 #define WEAPON_ATTACK_END_TIME     2.06
 /**
@@ -366,7 +367,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
     iAmmo -= 1; SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 
     // Adds the delay to the game tick
-    flCurrentTime += WEAPON_ATTACK_END_TIME;
+    flCurrentTime += WEAPON_ATTACK_AIR_TIME;
     
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
