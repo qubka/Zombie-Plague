@@ -182,7 +182,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     }
     
     /// CBasePlayer::Weapon_CanUse(CBaseCombatWeapon *this)
-    hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, WeaponDHookOnCanUse);
+    hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_Ignore, WeaponDHookOnCanUse);
     DHookAddParam(hDHookWeaponCanUse, HookParamType_CBaseEntity);
     
     // Validate hook
@@ -194,7 +194,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     }
     
     /// CBaseEntity::PrecacheModel(char const*, bool)
-    hDHookPrecacheModel = DHookCreate(DHook_Precache, HookType_Raw, ReturnType_Int, ThisPointer_Address, WeaponDHookOnPrecacheModel);
+    hDHookPrecacheModel = DHookCreate(DHook_Precache, HookType_Raw, ReturnType_Int, ThisPointer_Ignore, WeaponDHookOnPrecacheModel);
     DHookAddParam(hDHookPrecacheModel, HookParamType_CharPtr);
     DHookAddParam(hDHookPrecacheModel, HookParamType_Bool);
     DHookRaw(hDHookPrecacheModel, false, gServerData.Engine);
@@ -1558,11 +1558,10 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weapon, Handle hReturn, Handle 
  * DHook: Allow to pick-up some weapons.
  * @note bool CBasePlayer::Weapon_CanUse(CBaseCombatWeapon *)
  *
- * @param client            The client index.
  * @param hReturn           Handle to return structure.
  * @param hParams           Handle with parameters.
  **/
-public MRESReturn WeaponDHookOnCanUse(int client, Handle hReturn, Handle hParams)
+public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
 {
     // Gets real weapon index from parameters
     int weapon = DHookGetParam(hParams, 1);
@@ -1592,11 +1591,10 @@ public MRESReturn WeaponDHookOnCanUse(int client, Handle hReturn, Handle hParams
  * DHook: Block to precache some arms models.
  * @note int CBaseEntity::PrecacheModel(char const*, bool)
  *
- * @param entity            The entity index.
  * @param hReturn           Handle to return structure.
  * @param hParams           Handle with parameters.
  **/
-public MRESReturn WeaponDHookOnPrecacheModel(int entity, Handle hReturn, Handle hParams)
+public MRESReturn WeaponDHookOnPrecacheModel(Handle hReturn, Handle hParams)
 {
     // Gets model from parameters
     static char sPath[NORMAL_LINE_LENGTH];
