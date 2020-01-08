@@ -104,6 +104,7 @@ Handle hDHookWeaponCanUse;
 /**
  * Variables to store dynamic DHook offsets.
  **/
+int DHook_Precache;
 int DHook_GetMaxClip1;
 int DHook_GetReserveAmmoMax;
 int DHook_WeaponCanUse;
@@ -154,6 +155,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     // Load other offsets
     fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
     fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
+    fnInitGameConfOffset(gServerData.Config, DHook_Precache, "CBaseEntity::PrecacheModel");
     fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CBasePlayer::*/"Weapon_CanUse");
    
     /// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
@@ -192,18 +194,16 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     }
     
     /// CBaseEntity::PrecacheModel(char const*, bool)
-    hDHookPrecacheModel = DHookCreateDetour(Address_Null, gServerData.Platform == OS_Windows ? CallConv_THISCALL : CallConv_CDECL, ReturnType_Int, ThisPointer_Ignore);
-    DHookSetFromConf(hDHookPrecacheModel, gServerData.Config, SDKConf_Signature, "CBaseEntity::PrecacheModel");
-
-    // Add all parameters
+    hDHookPrecacheModel = DHookCreate(DHook_Precache, HookType_Raw, ReturnType_Int, ThisPointer_Address, WeaponDHookOnPrecacheModel);
     DHookAddParam(hDHookPrecacheModel, HookParamType_CharPtr);
     DHookAddParam(hDHookPrecacheModel, HookParamType_Bool);
+    DHookRaw(hDHookPrecacheModel, false, gServerData.Engine);
 
-    // Validate detour
-    if (!DHookEnableDetour(hDHookPrecacheModel, false, WeaponDHookOnPrecacheModel))
+    // Validate hook
+    if (hDHookPrecacheModel == null)
     {
         // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create Detour for \"CBaseEntity::PrecacheModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseEntity::PrecacheModel\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
         return;
     }
 }
@@ -1592,10 +1592,11 @@ public MRESReturn WeaponDHookOnCanUse(int client, Handle hReturn, Handle hParams
  * DHook: Block to precache some arms models.
  * @note int CBaseEntity::PrecacheModel(char const*, bool)
  *
+ * @param entity            The entity index.
  * @param hReturn           Handle to return structure.
  * @param hParams           Handle with parameters.
  **/
-public MRESReturn WeaponDHookOnPrecacheModel(Handle hReturn, Handle hParams)
+public MRESReturn WeaponDHookOnPrecacheModel(int entity, Handle hReturn, Handle hParams)
 {
     // Gets model from parameters
     static char sPath[NORMAL_LINE_LENGTH];

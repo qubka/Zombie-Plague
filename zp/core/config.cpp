@@ -204,6 +204,13 @@ void ConfigOnInit(/*void*/)
     gServerData.SDKTools = LoadGameConfigFile("sdktools.games");
     gServerData.CStrike  = LoadGameConfigFile("sm-cstrike.games");
     
+    // Validate config
+    if (gServerData.Config == null)
+    {
+        LogEvent(false, _, _, _, "Config Validation", "Error opening config: \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
     // Initialize a config array
     gServerData.Configs = new StringMap();
 }

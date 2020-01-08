@@ -2,6 +2,11 @@
 {
     "csgo"
     {
+        "Keys"
+        {
+            "EngineInterface"   "VEngineServer023"
+        }
+    
         "Offsets"
         {
             // Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
@@ -10,6 +15,11 @@
             {
                 "windows"   "22"
                 "linux"     "23"
+            }
+            "CBaseEntity::PrecacheModel"
+            {
+                "windows"   "5"
+                "linux"     "5"
             }
             "CBaseCombatWeapon::GetMaxClip1"
             {
@@ -72,6 +82,13 @@
         // You can update them only by yourself using tutorial in the link
         "Signatures"
         {
+            "CreateInterface"
+            {
+                "library"   "engine"
+                "windows"   "@CreateInterface"
+                "linux"     "@CreateInterface"
+            }
+
             ///  v2 = CBaseAnimating::GetSequenceActivity(*((CBaseAnimating **)this + 7), *(_DWORD *)(*((_DWORD *)this + 7) + 1004));
             ///  if ( v2 == 29 || v2 == 6 || v2 == 30 || v2 == 1 || v2 == 462 || v2 == 396 || v2 == 146 )
             ///  {
@@ -140,12 +157,6 @@
                 "library"   "server"
                 "windows"   "\x53\x8B\xD9\x57\x8B\x83\xF4\x00\x00\x00"
                 "linux"     "\x55\x89\xE5\x83\xEC\x28\x89\x5D\xF4\x8B\x5D\x08\x89\x75\xF8\x89\x7D\xFC\x8B\x83\xFC\x00\x00\x00\x8D\xB3\xFC\x00\x00\x00"
-            }
-            "CBaseEntity::PrecacheModel" // Str: "Attempting to precache model, but model name is NULL\n"
-            {
-                "library"   "server"
-                "windows"   "\x56\x8B\xF1\x85\xF6\x74\x2A\x80\x3E\x00\x74\x2A\x80\x3D\x2A\x2A\x2A\x2A\x00"
-                "linux"     "\x55\x89\xE5\x56\x53\x83\xEC\x20\x8B\x5D\x08\x0F\xB6\x75\x0C\x85\xDB"
             }
             "CCSPlayer::SetProgressBarTime" // Str: "Hostage.CutFreeWithoutDefuser"
             {

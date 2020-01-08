@@ -58,6 +58,7 @@ enum struct ServerData
     ArrayList Particles;
     
     /* OS */
+    Address Engine;
     EngineOS Platform;
     
     /* Timer */
