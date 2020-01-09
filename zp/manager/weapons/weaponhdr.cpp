@@ -26,11 +26,6 @@
  **/
 
 /**
- * Sequence paired shift.
- **/
-#define SWAP_SEQ_PAIRED (1<<31)
- 
-/**
  * @brief Creates the swapped (custom) weapon for the client.
  *
  * @param client            The cleint index.
@@ -301,6 +296,8 @@ void WeaponHDRSetWeaponVisibility(int weapon, bool bInvisible)
  **/
 int WeaponHDRBuildSwapSequenceArray(int iSequences[WEAPONS_SEQUENCE_MAX], int iSequenceCount, int weapon, int iIndex = 0)
 {
+    #define SWAP_SEQ_PAIRED (1<<31)
+    
     // Initialize variables
     int iValue = iSequences[iIndex]; int iSwap = -1;
 

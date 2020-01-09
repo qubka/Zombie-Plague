@@ -1076,8 +1076,14 @@ public void WeaponMODOnAnimationFix(int client)
             }
             else
             {
-                // Creates a toggle model
-                WeaponHDRToggleViewModel(client, view2, iD);
+                #define ACT_VM_IDLE 185
+        
+                // Stop toggling during the idle animation
+                if(ToolsGetSequenceActivity(view1, iSequence) != ACT_VM_IDLE)
+                {
+                    // Creates a toggle model
+                    WeaponHDRToggleViewModel(client, view2, iD);
+                }
             }
         }
     }
