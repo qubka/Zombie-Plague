@@ -3347,7 +3347,7 @@ void ModesMenu(int client, int target = -1)
 
         // Show option
         FormatEx(sInfo, sizeof(sInfo), "%d %d", i, target);
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || iAlive < ModesGetMinPlayers(i)) ? false : true);
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || iAlive < ModesGetMinPlayers(i)) ? false : true));
     
         // Increment amount
         iAmount++;

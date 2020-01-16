@@ -1040,7 +1040,7 @@ void CostumesMenu(int client)
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < CostumesGetLevel(i) || gClientData[client].Costume == i) ? false : true);
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < CostumesGetLevel(i) || gClientData[client].Costume == i) ? false : true));
     
         // Increment amount
         iAmount++;

@@ -251,6 +251,25 @@ forward void ZP_OnWeaponDrop(int weapon, int weaponID);
 native int ZP_CreateWeapon(int weaponID, float origin[3], float angle[3]);
 
 /**
+ * @brief Emulate bullet shot on the server and does the damage calculations.
+ *
+ * @param clientIndex       The client index.
+ * @param weaponIndex       The weapon index.
+ * @param origin            The position to the spawn.
+ * @param angle             The angle to the spawn.
+ * @param mode              The mode index.
+ * @param seed              The randomizing seed.
+ * @param inaccuracy        The inaccuracy variable.
+ * @param spread            The spread variable.
+ * @param fishtail          The fishtail variable.
+ * @param sound             The sound type.
+ * @param recoil            The recoil variable.
+ *
+ * @return                  True or false.
+ **/
+native void ZP_FireBullets(int clientIndex, int weaponIndex, float origin[3], float angle[3], int mode, int seed, float inaccuracy, float spread, float fishtail, int sound, float recoil);
+
+/**
  * @brief Gives the weapon by a given name.
  *
  * @param client            The client index.

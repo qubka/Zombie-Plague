@@ -281,7 +281,7 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || ((hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ClassGetLevel(i) || iClass == i) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ClassGetLevel(i) || iClass == i) ? false : true));
     
         // Increment amount
         iAmount++;

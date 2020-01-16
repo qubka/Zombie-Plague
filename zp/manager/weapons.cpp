@@ -172,6 +172,9 @@ void WeaponsOnCacheData(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
         return;
     }
+    
+    // On windows/mac this is actually ItemSystem() + sizeof(void *) is ItemSchema
+    Address pItemSchema = (gServerData.Platform == OS_Linux) ? view_as<Address>(SDKCall(hSDKCallGetItemSchema)) : view_as<Address>(SDKCall(hSDKCallGetItemSchema) + 4);
 
     // i = array index
     for (int i = 0; i < iSize; i++)
@@ -207,13 +210,13 @@ void WeaponsOnCacheData(/*void*/)
         }
         arrayWeapon.PushString(sPathWeapons);                             // Index: 1
         kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
-        CEconItemDefinition pItemDefinition = PTaH_GetItemDefinitionByName(sPathWeapons);
-        if (!pItemDefinition)
+        Address pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sPathWeapons));
+        if (pItem == Address_Null)
         {
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
-        }    
-        arrayWeapon.Push(pItemDefinition.GetDefinitionIndex());           // Index: 2
+        }
+        arrayWeapon.Push(SDKCall(hSDKCallGetItemDefinitionIndex, pItem)); // Index: 2
         kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                             // Index: 3
         kvWeapons.GetString("class", sPathWeapons, sizeof(sPathWeapons), "human");
@@ -2687,8 +2690,20 @@ int WeaponsGive(int client, int iD)
  **/
 int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
 {
-    // Create weapon
-    int weapon = PTaH_SpawnItemFromDefIndex(view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle);
+    // Initialize variable;
+    int weapon;
+    
+    // Validate windows
+    if (gServerData.Platform == OS_Windows)
+    {
+        // Create weapon
+        weapon = SDKCall(hSDKCallSpawnItem, view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle, 1, 4, 0);
+    }
+    else
+    {
+        // Create weapon
+        weapon = SDKCall(hSDKCallSpawnItem, 0, view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle, 1, 4, 0);
+    }
     
     // Validate weapon
     if (weapon != -1)

@@ -85,8 +85,12 @@ enum ModelType
 /**
  * Variables to store SDK calls handlers.
  **/
+Handle hSDKCallGetItemSchema;
+Handle hSDKCallSpawnItem;
 Handle hSDKCallWeaponSwitch;
 Handle hSDKCallGetSlot;
+Handle hSDKCallGetItemDefinitionIndex;
+Handle hSDKCallGetItemDefinitionByName;
 
 /**
  * Variables to store virtual SDK adresses.
@@ -114,6 +118,53 @@ int DHook_WeaponCanUse;
  **/
 void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/counterstrike-global-offensive/152722-dumping-datamap_t.html
 {                                               /// @version C_BaseFlex -> C_EconEntity -> C_BaseCombatWeapon -> C_WeaponCSBase -> C_BaseCSGrenade
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Static);
+    PrepSDKCall_SetFromConf(gServerData.CStrike, SDKConf_Signature, "GetItemSchema");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
+    
+    // Validate call
+    if ((hSDKCallGetItemSchema = EndPrepSDKCall()) == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"GetItemSchema\". Update \"SourceMod\"");
+        return;
+    }
+
+    /*_________________________________________________________________________________________________________________________________________*/
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Static);
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CItemGeneration::SpawnItem");
+    
+    // Validate linux
+    if (gServerData.Platform != OS_Windows)
+    {
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    }
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_Pointer);
+    PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_Pointer);
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+    PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+    
+    // Validate call
+    if ((hSDKCallSpawnItem = EndPrepSDKCall()) == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CItemGeneration::SpawnItem\". Update signature in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
+    /*_________________________________________________________________________________________________________________________________________*/
+    
     // Starts the preparation of an SDK call
     StartPrepSDKCall(SDKCall_Player);
     PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, /*CBasePlayer::*/"Weapon_Switch");
@@ -144,6 +195,39 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
     {
         // Log failure
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Raw);
+    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CEconItemDefinition::GetDefinitionIndex");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+    
+    // Validate call
+    if ((hSDKCallGetItemDefinitionIndex = EndPrepSDKCall()) == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CEconItemDefinition::GetDefinitionIndex\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
+    /*_________________________________________________________________________________________________________________________________________*/
+
+    // Starts the preparation of an SDK call
+    StartPrepSDKCall(SDKCall_Raw);
+    PrepSDKCall_SetFromConf(gServerData.CStrike, SDKConf_Virtual, /*CEconItemSchema::*/"GetItemDefintionByName");
+    
+    // Adds a parameter to the calling convention. This should be called in normal ascending order
+    PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+    
+    // Validate call
+    if ((hSDKCallGetItemDefinitionByName = EndPrepSDKCall()) == null)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CEconItemSchema::GetItemDefinitionByName\". Update \"SourceMod\"");
         return;
     }
     

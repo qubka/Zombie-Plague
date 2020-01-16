@@ -37,7 +37,6 @@
 #include <sdkhooks>
 #include <cstrike>
 #include <dhooks>   
-#include <ptah>
 
 // Helper
 #include <utils>

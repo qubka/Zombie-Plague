@@ -92,9 +92,7 @@ enum LogModule
     LogModule_Costumes,
     LogModule_GameModes,
     LogModule_Admin,
-    LogModule_Native,
-    
-    LogModule_Size
+    LogModule_Native
 };
 /**
  * @endsection
@@ -103,7 +101,7 @@ enum LogModule
 /**
  * Cache of current module filter settings. For fast and easy access.
  **/
-bool LogModuleFilterCache[LogModule_Size];
+bool LogModuleFilterCache[22/*LogModule*/];
 
 /**
  * @brief List of modules that write log events. 

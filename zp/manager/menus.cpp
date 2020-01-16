@@ -877,7 +877,7 @@ void MainMenu(int client)
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || bHide ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bHide) ? false : true));
     
         // Increment amount
         iAmount++;

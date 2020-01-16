@@ -1950,6 +1950,7 @@ stock void UTIL_FindHullIntersection(Handle &hTrace, float vPosition[3], const f
                 vHullPosition[2] = vHullEnd[2] + vHullBox[k][2];
 
                 // Create the end-point trace
+                delete hTemp;
                 hTemp = TR_TraceRayFilterEx(vPosition, vHullPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, data);
                 
                 // Validate collisions
@@ -1966,13 +1967,16 @@ stock void UTIL_FindHullIntersection(Handle &hTrace, float vPosition[3], const f
                     {
                         // Close and clone trace
                         delete hTrace;
-                        hTrace = hTemp;
+                        hTrace = CloneHandle(hTemp);
                         flDistance = flLength;
                     }
                 }
             }
         }
     }
+    
+    // Close trace
+    delete hTemp;
 }
 
 /**
@@ -2128,46 +2132,6 @@ stock float UTIL_GetDistanceBetween(int client, int entity)
     
     // Gets distance between them
     return GetVectorDistance(vPosition, vEndPosition);
-}
-
-/**
- * @brief Emulate 'bullet_shot' on the server and create an effect.
- *
- * @param client            The client Index.
- * @param Item              Customization item.
- * @param vPosition         Coordinates the bullet will be created at.
- * @param vAngle            Angles the bullet will be created at.
- * @param iMode             The mode index.
- * @param iSeed             The randomizing seed.
- * @param flInaccuracy      The inaccuracy variable.
- * @param flSpread          The spread variable.
- * @param flFishtail        The accuracy Fishtail.
- * @param iSoundType        The sound type. (1 or 12 for silenced, 0 for none sound)
- * @param flRecoilIndex     The recoil variable.
- **/
-stock void UTIL_FireBullets(int client, CEconItemView pItem, const float vPosition[3], const float vAngle[3], int iMode, int iSeed, float flInaccuracy, float flSpread, float flFishtail, int iSoundType, float flRecoilIndex)
-{
-    // Gets item econ definition
-    CEconItemDefinition pEcon = pItem.GetItemDefinition();
-    
-    // Create a shot effect
-    TE_Start("Shotgun Shot");
-    TE_WriteVector("m_vecOrigin", vPosition);
-    TE_WriteFloat("m_vecAngles[0]", vAngle[0]);
-    TE_WriteFloat("m_vecAngles[1]", vAngle[1]);
-    TE_WriteNum("m_weapon", view_as<int>(pItem));
-    TE_WriteNum("m_iMode", iMode);
-    TE_WriteNum("m_iSeed", iSeed);
-    TE_WriteNum("m_iPlayer", client - 1);
-    TE_WriteFloat("m_fInaccuracy", flInaccuracy);
-    TE_WriteFloat("m_fSpread", flSpread);
-    TE_WriteNum("m_iSoundType", iSoundType);
-    TE_WriteFloat("m_flRecoilIndex", flRecoilIndex);
-    TE_WriteNum("m_nItemDefIndex", pEcon.GetDefinitionIndex());
-    TE_SendToAll();
-
-    // Emulate shot on the server side and block lag compensation
-    PTaH_FX_FireBullets(client, pItem, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, flFishtail, iSoundType, flRecoilIndex);
 }
 
 /*_____________________________________________________________________________________________________________*/

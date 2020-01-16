@@ -25,7 +25,6 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#include <ptah>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -339,7 +338,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
     TR_GetEndPosition(vEndPosition);
     
     // Emulate bullet shot
-    PTaH_FX_FireBullets(client, PTaH_GetEconItemViewFromWeapon(weapon), vPosition, vAngle, 0, GetRandomInt(0, 1000), 0.0, 0.0, 0.0, 0, 0.0);
+    ZP_FireBullets(client, weapon, vPosition, vAngle, 0, GetRandomInt(0, 1000), 0.0, 0.0, 0.0, 0, 0.0);
 
     // Gets beam lifetime
     float flLife = ZP_GetWeaponSpeed(gWeapon);

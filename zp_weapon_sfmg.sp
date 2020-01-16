@@ -25,7 +25,6 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#include <ptah>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -383,7 +382,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
     GetClientEyeAngles(client, vAngle);
 
     // Emulate bullet shot
-    UTIL_FireBullets(client, PTaH_GetEconItemViewFromWeapon(weapon), vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, 0.0, 0, GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex"));
+    ZP_FireBullets(client, weapon, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, 0.0, 0, GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex"));
 }
 
 //**********************************************

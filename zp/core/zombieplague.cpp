@@ -516,6 +516,106 @@ stock Address fnCreateEngineInterface(Handle hConfig, char[] sKey, Address pAddr
 }
 
 /**
+ * @brief Create a memory for the custom convention call.
+ *
+ * @return                  The zero memory address.
+ **/
+stock Address fnCreateMemoryForSDKCall(/*void*/)
+{
+    // Validate zero memory
+    static Address pZeroMemory = Address_Null;
+    if(pZeroMemory != Address_Null)
+    {
+        return pZeroMemory;
+    }
+   
+    // Gets the server address
+    Address pServerBase; 
+    fnInitGameConfAddress(gServerData.Config, pServerBase, "server");
+    int pAddress = view_as<int>(pServerBase) + fnGetModuleSize(pServerBase) - 1;
+   
+    // Find the free memory
+    for(;;)
+    {
+        int iByte = LoadFromAddress(view_as<Address>(pAddress), NumberType_Int8);
+        if(iByte != 0x00)
+        {
+            break;
+        }
+       
+        pAddress--;
+    }
+   
+    /* Align for safe code injection */
+    pZeroMemory = view_as<Address>(pAddress + 0x100 & 0xFFFFFF00); // 255 bytes
+    return pZeroMemory;
+}
+
+/**
+ * @brief Gets the size of a module in the memory.
+ *
+ * @param pAddress          The module address.
+ * @return                  The size value.
+ **/
+stock int fnGetModuleSize(Address pAddress)
+{
+    int iOffset = LoadFromAddress(pAddress + view_as<Address>(0x3C), NumberType_Int32);    // NT headers offset
+    return LoadFromAddress(pAddress + view_as<Address>(iOffset + 0x50), NumberType_Int32); // nt->OptionalHeader.SizeOfImage
+}
+
+/**
+ * @brief Copies the values of num bytes from the location pointed to by source directly to the memory block pointed to by destination.
+ *
+ * @param pDest        The destination address where the content is to be copied.
+ * @param sSource      The source of data to be copied.
+ * @param iSize        The number of bytes to copy.
+ **/
+stock void memcpy(Address pDest, char[] sSource, int iSize)
+{
+    // For more copying speed
+    int i = iSize / 4;
+    memcpy4b(pDest, view_as<any>(sSource), i);
+   
+    // Copy the rest of staff
+    for(i *= 4, pDest += view_as<Address>(i); i < iSize; i++)
+    {
+        StoreToAddress(pDest++, sSource[i], NumberType_Int8);
+    }
+}
+
+/**
+ * @brief Copies the 4 bytes from the location pointed to by source directly to the memory block pointed to by destination. 
+ *
+ * @param pDest        The destination address where the content is to be copied.
+ * @param sSource      The source of data to be copied.
+ * @param iSize        The number of bytes to copy.
+ **/
+stock void memcpy4b(Address pDest, any[] sSource, int iSize)
+{
+    // Copy 4 bytes at once
+    for(int i = 0; i < iSize; i++)
+    {
+        StoreToAddress(pDest, sSource[i], NumberType_Int32);
+        pDest += view_as<Address>(4);
+    }
+}
+
+/**
+ * @brief Writes the DWord D (i.e. 4 bytes) to the string. 
+ *
+ * @param asm             The assemly string.
+ * @param pAddress        The address of the call.
+ * @param iOffset         (Optional) The address offset. (Where 0x0 starts)
+ **/
+stock void writeDWORD(char[] asm, any pAddress, int iOffset = 0)
+{
+    asm[iOffset]   = pAddress & 0xFF;
+    asm[iOffset+1] = pAddress >> 8 & 0xFF;
+    asm[iOffset+2] = pAddress >> 16 & 0xFF;
+    asm[iOffset+3] = pAddress >> 24 & 0xFF;
+}
+
+/**
  * @brief Removes a hook for when a game event is fired. (Avoid errors)
  *
  * @param sName             The name of the event.

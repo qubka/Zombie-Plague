@@ -25,7 +25,6 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#include <ptah>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -374,22 +373,22 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
         // Apply kick back
         if (GetVectorLength(vVelocity) <= 0.0)
         {
-            ZP_CreateWeaponKickBack(client, 3.5, 2.5, 0.15, 0.05, 5.5, 4.5, 7);
+            ZP_CreateWeaponKickBack(client, 2.5, 1.5, 0.15, 0.05, 5.5, 4.5, 7);
         }
         else if (!(iFlags & FL_ONGROUND))
         {
-            ZP_CreateWeaponKickBack(client, 6.0, 4.0, 0.4, 0.15, 7.0, 5.0, 5);
+            ZP_CreateWeaponKickBack(client, 4.0, 3.0, 0.4, 0.15, 7.0, 5.0, 5);
             flInaccuracy = 0.02;
             flSpread = 0.05;
         }
         else if (iFlags & FL_DUCKING)
         {
-            ZP_CreateWeaponKickBack(client, 3.5, 1.5, 0.1, 0.025, 5.5, 6.5, 9);
+            ZP_CreateWeaponKickBack(client, 2.5, 0.5, 0.1, 0.025, 5.5, 6.5, 9);
             flInaccuracy = 0.01;
         }
         else
         {
-            ZP_CreateWeaponKickBack(client, 3.75, 2.8, 0.14, 0.0375, 5.75, 5.75, 8);
+            ZP_CreateWeaponKickBack(client, 2.75, 1.8, 0.14, 0.0375, 5.75, 5.75, 8);
         }
         
         // Create a bullet
@@ -487,7 +486,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
     GetClientEyeAngles(client, vAngle);
 
     // Emulate bullet shot
-    UTIL_FireBullets(client, PTaH_GetEconItemViewFromWeapon(weapon), vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, 0.0, 0, GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex"));
+    ZP_FireBullets(client, weapon, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, 0.0, 0, GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex"));
 }
 
 void Weapon_OnCreateBeam(int client, int weapon)

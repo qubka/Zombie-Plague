@@ -435,7 +435,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
 
             // Show option
             IntToString(iD, sInfo, sizeof(sInfo));
-            hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || WeaponsValidateByID(client, iD) || gClientData[client].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD) || gClientData[client].Money < WeaponsGetCost(iD) ? false : true));
+            hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || WeaponsValidateByID(client, iD) || gClientData[client].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD)) || gClientData[client].Money < WeaponsGetCost(iD)) ? false : true));
         }
         
         // Increment amount

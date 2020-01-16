@@ -1200,6 +1200,57 @@ bool ToolsIsBSPModel(int entity)
 }
 
 /**
+ * @brief Emulate bullet_shot on the server and does the damage calculations.
+ *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ * @param vPosition         The position to the spawn.
+ * @param vAngle            The angle to the spawn.
+ * @param iMode             The mode index.
+ * @param iSeed             The randomizing seed.
+ * @param flInaccuracy      The inaccuracy variable.
+ * @param flSpread          The spread variable.
+ * @param flFishTail        The fishtail variable.
+ * @param iSoundType        The sound type.
+ * @param flRecoilIndex     The recoil variable.
+ **/
+void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3], int iMode, int iSeed, float flInaccuracy, float flSpread, float flFishTail, int iSoundType, float flRecoilIndex)
+{
+    // Create a bullet decal
+    TE_Start("Shotgun Shot");
+    TE_WriteVector("m_vecOrigin", vPosition);
+    TE_WriteFloat("m_vecAngles[0]", vAngle[0]);
+    TE_WriteFloat("m_vecAngles[1]", vAngle[1]);
+    TE_WriteNum("m_weapon", GetEntProp(weapon, Prop_Send, "m_Item"));
+    TE_WriteNum("m_iMode", iMode);
+    TE_WriteNum("m_iSeed", iSeed);
+    TE_WriteNum("m_iPlayer", client - 1);
+    TE_WriteFloat("m_fInaccuracy", flInaccuracy);
+    TE_WriteFloat("m_fSpread", flSpread);
+    TE_WriteNum("m_iSoundType", iSoundType);
+    TE_WriteFloat("m_flRecoilIndex", flRecoilIndex);
+    TE_WriteNum("m_nItemDefIndex", GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"));
+    TE_SendToAll();
+
+    // Disable the lag compensation and store the status
+    bool bLock = view_as<bool>(GetEntProp(client, Prop_Data, "m_bLagCompensation"));
+    SetEntProp(client, Prop_Data, "m_bLagCompensation", false);
+    
+    // Validate windows
+    if (gServerData.Platform == OS_Windows)
+    {
+        // Write a new function in free memory and call it
+        memcpy(pFireBullets, ASMTRAMPOLINE, sizeof(ASMTRAMPOLINE));
+    }
+
+    // Emulate bullet_shot on the server
+    SDKCall(hSDKCallFireBullets, client, weapon, 0/*CEconItemView*/, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, flFishTail, 0.0, iSoundType, flRecoilIndex);
+    
+    // Reset the lag compensation back
+    SetEntProp(client, Prop_Data, "m_bLagCompensation", bLock);
+}
+
+/**
  * @brief Sets the player progress bar.
  *
  * @param client            The client index.

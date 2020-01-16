@@ -36,6 +36,7 @@ Handle hSDKCallResetSequence;
 Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallUpdateTransmitState;
 Handle hSDKCallIsBSPModel;
+Handle hSDKCallFireBullets;
 Handle hSDKCallSetProgressBarTime;
 
 /**
@@ -48,12 +49,26 @@ Address pHealth;
 Address pClip;
 Address pPrimary;
 Address pSecondary;
+Address pFireBullets;
 int Player_Spotted;
 int Player_SpottedByMask;
 int SendProp_iBits; 
 int Animating_StudioHdr;
 int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
+
+/**
+ * @brief FX_FireBullets translator.
+ * @link http://shell-storm.org/online/Online-Assembler-and-Disassembler/
+ * 
+ * @code 58                pop eax
+ *       59                pop ecx
+ *       5A                pop edx
+ *       50                push eax
+ *       B8 00 00 00 00    mov eax, 0x0 ; in 0x0, write the address of the "FX_FireBullets" function
+ *       FF E0             jmp eax
+ **/
+char ASMTRAMPOLINE[NORMAL_LINE_LENGTH] = "\x58\x59\x5a\x50\xb8\x00\x00\x00\x00\xff\xe0";
 
 /**
  * @section StudioHdr structure.
@@ -261,6 +276,78 @@ void ToolsOnInit(/*void*/)
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
         return;
     }
+    
+    /*__________________________________________________________________________________________________*/
+    
+    // Validate windows
+    if (gServerData.Platform == OS_Windows)
+    {
+        // Find address of a signature
+        Address pSignature;
+        fnInitGameConfAddress(gServerData.Config, pSignature, "FX_FireBullets");
+        
+        /// Create a memory for the trampoline
+        pFireBullets = fnCreateMemoryForSDKCall();
+       
+        // Starts the preparation of an SDK call
+        StartPrepSDKCall(SDKCall_Static);
+        PrepSDKCall_SetAddress(pFireBullets);
+        
+        // Adds a parameter to the calling convention. This should be called in normal ascending order
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+        PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+
+        // Validate call
+        if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
+        {
+            // Log failure
+            LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
+            return;
+        }
+       
+        // Replace 0x0 by the sig address
+        writeDWORD(ASMTRAMPOLINE, pSignature, 5);
+    }
+    else
+    {
+        // Starts the preparation of an SDK call
+        StartPrepSDKCall(SDKCall_Static);
+        PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "FX_FireBullets");
+        
+        // Adds a parameter to the calling convention. This should be called in normal ascending order
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+        PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+        PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+        
+        // Validate call
+        if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
+        {
+            // Log failure
+            LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
+            return;
+        }
+    }
 
     /*__________________________________________________________________________________________________*/
 
@@ -389,6 +476,7 @@ void ToolsOnNativeInit(/*void*/)
     CreateNative("ZP_GetSequenceActivity",  API_GetSequenceActivity);
     CreateNative("ZP_GetSequenceCount",     API_GetSequenceCount);
     CreateNative("ZP_IsBSPModel",           API_IsBSPModel);
+    CreateNative("ZP_FireBullets",          API_FireBullets);
     CreateNative("ZP_UpdateTransmitState",  API_UpdateTransmitState);
     CreateNative("ZP_RespawnPlayer",        API_RespawnPlayer);
     CreateNative("ZP_FindPlayerInSphere",   API_FindPlayerInSphere);
@@ -644,6 +732,45 @@ public int API_IsBSPModel(Handle hPlugin, int iNumParams)
     
     // Is it brush ?
     return ToolsIsBSPModel(entity);
+}
+
+/**
+ * @brief Emulate bullet_shot on the server and does the damage calculations.
+ *
+ * @note native void ZP_FireBullets(clientIndex, weaponIndex, origin, angle, mode, seed, inaccuracy, spread, sound);
+ **/
+public int API_FireBullets(Handle hPlugin, int iNumParams)
+{
+    // Gets real player index from native cell 
+    int client = GetNativeCell(1);
+
+    // Validate client
+    if(!IsPlayerExist(client))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
+        return;
+    }
+    
+    // Gets weapon index from native cell 
+    int weapon = GetNativeCell(2);
+    
+    // Validate weapon
+    if(!IsValidEdict(weapon))
+    {
+        LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the weapon index (%d)", weapon);
+        return;
+    }
+    
+    // Gets origin vector
+    static float vPosition[3];
+    GetNativeArray(3, vPosition, sizeof(vPosition));
+    
+    // Gets angle vector
+    static float vAngle[3];
+    GetNativeArray(4, vAngle, sizeof(vAngle));
+    
+    // Emulate fire bullets
+    ToolsFireBullets(client, weapon, vPosition, vAngle, GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9), GetNativeCell(10), GetNativeCell(11));
 }
 
 /**

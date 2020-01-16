@@ -333,19 +333,19 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
             // Apply kick back
             if (GetVectorLength(vVelocity) <= 0.0)
             {
-                ZP_CreateWeaponKickBack(client, 6.5, 5.45, 5.225, 5.05, 6.5, 7.5, 7);
+                ZP_CreateWeaponKickBack(client, 2.5, 1.5, 0.15, 0.05, 5.5, 4.5, 7);
             }
             else if (!(iFlags & FL_ONGROUND))
             {
-                ZP_CreateWeaponKickBack(client, 7.0, 5.0, 5.5, 5.35, 14.0, 11.0, 5);
+                ZP_CreateWeaponKickBack(client, 4.0, 3.0, 0.4, 0.15, 7.0, 5.0, 5);
             }
             else if (iFlags & FL_DUCKING)
             {
-                ZP_CreateWeaponKickBack(client, 5.9, 5.35, 5.15, 5.025, 10.5, 6.5, 9);
+                ZP_CreateWeaponKickBack(client, 2.5, 0.5, 0.1, 0.025, 5.5, 6.5, 9);
             }
             else
             {
-                ZP_CreateWeaponKickBack(client, 5.0, 5.375, 5.175, 5.0375, 10.75, 1.75, 8);
+                ZP_CreateWeaponKickBack(client, 2.75, 1.8, 0.14, 0.0375, 5.75, 5.75, 8);
             }
             
             // Start an effect
