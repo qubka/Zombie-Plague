@@ -36,7 +36,7 @@
                 "windows"   "360"
                 "linux"     "366"
             }
-            "CEconItemDefinition::GetDefinitionIndex"
+            "CEconItemDefinition::GetDefinitionIndex" // Str: "attached_particlesystem"
             {
                 "windows"   "0"
                 "linux"     "0"
