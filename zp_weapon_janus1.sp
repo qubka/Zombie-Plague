@@ -248,7 +248,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
             SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
 
             // Play sound
-            ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+            ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
 
             // Show message
             SetGlobalTransTarget(client);

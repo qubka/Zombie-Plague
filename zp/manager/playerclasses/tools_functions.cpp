@@ -1227,7 +1227,7 @@ void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3
     TE_WriteNum("m_iPlayer", client - 1);
     TE_WriteFloat("m_fInaccuracy", flInaccuracy);
     TE_WriteFloat("m_fSpread", flSpread);
-    TE_WriteNum("m_iSoundType", iSoundType);
+    TE_WriteNum("m_iSoundType", 12); /// silenced
     TE_WriteFloat("m_flRecoilIndex", flRecoilIndex);
     TE_WriteNum("m_nItemDefIndex", GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"));
     TE_SendToAll();
@@ -1242,7 +1242,7 @@ void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3
         // Write a new function in free memory and call it
         memcpy(pFireBullets, ASMTRAMPOLINE, sizeof(ASMTRAMPOLINE));
     }
-
+    
     // Emulate bullet_shot on the server
     SDKCall(hSDKCallFireBullets, client, weapon, 0/*CEconItemView*/, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, flFishTail, 0.0, iSoundType, flRecoilIndex);
     
