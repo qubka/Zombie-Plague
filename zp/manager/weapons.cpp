@@ -175,8 +175,6 @@ void WeaponsOnCacheData(/*void*/)
     
     // On windows/mac this is actually ItemSystem() + sizeof(void *) is ItemSchema
     Address pItemSchema = (gServerData.Platform == OS_Linux) ? view_as<Address>(SDKCall(hSDKCallGetItemSchema)) : view_as<Address>(SDKCall(hSDKCallGetItemSchema) + 4);
-    Address pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, "weapon_deagle")); /// ItemDef_Deagle
-    int x = SDKCall(hSDKCallGetItemDefinitionIndex, pItem) - 1; /// Some weird shit for fixing fucking Windows
     
     // i = array index
     for (int i = 0; i < iSize; i++)
@@ -212,13 +210,13 @@ void WeaponsOnCacheData(/*void*/)
         }
         arrayWeapon.PushString(sPathWeapons);                                 // Index: 1
         kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
-        pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sPathWeapons));
+        Address pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sPathWeapons));
         if (pItem == Address_Null)
         {
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
-        }
-        arrayWeapon.Push(SDKCall(hSDKCallGetItemDefinitionIndex, pItem) - x); // Index: 2
+        }                                                                     // Index: 2
+        arrayWeapon.Push(LoadFromAddress(pItem + view_as<Address>(ItemDef_Index), NumberType_Int16)); 
         kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                                 // Index: 3
         kvWeapons.GetString("class", sPathWeapons, sizeof(sPathWeapons), "human");

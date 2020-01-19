@@ -36,10 +36,10 @@
                 "windows"   "360"
                 "linux"     "366"
             }
-            "CEconItemDefinition::GetDefinitionIndex" // Str: "attached_particlesystem"
+            "CEconItemDefinition::GetDefinitionIndex"
             {
-                "windows"   "0"
-                "linux"     "0"
+                "windows"   "8"
+                "linux"     "8"
             }
             "CParticleSystemDictionary::Count" // Str: "PrecacheStandardParticleSystems()"
             {

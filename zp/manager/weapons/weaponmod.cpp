@@ -89,13 +89,13 @@ Handle hSDKCallGetItemSchema;
 Handle hSDKCallSpawnItem;
 Handle hSDKCallWeaponSwitch;
 Handle hSDKCallGetSlot;
-Handle hSDKCallGetItemDefinitionIndex;
 Handle hSDKCallGetItemDefinitionByName;
 
 /**
  * Variables to store virtual SDK adresses.
  **/
 int Player_ViewModel;
+int ItemDef_Index;
 
 /**
  * Variables to store DHook calls handlers.
@@ -198,21 +198,6 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
         return;
     }
     
-    // Starts the preparation of an SDK call
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CEconItemDefinition::GetDefinitionIndex");
-    
-    // Adds a parameter to the calling convention. This should be called in normal ascending order
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-    
-    // Validate call
-    if ((hSDKCallGetItemDefinitionIndex = EndPrepSDKCall()) == null)
-    {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CEconItemDefinition::GetDefinitionIndex\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }
-    
     /*_________________________________________________________________________________________________________________________________________*/
 
     // Starts the preparation of an SDK call
@@ -235,7 +220,8 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 
     // Load weapon offsets
     fnInitSendPropOffset(Player_ViewModel, "CBasePlayer", "m_hViewModel");
-
+    fnInitGameConfOffset(gServerData.Config, ItemDef_Index, "CEconItemDefinition::GetDefinitionIndex");
+    
     // Load other offsets
     fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
     fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
