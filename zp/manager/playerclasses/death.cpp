@@ -403,6 +403,6 @@ void DeathCreateIcon(int userID, int attackerID, char[] sIcon, bool bHead = fals
         }
         
         // Close it
-        hEvent.Close();
+        hEvent.Cancel();
     }
 }
