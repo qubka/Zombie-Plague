@@ -2525,7 +2525,7 @@ void WeaponsSwitch(int client, int weapon)
 bool WeaponsRemove(int client)
 {
     // Initialize variables
-    int iAmount; int bRemove;
+    int iAmount; bool bRemove;
     
     // i = weapon number
     int iSize = ToolsGetMyWeapons(client); 

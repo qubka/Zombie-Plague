@@ -756,9 +756,9 @@ public Action MineUpdateHook(Handle hTimer, int refID)
                 // Play sound
                 ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, hSoundLevel.IntValue);
                 
-                // Validate power
-                float flPower = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon) * WEAPON_MINE_DAMAGE; 
-                if (flPower <= 0.0)
+                // Validate force
+                float flForce = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon); 
+                if (flForce <= 0.0)
                 {
                     return;
                 }
@@ -773,7 +773,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
                     NormalizeVector(vVelocity, vVelocity);
 
                     // Apply the magnitude by scaling the vector
-                    ScaleVector(vVelocity, flPower);
+                    ScaleVector(vVelocity, flForce);
                     
                     // Gets client velocity
                     GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vSpeed);
@@ -787,11 +787,11 @@ public Action MineUpdateHook(Handle hTimer, int refID)
                 else
                 {
                     // Validate max
-                    if (flPower > 100.0) flPower = 100.0;
-                    else if (flPower <= 0.0) return;
+                    if (flForce > 100.0) flForce = 100.0;
+                    else if (flForce <= 0.0) return;
             
                     // Apply the stamina-based slowdown
-                    SetEntPropFloat(victim, Prop_Send, "m_flStamina", flPower);
+                    SetEntPropFloat(victim, Prop_Send, "m_flStamina", flForce);
                 }
             }
             

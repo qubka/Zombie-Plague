@@ -208,7 +208,7 @@ public void MenusOnConfigReload(/*void*/)
 void MenusOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_main_menu", MenusOnCommandCatched, "Opens the main menu.");
+    RegConsoleCmd("zmenu", MenusOnCommandCatched, "Opens the main menu.");
 }
 
 /**
@@ -261,7 +261,7 @@ void MenusOnCvarLoad(/*void*/)
  */
 
 /**
- * Console command callback (zp_main_menu)
+ * Console command callback (zmenu)
  * @brief Opens the main menu.
  * 
  * @param client            The client index.

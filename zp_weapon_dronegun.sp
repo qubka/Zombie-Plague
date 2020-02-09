@@ -1402,9 +1402,9 @@ methodmap SentryGun /** Regards to Pelipoika **/
                 // Validate victim
                 if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
                 {
-                    // Validate power
-                    float flPower = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon) * SENTRY_BULLET_DAMAGE; 
-                    if (flPower <= 0.0)
+                    // Validate force
+                    float flForce = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon); 
+                    if (flForce <= 0.0)
                     {
                         return;
                     }
@@ -1419,7 +1419,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
                         NormalizeVector(vVelocity, vVelocity);
 
                         // Apply the magnitude by scaling the vector
-                        ScaleVector(vVelocity, flPower);
+                        ScaleVector(vVelocity, flForce);
                         
                         // Gets client velocity
                         GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vSpeed);
@@ -1433,11 +1433,11 @@ methodmap SentryGun /** Regards to Pelipoika **/
                     else
                     {
                         // Validate max
-                        if (flPower > 100.0) flPower = 100.0;
-                        else if (flPower <= 0.0) return;
+                        if (flForce > 100.0) flForce = 100.0;
+                        else if (flForce <= 0.0) return;
                 
                         // Apply the stamina-based slowdown
-                        SetEntPropFloat(victim, Prop_Send, "m_flStamina", flPower);
+                        SetEntPropFloat(victim, Prop_Send, "m_flStamina", flForce);
                     }
                 }
             }

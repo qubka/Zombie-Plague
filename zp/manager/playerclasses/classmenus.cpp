@@ -36,13 +36,13 @@
 void ClassMenusOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_human_menu", ClassHumanOnCommandCatched, "Opens the human classes menu.");
-    RegConsoleCmd("zp_zombie_menu", ClassZombieOnCommandCatched, "Opens the zombie classes menu.");
+    RegConsoleCmd("zhuman", ClassHumanOnCommandCatched, "Opens the human classes menu.");
+    RegConsoleCmd("zzombie", ClassZombieOnCommandCatched, "Opens the zombie classes menu.");
     RegConsoleCmd("zp_class_menu", ClassesOnCommandCatched, "Opens the classes menu.");
 }
 
 /**
- * Console command callback (zp_human_menu)
+ * Console command callback (zhuman)
  * @brief Opens the human classes menu.
  * 
  * @param client            The client index.
@@ -55,7 +55,7 @@ public Action ClassHumanOnCommandCatched(int client, int iArguments)
 }
 
 /**
- * Console command callback (zp_zombie_menu)
+ * Console command callback (zzombie)
  * @brief Opens the zombie classes menu.
  * 
  * @param client            The client index.
@@ -314,7 +314,7 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
 public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zp_zombie_menu", client, mSlot);
+   ClassMenuSlots(hMenu, mAction, "zzombie", client, mSlot);
 }
 
 /**
@@ -328,7 +328,7 @@ public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, int client, int
 public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zp_zombie_menu", client, mSlot, true);
+   ClassMenuSlots(hMenu, mAction, "zzombie", client, mSlot, true);
 }
 
 /**
@@ -342,7 +342,7 @@ public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, int client, int
 public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zp_human_menu", client, mSlot);
+   ClassMenuSlots(hMenu, mAction, "zhuman", client, mSlot);
 }
 
 /**
@@ -356,7 +356,7 @@ public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, int client, int 
 public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zp_human_menu", client, mSlot, true);
+   ClassMenuSlots(hMenu, mAction, "zhuman", client, mSlot, true);
 }
 
 /**
@@ -529,7 +529,7 @@ void ClassesMenu(int client)
         FormatEx(sBuffer, sizeof(sBuffer), "%N [%t]", i, IsPlayerAlive(i) ? sType : "dead");
 
         // Show option
-        IntToString(i, sInfo, sizeof(sInfo));
+        IntToString(GetClientUserId(i), sInfo, sizeof(sInfo));
         hMenu.AddItem(sInfo, sBuffer);
 
         // Increment amount
@@ -605,10 +605,10 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
             // Gets menu info
             static char sBuffer[SMALL_LINE_LENGTH];
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-            int target = StringToInt(sBuffer);
+            int target = GetClientOfUserId(StringToInt(sBuffer));
             
             // Validate target
-            if (IsPlayerExist(target, false))
+            if (target)
             {
                 // Validate dead
                 if (!IsPlayerAlive(target))
@@ -671,7 +671,7 @@ void ClassesOptionMenu(int client, int target)
         FormatEx(sBuffer, sizeof(sBuffer), "%t", sType);
         
         // Show option
-        FormatEx(sInfo, sizeof(sInfo), "%s:%d", sType, target);
+        FormatEx(sInfo, sizeof(sInfo), "%s¬%d", sType, GetClientUserId(target));
         hMenu.AddItem(sInfo, sBuffer);
     }
     
@@ -744,11 +744,11 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
             static char sBuffer[SMALL_LINE_LENGTH];
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
             static char sInfo[2][SMALL_LINE_LENGTH];
-            ExplodeString(sBuffer, ":", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-            int target = StringToInt(sInfo[1]);
+            ExplodeString(sBuffer, "¬", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+            int target = GetClientOfUserId(StringToInt(sInfo[1]));
 
             // Validate target
-            if (IsPlayerExist(target))
+            if (target && IsPlayerAlive(target))
             {
                 // Force client to update
                 ApplyOnClientUpdate(target, _, sInfo[0]);

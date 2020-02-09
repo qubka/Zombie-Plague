@@ -264,7 +264,7 @@ public void CostumesOnConfigReload(/*void*/)
 void CostumesOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_costume_menu", CostumesOnCommandCatched, "Opens the costumes menu.");
+    RegConsoleCmd("zcostume", CostumesOnCommandCatched, "Opens the costumes menu.");
 }
 
 /**
@@ -318,7 +318,7 @@ void CostumesOnClientDeath(int client)
 }
 
 /**
- * Console command callback (zp_costume_menu)
+ * Console command callback (zcostume)
  * @brief Opens the costumes menu.
  * 
  * @param client            The client index.
@@ -1087,7 +1087,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
             if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
-                int iD[2]; iD = MenusCommandToArray("zp_costume_menu");
+                int iD[2]; iD = MenusCommandToArray("zcostume");
                 if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }

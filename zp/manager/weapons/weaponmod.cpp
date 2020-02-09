@@ -652,6 +652,16 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
             // Block drop, if not available
             if (!WeaponsIsDrop(iD)) 
             {
+                // Validate melee, then remove on force drop
+                ItemDef iItem = WeaponsGetDefIndex(iD);
+                if (IsMelee(iItem))
+                {
+                    // Forces a player to remove weapon
+                    RemovePlayerItem(client, weapon);
+                    AcceptEntityInput(weapon, "Kill"); /// Destroy
+                }
+                
+                // Block drop
                 return Plugin_Handled;
             }
 
@@ -1262,20 +1272,20 @@ void WeaponMODOnFire(int client, int weapon)
             }
         }
         
+        // If weapon without any type of ammo, then stop
+        if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1 && WeaponsGetDefIndex(iD) != ItemDef_Taser) 
+        {
+            // Validate class ammunition mode
+            switch (ClassGetAmmunition(gClientData[client].Class))
+            {
+                case 0 : return;
+                case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
+                case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip1") + 1); } 
+            }
+        }
+        
         // Call forward
         gForwardData._OnWeaponFire(client, weapon, iD);
-    }
-
-    // If weapon without any type of ammo, then stop
-    if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1 && WeaponsGetDefIndex(iD) != ItemDef_Taser) 
-    {
-        // Validate class ammunition mode
-        switch (ClassGetAmmunition(gClientData[client].Class))
-        {
-            case 0 : return;
-            case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
-            case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip1") + 1); } 
-        }
     }
 }
 

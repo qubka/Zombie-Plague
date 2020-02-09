@@ -653,6 +653,133 @@
         "zho"           "已移除 \"{1}\" 從模塊過濾器。"
         "ro"            "Sters \"{1}\" de la filtrul modulelor."
     }
+    
+    // ===========================
+    // ZTele (module)
+    // ===========================
+
+    "ztele restricted escape" // Chat
+    {
+        "en"            "ZTele is restricted on non-escape modes."
+        "ru"            "ZTele огнаничен для режимов без выживания."
+        "chi"           "ZTele在非生存模式下具有防火功能。"
+        "zho"           "ZTele在非生存模式下具有防火功能。"
+        "ro"            "ZTele is restricted on non-escape modes."
+    }
+    
+    "ztele restricted zombie" // Chat
+    {
+        "en"            "ZTele is restricted for zombies at this time."
+        "ru"            "ZTele огнаничен для зомби."
+        "chi"           "ZTele目前僅適用於殭屍。"
+        "zho"           "ZTele目前仅适用于僵尸。"
+        "ro"            "ZTele este restricționat pentru zombi în acest moment."
+    }
+    
+    "ztele restricted human" // Chat
+    {
+        "en"            "ZTele is restricted for humans at this time."
+        "ru"            "ZTele огнаничен для людей."
+        "chi"           "ZTele目前仅限人类使用。"
+        "zho"           "ZTele目前仅限人类使用。"
+        "ro"            "ZTele este restricționat pentru oameni în acest moment."
+    }
+
+    "ztele max" // Chat
+    {
+        "#format"       "{1:d}"
+        "en"            "You have reached your max of @red{1} @defaultteleport(s) per round."
+        "ru"            "Вы достигли своего максимума @red{1} @defaultтелепорта(ов) за раунд."
+        "chi"           "您已达到每回合@red{1}@default个传送的最大值。"
+        "zho"           "您已达到每回合@red{1}@default个传送的最大值。"
+        "ro"            "Ați atins valoarea maximă a @red{1} @defaultteleportării(teleportărilor) per rundă."
+    }
+
+    "ztele in progress" // Chat
+    {
+        "en"            "You are currently pending teleportation."
+        "ru"            "В данный момент вы ожидаете телепортации."
+        "chi"           "您当前正在等待传送。"
+        "zho"           "您当前正在等待传送。"
+        "ro"            "Sunteți în curs de teleportare."
+    }
+
+    "ztele autocancel text" // Chat
+    {
+        "#format"       "{1:d}"
+        "en"            "Teleport has been cancelled. (Restrictive boundary is @red{1}@lgreenft@default.)"
+        "ru"            "Телепортация отменена. (Ограничительная граница @red{1}@lgreenмт@default.)"
+        "chi"           "传送已被取消。 （限制边界为@red{1}@lgreen英尺@default。）"
+        "zho"           "传送已被取消。 （限制边界为@red{1}@lgreen英尺@default。）"
+        "ro"            "Teleportarea a fost anulată. (Restrictionary boundary is @red{1}@lgreenft@default.)"
+    }
+
+    "ztele countdown" // Hint
+    {
+        "#format"       "{1:d}"
+        "en"            "Teleporting back to spawn in: <font color='#FF0000'>{1}</font> sec."
+        "ru"            "Телепортация обратно на спавн за: <font color='#FF0000'>{1}</font> сек."
+        "chi"           "传送回城： <font color='#FF0000'>{1}</font>秒。"
+        "zho"           "传送回城： <font color='#FF0000'>{1}</font>秒。"
+        "ro"            "Teleportare înapoi la icre în: <font color='#FF0000'>{1}</font> sec."
+    }
+
+    "ztele autocancel centertext" // Hint
+    {
+        "en"            "Teleport has been cancelled."
+        "ru"            "Телепортация отменена."
+        "chi"           "传送已被取消。"
+        "zho"           "传送已被取消。"
+        "ro"            "Teleportarea a fost anulată."
+    }
+
+    "ztele countdown end" // Hint
+    {
+        "#format"       "{1:d},{2:d}"
+        "en"            "Teleported back to spawn. (Count: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
+        "ru"            "Телепортировался обратно на cпавн. (Кол-во: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
+        "chi"           "传送回生成。 （计数： <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>）"
+        "zho"           "传送回生成。 （计数： <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>）"
+        "ro"            "Teleportat înapoi la icre. (Număr: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
+    }
+
+    "ztele command force syntax" // Console
+    {
+        "en"            "Force ZTele on a client. Usage: zp_ztele_force <client>"
+        "ru"            "Телепортировать клиента. Использование: zp_ztele_force <client>"
+        "chi"           "在客户端上强制ZTele。 用法： zp_ztele_force <client>"
+        "zho"           "在客户端上强制ZTele。 用法： zp_ztele_force <client>"
+        "ro"            "Forțează ZTele pe un client. Utilizare: zp_ztele_force <client>"
+    }
+
+    "ztele command force successful" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "Player {1} was successfully teleported."
+        "ru"            "Игрок {1} был успешно телепортирован."
+        "chi"           "玩家{1}已成功传送。"
+        "zho"           "玩家{1}已成功传送。"
+        "ro"            "Jucătorul {1} a fost teleportat cu succes."
+    }
+
+    "ztele command force unsuccessful" // Console
+    {
+        "#format"       "{1:s}"
+        "en"            "Player {1} couldn't be teleported."
+        "ru"            "Игрока {1} нельзя было телепортировать."
+        "chi"           "玩家{1}无法被传送。"
+        "zho"           "玩家{1}无法被传送。"
+        "ro"            "Jucătorul {1} nu a putut fi teleportat."
+    }
+    
+    "ztele invalid client" // Console
+    {
+        "en"            "Players couldn't be found."
+        "ru"            "Игроков найти не удалось."
+        "chi"           "找不到玩家。"
+        "zho"           "找不到玩家。"
+        "ro"            "Jucătorii nu au putut fi găsiți."
+    }
 
     // ===========================
     // Config (core)
@@ -920,6 +1047,15 @@
         "ro"            "Masti/costume"
     }
     
+    "help menu" // Menu
+    {
+        "en"            "Help!"
+        "ru"            "Помощь!"
+        "chi"           "幫忙！"
+        "zho"           "帮忙！"
+        "ro"            "Ajutor!"
+    }
+    
     "unstucks menu" // Menu
     {
         "en"            "Unstuck!"
@@ -927,6 +1063,15 @@
         "chi"           "逃脱！"
         "zho"           "逃脫！"
         "ro"            "Deblocare!"
+    }
+    
+    "ztele menu" // Menu
+    {
+        "en"            "Teleport!"
+        "ru"            "Телепорт!"
+        "chi"           "傳送！"
+        "zho"           "传送！"
+        "ro"            "Teleportare!"
     }
     
     "donates menu" // Menu
@@ -2493,16 +2638,7 @@
         "zho"           "拳頭"
         "ro"            "Maini"
     }
-    
-    "ghost knife" // Menu
-    {
-        "en"            "Ghost Knife"
-        "ru"            "Нож призрака"
-        "chi"           "幽灵之刀"
-        "zho"           "幽靈之刀"
-        "ro"            "Cutit fantoma"
-    }
-    
+
     "zombie claw" // Menu
     {
         "en"            "Zombie Claw"
@@ -2539,7 +2675,7 @@
         "ro"            "Knife T"
     }
     
-    "knifegg" // Menu
+    "knife gg" // Menu
     {
         "en"            "Gold Knife"
         "ru"            "Золотой нож"
@@ -2981,129 +3117,129 @@
     "turret control" // Menu (translated)
     {
         "#format"       "{1:d},{2:t},{3:d},{4:t}"
-	    "en"	        "Upgrade: [{1}{2}] | Refill: [{3}{4}]"
+         "en"             "Upgrade: [{1}{2}] | Refill: [{3}{4}]"
         "ru"            "Улучшение: [{1}{2}] | Перезарядка: [{3}{4}]"
         "chi"           "升級： [{1}{2}] | 補充： [{3}{4}]"
         "zho"           "升级： [{1}{2}] | 补充： [{3}{4}]"
         "ro"            "Actualizați: [{1}{2}] | Reîncărcați: [{3}{4}]"
-	}
+     }
     
     "turret level" // Menu
     {
         "#format"       "{1:d}"   
-	    "en"	        "Level: [{1}]"
+         "en"             "Level: [{1}]"
         "ru"            "Уровень: [{1}]"
         "chi"           "水平: [{1}]"
         "zho"           "水平: [{1}]"
         "ro"            "Nivel: [{1}]"
-	}
+     }
     
     "turret hp" // Menu
     {
         "#format"       "{1:d}"   
-	    "en"	        "HP: [{1}]"
+         "en"             "HP: [{1}]"
         "ru"            "Здоровье: [{1}]"
         "chi"           "惠普：[{1}]"
         "zho"           "惠普：[{1}]"
         "ro"            "Sănătate: [{1}]"
-	}
+     }
     
     "turret ammo" // Menu
     {
         "#format"       "{1:d}"   
-	    "en"	        "Ammo: [{1}]"
+         "en"             "Ammo: [{1}]"
         "ru"            "Патроны: [{1}]"
         "chi"           "彈藥： [{1}]"
         "zho"           "弹药： [{1}]"
         "ro"            "Muniții: [{1}]"
-	}
+     }
     
     "turret rockets" // Menu
     {
         "#format"       "{1:d}"   
-	    "en"	        "Rocket: [{1}]"
+         "en"             "Rocket: [{1}]"
         "ru"            "Ракеты: [{1}]"
         "chi"           "火箭： [{1}]"
         "zho"           "火箭： [{1}]"
         "ro"            "Rachetă: [{1}]"
-	}
+     }
     
     // ===========================
     // Grenades (addon)
     // ===========================
     
     "grenade mode" // Hint (no color) (translated)
-	{
+     {
         "#format"       "{1:t}"   
-	    "en"	        "Mode: {1}"
+         "en"             "Mode: {1}"
         "ru"            "Режим: {1}"
         "chi"           "模式: {1}"
         "zho"           "模式: {1}"
         "ro"            "Mod: {1}"
-	}
+     }
     
-	"normal" // Hint (no color)
-	{
-		"en"	        "Normal"
+     "normal" // Hint (no color)
+     {
+          "en"             "Normal"
         "ru"            "Нормальный"
         "chi"           "正常"
         "zho"           "正常"
         "ro"            "Normal"
-	}
+     }
     
-	"impact" // Hint (no color)
-	{
-		"en"	        "Instant"
+     "impact" // Hint (no color)
+     {
+          "en"             "Instant"
         "ru"            "Мгновенный"
         "chi"           "瞬間"
         "zho"           "瞬间"
         "ro"            "Clipă"
-	}
+     }
     
-	"proximity" // Hint (no color)
-	{
-		"en"	        "Proximity"
+     "proximity" // Hint (no color)
+     {
+          "en"             "Proximity"
         "ru"            "Близость"
         "chi"           "接近"
         "zho"           "接近"
         "ro"            "Proximitate"
-	}
+     }
     
-	"trip wire" // Hint (no color)
-	{
-		"en"	        "Trip wire"
+     "trip wire" // Hint (no color)
+     {
+          "en"             "Trip wire"
         "ru"            "Растяжка"
         "chi"           "跳線"
         "zho"           "跳线"
         "ro"            "Sârmă de tragere"
-	}
+     }
 
-	"satchel charge" // Hint (no color)
-	{
-		"en"	        "Satchel charge"
+     "satchel charge" // Hint (no color)
+     {
+          "en"             "Satchel charge"
         "ru"            "Удаленный заряд"
         "chi"           "旅行電線"
         "zho"           "挎包充电"
         "ro"            "Satchel taxă"
-	}
+     }
     
-	"homing" // Hint (no color)
-	{
-		"en"	        "Homing"
+     "homing" // Hint (no color)
+     {
+          "en"             "Homing"
         "ru"            "Наведение"
         "chi"           "歸巢"
         "zho"           "归巢"
         "ro"            "Homing"
-	}
+     }
     
-	"motion sensor" // Hint (no color)
-	{
-		"en"	        "Motion sensor"
+     "motion sensor" // Hint (no color)
+     {
+          "en"             "Motion sensor"
         "ru"            "Датчик движения"
         "chi"           "運動傳感器"
         "zho"           "运动传感器"
         "ro"            "Senzor de mișcare"
-	}
+     }
     
     // ===========================
     // Jet-pack (addon)

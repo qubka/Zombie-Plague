@@ -239,3 +239,37 @@ public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast)
     // Forward event to modules
     ApplyOnClientSpawn(client);
 }
+
+/**
+ * @brief Teleport client to a random spawn position.
+ * 
+ * @param client            The client index.
+ **/
+void SpawnTeleportToRespawn(int client)
+{
+    // Initialize vectors
+    static float vPosition[3]; float vMaxs[3]; float vMins[3]; 
+
+    // Gets client's min and max size vector
+    GetClientMins(client, vMins);
+    GetClientMaxs(client, vMaxs);
+
+    // i = origin index
+    int iSize = gServerData.Spawns.Length;
+    for (int i = 0; i < iSize; i++)
+    {
+        // Gets random array
+        gServerData.Spawns.GetArray(i, vPosition, sizeof(vPosition));
+        
+        // Create the hull trace
+        TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, client);
+        
+        // Returns if there was any kind of collision along the trace ray
+        if (!TR_DidHit())
+        {
+            // Teleport player back on the spawn point
+            TeleportEntity(client, vPosition, NULL_VECTOR, NULL_VECTOR);
+            return;
+        }
+    }
+}

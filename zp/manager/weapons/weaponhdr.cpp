@@ -286,7 +286,7 @@ void WeaponHDRSetWeaponVisibility(int weapon, bool bInvisible)
 /**
  * @brief Generate a new sequence for the (any) custom viewmodels.
  * 
- * @author This algorithm made by Andersso.
+ * @author This algorithm made by 'Andersso'.
  *
  * @param iSequences        The sequence array.
  * @param iSequenceCount    The sequence count.

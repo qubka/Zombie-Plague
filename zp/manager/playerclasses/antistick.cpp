@@ -104,7 +104,7 @@ void AntiStickOnClientInit(int client)
 void AntiStickOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_antistick_prop", AntiStickOnCommandCatched, "Unstucks player from the another prop.");
+    RegConsoleCmd("zstuck", AntiStickOnCommandCatched, "Unstucks player from the another prop.");
 }
 
 /**
@@ -239,7 +239,7 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
 }
 
 /**
- * Console command callback (zp_antistick_prop)
+ * Console command callback (zstuck)
  * @brief Unstucks player from the another prop.
  * 
  * @param client            The client index.
@@ -282,13 +282,13 @@ public Action AntiStickOnCommandCatched(int client, int iArguments)
         }
 
         // Teleport player back on the spawn point
-        AntiStickTeleportToRespawn(client);
+        SpawnTeleportToRespawn(client);
     }
     else
     {
         // Show block info
         TranslationPrintHintText(client, "unstucking prop block");
-                
+        
         // Emit error sound
         ClientCommand(client, "play buttons/button10.wav");    
     }
@@ -301,40 +301,6 @@ public Action AntiStickOnCommandCatched(int client, int iArguments)
  * Stocks antistick API.
  */
  
-/**
- * @brief Teleport client to a random spawn position.
- * 
- * @param client            The client index.
- **/
-void AntiStickTeleportToRespawn(int client)
-{
-    // Initialize vectors
-    static float vPosition[3]; float vMaxs[3]; float vMins[3]; 
-
-    // Gets client's min and max size vector
-    GetClientMins(client, vMins);
-    GetClientMaxs(client, vMaxs);
-
-    // i = origin index
-    int iSize = gServerData.Spawns.Length;
-    for (int i = 0; i < iSize; i++)
-    {
-        // Gets random array
-        gServerData.Spawns.GetArray(i, vPosition, sizeof(vPosition));
-        
-        // Create the hull trace
-        TR_TraceHullFilter(vPosition, vPosition, vMins, vMaxs, MASK_SOLID, AntiStickFilter, client);
-        
-        // Returns if there was any kind of collision along the trace ray
-        if (!TR_DidHit())
-        {
-            // Teleport player back on the spawn point
-            TeleportEntity(client, vPosition, NULL_VECTOR, NULL_VECTOR);
-            return;
-        }
-    }
-}
-
 /**
  * @brief Build the model box by finding all vertices.
  * 

@@ -68,14 +68,14 @@ void ZMarketOnClientUpdate(int client)
 void ZMarketOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_rebuy_menu", ZMarketRebuyOnCommandCatched, "Opens the rebuy menu.");
-    RegConsoleCmd("zp_pistol_menu", ZMarketPistolsOnCommandCatched, "Opens the pistols menu.");
-    RegConsoleCmd("zp_shotgun_menu", ZMarketShotgunsOnCommandCatched, "Opens the shotguns menu.");
-    RegConsoleCmd("zp_rifle_menu", ZMarketRiflesOnCommandCatched, "Opens the rifles menu.");
-    RegConsoleCmd("zp_sniper_menu", ZMarketSnipersOnCommandCatched, "Opens the snipers menu.");
-    RegConsoleCmd("zp_machinegun_menu", ZMarketMachinegunsOnCommandCatched, "Opens the machineguns menu.");
-    RegConsoleCmd("zp_knife_menu", ZMarketKnifesOnCommandCatched, "Opens the knifes menu.");
-    RegConsoleCmd("zp_equipment_menu", ZMarketEquipsOnCommandCatched, "Opens the equipments menu.");
+    RegConsoleCmd("zrebuy", ZMarketRebuyOnCommandCatched, "Opens the rebuy menu.");
+    RegConsoleCmd("zpistol", ZMarketPistolsOnCommandCatched, "Opens the pistols menu.");
+    RegConsoleCmd("zshotgun", ZMarketShotgunsOnCommandCatched, "Opens the shotguns menu.");
+    RegConsoleCmd("zrifle", ZMarketRiflesOnCommandCatched, "Opens the rifles menu.");
+    RegConsoleCmd("zsniper", ZMarketSnipersOnCommandCatched, "Opens the snipers menu.");
+    RegConsoleCmd("zmach", ZMarketMachinegunsOnCommandCatched, "Opens the machineguns menu.");
+    RegConsoleCmd("zknife", ZMarketKnifesOnCommandCatched, "Opens the knifes menu.");
+    RegConsoleCmd("zequip", ZMarketEquipsOnCommandCatched, "Opens the equipments menu.");
 }
 
 /**
@@ -152,7 +152,7 @@ public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArgum
         gCvarList.ACCOUNT_BUY_ANYWHERE.ReplicateToClient(client, "0");
         
         // Opens weapon menu
-        int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+        int iD[2]; iD = MenusCommandToArray("zpistol");
         if (iD[0] != -1) SubMenu(client, iD[0]);
         
         // Sets timer for reseting command
@@ -198,7 +198,7 @@ public Action CS_OnBuyCommand(int client, const char[] sName)
 }
 
 /**
- * Console command callback (zp_rebuy_menu)
+ * Console command callback (zrebuy)
  * @brief Changes the rebuy state.
  * 
  * @param client            The client index.
@@ -289,7 +289,7 @@ public Action ZMarketKnifesOnCommandCatched(int client, int iArguments)
 }
 
 /**
- * Console command callback (zp_equipment_menu)
+ * Console command callback (zequip)
  * @brief Opens the equipments menu.
  * 
  * @param client            The client index.
@@ -435,7 +435,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
 
             // Show option
             IntToString(iD, sInfo, sizeof(sInfo));
-            hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || WeaponsValidateByID(client, iD) || gClientData[client].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD)) || gClientData[client].Money < WeaponsGetCost(iD)) ? false : true));
+            hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || WeaponsValidateByID(client, iD) || gClientData[client].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD)) || (WeaponsGetCost(iD) && gClientData[client].Money < WeaponsGetCost(iD))) ? false : true));
         }
         
         // Increment amount
@@ -483,7 +483,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
             if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
-                int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+                int iD[2]; iD = MenusCommandToArray("zpistol");
                 if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
@@ -649,7 +649,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
             if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
-                int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+                int iD[2]; iD = MenusCommandToArray("zpistol");
                 if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
@@ -847,7 +847,7 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
             if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
-                int iD[2]; iD = MenusCommandToArray("zp_pistol_menu");
+                int iD[2]; iD = MenusCommandToArray("zpistol");
                 if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
@@ -862,11 +862,11 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
             }
 
             // Gets menu info
-            static char sInfo[SMALL_LINE_LENGTH];
-            hMenu.GetItem(mSlot, sInfo, sizeof(sInfo));
+            static char sBuffer[SMALL_LINE_LENGTH];
+            hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 
             // Opens market menu back
-            ZMarketMenu(client, "rebuy", MenuType_Option, sInfo);
+            ZMarketMenu(client, "rebuy", MenuType_Option, sBuffer);
         }
     }
 }

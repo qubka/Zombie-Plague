@@ -419,7 +419,8 @@ enum ItemDef
     ItemDef_Axe,
     ItemDef_Hammer,
     ItemDef_Wrench = 78,
-    ItemDef_FireBomb = 81,
+    ItemDef_KnifeGhost = 80,
+    ItemDef_FireBomb,
     ItemDef_DiversionDevice,
     ItemDef_FragGrenade,
     ItemDef_SnowBall,
@@ -442,7 +443,7 @@ enum ItemDef
 #define IsGrenade(%0)       (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || %0 == ItemDef_BreachCharge || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_BumpMine))
 #define IsProjectile(%0)    (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_FragGrenade))
 #define IsFireble(%0)       (%0 == ItemDef_Molotov || %0 == ItemDef_IncGrenade || %0 == ItemDef_FireBomb)
-#define IsKnife(%0)         (%0 == ItemDef_Knife || %0 == ItemDef_KnifeGG || %0 == ItemDef_KnifeT || (%0 >= ItemDef_Melee && %0 <= ItemDef_Wrench) || (%0 >= ItemDef_Bayonet))
+#define IsKnife(%0)         (%0 == ItemDef_Knife || %0 == ItemDef_KnifeGG || %0 == ItemDef_KnifeT || (%0 >= ItemDef_Melee && %0 <= ItemDef_Wrench) || %0 == ItemDef_KnifeGhost || (%0 >= ItemDef_Bayonet))
 #define IsMelee(%0)         (IsKnife(%0) || %0 == ItemDef_Fists)
 #define IsItem(%0)          (%0 == ItemDef_Kevlar || %0 == ItemDef_KevlarHelmet || %0 == ItemDef_NGVs || %0 == ItemDef_Defuser || %0 == ItemDef_HeavySuit || %0 == ItemDef_Cutters)
 /**

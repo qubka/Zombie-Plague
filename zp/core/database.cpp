@@ -26,11 +26,6 @@
  **/
 
 /**
- * Steam ID max length.
- **/
-#define STEAMID_MAX_LENGTH   32
-
-/**
  * @section Properties of the database.
  **/ 
 #define DATABASE_SECTION     "zombiedatabase"
@@ -59,7 +54,7 @@ enum /*DatabaseType*/
 enum ColumnType
 {
     ColumnType_ID,
-    ColumnType_SteamID,
+    ColumnType_AccountID,
     ColumnType_Money,
     ColumnType_Level,
     ColumnType_Exp,
@@ -101,6 +96,7 @@ enum FactoryType
     FactoryType_Keys,
     FactoryType_Parent,
     FactoryType_Add,
+    FactoryType_AddU, /// SQLite add unique column
     FactoryType_Remove,
     FactoryType_Select,
     FactoryType_Update,
@@ -110,11 +106,6 @@ enum FactoryType
 /**
  * @endsection
  **/ 
- 
-/**
- * Arrays for storing ID in the SQL base.
- **/
-char SteamID[MAXPLAYERS+1][STEAMID_MAX_LENGTH+1];
 
 /**
  * @brief Database module init function.
@@ -156,7 +147,7 @@ void DataBaseOnInit(/*void*/)
         
         // Push data into map
         gServerData.Cols.SetValue("id", ColumnType_ID);
-        gServerData.Cols.SetValue("steam_id", ColumnType_SteamID);
+        gServerData.Cols.SetValue("account_id", ColumnType_AccountID);
         gServerData.Cols.SetValue("money", ColumnType_Money);
         gServerData.Cols.SetValue("level", ColumnType_Level);
         gServerData.Cols.SetValue("exp", ColumnType_Exp);
@@ -208,7 +199,7 @@ void DataBaseOnLoad(/*void*/)
     for (int i = 1; i <= MaxClients; i++)
     {
         // If client was loaded, then skip
-        if (gClientData[i].Loaded || hasLength(SteamID[i]))
+        if (gClientData[i].Loaded || gClientData[i].AccountID)
         {
             continue;
         }
@@ -217,7 +208,8 @@ void DataBaseOnLoad(/*void*/)
         if (IsPlayerExist(i, false) && !IsFakeClient(i))
         {
             // Validate client authentication string (SteamID)
-            if (GetClientAuthId(i, AuthId_Steam2, SteamID[i], sizeof(SteamID[])))
+            gClientData[i].AccountID = GetSteamAccountID(i);
+            if (gClientData[i].AccountID)
             { 
                 // Generate request
                 SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Select, i);
@@ -253,7 +245,7 @@ void DataBaseOnUnload(/*void*/)
     for (int i = 1; i <= MaxClients; i++)
     {
         // If client wasn't loaded, then skip
-        if (!gClientData[i].Loaded || !hasLength(SteamID[i]))
+        if (!gClientData[i].Loaded || !gClientData[i].AccountID)
         {
             continue;
         }
@@ -265,7 +257,7 @@ void DataBaseOnUnload(/*void*/)
         hTxn.AddQuery(sRequest, i);
         
         // Resets variables
-        SteamID[i][0] = NULL_STRING[0];
+        gClientData[i].AccountID = 0;
         gClientData[i].Loaded = false;
         gClientData[i].DataID = -1;
     }
@@ -355,7 +347,8 @@ void DataBaseOnClientInit(int client)
         static char sRequest[HUGE_LINE_LENGTH]; 
 
         // Validate client authentication string (SteamID)
-        if (GetClientAuthId(client, AuthId_Steam2, SteamID[client], sizeof(SteamID[])))
+        gClientData[client].AccountID = GetSteamAccountID(client);
+        if (gClientData[client].AccountID)
         {
             // Generate request
             SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Select, client);
@@ -367,17 +360,6 @@ void DataBaseOnClientInit(int client)
 }
 
 /**
- * @brief Called once a client successfully connects.
- *
- * @param client            The client index.
- **/
-void DataBaseOnClientConnect(int client)
-{
-    // Resets steam buffer
-    SteamID[client][0] = NULL_STRING[0];
-}
-
-/**
  * @brief Called when a client is disconnected from the server.
  *
  * @param client            The client index.
@@ -386,9 +368,6 @@ void DataBaseOnClientDisconnectPost(int client)
 {
     // Update data in the database
     DataBaseOnClientUpdate(client, ColumnType_Default);
-
-    // Resets steam buffer
-    SteamID[client][0] = NULL_STRING[0];
 }
 
 /**
@@ -408,7 +387,7 @@ void DataBaseOnClientUpdate(int client, ColumnType nColumn, FactoryType mFactory
     }
     
     // If client wasn't loaded, then stop
-    if (!gClientData[client].Loaded || !hasLength(SteamID[client]))
+    if (!gClientData[client].Loaded || !gClientData[client].AccountID)
     {
         return;
     }
@@ -616,11 +595,40 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
             // Gets column type
             gServerData.Cols.GetValue(sColumn, nColumn);
             
-            // Generate request
-            SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), nColumn, FactoryType_Add);
+            /// SQlite doesn't have column add unique feature
+            if (nColumn == ColumnType_AccountID && !MySQL)
+            {
+                // x = step index
+                for (int x = 0; x < 4; x++)
+                {
+                    // Generate request
+                    SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), nColumn, FactoryType_AddU, x);
+                    
+                    // Adds a query to the transaction
+                    hTxn.AddQuery(sRequest);
+                }
+                
+                /// Remove steam_id here, because we are recreate table before
+                hColumn.Erase(hColumn.FindString("steam_id"));
+            }
+            else
+            {
+                // Generate request
+                SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), nColumn, FactoryType_Add);
+                
+                // Adds a query to the transaction
+                hTxn.AddQuery(sRequest);
+                
+                /// Convert Steam_Auth2 column to a AccountID column only once !
+                if (nColumn == ColumnType_AccountID) 
+                {
+                    // Generate request
+                    SQLBaseFactory__(MySQL, sRequest, sizeof(sRequest), nColumn, FactoryType_Update);
             
-            // Adds a query to the transaction
-            hTxn.AddQuery(sRequest);
+                    // Adds a query to the transaction
+                    hTxn.AddQuery(sRequest);
+                }
+            }
         }
     }
 
@@ -752,7 +760,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
             else
             {
                 // Generate request
-                SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_SteamID, FactoryType_Insert, client);
+                SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_AccountID, FactoryType_Insert, client);
                 
                 // Sent a request
                 gServerData.DBI.Query(SQLBaseInsert_Callback, sRequest, client, DBPrio_High); 
@@ -886,21 +894,21 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `%s` ", DATABASE_MAIN);
             StrCat(sRequest, iMaxLen, 
             MySQL ? 
-              "(`id` int(64) NOT NULL AUTO_INCREMENT, \
-                `steam_id` varchar(32) NOT NULL, \
-                `money` int(64) NOT NULL DEFAULT 0, \
-                `level` int(64) NOT NULL DEFAULT 1, \
-                `exp` int(64) NOT NULL DEFAULT 0, \
+              "(`id` int(32) NOT NULL AUTO_INCREMENT, \
+                `account_id` int(32) NOT NULL, \
+                `money` int(32) NOT NULL DEFAULT 0, \
+                `level` int(32) NOT NULL DEFAULT 1, \
+                `exp` int(32) NOT NULL DEFAULT 0, \
                 `zombie` varchar(32) NOT NULL DEFAULT '', \
                 `human` varchar(32) NOT NULL DEFAULT '', \
                 `skin` varchar(32) NOT NULL DEFAULT '', \
-                `vision` int(64) NOT NULL DEFAULT 1, \
-                `time` int(64) NOT NULL DEFAULT 0, \
+                `vision` int(32) NOT NULL DEFAULT 1, \
+                `time` int(32) NOT NULL DEFAULT 0, \
                 PRIMARY KEY (`id`), \
-                UNIQUE KEY `steam_id` (`steam_id`));"            
+                UNIQUE KEY `account_id` (`account_id`));"            
             : 
               "(`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                `steam_id` TEXT UNIQUE NOT NULL, \
+                `account_id` INTEGER UNIQUE NOT NULL, \
                 `money` INTEGER NOT NULL DEFAULT 0, \
                 `level` INTEGER NOT NULL DEFAULT 1, \
                 `exp` INTEGER NOT NULL DEFAULT 0, \
@@ -920,7 +928,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `%s`", DATABASE_CHILD);
             Format(sRequest, iMaxLen, 
             MySQL ? 
-              "%s (`id` int(64) NOT NULL auto_increment, \
+              "%s (`id` int(32) NOT NULL auto_increment, \
                    `client_id` int(32) NOT NULL, \
                    `weapon` varchar(32) NOT NULL DEFAULT '', \
                    PRIMARY KEY (`id`), \
@@ -968,24 +976,24 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             {
                 case ColumnType_ID :
                 {
-                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `id` int(64) NOT NULL auto_increment, ADD PRIMARY KEY (`id`);" : "ADD COLUMN `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `id` int(32) NOT NULL auto_increment, ADD PRIMARY KEY (`id`);" : "ADD COLUMN `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"id\" was added. \"%s\"", sRequest);
                 }
                 
-                case ColumnType_SteamID :
+                case ColumnType_AccountID :
                 {
-                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `steam_id` varchar(32) NOT NULL, ADD UNIQUE `steam_id` (`steam_id`);" : "ADD COLUMN `steam_id` TEXT UNIQUE NOT NULL;");
+                    StrCat(sRequest, iMaxLen, MySQL ? "ADD COLUMN `account_id` int(32) NOT NULL, ADD UNIQUE `account_id` (`account_id`);" : "ADD COLUMN `account_id` INTEGER UNIQUE NOT NULL;");
                     
                     // Log database adding info
-                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"steam_id\" was added. \"%s\"", sRequest);
+                    LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"account_id\" was added. \"%s\"", sRequest);
                 }
                 
                 case ColumnType_Money :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `money` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER NOT NULL ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(32) NOT NULL " : "INTEGER NOT NULL ");
                     StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
@@ -995,7 +1003,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
                 case ColumnType_Level :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `level` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER NOT NULL ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(32) NOT NULL " : "INTEGER NOT NULL ");
                     StrCat(sRequest, iMaxLen, "DEFAULT 1;");
                     
                     // Log database adding info
@@ -1005,7 +1013,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
                 case ColumnType_Exp :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `exp` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER NOT NULL ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(32) NOT NULL " : "INTEGER NOT NULL ");
                     StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
@@ -1039,7 +1047,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
                 case ColumnType_Vision :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `vision` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER NOT NULL ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(32) NOT NULL " : "INTEGER NOT NULL ");
                     StrCat(sRequest, iMaxLen, "DEFAULT 1;");
                     
                     // Log database adding info
@@ -1049,12 +1057,38 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
                 case ColumnType_Time :
                 {
                     StrCat(sRequest, iMaxLen, "ADD COLUMN `time` ");
-                    StrCat(sRequest, iMaxLen, MySQL ? "int(64) NOT NULL " : "INTEGER NOT NULL ");
+                    StrCat(sRequest, iMaxLen, MySQL ? "int(32) NOT NULL " : "INTEGER NOT NULL ");
                     StrCat(sRequest, iMaxLen, "DEFAULT 0;");
                     
                     // Log database adding info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Column \"time\" was added. \"%s\"", sRequest);
                 }
+            }
+        }
+        
+        case FactoryType_AddU : /// Until a new version will be here
+        {
+            /// @brief Backup table and add unique column. (Convert SteamID_Auth3 to AccountID)
+            /// @link https://stackoverflow.com/questions/35156488/add-unique-column-to-already-exist-sqlite-table
+            switch (client)
+            {
+                case 0 : FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `backup` \
+                                                      (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+                                                      `account_id` INTEGER UNIQUE NOT NULL, \
+                                                      `money` INTEGER NOT NULL DEFAULT 0, \
+                                                      `level` INTEGER NOT NULL DEFAULT 1, \
+                                                      `exp` INTEGER NOT NULL DEFAULT 0, \
+                                                      `zombie` TEXT NOT NULL DEFAULT '', \
+                                                      `human` TEXT NOT NULL DEFAULT '', \
+                                                      `skin` TEXT NOT NULL DEFAULT '', \
+                                                      `vision` INTEGER NOT NULL DEFAULT 1, \
+                                                      `time` INTEGER NOT NULL DEFAULT 0);");
+                case 1 : FormatEx(sRequest, iMaxLen, "INSERT INTO `backup` SELECT \
+                                                      `id`, (CAST(SUBSTR(`steam_id`, 11) AS INTEGER) * 2 + CAST(SUBSTR(`steam_id`, 9, 1) AS INTEGER)), \
+                                                      `money`, `level`, `exp`, `zombie`, `human`, `skin`, `vision`, `time` \
+                                                      FROM `%s`;", DATABASE_MAIN); 
+                case 2 : FormatEx(sRequest, iMaxLen, "DROP TABLE `%s`;", DATABASE_MAIN);                                  
+                case 3 : FormatEx(sRequest, iMaxLen, "ALTER TABLE `backup` RENAME TO `%s`;", DATABASE_MAIN);
             }
         }
 
@@ -1073,7 +1107,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
                 {
                     case 0 : FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `backup` \
                                                           (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                                                          `steam_id` TEXT UNIQUE NOT NULL, \
+                                                          `account_id` INTEGER UNIQUE NOT NULL, \
                                                           `money` INTEGER NOT NULL DEFAULT 0, \
                                                           `level` INTEGER NOT NULL DEFAULT 1, \
                                                           `exp` INTEGER NOT NULL DEFAULT 0, \
@@ -1083,7 +1117,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
                                                           `vision` INTEGER NOT NULL DEFAULT 1, \
                                                           `time` INTEGER NOT NULL DEFAULT 0);");
                     case 1 : FormatEx(sRequest, iMaxLen, "INSERT INTO `backup` SELECT \
-                                                          `id`, `steam_id`, `money`, `level`, `exp`, `zombie`, `human`, `skin`, `vision`, `time` \
+                                                          `id`, `account_id`, `money`, `level`, `exp`, `zombie`, `human`, `skin`, `vision`, `time` \
                                                           FROM `%s`;", DATABASE_MAIN);
                     case 2 : FormatEx(sRequest, iMaxLen, "DROP TABLE `%s`;", DATABASE_MAIN);                                  
                     case 3 : FormatEx(sRequest, iMaxLen, "ALTER TABLE `backup` RENAME TO `%s`;", DATABASE_MAIN);
@@ -1158,7 +1192,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             // Validate row id
             if (gClientData[client].DataID < 1)
             {
-                Format(sRequest, iMaxLen, "%s WHERE `steam_id` = '%s';", sRequest, SteamID[client]);
+                Format(sRequest, iMaxLen, "%s WHERE `account_id` = %d;", sRequest, gClientData[client].AccountID);
             }
             else
             {
@@ -1192,6 +1226,12 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
 
                     // Log database updation info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was stored. \"%s\"", client, sRequest); 
+                }
+                
+                case ColumnType_AccountID :
+                {
+                    Format(sRequest, iMaxLen, "%s `account_id` = (SELECT CAST(SUBSTR(`steam_id`, 11) AS UNSIGNED) * 2 + CAST(SUBSTR(`steam_id`, 9, 1) AS UNSIGNED));", sRequest);
+                    return;
                 }
                 
                 case ColumnType_Money :
@@ -1244,7 +1284,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             // Validate row id
             if (gClientData[client].DataID < 1)
             {
-                Format(sRequest, iMaxLen, "%s WHERE `steam_id` = '%s';", sRequest, SteamID[client]);
+                Format(sRequest, iMaxLen, "%s WHERE `account_id` = %d;", sRequest, gClientData[client].AccountID);
             }
             else
             {
@@ -1257,9 +1297,9 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
             /// Format request
             switch (nColumn)
             {
-                case ColumnType_SteamID :
+                case ColumnType_AccountID :
                 {
-                    FormatEx(sRequest, iMaxLen, "INSERT INTO `%s` (`steam_id`) VALUES ('%s');", DATABASE_MAIN, SteamID[client]);
+                    FormatEx(sRequest, iMaxLen, "INSERT INTO `%s` (`account_id`) VALUES (%d);", DATABASE_MAIN, gClientData[client].AccountID);
                     
                     // Log database insertion info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was inserted. \"%s\"", client, sRequest);
@@ -1272,9 +1312,10 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
                     // Log database insertion info
                     LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was inserted. \"%s\"", client, sRequest);
                 }
+
             }
         }
-        
+
         case FactoryType_Delete :
         {
             /// Format request

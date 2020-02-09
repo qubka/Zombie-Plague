@@ -51,6 +51,8 @@ enum struct ServerData
     int RoundMode;
     int RoundLast;
     int RoundCount;
+    ArrayList Clients;
+    ArrayList LastZombies;
     
     /* Map */
     bool MapLoaded;
@@ -104,7 +106,7 @@ enum struct ServerData
     /* Weapons */
     int Melee;
     StringMap Market;
-    
+
     /**
      * @brief Clear all timers.
      **/
@@ -130,6 +132,7 @@ ServerData gServerData;
 enum struct ClientData
 {
     /* Globals */
+    int AccountID;
     bool Zombie;
     bool Loaded;
     bool Skill;
@@ -149,6 +152,9 @@ enum struct ClientData
     int DataID;
     int LastID;
     int LastAttacker;
+    int TeleTimes;
+    int TeleCounter;
+    float TeleOrigin[3];
     float HealthDuration;
     int AttachmentCostume;
     int AttachmentHealth;
@@ -180,6 +186,7 @@ enum struct ClientData
     Handle MoanTimer;
     Handle AmbientTimer;
     Handle BuyTimer;
+    Handle TeleTimer;
     
     /* Arrays */
     ArrayList ShoppingCart;
@@ -192,6 +199,7 @@ enum struct ClientData
      **/
     void ResetVars(/*void*/)
     {
+        this.AccountID            = 0;                
         this.Zombie               = false;
         this.Loaded               = false;
         this.Skill                = false;
@@ -211,6 +219,9 @@ enum struct ClientData
         this.DataID               = -1;
         this.LastID               = -1;
         this.LastAttacker         = 0;
+        this.TeleTimes            = 0;
+        this.TeleCounter          = 0;
+        this.TeleOrigin           = NULL_VECTOR;
         this.HealthDuration       = 0.0;
         this.AttachmentCostume    = -1;
         this.AttachmentHealth     = -1;
@@ -262,6 +273,7 @@ enum struct ClientData
         delete this.MoanTimer;
         delete this.AmbientTimer;
         delete this.BuyTimer;
+        delete this.TeleTimer;
     }
     
     /**
@@ -279,6 +291,7 @@ enum struct ClientData
         this.MoanTimer    = null; 
         this.AmbientTimer = null; 
         this.BuyTimer     = null;
+        this.TeleTimer     = null;
     }
 }
 /**

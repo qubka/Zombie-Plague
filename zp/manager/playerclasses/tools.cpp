@@ -50,12 +50,18 @@ Address pClip;
 Address pPrimary;
 Address pSecondary;
 Address pFireBullets;
+Address pMaxSpeed[2];
 int Player_Spotted;
 int Player_SpottedByMask;
 int SendProp_iBits; 
 int Animating_StudioHdr;
 int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
+
+/* CGameMovement::WalkMove VectorScale(wishvel, mv->m_flMaxSpeed/wishspeed, wishvel) */
+int iPatchRestoreBytes;
+int iPatchRestore[100];
+int iCappingOffset;
 
 /**
  * @brief FX_FireBullets translator.
@@ -392,11 +398,36 @@ void ToolsOnInit(/*void*/)
     fnInitGameConfOffset(gServerData.Config, Animating_StudioHdr, "CBaseAnimating::StudioHdr");
     fnInitGameConfOffset(gServerData.Config, StudioHdrStruct_SequenceCount, "StudioHdrStruct::SequenceCount");
     fnInitGameConfOffset(gServerData.Config, VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct::SequenceVectorSize"); 
-    
+
     // StudioHdr offset in gameconf is only relative to the offset of m_hLightingOrigin, in order to make the offset more resilient to game update
     int iOffset_LightingOrigin;
     fnInitSendPropOffset(iOffset_LightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
     Animating_StudioHdr += iOffset_LightingOrigin;
+
+    /*__________________________________________________________________________________________________*/
+    
+    // Load other offsets
+    fnInitGameConfAddress(gServerData.Config, pMaxSpeed[0], "m_flMaxSpeed");
+    fnInitGameConfOffset(gServerData.Config, iCappingOffset, "CappingOffset");
+    fnInitGameConfOffset(gServerData.Config, iPatchRestoreBytes, "PatchBytes");
+    
+    // Move right in front of the instructions we want to NOP
+    pMaxSpeed[0] += view_as<Address>(iCappingOffset);
+    pMaxSpeed[1] = pMaxSpeed[0]; /// Store current patch addr
+
+    /**
+     * @brief Removes max speed limitation from players on the ground. Feels like CS:S.
+     *
+     * @author This algorithm made by 'Peace-Maker'.
+     * @link https://forums.alliedmods.net/showthread.php?t=255298&page=15
+     **/
+    for(int i = 0; i < iPatchRestoreBytes; i++)
+    {
+        // Save the current instructions, so we can restore them on unload
+        iPatchRestore[i] = LoadFromAddress(pMaxSpeed[0], NumberType_Int8);
+        StoreToAddress(pMaxSpeed[0], 0x90, NumberType_Int8);
+        pMaxSpeed[0]++;
+    }
 }
 
 /**
@@ -409,6 +440,22 @@ void ToolsOnPurge(/*void*/)
     {
         // Purge player timers
         gClientData[i].PurgeTimers();
+    }
+}
+
+/**
+ * @brief Tools module unload function.
+ **/
+void ToolsOnUnload(/*void*/)
+{
+    // Restore the original instructions, if we patched them
+    if(pMaxSpeed[1] != Address_Null)
+    {
+        // i = currect instruction
+        for(int i = 0; i < iPatchRestoreBytes; i++)
+        {
+            StoreToAddress(pMaxSpeed[1] + view_as<Address>(i), iPatchRestore[i], NumberType_Int8);
+        }
     }
 }
 

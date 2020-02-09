@@ -166,6 +166,7 @@ public void OnMapEnd(/*void*/)
 public void OnPluginEnd(/*void*/)
 {
     // Forward event to modules
+    ClassesOnUnload();
     WeaponsOnUnload();
     DataBaseOnUnload();
     CostumesOnUnload();
@@ -181,7 +182,6 @@ public void OnClientConnected(int client)
 {
     // Forward event to modules
     ClassesOnClientConnect(client);
-    DataBaseOnClientConnect(client);
 }
 
 /**

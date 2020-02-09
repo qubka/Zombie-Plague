@@ -146,6 +146,7 @@ enum AnimType
 #include "zp/manager/playerclasses/spawn.cpp"
 #include "zp/manager/playerclasses/death.cpp"
 #include "zp/manager/playerclasses/apply.cpp"
+#include "zp/manager/playerclasses/ztele.cpp"
 #include "zp/manager/playerclasses/classmenus.cpp"
 #include "zp/manager/playerclasses/classcommands.cpp"
 #include "zp/manager/playerclasses/tools.cpp" /// player helpers
@@ -418,6 +419,15 @@ void ClassesOnCacheData(/*void*/)
 }
 
 /**
+ * @brief Classes module unload function.
+ **/
+void ClassesOnUnload(/*void*/)
+{
+    // Forward event to sub-modules
+    ToolsOnUnload();
+}
+
+/**
  * @brief Called when configs are being reloaded.
  **/
 public void ClassesOnConfigReload(/*void*/)
@@ -433,6 +443,7 @@ void ClassesOnCommandInit(/*void*/)
 {
     // Forward event to sub-modules
     AccountOnCommandInit();
+    ZTeleOnCommandsCreate();
     AntiStickOnCommandInit();
     ClassMenusOnCommandInit();
     LevelSystemOnCommandInit();
@@ -451,6 +462,7 @@ void ClassesOnCvarInit(/*void*/)
     SkillSystemOnCvarInit();
     ToolsOnCvarInit();
     DeathOnCvarInit();
+    ZTeleOnCvarInit();
     AntiStickOnCvarInit();
     
     // Creates cvars

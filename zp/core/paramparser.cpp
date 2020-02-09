@@ -328,6 +328,22 @@ void StringToLower(char[] sBuffer)
 }
 
 /**
+ * @brief Randomly permutes the specified list using a default source of randomness.
+ *
+ * @param hArrayList        The array that is being shuffle.
+ **/
+void ArrayShuffle(ArrayList hArrayList)
+{
+    // i = client index
+    int iSize = hArrayList.Length; int iLen = iSize - 1;
+    for (int i = 0; i < iSize; i++)
+    {
+        // Simple swap
+        hArrayList.SwapAt(i, GetRandomInt(0, iLen));
+    }
+}
+
+/**
  * @brief Sort comparison function by string length.
  *
  * @param iIndex1           The first index to compare.

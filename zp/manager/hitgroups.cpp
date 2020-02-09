@@ -207,6 +207,7 @@ void HitGroupsOnCvarInit(/*void*/)
     // Creates cvars
     gCvarList.HITGROUP                  = FindConVar("zp_hitgroup"); 
     gCvarList.HITGROUP_KNOCKBACK        = FindConVar("zp_knockback"); 
+    gCvarList.HITGROUP_KNOCKBACK_AIR    = FindConVar("zp_knockback_air"); 
     gCvarList.HITGROUP_FRIENDLY_FIRE    = FindConVar("mp_friendlyfire");
     gCvarList.HITGROUP_FRIENDLY_GRENADE = FindConVar("ff_damage_reduction_grenade");
     gCvarList.HITGROUP_FRIENDLY_BULLETS = FindConVar("ff_damage_reduction_bullets");
@@ -618,7 +619,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
         if (iBits & DMG_NEVERGIB)
         {
             // Apply knock
-            HitGroupsApplyKnock(client, attacker, flKnockRatio * flDamage); /// Calculate knockback based on the damage amount and knockback multiplier
+            HitGroupsApplyKnock(client, attacker, flKnockRatio);
 
             // Validate zombie
             if (gClientData[attacker].Zombie)
@@ -1304,15 +1305,18 @@ bool HitGroupsValidateInfclictor(char[] sClassname)
  *
  * @param client            The client index.
  * @param attacker          The attacker index.
- * @param flPower           The power amount.
+ * @param flForce           The push force.
  **/
-void HitGroupsApplyKnock(int client, int attacker, float flPower)
+void HitGroupsApplyKnock(int client, int attacker, float flForce)
 {
     // Validate amount
-    if (flPower <= 0.0)
+    if (flForce <= 0.0)
     {
         return;
     }
+
+    // Apply multiplier if client on air
+    if (GetEntPropEnt(client, Prop_Send, "m_hGroundEntity") == -1) flForce *= gCvarList.HITGROUP_KNOCKBACK_AIR.FloatValue;
     
     // If knockback system is enabled, then apply
     if (gCvarList.HITGROUP_KNOCKBACK.BoolValue) 
@@ -1337,7 +1341,7 @@ void HitGroupsApplyKnock(int client, int attacker, float flPower)
         NormalizeVector(vVelocity, vVelocity);
 
         // Apply the magnitude by scaling the vector
-        ScaleVector(vVelocity, flPower);
+        ScaleVector(vVelocity, flForce);
 
         // Adds the given vector to the client current velocity
         ToolsSetVelocity(client, vVelocity);
@@ -1345,11 +1349,11 @@ void HitGroupsApplyKnock(int client, int attacker, float flPower)
     else
     {
         // Validate max
-        if (flPower > 100.0) flPower = 100.0;
-        else if (flPower <= 0.0) return;
+        if (flForce > 100.0) flForce = 100.0;
+        else if (flForce <= 0.0) return;
         
         // Apply the stamina-based slowdown
-        SetEntPropFloat(client, Prop_Send, "m_flStamina", flPower); 
+        SetEntPropFloat(client, Prop_Send, "m_flStamina", flForce); 
     }
 }
 

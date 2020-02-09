@@ -103,7 +103,7 @@ void AccountOnCommandInit(/*void*/)
     // Hook commands
     RegAdminCmd("zp_money_give", AccountGiveOnCommandCatched, ADMFLAG_GENERIC, "Gives the money. Usage: zp_money_give <name> [amount]");
     RegConsoleCmd("zp_money_donate", AccountDonateOnCommandCatched, "Donates the money. Usage: zp_money_donate <name> [amount]");
-    RegConsoleCmd("zp_donate_menu", AccountMenuOnCommandCatched, "Opens the donates menu.");
+    RegConsoleCmd("zdonate", AccountMenuOnCommandCatched, "Opens the donates menu.");
 }
 
 /**
@@ -418,7 +418,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
 }
 
 /**
- * Console command callback (zp_donate_menu)
+ * Console command callback (zdonate)
  * @brief Opens the donates menu.
  * 
  * @param client            The client index.
@@ -602,7 +602,7 @@ void AccountMenu(int client, int iMoney, float flCommision)
     FormatEx(sBuffer, sizeof(sBuffer), "%t", "increase");
     
     // Show increase option
-    FormatEx(sInfo, sizeof(sInfo), "0 %d %f", iMoney, flCommision);
+    FormatEx(sInfo, sizeof(sInfo), "-2 %d %f", iMoney, flCommision);
     hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
 
     // Format some chars for showing in menu
@@ -626,7 +626,7 @@ void AccountMenu(int client, int iMoney, float flCommision)
         FormatEx(sBuffer, sizeof(sBuffer), "%N", i);
 
         // Show option
-        FormatEx(sInfo, sizeof(sInfo), "%d %d %f", i, iMoney, flCommision);
+        FormatEx(sInfo, sizeof(sInfo), "%d %d %f", GetClientUserId(i), iMoney, flCommision);
         hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
 
         // Increment amount
@@ -674,7 +674,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
             if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
-                int iD[2]; iD = MenusCommandToArray("zp_donate_menu");
+                int iD[2]; iD = MenusCommandToArray("zdonate");
                 if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }
@@ -706,7 +706,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
                 }
                 
                 // Client hit 'Increase' button
-                case 0  :
+                case -2  :
                 {
                     AccountMenu(client, iMoney + gCvarList.ACCOUNT_BET.IntValue, flCommision - gCvarList.ACCOUNT_DECREASE.FloatValue);
                 }
@@ -714,45 +714,50 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
                 // Client hit 'Target' button
                 default :
                 {
+                    /// Function returns 0 if invalid userid, then stop
+                    target = GetClientOfUserId(target);
+                
                     // Validate target
-                    if (!IsPlayerExist(target, false))
+                    if (target)
                     {
+                        // Validate commision
+                        int iAmount;
+                        if (flCommision <= 0.0)
+                        {
+                            // Sets amount
+                            iAmount = iMoney;
+                        }
+                        else
+                        {
+                            // Calculate amount
+                            iAmount = RoundToNearest(float(iMoney) * (1.0 - flCommision));
+                        }
+                        
+                        // Sets money for the client
+                        AccountSetClientCash(client, gClientData[client].Money - iMoney);
+                        
+                        // Sets money for the target 
+                        AccountSetClientCash(target, gClientData[target].Money + iAmount);
+                        
+                        // If help messages enabled, then show info
+                        if (gCvarList.MESSAGES_DONATE.BoolValue)
+                        {
+                            // Gets client/target name
+                            GetClientName(client, sInfo[0], sizeof(sInfo[]));
+                            GetClientName(target, sInfo[1], sizeof(sInfo[]));
+                            
+                            // Show message of successful transaction
+                            TranslationPrintToChatAll("donate info", sInfo[0], iAmount, "money", sInfo[1]);
+                        }
+                    }
+                    else
+                    {
+
                         // Show block info
                         TranslationPrintHintText(client, "selecting target block");
                     
                         // Emit error sound
                         ClientCommand(client, "play buttons/button10.wav"); 
-                        return;
-                    }
-                    
-                    // Validate commision
-                    int iAmount;
-                    if (flCommision <= 0.0)
-                    {
-                        // Sets amount
-                        iAmount = iMoney;
-                    }
-                    else
-                    {
-                        // Calculate amount
-                        iAmount = RoundToNearest(float(iMoney) * (1.0 - flCommision));
-                    }
-                    
-                    // Sets money for the client
-                    AccountSetClientCash(client, gClientData[client].Money - iMoney);
-                    
-                    // Sets money for the target 
-                    AccountSetClientCash(target, gClientData[target].Money + iAmount);
-                    
-                    // If help messages enabled, then show info
-                    if (gCvarList.MESSAGES_DONATE.BoolValue)
-                    {
-                        // Gets client/target name
-                        GetClientName(client, sInfo[0], sizeof(sInfo[]));
-                        GetClientName(target, sInfo[1], sizeof(sInfo[]));
-                        
-                        // Show message of successful transaction
-                        TranslationPrintToChatAll("donate info", sInfo[0], iAmount, "money", sInfo[1]);
                     }
                 }
             }

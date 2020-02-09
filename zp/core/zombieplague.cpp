@@ -333,61 +333,6 @@ stock int fnGetRandomZombie(/*void*/)
 }
 
 /**
- * @brief Gets random array of total alive players.
- *
- * @param client            The array containing target player indexes.
- * @param target            (Optional) The target index.
- * @param bZombie           (Optional) True to state zombie, false for human on the target index.
- * @return                  The random array of total alive players.
- **/
-stock void fnGetRandomAlive(int client[MAXPLAYERS+1], int target = -1, bool bZombie = false)
-{
-    // Initialize index
-    int iAmount;
-
-    // i = client index
-    for (int i = 1; i <= MaxClients; i++)
-    {
-        // Validate client
-        if (IsPlayerExist(i))
-        {
-            // Increment amount
-            client[iAmount++] = i;
-        }
-    }
-
-    // i = client index
-    for (int i = iAmount - 1; i > 0; i--)
-    {
-        // Gets random index
-        int x = GetRandomInt(0, i);
-
-        // Simple swap
-        int y = client[x];
-        client[x] = client[i];
-        client[i] = y;
-    }
-    
-    // Validate target
-    if (target != -1)
-    {
-        // i = client index
-        int x = bZombie ? 0 : iAmount - 1; int y = client[x];
-        for (int i = 0; i < iAmount; i++)
-        {
-            // Find index
-            if (client[i] == target)
-            {
-                // Simple swap
-                client[x] = target;
-                client[i] = y;
-                break;
-            }    
-        }
-    }
-}
-
-/**
  * @brief Returns an offset value from a given config.
  *
  * @param gameConf          The game config handle.

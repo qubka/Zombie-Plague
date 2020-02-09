@@ -175,11 +175,11 @@ public void ExtraItemsOnConfigReload(/*void*/)
 void ExtraItemsOnCommandInit(/*void*/)
 {
     // Hook commands
-    RegConsoleCmd("zp_item_menu", ExtraItemsOnCommandCatched, "Opens the extra items menu.");
+    RegConsoleCmd("zitem", ExtraItemsOnCommandCatched, "Opens the extra items menu.");
 }
 
 /**
- * Console command callback (zp_item_menu)
+ * Console command callback (zitem)
  * @brief Opens the extra items menu.
  * 
  * @param client            The client index.
@@ -926,7 +926,7 @@ void ItemsMenu(int client)
 
         // Show option
         IntToString(i, sInfo, sizeof(sInfo));
-        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) || gClientData[client].Money < ItemsGetCost(i)) ? false : true));
+        hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) || (ItemsGetCost(i) && gClientData[client].Money < ItemsGetCost(i))) ? false : true));
     
         // Increment amount
         iAmount++;
@@ -973,7 +973,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
             if (mSlot == MenuCancel_ExitBack)
             {
                 // Opens menu back
-                int iD[2]; iD = MenusCommandToArray("zp_item_menu");
+                int iD[2]; iD = MenusCommandToArray("zitem");
                 if (iD[0] != -1) SubMenu(client, iD[0]);
             }
         }

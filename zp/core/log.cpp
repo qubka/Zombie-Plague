@@ -85,6 +85,7 @@ enum LogModule
     LogModule_Menus,
     LogModule_HitGroups,
     LogModule_AntiStick,
+    LogModule_ZTele,
     LogModule_Death,
     LogModule_Levels,
     LogModule_Classes,
@@ -101,7 +102,7 @@ enum LogModule
 /**
  * Cache of current module filter settings. For fast and easy access.
  **/
-bool LogModuleFilterCache[22/*LogModule*/];
+bool LogModuleFilterCache[23/*LogModule*/];
 
 /**
  * @brief List of modules that write log events. 
@@ -126,6 +127,7 @@ void LogOnInit(/*void*/)
     gServerData.Modules.SetValue("menus", LogModule_Menus);
     gServerData.Modules.SetValue("hitgroups", LogModule_HitGroups);
     gServerData.Modules.SetValue("antistick", LogModule_AntiStick);
+    gServerData.Modules.SetValue("ztele", LogModule_ZTele);
     gServerData.Modules.SetValue("death", LogModule_Death);
     gServerData.Modules.SetValue("levels", LogModule_Levels);
     gServerData.Modules.SetValue("classes", LogModule_Classes);
@@ -273,6 +275,10 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
         case LogModule_AntiStick :
         {
             return shortName ? strcopy(sBuffer, iMaxLen, "antistick") : strcopy(sBuffer, iMaxLen, "Antistick");
+        }
+        case LogModule_ZTele :
+        {
+            return shortName ? strcopy(sBuffer, iMaxLen, "ztele") : strcopy(sBuffer, iMaxLen, "ZTele");
         }
         case LogModule_Death :
         {

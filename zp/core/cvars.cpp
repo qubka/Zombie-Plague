@@ -54,6 +54,7 @@ enum struct CvarsList
            
     ConVar HITGROUP;
     ConVar HITGROUP_KNOCKBACK;
+    ConVar HITGROUP_KNOCKBACK_AIR;
     ConVar HITGROUP_FRIENDLY_FIRE;
     ConVar HITGROUP_FRIENDLY_GRENADE;
     ConVar HITGROUP_FRIENDLY_BULLETS;
@@ -136,7 +137,17 @@ enum struct CvarsList
     ConVar ACCOUNT_HUD_A;
     ConVar ACCOUNT_HUD_X;
     ConVar ACCOUNT_HUD_Y;
-           
+    
+    ConVar ZTELE_ESCAPE;
+    ConVar ZTELE_ZOMBIE;
+    ConVar ZTELE_HUMAN;
+    ConVar ZTELE_DELAY_ZOMBIE;
+    ConVar ZTELE_DELAY_HUMAN;
+    ConVar ZTELE_MAX_ZOMBIE;
+    ConVar ZTELE_MAX_HUMAN;
+    ConVar ZTELE_AUTOCANCEL;
+    ConVar ZTELE_AUTOCANCEL_DIST;
+    
     ConVar VEFFECTS_SHAKE;
     ConVar VEFFECTS_SHAKE_AMP;
     ConVar VEFFECTS_SHAKE_FREQUENCY;

@@ -37,6 +37,7 @@ void ApplyOnClientSpawn(int client)
     if (gServerData.RoundNew) 
     {
         // Resets some variables
+        gClientData[client].TeleTimes = 0;
         gClientData[client].RespawnTimes = 0;
         gClientData[client].Respawn = TEAM_HUMAN;
         gClientData[client].LastPurchase = 0;
@@ -157,7 +158,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
         // Gets class weapons
         static int iWeapon[SMALL_LINE_LENGTH];
         ClassGetWeapon(gClientData[client].Class, iWeapon, sizeof(iWeapon));
-        
+
         // i = weapon id
         for (int i = 0; i < sizeof(iWeapon); i++)
         {
@@ -236,7 +237,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
         if (ModesIsEscape(gServerData.RoundMode))
         {
             // Teleport player back on the spawn point
-            AntiStickTeleportToRespawn(client);
+            SpawnTeleportToRespawn(client);
         }
     } gClientData[client].LastPurchase = 0; /// Resets purhase amount
     
