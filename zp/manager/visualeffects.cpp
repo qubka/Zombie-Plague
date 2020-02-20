@@ -70,14 +70,7 @@ void VEffectsOnPurge(/*void*/)
 void VEffectsOnCvarInit(/*void*/)
 {
     // Create cvars
-    gCvarList.VEFFECTS_SHAKE           = FindConVar("zp_veffects_shake"); 
-    gCvarList.VEFFECTS_SHAKE_AMP       = FindConVar("zp_veffects_shake_amp");
-    gCvarList.VEFFECTS_SHAKE_FREQUENCY = FindConVar("zp_veffects_shake_frequency");
-    gCvarList.VEFFECTS_SHAKE_DURATION  = FindConVar("zp_veffects_shake_duration"); 
-    gCvarList.VEFFECTS_FADE            = FindConVar("zp_veffects_fade"); 
-    gCvarList.VEFFECTS_FADE_TIME       = FindConVar("zp_veffects_fade_time"); 
-    gCvarList.VEFFECTS_FADE_DURATION   = FindConVar("zp_veffects_fade_duration"); 
-    gCvarList.VEFFECTS_IMMUNITY_ALPHA  = FindConVar("sv_disable_immunity_alpha");
+    gCvarList.VEFFECTS_IMMUNITY_ALPHA = FindConVar("sv_disable_immunity_alpha");
     
     // Sets locked cvars to their locked value
     gCvarList.VEFFECTS_IMMUNITY_ALPHA.IntValue = 1;
@@ -106,17 +99,6 @@ void VEffectsOnClientInit(int client)
 /*
  * Effects main functions.
  */
-
-/**
- * @brief The blast is started.
- * 
- * @param client            The client index.
- **/
-void VEffectsOnBlast(int client)
-{
-    // Forward event to sub-modules
-    VEffectsFadeClientScreen(client, gCvarList.VEFFECTS_FADE_DURATION, gCvarList.VEFFECTS_FADE_TIME, FFADE_IN, {255, 255, 255, 255});
-}
 
 /**
  * @brief Client has been spawned.
@@ -167,8 +149,6 @@ void VEffectsOnClientInfected(int client, int attacker)
 {
     // Forward event to sub-modules
     ParticlesRemove(client);
-    VEffectsShakeClientScreen(client, gCvarList.VEFFECTS_SHAKE_AMP, gCvarList.VEFFECTS_SHAKE_FREQUENCY, gCvarList.VEFFECTS_SHAKE_DURATION);
-    VEffectsFadeClientScreen(client, gCvarList.VEFFECTS_FADE_DURATION, gCvarList.VEFFECTS_FADE_TIME, FFADE_IN, {255, 0, 0, 50});
     PlayerVEffectsOnClientInfected(client, attacker);    
 }
 
@@ -203,7 +183,6 @@ void VEffectsOnClientUpdate(int client)
 void VEffectsOnClientRegen(int client)
 {
     // Forward event to sub-modules
-    VEffectsFadeClientScreen(client, gCvarList.VEFFECTS_FADE_DURATION, gCvarList.VEFFECTS_FADE_TIME, FFADE_IN, {0, 255, 0, 25});
     PlayerVEffectsOnClientRegen(client);
 }
 
@@ -216,6 +195,17 @@ void VEffectsOnClientRegen(int client)
 {
     // Forward event to sub-modules
     PlayerVEffectsOnClientJump(client);
+}
+
+/**
+ * @brief The blast is started.
+ * 
+ * @param client            The client index.
+ **/
+void VEffectsOnBlast(int client)
+{
+    // Fade a client screen with default white effect
+    UTIL_CreateFadeScreen(client, 0.7, 0.3, FFADE_IN, {255, 255, 255, 255});
 }
 
 /*
@@ -232,12 +222,6 @@ void VEffectsOnClientRegen(int client)
  **/
 void VEffectsShakeClientScreen(int client, ConVar hAmplitude, ConVar hFrequency, ConVar hDuration)
 {
-    // If screen shake disabled, then stop
-    if (!gCvarList.VEFFECTS_SHAKE.BoolValue) 
-    {
-        return;
-    }
-    
     // Create message
     UTIL_CreateShakeScreen(client, hAmplitude.FloatValue, hFrequency.FloatValue, hDuration.FloatValue);
 }
@@ -248,17 +232,20 @@ void VEffectsShakeClientScreen(int client, ConVar hAmplitude, ConVar hFrequency,
  * @param client            The client index.
  * @param hDuration         The cvar with duration of fade in the seconds.
  * @param hHoldTime         The cvar with holding time of fade in the seconds.
- * @param iFlags            The flags.
- * @param vColor            The array with RGB color.
+ * @param hR                The cvar with red color.
+ * @param hG                The cvar with green color.
+ * @param hB                The cvar with blue color.
+ * @param hA                The cvar with alpha amount.
  **/
-void VEffectsFadeClientScreen(int client, ConVar hDuration, ConVar hHoldTime, int iFlags, int vColor[4])
+void VEffectsFadeClientScreen(int client, ConVar hDuration, ConVar hHoldTime, ConVar hR, ConVar hG, ConVar hB, ConVar hA)
 {
-    // If screen fade disabled, then stop
-    if (!gCvarList.VEFFECTS_FADE.BoolValue) 
-    {
-        return;
-    }
+    // Retrieves color cvars
+    static int vColor[4];
+    vColor[0] = hR.IntValue;
+    vColor[1] = hG.IntValue;
+    vColor[2] = hB.IntValue;
+    vColor[3] = hA.IntValue;
     
     // Create message
-    UTIL_CreateFadeScreen(client, hDuration.FloatValue, hHoldTime.FloatValue, iFlags, vColor);
+    UTIL_CreateFadeScreen(client, hDuration.FloatValue, hHoldTime.FloatValue, FFADE_IN, vColor);
 }

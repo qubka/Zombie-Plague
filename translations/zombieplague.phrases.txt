@@ -97,7 +97,7 @@
         "zho"           "<font color='#D67E76'>最後壹位玩家離開了遊戲</font>！"
         "ro"            "<font color='#D67E76'>Ultimul jucator a parasit serverul</font>!"
     }
-    
+
     "account info" // DHUD (translated)
     {
         "#format"       "{1:t},{2:d}"
@@ -166,6 +166,15 @@
         "chi"           "玩家： @red[{1}] @default捐赠： @red[{2}{3}] @default给玩家： @red[{4}]"
         "zho"           "玩家： @red[{1}] @default捐贈： @red[{2}{3}] @default給玩家： @red[{4}]"
         "ro"            "Jucatorul: @red[{1}] @default i-a donat: @red[{2}{3}] @defaultjucatorului: @red[{4}]"
+    }
+    
+    "drop info" // Chat
+    {
+        "en"            "All dropped weapons will be removed at the beginning of the game!"
+        "ru"            "Все выброшенные оружия будут удалены при начале раунда!"
+        "chi"           "遊戲開始時將刪除所有掉落的武器！"
+        "zho"           "游戏开始时将删除所有掉落的武器！"
+        "ro"            "Toate armele aruncate vor fi eliminate la începutul jocului!"
     }
     
     // ===========================
@@ -305,6 +314,15 @@
         "ro"            "Scade\n \n"
     }
     
+    "buy"
+    {
+        "en"            "Buy all"
+        "ru"            "Купить все"
+        "chi"           "購買所有"
+        "zho"           "购买所有"
+        "ro"            "Cumpara tot"
+    }
+    
     // ===========================
     // Validations (core)
     // ===========================
@@ -381,7 +399,7 @@
         "zho"           "妳不能改變妳的職業，因為這回合還沒有開始！"
         "ro"            "Nu poti schimba clasa deoarece runda nu a inceput inca!"
     }
-    
+
     // ===========================
     // Gamemodes (core)
     // ===========================

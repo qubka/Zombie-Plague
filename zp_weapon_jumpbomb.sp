@@ -160,7 +160,7 @@ public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast)
                 // Create phys exp task
                 CreateTimer(0.1, EntityOnPhysExp, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
             }
-                
+            
             // Remove grenade
             AcceptEntityInput(grenade, "Kill");
         }

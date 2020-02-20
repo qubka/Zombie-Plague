@@ -322,7 +322,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
     }
 
     // If mode already started, then stop
-    if (gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode))
+    if (gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode) && !gClientData[client].Zombie)
     {
         // Show block info
         TranslationPrintHintText(client, "buying round block"); 
@@ -351,14 +351,26 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
     // Sets language to target
     SetGlobalTransTarget(client);
 
-    // Validate add menu
-    if (mSlot == MenuType_Option)
+    // Switch slot
+    switch (mSlot)
     {
-        // Format some chars for showing in menu
-        FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "add");
+        case MenuType_Option :
+        {
+            // Format some chars for showing in menu
+            FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "add");
+            
+            // Show add option
+            hMenu.AddItem("-1", sBuffer);
+        }
         
-        // Show add option
-        hMenu.AddItem("-1", sBuffer);
+        case MenuType_Rebuy :
+        {
+            // Format some chars for showing in menu
+            FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "buy");
+            
+            // Show add option
+            hMenu.AddItem("-1", sBuffer);
+        }
     }
     
     // Format title for showing in menu
@@ -664,7 +676,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
             }
             
             // If mode already started, then stop
-            if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
+            if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
             {
                 // Show block info
                 TranslationPrintHintText(client, "buying round block");
@@ -679,93 +691,160 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
             hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
             int iD = StringToInt(sBuffer);
 
-            // Call forward
-            Action hResult; 
-            gForwardData._OnClientValidateWeapon(client, iD, hResult);
-            
-            // Validate handle
-            if (hResult == Plugin_Continue || hResult == Plugin_Changed)
+            // Validate button info
+            switch (iD)
             {
-                // Validate access
-                if (!WeaponsValidateByID(client, iD) && WeaponsValidateClass(client, iD))
+                // Client hit 'Buy' button
+                case -1 :
                 {
-                    // Give weapon for the player
-                    if (WeaponsGive(client, iD) != -1)
+                    // Initialize variables
+                    Action hResult; int iAmount = fnGetPlaying();
+                    
+                    // i = array number
+                    int iSize = gClientData[client].ShoppingCart.Length;
+                    for (int i = 0; i < iSize; i++)
                     {
-                        // If weapon has a cost
-                        if (WeaponsGetCost(iD))
+                        // Gets weapon id from the list
+                        iD = gClientData[client].ShoppingCart.Get(i);
+                        
+                        // Gets weapon data
+                        WeaponsGetGroup(iD, sBuffer, sizeof(sBuffer));
+                        
+                        // Access validation should be made here, because user is trying to buy all weapons without accessing a menu cases
+                        if ((hasLength(sBuffer) && !IsPlayerInGroup(client, sBuffer)) || WeaponsValidateByID(client, iD) || !WeaponsValidateClass(client, iD) || gClientData[client].Level < WeaponsGetLevel(iD) || iAmount < WeaponsGetOnline(iD) || (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD)) || (WeaponsGetCost(iD) && gClientData[client].Money < WeaponsGetCost(iD)))
                         {
-                            // Remove money and store it for returning if player will be first zombie
-                            AccountSetClientCash(client, gClientData[client].Money - WeaponsGetCost(iD));
-                            gClientData[client].LastPurchase += WeaponsGetCost(iD);
+                            continue;
                         }
                         
-                        // If weapon has a limit
-                        if (WeaponsGetLimit(iD))
+                        // Call forward
+                        gForwardData._OnClientValidateWeapon(client, iD, hResult);
+                        
+                        // Validate handle
+                        if (hResult == Plugin_Continue || hResult == Plugin_Changed)
                         {
-                            // Increment count
-                            WeaponsSetLimits(client, iD, WeaponsGetLimits(client, iD) + 1);
-                        }
-
-                        // Is it rebuy menu ?
-                        if (bRebuy)
-                        {
-                            // Validate index
-                            int iIndex = gClientData[client].ShoppingCart.FindValue(iD);
-                            if (iIndex != -1)
+                            // Give weapon for the player
+                            if (WeaponsGive(client, iD) != -1)
                             {
-                                // Remove index from the history
-                                gClientData[client].ShoppingCart.Erase(iIndex);
-
-                                // Validate cart size
-                                if (gClientData[client].ShoppingCart.Length)
+                                // If weapon has a cost
+                                if (WeaponsGetCost(iD))
                                 {
-                                    // Reopen menu
-                                    ZMarketMenu(client, "rebuy", MenuType_Rebuy);
+                                    // Remove money and store it for returning if player will be first zombie
+                                    AccountSetClientCash(client, gClientData[client].Money - WeaponsGetCost(iD));
+                                    gClientData[client].LastPurchase += WeaponsGetCost(iD);
                                 }
-                            }
-                        }
-                        else
-                        {
-                            // If help messages enabled, then show info
-                            if (gCvarList.MESSAGES_WEAPON_ALL.BoolValue)
-                            {
-                                // Gets client name
-                                static char sInfo[SMALL_LINE_LENGTH];
-                                GetClientName(client, sInfo, sizeof(sInfo));
+                                
+                                // If weapon has a limit
+                                if (WeaponsGetLimit(iD))
+                                {
+                                    // Increment count
+                                    WeaponsSetLimits(client, iD, WeaponsGetLimits(client, iD) + 1);
+                                }
+                                
+                                // Remove index from the history
+                                gClientData[client].ShoppingCart.Erase(i);
+                                
+                                // Subtract one from count
+                                iSize--;
 
-                                // Gets weapon name
-                                WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
-                                
-                                // Show item buying info
-                                TranslationPrintToChatAll("buy info", sInfo, sBuffer);
-                            }
-                            
-                            // If help messages enabled, then show info
-                            if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
-                            {
-                                // Gets weapon info
-                                WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
-                                
-                                // Show weapon personal info
-                                if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+                                // Backtrack one index, because we deleted it out from under the loop
+                                i--;
                             }
                         }
-                        
-                        // Return on success
-                        return;
                     }
                 }
+                
+                // Client hit 'Weapon' button
+                default :
+                {
+                    // Call forward
+                    Action hResult; 
+                    gForwardData._OnClientValidateWeapon(client, iD, hResult);
+                    
+                    // Validate handle
+                    if (hResult == Plugin_Continue || hResult == Plugin_Changed)
+                    {
+                        // Validate access
+                        if (!WeaponsValidateByID(client, iD) && WeaponsValidateClass(client, iD))
+                        {
+                            // Give weapon for the player
+                            if (WeaponsGive(client, iD) != -1)
+                            {
+                                // If weapon has a cost
+                                if (WeaponsGetCost(iD))
+                                {
+                                    // Remove money and store it for returning if player will be first zombie
+                                    AccountSetClientCash(client, gClientData[client].Money - WeaponsGetCost(iD));
+                                    gClientData[client].LastPurchase += WeaponsGetCost(iD);
+                                }
+                                
+                                // If weapon has a limit
+                                if (WeaponsGetLimit(iD))
+                                {
+                                    // Increment count
+                                    WeaponsSetLimits(client, iD, WeaponsGetLimits(client, iD) + 1);
+                                }
+
+                                // Is it rebuy menu ?
+                                if (bRebuy)
+                                {
+                                    // Validate index
+                                    int iIndex = gClientData[client].ShoppingCart.FindValue(iD);
+                                    if (iIndex != -1)
+                                    {
+                                        // Remove index from the history
+                                        gClientData[client].ShoppingCart.Erase(iIndex);
+
+                                        // Validate cart size
+                                        if (gClientData[client].ShoppingCart.Length)
+                                        {
+                                            // Reopen menu
+                                            ZMarketMenu(client, "rebuy", MenuType_Rebuy);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // If help messages enabled, then show info
+                                    if (gCvarList.MESSAGES_WEAPON_ALL.BoolValue)
+                                    {
+                                        // Gets client name
+                                        static char sInfo[SMALL_LINE_LENGTH];
+                                        GetClientName(client, sInfo, sizeof(sInfo));
+
+                                        // Gets weapon name
+                                        WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
+                                        
+                                        // Show item buying info
+                                        TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+                                    }
+                                    
+                                    // If help messages enabled, then show info
+                                    if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
+                                    {
+                                        // Gets weapon info
+                                        WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
+                                        
+                                        // Show weapon personal info
+                                        if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+                                    }
+                                }
+                                
+                                // Return on success
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Gets weapon name
+                    WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
+            
+                    // Show block info
+                    TranslationPrintHintText(client, "buying item block", sBuffer);
+                    
+                    // Emit error sound
+                    ClientCommand(client, "play buttons/weapon_cant_buy.wav");  
+                }
             }
-            
-            // Gets weapon name
-            WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
-    
-            // Show block info
-            TranslationPrintHintText(client, "buying item block", sBuffer);
-            
-            // Emit error sound
-            ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
         }
     }
 }

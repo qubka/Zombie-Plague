@@ -165,6 +165,18 @@ void WeaponsOnCacheData(/*void*/)
         return;
     }
     
+    // If array hasn't been created, then create
+    if (gServerData.Entities == null)
+    {
+        // Initialize a type list array
+        gServerData.Entities = new StringMap();
+    }
+    else
+    {
+        // Clear out the array of all data
+        gServerData.Entities.Clear();
+    }
+    
     // Validate size
     int iSize = gServerData.Weapons.Length;
     if (!iSize)
@@ -210,13 +222,15 @@ void WeaponsOnCacheData(/*void*/)
         }
         arrayWeapon.PushString(sPathWeapons);                                 // Index: 1
         kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
+        gServerData.Entities.SetValue(sPathWeapons, i, false);  /// Unique entity catched
         Address pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sPathWeapons));
         if (pItem == Address_Null)
         {
             // Log weapon error
             LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
         }                                                                     // Index: 2
-        arrayWeapon.Push(LoadFromAddress(pItem + view_as<Address>(ItemDef_Index), NumberType_Int16)); 
+        int iItem = LoadFromAddress(pItem + view_as<Address>(ItemDef_Index), NumberType_Int16);
+        arrayWeapon.Push(iItem); 
         kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                                 // Index: 3
         kvWeapons.GetString("class", sPathWeapons, sizeof(sPathWeapons), "human");
@@ -323,7 +337,6 @@ void WeaponsOnCvarInit(/*void*/)
     gCvarList.WEAPON_DROP_GRENADE         = FindConVar("mp_drop_grenade_enable");
     gCvarList.WEAPON_DROP_KNIFE           = FindConVar("mp_drop_knife_enable");
     gCvarList.WEAPON_DROP_BREACH          = FindConVar("mp_death_drop_breachcharge");
-    gCvarList.WEAPON_ALLOW_MAP            = FindConVar("mp_weapons_allow_map_placed");
     gCvarList.WEAPON_CT_DEFAULT_GRENADES  = FindConVar("mp_ct_default_grenades");
     gCvarList.WEAPON_CT_DEFAULT_MELEE     = FindConVar("mp_ct_default_melee");
     gCvarList.WEAPON_CT_DEFAULT_SECONDARY = FindConVar("mp_ct_default_secondary");
@@ -343,7 +356,6 @@ void WeaponsOnCvarInit(/*void*/)
     gCvarList.WEAPON_DROP_GRENADE.IntValue = 1;
     gCvarList.WEAPON_DROP_BREACH.IntValue  = 1;
     gCvarList.WEAPON_DROP_KNIFE.IntValue   = 0;
-    gCvarList.WEAPON_ALLOW_MAP.IntValue    = 0;
     gCvarList.WEAPON_CT_DEFAULT_GRENADES.SetString("");
     gCvarList.WEAPON_CT_DEFAULT_MELEE.SetString("");
     gCvarList.WEAPON_CT_DEFAULT_SECONDARY.SetString("");
@@ -358,8 +370,7 @@ void WeaponsOnCvarInit(/*void*/)
     HookConVarChange(gCvarList.WEAPON_GIVE_BOMB,            CvarsLockOnCvarHook);
     HookConVarChange(gCvarList.WEAPON_DROP_GRENADE,         CvarsUnlockOnCvarHook);
     HookConVarChange(gCvarList.WEAPON_DROP_BREACH,          CvarsUnlockOnCvarHook);
-    HookConVarChange(gCvarList.WEAPON_DROP_KNIFE,           CvarsLockOnCvarHook); 
-    HookConVarChange(gCvarList.WEAPON_ALLOW_MAP,            CvarsLockOnCvarHook);   
+    HookConVarChange(gCvarList.WEAPON_DROP_KNIFE,           CvarsLockOnCvarHook);  
     HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_GRENADES,  CvarsLockOnCvarHook3);
     HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_MELEE,     CvarsLockOnCvarHook3);
     HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_SECONDARY, CvarsLockOnCvarHook3);
@@ -2324,6 +2335,30 @@ void WeaponsClearSequenceSwap(int iD)
  */
  
 /**
+ * @brief Gets the map weapon state.
+ *
+ * @param weapon            The weapon index.
+ * @return                  True or false.    
+ **/
+bool WeaponsGetMap(int weapon)
+{
+    // Gets value on the weapon
+    return view_as<bool>(GetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget"));
+}
+
+/**
+ * @brief Controls the map weapon state.
+ *
+ * @param weapon            The weapon index.
+ * @param bSet              Enable or disable an aspect of map state.
+ **/
+void WeaponsSetMap(int weapon, bool bSet)
+{
+    // Sets value on the weapon
+    SetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget", bSet);
+}
+ 
+/**
  * @brief Gets the custom weapon ID.
  *
  * @param weapon            The weapon index.
@@ -2416,107 +2451,6 @@ int WeaponsNameToIndex(char[] sName)
 }
 
 /**
- * @brief Drop/remove a weapon.
- *
- * @param client            The client index.
- * @param weapon            The weapon index.
- **/
-void WeaponsDrop(int client, int weapon)
-{
-    // Validate weapon
-    if (IsValidEdict(weapon)) 
-    {
-        // Gets owner of the weapon
-        int owner = ToolsGetOwner(weapon);
-
-        // If owner index is different, so set it again
-        if (owner != client)
-        {
-            ToolsSetOwner(weapon, client);
-        }
-
-        // Forces a player to drop weapon
-        CS_DropWeapon(client, weapon, false, false);
-    }
-}
-
-/**
- * @brief Equip a weapon.
- *
- * @param client            The client index.
- * @param weapon            The weapon index.
- **/
-void WeaponsEquip(int client, int weapon)
-{
-    // Initialize weapon index
-    int weapon2 = -1;
-
-    // Gets weapon slot
-    SlotType mSlot = WeaponsGetSlotType(weapon);
-    switch (mSlot)
-    {
-        // Multi slot
-        case SlotType_Equipment, SlotType_C4 :
-        {
-            // Gets weapon classname
-            static char sClassname[SMALL_LINE_LENGTH];
-            GetEdictClassname(weapon, sClassname, sizeof(sClassname));
-            
-            // Gets weapon index
-            weapon2 = WeaponsFindByName(client, sClassname);
-        }
-
-        // Single slot
-        default : 
-        {
-            // Gets weapon index
-            weapon2 = GetPlayerWeaponSlot(client, view_as<int>(mSlot));
-        }
-    }
-    
-    // Validate weapon
-    if (weapon2 != -1)
-    {
-        // Drop weapon
-        WeaponsDrop(client, weapon2);
-    }
-    
-    // Give weapon
-    EquipPlayerWeapon(client, weapon); 
-    
-    // Switch weapon
-    WeaponsSwitch(client, weapon);
-}
-
-/**
- * @brief Switch a weapon.
- *
- * @param client            The client index.
- * @param weapon            The weapon index.
- **/
-void WeaponsSwitch(int client, int weapon) 
-{
-    // Gets active weapon index from the client
-    int weapon2 = ToolsGetActiveWeapon(client);
-    
-    // Validate switch to the same slot
-    if (weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2))
-    {
-        // Create call to the switch weapons
-        SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
-    }
-    else
-    {
-        // Gets weapon classname
-        static char sClassname[SMALL_LINE_LENGTH];
-        GetEdictClassname(weapon, sClassname, sizeof(sClassname));
-
-        // Switch with a client command
-        FakeClientCommand(client, "use %s", sClassname);
-    }
-}
-
-/**
  * @brief Remove a weapon.
  *
  * @param client            The client index.
@@ -2570,6 +2504,134 @@ bool WeaponsRemove(int client)
 
     // Return on success
     return (bRemove || !iAmount);
+}
+
+/**
+ * @brief Drop/remove a weapon.
+ *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ * @param bMsg              (Optional) True to show the info, false otherwise.
+ **/
+void WeaponsDrop(int client, int weapon, bool bMsg = true)
+{
+    // Validate weapon
+    if (IsValidEdict(weapon)) 
+    {
+        // Gets owner of the weapon
+        int owner = ToolsGetOwner(weapon);
+
+        // If owner index is different, so set it again
+        if (owner != client)
+        {
+            ToolsSetOwner(weapon, client);
+        }
+
+        // Forces a player to drop weapon
+        CS_DropWeapon(client, weapon, false, false);
+        
+        // If help messages enabled, then show info
+        if (bMsg && gCvarList.MESSAGES_WEAPON_DROP.BoolValue && gCvarList.GAMEMODE_WEAPONS_REMOVE.BoolValue && gServerData.RoundNew)
+        {
+            // Show remove info
+            TranslationPrintToChat(client, "drop info");
+        }
+    }
+}
+
+/**
+ * @brief Switch a weapon.
+ *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ **/
+void WeaponsSwitch(int client, int weapon) 
+{
+    // Gets active weapon index from the client
+    int weapon2 = ToolsGetActiveWeapon(client);
+    
+    // Validate switch to the same slot
+    if (weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2))
+    {
+        // Create call to the switch weapons
+        SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
+    }
+    else
+    {
+        // Gets weapon classname
+        static char sClassname[SMALL_LINE_LENGTH];
+        GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+
+        // Switch with a client command
+        FakeClientCommand(client, "use %s", sClassname);
+    }
+}
+
+/**
+ * @brief Equip a weapon.
+ *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ * @param iD                The weapon id.
+ **/
+void WeaponsEquip(int client, int weapon, int iD)
+{
+    // Initialize weapon index
+    int weapon2 = -1;
+
+    // Gets weapon slot
+    SlotType mSlot = WeaponsGetSlotType(weapon);
+    switch (mSlot)
+    {
+        // Grenade slot
+        case SlotType_Equipment :
+        {
+            // Gets weapon classname
+            static char sClassname[SMALL_LINE_LENGTH];
+            GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+            
+            // Gets weapon index
+            weapon2 = WeaponsFindByName(client, sClassname);
+            
+            // If weapon same, then skip
+            if (weapon2 != -1 && WeaponsGetCustomID(weapon2) == iD)
+            {
+                // Reset index
+                weapon2 = -1;
+            }
+        }
+    
+        // С4 slot
+        case SlotType_C4 :
+        {
+            // Gets weapon classname
+            static char sClassname[SMALL_LINE_LENGTH];
+            GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+            
+            // Gets weapon index
+            weapon2 = WeaponsFindByName(client, sClassname);
+        }
+        
+        // Single slot
+        default : 
+        {
+            // Gets weapon index
+            weapon2 = GetPlayerWeaponSlot(client, view_as<int>(mSlot));
+        }
+    }
+    
+    // Validate weapon
+    if (weapon2 != -1)
+    {
+        // Drop weapon
+        WeaponsDrop(client, weapon2);
+    }
+    
+    // Give weapon
+    EquipPlayerWeapon(client, weapon); 
+    
+    // Switch weapon
+    WeaponsSwitch(client, weapon);
 }
 
 /**
@@ -2654,24 +2716,39 @@ int WeaponsGive(int client, int iD)
                 return 0;
             }
 
-            /// any weapon_*
+            /// any other weapon_*
             default :
             {
-                // Create a weapon entity
-                int weapon = WeaponsCreate(iD);
-                
-                // Validate weapon
-                if (weapon != -1) 
-                {
-                    // Give weapon
-                    WeaponsEquip(client, weapon);
+                // Initialize variables
+                int weapon = -1; int iAmount = 1;
 
-                    // Call forward
-                    gForwardData._OnWeaponCreated(client, weapon, iD);
+                // Validate grenade
+                if (IsGrenade(iItem))
+                {
+                    // Set amount of grenades
+                    iAmount = WeaponsGetAmmo(iD);
+                    if (!iAmount) iAmount++; /// If amount doens't exist, then increment it
                 }
-                
+
+                // i = amount index
+                for (int i = 0; i < iAmount; i++)
+                {
+                    // Create a weapon entity
+                    weapon = WeaponsCreate(iD);
+                    
+                    // Validate weapon
+                    if (weapon != -1) 
+                    {
+                        // Give weapon
+                        WeaponsEquip(client, weapon, iD);
+
+                        // Call forward
+                        gForwardData._OnWeaponCreated(client, weapon, iD);
+                    }
+                }
+
                 // Return on success
-                return weapon;  
+                return weapon;
             }
         }
     }
@@ -2681,7 +2758,7 @@ int WeaponsGive(int client, int iD)
 }
 
 /**
- * @brief Create a weapon.
+ * @brief Create a custom weapon.
  *
  * @param iD                The weapon id.
  * @param vPosition         (Optional) The origin of the spawn.
@@ -2691,25 +2768,16 @@ int WeaponsGive(int client, int iD)
 int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
 {
     // Initialize variable;
-    int weapon;
-    
-    // Validate windows
-    if (gServerData.Platform == OS_Windows)
-    {
-        // Create weapon
-        weapon = SDKCall(hSDKCallSpawnItem, view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle, 1, 4, 0);
-    }
-    else
-    {
-        // Create weapon
-        weapon = SDKCall(hSDKCallSpawnItem, 0, view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle, 1, 4, 0);
-    }
+    int weapon = WeaponsSpawn(view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle);
     
     // Validate weapon
     if (weapon != -1)
     {
         // Sets weapon id
         WeaponsSetCustomID(weapon, iD);
+        
+        // Sets weapon map
+        WeaponsSetMap(weapon, false);
 
         // Apply dropped model
         WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
@@ -2717,6 +2785,20 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
     
     // Return on success
     return weapon;
+}
+
+/**
+ * @brief Spawn a weapon by a defindex.
+ *
+ * @param iItem             The def index.
+ * @param vPosition         (Optional) The origin of the spawn.
+ * @param vAngle            (Optional) The angle of the spawn.
+ * @return                  The weapon index.
+ **/
+int WeaponsSpawn(int iItem, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
+{
+    // Create weapon
+    return (gServerData.Platform == OS_Windows) ? SDKCall(hSDKCallSpawnItem, iItem, vPosition, vAngle, 1, 4, 0) : SDKCall(hSDKCallSpawnItem, 0, iItem, vPosition, vAngle, 1, 4, 0);
 }
 
 /*
@@ -2888,4 +2970,43 @@ bool WeaponsValidateAccess(int client, int weapon)
     
     // Return on success
     return true;
+}
+
+/**
+ * @brief Returns true if the weapon has an access to spawn by a map, false if not.
+ *
+ * @param weapon            The weapon index.
+ * @param sClassname        The weapon entity.
+ * @return                  True or false.
+ **/
+bool WeaponsValidateByMap(int weapon, char[] sClassname)
+{
+    // If array hasn't been created, then stop
+    if (gServerData.Entities == null)
+    {
+        return false;
+    }
+    
+    // Find the custom weapon id in the map by an ent name (first one)
+    int iD = -1; gServerData.Entities.GetValue(sClassname, iD);
+    if (iD == -1)
+    {
+        // If wan't found, then remove
+        return false;
+    }
+
+    // Sets weapon id
+    WeaponsSetCustomID(weapon, iD);
+
+    // Sets weapon map
+    WeaponsSetMap(weapon, true);
+    
+    // Apply dropped model
+    WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
+
+    // Apply fake spawn hook on the next frame
+    _exec.WeaponMODOnWeaponSpawnPost(weapon);
+    
+    // Return on success
+    return true; 
 }

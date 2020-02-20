@@ -2440,9 +2440,6 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
     // Initialize group char
     static char sGroupName[SMALL_LINE_LENGTH];
 
-    // Gets immunity level
-    int iImmunity = GetAdmGroupImmunityLevel(nGroup);
-    
     // i = group index
     int iSize = GetAdminGroupCount(iD);
     for (int i = 0; i < iSize; i++)
@@ -2450,8 +2447,8 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
         // Gets group name
         nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
 
-        // Validate groups
-        if (!strcmp(sGroup, sGroupName, false) || iImmunity <= GetAdmGroupImmunityLevel(nGroup))
+        // Validate group
+        if (!strcmp(sGroup, sGroupName, false))
         {
             return true;
         }

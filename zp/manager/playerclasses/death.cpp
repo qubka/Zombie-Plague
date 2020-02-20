@@ -151,7 +151,7 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
         if (weapon != -1) 
         {
             // Drop weapon
-            WeaponsDrop(client, weapon);
+            WeaponsDrop(client, weapon, false);
 
             // Resets weapon index, which used to store knife
             gClientData[client].LastKnife = -1;

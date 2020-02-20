@@ -492,6 +492,8 @@ public void OnMapStart(/*void*/)
 
 /**
  * @brief Called after a zombie round is started.
+ *
+ * @param mode              The mode index. 
  **/
 public void ZP_OnGameModeStart(int mode)
 {

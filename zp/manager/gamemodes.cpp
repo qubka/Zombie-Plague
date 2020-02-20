@@ -248,7 +248,7 @@ void GameModesOnCacheData(/*void*/)
         {
             // Precache material
             Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
-            DecryptPrecacheTextures(sPathModes);
+            DecryptPrecacheTextures("self", sPathModes);
         }
         kvGameModes.GetString("overlay_zombie", sPathModes, sizeof(sPathModes), "");
         arrayGameMode.PushString(sPathModes);                                       // Index: 23
@@ -256,7 +256,7 @@ void GameModesOnCacheData(/*void*/)
         {
             // Precache material
             Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
-            DecryptPrecacheTextures(sPathModes);
+            DecryptPrecacheTextures("self", sPathModes);
         }
         kvGameModes.GetString("overlay_draw", sPathModes, sizeof(sPathModes), "");
         arrayGameMode.PushString(sPathModes);                                       // Index: 24
@@ -264,7 +264,7 @@ void GameModesOnCacheData(/*void*/)
         {
             // Precache material
             Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
-            DecryptPrecacheTextures(sPathModes);
+            DecryptPrecacheTextures("self", sPathModes);
         }
         arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 25
         arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 26
@@ -300,17 +300,18 @@ public void GameModesOnConfigReload(/*void*/)
 void GameModesOnCvarInit(/*void*/)
 {
     // Creates cvars
-    gCvarList.GAMEMODE               = FindConVar("zp_gamemode");
-    gCvarList.GAMEMODE_BLAST_TIME    = FindConVar("zp_blast_time");
-    gCvarList.GAMEMODE_TEAM_BALANCE  = FindConVar("mp_autoteambalance"); 
-    gCvarList.GAMEMODE_LIMIT_TEAMS   = FindConVar("mp_limitteams");
-    gCvarList.GAMEMODE_WARMUP_TIME   = FindConVar("mp_warmuptime");
-    gCvarList.GAMEMODE_WARMUP_PERIOD = FindConVar("mp_do_warmup_period");
-    gCvarList.GAMEMODE_ROUNDTIME_ZP  = FindConVar("mp_roundtime");
-    gCvarList.GAMEMODE_ROUNDTIME_CS  = FindConVar("mp_roundtime_hostage");
-    gCvarList.GAMEMODE_ROUNDTIME_DE  = FindConVar("mp_roundtime_defuse");
-    gCvarList.GAMEMODE_ROUND_RESTART = FindConVar("mp_restartgame");
-    gCvarList.GAMEMODE_RESTART_DELAY = FindConVar("mp_round_restart_delay");
+    gCvarList.GAMEMODE                = FindConVar("zp_gamemode");
+    gCvarList.GAMEMODE_BLAST_TIME     = FindConVar("zp_blast_time");
+    gCvarList.GAMEMODE_WEAPONS_REMOVE = FindConVar("zp_weapons_remove");
+    gCvarList.GAMEMODE_TEAM_BALANCE   = FindConVar("mp_autoteambalance"); 
+    gCvarList.GAMEMODE_LIMIT_TEAMS    = FindConVar("mp_limitteams");
+    gCvarList.GAMEMODE_WARMUP_TIME    = FindConVar("mp_warmuptime");
+    gCvarList.GAMEMODE_WARMUP_PERIOD  = FindConVar("mp_do_warmup_period");
+    gCvarList.GAMEMODE_ROUNDTIME_ZP   = FindConVar("mp_roundtime");
+    gCvarList.GAMEMODE_ROUNDTIME_CS   = FindConVar("mp_roundtime_hostage");
+    gCvarList.GAMEMODE_ROUNDTIME_DE   = FindConVar("mp_roundtime_defuse");
+    gCvarList.GAMEMODE_ROUND_RESTART  = FindConVar("mp_restartgame");
+    gCvarList.GAMEMODE_RESTART_DELAY  = FindConVar("mp_round_restart_delay");
     
     // Sets locked cvars to their locked value
     gCvarList.GAMEMODE_TEAM_BALANCE.IntValue  = 0;
@@ -650,6 +651,9 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 
     // Forward event to modules
     SoundsOnGameModeStart();
+    
+    /// Remove dropped entities
+    ModesKillEntities(true);
 
     // Resets server grobal variables (2)
     gServerData.RoundStart = true;
@@ -714,9 +718,11 @@ public Action GameModesOnStartPre(Event hEvent, char[] sName, bool dontBroadcast
  **/
 public Action GameModesOnStart(Event hEvent, char[] sName, bool dontBroadcast) 
 {
+    /// Remove func entities
+    ModesKillEntities();
+    
     // Forward event to modules
     SoundsOnRoundStart();
-    ModesKillEntities();
 }
 
 /**
@@ -3160,40 +3166,87 @@ void ModesBalanceTeams(/*void*/)
 
 /**
  * @brief Kills all objective entities.
+ * 
+ * @param bDrop             (Optional) If true will removed dropped entities, false all 'func_' entities.
  **/
-void ModesKillEntities(/*void*/)
+void ModesKillEntities(bool bDrop = false)
 {
     // Initialize name char
     static char sClassname[NORMAL_LINE_LENGTH];
-    
-    // i = entity index
-    int MaxEntities = GetMaxEntities();
-    for (int i = MaxClients; i <= MaxEntities; i++)
-    {
-        // Validate entity
-        if (IsValidEdict(i))
-        {
-            // Gets valid edict classname
-            GetEdictClassname(i, sClassname, sizeof(sClassname));
 
-            // Validate objectives
-            if ((sClassname[0] == 'h' && sClassname[7] == '_' && sClassname[8] == 'e') || // hostage_entity
-               (sClassname[0] == 'f' && // func_
-               (sClassname[5] == 'h' || // _hostage_rescue
-               (sClassname[5] == 'b' && (sClassname[7] == 'y' || sClassname[7] == 'm'))))) // _buyzone , _bomb_target
+    // Is removal mode of dropped ents ?
+    if (bDrop)
+    {
+        // If removing is disabled, then stop
+        if (!gCvarList.GAMEMODE_WEAPONS_REMOVE.BoolValue)
+        {
+            return;
+        }
+  
+        // i = entity index
+        int MaxEntities = GetMaxEntities();
+        for (int i = MaxClients; i <= MaxEntities; i++)
+        {
+            // Validate entity
+            if (IsValidEdict(i))
             {
-                AcceptEntityInput(i, "Kill"); /// Destroy
+                // Gets valid edict classname
+                GetEdictClassname(i, sClassname, sizeof(sClassname));
+
+                // Validate weapon
+                if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_')
+                {
+                    // Gets weapon owner
+                    int client = WeaponsGetOwner(i);
+                    
+                    // Validate owner
+                    if (!IsPlayerExist(client))
+                    {
+                        // Validate non map weapons, then remove
+                        if(!WeaponsGetMap(i))
+                        {
+                            AcceptEntityInput(i, "Kill"); /// Destroy
+                        }
+                    }
+                }
             }
-            // Validate weapon
-            else if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_')
+        }
+    }
+    else
+    {
+        // i = entity index
+        int MaxEntities = GetMaxEntities();
+        for (int i = MaxClients; i <= MaxEntities; i++)
+        {
+            // Validate entity
+            if (IsValidEdict(i))
             {
-                // Gets weapon owner
-                int client = WeaponsGetOwner(i);
-                
-                // Validate owner
-                if (!IsPlayerExist(client))
+                // Gets valid edict classname
+                GetEdictClassname(i, sClassname, sizeof(sClassname));
+
+                // Validate objectives
+                if ((sClassname[0] == 'h' && sClassname[7] == '_' && sClassname[8] == 'e') || // hostage_entity
+                   (sClassname[0] == 'f' && // func_
+                   (sClassname[5] == 'h' || // _hostage_rescue
+                   (sClassname[5] == 'b' && (sClassname[7] == 'y' || sClassname[7] == 'm'))))) // _buyzone , _bomb_target
                 {
                     AcceptEntityInput(i, "Kill"); /// Destroy
+                }
+                // Validate weapon
+                else if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_')
+                {
+                    // Gets weapon owner
+                    int client = WeaponsGetOwner(i);
+                    
+                    // Validate owner
+                    if (!IsPlayerExist(client))
+                    {
+                        // Validate spawn, if allowed sets custom properties, otherwise remove
+                        if(!WeaponsValidateByMap(i, sClassname))
+                        {
+                            AcceptEntityInput(i, "Kill"); /// Destroy
+                        }
+                    }
                 }
             }
         }

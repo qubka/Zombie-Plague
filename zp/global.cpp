@@ -58,6 +58,7 @@ enum struct ServerData
     bool MapLoaded;
     ArrayList Spawns;
     ArrayList Particles;
+    StringMap Entities;
     
     /* OS */
     Address Engine;

@@ -522,7 +522,7 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
     // Gets grenade index from the reference
     int grenade = EntRefToEntIndex(refID);
 
-    // Validate grenade for the prop
+    // Validate grenade
     if (grenade != -1)
     {
         // Gets grenade thrower
@@ -570,6 +570,41 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
         }
     }
 }
+
+/**
+ * @brief Timer callback, grenade was thrown.
+ *
+ * @param hTimer            The timer handle.
+ * @param hPack             The pack handle.
+ **/
+/*public Action WeaponMODOnGrenadeThrown(Handle hTimer, DataPack hPack)
+{
+    /// Extract data from pack and delete it
+    hPack.Reset();
+    int client = GetClientOfUserId(hPack.ReadCell());
+    int iD = hPack.ReadCell();
+    int iCount = hPack.ReadCell();
+    static char sClassname[SMALL_LINE_LENGTH];
+    hPack.ReadString(sClassname, sizeof(sClassname));
+    ///delete hPack; -> TIMER_DATA_HNDL_CLOSE
+
+    // Validate grenade
+    int grenade = WeaponsFindByName(client, sClassname);
+    if (grenade == -1)
+    {
+        // Give same weapon
+        grenade = WeaponsGive(client, iD);
+        if (grenade != -1) 
+        {
+            // Reduce grenade amount for a new one if they are available
+            SetEntProp(grenade, Prop_Send, "m_iPrimaryReserveAmmoCount", iCount); 
+            SetEntProp(grenade, Prop_Send, "m_iSecondaryReserveAmmoCount", iCount);
+        }
+    }
+    
+    // Destroy timer
+    return Plugin_Stop;
+}*/
 
 /**
  * Hook: WeaponReloadPost
@@ -1273,14 +1308,43 @@ void WeaponMODOnFire(int client, int weapon)
         }
         
         // If weapon without any type of ammo, then stop
-        if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1 && WeaponsGetDefIndex(iD) != ItemDef_Taser) 
+        int iType = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
+        if (iType != -1) 
         {
-            // Validate class ammunition mode
-            switch (ClassGetAmmunition(gClientData[client].Class))
+            // Validate grenade
+            ItemDef iItem = WeaponsGetDefIndex(iD);
+            /*if (IsGrenade(iItem))
             {
-                case 0 : return;
-                case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
-                case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip1") + 1); } 
+                // Validate count
+                int iCount = GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount") - 1;
+                if (iCount > 0)
+                {
+                    // Gets entity classname
+                    static char sClassname[SMALL_LINE_LENGTH];
+                    GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+            
+                    // For giving the next grenade
+                    DataPack hPack = new DataPack();
+                    /// Initialize pack
+                    hPack.WriteCell(GetClientUserId(client));
+                    hPack.WriteCell(iD);
+                    hPack.WriteCell(iCount);
+                    hPack.WriteString(sClassname);
+        
+                    // Create timer for a grenade throw hook
+                    CreateTimer(2.0, WeaponMODOnGrenadeThrown, hPack, TIMER_FLAG_NO_MAPCHANGE | TIMER_DATA_HNDL_CLOSE);
+                }
+            }
+            // Validate weapon
+      else*/if (iItem != ItemDef_Taser)
+            {
+                // Validate class ammunition mode
+                switch (ClassGetAmmunition(gClientData[client].Class))
+                {
+                    case 0 : return;
+                    case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
+                    case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip1") + 1); } 
+                }
             }
         }
         
@@ -1392,7 +1456,7 @@ void WeaponMODOnUse(int client)
             }
             
             // Replace weapon
-            WeaponsEquip(client, entity);
+            WeaponsEquip(client, entity, -1); /// id not used
         }
     }
 }
@@ -1576,6 +1640,15 @@ public Action WeaponMODOnCommandListened(int client, char[] commandMsg, int iArg
 
                             // Block commands
                             return Plugin_Handled;
+                        }
+                        else
+                        {
+                            // If help messages enabled, then show info
+                            if (gCvarList.MESSAGES_WEAPON_DROP.BoolValue && gCvarList.GAMEMODE_WEAPONS_REMOVE.BoolValue && gServerData.RoundNew)
+                            {
+                                // Show remove info
+                                TranslationPrintToChat(client, "drop info");
+                            }
                         }
                     }
                 }

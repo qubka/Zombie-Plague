@@ -74,6 +74,7 @@ void ToolsOnCvarInit(/*void*/)
     gCvarList.MESSAGES_ITEM_ALL     = FindConVar("zp_messages_item_all");
     gCvarList.MESSAGES_WEAPON_INFO  = FindConVar("zp_messages_weapon_info");
     gCvarList.MESSAGES_WEAPON_ALL   = FindConVar("zp_messages_weapon_all");
+    gCvarList.MESSAGES_WEAPON_DROP  = FindConVar("zp_messages_weapon_drop");
     gCvarList.MESSAGES_BLOCK        = FindConVar("zp_messages_block");
     gCvarList.SEND_TABLES           = FindConVar("sv_sendtables");
     

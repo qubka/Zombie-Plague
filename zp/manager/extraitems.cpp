@@ -858,7 +858,7 @@ void ItemsMenu(int client)
     }
 
     // If mode already started, then stop
-    if (gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode))
+    if (gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie)
     {
         // Show block info
         TranslationPrintHintText(client, "buying round block");     
@@ -988,7 +988,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
             }
             
             // If mode already started, then stop
-            if ((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode)) || gServerData.RoundEnd)
+            if ((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
             {
                 // Show block info
                 TranslationPrintHintText(client, "buying round block");

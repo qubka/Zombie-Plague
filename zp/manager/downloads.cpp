@@ -224,7 +224,7 @@ bool DownloadsOnPrecache(char[] sPath)
     else if (!strcmp(sPath[iFormat], ".vmt", false))
     {
         // Precache textures
-        return DecryptPrecacheTextures(sPath);
+        return DecryptPrecacheTextures("self", sPath);
     }
     else
     {

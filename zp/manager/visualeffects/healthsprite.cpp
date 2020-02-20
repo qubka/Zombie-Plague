@@ -43,7 +43,7 @@ void HealthOnLoad(/*void*/)
     {
         // Precache material
         Format(sSprite, sizeof(sSprite), "materials/%s", sSprite);
-        DecryptPrecacheTextures(sSprite);
+        DecryptPrecacheTextures("self", sSprite);
         PrecacheGeneric(sSprite, true);
     }
 } 

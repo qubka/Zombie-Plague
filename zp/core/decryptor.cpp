@@ -473,7 +473,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
                                 hBase.WriteLine(sFile);
 
                                 // Precache model textures
-                                DecryptPrecacheTextures(sFile);
+                                DecryptPrecacheTextures(sModel, sFile);
                             }
                         }
                     }
@@ -493,7 +493,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
                     // Push data into array
                     hList.PushString(sPath);
                 }
-                                    
+                
                 // Format full path to file
                 Format(sPath, sizeof(sPath), "materials\\%s%s", sMaterial, sPath);
                 
@@ -501,7 +501,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
                 hBase.WriteLine(sPath);
                 
                 // Precache model textures
-                DecryptPrecacheTextures(sPath);
+                DecryptPrecacheTextures(sModel, sPath);
             }
         }
 
@@ -528,7 +528,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
             }
             
             // Precache model textures
-            DecryptPrecacheTextures(sPath);
+            DecryptPrecacheTextures(sModel, sPath);
         }
     }
     
@@ -637,7 +637,7 @@ bool DecryptPrecacheEffects(char[] sModel)
                     hBase.WriteLine(sPath);
                     
                     // Precache model textures
-                    DecryptPrecacheTextures(sPath);
+                    DecryptPrecacheTextures(sModel, sPath);
                 }
             }
         }
@@ -664,7 +664,7 @@ bool DecryptPrecacheEffects(char[] sModel)
             }
 
             // Precache model textures
-            DecryptPrecacheTextures(sPath);
+            DecryptPrecacheTextures(sModel, sPath);
         }
     }
     
@@ -676,12 +676,17 @@ bool DecryptPrecacheEffects(char[] sModel)
 /**
  * @brief Reads the current material and precache its textures.
  *
+ * @param sModel            The model name.
  * @param sPath             The texture path.
  * @param bDecal            (Optional) If true, the texture will be precached like a decal.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheTextures(char[] sPath)
+bool DecryptPrecacheTextures(char[] sModel, char[] sPath)
 {
+    // Finds the first occurrence of a character in a string
+    int iSlash = max(FindCharInString(sModel, '/', true), FindCharInString(sModel, '\\', true));
+    if (iSlash == -1) iSlash = 0; else iSlash++; /// For the root directory to get correct name
+    
     // Dublicate value string
     static char sTexture[PLATFORM_LINE_LENGTH];
     strcopy(sTexture, sizeof(sTexture), sPath);
@@ -689,7 +694,7 @@ bool DecryptPrecacheTextures(char[] sPath)
     // If doesn't exist stop
     if (!FileExists(sTexture))
     {
-        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid material path. File not found: \"%s\"", sTexture);
+        LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid material path. File not found: \"%s\" for \"%s\"", sTexture, sModel[iSlash]);
         return false;
     }
 

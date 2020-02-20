@@ -263,6 +263,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
             iGrenadeMode[client] = iMode;
             
             // Display the grenade mode
+            SetGlobalTransTarget(client);
             PrintHintText(client, "%t", "grenade mode", sModes[iMode]);
         }
     }

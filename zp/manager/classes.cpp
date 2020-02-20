@@ -344,7 +344,7 @@ void ClassesOnCacheData(/*void*/)
         {
             // Precache material
             Format(sPathClasses, sizeof(sPathClasses), "materials/%s", sPathClasses);
-            DecryptPrecacheTextures(sPathClasses);
+            DecryptPrecacheTextures("self", sPathClasses);
         }
         kvClasses.GetString("weapon", sPathClasses, sizeof(sPathClasses), "");
         static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH]; int iWeapon[SMALL_LINE_LENGTH] = { -1, ... };

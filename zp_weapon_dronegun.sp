@@ -1882,17 +1882,6 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
     
     // Sets next idle time
     SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
-    
-    // Validate helper message
-    if (!GetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget"))
-    {
-        // Show message
-        SetGlobalTransTarget(client);
-        PrintHintText(client, "%t", "rotate info");
-        
-        // Block helper message
-        SetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget", true);
-    }
 }
 
 void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
@@ -1911,6 +1900,10 @@ void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 
     // Sets next attack time
     SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+    
+    // Show message
+    SetGlobalTransTarget(client);
+    PrintHintText(client, "%t", "rotate info");
 }
 
 void Weapon_OnDrop(int client, int weapon, float flCurrentTime)
@@ -2253,7 +2246,6 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
         SetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount", GetRandomInt(0, 1));
         SetEntProp(weapon, Prop_Data, "m_iWeaponModule", SENTRY_MODE_NORMAL);
         SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
-        SetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget", false);
     }
 }   
 
