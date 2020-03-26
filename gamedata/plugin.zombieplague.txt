@@ -23,18 +23,18 @@
             }
             "CBaseCombatWeapon::GetMaxClip1"
             {
-                "windows"   "351"
-                "linux"     "357"
+                "windows"   "352"
+                "linux"     "358"
             }
             "CBaseCombatWeapon::GetReserveAmmoMax"
             {
-                "windows"   "355"
-                "linux"     "361"
+                "windows"   "356"
+                "linux"     "362"
             }
             "CBaseCombatWeapon::GetSlot"
             {
-                "windows"   "360"
-                "linux"     "366"
+                "windows"   "361"
+                "linux"     "367"
             }
             "CEconItemDefinition::GetDefinitionIndex"
             {
@@ -82,12 +82,12 @@
                 "linux"     "4"
             }
             // @link https://forums.alliedmods.net/showthread.php?t=255298&page=15
-            "CappingOffset"
+            "WalkOffset"
             {
                 "windows"   "31"
                 "linux"     "27"
             }
-            "PatchBytes"
+            "WalkBytes"
             {
                 "windows"   "42"
                 "linux"     "15"
@@ -203,6 +203,12 @@
                 "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x40\x02\x00\x00"
                 "linux"     "\x55\x89\xE5\x57\x56\x53\x81\xEC\x9C\x02\x00\x00\x8B\x5D\x10"
             }
+            "FX_Disarm" // Str: "Gloves.Swish"
+            {
+                "library"    "server"
+                "linux"      "\x55\x89\xE5\x57\x56\x53\x81\xEC\x3C\x07\x00\x00\x0F\xB6\x45\x0C"
+                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x00\x06\x00\x00"
+            }
 
             /*___________________________________________________________________________________________*/
             
@@ -271,6 +277,30 @@
             "server"
             {
                 "signature" "Find_Server"
+            }
+            "FX_Disarm_Start"
+            {
+                "signature" "FX_Disarm"
+                "linux"
+                {
+                    "offset"  "3898"
+                }
+                "windows"
+                {
+                    "offset"  "1069‬"
+                }
+            }
+            "FX_Disarm_End"
+            {
+                "signature" "FX_Disarm"
+                "linux"
+                {
+                    "offset"  "1647"
+                }
+                "windows"
+                {
+                    "offset"  "1431‬"
+                }
             }
             "FX_FireBullets"
             {

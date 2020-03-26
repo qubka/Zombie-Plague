@@ -694,6 +694,14 @@ bool DecryptPrecacheTextures(char[] sModel, char[] sPath)
     // If doesn't exist stop
     if (!FileExists(sTexture))
     {
+        // Try to find file in .vpk
+        if (FileExists(sTexture, true))
+        {
+            // Return on success
+            return true;
+        }
+
+        // Return error
         LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Decrypt, "Config Validation", "Invalid material path. File not found: \"%s\" for \"%s\"", sTexture, sModel[iSlash]);
         return false;
     }

@@ -547,8 +547,8 @@ public Action GameModesOnCounter(Handle hTimer)
 void GameModesOnBegin(int mode = -1, int target = -1)
 {
     // Resets server grobal variables
-    gServerData.RoundNew   = false;
-    gServerData.RoundEnd   = false;
+    gServerData.RoundNew = false;
+    gServerData.RoundEnd = false;
     
     // Gets amount of total alive players
     int iAlive = fnGetAlive(); 
@@ -3203,7 +3203,7 @@ void ModesKillEntities(bool bDrop = false)
                     if (!IsPlayerExist(client))
                     {
                         // Validate non map weapons, then remove
-                        if(!WeaponsGetMap(i))
+                        if (!WeaponsGetMap(i))
                         {
                             AcceptEntityInput(i, "Kill"); /// Destroy
                         }
@@ -3242,7 +3242,7 @@ void ModesKillEntities(bool bDrop = false)
                     if (!IsPlayerExist(client))
                     {
                         // Validate spawn, if allowed sets custom properties, otherwise remove
-                        if(!WeaponsValidateByMap(i, sClassname))
+                        if (!WeaponsValidateByMap(i, sClassname))
                         {
                             AcceptEntityInput(i, "Kill"); /// Destroy
                         }
@@ -3270,7 +3270,7 @@ void ModesUpdateClientArray(int target = -1)
         if (IsPlayerExist(i))
         {
             // Skip clients, which was zombies previously
-            if(gServerData.LastZombies.FindValue(GetClientUserId(i)) == -1)
+            if (gServerData.LastZombies.FindValue(GetClientUserId(i)) == -1)
             {
                 // Push client
                 gServerData.Clients.Push(i);
@@ -3288,7 +3288,7 @@ void ModesUpdateClientArray(int target = -1)
     {
         // Add the last zombies to the main array if they are valid
         int client = GetClientOfUserId(gServerData.LastZombies.Get(i));
-        if(client && IsPlayerAlive(client))
+        if (IsPlayerExist(client))
         {
             // Append to list
             gServerData.Clients.Push(client);
@@ -3303,7 +3303,7 @@ void ModesUpdateClientArray(int target = -1)
     {
         // If target is found in the list, then swap it to start for zombies, to last for humans
         int client = gServerData.Clients.FindValue(target);
-        if(client != -1)
+        if (client != -1)
         {
             // Simple swap here
             gServerData.Clients.SwapAt(client, (ModesGetRatio(gServerData.RoundMode) < 0.5) ? 0 : gServerData.Clients.Length - 1);

@@ -51,6 +51,8 @@ Address pPrimary;
 Address pSecondary;
 Address pFireBullets;
 Address pMaxSpeed[2];
+Address pDisarmStart; 
+Address pDisarmEnd;
 int Player_Spotted;
 int Player_SpottedByMask;
 int SendProp_iBits; 
@@ -59,9 +61,12 @@ int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
 
 /* CGameMovement::WalkMove VectorScale(wishvel, mv->m_flMaxSpeed/wishspeed, wishvel) */
-int iPatchRestoreBytes;
-int iPatchRestore[100];
-int iCappingOffset;
+int iWalkRestoreBytes;
+int iWalkRestore[100];
+int iWalkOffset;
+
+/* Disarm */
+int iDisarmRestore;
 
 /**
  * @brief FX_FireBullets translator.
@@ -408,11 +413,11 @@ void ToolsOnInit(/*void*/)
     
     // Load other offsets
     fnInitGameConfAddress(gServerData.Config, pMaxSpeed[0], "m_flMaxSpeed");
-    fnInitGameConfOffset(gServerData.Config, iCappingOffset, "CappingOffset");
-    fnInitGameConfOffset(gServerData.Config, iPatchRestoreBytes, "PatchBytes");
+    fnInitGameConfOffset(gServerData.Config, iWalkOffset, "WalkOffset");
+    fnInitGameConfOffset(gServerData.Config, iWalkRestoreBytes, "WalkBytes");
     
     // Move right in front of the instructions we want to NOP
-    pMaxSpeed[0] += view_as<Address>(iCappingOffset);
+    pMaxSpeed[0] += view_as<Address>(iWalkOffset);
     pMaxSpeed[1] = pMaxSpeed[0]; /// Store current patch addr
 
     /**
@@ -421,13 +426,37 @@ void ToolsOnInit(/*void*/)
      * @author This algorithm made by 'Peace-Maker'.
      * @link https://forums.alliedmods.net/showthread.php?t=255298&page=15
      **/
-    for(int i = 0; i < iPatchRestoreBytes; i++)
+    for(int i = 0; i < iWalkRestoreBytes; i++)
     {
         // Save the current instructions, so we can restore them on unload
-        iPatchRestore[i] = LoadFromAddress(pMaxSpeed[0], NumberType_Int8);
+        iWalkRestore[i] = LoadFromAddress(pMaxSpeed[0], NumberType_Int8);
         StoreToAddress(pMaxSpeed[0], 0x90, NumberType_Int8);
         pMaxSpeed[0]++;
     }
+    
+    /*__________________________________________________________________________________________________*/
+    
+    // Load other offsets
+    fnInitGameConfAddress(gServerData.Config, pDisarmStart, "FX_Disarm_Start");
+    fnInitGameConfAddress(gServerData.Config, pDisarmEnd, "FX_Disarm_End");
+    
+    // Validate extracted data
+    if (LoadFromAddress(pDisarmStart, NumberType_Int8) != 0x80 || LoadFromAddress(pDisarmEnd, NumberType_Int8) != 0x8B)
+    {
+        // Log failure
+        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK addresses from \"FX_Disarm_*\". Update addresses in \"%s\"", PLUGIN_CONFIG);
+        return;
+    }
+    
+    /// Store current patch offset
+    iDisarmRestore = LoadFromAddress(pDisarmStart + view_as<Address>(1), NumberType_Int32);
+
+    // Gets the jmp instruction
+    int jmp = view_as<int>(pDisarmEnd - pDisarmStart) - 5;
+    
+    // Write new jmp instruction
+    StoreToAddress(pDisarmStart, 0xE9, NumberType_Int8);
+    StoreToAddress(pDisarmStart + view_as<Address>(1), jmp, NumberType_Int32);
 }
 
 /**
@@ -448,15 +477,17 @@ void ToolsOnPurge(/*void*/)
  **/
 void ToolsOnUnload(/*void*/)
 {
-    // Restore the original instructions, if we patched them
-    if(pMaxSpeed[1] != Address_Null)
+    /// Restore the original walk instructions, if we patched them
+
+    // i = currect instruction
+    for(int i = 0; i < iWalkRestoreBytes; i++)
     {
-        // i = currect instruction
-        for(int i = 0; i < iPatchRestoreBytes; i++)
-        {
-            StoreToAddress(pMaxSpeed[1] + view_as<Address>(i), iPatchRestore[i], NumberType_Int8);
-        }
+        StoreToAddress(pMaxSpeed[1] + view_as<Address>(i), iWalkRestore[i], NumberType_Int8);
     }
+
+    /// Restore the original disarm instructions, if we patched them
+    StoreToAddress(pDisarmStart, 0x80, NumberType_Int8);
+    StoreToAddress(pDisarmStart + view_as<Address>(1), iDisarmRestore, NumberType_Int32);
 }
 
 /**
@@ -792,7 +823,7 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if(!IsPlayerExist(client))
+    if (!IsPlayerExist(client))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
         return;
@@ -802,7 +833,7 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
     int weapon = GetNativeCell(2);
     
     // Validate weapon
-    if(!IsValidEdict(weapon))
+    if (!IsValidEdict(weapon))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the weapon index (%d)", weapon);
         return;

@@ -339,10 +339,10 @@ stock int fnGetRandomZombie(/*void*/)
  * @param iOffset           An offset, or -1 on failure.
  * @param sKey              Key to retrieve from the offset section.
  **/
-stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, char[] sKey)
+stock void fnInitGameConfOffset(GameData gameConf, int &iOffset, char[] sKey)
 {
     // Validate offset
-    if ((iOffset = GameConfGetOffset(gameConf, sKey)) == -1)
+    if ((iOffset = gameConf.GetOffset(sKey)) == -1)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get offset: \"%s\"", sKey);
     }
@@ -355,10 +355,10 @@ stock void fnInitGameConfOffset(Handle gameConf, int &iOffset, char[] sKey)
  * @param pAddress          An address, or null on failure.
  * @param sKey              Key to retrieve from the address section.
  **/
-stock void fnInitGameConfAddress(Handle gameConf, Address &pAddress, char[] sKey)
+stock void fnInitGameConfAddress(GameData gameConf, Address &pAddress, char[] sKey)
 {
     // Validate address
-    if ((pAddress = GameConfGetAddress(gameConf, sKey)) == Address_Null)
+    if ((pAddress = gameConf.GetAddress(sKey)) == Address_Null)
     {
         LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get address: \"%s\"", sKey);
     }
@@ -372,10 +372,10 @@ stock void fnInitGameConfAddress(Handle gameConf, Address &pAddress, char[] sKey
  * @param sIdentifier       The string to return identifier in.
  * @param iMaxLen           The lenght of string.
  **/
-stock void fnInitGameConfKey(Handle gameConf, char[] sKey, char[] sIdentifier, int iMaxLen)
+stock void fnInitGameConfKey(GameData gameConf, char[] sKey, char[] sIdentifier, int iMaxLen)
 {
     // Validate key
-    if (!GameConfGetKeyValue(gameConf, sKey, sIdentifier, iMaxLen)) 
+    if (!gameConf.GetKeyValue(sKey, sIdentifier, iMaxLen)) 
     {
         LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get key: \"%s\"", sKey);
     }
@@ -421,7 +421,7 @@ stock void fnInitDataPropOffset(int &iOffset, int entity, char[] sProp)
  * @param sKey              Key to retrieve from the key section.
  * @param pAddress          (Optional) The optional interface address.
  **/
-stock Address fnCreateEngineInterface(Handle hConfig, char[] sKey, Address pAddress = Address_Null) 
+stock Address fnCreateEngineInterface(GameData gameConf, char[] sKey, Address pAddress = Address_Null) 
 {
     // Initialize intercace call
     static Handle hInterface = null;
@@ -429,7 +429,7 @@ stock Address fnCreateEngineInterface(Handle hConfig, char[] sKey, Address pAddr
     {
         // Starts the preparation of an SDK call
         StartPrepSDKCall(SDKCall_Static);
-        PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CreateInterface");
+        PrepSDKCall_SetFromConf(gameConf, SDKConf_Signature, "CreateInterface");
 
         // Adds a parameter to the calling convention. This should be called in normal ascending order
         PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
@@ -446,7 +446,7 @@ stock Address fnCreateEngineInterface(Handle hConfig, char[] sKey, Address pAddr
 
     // Gets the value of a key from a config
     static char sInterface[NORMAL_LINE_LENGTH];
-    fnInitGameConfKey(hConfig, sKey, sInterface, sizeof(sInterface));
+    fnInitGameConfKey(gameConf, sKey, sInterface, sizeof(sInterface));
 
     // Gets the address of a given interface and key
     Address pInterface = SDKCall(hInterface, sInterface, pAddress);
@@ -469,7 +469,7 @@ stock Address fnCreateMemoryForSDKCall(/*void*/)
 {
     // Validate zero memory
     static Address pZeroMemory = Address_Null;
-    if(pZeroMemory != Address_Null)
+    if (pZeroMemory != Address_Null)
     {
         return pZeroMemory;
     }
@@ -483,7 +483,7 @@ stock Address fnCreateMemoryForSDKCall(/*void*/)
     for(;;)
     {
         int iByte = LoadFromAddress(view_as<Address>(pAddress), NumberType_Int8);
-        if(iByte != 0x00)
+        if (iByte != 0x00)
         {
             break;
         }

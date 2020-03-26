@@ -675,7 +675,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
  * @param client            The client index.
  * @param weapon            The weapon index.
  **/
-public Action CS_OnCSWeaponDrop(int client, int weapon)
+/*public Action CS_OnCSWeaponDrop(int client, int weapon)
 {
     // Validate weapon
     if (IsValidEdict(weapon))
@@ -707,7 +707,7 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
     
     // Allow drop
     return Plugin_Continue;
-}
+}*/
 
 /**
  * Hook: WeaponDropPost
@@ -1194,7 +1194,7 @@ public void WeaponMODOnAnimationFix(int client)
                 #define ACT_VM_IDLE 185
         
                 // Stop toggling during the idle animation
-                if(ToolsGetSequenceActivity(view1, iSequence) != ACT_VM_IDLE)
+                if (ToolsGetSequenceActivity(view1, iSequence) != ACT_VM_IDLE)
                 {
                     // Creates a toggle model
                     WeaponHDRToggleViewModel(client, view2, iD);

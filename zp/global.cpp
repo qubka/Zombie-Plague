@@ -72,10 +72,10 @@ enum struct ServerData
     Handle BlastTimer;
     
     /* Gamedata */
-    Handle Config;
-    Handle SDKHooks;
-    Handle SDKTools;
-    Handle CStrike;
+    GameData Config;
+    GameData SDKHooks;
+    GameData SDKTools;
+    GameData CStrike;
 
     /* Database */
     Database DBI;

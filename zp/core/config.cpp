@@ -199,10 +199,10 @@ enum ConfigKvAction
 void ConfigOnInit(/*void*/)
 {
     // Loads a gamedata configs file
-    gServerData.Config   = LoadGameConfigFile(PLUGIN_CONFIG);
-    gServerData.SDKHooks = LoadGameConfigFile("sdkhooks.games");
-    gServerData.SDKTools = LoadGameConfigFile("sdktools.games");
-    gServerData.CStrike  = LoadGameConfigFile("sm-cstrike.games");
+    gServerData.Config   = new GameData(PLUGIN_CONFIG);
+    gServerData.SDKHooks = new GameData("sdkhooks.games");
+    gServerData.SDKTools = new GameData("sdktools.games");
+    gServerData.CStrike  = new GameData("sm-cstrike.games");
     
     // Validate config
     if (gServerData.Config == null)
