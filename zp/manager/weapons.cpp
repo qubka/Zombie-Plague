@@ -56,6 +56,7 @@ enum
     WEAPONS_DATA_DEPLOY,
     WEAPONS_DATA_SOUND,
     WEAPONS_DATA_ICON,
+    WEAPONS_DATA_CUSTOMVIEW,
     WEAPONS_DATA_MODEL_VIEW,
     WEAPONS_DATA_MODEL_VIEW_,
     WEAPONS_DATA_MODEL_WORLD,
@@ -260,26 +261,27 @@ void WeaponsOnCacheData(/*void*/)
             Format(sPathWeapons, sizeof(sPathWeapons), "materials/panorama/images/icons/equipment/%s.svg", sPathWeapons);
             if (FileExists(sPathWeapons)) AddFileToDownloadsTable(sPathWeapons); 
         }
+        arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "customview", "off")); // Index: 21
         kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                                 // Index: 21    
-        arrayWeapon.Push(DecryptPrecacheWeapon(sPathWeapons));                // Index: 22
+        arrayWeapon.PushString(sPathWeapons);                                 // Index: 22
+        arrayWeapon.Push(DecryptPrecacheWeapon(sPathWeapons));                // Index: 23
         kvWeapons.GetString("world", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                                 // Index: 23
-        arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 24
+        arrayWeapon.PushString(sPathWeapons);                                 // Index: 24
+        arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 25
         kvWeapons.GetString("dropped", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                                 // Index: 25
-        arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 26
+        arrayWeapon.PushString(sPathWeapons);                                 // Index: 26
+        arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 27
         int iBody[4]; kvWeapons.GetColor4("body", iBody);                     
-        arrayWeapon.PushArray(iBody, sizeof(iBody));                          // Index: 27
+        arrayWeapon.PushArray(iBody, sizeof(iBody));                          // Index: 28
         int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
-        arrayWeapon.PushArray(iSkin, sizeof(iSkin));                          // Index: 28
+        arrayWeapon.PushArray(iSkin, sizeof(iSkin));                          // Index: 29
         kvWeapons.GetString("muzzle", sPathWeapons, sizeof(sPathWeapons), "");
-        arrayWeapon.PushString(sPathWeapons);                                 // Index: 29
-        kvWeapons.GetString("shell", sPathWeapons, sizeof(sPathWeapons), "");
         arrayWeapon.PushString(sPathWeapons);                                 // Index: 30
-        arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                    // Index: 31
-        arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];                 // Index: 32
-        arrayWeapon.PushArray(iSeq, sizeof(iSeq));                            // Index: 33
+        kvWeapons.GetString("shell", sPathWeapons, sizeof(sPathWeapons), "");
+        arrayWeapon.PushString(sPathWeapons);                                 // Index: 31
+        arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                    // Index: 32
+        arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];                 // Index: 33
+        arrayWeapon.PushArray(iSeq, sizeof(iSeq));                            // Index: 34
     }
 
     // We're done with this file now, so we can close it
@@ -2062,6 +2064,15 @@ void WeaponsGetIcon(int iD, char[] sIcon, int iMaxLen)
     
     // Gets weapon icon
     arrayWeapon.GetString(WEAPONS_DATA_ICON, sIcon, iMaxLen);
+}
+
+int WeaponsIsCustomView(int iD)
+{
+    // Gets array handle of weapon at given index
+    ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
+    
+    // Gets weapon drop state
+    return arrayWeapon.Get(WEAPONS_DATA_CUSTOMVIEW);
 }
 
 /**
