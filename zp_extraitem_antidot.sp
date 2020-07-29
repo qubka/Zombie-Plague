@@ -113,6 +113,6 @@ public void ZP_OnClientBuyExtraItem(int client, int itemID)
     if (itemID == gItem)
     {
         // Change class to human
-        ZP_ChangeClient(client, _, "human");
+        ZP_ChangeClient(client, -1, "human");
     }
 }

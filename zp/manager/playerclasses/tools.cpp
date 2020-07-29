@@ -426,7 +426,7 @@ void ToolsOnInit(/*void*/)
      * @author This algorithm made by 'Peace-Maker'.
      * @link https://forums.alliedmods.net/showthread.php?t=255298&page=15
      **/
-    for(int i = 0; i < iWalkRestoreBytes; i++)
+    for (int i = 0; i < iWalkRestoreBytes; i++)
     {
         // Save the current instructions, so we can restore them on unload
         iWalkRestore[i] = LoadFromAddress(pMaxSpeed[0], NumberType_Int8);
@@ -436,27 +436,31 @@ void ToolsOnInit(/*void*/)
     
     /*__________________________________________________________________________________________________*/
     
-    // Load other offsets
-    fnInitGameConfAddress(gServerData.Config, pDisarmStart, "FX_Disarm_Start");
-    fnInitGameConfAddress(gServerData.Config, pDisarmEnd, "FX_Disarm_End");
-    
-    // Validate extracted data
-    if (LoadFromAddress(pDisarmStart, NumberType_Int8) != 0x80 || LoadFromAddress(pDisarmEnd, NumberType_Int8) != 0x8B)
+    // Validate Linux
+    if (gServerData.Platform != OS_Windows)
     {
-        // Log failure
-        LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK addresses from \"FX_Disarm_*\". Update addresses in \"%s\"", PLUGIN_CONFIG);
-        return;
-    }
-    
-    /// Store current patch offset
-    iDisarmRestore = LoadFromAddress(pDisarmStart + view_as<Address>(1), NumberType_Int32);
+        // Load other offsets
+        fnInitGameConfAddress(gServerData.Config, pDisarmStart, "FX_Disarm_Start");
+        fnInitGameConfAddress(gServerData.Config, pDisarmEnd, "FX_Disarm_End");
 
-    // Gets the jmp instruction
-    int jmp = view_as<int>(pDisarmEnd - pDisarmStart) - 5;
-    
-    // Write new jmp instruction
-    StoreToAddress(pDisarmStart, 0xE9, NumberType_Int8);
-    StoreToAddress(pDisarmStart + view_as<Address>(1), jmp, NumberType_Int32);
+        // Validate extracted data
+        if (LoadFromAddress(pDisarmStart, NumberType_Int8) != 0x80 || LoadFromAddress(pDisarmEnd, NumberType_Int8) != 0x8B)
+        {
+           // Log failure
+           LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK addresses from \"FX_Disarm_*\". Update addresses in \"%s\"", PLUGIN_CONFIG);
+           return;
+        }
+
+        /// Store current patch offset
+        iDisarmRestore = LoadFromAddress(pDisarmStart + view_as<Address>(1), NumberType_Int32);
+
+        // Gets the jmp instruction
+        int jmp = view_as<int>(pDisarmEnd - pDisarmStart) - 5;
+
+        // Write new jmp instruction
+        StoreToAddress(pDisarmStart, 0xE9, NumberType_Int8);
+        StoreToAddress(pDisarmStart + view_as<Address>(1), jmp, NumberType_Int32);
+    }
 }
 
 /**
@@ -480,7 +484,7 @@ void ToolsOnUnload(/*void*/)
     /// Restore the original walk instructions, if we patched them
 
     // i = currect instruction
-    for(int i = 0; i < iWalkRestoreBytes; i++)
+    for (int i = 0; i < iWalkRestoreBytes; i++)
     {
         StoreToAddress(pMaxSpeed[1] + view_as<Address>(i), iWalkRestore[i], NumberType_Int8);
     }

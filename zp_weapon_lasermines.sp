@@ -817,7 +817,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
             int victim = hList.Get(i);
             
             // Validate victim
-            if(IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+            if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
             {
                 // Apply damage
                 ZP_TakeDamage(victim, -1, entity, WEAPON_MINE_DAMAGE, DMG_BULLET);

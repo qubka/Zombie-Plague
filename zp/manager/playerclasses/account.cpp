@@ -364,7 +364,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     int target = FindTarget(client, sArgument, true, false);
 
     // Validate target
-    if (target < 0)
+    if (target < 0 || client == target)
     {
         // Note: FindTarget automatically write error messages
         return Plugin_Handled;
@@ -375,7 +375,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
     
     // Validate amount
     int iMoney = StringToInt(sArgument); int iBet = gCvarList.ACCOUNT_BET.IntValue;
-    if (iMoney < gClientData[client].Money || iMoney < iBet)
+    if (iMoney <= 0 || iMoney > gClientData[client].Money || iMoney < iBet)
     {
         // Write error info
         TranslationReplyToCommand(client, "account give invalid amount", iMoney);

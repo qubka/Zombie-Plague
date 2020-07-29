@@ -480,7 +480,7 @@ stock Address fnCreateMemoryForSDKCall(/*void*/)
     int pAddress = view_as<int>(pServerBase) + fnGetModuleSize(pServerBase) - 1;
    
     // Find the free memory
-    for(;;)
+    for (;;)
     {
         int iByte = LoadFromAddress(view_as<Address>(pAddress), NumberType_Int8);
         if (iByte != 0x00)
@@ -522,7 +522,7 @@ stock void memcpy(Address pDest, char[] sSource, int iSize)
     memcpy4b(pDest, view_as<any>(sSource), i);
    
     // Copy the rest of staff
-    for(i *= 4, pDest += view_as<Address>(i); i < iSize; i++)
+    for (i *= 4, pDest += view_as<Address>(i); i < iSize; i++)
     {
         StoreToAddress(pDest++, sSource[i], NumberType_Int8);
     }
@@ -538,7 +538,7 @@ stock void memcpy(Address pDest, char[] sSource, int iSize)
 stock void memcpy4b(Address pDest, any[] sSource, int iSize)
 {
     // Copy 4 bytes at once
-    for(int i = 0; i < iSize; i++)
+    for (int i = 0; i < iSize; i++)
     {
         StoreToAddress(pDest, sSource[i], NumberType_Int32);
         pDest += view_as<Address>(4);
