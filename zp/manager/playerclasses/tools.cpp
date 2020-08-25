@@ -887,7 +887,7 @@ public int API_RespawnPlayer(Handle hPlugin, int iNumParams)
     int client = GetNativeCell(1);
 
     // Validate client
-    if (!IsPlayerExist(client))
+    if (!IsPlayerExist(client, false))
     {
         LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
         return false;
