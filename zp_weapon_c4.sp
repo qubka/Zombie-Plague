@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: C4 Charge",
-    author          = "qubka (Nikita Ushakov)",     
-    description     = "Addon of custom weapon",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Weapon: C4 Charge",
+	author          = "qubka (Nikita Ushakov)",     
+	description     = "Addon of custom weapon",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 // Sound index
@@ -56,16 +56,16 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -73,9 +73,9 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Weapons
-    gWeapon = ZP_GetWeaponNameID("breachcharge");
-    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"breachcharge\" wasn't find");
+	// Weapons
+	gWeapon = ZP_GetWeaponNameID("breachcharge");
+	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"breachcharge\" wasn't find");
 }
 
 /**
@@ -92,18 +92,18 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-    // Client was damaged by 'explosion'
-    if (iBits & DMG_BLAST)
-    {
-        // Validate inflicter
-        if (IsValidEdict(inflictor))
-        {
-            // Validate custom grenade
-            if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
-            {
-                // Resets explosion damage
-                flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
-            }
-        }
-    }
+	// Client was damaged by 'explosion'
+	if (iBits & DMG_BLAST)
+	{
+		// Validate inflicter
+		if (IsValidEdict(inflictor))
+		{
+			// Validate custom grenade
+			if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
+			{
+				// Resets explosion damage
+				flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
+			}
+		}
+	}
 }

@@ -130,7 +130,7 @@
 /** 
  * @endsection  
  **/    
-    
+	
 /** 
  * @section NPC flags.  
  **/    
@@ -356,89 +356,89 @@
  **/
 enum ItemDef
 {
-    ItemDef_Invalid = 0,          /** Used as return value when a def doens't exist. */
+	ItemDef_Invalid = 0,          /** Used as return value when a def doens't exist. */
 
-    ItemDef_Deagle = 1,
-    ItemDef_Elite,
-    ItemDef_FiveSeven,
-    ItemDef_Glock,
-    ItemDef_AK47 = 7,
-    ItemDef_AUG,
-    ItemDef_AWP,
-    ItemDef_Famas,
-    ItemDef_G3SG1,
-    ItemDef_GalilAR = 13,
-    ItemDef_M249,
-    ItemDef_M4A4 = 16,
-    ItemDef_MAC10,
-    ItemDef_P90 = 19,
-    ItemDef_MP5 = 23,
-    ItemDef_UMP45,
-    ItemDef_XM1014,
-    ItemDef_Bizon,
-    ItemDef_MAG7,
-    ItemDef_Negev,
-    ItemDef_SawedOff,
-    ItemDef_TEC9,
-    ItemDef_Taser,
-    ItemDef_HKP2000,
-    ItemDef_MP7,
-    ItemDef_MP9,
-    ItemDef_Nova,
-    ItemDef_P250,
-    ItemDef_Shield,
-    ItemDef_SCAR20,
-    ItemDef_SG553,
-    ItemDef_SSG08,
-    ItemDef_Knife,
-    ItemDef_KnifeGG,
-    ItemDef_FlashBang,
-    ItemDef_HEGrenade,
-    ItemDef_SmokeGrenade,
-    ItemDef_Molotov,
-    ItemDef_Decoy,
-    ItemDef_IncGrenade,
-    ItemDef_C4,
-    ItemDef_Kevlar,
-    ItemDef_KevlarHelmet,
-    ItemDef_HeavySuit,
-    ItemDef_NGVs = 54,
-    ItemDef_Defuser,
-    ItemDef_Cutters,
-    ItemDef_Healthshot,
-    ItemDef_KnifeT = 59,
-    ItemDef_M4A1,
-    ItemDef_USP,
-    ItemDef_CZ75A = 63,
-    ItemDef_Revolver,
-    ItemDef_TAGrenade = 68,
-    ItemDef_Fists,
-    ItemDef_BreachCharge,
-    ItemDef_Tablet = 72,
-    ItemDef_Melee = 74,
-    ItemDef_Axe,
-    ItemDef_Hammer,
-    ItemDef_Wrench = 78,
-    ItemDef_KnifeGhost = 80,
-    ItemDef_FireBomb,
-    ItemDef_DiversionDevice,
-    ItemDef_FragGrenade,
-    ItemDef_SnowBall,
-    ItemDef_BumpMine,
-    ItemDef_Bayonet = 500,
-    ItemDef_FlipKnife = 505,
-    ItemDef_GutKnife = 506,
-    ItemDef_Karambit = 507,
-    ItemDef_M9_Bayonet = 508,
-    ItemDef_HuntsmanKnife = 509,
-    ItemDef_FalchionKnife = 512,
-    ItemDef_BowieKnife = 514,
-    ItemDef_ButterflyKnife = 515,
-    ItemDef_ShadowDaggers = 516,
-    ItemDef_UrsusKnife = 519,
-    ItemDef_NavajaKnife = 520,
-    ItemDef_StilettoKnife = 522,
-    ItemDef_TalonKnife = 523 
+	ItemDef_Deagle = 1,
+	ItemDef_Elite,
+	ItemDef_FiveSeven,
+	ItemDef_Glock,
+	ItemDef_AK47 = 7,
+	ItemDef_AUG,
+	ItemDef_AWP,
+	ItemDef_Famas,
+	ItemDef_G3SG1,
+	ItemDef_GalilAR = 13,
+	ItemDef_M249,
+	ItemDef_M4A4 = 16,
+	ItemDef_MAC10,
+	ItemDef_P90 = 19,
+	ItemDef_MP5 = 23,
+	ItemDef_UMP45,
+	ItemDef_XM1014,
+	ItemDef_Bizon,
+	ItemDef_MAG7,
+	ItemDef_Negev,
+	ItemDef_SawedOff,
+	ItemDef_TEC9,
+	ItemDef_Taser,
+	ItemDef_HKP2000,
+	ItemDef_MP7,
+	ItemDef_MP9,
+	ItemDef_Nova,
+	ItemDef_P250,
+	ItemDef_Shield,
+	ItemDef_SCAR20,
+	ItemDef_SG553,
+	ItemDef_SSG08,
+	ItemDef_Knife,
+	ItemDef_KnifeGG,
+	ItemDef_FlashBang,
+	ItemDef_HEGrenade,
+	ItemDef_SmokeGrenade,
+	ItemDef_Molotov,
+	ItemDef_Decoy,
+	ItemDef_IncGrenade,
+	ItemDef_C4,
+	ItemDef_Kevlar,
+	ItemDef_KevlarHelmet,
+	ItemDef_HeavySuit,
+	ItemDef_NGVs = 54,
+	ItemDef_Defuser,
+	ItemDef_Cutters,
+	ItemDef_Healthshot,
+	ItemDef_KnifeT = 59,
+	ItemDef_M4A1,
+	ItemDef_USP,
+	ItemDef_CZ75A = 63,
+	ItemDef_Revolver,
+	ItemDef_TAGrenade = 68,
+	ItemDef_Fists,
+	ItemDef_BreachCharge,
+	ItemDef_Tablet = 72,
+	ItemDef_Melee = 74,
+	ItemDef_Axe,
+	ItemDef_Hammer,
+	ItemDef_Wrench = 78,
+	ItemDef_KnifeGhost = 80,
+	ItemDef_FireBomb,
+	ItemDef_DiversionDevice,
+	ItemDef_FragGrenade,
+	ItemDef_SnowBall,
+	ItemDef_BumpMine,
+	ItemDef_Bayonet = 500,
+	ItemDef_FlipKnife = 505,
+	ItemDef_GutKnife = 506,
+	ItemDef_Karambit = 507,
+	ItemDef_M9_Bayonet = 508,
+	ItemDef_HuntsmanKnife = 509,
+	ItemDef_FalchionKnife = 512,
+	ItemDef_BowieKnife = 514,
+	ItemDef_ButterflyKnife = 515,
+	ItemDef_ShadowDaggers = 516,
+	ItemDef_UrsusKnife = 519,
+	ItemDef_NavajaKnife = 520,
+	ItemDef_StilettoKnife = 522,
+	ItemDef_TalonKnife = 523 
 };
 #define IsGrenade(%0)       (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || %0 == ItemDef_BreachCharge || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_BumpMine))
 #define IsProjectile(%0)    (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_FragGrenade))
@@ -455,10 +455,10 @@ enum ItemDef
  **/
 enum ColorType     
 {
-    Color_Red,
-    Color_Green,
-    Color_Blue,
-    Color_Alpha
+	Color_Red,
+	Color_Green,
+	Color_Blue,
+	Color_Alpha
 };
 /**
  * @endsection
@@ -479,38 +479,38 @@ enum ColorType
  **/
 stock int UTIL_CreateTrain(char[] sClassname, float vPosition[3], float vAngle[3], char[] sPath, char[] sSpeed, char[] sSound = "", int iFlags = 0)
 {
-    // Create a train entity
-    int entity = CreateEntityByName("func_tracktrain"); 
-    
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
+	// Create a train entity
+	int entity = CreateEntityByName("func_tracktrain"); 
+	
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
 
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition); 
-        DispatchKeyValueVector(entity, "angles", vAngle); 
-        DispatchKeyValue(entity, "targetname", sClassname);
-        DispatchKeyValue(entity, "target", sPath);
-        DispatchKeyValue(entity, "startspeed", sSpeed);
-        DispatchKeyValue(entity, "speed", sSpeed);
-        DispatchKeyValue(entity, "wheels", "256");         /// Make moving smoother
-        DispatchKeyValue(entity, "bank", "20");            /// Make turning smoother
-        DispatchKeyValue(entity, "orientationtype", "2");  /// Linear blend, adds some smoothness
-        DispatchKeyValue(entity, "spawnflags", sFlags);  
-        if (hasLength(sSound)) DispatchKeyValue(entity, "MoveSound", sSound);
-        
-        // Sets render mode
-        UTIL_SetRenderColor(entity, Color_Alpha, 0);
-        
-        // Spawn the entity
-        DispatchSpawn(entity);
-    }
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition); 
+		DispatchKeyValueVector(entity, "angles", vAngle); 
+		DispatchKeyValue(entity, "targetname", sClassname);
+		DispatchKeyValue(entity, "target", sPath);
+		DispatchKeyValue(entity, "startspeed", sSpeed);
+		DispatchKeyValue(entity, "speed", sSpeed);
+		DispatchKeyValue(entity, "wheels", "256");         /// Make moving smoother
+		DispatchKeyValue(entity, "bank", "20");            /// Make turning smoother
+		DispatchKeyValue(entity, "orientationtype", "2");  /// Linear blend, adds some smoothness
+		DispatchKeyValue(entity, "spawnflags", sFlags);  
+		if (hasLength(sSound)) DispatchKeyValue(entity, "MoveSound", sSound);
+		
+		// Sets render mode
+		UTIL_SetRenderColor(entity, Color_Alpha, 0);
+		
+		// Spawn the entity
+		DispatchSpawn(entity);
+	}
 
-    // Return index on the success
-    return entity;
+	// Return index on the success
+	return entity;
 }
 
 /**
@@ -526,32 +526,32 @@ stock int UTIL_CreateTrain(char[] sClassname, float vPosition[3], float vAngle[3
  **/
 stock int UTIL_CreatePath(char[] sClassname, float vPosition[3], float vAngle[3], char[] sNextTarget, int iFlags = 0)
 {
-    // Create a path entity
-    int entity = CreateEntityByName("path_track");
-    
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
+	// Create a path entity
+	int entity = CreateEntityByName("path_track");
+	
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
 
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition); 
-        DispatchKeyValueVector(entity, "angles", vAngle); 
-        DispatchKeyValue(entity, "targetname", sClassname);
-        DispatchKeyValue(entity, "target", sNextTarget);
-        DispatchKeyValue(entity, "spawnflags", sFlags); 
-        
-        // Spawn the entity
-        DispatchSpawn(entity);
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition); 
+		DispatchKeyValueVector(entity, "angles", vAngle); 
+		DispatchKeyValue(entity, "targetname", sClassname);
+		DispatchKeyValue(entity, "target", sNextTarget);
+		DispatchKeyValue(entity, "spawnflags", sFlags); 
+		
+		// Spawn the entity
+		DispatchSpawn(entity);
 
-        // Activate the entity
-        ActivateEntity(entity);  
-    }
-    
-    // Return index on the success
-    return entity;
+		// Activate the entity
+		ActivateEntity(entity);  
+	}
+	
+	// Return index on the success
+	return entity;
 }
 
 /**
@@ -567,32 +567,32 @@ stock int UTIL_CreatePath(char[] sClassname, float vPosition[3], float vAngle[3]
  **/
 stock int UTIL_CreateMonster(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, int iFlags = 0)
 {
-    // Create a monster entity
-    int entity = CreateEntityByName("monster_generic"); 
-        
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
+	// Create a monster entity
+	int entity = CreateEntityByName("monster_generic"); 
+		
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
 
-        // Dispatch main values of the entity
-        DispatchKeyValue(entity, "targetname", sClassname);
-        DispatchKeyValueVector(entity, "origin", vPosition); 
-        DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValue(entity, "model", sModel); 
-        DispatchKeyValue(entity, "spawnflags", sFlags); 
+		// Dispatch main values of the entity
+		DispatchKeyValue(entity, "targetname", sClassname);
+		DispatchKeyValueVector(entity, "origin", vPosition); 
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "model", sModel); 
+		DispatchKeyValue(entity, "spawnflags", sFlags); 
 
-        // Spawn the entity
-        DispatchSpawn(entity);
-        
-        // Remove blood to avoid missing effects
-        SetEntProp(entity, Prop_Data, "m_bloodColor", -1);
-    }
-    
-    // Return index on the success
-    return entity;
+		// Spawn the entity
+		DispatchSpawn(entity);
+		
+		// Remove blood to avoid missing effects
+		SetEntProp(entity, Prop_Data, "m_bloodColor", -1);
+	}
+	
+	// Return index on the success
+	return entity;
 }
 
 /**
@@ -608,29 +608,29 @@ stock int UTIL_CreateMonster(char[] sClassname, float vPosition[3], float vAngle
  **/
 stock int UTIL_CreatePhysics(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, int iFlags = 0)
 {
-    // Create a prop_physics_multiplayer entity
-    int entity = CreateEntityByName("prop_physics_multiplayer"); 
+	// Create a prop_physics_multiplayer entity
+	int entity = CreateEntityByName("prop_physics_multiplayer"); 
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
-    
-        // Dispatch main values of the entity
-        DispatchKeyValue(entity, "targetname", sClassname);
-        DispatchKeyValueVector(entity, "origin", vPosition);
-        DispatchKeyValueVector(entity, "angles", vAngle); 
-        DispatchKeyValue(entity, "model", sModel);
-        DispatchKeyValue(entity, "spawnflags", sFlags);
-        
-        // Spawn the entity
-        DispatchSpawn(entity);
-    }
-    
-    // Return index on the success
-    return entity;
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
+	
+		// Dispatch main values of the entity
+		DispatchKeyValue(entity, "targetname", sClassname);
+		DispatchKeyValueVector(entity, "origin", vPosition);
+		DispatchKeyValueVector(entity, "angles", vAngle); 
+		DispatchKeyValue(entity, "model", sModel);
+		DispatchKeyValue(entity, "spawnflags", sFlags);
+		
+		// Spawn the entity
+		DispatchSpawn(entity);
+	}
+	
+	// Return index on the success
+	return entity;
 }
 
 /**
@@ -650,32 +650,32 @@ stock int UTIL_CreatePhysics(char[] sClassname, float vPosition[3], float vAngle
  **/
 stock int UTIL_CreateDynamic(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, char[] sDefaultAnim = "", bool bOverride = true, bool bHoldAnim = false, bool bSolid = false, int iFlags = DYN_COLLISIONDISABLED)
 {
-    // Create a prop_dynamic_override entity
-    int entity = CreateEntityByName(bOverride ? "prop_dynamic_override" : "prop_dynamic");
+	// Create a prop_dynamic_override entity
+	int entity = CreateEntityByName(bOverride ? "prop_dynamic_override" : "prop_dynamic");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
 
-        // Dispatch main values of the entity
-        DispatchKeyValue(entity, "targetname", sClassname);
-        DispatchKeyValueVector(entity, "origin", vPosition); 
-        DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValue(entity, "model", sModel);
-        DispatchKeyValue(entity, "spawnflags", sFlags);
-        DispatchKeyValue(entity, "solid", bSolid ? "1" : "0");
-        DispatchKeyValue(entity, "HoldAnimation", bHoldAnim ? "1" : "0");
-        if (hasLength(sDefaultAnim)) DispatchKeyValue(entity, "DefaultAnim", sDefaultAnim);
-        
-        // Spawn the entity
-        DispatchSpawn(entity);
-    }
-    
-    // Return index on the success
-    return entity;
+		// Dispatch main values of the entity
+		DispatchKeyValue(entity, "targetname", sClassname);
+		DispatchKeyValueVector(entity, "origin", vPosition); 
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "model", sModel);
+		DispatchKeyValue(entity, "spawnflags", sFlags);
+		DispatchKeyValue(entity, "solid", bSolid ? "1" : "0");
+		DispatchKeyValue(entity, "HoldAnimation", bHoldAnim ? "1" : "0");
+		if (hasLength(sDefaultAnim)) DispatchKeyValue(entity, "DefaultAnim", sDefaultAnim);
+		
+		// Spawn the entity
+		DispatchSpawn(entity);
+	}
+	
+	// Return index on the success
+	return entity;
 }
 
 /**
@@ -689,22 +689,22 @@ stock int UTIL_CreateDynamic(char[] sClassname, float vPosition[3], float vAngle
  **/
 stock int UTIL_CreateProjectile(float vPosition[3], float vAngle[3], char[] sModel = "")
 {
-    // Create a static entity
-    int entity = CreateEntityByName("hegrenade_projectile");
+	// Create a static entity
+	int entity = CreateEntityByName("hegrenade_projectile");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Spawn the entity
-        DispatchSpawn(entity);
-        TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
-        
-        // Sets model
-        if (hasLength(sModel)) SetEntityModel(entity, sModel);
-    }
+	// Validate entity
+	if (entity != -1)
+	{
+		// Spawn the entity
+		DispatchSpawn(entity);
+		TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
+		
+		// Sets model
+		if (hasLength(sModel)) SetEntityModel(entity, sModel);
+	}
 
-    // Return index on the success
-    return entity;
+	// Return index on the success
+	return entity;
 }
 
 /**
@@ -732,68 +732,68 @@ stock int UTIL_CreateProjectile(float vPosition[3], float vAngle[3], char[] sMod
  **/
 stock int UTIL_CreateSmoke(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sSpreadBase = "100", char[] sSpreadSpeed = "70", char[] sSpeed = "80", char[] sStartSize = "200", char[] sEndSize = "2", char[] sDensity = "30", char[] sLength = "400", char[] sTwist = "20", char[] sColor, char[] sTransparency, char[] sSpriteName, float flRemoveTime = 0.0, float flDurationTime = 0.0)
 {
-    // Create a smokestack entity
-    int entity = CreateEntityByName("env_smokestack");
+	// Create a smokestack entity
+	int entity = CreateEntityByName("env_smokestack");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition); 
-        DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValue(entity, "BaseSpread", sSpreadBase);
-        DispatchKeyValue(entity, "SpreadSpeed", sSpreadSpeed);
-        DispatchKeyValue(entity, "Speed", sSpeed);
-        DispatchKeyValue(entity, "StartSize", sStartSize);
-        DispatchKeyValue(entity, "EndSize", sEndSize);
-        DispatchKeyValue(entity, "Rate", sDensity);
-        DispatchKeyValue(entity, "JetLength", sLength);
-        DispatchKeyValue(entity, "Twist", sTwist); 
-        DispatchKeyValue(entity, "RenderColor", sColor);
-        DispatchKeyValue(entity, "RenderAmt", sTransparency); 
-        DispatchKeyValue(entity, "SmokeMaterial", sSpriteName);
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
+	// Validate entity
+	if (entity != -1)
+	{
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition); 
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "BaseSpread", sSpreadBase);
+		DispatchKeyValue(entity, "SpreadSpeed", sSpreadSpeed);
+		DispatchKeyValue(entity, "Speed", sSpeed);
+		DispatchKeyValue(entity, "StartSize", sStartSize);
+		DispatchKeyValue(entity, "EndSize", sEndSize);
+		DispatchKeyValue(entity, "Rate", sDensity);
+		DispatchKeyValue(entity, "JetLength", sLength);
+		DispatchKeyValue(entity, "Twist", sTwist); 
+		DispatchKeyValue(entity, "RenderColor", sColor);
+		DispatchKeyValue(entity, "RenderAmt", sTransparency); 
+		DispatchKeyValue(entity, "SmokeMaterial", sSpriteName);
+		
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
 
-        // Activate the entity
-        AcceptEntityInput(entity, "TurnOn");
-        
-        // Validate parent
-        if (parent != -1)
-        {
-            // Sets parent to the entity
-            SetVariantString("!activator");
-            AcceptEntityInput(entity, "SetParent", parent, entity);
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
-            
-            // Sets attachment to the entity
-            if (strlen(sAttach))
-            { 
-                SetVariantString(sAttach); 
-                AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
-            }
-        }
+		// Activate the entity
+		AcceptEntityInput(entity, "TurnOn");
+		
+		// Validate parent
+		if (parent != -1)
+		{
+			// Sets parent to the entity
+			SetVariantString("!activator");
+			AcceptEntityInput(entity, "SetParent", parent, entity);
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+			
+			// Sets attachment to the entity
+			if (strlen(sAttach))
+			{ 
+				SetVariantString(sAttach); 
+				AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
+			}
+		}
 
-        // Validate duration
-        if (flDurationTime > 0.0 && flRemoveTime > 0.0)
-        {
-            // Initialize flags char
-            static char sFlags[SMALL_LINE_LENGTH];
-            FormatEx(sFlags, sizeof(sFlags), "OnUser2 !self:TurnOff::%f:1", flRemoveTime);
-            
-            // Sets modified flags on the entity
-            SetVariantString(sFlags);
-            AcceptEntityInput(entity, "AddOutput");
-            AcceptEntityInput(entity, "FireUser2");
-            
-            // Kill entity after delay
-            UTIL_RemoveEntity(entity, flDurationTime);
-        }
-    }
-    
-    // Return on the success
-    return entity;
+		// Validate duration
+		if (flDurationTime > 0.0 && flRemoveTime > 0.0)
+		{
+			// Initialize flags char
+			static char sFlags[SMALL_LINE_LENGTH];
+			FormatEx(sFlags, sizeof(sFlags), "OnUser2 !self:TurnOff::%f:1", flRemoveTime);
+			
+			// Sets modified flags on the entity
+			SetVariantString(sFlags);
+			AcceptEntityInput(entity, "AddOutput");
+			AcceptEntityInput(entity, "FireUser2");
+			
+			// Kill entity after delay
+			UTIL_RemoveEntity(entity, flDurationTime);
+		}
+	}
+	
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -810,51 +810,51 @@ stock int UTIL_CreateSmoke(int parent = -1, float vPosition[3] = NULL_VECTOR, fl
  **/
 stock int UTIL_CreateParticle(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sEffect, float flDurationTime = 0.0)
 {
-    // Create an attach particle entity
-    int entity = CreateEntityByName("info_particle_system");
-    
-    // Validate entity
-    if (entity != -1)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition);
-        DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValue(entity, "start_active", "1");
-        DispatchKeyValue(entity, "effect_name", sEffect);
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
+	// Create an attach particle entity
+	int entity = CreateEntityByName("info_particle_system");
+	
+	// Validate entity
+	if (entity != -1)
+	{
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition);
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "start_active", "1");
+		DispatchKeyValue(entity, "effect_name", sEffect);
+		
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
 
-        // Validate parent
-        if (parent != -1)
-        {
-            // Sets parent to the entity
-            SetVariantString("!activator");
-            AcceptEntityInput(entity, "SetParent", parent, entity);
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
-            
-            // Sets attachment to the entity
-            if (strlen(sAttach))
-            { 
-                SetVariantString(sAttach); 
-                AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
-            }
-        }
-        
-        // Activate the entity
-        ActivateEntity(entity);
-        AcceptEntityInput(entity, "Start");
-        
-        // Validate duration
-        if (flDurationTime > 0.0)
-        {
-            // Kill entity after delay
-            UTIL_RemoveEntity(entity, flDurationTime);
-        }
-    }
-    
-    // Return on the success
-    return entity;
+		// Validate parent
+		if (parent != -1)
+		{
+			// Sets parent to the entity
+			SetVariantString("!activator");
+			AcceptEntityInput(entity, "SetParent", parent, entity);
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+			
+			// Sets attachment to the entity
+			if (strlen(sAttach))
+			{ 
+				SetVariantString(sAttach); 
+				AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
+			}
+		}
+		
+		// Activate the entity
+		ActivateEntity(entity);
+		AcceptEntityInput(entity, "Start");
+		
+		// Validate duration
+		if (flDurationTime > 0.0)
+		{
+			// Kill entity after delay
+			UTIL_RemoveEntity(entity, flDurationTime);
+		}
+	}
+	
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -875,55 +875,55 @@ stock int UTIL_CreateParticle(int parent = -1, float vPosition[3] = NULL_VECTOR,
  **/
 stock int UTIL_CreateExplosion(float vPosition[3]/*, float vAngle[3] = NULL_VECTOR*/, int iFlags = 0, char[] sSpriteName = "materials/sprites/xfireball3.vmt", float flDamage = 0.0, float flRadius = 0.0, char[] sWeapon = "", int attacker = -1, int inflictor = -1, char[] sIgnore = "")
 {
-    // Create an explosion entity
-    int entity = CreateEntityByName("env_explosion");
+	// Create an explosion entity
+	int entity = CreateEntityByName("env_explosion");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
-        
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition);
-        ///DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValue(entity, "spawnflags", sFlags);
-        DispatchKeyValue(entity, "fireballsprite", sSpriteName);
-        if (!(iFlags & EXP_NODAMAGE))
-        {
-            DispatchKeyValue(entity, "classname", sWeapon);
-            IntToString(RoundToNearest(flDamage), sFlags, sizeof(sFlags));
-            DispatchKeyValue(entity, "iMagnitude", sFlags);
-            IntToString(RoundToNearest(flRadius), sFlags, sizeof(sFlags));
-            DispatchKeyValue(entity, "iRadiusOverride", sFlags);
-            if (hasLength(sIgnore)) DispatchKeyValue(entity, "ignoredEntity", sIgnore);
-        }
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
+		
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition);
+		///DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "spawnflags", sFlags);
+		DispatchKeyValue(entity, "fireballsprite", sSpriteName);
+		if (!(iFlags & EXP_NODAMAGE))
+		{
+			DispatchKeyValue(entity, "classname", sWeapon);
+			IntToString(RoundToNearest(flDamage), sFlags, sizeof(sFlags));
+			DispatchKeyValue(entity, "iMagnitude", sFlags);
+			IntToString(RoundToNearest(flRadius), sFlags, sizeof(sFlags));
+			DispatchKeyValue(entity, "iRadiusOverride", sFlags);
+			if (hasLength(sIgnore)) DispatchKeyValue(entity, "ignoredEntity", sIgnore);
+		}
+		
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
 
-        // Validate attacker
-        if (attacker != -1)
-        {
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", attacker);
-        }
-            
-        // Validate inflictor
-        if (inflictor != -1)
-        {
-            SetEntPropEnt(entity, Prop_Data, "m_hInflictor", inflictor);
-        }
-        
-        // Activate the entity
-        AcceptEntityInput(entity, "Explode");
+		// Validate attacker
+		if (attacker != -1)
+		{
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", attacker);
+		}
+			
+		// Validate inflictor
+		if (inflictor != -1)
+		{
+			SetEntPropEnt(entity, Prop_Data, "m_hInflictor", inflictor);
+		}
+		
+		// Activate the entity
+		AcceptEntityInput(entity, "Explode");
 
-        // Remove the entity from the world
-        AcceptEntityInput(entity, "Kill");
-    }
-    
-    // Return on the success
-    return entity;
+		// Remove the entity from the world
+		AcceptEntityInput(entity, "Kill");
+	}
+	
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -942,59 +942,59 @@ stock int UTIL_CreateExplosion(float vPosition[3]/*, float vAngle[3] = NULL_VECT
  **/
 stock int UTIL_CreateDamage(int parent = -1, float vPosition[3] = NULL_VECTOR, int attacker, float flDamage, float flRadius, int iBits = DMG_GENERIC, int weaponID = -1, char[] sAttach = "")
 {
-    // Create a hurt entity
-    int entity = CreateEntityByName("point_hurt");           
+	// Create a hurt entity
+	int entity = CreateEntityByName("point_hurt");           
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize variables
-        static char sDamage[SMALL_LINE_LENGTH];
-        
-        /*
-         * The specified amount of damage will be halved. 
-         * Consider multiplying your amount of damage by 2 and using it as the Value.
-         */
-        
-        // Dispatch main values of the entity
-        IntToString(RoundToNearest(flDamage) * 2, sDamage, sizeof(sDamage));
-        DispatchKeyValue(entity, "Damage", sDamage);
-        IntToString(iBits, sDamage, sizeof(sDamage));
-        DispatchKeyValue(entity, "DamageType", sDamage);
-        DispatchKeyValueFloat(entity, "Radius", flRadius);
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entity);      
-        TeleportEntity(entity, vPosition, NULL_VECTOR, NULL_VECTOR);
-        
-        // Sets custom weapon id
-        SetEntProp(entity, Prop_Data, "m_iHammerID", weaponID);
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize variables
+		static char sDamage[SMALL_LINE_LENGTH];
+		
+		/*
+		 * The specified amount of damage will be halved. 
+		 * Consider multiplying your amount of damage by 2 and using it as the Value.
+		 */
+		
+		// Dispatch main values of the entity
+		IntToString(RoundToNearest(flDamage) * 2, sDamage, sizeof(sDamage));
+		DispatchKeyValue(entity, "Damage", sDamage);
+		IntToString(iBits, sDamage, sizeof(sDamage));
+		DispatchKeyValue(entity, "DamageType", sDamage);
+		DispatchKeyValueFloat(entity, "Radius", flRadius);
+		
+		// Spawn the entity into the world
+		DispatchSpawn(entity);      
+		TeleportEntity(entity, vPosition, NULL_VECTOR, NULL_VECTOR);
+		
+		// Sets custom weapon id
+		SetEntProp(entity, Prop_Data, "m_iHammerID", weaponID);
 
-        // Validate parent
-        if (parent != -1)
-        {
-            // Sets parent to the entity
-            SetVariantString("!activator"); 
-            AcceptEntityInput(entity, "SetParent", parent, entity); 
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
-            
-            // Sets attachment to the entity
-            if (hasLength(sAttach))
-            { 
-                SetVariantString(sAttach); 
-                AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
-            }
-        }
+		// Validate parent
+		if (parent != -1)
+		{
+			// Sets parent to the entity
+			SetVariantString("!activator"); 
+			AcceptEntityInput(entity, "SetParent", parent, entity); 
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+			
+			// Sets attachment to the entity
+			if (hasLength(sAttach))
+			{ 
+				SetVariantString(sAttach); 
+				AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
+			}
+		}
 
-        // Activate the entity
-        AcceptEntityInput(entity, "Hurt", attacker);  
-        
-        // Remove the entity from the world
-        AcceptEntityInput(entity, "Kill"); 
-    }   
-    
-    // Return on the success
-    return entity;
+		// Activate the entity
+		AcceptEntityInput(entity, "Hurt", attacker);  
+		
+		// Remove the entity from the world
+		AcceptEntityInput(entity, "Kill"); 
+	}   
+	
+	// Return on the success
+	return entity;
 }  
 
 /**
@@ -1013,51 +1013,51 @@ stock int UTIL_CreateDamage(int parent = -1, float vPosition[3] = NULL_VECTOR, i
  **/
 stock int UTIL_CreateSprite(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sSprite, char[] sScale, char[] sRender, float flDurationTime = 0.0)
 {
-    // Create a sprite entity
-    int entity = CreateEntityByName("env_sprite");
-    
-    // If entity isn't valid, then skip
-    if (entity != -1)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition);
-        DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValue(entity, "model", sSprite);
-        DispatchKeyValue(entity, "scale", sScale);
-        DispatchKeyValue(entity, "rendermode", sRender);
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
-        
-        // Activate the entity
-        ActivateEntity(entity);
-        
-        // Validate parent
-        if (parent != -1)
-        {
-            // Sets parent to the entity
-            SetVariantString("!activator"); 
-            AcceptEntityInput(entity, "SetParent", parent, entity); 
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
-            
-            // Sets attachment to the entity
-            if (hasLength(sAttach))
-            { 
-                SetVariantString(sAttach); 
-                AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
-            }
-        }
-        
-        // Validate duration
-        if (flDurationTime > 0.0)
-        {
-            // Kill entity after delay
-            UTIL_RemoveEntity(entity, flDurationTime);
-        }
-    }
+	// Create a sprite entity
+	int entity = CreateEntityByName("env_sprite");
+	
+	// If entity isn't valid, then skip
+	if (entity != -1)
+	{
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition);
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "model", sSprite);
+		DispatchKeyValue(entity, "scale", sScale);
+		DispatchKeyValue(entity, "rendermode", sRender);
+		
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
+		
+		// Activate the entity
+		ActivateEntity(entity);
+		
+		// Validate parent
+		if (parent != -1)
+		{
+			// Sets parent to the entity
+			SetVariantString("!activator"); 
+			AcceptEntityInput(entity, "SetParent", parent, entity); 
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+			
+			// Sets attachment to the entity
+			if (hasLength(sAttach))
+			{ 
+				SetVariantString(sAttach); 
+				AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
+			}
+		}
+		
+		// Validate duration
+		if (flDurationTime > 0.0)
+		{
+			// Kill entity after delay
+			UTIL_RemoveEntity(entity, flDurationTime);
+		}
+	}
 
-    // Return on the success
-    return entity;
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -1071,31 +1071,31 @@ stock int UTIL_CreateSprite(int parent = -1, float vPosition[3] = NULL_VECTOR, f
  **/
 stock int UTIL_CreateSpriteController(int parent, char[] sSprite, char[] sVar)
 {
-    // Create a material controller entity
-    int entity = CreateEntityByName("material_modify_control");
-    
-    // If entity isn't valid, then skip
-    if (entity != -1)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValue(entity, "materialName", sSprite);
-        DispatchKeyValue(entity, "materialVar", sVar);
-        
-        // Spawn the entity 
-        DispatchSpawn(entity);
+	// Create a material controller entity
+	int entity = CreateEntityByName("material_modify_control");
+	
+	// If entity isn't valid, then skip
+	if (entity != -1)
+	{
+		// Dispatch main values of the entity
+		DispatchKeyValue(entity, "materialName", sSprite);
+		DispatchKeyValue(entity, "materialVar", sVar);
+		
+		// Spawn the entity 
+		DispatchSpawn(entity);
 
-        // Validate parent
-        if (parent != -1)
-        {
-            // Sets parent to the entity
-            SetVariantString("!activator");
-            AcceptEntityInput(entity, "SetParent", parent, entity);
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
-        }
-    }
-    
-    // Return on the success
-    return entity;
+		// Validate parent
+		if (parent != -1)
+		{
+			// Sets parent to the entity
+			SetVariantString("!activator");
+			AcceptEntityInput(entity, "SetParent", parent, entity);
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+		}
+	}
+	
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -1123,62 +1123,62 @@ stock int UTIL_CreateSpriteController(int parent, char[] sSprite, char[] sVar)
  **/
 stock int UTIL_CreateTesla(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sRadius = "500.0", char[] sSound = "DoSpark", char[] sCountMin = "42", char[] sCountMax = "62", char[] sTextureName = "materials/sprites/physbeam.vmt", char[] sColor = "255 255 255", char[] sThickMin = "10.0", char[] sThickMax = "11.0", char[] sLifeMin = "0.3", char[] sLifeMax = "0.3", char[] sIntervalMin = "0.1", char[] sIntervalMax = "0.2", float flDurationTime = 0.0)
 {
-    // Create a tesla entity
-    int entity = CreateEntityByName("point_tesla");
+	// Create a tesla entity
+	int entity = CreateEntityByName("point_tesla");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition);
-        DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValue(entity, "m_flRadius", sRadius);  
-        DispatchKeyValue(entity, "m_SoundName", sSound);  
-        DispatchKeyValue(entity, "beamcount_min", sCountMin);  
-        DispatchKeyValue(entity, "beamcount_max", sCountMax);
-        DispatchKeyValue(entity, "texture", sTextureName);  
-        DispatchKeyValue(entity, "m_Color", sColor);  
-        DispatchKeyValue(entity, "thick_min", sThickMin);     
-        DispatchKeyValue(entity, "thick_max", sThickMax);     
-        DispatchKeyValue(entity, "lifetime_min", sLifeMin);  
-        DispatchKeyValue(entity, "lifetime_max", sLifeMax);  
-        DispatchKeyValue(entity, "interval_min", sIntervalMin);     
-        DispatchKeyValue(entity, "interval_max", sIntervalMax);   
+	// Validate entity
+	if (entity != -1)
+	{
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition);
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "m_flRadius", sRadius);  
+		DispatchKeyValue(entity, "m_SoundName", sSound);  
+		DispatchKeyValue(entity, "beamcount_min", sCountMin);  
+		DispatchKeyValue(entity, "beamcount_max", sCountMax);
+		DispatchKeyValue(entity, "texture", sTextureName);  
+		DispatchKeyValue(entity, "m_Color", sColor);  
+		DispatchKeyValue(entity, "thick_min", sThickMin);     
+		DispatchKeyValue(entity, "thick_max", sThickMax);     
+		DispatchKeyValue(entity, "lifetime_min", sLifeMin);  
+		DispatchKeyValue(entity, "lifetime_max", sLifeMax);  
+		DispatchKeyValue(entity, "interval_min", sIntervalMin);     
+		DispatchKeyValue(entity, "interval_max", sIntervalMax);   
 
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
 
-        // Activate the entity
-        ActivateEntity(entity);
-        AcceptEntityInput(entity, "TurnOn");     
-        AcceptEntityInput(entity, "DoSpark");    
+		// Activate the entity
+		ActivateEntity(entity);
+		AcceptEntityInput(entity, "TurnOn");     
+		AcceptEntityInput(entity, "DoSpark");    
 
-        // Validate parent
-        if (parent != -1)
-        {
-            // Sets parent to the entity
-            SetVariantString("!activator"); 
-            AcceptEntityInput(entity, "SetParent", parent, entity); 
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
-            
-            // Sets attachment to the entity
-            if (hasLength(sAttach))
-            { 
-                SetVariantString(sAttach); 
-                AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
-            }
-        }
-        
-        // Validate duration
-        if (flDurationTime > 0.0)
-        {
-            // Kill entity after delay
-            UTIL_RemoveEntity(entity, flDurationTime);
-        }
-    }
+		// Validate parent
+		if (parent != -1)
+		{
+			// Sets parent to the entity
+			SetVariantString("!activator"); 
+			AcceptEntityInput(entity, "SetParent", parent, entity); 
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+			
+			// Sets attachment to the entity
+			if (hasLength(sAttach))
+			{ 
+				SetVariantString(sAttach); 
+				AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
+			}
+		}
+		
+		// Validate duration
+		if (flDurationTime > 0.0)
+		{
+			// Kill entity after delay
+			UTIL_RemoveEntity(entity, flDurationTime);
+		}
+	}
 
-    // Return on the success
-    return entity;
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -1203,57 +1203,57 @@ stock int UTIL_CreateTesla(int parent = -1, float vPosition[3] = NULL_VECTOR, fl
  **/
 stock int UTIL_CreateShooter(int parent, char[] sAttach, char[] sRender = "5", char[] sSound = "-1", int iSkin = 0, char[] sTextureName, float vAngle[3] = NULL_VECTOR, float vGibAngle[3] = NULL_VECTOR, float iGibs, float flDelay, float flVelocity, float flVariance, float flLife, float flDurationTime)
 {
-    // Create a shooter entity
-    int entity = CreateEntityByName("env_shooter");
+	// Create a shooter entity
+	int entity = CreateEntityByName("env_shooter");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize skin char
-        static char sSkin[SMALL_LINE_LENGTH];
-        IntToString(iSkin, sSkin, sizeof(sSkin));
-        
-        // Dispatch main values of the entity
-        //DispatchKeyValueVector(entity, "origin", vPosition);
-        DispatchKeyValueVector(entity, "angles", vAngle);
-        DispatchKeyValueVector(entity, "gibangles", vGibAngle);
-        DispatchKeyValue(entity, "rendermode", sRender);
-        ///DispatchKeyValue(entity, "rendercolor", sColor);
-        ///DispatchKeyValue(entity, "renderfx", sRenderFX); 
-        DispatchKeyValue(entity, "shootsounds", sSound);
-        DispatchKeyValue(entity, "shootmodel", sTextureName);
-        DispatchKeyValue(entity, "skin", sSkin);
-        DispatchKeyValueFloat(entity, "m_iGibs", iGibs);
-        DispatchKeyValueFloat(entity, "delay", flDelay);
-        DispatchKeyValueFloat(entity, "m_flVelocity", flVelocity);
-        DispatchKeyValueFloat(entity, "m_flVariance", flVariance);
-        DispatchKeyValueFloat(entity, "m_flGibLife", flLife);
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize skin char
+		static char sSkin[SMALL_LINE_LENGTH];
+		IntToString(iSkin, sSkin, sizeof(sSkin));
+		
+		// Dispatch main values of the entity
+		//DispatchKeyValueVector(entity, "origin", vPosition);
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValueVector(entity, "gibangles", vGibAngle);
+		DispatchKeyValue(entity, "rendermode", sRender);
+		///DispatchKeyValue(entity, "rendercolor", sColor);
+		///DispatchKeyValue(entity, "renderfx", sRenderFX); 
+		DispatchKeyValue(entity, "shootsounds", sSound);
+		DispatchKeyValue(entity, "shootmodel", sTextureName);
+		DispatchKeyValue(entity, "skin", sSkin);
+		DispatchKeyValueFloat(entity, "m_iGibs", iGibs);
+		DispatchKeyValueFloat(entity, "delay", flDelay);
+		DispatchKeyValueFloat(entity, "m_flVelocity", flVelocity);
+		DispatchKeyValueFloat(entity, "m_flVariance", flVariance);
+		DispatchKeyValueFloat(entity, "m_flGibLife", flLife);
 
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
 
-        // Activate the entity
-        ActivateEntity(entity);  
-        AcceptEntityInput(entity, "Shoot");
+		// Activate the entity
+		ActivateEntity(entity);  
+		AcceptEntityInput(entity, "Shoot");
 
-        // Sets parent to the entity
-        SetVariantString("!activator"); 
-        AcceptEntityInput(entity, "SetParent", parent, entity); 
-        SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+		// Sets parent to the entity
+		SetVariantString("!activator"); 
+		AcceptEntityInput(entity, "SetParent", parent, entity); 
+		SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
 
-        // Sets attachment to the entity
-        if (hasLength(sAttach))
-        { 
-            SetVariantString(sAttach); 
-            AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
-        }
+		// Sets attachment to the entity
+		if (hasLength(sAttach))
+		{ 
+			SetVariantString(sAttach); 
+			AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
+		}
 
-        // Kill entity after delay
-        UTIL_RemoveEntity(entity, flDurationTime);
-    }
-    
-    // Return on the success
-    return entity;
+		// Kill entity after delay
+		UTIL_RemoveEntity(entity, flDurationTime);
+	}
+	
+	// Return on the success
+	return entity;
 }  
 
 /**
@@ -1286,92 +1286,92 @@ stock int UTIL_CreateShooter(int parent, char[] sAttach, char[] sRender = "5", c
  **/
 stock int UTIL_CreateBeam(float vStartPosition[3], float vEndPosition[3], char[] sDamage = "0", char[] sFrame = "0", char[] sWidth = "4.0", char[] sRenderFX = "0", char[] sType = "3", char[] sRate = "0", char[] sDecalName = "Bigshot", char[] sScroll = "35", char[] sScale = "1.0", char[] sTextureName = "materials/sprites/purplelaser1.vmt", char[] sLife = "0", char[] sStrike = "1", int iFlags = 0, char[] sAmplitude = "0", char[] sRadius = "256", char[] sRenderAMT = "100", char[] sColor, float flDelayTime, float flDurationTime, char[] sName)
 {
-    // Create a beam entity
-    int entity = CreateEntityByName("env_beam");
+	// Create a beam entity
+	int entity = CreateEntityByName("env_beam");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize name char
-        static char sClassname[SMALL_LINE_LENGTH];
-        FormatEx(sClassname, sizeof(sClassname), "%s%i", sName, entity);
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize name char
+		static char sClassname[SMALL_LINE_LENGTH];
+		FormatEx(sClassname, sizeof(sClassname), "%s%i", sName, entity);
 
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
-        
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vStartPosition);
-        DispatchKeyValue(entity, "targetname", sClassname);
-        DispatchKeyValue(entity, "damage", sDamage);
-        DispatchKeyValue(entity, "framestart", sFrame);
-        DispatchKeyValue(entity, "BoltWidth", sWidth);
-        DispatchKeyValue(entity, "renderfx", sRenderFX);
-        DispatchKeyValue(entity, "TouchType", sType);
-        DispatchKeyValue(entity, "framerate", sRate);
-        DispatchKeyValue(entity, "decalname", sDecalName);
-        DispatchKeyValue(entity, "TextureScroll", sScroll);
-        DispatchKeyValue(entity, "HDRColorScale", sScale);
-        DispatchKeyValue(entity, "texture", sTextureName);
-        DispatchKeyValue(entity, "life", sLife); 
-        DispatchKeyValue(entity, "StrikeTime", sStrike); 
-        DispatchKeyValue(entity, "LightningStart", sClassname);
-        DispatchKeyValue(entity, "spawnflags", sFlags); 
-        DispatchKeyValue(entity, "NoiseAmplitude", sAmplitude); 
-        DispatchKeyValue(entity, "Radius", sRadius);
-        DispatchKeyValue(entity, "renderamt", sRenderAMT);
-        DispatchKeyValue(entity, "rendercolor", sColor);
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
+		
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vStartPosition);
+		DispatchKeyValue(entity, "targetname", sClassname);
+		DispatchKeyValue(entity, "damage", sDamage);
+		DispatchKeyValue(entity, "framestart", sFrame);
+		DispatchKeyValue(entity, "BoltWidth", sWidth);
+		DispatchKeyValue(entity, "renderfx", sRenderFX);
+		DispatchKeyValue(entity, "TouchType", sType);
+		DispatchKeyValue(entity, "framerate", sRate);
+		DispatchKeyValue(entity, "decalname", sDecalName);
+		DispatchKeyValue(entity, "TextureScroll", sScroll);
+		DispatchKeyValue(entity, "HDRColorScale", sScale);
+		DispatchKeyValue(entity, "texture", sTextureName);
+		DispatchKeyValue(entity, "life", sLife); 
+		DispatchKeyValue(entity, "StrikeTime", sStrike); 
+		DispatchKeyValue(entity, "LightningStart", sClassname);
+		DispatchKeyValue(entity, "spawnflags", sFlags); 
+		DispatchKeyValue(entity, "NoiseAmplitude", sAmplitude); 
+		DispatchKeyValue(entity, "Radius", sRadius);
+		DispatchKeyValue(entity, "renderamt", sRenderAMT);
+		DispatchKeyValue(entity, "rendercolor", sColor);
 
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
 
-        // Activate the entity
-        AcceptEntityInput(entity, "TurnOff");
-        AcceptEntityInput(entity, "TurnOn");
-        
-        // Sets model
-        SetEntityModel(entity, sTextureName);
-        
-        // Sets size
-        float flWidth = StringToFloat(sWidth);
-        SetEntPropFloat(entity, Prop_Data, "m_fWidth", flWidth);
-        SetEntPropFloat(entity, Prop_Data, "m_fEndWidth", flWidth);
-        SetEntPropVector(entity, Prop_Data, "m_vecEndPos", vEndPosition);
+		// Activate the entity
+		AcceptEntityInput(entity, "TurnOff");
+		AcceptEntityInput(entity, "TurnOn");
+		
+		// Sets model
+		SetEntityModel(entity, sTextureName);
+		
+		// Sets size
+		float flWidth = StringToFloat(sWidth);
+		SetEntPropFloat(entity, Prop_Data, "m_fWidth", flWidth);
+		SetEntPropFloat(entity, Prop_Data, "m_fEndWidth", flWidth);
+		SetEntPropVector(entity, Prop_Data, "m_vecEndPos", vEndPosition);
 
-        // Validate duration
-        if (flDurationTime > 0.0)
-        {
-            // Kill entity after delay
-            UTIL_RemoveEntity(entity, flDurationTime);
-        }
-        
-        // Validate delay
-        if (flDelayTime > 0.0)
-        {
-            // Initialize time char
-            FormatEx(sFlags, sizeof(sFlags), "OnUser2 !self:TurnOff::%f:1", flDelayTime - 0.001);
-            
-            // Sets modified flags on the entity
-            SetVariantString(sFlags);
-            AcceptEntityInput(entity, "AddOutput");
-            
-            // Initialize time char
-            FormatEx(sFlags, sizeof(sFlags), "OnUser3 !self:TurnOn::%f:1", flDelayTime);
-            
-            // Sets modified flags on the entity
-            SetVariantString(sFlags);
-            AcceptEntityInput(entity, "AddOutput");
-            
-            // Execute touch hook tweak
-            SetVariantString("OnTouchedByEntity !self:FireUser2::0.0:-1");
-            AcceptEntityInput(entity, "AddOutput");
-            SetVariantString("OnTouchedByEntity !self:FireUser3::0.0:-1");
-            AcceptEntityInput(entity, "AddOutput");
-        }
-    }
-    
-    // Return on the success
-    return entity;
+		// Validate duration
+		if (flDurationTime > 0.0)
+		{
+			// Kill entity after delay
+			UTIL_RemoveEntity(entity, flDurationTime);
+		}
+		
+		// Validate delay
+		if (flDelayTime > 0.0)
+		{
+			// Initialize time char
+			FormatEx(sFlags, sizeof(sFlags), "OnUser2 !self:TurnOff::%f:1", flDelayTime - 0.001);
+			
+			// Sets modified flags on the entity
+			SetVariantString(sFlags);
+			AcceptEntityInput(entity, "AddOutput");
+			
+			// Initialize time char
+			FormatEx(sFlags, sizeof(sFlags), "OnUser3 !self:TurnOn::%f:1", flDelayTime);
+			
+			// Sets modified flags on the entity
+			SetVariantString(sFlags);
+			AcceptEntityInput(entity, "AddOutput");
+			
+			// Execute touch hook tweak
+			SetVariantString("OnTouchedByEntity !self:FireUser2::0.0:-1");
+			AcceptEntityInput(entity, "AddOutput");
+			SetVariantString("OnTouchedByEntity !self:FireUser3::0.0:-1");
+			AcceptEntityInput(entity, "AddOutput");
+		}
+	}
+	
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -1395,60 +1395,60 @@ stock int UTIL_CreateBeam(float vStartPosition[3], float vEndPosition[3], char[]
  **/
 stock int UTIL_CreateLight(int parent = -1, float vPosition[3] = NULL_VECTOR, char[] sAttach = "", char[] sInnerCone = "0", char[] sCone = "80", char[] sBrightness = "1", char[] sPitch = "90", char[] sStyle = "1", int iFlags = 0, char[] sColor, float flDistance, float flRadius, float flDurationTime = 0.0)
 {
-    // Create an light_dynamic entity
-    int entity = CreateEntityByName("light_dynamic");
+	// Create an light_dynamic entity
+	int entity = CreateEntityByName("light_dynamic");
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Initialize flag char
-        static char sFlags[SMALL_LINE_LENGTH];
-        IntToString(iFlags, sFlags, sizeof(sFlags));
+	// Validate entity
+	if (entity != -1)
+	{
+		// Initialize flag char
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
 
-        // Dispatch main values of the entity
-        DispatchKeyValueVector(entity, "origin", vPosition); 
-        DispatchKeyValue(entity, "spawnflags", sFlags);
-        DispatchKeyValue(entity, "inner_cone", sInnerCone);
-        DispatchKeyValue(entity, "cone", sCone);
-        DispatchKeyValue(entity, "brightness", sBrightness);
-        DispatchKeyValue(entity, "pitch", sPitch);
-        DispatchKeyValue(entity, "style", sStyle);
-        DispatchKeyValue(entity, "_light", sColor);
-        DispatchKeyValueFloat(entity, "distance", flDistance);
-        DispatchKeyValueFloat(entity, "spotlight_radius", flRadius);
+		// Dispatch main values of the entity
+		DispatchKeyValueVector(entity, "origin", vPosition); 
+		DispatchKeyValue(entity, "spawnflags", sFlags);
+		DispatchKeyValue(entity, "inner_cone", sInnerCone);
+		DispatchKeyValue(entity, "cone", sCone);
+		DispatchKeyValue(entity, "brightness", sBrightness);
+		DispatchKeyValue(entity, "pitch", sPitch);
+		DispatchKeyValue(entity, "style", sStyle);
+		DispatchKeyValue(entity, "_light", sColor);
+		DispatchKeyValueFloat(entity, "distance", flDistance);
+		DispatchKeyValueFloat(entity, "spotlight_radius", flRadius);
 
-        // Spawn the entity into the world
-        DispatchSpawn(entity);
+		// Spawn the entity into the world
+		DispatchSpawn(entity);
 
-        // Activate the entity
-        AcceptEntityInput(entity, "TurnOn");
+		// Activate the entity
+		AcceptEntityInput(entity, "TurnOn");
 
-        // Validate parent
-        if (parent != -1)
-        {
-            // Sets parent to the entity
-            SetVariantString("!activator"); 
-            AcceptEntityInput(entity, "SetParent", parent, entity); 
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
-            
-            // Sets attachment to the entity
-            if (hasLength(sAttach))
-            { 
-                SetVariantString(sAttach); 
-                AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
-            }
-        }
-        
-        // Validate duration
-        if (flDurationTime > 0.0)
-        {
-            // Kill entity after delay
-            UTIL_RemoveEntity(entity, flDurationTime);
-        }
-    }
-    
-    // Return on the success
-    return entity;
+		// Validate parent
+		if (parent != -1)
+		{
+			// Sets parent to the entity
+			SetVariantString("!activator"); 
+			AcceptEntityInput(entity, "SetParent", parent, entity); 
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", parent);
+			
+			// Sets attachment to the entity
+			if (hasLength(sAttach))
+			{ 
+				SetVariantString(sAttach); 
+				AcceptEntityInput(entity, "SetParentAttachment", parent, entity);
+			}
+		}
+		
+		// Validate duration
+		if (flDurationTime > 0.0)
+		{
+			// Kill entity after delay
+			UTIL_RemoveEntity(entity, flDurationTime);
+		}
+	}
+	
+	// Return on the success
+	return entity;
 }
 
 /**
@@ -1464,23 +1464,23 @@ stock int UTIL_CreateLight(int parent = -1, float vPosition[3] = NULL_VECTOR, ch
  **/
 stock void UTIL_CreateGlowing(int entity, bool enableState, int iType = 0, int iRed = 255, int iGreen = 255, int iBlue = 255, int iAlpha = 255)
 {
-    // Validate offset
-    static int iGlowOffset;
-    if (!iGlowOffset && (iGlowOffset = GetEntSendPropOffs(entity, "m_clrGlow")) == -1)
-    {
-        return;
-    }
-    
-    // Sets glowing mode
-    SetEntProp(entity, Prop_Send, "m_bShouldGlow", enableState, true);
-    SetEntProp(entity, Prop_Send, "m_nGlowStyle", iType);
-    SetEntPropFloat(entity, Prop_Send, "m_flGlowMaxDist", 100000.0);
-    
-    // Sets alpha and colors
-    SetEntData(entity, iGlowOffset + 0, iRed,   _, true);
-    SetEntData(entity, iGlowOffset + 1, iGreen, _, true);
-    SetEntData(entity, iGlowOffset + 2, iBlue,  _, true);
-    SetEntData(entity, iGlowOffset + 3, iAlpha, _, true);
+	// Validate offset
+	static int iGlowOffset;
+	if (!iGlowOffset && (iGlowOffset = GetEntSendPropOffs(entity, "m_clrGlow")) == -1)
+	{
+		return;
+	}
+	
+	// Sets glowing mode
+	SetEntProp(entity, Prop_Send, "m_bShouldGlow", enableState, true);
+	SetEntProp(entity, Prop_Send, "m_nGlowStyle", iType);
+	SetEntPropFloat(entity, Prop_Send, "m_flGlowMaxDist", 100000.0);
+	
+	// Sets alpha and colors
+	SetEntData(entity, iGlowOffset + 0, iRed,   _, true);
+	SetEntData(entity, iGlowOffset + 1, iGreen, _, true);
+	SetEntData(entity, iGlowOffset + 2, iBlue,  _, true);
+	SetEntData(entity, iGlowOffset + 3, iAlpha, _, true);
 }
 
 /**
@@ -1492,16 +1492,16 @@ stock void UTIL_CreateGlowing(int entity, bool enableState, int iType = 0, int i
  **/
 stock void UTIL_SetRenderColor(int entity, ColorType color, int iRender)
 {
-    // Validate offset
-    static int iRenderOffset;
-    if (!iRenderOffset && (iRenderOffset = GetEntSendPropOffs(entity, "m_clrRender")) == -1)
-    {
-        return;
-    }
+	// Validate offset
+	static int iRenderOffset;
+	if (!iRenderOffset && (iRenderOffset = GetEntSendPropOffs(entity, "m_clrRender")) == -1)
+	{
+		return;
+	}
 
-    // Sets render of the entity
-    SetEntProp(entity, Prop_Send, "m_nRenderMode", RENDER_TRANSALPHA);
-    SetEntData(entity, iRenderOffset + view_as<int>(color), iRender, 1, true);
+	// Sets render of the entity
+	SetEntProp(entity, Prop_Send, "m_nRenderMode", RENDER_TRANSALPHA);
+	SetEntData(entity, iRenderOffset + view_as<int>(color), iRender, 1, true);
 }
 
 /**
@@ -1513,15 +1513,15 @@ stock void UTIL_SetRenderColor(int entity, ColorType color, int iRender)
  **/
 stock int UTIL_GetRenderColor(int entity, ColorType color)
 {
-    // Validate offset
-    static int iRenderOffset;
-    if (!iRenderOffset && (iRenderOffset = GetEntSendPropOffs(entity, "m_clrRender")) == -1)
-    {
-        return 255;
-    }
+	// Validate offset
+	static int iRenderOffset;
+	if (!iRenderOffset && (iRenderOffset = GetEntSendPropOffs(entity, "m_clrRender")) == -1)
+	{
+		return 255;
+	}
 
-    // Gets render of the entity
-    return GetEntData(entity, iRenderOffset + view_as<int>(color), 1);
+	// Gets render of the entity
+	return GetEntData(entity, iRenderOffset + view_as<int>(color), 1);
 }
 
 /**
@@ -1535,72 +1535,72 @@ stock int UTIL_GetRenderColor(int entity, ColorType color)
  **/
 stock void UTIL_CreateTracer(int parent, char[] sAttach, char[] sEffect, float vBullet[3], float flDurationTime)
 {
-    // Validate name
-    if (!hasLength(sEffect))
-    {
-        return;
-    }
-    
-    #define StaticSrt  0
-    #define StaticEnd  1
-                                /** Regards to Phoenix **/
-                             /** Dont ask me how it works ;) **/
+	// Validate name
+	if (!hasLength(sEffect))
+	{
+		return;
+	}
+	
+	#define StaticSrt  0
+	#define StaticEnd  1
+								/** Regards to Phoenix **/
+							 /** Dont ask me how it works ;) **/
 
 
-    // Initialize name char
-    static char sClassname[SMALL_LINE_LENGTH];
+	// Initialize name char
+	static char sClassname[SMALL_LINE_LENGTH];
 
-    // Create an attach particle entity
-    static int entity[2];
-    entity[StaticSrt] = CreateEntityByName("info_particle_system");
-    entity[StaticEnd] = CreateEntityByName("info_particle_system");
+	// Create an attach particle entity
+	static int entity[2];
+	entity[StaticSrt] = CreateEntityByName("info_particle_system");
+	entity[StaticEnd] = CreateEntityByName("info_particle_system");
 
-    // If entity isn't valid, then skip
-    if (entity[StaticEnd] != -1) /// Check the last entity ;)
-    {
-        // Gets the entity angle
-        static float vAngle[3]; static float vEmpty[3];
-        GetEntPropVector(parent, Prop_Data, "m_angAbsRotation", vAngle); 
-        
-        // Teleport the entity
-        TeleportEntity(entity[StaticEnd], vBullet, vAngle, NULL_VECTOR);
-        
-        // Dispatch main values of the entity
-        FormatEx(sClassname, sizeof(sClassname), "particle%d",  entity[StaticSrt]);
-        DispatchKeyValue(entity[StaticSrt], "targetname", sClassname);
-        DispatchKeyValue(entity[StaticEnd], "effect_name", sEffect);
-        DispatchKeyValue(entity[StaticEnd], "cpoint1", sClassname);
-        
-        // Spawn the entity into the world
-        DispatchSpawn(entity[StaticEnd]);
-        
-        // Sets owner to the entity 
-        SetEntPropEnt(entity[StaticEnd], Prop_Data, "m_hOwnerEntity", parent);
+	// If entity isn't valid, then skip
+	if (entity[StaticEnd] != -1) /// Check the last entity ;)
+	{
+		// Gets the entity angle
+		static float vAngle[3]; static float vEmpty[3];
+		GetEntPropVector(parent, Prop_Data, "m_angAbsRotation", vAngle); 
+		
+		// Teleport the entity
+		TeleportEntity(entity[StaticEnd], vBullet, vAngle, NULL_VECTOR);
+		
+		// Dispatch main values of the entity
+		FormatEx(sClassname, sizeof(sClassname), "particle%d",  entity[StaticSrt]);
+		DispatchKeyValue(entity[StaticSrt], "targetname", sClassname);
+		DispatchKeyValue(entity[StaticEnd], "effect_name", sEffect);
+		DispatchKeyValue(entity[StaticEnd], "cpoint1", sClassname);
+		
+		// Spawn the entity into the world
+		DispatchSpawn(entity[StaticEnd]);
+		
+		// Sets owner to the entity 
+		SetEntPropEnt(entity[StaticEnd], Prop_Data, "m_hOwnerEntity", parent);
 
-        // Teleport the entity
-        TeleportEntity(entity[StaticSrt], NULL_VECTOR, vAngle, NULL_VECTOR);
+		// Teleport the entity
+		TeleportEntity(entity[StaticSrt], NULL_VECTOR, vAngle, NULL_VECTOR);
 
-        // Sets parent to the entity
-        SetVariantString("!activator");
-        AcceptEntityInput(entity[StaticSrt], "SetParent", parent, entity[StaticSrt]);
-        
-        // Sets attachment to the entity
-        SetVariantString(sAttach);
-        AcceptEntityInput(entity[StaticSrt], "SetParentAttachment",  entity[StaticSrt], entity[StaticSrt]);
+		// Sets parent to the entity
+		SetVariantString("!activator");
+		AcceptEntityInput(entity[StaticSrt], "SetParent", parent, entity[StaticSrt]);
+		
+		// Sets attachment to the entity
+		SetVariantString(sAttach);
+		AcceptEntityInput(entity[StaticSrt], "SetParentAttachment",  entity[StaticSrt], entity[StaticSrt]);
 
-        // Teleport the entity
-        TeleportEntity(entity[StaticSrt], vEmpty, NULL_VECTOR, NULL_VECTOR);
+		// Teleport the entity
+		TeleportEntity(entity[StaticSrt], vEmpty, NULL_VECTOR, NULL_VECTOR);
 
-        /*______________________________________________________________________________*/
-        
-        // Activate the entity
-        ActivateEntity(entity[StaticEnd]);
-        AcceptEntityInput(entity[StaticEnd], "Start");
+		/*______________________________________________________________________________*/
+		
+		// Activate the entity
+		ActivateEntity(entity[StaticEnd]);
+		AcceptEntityInput(entity[StaticEnd], "Start");
 
-        // Kill entities after delay
-        UTIL_RemoveEntity(entity[StaticEnd], flDurationTime);
-        UTIL_RemoveEntity(entity[StaticSrt], flDurationTime);
-    }
+		// Kill entities after delay
+		UTIL_RemoveEntity(entity[StaticEnd], flDurationTime);
+		UTIL_RemoveEntity(entity[StaticSrt], flDurationTime);
+	}
 }
 
 /*_____________________________________________________________________________________________________________*/
@@ -1615,21 +1615,21 @@ stock void UTIL_CreateTracer(int parent, char[] sAttach, char[] sEffect, float v
  **/
 stock void UTIL_CreateShakeScreen(int client, float flAmplitude, float flFrequency, float flDurationTime)
 {
-    // Create message
-    Protobuf hShake = view_as<Protobuf>(StartMessageOne("Shake", client));
+	// Create message
+	Protobuf hShake = view_as<Protobuf>(StartMessageOne("Shake", client));
 
-    // Validate message
-    if (hShake != null)
-    {
-        // Write shake information to message handle
-        hShake.SetInt("command", 0);
-        hShake.SetFloat("local_amplitude", flAmplitude);
-        hShake.SetFloat("frequency", flFrequency);
-        hShake.SetFloat("duration", flDurationTime);
+	// Validate message
+	if (hShake != null)
+	{
+		// Write shake information to message handle
+		hShake.SetInt("command", 0);
+		hShake.SetFloat("local_amplitude", flAmplitude);
+		hShake.SetFloat("frequency", flFrequency);
+		hShake.SetFloat("duration", flDurationTime);
 
-        // End usermsg and send to the client
-        EndMessage();
-    }
+		// End usermsg and send to the client
+		EndMessage();
+	}
 }
 
 /**
@@ -1643,21 +1643,21 @@ stock void UTIL_CreateShakeScreen(int client, float flAmplitude, float flFrequen
  **/
 stock void UTIL_CreateFadeScreen(int client, float flDuration, float flHoldTime, int iFlags, int vColor[4])
 {
-    // Create message
-    Protobuf hFade = view_as<Protobuf>(StartMessageOne("Fade", client));
+	// Create message
+	Protobuf hFade = view_as<Protobuf>(StartMessageOne("Fade", client));
 
-    // Validate message
-    if (hFade != null)
-    {
-        // Write shake information to message handle
-        hFade.SetInt("duration", RoundToNearest(flDuration * 1000.0)); 
-        hFade.SetInt("hold_time", RoundToNearest(flHoldTime * 1000.0)); 
-        hFade.SetInt("flags", iFlags); 
-        hFade.SetColor("clr", vColor); 
+	// Validate message
+	if (hFade != null)
+	{
+		// Write shake information to message handle
+		hFade.SetInt("duration", RoundToNearest(flDuration * 1000.0)); 
+		hFade.SetInt("hold_time", RoundToNearest(flHoldTime * 1000.0)); 
+		hFade.SetInt("flags", iFlags); 
+		hFade.SetColor("clr", vColor); 
 
-        // End usermsg and send to the client
-        EndMessage();
-    }
+		// End usermsg and send to the client
+		EndMessage();
+	}
 }
 
 /**
@@ -1672,21 +1672,21 @@ stock void UTIL_CreateFadeScreen(int client, float flDuration, float flHoldTime,
 **/
 stock void UTIL_CreatePhysForce(int client, float vPosition[3], float vOrigin[3], float flDistance, float flForce, float flRadius)
 {
-    // Calculate the velocity vector
-    static float vVelocity[3];
-    MakeVectorFromPoints(vPosition, vOrigin, vVelocity);
-    
-    // Calculate the push power
-    float flKnockBack = flForce * (1.0 - (flDistance / flRadius));
+	// Calculate the velocity vector
+	static float vVelocity[3];
+	MakeVectorFromPoints(vPosition, vOrigin, vVelocity);
+	
+	// Calculate the push power
+	float flKnockBack = flForce * (1.0 - (flDistance / flRadius));
 
-    // Normalize the vector (equal magnitude at varying distances)
-    NormalizeVector(vVelocity, vVelocity);
+	// Normalize the vector (equal magnitude at varying distances)
+	NormalizeVector(vVelocity, vVelocity);
 
-    // Apply the magnitude by scaling the vector
-    ScaleVector(vVelocity, SquareRoot((flKnockBack * flKnockBack) / ((vVelocity[0] * vVelocity[0]) + (vVelocity[1] * vVelocity[1]) + (vVelocity[2] * vVelocity[2])))); vVelocity[2] * flForce;
+	// Apply the magnitude by scaling the vector
+	ScaleVector(vVelocity, SquareRoot((flKnockBack * flKnockBack) / ((vVelocity[0] * vVelocity[0]) + (vVelocity[1] * vVelocity[1]) + (vVelocity[2] * vVelocity[2])))); vVelocity[2] * flForce;
 
-    // Push the client
-    TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
+	// Push the client
+	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
 }
 
 /**
@@ -1697,18 +1697,18 @@ stock void UTIL_CreatePhysForce(int client, float vPosition[3], float vOrigin[3]
  **/
 stock void UTIL_CreateClientHint(int client, char[] sMessage)
 {
-    // Create message
-    Protobuf hMessage = view_as<Protobuf>(StartMessageOne("HintText", client));
+	// Create message
+	Protobuf hMessage = view_as<Protobuf>(StartMessageOne("HintText", client));
 
-    // Validate message
-    if (hMessage != null)
-    {
-        // Write shake information to message handle
-        hMessage.SetString("text", sMessage);
+	// Validate message
+	if (hMessage != null)
+	{
+		// Write shake information to message handle
+		hMessage.SetString("text", sMessage);
 
-        // End usermsg and send to the client
-        EndMessage();
-    }
+		// End usermsg and send to the client
+		EndMessage();
+	}
 }
 
 /**
@@ -1731,11 +1731,11 @@ stock void UTIL_CreateClientHint(int client, char[] sMessage)
  **/
 stock void UTIL_CreateClientHud(Handle hSync, int client, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, char[] sMessage)
 {
-    // Sets HUD parameters for drawing text
-    SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
-    
-    // Print translated phrase to the client screen
-    ShowSyncHudText(client, hSync, sMessage);
+	// Sets HUD parameters for drawing text
+	SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
+	
+	// Print translated phrase to the client screen
+	ShowSyncHudText(client, hSync, sMessage);
 }
 
 /*_____________________________________________________________________________________________________________*/
@@ -1749,28 +1749,28 @@ stock void UTIL_CreateClientHud(Handle hSync, int client, float x, float y, floa
  **/
 stock int UTIL_PrecacheModel(char[] sModel)
 {
-    // Precache main model
-    int iModel = PrecacheModel(sModel, true);
-    
-    // Adding main model to the download list
-    AddFileToDownloadsTable(sModel);
+	// Precache main model
+	int iModel = PrecacheModel(sModel, true);
+	
+	// Adding main model to the download list
+	AddFileToDownloadsTable(sModel);
 
-    // Initialize path char
-    static char sPath[PLATFORM_MAX_PATH];
-    static const char sType[3][SMALL_LINE_LENGTH] = { ".dx90.vtx", ".phy", ".vvd" };
+	// Initialize path char
+	static char sPath[PLATFORM_MAX_PATH];
+	static const char sType[3][SMALL_LINE_LENGTH] = { ".dx90.vtx", ".phy", ".vvd" };
 
-    // i = type index
-    for (int i = 0; i < sizeof(sType); i++)
-    {
-        // Adding other parts to download list
-        FormatEx(sPath, sizeof(sPath), "%s", sModel);
-        ReplaceString(sPath, sizeof(sPath), ".mdl", sType[i]);
-        if (!FileExists(sPath)) continue;
-        AddFileToDownloadsTable(sPath);
-    }
-    
-    // Return model index
-    return iModel;
+	// i = type index
+	for (int i = 0; i < sizeof(sType); i++)
+	{
+		// Adding other parts to download list
+		FormatEx(sPath, sizeof(sPath), "%s", sModel);
+		ReplaceString(sPath, sizeof(sPath), ".mdl", sType[i]);
+		if (!FileExists(sPath)) continue;
+		AddFileToDownloadsTable(sPath);
+	}
+	
+	// Return model index
+	return iModel;
 }
 
 /**
@@ -1781,12 +1781,12 @@ stock int UTIL_PrecacheModel(char[] sModel)
  **/
 stock void UTIL_IgniteEntity(int entity, float flDurationTime)
 {
-    // Validate duration
-    if (flDurationTime > 0.0) 
-    {
-        // Put fire on it
-        IgniteEntity(entity, flDurationTime);
-    }
+	// Validate duration
+	if (flDurationTime > 0.0) 
+	{
+		// Put fire on it
+		IgniteEntity(entity, flDurationTime);
+	}
 }
 
 /**
@@ -1796,21 +1796,21 @@ stock void UTIL_IgniteEntity(int entity, float flDurationTime)
  **/
 stock void UTIL_ExtinguishEntity(int entity)
 {
-    // Validate fire entity
-    int iFire = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
-    if (IsValidEdict(iFire))
-    {
-        // Make sure the entity is a flame, so we can extinguish it
-        static char sClassname[SMALL_LINE_LENGTH];
-        GetEdictClassname(iFire, sClassname, sizeof(sClassname));
-        
-        // Validate classname
-        if (!strcmp(sClassname, "entityflame", false))
-        {
-            // Reduce entity's lifetime 
-            SetEntPropFloat(iFire, Prop_Data, "m_flLifetime", 0.0);
-        }
-    }
+	// Validate fire entity
+	int iFire = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
+	if (IsValidEdict(iFire))
+	{
+		// Make sure the entity is a flame, so we can extinguish it
+		static char sClassname[SMALL_LINE_LENGTH];
+		GetEdictClassname(iFire, sClassname, sizeof(sClassname));
+		
+		// Validate classname
+		if (!strcmp(sClassname, "entityflame", false))
+		{
+			// Reduce entity's lifetime 
+			SetEntPropFloat(iFire, Prop_Data, "m_flLifetime", 0.0);
+		}
+	}
 }
 
 /**
@@ -1821,14 +1821,14 @@ stock void UTIL_ExtinguishEntity(int entity)
  **/
 stock void UTIL_RemoveEntity(int entity, float flDelayTime)
 {
-    // Initialize flags char
-    static char sFlags[SMALL_LINE_LENGTH];
-    FormatEx(sFlags, sizeof(sFlags), "OnUser1 !self:Kill::%f:1", flDelayTime);
-    
-    // Sets modified flags on the entity
-    SetVariantString(sFlags);
-    AcceptEntityInput(entity, "AddOutput");
-    AcceptEntityInput(entity, "FireUser1");
+	// Initialize flags char
+	static char sFlags[SMALL_LINE_LENGTH];
+	FormatEx(sFlags, sizeof(sFlags), "OnUser1 !self:Kill::%f:1", flDelayTime);
+	
+	// Sets modified flags on the entity
+	SetVariantString(sFlags);
+	AcceptEntityInput(entity, "AddOutput");
+	AcceptEntityInput(entity, "FireUser1");
 }
 
 /**
@@ -1840,22 +1840,22 @@ stock void UTIL_RemoveEntity(int entity, float flDelayTime)
  **/
 stock void UTIL_PrecacheDecal(char[] sDecal)
 {
-    // Precache main decal
-    int iDecal = PrecacheDecal(sDecal, true);
-    
-    // Adding main decal to the download list
-    AddFileToDownloadsTable(sDecal);
+	// Precache main decal
+	int iDecal = PrecacheDecal(sDecal, true);
+	
+	// Adding main decal to the download list
+	AddFileToDownloadsTable(sDecal);
 
-    // Initialize path char
-    static char sPath[PLATFORM_MAX_PATH];
-    
-    // Adding other parts to download list
-    FormatEx(sPath, sizeof(sPath), "%s", sDecal);
-    ReplaceString(sPath, sizeof(sPath), ".vtf", ".vmt");
-    if (FileExists(sPath)) AddFileToDownloadsTable(sPath);
-    
-    // Return decal index
-    return iDecal;
+	// Initialize path char
+	static char sPath[PLATFORM_MAX_PATH];
+	
+	// Adding other parts to download list
+	FormatEx(sPath, sizeof(sPath), "%s", sDecal);
+	ReplaceString(sPath, sizeof(sPath), ".vtf", ".vmt");
+	if (FileExists(sPath)) AddFileToDownloadsTable(sPath);
+	
+	// Return decal index
+	return iDecal;
 }
 
 /**
@@ -1865,29 +1865,29 @@ stock void UTIL_PrecacheDecal(char[] sDecal)
  **/
 stock void UTIL_PrecacheSound(char[] sSound)
 {
-    // Initialize path char
-    static char sPath[PLATFORM_MAX_PATH];
-    
-    // Adding sound to the download list
-    FormatEx(sPath, sizeof(sPath), "sound/%s", sSound);
-    if (!FileExists(sPath)) return;
-    AddFileToDownloadsTable(sPath);
-    
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
+	// Initialize path char
+	static char sPath[PLATFORM_MAX_PATH];
+	
+	// Adding sound to the download list
+	FormatEx(sPath, sizeof(sPath), "sound/%s", sSound);
+	if (!FileExists(sPath)) return;
+	AddFileToDownloadsTable(sPath);
+	
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
 
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("soundprecache");
-    }
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("soundprecache");
+	}
 
-    // Precache sound
-    bool bSave = LockStringTables(false);
-    FormatEx(sPath, sizeof(sPath), "*/%s", sSound);
-    AddToStringTable(table, sPath);
-    LockStringTables(bSave);
+	// Precache sound
+	bool bSave = LockStringTables(false);
+	FormatEx(sPath, sizeof(sPath), "*/%s", sSound);
+	AddToStringTable(table, sPath);
+	LockStringTables(bSave);
 }
 
 /*_____________________________________________________________________________________________________________*/
@@ -1904,80 +1904,80 @@ stock void UTIL_PrecacheSound(char[] sSound)
  **/
 stock void UTIL_FindHullIntersection(Handle &hTrace, float vPosition[3], const float vMins[3], const float vMaxs[3], TraceEntityFilter filter, any data)
 {
-    // Initialize vectors
-    static float vEndPosition[3]; static float vHullPosition[3]; static float vHullEnd[3]; static float vHullBox[2][3];
+	// Initialize vectors
+	static float vEndPosition[3]; static float vHullPosition[3]; static float vHullEnd[3]; static float vHullBox[2][3];
 
-    // Returns the collision position of a trace result
-    TR_GetEndPosition(vHullEnd, hTrace);
+	// Returns the collision position of a trace result
+	TR_GetEndPosition(vHullEnd, hTrace);
 
-    // Gets vector from the given starting and ending positions
-    MakeVectorFromPoints(vPosition, vHullEnd, vHullEnd);
-    
-    // Apply the magnitude by scaling the vector
-    ScaleVector(vHullEnd, 2.0);
-    
-    // Adds two vectors
-    AddVectors(vHullEnd, vPosition, vHullEnd);
-    
-    // Create the end-point trace
-    Handle hTemp = TR_TraceRayFilterEx(vPosition, vHullEnd, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, data);
-    
-    // Validate collisions
-    if (TR_DidHit(hTemp))
-    {
-        // Close and clone trace
-        delete hTrace;
-        hTrace = hTemp;
-        return;
-    }
+	// Gets vector from the given starting and ending positions
+	MakeVectorFromPoints(vPosition, vHullEnd, vHullEnd);
+	
+	// Apply the magnitude by scaling the vector
+	ScaleVector(vHullEnd, 2.0);
+	
+	// Adds two vectors
+	AddVectors(vHullEnd, vPosition, vHullEnd);
+	
+	// Create the end-point trace
+	Handle hTemp = TR_TraceRayFilterEx(vPosition, vHullEnd, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, data);
+	
+	// Validate collisions
+	if (TR_DidHit(hTemp))
+	{
+		// Close and clone trace
+		delete hTrace;
+		hTrace = hTemp;
+		return;
+	}
 
-    // Unrolled loop for copy vectors
-    vHullBox[0] = vMins;
-    vHullBox[1] = vMaxs;
-    
-    // Initialize some variables
-    float flDistance = MAX_FLOAT; float flLength;
-    
-    // i, j, k = dimentions
-    for (int i, j, k = 0; i < 2; i++)
-    {
-        for (j = 0; j < 2; j++)
-        {
-            for (k = 0; k < 2; k++)
-            {
-                // Calculate a hull position 
-                vHullPosition[0] = vHullEnd[0] + vHullBox[i][0];
-                vHullPosition[1] = vHullEnd[1] + vHullBox[j][1];
-                vHullPosition[2] = vHullEnd[2] + vHullBox[k][2];
+	// Unrolled loop for copy vectors
+	vHullBox[0] = vMins;
+	vHullBox[1] = vMaxs;
+	
+	// Initialize some variables
+	float flDistance = MAX_FLOAT; float flLength;
+	
+	// i, j, k = dimentions
+	for (int i, j, k = 0; i < 2; i++)
+	{
+		for (j = 0; j < 2; j++)
+		{
+			for (k = 0; k < 2; k++)
+			{
+				// Calculate a hull position 
+				vHullPosition[0] = vHullEnd[0] + vHullBox[i][0];
+				vHullPosition[1] = vHullEnd[1] + vHullBox[j][1];
+				vHullPosition[2] = vHullEnd[2] + vHullBox[k][2];
 
-                // Create the end-point trace
-                delete hTemp;
-                hTemp = TR_TraceRayFilterEx(vPosition, vHullPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, data);
-                
-                // Validate collisions
-                if (TR_DidHit(hTemp))
-                {
-                    // Returns the collision position of a trace result
-                    TR_GetEndPosition(vEndPosition, hTemp);
-                    
-                    // Gets vector from the given starting and ending positions
-                    MakeVectorFromPoints(vPosition, vEndPosition, vEndPosition);
+				// Create the end-point trace
+				delete hTemp;
+				hTemp = TR_TraceRayFilterEx(vPosition, vHullPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, data);
+				
+				// Validate collisions
+				if (TR_DidHit(hTemp))
+				{
+					// Returns the collision position of a trace result
+					TR_GetEndPosition(vEndPosition, hTemp);
+					
+					// Gets vector from the given starting and ending positions
+					MakeVectorFromPoints(vPosition, vEndPosition, vEndPosition);
 
-                    // Store smallest length
-                    if ((flLength = GetVectorLength(vEndPosition)) < flDistance)
-                    {
-                        // Close and clone trace
-                        delete hTrace;
-                        hTrace = CloneHandle(hTemp);
-                        flDistance = flLength;
-                    }
-                }
-            }
-        }
-    }
-    
-    // Close trace
-    delete hTemp;
+					// Store smallest length
+					if ((flLength = GetVectorLength(vEndPosition)) < flDistance)
+					{
+						// Close and clone trace
+						delete hTrace;
+						hTrace = CloneHandle(hTemp);
+						flDistance = flLength;
+					}
+				}
+			}
+		}
+	}
+	
+	// Close trace
+	delete hTemp;
 }
 
 /**
@@ -1992,23 +1992,23 @@ stock void UTIL_FindHullIntersection(Handle &hTrace, float vPosition[3], const f
  **/
 stock void UTIL_GetVelocityByAim(float vStartPosition[3], float vEndPosition[3], float vAngle[3], float vVelocity[3], float flSpeedScale = 1.0, bool verticalScale = false)
 {
-    // Calculate the velocity's vector
-    MakeVectorFromPoints(vStartPosition, vEndPosition, vVelocity);
-    
-    // Sets vertical scale
-    vVelocity[2] = verticalScale ? -vVelocity[2] : 0.0;
+	// Calculate the velocity's vector
+	MakeVectorFromPoints(vStartPosition, vEndPosition, vVelocity);
+	
+	// Sets vertical scale
+	vVelocity[2] = verticalScale ? -vVelocity[2] : 0.0;
 
-    // Gets the vector's angle
-    GetVectorAngles(vVelocity, vAngle);
-    
-    // Reset angle vectors
-    vAngle[0] = vAngle[2] = 0.0;
+	// Gets the vector's angle
+	GetVectorAngles(vVelocity, vAngle);
+	
+	// Reset angle vectors
+	vAngle[0] = vAngle[2] = 0.0;
 
-    // Normalize the vector (equal magnitude at varying distances)
-    NormalizeVector(vVelocity, vVelocity);
+	// Normalize the vector (equal magnitude at varying distances)
+	NormalizeVector(vVelocity, vVelocity);
 
-    // Apply the magnitude by scaling the vector
-    ScaleVector(vVelocity, flSpeedScale);
+	// Apply the magnitude by scaling the vector
+	ScaleVector(vVelocity, flSpeedScale);
 }
 
 /**
@@ -2026,42 +2026,42 @@ stock void UTIL_GetVelocityByAim(float vStartPosition[3], float vEndPosition[3],
  **/
 stock bool UTIL_CanSeeEachOther(int entity, int target, float vPosition[3], TraceEntityFilter filter)
 {
-    // Initialize vectors
-    static float vOrigin[3]; static float vMaxs[3];
+	// Initialize vectors
+	static float vOrigin[3]; static float vMaxs[3];
 
-    // Gets the target's bottom position
-    GetEntPropVector(target, Prop_Data, "m_vecAbsOrigin", vOrigin);
-    
-    // Validate a bot point
-    if (UTIL_TraceRay(entity, target, vPosition, vOrigin, filter))
-    {
-        return true;
-    }
-    
-    /*___________________________________________________________________________________________________________*/
+	// Gets the target's bottom position
+	GetEntPropVector(target, Prop_Data, "m_vecAbsOrigin", vOrigin);
+	
+	// Validate a bot point
+	if (UTIL_TraceRay(entity, target, vPosition, vOrigin, filter))
+	{
+		return true;
+	}
+	
+	/*___________________________________________________________________________________________________________*/
 
-    // Gets the target's center position
-    GetClientMaxs(target, vMaxs); vOrigin[2] += vMaxs[2] / 2;
-    
-    // Validate a center point
-    if (UTIL_TraceRay(entity, target, vPosition, vOrigin, filter))
-    {
-        return true;
-    }
-    
-    /*___________________________________________________________________________________________________________*/
+	// Gets the target's center position
+	GetClientMaxs(target, vMaxs); vOrigin[2] += vMaxs[2] / 2;
+	
+	// Validate a center point
+	if (UTIL_TraceRay(entity, target, vPosition, vOrigin, filter))
+	{
+		return true;
+	}
+	
+	/*___________________________________________________________________________________________________________*/
 
-    // Gets the target's eye position
-    GetClientEyePosition(target, vOrigin);
-    
-    // Validate a top point
-    if (UTIL_TraceRay(entity, target, vPosition, vOrigin, filter))
-    {
-        return true;
-    }
-        
-    // Return on unsuccess
-    return false;
+	// Gets the target's eye position
+	GetClientEyePosition(target, vOrigin);
+	
+	// Validate a top point
+	if (UTIL_TraceRay(entity, target, vPosition, vOrigin, filter))
+	{
+		return true;
+	}
+		
+	// Return on unsuccess
+	return false;
 }
 
 /**
@@ -2077,19 +2077,19 @@ stock bool UTIL_CanSeeEachOther(int entity, int target, float vPosition[3], Trac
  **/
 stock bool UTIL_TraceRay(int entity, int target, float vStartPosition[3], float vEndPosition[3], TraceEntityFilter filter)
 {
-    // Starts up a new trace ray using a new trace result and a customized trace ray filter
-    TR_TraceRayFilter(vStartPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, entity);
+	// Starts up a new trace ray using a new trace result and a customized trace ray filter
+	TR_TraceRayFilter(vStartPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, entity);
 
-    // Validate any kind of collision along the trace ray
-    bool bHit;
-    if (!TR_DidHit() || TR_GetEntityIndex() == target) 
-    {
-        // If trace hit, then stop
-        bHit = true;
-    }
+	// Validate any kind of collision along the trace ray
+	bool bHit;
+	if (!TR_DidHit() || TR_GetEntityIndex() == target) 
+	{
+		// If trace hit, then stop
+		bHit = true;
+	}
 
-    // Return on the end
-    return bHit;
+	// Return on the end
+	return bHit;
 }
 
 /**
@@ -2102,37 +2102,37 @@ stock bool UTIL_TraceRay(int entity, int target, float vStartPosition[3], float 
  **/
 stock float UTIL_GetDistanceBetween(int client, int entity)
 {
-    // Initialize vectors
-    static float vPosition[3]; static float vEndPosition[3]; static float vMins[3]; static float vMaxs[3];
+	// Initialize vectors
+	static float vPosition[3]; static float vEndPosition[3]; static float vMins[3]; static float vMaxs[3];
 
-    // Gets positions
-    GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
-    GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vEndPosition);
-    
-    // Get the client's min and max size vector
-    GetClientMins(client, vMins); 
-    GetClientMaxs(client, vMaxs);
-    
-    // Gets height and distance
-    float flHeight = vMins[2] - vMaxs[2] + 10;
-    float fDistance = vPosition[2] - vEndPosition[2];
-    
-    // Move the calculation to 2D
-    if (fDistance > flHeight) 
-    {
-        vPosition[2] -= flHeight;
-    }
-    else if (fDistance < (-1.0 * flHeight)) 
-    {
-        vPosition[2] -= flHeight;
-    }
-    else 
-    {
-        vPosition[2] = vEndPosition[2];
-    }
-    
-    // Gets distance between them
-    return GetVectorDistance(vPosition, vEndPosition);
+	// Gets positions
+	GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vEndPosition);
+	
+	// Get the client's min and max size vector
+	GetClientMins(client, vMins); 
+	GetClientMaxs(client, vMaxs);
+	
+	// Gets height and distance
+	float flHeight = vMins[2] - vMaxs[2] + 10;
+	float fDistance = vPosition[2] - vEndPosition[2];
+	
+	// Move the calculation to 2D
+	if (fDistance > flHeight) 
+	{
+		vPosition[2] -= flHeight;
+	}
+	else if (fDistance < (-1.0 * flHeight)) 
+	{
+		vPosition[2] -= flHeight;
+	}
+	else 
+	{
+		vPosition[2] = vEndPosition[2];
+	}
+	
+	// Gets distance between them
+	return GetVectorDistance(vPosition, vEndPosition);
 }
 
 /*_____________________________________________________________________________________________________________*/
@@ -2146,27 +2146,27 @@ stock float UTIL_GetDistanceBetween(int client, int entity)
  **/
 stock int GetEffectIndex(char[] sEffect)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
 
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("EffectDispatch");
-    }
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("EffectDispatch");
+	}
 
-    // Searches for the index of a given string in a string table
-    int item = FindStringIndex(table, sEffect);
+	// Searches for the index of a given string in a string table
+	int item = FindStringIndex(table, sEffect);
 
-    // Validate item
-    if (item != INVALID_STRING_INDEX)
-    {
-        return item;
-    }
+	// Validate item
+	if (item != INVALID_STRING_INDEX)
+	{
+		return item;
+	}
 
-    // Return on the unsuccess
-    return 0;
+	// Return on the unsuccess
+	return 0;
 }
 
 /**
@@ -2178,27 +2178,27 @@ stock int GetEffectIndex(char[] sEffect)
  **/
 stock int GetParticleEffectIndex(char[] sEffect)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
 
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("ParticleEffectNames");
-    }
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("ParticleEffectNames");
+	}
 
-    // Searches for the index of a given string in a string table
-    int item = FindStringIndex(table, sEffect);
+	// Searches for the index of a given string in a string table
+	int item = FindStringIndex(table, sEffect);
 
-    // Validate item
-    if (item != INVALID_STRING_INDEX)
-    {
-        return item;
-    }
+	// Validate item
+	if (item != INVALID_STRING_INDEX)
+	{
+		return item;
+	}
 
-    // Return on the unsuccess
-    return 0;
+	// Return on the unsuccess
+	return 0;
 }
 
 /**
@@ -2209,35 +2209,35 @@ stock int GetParticleEffectIndex(char[] sEffect)
  **/
 stock void PrecacheParticleFile(int client = 0, char[] sEffect)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
-    
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("ExtraParticleFilesTable");
-    }
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
+	
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("ExtraParticleFilesTable");
+	}
 
-    // Validate server
-    if (!client)
-    {
-        // Precache particle
-        bool bSave = LockStringTables(false);
-        AddToStringTable(table, sEffect);
-        LockStringTables(bSave);
-    }
-    else
-    {
-        // i = string index
-        int iCount = GetStringTableNumStrings(table);
-        for (int i = 0; i < iCount; i++)
-        {
-            static char iD[SMALL_LINE_LENGTH];
-            IntToString(client, iD, sizeof(iD));
-            SetStringTableData(table, i, iD, sizeof(iD));
-        }
-    }
+	// Validate server
+	if (!client)
+	{
+		// Precache particle
+		bool bSave = LockStringTables(false);
+		AddToStringTable(table, sEffect);
+		LockStringTables(bSave);
+	}
+	else
+	{
+		// i = string index
+		int iCount = GetStringTableNumStrings(table);
+		for (int i = 0; i < iCount; i++)
+		{
+			static char iD[SMALL_LINE_LENGTH];
+			IntToString(client, iD, sizeof(iD));
+			SetStringTableData(table, i, iD, sizeof(iD));
+		}
+	}
 }
 
 /**
@@ -2247,20 +2247,20 @@ stock void PrecacheParticleFile(int client = 0, char[] sEffect)
  **/
 stock void PrecacheParticleEffect(char[] sEffect)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
-    
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("ParticleEffectNames");
-    }
-    
-    // Precache particle
-    bool bSave = LockStringTables(false);
-    AddToStringTable(table, sEffect);
-    LockStringTables(bSave);
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
+	
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("ParticleEffectNames");
+	}
+	
+	// Precache particle
+	bool bSave = LockStringTables(false);
+	AddToStringTable(table, sEffect);
+	LockStringTables(bSave);
 }
 
 /**
@@ -2272,18 +2272,18 @@ stock void PrecacheParticleEffect(char[] sEffect)
  **/
 stock void GetEffectName(int iIndex, char[] sEffect, int iMaxLen)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
-    
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("EffectDispatch");
-    }
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
+	
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("EffectDispatch");
+	}
 
-    // Gets the string at a given index
-    ReadStringTable(table, iIndex, sEffect, iMaxLen);
+	// Gets the string at a given index
+	ReadStringTable(table, iIndex, sEffect, iMaxLen);
 }
 
 /**
@@ -2295,18 +2295,18 @@ stock void GetEffectName(int iIndex, char[] sEffect, int iMaxLen)
  **/
 stock void GetParticleEffectName(int iIndex, char[] sEffect, int iMaxLen)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
-    
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("ParticleEffectNames");
-    }
-    
-    // Gets the string at a given index
-    ReadStringTable(table, iIndex, sEffect, iMaxLen);
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
+	
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("ParticleEffectNames");
+	}
+	
+	// Gets the string at a given index
+	ReadStringTable(table, iIndex, sEffect, iMaxLen);
 }
 
 /**
@@ -2316,18 +2316,18 @@ stock void GetParticleEffectName(int iIndex, char[] sEffect, int iMaxLen)
  **/
 stock void GetEffectNameCount(/*void*/)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
-    
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("EffectDispatch");
-    }
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
+	
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("EffectDispatch");
+	}
 
-    // Returns the count of strings that exist in a given table
-    return GetStringTableNumStrings(table);
+	// Returns the count of strings that exist in a given table
+	return GetStringTableNumStrings(table);
 }
 
 /**
@@ -2337,18 +2337,18 @@ stock void GetEffectNameCount(/*void*/)
  **/
 stock int GetParticleEffectCount(/*void*/)
 {
-    // Initialize the table index
-    static int table = INVALID_STRING_TABLE;
-    
-    // Validate table
-    if (table == INVALID_STRING_TABLE)
-    {
-        // Searches for a string table
-        table = FindStringTable("ParticleEffectNames");
-    }
-    
-    // Returns the count of strings that exist in a given table
-    return GetStringTableNumStrings(table);
+	// Initialize the table index
+	static int table = INVALID_STRING_TABLE;
+	
+	// Validate table
+	if (table == INVALID_STRING_TABLE)
+	{
+		// Searches for a string table
+		table = FindStringTable("ParticleEffectNames");
+	}
+	
+	// Returns the count of strings that exist in a given table
+	return GetStringTableNumStrings(table);
 }
 
 /*_____________________________________________________________________________________________________________*/
@@ -2363,38 +2363,38 @@ stock int GetParticleEffectCount(/*void*/)
  **/
 stock bool IsPlayerExist(int client, bool bAlive = true)
 {
-    // If client isn't valid, then stop
-    if (client <= 0 || client > MaxClients)
-    {
-        return false;
-    }
+	// If client isn't valid, then stop
+	if (client <= 0 || client > MaxClients)
+	{
+		return false;
+	}
 
-    // If client isn't connected, then stop
-    if (!IsClientConnected(client))
-    {
-        return false;
-    }
+	// If client isn't connected, then stop
+	if (!IsClientConnected(client))
+	{
+		return false;
+	}
 
-    // If client isn't in game, then stop
-    if (!IsClientInGame(client) || IsClientInKickQueue(client))
-    {
-        return false;
-    }
+	// If client isn't in game, then stop
+	if (!IsClientInGame(client) || IsClientInKickQueue(client))
+	{
+		return false;
+	}
 
-    // If client is TV, then stop
-    if (IsClientSourceTV(client))
-    {
-        return false;
-    }
+	// If client is TV, then stop
+	if (IsClientSourceTV(client))
+	{
+		return false;
+	}
 
-    // If client isn't alive, then stop
-    if (bAlive && !IsPlayerAlive(client))
-    {
-        return false;
-    }
+	// If client isn't alive, then stop
+	if (bAlive && !IsPlayerAlive(client))
+	{
+		return false;
+	}
 
-    // If client exist
-    return true;
+	// If client exist
+	return true;
 }
 
 /**
@@ -2407,55 +2407,55 @@ stock bool IsPlayerExist(int client, bool bAlive = true)
  **/
 stock bool IsPlayerInGroup(int client, char[] sGroup)
 {
-    // Validate client
-    if (!IsPlayerExist(client, false))
-    {
-        return false;
-    }
+	// Validate client
+	if (!IsPlayerExist(client, false))
+	{
+		return false;
+	}
 
-    /*********************************
-     *                               *
-     *   FLAG GROUP AUTHENTICATION   *
-     *                               *
-     *********************************/
+	/*********************************
+	 *                               *
+	 *   FLAG GROUP AUTHENTICATION   *
+	 *                               *
+	 *********************************/
 
-    // Finds a group by name
-    GroupId nGroup = FindAdmGroup(sGroup);
-    
-    // Validate group
-    if (nGroup == INVALID_GROUP_ID)
-    {
-        return false;
-    }
-     
-    // Retrieves a client AdminId
-    AdminId iD = GetUserAdmin(client);
-    
-    // Validate id
-    if (iD == INVALID_ADMIN_ID)
-    {
-        return false;
-    }
+	// Finds a group by name
+	GroupId nGroup = FindAdmGroup(sGroup);
+	
+	// Validate group
+	if (nGroup == INVALID_GROUP_ID)
+	{
+		return false;
+	}
+	 
+	// Retrieves a client AdminId
+	AdminId iD = GetUserAdmin(client);
+	
+	// Validate id
+	if (iD == INVALID_ADMIN_ID)
+	{
+		return false;
+	}
 
-    // Initialize group char
-    static char sGroupName[SMALL_LINE_LENGTH];
+	// Initialize group char
+	static char sGroupName[SMALL_LINE_LENGTH];
 
-    // i = group index
-    int iSize = GetAdminGroupCount(iD);
-    for (int i = 0; i < iSize; i++)
-    {
-        // Gets group name
-        nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
+	// i = group index
+	int iSize = GetAdminGroupCount(iD);
+	for (int i = 0; i < iSize; i++)
+	{
+		// Gets group name
+		nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
 
-        // Validate group
-        if (!strcmp(sGroup, sGroupName, false))
-        {
-            return true;
-        }
-    }
-    
-    // No groups or no match
-    return false;
+		// Validate group
+		if (!strcmp(sGroup, sGroupName, false))
+		{
+			return true;
+		}
+	}
+	
+	// No groups or no match
+	return false;
 }
 
 /*_____________________________________________________________________________________________________________*/
@@ -2470,7 +2470,7 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
  **/
 stock any min(any i1, any i2) 
 {
-    return (i1 < i2 ? i1 : i2); 
+	return (i1 < i2 ? i1 : i2); 
 } 
 
 /**
@@ -2483,5 +2483,5 @@ stock any min(any i1, any i2)
  **/
 stock any max(any i1, any i2) 
 {
-    return (i1 > i2 ? i1 : i2); 
+	return (i1 > i2 ? i1 : i2); 
 }

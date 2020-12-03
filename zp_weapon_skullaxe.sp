@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: Skullaxe",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of custom weapon",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Weapon: Skullaxe",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of custom weapon",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -70,16 +70,16 @@ int gSound; ConVar hSoundLevel;
 // Animation sequences
 enum
 {
-    ANIM_IDLE,
-    ANIM_SLASH1,
-    ANIM_SLASH2,
-    ANIM_DRAW,
-    ANIM_STAB,
-    ANIM_STAB_MISS,
-    ANIM_MIDSLASH1,
-    ANIM_MIDSLASH2,
-    ANIM_SLASH_START,
-    ANIM_SLASH3
+	ANIM_IDLE,
+	ANIM_SLASH1,
+	ANIM_SLASH2,
+	ANIM_DRAW,
+	ANIM_STAB,
+	ANIM_STAB_MISS,
+	ANIM_MIDSLASH1,
+	ANIM_MIDSLASH2,
+	ANIM_SLASH_START,
+	ANIM_SLASH3
 };
 
 /**
@@ -88,16 +88,16 @@ enum
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -105,13 +105,13 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void OnMapEnd(/*void*/)
 {
-    // i = client index
-    for (int i = 1; i <= MaxClients; i++)
-    {
-        // Purge timers
-        hWeaponStab[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE 
-        hWeaponSwing[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE 
-    }
+	// i = client index
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		// Purge timers
+		hWeaponStab[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE 
+		hWeaponSwing[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE 
+	}
 }
 
 /**
@@ -121,9 +121,9 @@ public void OnMapEnd(/*void*/)
  **/
 public void OnClientDisconnect(int client)
 {
-    // Delete timers
-    delete hWeaponStab[client];
-    delete hWeaponSwing[client];
+	// Delete timers
+	delete hWeaponStab[client];
+	delete hWeaponSwing[client];
 }
 
 /**
@@ -131,17 +131,17 @@ public void OnClientDisconnect(int client)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Initialize weapon
-    gWeapon = ZP_GetWeaponNameID("skullaxe");
-    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skullaxe\" wasn't find");
+	// Initialize weapon
+	gWeapon = ZP_GetWeaponNameID("skullaxe");
+	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skullaxe\" wasn't find");
 
-    // Sounds
-    gSound = ZP_GetSoundKeyID("SKULLAXE_HIT_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SKULLAXE_HIT_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Sounds
+	gSound = ZP_GetSoundKeyID("SKULLAXE_HIT_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SKULLAXE_HIT_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -151,186 +151,186 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused client, weapon, flCurrentTime
+	#pragma unused client, weapon, flCurrentTime
 
-    /// Block the real attack
-    SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
-    SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
-    SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", MAX_FLOAT);
+	/// Block the real attack
+	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
+	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
+	SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", MAX_FLOAT);
 
-    // Sets idle animation
-    ZP_SetWeaponAnimation(client, ANIM_DRAW); 
-    
-    // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+	// Sets idle animation
+	ZP_SetWeaponAnimation(client, ANIM_DRAW); 
+	
+	// Sets next attack time
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
 void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused client, weapon, flCurrentTime
+	#pragma unused client, weapon, flCurrentTime
 
-    // Validate animation delay
-    if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
-    {
-        return;
-    }
-    
-    // Sets idle animation
-    ZP_SetWeaponAnimation(client, ANIM_IDLE); 
-    
-    // Sets next idle time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
+	// Validate animation delay
+	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
+	{
+		return;
+	}
+	
+	// Sets idle animation
+	ZP_SetWeaponAnimation(client, ANIM_IDLE); 
+	
+	// Sets next idle time
+	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused client, weapon, flCurrentTime
+	#pragma unused client, weapon, flCurrentTime
 
-    // Validate animation delay
-    if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
-    {
-        return;
-    }
+	// Validate animation delay
+	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+	{
+		return;
+	}
 
-    // Sets attack animation  
-    ZP_SetWeaponAnimation(client, ANIM_SLASH_START);    
-    ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
-    
-    // Create timer for swing
-    delete hWeaponSwing[client];
-    hWeaponSwing[client] = CreateTimer(1.0, Weapon_OnSwing, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	// Sets attack animation  
+	ZP_SetWeaponAnimation(client, ANIM_SLASH_START);    
+	ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
+	
+	// Create timer for swing
+	delete hWeaponSwing[client];
+	hWeaponSwing[client] = CreateTimer(1.0, Weapon_OnSwing, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
-    // Play the attack sound
-    ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
-    
-    // Adds the delay to the game tick
-    flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
-    
-    // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
+	// Play the attack sound
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	
+	// Adds the delay to the game tick
+	flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+	
+	// Sets next attack time
+	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
 }
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused client, weapon, flCurrentTime
+	#pragma unused client, weapon, flCurrentTime
 
-    // Validate animation delay
-    if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
-    {
-        return;
-    }
+	// Validate animation delay
+	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
+	{
+		return;
+	}
 
-    // Sets attack animation  
-    ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SLASH2, ANIM_SLASH3 });
-    ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
-    
-    // Create timer for stab
-    delete hWeaponStab[client];
-    hWeaponStab[client] = CreateTimer(1.0, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-    
-    // Play the attack sound
-    ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
-    
-    // Adds the delay to the game tick
-    flCurrentTime += ZP_GetWeaponReload(gWeapon);
-                
-    // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-    SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
+	// Sets attack animation  
+	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SLASH2, ANIM_SLASH3 });
+	ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
+	
+	// Create timer for stab
+	delete hWeaponStab[client];
+	hWeaponStab[client] = CreateTimer(1.0, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	
+	// Play the attack sound
+	ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	
+	// Adds the delay to the game tick
+	flCurrentTime += ZP_GetWeaponReload(gWeapon);
+				
+	// Sets next attack time
+	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
 }
 
 void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift, bool bSlash)
 {    
-    #pragma unused client, weapon, flRightShift, bSlash
+	#pragma unused client, weapon, flRightShift, bSlash
 
-    // Initialize vectors
-    static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
+	// Initialize vectors
+	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 
-    // Gets weapon position
-    ZP_GetPlayerGunPosition(client, 0.0, 0.0, 5.0 + flUpShift, vPosition);
-    ZP_GetPlayerGunPosition(client, bSlash ? WEAPON_SLASH_DISTANCE : WEAPON_STAB_DISTANCE, flRightShift, 5.0 + flUpShift, vEndPosition);
+	// Gets weapon position
+	ZP_GetPlayerGunPosition(client, 0.0, 0.0, 5.0 + flUpShift, vPosition);
+	ZP_GetPlayerGunPosition(client, bSlash ? WEAPON_SLASH_DISTANCE : WEAPON_STAB_DISTANCE, flRightShift, 5.0 + flUpShift, vEndPosition);
 
-    // Create the end-point trace
-    Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
+	// Create the end-point trace
+	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
 
-    // Initialize some variables
-    int victim;
-    
-    // Validate collisions
-    if (!TR_DidHit(hTrace))
-    {
-        // Initialize the hull box
-        static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
-        static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
-        
-        // Create the hull trace
-        delete hTrace;
-        hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, SelfFilter, client);
-        
-        // Validate collisions
-        if (TR_DidHit(hTrace))
-        {
-            // Gets victim index
-            victim = TR_GetEntityIndex(hTrace);
+	// Initialize some variables
+	int victim;
+	
+	// Validate collisions
+	if (!TR_DidHit(hTrace))
+	{
+		// Initialize the hull box
+		static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
+		static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
+		
+		// Create the hull trace
+		delete hTrace;
+		hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, SelfFilter, client);
+		
+		// Validate collisions
+		if (TR_DidHit(hTrace))
+		{
+			// Gets victim index
+			victim = TR_GetEntityIndex(hTrace);
 
-            // Is hit world ?
-            if (victim < 1 || ZP_IsBSPModel(victim))
-            {
-                UTIL_FindHullIntersection(hTrace, vPosition, vMins, vMaxs, SelfFilter, client);
-            }
-        }
-    }
-    
-    // Validate collisions
-    if (TR_DidHit(hTrace))
-    {
-        // Sets hit animation  
-        if (bSlash) ZP_SetWeaponAnimation(client, ANIM_SLASH1);   
+			// Is hit world ?
+			if (victim < 1 || ZP_IsBSPModel(victim))
+			{
+				UTIL_FindHullIntersection(hTrace, vPosition, vMins, vMaxs, SelfFilter, client);
+			}
+		}
+	}
+	
+	// Validate collisions
+	if (TR_DidHit(hTrace))
+	{
+		// Sets hit animation  
+		if (bSlash) ZP_SetWeaponAnimation(client, ANIM_SLASH1);   
 
-        // Gets victim index
-        victim = TR_GetEntityIndex(hTrace);
-        
-        // Returns the collision position of a trace result
-        TR_GetEndPosition(vEndPosition, hTrace);
+		// Gets victim index
+		victim = TR_GetEntityIndex(hTrace);
+		
+		// Returns the collision position of a trace result
+		TR_GetEndPosition(vEndPosition, hTrace);
 
-        // Is hit world ?
-        if (victim < 1 || ZP_IsBSPModel(victim))
-        {
-            // Returns the collision plane
-            TR_GetPlaneNormal(hTrace, vNormal); 
-    
-            // Create a sparks effect
-            TE_SetupSparks(vEndPosition, vNormal, 50, 2);
-            TE_SendToAll();
-            
-            // Play sound
-            ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_ITEM, hSoundLevel.IntValue);
-        }
-        else
-        {
-            // Create the damage for victims
-            UTIL_CreateDamage(_, vEndPosition, client, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, WEAPON_RADIUS_DAMAGE, DMG_NEVERGIB, gWeapon);
+		// Is hit world ?
+		if (victim < 1 || ZP_IsBSPModel(victim))
+		{
+			// Returns the collision plane
+			TR_GetPlaneNormal(hTrace, vNormal); 
+	
+			// Create a sparks effect
+			TE_SetupSparks(vEndPosition, vNormal, 50, 2);
+			TE_SendToAll();
+			
+			// Play sound
+			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_ITEM, hSoundLevel.IntValue);
+		}
+		else
+		{
+			// Create the damage for victims
+			UTIL_CreateDamage(_, vEndPosition, client, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, WEAPON_RADIUS_DAMAGE, DMG_NEVERGIB, gWeapon);
 
-            // Validate victim
-            if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
-            {
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 3, victim, SNDCHAN_ITEM, hSoundLevel.IntValue);
-            }
-        }
-    }
-    else
-    {
-        // Sets miss animation  
-        if (bSlash) ZP_SetWeaponAnimation(client, ANIM_STAB_MISS);   
+			// Validate victim
+			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+			{
+				// Play sound
+				ZP_EmitSoundToAll(gSound, 3, victim, SNDCHAN_ITEM, hSoundLevel.IntValue);
+			}
+		}
+	}
+	else
+	{
+		// Sets miss animation  
+		if (bSlash) ZP_SetWeaponAnimation(client, ANIM_STAB_MISS);   
 
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 5, client, SNDCHAN_ITEM, hSoundLevel.IntValue);
-    }
-    
-    // Close trace 
-    delete hTrace;
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 5, client, SNDCHAN_ITEM, hSoundLevel.IntValue);
+	}
+	
+	// Close trace 
+	delete hTrace;
 }
 
 /**
@@ -341,25 +341,25 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
  **/
 public Action Weapon_OnSwing(Handle hTimer, int userID)
 {
-    // Gets client index from the user ID
-    int client = GetClientOfUserId(userID); int weapon;
+	// Gets client index from the user ID
+	int client = GetClientOfUserId(userID); int weapon;
 
-    // Clear timer 
-    hWeaponSwing[client] = null;
+	// Clear timer 
+	hWeaponSwing[client] = null;
 
-    // Validate client
-    if (ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
-    {
-        float flUpShift = 14.0;
-        for (int i = 0; i < 15; i++)
-        {
-            // Do slash
-            Weapon_OnSlash(client, weapon, 0.0, flUpShift -= 4.0, true);
-        }
-    }
+	// Validate client
+	if (ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
+	{
+		float flUpShift = 14.0;
+		for (int i = 0; i < 15; i++)
+		{
+			// Do slash
+			Weapon_OnSlash(client, weapon, 0.0, flUpShift -= 4.0, true);
+		}
+	}
 
-    // Destroy timer
-    return Plugin_Stop;
+	// Destroy timer
+	return Plugin_Stop;
 }
 
 /**
@@ -370,25 +370,25 @@ public Action Weapon_OnSwing(Handle hTimer, int userID)
  **/
 public Action Weapon_OnStab(Handle hTimer, int userID)
 {
-    // Gets client index from the user ID
-    int client = GetClientOfUserId(userID); int weapon;
+	// Gets client index from the user ID
+	int client = GetClientOfUserId(userID); int weapon;
 
-    // Clear timer 
-    hWeaponStab[client] = null;
+	// Clear timer 
+	hWeaponStab[client] = null;
 
-    // Validate client
-    if (ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
-    {
-        float flRightShift = -14.0;
-        for (int i = 0; i < 15; i++)
-        {
-            // Do slash
-            Weapon_OnSlash(client, weapon, flRightShift += 4.0, 0.0, false);
-        }
-    }
+	// Validate client
+	if (ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
+	{
+		float flRightShift = -14.0;
+		for (int i = 0; i < 15; i++)
+		{
+			// Do slash
+			Weapon_OnSlash(client, weapon, flRightShift += 4.0, 0.0, false);
+		}
+	}
 
-    // Destroy timer
-    return Plugin_Stop;
+	// Destroy timer
+	return Plugin_Stop;
 }
 
 //**********************************************
@@ -396,13 +396,13 @@ public Action Weapon_OnStab(Handle hTimer, int userID)
 //**********************************************
 
 #define _call.%0(%1,%2)         \
-                                \
-    Weapon_On%0                 \
-    (                           \
-        %1,                     \
-        %2,                     \
-        GetGameTime() \
-    )
+								\
+	Weapon_On%0                 \
+	(                           \
+		%1,                     \
+		%2,                     \
+		GetGameTime() \
+	)
 
 /**
  * @brief Called on holster of a weapon.
@@ -413,13 +413,13 @@ public Action Weapon_OnStab(Handle hTimer, int userID)
  **/
 public void ZP_OnWeaponHolster(int client, int weapon, int weaponID) 
 {
-    // Validate custom weapon
-    if (weaponID == gWeapon)
-    {
-        // Delete timers
-        delete hWeaponStab[client];
-        delete hWeaponSwing[client];
-    }
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Delete timers
+		delete hWeaponStab[client];
+		delete hWeaponSwing[client];
+	}
 }
 
 /**
@@ -431,12 +431,12 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
  **/
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
-    // Validate custom weapon
-    if (weaponID == gWeapon)
-    {
-        // Call event
-        _call.Deploy(client, weapon);
-    }
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Call event
+		_call.Deploy(client, weapon);
+	}
 }
 
 /**
@@ -453,33 +453,33 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-    // Validate custom weapon
-    if (weaponID == gWeapon)
-    {
-        // Button primary attack press
-        if (iButtons & IN_ATTACK)
-        {
-            // Call event
-            _call.PrimaryAttack(client, weapon);
-            iButtons &= (~IN_ATTACK); //! Bugfix
-            return Plugin_Changed;
-        }
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Button primary attack press
+		if (iButtons & IN_ATTACK)
+		{
+			// Call event
+			_call.PrimaryAttack(client, weapon);
+			iButtons &= (~IN_ATTACK); //! Bugfix
+			return Plugin_Changed;
+		}
 
-        // Button secondary attack press
-        if (iButtons & IN_ATTACK2)
-        {
-            // Call event
-            _call.SecondaryAttack(client, weapon);
-            iButtons &= (~IN_ATTACK2); //! Bugfix
-            return Plugin_Changed;
-        }
-        
-        // Call event
-        _call.Idle(client, weapon);
-    }
-    
-    // Allow button
-    return Plugin_Continue;
+		// Button secondary attack press
+		if (iButtons & IN_ATTACK2)
+		{
+			// Call event
+			_call.SecondaryAttack(client, weapon);
+			iButtons &= (~IN_ATTACK2); //! Bugfix
+			return Plugin_Changed;
+		}
+		
+		// Call event
+		_call.Idle(client, weapon);
+	}
+	
+	// Allow button
+	return Plugin_Continue;
 }
 
 /**
@@ -493,5 +493,5 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  **/
 public bool SelfFilter(int entity, int contentsMask, int filter)
 {
-    return (entity != filter);
+	return (entity != filter);
 }

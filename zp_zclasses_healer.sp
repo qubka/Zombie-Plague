@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Zombie Class: Healer",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of zombie classses",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Zombie Class: Healer",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of zombie classses",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -68,16 +68,16 @@ int gZombie;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -85,17 +85,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Classes
-    gZombie = ZP_GetClassNameID("healer");
-    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"healer\" wasn't find");
-    
-    // Sounds
-    gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HEALER_SKILL_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Classes
+	gZombie = ZP_GetClassNameID("healer");
+	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"healer\" wasn't find");
+	
+	// Sounds
+	gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HEALER_SKILL_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -108,64 +108,64 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie)
-    {
-        // Initialize vectors
-        static float vPosition[3]; static float vEnemy[3];
-        
-        // Gets client origin
-        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
-        
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie)
+	{
+		// Initialize vectors
+		static float vPosition[3]; static float vEnemy[3];
+		
+		// Gets client origin
+		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+		
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
 
-        // Create an fade
-        UTIL_CreateFadeScreen(client, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);  
-        
-        // Create an effect
-        UTIL_CreateParticle(client, vPosition, _, _, "tornado", ZP_GetClassSkillDuration(gZombie));
-        
-        // Find any players in the radius
-        int i; int it = 1; /// iterator
-        while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
-        {
-            // Skip humans
-            if (ZP_IsPlayerHuman(i))
-            {
-                continue;
-            }
+		// Create an fade
+		UTIL_CreateFadeScreen(client, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);  
+		
+		// Create an effect
+		UTIL_CreateParticle(client, vPosition, _, _, "tornado", ZP_GetClassSkillDuration(gZombie));
+		
+		// Find any players in the radius
+		int i; int it = 1; /// iterator
+		while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+		{
+			// Skip humans
+			if (ZP_IsPlayerHuman(i))
+			{
+				continue;
+			}
 
-            // Gets victim zombie class/health
-            int iClass = ZP_GetClientClass(i);
-            int iHealth = ZP_GetClassHealth(iClass);
-            int iSound = ZP_GetClassSoundRegenID(iClass);
+			// Gets victim zombie class/health
+			int iClass = ZP_GetClientClass(i);
+			int iHealth = ZP_GetClassHealth(iClass);
+			int iSound = ZP_GetClassSoundRegenID(iClass);
 
-            // Validate lower health
-            if (GetEntProp(i, Prop_Send, "m_iHealth") < iHealth)
-            {
-                // Sets a new health 
-                SetEntProp(i, Prop_Send, "m_iHealth", iHealth); 
-                
-                // Validate sound key
-                if (iSound != -1)
-                {
-                    // Play sound
-                    ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, hSoundLevel.IntValue);
-                }
-                
-                // Gets victim origin
-                GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
-                
-                // Create an effect
-                UTIL_CreateParticle(i, vEnemy, _, _, "heal_ss", ZP_GetClassSkillDuration(gZombie));
+			// Validate lower health
+			if (GetEntProp(i, Prop_Send, "m_iHealth") < iHealth)
+			{
+				// Sets a new health 
+				SetEntProp(i, Prop_Send, "m_iHealth", iHealth); 
+				
+				// Validate sound key
+				if (iSound != -1)
+				{
+					// Play sound
+					ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, hSoundLevel.IntValue);
+				}
+				
+				// Gets victim origin
+				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+				
+				// Create an effect
+				UTIL_CreateParticle(i, vEnemy, _, _, "heal_ss", ZP_GetClassSkillDuration(gZombie));
 
-                // Give reward
-                ZP_SetClientMoney(client, ZP_GetClientMoney(client) + ZOMBIE_CLASS_SKILL_REWARD);
-            }
-        }
-    }
-    
-    // Allow usage
-    return Plugin_Continue;
+				// Give reward
+				ZP_SetClientMoney(client, ZP_GetClientMoney(client) + ZOMBIE_CLASS_SKILL_REWARD);
+			}
+		}
+	}
+	
+	// Allow usage
+	return Plugin_Continue;
 }

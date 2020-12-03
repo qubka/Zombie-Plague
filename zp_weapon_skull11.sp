@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: Skull XI",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of custom weapon",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Weapon: Skull XI",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of custom weapon",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 // Weapon index
@@ -52,16 +52,16 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -69,9 +69,9 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Weapons
-    gWeapon = ZP_GetWeaponNameID("skull11");
-    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull11\" wasn't find");
+	// Weapons
+	gWeapon = ZP_GetWeaponNameID("skull11");
+	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull11\" wasn't find");
 }
 
 //*********************************************************************
@@ -81,28 +81,28 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnReload(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused client, weapon, flCurrentTime
+	#pragma unused client, weapon, flCurrentTime
 
-    // Sets default FOV for the client
-    SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
+	// Sets default FOV for the client
+	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
 }
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-    #pragma unused client, weapon, flCurrentTime
-    
-    // Validate animation delay
-    if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
-    {
-        return;
-    }
-    
-    // Sets next attack time
-    SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 0.3);
-    
-    // Sets FOV for the client
-    int iDefaultFOV = GetEntProp(client, Prop_Send, "m_iDefaultFOV");
-    SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iFOV") == iDefaultFOV ? 55 : iDefaultFOV);
+	#pragma unused client, weapon, flCurrentTime
+	
+	// Validate animation delay
+	if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
+	{
+		return;
+	}
+	
+	// Sets next attack time
+	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 0.3);
+	
+	// Sets FOV for the client
+	int iDefaultFOV = GetEntProp(client, Prop_Send, "m_iDefaultFOV");
+	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iFOV") == iDefaultFOV ? 55 : iDefaultFOV);
 }
 
 //**********************************************
@@ -110,14 +110,14 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 //**********************************************
 
 #define _call.%0(%1,%2)         \
-                                \
-    Weapon_On%0                 \
-    (                           \
-        %1,                     \
-        %2,                     \
-                                \
-        GetGameTime()           \
-    )    
+								\
+	Weapon_On%0                 \
+	(                           \
+		%1,                     \
+		%2,                     \
+								\
+		GetGameTime()           \
+	)    
 
 /**
  * @brief Called on each frame of a weapon holding.
@@ -133,21 +133,21 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-    // Validate custom weapon
-    if (weaponID == gWeapon)
-    {
-        // Button secondary attack press
-        if (!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
-        {
-            // Call event
-            _call.SecondaryAttack(client, weapon);
-            iButtons &= (~IN_ATTACK2); //! Bugfix
-            return Plugin_Changed;
-        }
-    }
-    
-    // Allow button
-    return Plugin_Continue;
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Button secondary attack press
+		if (!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
+		{
+			// Call event
+			_call.SecondaryAttack(client, weapon);
+			iButtons &= (~IN_ATTACK2); //! Bugfix
+			return Plugin_Changed;
+		}
+	}
+	
+	// Allow button
+	return Plugin_Continue;
 }
 
 /**
@@ -159,10 +159,10 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  **/
 public void ZP_OnWeaponReload(int client, int weapon, int weaponID)
 {
-    // Validate custom weapon
-    if (weaponID == gWeapon)
-    {
-        // Call event
-        _call.Reload(client, weapon);
-    }
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Call event
+		_call.Reload(client, weapon);
+	}
 }

@@ -34,11 +34,11 @@
  **/
  public Plugin myinfo =
 {
-    name            = "[ZP] Zombie Class: Sleeper",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of zombie classses",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Zombie Class: Sleeper",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of zombie classses",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -66,16 +66,16 @@ int gZombie;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -83,17 +83,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
  public void ZP_OnEngineExecute(/*void*/)
 {
-    // Classes
-    gZombie = ZP_GetClassNameID("sleeper");
-    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"sleeper\" wasn't find");
-    
-    // Sounds
-    gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SLEEPER_SKILL_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Classes
+	gZombie = ZP_GetClassNameID("sleeper");
+	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"sleeper\" wasn't find");
+	
+	// Sounds
+	gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SLEEPER_SKILL_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -110,34 +110,34 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float flDamage, int iBits, int weapon, int iHealth, int iArmor)
 {
-    // Validate attacker
-    if (!IsPlayerExist(attacker))
-    {
-        return;
-    }
-    
-    // Initialize client chances
-    static int iChance[MAXPLAYERS+1];
+	// Validate attacker
+	if (!IsPlayerExist(attacker))
+	{
+		return;
+	}
+	
+	// Initialize client chances
+	static int iChance[MAXPLAYERS+1];
 
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie)
-    {
-        // Generate the chance
-        iChance[client] = GetRandomInt(0, 999);
-        
-        // Validate chance
-        if (iChance[client] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
-        {
-            // Play sound
-            ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, hSoundLevel.IntValue);
-            
-            // Create an fade
-            UTIL_CreateFadeScreen(attacker, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);
-            
-            // Create effect
-            static float vPosition[3];
-            GetEntPropVector(attacker, Prop_Data, "m_vecAbsOrigin", vPosition);
-            UTIL_CreateParticle(attacker, vPosition, _, _, "sila_trail_apalaal", ZOMBIE_CLASS_SKILL_DURATION_F);
-        }
-    }
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie)
+	{
+		// Generate the chance
+		iChance[client] = GetRandomInt(0, 999);
+		
+		// Validate chance
+		if (iChance[client] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
+		{
+			// Play sound
+			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, hSoundLevel.IntValue);
+			
+			// Create an fade
+			UTIL_CreateFadeScreen(attacker, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);
+			
+			// Create effect
+			static float vPosition[3];
+			GetEntPropVector(attacker, Prop_Data, "m_vecAbsOrigin", vPosition);
+			UTIL_CreateParticle(attacker, vPosition, _, _, "sila_trail_apalaal", ZOMBIE_CLASS_SKILL_DURATION_F);
+		}
+	}
 }

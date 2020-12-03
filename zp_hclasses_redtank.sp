@@ -34,11 +34,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Human Class: Red Tank",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of human classes",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Human Class: Red Tank",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of human classes",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 // Sound index
@@ -55,16 +55,16 @@ int gHuman;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -72,17 +72,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Classes
-    gHuman = ZP_GetClassNameID("redtank");
-    //if (gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"redtank\" wasn't find");
-    
-    // Sounds
-    gSound = ZP_GetSoundKeyID("REDTANK_SKILL_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDTANK_SKILL_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Classes
+	gHuman = ZP_GetClassNameID("redtank");
+	//if (gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"redtank\" wasn't find");
+	
+	// Sounds
+	gSound = ZP_GetSoundKeyID("REDTANK_SKILL_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDTANK_SKILL_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -95,30 +95,30 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-    // Validate the human class index
-    if (ZP_GetClientClass(client) == gHuman)
-    {
-        // Validate amount
-        int iArmor = ZP_GetClassArmor(gHuman);
-        if (GetEntProp(client, Prop_Send, "m_ArmorValue") >= iArmor)
-        {
-            return Plugin_Handled;
-        }
+	// Validate the human class index
+	if (ZP_GetClientClass(client) == gHuman)
+	{
+		// Validate amount
+		int iArmor = ZP_GetClassArmor(gHuman);
+		if (GetEntProp(client, Prop_Send, "m_ArmorValue") >= iArmor)
+		{
+			return Plugin_Handled;
+		}
 
-        // Sets armor
-        SetEntProp(client, Prop_Send, "m_ArmorValue", iArmor);
+		// Sets armor
+		SetEntProp(client, Prop_Send, "m_ArmorValue", iArmor);
 
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
-        
-        // Create effect
-        static float vPosition[3];
-        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
-        UTIL_CreateParticle(client, vPosition, _, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
-    }
-    
-    // Allow usage
-    return Plugin_Continue;
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		
+		// Create effect
+		static float vPosition[3];
+		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+		UTIL_CreateParticle(client, vPosition, _, _, "vixr_final", ZP_GetClassSkillDuration(gHuman));
+	}
+	
+	// Allow usage
+	return Plugin_Continue;
 }
 
 /**
@@ -128,10 +128,10 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public void ZP_OnClientSkillOver(int client)
 {
-    // Validate the human class index
-    if (ZP_GetClientClass(client) == gHuman)
-    {
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
-    }
+	// Validate the human class index
+	if (ZP_GetClientClass(client) == gHuman)
+	{
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+	}
 }

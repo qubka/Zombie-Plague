@@ -46,33 +46,33 @@
 //#pragma dynamic 131072
 
 // Main
-#include "zp/global.cpp"  
-#include "zp/versioninfo.cpp"  
+#include "zp/global.sp"  
+#include "zp/versioninfo.sp"  
 
 // Core
-#include "zp/core/api.cpp"
-#include "zp/core/paramparser.cpp" 
-#include "zp/core/config.cpp"
-#include "zp/core/cvars.cpp"  
-#include "zp/core/log.cpp"
-#include "zp/core/zombieplague.cpp" 
-#include "zp/core/debug.cpp" 
-#include "zp/core/commands.cpp"
-#include "zp/core/database.cpp"
-#include "zp/core/translation.cpp"   
-#include "zp/core/decryptor.cpp"
+#include "zp/core/api.sp"
+#include "zp/core/paramparser.sp" 
+#include "zp/core/config.sp"
+#include "zp/core/cvars.sp"  
+#include "zp/core/log.sp"
+#include "zp/core/zombieplague.sp" 
+#include "zp/core/debug.sp" 
+#include "zp/core/commands.sp"
+#include "zp/core/database.sp"
+#include "zp/core/translation.sp"   
+#include "zp/core/decryptor.sp"
 
 // Manager
-#include "zp/manager/visualeffects.cpp"
-#include "zp/manager/menus.cpp"
-#include "zp/manager/classes.cpp"
-#include "zp/manager/extraitems.cpp"
-#include "zp/manager/downloads.cpp"
-#include "zp/manager/hitgroups.cpp"
-#include "zp/manager/costumes.cpp"
-#include "zp/manager/weapons.cpp"
-#include "zp/manager/sounds.cpp"
-#include "zp/manager/gamemodes.cpp"
+#include "zp/manager/visualeffects.sp"
+#include "zp/manager/menus.sp"
+#include "zp/manager/classes.sp"
+#include "zp/manager/extraitems.sp"
+#include "zp/manager/downloads.sp"
+#include "zp/manager/hitgroups.sp"
+#include "zp/manager/costumes.sp"
+#include "zp/manager/weapons.sp"
+#include "zp/manager/sounds.sp"
+#include "zp/manager/gamemodes.sp"
 
 
 /* 
@@ -84,11 +84,11 @@
  **/
 public Plugin myinfo =
 {
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_COPYRIGHT,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_LINK
+	name        = PLUGIN_NAME,
+	author      = PLUGIN_AUTHOR,
+	description = PLUGIN_COPYRIGHT,
+	version     = PLUGIN_VERSION,
+	url         = PLUGIN_LINK
 }
 
 //*********************************************************************
@@ -101,8 +101,8 @@ public Plugin myinfo =
  **/
 public APLRes AskPluginLoad2(Handle hMySelf, bool bLate, char[] sError, int iErrorMax)
 {
-    // Load API
-    return APIOnInit();
+	// Load API
+	return APIOnInit();
 }
 
 /**
@@ -110,20 +110,20 @@ public APLRes AskPluginLoad2(Handle hMySelf, bool bLate, char[] sError, int iErr
  **/
 public void OnPluginStart(/*void*/)
 {
-    // Forward event to modules
-    TranslationOnInit();  
-    ConfigOnInit();
-    CvarsOnInit();
-    CommandsOnInit();
-    LogOnInit();
-    GameEngineOnInit();
-    ClassesOnInit();
-    CostumesOnInit(); 
-    SoundsOnInit();
-    DataBaseOnInit();
-    GameModesOnInit();
-    WeaponsOnInit();
-    VEffectsOnInit();
+	// Forward event to modules
+	TranslationOnInit();  
+	ConfigOnInit();
+	CvarsOnInit();
+	CommandsOnInit();
+	LogOnInit();
+	GameEngineOnInit();
+	ClassesOnInit();
+	CostumesOnInit(); 
+	SoundsOnInit();
+	DataBaseOnInit();
+	GameModesOnInit();
+	WeaponsOnInit();
+	VEffectsOnInit();
 }
 
 /**
@@ -131,21 +131,21 @@ public void OnPluginStart(/*void*/)
  **/
 public void OnMapStart(/*void*/)
 {
-    // Forward event to modules
-    ConfigOnLoad();
-    MenusOnLoad();
-    SoundsOnLoad();
-    WeaponsOnLoad();
-    VEffectsOnLoad();
-    DownloadsOnLoad();
-    ClassesOnLoad();
-    CostumesOnLoad();
-    GameModesOnLoad();
-    ExtraItemsOnLoad();
-    HitGroupsOnLoad();
-    LevelSystemOnLoad();
-    VersionOnLoad();
-    GameEngineOnLoad();
+	// Forward event to modules
+	ConfigOnLoad();
+	MenusOnLoad();
+	SoundsOnLoad();
+	WeaponsOnLoad();
+	VEffectsOnLoad();
+	DownloadsOnLoad();
+	ClassesOnLoad();
+	CostumesOnLoad();
+	GameModesOnLoad();
+	ExtraItemsOnLoad();
+	HitGroupsOnLoad();
+	LevelSystemOnLoad();
+	VersionOnLoad();
+	GameEngineOnLoad();
 }
 
 /**
@@ -153,11 +153,11 @@ public void OnMapStart(/*void*/)
  **/
 public void OnMapEnd(/*void*/)
 {
-    // Forward event to modules
-    ClassesOnPurge();
-    VEffectsOnPurge();
-    GameModesOnPurge();
-    GameEngineOnPurge();
+	// Forward event to modules
+	ClassesOnPurge();
+	VEffectsOnPurge();
+	GameModesOnPurge();
+	GameEngineOnPurge();
 }
 
 /**
@@ -165,12 +165,12 @@ public void OnMapEnd(/*void*/)
  **/
 public void OnPluginEnd(/*void*/)
 {
-    // Forward event to modules
-    ClassesOnUnload();
-    WeaponsOnUnload();
-    DataBaseOnUnload();
-    CostumesOnUnload();
-    ///ConfigOnUnload();
+	// Forward event to modules
+	ClassesOnUnload();
+	WeaponsOnUnload();
+	DataBaseOnUnload();
+	CostumesOnUnload();
+	///ConfigOnUnload();
 }
 
 /**
@@ -180,8 +180,8 @@ public void OnPluginEnd(/*void*/)
  **/
 public void OnClientConnected(int client)
 {
-    // Forward event to modules
-    ClassesOnClientConnect(client);
+	// Forward event to modules
+	ClassesOnClientConnect(client);
 }
 
 /**
@@ -191,9 +191,9 @@ public void OnClientConnected(int client)
  **/
 public void OnClientDisconnect_Post(int client)
 {
-    // Forward event to modules
-    DataBaseOnClientDisconnectPost(client);
-    ClassesOnClientDisconnectPost(client);
+	// Forward event to modules
+	DataBaseOnClientDisconnectPost(client);
+	ClassesOnClientDisconnectPost(client);
 }
 
 /**
@@ -207,11 +207,11 @@ public void OnClientDisconnect_Post(int client)
  **/
 public void OnClientPostAdminCheck(int client)
 {
-    // Forward event to modules
-    HitGroupsOnClientInit(client);
-    WeaponsOnClientInit(client);
-    ClassesOnClientInit(client);
-    DataBaseOnClientInit(client);
-    CostumesOnClientInit(client);
-    VEffectsOnClientInit(client);
+	// Forward event to modules
+	HitGroupsOnClientInit(client);
+	WeaponsOnClientInit(client);
+	ClassesOnClientInit(client);
+	DataBaseOnClientInit(client);
+	CostumesOnClientInit(client);
+	VEffectsOnClientInit(client);
 }

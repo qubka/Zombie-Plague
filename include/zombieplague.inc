@@ -33,11 +33,11 @@
 #define _zombieplaguemod_included
 
 #if !defined _sdkhooks_included
-  #include <sdkhooks>
+	#include <sdkhooks>
 #endif
 
 #if !defined _sdktools_included
-  #include <sdktools>
+	#include <sdktools>
 #endif
 
 //*********************************************************************
@@ -293,7 +293,7 @@ native int ZP_GetRandomHuman();
 native int ZP_GetRandomZombie();
 
 #if !defined _utils_included
-    #include <utils>
+		#include <utils>
 #endif
 
 /** Load other libraries **/

@@ -34,11 +34,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Zombie Class: Fast",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of zombie classses",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Zombie Class: Fast",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of zombie classses",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -63,16 +63,16 @@ int gZombie;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -80,17 +80,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Classes
-    gZombie = ZP_GetClassNameID("fast");
-    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"fast\" wasn't find");
-    
-    // Sounds
-    gSound = ZP_GetSoundKeyID("FAST_SKILL_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FAST_SKILL_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Classes
+	gZombie = ZP_GetClassNameID("fast");
+	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"fast\" wasn't find");
+	
+	// Sounds
+	gSound = ZP_GetSoundKeyID("FAST_SKILL_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FAST_SKILL_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -103,23 +103,23 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie)
-    {
-        // Sets a new speed
-        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZOMBIE_CLASS_SKILL_SPEED);
-        
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
-        
-        // Create effect
-        static float vPosition[3];
-        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
-        UTIL_CreateParticle(client, vPosition, _, _, "viy_viy_viy", ZP_GetClassSkillDuration(gZombie));
-    }
-    
-    // Allow usage
-    return Plugin_Continue;
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie)
+	{
+		// Sets a new speed
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZOMBIE_CLASS_SKILL_SPEED);
+		
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		
+		// Create effect
+		static float vPosition[3];
+		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+		UTIL_CreateParticle(client, vPosition, _, _, "viy_viy_viy", ZP_GetClassSkillDuration(gZombie));
+	}
+	
+	// Allow usage
+	return Plugin_Continue;
 }
 
 /**
@@ -129,10 +129,10 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public void ZP_OnClientSkillOver(int client)
 {
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie) 
-    {
-        // Sets previous speed
-        SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZP_GetClassSpeed(gZombie));
-    }
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie) 
+	{
+		// Sets previous speed
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZP_GetClassSpeed(gZombie));
+	}
 }

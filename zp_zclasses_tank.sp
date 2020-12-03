@@ -34,11 +34,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Zombie Class: Tank",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of zombie classses",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Zombie Class: Tank",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of zombie classses",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 // Sound index
@@ -55,16 +55,16 @@ int gZombie;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -72,17 +72,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Classes
-    gZombie = ZP_GetClassNameID("tank");
-    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"tank\" wasn't find");
-    
-    // Sounds
-    gSound = ZP_GetSoundKeyID("TANK_SKILL_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TANK_SKILL_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Classes
+	gZombie = ZP_GetClassNameID("tank");
+	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"tank\" wasn't find");
+	
+	// Sounds
+	gSound = ZP_GetSoundKeyID("TANK_SKILL_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TANK_SKILL_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -95,20 +95,20 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie)
-    {
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
-        
-        // Create effect
-        static float vPosition[3];
-        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
-        UTIL_CreateParticle(client, vPosition, _, _, "cloud", ZP_GetClassSkillDuration(gZombie));
-    }
-    
-    // Allow usage
-    return Plugin_Continue;
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie)
+	{
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		
+		// Create effect
+		static float vPosition[3];
+		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+		UTIL_CreateParticle(client, vPosition, _, _, "cloud", ZP_GetClassSkillDuration(gZombie));
+	}
+	
+	// Allow usage
+	return Plugin_Continue;
 }
 
 /**
@@ -118,12 +118,12 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public void ZP_OnClientSkillOver(int client)
 {
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie)
-    {
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
-    }
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie)
+	{
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+	}
 }
 
 /**
@@ -140,9 +140,9 @@ public void ZP_OnClientSkillOver(int client)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
-    {
-        flDamage *= 0.1;
-    }
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
+	{
+		flDamage *= 0.1;
+	}
 }

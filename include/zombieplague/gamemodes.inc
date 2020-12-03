@@ -298,7 +298,7 @@ native void ZP_GetGameModeHumanClass(int modeID, char[] type, int maxlenght = 32
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetGameModeZombieClass(int modeID, char[] type, int maxlenght = 32);
-    
+
 /**
  * @brief Checks the human win overlay of the game mode.
  * 
@@ -307,7 +307,7 @@ native void ZP_GetGameModeZombieClass(int modeID, char[] type, int maxlenght = 3
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetGameModeOverlayHuman(int modeID, char[] overlay, int maxlenght = 256);
-    
+
 /**
  * @brief Checks the zombie win overlay of the game mode.
  * 
@@ -316,7 +316,7 @@ native void ZP_GetGameModeOverlayHuman(int modeID, char[] overlay, int maxlenght
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetGameModeOverlayZombie(int modeID, char[] overlay, int maxlenght = 256);
-    
+
 /**
  * @brief Checks the draw overlay of the game mode.
  * 
@@ -453,12 +453,12 @@ native bool ZP_IsGameModeExtraItem(int modeID);
  **/
 stock bool ZP_IsGameModeZombieClass(int modeID, char[] sClass)
 {
-    // Gets zombie class type
-    static char sClassType[SMALL_LINE_LENGTH];
-    ZP_GetGameModeZombieClass(modeID, sClassType, sizeof(sClassType));
+	// Gets zombie class type
+	static char sClassType[SMALL_LINE_LENGTH];
+	ZP_GetGameModeZombieClass(modeID, sClassType, sizeof(sClassType));
 
-    // Return on success
-    return (!strcmp(sClassType, sClass, false));
+	// Return on success
+	return (!strcmp(sClassType, sClass, false));
 }
 
 /**
@@ -471,10 +471,10 @@ stock bool ZP_IsGameModeZombieClass(int modeID, char[] sClass)
  **/
 stock bool ZP_IsGameModeHumanClass(int modeID, char[] sClass)
 {
-    // Gets human class type
-    static char sClassType[SMALL_LINE_LENGTH];
-    ZP_GetGameModeHumanClass(modeID, sClassType, sizeof(sClassType));
+	// Gets human class type
+	static char sClassType[SMALL_LINE_LENGTH];
+	ZP_GetGameModeHumanClass(modeID, sClassType, sizeof(sClassType));
 
-    // Return on success
-    return (!strcmp(sClassType, sClass, false));
+	// Return on success
+	return (!strcmp(sClassType, sClass, false));
 }

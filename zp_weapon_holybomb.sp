@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: HolyGrenade",
-    author          = "qubka (Nikita Ushakov)",     
-    description     = "Addon of custom weapon",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Weapon: HolyGrenade",
+	author          = "qubka (Nikita Ushakov)",     
+	description     = "Addon of custom weapon",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -82,22 +82,22 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // Hook entity events
-        HookEvent("hegrenade_detonate", EventEntityNapalm, EventHookMode_Post);
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// Hook entity events
+		HookEvent("hegrenade_detonate", EventEntityNapalm, EventHookMode_Post);
 
-        // Hook server sounds
-        AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
-        
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+		// Hook server sounds
+		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
+		
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -105,17 +105,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Weapons
-    gWeapon = ZP_GetWeaponNameID("holy grenade");
-    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"holy grenade\" wasn't find");
-    
-    // Sounds
-    gSound = ZP_GetSoundKeyID("HOLY_GRENADE_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HOLY_GRENADE_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Weapons
+	gWeapon = ZP_GetWeaponNameID("holy grenade");
+	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"holy grenade\" wasn't find");
+	
+	// Sounds
+	gSound = ZP_GetSoundKeyID("HOLY_GRENADE_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HOLY_GRENADE_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -132,20 +132,20 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-    // Client was damaged by 'explosion'
-    if (iBits & DMG_BLAST)
-    {
-        // Validate inflicter
-        if (IsValidEdict(inflictor))
-        {
-            // Validate custom grenade
-            if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
-            {
-                // Resets explosion damage
-                flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
-            }
-        }
-    }
+	// Client was damaged by 'explosion'
+	if (iBits & DMG_BLAST)
+	{
+		// Validate inflicter
+		if (IsValidEdict(inflictor))
+		{
+			// Validate custom grenade
+			if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
+			{
+				// Resets explosion damage
+				flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
+			}
+		}
+	}
 }
 
 /**
@@ -158,51 +158,51 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
  **/
 public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-    // Gets real player index from event key
-    ///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
+	// Gets real player index from event key
+	///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
-    // Initialize vectors
-    static float vPosition[3]; static float vEnemy[3];
+	// Initialize vectors
+	static float vPosition[3]; static float vEnemy[3];
 
-    // Gets all required event info
-    int grenade = hEvent.GetInt("entityid");
-    vPosition[0] = hEvent.GetFloat("x"); 
-    vPosition[1] = hEvent.GetFloat("y"); 
-    vPosition[2] = hEvent.GetFloat("z");
+	// Gets all required event info
+	int grenade = hEvent.GetInt("entityid");
+	vPosition[0] = hEvent.GetFloat("x"); 
+	vPosition[1] = hEvent.GetFloat("y"); 
+	vPosition[2] = hEvent.GetFloat("z");
 
-    // Validate entity
-    if (IsValidEdict(grenade))
-    {
-        // Validate custom grenade
-        if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
-        {
-            // Find any players in the radius
-            int i; int it = 1; /// iterator
-            while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_HOLY_RADIUS)) != -1)
-            {
-                // Skip humans
-                if (ZP_IsPlayerHuman(i))
-                {
-                    continue;
-                }
-                
-                // Gets victim origin
-                GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
-                
-                // Put the fire on
-                UTIL_IgniteEntity(i, GRENADE_HOLY_IGNITE_TIME);   
-                
-                // Create a knockback
-                UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), ZP_GetWeaponKnockBack(gWeapon), GRENADE_HOLY_RADIUS);
-                
-                // Create a shake
-                UTIL_CreateShakeScreen(i, GRENADE_HOLY_SHAKE_AMP, GRENADE_HOLY_SHAKE_FREQUENCY, GRENADE_HOLY_SHAKE_DURATION);
-            }
+	// Validate entity
+	if (IsValidEdict(grenade))
+	{
+		// Validate custom grenade
+		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
+		{
+			// Find any players in the radius
+			int i; int it = 1; /// iterator
+			while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_HOLY_RADIUS)) != -1)
+			{
+				// Skip humans
+				if (ZP_IsPlayerHuman(i))
+				{
+					continue;
+				}
+				
+				// Gets victim origin
+				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+				
+				// Put the fire on
+				UTIL_IgniteEntity(i, GRENADE_HOLY_IGNITE_TIME);   
+				
+				// Create a knockback
+				UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), ZP_GetWeaponKnockBack(gWeapon), GRENADE_HOLY_RADIUS);
+				
+				// Create a shake
+				UTIL_CreateShakeScreen(i, GRENADE_HOLY_SHAKE_AMP, GRENADE_HOLY_SHAKE_FREQUENCY, GRENADE_HOLY_SHAKE_DURATION);
+			}
 
-            // Create an explosion effect
-            UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
-        }
-    }
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
+		}
+	}
 }
 
 /**
@@ -220,32 +220,32 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
  **/ 
 public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
 {
-    // Validate client
-    if (IsValidEdict(entity))
-    {
-        // Validate custom grenade
-        if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
-        {
-            // Validate sound
-            if (!strncmp(sSample[23], "bounce", 6, false))
-            {
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                
-                // Block sounds
-                return Plugin_Stop; 
-            }
-            else if (!strncmp(sSample[20], "explode", 7, false))
-            {
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                
-                // Block sounds
-                return Plugin_Stop; 
-            }
-        }
-    }
-    
-    // Allow sounds
-    return Plugin_Continue;
+	// Validate client
+	if (IsValidEdict(entity))
+	{
+		// Validate custom grenade
+		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
+		{
+			// Validate sound
+			if (!strncmp(sSample[23], "bounce", 6, false))
+			{
+				// Play sound
+				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				
+				// Block sounds
+				return Plugin_Stop; 
+			}
+			else if (!strncmp(sSample[20], "explode", 7, false))
+			{
+				// Play sound
+				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				
+				// Block sounds
+				return Plugin_Stop; 
+			}
+		}
+	}
+	
+	// Allow sounds
+	return Plugin_Continue;
 }

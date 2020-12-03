@@ -37,14 +37,14 @@
  **/
 enum /*BonusType*/
 {
-    BonusType_Invalid = -1,       /** Used as return value when a bonus doens't exist. */
-    
-    BonusType_Kill,               /** Kill bonus */
-    BonusType_Damage,             /** Damage bonus */
-    BonusType_Infect,             /** Infect or humanize bonus */  
-    BonusType_Win,                /** Win bonus */ 
-    BonusType_Lose,               /** Lose bonus */    
-    BonusType_Draw                /** Draw bonus */ 
+	BonusType_Invalid = -1,       /** Used as return value when a bonus doens't exist. */
+	
+	BonusType_Kill,               /** Kill bonus */
+	BonusType_Damage,             /** Damage bonus */
+	BonusType_Infect,             /** Infect or humanize bonus */  
+	BonusType_Win,                /** Win bonus */ 
+	BonusType_Lose,               /** Lose bonus */    
+	BonusType_Draw                /** Draw bonus */ 
 };
 /**
  * @endsection
@@ -55,25 +55,25 @@ enum /*BonusType*/
  **/ 
 enum AnimType
 {
-    AnimType_Invalid = -1,        /** Used as return value when an event doens't exist. */
-    
-    AnimType_FirePrimary,
-    AnimType_FireSecondary,
-    AnimType_MeleeSlash,
-    AnimType_MeleeStab,
-    AnimType_FireSilent,
-    AnimType_SwitchSilent,
-    AnimType_ThrowStart,
-    AnimType_ThrowFinish,
-    AnimType_Jump,
-    AnimType_Reload,
-    AnimType_ReloadStart,
-    AnimType_ReloadLoop,
-    AnimType_ReloadEnd,
-    AnimType_BombAbort,
-    AnimType_SwitchWeapon,
-    AnimType_ThrowAbort = 17,
-    AnimType_SwitchAbort
+	AnimType_Invalid = -1,        /** Used as return value when an event doens't exist. */
+	
+	AnimType_FirePrimary,
+	AnimType_FireSecondary,
+	AnimType_MeleeSlash,
+	AnimType_MeleeStab,
+	AnimType_FireSilent,
+	AnimType_SwitchSilent,
+	AnimType_ThrowStart,
+	AnimType_ThrowFinish,
+	AnimType_Jump,
+	AnimType_Reload,
+	AnimType_ReloadStart,
+	AnimType_ReloadLoop,
+	AnimType_ReloadEnd,
+	AnimType_BombAbort,
+	AnimType_SwitchWeapon,
+	AnimType_ThrowAbort = 17,
+	AnimType_SwitchAbort
 };
 /**
  * @endsection
@@ -683,12 +683,12 @@ native int ZP_GetClassSoundJumpID(int classID);
  **/
 stock bool ZP_IsPlayerType(int client, char[] sType)
 {
-    // Gets class type
-    static char sClassType[SMALL_LINE_LENGTH];
-    ZP_GetClassType(ZP_GetClientClass(client), sClassType, sizeof(sClassType));
-    
-    // Return on success
-    return (!strcmp(sClassType, sType, false));
+	// Gets class type
+	static char sClassType[SMALL_LINE_LENGTH];
+	ZP_GetClassType(ZP_GetClientClass(client), sClassType, sizeof(sClassType));
+	
+	// Return on success
+	return (!strcmp(sClassType, sType, false));
 }
 
 /**
@@ -699,7 +699,7 @@ stock bool ZP_IsPlayerType(int client, char[] sType)
  **/
 stock int ZP_GetPlayerTeam(int client)
 {
-    return ZP_IsPlayerHuman(client) ? TEAM_HUMAN : TEAM_ZOMBIE;
+	return ZP_IsPlayerHuman(client) ? TEAM_HUMAN : TEAM_ZOMBIE;
 }
 
 /**
@@ -713,9 +713,9 @@ stock int ZP_GetPlayerTeam(int client)
  **/
 stock void ZP_SetPlayerAnimation(int client, AnimType anim, int data = 0)
 {
-    TE_Start("PlayerAnimEvent");
-    TE_WriteNum("m_hPlayer", EntIndexToEntRef(client) & 0x7FFF);
-    TE_WriteNum("m_iEvent", view_as<int>(anim));
-    TE_WriteNum("m_nData", data);
-    TE_SendToAll();
+	TE_Start("PlayerAnimEvent");
+	TE_WriteNum("m_hPlayer", EntIndexToEntRef(client) & 0x7FFF);
+	TE_WriteNum("m_iEvent", view_as<int>(anim));
+	TE_WriteNum("m_nData", data);
+	TE_SendToAll();
 }

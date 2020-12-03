@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: Flare",
-    author          = "qubka (Nikita Ushakov)",     
-    description     = "Addon of custom weapon",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Weapon: Flare",
+	author          = "qubka (Nikita Ushakov)",     
+	description     = "Addon of custom weapon",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -67,16 +67,16 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -84,17 +84,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Weapons
-    gWeapon = ZP_GetWeaponNameID("flare grenade");
-    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"flare grenade\" wasn't find");
+	// Weapons
+	gWeapon = ZP_GetWeaponNameID("flare grenade");
+	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"flare grenade\" wasn't find");
 
-    // Sounds
-    gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FLARE_GRENADE_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Sounds
+	gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FLARE_GRENADE_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -106,24 +106,24 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
-    // Validate custom grenade
-    if (weaponID == gWeapon) /* OR if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
-    {
-        // Block grenade
-        SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
+	// Validate custom grenade
+	if (weaponID == gWeapon) /* OR if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
+	{
+		// Block grenade
+		SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
 
-        // Gets parent position
-        static float vPosition[3];
-        GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
+		// Gets parent position
+		static float vPosition[3];
+		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, hSoundLevel.IntValue);
 
-        // Create effects
-        UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, GRENADE_FLARE_COLOR, GRENADE_FLARE_DISTANCE, GRENADE_FLARE_RADIUS, GRENADE_FLARE_DURATION);
-        UTIL_CreateParticle(grenade, vPosition, _, _, "smoking", GRENADE_FLARE_DURATION);
+		// Create effects
+		UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, GRENADE_FLARE_COLOR, GRENADE_FLARE_DISTANCE, GRENADE_FLARE_RADIUS, GRENADE_FLARE_DURATION);
+		UTIL_CreateParticle(grenade, vPosition, _, _, "smoking", GRENADE_FLARE_DURATION);
 
-        // Kill after some duration
-        UTIL_RemoveEntity(grenade, GRENADE_FLARE_DURATION);
-    }
+		// Kill after some duration
+		UTIL_RemoveEntity(grenade, GRENADE_FLARE_DURATION);
+	}
 }

@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Weapon: InfectBomb",
-    author          = "qubka (Nikita Ushakov)",     
-    description     = "Addon of custom weapon",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Weapon: InfectBomb",
+	author          = "qubka (Nikita Ushakov)",     
+	description     = "Addon of custom weapon",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -67,22 +67,22 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // Hook entity events
-        HookEvent("tagrenade_detonate", EventEntityTanade, EventHookMode_Post);
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// Hook entity events
+		HookEvent("tagrenade_detonate", EventEntityTanade, EventHookMode_Post);
 
-        // Hook server sounds
-        AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
-        
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+		// Hook server sounds
+		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
+		
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -90,17 +90,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Weapons
-    gWeapon = ZP_GetWeaponNameID("infect bomb");
-    //if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"infect bomb\" wasn't find");
+	// Weapons
+	gWeapon = ZP_GetWeaponNameID("infect bomb");
+	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"infect bomb\" wasn't find");
 
-    // Sounds
-    gSound = ZP_GetSoundKeyID("INFECT_GRENADE_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"INFECT_GRENADE_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Sounds
+	gSound = ZP_GetSoundKeyID("INFECT_GRENADE_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"INFECT_GRENADE_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -114,18 +114,18 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 {
-    // Check the weapon index
-    if (weaponID == gWeapon)
-    {
-        // Validate access
-        if (!ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
-        {
-            return Plugin_Handled;
-        }
-    }
+	// Check the weapon index
+	if (weaponID == gWeapon)
+	{
+		// Validate access
+		if (!ZP_IsGameModeInfect(ZP_GetCurrentGameMode()))
+		{
+			return Plugin_Handled;
+		}
+	}
 
-    // Allow showing
-    return Plugin_Continue;
+	// Allow showing
+	return Plugin_Continue;
 }
 
 /**
@@ -137,12 +137,12 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
  **/
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
-    // Validate custom grenade
-    if (weaponID == gWeapon) /* OR if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
-    {
-        // Hook entity callbacks
-        SDKHook(grenade, SDKHook_Touch, TanadeTouchHook);
-    }
+	// Validate custom grenade
+	if (weaponID == gWeapon) /* OR if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
+	{
+		// Hook entity callbacks
+		SDKHook(grenade, SDKHook_Touch, TanadeTouchHook);
+	}
 }
 
 /**
@@ -154,9 +154,9 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 public Action TanadeTouchHook(int entity, int target)
 {
 #if defined GRENADE_INFECT_ATTACH
-    return Plugin_Continue;
+	return Plugin_Continue;
 #else
-    return Plugin_Handled;
+	return Plugin_Handled;
 #endif
 }
 
@@ -170,62 +170,62 @@ public Action TanadeTouchHook(int entity, int target)
  **/
 public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-    // Gets real player index from event key
-    int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
+	// Gets real player index from event key
+	int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
-    // Initialize vectors
-    static float vPosition[3];
+	// Initialize vectors
+	static float vPosition[3];
 
-    // Gets all required event info
-    int grenade = hEvent.GetInt("entityid");
-    vPosition[0] = hEvent.GetFloat("x"); 
-    vPosition[1] = hEvent.GetFloat("y"); 
-    vPosition[2] = hEvent.GetFloat("z");
+	// Gets all required event info
+	int grenade = hEvent.GetInt("entityid");
+	vPosition[0] = hEvent.GetFloat("x"); 
+	vPosition[1] = hEvent.GetFloat("y"); 
+	vPosition[2] = hEvent.GetFloat("z");
 
-    // Validate entity
-    if (IsValidEdict(grenade))
-    {
-        // Validate custom grenade
-        if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
-        {
-            // Validate infection round
-            if (ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
-            {
-                // Find any players in the radius
-                int i; int it = 1; /// iterator
-                while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_INFECT_RADIUS)) != -1)
-                {
-                    // Skip zombies
-                    if (ZP_IsPlayerZombie(i))
-                    {
-                        continue;
-                    }
+	// Validate entity
+	if (IsValidEdict(grenade))
+	{
+		// Validate custom grenade
+		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
+		{
+			// Validate infection round
+			if (ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
+			{
+				// Find any players in the radius
+				int i; int it = 1; /// iterator
+				while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_INFECT_RADIUS)) != -1)
+				{
+					// Skip zombies
+					if (ZP_IsPlayerZombie(i))
+					{
+						continue;
+					}
 
-                    // Validate visibility
-                    if (!UTIL_CanSeeEachOther(grenade, i, vPosition, SelfFilter))
-                    {
-                        continue;
-                    }
+					// Validate visibility
+					if (!UTIL_CanSeeEachOther(grenade, i, vPosition, SelfFilter))
+					{
+						continue;
+					}
 
 #if defined GRENADE_INFECT_LAST
-                    // Change class to zombie
-                    ZP_ChangeClient(i, owner, "zombie");
+					// Change class to zombie
+					ZP_ChangeClient(i, owner, "zombie");
 #else
-                    if (ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, owner, "zombie");
+					if (ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, owner, "zombie");
 #endif
-                }
-            }
+				}
+			}
 
-            // Create an explosion effect
-            UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_dirt", GRENADE_INFECT_EXP_TIME);
-            
-            // Remove grenade
-            AcceptEntityInput(grenade, "Kill");
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_dirt", GRENADE_INFECT_EXP_TIME);
+			
+			// Remove grenade
+			AcceptEntityInput(grenade, "Kill");
 
-            // Resets glow on the next frame
-            RequestFrame(EventEntityTanadePost);
-        }
-    }
+			// Resets glow on the next frame
+			RequestFrame(EventEntityTanadePost);
+		}
+	}
 }
 
 /**
@@ -234,16 +234,16 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
  **/
 public void EventEntityTanadePost(/*void*/)
 {
-    // i = client index
-    for (int i = 1; i <= MaxClients; i++)
-    {
-        // Validate human
-        if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
-        {
-            // Bugfix with tagrenade glow
-            SetEntPropFloat(i, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
-        }
-    }
+	// i = client index
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		// Validate human
+		if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+		{
+			// Bugfix with tagrenade glow
+			SetEntPropFloat(i, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
+		}
+	}
 }
 
 /**
@@ -261,42 +261,42 @@ public void EventEntityTanadePost(/*void*/)
  **/ 
 public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
 {
-    // Validate client
-    if (IsValidEdict(entity))
-    {
-        // Validate custom grenade
-        if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
-        {
-            // Validate sound
-            if (!strncmp(sSample[30], "arm", 3, false))
-            {
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                
-                // Block sounds
-                return Plugin_Stop; 
-            }
-            else if (!strncmp(sSample[30], "det", 3, false))
-            {
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                
-                // Block sounds
-                return Plugin_Stop; 
-            }
-            else if (!strncmp(sSample[30], "exp", 3, false))
-            {
-                // Play sound
-                ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-                
-                // Block sounds
-                return Plugin_Stop; 
-            }
-        }
-    }
-    
-    // Allow sounds
-    return Plugin_Continue;
+	// Validate client
+	if (IsValidEdict(entity))
+	{
+		// Validate custom grenade
+		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
+		{
+			// Validate sound
+			if (!strncmp(sSample[30], "arm", 3, false))
+			{
+				// Play sound
+				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				
+				// Block sounds
+				return Plugin_Stop; 
+			}
+			else if (!strncmp(sSample[30], "det", 3, false))
+			{
+				// Play sound
+				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				
+				// Block sounds
+				return Plugin_Stop; 
+			}
+			else if (!strncmp(sSample[30], "exp", 3, false))
+			{
+				// Play sound
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				
+				// Block sounds
+				return Plugin_Stop; 
+			}
+		}
+	}
+	
+	// Allow sounds
+	return Plugin_Continue;
 }
 
 /**
@@ -310,5 +310,5 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
  **/
 public bool SelfFilter(int entity, int contentsMask, int filter)
 {
-    return (entity != filter);
+	return (entity != filter);
 }

@@ -35,11 +35,11 @@
  **/
 public Plugin myinfo =
 {
-    name            = "[ZP] Zombie Class: Smoker",
-    author          = "qubka (Nikita Ushakov)",
-    description     = "Addon of zombie classses",
-    version         = "1.0",
-    url             = "https://forums.alliedmods.net/showthread.php?t=290657"
+	name            = "[ZP] Zombie Class: Smoker",
+	author          = "qubka (Nikita Ushakov)",
+	description     = "Addon of zombie classses",
+	version         = "1.0",
+	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
@@ -66,16 +66,16 @@ int gZombie;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
 /**
@@ -83,17 +83,17 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
-    // Classes
-    gZombie = ZP_GetClassNameID("smoker");
-    //if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"smoker\" wasn't find");
-    
-    // Sounds
-    gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
-    if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SMOKE_SKILL_SOUNDS\" wasn't find");
-    
-    // Cvars
-    hSoundLevel = FindConVar("zp_seffects_level");
-    if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
+	// Classes
+	gZombie = ZP_GetClassNameID("smoker");
+	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"smoker\" wasn't find");
+	
+	// Sounds
+	gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SMOKE_SKILL_SOUNDS\" wasn't find");
+	
+	// Cvars
+	hSoundLevel = FindConVar("zp_seffects_level");
+	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -106,32 +106,32 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-    // Validate the zombie class index
-    if (ZP_GetClientClass(client) == gZombie)
-    {
-        // Play sound
-        ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
-        
-        // Gets client origin
-        static float vPosition[3];
-        GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
-        
-        // Create a smoke effect
-        int entity = UTIL_CreateParticle(_, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
-        
-        // Validate entity
-        if (entity != -1)
-        {
-            // Sets parent for the entity
-            SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
-    
-            // Create gas damage task
-            CreateTimer(ZOMBIE_CLASS_SKILL_DELAY, ClientOnToxicGas, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-        }
-    }
-    
-    // Allow usage
-    return Plugin_Continue;
+	// Validate the zombie class index
+	if (ZP_GetClientClass(client) == gZombie)
+	{
+		// Play sound
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		
+		// Gets client origin
+		static float vPosition[3];
+		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+		
+		// Create a smoke effect
+		int entity = UTIL_CreateParticle(_, vPosition, _, _, "explosion_smokegrenade_base_green", ZP_GetClassSkillDuration(gZombie));
+		
+		// Validate entity
+		if (entity != -1)
+		{
+			// Sets parent for the entity
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
+	
+			// Create gas damage task
+			CreateTimer(ZOMBIE_CLASS_SKILL_DELAY, ClientOnToxicGas, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+	
+	// Allow usage
+	return Plugin_Continue;
 }
 
 /**
@@ -142,37 +142,37 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public Action ClientOnToxicGas(Handle hTimer, int refID)
 {
-    // Gets entity index from reference key
-    int entity = EntRefToEntIndex(refID);
+	// Gets entity index from reference key
+	int entity = EntRefToEntIndex(refID);
 
-    // Validate entity
-    if (entity != -1)
-    {
-        // Gets entity position
-        static float vPosition[3];
-        GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
+	// Validate entity
+	if (entity != -1)
+	{
+		// Gets entity position
+		static float vPosition[3];
+		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
  
-        // Gets owner index
-        int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+		// Gets owner index
+		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
  
-        // Find any players in the radius
-        int i; int it = 1; /// iterator
-        while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
-        {
-            // Skip zombies
-            if (ZP_IsPlayerZombie(i))
-            {
-                continue;
-            }
+		// Find any players in the radius
+		int i; int it = 1; /// iterator
+		while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_SKILL_RADIUS)) != -1)
+		{
+			// Skip zombies
+			if (ZP_IsPlayerZombie(i))
+			{
+				continue;
+			}
 
-            // Create the damage for victim
-            ZP_TakeDamage(i, owner, owner, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS);
-        }
-        
-        // Allow timer
-        return Plugin_Continue;
-    }
+			// Create the damage for victim
+			ZP_TakeDamage(i, owner, owner, ZOMBIE_CLASS_SKILL_DAMAGE, DMG_NERVEGAS);
+		}
+		
+		// Allow timer
+		return Plugin_Continue;
+	}
 
-    // Destroy timer
-    return Plugin_Stop;
+	// Destroy timer
+	return Plugin_Stop;
 }
