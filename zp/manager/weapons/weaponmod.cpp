@@ -969,6 +969,7 @@ public void WeaponMODOnDeployPost(int client, int weapon)
     {
         // Initialize variables
         int iModel; static char sModel[PLATFORM_LINE_LENGTH]; sModel[0] = NULL_STRING[0];
+        bool bCustomView = view_as<bool>(WeaponsIsCustomView(iD));;
 
         // Gets weapon id from the reference
         int iD = gClientData[client].IndexWeapon; /// Only viewmodel identification
@@ -1005,11 +1006,11 @@ public void WeaponMODOnDeployPost(int client, int weapon)
         if (iModel)
         {
             // Make the first viewmodel invisible
-            WeaponHDRSetWeaponVisibility(view1, false);
+            WeaponHDRSetWeaponVisibility(view1, (bCustomView) ? false : true);
             ToolsUpdateTransmitState(view1);
             
             // Make the second viewmodel visible
-            WeaponHDRSetWeaponVisibility(view2, true);
+            WeaponHDRSetWeaponVisibility(view2, (bCustomView) ? true : false);
             ToolsUpdateTransmitState(view2);
 
             // If the sequence for the weapon didn't build yet
@@ -1055,14 +1056,17 @@ public void WeaponMODOnDeployPost(int client, int weapon)
             int iSkin = ClassGetSkin(gClientData[client].Class);
 
             // Sets model/body/skin index for viewmodel
-            ToolsSetModelIndex(view2, iModel);
-            ToolsSetTextures(view2, (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View), (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View));
+            ToolsSetModelIndex((bCustomView) ? view2 : view1, iModel);
+            ToolsSetTextures((bCustomView) ? view2 : view1, (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View), (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View));
             
             // Update the animation interval delay for second viewmodel 
-            SetEntPropFloat(view2, Prop_Send, "m_flPlaybackRate", GetEntPropFloat(view1, Prop_Send, "m_flPlaybackRate"));
+            if (bCustomView)
+            {
+                SetEntPropFloat(view2, Prop_Send, "m_flPlaybackRate", GetEntPropFloat(view1, Prop_Send, "m_flPlaybackRate"));
+            }
 
             // Creates a toggle model
-            WeaponHDRToggleViewModel(client, view2, iD);
+            WeaponHDRToggleViewModel(client, (bCustomView) ? view2 : view1, iD);
             
             // Resets the sequence parity
             gClientData[client].LastSequenceParity = -1;
