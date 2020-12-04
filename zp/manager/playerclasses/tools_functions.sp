@@ -1268,7 +1268,7 @@ void ToolsSetProgressBarTime(int client, int iDuration)
 	SetEntDataFloat(client, Entity_SimulationTime, flGameTime + float(iDuration), true);
 	
 	// Progress bar type 0-15
-	SetEntData(client, iOffset_BlockingUseActionInProgress, 0, 4, true);
+	SetEntData(client, Player_BlockingUseActionInProgress, 0, 4, true);
 }
 
 /**
