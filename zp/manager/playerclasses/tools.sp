@@ -37,6 +37,7 @@ Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallUpdateTransmitState;
 Handle hSDKCallIsBSPModel;
 Handle hSDKCallFireBullets;
+Handle hSDKCallSetProgressBarTime;
 
 /**
  * Variables to store virtual SDK adresses.
@@ -357,6 +358,23 @@ void ToolsOnInit(/*void*/)
 			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
 			return;
 		}
+	}
+	
+	/*__________________________________________________________________________________________________*/
+
+	// Starts the preparation of an SDK call
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CCSPlayer::SetProgressBarTime");
+
+	// Adds a parameter to the calling convention. This should be called in normal ascending order
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+
+	// Validate call
+	if ((hSDKCallSetProgressBarTime = EndPrepSDKCall()) == null)
+	{
+		// Log failure
+		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CCSPlayer::SetProgressBarTime\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		return;
 	}
 	
 	/*__________________________________________________________________________________________________*/

@@ -1259,24 +1259,5 @@ void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3
  **/
 void ToolsSetProgressBarTime(int client, int iDuration)
 {
-	// Validate duration
-	if (iDuration != 0) 
-	{
-		// Gets the current time
-		float flGameTime = GetGameTime();
-
-		// @link https://hlmod.ru/threads/csgo-bartime-posle-obnovlenija-1-36-3-6.48710/#post-489054
-		SetEntPropFloat(client, Prop_Send, "m_flSimulationTime", flGameTime + float(iDuration));
-		SetEntProp(client, Prop_Send, "m_iProgressBarDuration", iDuration);
-		SetEntPropFloat(client, Prop_Send, "m_flProgressBarStartTime", flGameTime);
-
-		// Progress bar type 0-15
-		SetEntProp(client, Prop_Send, "m_iBlockingUseActionInProgress", 0);
-	}
-	else
-	{
-		// Resets the progress bar
-		SetEntPropFloat(client, Prop_Send, "m_flProgressBarStartTime", 0.0);
-		SetEntProp(client, Prop_Send, "m_iProgressBarDuration", 0);
-	}
+	SDKCall(hSDKCallSetProgressBarTime, client, iDuration);
 }
