@@ -1259,5 +1259,27 @@ void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3
  **/
 void ToolsSetProgressBarTime(int client, int iDuration)
 {
-	SDKCall(hSDKCallSetProgressBarTime, client, iDuration);
+	// Gets the current time
+	float flGameTime = GetGameTime();
+	
+	// Sets the bar for the client
+	SetEntData(client, Player_ProgressBarDuration, iDuration, 4, true);
+	SetEntDataFloat(client, Player_ProgressBarStartTime, flGameTime, true);
+	SetEntDataFloat(client, Entity_SimulationTime, flGameTime + float(iDuration), true);
+	
+	// Progress bar type 0-15
+	SetEntData(client, iOffset_BlockingUseActionInProgress, 0, 4, true);
+}
+
+/**
+ * @brief Sets the player progress bar.
+ *
+ * @param client            The client index.
+ * @param iDuration         The duration in the seconds.
+ **/
+void ToolsResetProgressBarTime(int client)
+{
+	// Resets the progress bar
+	SetEntDataFloat(client, Player_ProgressBarStartTime, 0.0, true);
+	SetEntData(client, Player_ProgressBarDuration, 0, 1, true);
 }

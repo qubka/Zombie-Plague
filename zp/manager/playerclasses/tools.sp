@@ -37,7 +37,6 @@ Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallUpdateTransmitState;
 Handle hSDKCallIsBSPModel;
 Handle hSDKCallFireBullets;
-Handle hSDKCallSetProgressBarTime;
 
 /**
  * Variables to store virtual SDK adresses.
@@ -55,6 +54,10 @@ Address pDisarmStart;
 Address pDisarmEnd;
 int Player_Spotted;
 int Player_SpottedByMask;
+int Player_ProgressBarStartTime; 
+int Player_ProgressBarDuration;
+int Player_BlockingUseActionInProgress;
+int Entity_SimulationTime;
 int SendProp_iBits; 
 int Animating_StudioHdr;
 int StudioHdrStruct_SequenceCount;
@@ -119,6 +122,10 @@ void ToolsOnInit(/*void*/)
 	// Load player offsets
 	fnInitSendPropOffset(Player_Spotted, "CBasePlayer", "m_bSpotted");
 	fnInitSendPropOffset(Player_SpottedByMask, "CBasePlayer", "m_bSpottedByMask");
+	fnInitSendPropOffset(Player_ProgressBarStartTime, "CCSPlayer", "m_flProgressBarStartTime");
+	fnInitSendPropOffset(Player_ProgressBarDuration, "CCSPlayer", "m_iProgressBarDuration");
+	fnInitSendPropOffset(Player_BlockingUseActionInProgress, "CCSPlayer", "m_iBlockingUseActionInProgress");
+	fnInitSendPropOffset(Entity_SimulationTime, "CBaseEntity", "m_flSimulationTime");
 
 	// Load other offsets
 	fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "CSendProp::m_nBits");
@@ -359,24 +366,7 @@ void ToolsOnInit(/*void*/)
 			return;
 		}
 	}
-	
-	/*__________________________________________________________________________________________________*/
 
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CCSPlayer::SetProgressBarTime");
-
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-
-	// Validate call
-	if ((hSDKCallSetProgressBarTime = EndPrepSDKCall()) == null)
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CCSPlayer::SetProgressBarTime\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
-	}
-	
 	/*__________________________________________________________________________________________________*/
 
 	/** ~ Retrieving the offsets from game-binary (Linux)

@@ -147,6 +147,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	// Resets some tools
 	ToolsSetFlashLight(client, false);
 	ToolsSetDetecting(client, false);
+	ToolsResetProgressBarTime(client);
 	
 	// Resets some variables
 	gClientData[client].Skill = false;
