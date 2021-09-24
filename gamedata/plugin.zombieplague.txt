@@ -277,11 +277,11 @@
                 "signature" "FX_Disarm"
                 "linux"
                 {
-                    "offset"  "3898"
+                    "offset"  "3914"
                 }
                 "windows"
                 {
-                    "offset"  "1083‬"
+                    "offset"  "1099‬"
                 }
             }
             "FX_Disarm_End"
@@ -289,11 +289,11 @@
                 "signature" "FX_Disarm"
                 "linux"
                 {
-                    "offset"  "1647"
+                    "offset"  "1671"
                 }
                 "windows"
                 {
-                    "offset"  "1432‬‬"
+                    "offset"  "1439‬‬"
                 }
             }
             "FX_FireBullets"
