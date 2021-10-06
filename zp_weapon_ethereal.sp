@@ -38,7 +38,7 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Ethereal",
 	author          = "qubka (Nikita Ushakov), nuclear silo",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "1.1",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -95,11 +95,11 @@ public void OnPluginStart()
 {
 	//RegConsoleCmd("sm_ethereal", Command_Ethereal);
 	
-	g_cvarTracerEnable = CreateConVar("sm_store_tracer_enable", "1", "Enable tracers for normal mode");
-	g_cvarTracerMaterial = CreateConVar("sm_store_tracer_material", "materials/sprites/laserbeam.vmt", "Material to be used with tracers");
-	g_cvarTracerLife = CreateConVar("sm_store_tracer_life", "0.2", "Life of a tracer in seconds");
-	g_cvarTracerWidth = CreateConVar("sm_store_tracer_width", "0.2", "Life of a tracer in seconds");
-	g_cvarTracerColor = CreateConVar("sm_store_tracer_color", "0 255 255 255", "Color of a tracer");
+	g_cvarTracerEnable = CreateConVar("sm_ethereal_tracer_enable", "1", "Enable tracers for normal mode");
+	g_cvarTracerMaterial = CreateConVar("sm_ethereal_tracer_material", "materials/sprites/laserbeam.vmt", "Material to be used with tracers");
+	g_cvarTracerLife = CreateConVar("sm_ethereal_tracer_life", "0.2", "Life of a tracer in seconds");
+	g_cvarTracerWidth = CreateConVar("sm_ethereal_tracer_width", "0.2", "Life of a tracer in seconds");
+	g_cvarTracerColor = CreateConVar("sm_ethereal_tracer_color", "0 255 255 255", "Color of a tracer");
 	
 	AutoExecConfig(true, "ethereal", "sourcemod/zombieplague");
 }
