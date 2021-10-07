@@ -48,6 +48,7 @@ public Plugin myinfo =
 #define WEAPON_IDLE_TIME                10.0
 #define WEAPON_ATTACK_TIME              1.0
 #define WEAPON_SWITCH_TIME              3.5
+#define WEAPON_ACTIVE_MULTIPLIER		0.8
 /**
  * @endsection
  **/
@@ -706,6 +707,36 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	
 	// Allow button
 	return Plugin_Continue;
+}
+
+/**
+ * @brief Called before a client take a fake damage.
+ * 
+ * @param client            The client index.
+ * @param attacker          The attacker index. (Not validated!)
+ * @param inflicter         The inflicter index. (Not validated!)
+ * @param flDamage          The amount of damage inflicted.
+ * @param iBits             The ditfield of damage types.
+ * @param weapon            The weapon index or -1 for unspecified.
+ *
+ * @note To block damage reset the damage to zero. 
+ **/
+public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
+{
+    // Client was damaged by 'bullet'
+    if (iBits & DMG_NEVERGIB)
+    {
+        // Validate weapon
+        if (IsValidEdict(weapon))
+        {
+            // Validate custom weapon
+            if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
+            {
+                // Add additional damage
+                if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth") == STATE_ACTIVE) flDamage *= WEAPON_ACTIVE_MULTIPLIER;
+            }
+        }
+    }
 }
 
 public void ColorStringToArray(const char[] sColorString, int aColor[4])
