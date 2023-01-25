@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ enum
 };
 
 // Timer index
-Handle hMineCreate[MAXPLAYERS+1] = null; 
+Handle hMineCreate[MAXPLAYERS+1] = { null, ... }; 
 
 // Item index
 int gWeapon;
@@ -180,7 +180,7 @@ public void OnClientDisconnect(int client)
 
 void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 	
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -192,7 +192,7 @@ void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
@@ -209,7 +209,7 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)

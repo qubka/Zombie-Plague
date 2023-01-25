@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading hitgroup specific settings.
  *
- *  Copyright (C) 2015-2020 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2023 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -705,7 +705,7 @@ void HitGroupsOnNativeInit(/*void*/)
 /**
  * @brief Applies fake damage to a player.
  *
- * @note native void ZP_TakeDamage(client, attacker, inflictor, flDamage, iBits, weapon);
+ * @note native bool ZP_TakeDamage(client, attacker, inflictor, flDamage, iBits, weapon);
  **/
 public int API_TakeDamage(Handle hPlugin, const int iNumParams)
 {
@@ -732,6 +732,9 @@ public int API_TakeDamage(Handle hPlugin, const int iNumParams)
 		// Create the damage to kill
 		SDKHooks_TakeDamage(client, inflictor, attacker, flDamage);
 	}
+	
+	// Return result
+	return (hResult != Plugin_Continue) ? true : false;
 } 
  
 /**

@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Provides functions for level system.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -756,6 +756,7 @@ public int API_SetClientLevel(Handle hPlugin, int iNumParams)
 
 	// Sets level for the client
 	LevelSystemOnSetLvl(client, GetNativeCell(2));
+	return 0;
 }
 
 /**
@@ -784,4 +785,5 @@ public int API_SetClientExp(Handle hPlugin, int iNumParams)
 
 	// Sets exp for the client
 	LevelSystemOnSetExp(client, GetNativeCell(2));
+	return 0;
 }

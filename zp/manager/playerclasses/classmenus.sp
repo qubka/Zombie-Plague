@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Provides functions for managing class menus.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -314,7 +314,7 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
 public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zzombie", client, mSlot);
+   return ClassMenuSlots(hMenu, mAction, "zzombie", client, mSlot);
 }
 
 /**
@@ -328,7 +328,7 @@ public int ClassZombieMenuSlots1(Menu hMenu, MenuAction mAction, int client, int
 public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zzombie", client, mSlot, true);
+   return ClassMenuSlots(hMenu, mAction, "zzombie", client, mSlot, true);
 }
 
 /**
@@ -342,7 +342,7 @@ public int ClassZombieMenuSlots2(Menu hMenu, MenuAction mAction, int client, int
 public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zhuman", client, mSlot);
+   return ClassMenuSlots(hMenu, mAction, "zhuman", client, mSlot);
 }
 
 /**
@@ -356,7 +356,7 @@ public int ClassHumanMenuSlots1(Menu hMenu, MenuAction mAction, int client, int 
 public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
    // Call menu
-   ClassMenuSlots(hMenu, mAction, "zhuman", client, mSlot, true);
+   return ClassMenuSlots(hMenu, mAction, "zhuman", client, mSlot, true);
 }
 
 /**
@@ -369,7 +369,7 @@ public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, int client, int 
  * @param mSlot             The slot index selected (starting from 0).
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/ 
-void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, int mSlot, bool bInstant = false)
+int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, int mSlot, bool bInstant = false)
 {
 	// Switch the menu action
 	switch (mAction)
@@ -397,7 +397,7 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -451,7 +451,7 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
 				{
 					// Emit error sound
 					ClientCommand(client, "play buttons/button11.wav");
-					return;
+					return 0;
 				}
 				
 				// Gets class name
@@ -472,6 +472,8 @@ void ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client,
 			}
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -588,7 +590,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 			
 			// If mode doesn't started yet, then stop
@@ -599,7 +601,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 		
 				// Emit error sound
 				ClientCommand(client, "play buttons/button11.wav");    
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -620,7 +622,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 				{
 					// Creates a option menu
 					ClassesOptionMenu(client, target);
-					return;
+					return 0;
 				}
 			}
 			else
@@ -636,6 +638,8 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			ClassesMenu(client);
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -726,7 +730,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 			
 			// If mode doesn't started yet, then stop
@@ -737,7 +741,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 		
 				// Emit error sound
 				ClientCommand(client, "play buttons/button11.wav");    
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -769,4 +773,6 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			ClassesMenu(client);
 		}
 	}
+	
+	return 0;
 }

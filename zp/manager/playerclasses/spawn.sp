@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Spawn event.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -233,11 +233,14 @@ public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		return;
+		return Plugin_Continue;
 	}
 	
 	// Forward event to modules
 	ApplyOnClientSpawn(client);
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**

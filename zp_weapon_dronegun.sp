@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 public Plugin myinfo =
 {
 	name            = "[ZP] Weapon: DroneGun",
-	author          = "qubka (Nikita Ushakov) | Pelipoika",     
+	author          = "qubka (Nikita Ushakov), Pelipoika",     
 	description     = "Addon of custom weapons",
 	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
@@ -1848,7 +1848,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
 void Weapon_OnHolster(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, EFFECT_KILL);
@@ -1856,7 +1856,7 @@ void Weapon_OnHolster(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 
 	// Update an effect
 	Weapon_OnCreateEffect(client, weapon, EFFECT_UPDATE);
@@ -1886,7 +1886,7 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 	
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -1908,7 +1908,7 @@ void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnDrop(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 
 	// Sets skin index
 	SetEntProp(weapon, Prop_Send, "m_nSkin", GetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount"));
@@ -1916,7 +1916,7 @@ void Weapon_OnDrop(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 
 	// Place an effect
 	Weapon_OnCreateEffect(client, weapon, EFFECT_PLACE);
@@ -1924,7 +1924,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 
 	// Gets rotation angle
 	float flAngle = GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") + 0.5;
@@ -1936,7 +1936,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 {
-	#pragma unused client, weapon, iMode
+	//#pragma unused client, weapon, iMode
 
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
@@ -2086,7 +2086,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 
 bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 {
-	#pragma unused client, entity, flCurrentTime
+	//#pragma unused client, entity, flCurrentTime
 
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; bool bHit;
@@ -2163,7 +2163,7 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 
 bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
 {
-	#pragma unused client, entity, flCurrentTime
+	//#pragma unused client, entity, flCurrentTime
 
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; bool bHit;
@@ -2714,7 +2714,7 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 				int iCost = GetCost(!mSlot ? SENTRY_CONTROL_UPGRADE_RATIO : SENTRY_CONTROL_REFILL_RATIO); 
 				if (ZP_GetClientMoney(client) < iCost)
 				{
-					return;
+					return 0;
 				}
 		
 				// Gets object methods
@@ -2760,6 +2760,8 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 			}
 		}
 	}
+	
+	return 0;
 }
 
 //**********************************************

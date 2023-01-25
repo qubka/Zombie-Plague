@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, "Kill");
@@ -133,7 +133,7 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 
 	// Validate clip
 	if (iClip <= 0)
@@ -161,7 +161,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -185,7 +185,7 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 
 	// Validate mode
 	if (iStateMode > STATE_BEGIN)
@@ -229,7 +229,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -244,7 +244,7 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 
 	// Validate clip
 	if (iClip <= 0)
@@ -347,7 +347,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 
 	// Validate mode
 	if (iStateMode > STATE_BEGIN)
@@ -372,7 +372,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
 
 void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float flSpread, float flInaccuracy)
 {
-	#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
+	//#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
 	
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
@@ -389,7 +389,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 
 void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 {
-	#pragma unused client, weapon, sInput
+	//#pragma unused client, weapon, sInput
 
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");

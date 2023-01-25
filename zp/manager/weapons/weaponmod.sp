@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Weapon MOD functions.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin). Regards to Andersso
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov). Regards to Andersso
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -616,6 +616,9 @@ public Action WeaponMODOnWeaponReload(int weapon)
 {
 	// Apply fake reload hook on the next frame
 	_exec.WeaponMODOnWeaponReloadPost(weapon);
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**

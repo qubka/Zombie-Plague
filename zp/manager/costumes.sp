@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading costumes specific variables.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ Handle hDHookSetEntityModel;
 int DHook_SetEntityModel;
 
 /**
- * Сostumes module init function.
+ * –°ostumes module init function.
  **/
 void CostumesOnInit(/*void*/)
 {
@@ -1098,7 +1098,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 			
 			// Gets menu info
@@ -1142,6 +1142,8 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 			}
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -1154,6 +1156,9 @@ public MRESReturn CostumesDhookOnSetEntityModel(int client)
 {
 	// Update costume
 	CostumesCreateEntity(client);
+	
+	// Real function should still be called
+	return MRES_Handled;
 }
 
 /**

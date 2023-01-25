@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnDeploy(int client, int weapon, int iCounter, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iCounter, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iCounter, iAmmo, flCurrentTime
 	
 	// Sets draw animation
 	ZP_SetWeaponAnimation(client, ANIM_DRAW); 
@@ -132,7 +132,7 @@ void Weapon_OnDeploy(int client, int weapon, int iCounter, int iAmmo, float flCu
 
 void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iCounter, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iCounter, iAmmo, flCurrentTime
 	
 	// Validate ammo
 	if (!GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount"))
@@ -163,7 +163,7 @@ void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCur
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iCounter, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iCounter, iAmmo, flCurrentTime
 
 	// Validate reload
 	int iAnim = ZP_GetWeaponAnimation(client);
@@ -271,7 +271,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 
 void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 {
-	#pragma unused client, weapon, vPosition
+	//#pragma unused client, weapon, vPosition
 
 	// Initialize vectors
 	static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];

@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Death event.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -138,7 +138,7 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
 	// Validate client
 	if (!IsPlayerExist(client, false))
 	{
-		return;
+		return Plugin_Continue;
 	}
 
 	// Validate human
@@ -181,6 +181,9 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
 		// Resets weapon id, which used to kill
 		gClientData[client].LastID = -1;
 	}
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -200,11 +203,14 @@ public Action DeathOnClientDeathPost(Event hEvent, char[] sName, bool dontBroadc
 	// Validate client
 	if (!IsPlayerExist(client, false))
 	{
-		return;
+		return Plugin_Continue;
 	}
 	
 	// Forward event to sub-modules
 	DeathOnClientDeath(client, IsPlayerExist(attacker, false) ? attacker : 0);
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -361,6 +367,9 @@ public MRESReturn DeathDhookOnCommitSuicide(int client)
 {
 	// Forward event to sub-modules
 	DeathOnClientDeath(client);
+	
+	// Real function should still be called
+	return MRES_Handled;
 }
 
 /*

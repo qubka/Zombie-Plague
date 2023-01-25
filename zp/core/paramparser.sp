@@ -15,7 +15,7 @@
  *                  key3 = "value4", "value5", "value6"
  *                  key4 = "value7"
  *
- *  Copyright (C) 2015-2020  Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023  qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

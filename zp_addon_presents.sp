@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 public Plugin myinfo =
 {
 	name            = "[ZP] Addon: Presents",
-	author          = "qubka (Nikita Ushakov) | Pelipoika",     
+	author          = "qubka (Nikita Ushakov), Pelipoika",     
 	description     = "Addon of cso presents",
 	version         = "1.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
@@ -493,6 +493,9 @@ public Action RoundStateHook(Event hEvent, char[] sName, bool dontBroadcast)
 	
 	// Remove timer
 	delete hPresentSpawn;
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -523,43 +526,61 @@ public Action CaseSpawnHook(Handle hTimer)
 		}
 
 		// Gets model path
-		static char sModel[PLATFORM_LINE_LENGTH]; int iType = GetRandomInt(EXPL, HTOOL); static int vColor[4];
+		static char sModel[PLATFORM_LINE_LENGTH]; int iType = GetRandomInt(EXPL, HTOOL); 
+#if defined PRESENT_GLOW
+		static int vColor[4];
+#endif
+
 		switch (iType)
 		{
 			case EXPL : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_explosive.mdl");    
+#if defined PRESENT_GLOW
 				vColor = {255, 127, 80, 255};  
+#endif
 			}
 			case HEAVY : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_heavy_weapon.mdl"); 
+#if defined PRESENT_GLOW
 				vColor = {220, 20, 60, 255};   
+#endif
 			} 
 			case LIGHT : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_light_weapon.mdl"); 
+#if defined PRESENT_GLOW
 				vColor = {255, 0, 0, 255};     
+#endif
 			} 
 			case PISTOL : 
 			{ 
-				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_pistol.mdl");       
+				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_pistol.mdl");      
+#if defined PRESENT_GLOW
 				vColor = {240, 128, 128, 255}; 
+#endif
 			} 
 			case HPIST : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_pistol_heavy.mdl"); 
+#if defined PRESENT_GLOW
 				vColor = {219, 112, 147, 255}; 
+#endif
 			} 
 			case TOOLS : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_tools.mdl");        
-				vColor = {0, 0, 205, 255};     
+#if defined PRESENT_GLOW
+				vColor = {0, 0, 205, 255};    
+#endif
 			} 
 			case HTOOL : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_tools_heavy.mdl");  
+#if defined PRESENT_GLOW
 				vColor = {95, 158, 160, 255};  
+#endif
 			} 
 		}
 
@@ -679,6 +700,9 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 		// Decrease amount
 		gCaseCount--;
 	}
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**

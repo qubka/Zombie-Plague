@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading gamemodes specific variables.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -362,10 +362,8 @@ public Action GameModesOnCommandCatched(int client, int iArguments)
  *
  * @param client            The client index.
  **/
-void GameModesOnClientDisconnectPost(int client)
+void GameModesOnClientDisconnectPost(/*int client*/)
 {
-	#pragma unused client
-	
 	// Check the last human/zombie
 	ModesDisconnectLast();
 }
@@ -706,6 +704,9 @@ public Action GameModesOnStartPre(Event hEvent, char[] sName, bool dontBroadcast
 	
 	// Forward event to modules
 	ModesBalanceTeams();
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -723,6 +724,9 @@ public Action GameModesOnStart(Event hEvent, char[] sName, bool dontBroadcast)
 	
 	// Forward event to modules
 	SoundsOnRoundStart();
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -752,7 +756,13 @@ public Action GameModesOnPanel(Event hEvent, char[] sName, bool dontBroadcast)
 	{
 		// Disable broadcasting
 		hEvent.BroadcastDisabled = true;
+		
+		// Change event
+		return Plugin_Changed;
 	}
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -773,6 +783,9 @@ public Action GameModesOnBlast(Handle hTimer)
 			ForcePlayerSuicide(i);
 		}
 	}
+	
+	// Destroy timer
+	return Plugin_Stop;
 }
 
 /**
@@ -3526,7 +3539,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 			
 			// If mode already started, then stop
@@ -3537,7 +3550,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 		
 				// Emit error sound
 				ClientCommand(client, "play buttons/button11.wav");    
-				return;
+				return 0;
 			}
 			
 			// Gets menu info
@@ -3562,7 +3575,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			
 					// Emit error sound
 					ClientCommand(client, "play buttons/button11.wav");    
-					return;
+					return 0;
 				}
 			}
 			
@@ -3571,7 +3584,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			{
 				// Creates a option menu
 				ModesOptionMenu(client);
-				return;
+				return 0;
 			}
 
 			// Call forward
@@ -3592,6 +3605,8 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			}
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -3686,7 +3701,7 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 			
 			// Gets menu info
@@ -3709,5 +3724,7 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 				ClientCommand(client, "play buttons/button11.wav"); 
 			}
 		}
-	}   
+	}
+	
+	return 0;
 }

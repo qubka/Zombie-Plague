@@ -277,7 +277,7 @@
                 "signature" "FX_Disarm"
                 "linux"
                 {
-                    "offset"  "3914"
+                    "offset"  "3906"
                 }
                 "windows"
                 {

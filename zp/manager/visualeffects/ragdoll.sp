@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   Remove ragdolls with optional effects.
  *
- *  Copyright (C) 2015-2020  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2023 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -115,7 +115,7 @@ public Action RagdollOnEntityRemove(Handle hTimer, int refID)
 			{
 				// Remove entity from world
 				AcceptEntityInput(ragdoll, "Kill");
-				return;
+				return Plugin_Stop;
 			}
 
 			// If random, set value to any between "energy" effect and "core" effect
@@ -151,6 +151,9 @@ public Action RagdollOnEntityRemove(Handle hTimer, int refID)
 			}
 		}
 	}
+	
+	// Destroy timer
+	return Plugin_Stop;
 }
 
 /**

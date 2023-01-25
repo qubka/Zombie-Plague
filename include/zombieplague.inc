@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague X Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2023 qubka (Nikita Ushakov).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -140,9 +140,9 @@ native bool ZP_IsBSPModel(int entity);
  *
  * @param entity            The entity index.
  *
- * @noreturn
+ * @return                  True or false.
  **/
-native void ZP_UpdateTransmitState(int entity);
+native bool ZP_UpdateTransmitState(int entity);
 
 /**
  * @brief Sets the player progress bar.
@@ -150,9 +150,9 @@ native void ZP_UpdateTransmitState(int entity);
  * @param client            The client index.
  * @param duration          The duration in the seconds.
  *
- * @noreturn
+ * @return                  True or false.
  **/
-native void ZP_SetProgressBarTime(int client, int duration);
+native bool ZP_SetProgressBarTime(int client, int duration);
 
 /**
  * @brief Used to iterate all the clients collision within a sphere.

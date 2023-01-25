@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -57,9 +57,9 @@ public Plugin myinfo =
  **/
 
 // Timer index
-Handle hWeaponStab[MAXPLAYERS+1] = null; 
-Handle hWeaponSwing[MAXPLAYERS+1] = null; 
-Handle hWeaponSwingAgain[MAXPLAYERS+1] = null; 
+Handle hWeaponStab[MAXPLAYERS+1] = { null, ... }; 
+Handle hWeaponSwing[MAXPLAYERS+1] = { null, ... }; 
+Handle hWeaponSwingAgain[MAXPLAYERS+1] = { null, ... }; 
  
 // Weapon index
 int gWeapon;
@@ -178,7 +178,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
+	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
 
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
@@ -213,7 +213,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
 
 void Weapon_OnHolster(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
+	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
 	
 	// Delete timers
 	delete hWeaponStab[client];
@@ -226,7 +226,7 @@ void Weapon_OnHolster(int client, int weapon, int iStep, int iChangeMode, float 
 
 void Weapon_OnDeploy(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
+	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
 
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -248,7 +248,7 @@ void Weapon_OnDeploy(int client, int weapon, int iStep, int iChangeMode, float f
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
+	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
 
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -323,7 +323,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
+	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -375,7 +375,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode
 
 void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift, bool bSlash)
 {    
-	#pragma unused client, weapon, flRightShift, bSlash
+	//#pragma unused client, weapon, flRightShift, bSlash
 
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];

@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnReload(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 
 	// Sets default FOV for the client
 	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
@@ -89,7 +89,7 @@ void Weapon_OnReload(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	#pragma unused client, weapon, flCurrentTime
+	//#pragma unused client, weapon, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)

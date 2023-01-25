@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Player sound effects.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -390,8 +390,10 @@ bool PlayerSoundsOnClientShoot(int client, int iD)
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
  * @param iFrags            The sound flags.
+ * @param sEntry            The game sound entry name.
+ * @param iSeed             The sound seed.
  **/ 
-public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags)
+public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
 	// Validate entity 
 	if (IsValidEdict(entity))

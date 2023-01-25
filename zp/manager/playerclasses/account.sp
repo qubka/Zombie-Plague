@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Handles client accounts. (cash)
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -471,6 +471,7 @@ public int API_SetClientMoney(Handle hPlugin, int iNumParams)
 
 	// Sets money for the client
 	AccountSetClientCash(client, GetNativeCell(2));
+	return 0;
 }
 
 /**
@@ -499,6 +500,7 @@ public int API_SetClientLastPurchase(Handle hPlugin, int iNumParams)
 
 	// Sets purchase for the client
 	gClientData[client].LastPurchase = GetNativeCell(2);
+	return 0;
 }
 
 /*
@@ -685,7 +687,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -763,4 +765,6 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			}
 		}
 	}
+	
+	return 0;
 }

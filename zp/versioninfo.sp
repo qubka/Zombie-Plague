@@ -7,7 +7,7 @@
  *  Type:          Main 
  *  Description:   Version information.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,15 +29,15 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "X.040"
+#define PLUGIN_VERSION      "X.041"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
-#define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)"
+#define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2023 qubka (Nikita Ushakov)"
 #define PLUGIN_BRANCH       "master"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "03-December-2020T03:29:00-GMT+00:00"
+#define PLUGIN_DATE         "24-January-2020T18:27:00-GMT+00:00"
 /**
  * @endsection
  **/

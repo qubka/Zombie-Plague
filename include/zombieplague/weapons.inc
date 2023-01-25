@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague X Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2023 qubka (Nikita Ushakov).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -267,7 +267,7 @@ native int ZP_CreateWeapon(int weaponID, float origin[3], float angle[3]);
  *
  * @return                  True or false.
  **/
-native void ZP_FireBullets(int clientIndex, int weaponIndex, float origin[3], float angle[3], int mode, int seed, float inaccuracy, float spread, float fishtail, int sound, float recoil);
+native bool ZP_FireBullets(int clientIndex, int weaponIndex, float origin[3], float angle[3], int mode, int seed, float inaccuracy, float spread, float fishtail, int sound, float recoil);
 
 /**
  * @brief Gives the weapon by a given name.
@@ -284,8 +284,10 @@ native int ZP_GiveClientWeapon(int client, int weaponID);
  *
  * @param client            The client index.
  * @param weapon            The weapon index.
+ *
+ * @return                  True or false.
  **/
-native void ZP_SwitchClientWeapon(int client, int weapon);
+native bool ZP_SwitchClientWeapon(int client, int weapon);
 
 /**
  * @brief Gets the client viewmodel. 

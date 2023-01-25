@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 
 	// Cancel mode change
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
@@ -154,7 +154,7 @@ void Weapon_OnHolster(int client, int weapon, int iAmmo, int iCounter, int iStat
 
 void Weapon_OnIdle(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
@@ -171,7 +171,7 @@ void Weapon_OnIdle(int client, int weapon, int iAmmo, int iCounter, int iStateMo
 
 void Weapon_OnDeploy(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -190,7 +190,7 @@ void Weapon_OnDeploy(int client, int weapon, int iAmmo, int iCounter, int iState
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -326,7 +326,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Validate mode
 	if (iStateMode == STATE_SIGNAL)
@@ -363,7 +363,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iAmmo, int iCounter, i
 
 void Weapon_OnFinish(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Sets change animation
 	ZP_SetWeaponAnimation(client, ANIM_CHANGE_B);        
@@ -387,7 +387,7 @@ void Weapon_OnFinish(int client, int weapon, int iAmmo, int iCounter, int iState
 
 void Weapon_OnCreateGrenade(int client)
 {
-	#pragma unused client
+	//#pragma unused client
 
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];

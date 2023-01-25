@@ -7,7 +7,7 @@
  *  Type:          Manager
  *  Description:   API for all weapon-related functions.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -404,7 +404,7 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		return;
+		return Plugin_Continue;
 	}
 
 	// Gets active weapon index from the client
@@ -413,11 +413,14 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
 	// Validate weapon
 	if (weapon == -1)
 	{
-		return;
+		return Plugin_Continue;
 	}
 	
 	// Forward event to sub-modules
 	WeaponMODOnFire(client, weapon);
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -436,7 +439,7 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		return;
+		return Plugin_Continue;
 	}
 
 	// Gets active weapon index from the client
@@ -445,7 +448,7 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
 	// Validate weapon
 	if (weapon == -1)
 	{
-		return;
+		return Plugin_Continue;
 	}
 	
 	// Initialize vector
@@ -458,6 +461,9 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
 	
 	// Forward event to sub-modules
 	WeaponMODOnBullet(client, vBullet, weapon);
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -476,11 +482,14 @@ public Action WeaponsOnHostage(Event hEvent, char[] sName, bool dontBroadcast)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		return;
+		return Plugin_Continue;
 	}
 	
 	// Forward event to sub-modules
 	WeaponMODOnHostage(client);
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -731,7 +740,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 /**
  * @brief Switches to the weapon by an index.
  *
- * @note native void ZP_SwitchClientWeapon(client, weapon);
+ * @note native bool ZP_SwitchClientWeapon(client, weapon);
  **/
 public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
 {
@@ -742,7 +751,7 @@ public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
 	if (!IsPlayerExist(client))
 	{
 		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
-		return;
+		return false;
 	}
 	
 	// Gets weapon index from native cell 
@@ -752,11 +761,12 @@ public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
 	if (!IsValidEdict(weapon))
 	{
 		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weapon);
-		return;
+		return false;
 	}
 	
 	// Switch weapon
 	WeaponsSwitch(client, weapon);
+	return true;
 }
 
 /**

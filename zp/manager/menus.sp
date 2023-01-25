@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   Menus constructor.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -924,7 +924,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -960,6 +960,8 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			}
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -1090,7 +1092,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				// Validate client
 				if (!IsPlayerExist(client, false))
 				{
-					return;
+					return 0;
 				}
 				
 				// Opens main menu back
@@ -1104,7 +1106,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -1137,4 +1139,6 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			}
 		}
 	}
+	
+	return 0;
 }

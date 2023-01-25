@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague X Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2023 qubka (Nikita Ushakov).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -76,9 +76,9 @@ forward void ZP_OnClientDamaged(int client, int attacker, int inflicter, float d
  *
  * @note Knockback will apply only on 'DMG_NEVERGIB' from the class and if the weapon index is state.
  *
- * @noreturn
+ * @return                  True or false.
  **/
-native void ZP_TakeDamage(int client, int attacker, int inflictor, float damage, int bits = DMG_GENERIC, int weapon = -1);
+native bool ZP_TakeDamage(int client, int attacker, int inflictor, float damage, int bits = DMG_GENERIC, int weapon = -1);
 
 /**
  * @brief Gets the amount of all hitgrups.

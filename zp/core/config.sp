@@ -7,7 +7,7 @@
  *  Type:          Core
  *  Description:   Config API and executing.
  *
- *  Copyright (C) 2015-2020  Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2023 Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -184,10 +184,10 @@ ConfigData gConfigData[File_Size];
  **/
 enum ConfigKvAction
 {
-	KvAction_Create,    /** Creates a key. */
-	KvAction_KVDelete,  /** Delete a key. */
-	KvAction_KVSet,     /** Modify setting of a key. */
-	KvAction_KVGet      /** Get setting of a key. */
+	KvAction_Create,  /** Creates a key. */
+	KvAction_Delete,  /** Delete a key. */
+	KvAction_Set,     /** Modify setting of a key. */
+	KvAction_Get      /** Get setting of a key. */
 };
 /**
  * @endsection
@@ -838,7 +838,7 @@ stock bool ConfigKeyvalueTreeSetting(int iConfig, ConfigKvAction mAction = KvAct
 	
 	// i = keys index.
 	// Traverse into the keygroup, stop if it fails
-	for (int i = 0; i < keysMax; v++)
+	for (int i = 0; i < keysMax; i++)
 	{
 		// If key is empty, then break the loop
 		if (!hasLength(sKeys[i]))
@@ -1283,7 +1283,7 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -1314,4 +1314,6 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 			ConfigMenu(client);
 		}
 	}
+	
+	return 0;
 }

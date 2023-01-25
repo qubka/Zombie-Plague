@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading extraitems specific variables.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -984,7 +984,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			// Validate client
 			if (!IsPlayerExist(client))
 			{
-				return;
+				return 0;
 			}
 			
 			// If mode already started, then stop
@@ -995,7 +995,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 
 				// Emit error sound
 				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -1069,7 +1069,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 							}
 							
 							// Return on success
-							return;
+							return 0;
 						}
 					}
 
@@ -1082,4 +1082,6 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			}
 		}
 	}
+	
+	return 0;
 }

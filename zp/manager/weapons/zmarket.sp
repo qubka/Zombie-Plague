@@ -7,7 +7,7 @@
  *  Type:          Module
  *  Description:   ZMarket module, provides menu of weapons to buy from.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -159,6 +159,9 @@ public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArgum
 		delete gClientData[client].BuyTimer;
 		gClientData[client].BuyTimer = CreateTimer(1.0, ZMarketOnClientBuyMenu, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
+	
+	// Allow command
+	return Plugin_Continue;
 }
 
 /**
@@ -185,6 +188,7 @@ public Action ZMarketOnClientBuyMenu(Handle hTimer, int userID)
 	// Destroy timer
 	return Plugin_Stop;
 }
+
 /**
  * @brief Called when a player attempts to purchase an item.
  * 
@@ -506,7 +510,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 		   
 			// Gets menu info
@@ -547,6 +551,8 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
 			}
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -584,7 +590,7 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 		   
 			// Gets menu info
@@ -605,6 +611,8 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
 			ZMarketMenu(client, "rebuy", MenuType_Option);
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -618,7 +626,7 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
 public int ZMarketMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
 	// Call menu
-	ZMarketMenuSlots(hMenu, mAction, client, mSlot, true);
+	return ZMarketMenuSlots(hMenu, mAction, client, mSlot, true);
 }
 
 /**
@@ -632,7 +640,7 @@ public int ZMarketMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSl
 public int ZMarketMenuSlots4(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
 	// Call menu
-	ZMarketMenuSlots(hMenu, mAction, client, mSlot);
+	return ZMarketMenuSlots(hMenu, mAction, client, mSlot);
 }
 
 /**
@@ -644,7 +652,7 @@ public int ZMarketMenuSlots4(Menu hMenu, MenuAction mAction, int client, int mSl
  * @param mSlot             The slot index selected (starting from 0).
  * @param bRebuy            (Optional) True to set the rebuy mode, false to set normal mode.
  **/ 
-void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bRebuy = false)
+int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bRebuy = false)
 {
 	// Switch the menu action
 	switch (mAction)
@@ -672,7 +680,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
 			// Validate client
 			if (!IsPlayerExist(client))
 			{
-				return;
+				return 0;
 			}
 			
 			// If mode already started, then stop
@@ -683,7 +691,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
 		
 				// Emit error sound
 				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -830,7 +838,7 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
 								}
 								
 								// Return on success
-								return;
+								return 0;
 							}
 						}
 					}
@@ -847,6 +855,8 @@ void ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, boo
 			}
 		}
 	}
+	
+	return 0;
 }
 
 /**
@@ -937,7 +947,7 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			// Validate client
 			if (!IsPlayerExist(client, false))
 			{
-				return;
+				return 0;
 			}
 
 			// Gets menu info
@@ -948,6 +958,8 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			ZMarketMenu(client, "rebuy", MenuType_Option, sBuffer);
 		}
 	}
+	
+	return 0;
 }
 
 /*

@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 public Plugin myinfo =
 {
 	name            = "[ZP] Addon: Grenade Modes",
-	author          = "qubka (Nikita Ushakov) | Nyuu",
+	author          = "qubka (Nikita Ushakov), Nyuu",
 	description     = "Provide new modes for the grenades",
 	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
@@ -142,7 +142,7 @@ ConVar hSoundLevel;
 #pragma unused hSoundLevel
 
 // Player index
-int iGrenadeMode[MAXPLAYERS+1]; ArrayList hGrenadeList[MAXPLAYERS+1] = null;
+int iGrenadeMode[MAXPLAYERS+1]; ArrayList hGrenadeList[MAXPLAYERS+1] = { null, ... };
 #pragma unused iGrenadeMode, hGrenadeList
 
 /**

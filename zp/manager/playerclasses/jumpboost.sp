@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Modified jump vector magnitudes.
  *
- *  Copyright (C) 2015-2016 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2016 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -149,6 +149,9 @@ public Action JumpBoostOnClientJump(Event hEvent, char[] sName, bool dontBroadca
 
 	// Creates a single use next frame hook
 	_call.JumpBoostOnClientJumpPost(client);
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**

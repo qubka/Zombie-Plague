@@ -1,9 +1,9 @@
 /**
  * =============================================================================
- *  Plague X Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin).
+ * Zombie Plague X Copyright (C) 2015-2023 qubka (Nikita Ushakov).
  * =============================================================================
  *
- * This file is part of the  Plague Core.
+ * This file is part of the Zombie Plague Core.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3.0, as published by the

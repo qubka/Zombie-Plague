@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Entity Utilities Copyright (C) 2020 Nikita Ushakov (Ireland, Dublin).
+ * Entity Utilities Copyright (C) 2015-2023 qubka (Nikita Ushakov).
  * =============================================================================
  *
  * This file is part of the Zombie Plague and NPC Cores.
@@ -1838,7 +1838,7 @@ stock void UTIL_RemoveEntity(int entity, float flDelayTime)
  *
  * @return                  The decal index.
  **/
-stock void UTIL_PrecacheDecal(char[] sDecal)
+stock int UTIL_PrecacheDecal(char[] sDecal)
 {
 	// Precache main decal
 	int iDecal = PrecacheDecal(sDecal, true);
@@ -2314,7 +2314,7 @@ stock void GetParticleEffectName(int iIndex, char[] sEffect, int iMaxLen)
  *
  * @return                  The table size.    
  **/
-stock void GetEffectNameCount(/*void*/)
+stock int GetEffectNameCount(/*void*/)
 {
 	// Initialize the table index
 	static int table = INVALID_STRING_TABLE;

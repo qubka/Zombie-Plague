@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public Plugin myinfo =
 }
 
 // Timer index
-Handle hItemReload[MAXPLAYERS+1] = null; Handle hItemDuration[MAXPLAYERS+1];
+Handle hItemReload[MAXPLAYERS+1] = { null, ... }; Handle hItemDuration[MAXPLAYERS+1];
 
 // Sound index
 int gSound; ConVar hSoundLevel;

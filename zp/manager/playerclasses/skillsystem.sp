@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Provides functions for zombie skills system.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -379,7 +379,7 @@ public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
 	if (!IsPlayerExist(client, false))
 	{
 		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
-		return;
+		return 0;
 	}
 	
 	// Resets the values
@@ -394,4 +394,6 @@ public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
 		// Resets the progress bar 
 		ToolsSetProgressBarTime(client, 0);
 	}
+	
+	return 0;
 }

@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Find offsets and signatures.
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -809,7 +809,7 @@ public int API_IsBSPModel(Handle hPlugin, int iNumParams)
 /**
  * @brief Emulate bullet_shot on the server and does the damage calculations.
  *
- * @note native void ZP_FireBullets(clientIndex, weaponIndex, origin, angle, mode, seed, inaccuracy, spread, sound);
+ * @note native bool ZP_FireBullets(clientIndex, weaponIndex, origin, angle, mode, seed, inaccuracy, spread, sound);
  **/
 public int API_FireBullets(Handle hPlugin, int iNumParams)
 {
@@ -820,7 +820,7 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
 	if (!IsPlayerExist(client))
 	{
 		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
-		return;
+		return false;
 	}
 	
 	// Gets weapon index from native cell 
@@ -830,7 +830,7 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
 	if (!IsValidEdict(weapon))
 	{
 		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the weapon index (%d)", weapon);
-		return;
+		return false;
 	}
 	
 	// Gets origin vector
@@ -843,12 +843,13 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
 	
 	// Emulate fire bullets
 	ToolsFireBullets(client, weapon, vPosition, vAngle, GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9), GetNativeCell(10), GetNativeCell(11));
+	return true;
 }
 
 /**
  * @brief Update a entity transmit state.
  *
- * @note native void ZP_UpdateTransmitState(entity);
+ * @note native bool ZP_UpdateTransmitState(entity);
  **/
 public int API_UpdateTransmitState(Handle hPlugin, int iNumParams)
 {
@@ -859,11 +860,12 @@ public int API_UpdateTransmitState(Handle hPlugin, int iNumParams)
 	if (!IsValidEdict(entity))
 	{
 		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-		return;
+		return false;
 	}
 	
 	// Update transmit state
 	ToolsUpdateTransmitState(entity);
+	return true;
 }
 
 /**
@@ -914,7 +916,7 @@ public int API_FindPlayerInSphere(Handle hPlugin, int iNumParams)
 /**
  * @brief Sets the player progress bar.
  *
- * @note native void ZP_SetProgressBarTime(client, duration);
+ * @note native bool ZP_SetProgressBarTime(client, duration);
  **/
 public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
 {
@@ -925,9 +927,10 @@ public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
 	if (!IsPlayerExist(client))
 	{
 		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
-		return;
+		return false;
 	}
 	
 	// Sets progress bar
 	ToolsSetProgressBarTime(client, GetNativeCell(2));
+	return true;
 }

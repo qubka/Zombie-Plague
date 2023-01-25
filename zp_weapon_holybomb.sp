@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -203,22 +203,27 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
 			UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
 		}
 	}
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
  * @brief Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
  *  
  * @param clients           Array of client indexes.
- * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
+ * @param numClients        Number of clients in the array (modify this value ifyou add/remove elements from the client array).
  * @param sSample           Sound file name relative to the "sounds" folder.
  * @param entity            Entity emitting the sound.
  * @param iChannel          Channel emitting the sound.
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
- * @param iFlags            The sound flags.
+ * @param iFrags            The sound flags.
+ * @param sEntry            The game sound entry name.
+ * @param iSeed             The sound seed.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
+public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
 	// Validate client
 	if (IsValidEdict(entity))

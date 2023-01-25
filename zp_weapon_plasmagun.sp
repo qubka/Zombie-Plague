@@ -4,7 +4,7 @@
  *  Zombie Plague
  *
  *
- *  Copyright (C) 2015-2020 Nikita Ushakov (Ireland, Dublin)
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, "Kill");
@@ -135,7 +135,7 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurr
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
 	// Validate clip
 	if (iClip <= 0)
@@ -167,7 +167,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
@@ -207,7 +207,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -222,7 +222,7 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float f
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -243,7 +243,7 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
+	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -314,7 +314,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 void Weapon_OnCreatePlasma(int client, int weapon)
 {
-	#pragma unused client, weapon
+	//#pragma unused client, weapon
 
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
@@ -371,7 +371,7 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 
 void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 {
-	#pragma unused client, weapon, sInput
+	//#pragma unused client, weapon, sInput
 
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
