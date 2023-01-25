@@ -194,12 +194,19 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Loads a game config file
-		Handle hConfig = LoadGameConfigFile("plugin.turret"); 
+		GameData hConfig = LoadGameConfigFile("plugin.turret"); 
+
+		// Validate config
+		if (!hConfig) 
+		{
+			SetFailState("Failed to load turret gamedata.");
+			return;
+		}
 
 		/*__________________________________________________________________________________________________*/
 		
 		// Load other offsets
-		if ((AnimatingOverlay_Count = GameConfGetOffset(hConfig, "CBaseAnimatingOverlay::Count")) == -1) SetFailState("Failed to get offset: \"CBaseAnimatingOverlay::Count\". Update offset in \"plugin.turret\""); 
+		if ((AnimatingOverlay_Count = hConfig.GetOffset("CBaseAnimatingOverlay::Count")) == -1) SetFailState("Failed to get offset: \"CBaseAnimatingOverlay::Count\". Update offset in \"plugin.turret\""); 
 
 		/*__________________________________________________________________________________________________*/
 		

@@ -48,7 +48,11 @@ public Plugin myinfo =
 #define WEAPON_IDLE_TIME                10.0
 #define WEAPON_ATTACK_TIME              1.0
 #define WEAPON_SWITCH_TIME              3.5
-#define WEAPON_ACTIVE_MULTIPLIER		0.8
+#define WEAPON_ACTIVE_MULTIPLIER        0.8
+#define WEAPON_TRACER_ENABLED
+#define WEAPON_TRACER_LIFE              0.2
+#define WEAPON_TRACER_WIDTH             0.2
+#define WEAPON_TRACER_COLOR             {0, 255, 255, 255}
 /**
  * @endsection
  **/
@@ -79,31 +83,8 @@ enum
 	STATE_ACTIVE
 };
 
-ConVar g_cvarTracerEnable;
-ConVar g_cvarTracerMaterial;
-ConVar g_cvarTracerLife;
-ConVar g_cvarTracerWidth;
-ConVar g_cvarTracerColor;
-
+// Decal index
 int gBeam = -1;
-int g_iColor[4];
-
-/**
- * @brief Called after a library is added that the current plugin references optionally. 
- *        A library is either a plugin name or extension name, as exposed via its include file.
- **/
-public void OnPluginStart()
-{
-	//RegConsoleCmd("sm_ethereal", Command_Ethereal);
-	
-	g_cvarTracerEnable = CreateConVar("sm_ethereal_tracer_enable", "1", "Enable tracers for normal mode");
-	g_cvarTracerMaterial = CreateConVar("sm_ethereal_tracer_material", "materials/sprites/laserbeam.vmt", "Material to be used with tracers");
-	g_cvarTracerLife = CreateConVar("sm_ethereal_tracer_life", "0.2", "Life of a tracer in seconds");
-	g_cvarTracerWidth = CreateConVar("sm_ethereal_tracer_width", "0.2", "Life of a tracer in seconds");
-	g_cvarTracerColor = CreateConVar("sm_ethereal_tracer_color", "0 255 255 255", "Color of a tracer");
-	
-	AutoExecConfig(true, "ethereal", "sourcemod/zombieplague");
-}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -111,22 +92,27 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-    // Validate library
-    if (!strcmp(sLibrary, "zombieplague", false))
-    {
-        // If map loaded, then run custom forward
-        if (ZP_IsMapLoaded())
-        {
-            // Execute it
-            ZP_OnEngineExecute();
-        }
-    }
+	// Validate library
+	if (!strcmp(sLibrary, "zombieplague", false))
+	{
+		// Load translations phrases used by plugin
+		LoadTranslations("zombieplague.phrases");
+
+		// If map loaded, then run custom forward
+		if (ZP_IsMapLoaded())
+		{
+			// Execute it
+			ZP_OnEngineExecute();
+		}
+	}
 }
 
+/**
+ * @brief The map is starting.
+ **/
 public void OnMapStart()
 {
-	char temp[PLATFORM_MAX_PATH];
-	g_cvarTracerMaterial.GetString(temp, sizeof(temp));
+	// Precache model
 	gBeam = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 }
 
@@ -135,12 +121,6 @@ public void OnMapStart()
  **/
 public void ZP_OnEngineExecute()
 {
-	
-	char s_ColorValue[64];
-	g_cvarTracerColor.GetString(s_ColorValue, sizeof(s_ColorValue));
-	
-	ColorStringToArray(s_ColorValue, g_iColor);
-	
 	// Weapons
 	gWeapon = ZP_GetWeaponNameID("etherial");
 	if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"etherial\" wasn't find");
@@ -292,14 +272,13 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	if (iClip <= 0)
 	{
 		// Emit empty sound
-		EmitSoundToClient(client, "weapons/clipempty_rifle.wav");
+		ClientCommand(client, "play weapons/clipempty_rifle.wav");
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
 
 	// Substract ammo
 	iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
-	
 
 	// Sets attack animation
 	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
@@ -433,7 +412,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		
 		// Adds the delay to the game tick
 		flCurrentTime += WEAPON_SWITCH_TIME;
-				
+		
 		// Sets next attack time
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime); 
@@ -444,8 +423,9 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		// Sets switching time
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", flCurrentTime);
 		
+		// Show message
 		SetGlobalTransTarget(client);
-		PrintHintText(client, "Mode: Electric");
+		PrintHintText(client, "%t", "etherial electric");
 	}
 	else
 	{
@@ -466,7 +446,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		
 		// Adds the delay to the game tick
 		flCurrentTime += WEAPON_SWITCH_TIME;
-				
+		
 		// Sets next attack time
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime); 
@@ -477,8 +457,9 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		// Sets switching time
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", flCurrentTime);
 		
+		// Show message
 		SetGlobalTransTarget(client);
-		PrintHintText(client, "Mode: Normal");
+		PrintHintText(client, "%t", "etherial normal");
 	}
 }
 
@@ -522,7 +503,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	//float flLife = ZP_GetWeaponSpeed(gWeapon);
 
 	// Sent a beam
-	TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, g_cvarTracerLife.FloatValue, g_cvarTracerWidth.FloatValue, g_cvarTracerWidth.FloatValue, 1, 0.0, g_iColor, 0);
+	TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_TRACER_LIFE, WEAPON_TRACER_WIDTH, WEAPON_TRACER_WIDTH, 1, 0.0, WEAPON_TRACER_COLOR, 0);
 	TE_SendToClient(client);
 
 	// Gets worldmodel index
@@ -531,14 +512,11 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	// Validate entity
 	if (world != -1)
 	{
-		static float vPosition2[3];
-		
 		// Gets attachment position
 		ZP_GetAttachment(world, "muzzle_flash", vPosition, vAngle);
-		//WA_GetAttachmentPos(client, "muzzle_flash", vPosition2);
 		
 		// Sent a beam
-		TE_SetupBeamPoints(vPosition2, vEndPosition, gBeam, 0, 0, 0, g_cvarTracerLife.FloatValue, g_cvarTracerWidth.FloatValue, g_cvarTracerWidth.FloatValue, 1, 0.0, g_iColor, 0);
+		TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_TRACER_LIFE, WEAPON_TRACER_WIDTH, WEAPON_TRACER_WIDTH, 1, 0.0, WEAPON_TRACER_COLOR, 0);
 		int[] iClients = new int[MaxClients]; int iCount;
 		for (int i = 1; i <= MaxClients; i++)
 		{
@@ -586,7 +564,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 		// Resets variables
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
-}     
+}
 	
 /**
  * @brief Called on deploy of a weapon.
@@ -636,13 +614,16 @@ public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weap
 	if (weaponID == gWeapon)
 	{
 		// Sent a beam
-		if(GetEntProp(weapon, Prop_Data, "m_iMaxHealth") == STATE_ACTIVE)
+		if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth") == STATE_ACTIVE)
+		{
 			ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_taser", vBullet, 0.1);
+		}
+#if defined WEAPON_TRACER_ENABLED
 		else 
 		{
-			if(g_cvarTracerEnable.BoolValue)
-				Weapon_OnCreateBeam(client, weapon);
+			Weapon_OnCreateBeam(client, weapon);
 		}
+#endif
 	}
 	
 }
@@ -723,31 +704,20 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-    // Client was damaged by 'bullet'
-    if (iBits & DMG_NEVERGIB)
-    {
-        // Validate weapon
-        if (IsValidEdict(weapon))
-        {
-            // Validate custom weapon
-            if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
-            {
-                // Add additional damage
-                if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth") == STATE_ACTIVE) flDamage *= WEAPON_ACTIVE_MULTIPLIER;
-            }
-        }
-    }
-}
-
-public void ColorStringToArray(const char[] sColorString, int aColor[4])
-{
-	char asColors[5][5];
-	ExplodeString(sColorString, " ", asColors, sizeof(asColors), sizeof(asColors[]));
-
-	aColor[0] = StringToInt(asColors[0]);
-	aColor[1] = StringToInt(asColors[1]);
-	aColor[2] = StringToInt(asColors[2]);
-	aColor[3] = StringToInt(asColors[3]);
+	// Client was damaged by 'bullet'
+	if (iBits & DMG_NEVERGIB)
+	{
+		// Validate weapon
+		if (IsValidEdict(weapon))
+		{
+			// Validate custom weapon
+			if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
+			{
+				// Add additional damage
+				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth") == STATE_ACTIVE) flDamage *= WEAPON_ACTIVE_MULTIPLIER;
+			}
+		}
+	}
 }
 
 /**
@@ -761,5 +731,5 @@ public void ColorStringToArray(const char[] sColorString, int aColor[4])
  **/
 public bool SelfFilter(int entity, int contentsMask, int filter)
 {
-    return (entity != filter);
+	return (entity != filter);
 }

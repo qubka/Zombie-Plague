@@ -1,4 +1,4 @@
-﻿"Phrases"
+"Phrases"
 {
     // =============================================================
     // If you want add your language into mod,
@@ -3315,5 +3315,27 @@
         "chi"           "按鼠標右鍵激活模式!"
         "zho"           "按鼠标右键激活模式!"
         "ro"            "Apăsați butonul mouse-ului drept pentru a activa modul!"
+    }
+	
+	// ===========================
+    // Etherial (addon)
+    // ===========================
+
+    "etherial normal" // Hint (no color)
+    {
+        "en"            "Mode: normal"
+        "ru"            "Режим: обычный"
+        "chi"           "模式：正常"
+        "zho"           "模式：正常"
+        "ro"            "Mod: normal"
+    }
+	
+	"etherial electric" // Hint (no color)
+    {
+        "en"            "Mode: electric"
+        "ru"            "Режим: электрический"
+        "chi"           "方式：电动"
+        "zho"           "方式：電動"
+        "ro"            "Mod: electric"
     }
 }

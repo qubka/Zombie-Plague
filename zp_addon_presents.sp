@@ -125,16 +125,23 @@ public void ZP_OnEngineExecute(/*void*/)
 public void OnMapStart(/*void*/)
 {
 	// Loads a game config file
-	Handle hConfig = LoadGameConfigFile("plugin.presents");
+	GameData hConfig = LoadGameConfigFile("plugin.presents");
+
+	// Validate config
+	if (!hConfig) 
+	{
+		SetFailState("Failed to load presents gamedata.");
+		return;
+	}
 
 	// Load other addresses
-	Address TheNavAreas = GameConfGetAddress(hConfig, "TheNavAreas");
+	Address TheNavAreas = hConfig.GetAddress("TheNavAreas");
 
 	// Validate address
 	if (TheNavAreas == Address_Null) SetFailState("Failed to load SDK address \"TheNavAreas\". Update address in \"plugin.presents\"");    
 
 	// Validate count
-	int TheNavAreas_Count = view_as<int>(GameConfGetAddress(hConfig, "TheNavAreas::Count"));
+	int TheNavAreas_Count = view_as<int>(hConfig.GetAddress("TheNavAreas::Count"));
 	if (TheNavAreas_Count <= 0)
 	{
 		// Log info

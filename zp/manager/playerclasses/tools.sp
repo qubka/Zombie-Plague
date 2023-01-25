@@ -49,9 +49,6 @@ Address pClip;
 Address pPrimary;
 Address pSecondary;
 Address pFireBullets;
-Address pMaxSpeed[2];
-Address pDisarmStart; 
-Address pDisarmEnd;
 int Player_Spotted;
 int Player_SpottedByMask;
 int Player_ProgressBarStartTime; 
@@ -62,14 +59,6 @@ int SendProp_iBits;
 int Animating_StudioHdr;
 int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
-
-/* CGameMovement::WalkMove VectorScale(wishvel, mv->m_flMaxSpeed/wishspeed, wishvel) */
-int iWalkRestoreBytes;
-int iWalkRestore[100];
-int iWalkOffset;
-
-/* Disarm */
-int iDisarmRestore;
 
 /**
  * @brief FX_FireBullets translator.
@@ -398,59 +387,6 @@ void ToolsOnInit(/*void*/)
 	int iOffset_LightingOrigin;
 	fnInitSendPropOffset(iOffset_LightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
 	Animating_StudioHdr += iOffset_LightingOrigin;
-
-	/*__________________________________________________________________________________________________*/
-	
-	// Load other offsets
-	fnInitGameConfAddress(gServerData.Config, pMaxSpeed[0], "m_flMaxSpeed");
-	fnInitGameConfOffset(gServerData.Config, iWalkOffset, "WalkOffset");
-	fnInitGameConfOffset(gServerData.Config, iWalkRestoreBytes, "WalkBytes");
-	
-	// Move right in front of the instructions we want to NOP
-	pMaxSpeed[0] += view_as<Address>(iWalkOffset);
-	pMaxSpeed[1] = pMaxSpeed[0]; /// Store current patch addr
-
-	/**
-	 * @brief Removes max speed limitation from players on the ground. Feels like CS:S.
-	 *
-	 * @author This algorithm made by 'Peace-Maker'.
-	 * @link https://forums.alliedmods.net/showthread.php?t=255298&page=15
-	 **/
-	for (int i = 0; i < iWalkRestoreBytes; i++)
-	{
-		// Save the current instructions, so we can restore them on unload
-		iWalkRestore[i] = LoadFromAddress(pMaxSpeed[0], NumberType_Int8);
-		StoreToAddress(pMaxSpeed[0], 0x90, NumberType_Int8);
-		pMaxSpeed[0]++;
-	}
-	
-	/*__________________________________________________________________________________________________*/
-	
-	// Validate Linux
-	if (gServerData.Platform != OS_Windows)
-	{
-		// Load other offsets
-		fnInitGameConfAddress(gServerData.Config, pDisarmStart, "FX_Disarm_Start");
-		fnInitGameConfAddress(gServerData.Config, pDisarmEnd, "FX_Disarm_End");
-
-		// Validate extracted data
-		if (LoadFromAddress(pDisarmStart, NumberType_Int8) != 0x80 || LoadFromAddress(pDisarmEnd, NumberType_Int8) != 0x8B)
-		{
-		   // Log failure
-		   LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK addresses from \"FX_Disarm_*\". Update addresses in \"%s\"", PLUGIN_CONFIG);
-		   return;
-		}
-
-		/// Store current patch offset
-		iDisarmRestore = LoadFromAddress(pDisarmStart + view_as<Address>(1), NumberType_Int32);
-
-		// Gets the jmp instruction
-		int jmp = view_as<int>(pDisarmEnd - pDisarmStart) - 5;
-
-		// Write new jmp instruction
-		StoreToAddress(pDisarmStart, 0xE9, NumberType_Int8);
-		StoreToAddress(pDisarmStart + view_as<Address>(1), jmp, NumberType_Int32);
-	}
 }
 
 /**
@@ -471,17 +407,6 @@ void ToolsOnPurge(/*void*/)
  **/
 void ToolsOnUnload(/*void*/)
 {
-	/// Restore the original walk instructions, if we patched them
-
-	// i = currect instruction
-	for (int i = 0; i < iWalkRestoreBytes; i++)
-	{
-		StoreToAddress(pMaxSpeed[1] + view_as<Address>(i), iWalkRestore[i], NumberType_Int8);
-	}
-
-	/// Restore the original disarm instructions, if we patched them
-	StoreToAddress(pDisarmStart, 0x80, NumberType_Int8);
-	StoreToAddress(pDisarmStart + view_as<Address>(1), iDisarmRestore, NumberType_Int32);
 }
 
 /**
