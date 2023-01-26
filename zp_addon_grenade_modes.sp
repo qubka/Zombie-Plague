@@ -38,7 +38,7 @@ public Plugin myinfo =
 {
 	name            = "[ZP] Addon: Grenade Modes",
 	author          = "qubka (Nikita Ushakov), Nyuu",
-	description     = "Provide new modes for the grenades",
+	description     = "Adds 6 new modes for all the grenades",
 	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }

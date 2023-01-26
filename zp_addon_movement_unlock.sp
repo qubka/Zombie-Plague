@@ -35,7 +35,7 @@ public Plugin myinfo =
 {
 	name            = "[ZP] Addon: Movement Unlocker",
 	author          = "qubka (Nikita Ushakov), Peace-Maker",     
-	description     = "Removes max speed limitation from players on the ground. Feels like CS:S.",
+	description     = "Removes max speed limitation from players on the ground. Feels like CS:S",
 	version         = "1.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }

@@ -36,7 +36,7 @@ public Plugin myinfo =
 {
 	name            = "[ZP] Addon: Presents",
 	author          = "qubka (Nikita Ushakov), Pelipoika",     
-	description     = "Addon of cso presents",
+	description     = "Spawns presents on the map that give some bonuses",
 	version         = "1.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }

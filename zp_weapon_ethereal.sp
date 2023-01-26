@@ -112,7 +112,7 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void OnMapStart()
 {
-	// Precache model
+	// Models
 	gBeam = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 }
 

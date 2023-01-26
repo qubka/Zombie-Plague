@@ -35,7 +35,7 @@ public Plugin myinfo =
 {
 	name            = "[ZP] Addon: NoDisarm",
 	author          = "qubka (Nikita Ushakov), Phoenix (˙·٠●Феникс●٠·˙)",     
-	description     = "Addon of no fists disarm",
+	description     = "Strong punch of fists will not knock the weapon out of the enemy's hands",
 	version         = "1.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
