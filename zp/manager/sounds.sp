@@ -181,9 +181,6 @@ public void SoundsOnConfigReload(/*void*/)
  **/
 void SoundsOnCvarInit(/*void*/)
 {
-	// Create cvars
-	gCvarList.SEFFECTS_LEVEL = FindConVar("zp_seffects_level");
-	
 	// Forward event to sub-modules
 	VoiceOnCvarInit();
 	PlayerSoundsOnCvarInit();
