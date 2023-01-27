@@ -678,7 +678,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
  * @param client            The client index.
  * @param weapon            The weapon index.
  **/
-/*public Action CS_OnCSWeaponDrop(int client, int weapon)
+public Action CS_OnCSWeaponDrop(int client, int weapon)
 {
 	// Validate weapon
 	if (IsValidEdict(weapon))
@@ -688,7 +688,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 		if (iD != -1)
 		{
 			// Block drop, if not available
-			if (!WeaponsIsDrop(iD)) 
+			/*if (!WeaponsIsDrop(iD)) 
 			{
 				// Validate melee, then remove on force drop
 				ItemDef iItem = WeaponsGetDefIndex(iD);
@@ -701,7 +701,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 				
 				// Block drop
 				return Plugin_Handled;
-			}
+			}*/
 
 			// Apply fake drop hook on the next frame
 			_exec.WeaponMODOnWeaponDropPost(weapon);
@@ -710,7 +710,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 	
 	// Allow drop
 	return Plugin_Continue;
-}*/
+}
 
 /**
  * Hook: WeaponDropPost

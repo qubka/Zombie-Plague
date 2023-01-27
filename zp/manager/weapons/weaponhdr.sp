@@ -219,7 +219,7 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
 				// Gets weapon dropmodel
 				static char sModel[PLATFORM_LINE_LENGTH];
 				WeaponsGetModelDrop(iD, sModel, sizeof(sModel));
-		
+
 				// Creates an attach weapon entity 
 				int entity = UTIL_CreateDynamic("dropped", vPosition, vAngle, sModel);
 				
