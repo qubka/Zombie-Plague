@@ -358,9 +358,44 @@ void WeaponMODOnClientInit(int client)
 	DHookEntity(hDHookWeaponCanUse, false, client);
 }
 
+/**
+ * @brief Hook weapons cvar changes.
+ **/
+void WeaponMODOnCvarInit(/*void*/)
+{
+	// Create cvars
+	gCvarList.WEAPON_PICKUP_RANGE  = FindConVar("zp_pickup_range");
+	gCvarList.WEAPON_PICKUP_LEVEL  = FindConVar("zp_pickup_level");
+	gCvarList.WEAPON_PICKUP_ONLINE = FindConVar("zp_pickup_online");
+	gCvarList.WEAPON_DEFAULT_MELEE = FindConVar("zp_default_melee");
+
+	// Hook cvars
+	HookConVarChange(gCvarList.WEAPON_DEFAULT_MELEE, WeaponMODOnCvarHook);
+}
+
 /*
  * Weapons main functions.
  */
+ 
+/**
+ * Cvar hook callback (zp_default_melee)
+ * @brief Weapons default initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void WeaponMODOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+{
+	// Validate new value
+	if (!strcmp(oldValue, newValue, false))
+	{
+		return;
+	}
+	
+	// Store index
+	gServerData.Melee = WeaponsNameToIndex(newValue);
+}
 
 /**
  * @brief Called when a weapon is created.

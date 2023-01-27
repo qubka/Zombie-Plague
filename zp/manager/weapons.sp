@@ -143,6 +143,7 @@ void WeaponsOnLoad(/*void*/)
 	
 	// Forward event to sub-modules
 	WeaponMODOnLoad();
+	ZMarketOnLoad();
 }
 
 /**
@@ -345,10 +346,6 @@ void WeaponsOnCvarInit(/*void*/)
 	gCvarList.WEAPON_T_DEFAULT_MELEE      = FindConVar("mp_t_default_melee");
 	gCvarList.WEAPON_T_DEFAULT_SECONDARY  = FindConVar("mp_t_default_secondary");
 	gCvarList.WEAPON_T_DEFAULT_PRIMARY    = FindConVar("mp_t_default_primary");
-	gCvarList.WEAPON_PICKUP_RANGE         = FindConVar("zp_pickup_range");
-	gCvarList.WEAPON_PICKUP_LEVEL         = FindConVar("zp_pickup_level");
-	gCvarList.WEAPON_PICKUP_ONLINE        = FindConVar("zp_pickup_online");
-	gCvarList.WEAPON_DEFAULT_MELEE        = FindConVar("zp_default_melee");
 
 	// Sets locked cvars to their locked value
 	gCvarList.WEAPON_GIVE_TASER.IntValue   = 1;
@@ -379,9 +376,10 @@ void WeaponsOnCvarInit(/*void*/)
 	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_MELEE,      CvarsLockOnCvarHook3);
 	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_SECONDARY,  CvarsLockOnCvarHook3);
 	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_PRIMARY,    CvarsLockOnCvarHook3);
-	
+
 	// Forward event to sub-modules
 	ZMarketOnCvarInit();
+	WeaponMODOnCvarInit();
 }
 
 /*
