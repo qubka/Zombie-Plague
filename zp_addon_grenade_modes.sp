@@ -137,10 +137,6 @@ static const char sModes[GRENADE_MODE_MAXIMUM][SMALL_LINE_LENGTH] =
 int gBeacon; int gBeam; int gHalo; int gGlow;
 #pragma unused gBeacon, gBeam, gHalo, gGlow
 
-// Sound index
-ConVar hSoundLevel;
-#pragma unused hSoundLevel
-
 // Player index
 int iGrenadeMode[MAXPLAYERS+1]; ArrayList hGrenadeList[MAXPLAYERS+1] = { null, ... };
 #pragma unused iGrenadeMode, hGrenadeList
@@ -156,24 +152,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	{
 		// Load translations phrases used by plugin
 		LoadTranslations("zombieplague.phrases");
-
-		// If map loaded, then run custom forward
-		if (ZP_IsMapLoaded())
-		{
-			// Execute it
-			ZP_OnEngineExecute();
-		}
 	}
-}
-
-/**
- * @brief Called after a zombie core is loaded.
- **/
-public void ZP_OnEngineExecute(/*void*/)
-{
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -561,7 +540,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 	if (flCounter <= 0.0)
 	{
 		// Play a sound
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, hSoundLevel.IntValue);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_LIBRARY);
 		
 		// Sets grenade next state
 		iState    = PROXIMITY_STATE_DETECT;
@@ -579,7 +558,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 		}
 		
 		// Play a sound
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, hSoundLevel.IntValue, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_LIBRARY, _, _, iPitch);
 	}
 	
 	// Return on success
@@ -912,7 +891,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 	if (flCounter <= 0.0)
 	{
 		// Play a sound
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, hSoundLevel.IntValue);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_LIBRARY);
 		
 		// Sets grenade next state
 		iState    = TRIPWIRE_STATE_DETECT;
@@ -930,7 +909,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 		}
 		
 		// Play a sound
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, hSoundLevel.IntValue, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_LIBRARY, _, _, iPitch);
 	}
 	
 	// Return on success
@@ -1235,7 +1214,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 	if (flCounter <= 0.0)
 	{
 		// Play a sound
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, hSoundLevel.IntValue);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_LIBRARY);
 		
 		// Sets grenade next state
 		iState    = SATCHEL_STATE_ENABLED;
@@ -1253,7 +1232,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 		}
 		
 		// Play a sound
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, hSoundLevel.IntValue, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_LIBRARY, _, _, iPitch);
 	}
 	
 	// Return on success
@@ -1437,7 +1416,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 		else
 		{
 			// Play a sound
-			//EmitSoundToAll("buttons/bell1.wav", grenade, _, hSoundLevel.IntValue);
+			//EmitSoundToAll("buttons/bell1.wav", grenade, _, SNDLEVEL_LIBRARY);
 	
 			// Gets grenade velocity
 			GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);

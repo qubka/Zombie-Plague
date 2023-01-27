@@ -57,8 +57,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSoundAttack; int gSoundIdle; ConVar hSoundLevel;
-#pragma unused gSoundAttack, gSoundIdle, hSoundLevel
+int gSoundAttack; int gSoundIdle;
+#pragma unused gSoundAttack, gSoundIdle
 
 // Decal index
 int gBeam;
@@ -114,10 +114,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFPISTOL_SHOOT_SOUNDS\" wasn't find");
 	gSoundIdle = ZP_GetSoundKeyID("SFPISTOL_IDLE_SOUNDS");
 	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFPISTOL_IDLE_SOUNDS\" wasn't find");
-
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -171,7 +167,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 	
 	// Play sound
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 
 	// Sets next idle time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
@@ -298,7 +294,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	
 	// Play sound
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
-	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponSpeed(gWeapon);

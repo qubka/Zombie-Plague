@@ -72,8 +72,8 @@ public Plugin myinfo =
  **/
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Zombie index
 int gZombie;
@@ -109,10 +109,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("COFFIN_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"COFFIN_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -183,7 +179,7 @@ public Action ZP_OnClientSkillUsed(int client)
 #endif
 				
 				// Play sound
-				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
 				
 				// Create remove/idle/think hook
 				CreateTimer(ZP_GetClassSkillDuration(gZombie), CoffinExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
@@ -223,7 +219,7 @@ public Action CoffinDamageHook(int entity, int &attacker, int &inflictor, float 
 	else
 	{
 		// Play sound
-		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 		
 		// Apply damage
 		SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
@@ -248,7 +244,7 @@ public Action CoffinIdleHook(Handle hTimer, int refID)
 	if (entity != -1)
 	{
 		// Play sound
-		ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 	}
 	else
 	{
@@ -367,7 +363,7 @@ void CoffinExpload(int entity)
 	UTIL_CreateParticle(entity, vPosition, _, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_SKILL_EXP_TIME);
 
 	// Play sound
-	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 	
 	// Create a breaked metal effect
 	static char sBuffer[NORMAL_LINE_LENGTH];

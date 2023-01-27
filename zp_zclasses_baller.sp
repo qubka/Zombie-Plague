@@ -68,8 +68,8 @@ public Plugin myinfo =
 Handle hHumanBlasted[MAXPLAYERS+1] = { null, ... };
  
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Zombie index
 int gZombie;
@@ -105,10 +105,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("BALLER_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALLER_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -176,7 +172,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		
 		// Create a blast entity
 		int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/player/custom_player/zombie/aura_shield/aura_shield2.mdl");
@@ -213,7 +209,7 @@ public Action ZP_OnClientSkillUsed(int client)
 			SetEntPropFloat(entity, Prop_Data, "m_flElasticity", ZOMBIE_CLASS_SKILL_ELASTICITY);
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_CONVO);
 			
 			// Create an effect
 			UTIL_CreateParticle(entity, vPosition, _, _, "gamma_blue", ZP_GetClassSkillDuration(gZombie));
@@ -246,7 +242,7 @@ public Action ZP_OnClientSkillUsed(int client)
 public Action BlastTouchHook(int entity, int target)
 {
 	// Play sound
-	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 4), entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 4), entity, SNDCHAN_STATIC, SNDLEVEL_HOME);
 	
 	// Return on the success
 	return Plugin_Continue;
@@ -304,7 +300,7 @@ public Action BlastExploadHook(Handle hTimer, int refID)
 		}
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 5, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 5, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
 		// Remove entity from the world
 		AcceptEntityInput(entity, "Kill");

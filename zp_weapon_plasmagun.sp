@@ -73,8 +73,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSoundAttack; int gSoundIdle; ConVar hSoundLevel;
-#pragma unused gSoundAttack, gSoundIdle, hSoundLevel
+int gSoundAttack; int gSoundIdle;
+#pragma unused gSoundAttack, gSoundIdle
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -102,10 +102,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Weapons
 	gWeapon = ZP_GetWeaponNameID("plasmagun");
 	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"plasmagun\" wasn't find");
-
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 	
 	// Sounds
 	gSoundAttack = ZP_GetSoundKeyID("PLASMAGUN_SHOOT_SOUNDS");
@@ -159,7 +155,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
 	
 	// Play sound
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Sets next idle time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
@@ -241,6 +237,14 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
+void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
+{
+	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
+	
+	// Kill an effect
+	Weapon_OnCreateEffect(client, weapon, "Kill");
+}
+
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
 	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
@@ -278,7 +282,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	
 	// Play sound
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
-	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Sets attack animation
 	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
@@ -289,27 +293,28 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 	// Initialize variables
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-
+	float vKickback[] = { /*upBase = */3.5, /* lateralBase = */2.45, /* upMod = */0.155, /* lateralMod = */0.05, /* upMax = */2.5, /* lateralMax = */3.5, /* directionChange = */7.0 };
+	
 	// Gets client velocity
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
 	// Apply kick back
 	if (GetVectorLength(vVelocity) <= 0.0)
 	{
-		ZP_CreateWeaponKickBack(client, 5.5, 2.5, 0.225, 0.05, 10.5, 7.5, 7);
 	}
 	else if (!(iFlags & FL_ONGROUND))
 	{
-		ZP_CreateWeaponKickBack(client, 9.0, 5.0, 0.5, 0.35, 14.0, 10.0, 5);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.3;
 	}
 	else if (iFlags & FL_DUCKING)
 	{
-		ZP_CreateWeaponKickBack(client, 5.5, 1.5, 0.15, 0.025, 10.5, 6.5, 9);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 0.75;
 	}
 	else
 	{
-		ZP_CreateWeaponKickBack(client, 5.75, 5.75, 0.175, 0.0375, 10.75, 10.75, 8);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.15;
 	}
+	ZP_CreateWeaponKickBack(client, vKickback[0], vKickback[1], vKickback[2], vKickback[3], vKickback[4], vKickback[5], RoundFloat(vKickback[6]));
 }
 
 void Weapon_OnCreatePlasma(int client, int weapon)
@@ -480,6 +485,22 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
 }
 
 /**
+ * @brief Called on drop of a weapon.
+ *
+ * @param weapon            The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponDrop(int weapon, int weaponID)
+{
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Call event
+		_call.Drop(-1, weapon);
+	}
+}
+
+/**
  * @brief Called on each frame of a weapon holding.
  *
  * @param client            The client index.
@@ -568,7 +589,7 @@ public Action PlasmaTouchHook(int entity, int target)
 		UTIL_CreateParticle(_, vPosition, _, _, "Explosion_bubbles", WEAPON_EXPLOSION_TIME);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSoundAttack, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundAttack, 2, entity, SNDCHAN_STATIC, SNDLEVEL_CONVO);
 
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");

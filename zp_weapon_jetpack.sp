@@ -46,8 +46,8 @@ public Plugin myinfo =
 Handle hItemReload[MAXPLAYERS+1] = { null, ... }; Handle hItemDuration[MAXPLAYERS+1];
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Item index
 int gWeapon;
@@ -100,10 +100,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("JETPACK_FLY_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JETPACK_FLY_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -217,7 +213,7 @@ void Item_OnActive(int client)
 	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
 	
 	// Play sound
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_CAR);
 	
 	// Gets backback index
 	int entity = ZP_GetClientAttachModel(client, BitType_DefuseKit);

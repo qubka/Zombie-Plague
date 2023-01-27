@@ -42,8 +42,8 @@ public Plugin myinfo =
 }
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Item index
 int gWeaponKevlar; int gWeaponAssault; int gWeaponHeavy;
@@ -83,10 +83,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("ARMOR_BUY_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"ARMOR_BUY_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**

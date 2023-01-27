@@ -55,8 +55,8 @@ public Plugin myinfo =
  **/
  
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Item index
 int gWeapon;
@@ -101,10 +101,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("JUMP_GRENADE_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JUMP_GRENADE_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -295,7 +291,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			if (!strncmp(sSample[27], "hit", 3, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				// Block sounds
 				return Plugin_Stop; 
@@ -303,7 +299,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			else if (!strncmp(sSample[29], "exp", 3, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				// Block sounds
 				return Plugin_Stop; 

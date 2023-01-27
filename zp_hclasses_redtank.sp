@@ -42,8 +42,8 @@ public Plugin myinfo =
 }
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Initialize human class index
 int gHuman;
@@ -79,10 +79,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("REDTANK_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDTANK_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -109,7 +105,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		SetEntProp(client, Prop_Send, "m_ArmorValue", iArmor);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		
 		// Create effect
 		static float vPosition[3];
@@ -132,6 +128,6 @@ public void ZP_OnClientSkillOver(int client)
 	if (ZP_GetClientClass(client) == gHuman)
 	{
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 	}
 }

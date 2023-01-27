@@ -63,8 +63,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Animation sequences
 enum
@@ -115,10 +115,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("WATERCANNON_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"WATERCANNON_SHOOT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -248,6 +244,14 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 	Weapon_OnCreateEffect(weapon);
 }
 
+void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
+{
+	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
+	
+	// Kill an effect
+	Weapon_OnCreateEffect(weapon, "Kill");
+}
+
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
 	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
@@ -309,7 +313,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			}
 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 
 			// Adds the delay to the game tick
 			flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
@@ -326,27 +330,28 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 			// Initialize variables
 			static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-
+			float vKickback[] = { /*upBase = */1.25, /* lateralBase = */0.35, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */2.5, /* lateralMax = */1.25, /* directionChange = */5.0 };
+			
 			// Gets client velocity
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
 			// Apply kick back
 			if (GetVectorLength(vVelocity) <= 0.0)
 			{
-				ZP_CreateWeaponKickBack(client, 2.5, 1.5, 0.15, 0.05, 5.5, 4.5, 7);
 			}
 			else if (!(iFlags & FL_ONGROUND))
 			{
-				ZP_CreateWeaponKickBack(client, 4.0, 3.0, 0.4, 0.15, 7.0, 5.0, 5);
+				for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.3;
 			}
 			else if (iFlags & FL_DUCKING)
 			{
-				ZP_CreateWeaponKickBack(client, 2.5, 0.5, 0.1, 0.025, 5.5, 6.5, 9);
+				for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 0.75;
 			}
 			else
 			{
-				ZP_CreateWeaponKickBack(client, 2.75, 1.8, 0.14, 0.0375, 5.75, 5.75, 8);
+				for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.15;
 			}
+			ZP_CreateWeaponKickBack(client, vKickback[0], vKickback[1], vKickback[2], vKickback[3], vKickback[4], vKickback[5], RoundFloat(vKickback[6]));
 			
 			// Start an effect
 			Weapon_OnCreateEffect(weapon, "Start");
@@ -362,7 +367,7 @@ void Weapon_OnCreateFire(int client, int weapon)
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 10.0, 0.0, vPosition);
+	ZP_GetPlayerGunPosition(client, 30.0, 7.5, 0.0, vPosition);
 	
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -559,6 +564,22 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
 	{
 		// Call event
 		_call.Holster(client, weapon);
+	}
+}
+
+/**
+ * @brief Called on drop of a weapon.
+ *
+ * @param weapon            The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponDrop(int weapon, int weaponID)
+{
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Call event
+		_call.Drop(-1, weapon);
 	}
 }
 

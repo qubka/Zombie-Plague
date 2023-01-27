@@ -80,8 +80,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Decal index
 int gBeam;
@@ -117,10 +117,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("DRILL_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"DRILL_SHOOT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -279,7 +275,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
 
 	// Play sound
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Sets attack animation
 	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
@@ -290,27 +286,28 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 	// Initialize variables
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-
+	float vKickback[] = { /*upBase = */5.5, /* lateralBase = */2.45, /* upMod = */0.225, /* lateralMod = */0.05, /* upMax = */10.5, /* lateralMax = */7.5, /* directionChange = */7.0 };
+	
 	// Gets client velocity
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
 	// Apply kick back
 	if (GetVectorLength(vVelocity) <= 0.0)
 	{
-		ZP_CreateWeaponKickBack(client, 5.5, 2.5, 0.225, 0.05, 10.5, 7.5, 7);
 	}
 	else if (!(iFlags & FL_ONGROUND))
 	{
-		ZP_CreateWeaponKickBack(client, 9.0, 5.0, 0.5, 0.35, 14.0, 10.0, 5);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.3;
 	}
 	else if (iFlags & FL_DUCKING)
 	{
-		ZP_CreateWeaponKickBack(client, 5.5, 1.5, 0.15, 0.025, 10.5, 6.5, 9);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 0.75;
 	}
 	else
 	{
-		ZP_CreateWeaponKickBack(client, 5.75, 5.75, 0.175, 0.0375, 10.75, 10.75, 8);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.15;
 	}
+	ZP_CreateWeaponKickBack(client, vKickback[0], vKickback[1], vKickback[2], vKickback[3], vKickback[4], vKickback[5], RoundFloat(vKickback[6]));
 }
 
 void Weapon_OnCreateBow(int client)
@@ -321,7 +318,7 @@ void Weapon_OnCreateBow(int client)
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 5.0, 0.0, vPosition);
+	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);

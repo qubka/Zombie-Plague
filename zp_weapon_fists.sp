@@ -61,8 +61,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Animation sequences
 enum
@@ -138,10 +138,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("FISTS_HIT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FISTS_HIT_SOUNDS\" wasn't find");
-
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -204,7 +200,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	hWeaponPunch[client] = CreateTimer(0.16, Weapon_OnPunch, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
 	// Play the attack sound
-	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
@@ -239,7 +235,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 	hWeaponPunch[client] = CreateTimer(0.83, Weapon_OnPunch, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	
 	// Play the attack sound
-	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
@@ -301,7 +297,7 @@ void Weapon_OnHit(int client, int weapon)
 		UTIL_CreateDamage(_, vEndPosition, client, WEAPON_PUNCH_DAMAGE, WEAPON_RADIUS_DAMAGE, DMG_NEVERGIB, gWeapon);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), client, SNDCHAN_ITEM, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
 	}
 	
 	// Close trace 

@@ -57,8 +57,8 @@ public Plugin myinfo =
 Handle hPresentSpawn = null; ArrayList hPosition; bool bLoad; int gCaseCount;
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel  
+int gSound;
+#pragma unused gSound  
 
 /**
  * @section Types of drop.
@@ -113,10 +113,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("PRESENT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PRESENT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -652,7 +648,7 @@ public Action CaseSpawnHook(Handle hTimer)
 			}
 			
 			// Play sound
-			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, hSoundLevel.IntValue);
+			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 		}
 	}
 	

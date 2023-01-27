@@ -61,8 +61,8 @@ public Plugin myinfo =
  **/
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Zombie index
 int gZombie;
@@ -98,10 +98,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("DEIMOS_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"DEIMOS_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -130,7 +126,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		
 		// Create a bomb entity
 		int entity = UTIL_CreateProjectile(vPosition, vAngle);
@@ -205,7 +201,7 @@ public Action BombTouchHook(int entity, int target)
 		UTIL_CreateParticle(_, vPosition, _, _, "pyrovision_explosion", ZOMBIE_CLASS_SKILL_EXP_TIME);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
 		// Find any players in the radius
 		int i; int it = 1; /// iterator

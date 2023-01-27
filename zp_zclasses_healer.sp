@@ -55,8 +55,8 @@ public Plugin myinfo =
  **/
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Zombie index
 int gZombie;
@@ -92,10 +92,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HEALER_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -118,7 +114,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 
 		// Create an fade
 		UTIL_CreateFadeScreen(client, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);  
@@ -151,7 +147,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				if (iSound != -1)
 				{
 					// Play sound
-					ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, hSoundLevel.IntValue);
+					ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 				}
 				
 				// Gets victim origin

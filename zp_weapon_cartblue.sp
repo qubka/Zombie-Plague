@@ -82,8 +82,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -115,10 +115,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("CARTBLUE_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"CARTBLUE_SHOOT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -281,7 +277,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT2_1, ANIM_SHOOT2_2 });   
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 		// Creates a muzzle
 		UTIL_CreateParticle(view, _, _, "1", sName, 0.1);
@@ -295,7 +291,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 		
 		// Creates a muzzle
 		UTIL_CreateParticle(view, _, _, "3", sName, 0.1);
@@ -313,6 +309,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	// Initialize variables
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client); 
 	float flSpread = 0.01; float flInaccuracy = 0.015;
+	float vKickback[] = { /*upBase = */0.5, /* lateralBase = */0.75, /* upMod = */0.1, /* lateralMod = */0.025, /* upMax = */1.5, /* lateralMax = */2.5, /* directionChange = */7.0 };
 
 	// Gets client velocity
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
@@ -320,23 +317,23 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	// Apply kick back
 	if (GetVectorLength(vVelocity) <= 0.0)
 	{
-		ZP_CreateWeaponKickBack(client, 2.5, 1.5, 0.15, 0.05, 5.5, 4.5, 7);
 	}
 	else if (!(iFlags & FL_ONGROUND))
 	{
-		ZP_CreateWeaponKickBack(client, 6.0, 3.0, 0.4, 0.15, 7.0, 5.0, 5);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.3;
 		flInaccuracy = 0.02;
 		flSpread = 0.05;
 	}
 	else if (iFlags & FL_DUCKING)
 	{
-		ZP_CreateWeaponKickBack(client, 2.5, 0.5, 0.1, 0.025, 5.5, 6.5, 9);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 0.75;
 		flInaccuracy = 0.01;
 	}
 	else
 	{
-		ZP_CreateWeaponKickBack(client, 2.75, 1.8, 0.14, 0.0375, 5.75, 5.75, 8);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.15;
 	}
+	ZP_CreateWeaponKickBack(client, vKickback[0], vKickback[1], vKickback[2], vKickback[3], vKickback[4], vKickback[5], RoundFloat(vKickback[6]));
 	
 	// Create a bullet
 	Weapon_OnCreateBullet(client, weapon, 0, GetRandomInt(0, 1000), flSpread, flInaccuracy);
@@ -377,7 +374,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 7.0, 0.0, vPosition);
+	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);

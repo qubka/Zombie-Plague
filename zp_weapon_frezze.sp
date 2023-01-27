@@ -69,8 +69,8 @@ public Plugin myinfo =
 Handle hZombieFreezed[MAXPLAYERS+1] = { null, ... }; 
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Item index
 int gWeapon;
@@ -112,10 +112,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("FREEZE_GRENADE_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FREEZE_GRENADE_SOUNDS\" wasn't find");
-   
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -263,7 +259,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 					UTIL_RemoveEntity(ice, GRENADE_FREEZE_TIME);
 					
 					// Play sound
-					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC, hSoundLevel.IntValue);
+					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC, SNDLEVEL_HOME);
 				}
 			}
 
@@ -278,6 +274,9 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 			AcceptEntityInput(grenade, "Kill");
 		}
 	}
+	
+	// Allow event
+	return Plugin_Continue;
 }
 
 /**
@@ -304,7 +303,7 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
 		SetEntityMoveType(client, MOVETYPE_WALK);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 
 		// Create a breaked glass effect
 		static char sBuffer[NORMAL_LINE_LENGTH];
@@ -334,16 +333,18 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
  * @brief Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
  *  
  * @param clients           Array of client indexes.
- * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
+ * @param numClients        Number of clients in the array (modify this value ifyou add/remove elements from the client array).
  * @param sSample           Sound file name relative to the "sounds" folder.
  * @param entity            Entity emitting the sound.
  * @param iChannel          Channel emitting the sound.
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
- * @param iFlags            The sound flags.
+ * @param iFrags            The sound flags.
+ * @param sEntry            The game sound entry name.
+ * @param iSeed             The sound seed.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
+public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
 	// Validate client
 	if (IsValidEdict(entity))
@@ -355,7 +356,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
 			if (!strncmp(sSample[31], "hit", 3, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, GetRandomInt(4, 6), entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSound, GetRandomInt(4, 6), entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				// Block sounds
 				return Plugin_Stop; 
@@ -363,7 +364,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
 			else if (!strncmp(sSample[29], "emit", 4, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 			   
 				// Block sounds
 				return Plugin_Stop; 

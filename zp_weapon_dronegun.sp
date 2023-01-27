@@ -47,8 +47,8 @@ int gDecal[5];
 #pragma unused gDecal
 
 // Sound index
-int gSoundShoot; int gSoundUpgrade; ConVar hSoundLevel; ConVar hKnockBack;
-#pragma unused gSoundShoot, gSoundUpgrade, hSoundLevel, hKnockBack
+int gSoundShoot; int gSoundUpgrade; ConVar hKnockBack;
+#pragma unused gSoundShoot, gSoundUpgrade, hKnockBack
  
 // Item index
 int gWeapon;
@@ -266,8 +266,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Cvars
 	hKnockBack = FindConVar("zp_knockback"); 
 	if (hKnockBack == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_knockback\" wasn't find");
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -490,7 +488,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				SetEntPropEnt(entity, Prop_Data, "m_hInteractionPartner", upgrade); 
 				
 				// Play sound
-				ZP_EmitSoundToAll(gSoundUpgrade, 1, upgrade, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSoundUpgrade, 1, upgrade, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 				
 				// Create timer to activate
 				CreateTimer(5.0, SentryActivateHook, EntIndexToEntRef(upgrade), TIMER_FLAG_NO_MAPCHANGE);
@@ -997,7 +995,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	public void EmitSound(int iIndex)
 	{
 		// Play sound
-		ZP_EmitSoundToAll(gSoundShoot, iIndex, this.Index, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundShoot, iIndex, this.Index, SNDCHAN_STATIC, SNDLEVEL_DRYER);
 	}
 	
 	public void FoundTarget(int target) 
@@ -1610,7 +1608,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			SetEntPropEnt(upgrade, Prop_Data, "m_hOwnerEntity", this.Index); 
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSoundUpgrade, 2, upgrade, SNDCHAN_STATIC, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSoundUpgrade, 2, upgrade, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 			
 			// Sets upgrade for the entity
 			this.UpgradeModel = upgrade;
@@ -1808,7 +1806,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		static float vPosition[3]; static float vGib[3]; float vShoot[3];
 
 		// Emit sound
-		EmitSoundToAll("survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		EmitSoundToAll("survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 		
 		// Gets entity position
 		GetAbsOrigin(this.Index, vPosition);
@@ -1919,6 +1917,9 @@ void Weapon_OnDrop(int client, int weapon, float flCurrentTime)
 
 	// Sets skin index
 	SetEntProp(weapon, Prop_Send, "m_nSkin", GetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount"));
+	
+	// Kill an effect
+	Weapon_OnCreateEffect(client, weapon, EFFECT_KILL);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
@@ -2494,9 +2495,9 @@ public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float 
 				// Emit sound
 				switch (GetRandomInt(0, 2))
 				{
-					case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-					case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-					case 2 : EmitSoundToAll("survival/turret_takesdamage_03.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+					case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+					case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+					case 2 : EmitSoundToAll("survival/turret_takesdamage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 				}
 			}
 		}
@@ -2528,7 +2529,7 @@ public Action RocketTouchHook(int entity, int target)
 		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, SENTRY_ROCKET_DAMAGE, SENTRY_ROCKET_RADIUS, "rocket", _, entity);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");

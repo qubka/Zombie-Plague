@@ -64,8 +64,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Animation sequences
 enum
@@ -143,10 +143,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("HAMMER_HIT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HAMMER_HIT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -247,7 +243,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 	}
 	
 	// Play attack sound
-	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
@@ -352,7 +348,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 		}
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, bSlash ? 2 : 1, client, SNDCHAN_ITEM, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, bSlash ? 2 : 1, client, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
 	}
 	
 	// Close trace 

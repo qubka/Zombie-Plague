@@ -50,8 +50,8 @@ public Plugin myinfo =
  **/
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Initialize human class index
 int gHuman;
@@ -87,10 +87,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("REDALICE_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDALICE_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -110,7 +106,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", HUMAN_CLASS_SKILL_SPEED);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		
 		// Create effect
 		static float vPosition[3];

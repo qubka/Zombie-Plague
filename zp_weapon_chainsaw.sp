@@ -67,8 +67,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSoundAttack; int gSoundHit; int gSoundIdle; ConVar hSoundLevel;
-#pragma unused gSoundAttack, gSoundHit, gSoundIdle, hSoundLevel
+int gSoundAttack; int gSoundHit; int gSoundIdle;
+#pragma unused gSoundAttack, gSoundHit, gSoundIdle
 
 // Animation sequences
 enum
@@ -155,10 +155,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	if (gSoundHit == -1) SetFailState("[ZP] Custom sound key ID from name : \"CHAINSAW_HIT_SOUNDS\" wasn't find");
 	gSoundIdle = ZP_GetSoundKeyID("CHAINSAW_IDLE_SOUNDS");
 	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"CHAINSAW_IDLE_SOUNDS\" wasn't find");
-
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -214,7 +210,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 	
 		// Play sound
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	}
 	else
 	{
@@ -378,7 +374,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			}
 
 			// Play sound
-			ZP_EmitSoundToAll(gSoundAttack, 2, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSoundAttack, 2, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 			
 			// Adds the delay to the game tick
 			flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
@@ -402,6 +398,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			
 			// Initialize variables
 			static float vVelocity[3]; int iFlags = GetEntityFlags(client);
+			float vKickback[] = { /*upBase = */1.5, /* lateralBase = */3.45, /* upMod = */2.15, /* lateralMod = */1.05, /* upMax = */1.5, /* lateralMax = */3.5, /* directionChange = */5.0 };
 
 			// Gets client velocity
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
@@ -409,20 +406,20 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			// Apply kick back
 			if (GetVectorLength(vVelocity) <= 0.0)
 			{
-				ZP_CreateWeaponKickBack(client, 6.5, 5.45, 5.225, 5.05, 6.5, 7.5, 7);
 			}
 			else if (!(iFlags & FL_ONGROUND))
 			{
-				ZP_CreateWeaponKickBack(client, 7.0, 5.0, 5.5, 5.35, 14.0, 11.0, 5);
+				for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.3;
 			}
 			else if (iFlags & FL_DUCKING)
 			{
-				ZP_CreateWeaponKickBack(client, 5.9, 5.35, 5.15, 5.025, 10.5, 6.5, 9);
+				for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 0.75;
 			}
 			else
 			{
-				ZP_CreateWeaponKickBack(client, 5.0, 5.375, 5.175, 5.0375, 10.75, 1.75, 8);
+				for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.15;
 			}
+			ZP_CreateWeaponKickBack(client, vKickback[0], vKickback[1], vKickback[2], vKickback[3], vKickback[4], vKickback[5], RoundFloat(vKickback[6]));
 		}
 	}
 }
@@ -461,7 +458,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	}
 	else
 	{
@@ -469,7 +466,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });     
 
 		// Play sound
-		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	}
 	
 	// Adds the delay to the game tick
@@ -546,7 +543,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 			TE_SendToAll();
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_HOME);
 		}
 		else
 		{
@@ -557,7 +554,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
 			}
 		}
 	}

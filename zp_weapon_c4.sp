@@ -43,8 +43,8 @@ public Plugin myinfo =
 }
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Item index
 int gWeapon;

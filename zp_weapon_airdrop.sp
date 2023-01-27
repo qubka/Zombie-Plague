@@ -43,8 +43,8 @@ public Plugin myinfo =
 }
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel 
+int gSound;
+#pragma unused gSound 
  
 // Item index
 int gWeapon;
@@ -205,10 +205,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("HELICOPTER_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HELICOPTER_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -677,7 +673,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 					if (smoke != -1)
 					{
 						// Emit sound
-						EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, hSoundLevel.IntValue);
+						EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, SNDLEVEL_HOME);
 					}
 				}
 				
@@ -687,7 +683,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 					CreateJet(vPosition, vAngle);
 					
 					// Emit sound
-					EmitSoundToAll("survival/rocketalarm.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, hSoundLevel.IntValue);
+					EmitSoundToAll("survival/rocketalarm.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 				}
 			}
 			
@@ -797,7 +793,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 				SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", entity);
 				
 				// Emit sound
-				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
 				
 				// Create solid hook
 				//CreateTimer(0.1, EmitterSolidHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -959,7 +955,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"));
 			
 			// Emit sound
-			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 		}
 	
 		// Button primary attack press
@@ -1043,7 +1039,7 @@ public Action JetBombHook(Handle hTimer, int refID)
 	if (entity != -1)
 	{
 		// Emit sound
-		EmitSoundToAll("survival/rocketincoming.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		EmitSoundToAll("survival/rocketincoming.wav", entity, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
 
 		// Initialize vectors
 		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
@@ -1117,12 +1113,12 @@ public Action BombTouchHook(int entity, int target)
 	// Emit sound
 	switch (GetRandomInt(0, 5))
 	{
-		case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 2 : EmitSoundToAll("survival/missile_land_03.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 3 : EmitSoundToAll("survival/missile_land_04.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
+		case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
+		case 2 : EmitSoundToAll("survival/missile_land_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
+		case 3 : EmitSoundToAll("survival/missile_land_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
+		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
+		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
 	}
 
 	// Remove the entity from the world
@@ -1218,7 +1214,7 @@ public Action HelicopterSoundHook(Handle hTimer, int refID)
 		ZP_GetAttachment(entity, "dropped", vPosition, vAngle); 
 
 		// Play sound
-		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue); 
+		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_HELICOPTER); 
 	}
 	else
 	{
@@ -1249,7 +1245,7 @@ public Action HelicopterIdleHook(Handle hTimer, int refID)
 		AcceptEntityInput(entity, "SetAnimation");
 		
 		// Emit sound
-		EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		
 		// Drops additional random staff
 		CreateTimer(1.0, HelicopterDropHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -1532,11 +1528,11 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 	// Emit sound
 	switch (GetRandomInt(0, 4))
 	{
-		case 0 : EmitSoundToAll("survival/container_damage_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 1 : EmitSoundToAll("survival/container_damage_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 2 : EmitSoundToAll("survival/container_damage_03.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 3 : EmitSoundToAll("survival/container_damage_04.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 4 : EmitSoundToAll("survival/container_damage_05.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		case 0 : EmitSoundToAll("survival/container_damage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
+		case 1 : EmitSoundToAll("survival/container_damage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
+		case 2 : EmitSoundToAll("survival/container_damage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
+		case 3 : EmitSoundToAll("survival/container_damage_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
+		case 4 : EmitSoundToAll("survival/container_damage_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
 	}
 	
 	// Validate mode
@@ -1682,9 +1678,9 @@ void SafeExpload(int entity)
 	// Emit sound
 	switch (GetRandomInt(0, 2))
 	{
-		case 0 : EmitSoundToAll("survival/container_death_01.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 1 : EmitSoundToAll("survival/container_death_02.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
-		case 2 : EmitSoundToAll("survival/container_death_03.wav", entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		case 0 : EmitSoundToAll("survival/container_death_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+		case 1 : EmitSoundToAll("survival/container_death_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+		case 2 : EmitSoundToAll("survival/container_death_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 	}
 
 	// Kill after some duration

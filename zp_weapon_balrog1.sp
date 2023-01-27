@@ -86,8 +86,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -119,10 +119,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("BALROGI2_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGI2_SHOOT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -280,7 +276,7 @@ bool Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 	 
 	// Play sound
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Sets attack animation
 	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT2_1, ANIM_SHOOT2_2});
@@ -395,7 +391,7 @@ void Weapon_OnCreateExplosion(int client, int weapon)
 		UTIL_CreateParticle(_, vEndPosition, _, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);
 	
 		// Play sound
-		ZP_EmitAmbientSound(gSound, 2, vEndPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue);
+		ZP_EmitAmbientSound(gSound, 2, vEndPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL);
 	}
 }
 

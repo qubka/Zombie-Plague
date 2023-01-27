@@ -54,8 +54,8 @@ public Plugin myinfo =
 Handle hHumanTrapped[MAXPLAYERS+1] = { null, ... }; bool bStandOnTrap[MAXPLAYERS+1];
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Zombie index
 int gZombie;
@@ -94,10 +94,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("TRAP_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TRAP_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -233,7 +229,7 @@ public void ZP_OnClientSkillOver(int client)
 			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_HOME);
 			
 			// Create touch hook
 			SDKHook(entity, SDKHook_Touch, TrapTouchHook);
@@ -277,7 +273,7 @@ public Action TrapTouchHook(int entity, int target)
 			hHumanTrapped[target] = CreateTimer(ZP_GetClassSkillDuration(gZombie), ClientRemoveTrapEffect, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);
 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 
 			// Show message
 			SetGlobalTransTarget(target);

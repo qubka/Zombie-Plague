@@ -75,8 +75,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -108,10 +108,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("BALROGXI2_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGXI2_SHOOT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -150,7 +146,7 @@ void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCur
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", iAmmo + 1);
 		 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 			
 			// Sets shots counter
 			iCounter = -1;
@@ -208,7 +204,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
  
 	// Play sound
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Sets attack animation
 	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT_BSC1, ANIM_SHOOT_BSC2 });
@@ -232,27 +228,28 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 
 	// Initialize variables
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-
+	float vKickback[] = { /*upBase = */10.5, /* lateralBase = */7.45, /* upMod = */0.225, /* lateralMod = */0.05, /* upMax = */10.5, /* lateralMax = */7.5, /* directionChange = */7.0 };
+	
 	// Gets client velocity
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
 	// Apply kick back
 	if (GetVectorLength(vVelocity) <= 0.0)
 	{
-		ZP_CreateWeaponKickBack(client, 10.5, 7.5, 0.225, 0.05, 10.5, 7.5, 7);
 	}
 	else if (!(iFlags & FL_ONGROUND))
 	{
-		ZP_CreateWeaponKickBack(client, 14.0, 10.0, 0.5, 0.35, 14.0, 10.0, 5);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.3;
 	}
 	else if (iFlags & FL_DUCKING)
 	{
-		ZP_CreateWeaponKickBack(client, 10.5, 6.5, 0.15, 0.025, 10.5, 6.5, 9);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 0.75;
 	}
 	else
 	{
-		ZP_CreateWeaponKickBack(client, 10.75, 10.75, 0.175, 0.0375, 10.75, 10.75, 8);
+		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.15;
 	}
+	ZP_CreateWeaponKickBack(client, vKickback[0], vKickback[1], vKickback[2], vKickback[3], vKickback[4], vKickback[5], RoundFloat(vKickback[6]));
 	
 	// Initialize name char
 	static char sName[NORMAL_LINE_LENGTH];
@@ -466,7 +463,7 @@ public Action FireTouchHook(int entity, int target)
 		UTIL_CreateParticle(_, vPosition, _, _, "projectile_fireball_crit_red", WEAPON_FIRE_TIME);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 		
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");

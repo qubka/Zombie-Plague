@@ -59,8 +59,8 @@ int gSmoke;
 #pragma unused gSmoke
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Zombie index
 int gZombie;
@@ -96,10 +96,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("WITCH_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"WITCH_SKILL_SOUNDS\" wasn't find");
-
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -137,7 +133,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		
 		// Create a bat entity
 		int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
@@ -255,7 +251,7 @@ public Action BatTouchHook(int entity, int target)
 			}
 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 2, target, SNDCHAN_VOICE, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 2, target, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		}
 		else
 		{
@@ -263,7 +259,7 @@ public Action BatTouchHook(int entity, int target)
 			UTIL_CreateParticle(_, vPosition, _, _, "blood_pool", ZOMBIE_CLASS_SKILL_EXP_TIME);
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
 			
 			// Create effect
 			TE_SetupSmoke(vPosition, gSmoke, 130.0, 10);

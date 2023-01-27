@@ -52,8 +52,8 @@ public Plugin myinfo =
  **/
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Zombie index
 int gZombie;
@@ -89,10 +89,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("RANGE_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"RANGE_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -142,7 +138,7 @@ public void ZP_OnClientDeath(int client, int attacker)
 		UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_dirt", ZOMBIE_CLASS_EXP_DURATION);
 
 		// Play sound
-		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, hSoundLevel.IntValue); 
+		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL); 
 	}
 }
 

@@ -53,8 +53,8 @@
  **/
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
  
 // Zombie index
 int gZombie;
@@ -90,10 +90,6 @@ public void OnLibraryAdded(const char[] sLibrary)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SLEEPER_SKILL_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -129,7 +125,7 @@ public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float fl
 		if (iChance[client] < ZOMBIE_CLASS_SKILL_CHANCE_CAST)
 		{
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 			
 			// Create an fade
 			UTIL_CreateFadeScreen(attacker, ZOMBIE_CLASS_SKILL_DURATION_F, ZOMBIE_CLASS_SKILL_TIME_F, FFADE_IN, ZOMBIE_CLASS_SKILL_COLOR_F);

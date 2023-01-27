@@ -54,8 +54,8 @@ public Plugin myinfo =
  **/
  
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 // Item index
 int gWeapon;
@@ -91,10 +91,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FLARE_GRENADE_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 /**
@@ -117,7 +113,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 
 		// Create effects
 		UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, GRENADE_FLARE_COLOR, GRENADE_FLARE_DISTANCE, GRENADE_FLARE_RADIUS, GRENADE_FLARE_DURATION);

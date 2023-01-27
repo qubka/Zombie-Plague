@@ -66,8 +66,8 @@ int gWeapon;
 #pragma unused gWeapon
 
 // Sound index
-int gSoundAttack; int gSoundHit; int gSoundIdle; ConVar hSoundLevel;
-#pragma unused gSoundAttack, gSoundHit, gSoundIdle, hSoundLevel
+int gSoundAttack; int gSoundHit; int gSoundIdle;
+#pragma unused gSoundAttack, gSoundHit, gSoundIdle
 
 // Animation sequences
 enum
@@ -165,10 +165,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	if (gSoundHit == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFSWORD2_HIT_SOUNDS\" wasn't find");
 	gSoundIdle = ZP_GetSoundKeyID("SFSWORD_IDLE_SOUNDS");
 	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFSWORD_IDLE_SOUNDS\" wasn't find");
-
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -207,7 +203,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_ON_TIME);
 	
 		// Play sound
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	}
 }
 
@@ -273,7 +269,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 		hWeaponStab[client] = CreateTimer(0.35, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		
 		// Play the attack sound
-		ZP_EmitSoundToAll(gSoundAttack, 5, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+		ZP_EmitSoundToAll(gSoundAttack, 5, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	}
 	else
 	{
@@ -289,7 +285,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 				ZP_SetWeaponAnimation(client, ANIM_STAB);   
 				
 				// Play the attack sound
-				ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 			}
 
 			default :
@@ -298,7 +294,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 				ZP_SetWeaponAnimation(client, ANIM_MIDSLASH1 + iCount);   
 				
 				// Play the attack sound
-				ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(1, 3), client, SNDCHAN_WEAPON, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(1, 3), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 			}
 		}
 
@@ -435,7 +431,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			TE_SendToAll();
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(3, 4) : 5, client, SNDCHAN_ITEM, hSoundLevel.IntValue);
+			ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(3, 4) : 5, client, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
 		}
 		else
 		{
@@ -446,7 +442,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(1, 2) : 5, victim, SNDCHAN_ITEM, hSoundLevel.IntValue);
+				ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(1, 2) : 5, victim, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
 			}
 		}
 	}

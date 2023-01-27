@@ -57,8 +57,8 @@ public Plugin myinfo =
 int gWeapon;
 
 // Sound index
-int gSound; ConVar hSoundLevel;
-#pragma unused gSound, hSoundLevel
+int gSound;
+#pragma unused gSound
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -90,10 +90,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("BALROGVII2_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGVII2_SHOOT_SOUNDS\" wasn't find");
-	
-	// Cvars
-	hSoundLevel = FindConVar("zp_seffects_level");
-	if (hSoundLevel == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_seffects_level\" wasn't find");
 }
 
 //*********************************************************************
@@ -141,7 +137,7 @@ void Weapon_OnBullet(int client, int weapon, float vBullet[3], int iCounter, flo
 		UTIL_CreateParticle(_, vBullet, _, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);
 
 		// Play sound
-		ZP_EmitAmbientSound(gSound, 1, vBullet, SOUND_FROM_WORLD, hSoundLevel.IntValue);
+		ZP_EmitAmbientSound(gSound, 1, vBullet, SOUND_FROM_WORLD, SNDLEVEL_NORMAL);
 		
 		// Sets shots count
 		iCounter = -1;
