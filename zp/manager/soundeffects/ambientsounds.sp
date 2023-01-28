@@ -88,7 +88,7 @@ void AmbientSoundsOnClientUpdate(int client)
 	SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
 	// Emit ambient sound
-	SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList.SEFFECTS_LEVEL.IntValue, _, flAmbientVolume);
+	SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
 
 	// Start repeating timer
 	delete gClientData[client].AmbientTimer;
@@ -124,7 +124,7 @@ public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
 		SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
 		// Emit ambient sound
-		SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, gCvarList.SEFFECTS_LEVEL.IntValue, _, flAmbientVolume);
+		SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
 
 		// Allow timer
 		return Plugin_Continue;

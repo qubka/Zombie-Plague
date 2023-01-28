@@ -99,6 +99,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		// Update class class
 		gClientData[client].Class = gClientData[client].HumanClassNext; HumanValidateClass(client);
 		gClientData[client].Zombie = false;
+		gClientData[client].Custom = false;
 		
 		// If mode doesn't started yet, then allow
 		if (gServerData.RoundNew)
@@ -117,6 +118,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		// Update class class
 		gClientData[client].Class = gClientData[client].ZombieClassNext; ZombieValidateClass(client);
 		gClientData[client].Zombie = true;
+		gClientData[client].Custom = false;
 		
 		// If instant zombie class menu enable, then open 
 		if (gCvarList.ZOMBIE_MENU.BoolValue)
@@ -139,6 +141,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		// Update class class
 		gClientData[client].Class = iD;
 		gClientData[client].Zombie = ClassIsZombie(gClientData[client].Class);
+		gClientData[client].Custom = true;
 	}
 	
 	// Delete player timers

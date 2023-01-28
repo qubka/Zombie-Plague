@@ -891,7 +891,7 @@ void MainMenu(int client)
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 
-	// Sets exit and back button
+	// Sets exit button
 	hMenu.ExitButton = true;
 
 	// Sets options and display it

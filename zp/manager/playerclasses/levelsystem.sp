@@ -253,9 +253,9 @@ void LevelSystemOnCvarInit(/*void*/)
 	// Hook cvars
 	HookConVarChange(gCvarList.LEVEL_SYSTEM,        LevelSystemOnCvarHook);       
 	HookConVarChange(gCvarList.LEVEL_HUD,           LevelSystemOnCvarHook); 
-	HookConVarChange(gCvarList.LEVEL_HEALTH_RATIO,  LevelSystemChangeOnCvarHook);         
-	HookConVarChange(gCvarList.LEVEL_SPEED_RATIO,   LevelSystemChangeOnCvarHook);           
-	HookConVarChange(gCvarList.LEVEL_GRAVITY_RATIO, LevelSystemChangeOnCvarHook); 
+	HookConVarChange(gCvarList.LEVEL_HEALTH_RATIO,  LevelSystemOnCvarHookRatio);         
+	HookConVarChange(gCvarList.LEVEL_SPEED_RATIO,   LevelSystemOnCvarHookRatio);           
+	HookConVarChange(gCvarList.LEVEL_GRAVITY_RATIO, LevelSystemOnCvarHookRatio); 
 }
 
 /*
@@ -535,7 +535,7 @@ public void LevelSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newVal
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void LevelSystemChangeOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+public void LevelSystemOnCvarHookRatio(ConVar hConVar, char[] oldValue, char[] newValue)
 {    
 	// If level system disabled, then stop
 	if (!gCvarList.LEVEL_SYSTEM.BoolValue)

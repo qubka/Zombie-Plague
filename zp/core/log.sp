@@ -554,26 +554,26 @@ public Action LogListOnCommandCatched(int client, int iArguments)
 	StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
 	StrCat(sBuffer, sizeof(sBuffer), "--------------------------------------------------------------------------------\n");
 	
-	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_CORE_EVENTS     1       %s\n", LogCheckFlag(LOG_CORE_EVENTS) ? "On" : "Off");
+	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_CORE_EVENTS     1       %t\n", LogCheckFlag(LOG_CORE_EVENTS) ? "On" : "Off");
 	StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
 	
-	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_GAME_EVENTS     2       %s\n", LogCheckFlag(LOG_GAME_EVENTS) ? "On" : "Off");
+	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_GAME_EVENTS     2       %t\n", LogCheckFlag(LOG_GAME_EVENTS) ? "On" : "Off");
 	StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
 	
-	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_PLAYER_COMMANDS 4       %s\n", LogCheckFlag(LOG_PLAYER_COMMANDS) ? "On" : "Off");
+	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_PLAYER_COMMANDS 4       %t\n", LogCheckFlag(LOG_PLAYER_COMMANDS) ? "On" : "Off");
 	StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
 	
-	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG           8       %s\n", LogCheckFlag(LOG_DEBUG) ? "On" : "Off");
+	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG           8       %t\n", LogCheckFlag(LOG_DEBUG) ? "On" : "Off");
 	StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
 	
-	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG_DETAIL    16      %s\n", LogCheckFlag(LOG_DEBUG_DETAIL) ? "On" : "Off");
+	FormatEx(sLineBuffer, sizeof(sLineBuffer), "LOG_DEBUG_DETAIL    16      %t\n", LogCheckFlag(LOG_DEBUG_DETAIL) ? "On" : "Off");
 	StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
 	
 	ReplyToCommand(client, sBuffer);
 	sBuffer[0] = 0;
 	
 	// Module filtering status:
-	FormatEx(sLineBuffer, sizeof(sLineBuffer), "%t %s\n\n", "log module filter", gCvarList.LOG_MODULE_FILTER.BoolValue ? "On" : "Off");
+	FormatEx(sLineBuffer, sizeof(sLineBuffer), "%t %t\n\n", "log module filter", gCvarList.LOG_MODULE_FILTER.BoolValue ? "On" : "Off");
 	StrCat(sBuffer, sizeof(sBuffer), sLineBuffer);
 	
 	FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t\n", sPhraseModule, sPhraseShortName, "log status");
@@ -589,7 +589,7 @@ public Action LogListOnCommandCatched(int client, int iArguments)
 	{
 		LogGetModuleNameString(sModuleName, sizeof(sModuleName), view_as<LogModule>(i));
 		LogGetModuleNameString(sPhraseShortName, sizeof(sPhraseShortName), view_as<LogModule>(i), true);
-		FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %s", sModuleName, sPhraseShortName, LogModuleFilterCache[i] ? "On" : "Off");
+		FormatEx(sLineBuffer, sizeof(sLineBuffer), "%-23s %-19s %t", sModuleName, sPhraseShortName, LogModuleFilterCache[i] ? "On" : "Off");
 		ReplyToCommand(client, sLineBuffer);
 	}
 	return Plugin_Handled;

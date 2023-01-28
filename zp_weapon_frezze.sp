@@ -48,6 +48,7 @@ public Plugin myinfo =
 #define GRENADE_FREEZE_TIME           GetRandomFloat(3.0, 5.0)  // Freeze duration in seconds
 #define GRENADE_FREEZE_RADIUS         200.0                     // Freeze size (radius)
 #define GRENADE_FREEZE_EXP_TIME       2.0                       // Duration of the explosion effect in seconds
+#define GRENADE_FREEZE_DMG_WHILE_FROST                          // If defined, Zombie will not get dmg when frost.
 /**
  * @endsection
  **/
@@ -191,11 +192,13 @@ public void ZP_OnClientUpdated(int client, int attacker)
  *
  * @note To block damage reset the damage to zero. 
  **/
+#if defined GRENADE_FREEZE_DMG_WHILE_FROST
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
 	// If the client is frozen, then stop
 	if (GetEntityMoveType(client) == MOVETYPE_NONE) flDamage = 0.0;
 }
+#endif
 
 /**
  * Event callback (smokegrenade_detonate)

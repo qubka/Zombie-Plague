@@ -424,7 +424,7 @@ public int API_GetExtraItemInfo(Handle hPlugin, int iNumParams)
 	}
 	
 	// Initialize info char
-	static char sInfo[BIG_LINE_LENGTH];
+	static char sInfo[SMALL_LINE_LENGTH];
 	ItemsGetInfo(iD, sInfo, sizeof(sInfo));
 
 	// Return on success
