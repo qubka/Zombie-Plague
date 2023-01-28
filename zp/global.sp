@@ -104,9 +104,10 @@ enum struct ServerData
 	StringMap Configs;
 	StringMap Modules;
 	
-	/* Weapons */
+	/* ZMarket */
 	int Melee;
 	StringMap Market;
+	ArrayList Arsenal;
 
 	/**
 	 * @brief Clear all timers.
@@ -135,6 +136,7 @@ enum struct ClientData
 	/* Globals */
 	int AccountID;
 	bool Zombie;
+	bool Custom;
 	bool Loaded;
 	bool Skill;
 	float SkillCounter;
@@ -176,6 +178,10 @@ enum struct ClientData
 	bool ToggleSequence;
 	bool RunCmd;
 	
+	/* ZMarket */
+	bool AutoBuy;
+	int Arsenal[3];
+	
 	/* Timers */
 	Handle LevelTimer;
 	Handle AccountTimer;
@@ -188,13 +194,13 @@ enum struct ClientData
 	Handle AmbientTimer;
 	Handle BuyTimer;
 	Handle TeleTimer;
-	
+
 	/* Arrays */
 	ArrayList ShoppingCart;
 	ArrayList DefaultCart;
 	StringMap ItemLimit;
 	StringMap WeaponLimit;
-	
+
 	/**
 	 * @brief Resets all variables.
 	 **/
@@ -202,6 +208,7 @@ enum struct ClientData
 	{
 		this.AccountID            = 0;                
 		this.Zombie               = false;
+		this.Custom               = false;
 		this.Loaded               = false;
 		this.Skill                = false;
 		this.SkillCounter         = 0.0;
@@ -252,6 +259,10 @@ enum struct ClientData
 		this.LastSequenceParity   = -1;
 		this.ToggleSequence       = false;
 		this.RunCmd               = false;
+		this.AutoBuy              = false;
+		this.Arsenal[0]           = -1;
+		this.Arsenal[1]           = -1;
+		this.Arsenal[2]           = -1;
 	   
 		delete this.ShoppingCart;
 		delete this.DefaultCart;

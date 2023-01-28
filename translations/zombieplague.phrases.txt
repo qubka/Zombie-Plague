@@ -287,6 +287,15 @@
         "ro"            "Adăuga"
     }
     
+    "remember" // Menu
+    {
+        "en"            "Remember"
+        "ru"            "Запомнить"
+        "chi"           "记住"
+        "zho"           "記住"
+        "ro"            "Tine minte"
+    }
+    
     "remove" // Menu
     {
         "en"            "Remove"
@@ -1694,6 +1703,33 @@
         "chi"           "自动重买"
         "zho"           "自動重買"
         "ro"            "Recumparare-automata"
+    }
+    
+    "primary" // Menu
+    {
+        "en"            "Primary weapons"
+        "ru"            "Главные оружия"
+        "chi"           "主要武器"
+        "zho"           "主要武器"
+        "ro"            "Armele primare"
+    }
+    
+    "secondary" // Menu
+    {
+        "en"            "Secondary weapons"
+        "ru"            "Доп. оружия"
+        "chi"           "副武器"
+        "zho"           "副武器"
+        "ro"            "Arme secundare"
+    }    
+    
+    "melee" // Menu
+    {
+        "en"            "Knifes"
+        "ru"            "Ножи"
+        "chi"           "刀具"
+        "zho"           "刀具"
+        "ro"            "Cutite"
     }
 
     "buy pistols" // Menu
@@ -3316,8 +3352,8 @@
         "zho"           "按鼠标右键激活模式!"
         "ro"            "Apăsați butonul mouse-ului drept pentru a activa modul!"
     }
-	
-	// ===========================
+
+    // ===========================
     // Etherial (addon)
     // ===========================
 
@@ -3329,8 +3365,8 @@
         "zho"           "模式：正常"
         "ro"            "Mod: normal"
     }
-	
-	"etherial electric" // Hint (no color)
+
+    "etherial electric" // Hint (no color)
     {
         "en"            "Mode: electric"
         "ru"            "Режим: электрический"

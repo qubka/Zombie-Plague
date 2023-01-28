@@ -24,6 +24,44 @@
  *
  * ============================================================================
  **/
+ 
+/**
+ * @section Number of valid buymenus.
+ **/
+enum MenuType
+{
+	/* Buymenu */
+	MenuType_Invalid = -1,        /** Used as return value when a menu doens't exist. */
+	
+	MenuType_Pistols,             /** Pistol menu */
+	MenuType_Shotguns,            /** Shotgun menu */
+	MenuType_Rifles,              /** Rifle menu */
+	MenuType_Snipers,             /** Sniper menu */
+	MenuType_Machineguns,         /** Machineguns menu */
+	MenuType_Knifes,              /** Knife menu */
+	MenuType_Equipments,          /** Equipment menu */
+	
+	/* Rebuy */
+	MenuType_Rebuy,               /** Rebuy menu */  
+	MenuType_Option,              /** Option menu */  
+	MenuType_Add                  /** Add menu */
+};
+/**
+ * @endsection
+ **/ 
+ 
+/**
+ * @section Number of valid arsenal menus.
+ **/
+enum /*ArsenalType*/
+{
+	ArsenalType_Primary,             /** Primary menu */  
+	ArsenalType_Secondary,           /** Secondary menu */  
+	ArsenalType_Melee                /** Melee menu */
+};
+/**
+ * @endsection
+ **/ 
 
 /**
  * @brief Market module init function.
@@ -34,6 +72,7 @@ void ZMarketOnInit(/*void*/)
 	gServerData.Market = new StringMap();
 	
 	// Push data into map
+	gServerData.Market.SetValue("custom", MenuType_Invalid);
 	gServerData.Market.SetValue("pistol", MenuType_Pistols);
 	gServerData.Market.SetValue("shotgun", MenuType_Shotguns);
 	gServerData.Market.SetValue("rifle", MenuType_Rifles);
@@ -41,7 +80,36 @@ void ZMarketOnInit(/*void*/)
 	gServerData.Market.SetValue("machinegun", MenuType_Machineguns);
 	gServerData.Market.SetValue("knife",  MenuType_Knifes);
 	gServerData.Market.SetValue("equipment", MenuType_Equipments);
-	gServerData.Market.SetValue("custom", MenuType_Invalid);
+}
+
+/**
+ * @brief .
+ **/
+void ZMarketOnLoad(/*void*/)
+{
+	// Validate arsenal
+	if (!gCvarList.ZMARKET_ARSENAL.BoolValue)
+	{
+		return;
+	}
+	
+	// If array hasn't been created, then create
+	if (gServerData.Arsenal == null)
+	{
+		// Initialize a type list array
+		gServerData.Arsenal = new ArrayList();
+	}
+	else
+	{
+		// Clear out the array of all data
+		ConfigClearKvArray(gServerData.Arsenal);
+	}
+	
+	// Load weapons from cvars
+	ZMarketSetArsenal(gCvarList.ZMARKET_PRIMARY);
+	ZMarketSetArsenal(gCvarList.ZMARKET_SECONDARY);
+	ZMarketSetArsenal(gCvarList.ZMARKET_MELEE);
+	ZMarketSetArsenal(gCvarList.ZMARKET_ADDITIONAL);
 }
 
 /**
@@ -52,10 +120,17 @@ void ZMarketOnInit(/*void*/)
 void ZMarketOnClientUpdate(int client)
 {
 	// Resets purchase counts for client
-	ZMarketRebuyMenu(client);
+	ZMarketRebuyMenu(client); 
+	
+	// Validate arsenal
+	if (gCvarList.ZMARKET_ARSENAL.BoolValue && !gClientData[client].Zombie && !gClientData[client].Custom)
+	{
+		// Give weapons
+		ZMarketArsenal(client);
+	}
 	
 	// Validate real client
-	if (gCvarList.BUY_BUTTON.BoolValue && !IsFakeClient(client)) 
+	if (gCvarList.ZMARKET_BUTTON.BoolValue && !IsFakeClient(client)) 
 	{
 		// Unlock VGUI buy panel
 		gCvarList.ACCOUNT_BUY_ANYWHERE.ReplicateToClient(client, "1");
@@ -84,10 +159,29 @@ void ZMarketOnCommandInit(/*void*/)
 void ZMarketOnCvarInit(/*void*/)
 {
 	// Creates cvars
-	gCvarList.BUY_BUTTON = FindConVar("zp_buy_button");
+	gCvarList.ZMARKET_BUTTON       = FindConVar("zp_zmarket_button");
+	gCvarList.ZMARKET_REBUY_MENU   = FindConVar("zp_zmarket_rebuy_menu");
+	gCvarList.ZMARKET_PISTOL_MENU  = FindConVar("zp_zmarket_pistol_menu");
+	gCvarList.ZMARKET_SHOTGUN_MENU = FindConVar("zp_zmarket_shotgun_menu");
+	gCvarList.ZMARKET_RIFLE_MENU   = FindConVar("zp_zmarket_rifle_menu");
+	gCvarList.ZMARKET_SNIPER_MENU  = FindConVar("zp_zmarket_sniper_menu");
+	gCvarList.ZMARKET_MACH_MENU    = FindConVar("zp_zmarket_mach_menu");
+	gCvarList.ZMARKET_KNIFE_MENU   = FindConVar("zp_zmarket_knife_menu");
+	gCvarList.ZMARKET_EQUIP_MENU   = FindConVar("zp_zmarket_equip_menu");
+	gCvarList.ZMARKET_ARSENAL      = FindConVar("zp_zmarket_arsenal");
+	gCvarList.ZMARKET_PRIMARY      = FindConVar("zp_zmarket_primary");
+	gCvarList.ZMARKET_SECONDARY    = FindConVar("zp_zmarket_secondary");
+	gCvarList.ZMARKET_MELEE        = FindConVar("zp_zmarket_melee");
+	gCvarList.ZMARKET_ADDITIONAL   = FindConVar("zp_zmarket_additional");
+	
 	
 	// Hook cvars
-	HookConVarChange(gCvarList.BUY_BUTTON, ZMarketOnCvarHook);
+	HookConVarChange(gCvarList.ZMARKET_BUTTON,     ZMarketOnCvarHook);
+	HookConVarChange(gCvarList.ZMARKET_ARSENAL,    ZMarketOnCvarHookShop);
+	HookConVarChange(gCvarList.ZMARKET_PRIMARY,    ZMarketOnCvarHookShop);
+	HookConVarChange(gCvarList.ZMARKET_SECONDARY,  ZMarketOnCvarHookShop);
+	HookConVarChange(gCvarList.ZMARKET_MELEE,      ZMarketOnCvarHookShop);
+	HookConVarChange(gCvarList.ZMARKET_ADDITIONAL, ZMarketOnCvarHookShop);
 	
 	// Load cvars
 	ZMarketOnCvarLoad();
@@ -99,7 +193,7 @@ void ZMarketOnCvarInit(/*void*/)
 void ZMarketOnCvarLoad(/*void*/)
 {
 	// Validate buy button
-	if (gCvarList.BUY_BUTTON.BoolValue)
+	if (gCvarList.ZMARKET_BUTTON.BoolValue)
 	{
 		// Hook listeners
 		AddCommandListener(ZMarketOnCommandListened, "open_buymenu");
@@ -133,6 +227,26 @@ public void ZMarketOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 	
 	// Forward event to modules
 	ZMarketOnCvarLoad();
+}
+
+/**
+ * Cvar hook callback (zp_zmarket_arsenal, zp_zmarket_primary, zp_zmarket_secondary, zp_zmarket_melee, zp_zmarket_additional)
+ * @brief ZMarket buymenu module initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void ZMarketOnCvarHookShop(ConVar hConVar, char[] oldValue, char[] newValue)
+{
+	// Validate new value
+	if (!strcmp(oldValue, newValue, false))
+	{
+		return;
+	}
+	
+	// Forward event to modules
+	ZMarketOnLoad();
 }
  
 /**
@@ -210,7 +324,11 @@ public Action CS_OnBuyCommand(int client, const char[] sName)
  **/ 
 public Action ZMarketRebuyOnCommandCatched(int client, int iArguments)
 {
-	ZMarketOptionMenu(client);
+	// Validate menu
+	if (gCvarList.ZMARKET_REBUY_MENU.BoolValue)
+	{
+		ZMarketOptionMenu(client);
+	}
 	return Plugin_Handled;
 }
 
@@ -223,7 +341,11 @@ public Action ZMarketRebuyOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ZMarketPistolsOnCommandCatched(int client, int iArguments)
 {
-	ZMarketMenu(client, "buy pistols", MenuType_Pistols); 
+	// Validate menu
+	if (gCvarList.ZMARKET_PISTOL_MENU.BoolValue)
+	{
+		ZMarketBuyMenu(client, "buy pistols", MenuType_Pistols); 
+	}
 	return Plugin_Handled;
 }
 
@@ -236,7 +358,11 @@ public Action ZMarketPistolsOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ZMarketShotgunsOnCommandCatched(int client, int iArguments)
 {
-	ZMarketMenu(client, "buy shotguns", MenuType_Shotguns); 
+	// Validate menu
+	if (gCvarList.ZMARKET_SHOTGUN_MENU.BoolValue)
+	{
+		ZMarketBuyMenu(client, "buy shotguns", MenuType_Shotguns); 
+	}
 	return Plugin_Handled;
 }
 
@@ -249,7 +375,11 @@ public Action ZMarketShotgunsOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ZMarketRiflesOnCommandCatched(int client, int iArguments)
 {
-	ZMarketMenu(client, "buy rifles", MenuType_Rifles); 
+	// Validate menu
+	if (gCvarList.ZMARKET_RIFLE_MENU.BoolValue)
+	{
+		ZMarketBuyMenu(client, "buy rifles", MenuType_Rifles); 
+	}
 	return Plugin_Handled;
 }
 
@@ -262,7 +392,11 @@ public Action ZMarketRiflesOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ZMarketSnipersOnCommandCatched(int client, int iArguments)
 {
-	ZMarketMenu(client, "buy snipers", MenuType_Snipers); 
+	// Validate menu
+	if (gCvarList.ZMARKET_SNIPER_MENU.BoolValue)
+	{
+		ZMarketBuyMenu(client, "buy snipers", MenuType_Snipers); 
+	}
 	return Plugin_Handled;
 }
 
@@ -275,7 +409,11 @@ public Action ZMarketSnipersOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ZMarketMachinegunsOnCommandCatched(int client, int iArguments)
 {
-	ZMarketMenu(client, "buy machineguns", MenuType_Machineguns); 
+	// Validate menu
+	if (gCvarList.ZMARKET_MACH_MENU.BoolValue)
+	{
+		ZMarketBuyMenu(client, "buy machineguns", MenuType_Machineguns); 
+	}
 	return Plugin_Handled;
 }
 
@@ -288,7 +426,11 @@ public Action ZMarketMachinegunsOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ZMarketKnifesOnCommandCatched(int client, int iArguments)
 {
-	ZMarketMenu(client, "buy knifes", MenuType_Knifes); 
+	// Validate menu
+	if (gCvarList.ZMARKET_KNIFE_MENU.BoolValue)
+	{
+		ZMarketBuyMenu(client, "buy knifes", MenuType_Knifes); 
+	}
 	return Plugin_Handled;
 }
 
@@ -301,7 +443,11 @@ public Action ZMarketKnifesOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ZMarketEquipsOnCommandCatched(int client, int iArguments)
 {
-	ZMarketMenu(client, "buy equipments", MenuType_Equipments); 
+	// Validate menu
+	if (gCvarList.ZMARKET_EQUIP_MENU.BoolValue)
+	{
+		ZMarketBuyMenu(client, "buy equipments", MenuType_Equipments); 
+	}
 	return Plugin_Handled;
 }
 
@@ -310,15 +456,24 @@ public Action ZMarketEquipsOnCommandCatched(int client, int iArguments)
  */
 
 /**
- * @brief Creates the weapons menu.
+ * @brief Creates the buy menu.
  *
  * @param client            The client index.
  * @param sTitle            The menu title.
  * @param mSlot             (Optional) The slot index.
  * @param sType             (Optional) The class type.
  **/
-void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments, char[] sType = "") 
+void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments, char[] sType = "") 
 {
+	// Initialize variables
+	bool bMenu = (mSlot != MenuType_Rebuy); bool bRebuy = (mSlot == MenuType_Add || mSlot == MenuType_Option);
+	
+	// Validate menu
+	if (!bMenu && !gCvarList.ZMARKET_REBUY_MENU.BoolValue)
+	{
+		return;
+	}
+
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
@@ -349,8 +504,8 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
 	// Update class type mode
 	if (hasLength(sType)) strcopy(sClass[client], sizeof(sClass[]), sType);
 	
-	// Initialize variables
-	Action hResult; Menu hMenu = ZMarketSlotToHandle(client, mSlot); bool bMenu = (mSlot != MenuType_Rebuy); bool bRebuy = (mSlot == MenuType_Add || mSlot == MenuType_Option);
+	// Creates menu handle
+	Action hResult; Menu hMenu = ZMarketSlotToHandle(client, mSlot);
 
 	// Sets language to target
 	SetGlobalTransTarget(client);
@@ -482,7 +637,7 @@ void ZMarketMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments
  * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
+public int ZMarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
 	// Switch the menu action
 	switch (mAction)
@@ -514,7 +669,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
 			}
 		   
 			// Gets menu info
-			static char sBuffer[BIG_LINE_LENGTH];
+			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 			int iD = StringToInt(sBuffer);
 
@@ -525,7 +680,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
 				case -1 :
 				{
 					// Opens market menu back
-					ZMarketMenu(client, "add", MenuType_Add);
+					ZMarketBuyMenu(client, "add", MenuType_Add);
 				}
 				
 				// Client hit 'Weapon' button
@@ -546,7 +701,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
 					DataBaseOnClientUpdate(client, ColumnType_Weapon, FactoryType_Delete, sBuffer);
 					
 					// Opens market menu back
-					ZMarketMenu(client, "rebuy", MenuType_Option);
+					ZMarketBuyMenu(client, "rebuy", MenuType_Option);
 				}
 			}
 		}
@@ -563,7 +718,7 @@ public int ZMarketMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
  * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
+public int ZMarketBuyMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
 	// Switch the menu action
 	switch (mAction)
@@ -580,7 +735,7 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
 			if (mSlot == MenuCancel_ExitBack)
 			{
 				// Opens market menu back
-				ZMarketMenu(client, "rebuy", MenuType_Option);
+				ZMarketBuyMenu(client, "rebuy", MenuType_Option);
 			}
 		}
 		
@@ -594,7 +749,7 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
 			}
 		   
 			// Gets menu info
-			static char sBuffer[BIG_LINE_LENGTH];
+			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 			int iD = StringToInt(sBuffer);
 
@@ -608,7 +763,7 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
 			DataBaseOnClientUpdate(client, ColumnType_Weapon, FactoryType_Insert, sBuffer);
 			
 			// Opens market menu back
-			ZMarketMenu(client, "rebuy", MenuType_Option);
+			ZMarketBuyMenu(client, "rebuy", MenuType_Option);
 		}
 	}
 	
@@ -623,10 +778,10 @@ public int ZMarketMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
  * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSlot)
+public int ZMarketBuyMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
 	// Call menu
-	return ZMarketMenuSlots(hMenu, mAction, client, mSlot, true);
+	return ZMarketBuyMenuSlots(hMenu, mAction, client, mSlot, true);
 }
 
 /**
@@ -637,10 +792,10 @@ public int ZMarketMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSl
  * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketMenuSlots4(Menu hMenu, MenuAction mAction, int client, int mSlot)
+public int ZMarketBuyMenuSlots4(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {
 	// Call menu
-	return ZMarketMenuSlots(hMenu, mAction, client, mSlot);
+	return ZMarketBuyMenuSlots(hMenu, mAction, client, mSlot);
 }
 
 /**
@@ -652,7 +807,7 @@ public int ZMarketMenuSlots4(Menu hMenu, MenuAction mAction, int client, int mSl
  * @param mSlot             The slot index selected (starting from 0).
  * @param bRebuy            (Optional) True to set the rebuy mode, false to set normal mode.
  **/ 
-int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bRebuy = false)
+int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bRebuy = false)
 {
 	// Switch the menu action
 	switch (mAction)
@@ -695,7 +850,7 @@ int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool
 			}
 
 			// Gets menu info
-			static char sBuffer[BIG_LINE_LENGTH];
+			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 			int iD = StringToInt(sBuffer);
 
@@ -806,7 +961,7 @@ int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool
 										if (gClientData[client].ShoppingCart.Length)
 										{
 											// Reopen menu
-											ZMarketMenu(client, "rebuy", MenuType_Rebuy);
+											ZMarketBuyMenu(client, "rebuy", MenuType_Rebuy);
 										}
 									}
 								}
@@ -859,6 +1014,10 @@ int ZMarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool
 	return 0;
 }
 
+/*
+ * Rebuy options menu.
+ */
+
 /**
  * @brief Creates a market option menu.
  *
@@ -872,7 +1031,7 @@ void ZMarketOptionMenu(int client)
 	static char sInfo[SMALL_LINE_LENGTH];
 	
 	// Creates menu handle
-	Menu hMenu = new Menu(ZMarketListMenuSlots);
+	Menu hMenu = new Menu(ZMarketOptionMenuSlots);
 	
 	// Sets language to target
 	SetGlobalTransTarget(client);
@@ -919,7 +1078,7 @@ void ZMarketOptionMenu(int client)
  * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
  **/ 
-public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
+public int ZMarketOptionMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 {   
 	// Switch the menu action
 	switch (mAction)
@@ -955,7 +1114,283 @@ public int ZMarketListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 
 			// Opens market menu back
-			ZMarketMenu(client, "rebuy", MenuType_Option, sBuffer);
+			ZMarketBuyMenu(client, "rebuy", MenuType_Option, sBuffer);
+		}
+	}
+	
+	return 0;
+}
+
+/*
+ * Arsenal menu.
+ */
+
+/**
+ * @brief Gives an arsenal weapons.
+ *
+ * @param client            The client index.
+ **/
+void ZMarketArsenal(int client)
+{
+	// Open menu if autobuy turn off
+	if (!gClientData[client].AutoBuy) 
+	{
+		ZMarketArsenalMenu(client, ArsenalType_Primary);
+	}
+	else 
+	{
+		// i = array index
+		for (int i = 0; i <= ArsenalType_Melee; i++)
+		{
+			// Open menu if some default not set
+			ArrayList hList = gServerData.Arsenal.Get(i);
+			if (gClientData[client].Arsenal[i] == -1 && hList.Length > 0)
+			{
+				ZMarketArsenalMenu(client, i);
+				return;
+			}
+		}
+		
+		// Gets additional weapons
+		ArrayList hList = gServerData.Arsenal.Get(gServerData.Arsenal.Length - 1);
+		
+		// i = array index
+		int iSize = hList.Length;
+		for (int i = 0; i < iSize; i++)
+		{
+			// Give additional weapons
+			WeaponsGive(client, hList.Get(i));
+		}
+		
+		// i = array index
+		for (int i = ArsenalType_Melee; i != -1; i--)
+		{
+			// Give main weapons
+			WeaponsGive(client, gClientData[client].Arsenal[i]);
+		}
+	}
+}
+
+/**
+ * @brief Creates an arsenal menu.
+ *
+ * @param client            The client index.
+ * @param mSlot             The slot index.
+ **/
+void ZMarketArsenalMenu(int client, int mSlot)
+{
+	// Initialize variables
+	static char sBuffer[NORMAL_LINE_LENGTH]; 
+	static char sName[SMALL_LINE_LENGTH];
+	static char sInfo[SMALL_LINE_LENGTH];
+
+	// Creates menu handle
+	Menu hMenu = ZMarketArsenalSlotToHandle(mSlot);
+	
+	// Sets language to target
+	SetGlobalTransTarget(client);
+	
+	// Sets title
+	static char sTitle[3][SMALL_LINE_LENGTH] = { "primary", "secondary", "melee" };
+	hMenu.SetTitle("%t", sTitle[mSlot]);
+
+	// Gets current arsenal list
+	ArrayList hList = gServerData.Arsenal.Get(mSlot);
+
+	// i = array index
+	int iSize = hList.Length;
+	for (int i = 0; i < iSize; i++)
+	{
+		// Gets weapon id from the list
+		int iD = hList.Get(i);
+
+		// Gets weapon data
+		WeaponsGetName(iD, sName, sizeof(sName));
+
+		// Format some chars for showing in menu    
+		FormatEx(sBuffer, sizeof(sBuffer), (i == iSize - 1) ? "%t\n \n" : "%t", sName);
+
+		// Show option
+		IntToString(iD, sInfo, sizeof(sInfo));
+		hMenu.AddItem(sInfo, sBuffer);
+	}
+
+	// Format some chars for showing in menu
+	FormatEx(sBuffer, sizeof(sBuffer), "%t [%t]", "remember", gClientData[client].AutoBuy ? "On" : "Off");
+	
+	// Show toggle option
+	hMenu.AddItem("-1", sBuffer);
+
+	// Sets exit button
+	hMenu.ExitButton = true;
+
+	// Sets options and display it
+	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
+	hMenu.Display(client, MENU_TIME_FOREVER); 
+}
+
+/**
+ * @brief Called when client selects option in the market buy menu, and handles it. (primary)
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketArsenalMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSlot)
+{   
+	return ZMarketArsenalMenuSlots(hMenu, mAction, client, mSlot, ArsenalType_Primary);
+}
+
+/**
+ * @brief Called when client selects option in the market buy menu, and handles it. (secondary)
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketArsenalMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSlot)
+{   
+	return ZMarketArsenalMenuSlots(hMenu, mAction, client, mSlot, ArsenalType_Secondary);
+}
+
+/**
+ * @brief Called when client selects option in the market buy menu, and handles it. (melee)
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ **/ 
+public int ZMarketArsenalMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSlot)
+{   
+	return ZMarketArsenalMenuSlots(hMenu, mAction, client, mSlot, ArsenalType_Melee);
+}
+
+/**
+ * @brief Called when client selects option in the market buy menu, and handles it.
+ *  
+ * @param hMenu             The handle of the menu being used.
+ * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
+ * @param client            The client index.
+ * @param mSlot             The slot index selected (starting from 0).
+ * @param iIndex            The arsenal menu index.
+ **/ 
+int ZMarketArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int iIndex)
+{
+	// Switch the menu action
+	switch (mAction)
+	{
+		// Client hit 'Exit' button
+		case MenuAction_End :
+		{
+			delete hMenu;
+		}
+
+		// Client selected an option
+		case MenuAction_Select :
+		{
+			// Validate client
+			if (!IsPlayerExist(client))
+			{
+				return 0;
+			}
+			
+			// Validate any except human, then stop
+			if (gClientData[client].Zombie || gClientData[client].Custom)
+			{
+				// Show block info
+				TranslationPrintHintText(client, "using menu block");
+				
+				// Emit error sound
+				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
+				return 0;
+			}
+			
+			// If mode already started, then stop
+			if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
+			{
+				// Show block info
+				TranslationPrintHintText(client, "buying round block");
+		
+				// Emit error sound
+				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
+				return 0;
+			}
+
+			// Gets menu info
+			static char sBuffer[SMALL_LINE_LENGTH];
+			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+			int iD = StringToInt(sBuffer);
+
+			// Validate button info
+			switch (iD)
+			{
+				// Client hit 'Remember' button
+				case -1 :
+				{
+					// Toggle autobuy
+					gClientData[client].AutoBuy = !gClientData[client].AutoBuy;
+					
+					// Opens same menu back
+					ZMarketArsenalMenu(client, iIndex);
+				}
+				
+				// Client hit 'Weapon' button
+				default :
+				{
+					// Buy weapon
+					if (WeaponsGive(client, iD) != -1)
+					{
+						// If help messages enabled, then show info
+						if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
+						{
+							// Gets weapon info
+							WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
+							
+							// Show weapon personal info
+							if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+						}
+					}
+					
+					// Store selected weapon id
+					gClientData[client].Arsenal[iIndex] = iD;
+
+					// i = menu index
+					for (int i = iIndex + 1; i <= ArsenalType_Melee; i++) 
+					{
+						// Move to next available menu
+						ArrayList hList = gServerData.Arsenal.Get(i);
+						if (hList.Length > 0)
+						{
+							// Opens next menu
+							ZMarketArsenalMenu(client, i);
+							return 0;
+						}
+					}
+
+					// If last one, give additional weapons and opens rebuy menu
+
+					// Gets additional weapons
+					ArrayList hList = gServerData.Arsenal.Get(gServerData.Arsenal.Length - 1);
+
+					// i = array index
+					int iSize = hList.Length;
+					for (int i = 0; i < iSize; i++)
+					{
+						// Give additional weapons
+						WeaponsGive(client, hList.Get(i));
+					}
+					
+					// Validate cart size
+					if (gClientData[client].ShoppingCart.Length)
+					{
+						// Opens rebuy menu
+						ZMarketBuyMenu(client, "rebuy", MenuType_Rebuy);
+					}
+				}
+			}
 		}
 	}
 	
@@ -988,7 +1423,7 @@ void ZMarketRebuyMenu(int client)
 		gClientData[client].ShoppingCart = gClientData[client].DefaultCart.Clone();
 		
 		// Opens rebuy menu
-		ZMarketMenu(client, "rebuy", MenuType_Rebuy);
+		ZMarketBuyMenu(client, "rebuy", MenuType_Rebuy);
 	}
 }
 
@@ -1037,7 +1472,7 @@ MenuType ZMarketNameToIndex(char[] sName)
  * @brief Find the handle at which the slot type is at.
  * 
  * @param client            The client index.
- * @param mSlot             The slot index selected.
+ * @param mSlot             The slot index.
  * @return                  The menu handle.
  **/
 Menu ZMarketSlotToHandle(int client, MenuType mSlot)
@@ -1052,14 +1487,14 @@ Menu ZMarketSlotToHandle(int client, MenuType mSlot)
 		case MenuType_Option :
 		{
 			// Creates menu handle
-			return new Menu(ZMarketMenuSlots1);
+			return new Menu(ZMarketBuyMenuSlots1);
 		}
 		
 		// Add menu
 		case MenuType_Add :
 		{
 			// Creates menu handle
-			return new Menu(ZMarketMenuSlots2);
+			return new Menu(ZMarketBuyMenuSlots2);
 		}
 
 		// Rebuy menu
@@ -1069,14 +1504,14 @@ Menu ZMarketSlotToHandle(int client, MenuType mSlot)
 			bLock[client] = false;
 		
 			// Creates menu handle
-			return new Menu(ZMarketMenuSlots3);
+			return new Menu(ZMarketBuyMenuSlots3);
 		}
-		
+
 		// Default menu
 		default :
 		{
 			// Creates menu handle
-			Menu hMenu = new Menu(ZMarketMenuSlots4);
+			Menu hMenu = new Menu(ZMarketBuyMenuSlots4);
 			
 			// Clear history
 			if (!bLock[client]) 
@@ -1091,13 +1526,14 @@ Menu ZMarketSlotToHandle(int client, MenuType mSlot)
 	}
 }
 
+
 /**
  * @brief Find the index at which the slot type is at.
  * 
  * @param client            The client index.
- * @param mSlot             The slot index selected.
- * @param iIndex            The index variable.
- * @return                  The index amount.
+ * @param mSlot             The slot index.
+ * @param iIndex            The id variable.
+ * @return                  The index variable.
  **/
 int ZMarketSlotToIndex(int client, MenuType mSlot, int iIndex)
 {
@@ -1115,7 +1551,7 @@ int ZMarketSlotToIndex(int client, MenuType mSlot, int iIndex)
 		{
 			return gClientData[client].ShoppingCart.Get(iIndex);
 		}
-		
+
 		// Default menu
 		default :
 		{
@@ -1128,7 +1564,7 @@ int ZMarketSlotToIndex(int client, MenuType mSlot, int iIndex)
  * @brief Find the count at which the slot type is at.
  * 
  * @param client            The client index.
- * @param mSlot             The slot index selected.
+ * @param mSlot             The slot index.
  * @return                  The amount variable.
  **/
 int ZMarketSlotToCount(int client, MenuType mSlot)
@@ -1147,11 +1583,84 @@ int ZMarketSlotToCount(int client, MenuType mSlot)
 		{
 			return gClientData[client].ShoppingCart.Length;
 		}
-		
+
 		// Default menu
 		default :
 		{
 			return gServerData.Weapons.Length;
+		}
+	}
+}
+
+/**
+ * @brief Sets the weapons ids to the string map using the appropriate key.
+ * 
+ * @param hConVar           The cvar handle.
+ **/
+void ZMarketSetArsenal(ConVar hConVar)
+{
+	// Initialize variables
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH];
+	
+	// Create array of indexes
+	ArrayList hList = new ArrayList();
+	
+	// Gets the weapon string divived by commas
+	hConVar.GetString(sBuffer, sizeof(sBuffer));
+	int nWeapon = ExplodeString(sBuffer, ",", sWeapon, sizeof(sWeapon), sizeof(sWeapon[]));
+	for (int i = 0; i < nWeapon; i++)
+	{
+		// Trim string
+		TrimString(sWeapon[i]);
+
+		// Validate index
+		int iIndex = WeaponsNameToIndex(sWeapon[i]);
+		if (iIndex != -1)
+		{  
+			// Validate access
+			if (WeaponsValidateByClass(iIndex, "human"))
+			{
+				// Push data into array
+				hList.Push(iIndex);
+			}
+		}
+	}
+	
+	// Push list into array 
+	gServerData.Arsenal.Push(hList);
+}
+
+/**
+ * @brief Find the handle at which the slot type is at.
+ * 
+ * @param mSlot             The slot index.
+ * @return                  The menu handle.
+ **/
+Menu ZMarketArsenalSlotToHandle(int mSlot)
+{
+	// Validate shop menu
+	switch (mSlot)
+	{
+		// Primary menu
+		case ArsenalType_Primary :
+		{
+			// Creates menu handle
+			return new Menu(ZMarketArsenalMenuSlots1);
+		}
+		
+		// Secondary menu
+		case ArsenalType_Secondary :
+		{
+			// Creates menu handle
+			return new Menu(ZMarketArsenalMenuSlots2);
+		}
+
+		// Melee menu
+		default :
+		{
+			// Creates menu handle
+			return new Menu(ZMarketArsenalMenuSlots3);
 		}
 	}
 }

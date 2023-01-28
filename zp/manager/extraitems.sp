@@ -51,6 +51,12 @@ void ExtraItemsOnLoad(/*void*/)
 	// Register config file
 	ConfigRegisterConfig(File_ExtraItems, Structure_Keyvalue, CONFIG_FILE_ALIAS_EXTRAITEMS);
 
+	// If extraitems is disabled, then stop
+	if (!gCvarList.EXTRAITEMS.BoolValue)
+	{
+		return;
+	}
+
 	// Gets extraitems config path
 	static char sPathItems[PLATFORM_LINE_LENGTH];
 	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_EXTRAITEMS, sPathItems, sizeof(sPathItems));
@@ -179,6 +185,15 @@ void ExtraItemsOnCommandInit(/*void*/)
 }
 
 /**
+ * @brief Hook extra items cvar changes.
+ **/
+void ExtraItemsOnCvarInit(/*void*/)
+{
+	// Creates cvars
+	gCvarList.EXTRAITEMS = FindConVar("zp_extraitems");
+}
+
+/**
  * Console command callback (zitem)
  * @brief Opens the extra items menu.
  * 
@@ -290,7 +305,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 	
 	// Return on success
 	return iD;
-	}
+}
 
 /**
  * @brief Gets the buy limit of the current player item.
@@ -851,6 +866,12 @@ bool ItemsValidateClass(int client, int iD)
  **/ 
 void ItemsMenu(int client)
 {
+	// If module is disabled, then stop
+	if (!gCvarList.EXTRAITEMS.BoolValue)
+	{
+		return;
+	}
+	
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
@@ -1010,7 +1031,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				case -1 :
 				{
 					// Opens market menu
-					ZMarketMenu(client, "buy equipments"); 
+					ZMarketBuyMenu(client, "buy equipments"); 
 				}
 			
 				// Client hit 'Item' button

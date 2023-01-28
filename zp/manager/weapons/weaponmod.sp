@@ -41,30 +41,6 @@ enum SlotType
 /**
  * @endsection
  **/
- 
-/**
- * @section Number of valid menus.
- **/
-enum MenuType
-{
-	MenuType_Invalid = -1,        /** Used as return value when a menu doens't exist. */
-	
-	MenuType_Pistols,             /** Pistol menu */
-	MenuType_Shotguns,            /** Shotgun menu */
-	MenuType_Rifles,              /** Rifle menu */
-	MenuType_Snipers,             /** Sniper menu */
-	MenuType_Machineguns,         /** Machineguns menu */
-	MenuType_Knifes,              /** Knife menu */
-	MenuType_Equipments,          /** Equipment menu */
-	
-	/* Rebuy system */
-	MenuType_Rebuy,               /** Rebuy menu */  
-	MenuType_Option,              /** Option menu */  
-	MenuType_Add                  /** Add menu */
-};
-/**
- * @endsection
- **/
 
 /**
  * @section Number of valid models.
@@ -392,6 +368,9 @@ public void WeaponMODOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
 	{
 		return;
 	}
+	
+	// Forward event to modules
+	//WeaponMODOnLoad();
 	
 	// Store index
 	gServerData.Melee = WeaponsNameToIndex(newValue);
