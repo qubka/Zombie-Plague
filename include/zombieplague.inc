@@ -194,6 +194,15 @@ native bool ZP_IsPlayerZombie(int client);
 native bool ZP_IsPlayerHuman(int client);
 
 /**
+ * @brief Returns true if the player is a custom class (not human or zombie), false if not.
+ *
+ * @param client            The client index.
+ *  
+ * @return                  True or false.
+ **/
+native bool ZP_IsPlayerCustom(int client);
+
+/**
  * @brief Gets the last player disconnected time.
  *
  * @param client            The client index.

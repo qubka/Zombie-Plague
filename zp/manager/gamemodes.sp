@@ -324,10 +324,10 @@ void GameModesOnCvarInit(/*void*/)
 	HookConVarChange(gCvarList.GAMEMODE_LIMIT_TEAMS,   CvarsLockOnCvarHook);
 	HookConVarChange(gCvarList.GAMEMODE_WARMUP_TIME,   CvarsLockOnCvarHook);
 	HookConVarChange(gCvarList.GAMEMODE_WARMUP_PERIOD, CvarsLockOnCvarHook);
-	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_ZP,  GameModesTimeOnCvarHook);
-	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_CS,  GameModesTimeOnCvarHook);
-	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_DE,  GameModesTimeOnCvarHook);
-	HookConVarChange(gCvarList.GAMEMODE_ROUND_RESTART, GameModesRestartOnCvarHook);
+	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_ZP,  GameModesOnCvarHookTime);
+	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_CS,  GameModesOnCvarHookTime);
+	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_DE,  GameModesOnCvarHookTime);
+	HookConVarChange(gCvarList.GAMEMODE_ROUND_RESTART, GameModesOnCvarHookRestart);
 	HookConVarChange(gCvarList.GAMEMODE,               GameModesOnCvarHook);
 }
 
@@ -396,7 +396,7 @@ public void GameModesOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void GameModesTimeOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+public void GameModesOnCvarHookTime(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// If cvar is mp_roundtime_hostage or mp_roundtime_defuse, then continue
 	if (hConVar == gCvarList.GAMEMODE_ROUNDTIME_CS || hConVar == gCvarList.GAMEMODE_ROUNDTIME_DE)
@@ -424,7 +424,7 @@ public void GameModesTimeOnCvarHook(ConVar hConVar, char[] oldValue, char[] newV
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void GameModesRestartOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+public void GameModesOnCvarHookRestart(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Prevent round restart
 	hConVar.IntValue = 0;

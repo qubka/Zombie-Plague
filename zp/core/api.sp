@@ -675,6 +675,7 @@ void APIOnNativeInit(/*void*/)
 	CreateNative("ZP_IsPlayerInGroup",  API_IsPlayerInGroup);
 	CreateNative("ZP_IsPlayerZombie",   API_IsPlayerZombie);
 	CreateNative("ZP_IsPlayerHuman",    API_IsPlayerHuman);
+	CreateNative("ZP_IsPlayerCustom",   API_IsPlayerCustom);
 	CreateNative("ZP_GetPlayerTime",    API_GetPlayerTime);
 	CreateNative("ZP_IsMapLoaded",      API_IsMapLoaded);
 	CreateNative("ZP_IsNewRound",       API_IsNewRound);
@@ -733,6 +734,20 @@ public int API_IsPlayerHuman(Handle hPlugin, int iNumParams)
 
 	// Return the value
 	return !gClientData[client].Zombie;
+}
+
+/**
+ * @brief Returns true if the player is a custom class (not human or zombie), false if not.
+ *
+ * @note native bool ZP_IsPlayerCustom(client);
+ **/
+public int API_IsPlayerCustom(Handle hPlugin, int iNumParams)
+{
+	// Gets real player index from native cell 
+	int client = GetNativeCell(1);
+
+	// Return the value
+	return gClientData[client].Custom;
 }
 
 /**
