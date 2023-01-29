@@ -37,7 +37,7 @@ void VoiceOnCvarInit(/*void*/)
 	
 	// Hook cvars
 	//HookConVarChange(gCvarList.SEFFECTS_ALLTALK],            VoiceOnCvarHook);
-	HookConVarChange(gCvarList.SEFFECTS_VOICE,              VoiceOnCvarHook);
+	HookConVarChange(gCvarList.SEFFECTS_VOICE,              VoiceOnCvarHookVoice);
 	HookConVarChange(gCvarList.SEFFECTS_VOICE_ZOMBIES_MUTE, VoiceOnCvarHookMute);
 }
 
@@ -92,10 +92,10 @@ void VoiceOnClientUpdate(int client)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+public void VoiceOnCvarHookVoice(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
-	if (oldValue[0] == newValue[0])
+	if (!strcmp(oldValue, newValue, false))
 	{
 		return;
 	}
@@ -123,7 +123,7 @@ public void VoiceOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 public void VoiceOnCvarHookMute(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
-	if (oldValue[0] == newValue[0])
+	if (!strcmp(oldValue, newValue, false))
 	{
 		return;
 	}

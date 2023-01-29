@@ -341,7 +341,7 @@ public Action CostumesOnCommandCatched(int client, int iArguments)
 public void CostumesOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
-	if (oldValue[0] == newValue[0])
+	if (!strcmp(oldValue, newValue, false))
 	{
 		return;
 	}

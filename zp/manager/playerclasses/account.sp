@@ -140,7 +140,7 @@ void AccountOnCvarInit(/*void*/)
 }
 
 /**
- * Cvar hook callback (zp_money)
+ * Cvar hook callback (zp_account_money)
  * @brief Account module initialization.
  * 
  * @param hConVar           The cvar handle.
@@ -150,7 +150,7 @@ void AccountOnCvarInit(/*void*/)
 public void AccountOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
-	if (oldValue[0] == newValue[0])
+	if (!strcmp(oldValue, newValue, false))
 	{
 		return;
 	}

@@ -328,7 +328,6 @@ void GameModesOnCvarInit(/*void*/)
 	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_CS,  GameModesOnCvarHookTime);
 	HookConVarChange(gCvarList.GAMEMODE_ROUNDTIME_DE,  GameModesOnCvarHookTime);
 	HookConVarChange(gCvarList.GAMEMODE_ROUND_RESTART, GameModesOnCvarHookRestart);
-	HookConVarChange(gCvarList.GAMEMODE,               GameModesOnCvarHook);
 }
 
 /**
@@ -366,26 +365,6 @@ void GameModesOnClientDisconnectPost(/*int client*/)
 {
 	// Check the last human/zombie
 	ModesDisconnectLast();
-}
-
-/**
- * Cvar hook callback (zp_game_custom_time)
- * @brief Damage module initialization.
- * 
- * @param hConVar           The cvar handle.
- * @param oldValue          The value before the attempted change.
- * @param newValue          The new value.
- **/
-public void GameModesOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
-{
-	// Validate new value
-	if (!strcmp(oldValue, newValue, false))
-	{
-		return;
-	}
-	
-	// Forward event to modules
-	HitGroupsOnInit();
 }
 
 /**

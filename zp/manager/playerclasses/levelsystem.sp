@@ -518,7 +518,7 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
 public void LevelSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
-	if (oldValue[0] == newValue[0])
+	if (!strcmp(oldValue, newValue, false))
 	{
 		return;
 	}

@@ -230,6 +230,7 @@ void HitGroupsOnCvarInit(/*void*/)
 	
 	// Hook cvars
 	HookConVarChange(gCvarList.HITGROUP, HitGroupsOnCvarHook);
+	HookConVarChange(gCvarList.GAMEMODE, HitGroupsOnCvarHook);
 }
 
 /**
@@ -271,7 +272,7 @@ void HitGroupsOnEntityCreated(int entity, const char[] sClassname)
 }
 
 /**
- * Cvar hook callback (zp_game_custom_hitgroups)
+ * Cvar hook callback (zp_hitgroup, zp_gamemode)
  * @brief Hit groups module initialization.
  * 
  * @param hConVar           The cvar handle.
@@ -281,7 +282,7 @@ void HitGroupsOnEntityCreated(int entity, const char[] sClassname)
 public void HitGroupsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
-	if (oldValue[0] == newValue[0])
+	if (!strcmp(oldValue, newValue, false))
 	{
 		return;
 	}
