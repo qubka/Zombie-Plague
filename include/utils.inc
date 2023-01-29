@@ -426,6 +426,7 @@ enum ItemDef
 	ItemDef_SnowBall,
 	ItemDef_BumpMine,
 	ItemDef_Bayonet = 500,
+	ItemDef_ClassicKnife = 503,
 	ItemDef_FlipKnife = 505,
 	ItemDef_GutKnife = 506,
 	ItemDef_Karambit = 507,
@@ -435,10 +436,14 @@ enum ItemDef
 	ItemDef_BowieKnife = 514,
 	ItemDef_ButterflyKnife = 515,
 	ItemDef_ShadowDaggers = 516,
+	ItemDef_ParacordKnife = 517,
+	ItemDef_SurvivalKnife = 517,
 	ItemDef_UrsusKnife = 519,
 	ItemDef_NavajaKnife = 520,
+	ItemDef_NomadKnife = 521,
 	ItemDef_StilettoKnife = 522,
-	ItemDef_TalonKnife = 523 
+	ItemDef_TalonKnife = 523,
+	ItemDef_SkeletonKnife = 525
 };
 #define IsGrenade(%0)       (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || %0 == ItemDef_BreachCharge || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_BumpMine))
 #define IsProjectile(%0)    (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_FragGrenade))
