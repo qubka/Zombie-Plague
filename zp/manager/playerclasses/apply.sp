@@ -157,7 +157,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	gClientData[client].SkillCounter = 0.0;
 	
 	// Remove player weapons
-	if (WeaponsRemove(client)) /// Give default
+	if (WeaponsRemove(client, !!attacker)) /// Give default
 	{
 		// Gets class weapons
 		static int iWeapon[SMALL_LINE_LENGTH];
@@ -269,7 +269,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	if (gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision); /// HACK~HACK
 	_call.AccountOnClientUpdate(client);
 	_call.WeaponsOnClientUpdate(client);
-	
+
 	// If mode already started, then change team
 	if (!gServerData.RoundNew)
 	{

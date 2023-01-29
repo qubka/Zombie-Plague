@@ -2462,9 +2462,10 @@ int WeaponsNameToIndex(char[] sName)
  * @brief Remove a weapon.
  *
  * @param client            The client index.
+ * @param bDrop             (Optional) True to drop weapons, false to destroy.
  * @return                  True on success, false if client has access. 
  **/
-bool WeaponsRemove(int client)
+bool WeaponsRemove(int client, bool bDrop = false)
 {
 	// Initialize variables
 	int iAmount; bool bRemove;
@@ -2489,10 +2490,19 @@ bool WeaponsRemove(int client)
 				// Validate access
 				if (!WeaponsValidateClass(client, iD)) 
 				{
-					// Forces a player to remove weapon
-					RemovePlayerItem(client, weapon);
-					AcceptEntityInput(weapon, "Kill"); /// Destroy
-					
+					// Can weapon be dropped ?
+					if (bDrop && WeaponsIsDrop(iD))
+					{
+						// Drop weapon
+						WeaponsDrop(client, weapon, false);
+					}
+					else
+					{
+						// Forces a player to remove weapon
+						RemovePlayerItem(client, weapon);
+						AcceptEntityInput(weapon, "Kill"); /// Destroy
+					}
+
 					// Sets for return
 					bRemove = true;
 				}
@@ -2619,7 +2629,7 @@ void WeaponsEquip(int client, int weapon, int iD)
 			// Gets weapon index
 			weapon2 = WeaponsFindByName(client, sClassname);
 		}
-		
+
 		// Single slot
 		default : 
 		{
@@ -2858,7 +2868,18 @@ int WeaponsFindByName(int client, char[] sType)
  **/
 SlotType WeaponsGetSlotType(int weapon)
 {
-	return view_as<SlotType>(SDKCall(hSDKCallGetSlot, weapon));
+	// Gets the slot
+	SlotType mSlot = view_as<SlotType>(SDKCall(hSDKCallGetSlot, weapon));
+	
+	// Validate slot, may be offset invalid
+	if (mSlot > SlotType_C4)
+	{
+		// Log failure
+		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+	}
+	
+	// Return type
+	return mSlot;
 }
 
 /**
@@ -3012,7 +3033,7 @@ bool WeaponsValidateByMap(int weapon, char[] sClassname)
 	// Apply dropped model
 	WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
 
-	// Apply fake spawn hook on the next frame
+	// Call post spawn hook on the next frame
 	_exec.WeaponMODOnWeaponSpawnPost(weapon);
 	
 	// Return on success
