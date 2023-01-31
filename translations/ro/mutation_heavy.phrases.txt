@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"mutationheavy set" // Hint (no color)
+	{
+		"ro"			"Instalarea capcanei in progres!"
+	}
+
+	"mutationheavy success" // Hint (no color)
+	{
+		"ro"			"Capcana a fost setata!"
+	}
+
+	"mutationheavy catch" // Hint (no color)
+	{
+		"ro"			"Ai fost prins!"
+	}
+
+	"mutationheavy cancel" // Hint (no color)
+	{
+		"ro"			"Opreste instalarea!"
+	}
+
+	"mutationheavy catched" // Hint (no color)
+	{
+		"#format"		"{1:s}"
+		"ro"			"Jucatorul: {1} - prins!"
+	}
+}

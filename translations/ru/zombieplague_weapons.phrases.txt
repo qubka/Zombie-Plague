@@ -1,0 +1,548 @@
+"Phrases"
+{
+	// Pistols
+	
+	"elite" // Menu
+	{
+		"ru"			"Dual elite"
+	}
+	
+	"deagle" // Menu
+	{
+		"ru"			"Дезерт Игл"
+	}
+	
+	"glock" // Menu
+	{
+		"ru"			"Glock 18"
+	}
+	
+	"usp" // Menu
+	{
+		"ru"			"HK USP"
+	}
+	
+	"hpk" // Menu
+	{
+		"ru"			"Heckler & Koch P2000"
+	}
+	
+	"fiveseven" // Menu
+	{
+		"ru"			"FN Five-seveN"
+	}
+	
+	"tec9" // Menu
+	{
+		"ru"			"Intratec TEC-DC9"
+	}
+	
+	"cz75a" // Menu
+	{
+		"ru"			"CZ75A"
+	}
+	
+	"p250" // Menu
+	{
+		"ru"			"SIG Sauer P250"
+	}
+	
+	"taser" // Menu
+	{
+		"ru"			"Тазер"
+	}
+	
+	"revolver" // Menu
+	{
+		"ru"			"Револьвер"
+	}
+	
+	"janus1" // Menu
+	{
+		"ru"			"Джанус I"
+	}
+	
+	"skull1" // Menu
+	{
+		"ru"			"Скулл I"
+	}
+	
+	"balrog1" // Menu
+	{
+		"ru"			"Балрог I"
+	}
+	
+	"sfpistol" // Menu
+	{
+		"ru"			"SF-PISTOL"
+	}
+	
+	// Shotguns
+	
+	"nova" // Menu
+	{
+		"ru"			"Benelli Nova"
+	}
+	
+	"sawedoff" // Menu
+	{
+		"ru"			"Sawed-Off"
+	}
+	
+	"xm1014" // Menu
+	{
+		"ru"			"XM1014"
+	}
+	
+	"mag7" // Menu
+	{
+		"ru"			"MAG7"
+	}
+	
+	"skull11" // Menu
+	{
+		"ru"			"Скулл XI"
+	}
+	
+	"gatling" // Menu
+	{
+		"ru"			"Гатлинг"
+	}
+	
+	"balrog11" // Menu
+	{
+		"ru"			"Балрог XI"
+	}
+	
+	"janus11" // Menu
+	{
+		"ru"			"Джанус XI"
+	}
+
+	// Rifles
+	
+	"ak47" // Menu
+	{
+		"ru"			"AK-47"
+	}
+	
+	"sg556" // Menu
+	{
+		"ru"			"SIG SG 556"
+	}
+	
+	"aug" // Menu
+	{
+		"ru"			"Steyr AUG"
+	}
+	
+	"m4a4" // Menu
+	{
+		"ru"			"M4A4"
+	}
+	
+	"m4a1" // Menu
+	{
+		"ru"			"M4A1"
+	}
+	
+	"bizon" // Menu
+	{
+		"ru"			"ПП-19"
+	}
+	
+	"famas" // Menu
+	{
+		"ru"			"FAMAS"
+	}
+	
+	"mac10" // Menu
+	{
+		"ru"			"Ingram MAC-10"
+	}
+	
+	"mp5sd" // Menu
+	{
+		"ru"			"MP5-SD"
+	}
+	
+	"mp7" // Menu
+	{
+		"ru"			"HK MP7"
+	}
+	
+	"mp9" // Menu
+	{
+		"ru"			"HK MP9"
+	}
+	
+	"p90" // Menu
+	{
+		"ru"			"FN P90"
+	}
+	
+	"ump45" // Menu
+	{
+		"ru"			"HK UMP"
+	}
+	
+	"galilar" // Menu
+	{
+		"ru"			"Гагил"
+	}
+	
+	"lightninghz" // Menu
+	{
+		"ru"			"Тяжелый зомбяк"
+	}
+	
+	"lightninglz" // Menu
+	{
+		"ru"			"Легкий зомбяк"
+	}
+	
+	"blaster" // Menu
+	{
+		"ru"			"Лазерный бластер"
+	}
+	
+	"tempest" // Menu
+	{
+		"ru"			"Лазерный тигр"
+	}
+	
+	"plasmagun" // Menu
+	{
+		"ru"			"Плазма пушка"
+	}
+	
+	"cartblue" // Menu
+	{
+		"ru"			"Синяя машинка"
+	}
+	
+	"balrog3" // Menu
+	{
+		"ru"			"Балрог III"
+	}
+	
+	"janus3" // Menu
+	{
+		"ru"			"Джанус III"
+	}
+	
+	"janus5" // Menu
+	{
+		"ru"			"Джанус V"
+	}
+	
+	// Snipers
+	
+	"awp" // Menu
+	{
+		"ru"			"AWP"
+	}
+	
+	"ssg08" // Menu
+	{
+		"ru"			"SSG 08"
+	}
+	
+	"g3sg1" // Menu
+	{
+		"ru"			"G3SG1"
+	}
+	
+	"scar20" // Menu
+	{
+		"ru"			"SCAR-20"
+	}
+	
+	"wa2000" // Menu
+	{
+		"ru"			"Walther WA2000"
+	}
+	
+	"airburster" // Menu
+	{
+		"ru"			"Воздушная пушка"
+	}
+	
+	"skull5" // Menu
+	{
+		"ru"			"Скулл V"
+	}
+	
+	// Machineguns
+	
+	"m249" // Menu
+	{
+		"ru"			"M249 SAW"
+	}
+
+	"negev" // Menu
+	{
+		"ru"			"Негев"
+	}
+	
+	"m134" // Menu
+	{
+		"ru"			"M134 Обезьяна"
+	}
+	
+	"sfmg" // Menu
+	{
+		"ru"			"SF-MG"
+	}
+	
+	"sgdrill" // Menu
+	{
+		"ru"			"SG-Бур"
+	}
+	
+	"balrog7" // Menu
+	{
+		"ru"			"Балрог VII"
+	}
+	
+	"janus7" // Menu
+	{
+		"ru"			"Джанус VII"
+	}
+	
+	// Knife
+	
+	"fists" // Menu
+	{
+		"ru"			"Кулаки"
+	}
+
+	"zombie claw" // Menu
+	{
+		"ru"			"Зомби клешни"
+	}
+	
+	"nemesis claw" // Menu
+	{
+		"ru"			"Немезис клешни"
+	}
+	
+	"knife" // Menu
+	{
+		"ru"			"Обычный нож"
+	}
+	
+	"knife t" // Menu
+	{
+		"ru"			"Нож террориста"
+	}
+	
+	"knife gg" // Menu
+	{
+		"ru"			"Золотой нож"
+	}
+
+	"knife gut" // Menu
+	{
+		"ru"			"Потрошитель"
+	}
+
+	"knife flip" // Menu
+	{
+		"ru"			"Нож перевертыш"
+	}
+
+	"m9 bayonet" // Menu
+	{
+		"ru"			"M9 Bayonet"
+	}
+
+	"karambit" // Menu
+	{
+		"ru"			"Карамбит"
+	}
+
+	"knife tactical" // Menu
+	{
+		"ru"			"Нож егеря"
+	}
+
+	"knife falchion" // Menu
+	{
+		"ru"			"Фальшион"
+	}
+
+	"knife butterfly" // Menu
+	{
+		"ru"			"Бабочка"
+	}
+
+	"knife bowie" // Menu
+	{
+		"ru"			"Охотничий нож"
+	}
+
+	"knife push" // Menu
+	{
+		"ru"			"Клинки"
+	}
+
+	"knife ursus" // Menu
+	{
+		"ru"			"Бурый нож"
+	}
+
+	"knife gypsy" // Menu
+	{
+		"ru"			"Навахо нож"
+	}
+
+	"knife stiletto" // Menu
+	{
+		"ru"			"Шпилька нож"
+	}
+
+	"knife widowmaker" // Menu
+	{
+		"ru"			"Нож коготь"
+	}
+	
+	"spanner" // Menu
+	{
+		"ru"			"Гаечный ключ"
+	}
+	
+	"axe" // Menu
+	{
+		"ru"			"Топор"
+	}
+	
+	"hammer" // Menu
+	{
+		"ru"			"Молоток"
+	}
+	
+	"sfsword" // Menu
+	{
+		"ru"			"Световой меч"
+	}
+	
+	"skullaxe" // Menu
+	{
+		"ru"			"Большой топор"
+	}
+	
+	"big hammer" // Menu
+	{
+		"ru"			"Большой молот"
+	}
+	
+	// Others
+
+	"etherial" // Menu
+	{
+		"ru"			"Эфириал"
+	}
+	
+	"sfsniper" // Menu
+	{
+		"ru"			"Лазерная винтовка"
+	}
+	
+	// Info
+	
+	"skull1 info" // Hint
+	{
+		"ru"			"Переключить <font color='#E62E00'>режим</font> на правую кнопку мыши"
+	}
+
+	"balrog1 info" // Hint 
+	{
+		"ru"			"Огненный <font color='#FF6161'>взрыв</font> на правую кнопку мыши"
+	}
+
+	"janus1 info" // Hint
+	{
+		"ru"			"Переключить <font color='#FFD9FF'>режим</font> на правую кнопку мыши"
+	}
+
+	"balrog11 info" // Hint 
+	{
+		"ru"			"Огненный <font color='#CD00CD'>поток</font> на правую кнопку мыши"
+	}
+
+	"janus11 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#FF33CC'>режим</font> на правую кнопку мыши"
+	}
+
+	"cartblue info" // Hint
+	{
+		"ru"			"Переключить <font color='#FE28A2'>режим</font> на правую кнопку мыши"
+	}
+
+	"janus3 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#F754EA'>режим</font> на правую кнопку мыши"
+	}
+
+	"janus5 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#C154C1'>режим</font> на правую кнопку мыши"
+	}
+
+	"airburster info" // Hint 
+	{
+		"ru"			"Сильный <font color='#BA66FF'>потом</font> на правую кнопку мыши"
+	}
+
+	"sgdrill info" // Hint
+	{
+		"ru"			"Сильный <font color='#4B0082'>удар</font> на правую кнопку мыши"
+	}
+	
+	"sfmg info" // Hint
+	{
+		"ru"			"Переключить <font color='#FE28B2'>режим</font> на правую кнопку мыши"
+	}
+
+	"janus7 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#4F273A'>режим</font> на правую кнопку мыши"
+	}
+	
+	"sfsword info" // Hint 
+	{
+		"ru"			"Переключить <font color='#4F0F2E'>режим</font> на правую кнопку мыши"
+	}
+
+	"hammer info" // Hint 
+	{
+		"ru"			"Переключить <font color='#4F1F36'>режим</font> на правую кнопку мыши"
+	}
+	
+	"balrog3 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#6B3B82'>зум</font> на правую кнопку мыши"
+	}
+	
+	"balrog7 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#702E8F'>зум</font> на правую кнопку мыши"
+	}
+	
+	"m32 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#432E8F'>зум</font> на правую кнопку мыши"
+	}
+	
+	"skull11 info" // Hint 
+	{
+		"ru"			"Переключить <font color='#5E46B8'>зум</font> на правую кнопку мыши"
+	}
+	
+	"grenade info" // Hint
+	{
+		"ru"			"Переключить <font color='#FFD9FF'>режим</font> на кнопку перезарядки"
+	}
+}

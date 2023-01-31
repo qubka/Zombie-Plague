@@ -1,0 +1,157 @@
+"Phrases"
+{
+	// Items
+	
+	"antidot" // Menu
+	{
+		"en"			"Antidote"
+	}
+
+	"infect bomb" // Menu
+	{
+		"en"			"Infection Bomb"
+	}
+	
+	"jump bomb" // Menu
+	{
+		"en"			"Jump Bomb"
+	}
+	
+	"holy grenade" // Menu 
+	{
+		"en"			"Holy Grenade"
+	}
+
+	"molotov" // Menu
+	{
+		"en"			"Molotov"
+	}
+
+	"inc grenade" // Menu
+	{
+		"en"			"Incendiary Grenade"
+	}
+
+	"medi shot" // Menu
+	{
+		"en"			"Medical Shot"
+	}
+	
+	"bump mine"
+	{
+		"en"			"Bump mine"
+	}
+	
+	"drone gun" // Menu
+	{
+		"en"			"Auto turret"
+	}
+
+	"freeze grenade" // Menu
+	{
+		"en"			"Freeze Grenade"
+	}
+
+	"flare grenade" // Menu
+	{
+		"en"			"Flare Grenade"
+	}
+	
+	"breachcharge" // Menu
+	{
+		"en"			"C4"
+	}
+
+	"kevlar" // Menu
+	{
+		"en"			"Armor"
+	}
+	
+	"assaultsuit" // Menu
+	{
+		"en"			"Armor/Helmet"
+	}
+	
+	"heavysuit" // Menu
+	{
+		"en"			"Heavy suit"
+	}
+	
+	"bazooka" // Menu
+	{
+		"en"			"Bazooka"
+	}
+	
+	"airdrop" // Menu
+	{
+		"en"			"Call airdrop"
+	}
+	
+	"m32" // Menu
+	{
+		"en"			"M32 Milkor"
+	}
+	
+	"chainsaw" // Menu
+	{
+		"en"			"Chainsaw"
+	}
+
+	"lasermine" // Menu
+	{
+		"en"			"Lasermine"
+	}
+	
+	"jetpack" // Menu
+	{
+		"en"			"Jetpack"
+	}
+
+	"cannon" // Menu
+	{
+		"en"			"Dragon cannon"
+	}
+	
+	"drillgun" // Menu
+	{
+		"en"			"Drill"
+	}
+	
+	"watercannon" // Menu
+	{
+		"en"			"Flamethrower"
+	}
+	
+	"shield"
+	{
+		"en"			"Shield"
+	}
+	
+	// Info
+	
+	"chainsaw info" // Hint
+	{
+		"en"			"Strong <font color='#7A1A0B'>slash</font> on the right mouse button"
+		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
+	}
+
+	"turret info" // Hint
+	{
+		"en"			"To pickup <font color='#3D49C7'>a turret</font>, use <font color='#1CA9C9'>E</font> button"
+	}
+
+	"shield info" // Hint
+	{
+		"en"			"To <font color='#C87878'>repulse</font> grenades, use the <font color='#3399CC'>right</font> mouse button!"
+	}
+
+	"lasermine info" // Hint
+	{
+		"en"			"To pickup <font color='#F8173E'>a mine</font>, use <font color='#1CA9C9'>E</font> button"
+	}
+	
+	"jetpack info" // Hint
+	{
+		"en"			"Press <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>SPACE</font> to enabled <font color='#FF033E'>jetpack</font>" 
+	}
+}

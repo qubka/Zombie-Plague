@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"mutationheavy set" // Hint (no color)
+	{
+		"zho"			"陷阱部署中！"
+	}
+
+	"mutationheavy success" // Hint (no color)
+	{
+		"zho"			"陷阱已部署!"
+	}
+
+	"mutationheavy catch" // Hint (no color)
+	{
+		"zho"			"妳落入陷阱了！"
+	}
+
+	"mutationheavy cancel" // Hint (no color)
+	{
+		"zho"			"取消部署！"
+	}
+
+	"mutationheavy catched" // Hint (no color)
+	{
+		"#format"		"{1:s}"
+		"zho"			"玩家： {1} - 落入陷阱!"
+	}
+}

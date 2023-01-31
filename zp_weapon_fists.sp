@@ -203,7 +203,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Adds the delay to the game tick
-	flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 	
 	// Sets next attack time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -256,8 +256,8 @@ void Weapon_OnHit(int client, int weapon)
 	static float vPosition[3]; static float vEndPosition[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 0.0, 0.0, 5.0, vPosition);
-	ZP_GetPlayerGunPosition(client, WEAPON_PUNCH_DISTANCE, 0.0, 5.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 5.0, vPosition);
+	ZP_GetPlayerEyePosition(client, WEAPON_PUNCH_DISTANCE, 0.0, 5.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);

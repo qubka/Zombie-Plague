@@ -1,0 +1,548 @@
+"Phrases"
+{
+	// Pistols
+	
+	"elite" // Menu
+	{
+		"chi"			"Dual elite"
+	}
+	
+	"deagle" // Menu
+	{
+		"chi"			"沙漠之鹰"
+	}
+	
+	"glock" // Menu
+	{
+		"chi"			"Glock 18"
+	}
+	
+	"usp" // Menu
+	{
+		"chi"			"HK USP"
+	}
+	
+	"hpk" // Menu
+	{
+		"chi"			"Heckler & Koch P2000"
+	}
+	
+	"fiveseven" // Menu
+	{
+		"chi"			"FN Five-seveN"
+	}
+	
+	"tec9" // Menu
+	{
+		"chi"			"Intratec TEC-DC9"
+	}
+	
+	"cz75a" // Menu
+	{
+		"chi"			"CZ75A"
+	}
+	
+	"p250" // Menu
+	{
+		"chi"			"SIG Sauer P250"
+	}
+	
+	"taser" // Menu
+	{
+		"chi"			"电击枪"
+	}
+	
+	"revolver" // Menu
+	{
+		"chi"			"左轮手枪"
+	}
+	
+	"janus1" // Menu
+	{
+		"chi"			"Janus I"
+	}
+	
+	"skull1" // Menu
+	{
+		"chi"			"Skull I"
+	}
+	
+	"balrog1" // Menu
+	{
+		"chi"			"Balrog I"
+	}
+	
+	"sfpistol" // Menu
+	{
+		"chi"			"SF-PISTOL"
+	}
+	
+	// Shotguns
+	
+	"nova" // Menu
+	{
+		"chi"			"Benelli Nova"
+	}
+	
+	"sawedoff" // Menu
+	{
+		"chi"			"Sawed-Off"
+	}
+	
+	"xm1014" // Menu
+	{
+		"chi"			"XM1014"
+	}
+	
+	"mag7" // Menu
+	{
+		"chi"			"MAG7"
+	}
+	
+	"skull11" // Menu
+	{
+		"chi"			"Skull XI"
+	}
+	
+	"gatling" // Menu
+	{
+		"chi"			"Gatling"
+	}
+	
+	"balrog11" // Menu
+	{
+		"chi"			"Balrog XI"
+	}
+	
+	"janus11" // Menu
+	{
+		"chi"			"Janus XI"
+	}
+
+	// Rifles
+	
+	"ak47" // Menu
+	{
+		"chi"			"AK-47"
+	}
+	
+	"sg556" // Menu
+	{
+		"chi"			"SIG SG 556"
+	}
+	
+	"aug" // Menu
+	{
+		"chi"			"Steyr AUG"
+	}
+	
+	"m4a4" // Menu
+	{
+		"chi"			"M4A4"
+	}
+	
+	"m4a1" // Menu
+	{
+		"chi"			"M4A1"
+	}
+	
+	"bizon" // Menu
+	{
+		"chi"			"Bizon"
+	}
+	
+	"famas" // Menu
+	{
+		"chi"			"FAMAS"
+	}
+	
+	"mac10" // Menu
+	{
+		"chi"			"Ingram MAC-10"
+	}
+	
+	"mp5sd" // Menu
+	{
+		"chi"			"MP5-SD"
+	}
+	
+	"mp7" // Menu
+	{
+		"chi"			"HK MP7"
+	}
+	
+	"mp9" // Menu
+	{
+		"chi"			"HK MP9"
+	}
+	
+	"p90" // Menu
+	{
+		"chi"			"FN P90"
+	}
+	
+	"ump45" // Menu
+	{
+		"chi"			"HK UMP"
+	}
+	
+	"galilar" // Menu
+	{
+		"chi"			"Galil AR"
+	}
+	
+	"lightninghz" // Menu
+	{
+		"chi"			"Lightning HZ"
+	}
+	
+	"lightninglz" // Menu
+	{
+		"chi"			"Lightning LZ"
+	}
+	
+	"blaster" // Menu
+	{
+		"chi"			"SFGUN-1"
+	}
+	
+	"tempest" // Menu
+	{
+		"chi"			"SF-TEMPEST"
+	}
+	
+	"plasmagun" // Menu
+	{
+		"chi"			"等离子枪"
+	}
+	
+	"cartblue" // Menu
+	{
+		"chi"			"Cartblue"
+	}
+	
+	"balrog3" // Menu
+	{
+		"chi"			"Balrog III"
+	}
+	
+	"janus3" // Menu
+	{
+		"chi"			"Janus III"
+	}
+	
+	"janus5" // Menu
+	{
+		"chi"			"Janus V"
+	}
+	
+	// Snipers
+	
+	"awp" // Menu
+	{
+		"chi"			"AWP"
+	}
+	
+	"ssg08" // Menu
+	{
+		"chi"			"SSG 08"
+	}
+	
+	"g3sg1" // Menu
+	{
+		"chi"			"G3SG1"
+	}
+	
+	"scar20" // Menu
+	{
+		"chi"			"SCAR-20"
+	}
+	
+	"wa2000" // Menu
+	{
+		"chi"			"Walther WA2000"
+	}
+	
+	"airburster" // Menu
+	{
+		"chi"			"Airburster"
+	}
+	
+	"skull5" // Menu
+	{
+		"chi"			"Skull V"
+	}
+	
+	// Machineguns
+	
+	"m249" // Menu
+	{
+		"chi"			"M249 SAW"
+	}
+
+	"negev" // Menu
+	{
+		"chi"			"Negev"
+	}
+	
+	"m134" // Menu
+	{
+		"chi"			"M134 猴子"
+	}
+	
+	"sfmg" // Menu
+	{
+		"chi"			"SF-MG"
+	}
+	
+	"sgdrill" // Menu
+	{
+		"chi"			"SG-DRILL"
+	}
+	
+	"balrog7" // Menu
+	{
+		"chi"			"Balrog VII"
+	}
+	
+	"janus7" // Menu
+	{
+		"chi"			"Janus VII"
+	}
+	
+	// Knife
+	
+	"fists" // Menu
+	{
+		"chi"			"拳头"
+	}
+
+	"zombie claw" // Menu
+	{
+		"chi"			"丧尸之爪"
+	}
+	
+	"nemesis claw" // Menu
+	{
+		"chi"			"复仇女神之爪"
+	}
+	
+	"knife" // Menu
+	{
+		"chi"			"经典小刀"
+	}
+	
+	"knife t" // Menu
+	{
+		"chi"			"T刀"
+	}
+	
+	"knife gg" // Menu
+	{
+		"chi"			"黄金之刃"
+	}
+
+	"knife gut" // Menu
+	{
+		"chi"			"穿肠刀"
+	}
+
+	"knife flip" // Menu
+	{
+		"chi"			"折叠刀"
+	}
+
+	"m9 bayonet" // Menu
+	{
+		"chi"			"M9刺刀"
+	}
+
+	"karambit" // Menu
+	{
+		"chi"			"爪子刀"
+	}
+
+	"knife tactical" // Menu
+	{
+		"chi"			"猎杀刀"
+	}
+
+	"knife falchion" // Menu
+	{
+		"chi"			"弯刀"
+	}
+
+	"knife butterfly" // Menu
+	{
+		"chi"			"蝴蝶刀"
+	}
+
+	"knife bowie" // Menu
+	{
+		"chi"			"博伊刀"
+	}
+
+	"knife push" // Menu
+	{
+		"chi"			"暗影匕首"
+	}
+
+	"knife ursus" // Menu
+	{
+		"chi"			"乌苏斯刀"
+	}
+
+	"knife gypsy" // Menu
+	{
+		"chi"			"剃刀"
+	}
+
+	"knife stiletto" // Menu
+	{
+		"chi"			"细木工刀"
+	}
+
+	"knife widowmaker" // Menu
+	{
+		"chi"			"利爪刀"
+	}
+	
+	"spanner" // Menu
+	{
+		"chi"			"扳手"
+	}
+	
+	"axe" // Menu
+	{
+		"chi"			"斧头"
+	}
+	
+	"hammer" // Menu
+	{
+		"chi"			"锤子"
+	}
+	
+	"sfsword" // Menu
+	{
+		"chi"			"激光军刀"
+	}
+	
+	"skullaxe" // Menu
+	{
+		"chi"			"骷髅头"
+	}
+	
+	"big hammer" // Menu
+	{
+		"chi"			"大锤子"
+	}
+	
+	// Others
+
+	"etherial" // Menu
+	{
+		"chi"			"灵气"
+	}
+	
+	"sfsniper" // Menu
+	{
+		"chi"			"SF-SNIPER"
+	}
+	
+	// Info
+	
+	"skull1 info" // Hint
+	{
+		"chi"			"切换 <font color='#E62E00'>模式</font> 通过鼠标右键"
+	}
+
+	"balrog1 info" // Hint 
+	{
+		"chi"			"开火 <font color='#FFD9FF'>爆炸</font> 通过鼠标右键"
+	}
+
+	"janus1 info" // Hint
+	{
+		"chi"			"切换 <font color='#FFD9FF'>模式</font> 通过鼠标右键"
+	}
+
+	"balrog11 info" // Hint 
+	{
+		"chi"			"开火 <font color='#CD00CD'>雨</font> 通过鼠标右键"
+	}
+
+	"janus11 info" // Hint 
+	{
+		"chi"			"切换 <font color='#FF33CC'>模式</font> 通过鼠标右键"
+	}
+
+	"cartblue info" // Hint
+	{
+		"chi"			"切换 <font color='#FE28A2'>模式</font> 通过鼠标右键"
+	}
+
+	"janus3 info" // Hint 
+	{
+		"chi"			"切换 <font color='#F754EA'>模式</font> 通过鼠标右键"
+	}
+
+	"janus5 info" // Hint 
+	{
+		"chi"			"切换 <font color='#C154C1'>模式</font> 通过鼠标右键"
+	}
+
+	"airburster info" // Hint 
+	{
+		"chi"			"增强 <font color='#BA66FF'>空投</font> 通过鼠标右键"
+	}
+
+	"sgdrill info" // Hint
+	{
+		"chi"			"增强 <font color='#4B0082'>命中</font> 通过鼠标右键"
+	}
+	
+	"sfmg info" // Hint
+	{
+		"chi"			"切换 <font color='#FE28B2'>模式</font> 通过鼠标右键"
+	}
+
+	"janus7 info" // Hint 
+	{
+		"chi"			"切换 <font color='#4F273A'>模式</font> 通过鼠标右键"
+	}
+	
+	"sfsword info" // Hint 
+	{
+		"chi"			"切换 <font color='#4F0F2E'>模式</font> 通过鼠标右键"
+	}
+
+	"hammer info" // Hint 
+	{
+		"chi"			"切换 <font color='#4F1F36'>模式</font> 通过鼠标右键"
+	}
+	
+	"balrog3 info" // Hint 
+	{
+		"chi"			"切换 <font color='#6B3B82'>放大</font> 通过鼠标右键"
+	}
+	
+	"balrog7 info" // Hint 
+	{
+		"chi"			"切换 <font color='#702E8F'>放大</font> 通过鼠标右键"
+	}
+	
+	"m32 info" // Hint 
+	{
+		"chi"			"切换 <font color='#432E8F'>放大</font> 通过鼠标右键"
+	}
+	
+	"skull11 info" // Hint 
+	{
+		"chi"			"切换 <font color='#5E46B8'>放大</font> 通过鼠标右键"
+	}
+	
+	"grenade info" // Hint
+	{
+		"chi"			"切换 <font color='#FFD9FF'>模式</font> 充電按鈕"
+	}
+}

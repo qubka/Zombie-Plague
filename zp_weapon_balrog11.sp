@@ -190,7 +190,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
 	
 	// Adds the delay to the game tick
-	flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 	
 	// Sets next attack time
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", flCurrentTime);
@@ -213,11 +213,11 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 	static float vPosition[5][3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 50.0, 60.0, -10.0, vPosition[0]);
-	ZP_GetPlayerGunPosition(client, 50.0, 30.0, -10.0, vPosition[1]);
-	ZP_GetPlayerGunPosition(client, 50.0, 0.0, -10.0, vPosition[2]);
-	ZP_GetPlayerGunPosition(client, 50.0, -30.0, -10.0, vPosition[3]);
-	ZP_GetPlayerGunPosition(client, 50.0, -60.0, -10.0, vPosition[4]);
+	ZP_GetPlayerEyePosition(client, 50.0, 60.0, -10.0, vPosition[0]);
+	ZP_GetPlayerEyePosition(client, 50.0, 30.0, -10.0, vPosition[1]);
+	ZP_GetPlayerEyePosition(client, 50.0, 0.0, -10.0, vPosition[2]);
+	ZP_GetPlayerEyePosition(client, 50.0, -30.0, -10.0, vPosition[3]);
+	ZP_GetPlayerEyePosition(client, 50.0, -60.0, -10.0, vPosition[4]);
 
 	// i - fire index
 	for (int i = 0; i < 5; i++)

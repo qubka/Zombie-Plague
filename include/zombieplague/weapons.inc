@@ -434,6 +434,15 @@ native float ZP_GetWeaponDamage(int weaponID);
 native float ZP_GetWeaponKnockBack(int weaponID);
 
 /**
+ * @brief Gets the moving speed of the weapon.
+ * 
+ * @param weaponID          The weapon ID.
+ *
+ * @return                  The speed amount.
+ **/
+native float ZP_GetWeaponSpeed(int weaponID);
+
+/**
  * @brief Gets the clip ammo of the weapon.
  * 
  * @param weaponID          The weapon ID.
@@ -476,7 +485,7 @@ native bool ZP_IsWeaponDrop(int weaponID);
  *
  * @return                  The delay amount.    
  **/
-native float ZP_GetWeaponSpeed(int weaponID);
+native float ZP_GetWeaponShoot(int weaponID);
 
 /**
  * @brief Gets the reload duration of the weapon.
@@ -687,7 +696,7 @@ stock bool ZP_IsPlayerHoldWeapon(int client, int &weapon, int weaponID)
 }
 
 /**
- * @brief Gets the weapon shoot position.
+ * @brief Gets the player eye position.
  *
  * @param client            The client index.
  * @param flForward         (Optional) The forward distance.
@@ -695,7 +704,7 @@ stock bool ZP_IsPlayerHoldWeapon(int client, int &weapon, int weaponID)
  * @param flVertical        (Optional) The vertical distance.
  * @param vOutput           The calculated position vector output.
  **/
-stock void ZP_GetPlayerGunPosition(int client, float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOutput[3])
+stock void ZP_GetPlayerEyePosition(int client, float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOutput[3])
 {
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 

@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"mutationheavy set" // Hint (no color)
+	{
+		"ru"			"Идет установка ловушки!"
+	}
+
+	"mutationheavy success" // Hint (no color)
+	{
+		"ru"			"Ловушка установлена!"
+	}
+
+	"mutationheavy catch" // Hint (no color)
+	{
+		"ru"			"Вы были пойманы в ловушку!"
+	}
+
+	"mutationheavy cancel" // Hint (no color)
+	{
+		"ru"			"Отмена установки!"
+	}
+
+	"mutationheavy catched" // Hint (no color)
+	{
+		"#format"		"{1:s}"
+		"ru"			"Игрок: {1} - попал в ловушку!"
+	}
+}

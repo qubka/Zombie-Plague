@@ -237,7 +237,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 		delete hConfig;
 		
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("turret.phrases");
 		
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
@@ -1996,7 +1996,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 	
 			// Gets trace line
 			GetClientEyePosition(client, vPosition);
-			ZP_GetPlayerGunPosition(client, 120.0, 0.0, 0.0, vEndPosition);
+			ZP_GetPlayerEyePosition(client, 120.0, 0.0, 0.0, vEndPosition);
 
 			// Create the end-point trace
 			TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
@@ -2016,7 +2016,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 				else
 				{
 					// Move to the bottom
-					ZP_GetPlayerGunPosition(client, 120.0, 0.0, -200.0, vPosition);
+					ZP_GetPlayerEyePosition(client, 120.0, 0.0, -200.0, vPosition);
 			
 					// Create the end-point trace
 					TR_TraceRayFilter(vEndPosition, vPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
@@ -2101,7 +2101,7 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 	
 	// Gets trace line
 	GetClientEyePosition(client, vPosition);
-	ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
 
 	// Create the end-point trace
 	TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
@@ -2178,7 +2178,7 @@ bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
 	
 	// Gets trace line
 	GetClientEyePosition(client, vPosition);
-	ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
 
 	// Create the end-point trace
 	TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);

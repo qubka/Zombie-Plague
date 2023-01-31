@@ -107,7 +107,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("janus.phrases");
 		
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
@@ -407,7 +407,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
 	// Sets next attack time
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));    
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));    
 
 	// Sets shots count
 	SetEntProp(weapon, Prop_Data, "m_iHealth", iCounter + 1);
@@ -485,7 +485,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -502,7 +502,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	static float vPosition[3]; static float vAngle[3]; static float vEnemy[3]; bool bFound;
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 10.0, -10.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 10.0, -10.0, vPosition);
 
 	// Find any players in the radius
 	int i; int it = 1; /// iterator
@@ -546,7 +546,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	}
 
 	// Sent a beam
-	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "medicgun_beam_red_invun", vEnemy, ZP_GetWeaponSpeed(gWeapon));
+	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "medicgun_beam_red_invun", vEnemy, ZP_GetWeaponShoot(gWeapon));
 }
 
 void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
@@ -645,7 +645,7 @@ public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weap
 	if (weaponID == gWeapon)
 	{
 		// Sent a tracer
-		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_mach", vBullet, ZP_GetWeaponSpeed(gWeapon));
+		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_mach", vBullet, ZP_GetWeaponShoot(gWeapon));
 	}
 }
 

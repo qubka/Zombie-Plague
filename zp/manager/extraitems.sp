@@ -898,6 +898,9 @@ void ItemsMenu(int client)
 	static char sOnline[SMALL_LINE_LENGTH];
 	static char sGroup[SMALL_LINE_LENGTH];
 	
+	// Gets amount of total players
+	int iPlaying = fnGetPlaying();
+
 	// Creates extra items menu handle
 	Menu hMenu = new Menu(ItemsMenuSlots);
 
@@ -943,11 +946,11 @@ void ItemsMenu(int client)
 		FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
 		FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
 		FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
-		FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (gClientData[client].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) ? sLimit : (fnGetPlaying() < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
+		FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (gClientData[client].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) ? sLimit : (iPlaying < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
 
 		// Show option
 		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ItemsGetLevel(i) || fnGetPlaying() < ItemsGetOnline(i) || (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) || (ItemsGetCost(i) && gClientData[client].Money < ItemsGetCost(i))) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ItemsGetLevel(i) || iPlaying < ItemsGetOnline(i) || (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) || (ItemsGetCost(i) && gClientData[client].Money < ItemsGetCost(i))) ? false : true));
 	
 		// Increment amount
 		iAmount++;

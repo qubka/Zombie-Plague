@@ -44,7 +44,7 @@ public Plugin myinfo =
 /**
  * @section Information about the zombie class.
  **/
-#define ZOMBIE_CLASS_SKILL_SPEED        1.5
+#define ZOMBIE_CLASS_SKILL_SPEED        1.42 // should be around 350
 /**
  * @endsection
  **/
@@ -129,6 +129,6 @@ public void ZP_OnClientSkillOver(int client)
 	if (ZP_GetClientClass(client) == gZombie) 
 	{
 		// Sets previous speed
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZP_GetClassSpeed(gZombie));
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
 	}
 }

@@ -1,0 +1,157 @@
+"Phrases"
+{
+	// Items
+	
+	"antidot" // Menu
+	{
+		"ro"			"Antidot"
+	}
+
+	"infect bomb" // Menu
+	{
+		"ro"			"Bomba infectioasa"
+	}
+	
+	"jump bomb" // Menu
+	{
+		"ro"			"Grenada saritoare"
+	}
+	
+	"holy grenade" // Menu 
+	{
+		"ro"			"Holy Grenade"
+	}
+
+	"molotov" // Menu
+	{
+		"ro"			"Molotov"
+	}
+
+	"inc grenade" // Menu
+	{
+		"ro"			"Grenada incendiara"
+	}
+
+	"medi shot" // Menu
+	{
+		"ro"			"Seringa medicala"
+	}
+	
+	"bump mine"
+	{
+		"ro"			"Lovește-o pe a mea."
+	}
+	
+	"drone gun" // Menu
+	{
+		"ro"			"Tureta automata"
+	}
+
+	"freeze grenade" // Menu
+	{
+		"ro"			"Grenada de gheata"
+	}
+
+	"flare grenade" // Menu
+	{
+		"ro"			"Flare Grenade"
+	}
+	
+	"breachcharge" // Menu
+	{
+		"ro"			"C4"
+	}
+
+	"kevlar" // Menu
+	{
+		"ro"			"Armura"
+	}
+	
+	"assaultsuit" // Menu
+	{
+		"ro"			"Armura/casca"
+	}
+	
+	"heavysuit" // Menu
+	{
+		"ro"			"Costum greu"
+	}
+	
+	"bazooka" // Menu
+	{
+		"ro"			"Bazooka"
+	}
+	
+	"airdrop" // Menu
+	{
+		"ro"			"Suna pentru drop aerian"
+	}
+	
+	"m32" // Menu
+	{
+		"ro"			"M32 Milkor"
+	}
+	
+	"chainsaw" // Menu
+	{
+		"ro"			"Chainsaw"
+	}
+
+	"lasermine" // Menu
+	{
+		"ro"			"Laser"
+	}
+	
+	"jetpack" // Menu
+	{
+		"ro"			"Jetpack"
+	}
+
+	"cannon" // Menu
+	{
+		"ro"			"Dragon cannon"
+	}
+	
+	"drillgun" // Menu
+	{
+		"ro"			"Drill"
+	}
+	
+	"watercannon" // Menu
+	{
+		"ro"			"Aruncator cu flacari"
+	}
+	
+	"shield"
+	{
+		"ro"			"Scut"
+	}
+	
+	// Info
+	
+	"chainsaw info" // Hint
+	{
+		"ro"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
+		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
+	}
+
+	"turret info" // Hint
+	{
+		"ro"			"Pentru a sterge <font color='#3D49C7'>tureta</font>, autilizați butonul <font color='#1CA9C9'>E</font>"
+	}
+
+	"shield info" // Hint
+	{
+		"ro"			"Pentru a utiliza grenade <font color='#C87878'>respinge</font>, folosiți butonul mouse-ului <font color='#3399CC'>dreapta</font>!"
+	}
+
+	"lasermine info" // Hint
+	{
+		"ro"			"Pentru a sterge <font color='#F8173E'>mina</font>, autilizați butonul <font color='#1CA9C9'>E</font>"
+	}
+	
+	"jetpack info" // Hint
+	{
+		"ro"			"Tina apasat <font color='#09AB3F'>CTRL</font> si apasa <font color='#09AB3F'>SPACE</font> porniți <font color='#FF033E'>jetpack-ul</font>"
+	}
+}

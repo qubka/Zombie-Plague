@@ -47,11 +47,12 @@ enum
 	WEAPONS_DATA_LIMIT,
 	WEAPONS_DATA_DAMAGE,
 	WEAPONS_DATA_KNOCKBACK,
+	WEAPONS_DATA_SPEED,
 	WEAPONS_DATA_CLIP,
 	WEAPONS_DATA_AMMO,
 	WEAPONS_DATA_AMMUNITION,
 	WEAPONS_DATA_DROP,
-	WEAPONS_DATA_SPEED,
+	WEAPONS_DATA_SHOOT,
 	WEAPONS_DATA_RELOAD,
 	WEAPONS_DATA_DEPLOY,
 	WEAPONS_DATA_SOUND,
@@ -185,10 +186,7 @@ void WeaponsOnCacheData(/*void*/)
 		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
 		return;
 	}
-	
-	// On windows/mac this is actually ItemSystem() + sizeof(void *) is ItemSchema
-	Address pItemSchema = (gServerData.Platform == OS_Linux) ? view_as<Address>(SDKCall(hSDKCallGetItemSchema)) : view_as<Address>(SDKCall(hSDKCallGetItemSchema) + 4);
-	
+
 	// i = array index
 	for (int i = 0; i < iSize; i++)
 	{
@@ -224,14 +222,13 @@ void WeaponsOnCacheData(/*void*/)
 		arrayWeapon.PushString(sPathWeapons);                                 // Index: 1
 		kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
 		gServerData.Entities.SetValue(sPathWeapons, i, false);  /// Unique entity catched
-		Address pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sPathWeapons));
-		if (pItem == Address_Null)
+		int iItem = WeaponsGetItemDefIndex(sPathWeapons);
+		if (iItem == 0)
 		{
 			// Log weapon error
 			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
-		}                                                                     // Index: 2
-		int iItem = LoadFromAddress(pItem + view_as<Address>(ItemDef_Index), NumberType_Int16);
-		arrayWeapon.Push(iItem); 
+		}
+		arrayWeapon.Push(iItem);                                              // Index: 2
 		kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
 		arrayWeapon.PushString(sPathWeapons);                                 // Index: 3
 		kvWeapons.GetString("class", sPathWeapons, sizeof(sPathWeapons), "human");
@@ -244,17 +241,18 @@ void WeaponsOnCacheData(/*void*/)
 		arrayWeapon.Push(kvWeapons.GetNum("limit", 0));                       // Index: 9
 		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));                  // Index: 10
 		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));               // Index: 11
-		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                        // Index: 12
-		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                        // Index: 13
-		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));                  // Index: 14
-		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on"));     // Index: 15
-		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));                   // Index: 16
-		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));                  // Index: 17
-		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));                  // Index: 18
+		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));                   // Index: 12
+		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                        // Index: 13
+		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                        // Index: 14
+		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));                  // Index: 15
+		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on"));     // Index: 16
+		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));                   // Index: 17
+		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));                  // Index: 18
+		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));                  // Index: 19
 		kvWeapons.GetString("sound", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));                     // Index: 19
+		arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));                     // Index: 20
 		kvWeapons.GetString("icon", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 20
+		arrayWeapon.PushString(sPathWeapons);                                 // Index: 21
 		if (hasLength(sPathWeapons))
 		{
 			// Precache custom icon
@@ -262,25 +260,25 @@ void WeaponsOnCacheData(/*void*/)
 			if (FileExists(sPathWeapons)) AddFileToDownloadsTable(sPathWeapons); 
 		}
 		kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 21    
-		arrayWeapon.Push(DecryptPrecacheWeapon(sPathWeapons));                // Index: 22
+		arrayWeapon.PushString(sPathWeapons);                                 // Index: 22    
+		arrayWeapon.Push(DecryptPrecacheWeapon(sPathWeapons));                // Index: 23
 		kvWeapons.GetString("world", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 23
-		arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 24
+		arrayWeapon.PushString(sPathWeapons);                                 // Index: 24
+		arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 25
 		kvWeapons.GetString("dropped", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 25
-		arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 26
+		arrayWeapon.PushString(sPathWeapons);                                 // Index: 26
+		arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 27
 		int iBody[4]; kvWeapons.GetColor4("body", iBody);                     
-		arrayWeapon.PushArray(iBody, sizeof(iBody));                          // Index: 27
+		arrayWeapon.PushArray(iBody, sizeof(iBody));                          // Index: 28
 		int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
-		arrayWeapon.PushArray(iSkin, sizeof(iSkin));                          // Index: 28
+		arrayWeapon.PushArray(iSkin, sizeof(iSkin));                          // Index: 29
 		kvWeapons.GetString("muzzle", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 29
-		kvWeapons.GetString("shell", sPathWeapons, sizeof(sPathWeapons), "");
 		arrayWeapon.PushString(sPathWeapons);                                 // Index: 30
-		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                    // Index: 31
-		arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];                 // Index: 32
-		arrayWeapon.PushArray(iSeq, sizeof(iSeq));                            // Index: 33
+		kvWeapons.GetString("shell", sPathWeapons, sizeof(sPathWeapons), "");
+		arrayWeapon.PushString(sPathWeapons);                                 // Index: 31
+		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                    // Index: 32
+		arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];                 // Index: 33
+		arrayWeapon.PushArray(iSeq, sizeof(iSeq));                            // Index: 34
 	}
 
 	// We're done with this file now, so we can close it
@@ -643,11 +641,12 @@ void WeaponsOnNativeInit(/*void*/)
 	CreateNative("ZP_GetWeaponLimit",        API_GetWeaponLimit);
 	CreateNative("ZP_GetWeaponDamage",       API_GetWeaponDamage);
 	CreateNative("ZP_GetWeaponKnockBack",    API_GetWeaponKnockBack);
+	CreateNative("ZP_GetWeaponSpeed",        API_GetWeaponSpeed);
 	CreateNative("ZP_GetWeaponClip",         API_GetWeaponClip);
 	CreateNative("ZP_GetWeaponAmmo",         API_GetWeaponAmmo);
 	CreateNative("ZP_GetWeaponAmmunition",   API_GetWeaponAmmunition);
 	CreateNative("ZP_IsWeaponDrop",          API_IsWeaponDrop);
-	CreateNative("ZP_GetWeaponSpeed",        API_GetWeaponSpeed);
+	CreateNative("ZP_GetWeaponShoot",        API_GetWeaponShoot);
 	CreateNative("ZP_GetWeaponReload",       API_GetWeaponReload);
 	CreateNative("ZP_GetWeaponDeploy",       API_GetWeaponDeploy);
 	CreateNative("ZP_GetWeaponSoundID",      API_GetWeaponSoundID);
@@ -1163,6 +1162,27 @@ public int API_GetWeaponKnockBack(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Gets the moving speed of the weapon.
+ *
+ * @note native float ZP_GetWeaponSpeed(iD);
+ **/
+public int API_GetWeaponSpeed(Handle hPlugin, int iNumParams)
+{
+	// Gets weapon index from native cell
+	int iD = GetNativeCell(1);
+	
+	// Validate index
+	if (iD >= gServerData.Weapons.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		return -1;
+	}
+	
+	// Return the value (Float fix)
+	return view_as<int>(WeaponsGetSpeed(iD));
+}
+
+/**
  * @brief Gets the clip ammo of the weapon.
  *
  * @note native int ZP_GetWeaponClip(iD);
@@ -1249,9 +1269,9 @@ public int API_IsWeaponDrop(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the shoot delay of the weapon.
  *
- * @note native float ZP_GetWeaponSpeed(iD);
+ * @note native float ZP_GetWeaponShoot(iD);
  **/
-public int API_GetWeaponSpeed(Handle hPlugin, int iNumParams)
+public int API_GetWeaponShoot(Handle hPlugin, int iNumParams)
 {
 	// Gets weapon index from native cell
 	int iD = GetNativeCell(1);
@@ -1264,7 +1284,7 @@ public int API_GetWeaponSpeed(Handle hPlugin, int iNumParams)
 	}
 	
 	// Return the value (Float fix)
-	return view_as<int>(WeaponsGetSpeed(iD));
+	return view_as<int>(WeaponsGetShoot(iD));
 }
 
 /**
@@ -1937,6 +1957,21 @@ float WeaponsGetKnockBack(int iD)
 }
 
 /**
+ * @brief Gets the moving speed of the weapon.
+ *
+ * @param iD                The weapon id.
+ * @return                  The speed amount.
+ **/
+float WeaponsGetSpeed(int iD)
+{
+	// Gets array handle of weapon at given index
+	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
+	
+	// Gets weapon speed
+	return arrayWeapon.Get(WEAPONS_DATA_SPEED);
+}
+
+/**
  * @brief Gets the clip ammo of the weapon.
  *
  * @param iD                The weapon id.
@@ -2002,13 +2037,13 @@ int WeaponsIsDrop(int iD)
  * @param iD                The weapon id.
  * @return                  The delay amount.
  **/
-float WeaponsGetSpeed(int iD)
+float WeaponsGetShoot(int iD)
 {
 	// Gets array handle of weapon at given index
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
 	
 	// Gets weapon shoot delay
-	return arrayWeapon.Get(WEAPONS_DATA_SPEED);
+	return arrayWeapon.Get(WEAPONS_DATA_SHOOT);
 }
 
 /**
@@ -2459,13 +2494,13 @@ int WeaponsNameToIndex(char[] sName)
 }
 
 /**
- * @brief Remove a weapon.
+ * @brief Remove (drop) all weapons.
  *
  * @param client            The client index.
  * @param bDrop             (Optional) True to drop weapons, false to destroy.
  * @return                  True on success, false if client has access. 
  **/
-bool WeaponsRemove(int client, bool bDrop = false)
+bool WeaponsRemoveAll(int client, bool bDrop = false)
 {
 	// Initialize variables
 	int iAmount; bool bRemove;
@@ -2880,6 +2915,38 @@ SlotType WeaponsGetSlotType(int weapon)
 	
 	// Return type
 	return mSlot;
+}
+
+/**
+ * @brief Gets the defenition index of a weapon.
+ *
+ * @param sClassname        The weapon entity.
+ * @return                  The def index.
+ **/
+int WeaponsGetItemDefIndex(char[] sClassname)
+{
+	// On windows/mac this is actually ItemSystem() + sizeof(void *) is ItemSchema
+	static Address pItemSchema;
+	if (pItemSchema == Address_Null)
+	{
+		pItemSchema = (gServerData.Platform == OS_Linux) ? view_as<Address>(SDKCall(hSDKCallGetItemSchema)) : view_as<Address>(SDKCall(hSDKCallGetItemSchema) + 4);
+	}
+	
+	// Validate length
+	if (!hasLength(sClassname))
+	{
+		return 0;
+	}
+	
+	// Gets the CEconItemDefinition ptr
+	Address pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sClassname));
+	if (pItem == Address_Null)
+	{
+		return 0;
+	}
+	
+	// Call CEconItemDefinition::GetDefinitionIndex
+	return LoadFromAddress(pItem + view_as<Address>(ItemDef_Index), NumberType_Int16);
 }
 
 /**

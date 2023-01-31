@@ -1,0 +1,67 @@
+"Phrases"
+{
+	"main menu" // Menu
+	{
+		"ro"			"Meniu principal"
+	}
+
+	"buy weapons" // Menu
+	{
+		"ro"			"Cumpara arme"
+	}
+
+	"buy extraitems" // Menu
+	{
+		"ro"			"Cumpara lucruri extra"
+	}
+	
+	"choose classes" // Menu
+	{
+		"ro"			"Clasele"
+	}
+
+	"choose zombieclass" // Menu
+	{
+		"ro"			"Clasele zombilor"
+	}
+
+	"choose humanclass" // Menu
+	{
+		"ro"			"Clasele oamenilor"
+	}
+
+	"costumes menu" // Menu
+	{
+		"ro"			"Masti/costume"
+	}
+	
+	"help menu" // Menu
+	{
+		"ro"			"Ajutor!"
+	}
+	
+	"unstucks menu" // Menu
+	{
+		"ro"			"Deblocare!"
+	}
+	
+	"arsenal menu" // Menu
+	{
+		"ro"			"Arsenal"
+	}
+	
+	"ztele menu" // Menu
+	{
+		"ro"			"Teleportare!"
+	}
+	
+	"donates menu" // Menu
+	{
+		"ro"			"Tranzactii"
+	}
+
+	"admin menu" // Menu
+	{
+		"ro"			"Meniul adminului"
+	}
+}

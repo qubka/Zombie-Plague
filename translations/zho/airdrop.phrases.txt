@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"airdrop safe" // Hint (no color)
+	{
+		"#format"		"{1:d}"
+		"zho"			"打開保險栓, 炸掉C4數量 {1} 臺。"
+	}
+
+	"airdrop bag" // Hint (no color)
+	{
+		"zho"			"要從包中取出武器，請激活E按鈕"
+	}
+
+	"airdrop info" // Hint (no color)
+	{
+		"zho"			"要激活呼叫，請設置傳感器並激活遙控器"
+	}
+
+	"trigger on info" // Hint (no color)
+	{
+		"zho"			"呼叫空中轟炸機"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"zho"			"呼叫空投直升機"
+	}
+}

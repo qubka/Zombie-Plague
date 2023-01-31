@@ -1,0 +1,297 @@
+"Phrases"
+{
+	// General
+
+	"dead" // Menu
+	{
+		"ru"			"Мертв"
+	}
+	
+	// Zombie
+
+	"nemesis" // Menu
+	{
+		"ru"			"Немезис"
+	}
+	
+	"girl" // Menu
+	{
+		"ru"			"Деймос"
+	}
+
+	"sleeper" // Menu
+	{
+		"ru"			"Слепая"
+	}
+
+	"witch" // Menu
+	{
+		"ru"			"Ведьма"
+	}
+
+	"smoker" // Menu
+	{
+		"ru"			"Дымовой"
+	}
+
+	"stamper" // Menu
+	{
+		"ru"			"Стампер"
+	}
+
+	"tesla" // Menu
+	{
+		"ru"			"Тесла"
+	}
+
+	"healer" // Menu
+	{
+		"ru"			"Лекарь"
+	}
+
+	"baller" // Menu
+	{
+		"ru"			"Шаровой"
+	}
+
+	"range" // Menu
+	{
+		"ru"			"Взрывной"
+	}
+
+	"mutationheavy" // Menu
+	{
+		"ru"			"Тяжелый"
+	}
+
+	"mutationlight" // Menu
+	{
+		"ru"			"Призрак"
+	}
+
+	"fast" // Menu
+	{
+		"ru"			"Быстрая"
+	}
+
+	"tank" // Menu
+	{
+		"ru"			"Большой"
+	}
+
+	"psyh" // Menu
+	{
+		"ru"			"Псих"
+	}
+	
+	// Info
+	
+	"girl info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Выстрел жалом</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"sleeper info" // Hint
+	{
+		"ru"			"Пассивная способность: <font color='#FF0000'>Случайно ослепляет нападавшего</font>"
+	}
+
+	"witch info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Стая летучих мышей</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"smoker info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Ядовитая завеса</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"stamper info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Взрывной гроб</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"tesla info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Галлюцинационный заряд</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"healer info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Лечение для получения денег</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"baller info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Парализующий шар</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"range info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Заражение</font>\nАктивация при <font color='#FF0000'>смерти</font>"
+	}
+
+	"mutationheavy info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Ловушки c получением денег</font>\nЗадержите кнопку: <font color='#FF0000'>F4</font>"
+	}
+	
+	"mutationlight info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"fast info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"tank info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Неуязвимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+
+	"psyh info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Крик</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+	
+	// Humans
+
+	"human" // Menu
+	{
+		"ru"			"Человек"
+	}
+	
+	"zombie" // Menu
+	{
+		"ru"			"Зомби"
+	}
+	
+	"survivor" // Menu
+	{
+		"ru"			"Выживший"
+	}
+	
+	"sniper" // Menu
+	{
+		"ru"			"Снайпер"
+	}
+
+	"black" // Menu
+	{
+		"ru"			"Охотник"
+	}
+
+	"carrie" // Menu
+	{
+		"ru"			"Кэри"
+	}
+
+	"choi" // Menu
+	{
+		"ru"			"Чои"
+	}
+
+	"swat" // Menu
+	{
+		"ru"			"Полицейский"
+	}
+
+	"ct" // Menu
+	{
+		"ru"			"Спецназовец"
+	}
+
+	"anarhist" // Menu
+	{
+		"ru"			"Анархист"
+	}
+
+	"emma" // Menu
+	{
+		"ru"			"Эмма"
+	}
+
+	"pirate" // Menu
+	{
+		"ru"			"Пират"
+	}
+
+	"lisa" // Menu
+	{
+		"ru"			"Лиза"
+	}
+
+	"mila" // Menu
+	{
+		"ru"			"Мила"
+	}
+
+	"punisher" // Menu
+	{
+		"ru"			"Каратель"
+	}
+
+	"balkan" // Menu
+	{
+		"ru"			"Балкан"
+	}
+
+	"fat" // Menu
+	{
+		"ru"			"Толстяк"
+	}
+
+	"strong" // Menu
+	{
+		"ru"			"Силач"
+	}
+
+	"phoenix" // Menu
+	{
+		"ru"			"Феникс"
+	}
+	
+	"redtank" // Menu
+	{
+		"ru"			"Красный танк"
+	}
+	
+	"bluetank" // Menu
+	{
+		"ru"			"Синий танк"
+	}
+	
+	"redalice" // Menu
+	{
+		"ru"			"Красная Алиса"
+	}
+	
+	"bluealice" // Menu
+	{
+		"ru"			"Синяя Алиса"
+	}
+	
+	// Info
+	
+	"redtank info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Бронирование</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluetank info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Регенерация</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+	
+	"redalice info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Ускорение</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluealice info" // Hint
+	{
+		"ru"			"Cпособность: <font color='#FF0000'>Невидимость</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
+	}
+}

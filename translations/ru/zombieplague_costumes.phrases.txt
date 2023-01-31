@@ -1,0 +1,27 @@
+"Phrases"
+{
+	"pig head" // Menu
+	{
+		"ru"			"Свинная голова"
+	}
+	
+	"horse head" // Menu
+	{
+		"ru"			"Лошадиная голова"
+	}
+	
+	"head crab" // Menu
+	{
+		"ru"			"ХедКраб"
+	}
+	
+	"cow boy" // Menu
+	{
+		"ru"			"Ковбой"
+	}
+	
+	"chicken" // Menu
+	{
+		"ru"			"Курица"
+	}
+}

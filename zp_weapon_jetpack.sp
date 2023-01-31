@@ -63,7 +63,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("jetpack.phrases");
 		
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
@@ -207,7 +207,7 @@ void Item_OnActive(int client)
 	GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
 	
 	// Scale vector for the boost
-	ScaleVector(vVelocity, ZP_GetWeaponSpeed(gWeapon));
+	ScaleVector(vVelocity, ZP_GetWeaponShoot(gWeapon));
 	
 	// Push the player
 	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);

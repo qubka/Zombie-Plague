@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"jetpack empty" // Hint (no color)
+	{
+		"chi"			"喷漆包空了，请等等……"
+	}
+
+	"jetpack reloaded" // Hint (no color)
+	{
+		"chi"			"喷漆包已经重新充能！"
+	}
+}

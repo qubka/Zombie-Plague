@@ -1,0 +1,27 @@
+"Phrases"
+{
+	"pig head" // Menu
+	{
+		"en"			"Pig head"
+	}
+	
+	"horse head" // Menu
+	{
+		"en"			"Horse head"
+	}
+	
+	"head crab" // Menu
+	{
+		"en"			"Head crab"
+	}
+	
+	"cow boy" // Menu
+	{
+		"en"			"Cow boy"
+	}
+	
+	"chicken" // Menu
+	{
+		"en"			"Chicken"
+	}
+}

@@ -1,0 +1,57 @@
+"Phrases"
+{
+	"rebuy" // Menu
+	{
+		"ro"			"Recumparare-automata"
+	}
+	
+	"primary" // Menu
+	{
+		"ro"			"Armele primare"
+	}
+	
+	"secondary" // Menu
+	{
+		"ro"			"Arme secundare"
+	}	
+	
+	"melee" // Menu
+	{
+		"ro"			"Cutite"
+	}
+
+	"buy pistols" // Menu
+	{
+		"ro"			"Pistols"
+	}
+
+	"buy shotguns" // Menu
+	{
+		"ro"			"Shotguns"
+	}
+
+	"buy rifles" // Menu
+	{
+		"ro"			"Rifles"
+	}
+
+	"buy snipers" // Menu
+	{
+		"ro"			"Snipers"
+	}
+
+	"buy machineguns" // Menu
+	{
+		"ro"			"Machine guns"
+	}
+	
+	"buy knifes" // Menu
+	{
+		"ro"			"Cutite"
+	}
+	
+	"buy equipments" // Menu
+	{
+		"ro"			"Echipament"
+	}
+}

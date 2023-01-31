@@ -1,0 +1,157 @@
+"Phrases"
+{
+	// Items
+	
+	"antidot" // Menu
+	{
+		"zho"			"解毒劑"
+	}
+
+	"infect bomb" // Menu
+	{
+		"zho"			"感染炸彈"
+	}
+	
+	"jump bomb" // Menu
+	{
+		"zho"			"跳高手雷"
+	}
+	
+	"holy grenade" // Menu 
+	{
+		"zho"			"神聖手雷"
+	}
+
+	"molotov" // Menu
+	{
+		"zho"			"莫洛托夫燃燒彈"
+	}
+
+	"inc grenade" // Menu
+	{
+		"zho"			"莫洛托夫燃燒彈"
+	}
+
+	"medi shot" // Menu
+	{
+		"zho"			"醫療射擊"
+	}
+	
+	"bump mine"
+	{
+		"zho"			"撞矿"
+	}
+	
+	"drone gun" // Menu
+	{
+		"zho"			"自動炮塔"
+	}
+
+	"freeze grenade" // Menu
+	{
+		"zho"			"凍結手雷"
+	}
+
+	"flare grenade" // Menu
+	{
+		"zho"			"閃光手雷"
+	}
+	
+	"breachcharge" // Menu
+	{
+		"zho"			"C4炸藥"
+	}
+
+	"kevlar" // Menu
+	{
+		"zho"			"護甲"
+	}
+	
+	"assaultsuit" // Menu
+	{
+		"zho"			"護甲/頭盔"
+	}
+	
+	"heavysuit" // Menu
+	{
+		"zho"			"重裝"
+	}
+	
+	"bazooka" // Menu
+	{
+		"zho"			"火箭筒"
+	}
+	
+	"airdrop" // Menu
+	{
+		"zho"			"呼叫空投"
+	}
+	
+	"m32" // Menu
+	{
+		"zho"			"M32 榴彈發射器"
+	}
+	
+	"chainsaw" // Menu
+	{
+		"zho"			"電鋸"
+	}
+
+	"lasermine" // Menu
+	{
+		"zho"			"鐳射采掘"
+	}
+	
+	"jetpack" // Menu
+	{
+		"zho"			"噴氣背包"
+	}
+
+	"cannon" // Menu
+	{
+		"zho"			"龍炮"
+	}
+	
+	"drillgun" // Menu
+	{
+		"zho"			"鉆頭"
+	}
+	
+	"watercannon" // Menu
+	{
+		"zho"			"噴火器"
+	}
+	
+	"shield"
+	{
+		"zho"			"盾"
+	}
+	
+	// Info
+	
+	"chainsaw info" // Hint
+	{
+		"zho"			"加強 <font color='#7A1A0B'>削減</font> 通過鼠標右鍵"
+		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
+	}
+
+	"turret info" // Hint
+	{
+		"zho"			"想移除 <font color='#3D49C7'>壹個炮塔</font>, 请激活<font color='#1CA9C9'>E</font>按钮"
+	}
+
+	"shield info" // Hint
+	{
+		"zho"			"要<font color='#C87878'>击退</font>手榴弹， 请使用<font color='#3399CC'>右侧</font>鼠标按钮！"
+	}
+
+	"lasermine info" // Hint
+	{
+		"zho"			"想刪除 <font color='#F8173E'>壹個地雷</font>, 请激活<font color='#1CA9C9'>E</font>按钮"
+	}
+	
+	"jetpack info" // Hint
+	{
+		"zho"			"按 <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>空格</font> 打开 <font color='#FF033E'>噴氣包</font>" 
+	}
+}

@@ -1,0 +1,48 @@
+"Phrases"
+{
+	"grenade mode" // Hint (no color) (translated)
+	{
+		"#format"		"{1:t}"	
+		"ru"			"Режим: {1}"
+	}
+
+	"normal" // Hint (no color)
+	{
+		"ru"			"Нормальный"
+	}
+
+	"impact" // Hint (no color)
+	{
+		"ru"			"Мгновенный"
+	}
+
+	"proximity" // Hint (no color)
+	{
+		"ru"			"Близость"
+	}
+
+	"trip wire" // Hint (no color)
+	{
+		"ru"			"Растяжка"
+	}
+
+	"satchel charge" // Hint (no color)
+	{
+		"ru"			"Удаленный заряд"
+	}
+
+	"homing" // Hint (no color)
+	{
+		"ru"			"Наведение"
+	}
+
+	"motion sensor" // Hint (no color)
+	{
+		"ru"			"Датчик движения"
+	}
+
+	"satchel info" // Hint (no color)
+	{
+		"ru"			"Чтобы активировать заряд, нажмите правую кнопку мыши!"
+	}
+}	 

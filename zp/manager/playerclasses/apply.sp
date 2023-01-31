@@ -151,13 +151,14 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	ToolsSetFlashLight(client, false);
 	ToolsSetDetecting(client, false);
 	ToolsResetProgressBarTime(client);
+	ToolsSetLMV(client, 1.0);
 	
 	// Resets some variables
 	gClientData[client].Skill = false;
 	gClientData[client].SkillCounter = 0.0;
 	
 	// Remove player weapons
-	if (WeaponsRemove(client, !!attacker)) /// Give default
+	if (WeaponsRemoveAll(client, !!attacker)) /// Give default
 	{
 		// Gets class weapons
 		static int iWeapon[SMALL_LINE_LENGTH];
@@ -173,7 +174,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	
 	// Sets health, speed and gravity and armor
 	ToolsSetHealth(client, ClassGetHealth(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? RoundToNearest(gCvarList.LEVEL_HEALTH_RATIO.FloatValue * float(gClientData[client].Level)) : 0), true);
-	ToolsSetLMV(client, ClassGetSpeed(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0));
+	//ToolsSetLMV(client, ClassGetSpeed(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0));
 	ToolsSetGravity(client, ClassGetGravity(gClientData[client].Class) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_GRAVITY_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0));
 	ToolsSetArmor(client, (ToolsGetArmor(client) < ClassGetArmor(gClientData[client].Class)) ? ClassGetArmor(gClientData[client].Class) : ToolsGetArmor(client));
 	ToolsSetHud(client, ClassIsCross(gClientData[client].Class));

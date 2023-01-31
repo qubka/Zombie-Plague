@@ -1,0 +1,42 @@
+"Phrases"
+{
+	"turret control" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:d},{4:t}"
+		"en"			"Upgrade: [{1}{2}] | Refill: [{3}{4}]"
+	}
+	
+	"turret level" // Menu
+	{
+		"#format"		"{1:d}"	
+		"en"			"Level: [{1}]"
+	}
+
+	"turret hp" // Menu
+	{
+		"#format"		"{1:d}"	
+		"en"			"HP: [{1}]"
+	}
+
+	"turret ammo" // Menu
+	{
+		"#format"		"{1:d}"	
+		"en"			"Ammo: [{1}]"
+	}
+
+	"turret rockets" // Menu
+	{
+		"#format"		"{1:d}"	
+		"en"			"Rocket: [{1}]"
+	}
+
+	"control info" // Hint (no color)
+	{
+		"en"			"To control a turret, press the button to open the menu!"
+	}
+
+	"rotate info" // Hint (no color)
+	{
+		"en"			"To rotate a turret, use the right mouse button!"
+	}
+}

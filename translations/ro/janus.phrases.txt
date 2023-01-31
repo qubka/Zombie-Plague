@@ -1,0 +1,7 @@
+"Phrases"
+{
+	"janus activated" // Hint (no color)
+	{
+		"ro"			"Apăsați butonul mouse-ului drept pentru a activa modul!"
+	}
+}

@@ -1,0 +1,101 @@
+"Phrases"
+{
+	// Messages
+
+	"mode multi" // DHUD
+	{
+		"chi"			"多重感染模式已经启动！"
+	}
+
+	"mode swarm" // DHUD
+	{
+		"chi"			"群拥模式已经启动！"
+	}
+	
+	"mode plague" // DHUD
+	{
+		"chi"			"瘟疫模式已经启动！"
+	}
+
+	"mode nemesis" // DHUD
+	{
+		"chi"			"复仇女神模式已经启动！"
+	}
+
+	"mode survivor" // DHUD
+	{
+		"chi"			"生存者模式已经启动！"
+	}
+	
+	"mode sniper" // DHUD
+	{
+		"chi"			"狙击手模式已经启动！"
+	}
+
+	"mode armageddon" // DHUD
+	{
+		"chi"			"世界末日模式已经启动！"
+	}
+
+	"mode normal" // DHUD
+	{
+		"chi"			"标准感染模式！"
+	}
+	
+	// Admin menu
+
+	"classes menu" // Menu
+	{
+		"chi"			"改变职业"
+	}
+	
+	"modes menu" // Menu
+	{
+		"chi"			"游戏模式"
+	}
+	
+	"modes option" // Menu
+	{
+		"chi"			"玩家选项"
+	}
+	
+	"normal mode" // Menu
+	{
+		"chi"			"标准感染模式"
+	}
+	
+	"plague mode" // Menu
+	{
+		"chi"			"瘟疫模式"
+	}
+	
+	"sniper mode" // Menu
+	{
+		"chi"			"狙击手回合"
+	}
+	
+	"survivor mode" // Menu
+	{
+		"chi"			"生存者回合"
+	}
+	
+	"swarm mode" // Menu
+	{
+		"chi"			"群拥模式"
+	}
+	
+	"armageddon mode" // Menu
+	{
+		"chi"			"世界末日模式"
+	}
+	
+	"multi mode" // Menu
+	{
+		"chi"			"多重感染模式"
+	}
+	
+	"nemesis mode" // Menu
+	{
+		"chi"			"复仇女神回合"
+	}
+}

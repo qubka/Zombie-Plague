@@ -1,42 +1,42 @@
 "Games"
 {
-    "csgo"
-    {
-        "Signatures"
-        {
-            "FX_Disarm" // Str: "Gloves.Swish"
-            {
-                "library"    "server"
-                "linux"      "\x55\x89\xE5\x57\x56\x53\x81\xEC\x7C\x07\x00\x00\x0F\xB6\x45\x0C"
-                "windows"    "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x20\x06\x00\x00\x56\x8B\xC1\x57"
-            }
-        }
-        "Addresses"
-        {
-            "FX_Disarm_Start"
-            {
-                "signature" "FX_Disarm"
-                "linux"
-                {
-                    "offset"  "3906"
-                }
-                "windows"
-                {
-                    "offset"  "1347‬"
-                }
-            }
-            "FX_Disarm_End"
-            {
-                "signature" "FX_Disarm"
-                "linux"
-                {
-                    "offset"  "1671"
-                }
-                "windows"
-                {
-                    "offset"  "1691‬‬"
-                }
-            }
-        }
-    }
-} 
+	"csgo"
+	{
+		"Signatures"
+		{
+			"FX_Disarm" // Str: "Gloves.Swish"
+			{
+				"library"	"server"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\x7C\x07\x00\x00\x0F\xB6\x45\x0C"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x20\x06\x00\x00\x56\x8B\xC1\x57"
+			}
+		}
+		"Addresses"
+		{
+			"FX_Disarm_Start"
+			{
+				"signature"	"FX_Disarm"
+				"linux"
+				{
+					"offset"	"3906"
+				}
+				"windows"
+				{
+					"offset"	"1347‬"
+				}
+			}
+			"FX_Disarm_End"
+			{
+				"signature"	"FX_Disarm"
+				"linux"
+				{
+					"offset"	"1671"
+				}
+				"windows"
+				{
+					"offset"	"1691‬‬"
+				}
+			}
+		}
+	}
+}

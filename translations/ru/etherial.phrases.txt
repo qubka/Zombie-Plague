@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"etherial normal" // Hint (no color)
+	{
+		"ru"			"Режим: обычный"
+	}
+
+	"etherial electric" // Hint (no color)
+	{
+		"ru"			"Режим: электрический"
+	}
+}

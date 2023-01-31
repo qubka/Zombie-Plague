@@ -1,0 +1,57 @@
+"Phrases"
+{
+	"rebuy" // Menu
+	{
+		"en"			"Auto-rebuy"
+	}
+	
+	"primary" // Menu
+	{
+		"en"			"Primary weapons"
+	}
+	
+	"secondary" // Menu
+	{
+		"en"			"Secondary weapons"
+	}	
+	
+	"melee" // Menu
+	{
+		"en"			"Knifes"
+	}
+
+	"buy pistols" // Menu
+	{
+		"en"			"Pistols"
+	}
+
+	"buy shotguns" // Menu
+	{
+		"en"			"Shotguns"
+	}
+
+	"buy rifles" // Menu
+	{
+		"en"			"Rifles"
+	}
+
+	"buy snipers" // Menu
+	{
+		"en"			"Snipers"
+	}
+
+	"buy machineguns" // Menu
+	{
+		"en"			"Machine guns"
+	}
+	
+	"buy knifes" // Menu
+	{
+		"en"			"Melee"
+	}
+	
+	"buy equipments" // Menu
+	{
+		"en"			"Equipment"
+	}
+}

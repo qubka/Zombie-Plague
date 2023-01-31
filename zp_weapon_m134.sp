@@ -301,7 +301,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
 		
 			// Adds the delay to the game tick
-			flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 			
 			// Sets next attack time
 			SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -383,7 +383,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);

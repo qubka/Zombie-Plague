@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"jetpack empty" // Hint (no color)
+	{
+		"ro"			"Jetpack-ul este gol. Asteapta"
+	}
+
+	"jetpack reloaded" // Hint (no color)
+	{
+		"ro"			"Jetpack reincarcat"
+	}
+}

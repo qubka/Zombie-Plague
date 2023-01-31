@@ -297,7 +297,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 
 	// Adds the delay to the game tick
-	flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 	
 	// Sets next attack time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -322,7 +322,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 3.5, -10.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 3.5, -10.0, vPosition);
 	
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -337,7 +337,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	ZP_FireBullets(client, weapon, vPosition, vAngle, 0, GetRandomInt(0, 1000), 0.0, 0.0, 0.0, 0, 0.0);
 
 	// Gets beam lifetime
-	float flLife = ZP_GetWeaponSpeed(gWeapon);
+	float flLife = ZP_GetWeaponShoot(gWeapon);
 	
 	// Sent a beam
 	TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);

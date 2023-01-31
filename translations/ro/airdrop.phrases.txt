@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"airdrop safe" // Hint (no color)
+	{
+		"#format"		"{1:d}"
+		"ro"			"Ca sa deschizi seiful trebuie sa arunci {1} c4 pe usa."
+	}
+
+	"airdrop bag" // Hint (no color)
+	{
+		"ro"			"Ca sa iei arme din rucsac apasa E"
+	}
+
+	"airdrop info" // Hint (no color)
+	{
+		"ro"			"Pentru a suna, seteaza senzorul"
+	}
+
+	"trigger on info" // Hint (no color)
+	{
+		"ro"			"Suna catre bomba aeriana cu nicbomb"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"ro"			"Suna elicopterul cu drop aerian"
+	}
+}

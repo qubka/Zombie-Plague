@@ -249,7 +249,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
 	// Sets next attack time
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? WEAPON_ATTACK_TIME : ZP_GetWeaponSpeed(gWeapon)));       
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? WEAPON_ATTACK_TIME : ZP_GetWeaponShoot(gWeapon)));       
 
 	// Sets next idle time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
@@ -371,7 +371,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);

@@ -1,0 +1,548 @@
+"Phrases"
+{
+	// Pistols
+	
+	"elite" // Menu
+	{
+		"zho"			"Dual elite"
+	}
+	
+	"deagle" // Menu
+	{
+		"zho"			"沙漠之鹰"
+	}
+	
+	"glock" // Menu
+	{
+		"zho"			"Glock 18"
+	}
+	
+	"usp" // Menu
+	{
+		"zho"			"HK USP"
+	}
+	
+	"hpk" // Menu
+	{
+		"zho"			"Heckler & Koch P2000"
+	}
+	
+	"fiveseven" // Menu
+	{
+		"zho"			"FN Five-seveN"
+	}
+	
+	"tec9" // Menu
+	{
+		"zho"			"Intratec TEC-DC9"
+	}
+	
+	"cz75a" // Menu
+	{
+		"zho"			"CZ75A"
+	}
+	
+	"p250" // Menu
+	{
+		"zho"			"SIG Sauer P250"
+	}
+	
+	"taser" // Menu
+	{
+		"zho"			"電擊槍"
+	}
+	
+	"revolver" // Menu
+	{
+		"zho"			"左輪手槍"
+	}
+	
+	"janus1" // Menu
+	{
+		"zho"			"Janus I"
+	}
+	
+	"skull1" // Menu
+	{
+		"zho"			"Skull I"
+	}
+	
+	"balrog1" // Menu
+	{
+		"zho"			"Balrog I"
+	}
+	
+	"sfpistol" // Menu
+	{
+		"zho"			"SF-PISTOL"
+	}
+	
+	// Shotguns
+	
+	"nova" // Menu
+	{
+		"zho"			"Benelli Nova"
+	}
+	
+	"sawedoff" // Menu
+	{
+		"zho"			"Sawed-Off"
+	}
+	
+	"xm1014" // Menu
+	{
+		"zho"			"XM1014"
+	}
+	
+	"mag7" // Menu
+	{
+		"zho"			"MAG7"
+	}
+	
+	"skull11" // Menu
+	{
+		"zho"			"Skull XI"
+	}
+	
+	"gatling" // Menu
+	{
+		"zho"			"Gatling"
+	}
+	
+	"balrog11" // Menu
+	{
+		"zho"			"Balrog XI"
+	}
+	
+	"janus11" // Menu
+	{
+		"zho"			"Janus XI"
+	}
+
+	// Rifles
+	
+	"ak47" // Menu
+	{
+		"zho"			"AK-47"
+	}
+	
+	"sg556" // Menu
+	{
+		"zho"			"SIG SG 556"
+	}
+	
+	"aug" // Menu
+	{
+		"zho"			"Steyr AUG"
+	}
+	
+	"m4a4" // Menu
+	{
+		"zho"			"M4A4"
+	}
+	
+	"m4a1" // Menu
+	{
+		"zho"			"M4A1"
+	}
+	
+	"bizon" // Menu
+	{
+		"zho"			"Bizon"
+	}
+	
+	"famas" // Menu
+	{
+		"zho"			"FAMAS"
+	}
+	
+	"mac10" // Menu
+	{
+		"zho"			"Ingram MAC-10"
+	}
+	
+	"mp5sd" // Menu
+	{
+		"zho"			"MP5-SD"
+	}
+	
+	"mp7" // Menu
+	{
+		"zho"			"HK MP7"
+	}
+	
+	"mp9" // Menu
+	{
+		"zho"			"HK MP9"
+	}
+	
+	"p90" // Menu
+	{
+		"zho"			"FN P90"
+	}
+	
+	"ump45" // Menu
+	{
+		"zho"			"HK UMP"
+	}
+	
+	"galilar" // Menu
+	{
+		"zho"			"Galil AR"
+	}
+	
+	"lightninghz" // Menu
+	{
+		"zho"			"Lightning HZ"
+	}
+	
+	"lightninglz" // Menu
+	{
+		"zho"			"Lightning LZ"
+	}
+	
+	"blaster" // Menu
+	{
+		"zho"			"SFGUN-1"
+	}
+	
+	"tempest" // Menu
+	{
+		"zho"			"SF-TEMPEST"
+	}
+	
+	"plasmagun" // Menu
+	{
+		"zho"			"等離子槍"
+	}
+	
+	"cartblue" // Menu
+	{
+		"zho"			"Cartblue"
+	}
+	
+	"balrog3" // Menu
+	{
+		"zho"			"Balrog III"
+	}
+	
+	"janus3" // Menu
+	{
+		"zho"			"Janus III"
+	}
+	
+	"janus5" // Menu
+	{
+		"zho"			"Janus V"
+	}
+	
+	// Snipers
+	
+	"awp" // Menu
+	{
+		"zho"			"AWP"
+	}
+	
+	"ssg08" // Menu
+	{
+		"zho"			"SSG 08"
+	}
+	
+	"g3sg1" // Menu
+	{
+		"zho"			"G3SG1"
+	}
+	
+	"scar20" // Menu
+	{
+		"zho"			"SCAR-20"
+	}
+	
+	"wa2000" // Menu
+	{
+		"zho"			"Walther WA2000"
+	}
+	
+	"airburster" // Menu
+	{
+		"zho"			"Airburster"
+	}
+	
+	"skull5" // Menu
+	{
+		"zho"			"Skull V"
+	}
+	
+	// Machineguns
+	
+	"m249" // Menu
+	{
+		"zho"			"M249 SAW"
+	}
+
+	"negev" // Menu
+	{
+		"zho"			"Negev"
+	}
+	
+	"m134" // Menu
+	{
+		"zho"			"M134 猴子"
+	}
+	
+	"sfmg" // Menu
+	{
+		"zho"			"SF-MG"
+	}
+	
+	"sgdrill" // Menu
+	{
+		"zho"			"SG-DRILL"
+	}
+	
+	"balrog7" // Menu
+	{
+		"zho"			"Balrog VII"
+	}
+	
+	"janus7" // Menu
+	{
+		"zho"			"Janus VII"
+	}
+	
+	// Knife
+	
+	"fists" // Menu
+	{
+		"zho"			"拳頭"
+	}
+
+	"zombie claw" // Menu
+	{
+		"zho"			"喪屍之爪"
+	}
+	
+	"nemesis claw" // Menu
+	{
+		"zho"			"復仇女神之爪"
+	}
+	
+	"knife" // Menu
+	{
+		"zho"			"經典小刀"
+	}
+	
+	"knife t" // Menu
+	{
+		"zho"			"T刀"
+	}
+	
+	"knife gg" // Menu
+	{
+		"zho"			"黃金之刃"
+	}
+
+	"knife gut" // Menu
+	{
+		"zho"			"穿腸刀"
+	}
+
+	"knife flip" // Menu
+	{
+		"zho"			"折疊刀"
+	}
+
+	"m9 bayonet" // Menu
+	{
+		"zho"			"M9刺刀"
+	}
+
+	"karambit" // Menu
+	{
+		"zho"			"爪子刀"
+	}
+
+	"knife tactical" // Menu
+	{
+		"zho"			"獵殺刀"
+	}
+
+	"knife falchion" // Menu
+	{
+		"zho"			"彎刀"
+	}
+
+	"knife butterfly" // Menu
+	{
+		"zho"			"蝴蝶刀"
+	}
+
+	"knife bowie" // Menu
+	{
+		"zho"			"博伊刀"
+	}
+
+	"knife push" // Menu
+	{
+		"zho"			"暗影匕首"
+	}
+
+	"knife ursus" // Menu
+	{
+		"zho"			"烏蘇斯刀"
+	}
+
+	"knife gypsy" // Menu
+	{
+		"zho"			"剃刀"
+	}
+
+	"knife stiletto" // Menu
+	{
+		"zho"			"細木工刀"
+	}
+
+	"knife widowmaker" // Menu
+	{
+		"zho"			"利爪刀"
+	}
+	
+	"spanner" // Menu
+	{
+		"zho"			"扳手"
+	}
+	
+	"axe" // Menu
+	{
+		"zho"			"斧頭"
+	}
+	
+	"hammer" // Menu
+	{
+		"zho"			"锤子"
+	}
+	
+	"sfsword" // Menu
+	{
+		"zho"			"激光軍刀"
+	}
+	
+	"skullaxe" // Menu
+	{
+		"zho"			"骷髏頭"
+	}
+	
+	"big hammer" // Menu
+	{
+		"zho"			"大錘子"
+	}
+	
+	// Others
+
+	"etherial" // Menu
+	{
+		"zho"			"靈氣"
+	}
+	
+	"sfsniper" // Menu
+	{
+		"zho"			"SF-SNIPER"
+	}
+	
+	// Info
+	
+	"skull1 info" // Hint
+	{
+		"zho"			"切換 <font color='#E62E00'>模式</font> 通過鼠標右鍵"
+	}
+
+	"balrog1 info" // Hint 
+	{
+		"zho"			"開火 <font color='#FFD9FF'>爆炸</font> 通過鼠標右鍵"
+	}
+
+	"janus1 info" // Hint
+	{
+		"zho"			"切換 <font color='#FFD9FF'>模式</font> 通過鼠標右鍵"
+	}
+
+	"balrog11 info" // Hint 
+	{
+		"zho"			"開火 <font color='#CD00CD'>雨</font> 通過鼠標右鍵"
+	}
+
+	"janus11 info" // Hint 
+	{
+		"zho"			"切換 <font color='#FF33CC'>模式</font> 通過鼠標右鍵"
+	}
+
+	"cartblue info" // Hint
+	{
+		"zho"			"切換 <font color='#FE28A2'>模式</font> 通過鼠標右鍵"
+	}
+
+	"janus3 info" // Hint 
+	{
+		"zho"			"切換 <font color='#F754EA'>模式</font> 通過鼠標右鍵"
+	}
+
+	"janus5 info" // Hint 
+	{
+		"zho"			"切換 <font color='#C154C1'>模式</font> 通過鼠標右鍵"
+	}
+
+	"airburster info" // Hint 
+	{
+		"zho"			"增強 <font color='#BA66FF'>空投</font> 通過鼠標右鍵"
+	}
+
+	"sgdrill info" // Hint
+	{
+		"zho"			"增強 <font color='#4B0082'>命中</font> 通過鼠標右鍵"
+	}
+	
+	"sfmg info" // Hint
+	{
+		"zho"			"切換 <font color='#FE28B2'>模式</font> 通過鼠標右鍵"
+	}
+
+	"janus7 info" // Hint 
+	{
+		"zho"			"切換 <font color='#4F273A'>模式</font> 通過鼠標右鍵"
+	}
+	
+	"sfsword info" // Hint 
+	{
+		"zho"			"切換 <font color='#4F0F2E'>模式</font> 通過鼠標右鍵"
+	}
+
+	"hammer info" // Hint 
+	{
+		"zho"			"切換 <font color='#4F1F36'>模式</font> 通過鼠標右鍵"
+	}
+	
+	"balrog3 info" // Hint 
+	{
+		"zho"			"切換 <font color='#6B3B82'>放大</font> 通過鼠標右鍵"
+	}
+	
+	"balrog7 info" // Hint 
+	{
+		"zho"			"切換 <font color='#702E8F'>放大</font> 通過鼠標右鍵"
+	}
+	
+	"m32 info" // Hint 
+	{
+		"zho"			"切換 <font color='#432E8F'>放大</font> 通過鼠標右鍵"
+	}
+	
+	"skull11 info" // Hint 
+	{
+		"zho"			"切換 <font color='#5E46B8'>放大</font> 通過鼠標右鍵"
+	}
+	
+	"grenade info" // Hint
+	{
+		"zho"			"切換 <font color='#FFD9FF'>模式</font> 充电按钮"
+	}
+}

@@ -294,7 +294,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
 	// Sets next attack time
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
 
 	// Sets next idle time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
@@ -386,7 +386,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -403,8 +403,8 @@ void Weapon_OnSlash(int client, int weapon)
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 0.0, 0.0, 10.0, vPosition);
-	ZP_GetPlayerGunPosition(client, WEAPON_STAB_DISTANCE, 0.0, 10.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 10.0, vPosition);
+	ZP_GetPlayerEyePosition(client, WEAPON_STAB_DISTANCE, 0.0, 10.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);

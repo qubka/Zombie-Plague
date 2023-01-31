@@ -96,7 +96,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("etherial.phrases");
 
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
@@ -288,7 +288,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	if (iStateMode == STATE_NORMAL)
 	{
 		// Sets next attack time
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
 
 		// Sets next idle time
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
@@ -339,7 +339,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	else
 	{
 		// Sets next attack time
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponSpeed(gWeapon)/2));       
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon)/2));       
 
 		// Sets next idle time
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
@@ -469,7 +469,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -486,7 +486,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 10.0, -5.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 10.0, -5.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -498,7 +498,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	TR_GetEndPosition(vEndPosition);
 
 	// Gets beam lifetime
-	//float flLife = ZP_GetWeaponSpeed(gWeapon);
+	//float flLife = ZP_GetWeaponShoot(gWeapon);
 
 	// Sent a beam
 	TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_TRACER_LIFE, WEAPON_TRACER_WIDTH, WEAPON_TRACER_WIDTH, 1, 0.0, WEAPON_TRACER_COLOR, 0);

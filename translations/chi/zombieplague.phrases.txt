@@ -1,0 +1,502 @@
+"Phrases"
+{
+	// =============================================================
+	// If you want add your language into mod,
+	// then make translation and create request on official GitHub!
+	// =============================================================
+	
+	// ===========================
+	// Color prefixes (Chat only)
+	// ===========================
+
+	// @default		"\x01"
+	// @red			"\x02"
+	// @lgreen		"\x03"
+	// @green		"\x04"
+	// \n \n		"double line"
+
+	// ===========================
+	// General
+	// ===========================
+
+	"general round objective" // Chat
+	{
+		"chi"			"这个游戏是 @redHumans @greenvs。 @redZombies@default， 丧尸的目标是通过近战抓咬来感染所有人类。"
+	}
+
+	"general buttons reminder" // Hint
+	{
+		"chi"			"按 <font color='#FF0000'>F3/B</font> 打开彩蛋\n按 <font color='#FF0000'F4</font> 打开 人类/丧尸 技能\n按 <font color='#FF0000'>F</font> 打开手电筒"
+	}
+	
+	"general ammunition reminder" // Chat
+	{
+		"chi"			"按 @red，@default @greenor @red。@default 购买弹药。"
+	}
+	
+	"general blast reminder" // Hint
+	{
+		"chi"			"<font color='#D41114'>警告！</font> 人类在感染区域发射了核武器！"
+	}
+
+	// ===========================
+	// Generic
+	// ===========================
+
+	"zombie comming" // Hint
+	{
+		"#format"		"{1:d}"
+		"chi"			"<font color='#FFFF00'>感染即将开始</font>： <font color='#0000FF'>{1}</font>"
+	}
+
+	"zombie left" // Hint
+	{
+		"#format"		"{1:s}"
+		"chi"			"<font color='#B422A6'>最后一个丧尸离开了，</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>是新的丧尸！</font>"
+	}
+
+	"human left" // Hint
+	{
+		"#format"		"{1:s}"
+		"chi"			"<font color='#B422A6'>最后一个人类离开了，</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>是新的人类！</font>"
+	}
+	
+	"player left" // Hint
+	{
+		"chi"			"<font color='#D67E76'>最后一位玩家离开了游戏</font>！"
+	}
+
+	"account info" // DHUD (translated)
+	{
+		"#format"		"{1:t},{2:d}"
+		"chi"			"{1}{2}"
+	}
+
+	"level info" // DHUD (translated)
+	{
+		"#format"		"{1:t},{2:d},{3:d},{4:d}"
+		"chi"			"职业：[{1}]\n等级：[{2}] 经验：[{3}/{4}]"
+	}
+
+	"class info" // Chat (translated)
+	{
+		"#format"		"{1:t},{2:d},{3:d},{4:.1f}"
+		"chi"			"职业： @red[{1}] @default生命： @red[{2}] @default护甲： @red[{3}] @default速度： @red[{4}]" 
+	}
+	
+	"damage info" // Hint
+	{
+		"#format"		"{1:d}"
+		"chi"			"<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>"
+	}
+	
+	"full damage info" // Hint
+	{
+		"#format"		"{1:d},{2:d}"
+		"chi"			"<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>盔甲</font>: <font color='#FF0000'>{2}</font>"
+	}
+
+	"buy info" // Chat (translated)
+	{
+		"#format"		"{1:s},{2:t}"
+		"chi"			"玩家： @red[{1}] @default购买： @red[{2}]"
+	}
+
+	"donate info" // Chat (translated)
+	{
+		"#format"		"{1:s},{2:d},{3:t},{4:s}"
+		"chi"			"玩家： @red[{1}] @default捐赠： @red[{2}{3}] @default给玩家： @red[{4}]"
+	}
+	
+	"drop info" // Chat
+	{
+		"chi"			"遊戲開始時將刪除所有掉落的武器！"
+	}
+	
+	// ===========================
+	// Basics
+	// ===========================
+	
+	"skill ready" // Hint
+	{
+		"chi"			"<font color='#FF0000'>技能已就绪</font>！"
+	}
+
+	"countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"chi"			"<font color='#0EB411'>冷却</font>： <font color='#0EB4A7'>{1}</font>"
+	}
+
+	"price" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"chi"			"[{1}{2}]"
+	}
+	
+	"level" // Menu
+	{
+		"#format"		"{1:d}"
+		"chi"			"[等级:{1}]"
+	}
+	
+	"online" // Menu
+	{
+		"#format"		"{1:d}"
+		"chi"			"[在线:{1}]"
+	}
+	
+	"limit" // Menu
+	{
+		"#format"		"{1:d}"
+		"chi"			"[限制:{1}]"
+	}
+	
+	"money" // Universal
+	{
+		"chi"			"$"
+	}
+	
+	"donate" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"chi"			"捐赠： [{1}{2}]"
+	}
+	
+	"commission" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:s}"
+		"chi"			"数量： [{1}{2}] | 佣金： [{3}]"
+	}
+	
+	"empty" // Menu
+	{
+		"chi"			"(空的)"
+	}
+	
+	"add" // Menu
+	{
+		"chi"			"加"
+	}
+	
+	"remember" // Menu
+	{
+		"chi"			"记住"
+	}
+	
+	"remove" // Menu
+	{
+		"chi"			"去掉"
+	}
+	
+	"increase" // Menu
+	{
+		"chi"			"增加"
+	}
+	
+	"decrease" // Menu
+	{
+		"chi"			"减少\n \n"
+	}
+	
+	"buy" // Menu
+	{
+		"chi"			"購買所有"
+	}
+	
+	// ===========================
+	// Validations
+	// ===========================
+	
+	"using menu block" // Hint
+	{
+		"chi"			"你不能使用菜单！"
+	}
+
+	"buying item block" // Hint (translated)
+	{
+		"#format"		"{1:t}"
+		"chi"			"你不能买： <font color='#FF0000'>{1}</font>"
+	}
+	
+	"buying ammunition block" // Hint
+	{
+		"chi"			"你不能买弹药！"
+	}
+	
+	"selecting target block" // Hint
+	{
+		"chi"			"无效目标！"
+	}
+	
+	"unstucking prop block" // Hint
+	{
+		"chi"			"你没有陷入另一个支撑物！（卡住或者重叠）"
+	}
+	
+	"buying round block" // Hint
+	{
+		"chi"			"本回合你不能购买！"
+	}
+
+	"starting round block" // Hint
+	{
+		"chi"			"你无法启动一个游戏模式， 因为其中一个已经开始了!"
+	}
+	
+	"classes round block" // Hint
+	{
+		"chi"			"你不能改变你的职业，因为这回合还没有开始！"
+	}
+
+	// ===========================
+	// Log
+	// ===========================
+
+	"log generic flag" // Console
+	{
+		"chi"			"通用标志："
+	}
+
+	"log value" // Console
+	{
+		"chi"			"值："
+	}
+
+	"log module" // Console
+	{
+		"chi"			"模块："
+	}
+
+	"log status" // Console
+	{
+		"chi"			"过滤状态："
+	}
+
+	"log module filter" // Console
+	{
+		"chi"			"模块过滤："
+	}
+
+	"log module short name" // Console
+	{
+		"chi"			"短名："
+	}
+	
+	"log module invalid args" // Console
+	{
+		"chi"			"将一个或多个模块添加到模块过滤器。 用法： zp_log_add_module <模块> [模块] ……\n查看 zp_log_list 来列出可用的模块名称 (短名)."
+	}
+	
+	"log module invalid name" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"无效的模块名称 \"{1}\""
+	}
+	
+	"log module filter added" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"已添加 \"{1}\" 到模块过滤器。"
+	}
+	
+	"log module filter removed" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"已移除 \"{1}\" 从模块过滤器。"
+	}
+
+	// ===========================
+	// Config
+	// ===========================
+
+	"configs menu" // Menu
+	{
+		"chi"			"配置"
+	}
+	
+	"config menu reload" // Menu
+	{
+		"#format"		"{1:s}"
+		"chi"			"重新读取： \"{1}\""
+	}
+	
+	"config reload" // Console
+	{
+		"chi"			"语法： zp_reloadconfig <文件 别名1> [文件 别名2] …… - 重新加载配置文件。"
+	}
+
+	"config reload commands" // Console
+	{
+		"chi"			"相关命令(s): zp_config_reloadall"
+	}
+
+	"config reload commands aliases" // Console
+	{
+		"#format"		"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s},{11:s}"
+		"chi"			"文件别名：\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
+	}
+
+	"config reload invalid" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"无效的文件别名： \"{1}\""
+	}
+
+	"config reload not load" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"配置文件 \"{1}\" 无法加载。 （文件内容已经禁用或者无效。）"
+	}
+
+	"config reload begin" // Console
+	{
+		"chi"			"重新加载所有僵尸感染配置文件……\n------------------------------------------------"
+	}
+
+	"config reload finish" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"\"{1}\" - 重新读取成功。"
+	}
+
+	"config reload falied" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"\"{1}\" - 重新读取失败。 （文件内容已经禁用或者无效。）"
+	}
+	
+	"config dump class" // Console
+	{
+		"chi"			"转储指定索引处的类数据 用法： zp_class_dump <索引|名称>\n\n"
+	}
+	
+	"config dump class invalid" // Console
+	{
+		"#format"		"{1:d}"
+		"chi"			"类索引无效 ({1})"
+	}
+	
+	"config dump class start" // Console
+	{
+		"#format"		"{1:d}"
+		"chi"			"转储缓存 {1} 类总计\n========================================\n"
+	}
+	
+	// ===========================
+	// ZTele
+	// ===========================
+
+	"ztele restricted escape" // Chat
+	{
+		"chi"			"ZTele在非生存模式下具有防火功能。"
+	}
+	
+	"ztele restricted zombie" // Chat
+	{
+		"chi"			"ZTele目前僅適用於殭屍。"
+	}
+	
+	"ztele restricted human" // Chat
+	{
+		"chi"			"ZTele目前仅限人类使用。"
+	}
+
+	"ztele max" // Chat
+	{
+		"#format"		"{1:d}"
+		"chi"			"您已达到每回合@red{1}@default个传送的最大值。"
+	}
+
+	"ztele in progress" // Chat
+	{
+		"chi"			"您当前正在等待传送。"
+	}
+
+	"ztele autocancel text" // Chat
+	{
+		"#format"		"{1:d}"
+		"chi"			"传送已被取消。 （限制边界为@red{1}@lgreen英尺@default。）"
+	}
+
+	"ztele countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"chi"			"传送回城： <font color='#FF0000'>{1}</font>秒。"
+	}
+
+	"ztele autocancel centertext" // Hint
+	{
+		"chi"			"传送已被取消。"
+	}
+
+	"ztele countdown end" // Hint
+	{
+		"#format"		"{1:d},{2:d}"
+		"chi"			"传送回生成。 （计数： <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>）"
+	}
+
+	"ztele command force syntax" // Console
+	{
+		"chi"			"在客户端上强制ZTele。 用法： zp_ztele_force <client>"
+	}
+
+	"ztele command force successful" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"玩家{1}已成功传送。"
+	}
+
+	"ztele command force unsuccessful" // Console
+	{
+		"#format"		"{1:s}"
+		"chi"			"玩家{1}无法被传送。"
+	}
+	
+	"ztele invalid client" // Console
+	{
+		"chi"			"找不到玩家。"
+	}
+
+	// ===========================
+	// Other
+	// ===========================
+	
+	"account give invalid args" // Console
+	{
+		"chi"			"给予金钱。 用法： zp_money_give <名称> [数量]\n\n"
+	}
+	
+	"account give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"chi"			"无效的金钱额度 ({1})"
+	}
+
+	"level give invalid args" // Console
+	{
+		"chi"			"给予等级。 用法： zp_level_give <名称> [数量]\n\n"
+	}
+	
+	"level give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"chi"			"无效的等级数值 ({1})"
+	}
+	
+	"experience give invalid args" // Console
+	{
+		"chi"			"给予经验值。 用法： zp_exp_give <名称> [数量]\n\n"
+	}
+	
+	"experience give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"chi"			"无效的经验数值 ({1})"
+	}
+	
+	"account donate invalid args" // Console
+	{
+		"chi"			"轉賬。 用法： zp_money_donate <名称> [数量]\n\n"
+	}
+}

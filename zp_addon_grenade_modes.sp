@@ -151,7 +151,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("grenade_modes.phrases");
 	}
 }
 

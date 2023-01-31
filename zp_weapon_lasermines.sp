@@ -224,7 +224,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	
 	// Gets trace line
 	GetClientEyePosition(client, vPosition);
-	ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
 	
 	// Create the end-point trace
 	TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
@@ -275,7 +275,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 		
 		// Gets trace line
 		GetClientEyePosition(client, vPosition);
-		ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
+		ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
 
 		// Create the end-point trace
 		TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
@@ -600,7 +600,7 @@ public Action MineActivateHook(Handle hTimer, int refID)
 		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 		
 		// Create update hook
-		CreateTimer(ZP_GetWeaponSpeed(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(ZP_GetWeaponShoot(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
 #if defined WEAPON_MINE_IMPULSE
 		// Gets angle

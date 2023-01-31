@@ -316,7 +316,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 
 			// Adds the delay to the game tick
-			flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 			
 			// Sets next attack time
 			SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -330,7 +330,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 			// Initialize variables
 			static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-			float vKickback[] = { /*upBase = */1.25, /* lateralBase = */0.35, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */2.5, /* lateralMax = */1.25, /* directionChange = */5.0 };
+			float vKickback[] = { /*upBase = */0.25, /* lateralBase = */0.35, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */0.5, /* lateralMax = */0.25, /* directionChange = */4.0 };
 			
 			// Gets client velocity
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
@@ -367,7 +367,7 @@ void Weapon_OnCreateFire(int client, int weapon)
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 7.5, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 7.5, 0.0, vPosition);
 	
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);

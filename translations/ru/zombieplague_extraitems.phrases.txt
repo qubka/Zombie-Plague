@@ -1,0 +1,157 @@
+"Phrases"
+{
+	// Items
+	
+	"antidot" // Menu
+	{
+		"ru"			"Антидот"
+	}
+
+	"infect bomb" // Menu
+	{
+		"ru"			"Заражающая граната"
+	}
+	
+	"jump bomb" // Menu
+	{
+		"ru"			"Джамп граната"
+	}
+	
+	"holy grenade" // Menu 
+	{
+		"ru"			"Святая граната"
+	}
+
+	"molotov" // Menu
+	{
+		"ru"			"Молотов"
+	}
+
+	"inc grenade" // Menu
+	{
+		"ru"			"Зажигательный"
+	}
+
+	"medi shot" // Menu
+	{
+		"ru"			"Мед. шприц"
+	}
+	
+	"bump mine"
+	{
+		"ru"			"Ударная мина"
+	}
+	
+	"drone gun" // Menu
+	{
+		"ru"			"Авто турель"
+	}
+
+	"freeze grenade" // Menu
+	{
+		"ru"			"Заморозка"
+	}
+
+	"flare grenade" // Menu
+	{
+		"ru"			"Световая граната"
+	}
+	
+	"breachcharge" // Menu
+	{
+		"ru"			"C4"
+	}
+
+	"kevlar" // Menu
+	{
+		"ru"			"Броня"
+	}
+	
+	"assaultsuit" // Menu
+	{
+		"ru"			"Броня/Шлем"
+	}
+	
+	"heavysuit" // Menu
+	{
+		"ru"			"Тяжелая броня"
+	}
+	
+	"bazooka" // Menu
+	{
+		"ru"			"Базука"
+	}
+	
+	"airdrop" // Menu
+	{
+		"ru"			"Вызов вертолета"
+	}
+	
+	"m32" // Menu
+	{
+		"ru"			"M32 Milkor"
+	}
+	
+	"chainsaw" // Menu
+	{
+		"ru"			"Бензопила"
+	}
+
+	"lasermine" // Menu
+	{
+		"ru"			"Лазермина"
+	}
+	
+	"jetpack" // Menu
+	{
+		"ru"			"Джетпак"
+	}
+
+	"cannon" // Menu
+	{
+		"ru"			"Огненный дракон"
+	}
+	
+	"drillgun" // Menu
+	{
+		"ru"			"Дрель"
+	}
+	
+	"watercannon" // Menu
+	{
+		"ru"			"Огнемет"
+	}
+	
+	"shield"
+	{
+		"ru"			"Щит"
+	}
+	
+	// Info
+	
+	"chainsaw info" // Hint
+	{
+		"ru"			"Сильный <font color='#7A1A0B'>удар</font> на правую кнопку мыши"
+		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
+	}
+
+	"turret info" // Hint
+	{
+		"ru"			"Чтобы снять <font color='#3D49C7'>турель</font>, нажмите кнопку <font color='#1CA9C9'>E</font>"
+	}
+
+	"shield info" // Hint
+	{
+		"ru"			"Чтобы <font color='#C87878'>отбить</ font> гранаты, используйте <font color='#3399CC'>правую кнопку</font> мыши!"
+	}
+
+	"lasermine info" // Hint
+	{
+		"ru"			"Чтобы снять <font color='#F8173E'>мину</font>, нажмите кнопку <font color='#1CA9C9'>E</font>"
+	}
+	
+	"jetpack info" // Hint
+	{
+		"ru"			"Нажмите <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>SPACE</font> чтобы включить <font color='#FF033E'>джетпак</font>" 
+	}
+}

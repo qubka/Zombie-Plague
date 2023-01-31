@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"jetpack empty" // Hint (no color)
+	{
+		"en"			"Jetpack is empty. Please wait.."
+	}
+
+	"jetpack reloaded" // Hint (no color)
+	{
+		"en"			"Jetpack recharged!"
+	}
+}

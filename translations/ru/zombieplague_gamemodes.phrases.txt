@@ -1,0 +1,101 @@
+"Phrases"
+{
+	// Messages
+
+	"mode multi" // DHUD
+	{
+		"ru"			"Мульти заражение!"
+	}
+
+	"mode swarm" // DHUD
+	{
+		"ru"			"Куча на кучу!"
+	}
+	
+	"mode plague" // DHUD
+	{
+		"ru"			"Чума!"
+	}
+
+	"mode nemesis" // DHUD
+	{
+		"ru"			"Немезис появился!"
+	}
+
+	"mode survivor" // DHUD
+	{
+		"ru"			"Выживший появился!"
+	}
+	
+	"mode sniper" // DHUD
+	{
+		"ru"			"Снайпер появился!"
+	}
+
+	"mode armageddon" // DHUD
+	{
+		"ru"			"Армагеддон!"
+	}
+
+	"mode normal" // DHUD
+	{
+		"ru"			"Обычное заражение!"
+	}
+	
+	// Admin menu
+
+	"classes menu" // Menu
+	{
+		"ru"			"Изменить класс"
+	}
+	
+	"modes menu" // Menu
+	{
+		"ru"			"Игровые режимы"
+	}
+	
+	"modes option" // Menu
+	{
+		"ru"			"Опции игрока"
+	}
+	
+	"normal mode" // Menu
+	{
+		"ru"			"Обычная инфекция"
+	}
+	
+	"plague mode" // Menu
+	{
+		"ru"			"Чума"
+	}
+	
+	"sniper mode" // Menu
+	{
+		"ru"			"Снайпер раунд"
+	}
+	
+	"survivor mode" // Menu
+	{
+		"ru"			"Выживший раунд"
+	}
+	
+	"swarm mode" // Menu
+	{
+		"ru"			"Куча на кучу"
+	}
+	
+	"armageddon mode" // Menu
+	{
+		"ru"			"Армагеддон"
+	}
+	
+	"multi mode" // Menu
+	{
+		"ru"			"Мульти инфекция"
+	}
+	
+	"nemesis mode" // Menu
+	{
+		"ru"			"Немезис раунд"
+	}
+}

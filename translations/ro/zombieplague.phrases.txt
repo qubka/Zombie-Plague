@@ -1,0 +1,502 @@
+"Phrases"
+{
+	// =============================================================
+	// If you want add your language into mod,
+	// then make translation and create request on official GitHub!
+	// =============================================================
+	
+	// ===========================
+	// Color prefixes (Chat only)
+	// ===========================
+
+	// @default		"\x01"
+	// @red			"\x02"
+	// @lgreen		"\x03"
+	// @green		"\x04"
+	// \n \n		"double line"
+
+	// ===========================
+	// General
+	// ===========================
+
+	"general round objective" // Chat
+	{
+		"ro"			"Jocul este @redOameni @greenversus. @redZombii@default,scopul zombilor este de a infecta toti oamenii iar acestia sunt nevoiti sa se apere."
+	}
+
+	"general buttons reminder" // Hint
+	{
+		"ro"			"Apasa <font color='#FF0000'>F3/B</font> pentru a deschide meniul\nApasa <font color='#FF0000'F4</font> pentru puterile zombilor/oamenilor\nApasa <font color='#FF0000'>F</font> pentru a deschide/inchide lumina lanternei"
+	}
+	
+	"general ammunition reminder" // Chat
+	{
+		"ro"			"Apasa pe @redvirgula@default @greensau @redpunct@default pentru a cumpara gloante."
+	}
+	
+	"general blast reminder" // Hint
+	{
+		"ro"			"<font color='#D41114'>Atentie!</font> Oamenii au lansat o racheta peste zona infectata!"
+	}
+
+	// ===========================
+	// Generic
+	// ===========================
+
+	"zombie comming" // Hint
+	{
+		"#format"		"{1:d}"
+		"ro"			"<font color='#FFFF00'>Zombii apar in </font>: <font color='#0000FF'>{1}</font>"
+	}
+
+	"zombie left" // Hint
+	{
+		"#format"		"{1:s}"
+		"ro"			"<font color='#B422A6'>Ultimul zombi a iesit,</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>este noul zombi!</font>"
+	}
+
+	"human left" // Hint
+	{
+		"#format"		"{1:s}"
+		"ro"			"<font color='#B422A6'>Ultimul om a iesit,</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>este noul om!</font>"
+	}
+	
+	"player left" // Hint
+	{
+		"ro"			"<font color='#D67E76'>Ultimul jucator a parasit serverul</font>!"
+	}
+
+	"account info" // DHUD (translated)
+	{
+		"#format"		"{1:t},{2:d}"
+		"ro"			"{1}{2}"
+	}
+
+	"level info" // DHUD (translated)
+	{
+		"#format"		"{1:t},{2:d},{3:d},{4:d}"
+		"ro"			"CLASA:[{1}]\nNIVEL:[{2}] XP:[{3}/{4}]"
+	}
+
+	"class info" // Chat (translated)
+	{
+		"#format"		"{1:t},{2:d},{3:d},{4:.1f}"
+		"ro"			"Clasa: @red[{1}] @defaultViata: @red[{2}] @defaultArmura: @red[{3}] @defaultViteza: @red[{4}]"
+	}
+	
+	"damage info" // Hint
+	{
+		"#format"		"{1:d}"
+		"ro"			"<font color='#FFFFFF'>VIATA</font>: <font color='#FF0000'>{1}</font>"
+	}
+	
+	"full damage info" // Hint
+	{
+		"#format"		"{1:d},{2:d}"
+		"ro"			"<font color='#FFFFFF'>VIATA</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Armura</font>: <font color='#FF0000'>{2}</font>"
+	}
+
+	"buy info" // Chat (translated)
+	{
+		"#format"		"{1:s},{2:t}"
+		"ro"			"Jucatorul: @red[{1}] @defaulta cumparat: @red[{2}]"
+	}
+
+	"donate info" // Chat (translated)
+	{
+		"#format"		"{1:s},{2:d},{3:t},{4:s}"
+		"ro"			"Jucatorul: @red[{1}] @default i-a donat: @red[{2}{3}] @defaultjucatorului: @red[{4}]"
+	}
+	
+	"drop info" // Chat
+	{
+		"ro"			"Toate armele aruncate vor fi eliminate la începutul jocului!"
+	}
+	
+	// ===========================
+	// Basics
+	// ===========================
+	
+	"skill ready" // Hint
+	{
+		"ro"			"<font color='#FF0000'>Putere pregatita</font>!"
+	}
+
+	"countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"ro"			"<font color='#0EB411'>Numărătoarea inversă</font>: <font color='#0EB4A7'>{1}</font>"
+	}
+
+	"price" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"ro"			"[{1}{2}]"
+	}
+	
+	"level" // Menu
+	{
+		"#format"		"{1:d}"
+		"ro"			"[NIVEL:{1}]"
+	}
+	
+	"online" // Menu
+	{
+		"#format"		"{1:d}"
+		"ro"			"[CONECTAT:{1}]"
+	}
+	
+	"limit" // Menu
+	{
+		"#format"		"{1:d}"
+		"ro"			"[LIMITA:{1}]"
+	}
+	
+	"money" // Universal
+	{
+		"ro"			"$"
+	}
+	
+	"donate" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"ro"			"Doneaza: [{1}{2}]"
+	}
+	
+	"commission" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:s}"
+		"ro"			"Cantitate: [{1}{2}] | Comision: [{3}]"
+	}
+	
+	"empty" // Menu
+	{
+		"ro"			"(Gol)"
+	}
+	
+	"add" // Menu
+	{
+		"ro"			"Adăuga"
+	}
+	
+	"remember" // Menu
+	{
+		"ro"			"Tine minte"
+	}
+	
+	"remove" // Menu
+	{
+		"ro"			"Elimina"
+	}
+	
+	"increase" // Menu
+	{
+		"ro"			"Creste"
+	}
+	
+	"decrease" // Menu
+	{
+		"ro"			"Scade\n \n"
+	}
+	
+	"buy" // Menu
+	{
+		"ro"			"Cumpara tot"
+	}
+	
+	// ===========================
+	// Validations
+	// ===========================
+	
+	"using menu block" // Hint
+	{
+		"ro"			"Nu poti sa folosesti meniul!"
+	}
+
+	"buying item block" // Hint (translated)
+	{
+		"#format"		"{1:t}"
+		"ro"			"Nu poti cumpara: <font color='#FF0000'>{1}</font>"
+	}
+	
+	"buying ammunition block" // Hint
+	{
+		"ro"			"Nu poti cumpara gloante!"
+	}
+	
+	"selecting target block" // Hint
+	{
+		"ro"			"Tinta invalida!"
+	}
+	
+	"unstucking prop block" // Hint
+	{
+		"ro"			"Nu esti blocat intr-un obiect!"
+	}
+	
+	"buying round block" // Hint
+	{
+		"ro"			"Nu poti cumpara in timpul acestei runde!"
+	}
+
+	"starting round block" // Hint
+	{
+		"ro"			"Nu poti incepe alt mod deoarece a inceput deja unul!"
+	}
+	
+	"classes round block" // Hint
+	{
+		"ro"			"Nu poti schimba clasa deoarece runda nu a inceput inca!"
+	}
+
+	// ===========================
+	// Log
+	// ===========================
+
+	"log generic flag" // Console
+	{
+		"ro"			"Acces general:"
+	}
+
+	"log value" // Console
+	{
+		"ro"			"Valoare:"
+	}
+
+	"log module" // Console
+	{
+		"ro"			"Modul:"
+	}
+
+	"log status" // Console
+	{
+		"ro"			"Filtrarea starii:"
+	}
+
+	"log module filter" // Console
+	{
+		"ro"			"Filtrarea modulului:"
+	}
+
+	"log module short name" // Console
+	{
+		"ro"			"Nume scurt:"
+	}
+	
+	"log module invalid args" // Console
+	{
+		"ro"			"Adauga unul sau mai multe module la filtrul modulelor. Folosinta: zp_log_add_module <modul> [modul] ...\nVezi zp_log_list pentru a lista numele modulelor (nume scurte)."
+	}
+	
+	"log module invalid name" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"Numele modulului invalid: \"%s\""
+	}
+	
+	"log module filter added" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"Adaugat \"{1}\" la filtrul modulelor."
+	}
+	
+	"log module filter removed" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"Sters \"{1}\" de la filtrul modulelor."
+	}
+
+	// ===========================
+	// Config
+	// ===========================
+
+	"configs menu" // Menu
+	{
+		"ro"			"Сonfiguratie"
+	}
+	
+	"config menu reload" // Menu
+	{
+		"#format"		"{1:s}"
+		"ro"			"Incarca: \"{1}\""
+	}
+	
+	"config reload" // Console
+	{
+		"ro"			"Sintaza: zp_reloadconfig <fisier alias1> [fisier alias2] ... - incarca un fisier configurabil."
+	}
+
+	"config reload commands" // Console
+	{
+		"ro"			"Comanda legata de: zp_config_reloadall"
+	}
+
+	"config reload commands aliases" // Console
+	{
+		"#format"		"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s},{11:s}"
+		"ro"			"Fisiere presudonime:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
+	}
+
+	"config reload invalid" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"Pseudonimul fisierului invalid: \"{1}\""
+	}
+
+	"config reload not load" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"Fisier configurabil \"{1}\" nu a putut fi redat. (Dezactivat sau continut invalid.)"
+	}
+
+	"config reload begin" // Console
+	{
+		"ro"			"Reincarcarea fisierelor configurabile Zombie Plague...\n------------------------------------------------"
+	}
+
+	"config reload finish" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"\"{1}\" - Succes."
+	}
+
+	"config reload falied" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"\"{1}\" - Esuat. (Dezactivat sau continut invalid.)"
+	}
+	
+	"config dump class" // Console
+	{
+		"ro"			"Pune datele din clasă la un indice specificat. Usage: zp_class_dump <index|name>\n\n"
+	}
+	
+	"config dump class invalid" // Console
+	{
+		"#format"		"{1:d}"
+		"ro"			"Index-ul clasei gresit ({1})"
+	}
+	
+	"config dump class start" // Console
+	{
+		"#format"		"{1:d}"
+		"ro"			"ELIMINA GUNOIUL: {1} clase totale\n========================================\n"
+	}
+	
+	// ===========================
+	// ZTele
+	// ===========================
+
+	"ztele restricted escape" // Chat
+	{
+		"ro"			"ZTele is restricted on non-escape modes."
+	}
+	
+	"ztele restricted zombie" // Chat
+	{
+		"ro"			"ZTele este restricționat pentru zombi în acest moment."
+	}
+	
+	"ztele restricted human" // Chat
+	{
+		"ro"			"ZTele este restricționat pentru oameni în acest moment."
+	}
+
+	"ztele max" // Chat
+	{
+		"#format"		"{1:d}"
+		"ro"			"Ați atins valoarea maximă a @red{1} @defaultteleportării(teleportărilor) per rundă."
+	}
+
+	"ztele in progress" // Chat
+	{
+		"ro"			"Sunteți în curs de teleportare."
+	}
+
+	"ztele autocancel text" // Chat
+	{
+		"#format"		"{1:d}"
+		"ro"			"Teleportarea a fost anulată. (Restrictionary boundary is @red{1}@lgreenft@default.)"
+	}
+
+	"ztele countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"ro"			"Teleportare înapoi la icre în: <font color='#FF0000'>{1}</font> sec."
+	}
+
+	"ztele autocancel centertext" // Hint
+	{
+		"ro"			"Teleportarea a fost anulată."
+	}
+
+	"ztele countdown end" // Hint
+	{
+		"#format"		"{1:d},{2:d}"
+		"ro"			"Teleportat înapoi la icre. (Număr: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
+	}
+
+	"ztele command force syntax" // Console
+	{
+		"ro"			"Forțează ZTele pe un client. Utilizare: zp_ztele_force <client>"
+	}
+
+	"ztele command force successful" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"Jucătorul {1} a fost teleportat cu succes."
+	}
+
+	"ztele command force unsuccessful" // Console
+	{
+		"#format"		"{1:s}"
+		"ro"			"Jucătorul {1} nu a putut fi teleportat."
+	}
+	
+	"ztele invalid client" // Console
+	{
+		"ro"			"Jucătorii nu au putut fi găsiți."
+	}
+
+	// ===========================
+	// Other
+	// ===========================
+	
+	"account give invalid args" // Console
+	{
+		"ro"			"Ofera bani. Folosinta: zp_money_give <name> [cantitate]\n\n"
+	}
+	
+	"account give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"ro"			"Cantitatea de bani este gresita ({1})"
+	}
+
+	"level give invalid args" // Console
+	{
+		"ro"			"Ofera level. Folosinta: zp_level_give <name> [cantitate]\n\n"
+	}
+	
+	"level give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"ro"			"Cantitatea levelului gresita ({1})"
+	}
+	
+	"experience give invalid args" // Console
+	{
+		"ro"			"Ofera experienta. Folosinta: zp_exp_give <name> [cantitate]\n\n"
+	}
+	
+	"experience give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"ro"			"Cantiatea levelului gresita ({1})"
+	}
+	
+	"account donate invalid args" // Console
+	{
+		"ro"			"Transferați bani. Folosinta: zp_money_donate <name> [cantitate]\n\n"
+	}
+}

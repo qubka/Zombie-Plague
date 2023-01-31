@@ -1,0 +1,297 @@
+"Phrases"
+{
+	// General
+
+	"dead" // Menu
+	{
+		"ro"			"Mort"
+	}
+	
+	// Zombie
+
+	"nemesis" // Menu
+	{
+		"ro"			"Razbunatorul"
+	}
+	
+	"girl" // Menu
+	{
+		"ro"			"Deimos"
+	}
+
+	"sleeper" // Menu
+	{
+		"ro"			"Somnorosul"
+	}
+
+	"witch" // Menu
+	{
+		"ro"			"Vrajitor"
+	}
+
+	"smoker" // Menu
+	{
+		"ro"			"Fumator"
+	}
+
+	"stamper" // Menu
+	{
+		"ro"			"Stamper"
+	}
+
+	"tesla" // Menu
+	{
+		"ro"			"Tesla"
+	}
+
+	"healer" // Menu
+	{
+		"ro"			"Vindecator"
+	}
+
+	"baller" // Menu
+	{
+		"ro"			"Baller"
+	}
+
+	"range" // Menu
+	{
+		"ro"			"Exploziv"
+	}
+
+	"mutationheavy" // Menu
+	{
+		"ro"			"Greu"
+	}
+
+	"mutationlight" // Menu
+	{
+		"ro"			"Fantoma"
+	}
+
+	"fast" // Menu
+	{
+		"ro"			"Rapid"
+	}
+
+	"tank" // Menu
+	{
+		"ro"			"Tanc"
+	}
+
+	"psyh" // Menu
+	{
+		"ro"			"Psyh"
+	}
+	
+	// Info
+	
+	"girl info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>lovitura usturatoaret</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"sleeper info" // Hint
+	{
+		"ro"			"Putere pasiva: <font color='#FF0000'>Orbirea aleatorie a atacatorului</font>"
+	}
+
+	"witch info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Lilieci atacatori</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"smoker info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Nor toxic</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"stamper info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Sicriu exploziv</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"tesla info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Raze halucinante</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"healer info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Healing for money rewards</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"baller info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Bila paralizanta</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"range info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Gaz infectat</font>\nActivare la <font color='#FF0000'>moarte</font>"
+	}
+
+	"mutationheavy info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Capcana pentru bani</font>\nApasa butonul: <font color='#FF0000'>F4</font>"
+	}
+	
+	"mutationlight info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Invizibilitate</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"fast info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Alergare rapida</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"tank info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Invulnerabilitate</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+
+	"psyh info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Tipat</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+	
+	// Humans
+
+	"human" // Menu
+	{
+		"ro"			"Om"
+	}
+	
+	"zombie" // Menu
+	{
+		"ro"			"Zombi"
+	}
+	
+	"survivor" // Menu
+	{
+		"ro"			"Supravietuitor"
+	}
+	
+	"sniper" // Menu
+	{
+		"ro"			"Lunetist"
+	}
+
+	"black" // Menu
+	{
+		"ro"			"Negru"
+	}
+
+	"carrie" // Menu
+	{
+		"ro"			"Carrie"
+	}
+
+	"choi" // Menu
+	{
+		"ro"			"Choi"
+	}
+
+	"swat" // Menu
+	{
+		"ro"			"SWAT"
+	}
+
+	"ct" // Menu
+	{
+		"ro"			"CT"
+	}
+
+	"anarhist" // Menu
+	{
+		"ro"			"Anarchist"
+	}
+
+	"emma" // Menu
+	{
+		"ro"			"Emma"
+	}
+
+	"pirate" // Menu
+	{
+		"ro"			"Pirat"
+	}
+
+	"lisa" // Menu
+	{
+		"ro"			"Lisa"
+	}
+
+	"mila" // Menu
+	{
+		"ro"			"Mila"
+	}
+
+	"punisher" // Menu
+	{
+		"ro"			"Judecatorul"
+	}
+
+	"balkan" // Menu
+	{
+		"ro"			"Balkan"
+	}
+
+	"fat" // Menu
+	{
+		"ro"			"Fat"
+	}
+
+	"strong" // Menu
+	{
+		"ro"			"Strong"
+	}
+
+	"phoenix" // Menu
+	{
+		"ro"			"Phoenix"
+	}
+	
+	"redtank" // Menu
+	{
+		"ro"			"Tanc rosu"
+	}
+	
+	"bluetank" // Menu
+	{
+		"ro"			"Tanc albastru"
+	}
+	
+	"redalice" // Menu
+	{
+		"ro"			"Red Alice"
+	}
+	
+	"bluealice" // Menu
+	{
+		"ro"			"Blue Alice"
+	}
+	
+	// Info
+	
+	"redtank info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Armura</font>\nActivarea pe butonul: <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluetank info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Regenerare</font>\nActivarea pe butonul: <font color='#FF0000'>F4</font>"
+	}
+	
+	"redalice info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Alergare rapida</font>\nActivarea pe butonul: <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluealice info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>Invizibilitate</font>\nActivarea pe butonul: <font color='#FF0000'>F4</font>"
+	}
+}

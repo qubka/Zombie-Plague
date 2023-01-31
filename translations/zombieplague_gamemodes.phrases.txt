@@ -1,0 +1,101 @@
+"Phrases"
+{
+	// Messages
+
+	"mode multi" // DHUD
+	{
+		"en"			"Multi infection mode has started!"
+	}
+
+	"mode swarm" // DHUD
+	{
+		"en"			"Swarm mode has started!"
+	}
+	
+	"mode plague" // DHUD
+	{
+		"en"			"Plague mode has started!"
+	}
+
+	"mode nemesis" // DHUD
+	{
+		"en"			"Nemesis mode has started!"
+	}
+
+	"mode survivor" // DHUD
+	{
+		"en"			"Survivor mode has started!"
+	}
+	
+	"mode sniper" // DHUD
+	{
+		"en"			"Sniper mode has started!"
+	}
+
+	"mode armageddon" // DHUD
+	{
+		"en"			"Armageddon mode has started!"
+	}
+
+	"mode normal" // DHUD
+	{
+		"en"			"Normal infection!"
+	}
+	
+	// Admin menu
+
+	"classes menu" // Menu
+	{
+		"en"			"Change classes"
+	}
+	
+	"modes menu" // Menu
+	{
+		"en"			"Game modes"
+	}
+	
+	"modes option" // Menu
+	{
+		"en"			"Player options"
+	}
+	
+	"normal mode" // Menu
+	{
+		"en"			"Normal infection"
+	}
+	
+	"plague mode" // Menu
+	{
+		"en"			"Plague mode"
+	}
+	
+	"sniper mode" // Menu
+	{
+		"en"			"Sniper round"
+	}
+	
+	"survivor mode" // Menu
+	{
+		"en"			"Survivor round"
+	}
+	
+	"swarm mode" // Menu
+	{
+		"en"			"Swarm mode"
+	}
+	
+	"armageddon mode" // Menu
+	{
+		"en"			"Armageddon"
+	}
+	
+	"multi mode" // Menu
+	{
+		"en"			"Multi infection"
+	}
+	
+	"nemesis mode" // Menu
+	{
+		"en"			"Nemesis round"
+	}
+}

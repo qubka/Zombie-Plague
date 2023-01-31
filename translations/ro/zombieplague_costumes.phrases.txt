@@ -1,0 +1,27 @@
+"Phrases"
+{
+	"pig head" // Menu
+	{
+		"ro"			"Cap de porc"
+	}
+	
+	"horse head" // Menu
+	{
+		"ro"			"Cap de cal"
+	}
+	
+	"head crab" // Menu
+	{
+		"ro"			"Cap de crab"
+	}
+	
+	"cow boy" // Menu
+	{
+		"ro"			"Cow boy"
+	}
+	
+	"chicken" // Menu
+	{
+		"ro"			"Gaina"
+	}
+}

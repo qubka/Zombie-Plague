@@ -1,0 +1,48 @@
+"Phrases"
+{
+	"grenade mode" // Hint (no color) (translated)
+	{
+		"#format"		"{1:t}"	
+		"en"			"Mode: {1}"
+	}
+
+	"normal" // Hint (no color)
+	{
+		"en"			"Normal"
+	}
+
+	"impact" // Hint (no color)
+	{
+		"en"			"Instant"
+	}
+
+	"proximity" // Hint (no color)
+	{
+		"en"			"Proximity"
+	}
+
+	"trip wire" // Hint (no color)
+	{
+		"en"			"Trip wire"
+	}
+
+	"satchel charge" // Hint (no color)
+	{
+		"en"			"Satchel charge"
+	}
+
+	"homing" // Hint (no color)
+	{
+		"en"			"Homing"
+	}
+
+	"motion sensor" // Hint (no color)
+	{
+		"en"			"Motion sensor"
+	}
+
+	"satchel info" // Hint (no color)
+	{
+		"en"			"To activate the charge, press the right mouse button!"
+	}
+}	 

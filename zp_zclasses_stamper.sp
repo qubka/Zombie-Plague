@@ -141,7 +141,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		static float vPosition[3]; static float vAngle[3];
 
 		// Gets weapon position
-		ZP_GetPlayerGunPosition(client, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vPosition);
+		ZP_GetPlayerEyePosition(client, ZOMBIE_CLASS_SKILL_DISTANCE, _, _, vPosition);
 		GetClientEyeAngles(client, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
 		
 		// Initialize the hull vectors

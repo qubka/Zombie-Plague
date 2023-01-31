@@ -1,0 +1,27 @@
+"Phrases"
+{
+	"pig head" // Menu
+	{
+		"chi"			"猪头"
+	}
+	
+	"horse head" // Menu
+	{
+		"chi"			"马头"
+	}
+	
+	"head crab" // Menu
+	{
+		"chi"			"猎头蟹"
+	}
+	
+	"cow boy" // Menu
+	{
+		"chi"			"牛仔"
+	}
+	
+	"chicken" // Menu
+	{
+		"chi"			"鸡"
+	}
+}

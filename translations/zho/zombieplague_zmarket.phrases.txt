@@ -1,0 +1,57 @@
+"Phrases"
+{
+	"rebuy" // Menu
+	{
+		"zho"			"自動重買"
+	}
+	
+	"primary" // Menu
+	{
+		"zho"			"主要武器"
+	}
+	
+	"secondary" // Menu
+	{
+		"zho"			"副武器"
+	}	
+	
+	"melee" // Menu
+	{
+		"zho"			"刀具"
+	}
+
+	"buy pistols" // Menu
+	{
+		"zho"			"手槍"
+	}
+
+	"buy shotguns" // Menu
+	{
+		"zho"			"霰彈槍"
+	}
+
+	"buy rifles" // Menu
+	{
+		"zho"			"步槍"
+	}
+
+	"buy snipers" // Menu
+	{
+		"zho"			"狙擊槍"
+	}
+
+	"buy machineguns" // Menu
+	{
+		"zho"			"機槍"
+	}
+	
+	"buy knifes" // Menu
+	{
+		"zho"			"肉搏"
+	}
+	
+	"buy equipments" // Menu
+	{
+		"zho"			"设备"
+	}
+}

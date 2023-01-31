@@ -1,0 +1,101 @@
+"Phrases"
+{
+	// Messages
+
+	"mode multi" // DHUD
+	{
+		"zho"			"多重感染模式已經啟動！"
+	}
+
+	"mode swarm" // DHUD
+	{
+		"zho"			"群擁模式已經啟動！"
+	}
+	
+	"mode plague" // DHUD
+	{
+		"zho"			"瘟疫模式已經啟動！"
+	}
+
+	"mode nemesis" // DHUD
+	{
+		"zho"			"復仇女神模式已經啟動！"
+	}
+
+	"mode survivor" // DHUD
+	{
+		"zho"			"生存者模式已經啟動！"
+	}
+	
+	"mode sniper" // DHUD
+	{
+		"zho"			"狙擊手模式已經啟動！"
+	}
+
+	"mode armageddon" // DHUD
+	{
+		"zho"			"世界末日模式已經啟動！"
+	}
+
+	"mode normal" // DHUD
+	{
+		"zho"			"標準感染模式！"
+	}
+	
+	// Admin menu
+
+	"classes menu" // Menu
+	{
+		"zho"			"改變職業"
+	}
+	
+	"modes menu" // Menu
+	{
+		"zho"			"遊戲模式"
+	}
+	
+	"modes option" // Menu
+	{
+		"zho"			"玩家選項"
+	}
+	
+	"normal mode" // Menu
+	{
+		"zho"			"標準感染模式"
+	}
+	
+	"plague mode" // Menu
+	{
+		"zho"			"瘟疫模式"
+	}
+	
+	"sniper mode" // Menu
+	{
+		"zho"			"狙擊手回合"
+	}
+	
+	"survivor mode" // Menu
+	{
+		"zho"			"生存者回合"
+	}
+	
+	"swarm mode" // Menu
+	{
+		"zho"			"群擁模式"
+	}
+	
+	"armageddon mode" // Menu
+	{
+		"zho"			"世界末日模式"
+	}
+	
+	"multi mode" // Menu
+	{
+		"zho"			"多重感染模式"
+	}
+	
+	"nemesis mode" // Menu
+	{
+		"zho"			"復仇女神回合"
+	}
+}

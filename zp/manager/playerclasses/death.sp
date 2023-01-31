@@ -45,9 +45,9 @@ void DeathOnInit(/*void*/)
 	HookEvent("player_death", DeathOnClientDeathPost, EventHookMode_Post);
 
 	// Load offsets
-	fnInitGameConfOffset(gServerData.SDKTools, DHook_CommitSuicide, /*CBasePlayer::*/"CommitSuicide");
+	fnInitGameConfOffset(gServerData.SDKTools, DHook_CommitSuicide, /*CCSPlayer::*/"CommitSuicide");
 	
-	/// CBasePlayer::CommitSuicide(CBasePlayer *this, bool a2, bool a3)
+	/// CCSPlayer::CommitSuicide(CCSPlayer *this, bool a2, bool a3)
 	hDHookCommitSuicide = DHookCreate(DHook_CommitSuicide, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, DeathDhookOnCommitSuicide);
 	DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
 	DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
@@ -359,7 +359,7 @@ public Action DeathOnClientRespawning(Handle hTimer, int userID)
 
 /**
  * DHook: Suicide the current player.
- * @note void CBasePlayer::CommitSuicide(bool, bool)
+ * @note void CCSPlayer::CommitSuicide(bool, bool)
  *
  * @param client            The client index.
  **/

@@ -47,9 +47,57 @@
 void TranslationOnInit(/*void*/)
 {
 	// Load translations phrases used by plugin
+	LoadTranslations("zombieplague.phrases");
 	LoadTranslations("common.phrases");
 	LoadTranslations("core.phrases");
-	LoadTranslations("zombieplague.phrases");
+	
+	// Initialize variables
+	static char sPath[PLATFORM_LINE_LENGTH];
+	
+	// Build full path in return string
+	BuildPath(Path_SM, sPath, sizeof(sPath), "translations");
+	
+	// Opens the directory
+	DirectoryListing hDirectory = OpenDirectory(sPath);
+	
+	// If doesn't exist stop
+	if (hDirectory == null)
+	{
+		LogEvent(false, _, _, _, "Config Validation", "Error opening folder: \"%s\"", sPath);
+		return;
+	}
+	
+	// Initialize variables
+	FileType hType; int iFormat;
+	
+	// Search files in the directory
+	while (hDirectory.GetNext(sPath, sizeof(sPath), hType)) 
+	{
+		// Validate file type
+		if (hType == FileType_File) 
+		{
+			// Validate zombieplague translation file
+			if (!strncmp(sPath, "zombieplague_", 13, false))
+			{
+				// Finds the first occurrence of a character in a string
+				iFormat = FindCharInString(sPath, '.');
+
+				// Validate format
+				if (iFormat != -1) 
+				{
+					// Validate txt format
+					if (!strcmp(sPath[iFormat], ".phrases.txt", false))
+					{
+						// Load translation file
+						LoadTranslations(sPath);
+					}
+				}
+			}
+		}
+	}
+	
+	// Close directory
+	delete hDirectory;
 }
 
 /*

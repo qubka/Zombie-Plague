@@ -93,9 +93,9 @@ void CostumesOnInit(/*void*/)
 	}
 
 	// Load offsets
-	fnInitGameConfOffset(gServerData.SDKTools, DHook_SetEntityModel, /*CBasePlayer::*/"SetEntityModel");
+	fnInitGameConfOffset(gServerData.SDKTools, DHook_SetEntityModel, /*CCSPlayer::*/"SetEntityModel");
 
-	/// CBasePlayer::SetModel(CBasePlayer *this, char const*)
+	/// CCSPlayer::SetModel(CCSPlayer *this, char const*)
 	hDHookSetEntityModel = DHookCreate(DHook_SetEntityModel, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, CostumesDhookOnSetEntityModel);
 	DHookAddParam(hDHookSetEntityModel, HookParamType_CharPtr);
 	
@@ -103,7 +103,7 @@ void CostumesOnInit(/*void*/)
 	if (hDHookSetEntityModel == null)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "GameData Validation", "Failed to create DHook for \"CBasePlayer::SetEntityModel\". Update \"SourceMod\"");
+		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "GameData Validation", "Failed to create DHook for \"CCSPlayer::SetEntityModel\". Update \"SourceMod\"");
 		return;
 	}
 }
@@ -1148,7 +1148,7 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 
 /**
  * DHook: Sets the model to a given player.
- * @note void CBasePlayer::SetModel(char const*)
+ * @note void CCSPlayer::SetModel(char const*)
  *
  * @param client            The client index.
  **/

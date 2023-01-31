@@ -505,11 +505,11 @@ void ToolsSetHealth(int entity, int iValue, bool bSet = false)
  * @param entity            The entity index.
  * @return                  The LMV value.
  **/
-/*float ToolsGetLMV(int entity)
+float ToolsGetLMV(int entity)
 {
 	// Gets lagged movement value of the entity
 	return GetEntPropFloat(entity, Prop_Data, "m_flLaggedMovementValue");
-}*/
+}
 
 /**
  * @brief Sets the speed of a entity.

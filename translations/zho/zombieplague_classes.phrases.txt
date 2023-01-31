@@ -1,0 +1,297 @@
+"Phrases"
+{
+	// General
+
+	"dead" // Menu
+	{
+		"zho"			"死亡"
+	}
+	
+	// Zombie
+
+	"nemesis" // Menu
+	{
+		"zho"			"復仇女神"
+	}
+	
+	"girl" // Menu
+	{
+		"zho"			"妖女"
+	}
+
+	"sleeper" // Menu
+	{
+		"zho"			"沈眠者"
+	}
+
+	"witch" // Menu
+	{
+		"zho"			"女巫"
+	}
+
+	"smoker" // Menu
+	{
+		"zho"			"煙鬼"
+	}
+
+	"stamper" // Menu
+	{
+		"zho"			"定棺師"
+	}
+
+	"tesla" // Menu
+	{
+		"zho"			"特斯拉"
+	}
+
+	"healer" // Menu
+	{
+		"zho"			"治療者"
+	}
+
+	"baller" // Menu
+	{
+		"zho"			"投球者"
+	}
+
+	"range" // Menu
+	{
+		"zho"			"自爆怪"
+	}
+
+	"mutationheavy" // Menu
+	{
+		"zho"			"獵者"
+	}
+
+	"mutationlight" // Menu
+	{
+		"zho"			"幽靈"
+	}
+
+	"fast" // Menu
+	{
+		"zho"			"迅捷者"
+	}
+
+	"tank" // Menu
+	{
+		"zho"			"坦克"
+	}
+
+	"psyh" // Menu
+	{
+		"zho"			"瘋子"
+	}
+	
+	// Info
+	
+	"girl info" // Hint
+	{
+		"zho"			"技能: <font color='#FF0000'>刺痛射擊</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"sleeper info" // Hint
+	{
+		"zho"			"被動技能： <font color='#FF0000'>隨機致盲周圍攻擊者</font>"
+	}
+
+	"witch info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>蝙蝠蜂擁</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"smoker info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>毒霧</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"stamper info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>爆破棺材</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"tesla info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>幻覺爆炸</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"healer info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>賞金治療</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"baller info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>癱瘓球</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"range info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>感染毒氣</font>\n激活於 <font color='#FF0000'>死亡</font>"
+	}
+
+	"mutationheavy info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>報酬陷阱</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+	
+	"mutationlight info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>隱身</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"fast info" // Hint
+	{
+		"zho"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"tank info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>無敵</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+
+	"psyh info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>尖叫</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+	
+	// Humans
+
+	"human" // Menu
+	{
+		"zho"			"人類"
+	}
+	
+	"zombie" // Menu
+	{
+		"zho"			"喪屍"
+	}
+	
+	"survivor" // Menu
+	{
+		"zho"			"幸存者"
+	}
+	
+	"sniper" // Menu
+	{
+		"zho"			"狙擊手"
+	}
+
+	"black" // Menu
+	{
+		"zho"			"布萊克"
+	}
+
+	"carrie" // Menu
+	{
+		"zho"			"嘉利"
+	}
+
+	"choi" // Menu
+	{
+		"zho"			"蔡"
+	}
+
+	"swat" // Menu
+	{
+		"zho"			"斯瓦特"
+	}
+
+	"ct" // Menu
+	{
+		"zho"			"行動隊"		
+	}
+
+	"anarhist" // Menu
+	{
+		"zho"			"無政府主義者"
+	}
+
+	"emma" // Menu
+	{
+		"zho"			"艾瑪"
+	}
+
+	"pirate" // Menu
+	{
+		"zho"			"海盜"
+	}
+
+	"lisa" // Menu
+	{
+		"zho"			"麗薩"
+	}
+
+	"mila" // Menu
+	{
+		"zho"			"米拉"
+	}
+
+	"punisher" // Menu
+	{
+		"zho"			"懲罰者"
+	}
+
+	"balkan" // Menu
+	{
+		"zho"			"巴爾幹"
+	}
+
+	"fat" // Menu
+	{
+		"zho"			"胖子"
+	}
+
+	"strong" // Menu
+	{
+		"zho"			"大塊頭"
+	}
+
+	"phoenix" // Menu
+	{
+		"zho"			"鳳凰"
+	}
+	
+	"redtank" // Menu
+	{
+		"zho"			"赤紅坦克"
+	}
+	
+	"bluetank" // Menu
+	{
+		"zho"			"湛藍坦克"
+	}
+	
+	"redalice" // Menu
+	{
+		"zho"			"赤紅愛麗絲"
+	}
+	
+	"bluealice" // Menu
+	{
+		"zho"			"湛藍愛麗絲"
+	}
+	
+	// Info
+	
+	"redtank info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>鐵壁</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluetank info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>再生</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+	
+	"redalice info" // Hint
+	{
+		"zho"			"Skill: <font color='#FF0000'>快跑</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluealice info" // Hint
+	{
+		"zho"			"技能： <font color='#FF0000'>無敵</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+}

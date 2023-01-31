@@ -1,0 +1,157 @@
+"Phrases"
+{
+	// Items
+	
+	"antidot" // Menu
+	{
+		"chi"			"解毒剂"
+	}
+
+	"infect bomb" // Menu
+	{
+		"chi"			"感染炸弹"
+	}
+	
+	"jump bomb" // Menu
+	{
+		"chi"			"跳高手雷"
+	}
+	
+	"holy grenade" // Menu 
+	{
+		"chi"			"神圣手雷"
+	}
+
+	"molotov" // Menu
+	{
+		"chi"			"莫洛托夫燃烧弹"
+	}
+
+	"inc grenade" // Menu
+	{
+		"chi"			"莫洛托夫燃烧弹"
+	}
+
+	"medi shot" // Menu
+	{
+		"chi"			"医疗射击"
+	}
+	
+	"bump mine"
+	{
+		"chi"			"撞矿"
+	}
+	
+	"drone gun" // Menu
+	{
+		"chi"			"自动炮塔"
+	}
+
+	"freeze grenade" // Menu
+	{
+		"chi"			"冻结手雷"
+	}
+
+	"flare grenade" // Menu
+	{
+		"chi"			"闪光手雷"
+	}
+	
+	"breachcharge" // Menu
+	{
+		"chi"			"C4炸药"
+	}
+
+	"kevlar" // Menu
+	{
+		"chi"			"护甲"
+	}
+	
+	"assaultsuit" // Menu
+	{
+		"chi"			"护甲/头盔"
+	}
+	
+	"heavysuit" // Menu
+	{
+		"chi"			"重装"
+	}
+	
+	"bazooka" // Menu
+	{
+		"chi"			"火箭筒"
+	}
+	
+	"airdrop" // Menu
+	{
+		"chi"			"呼叫空投"
+	}
+	
+	"m32" // Menu
+	{
+		"chi"			"M32 榴弹发射器"
+	}
+	
+	"chainsaw" // Menu
+	{
+		"chi"			"电锯"
+	}
+
+	"lasermine" // Menu
+	{
+		"chi"			"镭射采掘"
+	}
+	
+	"jetpack" // Menu
+	{
+		"chi"			"喷气背包"
+	}
+
+	"cannon" // Menu
+	{
+		"chi"			"龙炮"
+	}
+	
+	"drillgun" // Menu
+	{
+		"chi"			"钻头"
+	}
+	
+	"watercannon" // Menu
+	{
+		"chi"			"喷火器"
+	}
+	
+	"shield"
+	{
+		"chi"			"盾"
+	}
+	
+	// Info
+	
+	"chainsaw info" // Hint
+	{
+		"chi"			"加强 <font color='#7A1A0B'>削减</font> 通过鼠标右键"
+		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
+	}
+
+	"turret info" // Hint
+	{
+		"chi"			"想移除 <font color='#3D49C7'>一个炮塔</font>, 请激活<font color='#1CA9C9'>E</font>按钮"
+	}
+
+	"shield info" // Hint
+	{
+		"chi"			"要<font color='#C87878'>擊退</font>手榴彈， 請使用<font color='#3399CC'>右側</font>鼠標按鈕！"
+	}
+
+	"lasermine info" // Hint
+	{
+		"chi"			"想删除 <font color='#F8173E'>一个地雷</font>, 请激活<font color='#1CA9C9'>E</font>按钮"
+	}
+	
+	"jetpack info" // Hint
+	{
+		"chi"			"按 <font color='#09AB3F'>CTRL</font> + <font color='#09AB3F'>空格</font> 打開 <font color='#FF033E'>喷气包</font>" 
+	}
+}

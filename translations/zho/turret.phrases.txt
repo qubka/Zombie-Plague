@@ -1,0 +1,42 @@
+"Phrases"
+{
+	"turret control" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:d},{4:t}"
+		"zho"			"升级： [{1}{2}] | 补充： [{3}{4}]"
+	}
+	
+	"turret level" // Menu
+	{
+		"#format"		"{1:d}"	
+		"zho"			"水平: [{1}]"
+	}
+
+	"turret hp" // Menu
+	{
+		"#format"		"{1:d}"	
+		"zho"			"惠普：[{1}]"
+	}
+
+	"turret ammo" // Menu
+	{
+		"#format"		"{1:d}"	
+		"zho"			"弹药： [{1}]"
+	}
+
+	"turret rockets" // Menu
+	{
+		"#format"		"{1:d}"	
+		"zho"			"火箭： [{1}]"
+	}
+
+	"control info" // Hint (no color)
+	{
+		"zho"			"更多信息，请查看更多信息"
+	}
+
+	"rotate info" // Hint (no color)
+	{
+		"zho"			"想要旋转 壹個炮塔, 请使用右侧鼠标按钮！"
+	}
+}

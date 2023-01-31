@@ -1,0 +1,548 @@
+"Phrases"
+{
+	// Pistols
+	
+	"elite" // Menu
+	{
+		"ro"			"Dual elite"
+	}
+	
+	"deagle" // Menu
+	{
+		"ro"			"Desert eagle"
+	}
+	
+	"glock" // Menu
+	{
+		"ro"			"Glock 18"
+	}
+	
+	"usp" // Menu
+	{
+		"ro"			"HK USP"
+	}
+	
+	"hpk" // Menu
+	{
+		"ro"			"Heckler & Koch P2000"
+	}
+	
+	"fiveseven" // Menu
+	{
+		"ro"			"FN Five-seveN"
+	}
+	
+	"tec9" // Menu
+	{
+		"ro"			"Intratec TEC-DC9"
+	}
+	
+	"cz75a" // Menu
+	{
+		"ro"			"CZ75A"
+	}
+	
+	"p250" // Menu
+	{
+		"ro"			"SIG Sauer P250"
+	}
+	
+	"taser" // Menu
+	{
+		"ro"			"Taser"
+	}
+	
+	"revolver" // Menu
+	{
+		"ro"			"Revolver"
+	}
+	
+	"janus1" // Menu
+	{
+		"ro"			"Janus I"
+	}
+	
+	"skull1" // Menu
+	{
+		"ro"			"Skull I"
+	}
+	
+	"balrog1" // Menu
+	{
+		"ro"			"Balrog I"
+	}
+	
+	"sfpistol" // Menu
+	{
+		"ro"			"SF-PISTOL"
+	}
+	
+	// Shotguns
+	
+	"nova" // Menu
+	{
+		"ro"			"Benelli Nova"
+	}
+	
+	"sawedoff" // Menu
+	{
+		"ro"			"Sawed-Off"
+	}
+	
+	"xm1014" // Menu
+	{
+		"ro"			"XM1014"
+	}
+	
+	"mag7" // Menu
+	{
+		"ro"			"MAG7"
+	}
+	
+	"skull11" // Menu
+	{
+		"ro"			"Skull XI"
+	}
+	
+	"gatling" // Menu
+	{
+		"ro"			"Gatling"
+	}
+	
+	"balrog11" // Menu
+	{
+		"ro"			"Balrog XI"
+	}
+	
+	"janus11" // Menu
+	{
+		"ro"			"Janus XI"
+	}
+
+	// Rifles
+	
+	"ak47" // Menu
+	{
+		"ro"			"AK-47"
+	}
+	
+	"sg556" // Menu
+	{
+		"ro"			"SIG SG 556"
+	}
+	
+	"aug" // Menu
+	{
+		"ro"			"Steyr AUG"
+	}
+	
+	"m4a4" // Menu
+	{
+		"ro"			"M4A4"
+	}
+	
+	"m4a1" // Menu
+	{
+		"ro"			"M4A1"
+	}
+	
+	"bizon" // Menu
+	{
+		"ro"			"Bizon"
+	}
+	
+	"famas" // Menu
+	{
+		"ro"			"FAMAS"
+	}
+	
+	"mac10" // Menu
+	{
+		"ro"			"Ingram MAC-10"
+	}
+	
+	"mp5sd" // Menu
+	{
+		"ro"			"MP5-SD"
+	}
+	
+	"mp7" // Menu
+	{
+		"ro"			"HK MP7"
+	}
+	
+	"mp9" // Menu
+	{
+		"ro"			"HK MP9"
+	}
+	
+	"p90" // Menu
+	{
+		"ro"			"FN P90"
+	}
+	
+	"ump45" // Menu
+	{
+		"ro"			"HK UMP"
+	}
+	
+	"galilar" // Menu
+	{
+		"ro"			"Galil AR"
+	}
+	
+	"lightninghz" // Menu
+	{
+		"ro"			"Lightning HZ"
+	}
+	
+	"lightninglz" // Menu
+	{
+		"ro"			"Lightning LZ"
+	}
+	
+	"blaster" // Menu
+	{
+		"ro"			"SFGUN-1"
+	}
+	
+	"tempest" // Menu
+	{
+		"ro"			"SF-TEMPEST"
+	}
+	
+	"plasmagun" // Menu
+	{
+		"ro"			"Plasma Gun"
+	}
+	
+	"cartblue" // Menu
+	{
+		"ro"			"Cartblue"
+	}
+	
+	"balrog3" // Menu
+	{
+		"ro"			"Balrog III"
+	}
+	
+	"janus3" // Menu
+	{
+		"ro"			"Janus III"
+	}
+	
+	"janus5" // Menu
+	{
+		"ro"			"Janus V"
+	}
+	
+	// Snipers
+	
+	"awp" // Menu
+	{
+		"ro"			"AWP"
+	}
+	
+	"ssg08" // Menu
+	{
+		"ro"			"SSG 08"
+	}
+	
+	"g3sg1" // Menu
+	{
+		"ro"			"G3SG1"
+	}
+	
+	"scar20" // Menu
+	{
+		"ro"			"SCAR-20"
+	}
+	
+	"wa2000" // Menu
+	{
+		"ro"			"Walther WA2000"
+	}
+	
+	"airburster" // Menu
+	{
+		"ro"			"Airburster"
+	}
+	
+	"skull5" // Menu
+	{
+		"ro"			"Skull V"
+	}
+	
+	// Machineguns
+	
+	"m249" // Menu
+	{
+		"ro"			"M249 SAW"
+	}
+
+	"negev" // Menu
+	{
+		"ro"			"Negev"
+	}
+	
+	"m134" // Menu
+	{
+		"ro"			"M134 Monkey"
+	}
+	
+	"sfmg" // Menu
+	{
+		"ro"			"SF-MG"
+	}
+	
+	"sgdrill" // Menu
+	{
+		"ro"			"SG-DRILL"
+	}
+	
+	"balrog7" // Menu
+	{
+		"ro"			"Balrog VII"
+	}
+	
+	"janus7" // Menu
+	{
+		"ro"			"Janus VII"
+	}
+	
+	// Knife
+	
+	"fists" // Menu
+	{
+		"ro"			"Maini"
+	}
+
+	"zombie claw" // Menu
+	{
+		"ro"			"Zombie Claw"
+	}
+	
+	"nemesis claw" // Menu
+	{
+		"ro"			"Nemesis Claw"
+	}
+	
+	"knife" // Menu
+	{
+		"ro"			"Classic Knife"
+	}
+	
+	"knife t" // Menu
+	{
+		"ro"			"Knife T"
+	}
+	
+	"knife gg" // Menu
+	{
+		"ro"			"Gold Knife"
+	}
+
+	"knife gut" // Menu
+	{
+		"ro"			"Gut Knife"
+	}
+
+	"knife flip" // Menu
+	{
+		"ro"			"Flip Knife"
+	}
+
+	"m9 bayonet" // Menu
+	{
+		"ro"			"M9 Bayonet"
+	}
+
+	"karambit" // Menu
+	{
+		"ro"			"Karambit"
+	}
+
+	"knife tactical" // Menu
+	{
+		"ro"			"Huntsman Knife"
+	}
+
+	"knife falchion" // Menu
+	{
+		"ro"			"Falchion Knife"
+	}
+
+	"knife butterfly" // Menu
+	{
+		"ro"			"Butterfly"
+	}
+
+	"knife bowie" // Menu
+	{
+		"ro"			"Bowie Knife"
+	}
+
+	"knife push" // Menu
+	{
+		"ro"			"Shadow Daggers"
+	}
+
+	"knife ursus" // Menu
+	{
+		"ro"			"Ursus Knife"
+	}
+
+	"knife gypsy" // Menu
+	{
+		"ro"			"Navaja Knife"
+	}
+
+	"knife stiletto" // Menu
+	{
+		"ro"			"Stiletto Knife"
+	}
+
+	"knife widowmaker" // Menu
+	{
+		"ro"			"Talon Knife"
+	}
+	
+	"spanner" // Menu
+	{
+		"ro"			"Spanner"
+	}
+	
+	"axe" // Menu
+	{
+		"ro"			"Topor"
+	}
+	
+	"hammer" // Menu
+	{
+		"ro"			"Ciocan"
+	}
+	
+	"sfsword" // Menu
+	{
+		"ro"			"Sabie laser"
+	}
+	
+	"skullaxe" // Menu
+	{
+		"ro"			"Skull Axe"
+	}
+	
+	"big hammer" // Menu
+	{
+		"ro"			"Big Hammer"
+	}
+	
+	// Others
+
+	"etherial" // Menu
+	{
+		"ro"			"Etherial"
+	}
+	
+	"sfsniper" // Menu
+	{
+		"ro"			"SF-SNIPER"
+	}
+	
+	// Info
+	
+	"skull1 info" // Hint
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"balrog1 info" // Hint 
+	{
+		"ro"			"Trage cu <font color='#FF6161'>explzibil</font> de pe click dreapta"
+	}
+
+	"janus1 info" // Hint
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"balrog11 info" // Hint 
+	{
+		"ro"			"Trage <font color='#CD00CD'>repetat</font> de pe click dreapta"
+	}
+
+	"janus11 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"cartblue info" // Hint
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"janus3 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"janus5 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"airburster info" // Hint 
+	{
+		"ro"			"Aer <font color='#BA66FF'>puternic</font> on the right mouse button"
+	}
+
+	"sgdrill info" // Hint
+	{
+		"ro"			"Lovitura <font color='#4B0082'>puternica</font>de pe click dreapta"
+	}
+	
+	"sfmg info" // Hint
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"janus7 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+	
+	"sfsword info" // Hint 
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+
+	"hammer info" // Hint 
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click dreapta"
+	}
+	
+	"balrog3 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#E62E00'>zumul</font> de pe click dreapta"
+	}
+	
+	"balrog7 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#432E8F'>zumul</font> de pe click dreapta"
+	}
+	
+	"m32 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#432E8F'>zumul</font> de pe click dreapta"
+	}
+	
+	"skull11 info" // Hint 
+	{
+		"ro"			"Schimba <font color='#432E8F'>zumul</font> de pe click dreapta"
+	}
+	
+	"grenade info" // Hint
+	{
+		"ro"			"Schimba <font color='#E62E00'>modul</font> de pe click reîncărcare"
+	}
+}

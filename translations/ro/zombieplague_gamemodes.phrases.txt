@@ -1,0 +1,101 @@
+"Phrases"
+{
+	// Messages
+
+	"mode multi" // DHUD
+	{
+		"ro"			"Runda multipla a inceput!"
+	}
+
+	"mode swarm" // DHUD
+	{
+		"ro"			"Modul roi a inceput!"
+	}
+	
+	"mode plague" // DHUD
+	{
+		"ro"			"Modul ciuma a inceput!"
+	}
+
+	"mode nemesis" // DHUD
+	{
+		"ro"			"Razbunarea a inceput!"
+	}
+
+	"mode survivor" // DHUD
+	{
+		"ro"			"Runda supravietuitorului a inceput!"
+	}
+	
+	"mode sniper" // DHUD
+	{
+		"ro"			"Runda lunetistului a inceput!"
+	}
+
+	"mode armageddon" // DHUD
+	{
+		"ro"			"Runda finala a inceput!"
+	}
+
+	"mode normal" // DHUD
+	{
+		"ro"			"Infectie normala!"
+	}
+	
+	// Admin menu
+
+	"classes menu" // Menu
+	{
+		"ro"			"Schimba clasele"
+	}
+	
+	"modes menu" // Menu
+	{
+		"ro"			"Modul jocului"
+	}
+	
+	"modes option" // Menu
+	{
+		"ro"			"Optiunile jucatorului"
+	}
+	
+	"normal mode" // Menu
+	{
+		"ro"			"Infectie normala"
+	}
+	
+	"plague mode" // Menu
+	{
+		"ro"			"Modul ciuma"
+	}
+	
+	"sniper mode" // Menu
+	{
+		"ro"			"Modul lunetist"
+	}
+	
+	"survivor mode" // Menu
+	{
+		"ro"			"Modul supravietuitor"
+	}
+	
+	"swarm mode" // Menu
+	{
+		"ro"			"Modul roi"
+	}
+	
+	"armageddon mode" // Menu
+	{
+		"ro"			"Modul final"
+	}
+	
+	"multi mode" // Menu
+	{
+		"ro"			"Infectia multipla"
+	}
+	
+	"nemesis mode" // Menu
+	{
+		"ro"			"Modul razbunarii"
+	}
+}

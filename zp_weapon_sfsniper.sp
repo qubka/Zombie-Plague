@@ -273,7 +273,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
 	// Sets next attack time
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
 
 	// Sets next idle time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
@@ -345,7 +345,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -437,7 +437,7 @@ public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weap
 	{
 		// Gets weapon position
 		static float vPosition[3];
-		ZP_GetPlayerGunPosition(client, 30.0, 10.0, -5.0, vPosition);
+		ZP_GetPlayerEyePosition(client, 30.0, 10.0, -5.0, vPosition);
 		
 		// Create a beam entity
 		int entity = UTIL_CreateBeam(vPosition, vBullet, _, _, WEAPON_BEAM_WIDTH, _, _, _, _, _, _, "materials/sprites/laserbeam.vmt", _, _, BEAM_STARTSPARKS | BEAM_ENDSPARKS, _, _, _, WEAPON_BEAM_COLOR, 0.0, WEAPON_BEAM_LIFE + 1.0, "sflaser");

@@ -370,7 +370,7 @@ void Weapon_OnCreateExplosion(int client, int weapon)
 	static float vPosition[3]; static float vAngle[3]; static float vEndPosition[3]; 
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 7.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);

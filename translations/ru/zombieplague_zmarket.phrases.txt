@@ -1,0 +1,57 @@
+"Phrases"
+{
+	"rebuy" // Menu
+	{
+		"ru"			"Авто-покупка"
+	}
+	
+	"primary" // Menu
+	{
+		"ru"			"Главные оружия"
+	}
+	
+	"secondary" // Menu
+	{
+		"ru"			"Доп. оружия"
+	}	
+	
+	"melee" // Menu
+	{
+		"ru"			"Ножи"
+	}
+
+	"buy pistols" // Menu
+	{
+		"ru"			"Пистолеты"
+	}
+
+	"buy shotguns" // Menu
+	{
+		"ru"			"Дробовики"
+	}
+
+	"buy rifles" // Menu
+	{
+		"ru"			"Винтовки"
+	}
+
+	"buy snipers" // Menu
+	{
+		"ru"			"Снайперские винтовки"
+	}
+
+	"buy machineguns" // Menu
+	{
+		"ru"			"Пулеметы"
+	}
+	
+	"buy knifes" // Menu
+	{
+		"ru"			"Ножи"
+	}
+	
+	"buy equipments" // Menu
+	{
+		"ru"			"Обмундирование"
+	}
+}

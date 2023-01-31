@@ -1,0 +1,7 @@
+"Phrases"
+{
+	"janus activated" // Hint (no color)
+	{
+		"chi"			"按鼠標右鍵激活模式!"
+	}
+}

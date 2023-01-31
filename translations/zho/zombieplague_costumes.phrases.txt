@@ -1,0 +1,27 @@
+"Phrases"
+{
+	"pig head" // Menu
+	{
+		"zho"			"豬頭"
+	}
+	
+	"horse head" // Menu
+	{
+		"zho"			"馬頭"
+	}
+	
+	"head crab" // Menu
+	{
+		"zho"			"獵頭蟹"
+	}
+	
+	"cow boy" // Menu
+	{
+		"zho"			"牛仔"
+	}
+	
+	"chicken" // Menu
+	{
+		"zho"			"雞"
+	}
+}

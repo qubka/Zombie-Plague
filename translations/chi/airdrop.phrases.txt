@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"airdrop safe" // Hint (no color)
+	{
+		"#format"		"{1:d}"
+		"chi"			"打开保险栓, 炸掉C4数量 {1} 台。"
+	}
+
+	"airdrop bag" // Hint (no color)
+	{
+		"chi"			"要从包中取出武器，请激活E按钮"
+	}
+
+	"airdrop info" // Hint (no color)
+	{
+		"chi"			"要激活呼叫，请设置传感器并激活遥控器"
+	}
+
+	"trigger on info" // Hint (no color)
+	{
+		"chi"			"呼叫空中轰炸机"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"chi"			"呼叫空投直升机"
+	}
+}

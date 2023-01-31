@@ -71,7 +71,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("mutation_heavy.phrases");
 
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())

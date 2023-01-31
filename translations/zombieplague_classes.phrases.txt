@@ -1,0 +1,297 @@
+"Phrases"
+{
+	// General
+
+	"dead" // Menu
+	{
+		"en"			"Dead"
+	}
+	
+	// Zombie
+
+	"nemesis" // Menu
+	{
+		"en"			"Nemesis"
+	}
+	
+	"girl" // Menu
+	{
+		"en"			"Deimos"
+	}
+
+	"sleeper" // Menu
+	{
+		"en"			"Sleeper"
+	}
+
+	"witch" // Menu
+	{
+		"en"			"Witch"
+	}
+
+	"smoker" // Menu
+	{
+		"en"			"Smoker"
+	}
+
+	"stamper" // Menu
+	{
+		"en"			"Stamper"
+	}
+
+	"tesla" // Menu
+	{
+		"en"			"Tesla"
+	}
+
+	"healer" // Menu
+	{
+		"en"			"Healer"
+	}
+
+	"baller" // Menu
+	{
+		"en"			"Baller"
+	}
+
+	"range" // Menu
+	{
+		"en"			"Explosive"
+	}
+
+	"mutationheavy" // Menu
+	{
+		"en"			"Heavy"
+	}
+
+	"mutationlight" // Menu
+	{
+		"en"			"Ghost"
+	}
+
+	"fast" // Menu
+	{
+		"en"			"Fast"
+	}
+
+	"tank" // Menu
+	{
+		"en"			"Tank"
+	}
+
+	"psyh" // Menu
+	{
+		"en"			"Psyh"
+	}
+	
+	// Info
+	
+	"girl info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"sleeper info" // Hint
+	{
+		"en"			"Passive skill: <font color='#FF0000'>Randomly dazzles the assailant</font>"
+	}
+
+	"witch info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"smoker info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Toxic cloud</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"stamper info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Explosive coffin</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"tesla info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Hallucination blast</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"healer info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Healing for money rewards</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"baller info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Paralyzing ball</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"range info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Infection gas</font>\nActivation on <font color='#FF0000'>death</font>"
+	}
+
+	"mutationheavy info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Traping for money rewards</font>\nPress button: <font color='#FF0000'>F4</font>"
+	}
+	
+	"mutationlight info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"fast info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"tank info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Invulnerability</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+
+	"psyh info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Scream</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+	
+	// Humans
+
+	"human" // Menu
+	{
+		"en"			"Human"
+	}
+	
+	"zombie" // Menu
+	{
+		"en"			"Zombie"
+	}
+	
+	"survivor" // Menu
+	{
+		"en"			"Survivor"
+	}
+	
+	"sniper" // Menu
+	{
+		"en"			"Sniper"
+	}
+
+	"black" // Menu
+	{
+		"en"			"Black"
+	}
+
+	"carrie" // Menu
+	{
+		"en"			"Carrie"
+	}
+
+	"choi" // Menu
+	{
+		"en"			"Choi"
+	}
+
+	"swat" // Menu
+	{
+		"en"			"SWAT"
+	}
+
+	"ct" // Menu
+	{
+		"en"			"CT"
+	}
+
+	"anarhist" // Menu
+	{
+		"en"			"Anarchist"
+	}
+
+	"emma" // Menu
+	{
+		"en"			"Emma"
+	}
+
+	"pirate" // Menu
+	{
+		"en"			"Pirate"
+	}
+
+	"lisa" // Menu
+	{
+		"en"			"Lisa"
+	}
+
+	"mila" // Menu
+	{
+		"en"			"Mila"
+	}
+
+	"punisher" // Menu
+	{
+		"en"			"Punisher"
+	}
+
+	"balkan" // Menu
+	{
+		"en"			"Balkan"
+	}
+
+	"fat" // Menu
+	{
+		"en"			"Fat"
+	}
+
+	"strong" // Menu
+	{
+		"en"			"Strong"
+	}
+
+	"phoenix" // Menu
+	{
+		"en"			"Phoenix"
+	}
+	
+	"redtank" // Menu
+	{
+		"en"			"Red tank"
+	}
+	
+	"bluetank" // Menu
+	{
+		"en"			"Blue tank"
+	}
+	
+	"redalice" // Menu
+	{
+		"en"			"Red Alice"
+	}
+	
+	"bluealice" // Menu
+	{
+		"en"			"Blue Alice"
+	}
+	
+	// Info
+	
+	"redtank info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Armorup</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluetank info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Regeneration</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+	
+	"redalice info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluealice info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+}

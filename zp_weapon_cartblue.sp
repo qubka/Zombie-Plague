@@ -271,7 +271,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	if (iStateMode)
 	{
 		// Sets next attack time
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponSpeed(gWeapon) * WEAPON_ACTIVE_MULTIPLIER));       
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon) * WEAPON_ACTIVE_MULTIPLIER));       
 
 		// Sets attack animation
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT2_1, ANIM_SHOOT2_2 });   
@@ -285,7 +285,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	else
 	{
 		// Sets next attack time
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
 
 		// Sets attack animation
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
@@ -374,7 +374,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -437,7 +437,7 @@ public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weap
 	if (weaponID == gWeapon)
 	{
 		// Sent a tracer
-		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_smg", vBullet, ZP_GetWeaponSpeed(gWeapon));
+		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_smg", vBullet, ZP_GetWeaponShoot(gWeapon));
 	}
 }
 

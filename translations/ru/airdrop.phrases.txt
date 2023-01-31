@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"airdrop safe" // Hint (no color)
+	{
+		"#format"		"{1:d}"
+		"ru"			"Чтобы открыть сейф взорвите C4 в кол-ве {1} шт."
+	}
+
+	"airdrop bag" // Hint (no color)
+	{
+		"ru"			"Чтобы достать оружие из сумки, используйте кнопку E"
+	}
+
+	"airdrop info" // Hint (no color)
+	{
+		"ru"			"Чтобы активировать вызов, установите датчик и активитуйте пультом"
+	}
+
+	"trigger on info" // Hint (no color)
+	{
+		"ru"			"Вызов бомбордировщика с ядерной бомбой"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"ru"			"Вызов вертолета с дропом"
+	}
+}

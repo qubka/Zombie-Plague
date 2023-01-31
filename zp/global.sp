@@ -179,7 +179,9 @@ enum struct ClientData
 	bool RunCmd;
 	
 	/* ZMarket */
-	bool AutoBuy;
+	bool AutoSelect;
+	bool BlockMenu;
+	int CurrentMenu;
 	int Arsenal[3];
 	
 	/* Timers */
@@ -259,7 +261,9 @@ enum struct ClientData
 		this.LastSequenceParity   = -1;
 		this.ToggleSequence       = false;
 		this.RunCmd               = false;
-		this.AutoBuy              = false;
+		this.AutoSelect           = false;
+		this.BlockMenu            = false;
+		this.CurrentMenu          = 0;
 		this.Arsenal[0]           = -1;
 		this.Arsenal[1]           = -1;
 		this.Arsenal[2]           = -1;

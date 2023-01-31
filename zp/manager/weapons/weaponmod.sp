@@ -79,6 +79,7 @@ int ItemDef_Index;
 Handle hDHookPrecacheModel;
 Handle hDHookGetMaxClip;
 Handle hDHookGetReserveAmmoMax;
+Handle hDHookGetPlayerMaxSpeed;
 Handle hDHookWeaponCanUse;
 
 /**
@@ -87,6 +88,7 @@ Handle hDHookWeaponCanUse;
 int DHook_Precache;
 int DHook_GetMaxClip1;
 int DHook_GetReserveAmmoMax;
+int DHook_GetPlayerMaxSpeed;
 int DHook_WeaponCanUse;
 
 /**
@@ -143,7 +145,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	
 	// Starts the preparation of an SDK call
 	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, /*CBasePlayer::*/"Weapon_Switch");
+	PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, /*CCSPlayer::*/"Weapon_Switch");
 	
 	// Adds a parameter to the calling convention. This should be called in normal ascending order
 	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
@@ -153,7 +155,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	if ((hSDKCallWeaponSwitch = EndPrepSDKCall()) == null)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBasePlayer::Weapon_Switch\". Update \"SourceMod\"");
+		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CCSPlayer::Weapon_Switch\". Update \"SourceMod\"");
 		return;
 	}
 
@@ -201,8 +203,9 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	// Load other offsets
 	fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
 	fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
+	fnInitGameConfOffset(gServerData.Config, DHook_GetPlayerMaxSpeed, "CCSPlayer::GetPlayerMaxSpeed");
 	fnInitGameConfOffset(gServerData.Config, DHook_Precache, "CBaseEntity::PrecacheModel");
-	fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CBasePlayer::*/"Weapon_CanUse");
+	fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CCSPlayer::*/"Weapon_CanUse");
    
 	/// CBaseCombatWeapon::GetMaxClip1(CBaseCombatWeapon *this)
 	hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
@@ -227,7 +230,18 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 		return;
 	}
 	
-	/// CBasePlayer::Weapon_CanUse(CBaseCombatWeapon *this)
+	/// CCSPlayer::GetPlayerMaxSpeed(CCSPlayer *this)
+	hDHookGetPlayerMaxSpeed = DHookCreate(DHook_GetPlayerMaxSpeed, HookType_Entity, ReturnType_Float, ThisPointer_CBaseEntity, WeaponDHookGetPlayerMaxSpeed);
+	
+	// Validate hook
+	if (hDHookGetPlayerMaxSpeed == null)
+	{
+		// Log failure
+		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CCSPlayer::GetPlayerMaxSpeed\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		return;
+	}
+	
+	/// CCSPlayer::Weapon_CanUse(CBaseCombatWeapon *this)
 	hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_Ignore, WeaponDHookOnCanUse);
 	DHookAddParam(hDHookWeaponCanUse, HookParamType_CBaseEntity);
 	
@@ -310,9 +324,7 @@ void WeaponMODOnUnload(/*void*/)
  **/
 void WeaponMODOnCommandInit(/*void*/)
 {
-	// Hook listeners
-	AddCommandListener(WeaponMODOnCommandListened, "buyammo1");
-	AddCommandListener(WeaponMODOnCommandListened, "buyammo2");
+	// Hook listener
 	AddCommandListener(WeaponMODOnCommandListened, "drop");
 }
 
@@ -331,7 +343,8 @@ void WeaponMODOnClientInit(int client)
 	SDKHook(client, SDKHook_PostThinkPost,    WeaponMODOnAnimationFix);
 
 	// Hook entity callbacks
-	DHookEntity(hDHookWeaponCanUse, false, client);
+	DHookEntity(hDHookWeaponCanUse, true, client);
+	DHookEntity(hDHookGetPlayerMaxSpeed, true, client);
 }
 
 /**
@@ -340,18 +353,64 @@ void WeaponMODOnClientInit(int client)
 void WeaponMODOnCvarInit(/*void*/)
 {
 	// Create cvars
-	gCvarList.WEAPON_PICKUP_RANGE  = FindConVar("zp_pickup_range");
-	gCvarList.WEAPON_PICKUP_LEVEL  = FindConVar("zp_pickup_level");
-	gCvarList.WEAPON_PICKUP_ONLINE = FindConVar("zp_pickup_online");
-	gCvarList.WEAPON_DEFAULT_MELEE = FindConVar("zp_default_melee");
+	gCvarList.WEAPON_BUYAMMO        = FindConVar("zp_buyammo");
+	gCvarList.WEAPON_REMOVE_DROPPED = FindConVar("zp_remove_dropped");
+	gCvarList.WEAPON_PICKUP_RANGE   = FindConVar("zp_pickup_range");
+	gCvarList.WEAPON_PICKUP_LEVEL   = FindConVar("zp_pickup_level");
+	gCvarList.WEAPON_PICKUP_ONLINE  = FindConVar("zp_pickup_online");
+	gCvarList.WEAPON_DEFAULT_MELEE  = FindConVar("zp_default_melee");
 
 	// Hook cvars
-	HookConVarChange(gCvarList.WEAPON_DEFAULT_MELEE, WeaponMODOnCvarHook);
+	HookConVarChange(gCvarList.WEAPON_BUYAMMO,       WeaponMODOnCvarHook);
+	HookConVarChange(gCvarList.WEAPON_DEFAULT_MELEE, WeaponMODOnCvarHookDefault);
+	
+	// Load cvars
+	WeaponMODOnCvarLoad();
+}
+
+/**
+ * @brief Load weapons listeners changes.
+ **/
+void WeaponMODOnCvarLoad(/*void*/)
+{
+	// Validate buy ammo
+	if (gCvarList.WEAPON_BUYAMMO.BoolValue)
+	{
+		// Hook listeners
+		AddCommandListener(WeaponMODOnCommandListened, "buyammo1");
+		AddCommandListener(WeaponMODOnCommandListened, "buyammo2");
+	}
+	else
+	{
+		// Unhook listeners
+		RemoveCommandListener2(WeaponMODOnCommandListened, "buyammo1");
+		RemoveCommandListener2(WeaponMODOnCommandListened, "buyammo2");
+	}
 }
 
 /*
  * Weapons main functions.
  */
+ 
+/**
+ * Cvar hook callback (zp_buyammo)
+ * @brief Buyammo button hooks initialization.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void WeaponMODOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+{
+	// Validate new value
+	if (!strcmp(oldValue, newValue, false))
+	{
+		return;
+	}
+	
+	// Forward event to modules
+	WeaponMODOnCvarLoad();
+}
  
 /**
  * Cvar hook callback (zp_default_melee)
@@ -361,7 +420,7 @@ void WeaponMODOnCvarInit(/*void*/)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void WeaponMODOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+public void WeaponMODOnCvarHookDefault(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
 	if (!strcmp(oldValue, newValue, false))
@@ -442,11 +501,11 @@ public void WeaponMODOnWeaponSpawn(int weapon)
 {
 	// Resets the weapon id
 	WeaponsSetCustomID(weapon, -1);
-	
+
 	// Hook weapon callbacks
 	SDKHook(weapon, SDKHook_ReloadPost, WeaponMODOnWeaponReload);
 	
-	// Apply fake spawn hook on the next frame
+	// Call post spawn hook on the next frame
 	_exec.WeaponMODOnWeaponSpawnPost(weapon);
 }
 
@@ -474,7 +533,7 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 			{/// Sets clip here, because of creating dhook on the next frame after spawn
 				SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 				SetEntProp(weapon, Prop_Send, "m_iClip2", iClip); 
-				DHookEntity(hDHookGetMaxClip, false, weapon);
+				DHookEntity(hDHookGetMaxClip, true, weapon);
 			}
 
 			// Gets weapon ammo
@@ -483,7 +542,7 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 			{/// Sets ammo here, because of creating dhook on the next frame after spawn
 				SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 				SetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount", iAmmo);
-				DHookEntity(hDHookGetReserveAmmoMax, false, weapon);
+				DHookEntity(hDHookGetReserveAmmoMax, true, weapon);
 			}
 		}
 	}
@@ -521,7 +580,7 @@ public void WeaponMODOnGrenadeSpawn(int grenade)
 	// Resets the grenade id
 	WeaponsSetCustomID(grenade, -1);
 	
-	// Apply fake throw hook on the next frame
+	// Call post throw hook on the next frame
 	_exec.WeaponMODOnGrenadeSpawnPost(grenade);
 }
 
@@ -628,7 +687,7 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
  **/
 public Action WeaponMODOnWeaponReload(int weapon) 
 {
-	// Apply fake reload hook on the next frame
+	// Call post reload hook on the next frame
 	_exec.WeaponMODOnWeaponReloadPost(weapon);
 	
 	// Allow event
@@ -702,7 +761,7 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
 		if (iD != -1)
 		{
 			// Block drop, if not available
-			/*if (!WeaponsIsDrop(iD)) 
+			if (!WeaponsIsDrop(iD)) 
 			{
 				// Validate melee, then remove on force drop
 				ItemDef iItem = WeaponsGetDefIndex(iD);
@@ -715,9 +774,9 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
 				
 				// Block drop
 				return Plugin_Handled;
-			}*/
+			}
 
-			// Apply fake drop hook on the next frame
+			// Call post drop hook on the next frame
 			_exec.WeaponMODOnWeaponDropPost(weapon);
 		}
 	}
@@ -750,7 +809,43 @@ public void WeaponMODOnWeaponDropPost(int refID)
 			// Call forward
 			gForwardData._OnWeaponDrop(weapon, iD);
 		}
+		
+		// Remove weapons?
+		float flRemoval = gCvarList.WEAPON_REMOVE_DROPPED.FloatValue;
+		if (flRemoval > 0.0)
+		{
+			// Create timer for a weapon removal
+			CreateTimer(flRemoval, WeaponMODOnWeaponRemove, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
+}
+
+/**
+ * @brief Timer callback, removed a weapon.
+ * 
+ * @param hTimer            The timer handle.
+ * @param refID             The reference index.                    
+ **/
+public Action WeaponMODOnWeaponRemove(Handle hTimer, int refID)
+{
+	// Gets entity index from reference key
+	int weapon = EntRefToEntIndex(refID);
+
+	// Validate weapon
+	if (weapon != -1)
+	{
+		// Gets weapon owner
+		int client = WeaponsGetOwner(weapon);
+		
+		// Validate owner
+		if (!IsPlayerExist(client)) 
+		{
+			AcceptEntityInput(weapon, "Kill"); /// Destroy
+		}
+	}
+	
+	// Destroy timer
+	return Plugin_Stop;
 }
 
 /**
@@ -1250,20 +1345,20 @@ void WeaponMODOnFire(int client, int weapon)
 		float flCurrentTime = GetGameTime();
 
 		// If custom fire speed exist, then apply it
-		float flSpeed = WeaponsGetSpeed(iD);
-		if (flSpeed)
+		float flShoot = WeaponsGetShoot(iD);
+		if (flShoot)
 		{
 			// Resets the instant value
-			if (flSpeed < 0.0) flSpeed = 0.0;
+			if (flShoot < 0.0) flShoot = 0.0;
 				
 			// Adds the game time based on the game tick
-			flSpeed += flCurrentTime;
+			flShoot += flCurrentTime;
 	
 			// Sets weapon attack time
-			WeaponsSetAnimating(weapon, flSpeed);
+			WeaponsSetAnimating(weapon, flShoot);
 			
 			// Sets client attack time
-			ToolsSetAttack(client, flSpeed);
+			ToolsSetAttack(client, flShoot);
 		}
 
 		// If viewmodel exist, then create muzzle smoke
@@ -1744,8 +1839,52 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weapon, Handle hReturn, Handle 
 }
 
 /**
+ * DHook: Sets a moving speed when holding a weapon. 
+ * @note float CCSPlayer::GetPlayerMaxSpeed(void *)
+ *
+ * @param weapon            The weapon index.
+ * @param hReturn           Handle to return structure.
+ **/
+public MRESReturn WeaponDHookGetPlayerMaxSpeed(int client, Handle hReturn)
+{
+	// Validate client
+	if (IsPlayerExist(client))
+	{
+		// Gets the speed multiplicator value
+		float flLMV = ToolsGetLMV(client) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0);
+		
+		// Gets active weapon index from the client
+		int weapon = ToolsGetActiveWeapon(client);
+
+		// Validate weapon
+		if (weapon != -1)
+		{
+			// Validate custom index
+			int iD = WeaponsGetCustomID(weapon);
+			if (iD != -1)
+			{
+				// Gets weapon speed
+				float flSpeed = WeaponsGetSpeed(iD);
+				if (flSpeed > 0.0)
+				{
+					DHookSetReturn(hReturn, flSpeed * flLMV);
+					return MRES_Override;
+				}
+			}
+		}
+
+		// Sets the class speed
+		DHookSetReturn(hReturn, ClassGetSpeed(gClientData[client].Class) * flLMV);
+		return MRES_Override;
+	}
+	
+	// Skip the hook
+	return MRES_Ignored;
+}
+
+/**
  * DHook: Allow to pick-up some weapons.
- * @note bool CBasePlayer::Weapon_CanUse(CBaseCombatWeapon *)
+ * @note bool CCSPlayer::Weapon_CanUse(CBaseCombatWeapon *)
  *
  * @param hReturn           Handle to return structure.
  * @param hParams           Handle with parameters.

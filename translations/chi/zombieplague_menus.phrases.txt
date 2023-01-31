@@ -1,0 +1,67 @@
+"Phrases"
+{
+	"main menu" // Menu
+	{
+		"chi"			"主要菜单"
+	}
+
+	"buy weapons" // Menu
+	{
+		"chi"			"购买武器"
+	}
+
+	"buy extraitems" // Menu
+	{
+		"chi"			"购买额外物品"
+	}
+	
+	"choose classes" // Menu
+	{
+		"chi"			"职业"
+	}
+
+	"choose zombieclass" // Menu
+	{
+		"chi"			"僵尸职业"
+	}
+
+	"choose humanclass" // Menu
+	{
+		"chi"			"人类职业"
+	}
+
+	"costumes menu" // Menu
+	{
+		"chi"			"帽子/服装"
+	}
+	
+	"help menu" // Menu
+	{
+		"chi"			"幫忙！"
+	}
+	
+	"unstucks menu" // Menu
+	{
+		"chi"			"逃脱！"
+	}
+	
+	"arsenal menu" // Menu
+	{
+		"chi"			"兵工厂"
+	}
+	
+	"ztele menu" // Menu
+	{
+		"chi"			"傳送！"
+	}
+	
+	"donates menu" // Menu
+	{
+		"chi"			"交易"
+	}
+
+	"admin menu" // Menu
+	{
+		"chi"			"管理员菜单"
+	}
+}

@@ -1,0 +1,67 @@
+"Phrases"
+{
+	"main menu" // Menu
+	{
+		"zho"			"主要菜單"
+	}
+
+	"buy weapons" // Menu
+	{
+		"zho"			"購買武器"
+	}
+
+	"buy extraitems" // Menu
+	{
+		"zho"			"購買額外物品"
+	}
+	
+	"choose classes" // Menu
+	{
+		"zho"			"職業"
+	}
+
+	"choose zombieclass" // Menu
+	{
+		"zho"			"僵屍職業"
+	}
+
+	"choose humanclass" // Menu
+	{
+		"zho"			"人類職業"
+	}
+
+	"costumes menu" // Menu
+	{
+		"zho"			"帽子/服裝"
+	}
+	
+	"help menu" // Menu
+	{
+		"zho"			"帮忙！"
+	}
+	
+	"unstucks menu" // Menu
+	{
+		"zho"			"逃脫！"
+	}
+	
+	"arsenal menu" // Menu
+	{
+		"zho"			"兵工廠"
+	}
+	
+	"ztele menu" // Menu
+	{
+		"zho"			"传送！"
+	}
+	
+	"donates menu" // Menu
+	{
+		"zho"			"交易"
+	}
+
+	"admin menu" // Menu
+	{
+		"zho"			"管理員菜單"
+	}
+}

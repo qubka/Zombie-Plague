@@ -1,0 +1,67 @@
+"Phrases"
+{
+	"main menu" // Menu
+	{
+		"ru"			"Главное меню"
+	}
+
+	"buy weapons" // Menu
+	{
+		"ru"			"Купить оружие"
+	}
+
+	"buy extraitems" // Menu
+	{
+		"ru"			"Купить дополнительные предметы"
+	}
+	
+	"choose classes" // Menu
+	{
+		"ru"			"Классы"
+	}
+
+	"choose zombieclass" // Menu
+	{
+		"ru"			"Классы зомби"
+	}
+
+	"choose humanclass" // Menu
+	{
+		"ru"			"Классы людей"
+	}
+
+	"costumes menu" // Menu
+	{
+		"ru"			"Шапки/Костюмы"
+	}
+	
+	"help menu" // Menu
+	{
+		"ru"			"Помощь!"
+	}
+	
+	"unstucks menu" // Menu
+	{
+		"ru"			"Застрял!"
+	}
+	
+	"arsenal menu" // Menu
+	{
+		"ru"			"Оружейка"
+	}
+	
+	"ztele menu" // Menu
+	{
+		"ru"			"Телепорт!"
+	}
+	
+	"donates menu" // Menu
+	{
+		"ru"			"Транзакции"
+	}
+
+	"admin menu" // Menu
+	{
+		"ru"			"Админ меню"
+	}
+}

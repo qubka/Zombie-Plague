@@ -1,0 +1,502 @@
+"Phrases"
+{
+	// =============================================================
+	// If you want add your language into mod,
+	// then make translation and create request on official GitHub!
+	// =============================================================
+	
+	// ===========================
+	// Color prefixes (Chat only)
+	// ===========================
+
+	// @default		"\x01"
+	// @red			"\x02"
+	// @lgreen		"\x03"
+	// @green		"\x04"
+	// \n \n		"double line"
+
+	// ===========================
+	// General
+	// ===========================
+
+	"general round objective" // Chat
+	{
+		"ru"			"Битва @redлюдей @greenпротив @redзомби@default, цель для зомби — инфицировать всех людей, используя нож."
+	}
+
+	"general buttons reminder" // Hint
+	{
+		"ru"			"Нажмите F3/B для открытия меню\nНажмите F4 для способности зомби/людей\nНажмите F для включения фонарика"
+	}
+	
+	"general ammunition reminder" // Chat
+	{
+		"ru"			"Нажмите @red,@default @greenили @red.@default для покупки патронов."
+	}
+	
+	"general blast reminder" // Hint
+	{
+		"ru"			"<font color='#D41114'>Внимание!</font> Люди запустили ядерную бомбу по зараженной площади!"
+	}
+
+	// ===========================
+	// Generic
+	// ===========================
+
+	"zombie comming" // Hint
+	{
+		"#format"		"{1:d}"
+		"ru"			"<font color='#FFFF00'>Заражение начнется</font>: <font color='#0000FF'>{1}</font>"
+	}
+
+	"zombie left" // Hint
+	{
+		"#format"		"{1:s}"
+		"ru"			"<font color='#B422A6'>Последний зомби вышел, теперь</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>зомби!</font>"
+	}
+
+	"human left" // Hint
+	{
+		"#format"		"{1:s}"
+		"ru"			"<font color='#B422A6'>Последний человек вышел, теперь</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>человек!</font>"
+	}
+	
+	"player left" // Hint
+	{
+		"ru"			"<font color='#D67E76'>Последний игрок вышел</font>!"
+	}
+
+	"account info" // DHUD (translated)
+	{
+		"#format"		"{1:t},{2:d}"
+		"ru"			"{1}{2}"
+	}
+
+	"level info" // DHUD (translated)
+	{
+		"#format"		"{1:t},{2:d},{3:d},{4:d}"
+		"ru"			"КЛАСС:[{1}]\nУРОВЕНЬ:[{2}] ОПЫТ:[{3}/{4}]"
+	}
+
+	"class info" // Chat (translated)
+	{
+		"#format"		"{1:t},{2:d},{3:d},{4:.1f}"
+		"ru"			"Класс: @red[{1}] @defaultЗдоровье: @red[{2}] @defaultБроня: @red[{3}] @defaultСкорость: @red[{4}]" 
+	}
+	
+	"damage info" // Hint
+	{
+		"#format"		"{1:d}"
+		"ru"			"<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>"
+	}
+	
+	"full damage info" // Hint
+	{
+		"#format"		"{1:d},{2:d}"
+		"ru"			"<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Броня</font>: <font color='#FF0000'>{2}</font>"
+	}
+
+	"buy info" // Chat (translated)
+	{
+		"#format"		"{1:s},{2:t}"
+		"ru"			"Игрок: @red[{1}] @defaultкупил: @red[{2}]"
+	}
+
+	"donate info" // Chat (translated)
+	{
+		"#format"		"{1:s},{2:d},{3:t},{4:s}"
+		"ru"			"Игрок: @red[{1}] @defaultперевел: @red[{2}{3}] @defaultигроку: @red[{4}]"
+	}
+	
+	"drop info" // Chat
+	{
+		"ru"			"Все выброшенные оружия будут удалены при начале раунда!"
+	}
+	
+	// ===========================
+	// Basics
+	// ===========================
+	
+	"skill ready" // Hint
+	{
+		"ru"			"<font color='#FF0000'>Способность готова</font>!"
+	}
+
+	"countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"ru"			"<font color='#0EB411'>Заряд способности</font>: <font color='#0EB4A7'>{1}</font>"
+	}
+
+	"price" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"ru"			"[{1}{2}]"
+	}
+	
+	"level" // Menu
+	{
+		"#format"		"{1:d}"
+		"ru"			"[УРВ:{1}]"
+	}
+	
+	"online" // Menu
+	{
+		"#format"		"{1:d}"
+		"ru"			"[ОНЛ:{1}]"
+	}
+	
+	"limit" // Menu
+	{
+		"#format"		"{1:d}"
+		"ru"			"[ЛМТ:{1}]"
+	}
+	
+	"money" // Universal
+	{
+		"ru"			"$"
+	}
+	
+	"donate" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"ru"			"Переслать: [{1}{2}]"
+	}
+	
+	"commission" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:s}"
+		"ru"			"Сумма: [{1}{2}] | Комиссия: [{3}]"
+	}
+	
+	"empty" // Menu
+	{
+		"ru"			"(Пусто)"
+	}
+	
+	"add" // Menu
+	{
+		"ru"			"Добавить"
+	}
+	
+	"remember" // Menu
+	{
+		"ru"			"Запомнить"
+	}
+	
+	"remove" // Menu
+	{
+		"ru"			"Убрать"
+	}
+	
+	"increase" // Menu
+	{
+		"ru"			"Увеличить"
+	}
+	
+	"decrease" // Menu
+	{
+		"ru"			"Уменьшить\n \n"
+	}
+	
+	"buy" // Menu
+	{
+		"ru"			"Купить все"
+	}
+	
+	// ===========================
+	// Validations
+	// ===========================
+	
+	"using menu block" // Hint
+	{
+		"ru"			"Вы не можете использовать меню!"
+	}
+
+	"buying item block" // Hint (translated)
+	{
+		"#format"		"{1:t}"
+		"ru"			"Вы не можете купить: <font color='#FF0000'>{1}</font>"
+	}
+	
+	"buying ammunition block" // Hint
+	{
+		"ru"			"Вы не можете купить патроны!"
+	}
+	
+	"selecting target block" // Hint
+	{
+		"ru"			"Неверная цель!"
+	}
+	
+	"unstucking prop block" // Hint
+	{
+		"ru"			"Вы не застряли в другом обьекте!"
+	}
+	
+	"buying round block" // Hint
+	{
+		"ru"			"Вы не можете покупать в течении этого раунда!"
+	}
+
+	"starting round block" // Hint
+	{
+		"ru"			"Вы не можете начать раунд, потому что он уже запущен!"
+	}
+	
+	"classes round block" // Hint
+	{
+		"ru"			"Вы не можете поменять класс, потому что раунд не начат!"
+	}
+
+	// ===========================
+	// Log
+	// ===========================
+
+	"log generic flag" // Console
+	{
+		"ru"			"Осн.флаг:"
+	}
+
+	"log value" // Console
+	{
+		"ru"			"3нaч:"
+	}
+
+	"log module" // Console
+	{
+		"ru"			"Модуль:"
+	}
+
+	"log status" // Console
+	{
+		"ru"			"Статус фильтра:"
+	}
+
+	"log module filter" // Console
+	{
+		"ru"			"Фильтрация модуля:"
+	}
+
+	"log module short name" // Console
+	{
+		"ru"			"Краткое имя:"
+	}
+	
+	"log module invalid args" // Console
+	{
+		"ru"			"Добавьте один или несколько модулей в фильтр модулей. Использование: zp_log_add_module <module> [module] ...\nСмотрите zp_log_list в списке доступных имен модуля (короткие имена)."
+	}
+	
+	"log module invalid name" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"Неправильное имя модуля: \"{1}\""
+	}
+	
+	"log module filter added" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"Модуль \"{1}\" добавлен в фильтр."
+	}
+	
+	"log module filter removed" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"Модуль \"{1}\" убран из фильтра."
+	}
+
+	// ===========================
+	// Config
+	// ===========================
+
+	"configs menu" // Menu
+	{
+		"ru"			"Конфиги"
+	}
+	
+	"config menu reload" // Menu
+	{
+		"#format"		"{1:s}"
+		"ru"			"Загрузить: \"{1}\""
+	}
+	
+	"config reload" // Console
+	{
+		"ru"			"Синтаксис: zp_reloadconfig <алиас файла1> [алиас файла2] ... - Перезагрузить файл конфигурации."
+	}
+
+	"config reload commands" // Console
+	{
+		"ru"			"Связанные команды: zp_config_reloadall"
+	}
+
+	"config reload commands aliases" // Console
+	{
+		"#format"		"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s},{7:s},{8:s},{9:s},{10:s},{11:s}"
+		"ru"			"Алиасы файла:\n* \"{1}\"\n* \"{2}\"\n* \"{3}\"\n* \"{4}\"\n* \"{5}\"\n* \"{6}\"\n* \"{7}\"\n* \"{8}\"\n* \"{9}\"\n* \"{10}\"\n* \"{11}\""
+	}
+
+	"config reload invalid" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"Неправильный алиас файла: \"{1}\""
+	}
+
+	"config reload not load" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"Не удалось загрузить файл конфигурации \"{1}\". (Отключен или неверное содержимое файла.)"
+	}
+
+	"config reload begin" // Console
+	{
+		"ru"			"Перезагрузка всех файлов конфигурации Zombie Plague...\n------------------------------------------------"
+	}
+
+	"config reload finish" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"\"{1}\" - Готово."
+	}
+
+	"config reload falied" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"\"{1}\" - Ошибка. (Отключен или неверное содержимое файла.)"
+	}
+	
+	"config dump class" // Console
+	{
+		"ru"			"Сброс информации о классе. Использование: zp_class_dump <index|name>\n\n"
+	}
+	
+	"config dump class invalid" // Console
+	{
+		"#format"		"{1:d}"
+		"ru"			"Неверный индекс класса ({1})"
+	}
+	
+	"config dump class start" // Console
+	{
+		"#format"		"{1:d}"
+		"ru"			"СБРОС КЭША: {1} классов надено\n========================================\n"
+	}
+	
+	// ===========================
+	// ZTele
+	// ===========================
+
+	"ztele restricted escape" // Chat
+	{
+		"ru"			"ZTele огнаничен для режимов без выживания."
+	}
+	
+	"ztele restricted zombie" // Chat
+	{
+		"ru"			"ZTele огнаничен для зомби."
+	}
+	
+	"ztele restricted human" // Chat
+	{
+		"ru"			"ZTele огнаничен для людей."
+	}
+
+	"ztele max" // Chat
+	{
+		"#format"		"{1:d}"
+		"ru"			"Вы достигли своего максимума @red{1} @defaultтелепорта(ов) за раунд."
+	}
+
+	"ztele in progress" // Chat
+	{
+		"ru"			"В данный момент вы ожидаете телепортации."
+	}
+
+	"ztele autocancel text" // Chat
+	{
+		"#format"		"{1:d}"
+		"ru"			"Телепортация отменена. (Ограничительная граница @red{1}@lgreenмт@default.)"
+	}
+
+	"ztele countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"ru"			"Телепортация обратно на спавн за: <font color='#FF0000'>{1}</font> сек."
+	}
+
+	"ztele autocancel centertext" // Hint
+	{
+		"ru"			"Телепортация отменена."
+	}
+
+	"ztele countdown end" // Hint
+	{
+		"#format"		"{1:d},{2:d}"
+		"ru"			"Телепортировался обратно на cпавн. (Кол-во: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
+	}
+
+	"ztele command force syntax" // Console
+	{
+		"ru"			"Телепортировать клиента. Использование: zp_ztele_force <client>"
+	}
+
+	"ztele command force successful" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"Игрок {1} был успешно телепортирован."
+	}
+
+	"ztele command force unsuccessful" // Console
+	{
+		"#format"		"{1:s}"
+		"ru"			"Игрока {1} нельзя было телепортировать."
+	}
+	
+	"ztele invalid client" // Console
+	{
+		"ru"			"Игроков найти не удалось."
+	}
+
+	// ===========================
+	// Other
+	// ===========================
+	
+	"account give invalid args" // Console
+	{
+		"ru"			"Выдача денег. Использование: zp_money_give <name> [amount]\n\n"
+	}
+	
+	"account give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"ru"			"Недействительная денежная сумма ({1})"
+	}
+
+	"level give invalid args" // Console
+	{
+		"ru"			"Выдача уровня. Использование: zp_level_give <name> [amount]\n\n"
+	}
+	
+	"level give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"ru"			"Недействительный уровень ({1})"
+	}
+	
+	"experience give invalid args" // Console
+	{
+		"ru"			"Выдача опыта. Использование: zp_exp_give <name> [amount]\n\n"
+	}
+	
+	"experience give invalid amount" // Console
+	{
+		"#format"		"{1:d}"
+		"ru"			"Недействительный опыт ({1})"
+	}
+	
+	"account donate invalid args" // Console
+	{
+		"ru"			"Передача денег. Использование: zp_money_donate <name> [amount]\n\n"
+	}
+}

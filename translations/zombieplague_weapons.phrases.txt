@@ -1,0 +1,548 @@
+"Phrases"
+{
+	// Pistols
+	
+	"elite" // Menu
+	{
+		"en"			"Dual elite"
+	}
+	
+	"deagle" // Menu
+	{
+		"en"			"Desert eagle"
+	}
+	
+	"glock" // Menu
+	{
+		"en"			"Glock 18"
+	}
+	
+	"usp" // Menu
+	{
+		"en"			"HK USP"
+	}
+	
+	"hpk" // Menu
+	{
+		"en"			"Heckler & Koch P2000"
+	}
+	
+	"fiveseven" // Menu
+	{
+		"en"			"FN Five-seveN"
+	}
+	
+	"tec9" // Menu
+	{
+		"en"			"Intratec TEC-DC9"
+	}
+	
+	"cz75a" // Menu
+	{
+		"en"			"CZ75A"
+	}
+	
+	"p250" // Menu
+	{
+		"en"			"SIG Sauer P250"
+	}
+	
+	"taser" // Menu
+	{
+		"en"			"Taser"
+	}
+	
+	"revolver" // Menu
+	{
+		"en"			"Revolver"
+	}
+	
+	"janus1" // Menu
+	{
+		"en"			"Janus I"
+	}
+	
+	"skull1" // Menu
+	{
+		"en"			"Skull I"
+	}
+	
+	"balrog1" // Menu
+	{
+		"en"			"Balrog I"
+	}
+	
+	"sfpistol" // Menu
+	{
+		"en"			"SF-PISTOL"
+	}
+	
+	// Shotguns
+	
+	"nova" // Menu
+	{
+		"en"			"Benelli Nova"
+	}
+	
+	"sawedoff" // Menu
+	{
+		"en"			"Sawed-Off"
+	}
+	
+	"xm1014" // Menu
+	{
+		"en"			"XM1014"
+	}
+	
+	"mag7" // Menu
+	{
+		"en"			"MAG7"
+	}
+	
+	"skull11" // Menu
+	{
+		"en"			"Skull XI"
+	}
+	
+	"gatling" // Menu
+	{
+		"en"			"Gatling"
+	}
+	
+	"balrog11" // Menu
+	{
+		"en"			"Balrog XI"
+	}
+	
+	"janus11" // Menu
+	{
+		"en"			"Janus XI"
+	}
+
+	// Rifles
+	
+	"ak47" // Menu
+	{
+		"en"			"AK-47"
+	}
+	
+	"sg556" // Menu
+	{
+		"en"			"SIG SG 556"
+	}
+	
+	"aug" // Menu
+	{
+		"en"			"Steyr AUG"
+	}
+	
+	"m4a4" // Menu
+	{
+		"en"			"M4A4"
+	}
+	
+	"m4a1" // Menu
+	{
+		"en"			"M4A1"
+	}
+	
+	"bizon" // Menu
+	{
+		"en"			"Bizon"
+	}
+	
+	"famas" // Menu
+	{
+		"en"			"FAMAS"
+	}
+	
+	"mac10" // Menu
+	{
+		"en"			"Ingram MAC-10"
+	}
+	
+	"mp5sd" // Menu
+	{
+		"en"			"MP5-SD"
+	}
+	
+	"mp7" // Menu
+	{
+		"en"			"HK MP7"
+	}
+	
+	"mp9" // Menu
+	{
+		"en"			"HK MP9"
+	}
+	
+	"p90" // Menu
+	{
+		"en"			"FN P90"
+	}
+	
+	"ump45" // Menu
+	{
+		"en"			"HK UMP"
+	}
+	
+	"galilar" // Menu
+	{
+		"en"			"Galil AR"
+	}
+	
+	"lightninghz" // Menu
+	{
+		"en"			"Lightning HZ"
+	}
+	
+	"lightninglz" // Menu
+	{
+		"en"			"Lightning LZ"
+	}
+	
+	"blaster" // Menu
+	{
+		"en"			"SFGUN-1"
+	}
+	
+	"tempest" // Menu
+	{
+		"en"			"SF-TEMPEST"
+	}
+	
+	"plasmagun" // Menu
+	{
+		"en"			"Plasma Gun"
+	}
+	
+	"cartblue" // Menu
+	{
+		"en"			"Cartblue"
+	}
+	
+	"balrog3" // Menu
+	{
+		"en"			"Balrog III"
+	}
+	
+	"janus3" // Menu
+	{
+		"en"			"Janus III"
+	}
+	
+	"janus5" // Menu
+	{
+		"en"			"Janus V"
+	}
+	
+	// Snipers
+	
+	"awp" // Menu
+	{
+		"en"			"AWP"
+	}
+	
+	"ssg08" // Menu
+	{
+		"en"			"SSG 08"
+	}
+	
+	"g3sg1" // Menu
+	{
+		"en"			"G3SG1"
+	}
+	
+	"scar20" // Menu
+	{
+		"en"			"SCAR-20"
+	}
+	
+	"wa2000" // Menu
+	{
+		"en"			"Walther WA2000"
+	}
+	
+	"airburster" // Menu
+	{
+		"en"			"Airburster"
+	}
+	
+	"skull5" // Menu
+	{
+		"en"			"Skull V"
+	}
+	
+	// Machineguns
+	
+	"m249" // Menu
+	{
+		"en"			"M249 SAW"
+	}
+
+	"negev" // Menu
+	{
+		"en"			"Negev"
+	}
+	
+	"m134" // Menu
+	{
+		"en"			"M134 Monkey"
+	}
+	
+	"sfmg" // Menu
+	{
+		"en"			"SF-MG"
+	}
+	
+	"sgdrill" // Menu
+	{
+		"en"			"SG-DRILL"
+	}
+	
+	"balrog7" // Menu
+	{
+		"en"			"Balrog VII"
+	}
+	
+	"janus7" // Menu
+	{
+		"en"			"Janus VII"
+	}
+	
+	// Knife
+	
+	"fists" // Menu
+	{
+		"en"			"Fists"
+	}
+
+	"zombie claw" // Menu
+	{
+		"en"			"Zombie Claw"
+	}
+	
+	"nemesis claw" // Menu
+	{
+		"en"			"Nemesis Claw"
+	}
+	
+	"knife" // Menu
+	{
+		"en"			"Classic Knife"
+	}
+	
+	"knife t" // Menu
+	{
+		"en"			"Knife T"
+	}
+	
+	"knife gg" // Menu
+	{
+		"en"			"Gold Knife"
+	}
+
+	"knife gut" // Menu
+	{
+		"en"			"Gut Knife"
+	}
+
+	"knife flip" // Menu
+	{
+		"en"			"Flip Knife"
+	}
+
+	"m9 bayonet" // Menu
+	{
+		"en"			"M9 Bayonet"
+	}
+
+	"karambit" // Menu
+	{
+		"en"			"Karambit"
+	}
+
+	"knife tactical" // Menu
+	{
+		"en"			"Huntsman Knife"
+	}
+
+	"knife falchion" // Menu
+	{
+		"en"			"Falchion Knife"
+	}
+
+	"knife butterfly" // Menu
+	{
+		"en"			"Butterfly"
+	}
+
+	"knife bowie" // Menu
+	{
+		"en"			"Bowie Knife"
+	}
+
+	"knife push" // Menu
+	{
+		"en"			"Shadow Daggers"
+	}
+
+	"knife ursus" // Menu
+	{
+		"en"			"Ursus Knife"
+	}
+
+	"knife gypsy" // Menu
+	{
+		"en"			"Navaja Knife"
+	}
+
+	"knife stiletto" // Menu
+	{
+		"en"			"Stiletto Knife"
+	}
+
+	"knife widowmaker" // Menu
+	{
+		"en"			"Talon Knife"
+	}
+	
+	"spanner" // Menu
+	{
+		"en"			"Spanner"
+	}
+	
+	"axe" // Menu
+	{
+		"en"			"Axe"
+	}
+	
+	"hammer" // Menu
+	{
+		"en"			"Hammer"
+	}
+	
+	"sfsword" // Menu
+	{
+		"en"			"Laser Saber"
+	}
+	
+	"skullaxe" // Menu
+	{
+		"en"			"Skull Axe"
+	}
+	
+	"big hammer" // Menu
+	{
+		"en"			"Big Hammer"
+	}
+	
+	// Others
+
+	"etherial" // Menu
+	{
+		"en"			"Etherial"
+	}
+	
+	"sfsniper" // Menu
+	{
+		"en"			"SF-SNIPER"
+	}
+	
+	// Info
+	
+	"skull1 info" // Hint
+	{
+		"en"			"Switch <font color='#E62E00'>mode</font> on the right mouse button"
+	}
+
+	"balrog1 info" // Hint 
+	{
+		"en"			"Fire <font color='#FF6161'>explosion</font> on the right mouse button"
+	}
+
+	"janus1 info" // Hint
+	{
+		"en"			"Switch <font color='#FFD9FF'>mode</font> on the right mouse button"
+	}
+
+	"balrog11 info" // Hint 
+	{
+		"en"			"Fire <font color='#CD00CD'>rain</font> on the right mouse button"
+	}
+
+	"janus11 info" // Hint 
+	{
+		"en"			"Switch <font color='#FF33CC'>mode</font> on the right mouse button"
+	}
+
+	"cartblue info" // Hint
+	{
+		"en"			"Switch <font color='#FE28A2'>mode</font> on the right mouse button"
+	}
+
+	"janus3 info" // Hint 
+	{
+		"en"			"Switch <font color='#F754EA'>mode</font> on the right mouse button"
+	}
+
+	"janus5 info" // Hint 
+	{
+		"en"			"Switch <font color='#C154C1'>mode</font> on the right mouse button"
+	}
+
+	"airburster info" // Hint 
+	{
+		"en"			"Strong <font color='#BA66FF'>airburst</font> on the right mouse button"
+	}
+
+	"sgdrill info" // Hint
+	{
+		"en"			"Strong <font color='#4B0082'>hit</font> on the right mouse button"
+	}
+	
+	"sfmg info" // Hint
+	{
+		"en"			"Switch <font color='#FE28B2'>mode</font> on the right mouse button"
+	}
+
+	"janus7 info" // Hint 
+	{
+		"en"			"Switch <font color='#4F273A'>mode</font> on the right mouse button"
+	}
+	
+	"sfsword info" // Hint 
+	{
+		"en"			"Switch <font color='#4F0F2E'>mode</font> on the right mouse button"
+	}
+
+	"hammer info" // Hint 
+	{
+		"en"			"Switch <font color='#4F1F36'>mode</font> on the right mouse button"
+	}
+	
+	"balrog3 info" // Hint 
+	{
+		"en"			"Switch <font color='#6B3B82'>zoom</font> on the right mouse button"
+	}
+	
+	"balrog7 info" // Hint 
+	{
+		"en"			"Switch <font color='#702E8F'>zoom</font> on the right mouse button"
+	}
+	
+	"m32 info" // Hint 
+	{
+		"en"			"Switch <font color='#432E8F'>zoom</font> on the right mouse button"
+	}
+	
+	"skull11 info" // Hint 
+	{
+		"en"			"Switch <font color='#5E46B8'>zoom</font> on the right mouse button"
+	}
+	
+	"grenade info" // Hint
+	{
+		"en"			"Switch <font color='#FFD9FF'>mode</font> on the reload button"
+	}
+}

@@ -1,37 +1,37 @@
 "Games"
 {
-    "csgo"
-    {
-        // Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
-        // You can update them only by yourself using tutorial in the link
-        "Offsets"
-        {
-            // @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/public/tier1/utlvector.h#L347
-            "CBaseAnimatingOverlay::Count"
-            {
-                "windows"   "12"
-                "linux"     "12"
-            }
-        }
+	"csgo"
+	{
+		// Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
+		// You can update them only by yourself using tutorial in the link
+		"Offsets"
+		{
+			// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/public/tier1/utlvector.h#L347
+			"CBaseAnimatingOverlay::Count"
+			{
+				"windows"	"12"
+				"linux"		"12"
+			}
+		}
 
-        // Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-        // You can update them only by yourself using tutorial in the link
-        "Signatures"
-        {
-            // @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.cpp#L560
+		// Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
+		// You can update them only by yourself using tutorial in the link
+		"Signatures"
+		{
+			// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.cpp#L560
 
-            "CBaseAnimatingOverlay::StudioFrameAdvance" // Str: "removing %d (%d): %s : %5.3f (%.3f)\n" | " %d (%d): %s : %5.3f (%.3f)\n"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x83\xE4\xC0\xA1\x2A\x2A\x2A\x2A\x83\xEC\x34\xF3\x0F\x10\x48\x10"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x5C\x8B\x75\x08\x89\x34\x24\xE8\x2A\x2A\x2A\x2A\x89\x34\x24"
-            }
-            "CBaseAnimatingOverlay::AddLayeredSequence" // Str: "%5.3f : adding %d (%d): %s : %5.3f (%.3f)\n" | "%s_t"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x83\xE4\xC0\x83\xEC\x34\x53\x56\x57\xFF\x75\x0C"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x6C\x8B\x5D\x08\x8B\x45\x10\x89\x1C\x24"
-            }
-        }
-    }
+			"CBaseAnimatingOverlay::StudioFrameAdvance" // Str: "removing %d (%d): %s : %5.3f (%.3f)\n" | " %d (%d): %s : %5.3f (%.3f)\n"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xC0\xA1\x2A\x2A\x2A\x2A\x83\xEC\x34\xF3\x0F\x10\x48\x10"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x5C\x8B\x75\x08\x89\x34\x24\xE8\x2A\x2A\x2A\x2A\x89\x34\x24"
+			}
+			"CBaseAnimatingOverlay::AddLayeredSequence" // Str: "%5.3f : adding %d (%d): %s : %5.3f (%.3f)\n" | "%s_t"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xC0\x83\xEC\x34\x53\x56\x57\xFF\x75\x0C"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x6C\x8B\x5D\x08\x8B\x45\x10\x89\x1C\x24"
+			}
+		}
+	}
 }

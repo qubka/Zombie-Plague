@@ -90,7 +90,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 		hPosition = new ArrayList(3);
 		
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("presents.phrases");
 		
 		// Hook server events
 		HookEvent("round_prestart", RoundStateHook, EventHookMode_Pre);

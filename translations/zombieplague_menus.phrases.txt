@@ -1,0 +1,67 @@
+"Phrases"
+{
+	"main menu" // Menu
+	{
+		"en"			"Main menu"
+	}
+
+	"buy weapons" // Menu
+	{
+		"en"			"Buy weapons"
+	}
+
+	"buy extraitems" // Menu
+	{
+		"en"			"Buy extra items"
+	}
+	
+	"choose classes" // Menu
+	{
+		"en"			"Classes"
+	}
+
+	"choose zombieclass" // Menu
+	{
+		"en"			"Zombie classes"
+	}
+
+	"choose humanclass" // Menu
+	{
+		"en"			"Human classes"
+	}
+
+	"costumes menu" // Menu
+	{
+		"en"			"Hats/Costumes"
+	}
+	
+	"help menu" // Menu
+	{
+		"en"			"Help!"
+	}
+	
+	"unstucks menu" // Menu
+	{
+		"en"			"Unstuck!"
+	}
+	
+	"arsenal menu" // Menu
+	{
+		"en"			"Arsenal"
+	}
+	
+	"ztele menu" // Menu
+	{
+		"en"			"Teleport!"
+	}
+	
+	"donates menu" // Menu
+	{
+		"en"			"Transactions"
+	}
+
+	"admin menu" // Menu
+	{
+		"en"			"Admin menu"
+	}
+}

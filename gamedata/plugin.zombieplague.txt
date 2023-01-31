@@ -1,370 +1,375 @@
 "Games"
 {
-    "csgo"
-    {
-        "Keys"
-        {
-            "EngineInterface"   "VEngineServer023"
-        }
-    
-        "Offsets"
-        {
-            // Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
-            // You can update them only by yourself using tutorial in the link
-            "CBaseEntity::UpdateTransmitState"
-            {
-                "windows"   "22"
-                "linux"     "23"
-            }
-            "CBaseEntity::PrecacheModel"
-            {
-                "windows"   "5"
-                "linux"     "5"
-            }
-            "CBaseCombatWeapon::GetMaxClip1"
-            {
-                "windows"   "353"
-                "linux"     "359"
-            }
-            "CBaseCombatWeapon::GetReserveAmmoMax"
-            {
-                "windows"   "357"
-                "linux"     "363"
-            }
-            "CBaseCombatWeapon::GetSlot"
-            {
-                "windows"   "361"
-                "linux"     "367"
-            }
-            "CEconItemDefinition::GetDefinitionIndex"
-            {
-                "windows"   "8"
-                "linux"     "8"
-            }
-            "CParticleSystemDictionary::Count" // Str: "PrecacheStandardParticleSystems()"
-            {
-                "windows"   "38"
-                "linux"     "38"
-            }
-            "CSendProp::m_nBits"
-            {
-                "windows"   "12"
-                "linux"     "12"
-            }
-            "CServer::OS"
-            {
-                "windows"   "1"
-                "linux"     "2"
-            }
-            
-            // @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
-            "CBaseAnimating::StudioHdr"
-            {
-                "windows"   "68"
-                "linux"     "68"
-            }
-            // @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L2133
-            "StudioHdrStruct::SequenceCount"
-            {
-                "windows"   "188"
-                "linux"     "188"
-            }
-            // @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L1729
-            "VirtualModelStruct::SequenceVectorSize"
-            {
-                "windows"   "20"
-                "linux"     "20"
-            }
-            // @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L2659
-            "CNetworkStringTableContainer::FindTable"
-            {
-                "windows"   "3"
-                "linux"     "4"
-            }
-        }
+	"csgo"
+	{
+		"Keys"
+		{
+			"EngineInterface"	"VEngineServer023"
+		}
+	
+		"Offsets"
+		{
+			// Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
+			// You can update them only by yourself using tutorial in the link
+			"CBaseEntity::UpdateTransmitState"
+			{
+				"windows"	"22"
+				"linux"		"23"
+			}
+			"CBaseEntity::PrecacheModel"
+			{
+				"windows"	"5"
+				"linux"		"5"
+			}
+			"CBaseCombatWeapon::GetMaxClip1" // - 4
+			{
+				"windows"	"353"
+				"linux"		"359"
+			}
+			"CBaseCombatWeapon::GetReserveAmmoMax" // center
+			{
+				"windows"	"357"
+				"linux"		"363"
+			}
+			"CBaseCombatWeapon::GetSlot" // +5
+			{
+				"windows"	"362"
+				"linux"		"368"
+			}
+			"CCSPlayer::GetPlayerMaxSpeed" // above CommitSuicide
+			{
+				"windows"	"506"
+				"linux"		"507"
+			}
+			"CEconItemDefinition::GetDefinitionIndex"
+			{
+				"windows"	"8"
+				"linux"		"8"
+			}
+			"CParticleSystemDictionary::Count" // Str: "PrecacheStandardParticleSystems()"
+			{
+				"windows"	"38"
+				"linux"		"38"
+			}
+			"CSendProp::m_nBits"
+			{
+				"windows"	"12"
+				"linux"		"12"
+			}
+			"CServer::OS"
+			{
+				"windows"	"1"
+				"linux"		"2"
+			}
+			
+			// @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
+			"CBaseAnimating::StudioHdr"
+			{
+				"windows"	"68"
+				"linux"		"68"
+			}
+			// @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L2133
+			"StudioHdrStruct::SequenceCount"
+			{
+				"windows"	"188"
+				"linux"		"188"
+			}
+			// @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/public/studio.h#L1729
+			"VirtualModelStruct::SequenceVectorSize"
+			{
+				"windows"	"20"
+				"linux"		"20"
+			}
+			// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L2659
+			"CNetworkStringTableContainer::FindTable"
+			{
+				"windows"	"3"
+				"linux"		"4"
+			}
+		}
 
-        // Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-        // You can update them only by yourself using tutorial in the link
-        "Signatures"
-        {
-            "CreateInterface"
-            {
-                "library"   "engine"
-                "windows"   "@CreateInterface"
-                "linux"     "@CreateInterface"
-            }
-            "Find_Server"
-            {
-                "library"   "server"
-                "windows"   "\x4D\x5A"
-            }
+		// Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
+		// You can update them only by yourself using tutorial in the link
+		"Signatures"
+		{
+			"CreateInterface"
+			{
+				"library"	"engine"
+				"windows"	"@CreateInterface"
+				"linux"		"@CreateInterface"
+			}
+			"Find_Server"
+			{
+				"library"	"server"
+				"windows"	"\x4D\x5A"
+			}
 
-            ///  v2 = CBaseAnimating::GetSequenceActivity(*((CBaseAnimating **)this + 7), *(_DWORD *)(*((_DWORD *)this + 7) + 1004));
-            ///  if ( v2 == 29 || v2 == 6 || v2 == 30 || v2 == 1 || v2 == 462 || v2 == 396 || v2 == 146 )
-            ///  {
-            ///    *((_DWORD *)this + 68) = 1120403456;
-            ///  }
-            ///  else if ( v2 != 31 && v2 != 10 )
-            ///  {
-            ///     if ( v2 == 45 || v2 == 12 )
-            ///     {
-            ///         *((_DWORD *)this + 68) = 1118437376;
-            ///     }
-            ///     else
-            ///     {
-            ///         DevMsg("Need to handle the activity %d\n", v2);
-            ///     }
-            ///  }
-            "CBaseAnimating::GetSequenceActivity" // Str: "Need to handle the activity %d\n" 
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
-                "linux"     "\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
-            }
-            ///v10 = CBaseAnimating::LookupAttachment(this, "weapon_hand_R");
-            ///if ( (v10 || (v10 = CBaseAnimating::LookupAttachment(this, "weapon_bone")) != 0)
-            ///&& (unsigned __int8)CBaseAnimating::GetAttachment(this, v10, &v69, &v75) )
-            ///{
-            ///     CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
-            ///}
-            ///else
-            ///{
-            ///    Warning("Missing weapon hand bone attachment for player model.\n");
-            ///    CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
-            ///} 
-            "CBaseAnimating::LookupAttachment" // Str: "weapon_bone"
-            { 
-                "library"   "server" 
-                "windows"   "\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A"
-                "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x8B\xD8\x04\x00\x00\x85\xC9\x74\x2A\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x10\x85\xD2\x74\x2A\x8B\x55\x0C\x89\x04\x24" 
-            }  
-            "CBaseAnimating::GetAttachment" // Str: "weapon_bone"
-            {
-                "library"   "server"            
-                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
-                "linux"     "\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
-            }
-            "CBaseAnimating::LookupPoseParameter" // Str: "Call to NULL CStudioHdr::GroupStudioHdr()\n" == "CStudioHdr::GroupStudioHdr" -> "CStudioHdr::pPoseParameter" -> "CStudioHdr::LookupPoseParameter"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x57\x8B\x7D\x08\x85\xFF\x75\x2A\x33\xC0\x5F\x5D\xC2\x08\x00"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x31\xDB\x83\xEC\x1C\x8B\x75\x0C\x8B\x7D\x10"
-            }
-            "CBaseAnimating::LookupSequence" // Str: "Discarding missing sequence %s on load.\n"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\xB7\xC0\x04\x00\x00\x85\xF6\x74\x2A\x83\x3E\x00\x74\x2A\x8B\xCE"
-                "linux"     "\x55\x89\xE5\x83\xEC\x48\xA1\x2A\x2A\x2A\x2A\x89\x75\xF8\x89\x7D\xFC\x8B\x75\x08"
-            }
-            "CBaseAnimating::ResetSequence" // Str: "ResetSequence : %s: %s -> %s\n"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x08\x53\x56\x8B\xD9"
-                "linux"     "\x55\x89\xE5\x83\xEC\x28\xA1\x2A\x2A\x2A\x2A\x89\x5D\xF4\x89\x75\xF8\x8B\x5D\x08\x89\x7D\xFC\x8B\x75\x0C\xC7\x04\x24\x2A\x2A\x2A\x2A\xFF\x50\x40"
-            }
-            "CBaseEntity::IsBSPModel" // Str: "Weapon_Knife.Stab"
-            {
-                "library"   "server"
-                "windows"   "\x53\x8B\xD9\x57\x8B\x83\xF4\x00\x00\x00"
-                "linux"     "\x55\x89\xE5\x83\xEC\x28\x89\x5D\xF4\x8B\x5D\x08\x89\x75\xF8\x89\x7D\xFC\x8B\x83\xFC\x00\x00\x00\x8D\xB3\xFC\x00\x00\x00"
-            }
-            "CItemGeneration::SpawnItem" // Str: "Can't init %s\n"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x51\x53\x56\x57\xE8\x2A\x2A\x2A\x2A\x8B\x5D\x08"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\x8B\x55\x08\x8B\x7D\x0C\x8B\x5D\x20"
-            }
-            "FX_FireBullets" // Str: "FX_FireBullets"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\xE0\x01\x00\x00"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x81\xEC\xBC\x02\x00\x00\x8B\x5D\x10"
-            }
+			///  v2 = CBaseAnimating::GetSequenceActivity(*((CBaseAnimating **)this + 7), *(_DWORD *)(*((_DWORD *)this + 7) + 1004));
+			///  if ( v2 == 29 || v2 == 6 || v2 == 30 || v2 == 1 || v2 == 462 || v2 == 396 || v2 == 146 )
+			///  {
+			///	*((_DWORD *)this + 68) = 1120403456;
+			///  }
+			///  else if ( v2 != 31 && v2 != 10 )
+			///  {
+			///	 if ( v2 == 45 || v2 == 12 )
+			///	 {
+			///		 *((_DWORD *)this + 68) = 1118437376;
+			///	 }
+			///	 else
+			///	 {
+			///		 DevMsg("Need to handle the activity %d\n", v2);
+			///	 }
+			///  }
+			"CBaseAnimating::GetSequenceActivity" // Str: "Need to handle the activity %d\n" 
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
+				"linux"		"\x55\xB8\xFF\xFF\xFF\xFF\x89\xE5\x83\xEC\x18\x89\x75\xFC"
+			}
+			///v10 = CBaseAnimating::LookupAttachment(this, "weapon_hand_R");
+			///if ( (v10 || (v10 = CBaseAnimating::LookupAttachment(this, "weapon_bone")) != 0)
+			///&& (unsigned __int8)CBaseAnimating::GetAttachment(this, v10, &v69, &v75) )
+			///{
+			///	 CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
+			///}
+			///else
+			///{
+			///	Warning("Missing weapon hand bone attachment for player model.\n");
+			///	CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
+			///} 
+			"CBaseAnimating::LookupAttachment" // Str: "weapon_bone"
+			{
+				"library"	"server" 
+				"windows"	"\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A"
+				"linux"		"\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x8B\xD8\x04\x00\x00\x85\xC9\x74\x2A\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x10\x85\xD2\x74\x2A\x8B\x55\x0C\x89\x04\x24" 
+			}
+			"CBaseAnimating::GetAttachment" // Str: "weapon_bone"
+			{
+				"library"	"server"			
+				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
+				"linux"		"\x55\x89\xE5\x83\xEC\x58\x8B\x45\x08\x89\x5D\xF4\x89\x75\xF8\x8B\x4D\x0C"
+			}
+			"CBaseAnimating::LookupPoseParameter" // Str: "Call to NULL CStudioHdr::GroupStudioHdr()\n" == "CStudioHdr::GroupStudioHdr" -> "CStudioHdr::pPoseParameter" -> "CStudioHdr::LookupPoseParameter"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x57\x8B\x7D\x08\x85\xFF\x75\x2A\x33\xC0\x5F\x5D\xC2\x08\x00"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x31\xDB\x83\xEC\x1C\x8B\x75\x0C\x8B\x7D\x10"
+			}
+			"CBaseAnimating::LookupSequence" // Str: "Discarding missing sequence %s on load.\n"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\xB7\xC0\x04\x00\x00\x85\xF6\x74\x2A\x83\x3E\x00\x74\x2A\x8B\xCE"
+				"linux"		"\x55\x89\xE5\x83\xEC\x48\xA1\x2A\x2A\x2A\x2A\x89\x75\xF8\x89\x7D\xFC\x8B\x75\x08"
+			}
+			"CBaseAnimating::ResetSequence" // Str: "ResetSequence : %s: %s -> %s\n"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x08\x53\x56\x8B\xD9"
+				"linux"		"\x55\x89\xE5\x83\xEC\x28\xA1\x2A\x2A\x2A\x2A\x89\x5D\xF4\x89\x75\xF8\x8B\x5D\x08\x89\x7D\xFC\x8B\x75\x0C\xC7\x04\x24\x2A\x2A\x2A\x2A\xFF\x50\x40"
+			}
+			"CBaseEntity::IsBSPModel" // Str: "Weapon_Knife.Stab"
+			{
+				"library"	"server"
+				"windows"	"\x53\x8B\xD9\x57\x8B\x83\xF4\x00\x00\x00"
+				"linux"		"\x55\x89\xE5\x83\xEC\x28\x89\x5D\xF4\x8B\x5D\x08\x89\x75\xF8\x89\x7D\xFC\x8B\x83\xFC\x00\x00\x00\x8D\xB3\xFC\x00\x00\x00"
+			}
+			"CItemGeneration::SpawnItem" // Str: "Can't init %s\n"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x51\x53\x56\x57\xE8\x2A\x2A\x2A\x2A\x8B\x5D\x08"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\x8B\x55\x08\x8B\x7D\x0C\x8B\x5D\x20"
+			}
+			"FX_FireBullets" // Str: "FX_FireBullets"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\xE0\x01\x00\x00"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\xBC\x02\x00\x00\x8B\x5D\x10"
+			}
 
-            /*___________________________________________________________________________________________*/
-            
-            /*
-             * Info: Every custom particle precached during a map is not removed from precache table on the map end. 
-             *       Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
-             *       and the custom particles used on the next maps will not show right but erros will appear in their place.
-             */
-            "CParticleSystemDictionary::~CParticleSystemDictionary" // Str: "CParticleSystemMgr::InitAttributeTable has an out-of-date attribute list! (element %d not set up)\n" | "CParticleSystemMgr::InitAttributeTable" -> "CParticleSystemMgr::CParticleSystemMgr" -> "CParticleSystemMgr::~CParticleSystemMgr" 
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x33\xF6\x8B\x47\x58"
-                "linux"     "\x55\xBA\x2A\x2A\x2A\x2A\xB9\x30\x00\x00\x00\x89\xE5\x31\xC0"
-            }
-            "CParticleSystemDefinition::ParseChildren" // Str: "DmeParticleSystemDefinition" and "children" and "preventNameBasedLookup"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\xF9\x51"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x45\x0C\xC7\x44\x24\x04"
-            }
-            "SV_ActivateServer" // Str: "SV_ActivateServer"
-            {
-                "library"   "engine"
-                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\x1D\x2A\x2A\x2A\x2A"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A"
-            }
-            "CNetworkStringTable::DeleteAllStrings" // Str: "___clientsideitemsplaceholder0___"
-            {
-                "library"   "engine"
-                "windows"   "\x56\x8B\xF1\x57\x8B\x4E\x40"
-                "linux"     "\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x43\x40"
-            }
-            
-            /*___________________________________________________________________________________________*/
-            
-            "ServerClassInit<DT_CSPlayer::ignored>" // Str: "DT_CSPlayer"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x40\x00\x00\x00"
-                "linux"     "\x55\x89\xE5\x53\x81\xEC\x84\x05\x00\x00"
-            }
-            "ServerClassInit<DT_BasePlayer::ignored>" // Str: "DT_BasePlayer"
-            {
-                "library"   "server"
-                "windows"   "\x55\x8B\xEC\x83\xE4\xF8\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x5C\x0C\x00\x00"
-                "linux"     "\x55\x89\xE5\x53\x81\xEC\xA4\x00\x00\x00\x80\x3D\x2A\x2A\x2A\x2A\x00\x75\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xC7\x44\x24\x0C\x2A\x2A\x2A\x2A\xC7\x44\x24\x08\x2B\x00\x00\x00"
-            }
-            "ServerClassInit<DT_BaseCombatWeapon::ignored>" // Str: "DT_BaseCombatWeapon"
-            {
-                "library"   "server"
-                "windows"   "\xA1\x2A\x2A\x2A\x2A\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00"
-                "linux"     "\x55\x89\xE5\x53\x83\xEC\x34\x80\x3D\x2A\x2A\x2A\x2A\x00\x75\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xC7\x44\x24\x0C\x2A\x2A\x2A\x2A\xC7\x44\x24\x08\x0E\x00\x00\x00"
-            }
-            "SendTable_Init" // Str: "SendTable[%03d] = %s\n"
-            {
-                "library"   "engine"
-                "windows"   "\x55\x8B\xEC\x83\xEC\x0C\x83\x3D\x2A\x2A\x2A\x2A\x00\x53"
-                "linux"     "\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\xA1\x2A\x2A\x2A\x2A\x8B\x7D\x08\x85\xC0"
-            }
-        }
-       
-        // Addr from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-        // You can update them only by yourself using tutorial in the link
-        "Addresses"
-        {
-            "server"
-            {
-                "signature" "Find_Server"
-            }
-            "FX_FireBullets"
-            {
-                "signature" "FX_FireBullets"
-            }
-            "m_pParticleSystemDictionary"
-            {
-                "signature" "CParticleSystemDefinition::ParseChildren"
-                "linux"
-                {
-                    "read"  "375"
-                    "read"  "0"
-                    "read"  "140"
-                }
-                "windows"
-                {
-                    "read"  "401"
-                    "read"  "0"
-                }
-            }
-            "s_NetworkStringTable"
-            {
-                "signature" "SV_ActivateServer"
-                "linux"
-                {
-                    "read"  "34"
-                }
-                "windows"
-                {
-                    "read"  "997"
-                }
-                "read"      "0"
-            }
-            "m_ArmorValue"
-            {
-                "signature" "ServerClassInit<DT_CSPlayer::ignored>"
-                "linux"
-                {
-                    "read"  "2077"
-                }
-                "windows"
-                {
-                    "read"  "2689"
-                }
-            }
-            "m_iAccount"
-            {
-                "signature" "ServerClassInit<DT_CSPlayer::ignored>"
-                "linux"
-                {
-                    "read"  "1459"
-                }
-                "windows"
-                {
-                    "read"  "1868"
-                }
-            }
-            "m_iHealth"
-            {
-                "signature" "ServerClassInit<DT_BasePlayer::ignored>"
-                "linux"
-                {
-                    "read"  "565"
-                }
-                "windows"
-                {
-                    "read"  "495"
-                }
-            }
-            "m_iClip1"
-            {
-                "signature" "ServerClassInit<DT_BaseCombatWeapon::ignored>"
-                "linux"
-                {
-                    "read"  "699"
-                }
-                "windows"
-                {
-                    "read"  "816"
-                }
-            }
-            "m_iPrimaryReserveAmmoCount"
-            {
-                "signature" "ServerClassInit<DT_BaseCombatWeapon::ignored>"
-                "linux"
-                {
-                    "read"  "825"
-                }
-                "windows"
-                {
-                    "read"  "865"
-                }
-            }
-            "m_iSecondaryReserveAmmoCount"
-            {
-                "signature" "ServerClassInit<DT_BaseCombatWeapon::ignored>"
-                "linux"
-                {
-                    "read"  "896"
-                }
-                "windows"
-                {
-                    "read"  "877"
-                }
-            }
-            "g_SendTableCRC"
-            {
-                "signature" "SendTable_Init"
-                "linux"
-                {
-                    "read"  "270"
-                }
-                "windows"
-                {
-                    "read"  "205"
-                }
-            }
-        }
-    }
+			/*___________________________________________________________________________________________*/
+			
+			/*
+			 * Info: Every custom particle precached during a map is not removed from precache table on the map end. 
+			 *	   Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
+			 *	   and the custom particles used on the next maps will not show right but erros will appear in their place.
+			 */
+			"CParticleSystemDictionary::~CParticleSystemDictionary" // Str: "CParticleSystemMgr::InitAttributeTable has an out-of-date attribute list! (element %d not set up)\n" | "CParticleSystemMgr::InitAttributeTable" -> "CParticleSystemMgr::CParticleSystemMgr" -> "CParticleSystemMgr::~CParticleSystemMgr" 
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x33\xF6\x8B\x47\x58"
+				"linux"		"\x55\xBA\x2A\x2A\x2A\x2A\xB9\x30\x00\x00\x00\x89\xE5\x31\xC0"
+			}
+			"CParticleSystemDefinition::ParseChildren" // Str: "DmeParticleSystemDefinition" and "children" and "preventNameBasedLookup"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\xF9\x51"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\x8B\x45\x0C\xC7\x44\x24\x04"
+			}
+			"SV_ActivateServer" // Str: "SV_ActivateServer"
+			{
+				"library"	"engine"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\x1D\x2A\x2A\x2A\x2A"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x2C\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A"
+			}
+			"CNetworkStringTable::DeleteAllStrings" // Str: "___clientsideitemsplaceholder0___"
+			{
+				"library"	"engine"
+				"windows"	"\x56\x8B\xF1\x57\x8B\x4E\x40"
+				"linux"		"\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x43\x40"
+			}
+			
+			/*___________________________________________________________________________________________*/
+			
+			"ServerClassInit<DT_CSPlayer::ignored>" // Str: "DT_CSPlayer"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x40\x00\x00\x00"
+				"linux"		"\x55\x89\xE5\x53\x81\xEC\x84\x05\x00\x00"
+			}
+			"ServerClassInit<DT_BasePlayer::ignored>" // Str: "DT_BasePlayer"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x5C\x0C\x00\x00"
+				"linux"		"\x55\x89\xE5\x53\x81\xEC\xA4\x00\x00\x00\x80\x3D\x2A\x2A\x2A\x2A\x00\x75\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xC7\x44\x24\x0C\x2A\x2A\x2A\x2A\xC7\x44\x24\x08\x2B\x00\x00\x00"
+			}
+			"ServerClassInit<DT_BaseCombatWeapon::ignored>" // Str: "DT_BaseCombatWeapon"
+			{
+				"library"	"server"
+				"windows"	"\xA1\x2A\x2A\x2A\x2A\xA8\x01\x0F\x85\x2A\x2A\x2A\x2A\x83\xC8\x01\xB9\x2A\x2A\x2A\x2A\xA3\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x20\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x00\x00\x00\x00\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xC6\x05\x2A\x2A\x2A\x2A\x80\xC7\x05\x2A\x2A\x2A\x2A\x00\x08\x00\x00\xE8\x2A\x2A\x2A\x2A\xB9\x2A\x2A\x2A\x2A\xC7\x05\x2A\x2A\x2A\x2A\x06\x00\x00\x00"
+				"linux"		"\x55\x89\xE5\x53\x83\xEC\x34\x80\x3D\x2A\x2A\x2A\x2A\x00\x75\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xC7\x44\x24\x0C\x2A\x2A\x2A\x2A\xC7\x44\x24\x08\x0E\x00\x00\x00"
+			}
+			"SendTable_Init" // Str: "SendTable[%03d] = %s\n"
+			{
+				"library"	"engine"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x83\x3D\x2A\x2A\x2A\x2A\x00\x53"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\xA1\x2A\x2A\x2A\x2A\x8B\x7D\x08\x85\xC0"
+			}
+		}
+
+		// Addr from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
+		// You can update them only by yourself using tutorial in the link
+		"Addresses"
+		{
+			"server"
+			{
+				"signature"	"Find_Server"
+			}
+			"FX_FireBullets"
+			{
+				"signature"	"FX_FireBullets"
+			}
+			"m_pParticleSystemDictionary"
+			{
+				"signature"	"CParticleSystemDefinition::ParseChildren"
+				"linux"
+				{
+					"read"	"375"
+					"read"	"0"
+					"read"	"140"
+				}
+				"windows"
+				{
+					"read"	"401"
+					"read"	"0"
+				}
+			}
+			"s_NetworkStringTable"
+			{
+				"signature"	"SV_ActivateServer"
+				"linux"
+				{
+					"read"	"34"
+				}
+				"windows"
+				{
+					"read"	"997"
+				}
+				"read"	"0"
+			}
+			"m_ArmorValue"
+			{
+				"signature" "ServerClassInit<DT_CSPlayer::ignored>"
+				"linux"
+				{
+					"read"	"2077"
+				}
+				"windows"
+				{
+					"read"	"2689"
+				}
+			}
+			"m_iAccount"
+			{
+				"signature" "ServerClassInit<DT_CSPlayer::ignored>"
+				"linux"
+				{
+					"read"	"1459"
+				}
+				"windows"
+				{
+					"read"	"1868"
+				}
+			}
+			"m_iHealth"
+			{
+				"signature" "ServerClassInit<DT_BasePlayer::ignored>"
+				"linux"
+				{
+					"read"	"565"
+				}
+				"windows"
+				{
+					"read"	"495"
+				}
+			}
+			"m_iClip1"
+			{
+				"signature" "ServerClassInit<DT_BaseCombatWeapon::ignored>"
+				"linux"
+				{
+					"read"	"699"
+				}
+				"windows"
+				{
+					"read"	"816"
+				}
+			}
+			"m_iPrimaryReserveAmmoCount"
+			{
+				"signature" "ServerClassInit<DT_BaseCombatWeapon::ignored>"
+				"linux"
+				{
+					"read"	"825"
+				}
+				"windows"
+				{
+					"read"	"865"
+				}
+			}
+			"m_iSecondaryReserveAmmoCount"
+			{
+				"signature" "ServerClassInit<DT_BaseCombatWeapon::ignored>"
+				"linux"
+				{
+					"read"	"896"
+				}
+				"windows"
+				{
+					"read"	"877"
+				}
+			}
+			"g_SendTableCRC"
+			{
+				"signature"	"SendTable_Init"
+				"linux"
+				{
+					"read"	"270"
+				}
+				"windows"
+				{
+					"read"	"205"
+				}
+			}
+		}
+	}
 }

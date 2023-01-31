@@ -44,11 +44,11 @@ public Plugin myinfo =
 
 // Sound index
 int gSound;
-#pragma unused gSound 
+//#pragma unused gSound 
  
 // Item index
 int gWeapon;
-#pragma unused gWeapon
+//#pragma unused gWeapon
 
 // Timer index
 Handle hEmitterCreate[MAXPLAYERS+1] = { null, ... }; 
@@ -158,7 +158,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("airdrop.phrases");
 		
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
@@ -537,7 +537,7 @@ public void ZP_OnGameModeStart(int mode)
 
 void Weapon_OnHolster(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 
 	// Delete timers
 	delete hEmitterCreate[client];
@@ -548,7 +548,7 @@ void Weapon_OnHolster(int client, int weapon, int bTrigger, int iStateMode, floa
 
 void Weapon_OnIdle(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
@@ -577,7 +577,7 @@ void Weapon_OnIdle(int client, int weapon, int bTrigger, int iStateMode, float f
 
 void Weapon_OnDeploy(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 	
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -593,7 +593,7 @@ void Weapon_OnDeploy(int client, int weapon, int bTrigger, int iStateMode, float
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -615,7 +615,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 	{
 		// Gets trace line
 		GetClientEyePosition(client, vPosition);
-		ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
+		ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
 
 		// Create the end-point trace
 		TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
@@ -624,14 +624,14 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 		if (TR_DidHit() && TR_GetEntityIndex() < 1)
 		{
 			// Adds the delay to the game tick
-			flCurrentTime += ZP_GetWeaponSpeed(gWeapon);
+			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 		
 			// Sets attack animation
 			ZP_SetWeaponAnimation(client, ANIM_SHOOT);  
 			
 			// Create timer for emitter
 			delete hEmitterCreate[client]; /// Bugfix
-			hEmitterCreate[client] = CreateTimer(ZP_GetWeaponSpeed(gWeapon) - 0.1, Weapon_OnCreateEmitter, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			hEmitterCreate[client] = CreateTimer(ZP_GetWeaponShoot(gWeapon) - 0.1, Weapon_OnCreateEmitter, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
 		{
@@ -705,7 +705,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
+	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 
 	// Validate trigger
 	if (!bTrigger)
@@ -762,7 +762,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 
 		// Gets trace line
 		GetClientEyePosition(client, vPosition);
-		ZP_GetPlayerGunPosition(client, 80.0, 0.0, 0.0, vEndPosition);
+		ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
 
 		// Create the end-point trace
 		TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);

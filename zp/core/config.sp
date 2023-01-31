@@ -260,7 +260,7 @@ void ConfigOnCacheData(/*void*/)
 	// Search folders in the directory
 	while (hDirectory.GetNext(sPath, sizeof(sPath), hType)) 
 	{
-		// Validate folfer type
+		// Validate folder type
 		if (hType == FileType_Directory) 
 		{
 			// Validate prefix
@@ -308,7 +308,7 @@ void ConfigOnCacheData(/*void*/)
 			continue;
 		}
 		
-		// Search folders in the directory
+		// Search files in the directory
 		while (hDirectory.GetNext(sFile, sizeof(sFile), hType)) 
 		{
 			// Validate file type

@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"mutationheavy set" // Hint (no color)
+	{
+		"en"			"Trap installation in progress!"
+	}
+
+	"mutationheavy success" // Hint (no color)
+	{
+		"en"			"The trap has been set!"
+	}
+
+	"mutationheavy catch" // Hint (no color)
+	{
+		"en"			"You've been trapped!"
+	}
+
+	"mutationheavy cancel" // Hint (no color)
+	{
+		"en"			"Cancel the installation!"
+	}
+
+	"mutationheavy catched" // Hint (no color)
+	{
+		"#format"		"{1:s}"
+		"en"			"Player: {1} - trapped!"
+	}
+}

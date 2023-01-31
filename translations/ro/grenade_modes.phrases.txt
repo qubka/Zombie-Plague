@@ -1,0 +1,48 @@
+"Phrases"
+{
+	"grenade mode" // Hint (no color) (translated)
+	{
+		"#format"		"{1:t}"	
+		"ro"			"Mod: {1}"
+	}
+
+	"normal" // Hint (no color)
+	{
+		"ro"			"Normal"
+	}
+
+	"impact" // Hint (no color)
+	{
+		"ro"			"Clipă"
+	}
+
+	"proximity" // Hint (no color)
+	{
+		"ro"			"Proximitate"
+	}
+
+	"trip wire" // Hint (no color)
+	{
+		"ro"			"Sârmă de tragere"
+	}
+
+	"satchel charge" // Hint (no color)
+	{
+		"ro"			"Satchel taxă"
+	}
+
+	"homing" // Hint (no color)
+	{
+		"ro"			"Homing"
+	}
+
+	"motion sensor" // Hint (no color)
+	{
+		"ro"			"Senzor de mișcare"
+	}
+
+	"satchel info" // Hint (no color)
+	{
+		"ro"			"Pentru a activa taxa faceți clic pe butonul din dreapta al mouse-ului!"
+	}
+}	 

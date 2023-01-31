@@ -1,0 +1,48 @@
+"Phrases"
+{
+	"grenade mode" // Hint (no color) (translated)
+	{
+		"#format"		"{1:t}"	
+		"zho"			"模式: {1}"
+	}
+
+	"normal" // Hint (no color)
+	{
+		"zho"			"正常"
+	}
+
+	"impact" // Hint (no color)
+	{
+		"zho"			"瞬间"
+	}
+
+	"proximity" // Hint (no color)
+	{
+		"zho"			"接近"
+	}
+
+	"trip wire" // Hint (no color)
+	{
+		"zho"			"跳线"
+	}
+
+	"satchel charge" // Hint (no color)
+	{
+		"zho"			"挎包充电"
+	}
+
+	"homing" // Hint (no color)
+	{
+		"zho"			"归巢"
+	}
+
+	"motion sensor" // Hint (no color)
+	{
+		"zho"			"运动传感器"
+	}
+
+	"satchel info" // Hint (no color)
+	{
+		"zho"			"要激活电量，请按鼠标右键！"
+	}
+}	 

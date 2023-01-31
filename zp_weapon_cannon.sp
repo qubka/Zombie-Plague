@@ -194,7 +194,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
 
 	// Sets next attack time
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));
 
 	// Sets shots count
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
@@ -210,11 +210,11 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
 	static float vPosition[5][3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 50.0, 60.0, -10.0,  vPosition[0]);
-	ZP_GetPlayerGunPosition(client, 50.0, 30.0, -10.0,  vPosition[1]);
-	ZP_GetPlayerGunPosition(client, 50.0, 0.0,  -10.0,  vPosition[2]);
-	ZP_GetPlayerGunPosition(client, 50.0, -30.0, -10.0, vPosition[3]);
-	ZP_GetPlayerGunPosition(client, 50.0, -60.0, -10.0, vPosition[4]);
+	ZP_GetPlayerEyePosition(client, 50.0, 60.0, -10.0,  vPosition[0]);
+	ZP_GetPlayerEyePosition(client, 50.0, 30.0, -10.0,  vPosition[1]);
+	ZP_GetPlayerEyePosition(client, 50.0, 0.0,  -10.0,  vPosition[2]);
+	ZP_GetPlayerEyePosition(client, 50.0, -30.0, -10.0, vPosition[3]);
+	ZP_GetPlayerEyePosition(client, 50.0, -60.0, -10.0, vPosition[4]);
 
 	// i - fire index
 	for (int i = 0; i < 5; i++)

@@ -1,0 +1,297 @@
+"Phrases"
+{
+	// General
+
+	"dead" // Menu
+	{
+		"chi"			"死亡"
+	}
+	
+	// Zombie
+
+	"nemesis" // Menu
+	{
+		"chi"			"复仇女神"
+	}
+	
+	"girl" // Menu
+	{
+		"chi"			"妖女"
+	}
+
+	"sleeper" // Menu
+	{
+		"chi"			"沉眠者"
+	}
+
+	"witch" // Menu
+	{
+		"chi"			"女巫"
+	}
+
+	"smoker" // Menu
+	{
+		"chi"			"烟鬼"
+	}
+
+	"stamper" // Menu
+	{
+		"chi"			"定棺师"
+	}
+
+	"tesla" // Menu
+	{
+		"chi"			"特斯拉"
+	}
+
+	"healer" // Menu
+	{
+		"chi"			"治疗者"
+	}
+
+	"baller" // Menu
+	{
+		"chi"			"投球者"
+	}
+
+	"range" // Menu
+	{
+		"chi"			"自爆怪"
+	}
+
+	"mutationheavy" // Menu
+	{
+		"chi"			"猎者"
+	}
+
+	"mutationlight" // Menu
+	{
+		"chi"			"幽灵"
+	}
+
+	"fast" // Menu
+	{
+		"chi"			"迅捷者"
+	}
+
+	"tank" // Menu
+	{
+		"chi"			"坦克"
+	}
+
+	"psyh" // Menu
+	{
+		"chi"			"疯子"
+	}
+	
+	// Info
+	
+	"girl info" // Hint
+	{
+		"chi"			"技能: <font color='#FF0000'>刺痛射击</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"sleeper info" // Hint
+	{
+		"chi"			"被动技能： <font color='#FF0000'>随机致盲周围攻击者</font>"
+	}
+
+	"witch info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>蝙蝠蜂拥</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"smoker info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>毒雾</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"stamper info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>爆破棺材</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"tesla info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>幻觉爆炸</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"healer info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>赏金治疗</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"baller info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>瘫痪球</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"range info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>感染毒气</font>\n激活于 <font color='#FF0000'>死亡</font>"
+	}
+
+	"mutationheavy info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>报酬陷阱</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+	
+	"mutationlight info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>隐身</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"fast info" // Hint
+	{
+		"chi"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"tank info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>无敌</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+
+	"psyh info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>尖叫</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+	
+	// Humans
+
+	"human" // Menu
+	{
+		"chi"			"人类"
+	}
+	
+	"zombie" // Menu
+	{
+		"chi"			"丧尸"
+	}
+	
+	"survivor" // Menu
+	{
+		"chi"			"幸存者"
+	}
+	
+	"sniper" // Menu
+	{
+		"chi"			"狙击手"
+	}
+
+	"black" // Menu
+	{
+		"chi"			"布莱克"
+	}
+
+	"carrie" // Menu
+	{
+		"chi"			"嘉利"
+	}
+
+	"choi" // Menu
+	{
+		"chi"			"蔡"
+	}
+
+	"swat" // Menu
+	{
+		"chi"			"斯瓦特"
+	}
+
+	"ct" // Menu
+	{
+		"chi"			"行动队"
+	}
+
+	"anarhist" // Menu
+	{
+		"chi"			"无政府主义者"
+	}
+
+	"emma" // Menu
+	{
+		"chi"			"艾玛"
+	}
+
+	"pirate" // Menu
+	{
+		"chi"			"海盗"
+	}
+
+	"lisa" // Menu
+	{
+		"chi"			"丽萨"
+	}
+
+	"mila" // Menu
+	{
+		"chi"			"米拉"
+	}
+
+	"punisher" // Menu
+	{
+		"chi"			"惩罚者"
+	}
+
+	"balkan" // Menu
+	{
+		"chi"			"巴尔干"
+	}
+
+	"fat" // Menu
+	{
+		"chi"			"胖子"
+	}
+
+	"strong" // Menu
+	{
+		"chi"			"大块头"
+	}
+
+	"phoenix" // Menu
+	{
+		"chi"			"凤凰"
+	}
+	
+	"redtank" // Menu
+	{
+		"chi"			"赤红坦克"
+	}
+	
+	"bluetank" // Menu
+	{
+		"chi"			"湛蓝坦克"
+	}
+	
+	"redalice" // Menu
+	{
+		"chi"			"赤红爱丽丝"
+	}
+	
+	"bluealice" // Menu
+	{
+		"chi"			"湛蓝爱丽丝"
+	}
+	
+	// Info
+	
+	"redtank info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>铁壁</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluetank info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>再生</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+	
+	"redalice info" // Hint
+	{
+		"chi"			"Skill: <font color='#FF0000'>快跑</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+	
+	"bluealice info" // Hint
+	{
+		"chi"			"技能： <font color='#FF0000'>无敌</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+}

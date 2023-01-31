@@ -1,0 +1,7 @@
+"Phrases"
+{
+	"present arrived" // Hint (no color)
+	{
+		"ro"			"Cadouri livrate!"
+	}
+}

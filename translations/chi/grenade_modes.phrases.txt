@@ -1,0 +1,48 @@
+"Phrases"
+{
+	"grenade mode" // Hint (no color) (translated)
+	{
+		"#format"		"{1:t}"	
+		"chi"			"模式: {1}"
+	}
+
+	"normal" // Hint (no color)
+	{
+		"chi"			"正常"
+	}
+
+	"impact" // Hint (no color)
+	{
+		"chi"			"瞬間"
+	}
+
+	"proximity" // Hint (no color)
+	{
+		"chi"			"接近"
+	}
+
+	"trip wire" // Hint (no color)
+	{
+		"chi"			"跳線"
+	}
+
+	"satchel charge" // Hint (no color)
+	{
+		"chi"			"旅行電線"
+	}
+
+	"homing" // Hint (no color)
+	{
+		"chi"			"歸巢"
+	}
+
+	"motion sensor" // Hint (no color)
+	{
+		"chi"			"運動傳感器"
+	}
+
+	"satchel info" // Hint (no color)
+	{
+		"chi"			"要激活電量，請按鼠標右鍵！"
+	}
+}	 

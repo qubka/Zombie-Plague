@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"jetpack empty" // Hint (no color)
+	{
+		"ru"			"Джетпак перегрелся. Подождите"
+	}
+
+	"jetpack reloaded" // Hint (no color)
+	{
+		"ru"			"Джетпак остыл"
+	}
+}

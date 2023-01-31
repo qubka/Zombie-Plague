@@ -560,7 +560,7 @@ public void LevelSystemOnCvarHookRatio(ConVar hConVar, char[] oldValue, char[] n
 			{
 				// Update variables
 				ToolsSetHealth(i, ClassGetHealth(gClientData[i].Class) + (RoundToNearest(gCvarList.LEVEL_HEALTH_RATIO.FloatValue * float(gClientData[i].Level))), true);
-				ToolsSetLMV(i, ClassGetSpeed(gClientData[i].Class) + (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[i].Level)));
+				//ToolsSetLMV(i, ClassGetSpeed(gClientData[i].Class) + (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[i].Level)));
 				ToolsSetGravity(i, ClassGetGravity(gClientData[i].Class) + (gCvarList.LEVEL_GRAVITY_RATIO.FloatValue * float(gClientData[i].Level)));
 			}
 		}

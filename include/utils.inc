@@ -372,6 +372,7 @@ enum ItemDef
 	ItemDef_M4A4 = 16,
 	ItemDef_MAC10,
 	ItemDef_P90 = 19,
+	ItemDef_RepulsorDevice,
 	ItemDef_MP5 = 23,
 	ItemDef_UMP45,
 	ItemDef_XM1014,
@@ -451,6 +452,7 @@ enum ItemDef
 #define IsKnife(%0)         (%0 == ItemDef_Knife || %0 == ItemDef_KnifeGG || %0 == ItemDef_KnifeT || (%0 >= ItemDef_Melee && %0 <= ItemDef_Wrench) || %0 == ItemDef_KnifeGhost || (%0 >= ItemDef_Bayonet))
 #define IsMelee(%0)         (IsKnife(%0) || %0 == ItemDef_Fists)
 #define IsItem(%0)          (%0 == ItemDef_Kevlar || %0 == ItemDef_KevlarHelmet || %0 == ItemDef_NGVs || %0 == ItemDef_Defuser || %0 == ItemDef_HeavySuit || %0 == ItemDef_Cutters)
+#define IsGun(%0)           ((%0 >= ItemDef_Deagle && %0 <= ItemDef_SSG08 && %0 != ItemDef_RepulsorDevice && %0 != ItemDef_Shield) || (%0 >= ItemDef_M4A1 && %0 <= ItemDef_Revolver))
 /**
  * @endsection
  **/

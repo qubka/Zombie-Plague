@@ -104,7 +104,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
 		// Load translations phrases used by plugin
-		LoadTranslations("zombieplague.phrases");
+		LoadTranslations("janus.phrases");
 		
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
@@ -328,7 +328,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	SetEntProp(weapon, Prop_Data, "m_iHealth", iCounter + 1);
 
 	// Sets next attack time
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponSpeed(gWeapon));       
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
 
 	// Sets shots count
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
@@ -446,7 +446,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	static float vPosition[3]; static float vAngle[3];
 
 	// Gets weapon position
-	ZP_GetPlayerGunPosition(client, 30.0, 0.0, 0.0, vPosition);
+	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -511,7 +511,7 @@ public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weap
 	if (weaponID == gWeapon)
 	{
 		// Sent a tracer
-		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_rifle", vBullet, ZP_GetWeaponSpeed(gWeapon));
+		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_rifle", vBullet, ZP_GetWeaponShoot(gWeapon));
 	}
 }
 	
