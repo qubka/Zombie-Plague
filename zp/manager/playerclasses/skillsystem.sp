@@ -31,7 +31,8 @@
 void SkillSystemOnCvarInit(/*void*/)
 {    
 	// Creates cvars
-	gCvarList.SKILL_BUTTON = FindConVar("zp_skill_button");  
+	gCvarList.SKILL_BUTTON       = FindConVar("zp_skill_button");  
+	gCvarList.SKILL_BUTTON_BLOCK = FindConVar("zp_skill_button_block");  
 
 	// Hook cvars
 	HookConVarChange(gCvarList.SKILL_BUTTON, SkillSystemOnCvarHook);
@@ -100,18 +101,12 @@ public void SkillSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newVal
  **/
 public Action SkillSystemOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
-	// Validate access
-	if (!ModesIsSkill(gServerData.RoundMode))
-	{
-		return Plugin_Handled;
-	}
-		
 	// Validate client 
 	if (IsPlayerExist(client))
 	{
 		// Do the skill
 		SkillSystemOnClientStart(client);
-		return Plugin_Handled;
+		return gCvarList.SKILL_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
 	}
 	
 	// Allow command
@@ -147,12 +142,18 @@ void SkillSystemOnClientUpdate(int client)
 }
 
 /**
- * @brief Called when player press drop button.
+ * @brief Called when player press skill button.
  *
  * @param client            The client index.
  **/
 void SkillSystemOnClientStart(int client)
 {
+	// If skill disabled, then stop
+	if (!ModesIsSkill(gServerData.RoundMode))
+	{
+		return;
+	}
+	
 	// Validate class skill duration/countdown
 	float flInterval = ClassGetSkillDuration(gClientData[client].Class);
 	if (!flInterval && (!ClassGetSkillCountdown(gClientData[client].Class)))

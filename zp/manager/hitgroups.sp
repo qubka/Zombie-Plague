@@ -208,6 +208,7 @@ void HitGroupsOnCvarInit(/*void*/)
 	gCvarList.HITGROUP                  = FindConVar("zp_hitgroup"); 
 	gCvarList.HITGROUP_KNOCKBACK        = FindConVar("zp_knockback"); 
 	gCvarList.HITGROUP_KNOCKBACK_AIR    = FindConVar("zp_knockback_air"); 
+	gCvarList.HITGROUP_KNOCKBACK_CROUCH = FindConVar("zp_knockback_crouch"); 
 	gCvarList.HITGROUP_FRIENDLY_FIRE    = FindConVar("mp_friendlyfire");
 	gCvarList.HITGROUP_FRIENDLY_GRENADE = FindConVar("ff_damage_reduction_grenade");
 	gCvarList.HITGROUP_FRIENDLY_BULLETS = FindConVar("ff_damage_reduction_bullets");
@@ -1321,6 +1322,8 @@ void HitGroupsApplyKnock(int client, int attacker, float flForce)
 
 	// Apply multiplier if client on air
 	if (GetEntPropEnt(client, Prop_Send, "m_hGroundEntity") == -1) flForce *= gCvarList.HITGROUP_KNOCKBACK_AIR.FloatValue;
+	// Apply multiplier if client crouching
+	else if (GetEntProp(client, Prop_Send, "m_bDucking")) flForce *= gCvarList.HITGROUP_KNOCKBACK_CROUCH.FloatValue;
 	
 	// If knockback system is enabled, then apply
 	if (gCvarList.HITGROUP_KNOCKBACK.BoolValue) 

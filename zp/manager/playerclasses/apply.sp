@@ -168,7 +168,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		for (int i = 0; i < sizeof(iWeapon); i++)
 		{
 			// Give weapons
-			WeaponsGive(client, iWeapon[i]);
+			WeaponsGive(client, iWeapon[i], false);
 		}
 	}
 	

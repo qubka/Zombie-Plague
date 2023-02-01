@@ -215,19 +215,19 @@ public Action ExtraItemsOnCommandCatched(int client, int iArguments)
  **/
 void ExtraItemsOnNativeInit(/*void*/)
 {
-	CreateNative("ZP_GiveClientExtraItem",      API_GiveClientExtraItem); 
-	CreateNative("ZP_SetClientExtraItemLimit",  API_SetClientExtraItemLimit); 
-	CreateNative("ZP_GetClientExtraItemLimit",  API_GetClientExtraItemLimit); 
-	CreateNative("ZP_GetNumberExtraItem",       API_GetNumberExtraItem); 
-	CreateNative("ZP_GetExtraItemNameID",       API_GetExtraItemNameID);
-	CreateNative("ZP_GetExtraItemName",         API_GetExtraItemName); 
-	CreateNative("ZP_GetExtraItemInfo",         API_GetExtraItemInfo); 
-	CreateNative("ZP_GetExtraItemCost",         API_GetExtraItemCost); 
-	CreateNative("ZP_GetExtraItemLevel",        API_GetExtraItemLevel); 
-	CreateNative("ZP_GetExtraItemOnline",       API_GetExtraItemOnline); 
-	CreateNative("ZP_GetExtraItemLimit",        API_GetExtraItemLimit); 
-	CreateNative("ZP_GetExtraItemGroup",        API_GetExtraItemGroup); 
-	CreateNative("ZP_GetExtraItemClass",        API_GetExtraItemClass);
+	CreateNative("ZP_GiveClientExtraItem",     API_GiveClientExtraItem); 
+	CreateNative("ZP_SetClientExtraItemLimit", API_SetClientExtraItemLimit); 
+	CreateNative("ZP_GetClientExtraItemLimit", API_GetClientExtraItemLimit); 
+	CreateNative("ZP_GetNumberExtraItem",      API_GetNumberExtraItem); 
+	CreateNative("ZP_GetExtraItemNameID",      API_GetExtraItemNameID);
+	CreateNative("ZP_GetExtraItemName",        API_GetExtraItemName); 
+	CreateNative("ZP_GetExtraItemInfo",        API_GetExtraItemInfo); 
+	CreateNative("ZP_GetExtraItemCost",        API_GetExtraItemCost); 
+	CreateNative("ZP_GetExtraItemLevel",       API_GetExtraItemLevel); 
+	CreateNative("ZP_GetExtraItemOnline",      API_GetExtraItemOnline); 
+	CreateNative("ZP_GetExtraItemLimit",       API_GetExtraItemLimit); 
+	CreateNative("ZP_GetExtraItemGroup",       API_GetExtraItemGroup); 
+	CreateNative("ZP_GetExtraItemClass",       API_GetExtraItemClass);
 }
 
 /**

@@ -62,6 +62,7 @@ void ToolsOnCvarInit(/*void*/)
 {
 	// Creates cvars
 	gCvarList.LIGHT_BUTTON          = FindConVar("zp_light_button");  
+	gCvarList.LIGHT_BUTTON_BLOCK    = FindConVar("zp_light_button_block");  
 	gCvarList.MESSAGES_OBJECTIVE    = FindConVar("zp_messages_objective");
 	gCvarList.MESSAGES_COUNTER      = FindConVar("zp_messages_counter");
 	gCvarList.MESSAGES_BLAST        = FindConVar("zp_messages_blast");
@@ -160,22 +161,19 @@ public Action ToolsOnCommandListened(int client, char[] commandMsg, int iArgumen
 		// Validate nvgs
 		if (ClassIsNvgs(gClientData[client].Class) || hasLength(sOverlay)) 
 		{
-			// If mode doesn't ended yet, then stop
-			if (gServerData.RoundEnd) /// Avoid reset round end overlays
+			// If mode doesn't ended yet
+			if (!gServerData.RoundEnd) /// Avoid reset round end overlays
 			{
-				// Block command
-				return Plugin_Handled;
+				// Update nvgs in the database
+				gClientData[client].Vision = !gClientData[client].Vision;
+				DataBaseOnClientUpdate(client, ColumnType_Vision);
+				
+				// Switch on/off nightvision  
+				VOverlayOnClientNvgs(client);
+				
+				// Forward event to modules
+				SoundsOnClientNvgs(client);
 			}
-			
-			// Update nvgs in the database
-			gClientData[client].Vision = !gClientData[client].Vision;
-			DataBaseOnClientUpdate(client, ColumnType_Vision);
-			
-			// Switch on/off nightvision  
-			VOverlayOnClientNvgs(client);
-			
-			// Forward event to modules
-			SoundsOnClientNvgs(client);
 		}
 		else
 		{
@@ -186,8 +184,8 @@ public Action ToolsOnCommandListened(int client, char[] commandMsg, int iArgumen
 			SoundsOnClientFlashLight(client);
 		}
 		
-		// Block command
-		return Plugin_Handled;
+		// Allow/block command
+		return gCvarList.LIGHT_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
 	}
 	
 	// Allow command

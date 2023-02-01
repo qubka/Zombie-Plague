@@ -217,7 +217,8 @@ void MenusOnCommandInit(/*void*/)
 void MenusOnCvarInit(/*void*/)
 {
 	// Creates cvars
-	gCvarList.MENU_BUTTON = FindConVar("zp_menu_button");
+	gCvarList.MENU_BUTTON       = FindConVar("zp_menu_button");
+	gCvarList.MENU_BUTTON_BLOCK = FindConVar("zp_menu_button_block");
 	
 	// Hook cvars
 	HookConVarChange(gCvarList.MENU_BUTTON, MenusOnCvarHook);
@@ -299,7 +300,8 @@ public Action MenusOnCommandCatched(int client, int iArguments)
  **/
 public Action MenusMainOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
-	return MenusOnCommandCatched(client, iArguments);
+	MenusOnCommandCatched(client, iArguments);
+	return gCvarList.MENU_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
 }
 
 /**
