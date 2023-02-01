@@ -395,7 +395,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 	// Initialize variables
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-	float vKickback[] = { /*upBase = */1.5, /* lateralBase = */2.45, /* upMod = */0.015, /* lateralMod = */0.02, /* upMax = */5.5, /* lateralMax = */2.5, /* directionChange = */5.0 };
+	float vKickback[] = { /*upBase = */0.5, /* lateralBase = */1.45, /* upMod = */0.015, /* lateralMod = */0.02, /* upMax = */2.5, /* lateralMax = */2.5, /* directionChange = */5.0 };
 	
 	// Gets client velocity
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
@@ -564,10 +564,8 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
 
-	// Gets weapon position
-	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
-
-	// Gets client eye angle
+	// Gets client position
+	GetClientEyePosition(client, vPosition);
 	GetClientEyeAngles(client, vAngle);
 
 	// Emulate bullet shot
@@ -609,6 +607,24 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 		// Resets variables
 		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
+	}
+}
+
+/**
+ * @brief Called on bullet of a weapon.
+ *
+ * @param client            The client index.
+ * @param vBullet           The position of a bullet hit.
+ * @param weapon            The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
+{
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Sent a tracer
+		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_50cal_glow", vBullet, ZP_GetWeaponShoot(gWeapon));
 	}
 }
 

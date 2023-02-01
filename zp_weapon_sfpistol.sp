@@ -321,20 +321,21 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
-	// Gets weapon position
-	ZP_GetPlayerEyePosition(client, 30.0, 3.5, -10.0, vPosition);
-	
-	// Gets client eye angle
+	// Gets client position
+	GetClientEyePosition(client, vPosition);
 	GetClientEyeAngles(client, vAngle);
+
+	// Emulate bullet shot
+	ZP_FireBullets(client, weapon, vPosition, vAngle, 0, GetRandomInt(0, 1000), 0.0, 0.0, 0.0, 0, 0.0);
 
 	// Create the end-point trace
 	TR_TraceRayFilter(vPosition, vAngle, (MASK_SHOT|CONTENTS_GRATE), RayType_Infinite, SelfFilter, client);
 	
 	// Returns the collision position of a trace result
 	TR_GetEndPosition(vEndPosition);
-	
-	// Emulate bullet shot
-	ZP_FireBullets(client, weapon, vPosition, vAngle, 0, GetRandomInt(0, 1000), 0.0, 0.0, 0.0, 0, 0.0);
+
+	// Gets weapon position
+	ZP_GetPlayerEyePosition(client, 30.0, 3.5, -10.0, vPosition);
 
 	// Gets beam lifetime
 	float flLife = ZP_GetWeaponShoot(gWeapon);

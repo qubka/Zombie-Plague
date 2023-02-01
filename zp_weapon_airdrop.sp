@@ -112,7 +112,6 @@ enum
 #define AIRDROP_WEAPONS                 15
 #define AIRDROP_SMOKE_REMOVE            14.0
 #define AIRDROP_SMOKE_TIME              17.0
-#define AIRDROP_LOCK                    25.0
 /**
  * @endsection
  **/
@@ -1564,16 +1563,9 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 				// Gets weapon classname
 				static char sClassname[SMALL_LINE_LENGTH];
 				GetEdictClassname(inflictor, sClassname, sizeof(sClassname));
-			
-				// Initialize vectors
-				static float vPosition[3]; static float vAngle[3];
-			
-				// Gets position
-				ZP_GetAttachment(entity, "door", vPosition, vAngle);
-				GetEntPropVector(inflictor, Prop_Data, "m_vecAbsOrigin", vAngle);
-			
+
 				// Validate c4 projectile
-				if (!strncmp(sClassname, "brea", 4, false) && GetVectorDistance(vPosition, vAngle) <= AIRDROP_LOCK)
+				if (!strncmp(sClassname, "brea", 4, false))
 				{
 					// Increment explosions
 					int iExp = GetEntProp(entity, Prop_Data, "m_iHammerID") + 1;
@@ -1582,6 +1574,9 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 					// Validate explosions
 					if (iExp >= AIRDROP_EXPLOSIONS)
 					{
+						// Initialize vectors
+						static float vPosition[3]; static float vAngle[3]; 
+						
 						// Gets position/angle
 						GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 						GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);

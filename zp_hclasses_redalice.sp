@@ -129,6 +129,6 @@ public void ZP_OnClientSkillOver(int client)
 	if (ZP_GetClientClass(client) == gHuman) 
 	{
 		// Sets previous speed
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", ZP_GetClassSpeed(gHuman));
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
 	}
 }

@@ -308,7 +308,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	// Initialize variables
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client); 
 	float flSpread = 0.01; float flInaccuracy = 0.015;
-	float vKickback[] = { /*upBase = */1.25, /* lateralBase = */0.55, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */1.25, /* lateralMax = */3.5, /* directionChange = */7.0 };
+	float vKickback[] = { /*upBase = */0.6, /* lateralBase = */0.45, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */1.25, /* lateralMax = */3.5, /* directionChange = */7.0 };
 
 	// Gets client velocity
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
@@ -372,10 +372,8 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
 
-	// Gets weapon position
-	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
-
-	// Gets client eye angle
+	// Gets client position
+	GetClientEyePosition(client, vPosition);
 	GetClientEyeAngles(client, vAngle);
 
 	// Emulate bullet shot

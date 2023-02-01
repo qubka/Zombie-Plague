@@ -544,10 +544,8 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
 
-	// Gets weapon position
-	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
-
-	// Gets client eye angle
+	// Gets client position
+	GetClientEyePosition(client, vPosition);
 	GetClientEyeAngles(client, vAngle);
 
 	// Emulate bullet shot

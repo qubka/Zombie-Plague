@@ -317,10 +317,8 @@ void Weapon_OnCreateBow(int client)
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
-	// Gets weapon position
-	ZP_GetPlayerEyePosition(client, 30.0, 0.0, 0.0, vPosition);
-
-	// Gets client eye angle
+	// Gets client position
+	GetClientEyePosition(client, vPosition);
 	GetClientEyeAngles(client, vAngle);
 
 	// Gets client velocity
