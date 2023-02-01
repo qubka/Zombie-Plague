@@ -329,7 +329,7 @@
 	
 	"knife" // Menu
 	{
-		"ro"			"Classic Knife"
+		"ro"			"Classic Knife [Viteză]"
 	}
 	
 	"knife t" // Menu
@@ -409,12 +409,12 @@
 	
 	"spanner" // Menu
 	{
-		"ro"			"Spanner"
+		"ro"			"Spanner [Hop]"
 	}
 	
 	"axe" // Menu
 	{
-		"ro"			"Topor"
+		"ro"			"Topor [Deteriora]"
 	}
 	
 	"hammer" // Menu

@@ -202,6 +202,7 @@ public Action ZP_OnClientSkillUsed(int client)
  * @param flDamage          The damage amount.
  * @param iBits             The damage type.
  **/
+#if ZOMBIE_CLASS_SKILL_HEALTH > 0
 public Action CoffinDamageHook(int entity, int &attacker, int &inflictor, float &flDamage, int &iBits)
 {
 	// Calculate the damage
@@ -228,6 +229,7 @@ public Action CoffinDamageHook(int entity, int &attacker, int &inflictor, float 
 	// Return on success
 	return Plugin_Handled;
 }
+#endif
 
 /**
  * @brief Main timer for coffin idle.

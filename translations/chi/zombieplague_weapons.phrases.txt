@@ -329,7 +329,7 @@
 	
 	"knife" // Menu
 	{
-		"chi"			"经典小刀"
+		"chi"			"经典小刀 [损害]"
 	}
 	
 	"knife t" // Menu
@@ -409,7 +409,7 @@
 	
 	"spanner" // Menu
 	{
-		"chi"			"扳手"
+		"chi"			"扳手 [跳]"
 	}
 	
 	"axe" // Menu

@@ -329,7 +329,7 @@
 	
 	"knife" // Menu
 	{
-		"en"			"Classic Knife"
+		"en"			"Classic Knife [Speed]"
 	}
 	
 	"knife t" // Menu
@@ -409,12 +409,12 @@
 	
 	"spanner" // Menu
 	{
-		"en"			"Spanner"
+		"en"			"Spanner [Jump]"
 	}
 	
 	"axe" // Menu
 	{
-		"en"			"Axe"
+		"en"			"Axe [Damage]"
 	}
 	
 	"hammer" // Menu

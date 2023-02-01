@@ -329,7 +329,7 @@
 	
 	"knife" // Menu
 	{
-		"zho"			"經典小刀"
+		"zho"			"經典小刀 [速度]"
 	}
 	
 	"knife t" // Menu
@@ -409,12 +409,12 @@
 	
 	"spanner" // Menu
 	{
-		"zho"			"扳手"
+		"zho"			"扳手 [跳]"
 	}
 	
 	"axe" // Menu
 	{
-		"zho"			"斧頭"
+		"zho"			"斧頭 [損害]"
 	}
 	
 	"hammer" // Menu

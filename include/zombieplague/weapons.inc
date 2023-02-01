@@ -274,10 +274,11 @@ native bool ZP_FireBullets(int clientIndex, int weaponIndex, float origin[3], fl
  *
  * @param client            The client index.
  * @param weaponID          The weapon ID.
+ * @param switch_          (Optional) True to switch, false to just equip.
  *
  * @return                  The weapon index.
  **/
-native int ZP_GiveClientWeapon(int client, int weaponID);
+native int ZP_GiveClientWeapon(int client, int weaponID, bool switch_ = true);
 
 /**
  * @brief Switches the weapon by an index.
@@ -441,6 +442,15 @@ native float ZP_GetWeaponKnockBack(int weaponID);
  * @return                  The speed amount.
  **/
 native float ZP_GetWeaponSpeed(int weaponID);
+
+/**
+ * @brief Gets the gravity of the weapon.
+ * 
+ * @param weaponID          The weapon ID.
+ *
+ * @return                  The gravity amount.
+ **/
+native float ZP_GetWeaponGravity(int weaponID);
 
 /**
  * @brief Gets the clip ammo of the weapon.
