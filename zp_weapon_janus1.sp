@@ -226,7 +226,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 		if (iAmmo <= 0)
 		{
 			// Emit empty sound
-			ClientCommand(client, "play weapons/clipempty_rifle.wav");
+			EmitSoundToClient(client, "*/weapons/clipempty_rifle.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 			SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 			return;
 		}

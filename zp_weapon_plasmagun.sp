@@ -259,7 +259,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	if (iClip <= 0)
 	{
 		// Emit empty sound
-		ClientCommand(client, "play weapons/clipempty_rifle.wav");
+		EmitSoundToClient(client, "*/weapons/clipempty_rifle.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
@@ -293,7 +293,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 	// Initialize variables
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-	float vKickback[] = { /*upBase = */3.5, /* lateralBase = */2.45, /* upMod = */0.155, /* lateralMod = */0.05, /* upMax = */2.5, /* lateralMax = */3.5, /* directionChange = */7.0 };
+	float vKickback[] = { /*upBase = */0.5, /* lateralBase = */0.45, /* upMod = */0.155, /* lateralMod = */0.05, /* upMax = */2.5, /* lateralMax = */3.5, /* directionChange = */7.0 };
 	
 	// Gets client velocity
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);

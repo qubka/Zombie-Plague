@@ -237,6 +237,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 		delete hConfig;
 		
 		// Load translations phrases used by plugin
+		LoadTranslations("zombieplague.phrases");
 		LoadTranslations("turret.phrases");
 		
 		// If map loaded, then run custom forward

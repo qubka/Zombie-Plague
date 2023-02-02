@@ -86,9 +86,6 @@ public void OnLibraryAdded(const char[] sLibrary)
 	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// Load translations phrases used by plugin
-		LoadTranslations("etherial.phrases");
-
 		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
@@ -259,7 +256,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	if (iClip <= 0)
 	{
 		// Emit empty sound
-		ClientCommand(client, "play weapons/clipempty_rifle.wav");
+		EmitSoundToClient(client, "*/weapons/clipempty_rifle.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}

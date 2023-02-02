@@ -45,6 +45,7 @@ public Plugin myinfo =
  * @section Information about the zombie class.
  **/
 //#define ZOMBIE_CLASS_EXP_LAST         // Can a last human be infected [uncomment-no // comment-yes]
+#define ZOMBIE_CLASS_EXP_SINGLE         // Only 1 human can be infected [uncomment-no // comment-yes]
 #define ZOMBIE_CLASS_EXP_RADIUS         200.0
 #define ZOMBIE_CLASS_EXP_DURATION       2.0
 /**
@@ -109,28 +110,34 @@ public void ZP_OnClientDeath(int client, int attacker)
 		// Validate infection round
 		if (ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
 		{
-			// Find any players in the radius
-			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_EXP_RADIUS)) != -1)
-			{
-				// Skip zombies
-				if (ZP_IsPlayerZombie(i))
-				{
-					continue;
-				}
-
-				// Validate visibility
-				if (!UTIL_CanSeeEachOther(client, i, vPosition, SelfFilter))
-				{
-					continue;
-				}
-		  
-#if defined ZOMBIE_CLASS_EXP_LAST
-				// Change class to zombie
-				ZP_ChangeClient(i, client, "zombie");
-				#else
-				if (ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, client, "zombie");
+#if !defined ZOMBIE_CLASS_EXP_LAST
+			if (ZP_GetHumanAmount() > 1)
 #endif
+			{
+				// Find any players in the radius
+				int i; int it = 1; /// iterator
+				while ((i = ZP_FindPlayerInSphere(it, vPosition, ZOMBIE_CLASS_EXP_RADIUS)) != -1)
+				{
+					// Skip zombies
+					if (ZP_IsPlayerZombie(i))
+					{
+						continue;
+					}
+
+					// Validate visibility
+					if (!UTIL_CanSeeEachOther(client, i, vPosition, SelfFilter))
+					{
+						continue;
+					}
+			  
+					// Change class to zombie
+					ZP_ChangeClient(i, client, "zombie");
+					
+#if defined ZOMBIE_CLASS_EXP_SINGLE
+					// Stop loop
+					break;
+#endif
+				}
 			}
 		}
 		

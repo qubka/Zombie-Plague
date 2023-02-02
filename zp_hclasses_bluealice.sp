@@ -41,6 +41,15 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+/**
+ * @section Information about the class.
+ **/
+#define HUMAN_CLASS_SKILL_MODE         /// Uncomment to make invisible static.
+#define HUMAN_CLASS_SKILL_RATIO        0.2 // alpha amount = speed * ratio
+/**
+ * @endsection
+ **/
+ 
 // Sound index
 int gSound;
 #pragma unused gSound
@@ -139,3 +148,37 @@ public void ZP_OnClientSkillOver(int client)
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 	}
 }
+
+/**
+ * @brief Called on each frame of a weapon holding.
+ *
+ * @param client            The client index.
+ * @param iButtons          The buttons buffer.
+ * @param iLastButtons      The last buttons buffer.
+ * @param weapon            The weapon index.
+ * @param weaponID          The weapon id.
+ *
+ * @return                  Plugin_Continue to allow buttons. Anything else 
+ *                                (like Plugin_Changed) to change buttons.
+ **/
+#if defined HUMAN_CLASS_SKILL_MODE
+public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
+{
+	// Validate the human class index
+	if (ZP_GetClientClass(client) == gHuman && ZP_GetClientSkillUsage(client))
+	{
+		// Gets client velocity
+		static float vVelocity[3];
+		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
+
+		// If the human move, then increase alpha
+		int iAlpha = RoundToNearest(GetVectorLength(vVelocity) * HUMAN_CLASS_SKILL_RATIO);
+		
+		// Make model invisible
+		UTIL_SetRenderColor(client, Color_Alpha, iAlpha);
+	}
+	
+	// Allow button
+	return Plugin_Continue;
+}
+#endif
