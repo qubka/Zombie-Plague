@@ -206,6 +206,87 @@ public Action ExtraItemsOnCommandCatched(int client, int iArguments)
 	return Plugin_Handled;
 }
 
+/**
+ * @brief Fake client has been think.
+ *
+ * @param client            The client index.
+ **/
+void ExtraItemsOnFakeClientThink(int client)
+{
+	// Buying chance
+	if (GetRandomInt(0, 10))
+	{
+		return
+	} 
+	
+	// If mode already started, then stop
+	if ((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
+	{ 
+		return;
+	}
+	
+	// Get random item
+	int iD = GetRandomInt(0, gServerData.ExtraItems.Length - 1);
+	
+	// Validate access
+	if (!ItemsValidateClass(client, iD)) 
+	{
+		return;
+	}
+	
+	// Call forward
+	Action hResult;
+	gForwardData._OnClientValidateExtraItem(client, iD, hResult);
+	
+	// Validate access
+	if (hResult == Plugin_Stop || hResult == Plugin_Handled)
+	{
+		return;
+	}
+	
+	// Gets extra item group
+	static char sBuffer[SMALL_LINE_LENGTH];
+	ItemsGetGroup(iD, sBuffer, sizeof(sBuffer));
+	
+	// Validate access
+	if ((hasLength(sBuffer) && !IsPlayerInGroup(client, sBuffer)) || gClientData[client].Level < ItemsGetLevel(iD) || fnGetPlaying() < ItemsGetOnline(iD) || (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) || (ItemsGetCost(iD) && gClientData[client].Money < ItemsGetCost(iD)))
+	{
+		return;
+	}
+
+	// Call forward
+	gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
+
+	// If item has a cost
+	if (ItemsGetCost(iD))
+	{
+		// Remove money and store it for returning if player will be first zombie
+		AccountSetClientCash(client, gClientData[client].Money - ItemsGetCost(iD));
+		gClientData[client].LastPurchase += ItemsGetCost(iD);
+	}
+	
+	// If item has a limit
+	if (ItemsGetLimit(iD))
+	{
+		// Increment count
+		ItemsSetLimits(client, iD, ItemsGetLimits(client, iD) + 1);
+	}
+	
+	// If help messages enabled, then show info
+	if (gCvarList.MESSAGES_ITEM_ALL.BoolValue)
+	{
+		// Gets client name
+		static char sInfo[SMALL_LINE_LENGTH];
+		GetClientName(client, sInfo, sizeof(sInfo));
+
+		// Gets extra item name
+		ItemsGetName(iD, sBuffer, sizeof(sBuffer));
+
+		// Show item buying info
+		TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+	}
+}
+
 /*
  * Extra items natives API.
  */
@@ -885,7 +966,7 @@ void ItemsMenu(int client)
 		TranslationPrintHintText(client, "buying round block");     
 
 		// Emit error sound
-		ClientCommand(client, "play buttons/weapon_cant_buy.wav");
+		EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
 	}
 
@@ -1018,7 +1099,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				TranslationPrintHintText(client, "buying round block");
 
 				// Emit error sound
-				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
+				EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -1056,6 +1137,21 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 							// Call forward
 							gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
 					
+							// If item has a cost
+							if (ItemsGetCost(iD))
+							{
+								// Remove money and store it for returning if player will be first zombie
+								AccountSetClientCash(client, gClientData[client].Money - ItemsGetCost(iD));
+								gClientData[client].LastPurchase += ItemsGetCost(iD);
+							}
+							
+							// If item has a limit
+							if (ItemsGetLimit(iD))
+							{
+								// Increment count
+								ItemsSetLimits(client, iD, ItemsGetLimits(client, iD) + 1);
+							}
+							
 							// If help messages enabled, then show info
 							if (gCvarList.MESSAGES_ITEM_ALL.BoolValue)
 							{
@@ -1077,21 +1173,6 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 								if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
 							}
 							
-							// If item has a cost
-							if (ItemsGetCost(iD))
-							{
-								// Remove money and store it for returning if player will be first zombie
-								AccountSetClientCash(client, gClientData[client].Money - ItemsGetCost(iD));
-								gClientData[client].LastPurchase += ItemsGetCost(iD);
-							}
-							
-							// If item has a limit
-							if (ItemsGetLimit(iD))
-							{
-								// Increment count
-								ItemsSetLimits(client, iD, ItemsGetLimits(client, iD) + 1);
-							}
-							
 							// Return on success
 							return 0;
 						}
@@ -1101,7 +1182,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 					TranslationPrintHintText(client, "buying item block", sBuffer);
 			
 					// Emit error sound
-					ClientCommand(client, "play buttons/weapon_cant_buy.wav");
+					EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 				}
 			}
 		}

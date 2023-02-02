@@ -142,6 +142,17 @@ void SkillSystemOnClientUpdate(int client)
 }
 
 /**
+ * @brief Fake client has been think.
+ *
+ * @param client            The client index.
+ **/
+void SkillSystemOnFakeClientThink(int client)
+{
+	// Do the skill
+	SkillSystemOnClientStart(client);
+}
+
+/**
  * @brief Called when player press skill button.
  *
  * @param client            The client index.

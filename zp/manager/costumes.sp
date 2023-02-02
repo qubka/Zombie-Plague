@@ -307,6 +307,45 @@ void CostumesOnClientInit(int client)
 }
 
 /**
+ * @brief Fake client has been think.
+ *
+ * @param client            The client index.
+ **/
+void CostumesOnFakeClientThink(int client)
+{
+	// If module is disabled, then stop
+	if (!gCvarList.COSTUMES.BoolValue)
+	{
+		return;
+	}
+	
+	// Selecting chance
+	if (GetRandomInt(0, 10))
+	{
+		return
+	} 
+	
+	// Get random costume
+	int iD = GetRandomInt(0, gServerData.Costumes.Length - 1);
+
+	// Call forward
+	Action hResult;
+	gForwardData._OnClientValidateCostume(client, iD, hResult);
+
+	// Validate access
+	if (hResult == Plugin_Stop || hResult == Plugin_Handled)
+	{
+		return;
+	}
+
+	// Sets costume to the client
+	gClientData[client].Costume = iD;
+
+	// Sets costume
+	CostumesCreateEntity(client);
+}
+
+/**
  * @brief Client has been killed.
  * 
  * @param client            The client index.

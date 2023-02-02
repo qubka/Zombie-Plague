@@ -167,6 +167,88 @@ void ZMarketOnClientUpdate(int client)
 }
 
 /**
+ * @brief Fake client has been think.
+ *
+ * @param client            The client index.
+ **/
+void ZMarketOnFakeClientThink(int client)
+{
+	// Buying chance
+	if (GetRandomInt(0, 10))
+	{
+		return
+	} 
+	
+	// If mode already started, then stop
+	if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
+	{ 
+		return;
+	}
+	
+	// Get random weapon
+	int iD = GetRandomInt(0, gServerData.Weapons.Length - 1);
+
+	// Validate access
+	if (WeaponsGetSlot(iD) == MenuType_Invalid || !WeaponsValidateClass(client, iD) || WeaponsValidateByID(client, iD))
+	{
+		return;
+	}    
+	
+	// Call forward
+	Action hResult; 
+	gForwardData._OnClientValidateWeapon(client, iD, hResult);
+	
+	// Validate access
+	if (hResult == Plugin_Stop || hResult == Plugin_Handled)
+	{
+		return;
+	}
+	
+	// Gets weapon group
+	static char sBuffer[SMALL_LINE_LENGTH];
+	WeaponsGetGroup(iD, sBuffer, sizeof(sBuffer));
+	
+	// Validate access
+	if ((hasLength(sBuffer) && !IsPlayerInGroup(client, sBuffer)) || gClientData[client].Level < WeaponsGetLevel(iD) || fnGetPlaying() < WeaponsGetOnline(iD) || (WeaponsGetLimit(iD) && WeaponsGetLimit(iD) <= WeaponsGetLimits(client, iD)) || (WeaponsGetCost(iD) && gClientData[client].Money < WeaponsGetCost(iD)))
+	{
+		return;
+	}
+	
+	// Give weapon for the player
+	if (WeaponsGive(client, iD) != -1)
+	{
+		// If weapon has a cost
+		if (WeaponsGetCost(iD))
+		{
+			// Remove money and store it for returning if player will be first zombie
+			AccountSetClientCash(client, gClientData[client].Money - WeaponsGetCost(iD));
+			gClientData[client].LastPurchase += WeaponsGetCost(iD);
+		}
+		
+		// If weapon has a limit
+		if (WeaponsGetLimit(iD))
+		{
+			// Increment count
+			WeaponsSetLimits(client, iD, WeaponsGetLimits(client, iD) + 1);
+		}
+
+		// If help messages enabled, then show info
+		if (gCvarList.MESSAGES_WEAPON_ALL.BoolValue)
+		{
+			// Gets client name
+			static char sInfo[SMALL_LINE_LENGTH];
+			GetClientName(client, sInfo, sizeof(sInfo));
+
+			// Gets weapon name
+			WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
+			
+			// Show item buying info
+			TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+		}
+	}
+}
+
+/**
  * @brief Creates commands for market module.
  **/
 void ZMarketOnCommandInit(/*void*/)
@@ -191,14 +273,14 @@ void ZMarketOnCvarInit(/*void*/)
 	// Creates cvars
 	gCvarList.ZMARKET_BUTTON         = FindConVar("zp_zmarket_button");
 	gCvarList.ZMARKET_REOPEN         = FindConVar("zp_zmarket_reopen");
-	gCvarList.ZMARKET_REBUY_MENU     = FindConVar("zp_zmarket_rebuy_menu");
-	gCvarList.ZMARKET_PISTOL_MENU    = FindConVar("zp_zmarket_pistol_menu");
-	gCvarList.ZMARKET_SHOTGUN_MENU   = FindConVar("zp_zmarket_shotgun_menu");
-	gCvarList.ZMARKET_RIFLE_MENU     = FindConVar("zp_zmarket_rifle_menu");
-	gCvarList.ZMARKET_SNIPER_MENU    = FindConVar("zp_zmarket_sniper_menu");
-	gCvarList.ZMARKET_MACH_MENU      = FindConVar("zp_zmarket_mach_menu");
-	gCvarList.ZMARKET_KNIFE_MENU     = FindConVar("zp_zmarket_knife_menu");
-	gCvarList.ZMARKET_EQUIP_MENU     = FindConVar("zp_zmarket_equip_menu");
+	gCvarList.ZMARKET_REBUY          = FindConVar("zp_zmarket_rebuy");
+	gCvarList.ZMARKET_PISTOL         = FindConVar("zp_zmarket_pistol");
+	gCvarList.ZMARKET_SHOTGUN        = FindConVar("zp_zmarket_shotgun");
+	gCvarList.ZMARKET_RIFLE          = FindConVar("zp_zmarket_rifle");
+	gCvarList.ZMARKET_SNIPER         = FindConVar("zp_zmarket_sniper");
+	gCvarList.ZMARKET_MACH           = FindConVar("zp_zmarket_mach");
+	gCvarList.ZMARKET_KNIFE          = FindConVar("zp_zmarket_knife");
+	gCvarList.ZMARKET_EQUIP          = FindConVar("zp_zmarket_equip");
 	gCvarList.ZMARKET_ARSENAL        = FindConVar("zp_zmarket_arsenal");
 	gCvarList.ZMARKET_RANDOM_WEAPONS = FindConVar("zp_zmarket_random_weapons");
 	gCvarList.ZMARKET_PRIMARY        = FindConVar("zp_zmarket_primary");
@@ -300,7 +382,7 @@ public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArgum
 			TranslationPrintHintText(client, "buying round block"); 
 
 			// Emit error sound
-			ClientCommand(client, "play buttons/weapon_cant_buy.wav");
+			EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 			return Plugin_Continue;
 		}
 		
@@ -367,7 +449,7 @@ public Action CS_OnBuyCommand(int client, const char[] sName)
 public Action ZMarketRebuyOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_REBUY_MENU.BoolValue)
+	if (gCvarList.ZMARKET_REBUY.BoolValue)
 	{
 		ZMarketOptionMenu(client);
 	}
@@ -384,7 +466,7 @@ public Action ZMarketRebuyOnCommandCatched(int client, int iArguments)
 public Action ZMarketPistolsOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_PISTOL_MENU.BoolValue)
+	if (gCvarList.ZMARKET_PISTOL.BoolValue)
 	{
 		ZMarketBuyMenu(client, "buy pistols", MenuType_Pistols); 
 	}
@@ -401,7 +483,7 @@ public Action ZMarketPistolsOnCommandCatched(int client, int iArguments)
 public Action ZMarketShotgunsOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_SHOTGUN_MENU.BoolValue)
+	if (gCvarList.ZMARKET_SHOTGUN.BoolValue)
 	{
 		ZMarketBuyMenu(client, "buy shotguns", MenuType_Shotguns); 
 	}
@@ -418,7 +500,7 @@ public Action ZMarketShotgunsOnCommandCatched(int client, int iArguments)
 public Action ZMarketRiflesOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_RIFLE_MENU.BoolValue)
+	if (gCvarList.ZMARKET_RIFLE.BoolValue)
 	{
 		ZMarketBuyMenu(client, "buy rifles", MenuType_Rifles); 
 	}
@@ -435,7 +517,7 @@ public Action ZMarketRiflesOnCommandCatched(int client, int iArguments)
 public Action ZMarketSnipersOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_SNIPER_MENU.BoolValue)
+	if (gCvarList.ZMARKET_SNIPER.BoolValue)
 	{
 		ZMarketBuyMenu(client, "buy snipers", MenuType_Snipers); 
 	}
@@ -452,7 +534,7 @@ public Action ZMarketSnipersOnCommandCatched(int client, int iArguments)
 public Action ZMarketMachinegunsOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_MACH_MENU.BoolValue)
+	if (gCvarList.ZMARKET_MACH.BoolValue)
 	{
 		ZMarketBuyMenu(client, "buy machineguns", MenuType_Machineguns); 
 	}
@@ -469,7 +551,7 @@ public Action ZMarketMachinegunsOnCommandCatched(int client, int iArguments)
 public Action ZMarketKnifesOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_KNIFE_MENU.BoolValue)
+	if (gCvarList.ZMARKET_KNIFE.BoolValue)
 	{
 		ZMarketBuyMenu(client, "buy knifes", MenuType_Knifes); 
 	}
@@ -486,7 +568,7 @@ public Action ZMarketKnifesOnCommandCatched(int client, int iArguments)
 public Action ZMarketEquipsOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_EQUIP_MENU.BoolValue)
+	if (gCvarList.ZMARKET_EQUIP.BoolValue)
 	{
 		ZMarketBuyMenu(client, "buy equipments", MenuType_Equipments); 
 	}
@@ -528,7 +610,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 	bool bMenu = (mSlot != MenuType_Rebuy); bool bRebuy = (mSlot == MenuType_Add || mSlot == MenuType_Option);
 	
 	// Validate menu
-	if (!bMenu && !gCvarList.ZMARKET_REBUY_MENU.BoolValue)
+	if (!bMenu && !gCvarList.ZMARKET_REBUY.BoolValue)
 	{
 		return;
 	}
@@ -546,7 +628,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 		TranslationPrintHintText(client, "buying round block"); 
 
 		// Emit error sound
-		ClientCommand(client, "play buttons/weapon_cant_buy.wav");
+		EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
 	}
 
@@ -688,7 +770,8 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 
 	// Sets options and display it
 	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-	hMenu.Display(client, MENU_TIME_FOREVER); 
+	if (!bMenu && !iAmount) delete hMenu;
+	else hMenu.Display(client, MENU_TIME_FOREVER); 
 }
 
 /**
@@ -907,7 +990,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 				TranslationPrintHintText(client, "buying round block");
 		
 				// Emit error sound
-				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
+				EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -1075,7 +1158,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 					TranslationPrintHintText(client, "buying item block", sBuffer);
 					
 					// Emit error sound
-					ClientCommand(client, "play buttons/weapon_cant_buy.wav");  
+					EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
 				}
 			}
 		}
@@ -1351,18 +1434,7 @@ int ZMarketArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 				TranslationPrintHintText(client, "using menu block");
 				
 				// Emit error sound
-				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
-				return 0;
-			}
-			
-			// If mode already started, then stop
-			if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
-			{
-				// Show block info
-				TranslationPrintHintText(client, "buying round block");
-		
-				// Emit error sound
-				ClientCommand(client, "play buttons/weapon_cant_buy.wav");    
+				EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -1739,15 +1811,20 @@ bool ZMarketArsenallGive(int client)
 	if (gCvarList.ZMARKET_RANDOM_WEAPONS.BoolValue || IsFakeClient(client))
 	{
 		// Give additional weapons
-		ZMarketArsenalGiveAdds(client);
-		
+		int weapon = ZMarketArsenalGiveAdds(client);
+
 		// i = array index
 		for (int i = ArsenalType_Melee; i != -1; i--)
 		{
-			// Validate that slot is available
-			if (i != ArsenalType_Melee && GetPlayerWeaponSlot(client, i) != -1)
+			// Validate that slot is knife
+			if (i != ArsenalType_Melee)
 			{
-				continue;
+				// If knife is non default skip
+				int weapon2 = GetPlayerWeaponSlot(client, i);
+				if (weapon2 != -1 && WeaponsGetCustomID(weapon2) != gServerData.Melee)
+				{
+					continue;
+				}
 			}
 			
 			// Gets current arsenal list
@@ -1758,8 +1835,15 @@ bool ZMarketArsenallGive(int client)
 			if (iSize > 0)
 			{
 				// Give random weapons
-				WeaponsGive(client, hList.Get(GetRandomInt(0, iSize - 1)));
+				weapon = WeaponsGive(client, hList.Get(GetRandomInt(0, iSize - 1)), false);
 			}
+		}
+		
+		// Validate weapon
+		if (weapon != -1)
+		{
+			// Switch weapon
+			WeaponsSwitch(client, weapon);
 		}
 	}
 	else 
@@ -1783,19 +1867,31 @@ bool ZMarketArsenallGive(int client)
 			}
 			
 			// Give additional weapons
-			ZMarketArsenalGiveAdds(client);
-			
+			int weapon = ZMarketArsenalGiveAdds(client);
+
 			// i = array index
 			for (int i = ArsenalType_Melee; i != -1; i--)
 			{
-				// Validate that slot is available
-				if (i != ArsenalType_Melee && GetPlayerWeaponSlot(client, i) != -1)
+				// Validate that slot is knife
+				if (i != ArsenalType_Melee)
 				{
-					continue;
+					// If knife is non default skip
+					int weapon2 = GetPlayerWeaponSlot(client, i);
+					if (weapon2 != -1 && WeaponsGetCustomID(weapon2) != gServerData.Melee)
+					{
+						continue;
+					}
 				}
 				
 				// Give main weapons
-				WeaponsGive(client, gClientData[client].Arsenal[i]);
+				weapon = WeaponsGive(client, gClientData[client].Arsenal[i], false);
+			}
+			
+			// Validate weapon
+			if (weapon != -1)
+			{
+				// Switch weapon
+				WeaponsSwitch(client, weapon);
 			}
 		}
 	}
@@ -1808,21 +1904,25 @@ bool ZMarketArsenallGive(int client)
  * @brief Gives an additional weapons.
  *
  * @param client            The client index.
+ * @return                  The last weapon index.
  **/
-void ZMarketArsenalGiveAdds(int client)
+int ZMarketArsenalGiveAdds(int client)
 {
 	// Gets additional weapons
-	ArrayList hList = gServerData.Arsenal.Get(gServerData.Arsenal.Length - 1);
+	ArrayList hList = gServerData.Arsenal.Get(gServerData.Arsenal.Length - 1); int weapon = -1;
 	
 	// i = array index
 	int iSize = hList.Length;
 	for (int i = 0; i < iSize; i++)
 	{
 		// Give additional weapons
-		WeaponsGive(client, hList.Get(i));
+		weapon = WeaponsGive(client, hList.Get(i), false);
 	}
-	
+
 	// Block arsenal from use
 	gClientData[client].CurrentMenu = ArsenalType_Primary;
 	gClientData[client].BlockMenu = true;
+	
+	// Return last weapon index
+	return weapon;
 }
