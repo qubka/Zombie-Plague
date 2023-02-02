@@ -38,7 +38,12 @@
 	{
 		"ro"			"<font color='#D41114'>Atentie!</font> Oamenii au lansat o racheta peste zona infectata!"
 	}
-
+	
+	"general welcome message" // DHUD
+	{
+		"ro"			"Virusul T a fost eliberat..."
+	}
+	
 	// ===========================
 	// Generic
 	// ===========================

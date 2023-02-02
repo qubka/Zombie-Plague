@@ -290,7 +290,7 @@ public Action AntiStickOnCommandCatched(int client, int iArguments)
 		TranslationPrintHintText(client, "unstucking prop block");
 		
 		// Emit error sound
-		ClientCommand(client, "play buttons/button10.wav");    
+		EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 	}
 	
 	// Return on success

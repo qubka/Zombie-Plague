@@ -61,23 +61,32 @@ void ToolsOnCommandInit(/*void*/)
 void ToolsOnCvarInit(/*void*/)
 {
 	// Creates cvars
-	gCvarList.LIGHT_BUTTON          = FindConVar("zp_light_button");  
-	gCvarList.LIGHT_BUTTON_BLOCK    = FindConVar("zp_light_button_block");  
-	gCvarList.MESSAGES_OBJECTIVE    = FindConVar("zp_messages_objective");
-	gCvarList.MESSAGES_COUNTER      = FindConVar("zp_messages_counter");
-	gCvarList.MESSAGES_BLAST        = FindConVar("zp_messages_blast");
-	gCvarList.MESSAGES_DAMAGE       = FindConVar("zp_messages_damage");
-	gCvarList.MESSAGES_DONATE       = FindConVar("zp_messages_donate");
-	gCvarList.MESSAGES_CLASS_INFO   = FindConVar("zp_messages_class_info");
-	gCvarList.MESSAGES_CLASS_CHOOSE = FindConVar("zp_messages_class_choose");
-	gCvarList.MESSAGES_CLASS_DUMP   = FindConVar("zp_messages_class_dump");
-	gCvarList.MESSAGES_ITEM_INFO    = FindConVar("zp_messages_item_info");
-	gCvarList.MESSAGES_ITEM_ALL     = FindConVar("zp_messages_item_all");
-	gCvarList.MESSAGES_WEAPON_INFO  = FindConVar("zp_messages_weapon_info");
-	gCvarList.MESSAGES_WEAPON_ALL   = FindConVar("zp_messages_weapon_all");
-	gCvarList.MESSAGES_WEAPON_DROP  = FindConVar("zp_messages_weapon_drop");
-	gCvarList.MESSAGES_BLOCK        = FindConVar("zp_messages_block");
-	gCvarList.SEND_TABLES           = FindConVar("sv_sendtables");
+	gCvarList.LIGHT_BUTTON                 = FindConVar("zp_light_button");  
+	gCvarList.LIGHT_BUTTON_BLOCK           = FindConVar("zp_light_button_block");  
+	gCvarList.MESSAGES_OBJECTIVE           = FindConVar("zp_messages_objective");
+	gCvarList.MESSAGES_COUNTER             = FindConVar("zp_messages_counter");
+	gCvarList.MESSAGES_BLAST               = FindConVar("zp_messages_blast");
+	gCvarList.MESSAGES_DAMAGE              = FindConVar("zp_messages_damage");
+	gCvarList.MESSAGES_DONATE              = FindConVar("zp_messages_donate");
+	gCvarList.MESSAGES_CLASS_INFO          = FindConVar("zp_messages_class_info");
+	gCvarList.MESSAGES_CLASS_CHOOSE        = FindConVar("zp_messages_class_choose");
+	gCvarList.MESSAGES_CLASS_DUMP          = FindConVar("zp_messages_class_dump");
+	gCvarList.MESSAGES_ITEM_INFO           = FindConVar("zp_messages_item_info");
+	gCvarList.MESSAGES_ITEM_ALL            = FindConVar("zp_messages_item_all");
+	gCvarList.MESSAGES_WEAPON_INFO         = FindConVar("zp_messages_weapon_info");
+	gCvarList.MESSAGES_WEAPON_ALL          = FindConVar("zp_messages_weapon_all");
+	gCvarList.MESSAGES_WEAPON_DROP         = FindConVar("zp_messages_weapon_drop");
+	gCvarList.MESSAGES_WELCOME_HUD_TIME    = FindConVar("zp_messages_welcome_hud_time");
+	gCvarList.MESSAGES_WELCOME_HUD_FADEIN  = FindConVar("zp_messages_welcome_hud_fadein");
+	gCvarList.MESSAGES_WELCOME_HUD_FADEOUT = FindConVar("zp_messages_welcome_hud_fadeout");
+	gCvarList.MESSAGES_WELCOME_HUD_R       = FindConVar("zp_messages_welcome_hud_R");
+	gCvarList.MESSAGES_WELCOME_HUD_G       = FindConVar("zp_messages_welcome_hud_G");
+	gCvarList.MESSAGES_WELCOME_HUD_B       = FindConVar("zp_messages_welcome_hud_B");
+	gCvarList.MESSAGES_WELCOME_HUD_A       = FindConVar("zp_messages_welcome_hud_A");
+	gCvarList.MESSAGES_WELCOME_HUD_X       = FindConVar("zp_messages_welcome_hud_X");
+	gCvarList.MESSAGES_WELCOME_HUD_Y       = FindConVar("zp_messages_welcome_hud_Y");
+	gCvarList.MESSAGES_BLOCK               = FindConVar("zp_messages_block");
+	gCvarList.SEND_TABLES                  = FindConVar("sv_sendtables");
 	
 	// Sets locked cvars to their locked value
 	gCvarList.SEND_TABLES.IntValue = 1;

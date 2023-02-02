@@ -178,9 +178,24 @@ public void JumpBoostOnClientJumpPost(int userID)
 			vVelocity[0] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
 			vVelocity[1] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
 		}
-
+		
 		// Apply height multiplier to jump vector
 		vVelocity[2] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
+
+		// Gets active weapon index from the client
+		int weapon = ToolsGetActiveWeapon(client);
+		
+		// Validate weapon
+		if (weapon != -1)
+		{
+			// Validate custom index
+			int iD = WeaponsGetCustomID(weapon);
+			if (iD != -1)
+			{
+				// Adds weapon jump power
+				vVelocity[2] += WeaponsGetJump(iD);
+			}
+		}
 
 		// Sets new velocity
 		ToolsSetVelocity(client, vVelocity, true, false);

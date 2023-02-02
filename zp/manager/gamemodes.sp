@@ -300,18 +300,18 @@ public void GameModesOnConfigReload(/*void*/)
 void GameModesOnCvarInit(/*void*/)
 {
 	// Creates cvars
-	gCvarList.GAMEMODE                = FindConVar("zp_gamemode");
-	gCvarList.GAMEMODE_BLAST_TIME     = FindConVar("zp_blast_time");
-	gCvarList.GAMEMODE_WEAPONS_REMOVE = FindConVar("zp_weapons_remove");
-	gCvarList.GAMEMODE_TEAM_BALANCE   = FindConVar("mp_autoteambalance"); 
-	gCvarList.GAMEMODE_LIMIT_TEAMS    = FindConVar("mp_limitteams");
-	gCvarList.GAMEMODE_WARMUP_TIME    = FindConVar("mp_warmuptime");
-	gCvarList.GAMEMODE_WARMUP_PERIOD  = FindConVar("mp_do_warmup_period");
-	gCvarList.GAMEMODE_ROUNDTIME_ZP   = FindConVar("mp_roundtime");
-	gCvarList.GAMEMODE_ROUNDTIME_CS   = FindConVar("mp_roundtime_hostage");
-	gCvarList.GAMEMODE_ROUNDTIME_DE   = FindConVar("mp_roundtime_defuse");
-	gCvarList.GAMEMODE_ROUND_RESTART  = FindConVar("mp_restartgame");
-	gCvarList.GAMEMODE_RESTART_DELAY  = FindConVar("mp_round_restart_delay");
+	gCvarList.GAMEMODE                     = FindConVar("zp_gamemode");
+	gCvarList.GAMEMODE_BLAST_TIME          = FindConVar("zp_blast_time");
+	gCvarList.GAMEMODE_WEAPONS_REMOVE      = FindConVar("zp_weapons_remove");
+	gCvarList.GAMEMODE_TEAM_BALANCE        = FindConVar("mp_autoteambalance"); 
+	gCvarList.GAMEMODE_LIMIT_TEAMS         = FindConVar("mp_limitteams");
+	gCvarList.GAMEMODE_WARMUP_TIME         = FindConVar("mp_warmuptime");
+	gCvarList.GAMEMODE_WARMUP_PERIOD       = FindConVar("mp_do_warmup_period");
+	gCvarList.GAMEMODE_ROUNDTIME_ZP        = FindConVar("mp_roundtime");
+	gCvarList.GAMEMODE_ROUNDTIME_CS        = FindConVar("mp_roundtime_hostage");
+	gCvarList.GAMEMODE_ROUNDTIME_DE        = FindConVar("mp_roundtime_defuse");
+	gCvarList.GAMEMODE_ROUND_RESTART       = FindConVar("mp_restartgame");
+	gCvarList.GAMEMODE_RESTART_DELAY       = FindConVar("mp_round_restart_delay");
 	
 	// Sets locked cvars to their locked value
 	gCvarList.GAMEMODE_TEAM_BALANCE.IntValue  = 0;
@@ -478,6 +478,14 @@ public Action GameModesOnCounter(Handle hTimer)
 					TranslationPrintToChatAll("general round objective");
 					TranslationPrintToChatAll("general ammunition reminder");
 					TranslationPrintHintTextAll("general buttons reminder");
+				}
+				
+				// If welcome message enabled, then show info
+				float flTime = gCvarList.MESSAGES_WELCOME_HUD_TIME.FloatValue;
+				if (flTime > 0.0) 
+				{
+					// Print welcome message
+					TranslationPrintHudTextAll(gServerData.GameSync, gCvarList.MESSAGES_WELCOME_HUD_X.FloatValue, gCvarList.MESSAGES_WELCOME_HUD_Y.FloatValue, flTime, gCvarList.MESSAGES_WELCOME_HUD_R.IntValue, gCvarList.MESSAGES_WELCOME_HUD_G.IntValue, gCvarList.MESSAGES_WELCOME_HUD_B.IntValue, gCvarList.MESSAGES_WELCOME_HUD_A.IntValue, 0, 0.0, MESSAGES_WELCOME_HUD_FADEIN.FloatValue, MESSAGES_WELCOME_HUD_FADEOUT.FloatValue, "general welcome message");
 				}
 				
 				// Forward event to modules
@@ -3396,7 +3404,7 @@ void ModesMenu(int client, int target = -1)
 		TranslationPrintHintText(client, "starting round block");     
 
 		// Emit error sound
-		ClientCommand(client, "play buttons/button11.wav");
+		EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
 	}
 
@@ -3528,7 +3536,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				TranslationPrintHintText(client, "starting round block");
 		
 				// Emit error sound
-				ClientCommand(client, "play buttons/button11.wav");    
+				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 			
@@ -3553,7 +3561,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 					TranslationPrintHintText(client, "selecting target block");
 			
 					// Emit error sound
-					ClientCommand(client, "play buttons/button11.wav");    
+					EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 					return 0;
 				}
 			}
@@ -3700,7 +3708,7 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 				TranslationPrintHintText(client, "selecting target block");
 				
 				// Emit error sound
-				ClientCommand(client, "play buttons/button11.wav"); 
+				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 			}
 		}
 	}

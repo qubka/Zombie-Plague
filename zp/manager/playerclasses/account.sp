@@ -595,8 +595,16 @@ void AccountMenu(int client, int iMoney, float flCommision)
 	}
 	else
 	{
+		// Round mode for above 1% commision
+		if (flCommision >= 0.01)
+		{
+			FormatEx(sInfo, sizeof(sInfo), "%d%", RoundToNearest(flCommision * 100.0));
+		}
+		else
+		{
+			FormatEx(sInfo, sizeof(sInfo), "%.2f%", flCommision * 100.0);
+		}
 		// Sets commission title
-		FormatEx(sInfo, sizeof(sInfo), "%.2f%", flCommision);
 		hMenu.SetTitle("%t", "commission", iMoney, "money", sInfo);
 	}
 
@@ -759,7 +767,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 						TranslationPrintHintText(client, "selecting target block");
 					
 						// Emit error sound
-						ClientCommand(client, "play buttons/button10.wav"); 
+						EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 					}
 				}
 			}

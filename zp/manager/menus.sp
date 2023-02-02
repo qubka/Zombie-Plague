@@ -328,7 +328,7 @@ public Action MenusCommandOnCommandListened(int client, char[] commandMsg, int i
 		TranslationPrintHintText(client, "using menu block"); 
 
 		// Emit error sound
-		ClientCommand(client, "play buttons/button11.wav");
+		EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		
 		// Terminate command
 		return Plugin_Stop;
@@ -958,7 +958,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				TranslationPrintHintText(client, "using menu block"); 
 		
 				// Emit error sound
-				ClientCommand(client, "play buttons/button11.wav");    
+				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 			}
 		}
 	}
@@ -1137,7 +1137,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				TranslationPrintHintText(client, "using menu block"); 
 				
 				// Emit error sound
-				ClientCommand(client, "play buttons/button11.wav");    
+				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 			}
 		}
 	}

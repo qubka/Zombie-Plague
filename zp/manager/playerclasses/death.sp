@@ -59,7 +59,7 @@ void DeathOnInit(/*void*/)
 void DeathOnLoad(/*void*/)
 {
 	// Gets infect icon
-	static char sIcon[NORMAL_LINE_LENGTH];
+	static char sIcon[PLATFORM_LINE_LENGTH];
 	gCvarList.ICON_INFECT.GetString(sIcon, sizeof(sIcon));
 	if (hasLength(sIcon))
 	{

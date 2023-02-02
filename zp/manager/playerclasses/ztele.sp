@@ -458,7 +458,7 @@ public int ZTeleMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				TranslationPrintHintText(client, "selecting target block");
 				
 				// Emit error sound
-				ClientCommand(client, "play buttons/button11.wav"); 
+				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 			}
 			
 			// Re-send the menu

@@ -444,13 +444,13 @@ native float ZP_GetWeaponKnockBack(int weaponID);
 native float ZP_GetWeaponSpeed(int weaponID);
 
 /**
- * @brief Gets the gravity of the weapon.
+ * @brief Gets the jump power of the weapon.
  * 
  * @param weaponID          The weapon ID.
  *
- * @return                  The gravity amount.
+ * @return                  The jump amount.
  **/
-native float ZP_GetWeaponGravity(int weaponID);
+native float ZP_GetWeaponJump(int weaponID);
 
 /**
  * @brief Gets the clip ammo of the weapon.

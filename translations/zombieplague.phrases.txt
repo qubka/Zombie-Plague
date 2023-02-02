@@ -38,6 +38,11 @@
 	{
 		"en"			"<font color='#D41114'>Warning!</font> Humans have launched a nuke over the infected area!"
 	}
+	
+	"general welcome message" // DHUD
+	{
+		"en"			"The T-Virus has been set loose..."
+	}
 
 	// ===========================
 	// Generic
