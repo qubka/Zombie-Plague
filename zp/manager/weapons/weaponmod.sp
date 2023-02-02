@@ -36,7 +36,9 @@ enum SlotType
 	SlotType_Secondary,           /** Secondary slot */
 	SlotType_Melee,               /** Melee slot */
 	SlotType_Equipment,           /** Equipment slot */  
-	SlotType_C4                   /** C4 slot */  
+	SlotType_C4,                  /** C4 slot */ 
+
+	SlotType_Max = 16			  /** Used as validation value to check that offset is broken. */	
 };
 /**
  * @endsection
@@ -325,7 +327,7 @@ void WeaponMODOnUnload(/*void*/)
 void WeaponMODOnCommandInit(/*void*/)
 {
 	// Hook listener
-	AddCommandListener(WeaponMODOnCommandListened, "drop");
+	AddCommandListener(WeaponMODOnCommandListenedDrop, "drop");
 }
 
 /**
@@ -377,14 +379,14 @@ void WeaponMODOnCvarLoad(/*void*/)
 	if (gCvarList.WEAPON_BUYAMMO.BoolValue)
 	{
 		// Hook listeners
-		AddCommandListener(WeaponMODOnCommandListened, "buyammo1");
-		AddCommandListener(WeaponMODOnCommandListened, "buyammo2");
+		AddCommandListener(WeaponMODOnCommandListenedBuy, "buyammo1");
+		AddCommandListener(WeaponMODOnCommandListenedBuy, "buyammo2");
 	}
 	else
 	{
 		// Unhook listeners
-		RemoveCommandListener2(WeaponMODOnCommandListened, "buyammo1");
-		RemoveCommandListener2(WeaponMODOnCommandListened, "buyammo2");
+		RemoveCommandListener2(WeaponMODOnCommandListenedBuy, "buyammo1");
+		RemoveCommandListener2(WeaponMODOnCommandListenedBuy, "buyammo2");
 	}
 }
 
@@ -645,41 +647,6 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
 }
 
 /**
- * @brief Timer callback, grenade was thrown.
- *
- * @param hTimer            The timer handle.
- * @param hPack             The pack handle.
- **/
-/*public Action WeaponMODOnGrenadeThrown(Handle hTimer, DataPack hPack)
-{
-	/// Extract data from pack and delete it
-	hPack.Reset();
-	int client = GetClientOfUserId(hPack.ReadCell());
-	int iD = hPack.ReadCell();
-	int iCount = hPack.ReadCell();
-	static char sClassname[SMALL_LINE_LENGTH];
-	hPack.ReadString(sClassname, sizeof(sClassname));
-	///delete hPack; -> TIMER_DATA_HNDL_CLOSE
-
-	// Validate grenade
-	int grenade = WeaponsFindByName(client, sClassname);
-	if (grenade == -1)
-	{
-		// Give same weapon
-		grenade = WeaponsGive(client, iD);
-		if (grenade != -1) 
-		{
-			// Reduce grenade amount for a new one if they are available
-			SetEntProp(grenade, Prop_Send, "m_iPrimaryReserveAmmoCount", iCount); 
-			SetEntProp(grenade, Prop_Send, "m_iSecondaryReserveAmmoCount", iCount);
-		}
-	}
-	
-	// Destroy timer
-	return Plugin_Stop;
-}*/
-
-/**
  * Hook: WeaponReloadPost
  * @brief Weapon is reloaded.
  *
@@ -708,19 +675,19 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 	// Validate weapon
 	if (weapon != -1)
 	{
+		// Gets weapon owner
+		int client = WeaponsGetOwner(weapon);
+		
+		// Validate owner
+		if (!IsPlayerExist(client)) 
+		{
+			return;
+		}
+		
 		// Validate custom index
 		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
-			// Gets weapon owner
-			int client = WeaponsGetOwner(weapon);
-			
-			// Validate owner
-			if (!IsPlayerExist(client)) 
-			{
-				return;
-			}
-	
 			// If custom reload speed exist, then apply it
 			float flReload = WeaponsGetReload(iD);
 			if (flReload)
@@ -928,6 +895,21 @@ void WeaponMODOnClientUpdate(int client)
 }
 
 /**
+ * @brief Fake client has been think.
+ *
+ * @param client            The client index.
+ **/
+void WeaponMODOnFakeClientThink(int client)
+{
+	// Validate buy ammo
+	if (gCvarList.WEAPON_BUYAMMO.BoolValue)
+	{
+		// Buy ammo for client
+		WeaponMODOnClientBuyammo(client);
+	}
+}
+
+/**
  * @brief Client has been killed.
  *
  * @param client            The client index.
@@ -1006,7 +988,7 @@ public void WeaponMODOnDeploy(int client, int weapon)
 			
 			// Sets new weapon index to the client
 			gClientData[client].LastWeapon = EntIndexToEntRef(weapon);
-			
+
 			// If custom deploy speed exist, then apply it
 			float flDeploy = WeaponsGetDeploy(iD);
 			if (flDeploy)
@@ -1361,110 +1343,79 @@ void WeaponMODOnFire(int client, int weapon)
 			ToolsSetAttack(client, flShoot);
 		}
 
-		// If viewmodel exist, then create muzzle smoke
-		if (WeaponsGetModelViewID(iD))
+		// If weapon without any type of ammo, then skip
+		if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1) 
 		{
-			// Gets entity index from the reference
-			int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
-			///int world = WeaponHDRGetPlayerWorldModel(weapon);
-			
-			// Validate models
-			if (view2 == -1/* || world == -1*/)
+			// If viewmodel exist, then create muzzle smoke
+			if (WeaponsGetModelViewID(iD))
 			{
-				return;
-			}
-
-			// If weapon without any type of ammo, then stop
-			if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") == -1)
-			{
-				return;
-			}
-
-			// Create muzzle and shell effect
-			static char sName[NORMAL_LINE_LENGTH];
-			WeaponsGetModelMuzzle(iD, sName, sizeof(sName));
-			if (hasLength(sName)) ParticlesCreate(view2, "1", sName, 0.1);
-			WeaponsGetModelShell(iD, sName, sizeof(sName));
-			if (hasLength(sName)) ParticlesCreate(view2, "2", sName, 0.1);
-			
-			// Validate weapon heat delay
-			float flDelay = WeaponsGetModelHeat(iD);
-			if (flDelay)
-			{
-				// Initialize variables
-				static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
-
-				// Calculate the expected heat amount
-				float flHeat = ((flCurrentTime - GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime")) * -0.5) + flHeatDelay[client];
-
-				// This value is set specifically for each weapon
-				flHeat += flDelay;
+				// Gets entity index from the reference
+				int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
+				///int world = WeaponHDRGetPlayerWorldModel(weapon);
 				
-				// Resets the delay
-				if (flHeat < 0.0) flHeat = 0.0;
-
-				// Validate delay
-				if (flHeat > 1.0)
+				// Validate models
+				if (view2 == -1/* || world == -1*/)
 				{
-					// Validate heat
-					if (flCurrentTime - flSmoke[client] > 1.0)
-					{
-						// Creates a smoke effect
-						ParticlesCreate(view2, "1", "weapon_muzzle_smoke", 4.5); /// Max duration 
-						flSmoke[client] = flCurrentTime; /// 'DestroyImmediately/'Kill' not work for smoke!
-					}
+					return;
+				}
+
+				// Create muzzle and shell effect
+				static char sName[NORMAL_LINE_LENGTH];
+				WeaponsGetModelMuzzle(iD, sName, sizeof(sName));
+				if (hasLength(sName)) ParticlesCreate(view2, "1", sName, 0.1);
+				WeaponsGetModelShell(iD, sName, sizeof(sName));
+				if (hasLength(sName)) ParticlesCreate(view2, "2", sName, 0.1);
+				
+				// Validate weapon heat delay
+				float flDelay = WeaponsGetModelHeat(iD);
+				if (flDelay)
+				{
+					// Initialize variables
+					static float flHeatDelay[MAXPLAYERS+1]; static float flSmoke[MAXPLAYERS+1];
+
+					// Calculate the expected heat amount
+					float flHeat = ((flCurrentTime - GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime")) * -0.5) + flHeatDelay[client];
+
+					// This value is set specifically for each weapon
+					flHeat += flDelay;
 					
-					// Resets delay
-					flHeat = 0.0;
-				}
+					// Resets the delay
+					if (flHeat < 0.0) flHeat = 0.0;
 
-				// Update the heat delay
-				flHeatDelay[client] = flHeat;
-			}
-		}
-		
-		// If weapon without any type of ammo, then stop
-		int iType = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
-		if (iType != -1) 
-		{
-			// Validate grenade
-			ItemDef iItem = WeaponsGetDefIndex(iD);
-			/*if (IsGrenade(iItem))
-			{
-				// Validate count
-				int iCount = GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount") - 1;
-				if (iCount > 0)
-				{
-					// Gets entity classname
-					static char sClassname[SMALL_LINE_LENGTH];
-					GetEdictClassname(weapon, sClassname, sizeof(sClassname));
-			
-					// For giving the next grenade
-					DataPack hPack = new DataPack();
-					/// Initialize pack
-					hPack.WriteCell(GetClientUserId(client));
-					hPack.WriteCell(iD);
-					hPack.WriteCell(iCount);
-					hPack.WriteString(sClassname);
-		
-					// Create timer for a grenade throw hook
-					CreateTimer(2.0, WeaponMODOnGrenadeThrown, hPack, TIMER_FLAG_NO_MAPCHANGE | TIMER_DATA_HNDL_CLOSE);
+					// Validate delay
+					if (flHeat > 1.0)
+					{
+						// Validate heat
+						if (flCurrentTime - flSmoke[client] > 1.0)
+						{
+							// Creates a smoke effect
+							ParticlesCreate(view2, "1", "weapon_muzzle_smoke", 4.5); /// Max duration 
+							flSmoke[client] = flCurrentTime; /// 'DestroyImmediately/'Kill' not work for smoke!
+						}
+						
+						// Resets delay
+						flHeat = 0.0;
+					}
+
+					// Update the heat delay
+					flHeatDelay[client] = flHeat;
 				}
 			}
+			
 			// Validate weapon
-			else*/
+			ItemDef iItem = WeaponsGetDefIndex(iD);
 			if (iItem != ItemDef_Taser)
 			{
 				// Validate class ammunition mode
 				switch (ClassGetAmmunition(gClientData[client].Class))
 				{
-					case 0 : return;
 					case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
 					case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip1") + 1); } 
+					default : { /* < empty statement > */ }
 				}
 			}
 		}
-		
+
 		// Call forward
 		gForwardData._OnWeaponFire(client, weapon, iD);
 	}
@@ -1487,6 +1438,7 @@ void WeaponMODOnBullet(int client, float vBullet[3], int weapon)
 		gForwardData._OnWeaponBullet(client, vBullet, weapon, iD);
 	}
 }
+
 /**
  * @brief Weapon is holding.
  *
@@ -1589,7 +1541,7 @@ void WeaponMODOnHostage(int client)
 	// Prevent the viewmodel from being removed
 	WeaponHDRSetPlayerViewModel(client, 1, -1);
 
-	// Apply fake hostage follow hook on the next frame
+	// Apply post hostage follow hook on the next frame
 	_call.WeaponMODOnHostagePost(client);
 }
 	
@@ -1628,14 +1580,113 @@ public void WeaponMODOnHostagePost(int userID)
 }
 
 /**
- * Listener command callback (buyammo1, buyammo2, drop)
- * @brief Buying of the ammunition or for dropping any weapon.
+ * Listener command callback (buyammo1, buyammo2)
+ * @brief Buying of the ammunition.
  *
  * @param client            The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action WeaponMODOnCommandListened(int client, char[] commandMsg, int iArguments)
+public Action WeaponMODOnCommandListenedBuy(int client, char[] commandMsg, int iArguments)
+{
+	// Validate client
+	if (IsPlayerExist(client))
+	{
+		// Buy ammo for client
+		if (!WeaponMODOnClientBuyammo(client))
+		{
+			// Emit error sound
+			EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+		}
+	}
+
+	// Allow commands
+	return Plugin_Continue;
+}
+
+/**
+ * @brief Client has been buying ammunition.
+ *
+ * @param client            The client index.
+ * @return                  True if not enough money to buy, false otherwise.
+ **/
+bool WeaponMODOnClientBuyammo(int client)
+{
+	// Validate class ammunition mode
+	if (ClassGetAmmunition(gClientData[client].Class))
+	{
+		return true;
+	}
+	
+	// Gets active weapon index from the client
+	int weapon = ToolsGetActiveWeapon(client);
+
+	// Validate weapon
+	if (weapon != -1)
+	{
+		// If weapon without any type of ammo, then stop
+		if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") == -1)
+		{
+			return true;
+		}
+
+		// Validate custom index
+		int iD = WeaponsGetCustomID(weapon);
+		if (iD != -1)
+		{
+			// If cost is disabled, then stop
+			int iCost = WeaponsGetAmmunition(iD);
+			if (!iCost)
+			{
+				return true;
+			}
+			
+			// Validate ammunition cost
+			if (gClientData[client].Money < iCost)
+			{
+				// Show block info
+				TranslationPrintHintText(client, "buying ammunition block");
+				
+				// Emit error sound
+				//EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				return false;
+			}
+	
+			// Gets current/max reverse ammo
+			int iAmmo = GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount");
+			int iMaxAmmo = GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount");
+			
+			// Validate amount
+			if (iAmmo < iMaxAmmo)
+			{
+				// Generate amount
+				iAmmo += GetEntProp(weapon, Prop_Send, "m_iClip2"); if (!iAmmo) /*~*/ iAmmo++;
+
+				// Gives ammo of a certain type to a weapon
+				SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo);
+
+				// Remove money
+				AccountSetClientCash(client, gClientData[client].Money - iCost);
+
+				// Forward event to modules
+				SoundsOnClientAmmunition(client);
+			}
+		}
+	}
+	
+	// Return on success
+	return true;
+}
+
+/**
+ * Listener command callback (drop)
+ * @brief Dropping any weapon.
+ *
+ * @param client            The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int iArguments)
 {
 	// Validate client
 	if (IsPlayerExist(client))
@@ -1650,129 +1701,69 @@ public Action WeaponMODOnCommandListened(int client, char[] commandMsg, int iArg
 			int iD = WeaponsGetCustomID(weapon);
 			if (iD != -1)
 			{
-				// Switches client commands
-				switch (commandMsg[0])
+				// Block drop, if not available
+				if (!WeaponsIsDrop(iD)) 
 				{
-					// Buying ammunition
-					case 'b' :
+					return Plugin_Handled;
+				}
+
+				// Validate knife
+				ItemDef iItem = WeaponsGetDefIndex(iD);
+				if (IsKnife(iItem))
+				{
+					// Drop weapon
+					WeaponsDrop(client, weapon);
+
+					// Validate id
+					if (iD == gServerData.Melee)
 					{
-						// Validate class ammunition mode
-						switch (ClassGetAmmunition(gClientData[client].Class))
+						return Plugin_Handled;
+					}
+					
+					// Give default melee
+					if (WeaponsGive(client, gServerData.Melee) == -1)
+					{
+						// i = slot index
+						for (SlotType i = SlotType_Primary; i <= SlotType_C4; i++)
 						{
-							case 0  : { /* < empty statement > */ }
-							default : return Plugin_Continue;
-						}
-				
-						// If weapon without any type of ammo, then stop
-						if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") == -1)
-						{
-							return Plugin_Continue;
-						}
-
-						// If cost is disabled, then stop
-						int iCost = WeaponsGetAmmunition(iD);
-						if (!iCost)
-						{
-							return Plugin_Continue;
-						}
-						
-						// Validate ammunition cost
-						if (gClientData[client].Money < iCost)
-						{
-							// Show block info
-							TranslationPrintHintText(client, "buying ammunition block");
+							// Try find any available weapon
+							weapon = GetPlayerWeaponSlot(client, view_as<int>(i));
 							
-							// Emit error sound
-							ClientCommand(client, "play buttons/button10.wav");    
-							return Plugin_Continue;
-						}
-				
-						// Gets current/max reverse ammo
-						int iAmmo = GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount");
-						int iMaxAmmo = GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount");
-						
-						// Validate amount
-						if (iAmmo < iMaxAmmo)
-						{
-							// Generate amount
-							iAmmo += GetEntProp(weapon, Prop_Send, "m_iClip2"); if (!iAmmo) /*~*/ iAmmo++;
-
-							// Gives ammo of a certain type to a weapon
-							SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo);
-
-							// Remove money
-							AccountSetClientCash(client, gClientData[client].Money - iCost);
-
-							// Forward event to modules
-							SoundsOnClientAmmunition(client);
+							// Validate weapon
+							if (weapon != -1) 
+							{
+								// Switch weapon
+								WeaponsSwitch(client, weapon);
+								break;
+							}
 						}
 					}
 					
-					// Dropping weapon        
-					case 'd' :
+					// Block commands
+					return Plugin_Handled;
+				}
+				// Validate shield
+				else if (iItem == ItemDef_Shield || iItem == ItemDef_RepulsorDevice)
+				{
+					// Drop weapon
+					WeaponsDrop(client, weapon);
+
+					// Block commands
+					return Plugin_Handled;
+				}
+				else
+				{
+					// If help messages enabled, then show info
+					if (gCvarList.MESSAGES_WEAPON_DROP.BoolValue && gCvarList.GAMEMODE_WEAPONS_REMOVE.BoolValue && gServerData.RoundNew)
 					{
-						// Block drop, if not available
-						if (!WeaponsIsDrop(iD)) 
-						{
-							return Plugin_Handled;
-						}
-
-						// Validate knife
-						ItemDef iItem = WeaponsGetDefIndex(iD);
-						if (IsKnife(iItem))
-						{
-							// Drop weapon
-							WeaponsDrop(client, weapon);
-
-							// Validate id
-							if (iD == gServerData.Melee)
-							{
-								return Plugin_Handled;
-							}
-							
-							// Give default melee
-							if (WeaponsGive(client, gServerData.Melee) == -1)
-							{
-								// Try switching to any available weapon
-								int iPrimary = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Primary));
-								int iSecondary = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Secondary));
-								weapon = (iPrimary != -1) ? iPrimary : iSecondary;
-
-								// Validate weapon
-								if (weapon != -1) 
-								{
-									// Switch weapon
-									WeaponsSwitch(client, weapon);
-								}
-							}
-							
-							// Block commands
-							return Plugin_Handled;
-						}
-						// Validate shield
-						else if (iItem == ItemDef_Shield)
-						{
-							// Drop weapon
-							WeaponsDrop(client, weapon);
-
-							// Block commands
-							return Plugin_Handled;
-						}
-						else
-						{
-							// If help messages enabled, then show info
-							if (gCvarList.MESSAGES_WEAPON_DROP.BoolValue && gCvarList.GAMEMODE_WEAPONS_REMOVE.BoolValue && gServerData.RoundNew)
-							{
-								// Show remove info
-								TranslationPrintToChat(client, "drop info");
-							}
-						}
+						// Show remove info
+						TranslationPrintToChat(client, "drop info");
 					}
 				}
 			}
 		}
 	}
-
+	
 	// Allow commands
 	return Plugin_Continue;
 }
