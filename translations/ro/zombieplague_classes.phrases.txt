@@ -14,7 +14,7 @@
 		"ro"			"Razbunatorul"
 	}
 	
-	"girl" // Menu
+	"deimos" // Menu
 	{
 		"ro"			"Deimos"
 	}
@@ -86,7 +86,7 @@
 	
 	// Info
 	
-	"girl info" // Hint
+	"deimos info" // Hint
 	{
 		"ro"			"Putere: <font color='#FF0000'>lovitura usturatoaret</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
 	}

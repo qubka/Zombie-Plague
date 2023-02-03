@@ -1256,6 +1256,19 @@ void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3
 	
 	// Reset the lag compensation back
 	SetEntProp(client, Prop_Data, "m_bLagCompensation", bLock);
+	
+	// Emulate custom file event on server
+	/*Event hEvent = CreateEvent("weapon_fire");
+	if (hEvent != null)
+	{
+		// Sets event properties
+		hEvent.SetInt("userid", GetClientUserId(client));
+		hEvent.SetString("weapon", "");
+		hEvent.SetBool("silenced", false);
+
+		// Send event without broadcast
+		hEvent.Fire(false);
+	}*/
 }
 
 /**

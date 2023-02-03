@@ -196,7 +196,8 @@ enum struct ClientData
 	Handle AmbientTimer;
 	Handle BuyTimer;
 	Handle TeleTimer;
-
+	Handle ThinkTimer;
+	
 	/* Arrays */
 	ArrayList ShoppingCart;
 	ArrayList DefaultCart;
@@ -290,6 +291,7 @@ enum struct ClientData
 		delete this.AmbientTimer;
 		delete this.BuyTimer;
 		delete this.TeleTimer;
+		delete this.ThinkTimer;
 	}
 	
 	/**
@@ -307,7 +309,8 @@ enum struct ClientData
 		this.MoanTimer    = null; 
 		this.AmbientTimer = null; 
 		this.BuyTimer     = null;
-		this.TeleTimer     = null;
+		this.TeleTimer    = null;
+		this.ThinkTimer   = null;
 	}
 }
 /**

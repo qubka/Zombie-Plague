@@ -414,6 +414,10 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
 		return Plugin_Continue;
 	}
 	
+	// Gets weapon name
+	//static char sWeapon[SMALL_LINE_LENGTH];
+	//hEvent.GetString("weapon", sWeapon, sizeof(sWeapon));
+	
 	// Forward event to sub-modules
 	WeaponMODOnFire(client, weapon);
 	

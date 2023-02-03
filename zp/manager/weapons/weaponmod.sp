@@ -504,11 +504,15 @@ public void WeaponMODOnWeaponSpawn(int weapon)
 	// Resets the weapon id
 	WeaponsSetCustomID(weapon, -1);
 
-	// Hook weapon callbacks
-	SDKHook(weapon, SDKHook_ReloadPost, WeaponMODOnWeaponReload);
-	
-	// Call post spawn hook on the next frame
-	_exec.WeaponMODOnWeaponSpawnPost(weapon);
+	// If weapon without any type of ammo, then skip
+	if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1)
+	{
+		// Hook weapon callbacks
+		SDKHook(weapon, SDKHook_ReloadPost, WeaponMODOnWeaponReload);
+		
+		// Call post spawn hook on the next frame
+		_exec.WeaponMODOnWeaponSpawnPost(weapon);
+	}
 }
 
 /**
@@ -532,16 +536,18 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 			// Gets weapon clip
 			int iClip = WeaponsGetClip(iD);
 			if (iClip)
-			{/// Sets clip here, because of creating dhook on the next frame after spawn
+			{
+				// Sets clip size and hook change
 				SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
-				SetEntProp(weapon, Prop_Send, "m_iClip2", iClip); 
+				SetEntProp(weapon, Prop_Send, "m_iClip2", iClip);
 				DHookEntity(hDHookGetMaxClip, true, weapon);
 			}
 
 			// Gets weapon ammo
 			int iAmmo = WeaponsGetAmmo(iD);
 			if (iAmmo)
-			{/// Sets ammo here, because of creating dhook on the next frame after spawn
+			{
+				// Sets reserve ammo count and hook change
 				SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 				SetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount", iAmmo);
 				DHookEntity(hDHookGetReserveAmmoMax, true, weapon);
@@ -600,6 +606,12 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
 	// Validate grenade
 	if (grenade != -1)
 	{
+		// If grenade is disabled, then stop
+		/*if (GetEntProp(grenade, Prop_Data, "m_nNextThinkTick") == -1)
+		{
+			return;
+		}*/
+		
 		// Gets grenade thrower
 		int client = GetEntPropEnt(grenade, Prop_Data, "m_hThrower");
 		
@@ -1342,7 +1354,7 @@ void WeaponMODOnFire(int client, int weapon)
 			// Sets client attack time
 			ToolsSetAttack(client, flShoot);
 		}
-
+		
 		// If weapon without any type of ammo, then skip
 		if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1) 
 		{
@@ -1401,19 +1413,6 @@ void WeaponMODOnFire(int client, int weapon)
 					flHeatDelay[client] = flHeat;
 				}
 			}
-			
-			// Validate weapon
-			ItemDef iItem = WeaponsGetDefIndex(iD);
-			if (iItem != ItemDef_Taser)
-			{
-				// Validate class ammunition mode
-				switch (ClassGetAmmunition(gClientData[client].Class))
-				{
-					case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
-					case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip1") + 1); } 
-					default : { /* < empty statement > */ }
-				}
-			}
 		}
 
 		// Call forward
@@ -1453,6 +1452,28 @@ Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon
 	static int iD; iD = WeaponsGetCustomID(weapon); /** static for runcmd **/
 	if (iD != -1)    
 	{
+		// Button primary or secondary attack press
+		if (iButtons & IN_ATTACK || iButtons & IN_ATTACK2)
+		{
+			// Validate class ammunition mode
+			static int iAmmo; iAmmo = ClassGetAmmunition(gClientData[client].Class);
+			if (iAmmo && GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1) /// If weapon without any type of ammo, then skip
+			{
+				// Validate weapon
+				ItemDef iItem = WeaponsGetDefIndex(iD);
+				if (iItem != ItemDef_Taser)
+				{
+					// Use class ammunition mode
+					switch (iAmmo)
+					{
+						case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
+						case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip2")); } 
+						default : { /* < empty statement > */ }
+					}
+				}
+			}
+		}
+		
 		// Call forward
 		Action hResult;
 		gForwardData._OnWeaponRunCmd(client, iButtons, iLastButtons, weapon, iD, hResult);

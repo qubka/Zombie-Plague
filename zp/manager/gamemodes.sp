@@ -485,7 +485,7 @@ public Action GameModesOnCounter(Handle hTimer)
 				if (flTime > 0.0) 
 				{
 					// Print welcome message
-					TranslationPrintHudTextAll(gServerData.GameSync, gCvarList.MESSAGES_WELCOME_HUD_X.FloatValue, gCvarList.MESSAGES_WELCOME_HUD_Y.FloatValue, flTime, gCvarList.MESSAGES_WELCOME_HUD_R.IntValue, gCvarList.MESSAGES_WELCOME_HUD_G.IntValue, gCvarList.MESSAGES_WELCOME_HUD_B.IntValue, gCvarList.MESSAGES_WELCOME_HUD_A.IntValue, 0, 0.0, MESSAGES_WELCOME_HUD_FADEIN.FloatValue, MESSAGES_WELCOME_HUD_FADEOUT.FloatValue, "general welcome message");
+					TranslationPrintHudTextAll(gServerData.GameSync, gCvarList.MESSAGES_WELCOME_HUD_X.FloatValue, gCvarList.MESSAGES_WELCOME_HUD_Y.FloatValue, flTime, gCvarList.MESSAGES_WELCOME_HUD_R.IntValue, gCvarList.MESSAGES_WELCOME_HUD_G.IntValue, gCvarList.MESSAGES_WELCOME_HUD_B.IntValue, gCvarList.MESSAGES_WELCOME_HUD_A.IntValue, 0, 0.0, gCvarList.MESSAGES_WELCOME_HUD_FADEIN.FloatValue, gCvarList.MESSAGES_WELCOME_HUD_FADEOUT.FloatValue, "general welcome message");
 				}
 				
 				// Forward event to modules

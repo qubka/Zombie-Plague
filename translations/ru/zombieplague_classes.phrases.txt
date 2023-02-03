@@ -14,7 +14,7 @@
 		"ru"			"Немезис"
 	}
 	
-	"girl" // Menu
+	"deimos" // Menu
 	{
 		"ru"			"Деймос"
 	}
@@ -86,7 +86,7 @@
 	
 	// Info
 	
-	"girl info" // Hint
+	"deimos info" // Hint
 	{
 		"ru"			"Cпособность: <font color='#FF0000'>Выстрел жалом</font>\nАктивация на кнопку: <font color='#FF0000'>F4</font>"
 	}
