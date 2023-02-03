@@ -37,7 +37,7 @@ public Plugin myinfo =
 	name            = "[ZP] ExtraItem: Antidot",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of extra items",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 

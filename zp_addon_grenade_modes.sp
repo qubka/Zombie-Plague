@@ -25,7 +25,6 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#include <cstrike>
 #include <zombieplague>
 
 #pragma newdecls required
@@ -46,21 +45,9 @@ public Plugin myinfo =
 /**
  * @section Information about the addon.
  **/
-#define GRENADE_DAMAGE                 /// Uncoment to block activatation from the other damage
-#define GRENADE_SELF_COLOR             {125, 0, 125, 255} // The color of the self effects
-#define GRENADE_TEAMMATE_COLOR         {0, 125, 0, 255}   // The color of the teammate effects
-#define GRENADE_ENEMY_COLOR            {125, 0, 0, 255}   // The color of the enemy effects
-#define GRENADE_PROXIMITY_POWERUP_TIME 2.0                // The proximity powerup time
-#define GRENADE_PROXIMITY_RADIUS       100.0              // The radius of detection
-#define GRENADE_SENSOR_ACTIVATE        100.0              // The speed of the enemy to activate
-#define GRENADE_TRIPWIRE_POWERUP_TIME  2.0                // The tripwire powerup time
-#define GRENADE_TRIPWIRE_DISTANCE      8192.0             // The tripwire distance
-#define GRENADE_SATCHEL_POWERUP_TIME   1.5                // The satchel powerup time
-#define GRENADE_SATCHEL_RADIUS         25.0               // The satchel effect radius
-#define GRENADE_HOMING_RADIUS          500.0              // The radius of homing  
-#define GRENADE_HOMING_SPEED           500.0              // The speed of homing
-#define GRENADE_HOMING_ROTATION        0.5                // The speed of rotation
-#define GRENADE_HOMING_AVOID           100.0              // The range of avoid homing  
+#define GRENADE_SELF_COLOR     {125, 0, 125, 255} // The color of the self effects
+#define GRENADE_TEAMMATE_COLOR {0, 125, 0, 255}   // The color of the teammate effects
+#define GRENADE_ENEMY_COLOR    {125, 0, 0, 255}   // The color of the enemy effects
 /**
  * @endsection
  **/
@@ -140,6 +127,44 @@ int gBeacon; int gBeam; int gHalo; int gGlow;
 // Player index
 int iGrenadeMode[MAXPLAYERS+1]; ArrayList hGrenadeList[MAXPLAYERS+1] = { null, ... };
 #pragma unused iGrenadeMode, hGrenadeList
+
+// Cvars
+ConVar gCvarGrenadeDamageMode;
+ConVar gCvarGrenadeProximityPowerupTime;
+ConVar gCvarGrenadeProximityRadius;
+ConVar gCvarGrenadeSensorActivate;
+ConVar gCvarGrenadeTripwirePowerupTime;
+ConVar gCvarGrenadeTripwireDistance;
+ConVar gCvarGrenadeSatchelPowerupTime;
+ConVar gCvarGrenadeSatchelRadius;
+ConVar gCvarGrenadeHomingRadius;
+ConVar gCvarGrenadeHomingSpeed;
+ConVar gCvarGrenadeHomingRotation;
+ConVar gCvarGrenadeHomingAvoid;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarGrenadeDamageMode           = CreateConVar("zp_grenade_modes_damage_mode", "1", "Allow activation from the other damage", 0, true, 0.0, true, 1.0);
+	gCvarGrenadeProximityPowerupTime = CreateConVar("zp_grenade_modes_proximity_powerup_time", "2.0", "Proximity powerup time", 0, true, 0.0);
+	gCvarGrenadeProximityRadius      = CreateConVar("zp_grenade_modes_proximity_radius", "100.0", "Radius of detection", 0, true, 0.0);
+	gCvarGrenadeSensorActivate       = CreateConVar("zp_grenade_modes_sensor_activate", "100.0", "Speed of the enemy to activate", 0, true, 0.0);
+	gCvarGrenadeTripwirePowerupTime  = CreateConVar("zp_grenade_modes_tripwire_powerup_time", "2.0", "Tripwire powerup time", 0, true, 0.0);
+	gCvarGrenadeTripwireDistance     = CreateConVar("zp_grenade_modes_tripwire_distance", "8192.0", "Tripwire distance", 0, true, 0.0);
+	gCvarGrenadeSatchelPowerupTime   = CreateConVar("zp_grenade_modes_satchel_powerup_time", "1.5", "Satchel powerup time", 0, true, 0.0);
+	gCvarGrenadeSatchelRadius        = CreateConVar("zp_grenade_modes_satchel_radius", "25.0", "Satchel effect radius", 0, true, 0.0);
+	gCvarGrenadeHomingRadius         = CreateConVar("zp_grenade_modes_homing_radius", "500.0", "Radius of homing", 0, true, 0.0);
+	gCvarGrenadeHomingSpeed          = CreateConVar("zp_grenade_modes_homing_speed", "500.0", "Speed of homing", 0, true, 0.0);
+	gCvarGrenadeHomingRotation       = CreateConVar("zp_grenade_modes_homing_rotation", "0.5", "Speed of rotation", 0, true, 0.0);
+	gCvarGrenadeHomingAvoid          = CreateConVar("zp_grenade_modes_homing_avoid", "100.0", "Range of avoid homing", 0, true, 0.0);
+
+	// Generate config
+	AutoExecConfig(true, "zp_addon_grenade_modes", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -341,7 +366,7 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 					// Resets variables
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", false);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", TRIPWIRE_STATE_POWERUP);
-					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", GRENADE_TRIPWIRE_POWERUP_TIME);
+					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", gCvarGrenadeTripwirePowerupTime.FloatValue);
 					
 					// Hook the grenade touch function
 					SDKHook(grenade, SDKHook_Touch, GrenadeTripwireTouch);
@@ -372,7 +397,7 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 					// Resets variables
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", false);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", SATCHEL_STATE_POWERUP);
-					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", GRENADE_SATCHEL_POWERUP_TIME);
+					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", gCvarGrenadeSatchelPowerupTime.FloatValue);
 
 					// Hook the grenade touch function
 					SDKHook(grenade, SDKHook_Touch, GrenadeSatchelTouch);
@@ -410,27 +435,29 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
  **/
 public Action GrenadeDamageHook(int grenade, int &attacker, int &inflictor, float &flDamage, int &damageBits)
 {
-#if defined GRENADE_DAMAGE
-	// Validate attacker
-	if (IsPlayerExist(attacker))
+	// Validate damage mode
+	if (gCvarGrenadeDamageMode.BoolValue)
 	{
-		// Gets grenade team
-		int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
-		
-		// Check if the owner is still connected and in the same team than the attacker
-		if (ZP_GetPlayerTeam(attacker) == iTeam)
+		// Validate attacker
+		if (IsPlayerExist(attacker))
 		{
-			// Block damage
-			return Plugin_Handled;
+			// Gets grenade team
+			int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
+			
+			// Check if the owner is still connected and in the same team than the attacker
+			if (ZP_GetPlayerTeam(attacker) == iTeam)
+			{
+				// Block damage
+				return Plugin_Handled;
+			}
 		}
+		
+		// Allow damage
+		return Plugin_Continue;
 	}
-	
-	// Allow damage
-	return Plugin_Continue;
-#else
+
 	// Block damage
 	return Plugin_Handled;
-#endif
 }
 
 //**********************************************
@@ -517,7 +544,7 @@ Action GrenadeProximityThinkWaitIdle(int grenade, int &iState, float &flCounter)
 
 		// Sets grenade next state
 		iState    = PROXIMITY_STATE_POWERUP;
-		flCounter = GRENADE_PROXIMITY_POWERUP_TIME;
+		flCounter = gCvarGrenadeProximityPowerupTime.FloatValue;
 	}
 	
 	// Return on success
@@ -590,9 +617,13 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 		bool bDetonate; int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 		bool bSensor = view_as<bool>(GetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget"));
 		
+		// Gets grenade radius
+		float flRadius = gCvarGrenadeProximityRadius.FloatValue;
+		float flSensorActivate = gCvarGrenadeSensorActivate.FloatValue;
+		
 		// Find any players in the radius
 		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_PROXIMITY_RADIUS)) != -1)
+		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 		{
 			// Skip same team
 			if (ZP_GetPlayerTeam(i) == iTeam)
@@ -607,7 +638,7 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 				GetEntPropVector(i, Prop_Data, "m_vecVelocity", vVelocity);
 				
 				// Validate speed
-				if (GetVectorLength(vVelocity) < GRENADE_SENSOR_ACTIVATE)
+				if (GetVectorLength(vVelocity) < flSensorActivate)
 				{
 					continue;
 				}
@@ -650,7 +681,7 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 				}
 				
 				// Create the beacon effect
-				TE_SetupBeamRingPoint(vPosition, bSensor ? GRENADE_PROXIMITY_RADIUS : 0.0, GRENADE_PROXIMITY_RADIUS * 2.0, gBeacon, gHalo, 0, 0, 0.5, 4.0, 0.0, vColor, 30, 0);
+				TE_SetupBeamRingPoint(vPosition, bSensor ? flRadius : 0.0, flRadius * 2.0, gBeacon, gHalo, 0, 0, 0.5, 4.0, 0.0, vColor, 30, 0);
 				TE_SendToClient(client);
 			}
 			
@@ -840,7 +871,7 @@ void GrenadeTripwireTrackWall(int grenade)
 		TeleportEntity(grenade, vEndPosition, NULL_VECTOR, NULL_VECTOR);
 
 		// Calculate and store endpoint
-		ScaleVector(vNormal, GRENADE_TRIPWIRE_DISTANCE);
+		ScaleVector(vNormal, gCvarGrenadeTripwireDistance.FloatValue);
 		AddVectors(vNormal, vPosition, vEndPosition);
 
 		// Create the end-point trace
@@ -1267,6 +1298,9 @@ Action GrenadeSatchelThinkEnabled(int grenade, int &iState, float &flCounter)
 			// Gets all the players in range
 			int iMaxPlayers = GetClientsInRange(vPosition, RangeType_Audibility, iPlayers, MaxClients);
 			
+			// Gets grenade radius
+			float flRadius = gCvarGrenadeSatchelRadius.FloatValue;
+			
 			// Send the beam effect to all the close players
 			for (int i = 0; i < iMaxPlayers; i++)
 			{
@@ -1284,7 +1318,7 @@ Action GrenadeSatchelThinkEnabled(int grenade, int &iState, float &flCounter)
 				}
 				
 				// Create the beacon effect
-				TE_SetupBeamRingPoint(vPosition, GRENADE_SATCHEL_RADIUS, GRENADE_SATCHEL_RADIUS * 2.0, gBeacon, gHalo, 0, 0, 0.1, 4.0, 0.0, vColor, 30, 0);
+				TE_SetupBeamRingPoint(vPosition, flRadius, flRadius * 2.0, gBeacon, gHalo, 0, 0, 0.1, 4.0, 0.0, vColor, 30, 0);
 				TE_SendToClient(client);
 			}
 			
@@ -1386,9 +1420,12 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 			// If we have an enemy get his minimum distance to check against
 			float flOldDistance = MAX_FLOAT; float flNewDistance;
 
+			// Gets grenade radius
+			float flRadius = gCvarGrenadeHomingRadius.FloatValue;
+
 			// Find any players in the radius
 			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_PROXIMITY_RADIUS)) != -1)
+			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
 				// Skip same team
 				int iPending = ZP_GetPlayerTeam(i);
@@ -1428,14 +1465,14 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 			MakeVectorFromPoints(vPosition, vEnemy, vSpeed);
 
 			// Ignore turning arc if the missile is close to the enemy to avoid it circling them
-			if (GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle") > GRENADE_HOMING_AVOID)
+			if (GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle") > gCvarGrenadeHomingAvoid.FloatValue)
 			{
 				// Normalize the vector (equal magnitude at varying distances)
 				NormalizeVector(vSpeed, vSpeed);
 				NormalizeVector(vVelocity, vVelocity);
 				
 				// Calculate and store speed
-				ScaleVector(vSpeed, GRENADE_HOMING_ROTATION); 
+				ScaleVector(vSpeed, gCvarGrenadeHomingRotation.FloatValue); 
 				AddVectors(vSpeed, vVelocity, vSpeed);
 			}
 		
@@ -1443,7 +1480,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 			NormalizeVector(vSpeed, vSpeed);
 			
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vSpeed, GRENADE_HOMING_SPEED);
+			ScaleVector(vSpeed, gCvarGrenadeHomingSpeed.FloatValue);
 
 			// Gets angles of the speed vector
 			GetVectorAngles(vSpeed, vAngle);

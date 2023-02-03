@@ -37,28 +37,9 @@ public Plugin myinfo =
 	name            = "[ZP] Addon: Presents",
 	author          = "qubka (Nikita Ushakov), Pelipoika",     
 	description     = "Spawns presents on the map that give some bonuses",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
-
-/**
- * @section Properties of the airdrop.
- **/
-//#define PRESENT_GLOW              /// Uncomment to disable glow
-#define PRESENT_MAX_AMOUNT          6
-#define PRESENT_HEALTH              300
-#define PRESENT_ELASTICITY          0.01
-#define PRESENT_DELAY               60.0
-/**
- * @endsection
- **/
- 
-// Timer index
-Handle hPresentSpawn = null; ArrayList hPosition; bool bLoad; int gCaseCount;
-
-// Sound index
-int gSound;
-#pragma unused gSound  
 
 /**
  * @section Types of drop.
@@ -76,6 +57,35 @@ enum
 /**
  * @endsection
  **/
+
+// Timer index
+Handle hPresentSpawn = null; ArrayList hPosition; bool bLoad; int gCaseCount;
+
+// Sound index
+int gSound;
+#pragma unused gSound  
+ 
+// Cvars
+ConVar gCvarPresentGlow;
+ConVar gCvarPresentMax;
+ConVar gCvarPresentHealth;
+ConVar gCvarPresentDelay;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarPresentGlow   = CreateConVar("zp_presents_glow", "0", "Enable glow effect", 0, true, 0.0, true, 1.0);
+	gCvarPresentMax    = CreateConVar("zp_presents_max", "6", "Maximum amount of presents on map", 0, true, 1.0);
+	gCvarPresentHealth = CreateConVar("zp_presents_health", "300", "Health of present. If disabled will be pickup on touch", 0, true, 0.0);
+	gCvarPresentDelay  = CreateConVar("zp_presents_delay", "60.0", "Delay between presents spawn", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_addon_presents", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -477,7 +487,7 @@ public void ZP_OnGameModeStart(int mode)
 	{
 		// Create spawing hook
 		delete hPresentSpawn;
-		hPresentSpawn = CreateTimer(PRESENT_DELAY, CaseSpawnHook, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		hPresentSpawn = CreateTimer(gCvarPresentDelay.FloatValue, CaseSpawnHook, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -509,7 +519,7 @@ public Action RoundStateHook(Event hEvent, char[] sName, bool dontBroadcast)
 public Action CaseSpawnHook(Handle hTimer)
 {
 	// Validate amount
-	int iAmount = PRESENT_MAX_AMOUNT - gCaseCount;
+	int iAmount = gCvarPresentMax.IntValue - gCaseCount;
 	if (!iAmount)
 	{
 		// Allow timer
@@ -530,103 +540,110 @@ public Action CaseSpawnHook(Handle hTimer)
 
 		// Gets model path
 		static char sModel[PLATFORM_LINE_LENGTH]; int iType = GetRandomInt(EXPL, HTOOL); 
-#if defined PRESENT_GLOW
 		static int vColor[4];
-#endif
 
 		switch (iType)
 		{
 			case EXPL : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_explosive.mdl");    
-#if defined PRESENT_GLOW
 				vColor = {255, 127, 80, 255};  
-#endif
 			}
 			case HEAVY : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_heavy_weapon.mdl"); 
-#if defined PRESENT_GLOW
 				vColor = {220, 20, 60, 255};   
-#endif
 			} 
 			case LIGHT : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_light_weapon.mdl"); 
-#if defined PRESENT_GLOW
 				vColor = {255, 0, 0, 255};     
-#endif
 			} 
 			case PISTOL : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_pistol.mdl");      
-#if defined PRESENT_GLOW
 				vColor = {240, 128, 128, 255}; 
-#endif
 			} 
 			case HPIST : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_pistol_heavy.mdl"); 
-#if defined PRESENT_GLOW
 				vColor = {219, 112, 147, 255}; 
-#endif
 			} 
 			case TOOLS : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_tools.mdl");        
-#if defined PRESENT_GLOW
 				vColor = {0, 0, 205, 255};    
-#endif
 			} 
 			case HTOOL : 
 			{ 
 				strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_tools_heavy.mdl");  
-#if defined PRESENT_GLOW
 				vColor = {95, 158, 160, 255};  
-#endif
 			} 
 		}
+		
+		// Gets presents health
+		int iHealth = gCvarPresentHealth.IntValue;
+		
+		// Gets presents flag (disable motion for trigger)
+		int iFlags = PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR;
+		if (iHealth > 0) iFlags |= PHYS_MOTIONDISABLED;
 
 		// Create a prop_physics entity
-		int drop = UTIL_CreatePhysics("present", vPosition, NULL_VECTOR, sModel, PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR);
+		int drop = UTIL_CreatePhysics("present", vPosition, NULL_VECTOR, sModel, iFlags);
 		
 		// Validate entity
 		if (drop != -1)
 		{
-			// Sets physics
-			SetEntProp(drop, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
-			SetEntProp(drop, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-			SetEntPropFloat(drop, Prop_Data, "m_flElasticity", PRESENT_ELASTICITY);
-			
-			// Sets health
-			SetEntProp(drop, Prop_Data, "m_takedamage", DAMAGE_YES);
-			SetEntProp(drop, Prop_Data, "m_iHealth", PRESENT_HEALTH);
-			SetEntProp(drop, Prop_Data, "m_iMaxHealth", PRESENT_HEALTH);
-			
 			// Sets type
 			SetEntProp(drop, Prop_Data, "m_iHammerID", iType);
 			
-			// Create damage hook
-			SDKHook(drop, SDKHook_OnTakeDamage, CaseDamageHook);
-			
-#if defined PRESENT_GLOW
-			// Create a prop_dynamic_override entity
-			int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
-
-			// Validate entity
-			if (glow != -1)
+			// Validate health
+			if (iHealth > 0)
 			{
-				// Sets parent to the entity
-				SetVariantString("!activator");
-				AcceptEntityInput(glow, "SetParent", drop, glow);
+				// Sets physics
+				SetEntProp(drop, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
+				SetEntProp(drop, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+				SetEntPropFloat(drop, Prop_Data, "m_flElasticity", 0.01);
 
-				// Sets glowing mode
-				UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
-				
-				// Create transmit hook
-				///SDKHook(glow, SDKHook_SetTransmit, CaseTransmitHook);
+				// Sets health
+				SetEntProp(drop, Prop_Data, "m_takedamage", DAMAGE_YES);
+				SetEntProp(drop, Prop_Data, "m_iHealth", iHealth);
+				SetEntProp(drop, Prop_Data, "m_iMaxHealth", iHealth);
+
+				// Create damage hook
+				SDKHook(drop, SDKHook_OnTakeDamage, CaseDamageHook);
 			}
-#endif
+			else
+			{
+				// Sets physics
+				SetEntProp(drop, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
+				SetEntProp(drop, Prop_Data, "m_usSolidFlags", FSOLID_NOT_SOLID|FSOLID_TRIGGER); /// Make trigger
+				SetEntProp(drop, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+				
+				// Create touch hook
+				SDKHook(drop, SDKHook_Touch, CaseTouchHook);
+			}
+			
+			// Validate glow
+			if (gCvarPresentGlow.BoolValue)
+			{		
+				// Create a prop_dynamic_override entity
+				int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
+
+				// Validate entity
+				if (glow != -1)
+				{
+					// Sets parent to the entity
+					SetVariantString("!activator");
+					AcceptEntityInput(glow, "SetParent", drop, glow);
+
+					// Sets glowing mode
+					UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
+					
+					// Create transmit hook
+					///SDKHook(glow, SDKHook_SetTransmit, CaseTransmitHook);
+				}
+			}
 		}
 		
 		// Increment amount
@@ -671,8 +688,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 	int iHealth = GetEntProp(entity, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
 	// Validate death
-	int iType = GetEntProp(entity, Prop_Data, "m_iHammerID");
-	if (!iHealth && iType != -1) /// Avoid double spawn
+	if (!iHealth)
 	{
 		// Initialize vectors
 		static float vPosition[3]; static float vAngle[3];
@@ -681,27 +697,47 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
 	
-		// Switch case type
-		MenuType mSlot;
-		switch (iType)
-		{
-			case EXPL   : mSlot = MenuType_Shotguns;
-			case HEAVY  : mSlot = MenuType_Machineguns;
-			case LIGHT  : mSlot = MenuType_Rifles;
-			case PISTOL : mSlot = MenuType_Pistols;
-			case HPIST  : mSlot = MenuType_Snipers;
-			case TOOLS  : mSlot = MenuType_Knifes;
-			case HTOOL  : mSlot = MenuType_Invalid;
-		}
-		
 		// Create random weapon
-		SpawnRandomWeapon(vPosition, vAngle, mSlot);
+		SpawnRandomWeapon(vPosition, vAngle, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID")));
 		
-		// Block it
-		SetEntProp(entity, Prop_Data, "m_iHammerID", -1);
-		
+		// Remove damage hook
+		SDKUnhook(entity, SDKHook_OnTakeDamage, CaseDamageHook);
+				
 		// Decrease amount
 		gCaseCount--;
+	}
+	
+	// Allow event
+	return Plugin_Continue;
+}
+
+/**
+ * @brief Case touch hook.
+ * 
+ * @param entity            The entity index.        
+ * @param target            The target index.               
+ **/
+public Action CaseTouchHook(int entity, int target)
+{
+	// Validate target
+	if (IsPlayerExist(target))
+	{
+		// Validate human
+		if (ZP_IsPlayerHuman(target))
+		{
+			// Initialize vectors
+			static float vPosition[3]; static float vAngle[3];
+							
+			// Gets entity position
+			GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
+			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
+
+			// Create random weapon
+			SpawnRandomWeapon(vPosition, vAngle, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID")));
+
+			// Remove entity from world
+			AcceptEntityInput(entity, "Kill");
+		}
 	}
 	
 	// Allow event
@@ -736,7 +772,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
  *       
  * @param vPosition         The origin of the spawn.
  * @param vAngle            The angle of the spawn.
- * @param mSlot             The slot index selected.
+ * @param mSlot             The slot index.
  **/
 stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3], MenuType mSlot)
 {
@@ -752,7 +788,7 @@ stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3], MenuType mSlot
 /**
  * @brief Find the random id of any custom weapons.
  *       
- * @param mSlot             (Optional) The slot index selected.
+ * @param mSlot             (Optional) The slot index.
  * @return                  The weapon id.
  **/
 stock int FindRandomWeapon(MenuType mSlot = MenuType_Invalid) 
@@ -842,4 +878,26 @@ stock bool FindRandomPosition(float vPosition[3])
 	
 	// Validate no collisions
 	return !TR_DidHit();
+}
+
+/**
+ * @brief Convert the type index to the menu slot.
+ *       
+ * @param iType             The type index.
+ * @return                  The menu slot.
+ **/
+stock MenuType TypeToSlot(int iType)
+{
+	switch (iType)
+	{
+		case EXPL   : return MenuType_Shotguns;
+		case HEAVY  : return MenuType_Machineguns;
+		case LIGHT  : return MenuType_Rifles;
+		case PISTOL : return MenuType_Pistols;
+		case HPIST  : return MenuType_Snipers;
+		case TOOLS  : return MenuType_Knifes;
+		case HTOOL  : return MenuType_Invalid;
+	}
+	return MenuType_Invalid;
+			
 }
