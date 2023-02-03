@@ -37,28 +37,39 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Shield",
 	author          = "qubka (Nikita Ushakov), Rachnus",     
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
-
-/**
- * @section Properties of the item.
- **/
-#define SHIELD_DEFLECT_FORCE          600.0   // Amount of force to deflect nades
-#define SHIELD_MAX_DEFLECT_DISTANCE   100.0   // The max amount of distance between the grenade and the player for a deflect
-#define SHIELD_DOT_PRODUCT            0.70    // Dot between player forward angle and angle from player eyes to grenade position (The higher value, the preciser your aim has to be)
-#define SHIELD_DETONATION_TIME        2.0     // Amount of time which will be add to the detonation timer
-/**
- * @endsection
- **/
 
 // Item index
 int gWeapon; 
 #pragma unused gWeapon
 
 // Offset index
-int gDamageOffset; int gDetonateOffset; //ConVar hHealthMax;
-#pragma unused gDamageOffset, gDetonateOffset//, hHealthMax
+int gDamageOffset; int gDetonateOffset;
+#pragma unused gDamageOffset, gDetonateOffset
+
+// Cvars
+ConVar gCvarShieldDeflecForce;
+ConVar gCvarShieldMaxDeflectDistance;
+ConVar gCvarShieldDotProduct;
+ConVar gCvarShieldDetonationTime;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarShieldDeflecForce        = CreateConVar("zp_weapon_shield_deflect_force", "600.0", "Amount of force to deflect nades", 0, true, 0.0);
+	gCvarShieldMaxDeflectDistance = CreateConVar("zp_weapon_shield_max_deflect_distance", "100.0", "The max amount of distance between the grenade and the player for a deflect", 0, true, 0.0);
+	gCvarShieldDotProduct         = CreateConVar("zp_weapon_shield_dot_product", "0.70", "Dot between player forward angle and angle from player eyes to grenade position (The higher value, the preciser your aim has to be)", 0, true, 0.0, true, 1.0);
+	gCvarShieldDetonationTime     = CreateConVar("zp_weapon_shield_detonation_time", "2.0", "Amount of time which will be add to the detonation timer", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_shield", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -139,7 +150,7 @@ void Weapon_OnFire(int client, int weapon, float flCurrentTime)
 	NormalizeVector(vAngle, vAngle); vEntVelocity = vAngle;
 
 	// Apply the magnitude by scaling the vector
-	ScaleVector(vEntVelocity, SHIELD_DEFLECT_FORCE);
+	ScaleVector(vEntVelocity, gCvarShieldDeflecForce.FloatValue);
 
 	// Adds two vectors
 	AddVectors(vVelocity, vEntVelocity, vEntVelocity);
@@ -155,7 +166,7 @@ void Weapon_OnFire(int client, int weapon, float flCurrentTime)
 			GetEntPropVector(i, Prop_Data, "m_vecOrigin", vEntPosition);
 
 			// Validate distance
-			if (GetVectorDistance(vCenter, vEntPosition) > SHIELD_MAX_DEFLECT_DISTANCE)
+			if (GetVectorDistance(vCenter, vEntPosition) > gCvarShieldMaxDeflectDistance.FloatValue)
 			{
 				continue;
 			}
@@ -170,13 +181,13 @@ void Weapon_OnFire(int client, int weapon, float flCurrentTime)
 			float flAngle = GetVectorDotProduct(vEntAngle, vAngle);
 			
 			// Validate PVS
-			if (flAngle > SHIELD_DOT_PRODUCT)
+			if (flAngle > gCvarShieldDotProduct.FloatValue)
 			{
 				// Adds the given vector to the client current velocity
 				TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vEntVelocity);
 
 				// Resets detonation timer
-				SetEntDataFloat(i, gDetonateOffset, flCurrentTime + SHIELD_DETONATION_TIME, true);
+				SetEntDataFloat(i, gDetonateOffset, flCurrentTime + gCvarShieldDetonationTime.FloatValue, true);
 				
 				// Sets for sound
 				bDeflect = true;

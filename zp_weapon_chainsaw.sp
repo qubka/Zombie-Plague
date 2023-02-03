@@ -38,23 +38,18 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: ChainSaw",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_SLASH_DAMAGE            100.0
-#define WEAPON_STAB_DAMAGE             50.0
-#define WEAPON_SLASH_DISTANCE          80.0
-#define WEAPON_RADIUS_DAMAGE           10.0
-#define WEAPON_STAB_DISTANCE           90.0
-#define WEAPON_IDLE_TIME               5.0
-#define WEAPON_IDLE2_TIME              1.66
-#define WEAPON_ATTACK_TIME             1.5
-#define WEAPON_ATTACK_START_TIME       0.5
-#define WEAPON_ATTACK_END_TIME         1.5
+#define WEAPON_IDLE_TIME         5.0
+#define WEAPON_IDLE2_TIME        1.66
+#define WEAPON_ATTACK_TIME       1.5
+#define WEAPON_ATTACK_START_TIME 0.5
+#define WEAPON_ATTACK_END_TIME   1.5
 /**
  * @endsection
  **/
@@ -96,6 +91,30 @@ enum
 	STATE_BEGIN,
 	STATE_ATTACK
 };
+
+// Cvars
+ConVar gCvarChainsawSlashDamage;
+ConVar gCvarChainsawStabDamage;
+ConVar gCvarChainsawSlashDistance;
+ConVar gCvarChainsawStabDistance;
+ConVar gCvarChainsawRadiusDamage;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarChainsawSlashDamage   = CreateConVar("zp_weapon_chainsaw_slash_damage", "100.0", "Slash damage", 0, true, 0.0);
+	gCvarChainsawStabDamage    = CreateConVar("zp_weapon_chainsaw_stab_damage", "50.0", "Stab damage", 0, true, 0.0);
+	gCvarChainsawSlashDistance = CreateConVar("zp_weapon_chainsaw_slash_distance", "80.0", "Slash distance", 0, true, 0.0);
+	gCvarChainsawStabDistance  = CreateConVar("zp_weapon_chainsaw_stab_distance", "90.0", "Stab distance", 0, true, 0.0);
+	gCvarChainsawRadiusDamage  = CreateConVar("zp_weapon_chainsaw_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_chainsaw", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -490,7 +509,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 10.0, vPosition);
-	ZP_GetPlayerEyePosition(client, bSlash ? WEAPON_SLASH_DISTANCE : WEAPON_STAB_DISTANCE, flRightShift, 10.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, (bSlash ? gCvarChainsawSlashDistance : gCvarChainsawStabDistance).FloatValue, flRightShift, 10.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -548,7 +567,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, WEAPON_RADIUS_DAMAGE, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? gCvarChainsawSlashDamage : gCvarChainsawStabDamage).FloatValue, gCvarChainsawRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 
 			// Validate victim
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))

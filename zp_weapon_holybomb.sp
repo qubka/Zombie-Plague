@@ -38,19 +38,14 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: HolyGrenade",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
- * @section Properties of the grenade.
+ * @section Information about the weapon.
  **/
-#define GRENADE_HOLY_RADIUS            300.0         // Holy size (radius)
-#define GRENADE_HOLY_IGNITE_TIME       5.0           // Ignite duration
-#define GRENADE_HOLY_SHAKE_AMP         2.0           // Amplutude of the shake effect
-#define GRENADE_HOLY_SHAKE_FREQUENCY   1.0           // Frequency of the shake effect
-#define GRENADE_HOLY_SHAKE_DURATION    3.0           // Duration of the shake effect in seconds
-#define GRENADE_HOLY_EXP_TIME          2.0           // Duration of the explosion effect in seconds
+#define WEAPON_BEAM_COLOR {255, 75, 75, 255}
 /**
  * @endsection
  **/
@@ -68,6 +63,10 @@ public Plugin myinfo =
  * @endsection
  **/
  
+// Decal index
+int gBeam; int gHalo; int gTrail;
+#pragma unused gBeam, gHalo, gTrail
+
 // Sound index
 int gSound;
 #pragma unused gSound
@@ -75,6 +74,28 @@ int gSound;
 // Item index
 int gWeapon;
 #pragma unused gWeapon
+
+// Cvars
+ConVar gCvarHolyRadius;
+ConVar gCvarHolyDuration;
+ConVar gCvarHolyTrail;
+ConVar gCvarHolyEffect;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarHolyRadius   = CreateConVar("zp_weapon_holybomb_radius", "300.0", "Explosion radius", 0, true, 0.0);
+	gCvarHolyDuration = CreateConVar("zp_weapon_holybomb_duration", "5.0", "Ignite duration", 0, true, 0.0);
+	gCvarHolyTrail    = CreateConVar("zp_weapon_holybomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	gCvarHolyEffect   = CreateConVar("zp_weapon_holybomb_effect", "explosion_hegrenade_water", "Particle effect for the explosion (''-default)");
+		
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_holybomb", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -115,6 +136,17 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
+	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
+}
+
+/**
  * @brief Called before a client take a fake damage.
  * 
  * @param client            The client index.
@@ -140,6 +172,28 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 				// Resets explosion damage
 				flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
 			}
+		}
+	}
+}
+
+/**
+ * @brief Called after a custom grenade is created.
+ *
+ * @param client            The client index.
+ * @param grenade           The grenade index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
+{
+	// Validate custom grenade
+	if (weaponID == gWeapon)
+	{
+		// Validate trail
+		if (gCvarHolyTrail.BoolValue)
+		{
+			// Create an trail effect
+			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
+			TE_SendToAll();	
 		}
 	}
 }
@@ -172,9 +226,14 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
 		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
+			// Gets grenade variables
+			float flDuration = gCvarHolyDuration.FloatValue;
+			float flRadius = gCvarHolyRadius.FloatValue;
+			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
+			
 			// Find any players in the radius
 			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_HOLY_RADIUS)) != -1)
+			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
 				// Skip humans
 				if (ZP_IsPlayerHuman(i))
@@ -186,17 +245,31 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
 				
 				// Put the fire on
-				UTIL_IgniteEntity(i, GRENADE_HOLY_IGNITE_TIME);   
+				UTIL_IgniteEntity(i, flDuration);   
 				
 				// Create a knockback
-				UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), ZP_GetWeaponKnockBack(gWeapon), GRENADE_HOLY_RADIUS);
+				UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), flKnock, flRadius);
 				
 				// Create a shake
-				UTIL_CreateShakeScreen(i, GRENADE_HOLY_SHAKE_AMP, GRENADE_HOLY_SHAKE_FREQUENCY, GRENADE_HOLY_SHAKE_DURATION);
+				UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
 			}
 
-			// Create an explosion effect
-			UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_water", GRENADE_HOLY_EXP_TIME);
+			// Gets particle name
+			static char sEffect[SMALL_LINE_LENGTH];
+			gCvarHolyEffect.GetString(sEffect, sizeof(sEffect));
+			
+			// Validate effect
+			if (hasLength(sEffect))
+			{
+				// Create an explosion effect
+				UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			}
+			else
+			{
+				// Create a simple effect
+				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
+				TE_SendToAll();
+			}
 		}
 	}
 	

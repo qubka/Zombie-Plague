@@ -38,17 +38,14 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Freeze",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
- * @section Properties of the grenade.
+ * @section Information about the weapon.
  **/
-#define GRENADE_FREEZE_TIME           GetRandomFloat(3.0, 5.0)  // Freeze duration in seconds
-#define GRENADE_FREEZE_RADIUS         200.0                     // Freeze size (radius)
-#define GRENADE_FREEZE_EXP_TIME       2.0                       // Duration of the explosion effect in seconds
-#define GRENADE_FREEZE_DMG_WHILE_FROST                          // If defined, Zombie will not get dmg when frost.
+#define WEAPON_BEAM_COLOR {75, 75, 255, 255}
 /**
  * @endsection
  **/
@@ -69,6 +66,10 @@ public Plugin myinfo =
 // Timer index
 Handle hZombieFreezed[MAXPLAYERS+1] = { null, ... }; 
 
+// Decal index
+int gBeam; int gHalo; int gTrail;
+#pragma unused gBeam, gHalo, gTrail
+
 // Sound index
 int gSound;
 #pragma unused gSound
@@ -76,6 +77,32 @@ int gSound;
 // Item index
 int gWeapon;
 #pragma unused gWeapon
+
+// Cvars
+ConVar gCvarFreezeDuration;
+ConVar gCvarFreezeRadius;
+ConVar gCvarFreezeDamage;
+ConVar gCvarFreezeTrail;
+ConVar gCvarFreezeEffect;
+ConVar gCvarFreezeExp;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarFreezeDuration = CreateConVar("zp_weapon_freeze_duration", "3.5", "Freeze duration", 0, true, 0.0);
+	gCvarFreezeRadius   = CreateConVar("zp_weapon_freeze_radius", "200.0", "Freeze radius", 0, true, 0.0);
+	gCvarFreezeDamage   = CreateConVar("zp_weapon_freeze_damage", "1", "Zombie will immune to damage when frost", 0, true, 0.0, true, 1.0);
+	gCvarFreezeTrail    = CreateConVar("zp_weapon_freeze_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	gCvarFreezeEffect   = CreateConVar("zp_weapon_freeze_effect", "dynamic_smoke5", "Particle effect for the freezing (''-off)");
+	gCvarFreezeExp      = CreateConVar("zp_weapon_freeze_explosion", "explosion_hegrenade_dirt", "Particle effect for the explosion (''-default)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_freeze", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -121,6 +148,9 @@ public void ZP_OnEngineExecute(/*void*/)
 public void OnMapStart(/*void*/)
 {
 	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
+	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
 	PrecacheModel("models/gibs/glass_shard01.mdl", true);
 	PrecacheModel("models/gibs/glass_shard02.mdl", true);
 	PrecacheModel("models/gibs/glass_shard03.mdl", true);
@@ -192,13 +222,33 @@ public void ZP_OnClientUpdated(int client, int attacker)
  *
  * @note To block damage reset the damage to zero. 
  **/
-#if defined GRENADE_FREEZE_DMG_WHILE_FROST
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
 	// If the client is frozen, then stop
-	if (GetEntityMoveType(client) == MOVETYPE_NONE) flDamage = 0.0;
+	if (gCvarFreezeDamage.BoolValue && GetEntityMoveType(client) == MOVETYPE_NONE) flDamage = 0.0;
 }
-#endif
+
+/**
+ * @brief Called after a custom grenade is created.
+ *
+ * @param client            The client index.
+ * @param grenade           The grenade index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
+{
+	// Validate custom grenade
+	if (weaponID == gWeapon)
+	{
+		// Validate trail
+		if (gCvarFreezeTrail.BoolValue)
+		{
+			// Create an trail effect
+			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
+			TE_SendToAll();	
+		}
+	}
+}
 
 /**
  * Event callback (smokegrenade_detonate)
@@ -228,9 +278,17 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
+			// Gets grenade radius
+			float flRadius = gCvarFreezeRadius.FloatValue;
+			float flDuration = gCvarFreezeDuration.FloatValue;
+			
+			// Gets particle name
+			static char sEffect[SMALL_LINE_LENGTH];
+			gCvarFreezeEffect.GetString(sEffect, sizeof(sEffect));
+
 			// Find any players in the radius
 			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_FREEZE_RADIUS)) != -1)
+			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
 				// Skip humans
 				if (ZP_IsPlayerHuman(i))
@@ -241,13 +299,19 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 				// Freeze the client
 				SetEntityMoveType(i, MOVETYPE_NONE);
 
-				// Create an effect
+				// Gets victim origin
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
-				UTIL_CreateParticle(i, vEnemy, _, _, "dynamic_smoke5", GRENADE_FREEZE_TIME+0.5);
 
+				// Validate effect
+				if (hasLength(sEffect))
+				{
+					// Create an effect
+					UTIL_CreateParticle(i, vEnemy, _, _, sEffect, flDuration + 0.5);
+				}
+				
 				// Create timer for removing freezing
 				delete hZombieFreezed[i];
-				hZombieFreezed[i] = CreateTimer(GRENADE_FREEZE_TIME, ClientRemoveFreezeEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
+				hZombieFreezed[i] = CreateTimer(flDuration, ClientRemoveFreezeEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
 
 				// Randomize pitch
 				vAngle[1] = GetRandomFloat(0.0, 360.0);
@@ -259,15 +323,28 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 				if (ice != -1)
 				{
 					// Kill after some duration
-					UTIL_RemoveEntity(ice, GRENADE_FREEZE_TIME);
+					UTIL_RemoveEntity(ice, flDuration);
 					
 					// Play sound
 					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC, SNDLEVEL_HOME);
 				}
 			}
 
-			// Create an explosion effect
-			UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_snow", GRENADE_FREEZE_EXP_TIME);
+			// Gets particle name
+			gCvarFreezeExp.GetString(sEffect, sizeof(sEffect));
+			
+			// Validate effect
+			if (hasLength(sEffect))
+			{
+				// Create an explosion effect
+				UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			}
+			else
+			{
+				// Create a simple effect
+				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
+				TE_SendToAll();
+			}
 			
 			// Create sparks splash effect
 			TE_SetupSparks(vPosition, NULL_VECTOR, 5000, 1000);

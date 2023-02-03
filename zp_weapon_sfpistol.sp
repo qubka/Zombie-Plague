@@ -38,16 +38,16 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: SFPistol",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_BEAM_COLOR           {185, 212, 11, 255}
-#define WEAPON_IDLE_TIME            3.33
-#define WEAPON_ATTACK_END_TIME      0.5
+#define WEAPON_BEAM_COLOR      {185, 212, 11, 255}
+#define WEAPON_IDLE_TIME       3.33
+#define WEAPON_ATTACK_END_TIME 0.5
 /**
  * @endsection
  **/

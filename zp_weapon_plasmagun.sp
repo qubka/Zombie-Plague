@@ -38,21 +38,15 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: PlasmaGun",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
- **/
-#define WEAPON_PLASMA_SPEED         2000.0
-#define WEAPON_PLASMA_DAMAGE        50.0
-#define WEAPON_PLASMA_GRAVITY       0.01
-#define WEAPON_PLASMA_RADIUS        150.0
-#define WEAPON_EFFECT_TIME          5.0
-#define WEAPON_EXPLOSION_TIME       2.0
-#define WEAPON_IDLE_TIME            10.0
-#define WEAPON_ATTACK_TIME          1.5
+ **/  
+#define WEAPON_IDLE_TIME   10.0
+#define WEAPON_ATTACK_TIME 1.5
 /**
  * @endsection
  **/
@@ -68,6 +62,10 @@ enum
 	ANIM_RELOAD
 };
 
+// Decal index
+int gTrail;
+#pragma unused gTrail
+
 // Item index
 int gWeapon;
 #pragma unused gWeapon
@@ -75,6 +73,30 @@ int gWeapon;
 // Sound index
 int gSoundAttack; int gSoundIdle;
 #pragma unused gSoundAttack, gSoundIdle
+
+// Cvars
+ConVar gCvarPlasmaSpeed;
+ConVar gCvarPlasmaDamage;
+ConVar gCvarPlasmaRadius;
+ConVar gCvarPlasmaTrail;
+ConVar gCvarPlasmaExp;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarPlasmaSpeed  = CreateConVar("zp_weapon_plasma_speed", "2000.0", "Projectile speed", 0, true, 0.0);
+	gCvarPlasmaDamage = CreateConVar("zp_weapon_plasma_damage", "50.0", "Projectile damage", 0, true, 0.0);
+	gCvarPlasmaRadius = CreateConVar("zp_weapon_plasma_radius", "150.0", "Damage radius", 0, true, 0.0);
+	gCvarPlasmaTrail  = CreateConVar("zp_weapon_plasma_trail", "pyrovision_rockettrail", "Particle effect for the trail (''-default)");
+	gCvarPlasmaExp    = CreateConVar("zp_weapon_plasma_explosion", "Explosion_bubbles", "Particle effect for the explosion (''-default)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_plasmagun", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -108,6 +130,16 @@ public void ZP_OnEngineExecute(/*void*/)
 	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"PLASMAGUN_SHOOT_SOUNDS\" wasn't find");
 	gSoundIdle = ZP_GetSoundKeyID("PLASMAGUN_IDLE_SOUNDS");
 	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"PLASMAGUN_IDLE_SOUNDS\" wasn't find");
+}
+
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
 }
 
 //*********************************************************************
@@ -346,7 +378,7 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_PLASMA_SPEED);
+		ScaleVector(vSpeed, gCvarPlasmaSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -357,20 +389,34 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 		// Sets an entity color
 		UTIL_SetRenderColor(entity, Color_Alpha, 0);
 		AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
-		
-		// Create an effect
-		UTIL_CreateParticle(entity, vPosition, _, _, "pyrovision_rockettrail", WEAPON_EFFECT_TIME);
-		
+
 		// Sets parent for the entity
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 		SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_PLASMA_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, PlasmaTouchHook);
+		
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarPlasmaTrail.GetString(sEffect, sizeof(sEffect));
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an effect
+			UTIL_CreateParticle(entity, vPosition, _, _, sEffect, 5.0);
+		}
+		else
+		{
+			// Attach beam follow
+			TE_SetupBeamFollow(entity, gTrail, 0, 1.0, 3.0, 3.0, 1, {154, 205, 50, 200});
+			TE_SendToAll();	
+		}
 	}
 }
 
@@ -582,12 +628,24 @@ public Action PlasmaTouchHook(int entity, int target)
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		// Create an explosion
-		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_PLASMA_DAMAGE, WEAPON_PLASMA_RADIUS, "plasma", thrower, entity);
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarPlasmaExp.GetString(sEffect, sizeof(sEffect));
 
-		// Create an explosion effect
-		UTIL_CreateParticle(_, vPosition, _, _, "Explosion_bubbles", WEAPON_EXPLOSION_TIME);
-		
+		// Initialze exp flag
+		int iFlags = EXP_NOSOUND;
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			iFlags |= EXP_NOFIREBALL; /// remove effect sprite
+		}
+
+		// Create an explosion
+		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarPlasmaDamage.FloatValue, gCvarPlasmaRadius.FloatValue, "plasma", thrower, entity);
+
 		// Play sound
 		ZP_EmitSoundToAll(gSoundAttack, 2, entity, SNDCHAN_STATIC, SNDLEVEL_CONVO);
 

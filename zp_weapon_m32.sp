@@ -38,24 +38,18 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: M32",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_GRENADE_SPEED            1500.0
-#define WEAPON_GRENADE_DAMAGE           100.0
-#define WEAPON_GRENADE_GRAVITY          1.5
-#define WEAPON_GRENADE_RADIUS           300.0
-#define WEAPON_EXPLOSION_TIME           2.0
-#define WEAPON_EFFECT_TIME              5.0
-#define WEAPON_IDLE_TIME                2.0
-#define WEAPON_ATTACK_TIME              1.0
-#define WEAPON_INSERT_TIME              0.86
-#define WEAPON_INSERT_START_TIME        0.7
-#define WEAPON_INSERT_END_TIME          0.73
+#define WEAPON_IDLE_TIME         2.0
+#define WEAPON_ATTACK_TIME       1.0
+#define WEAPON_INSERT_TIME       0.86
+#define WEAPON_INSERT_START_TIME 0.7
+#define WEAPON_INSERT_END_TIME   0.63
 /**
  * @endsection
  **/
@@ -81,6 +75,10 @@ enum
 	RELOAD_END
 };
 
+// Decal index
+int gTrail;
+#pragma unused gTrail
+
 // Item index
 int gWeapon;
 #pragma unused gWeapon
@@ -88,6 +86,32 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarM32Speed;
+ConVar gCvarM32Damage;
+ConVar gCvarM32Radius;
+ConVar gCvarM32Gravity;
+ConVar gCvarM32Trail;
+ConVar gCvarM32Exp;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarM32Speed   = CreateConVar("zp_weapon_m32_speed", "1500.0", "Projectile speed", 0, true, 0.0);
+	gCvarM32Damage  = CreateConVar("zp_weapon_m32_damage", "150.0", "Projectile damage", 0, true, 0.0);
+	gCvarM32Radius  = CreateConVar("zp_weapon_m32_radius", "300.0", "Damage radius", 0, true, 0.0);
+	gCvarM32Gravity = CreateConVar("zp_weapon_m32_gravity", "1.5", "Projectile gravity", 0, true, 0.0);
+	gCvarM32Trail   = CreateConVar("zp_weapon_m32_trail", "critical_rocket_red", "Particle effect for the trail (''-default)");
+	gCvarM32Exp     = CreateConVar("zp_weapon_m32_explosion", "", "Particle effect for the explosion (''-default)");
+
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_m32", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -126,7 +150,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void OnMapStart(/*void*/)
 {
-	// Effects
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
 }
 
@@ -448,7 +473,7 @@ void Weapon_OnCreateGrenade(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_GRENADE_SPEED);
+		ScaleVector(vSpeed, gCvarM32Speed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -456,19 +481,33 @@ void Weapon_OnCreateGrenade(int client)
 		// Push the rocket
 		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
 
-		// Create an effect
-		UTIL_CreateParticle(entity, vPosition, _, _, "critical_rocket_red", WEAPON_EFFECT_TIME);
-
 		// Sets parent for the entity
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 		SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_GRENADE_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", gCvarM32Gravity.FloatValue); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, GrenadeTouchHook);
+		
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarM32Trail.GetString(sEffect, sizeof(sEffect));
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an effect
+			UTIL_CreateParticle(entity, vPosition, _, _, sEffect, 5.0);
+		}
+		else
+		{
+			// Attach beam follow
+			TE_SetupBeamFollow(entity, gTrail, 0, 1.0, 4.0, 4.0, 2, {230, 224, 212, 200});
+			TE_SendToAll();	
+		}
 	}
 }
 
@@ -610,8 +649,23 @@ public Action GrenadeTouchHook(int entity, int target)
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarM32Exp.GetString(sEffect, sizeof(sEffect));
+
+		// Initialze exp flag
+		int iFlags = EXP_NOSOUND;
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			iFlags |= EXP_NOFIREBALL; /// remove effect sprite
+		}
+		
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, /*EXP_NOFIREBALL | */EXP_NOSOUND, _, WEAPON_GRENADE_DAMAGE, WEAPON_GRENADE_RADIUS, "m32", thrower, entity);
+		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarM32Damage.FloatValue, gCvarM32Radius.FloatValue, "m32", thrower, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);

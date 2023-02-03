@@ -38,16 +38,16 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Skull I",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_IDLE_TIME            1.66
-#define WEAPON_ATTACK_TIME          1.0
-#define WEAPON_ATTACK_SP_TIME       0.2
+#define WEAPON_IDLE_TIME      1.66
+#define WEAPON_ATTACK_TIME    1.0
+#define WEAPON_ATTACK_SP_TIME 0.2
 /**
  * @endsection
  **/

@@ -38,21 +38,18 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Balrog I",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_EXPLOSION_DAMAGE         300.0
-#define WEAPON_EXPLOSION_RADIUS         150.0
-#define WEAPON_EXPLOSION_TIME           2.0
-#define WEAPON_IDLE2_TIME               1.66
-#define WEAPON_ATTACK2_TIME             3.0
-#define WEAPON_RELOAD2_TIME             2.96
-#define WEAPON_SWITCH_TIME              2.0
-#define WEAPON_SWITCH2_TIME             1.26
+#define WEAPON_IDLE2_TIME   1.66
+#define WEAPON_ATTACK2_TIME 3.0
+#define WEAPON_RELOAD2_TIME 2.96
+#define WEAPON_SWITCH_TIME  2.0
+#define WEAPON_SWITCH2_TIME 1.26
 /**
  * @endsection
  **/
@@ -89,6 +86,26 @@ int gWeapon;
 int gSound;
 #pragma unused gSound
 
+// Cvars
+ConVar gCvarBalrogDamage;
+ConVar gCvarBalrogRadius;
+ConVar gCvarBalrogExp;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarBalrogDamage = CreateConVar("zp_weapon_balrog1_damage", "600.0", "Explosion damage", 0, true, 0.0);
+	gCvarBalrogRadius = CreateConVar("zp_weapon_balrog1_radius", "150.0", "Explosion radius", 0, true, 0.0);
+	gCvarBalrogExp    = CreateConVar("zp_weapon_balrog1_explosion", "explosion_hegrenade_interior", "Particle effect for the explosion (''-default)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_balrog1", "sourcemod/zombieplague");
+}
+
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
  *        A library is either a plugin name or extension name, as exposed via its include file.
@@ -119,6 +136,15 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("BALROGI2_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGI2_SHOOT_SOUNDS\" wasn't find");
+}
+
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
 }
 
 //*********************************************************************
@@ -382,12 +408,24 @@ void Weapon_OnCreateExplosion(int client, int weapon)
 		// Returns the collision position of a trace result
 		TR_GetEndPosition(vEndPosition); 
 	
-		// Create an explosion
-		UTIL_CreateExplosion(vEndPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_EXPLOSION_DAMAGE, WEAPON_EXPLOSION_RADIUS, "balrog1", client, weapon);
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarBalrogExp.GetString(sEffect, sizeof(sEffect));
 
-		// Create an explosion effect
-		UTIL_CreateParticle(_, vEndPosition, _, _, "explosion_hegrenade_interior", WEAPON_EXPLOSION_TIME);
-	
+		// Initialze exp flag
+		int iFlags = EXP_NOSOUND;
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vEndPosition, _, _, sEffect, 2.0);
+			iFlags |= EXP_NOFIREBALL; /// remove effect sprite
+		}
+		
+		// Create an explosion
+		UTIL_CreateExplosion(vEndPosition, iFlags, _, gCvarBalrogDamage.FloatValue, gCvarBalrogRadius.FloatValue, "balrog1", client, weapon);
+		
 		// Play sound
 		ZP_EmitAmbientSound(gSound, 2, vEndPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL);
 	}

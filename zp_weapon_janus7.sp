@@ -38,24 +38,17 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Janus VII",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_SIGNAL_COUNTER       100
-#define WEAPON_ACTIVE_COUNTER       150
-#define WEAPON_BEAM_DAMAGE          50.0
-#define WEAPON_BEAM_RADIUS          500.0
-#define WEAPON_BEAM_SHAKE_AMP       10.0
-#define WEAPON_BEAM_SHAKE_FREQUENCY 1.0
-#define WEAPON_BEAM_SHAKE_DURATION  2.0
-#define WEAPON_IDLE_TIME            3.0
-#define WEAPON_SWITCH_TIME          2.0
-#define WEAPON_SWITCH2_TIME         1.66
-#define WEAPON_ATTACK_TIME          1.0
+#define WEAPON_IDLE_TIME    3.0
+#define WEAPON_SWITCH_TIME  2.0
+#define WEAPON_SWITCH2_TIME 1.66
+#define WEAPON_ATTACK_TIME  1.0
 /**
  * @endsection
  **/
@@ -96,6 +89,32 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarJanusSignalCounter;
+ConVar gCvarJanusActiveCounter;
+ConVar gCvarJanusBeamDamage;
+ConVar gCvarJanusBeamRadius;
+ConVar gCvarJanusBeamMuzzle;
+ConVar gCvarJanusBeamTracer;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarJanusSignalCounter = CreateConVar("zp_weapon_janus7_signal_counter", "100", "Amount of shots to activate second mode", 0, true, 0.0);
+	gCvarJanusActiveCounter = CreateConVar("zp_weapon_janus7_active_counter", "150", "Amount of shots in the second mode", 0, true, 0.0);
+	gCvarJanusBeamDamage    = CreateConVar("zp_weapon_janus7_beam_damage", "50.0", "Beam damage per shoot", 0, true, 0.0);
+	gCvarJanusBeamRadius    = CreateConVar("zp_weapon_janus7_beam_radius", "500.0", "Radius when beam attach to nearby target", 0, true, 0.0);
+	gCvarJanusBeamMuzzle    = CreateConVar("zp_weapon_janus7_beam_muzzle", "medicgun_invulnstatus_fullcharge_red", "Particle effect for the muzzle");
+	gCvarJanusBeamTracer    = CreateConVar("zp_weapon_janus7_beam_tracer", "medicgun_beam_red_invun", "Particle effect for the tracer");
+
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_janus7", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -292,7 +311,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	if (iStateMode == STATE_ACTIVE)
 	{
 		// Validate counter
-		if (iCounter > WEAPON_ACTIVE_COUNTER)
+		if (iCounter > gCvarJanusActiveCounter.IntValue)
 		{
 			Weapon_OnFinish(client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime);
 			return;
@@ -328,7 +347,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		
 		// Validate counter
-		if (iCounter > WEAPON_SIGNAL_COUNTER)
+		if (iCounter > gCvarJanusSignalCounter.IntValue)
 		{
 			// Sets signal mode
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_SIGNAL);
@@ -502,9 +521,13 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 30.0, 10.0, -10.0, vPosition);
 
+	// Gets beam variables
+	float flRadius = gCvarJanusBeamRadius.FloatValue;
+	float flDamage = gCvarJanusBeamDamage.FloatValue;
+
 	// Find any players in the radius
 	int i; int it = 1; /// iterator
-	while ((i = ZP_FindPlayerInSphere(it, vPosition, WEAPON_BEAM_RADIUS)) != -1)
+	while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 	{
 		// Skip humans
 		if (ZP_IsPlayerHuman(i))
@@ -522,10 +545,10 @@ void Weapon_OnCreateBeam(int client, int weapon)
 		}
 
 		// Create the damage for victims
-		ZP_TakeDamage(i, client, weapon, WEAPON_BEAM_DAMAGE, DMG_NEVERGIB, weapon);
+		ZP_TakeDamage(i, client, weapon, flDamage, DMG_NEVERGIB, weapon);
 		
 		// Create a shake
-		UTIL_CreateShakeScreen(i, WEAPON_BEAM_SHAKE_AMP, WEAPON_BEAM_SHAKE_FREQUENCY, WEAPON_BEAM_SHAKE_DURATION);
+		UTIL_CreateShakeScreen(i, 3.0, 1.0, 2.0);
 		
 		// Sets found state
 		bFound = true; 
@@ -542,9 +565,13 @@ void Weapon_OnCreateBeam(int client, int weapon)
 		TR_TraceRayFilter(vPosition, vAngle, (MASK_SHOT|CONTENTS_GRATE), RayType_Infinite, SelfFilter, client);
 		TR_GetEndPosition(vEnemy);
 	}
+	
+	// Gets particle name
+	static char sEffect[SMALL_LINE_LENGTH];
+	gCvarJanusBeamTracer.GetString(sEffect, sizeof(sEffect));	
 
 	// Sent a beam
-	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "medicgun_beam_red_invun", vEnemy, ZP_GetWeaponShoot(gWeapon));
+	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", sEffect, vEnemy, ZP_GetWeaponShoot(gWeapon));
 }
 
 void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
@@ -562,9 +589,13 @@ void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 		{
 			return;
 		}
+		
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarJanusBeamMuzzle.GetString(sEffect, sizeof(sEffect));
 
 		// Creates a muzzle
-		entity = UTIL_CreateParticle(ZP_GetClientViewModel(client, true), _, _, "1", "medicgun_invulnstatus_fullcharge_red", 9999.9);
+		entity = UTIL_CreateParticle(ZP_GetClientViewModel(client, true), _, _, "1", sEffect, 9999.9);
 			
 		// Validate entity 
 		if (entity != -1)

@@ -38,18 +38,18 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Sfsniper",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_BEAM_LIFE                2.5
-#define WEAPON_BEAM_WIDTH               "3.0"
-#define WEAPON_BEAM_COLOR               "255 69 0"
-#define WEAPON_IDLE_TIME                8.33
-#define WEAPON_ATTACK_TIME              0.4
+#define WEAPON_BEAM_LIFE   2.5
+#define WEAPON_BEAM_WIDTH  "3.0"
+#define WEAPON_BEAM_COLOR  "255 69 0"
+#define WEAPON_IDLE_TIME   8.33
+#define WEAPON_ATTACK_TIME 0.4
 /**
  * @endsection
  **/

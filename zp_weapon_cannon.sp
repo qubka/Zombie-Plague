@@ -38,22 +38,15 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Cannon",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_FIRE_SPEED               1000.0
-#define WEAPON_FIRE_DAMAGE              400.0
-#define WEAPON_FIRE_GRAVITY             0.01
-#define WEAPON_FIRE_RADIUS              200.0
-#define WEAPON_FIRE_LIFE                0.7
-#define WEAPON_FIRE_TIME                0.5
-#define WEAPON_IGNITE_TIME              3.0
-#define WEAPON_IDLE_TIME                1.66
-#define WEAPON_ATTACK_TIME              5.0
+#define WEAPON_IDLE_TIME   1.66
+#define WEAPON_ATTACK_TIME 5.0
 /**
  * @endsection
  **/
@@ -74,6 +67,30 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarCannonSpeed;
+ConVar gCvarCannonDamage;
+ConVar gCvarCannonRadius;
+ConVar gCvarCannonLife;
+ConVar gCvarCannonIgnite;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarCannonSpeed  = CreateConVar("zp_weapon_cannon_speed", "1000.0", "Projectile speed", 0, true, 0.0);  
+	gCvarCannonDamage = CreateConVar("zp_weapon_cannon_damage", "400.0", "Projectile damage", 0, true, 0.0); 
+	gCvarCannonRadius = CreateConVar("zp_weapon_cannon_radius", "200.0", "Damage radius", 0, true, 0.0); 
+	gCvarCannonLife   = CreateConVar("zp_weapon_cannon_life", "0.7", "Duration of life", 0, true, 0.0);   
+	gCvarCannonIgnite = CreateConVar("zp_weapon_cannon_ignite", "3.0", "Duration of ignite", 0, true, 0.0);
+
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_cannon", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -282,7 +299,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_FIRE_SPEED);
+		ScaleVector(vSpeed, gCvarCannonSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -300,16 +317,19 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_FIRE_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, FireTouchHook);
 
+		// Gets fire life
+		float flDuration = gCvarCannonLife.FloatValue;
+
 		// Create an effect
-		UTIL_CreateParticle(entity, vPosition, _, _, "new_flame_core", WEAPON_FIRE_LIFE);
+		UTIL_CreateParticle(entity, vPosition, _, _, "new_flame_core", flDuration);
 		
 		// Kill after some duration
-		UTIL_RemoveEntity(entity, WEAPON_FIRE_LIFE);
+		UTIL_RemoveEntity(entity, flDuration);
 	}
 }
 
@@ -353,7 +373,7 @@ void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
 				
 				// Initialize flags char
 				static char sFlags[SMALL_LINE_LENGTH];
-				FormatEx(sFlags, sizeof(sFlags), "OnUser2 !self:Stop::%f:-1", WEAPON_FIRE_TIME);
+				FormatEx(sFlags, sizeof(sFlags), "OnUser2 !self:Stop::%f:-1", 0.5);
 				
 				// Sets modified flags on the entity
 				SetVariantString(sFlags);
@@ -504,7 +524,7 @@ public Action FireTouchHook(int entity, int target)
 			if (ZP_IsPlayerZombie(target)) 
 			{
 				// Put the fire on
-				UTIL_IgniteEntity(target, WEAPON_IGNITE_TIME);  
+				UTIL_IgniteEntity(target, gCvarCannonIgnite.FloatValue);  
 			}
 		}
 
@@ -513,7 +533,7 @@ public Action FireTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_FIRE_DAMAGE, WEAPON_FIRE_RADIUS, "cannon", thrower, entity);
+		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, gCvarCannonDamage.FloatValue, gCvarCannonRadius.FloatValue, "cannon", thrower, entity);
 
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");

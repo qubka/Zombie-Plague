@@ -38,22 +38,16 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Watercannon",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_FIRE_DAMAGE          50.0
-#define WEAPON_FIRE_RADIUS          30.0
-#define WEAPON_FIRE_SPEED           1000.0
-#define WEAPON_FIRE_GRAVITY         0.01
-#define WEAPON_FIRE_LIFE            0.8
-#define WEAPON_IGNITE_TIME          1.0
-#define WEAPON_IDLE_TIME            1.66
-#define WEAPON_ATTACK_START_TIME    0.2
-#define WEAPON_ATTACK_END_TIME      0.7
+#define WEAPON_IDLE_TIME         1.66
+#define WEAPON_ATTACK_START_TIME 0.2
+#define WEAPON_ATTACK_END_TIME   0.7
 /**
  * @endsection
  **/
@@ -84,6 +78,30 @@ enum
 	STATE_BEGIN,
 	STATE_ATTACK
 };
+
+// Cvars
+ConVar gCvarWaterSpeed;
+ConVar gCvarWaterDamage;
+ConVar gCvarWaterRadius;
+ConVar gCvarWaterLife;
+ConVar gCvarWaterIgnite;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarWaterSpeed  = CreateConVar("zp_weapon_watercannon_speed", "1000.0", "Projectile speed", 0, true, 0.0);
+	gCvarWaterDamage = CreateConVar("zp_weapon_watercannon_damage", "50.0", "Projectile damage", 0, true, 0.0);
+	gCvarWaterRadius = CreateConVar("zp_weapon_watercannon_radius", "30.0", "Damage radius", 0, true, 0.0);
+	gCvarWaterLife   = CreateConVar("zp_weapon_watercannon_life", "0.8", "Duration of life", 0, true, 0.0);
+	gCvarWaterIgnite = CreateConVar("zp_weapon_watercannon_ignite", "1.0", "Duration of ignite", 0, true, 0.0);
+
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_watercannon", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -391,7 +409,7 @@ void Weapon_OnCreateFire(int client, int weapon)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_FIRE_SPEED);
+		ScaleVector(vSpeed, gCvarWaterSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -409,13 +427,13 @@ void Weapon_OnCreateFire(int client, int weapon)
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_FIRE_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, FireTouchHook);
 		
 		// Kill after some duration
-		UTIL_RemoveEntity(entity, WEAPON_FIRE_LIFE);
+		UTIL_RemoveEntity(entity, gCvarWaterLife.FloatValue);
 	}
 }
 
@@ -672,13 +690,13 @@ public Action FireTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Create the damage for victims
-		UTIL_CreateDamage(_, vPosition, thrower, WEAPON_FIRE_DAMAGE, WEAPON_FIRE_RADIUS, DMG_NEVERGIB, gWeapon);
+		UTIL_CreateDamage(_, vPosition, thrower, gCvarWaterDamage.FloatValue, gCvarWaterRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 		
 		// Validate zombie
 		if (IsPlayerExist(target) && ZP_IsPlayerZombie(target)) 
 		{
 			// Put the fire on
-			UTIL_IgniteEntity(target, WEAPON_IGNITE_TIME);   
+			UTIL_IgniteEntity(target, gCvarWaterIgnite.FloatValue);   
 		}
 		
 		// Remove the entity from the world

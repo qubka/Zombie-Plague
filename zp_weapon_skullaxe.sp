@@ -38,19 +38,14 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Skullaxe",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about weapon.
  **/    
-#define WEAPON_SLASH_DAMAGE            50.0
-#define WEAPON_STAB_DAMAGE             100.0
-#define WEAPON_RADIUS_DAMAGE           10.0
-#define WEAPON_SLASH_DISTANCE          80.0
-#define WEAPON_STAB_DISTANCE           90.0
-#define WEAPON_IDLE_TIME               8.33
+#define WEAPON_IDLE_TIME 8.33
 /**
  * @endsection
  **/
@@ -81,6 +76,30 @@ enum
 	ANIM_SLASH_START,
 	ANIM_SLASH3
 };
+
+// Cvars
+ConVar gCvarSkullaxeSlashDamage;
+ConVar gCvarSkullaxeStabDamage;
+ConVar gCvarSkullaxeSlashDistance;
+ConVar gCvarSkullaxeStabDistance;
+ConVar gCvarSkullaxeRadiusDamage;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarSkullaxeSlashDamage   = CreateConVar("zp_weapon_skullaxe_slash_damage", "50.0", "Slash damage", 0, true, 0.0);
+	gCvarSkullaxeStabDamage    = CreateConVar("zp_weapon_skullaxe_stab_damage", "100.0", "Stab damage", 0, true, 0.0);
+	gCvarSkullaxeSlashDistance = CreateConVar("zp_weapon_skullaxe_slash_distance", "80.0", "Slash distance", 0, true, 0.0);
+	gCvarSkullaxeStabDistance  = CreateConVar("zp_weapon_skullaxe_stab_distance", "90.0", "Stab distance", 0, true, 0.0);
+	gCvarSkullaxeRadiusDamage  = CreateConVar("zp_weapon_skullaxe_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_skullaxe", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -245,7 +264,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 5.0 + flUpShift, vPosition);
-	ZP_GetPlayerEyePosition(client, bSlash ? WEAPON_SLASH_DISTANCE : WEAPON_STAB_DISTANCE, flRightShift, 5.0 + flUpShift, vEndPosition);
+	ZP_GetPlayerEyePosition(client, (bSlash ? gCvarSkullaxeSlashDistance : gCvarSkullaxeStabDistance).FloatValue, flRightShift, 5.0 + flUpShift, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -306,7 +325,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, WEAPON_RADIUS_DAMAGE, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? gCvarSkullaxeSlashDamage : gCvarSkullaxeStabDamage).FloatValue, gCvarSkullaxeRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 
 			// Validate victim
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))

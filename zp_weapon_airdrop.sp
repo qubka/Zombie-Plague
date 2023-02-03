@@ -38,7 +38,7 @@ public Plugin myinfo =
 	name            = "[ZP] ExtraItem: AirDrop",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of extra items",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -80,51 +80,22 @@ enum
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_IDLE_TIME                1.66  
-#define WEAPON_IDLE2_TIME               2.0
-#define WEAPON_SWITCH_TIME              1.0
+#define WEAPON_IDLE_TIME    1.66  
+#define WEAPON_IDLE2_TIME   2.0
+#define WEAPON_SWITCH_TIME  1.0
 /**
  * @endsection
  **/
- 
-/**
- * @section Properties of the bombardier.
- **/
-#define BOMBARDING_HEIGHT               700.0
-#define BOMBARDING_EXPLOSION_TIME       2.0
-#define BOMBARDING_RADIUS               800.0
-#define BOMBARDING_SPEED                500.0
-#define BOMBARDING_GRAVITY              0.01
-/**
- * @endsection
- **/
- 
-/**
- * @section Properties of the airdrop.
- **/
-//#define AIRDROP_GLOW                  /// Uncomment to disable glow
-#define AIRDROP_AMOUNT                  6
-#define AIRDROP_HEIGHT                  700.0
-#define AIRDROP_HEALTH                  300
-#define AIRDROP_ELASTICITY              0.01
-#define AIRDROP_SPEED                   175.0
-#define AIRDROP_EXPLOSIONS              3
-#define AIRDROP_WEAPONS                 15
-#define AIRDROP_SMOKE_REMOVE            14.0
-#define AIRDROP_SMOKE_TIME              17.0
-/**
- * @endsection
- **/
- 
+
 /**
  * @section Properties of the gibs shooter.
- **/
-#define METAL_GIBS_AMOUNT               5.0
-#define METAL_GIBS_DELAY                0.05
-#define METAL_GIBS_SPEED                500.0
-#define METAL_GIBS_VARIENCE             2.0  
-#define METAL_GIBS_LIFE                 2.0  
-#define METAL_GIBS_DURATION             3.0
+ **/                                  
+#define METAL_GIBS_AMOUNT   5.0
+#define METAL_GIBS_DELAY    0.05
+#define METAL_GIBS_SPEED    500.0
+#define METAL_GIBS_VARIENCE 2.0  
+#define METAL_GIBS_LIFE     2.0  
+#define METAL_GIBS_DURATION 3.0
 /**
  * @endsection
  **/
@@ -146,6 +117,42 @@ enum
 /**
  * @endsection
  **/
+
+// Cvars
+ConVar gCvarAirdropGlow;        
+ConVar gCvarAirdropAmount;
+ConVar gCvarAirdropHeight; 
+ConVar gCvarAirdropHealth;
+ConVar gCvarAirdropSpeed; 
+ConVar gCvarAirdropExplosions;
+ConVar gCvarAirdropWeapons ;
+ConVar gCvarAirdropSmokeLife;
+ConVar gCvarBombardingHeight; 
+ConVar gCvarBombardingRadius; 
+ConVar gCvarBombardingSpeed ;
+	
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarAirdropGlow        = CreateConVar("zp_weapon_airdrop_glow", "0", "Enable glow ?", 0, true, 0.0, true, 1.0);        
+	gCvarAirdropAmount      = CreateConVar("zp_weapon_airdrop_amount", "6", "Amount of drops in heli", 0, true, 0.0);      
+	gCvarAirdropHeight      = CreateConVar("zp_weapon_airdrop_height", "700.0", "Drop height spawn", 0, true, 0.0);      
+	gCvarAirdropHealth      = CreateConVar("zp_weapon_airdrop_health", "300", "Health of drop", 0, true, 1.0);      
+	gCvarAirdropSpeed       = CreateConVar("zp_weapon_airdrop_speed", "175.0", "Initial speed of drop", 0, true, 0.0);       
+	gCvarAirdropExplosions  = CreateConVar("zp_weapon_airdrop_explosions", "3", "How many c4 needed to open safe", 0, true, 0.0);  
+	gCvarAirdropWeapons     = CreateConVar("zp_weapon_airdrop_weapons", "15", "Amount of weapons in the safe bag", 0, true, 0.0);     
+	gCvarAirdropSmokeLife   = CreateConVar("zp_weapon_airdrop_smoke_life", "14.0", "", 0, true, 0.0); 
+	gCvarBombardingHeight   = CreateConVar("zp_weapon_bombarding_height", "700.0", "Rocket height spawn", 0, true, 0.0);   
+	gCvarBombardingRadius   = CreateConVar("zp_weapon_bombarding_radius", "800.0", "Explosion radius", 0, true, 0.0);   
+	gCvarBombardingSpeed    = CreateConVar("zp_weapon_bombarding_speed", "500.0", "Rocket speed", 0, true, 0.0);    
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_airdrop", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -662,8 +669,9 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 			{
 				case STATE_TRIGGER_OFF : 
 				{
-					// Create a smoke    
-					int smoke = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", AIRDROP_SMOKE_REMOVE, AIRDROP_SMOKE_TIME);
+					// Create a smoke
+					float flDuration = gCvarAirdropSmokeLife.FloatValue;
+					int smoke = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", flDuration, flDuration + 3.0);
 					
 					// Sent drop
 					CreateHelicopter(vPosition, vAngle);
@@ -995,7 +1003,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 void CreateJet(float vPosition[3], float vAngle[3])
 {
 	// Add to the position
-	vPosition[2] += BOMBARDING_HEIGHT;
+	vPosition[2] += gCvarBombardingHeight.FloatValue;
 
 	// Gets world size
 	static float vMaxs[3];
@@ -1062,13 +1070,13 @@ public Action JetBombHook(Handle hTimer, int refID)
 			NormalizeVector(vVelocity, vVelocity);
 
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vVelocity, BOMBARDING_SPEED);
+			ScaleVector(vVelocity, gCvarBombardingSpeed.FloatValue);
 	
 			// Push the bomb
 			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vVelocity);
 			
 			 // Sets physics
-			SetEntPropFloat(entity, Prop_Data, "m_flGravity", BOMBARDING_GRAVITY);
+			SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01);
 
 			// Create touch hook
 			SDKHook(entity, SDKHook_Touch, BombTouchHook);
@@ -1092,12 +1100,15 @@ public Action BombTouchHook(int entity, int target)
 	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 	// Create an explosion effect
-	UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500", BOMBARDING_EXPLOSION_TIME);
-	UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500_fallback", BOMBARDING_EXPLOSION_TIME);
+	UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500", 2.0);
+	UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500_fallback", 2.0);
+	
+	// Gets bombarding radius
+	float flRadius = gCvarBombardingRadius.FloatValue;
 	
 	// Find any players in the radius
 	int i; int it = 1; /// iterator
-	while ((i = ZP_FindPlayerInSphere(it, vPosition, BOMBARDING_RADIUS)) != -1)
+	while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 	{
 		// Skip humans
 		if (ZP_IsPlayerHuman(i))
@@ -1140,7 +1151,7 @@ public Action BombTouchHook(int entity, int target)
 void CreateHelicopter(float vPosition[3], float vAngle[3])
 {
 	// Add to the position
-	vPosition[2] += AIRDROP_HEIGHT;
+	vPosition[2] += gCvarAirdropHeight.FloatValue;
 	
 	// Gets world size
 	static float vMaxs[3];
@@ -1162,7 +1173,7 @@ void CreateHelicopter(float vPosition[3], float vAngle[3])
 	
 		// Sets main parameters
 		SetEntProp(entity, Prop_Data, "m_iHammerID", SAFE);
-		SetEntProp(entity, Prop_Data, "m_iMaxHealth", AIRDROP_AMOUNT);
+		SetEntProp(entity, Prop_Data, "m_iMaxHealth", gCvarAirdropAmount.FloatValue);
 	}
 }
 
@@ -1294,7 +1305,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 		ZP_GetAttachment(entity, "dropped", vPosition, vAngle);
 		
 		// Gets drop type
-		int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int drop; int iCollision; int iDamage;
+		int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int drop; int iCollision; int iDamage; int iHealth = gCvarAirdropHealth.IntValue;
 		switch (iType)
 		{
 			case SAFE :
@@ -1322,7 +1333,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 					{
 						// Show message
 						SetGlobalTransTarget(i);
-						PrintHintText(i, "%t", "airdrop safe", AIRDROP_EXPLOSIONS);
+						PrintHintText(i, "%t", "airdrop safe", gCvarAirdropExplosions.IntValue);
 					}
 				}
 			}
@@ -1331,60 +1342,44 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 			{
 				// Gets model path
 				static char sModel[PLATFORM_LINE_LENGTH]; 
-#if defined AIRDROP_GLOW
 				static int vColor[4];
-#endif
 
 				switch (iType)
 				{
 					case EXPL : 
 					{ 
 						strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_explosive.mdl");    
-#if defined AIRDROP_GLOW
 						vColor = {255, 127, 80, 255};  
-#endif
 					}
 					case HEAVY : 
 					{ 
 						strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_heavy_weapon.mdl"); 
-#if defined AIRDROP_GLOW
 						vColor = {220, 20, 60, 255};   
-#endif
 					} 
 					case LIGHT : 
 					{ 
 						strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_light_weapon.mdl"); 
-#if defined AIRDROP_GLOW
 						vColor = {255, 0, 0, 255};  
-#endif
 					} 
 					case PISTOL : 
 					{ 
 						strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_pistol.mdl");
-#if defined AIRDROP_GLOW
 						vColor = {240, 128, 128, 255}; 
-#endif
 					} 
 					case HPIST : 
 					{ 
 						strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_pistol_heavy.mdl"); 
-#if defined AIRDROP_GLOW
 						vColor = {219, 112, 147, 255}; 
-#endif
 					} 
 					case TOOLS : 
 					{ 
 						strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_tools.mdl");  
-#if defined AIRDROP_GLOW
 						vColor = {0, 0, 205, 255};     
-#endif
 					} 
 					case HTOOL : 
 					{ 
 						strcopy(sModel, sizeof(sModel), "models/props_survival/cases/case_tools_heavy.mdl");
-#if defined AIRDROP_GLOW
 						vColor = {95, 158, 160, 255};  
-#endif
 					} 
 				}
 
@@ -1401,24 +1396,26 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 					// Create damage hook
 					SDKHook(drop, SDKHook_OnTakeDamage, CaseDamageHook);
 					
-#if defined AIRDROP_GLOW
-					// Create a prop_dynamic_override entity
-					int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
-
-					// Validate entity
-					if (glow != -1)
+					// Validate glow
+					if (gCvarAirdropGlow.BoolValue)
 					{
-						// Sets parent to the entity
-						SetVariantString("!activator");
-						AcceptEntityInput(glow, "SetParent", drop, glow);
+						// Create a prop_dynamic_override entity
+						int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
 
-						// Sets glowing mode
-						UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
-						
-						// Create transmit hook
-						///SDKHook(glow, SDKHook_SetTransmit, CaseTransmitHook);
+						// Validate entity
+						if (glow != -1)
+						{
+							// Sets parent to the entity
+							SetVariantString("!activator");
+							AcceptEntityInput(glow, "SetParent", drop, glow);
+
+							// Sets glowing mode
+							UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
+							
+							// Create transmit hook
+							///SDKHook(glow, SDKHook_SetTransmit, CaseTransmitHook);
+						}
 					}
-#endif
 				}
 				
 				// Randomize yaw a bit 
@@ -1439,7 +1436,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 			NormalizeVector(vVelocity, vVelocity);
 			
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vVelocity, AIRDROP_SPEED);
+			ScaleVector(vVelocity, gCvarAirdropSpeed.FloatValue);
 		
 			// Push the entity 
 			TeleportEntity(drop, NULL_VECTOR, NULL_VECTOR, vVelocity);
@@ -1447,12 +1444,12 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 			// Sets physics
 			SetEntProp(drop, Prop_Data, "m_CollisionGroup", iCollision);
 			SetEntProp(drop, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-			SetEntPropFloat(drop, Prop_Data, "m_flElasticity", AIRDROP_ELASTICITY);
+			SetEntPropFloat(drop, Prop_Data, "m_flElasticity", 0.01);
 			
 			// Sets health
 			SetEntProp(drop, Prop_Data, "m_takedamage", iDamage);
-			SetEntProp(drop, Prop_Data, "m_iHealth", AIRDROP_HEALTH);
-			SetEntProp(drop, Prop_Data, "m_iMaxHealth", AIRDROP_HEALTH);
+			SetEntProp(drop, Prop_Data, "m_iHealth", iHealth);
+			SetEntProp(drop, Prop_Data, "m_iMaxHealth", iHealth);
 			
 			// Sets type
 			SetEntProp(drop, Prop_Data, "m_iHammerID", iType);
@@ -1572,7 +1569,7 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 					SetEntProp(entity, Prop_Data, "m_iHammerID", iExp);
 			
 					// Validate explosions
-					if (iExp >= AIRDROP_EXPLOSIONS)
+					if (iExp >= gCvarAirdropExplosions.IntValue)
 					{
 						// Initialize vectors
 						static float vPosition[3]; static float vAngle[3]; 
@@ -1595,7 +1592,7 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 							SetEntProp(bag, Prop_Data, "m_takedamage", DAMAGE_NO);
 							
 							// Sets weapon amount
-							SetEntProp(bag, Prop_Data, "m_iHammerID", AIRDROP_WEAPONS);
+							SetEntProp(bag, Prop_Data, "m_iHammerID", gCvarAirdropWeapons.IntValue);
 							
 							// Create use hook
 							SDKHook(bag, SDKHook_UsePost, BagUseHook);
@@ -1744,8 +1741,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 	int iHealth = GetEntProp(entity, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
 	// Validate death
-	int iType = GetEntProp(entity, Prop_Data, "m_iHammerID");
-	if (!iHealth && iType != -1) /// Avoid double spawn
+	if (!iHealth)
 	{
 		// Initialize vectors
 		static float vPosition[3]; static float vAngle[3];
@@ -1753,25 +1749,12 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 		// Gets entity position
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
-	
-		// Switch case type
-		MenuType mSlot;
-		switch (iType)
-		{
-			case EXPL   : mSlot = MenuType_Shotguns;
-			case HEAVY  : mSlot = MenuType_Machineguns;
-			case LIGHT  : mSlot = MenuType_Rifles;
-			case PISTOL : mSlot = MenuType_Pistols;
-			case HPIST  : mSlot = MenuType_Snipers;
-			case TOOLS  : mSlot = MenuType_Knifes;
-			case HTOOL  : mSlot = MenuType_Invalid;
-		}
-		
+
 		// Create random weapon
-		SpawnRandomWeapon(vPosition, vAngle, NULL_VECTOR, mSlot);
+		SpawnRandomWeapon(vPosition, vAngle, NULL_VECTOR, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID")));
 		
-		// Block it
-		SetEntProp(entity, Prop_Data, "m_iHammerID", -1);
+		// Remove damage hook
+		SDKUnhook(entity, SDKHook_OnTakeDamage, CaseDamageHook);
 	}
 	
 	// Allow event
@@ -1807,7 +1790,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
  * @param hTimer            The timer handle.
  * @param refID             The reference index.
  **/
-public Action EmitterSolidHook(Handle hTimer, int refID)
+/*public Action EmitterSolidHook(Handle hTimer, int refID)
 {
 	// Gets entity index from reference key
 	int entity = EntRefToEntIndex(refID);
@@ -1851,7 +1834,7 @@ public Action EmitterSolidHook(Handle hTimer, int refID)
 	
 	// Allow timer
 	return Plugin_Continue;
-}
+}*/
 
 //**********************************************
 //* Item (npc) stocks.                         *
@@ -1897,7 +1880,7 @@ public bool HullEnumerator(int entity, ArrayList hData)
 stock int LeftToBody(int iLeft)
 {
 	// Calculate left percentage
-	float flLeft = float(iLeft) / AIRDROP_WEAPONS;
+	float flLeft = float(iLeft) / gCvarAirdropWeapons.IntValue;
 	if (flLeft > 0.8)      return 0;    
 	else if (flLeft > 0.6) return 1;
 	else if (flLeft > 0.4) return 2;
@@ -1998,4 +1981,26 @@ stock int FindRandomWeapon(MenuType mSlot = MenuType_Invalid)
 	
 	// Return on success
 	return (x) ? weaponID[GetRandomInt(0, x-1)] : -1;
+}
+
+/**
+ * @brief Convert the type index to the menu slot.
+ *       
+ * @param iType             The type index.
+ * @return                  The menu slot.
+ **/
+stock MenuType TypeToSlot(int iType)
+{
+	switch (iType)
+	{
+		case EXPL   : return MenuType_Shotguns;
+		case HEAVY  : return MenuType_Machineguns;
+		case LIGHT  : return MenuType_Rifles;
+		case PISTOL : return MenuType_Pistols;
+		case HPIST  : return MenuType_Snipers;
+		case TOOLS  : return MenuType_Knifes;
+		case HTOOL  : return MenuType_Invalid;
+	}
+	return MenuType_Invalid;
+			
 }

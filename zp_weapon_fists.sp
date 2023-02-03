@@ -38,17 +38,14 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Fists",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about weapon.
  **/  
-#define WEAPON_PUNCH_DAMAGE            100.0
-#define WEAPON_RADIUS_DAMAGE           50.0
-#define WEAPON_PUNCH_DISTANCE          60.0
-#define WEAPON_IDLE_TIME               1.3
+#define WEAPON_IDLE_TIME 1.3
 /**
  * @endsection
  **/
@@ -83,6 +80,26 @@ enum
 	PUNCH_ALLOW,
 	PUNCH_BLOCK
 };
+
+// Cvars
+ConVar gCvarFistsDamage;
+ConVar gCvarFistsRadius;
+ConVar gCvarFistsDistance;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarFistsDamage   = CreateConVar("zp_weapon_fists_damage", "100.0", "Punch damage", 0, true, 0.0);
+	gCvarFistsRadius   = CreateConVar("zp_weapon_fists_radius", "50.0", "Damage radius", 0, true, 0.0);
+	gCvarFistsDistance = CreateConVar("zp_weapon_fists_distance", "60.0", "Punch distance", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_fists", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -257,7 +274,7 @@ void Weapon_OnHit(int client, int weapon)
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 5.0, vPosition);
-	ZP_GetPlayerEyePosition(client, WEAPON_PUNCH_DISTANCE, 0.0, 5.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, gCvarFistsDistance.FloatValue, 0.0, 5.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -294,7 +311,7 @@ void Weapon_OnHit(int client, int weapon)
 		TR_GetEndPosition(vEndPosition, hTrace);
 
 		// Create the damage for victims
-		UTIL_CreateDamage(_, vEndPosition, client, WEAPON_PUNCH_DAMAGE, WEAPON_RADIUS_DAMAGE, DMG_NEVERGIB, gWeapon);
+		UTIL_CreateDamage(_, vEndPosition, client, gCvarFistsDamage.FloatValue, gCvarFistsRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);

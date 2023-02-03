@@ -38,20 +38,15 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Hammer",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about weapon.
  **/  
-#define WEAPON_SLASH_DAMAGE            1000.0
-#define WEAPON_STAB_DAMAGE             500.0
-#define WEAPON_SLASH_DISTANCE          90.0
-#define WEAPON_STAB_DISTANCE           80.0
-#define WEAPON_RADIUS_DAMAGE           50.0
-#define WEAPON_IDLESTAB_TIME           1.33
-#define WEAPON_IDLESLASH_TIME          4.0
+#define WEAPON_IDLESTAB_TIME  1.33
+#define WEAPON_IDLESLASH_TIME 4.0
 /**
  * @endsection
  **/
@@ -88,6 +83,32 @@ enum
 	STATE_SLASH,
 	STATE_STAB
 };
+
+// Cvars
+ConVar gCvarHammerSlashDamage;
+ConVar gCvarHammerStabDamage;
+ConVar gCvarHammerSlashDistance;
+ConVar gCvarHammerStabDistance;
+ConVar gCvarHammerRadiusDamage;
+ConVar gCvarHammerActiveSlow;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarHammerSlashDamage   = CreateConVar("zp_weapon_hammer_slash_damage", "1000.0", "Slash damage", 0, true, 0.0);
+	gCvarHammerStabDamage    = CreateConVar("zp_weapon_hammer_stab_damage", "500.0", "Stab damage", 0, true, 0.0);
+	gCvarHammerSlashDistance = CreateConVar("zp_weapon_hammer_slash_distance", "90.0", "Slash distance", 0, true, 0.0);
+	gCvarHammerStabDistance  = CreateConVar("zp_weapon_hammer_stab_distance", "80.0", "Stab distance", 0, true, 0.0);
+	gCvarHammerRadiusDamage  = CreateConVar("zp_weapon_hammer_radius_damage", "50.0", "Radius damage", 0, true, 0.0);
+	gCvarHammerActiveSlow    = CreateConVar("zp_weapon_hammer_active_slow", "25.0", "Stamina-based slowdown while carrying in active mode", 0, true, 0.0, true, 100.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_hammer", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -289,7 +310,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 5.0, vPosition);
-	ZP_GetPlayerEyePosition(client, bSlash ? WEAPON_SLASH_DISTANCE : WEAPON_STAB_DISTANCE, flRightShift, 5.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, (bSlash ? gCvarHammerSlashDistance : gCvarHammerStabDistance).FloatValue, flRightShift, 5.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -344,7 +365,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, bSlash ? WEAPON_SLASH_DAMAGE : WEAPON_STAB_DAMAGE, WEAPON_RADIUS_DAMAGE, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? gCvarHammerSlashDamage : gCvarHammerStabDamage).FloatValue, gCvarHammerRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 		}
 
 		// Play sound
@@ -465,6 +486,14 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	// Validate custom weapon
 	if (weaponID == gWeapon)
 	{
+		// Validate slowdown
+		static float flStamina;
+		if ((flStamina = gCvarHammerActiveSlow.FloatValue) && !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"))
+		{
+			// Apply the stamina-based slowdown
+			SetEntPropFloat(client, Prop_Send, "m_flStamina", flStamina);
+		}
+		
 		// Time to apply new mode
 		static float flApplyModeTime;
 		if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flApplyModeTime <= GetGameTime())

@@ -38,21 +38,15 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Bazooka",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_ROCKET_SPEED             2000.0
-#define WEAPON_ROCKET_DAMAGE            200.0
-#define WEAPON_ROCKET_GRAVITY           0.01
-#define WEAPON_ROCKET_RADIUS            400.0
-#define WEAPON_EFFECT_TIME              5.0
-#define WEAPON_EXPLOSION_TIME           2.0
-#define WEAPON_IDLE_TIME                2.0
-#define WEAPON_ATTACK_TIME              1.0
+#define WEAPON_IDLE_TIME   2.0
+#define WEAPON_ATTACK_TIME 1.0
 /**
  * @endsection
  **/
@@ -67,6 +61,10 @@ enum
 	ANIM_SHOOT2
 };
 
+// Decal index
+int gTrail;
+#pragma unused gTrail
+
 // Item index
 int gWeapon;
 #pragma unused gWeapon
@@ -74,6 +72,30 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarBazookaSpeed;
+ConVar gCvarBazookaDamage;
+ConVar gCvarBazookaRadius;
+ConVar gCvarBazookaTrail;
+ConVar gCvarBazookaExp;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarBazookaSpeed  = CreateConVar("zp_weapon_bazooka_speed", "2000.0", "Projectile speed", 0, true, 0.0);
+	gCvarBazookaDamage = CreateConVar("zp_weapon_bazooka_damage", "200.0", "Projectile damage", 0, true, 0.0);
+	gCvarBazookaRadius = CreateConVar("zp_weapon_bazooka_radius", "400.0", "Damage radius", 0, true, 0.0);
+	gCvarBazookaTrail  = CreateConVar("zp_weapon_bazooka_trail", "rockettrail_airstrike", "Particle effect for the trail (''-default)");
+	gCvarBazookaExp    = CreateConVar("zp_weapon_bazooka_explosion", "", "Particle effect for the explosion (''-default)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_bazooka", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -105,6 +127,16 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("BAZOOKA_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BAZOOKA_SHOOT_SOUNDS\" wasn't find");
+}
+
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
 }
 
 //*********************************************************************
@@ -325,7 +357,7 @@ void Weapon_OnCreateRocket(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_ROCKET_SPEED);
+		ScaleVector(vSpeed, gCvarBazookaSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -333,22 +365,36 @@ void Weapon_OnCreateRocket(int client)
 		// Push the rocket
 		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
 
-		// Create an effect
-		UTIL_CreateParticle(entity, vPosition, _, _, "rockettrail_airstrike", WEAPON_EFFECT_TIME);
-
 		// Sets parent for the entity
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 		SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_ROCKET_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 		
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 		
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, RocketTouchHook);
+		
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarBazookaTrail.GetString(sEffect, sizeof(sEffect));
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an effect
+			UTIL_CreateParticle(entity, vPosition, _, _, sEffect, 5.0);
+		}
+		else
+		{
+			// Attach beam follow
+			TE_SetupBeamFollow(entity, gTrail, 0, 1.0, 5.0, 5.0, 2, {255, 215, 211, 200});
+			TE_SendToAll();	
+		}
 	}
 }
 
@@ -503,11 +549,23 @@ public Action RocketTouchHook(int entity, int target)
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
-		// Create an explosion
-		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_ROCKET_DAMAGE, WEAPON_ROCKET_RADIUS, "bazooka", thrower, entity);
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarBazookaExp.GetString(sEffect, sizeof(sEffect));
 
-		// Create an explosion effect
-		UTIL_CreateParticle(_, vPosition, _, _, "ExplosionCore_MidAir", WEAPON_EXPLOSION_TIME);
+		// Initialze exp flag
+		int iFlags = EXP_NOSOUND;
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			iFlags |= EXP_NOFIREBALL; /// remove effect sprite
+		}
+		
+		// Create an explosion
+		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarBazookaDamage.FloatValue, gCvarBazookaRadius.FloatValue, "bazooka", thrower, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);

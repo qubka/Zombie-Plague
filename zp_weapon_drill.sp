@@ -38,25 +38,15 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: DrillGun",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_BOW_SPEED             1500.0
-#define WEAPON_BOW_GRAVITY           0.01
-#define WEAPON_BOW_DAMAGE            1000.0
-#define WEAPON_BOW_RADIUS            30.0
-#define WEAPON_BOW_TIME              2.0
-#define WEAPON_BEAM_DURATION         0.5
-#define WEAPON_BEAM_WIDTH            2.0
-#define WEAPON_BEAM_WIDTH_END        1.0
-#define WEAPON_BEAM_FRAMERATE        1
-#define WEAPON_BEAM_COLOR            {255, 255, 255, 255}   
-#define WEAPON_ATTACK_TIME           1.0
-#define WEAPON_IDLE_TIME             1.66
+#define WEAPON_ATTACK_TIME 1.0
+#define WEAPON_IDLE_TIME   1.66
 /**
  * @endsection
  **/
@@ -84,8 +74,32 @@ int gSound;
 #pragma unused gSound
 
 // Decal index
-int gBeam;
-#pragma unused gBeam
+int gTrail;
+#pragma unused gTrail
+
+// Cvars
+ConVar gCvarDrillSpeed;
+ConVar gCvarDrillDamage;
+ConVar gCvarDrillRadius;
+ConVar gCvarDrillLife;
+ConVar gCvarDrillTrail;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarDrillSpeed  = CreateConVar("zp_weapon_drill_speed", "1500.0", "Projectile speed", 0, true, 0.0);
+	gCvarDrillDamage = CreateConVar("zp_weapon_drill_damage", "1000.0", "Projectile damage", 0, true, 0.0);
+	gCvarDrillRadius = CreateConVar("zp_weapon_drill_radius", "30.0", "Damage radius", 0, true, 0.0);
+	gCvarDrillLife   = CreateConVar("zp_weapon_drill_life", "2.0", "Duration of life after hit", 0, true, 0.0);
+	gCvarDrillTrail  = CreateConVar("zp_weapon_drill_trail", "", "Particle effect for the trail (''-default)");
+
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_drill", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -125,7 +139,7 @@ public void ZP_OnEngineExecute(/*void*/)
 public void OnMapStart(/*void*/)
 {
 	// Models
-	gBeam = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 }
 
 //*********************************************************************
@@ -337,7 +351,7 @@ void Weapon_OnCreateBow(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_BOW_SPEED);
+		ScaleVector(vSpeed, gCvarDrillSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -351,14 +365,27 @@ void Weapon_OnCreateBow(int client)
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_BOW_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, BowTouchHook);
-		
-		// Create an trail effect
-		TE_SetupBeamFollow(entity, gBeam, 0, WEAPON_BEAM_DURATION, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH_END, WEAPON_BEAM_FRAMERATE, WEAPON_BEAM_COLOR);
-		TE_SendToAll();
+
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarDrillTrail.GetString(sEffect, sizeof(sEffect));
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an effect
+			UTIL_CreateParticle(entity, vPosition, _, _, sEffect, 5.0);
+		}
+		else
+		{
+			// Create an trail effect
+			TE_SetupBeamFollow(entity, gTrail, 0, 0.5, 2.0, 1.0, 1, {255, 255, 255, 255});
+			TE_SendToAll();
+		}
 	}
 }
 
@@ -514,7 +541,7 @@ public Action BowTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
 		// Create the damage for victims
-		UTIL_CreateDamage(_, vPosition, thrower, WEAPON_BOW_DAMAGE, WEAPON_BOW_RADIUS, DMG_NEVERGIB, gWeapon);
+		UTIL_CreateDamage(_, vPosition, thrower, gCvarDrillDamage.FloatValue, gCvarDrillRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 
 		// Validate client
 		if (IsPlayerExist(target))
@@ -527,11 +554,11 @@ public Action BowTouchHook(int entity, int target)
 			// Remove a physics
 			SetEntityMoveType(entity, MOVETYPE_NONE);
 
-			// Kill after some duration
-			UTIL_RemoveEntity(entity, WEAPON_BOW_TIME);
-			
 			// Destroy touch hook
 			SDKUnhook(entity, SDKHook_Touch, BowTouchHook);
+
+			// Kill after some duration
+			UTIL_RemoveEntity(entity, gCvarDrillLife.FloatValue);
 		}
 	}
 

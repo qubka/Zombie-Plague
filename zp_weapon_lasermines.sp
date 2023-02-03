@@ -38,21 +38,19 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: LaserMine",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-//#define WEAPON_MINE_IMPULSE /// Uncomment to use the classical beam instead.
-#define WEAPON_MINE_DAMAGE           150.0   // dmg amount
-#define WEAPON_BEAM_LIFE             0.1
-#define WEAPON_BEAM_WIDTH            3.0
-#define WEAPON_BEAM_COLOR            {0, 0, 255, 255}
-#define WEAPON_BEAM_COLOR_F          "0 0 255" // non impulse
-#define WEAPON_GLOW_COLOR            {0, 255, 0, 255} /// Only for impulse mode, because normal already have a child (beam)
-#define WEAPON_IDLE_TIME             1.66
+#define WEAPON_BEAM_LIFE    0.1
+#define WEAPON_BEAM_WIDTH   3.0
+#define WEAPON_BEAM_COLOR   {0, 0, 255, 255}
+#define WEAPON_BEAM_COLOR_F "0 0 255" // non impulse
+#define WEAPON_GLOW_COLOR   {0, 255, 0, 255} /// Only for impulse mode, because normal already have a child (beam)
+#define WEAPON_IDLE_TIME    1.66
 /**
  * @endsection
  **/
@@ -93,6 +91,24 @@ int gSound; ConVar hKnockBack;
 int gBeam;
 #pragma unused gBeam
 
+// Cvars
+ConVar gCvarMineImpulse;
+ConVar gCvarMineDamage;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarMineImpulse = CreateConVar("zp_weapon_impulse", "0", "Use the classical beam?", 0, true, 0.0);
+	gCvarMineDamage = CreateConVar("zp_weapon_damage", "150.0", "Damage amount", 0, true, 0.0, true, 1.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_lasermines", "sourcemod/zombieplague");
+}
+
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
  *        A library is either a plugin name or extension name, as exposed via its include file.
@@ -132,17 +148,16 @@ public void OnMapStart(/*void*/)
 {
 	// Models
 	gBeam = PrecacheModel("materials/sprites/purplelaser1.vmt", true);
+	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
 	PrecacheModel("models/gibs/metal_gib1.mdl", true);
 	PrecacheModel("models/gibs/metal_gib2.mdl", true);
 	PrecacheModel("models/gibs/metal_gib3.mdl", true);
 	PrecacheModel("models/gibs/metal_gib4.mdl", true);
 	PrecacheModel("models/gibs/metal_gib5.mdl", true);
-	
-#if defined WEAPON_MINE_IMPULSE
+
 	// Sounds
 	PrecacheSound("weapons/taser/taser_hit.wav", true);
 	PrecacheSound("weapons/taser/taser_shoot.wav", true);
-#endif
 }
 
 /**
@@ -602,53 +617,57 @@ public Action MineActivateHook(Handle hTimer, int refID)
 		// Create update hook
 		CreateTimer(ZP_GetWeaponShoot(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
-#if defined WEAPON_MINE_IMPULSE
-		// Gets angle
-		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vEndPosition);
-		
-		// Gets mine model
-		static char sModel[PLATFORM_LINE_LENGTH];
-		GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-
-		// Create a prop_dynamic_override entity
-		int glow = UTIL_CreateDynamic("glow", vPosition, vEndPosition, sModel, "dropped");
-
-		// Validate entity
-		if (glow != -1)
+		// Validate impulse
+		if (gCvarMineImpulse.BoolValue)
 		{
-			// Sets parent to the entity
-			SetVariantString("!activator");
-			AcceptEntityInput(glow, "SetParent", entity, glow);
-
-			// Sets glowing mode
-			static const int vColor[4] = WEAPON_GLOW_COLOR;
-			UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
-		}
-#else
-		// Gets end position
-		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
-		
-		// Create a beam entity
-		int beam = UTIL_CreateBeam(vPosition, vEndPosition, _, _, _, _, _, _, _, _, _, "materials/sprites/purplelaser1.vmt", _, _, _, _, _, _, WEAPON_BEAM_COLOR_F, 0.002, 0.0, "beam");
-		
-		// Validate entity
-		if (beam != -1)
-		{
-			// Sets parent to the entity
-			SetEntPropEnt(entity, Prop_Data, "m_hMoveChild", beam);
-			SetEntPropEnt(beam, Prop_Data, "m_hEffectEntity", entity);
-
-			// Gets owner of the entity
-			/*int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+			// Gets angle
+			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vEndPosition);
 			
-			// Validate owner
-			if (owner != -1)
+			// Gets mine model
+			static char sModel[PLATFORM_LINE_LENGTH];
+			GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+
+			// Create a prop_dynamic_override entity
+			int glow = UTIL_CreateDynamic("glow", vPosition, vEndPosition, sModel, "dropped");
+
+			// Validate entity
+			if (glow != -1)
 			{
-				// Sets owner to the entity
-				SetEntPropEnt(beam, Prop_Data, "m_pParent", owner); 
-			}*/
+				// Sets parent to the entity
+				SetVariantString("!activator");
+				AcceptEntityInput(glow, "SetParent", entity, glow);
+
+				// Sets glowing mode
+				static const int vColor[4] = WEAPON_GLOW_COLOR;
+				UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
+			}
 		}
-#endif
+		else
+		{
+			// Gets end position
+			GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
+			
+			// Create a beam entity
+			int beam = UTIL_CreateBeam(vPosition, vEndPosition, _, _, _, _, _, _, _, _, _, "materials/sprites/purplelaser1.vmt", _, _, _, _, _, _, WEAPON_BEAM_COLOR_F, 0.002, 0.0, "beam");
+			
+			// Validate entity
+			if (beam != -1)
+			{
+				// Sets parent to the entity
+				SetEntPropEnt(entity, Prop_Data, "m_hMoveChild", beam);
+				SetEntPropEnt(beam, Prop_Data, "m_hEffectEntity", entity);
+
+				// Gets owner of the entity
+				/*int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+				
+				// Validate owner
+				if (owner != -1)
+				{
+					// Sets owner to the entity
+					SetEntPropEnt(beam, Prop_Data, "m_pParent", owner); 
+				}*/
+			}
+		}
 	}
 	
 	// Destroy timer
@@ -728,104 +747,109 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
-#if defined WEAPON_MINE_IMPULSE
-		static float vVelocity[3]; static float vSpeed[3];
-	
-		// Create the end-point trace
-		TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, HumanFilter, entity);
+		// Gets mine damage
+		float flDamage = gCvarMineDamage.FloatValue;
 
-		// Validate collisions
-		if (TR_DidHit())
+		// Validate impulse
+		if (gCvarMineImpulse.BoolValue)
 		{
-			// Gets victim index
-			int victim = TR_GetEntityIndex();
-
-			// Returns the collision position of a trace result
-			TR_GetEndPosition(vEndPosition);
-
-			// Validate victim
-			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
-			{    
-				// Create the damage for victims
-				ZP_TakeDamage(victim, -1, entity, WEAPON_MINE_DAMAGE, DMG_BULLET);
+			static float vVelocity[3]; static float vSpeed[3];
 		
-				// Play sound
-				ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_CONVO);
-				
-				// Validate force
-				float flForce = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon); 
-				if (flForce <= 0.0)
-				{
-					return;
-				}
-				
-				// If knockback system is enabled, then apply
-				if (hKnockBack.BoolValue)
-				{
-					// Gets vector from the given starting and ending points
-					MakeVectorFromPoints(vPosition, vEndPosition, vVelocity);
+			// Create the end-point trace
+			TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, HumanFilter, entity);
 
-					// Normalize the vector (equal magnitude at varying distances)
-					NormalizeVector(vVelocity, vVelocity);
-
-					// Apply the magnitude by scaling the vector
-					ScaleVector(vVelocity, flForce);
-					
-					// Gets client velocity
-					GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vSpeed);
-					
-					// Add to the current
-					AddVectors(vSpeed, vVelocity, vVelocity);
-				
-					// Push the target
-					TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, vVelocity);
-				}
-				else
-				{
-					// Validate max
-					if (flForce > 100.0) flForce = 100.0;
-					else if (flForce <= 0.0) return;
-			
-					// Apply the stamina-based slowdown
-					SetEntPropFloat(victim, Prop_Send, "m_flStamina", flForce);
-				}
-			}
-			
-			// Create a tracer effect 
-			TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-			TE_SendToAll();
-
-			// Emit the hit sounds
-			EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, SNDLEVEL_LIBRARY, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
-			EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, SNDLEVEL_HOME, SND_NOFLAGS, 0.3, SNDPITCH_LOW);
-		}
-#else
-		// Create array of entities
-		ArrayList hList = new ArrayList();
-
-		// Create the ray trace
-		TR_EnumerateEntities(vPosition, vEndPosition, false, RayType_EndPoint, RayEnumerator, hList);
-		
-		// Is hit some one ?
-		for(int i = 0; i < hList.Length; i++)
-		{
-			// Gets the index from a list
-			int victim = hList.Get(i);
-			
-			// Validate victim
-			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+			// Validate collisions
+			if (TR_DidHit())
 			{
-				// Apply damage
-				ZP_TakeDamage(victim, -1, entity, WEAPON_MINE_DAMAGE, DMG_BULLET);
+				// Gets victim index
+				int victim = TR_GetEntityIndex();
+
+				// Returns the collision position of a trace result
+				TR_GetEndPosition(vEndPosition);
+
+				// Validate victim
+				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+				{    
+					// Create the damage for victims
+					ZP_TakeDamage(victim, -1, entity, flDamage, DMG_BULLET);
 			
-				// Play sound
-				ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
+					// Play sound
+					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_CONVO);
+					
+					// Validate force
+					float flForce = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon); 
+					if (flForce > 0.0)
+					{
+						// If knockback system is enabled, then apply
+						if (hKnockBack.BoolValue)
+						{
+							// Gets vector from the given starting and ending points
+							MakeVectorFromPoints(vPosition, vEndPosition, vVelocity);
+
+							// Normalize the vector (equal magnitude at varying distances)
+							NormalizeVector(vVelocity, vVelocity);
+
+							// Apply the magnitude by scaling the vector
+							ScaleVector(vVelocity, flForce);
+							
+							// Gets client velocity
+							GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vSpeed);
+							
+							// Add to the current
+							AddVectors(vSpeed, vVelocity, vVelocity);
+						
+							// Push the target
+							TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, vVelocity);
+						}
+						else
+						{
+							// Validate max
+							if (flForce > 100.0) flForce = 100.0;
+							//else if (flForce <= 0.0) return;
+					
+							// Apply the stamina-based slowdown
+							SetEntPropFloat(victim, Prop_Send, "m_flStamina", flForce);
+						}
+					}
+				}
+				
+				// Create a tracer effect 
+				TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+				TE_SendToAll();
+
+				// Emit the hit sounds
+				EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, SNDLEVEL_LIBRARY, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
+				EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, SNDLEVEL_HOME, SND_NOFLAGS, 0.3, SNDPITCH_LOW);
 			}
 		}
+		else
+		{
+			// Create array of entities
+			ArrayList hList = new ArrayList();
 
-		// Delete list
-		delete hList;
-#endif
+			// Create the ray trace
+			TR_EnumerateEntities(vPosition, vEndPosition, false, RayType_EndPoint, RayEnumerator, hList);
+			
+			// Is hit some one ?
+			for(int i = 0; i < hList.Length; i++)
+			{
+				// Gets the index from a list
+				int victim = hList.Get(i);
+				
+				// Validate victim
+				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+				{
+					// Apply damage
+					ZP_TakeDamage(victim, -1, entity, flDamage, DMG_BULLET);
+				
+					// Play sound
+					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
+				}
+			}
+
+			// Delete list
+			delete hList;
+		}
 	}
 	else
 	{
@@ -924,7 +948,6 @@ public bool PlayerFilter(int entity, int contentsMask, int filter)
  * @param filter            The filter index.
  * @return                  True or false.
  **/
-#if defined WEAPON_MINE_IMPULSE
 public bool HumanFilter(int entity, int contentsMask, int filter)
 {
 	// Validate human
@@ -935,7 +958,6 @@ public bool HumanFilter(int entity, int contentsMask, int filter)
 
 	return (entity != filter);
 }
-#endif
 
 /**
  * @brief Hull filter.

@@ -38,28 +38,55 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: InfectBomb",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
- * @section Properties of the grenade.
+ * @section Information about the weapon.
  **/
-#define GRENADE_INFECT_RADIUS          200.0        // Infection size (radius)
-//#define GRENADE_INFECT_LAST          // Can last human infect [uncomment-no // comment-yes]
-#define GRENADE_INFECT_EXP_TIME        2.0          // Duration of the explosion effect in seconds
-//#define GRENADE_INFECT_ATTACH        // Will be attach to the wall [uncomment-no // comment-yes]
+#define WEAPON_BEAM_COLOR {75, 255, 75, 255}
 /**
  * @endsection
  **/
  
-// Sound index and XRay vision
+// Decal index
+int gBeam; int gHalo; int gTrail;
+#pragma unused gBeam, gHalo, gTrail
+
+// Sound index
 int gSound;
 #pragma unused gSound
  
 // Item index
 int gWeapon;
 #pragma unused gWeapon
+
+// Cvars
+ConVar gCvarInfectRadius;
+ConVar gCvarInfectLast;
+ConVar gCvarInfectSingle;
+ConVar gCvarInfectSticky;
+ConVar gCvarInfectTrail;
+ConVar gCvarInfectEffect;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarInfectRadius = CreateConVar("zp_weapon_infectbomb_radius", "200.0", "Infection radius", 0, true, 0.0);
+	gCvarInfectLast   = CreateConVar("zp_weapon_infectbomb_last", "0", "Can last human infect?", 0, true, 0.0, true, 1.0);
+	gCvarInfectSingle = CreateConVar("zp_weapon_infectbomb_single", "0", "Only 1 human can be infected?", 0, true, 0.0, true, 1.0);
+	gCvarInfectSticky = CreateConVar("zp_weapon_infectbomb_sticky", "0", "Sticky to walls?", 0, true, 0.0, true, 1.0);
+	gCvarInfectTrail  = CreateConVar("zp_weapon_infectbomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	gCvarInfectEffect = CreateConVar("zp_weapon_infectbomb_effect", "explosion_hegrenade_dirt", "Particle effect for the explosion (''-default)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_infectbomb", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -100,6 +127,17 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
+	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
+}
+
+/**
  * @brief Called before show a weapon in the weapons menu.
  * 
  * @param client            The client index.
@@ -134,10 +172,15 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
 	// Validate custom grenade
-	if (weaponID == gWeapon) /* OR if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
+	if (weaponID == gWeapon)
 	{
-		// Hook entity callbacks
-		SDKHook(grenade, SDKHook_Touch, TanadeTouchHook);
+		// Validate trail
+		if (gCvarInfectTrail.BoolValue)
+		{
+			// Create an trail effect
+			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
+			TE_SendToAll();	
+		}
 	}
 }
 
@@ -149,11 +192,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action TanadeTouchHook(int entity, int target)
 {
-#if defined GRENADE_INFECT_ATTACH
-	return Plugin_Continue;
-#else
-	return Plugin_Handled;
-#endif
+	return gCvarInfectSticky.BoolValue ? Plugin_Continue : Plugin_Handled;
 }
 
 /**
@@ -181,6 +220,11 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 	// Validate entity
 	if (IsValidEdict(grenade))
 	{
+		// Gets grenade variables
+		float flRadius = gCvarInfectRadius.FloatValue;
+		bool bLast = gCvarInfectLast.BoolValue;
+		bool bSingle = gCvarInfectSingle.BoolValue;
+		
 		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
@@ -189,7 +233,7 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 			{
 				// Find any players in the radius
 				int i; int it = 1; /// iterator
-				while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_INFECT_RADIUS)) != -1)
+				while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 				{
 					// Skip zombies
 					if (ZP_IsPlayerZombie(i))
@@ -202,18 +246,40 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 					{
 						continue;
 					}
+					
+					// Can last human be infected ?
+					if (!bLast && ZP_GetHumanAmount() <= 1)
+					{
+						break;
+					}
 
-#if defined GRENADE_INFECT_LAST
 					// Change class to zombie
 					ZP_ChangeClient(i, owner, "zombie");
-#else
-					if (ZP_GetHumanAmount() > 1) ZP_ChangeClient(i, owner, "zombie");
-#endif
+					
+					// Single infection ?
+					if (bSingle)
+					{
+						break;
+					}
 				}
 			}
 
-			// Create an explosion effect
-			UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_dirt", GRENADE_INFECT_EXP_TIME);
+			// Gets particle name
+			static char sEffect[SMALL_LINE_LENGTH];
+			gCvarInfectEffect.GetString(sEffect, sizeof(sEffect));
+			
+			// Validate effect
+			if (hasLength(sEffect))
+			{
+				// Create an explosion effect
+				UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			}
+			else
+			{
+				// Create a simple effect
+				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
+				TE_SendToAll();
+			}
 			
 			// Remove grenade
 			AcceptEntityInput(grenade, "Kill");

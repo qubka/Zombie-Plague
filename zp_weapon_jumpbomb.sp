@@ -37,23 +37,22 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: JumpBomb",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
- * @section Properties of the grenade.
+ * @section Information about the weapon.
  **/
-#define GRENADE_JUMP_RADIUS            400.0         // Jump size (radius)
-#define GRENADE_JUMP_DAMAGE            1000.0        // Jump phys damage
-#define GRENADE_JUMP_SHAKE_AMP         2.0           // Amplutude of the shake effect
-#define GRENADE_JUMP_SHAKE_FREQUENCY   1.0           // Frequency of the shake effect
-#define GRENADE_JUMP_SHAKE_DURATION    3.0           // Duration of the shake effect in seconds
-#define GRENADE_JUMP_EXP_TIME          2.0           // Duration of the explosion effect in seconds
+#define WEAPON_BEAM_COLOR {127, 255, 212, 255}
 /**
  * @endsection
  **/
  
+// Decal index
+int gBeam; int gHalo; int gTrail;
+#pragma unused gBeam, gHalo, gTrail
+
 // Sound index
 int gSound;
 #pragma unused gSound
@@ -61,6 +60,28 @@ int gSound;
 // Item index
 int gWeapon;
 #pragma unused gWeapon
+
+// Cvars
+ConVar gCvarJumpRadius;
+ConVar gCvarJumpDamage;
+ConVar gCvarJumpTrail;
+ConVar gCvarJumpEffect;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarJumpRadius = CreateConVar("zp_weapon_jumpbomb_radius", "400.0", "Explosiion radius", 0, true, 0.0);
+	gCvarJumpDamage = CreateConVar("zp_weapon_jumpbomb_damage", "1000.0", "Explosiion physics damage", 0, true, 0.0);
+	gCvarJumpTrail  = CreateConVar("zp_weapon_jumpbomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	gCvarJumpEffect = CreateConVar("zp_weapon_jumpbomb_effect", "explosion_hegrenade_water", "Particle effect for the explosion (''-default)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_jumpbomb", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -104,6 +125,28 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
+ * @brief Called after a custom grenade is created.
+ *
+ * @param client            The client index.
+ * @param grenade           The grenade index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
+{
+	// Validate custom grenade
+	if (weaponID == gWeapon)
+	{
+		// Validate trail
+		if (gCvarJumpTrail.BoolValue)
+		{
+			// Create an trail effect
+			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
+			TE_SendToAll();	
+		}
+	}
+}
+
+/**
  * Event callback (flashbang_detonate)
  * @brief The flashbang is exployed.
  * 
@@ -131,31 +174,49 @@ public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast)
 		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
+			// Gets grenade variables
+			float flRadius = gCvarJumpRadius.FloatValue;
+			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
+			
 			// Find any players in the radius
 			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, GRENADE_JUMP_RADIUS)) != -1)
+			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
 				// Gets victim origin
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
 		
 				// Create a knockback
-				UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), ZP_GetWeaponKnockBack(gWeapon), GRENADE_JUMP_RADIUS);
+				UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), flKnock, flRadius);
 				
 				// Create a shake
-				UTIL_CreateShakeScreen(i, GRENADE_JUMP_SHAKE_AMP, GRENADE_JUMP_SHAKE_FREQUENCY, GRENADE_JUMP_SHAKE_DURATION);
+				UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
 			}
 
-			/// Fix of "Detonation of grenade 'flashbang_projectile' attempted to record twice!"
+			// Gets particle name
+			static char sEffect[SMALL_LINE_LENGTH];
+			gCvarJumpEffect.GetString(sEffect, sizeof(sEffect));
 			
-			// Create an explosion effect
-			int entity = UTIL_CreateParticle(_, vPosition, _, _, "explosion_hegrenade_water", GRENADE_JUMP_EXP_TIME);
-			
-			// Validate entity
-			if (entity != -1)
+			// Validate effect
+			if (hasLength(sEffect))
 			{
-				// Create phys exp task
-				CreateTimer(0.1, EntityOnPhysExp, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
+				// Create an explosion effect
+				int entity = UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+				
+				// Validate entity
+				if (entity != -1)
+				{
+					// Create phys exp task
+					CreateTimer(0.1, EntityOnPhysExp, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
+				}
 			}
+			else 
+			{
+				// Create a simple effect
+				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
+				TE_SendToAll();
+			}
+			
+			/// Fix of "Detonation of grenade 'flashbang_projectile' attempted to record twice!"
 			
 			// Remove grenade
 			AcceptEntityInput(grenade, "Kill");
@@ -194,7 +255,7 @@ public Action EntityOnPhysExp(Handle hTimer, int refID)
 			SetEntProp(entity, Prop_Data, "m_iHammerID", gWeapon);
 
 			// Create an explosion
-			UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, GRENADE_JUMP_DAMAGE, GRENADE_JUMP_RADIUS, "jumpbomb", _, entity);
+			UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, gCvarJumpDamage.FloatValue, gCvarJumpRadius.FloatValue, "jumpbomb", _, entity);
 
 			// Remove the entity from the world
 			AcceptEntityInput(entity, "Kill");

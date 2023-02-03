@@ -38,18 +38,17 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: SF-MG",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_ACTIVE_MULTIPLIER    1.5
-#define WEAPON_IDLE_TIME            1.66
-#define WEAPON_ATTACK_TIME          1.0
-#define WEAPON_ATTACK2_TIME         1.13
-#define WEAPON_SWITCH_TIME          2.66
+#define WEAPON_IDLE_TIME    1.66
+#define WEAPON_ATTACK_TIME  1.0
+#define WEAPON_ATTACK2_TIME 1.13
+#define WEAPON_SWITCH_TIME  2.66
 /**
  * @endsection
  **/
@@ -85,6 +84,22 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarSfmgMultiplier;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarSfmgMultiplier = CreateConVar("zp_weapon_sfmg_active_multiplier", "1.5", "Multiplier on the active state", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_sfmg", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -273,7 +288,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	if (iStateMode)
 	{
 		// Sets next attack time
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon) * WEAPON_ACTIVE_MULTIPLIER));       
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon) * gCvarSfmgMultiplier.FloatValue));       
 
 		// Sets attack animation
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT2_1, ANIM_SHOOT2_2 });   
@@ -569,7 +584,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 			if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
 			{
 				// Add additional damage
-				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= WEAPON_ACTIVE_MULTIPLIER;
+				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= gCvarSfmgMultiplier.FloatValue;
 			}
 		}
 	}

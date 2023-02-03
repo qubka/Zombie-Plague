@@ -38,7 +38,7 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: C4 Charge",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 

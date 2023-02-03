@@ -38,21 +38,22 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Flare",
 	author          = "qubka (Nikita Ushakov)",     
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
- * @section Properties of the grenade.
+ * @section Information about the weapon.
  **/
-#define GRENADE_FLARE_RADIUS         150.0                 // Flare lightning size (radius)
-#define GRENADE_FLARE_DISTANCE       600.0                 // Flare lightning size (distance)
-#define GRENADE_FLARE_DURATION       20.0                  // Flare lightning duration in seconds
-#define GRENADE_FLARE_COLOR          "255 0 0 255"         // Flare color in 'RGBA'
+#define WEAPON_BEAM_COLOR {255, 255, 255, 255}
 /**
  * @endsection
  **/
- 
+
+// Decal index
+int gTrail;
+#pragma unused gTrail
+
 // Sound index
 int gSound;
 #pragma unused gSound
@@ -60,6 +61,32 @@ int gSound;
 // Item index
 int gWeapon;
 #pragma unused gWeapon
+
+// Cvars
+ConVar gCvarFlareRadius;
+ConVar gCvarFlareDistance;
+ConVar gCvarFlareDuration;
+ConVar gCvarFlareTrail;
+ConVar gCvarFlareColor;
+ConVar gCvarFlareSmoke;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarFlareRadius   = CreateConVar("zp_weapon_flare_radius", "150.0", "Flare lightning size (radius)", 0, true, 0.0);
+	gCvarFlareDistance = CreateConVar("zp_weapon_flare_distance", "600.0", "Flare lightning size (distance)", 0, true, 0.0);
+	gCvarFlareDuration = CreateConVar("zp_weapon_flare_duration", "20.0", "Flare lightning duration in seconds", 0, true, 0.0);
+	gCvarFlareTrail    = CreateConVar("zp_weapon_flare_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	gCvarFlareColor    = CreateConVar("zp_weapon_flare_color", "255 0 0 255", "Flare color in 'RGBA'");
+	gCvarFlareSmoke    = CreateConVar("zp_weapon_flare_smoke", "smoking", "Particle effect for the smoke (''-off)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_flare", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -94,6 +121,15 @@ public void ZP_OnEngineExecute(/*void*/)
 }
 
 /**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+}
+
+/**
  * @brief Called after a custom grenade is created.
  *
  * @param client            The client index.
@@ -115,11 +151,35 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 
-		// Create effects
-		UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, GRENADE_FLARE_COLOR, GRENADE_FLARE_DISTANCE, GRENADE_FLARE_RADIUS, GRENADE_FLARE_DURATION);
-		UTIL_CreateParticle(grenade, vPosition, _, _, "smoking", GRENADE_FLARE_DURATION);
+		// Gets grenade life
+		float flDuration = gCvarFlareDuration.FloatValue;
+		
+		// Gets grenade color
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarFlareColor.GetString(sEffect, sizeof(sEffect));
+		
+		// Create light
+		UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, sEffect, gCvarFlareDistance.FloatValue, gCvarFlareRadius.FloatValue, flDuration);
+		
+		// Gets grenade smoke
+		gCvarFlareSmoke.GetString(sEffect, sizeof(sEffect));
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an effect
+			UTIL_CreateParticle(grenade, vPosition, _, _, sEffect, flDuration);
+		}
+		
+		// Validate trail
+		if (gCvarFlareTrail.BoolValue)
+		{
+			// Create an trail effect
+			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
+			TE_SendToAll();	
+		}
 
 		// Kill after some duration
-		UTIL_RemoveEntity(grenade, GRENADE_FLARE_DURATION);
+		UTIL_RemoveEntity(grenade, flDuration);
 	}
 }

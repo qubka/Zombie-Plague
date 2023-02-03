@@ -38,21 +38,14 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Balrog XI",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_FIRE_DAMAGE      200.0
-#define WEAPON_FIRE_RADIUS      50.0
-#define WEAPON_FIRE_SPEED       1000.0
-#define WEAPON_FIRE_GRAVITY     0.01
-#define WEAPON_FIRE_COUNTER     4
-#define WEAPON_FIRE_LIFE        0.5
-#define WEAPON_FIRE_TIME        2.0
-#define WEAPON_ATTACK_TIME      1.0
+#define WEAPON_ATTACK_TIME 1.0
 /**
  * @endsection
  **/
@@ -70,6 +63,10 @@ enum
 	ANIM_SHOOT_BSC2
 };
 
+// Decal index
+int gTrail;
+#pragma unused gTrail
+
 // Weapon index
 int gWeapon;
 #pragma unused gWeapon
@@ -77,6 +74,34 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarBalrogDamage;
+ConVar gCvarBalrogRadius;
+ConVar gCvarBalrogSpeed;
+ConVar gCvarBalrogCounter;
+ConVar gCvarBalrogLife;
+ConVar gCvarBalrogTrail;
+ConVar gCvarBalrogExp;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarBalrogDamage  = CreateConVar("zp_weapon_balrog11_damage", "200.0", "Explosion damage", 0, true, 0.0);
+	gCvarBalrogRadius  = CreateConVar("zp_weapon_balrog11_radius", "50.0", "Explosion radius", 0, true, 0.0);
+	gCvarBalrogSpeed   = CreateConVar("zp_weapon_balrog11_speed", "1000.0", "Projectile speed", 0, true, 0.0);
+	gCvarBalrogCounter = CreateConVar("zp_weapon_balrog11_counter", "4", "Amount of bullets shoot to gain 1 fire bullet", 0, true, 0.0);
+	gCvarBalrogLife    = CreateConVar("zp_weapon_balrog11_life", "0.5", "Duration of life", 0, true, 0.0);
+	gCvarBalrogTrail   = CreateConVar("zp_weapon_balrog11_trail", "flaregun_trail_crit_red", "Particle effect for the trail (''-default)");
+	gCvarBalrogExp     = CreateConVar("zp_weapon_balrog11_explosion", "projectile_fireball_crit_red", "Particle effect for the explosion (''-default)");
+
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_balrog11", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -110,6 +135,16 @@ public void ZP_OnEngineExecute(/*void*/)
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGXI2_SHOOT_SOUNDS\" wasn't find");
 }
 
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
+}
+
 //*********************************************************************
 //*          Don't modify the code below this line unless             *
 //*             you know _exactly_ what you are doing!!!              *
@@ -137,7 +172,7 @@ void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCur
 	}
 	
 	// Validate counter
-	if (iCounter > WEAPON_FIRE_COUNTER)
+	if (iCounter > gCvarBalrogCounter.IntValue)
 	{
 		// Validate clip
 		if (iAmmo < ZP_GetWeaponClip(gWeapon))
@@ -295,7 +330,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_FIRE_SPEED);
+		ScaleVector(vSpeed, gCvarBalrogSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -313,16 +348,33 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_FIRE_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, FireTouchHook);
 		
-		// Create an effect
-		UTIL_CreateParticle(entity, vPosition, _, _, "flaregun_trail_crit_red", WEAPON_FIRE_LIFE);
+		// Gets fire life
+		float flDuration = gCvarBalrogLife.FloatValue;
+		
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarBalrogTrail.GetString(sEffect, sizeof(sEffect));
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an effect
+			UTIL_CreateParticle(entity, vPosition, _, _, sEffect, flDuration);
+		}
+		else
+		{
+			// Create an trail effect
+			TE_SetupBeamFollow(entity, gTrail, 0, flDuration, 10.0, 10.0, 5, {227, 66, 52, 200});
+			TE_SendToAll();	
+		}
 		
 		// Kill after some duration
-		UTIL_RemoveEntity(entity, WEAPON_FIRE_LIFE);
+		UTIL_RemoveEntity(entity, flDuration);
 	}
 }
 	
@@ -455,12 +507,24 @@ public Action FireTouchHook(int entity, int target)
 		// Gets entity position
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
-		
-		// Create an explosion
-		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_FIRE_DAMAGE, WEAPON_FIRE_RADIUS, "balrog11", thrower, entity);
 
-		// Create an explosion effect
-		UTIL_CreateParticle(_, vPosition, _, _, "projectile_fireball_crit_red", WEAPON_FIRE_TIME);
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarBalrogExp.GetString(sEffect, sizeof(sEffect));
+
+		// Initialze exp flag
+		int iFlags = EXP_NOSOUND;
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			iFlags |= EXP_NOFIREBALL; /// remove effect sprite
+		}		
+
+		// Create an explosion
+		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarBalrogDamage.FloatValue, gCvarBalrogRadius.FloatValue, "balrog11", thrower, entity);
 		
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);

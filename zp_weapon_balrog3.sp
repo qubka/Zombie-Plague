@@ -38,16 +38,15 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Balrog III",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_ACTIVE_COUNTER       15
-#define WEAPON_IDLE_TIME            10.0
-#define WEAPON_ATTACK_TIME          0.83
+#define WEAPON_IDLE_TIME   10.0
+#define WEAPON_ATTACK_TIME 0.83
 /**
  * @endsection
  **/
@@ -78,6 +77,22 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarBalrogActiveCounter;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarBalrogActiveCounter = CreateConVar("zp_weapon_balrog3_active_counter", "15", "Amount of shots to activate second mode", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_balrog3", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -255,7 +270,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	else
 	{
 		// Validate counter
-		if (iCounter > WEAPON_ACTIVE_COUNTER)
+		if (iCounter > gCvarBalrogActiveCounter.IntValue)
 		{
 			// Sets active mode
 			SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ACTIVE);

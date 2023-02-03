@@ -38,26 +38,18 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Janus I",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_SIGNAL_COUNTER           7
-#define WEAPON_ACTIVE_COUNTER           14
-#define WEAPON_GRENADE_DAMAGE           300.0
-#define WEAPON_GRENADE_SPEED            1500.0
-#define WEAPON_GRENADE_GRAVITY          1.5
-#define WEAPON_GRENADE_RADIUS           400.0
-#define WEAPON_EFFECT_TIME              5.0
-#define WEAPON_EXPLOSION_TIME           2.0
-#define WEAPON_IDLE_TIME                2.0
-#define WEAPON_SWITCH_TIME              2.0
-#define WEAPON_SWITCH2_TIME             1.66
-#define WEAPON_ATTACK_TIME              2.8
-#define WEAPON_ATTACK2_TIME             1.0
+#define WEAPON_IDLE_TIME    2.0
+#define WEAPON_SWITCH_TIME  2.0
+#define WEAPON_SWITCH2_TIME 1.66
+#define WEAPON_ATTACK_TIME  2.8
+#define WEAPON_ATTACK2_TIME 1.0
 /**
  * @endsection
  **/
@@ -92,6 +84,10 @@ enum
 	STATE_ACTIVE
 };
 
+// Decal index
+int gTrail;
+#pragma unused gTrail
+
 // Weapon index
 int gWeapon;
 #pragma unused gWeapon
@@ -99,6 +95,36 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarJanusSignalCounter;
+ConVar gCvarJanusActiveCounter;
+ConVar gCvarJanusGrenadeDamage;
+ConVar gCvarJanusGrenadeSpeed;
+ConVar gCvarJanusGrenadeGravity;
+ConVar gCvarJanusGrenadeRadius;
+ConVar gCvarJanusGrenadeTrail;
+ConVar gCvarJanusGrenadeExp;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarJanusSignalCounter  = CreateConVar("zp_weapon_janus1_signal_counter", "7", "Amount of shots to activate second mode", 0, true, 0.0);
+	gCvarJanusActiveCounter  = CreateConVar("zp_weapon_janus1_active_counter", "14", "Amount of shots in the second mode", 0, true, 0.0);
+	gCvarJanusGrenadeDamage  = CreateConVar("zp_weapon_janus1_grenade_damage", "300.0", "", 0, true, 0.0);
+	gCvarJanusGrenadeSpeed   = CreateConVar("zp_weapon_janus1_grenade_speed", "1500.0", "", 0, true, 0.0);
+	gCvarJanusGrenadeGravity = CreateConVar("zp_weapon_janus1_grenade_gravity", "1.5", "", 0, true, 0.0);
+	gCvarJanusGrenadeRadius  = CreateConVar("zp_weapon_janus1_grenade_radius", "400.0", "", 0, true, 0.0);
+	gCvarJanusGrenadeTrail   = CreateConVar("zp_weapon_janus1_trail", "critical_rocket_blue", "Particle effect for the trail (''-default)");
+	gCvarJanusGrenadeExp     = CreateConVar("zp_weapon_janus1_grenade_explosion", "projectile_fireball_crit_blue", "Particle effect for the explosion (''-default)");
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_janus1", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -133,6 +159,16 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("JANUSI_SHOOT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JANUSI_SHOOT_SOUNDS\" wasn't find");
+}
+
+/**
+ * @brief The map is starting.
+ **/
+public void OnMapStart(/*void*/)
+{
+	// Models
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
 }
 
 //*********************************************************************
@@ -204,7 +240,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 	if (iStateMode == STATE_ACTIVE)
 	{
 		// Validate counter
-		if (iCounter > WEAPON_ACTIVE_COUNTER)
+		if (iCounter > gCvarJanusActiveCounter.IntValue)
 		{
 			Weapon_OnFinish(client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime);
 			return;
@@ -235,7 +271,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 		iAmmo -= 1; SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo);
 
 		// Validate counter
-		if (iCounter > WEAPON_SIGNAL_COUNTER)
+		if (iCounter > gCvarJanusSignalCounter.IntValue)
 		{
 			// Sets signal mode
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_SIGNAL);
@@ -411,16 +447,13 @@ void Weapon_OnCreateGrenade(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, WEAPON_GRENADE_SPEED);
+		ScaleVector(vSpeed, gCvarJanusGrenadeSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
 
 		// Push the rocket
 		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
-		
-		// Create an effect
-		UTIL_CreateParticle(entity, vPosition, _, _, "critical_rocket_blue", WEAPON_EFFECT_TIME);
 
 		// Sets parent for the entity
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
@@ -428,10 +461,27 @@ void Weapon_OnCreateGrenade(int client)
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", WEAPON_GRENADE_GRAVITY); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", gCvarJanusGrenadeGravity.FloatValue); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, GrenadeTouchHook);
+		
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarJanusGrenadeTrail.GetString(sEffect, sizeof(sEffect));
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an effect
+			UTIL_CreateParticle(entity, vPosition, _, _, sEffect, 5.0);
+		}
+		else
+		{
+			// Attach beam follow
+			TE_SetupBeamFollow(entity, gTrail, 0, 1.0, 3.0, 3.0, 2, {211, 211, 211, 200});
+			TE_SendToAll();	
+		}
 	}
 }
 
@@ -591,11 +641,23 @@ public Action GrenadeTouchHook(int entity, int target)
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		// Create an explosion
-		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, WEAPON_GRENADE_DAMAGE, WEAPON_GRENADE_RADIUS, "janus1", thrower, entity);
+		// Gets particle name
+		static char sEffect[SMALL_LINE_LENGTH];
+		gCvarJanusGrenadeExp.GetString(sEffect, sizeof(sEffect));
 
-		// Create an effect
-		UTIL_CreateParticle(_, vPosition, _, _, "projectile_fireball_crit_blue", WEAPON_EXPLOSION_TIME);
+		// Initialze exp flag
+		int iFlags = EXP_NOSOUND;
+
+		// Validate effect
+		if (hasLength(sEffect))
+		{
+			// Create an explosion effect
+			UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			iFlags |= EXP_NOFIREBALL; /// remove effect sprite
+		}
+
+		// Create an explosion
+		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarJanusGrenadeDamage.FloatValue, gCvarJanusGrenadeRadius.FloatValue, "janus1", thrower, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);

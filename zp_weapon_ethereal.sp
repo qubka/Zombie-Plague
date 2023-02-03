@@ -38,19 +38,15 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Ethereal",
 	author          = "qubka (Nikita Ushakov), nuclear silo",
 	description     = "Addon of custom weapon",
-	version         = "1.1",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_IDLE_TIME                10.0
-#define WEAPON_ATTACK_TIME              1.0
-#define WEAPON_TRACER_ENABLED
-#define WEAPON_TRACER_LIFE              0.2
-#define WEAPON_TRACER_WIDTH             0.2
-#define WEAPON_TRACER_COLOR             {0, 255, 255, 255}
+#define WEAPON_IDLE_TIME   10.0
+#define WEAPON_ATTACK_TIME 1.0
 /**
  * @endsection
  **/
@@ -74,9 +70,6 @@ enum
 	ANIM_DRAW
 };
 
-// Decal index
-int gBeam = -1;
-
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
  *        A library is either a plugin name or extension name, as exposed via its include file.
@@ -93,15 +86,6 @@ public void OnLibraryAdded(const char[] sLibrary)
 			ZP_OnEngineExecute();
 		}
 	}
-}
-
-/**
- * @brief The map is starting.
- **/
-public void OnMapStart()
-{
-	// Models
-	gBeam = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 }
 
 /**
@@ -272,7 +256,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
 	
 	// Sets attack animation
-	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
+	///ZP_SetPlayerAnimation(client, AnimType_FirePrimary);;
 
 	// Sets next attack time
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
@@ -316,60 +300,24 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 		for (int i = 0; i < sizeof(vKickback); i++) vKickback[i] *= 1.15;
 	}
 	ZP_CreateWeaponKickBack(client, vKickback[0], vKickback[1], vKickback[2], vKickback[3], vKickback[4], vKickback[5], RoundFloat(vKickback[6]));
-
-	// Create a fire
-	Weapon_OnCreateBeam(client, weapon);
+	
+	// Create a bullet
+	Weapon_OnCreateBullet(client, weapon, 0, GetRandomInt(0, 1000), flSpread, flInaccuracy);
 }
 
-void Weapon_OnCreateBeam(int client, int weapon)
+void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float flSpread, float flInaccuracy)
 {
-	//#pragma unused client, weapon
-
+	//#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
+	
 	// Initialize vectors
-	static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
+	static float vPosition[3]; static float vAngle[3];
 
 	// Gets client position
 	GetClientEyePosition(client, vPosition);
 	GetClientEyeAngles(client, vAngle);
 
 	// Emulate bullet shot
-	ZP_FireBullets(client, weapon, vPosition, vAngle, 0, GetRandomInt(0, 1000), 0.0, 0.0, 0.0, 0, 0.0);
-	
-	// Create the end-point trace
-	TR_TraceRayFilter(vPosition, vAngle, (MASK_SHOT|CONTENTS_GRATE), RayType_Infinite, SelfFilter, client);
-
-	// Returns the collision position of a trace result
-	TR_GetEndPosition(vEndPosition);
-
-	// Gets weapon position
-	ZP_GetPlayerEyePosition(client, 30.0, 10.0, -5.0, vPosition);
-
-	// Gets beam lifetime
-	//float flLife = ZP_GetWeaponShoot(gWeapon);
-
-	// Sent a beam
-	TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_TRACER_LIFE, WEAPON_TRACER_WIDTH, WEAPON_TRACER_WIDTH, 1, 0.0, WEAPON_TRACER_COLOR, 0);
-	TE_SendToClient(client);
-
-	// Gets worldmodel index
-	int world = GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel");
-
-	// Validate entity
-	if (world != -1)
-	{
-		// Gets attachment position
-		ZP_GetAttachment(world, "muzzle_flash", vPosition, vAngle);
-		
-		// Sent a beam
-		TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_TRACER_LIFE, WEAPON_TRACER_WIDTH, WEAPON_TRACER_WIDTH, 1, 0.0, WEAPON_TRACER_COLOR, 0);
-		int[] iClients = new int[MaxClients]; int iCount;
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (!IsPlayerExist(i, false) || i == client || IsFakeClient(i)) continue;
-			iClients[iCount++] = i;
-		}
-		TE_Send(iClients, iCount);
-	}
+	ZP_FireBullets(client, weapon, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, 0.0, 0, GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex"));
 }
 
 //**********************************************
@@ -388,9 +336,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 		GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
 								\
 		GetGameTime()           \
-	)   
-	
-
+	)    
 
 /**
  * @brief Called after a custom weapon is created.
@@ -407,7 +353,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 		// Resets variables
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
-}
+}     
 	
 /**
  * @brief Called on deploy of a weapon.
@@ -440,6 +386,24 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
 	{
 		// Call event
 		_call.Holster(client, weapon);
+	}
+}
+
+/**
+ * @brief Called on bullet of a weapon.
+ *
+ * @param client            The client index.
+ * @param vBullet           The position of a bullet hit.
+ * @param weapon            The weapon index.
+ * @param weaponID          The weapon id.
+ **/
+public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
+{
+	// Validate custom weapon
+	if (weaponID == gWeapon)
+	{
+		// Sent a beam
+		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_taser", vBullet, ZP_GetWeaponShoot(gWeapon));
 	}
 }
 
@@ -487,25 +451,11 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			iButtons &= (~IN_ATTACK); //! Bugfix
 			return Plugin_Changed;
 		}
-
+		
 		// Call event
 		_call.Idle(client, weapon);
 	}
 	
 	// Allow button
 	return Plugin_Continue;
-}
-
-/**
- * @brief Trace filter.
- *  
- * @param entity            The entity index.
- * @param contentsMask      The contents mask.
- * @param filter            The filter index.
- *
- * @return                  True or false.
- **/
-public bool SelfFilter(int entity, int contentsMask, int filter)
-{
-	return (entity != filter);
 }

@@ -38,20 +38,17 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: Janus III",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_SIGNAL_COUNTER       100
-#define WEAPON_ACTIVE_COUNTER       50
-#define WEAPON_ACTIVE_MULTIPLIER    2.0
-#define WEAPON_IDLE_TIME            1.66
-#define WEAPON_SWITCH_TIME          1.66
-#define WEAPON_SWITCH2_TIME         2.0
-#define WEAPON_ATTACK_TIME          1.0
+#define WEAPON_IDLE_TIME    1.66
+#define WEAPON_SWITCH_TIME  1.66
+#define WEAPON_SWITCH2_TIME 2.0
+#define WEAPON_ATTACK_TIME  1.0
 /**
  * @endsection
  **/
@@ -93,6 +90,26 @@ int gWeapon;
 // Sound index
 int gSound;
 #pragma unused gSound
+
+// Cvars
+ConVar gCvarJanusSignalCounter;
+ConVar gCvarJanusActiveCounter;
+ConVar gCvarJanusActiveMultiplier;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	// Initialize cvars
+	gCvarJanusSignalCounter    = CreateConVar("zp_weapon_janus3_signal_counter", "100", "Amount of shots to activate second mode", 0, true, 0.0);
+	gCvarJanusActiveCounter    = CreateConVar("zp_weapon_janus3_active_counter", "50", "Amount of shots in the second mode", 0, true, 0.0);
+	gCvarJanusActiveMultiplier = CreateConVar("zp_weapon_janus3_active_multiplier", "2.0", "Multiplier on the active state", 0, true, 0.0);
+	
+	// Generate config
+	AutoExecConfig(true, "zp_weapon_janus3", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -268,7 +285,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	if (iStateMode == STATE_ACTIVE)
 	{
 		// Validate counter
-		if (iCounter > WEAPON_ACTIVE_COUNTER)
+		if (iCounter > gCvarJanusActiveCounter.IntValue)
 		{
 			Weapon_OnFinish(client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime);
 			return;
@@ -295,7 +312,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		
 		// Validate counter
-		if (iCounter > WEAPON_SIGNAL_COUNTER)
+		if (iCounter > gCvarJanusSignalCounter.IntValue)
 		{
 			// Sets signal mode
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_SIGNAL);
@@ -644,7 +661,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 			if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
 			{
 				// Add additional damage
-				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= WEAPON_ACTIVE_MULTIPLIER;
+				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= gCvarJanusActiveMultiplier.FloatValue;
 			}
 		}
 	}

@@ -38,7 +38,7 @@ public Plugin myinfo =
 	name            = "[ZP] Weapon: M134",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of custom weapon",
-	version         = "1.0",
+	version         = "2.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
@@ -72,9 +72,9 @@ enum
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_IDLE_TIME              2.0
-#define WEAPON_ATTACK_START_TIME      1.0
-#define WEAPON_ATTACK_END_TIME        1.0
+#define WEAPON_IDLE_TIME         2.0
+#define WEAPON_ATTACK_START_TIME 1.0
+#define WEAPON_ATTACK_END_TIME   1.0
 /**
  * @endsection
  **/
@@ -405,9 +405,13 @@ void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 		{
 			return;
 		}
+		
+		// Gets weapon shell
+		static char sName[NORMAL_LINE_LENGTH];
+		ZP_GetWeaponModelShell(gWeapon, sName, sizeof(sName));
 
 		// Creates a muzzle
-		entity = UTIL_CreateParticle(ZP_GetClientViewModel(client, true), _, _, "2", "weapon_shell_casing_minigun", 9999.9);
+		entity = UTIL_CreateParticle(ZP_GetClientViewModel(client, true), _, _, "2", sName, 9999.9);
 		
 		// Validate entity 
 		if (entity != -1)
