@@ -315,6 +315,30 @@ void ParticlesRemove(int client)
 }
 
 /**
+ * @brief Stops a particle effect on the entity. (client side)
+ * 
+ * @param client            The client index.
+ * @param entity            The entity index.
+ **/
+void ParticlesStop(int client, int entity)
+{
+	// Initialize the effect index
+	static int effect = INVALID_STRING_INDEX;
+
+	// Validate effect
+	if (effect == INVALID_STRING_INDEX && (effect = GetEffectIndex("ParticleEffectStop")) == INVALID_STRING_INDEX)
+	{
+		return;
+	}
+
+	// Send to the client
+	TE_Start("EffectDispatch");
+	TE_WriteNum("entindex", entity);
+	TE_WriteNum("m_iEffectName", effect);
+	TE_SendToClient(client);
+}
+
+/**
  * @brief Find the table pointer by a name.
  *
  * @return                  The address of the table.                

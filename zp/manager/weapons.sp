@@ -2493,7 +2493,7 @@ int WeaponsGetOwner(int weapon)
 }
 
 /**
- * @brief Sets the custom weapon ID.
+ * @brief Sets the weapon owner.
  *
  * @param weapon            The weapon index.
  * @param owner             The owner index.  
@@ -2502,6 +2502,102 @@ void WeaponsSetOwner(int weapon, int owner)
 {
 	// Sets value on the weapon
 	SetEntPropEnt(weapon, Prop_Send, "m_hOwner", owner);
+}
+
+/**
+ * @brief Gets the current reserve ammo.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The ammo count.    
+ **/
+int WeaponsGetReserveAmmo(int weapon)
+{
+	// Gets value on the weapon
+	return GetEntPropEnt(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount");
+}
+
+/**
+ * @brief Sets the current reserve ammo.
+ *
+ * @param weapon            The weapon index.
+ * @param iAmmo             The ammo count.  
+ **/
+void WeaponsSetReserveAmmo(int weapon, int iAmmo)
+{
+	// Sets value on the weapon
+	SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo);
+}
+
+/**
+ * @brief Gets the max reserve ammo.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The max ammo count.    
+ **/
+int WeaponsGetMaxReserveAmmo(int weapon)
+{
+	// Gets value on the weapon
+	return GetEntPropEnt(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount");
+}
+
+/**
+ * @brief Sets the max reserve ammo.
+ *
+ * @param weapon            The weapon index.
+ * @param iMaxAmmo          The max ammo count.  
+ **/
+void WeaponsSetMaxReserveAmmo(int weapon, int iMaxAmmo)
+{
+	// Sets value on the weapon
+	SetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount", iMaxAmmo);
+}
+
+/**
+ * @brief Gets the current clip ammo.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The ammo count.    
+ **/
+int WeaponsGetClipAmmo(int weapon)
+{
+	// Gets value on the weapon
+	return GetEntPropEnt(weapon, Prop_Send, "m_iClip1");
+}
+
+/**
+ * @brief Sets the current clip ammo.
+ *
+ * @param weapon            The weapon index.
+ * @param iAmmo             The ammo count.  
+ **/
+void WeaponsSetClipAmmo(int weapon, int iAmmo)
+{
+	// Sets value on the weapon
+	SetEntProp(weapon, Prop_Send, "m_iClip1", iAmmo);
+}
+
+/**
+ * @brief Gets the max clip ammo.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The max ammo count.    
+ **/
+int WeaponsGetMaxClipAmmo(int weapon)
+{
+	// Gets value on the weapon
+	return GetEntPropEnt(weapon, Prop_Send, "m_iClip2");
+}
+
+/**
+ * @brief Sets the max clip ammo.
+ *
+ * @param weapon            The weapon index.
+ * @param iMaxAmmo          The max ammo count.  
+ **/
+void WeaponsSetMaxClipAmmo(int weapon, int iMaxAmmo)
+{
+	// Sets value on the weapon
+	SetEntProp(weapon, Prop_Send, "m_iClip2", iMaxAmmo);
 }
 
 /**

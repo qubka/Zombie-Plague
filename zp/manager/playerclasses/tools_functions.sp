@@ -944,15 +944,39 @@ void ToolsSetEffect(int entity, int iValue)
 }
 
 /**
- * @brief Gets the activator of an entity.
+ * @brief Gets a visibility state of an entity.
  *
  * @param entity            The entity index.
- * @return                  The activator index.
+ * @return                  True or false.
  **/
-int ToolsGetActivator(int entity)
+/*bool ToolsGetVisibility(int entity)
 {
-	// Gets activator on the entity
-	return GetEntPropEnt(entity, Prop_Data, "m_pActivator");
+	int iFlags = ToolsGetEffect(entity);
+	return !(iFlags & EF_NODRAW);
+}*/
+
+/**
+ * @brief Sets a visibility state of an entity.
+ *
+ * @param entity            The entity index.
+ * @param bVisible          True or false.
+ **/
+void ToolsSetVisibility(int entity, bool bVisible)
+{
+	int iFlags = ToolsGetEffect(entity);
+	ToolsSetEffect(entity, bVisible ? (iFlags & ~EF_NODRAW) : (iFlags | EF_NODRAW));
+}
+
+/**
+ * @brief Gets the model of an entity.
+ * 
+ * @param entity            The entity index.
+ * @return                  The model index.
+ **/
+int ToolsGetModelIndex(int entity)
+{
+	// Sets index on the entity
+	return GetEntProp(entity, Prop_Send, "m_nModelIndex");
 }
 
 /**
@@ -1013,6 +1037,18 @@ void ToolsSetParent(int entity, int parent)
 {
 	// Sets parent on the entity
 	SetEntPropEnt(entity, Prop_Data, "m_pParent", parent);
+}
+
+/**
+ * @brief Gets the activator of an entity.
+ *
+ * @param entity            The entity index.
+ * @return                  The activator index.
+ **/
+int ToolsGetActivator(int entity)
+{
+	// Gets activator on the entity
+	return GetEntPropEnt(entity, Prop_Data, "m_pActivator");
 }
 
 /*_____________________________________________________________________________________________________*/
