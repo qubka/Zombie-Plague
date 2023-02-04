@@ -295,7 +295,7 @@ void WeaponMODOnUnload(/*void*/)
 		if (IsPlayerExist(i))
 		{
 			// Validate weapon
-			if (gClientData[i].CustomWeapon != -1)
+			if (gClientData[i].CustomWeapon)
 			{
 				// Gets entity index from the reference
 				int view1 = EntRefToEntIndex(gClientData[i].ViewModels[0]);
@@ -305,7 +305,7 @@ void WeaponMODOnUnload(/*void*/)
 				if (view1 != -1)
 				{
 					// Make the first viewmodel visible
-					WeaponHDRSetWeaponVisibility(view1, true);
+					ToolsSetVisibility(view1, true);
 					ToolsUpdateTransmitState(view1);
 				}
 
@@ -313,7 +313,7 @@ void WeaponMODOnUnload(/*void*/)
 				if (view2 != -1)
 				{
 					// Make the second viewmodel visible
-					WeaponHDRSetWeaponVisibility(view2, false);
+					ToolsSetVisibility(view2, false);
 					ToolsUpdateTransmitState(view2);
 				}
 			}
@@ -339,10 +339,10 @@ void WeaponMODOnClientInit(int client)
 {
 	// Hook entity callbacks
 	SDKHook(client, SDKHook_WeaponCanUse,     WeaponMODOnCanUse);
-	SDKHook(client, SDKHook_WeaponSwitch,     WeaponMODOnDeploy);
-	SDKHook(client, SDKHook_WeaponSwitchPost, WeaponMODOnDeployPost);
+	SDKHook(client, SDKHook_WeaponSwitch,     WeaponMODOnSwitch);
+	SDKHook(client, SDKHook_WeaponSwitchPost, WeaponMODOnSwitchPost);
 	SDKHook(client, SDKHook_WeaponEquipPost,  WeaponMODOnEquipPost);
-	SDKHook(client, SDKHook_PostThinkPost,    WeaponMODOnAnimationFix);
+	SDKHook(client, SDKHook_PostThinkPost,    WeaponMODOnPostThinkPost);
 
 	// Hook entity callbacks
 	DHookEntity(hDHookWeaponCanUse, true, client);
@@ -505,7 +505,7 @@ public void WeaponMODOnWeaponSpawn(int weapon)
 	WeaponsSetCustomID(weapon, -1);
 
 	// If weapon without any type of ammo, then skip
-	if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1)
+	if (WeaponsGetAmmoType(weapon) != -1)
 	{
 		// Hook weapon callbacks
 		SDKHook(weapon, SDKHook_ReloadPost, WeaponMODOnWeaponReload);
@@ -538,8 +538,8 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 			if (iClip)
 			{
 				// Sets clip size and hook change
-				SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
-				SetEntProp(weapon, Prop_Send, "m_iClip2", iClip);
+				WeaponsSetClipAmmo(weapon, iClip); 
+				WeaponsSetMaxClipAmmo(weapon, iClip);
 				DHookEntity(hDHookGetMaxClip, true, weapon);
 			}
 
@@ -548,8 +548,8 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 			if (iAmmo)
 			{
 				// Sets reserve ammo count and hook change
-				SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
-				SetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount", iAmmo);
+				WeaponsSetReserveAmmo(weapon, iAmmo); 
+				WeaponsSetMaxReserveAmmo(weapon, iAmmo);
 				DHookEntity(hDHookGetReserveAmmoMax, true, weapon);
 			}
 		}
@@ -858,38 +858,27 @@ public Action WeaponMODOnCanUse(int client, int weapon)
  **/
 void WeaponMODOnClientUpdate(int client)
 {
-	// Client has swapped to a regular weapon
-	gClientData[client].CustomWeapon = -1;
-	gClientData[client].IndexWeapon  = -1; /// Only viewmodel identification
+	// Resets the custom weapon index
+	gClientData[client].CustomWeapon = 0;
 
 	// Gets player viewmodel indexes
 	int view1 = WeaponHDRGetPlayerViewModel(client, 0);
 	int view2 = WeaponHDRGetPlayerViewModel(client, 1);
-
-	// If a secondary viewmodel doesn't exist, create one
-	if (view1 != -1 && view2 == -1)
+	
+	// If we have for some reason spawned without a primary view model, abort.
+	if (view1 == -1)
 	{
-		// Validate entity
-		if ((view2 = CreateEntityByName("predicted_viewmodel")) == -1)
-		{
-			// Unexpected error, log it
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to create secondary viewmodel");
-			return;
-		}
-
-		// Sets owner to the entity
-		SetEntPropEnt(view2, Prop_Send, "m_hOwner", client);
-		SetEntProp(view2, Prop_Send, "m_nViewModelIndex", 1);
-
-		// Remove accuracity
-		SetEntProp(view2, Prop_Send, "m_bShouldIgnoreOffsetAndAccuracy", true);
-
-		// Spawn the entity into the world
-		DispatchSpawn(view2);
-
-		// Sets viewmodel to the owner
-		WeaponHDRSetPlayerViewModel(client, 1, view2);
+		return;
 	}
+	
+	// If a secondary viewmodel doesn't exist, create one
+	if (view2 == -1)
+	{
+		view2 = WeaponHDRCreateViewModel(client);
+	}
+
+	// Hide the secondary view model, in case the player has respawned
+	ToolsSetVisibility(view2, false);
 
 	// Sets entity index to the reference
 	gClientData[client].ViewModels[0] = EntIndexToEntRef(view1);
@@ -935,15 +924,14 @@ void WeaponMODOnClientDeath(int client)
 	if (view2 != -1)
 	{
 		// Hide the custom viewmodel if the player dies
-		WeaponHDRSetWeaponVisibility(view2, false);
+		ToolsSetVisibility(view2, false);
 		ToolsUpdateTransmitState(view2);
 	}
 
 	// Client has swapped to a regular weapon
 	gClientData[client].ViewModels[0] = -1;
 	gClientData[client].ViewModels[1] = -1;
-	gClientData[client].CustomWeapon  = -1;
-	gClientData[client].IndexWeapon   = -1; /// Only viewmodel identification
+	gClientData[client].CustomWeapon = 0; 
 }
 
 /**
@@ -953,10 +941,10 @@ void WeaponMODOnClientDeath(int client)
  * @param client            The client index.
  * @param weapon            The weapon index.
  **/
-public void WeaponMODOnDeploy(int client, int weapon) 
+public void WeaponMODOnSwitch(int client, int weapon) 
 {
 	// Block button hook
-	gClientData[client].RunCmd = false; /// HACK~HACK
+	gClientData[client].RunCmd = false;
 	
 	// Gets entity index from the reference
 	int view1 = EntRefToEntIndex(gClientData[client].ViewModels[0]);
@@ -967,14 +955,6 @@ public void WeaponMODOnDeploy(int client, int weapon)
 	{
 		return;
 	}
-	
-	// Make the first viewmodel invisible
-	WeaponHDRSetWeaponVisibility(view1, false);
-	ToolsUpdateTransmitState(view1);
-	
-	// Make the second viewmodel invisible
-	WeaponHDRSetWeaponVisibility(view2, false);
-	ToolsUpdateTransmitState(view2);
 
 	// Validate weapon
 	if (IsValidEdict(weapon))
@@ -1000,7 +980,7 @@ public void WeaponMODOnDeploy(int client, int weapon)
 			
 			// Sets new weapon index to the client
 			gClientData[client].LastWeapon = EntIndexToEntRef(weapon);
-
+			
 			// If custom deploy speed exist, then apply it
 			float flDeploy = WeaponsGetDeploy(iD);
 			if (flDeploy)
@@ -1022,20 +1002,28 @@ public void WeaponMODOnDeploy(int client, int weapon)
 			ItemDef iItem = WeaponsGetDefIndex(iD);
 
 			// If view/world model exist, then set them
-			if (WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || ((IsMelee(iItem) || IsGrenade(iItem)) && gClientData[client].Zombie))
+			if (WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
 			{
-				// Client has swapped to a custom weapon
-				gClientData[client].SwapWeapon   = -1;
+				// Sets the custom weapon index
 				gClientData[client].CustomWeapon = weapon;
-				gClientData[client].IndexWeapon  = iD; /// Only viewmodel identification
+				gClientData[client].WeaponIndex = iD;
+				
+				// In case there is a holster animation, we will have to wait for the swapped weapon to be holstered.
+				WeaponHDRSetSwappedViewModel(view1, false);
+				WeaponHDRSetSwappedWeapon(view2, -1);
+				WeaponHDRSetHolsteredViewModel(view2, ToolsGetModelIndex(view1));
 				return;
 			}
 		}
 	}
-
+	
 	// Client has swapped to a regular weapon
-	gClientData[client].CustomWeapon = -1;
-	gClientData[client].IndexWeapon  = -1; /// Only viewmodel identification
+	if (gClientData[client].CustomWeapon)
+	{
+		// Resets the custom weapon index
+		gClientData[client].CustomWeapon = 0;
+		gClientData[client].WeaponIndex = -1;
+	}
 	
 	// Gets class arm model
 	static char sArm[PLATFORM_LINE_LENGTH];
@@ -1052,7 +1040,7 @@ public void WeaponMODOnDeploy(int client, int weapon)
  * @param client            The client index.
  * @param weapon            The weapon index.
  **/
-public void WeaponMODOnDeployPost(int client, int weapon) 
+public void WeaponMODOnSwitchPost(int client, int weapon) 
 {
 	// Gets entity index from the reference
 	int view1 = EntRefToEntIndex(gClientData[client].ViewModels[0]);
@@ -1064,153 +1052,173 @@ public void WeaponMODOnDeployPost(int client, int weapon)
 		return;
 	}
 	
+	// Gets custom weapon index
+	int iD = gClientData[client].WeaponIndex; //WeaponsGetCustomID(weapon);
+
+	// If weapon not the same, then stop
+	if (weapon != gClientData[client].CustomWeapon)
+	{
+		// Hide the secondary view model. This needs to be done on post because the weapon needs to be switched first
+		if (iD == -1)
+		{
+			// Make the first viewmodel visible
+			ToolsSetVisibility(view1, true);
+			ToolsUpdateTransmitState(view1);
+
+			// Make the second viewmodel invisible
+			ToolsSetVisibility(view2, false);
+			ToolsUpdateTransmitState(view2);
+			
+			//
+			gClientData[client].WeaponIndex = 0;
+		}
+		
+		// Allow button hook
+		gClientData[client].RunCmd = true;
+		return;
+	}
+
+	// Gets weapon def index
+	ItemDef iItem = WeaponsGetDefIndex(iD);
+
+	// If viewmodel exist, then apply it
+	if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
+	{
+		// The view model index has changed, which means the old weapon is holstered, do the view model swap
+		if (ToolsGetModelIndex(view1) != WeaponHDRGetHolsteredViewModel(view2))
+		{
+			WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
+		}
+	}
+	else
+	{
+		// Resets the custom weapon index
+		gClientData[client].CustomWeapon = 0;
+	}
+
+	// If worldmodel exist, then apply it
+	if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
+	{
+		WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
+	}
+	
+	// Call forward
+	gForwardData._OnWeaponDeploy(client, weapon, iD);
+	
+	// Allow button hook
+	gClientData[client].RunCmd = true;
+}
+
+/**
+ * Hook: PostThinkPost
+ * @brief Player hold any weapon.
+ *
+ * @param client            The client index.
+ **/
+public void WeaponMODOnPostThinkPost(int client) 
+{
+	// Sets current addons
+	WeaponAttachSetAddons(client); /// Back weapon models
+	
 	// Validate weapon
-	if (!IsValidEdict(weapon))
+	int weapon = gClientData[client].CustomWeapon;
+	if (weapon == 0)
 	{
 		return;
 	}
 
-	// Weapon has not changed since last pre hook
-	if (weapon == gClientData[client].CustomWeapon)
+	// Gets entity index from the reference
+	int view1 = EntRefToEntIndex(gClientData[client].ViewModels[0]);
+	int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
+
+	// Validate viewmodels
+	if (view1 == -1 || view2 == -1)
 	{
-		// Initialize variables
-		int iModel; static char sModel[PLATFORM_LINE_LENGTH]; sModel[0] = NULL_STRING[0];
-
-		// Gets weapon id from the reference
-		int iD = gClientData[client].IndexWeapon; /// Only viewmodel identification
-		
-		// Gets weapon def index
-		ItemDef iItem = WeaponsGetDefIndex(iD);
-		
-		// Validate melee
-		if (IsMelee(iItem))
-		{
-			// Gets claw model
-			ClassGetClawModel(gClientData[client].Class, sModel, sizeof(sModel));
-			
-			// Update model index
-			iModel = ClassGetClawID(gClientData[client].Class);
-		}
-		// Validate grenade
-		else if (IsGrenade(iItem))
-		{
-			// Gets grenade model
-			ClassGetGrenadeModel(gClientData[client].Class, sModel, sizeof(sModel));
-			
-			// Update model index
-			iModel = ClassGetGrenadeID(gClientData[client].Class);
-		}
-
-		 // Gets model index
-		if (!iModel) iModel = WeaponsGetModelViewID(iD);
-		
-		// Gets weapon viewmodel
-		if (!hasLength(sModel)) WeaponsGetModelView(iD, sModel, sizeof(sModel));      
-
-		// If viewmodel exist, then apply it
-		if (iModel)
-		{
-			// Make the first viewmodel invisible
-			WeaponHDRSetWeaponVisibility(view1, false);
-			ToolsUpdateTransmitState(view1);
-			
-			// Make the second viewmodel visible
-			WeaponHDRSetWeaponVisibility(view2, true);
-			ToolsUpdateTransmitState(view2);
-
-			// If the sequence for the weapon didn't build yet
-			if (WeaponsGetSequenceCount(iD) == -1)
-			{
-				// Gets sequence amount from a weapon entity
-				int iSequenceCount = ToolsGetSequenceCount(weapon);
-
-				// Validate count
-				if (iSequenceCount)
-				{
-					// Initialize the sequence array
-					int iSequences[WEAPONS_SEQUENCE_MAX];
-
-					// Validate amount
-					if (iSequenceCount < WEAPONS_SEQUENCE_MAX)
-					{
-						// Build the sequence array
-						WeaponHDRBuildSwapSequenceArray(iSequences, iSequenceCount, weapon);
-						
-						// Update the sequence array
-						WeaponsSetSequenceCount(iD, iSequenceCount);
-						WeaponsSetSequenceSwap(iD, iSequences, sizeof(iSequences));
-					}
-					else
-					{
-						// Unexpected error, log it
-						LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "View model \"%s\" is having too many sequences! (Max %d, is %d) - Increase value of WEAPONS_SEQUENCE_MAX in plugin", sModel, WEAPONS_SEQUENCE_MAX, iSequenceCount);
-					}
-				}
-				else
-				{
-					// Remove swapped weapon
-					WeaponsClearSequenceSwap(iD);
-					
-					// Unexpected error, log it
-					LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to get sequence count for weapon using model \"%s\" - Animations may not work as expected", sModel);
-				}
-			}
-			
-			// Gets body/skin index of a class
-			int iBody = ClassGetBody(gClientData[client].Class);
-			int iSkin = ClassGetSkin(gClientData[client].Class);
-
-			// Sets model/body/skin index for viewmodel
-			ToolsSetModelIndex(view2, iModel);
-			ToolsSetTextures(view2, (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View), (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View));
-			
-			// Update the animation interval delay for second viewmodel 
-			SetEntPropFloat(view2, Prop_Send, "m_flPlaybackRate", GetEntPropFloat(view1, Prop_Send, "m_flPlaybackRate"));
-
-			// Creates a toggle model
-			WeaponHDRToggleViewModel(client, view2, iD);
-			
-			// Resets the sequence parity
-			gClientData[client].LastSequenceParity = -1;
-		}
+		return;
+	}
 	
-		// If worldmodel exist, then apply it
-		if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
+	// Gets custom index
+	int iD = gClientData[client].WeaponIndex; //WeaponsGetCustomID(weapon);
+	
+	//
+	if (!WeaponHDRGetSwappedViewModel(view1))
+	{
+		// The view model index has changed, which means the old weapon is holstered, do the view model swap.
+		if (ToolsGetModelIndex(view1) != WeaponHDRGetHolsteredViewModel(view2))
 		{
-			WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
-		}
-		
-		// Validate client
-		if (IsPlayerExist(client))
-		{
-			// Call forward
-			gForwardData._OnWeaponDeploy(client, weapon, iD);
-		}
-
-		// Allow button hook
-		gClientData[client].RunCmd = true; /// HACK~HACK
-		
-		// If model was found, then stop
-		if (iModel && hasLength(sModel))
-		{
-			return;
+			WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
 		}
 	}
+	else
+	{
+		// Ensure that viewModel1 always is invisible while the custom view model is active.
+		// For instance, the visibility can be toggled back when the weapon is being redeployed. (drop physics object)
+		ToolsSetVisibility(view1, false);
+		ToolsSetVisibility(view2, true);
+	}
+	
+	// Gets sequence index
+	int iSequence = WeaponHDRGetSequence(view1);
 
-	// Make the first viewmodel visible
-	WeaponHDRSetWeaponVisibility(view1, true);
-	ToolsUpdateTransmitState(view1);
+	//
+	int drawSequence = gClientData[client].DrawSequence;
+	if (iSequence == -1)
+	{
+		iSequence = drawSequence;
+	}
+	
+	// Gets sequence parity index
+	int sequenceParity = WeaponHDRGetSequenceParity(view1);
 
-	// Make the second viewmodel invisible
-	WeaponHDRSetWeaponVisibility(view2, false);
-	ToolsUpdateTransmitState(view2);
+	// Sequence has not changed since last think
+	if (iSequence == WeaponHDRGetLastSequence(view1))
+	{
+		// Skip on weapon switch
+		int lastSequenceParity = WeaponHDRGetLastSequenceParity(view1);
+		if (lastSequenceParity != -1)
+		{
+			// Skip if sequence hasn't finished
+			if (sequenceParity == lastSequenceParity)
+			{
+				return;
+			}
 
-	// Client has swapped to a regular weapon
-	gClientData[client].CustomWeapon = -1;
-	gClientData[client].IndexWeapon  = -1; /// Only viewmodel identification
+			// Gets weapon id from the reference
+			int swapSequence = WeaponsGetSequenceSwap(iD, iSequence);
+			
+			// Change to swap sequence, if present
+			if (swapSequence != -1)
+			{
+				// Play the swaped sequence
+				WeaponHDRSetSequence(view1, swapSequence);
+				WeaponHDRSetSequence(view2, swapSequence);
+				
+				// Update the sequence for next check
+				WeaponHDRSetLastSequence(view1, swapSequence);
+			}
+			else
+			{
+				// Toggle view model
+				WeaponHDRToggleViewModel(client, view2, iD);
+			}
+		}
+	}
+	else
+	{
+		//
+		if (drawSequence != -1 && iSequence != drawSequence) 
+		{
+			ToolsUpdateTransmitState(view1);
+			gClientData[client].DrawSequence = -1;
+		}
 
-	// Allow button hook
-	gClientData[client].RunCmd = true; // In case when viewmodel wasn't detected
+		// Sets new sequence
+		WeaponHDRSetSequence(view2, iSequence);
+		WeaponHDRSetLastSequence(view1, iSequence);
+	}
+	
+	// Update the sequence parity for next check
+	WeaponHDRSetLastSequenceParity(view1, sequenceParity);
 }
 
 /**
@@ -1238,89 +1246,6 @@ public void WeaponMODOnEquipPost(int client, int weapon)
 			}
 		}
 	}
-}
-
-/**
- * Hook: PostThinkPost
- * @brief Player hold any weapon.
- *
- * @param client            The client index.
- **/
-public void WeaponMODOnAnimationFix(int client) 
-{
-	// Sets current addons
-	WeaponAttachSetAddons(client); /// Back weapon models
-	
-	// Validate weapon
-	if (gClientData[client].CustomWeapon == -1) /// Optimization for frame check
-	{
-		return;
-	}
-
-	// Gets entity index from the reference
-	int view1 = EntRefToEntIndex(gClientData[client].ViewModels[0]);
-	int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
-
-	// Validate viewmodels
-	if (view1 == -1 || view2 == -1)
-	{
-		return;
-	}
-
-	// Gets sequence index
-	int iSequence = GetEntProp(view1, Prop_Send, "m_nSequence");
-
-	// Gets sequence parity index
-	int sequenceParity = GetEntProp(view1, Prop_Send, "m_nNewSequenceParity");
-
-	// Sequence has not changed since last post hook
-	if (iSequence == gClientData[client].LastSequence)
-	{
-		// Skip on weapon switch
-		if (gClientData[client].LastSequenceParity != -1)
-		{
-			// Skip if sequence hasn't finished
-			if (sequenceParity == gClientData[client].LastSequenceParity)
-			{
-				return;
-			}
-
-			// Gets weapon id from the reference
-			int iD = gClientData[client].IndexWeapon; /// Only viewmodel identification
-			int swapSequence = WeaponsGetSequenceSwap(iD, iSequence);
-			
-			// Validate swap sequence
-			if (swapSequence != -1)
-			{
-				// Play the swaped sequence
-				SetEntProp(view1, Prop_Send, "m_nSequence", swapSequence);
-				SetEntProp(view2, Prop_Send, "m_nSequence", swapSequence);
-
-				// Update the sequence for next check
-				gClientData[client].LastSequence = swapSequence;
-			}
-			else
-			{
-				#define ACT_VM_IDLE 185
-		
-				// Stop toggling during the idle animation
-				if (ToolsGetSequenceActivity(view1, iSequence) != ACT_VM_IDLE)
-				{
-					// Creates a toggle model
-					WeaponHDRToggleViewModel(client, view2, iD);
-				}
-			}
-		}
-	}
-	else
-	{
-		// Sets new sequence
-		SetEntProp(view2, Prop_Send, "m_nSequence", iSequence);
-		gClientData[client].LastSequence = iSequence;
-	}
-	
-	// Update the sequence parity for next check
-	gClientData[client].LastSequenceParity = sequenceParity;
 }
 
 /**
@@ -1356,7 +1281,7 @@ void WeaponMODOnFire(int client, int weapon)
 		}
 		
 		// If weapon without any type of ammo, then skip
-		if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1) 
+		if (WeaponsGetAmmoType(weapon) != -1) 
 		{
 			// If viewmodel exist, then create muzzle smoke
 			if (WeaponsGetModelViewID(iD))
@@ -1457,7 +1382,7 @@ Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon
 		{
 			// Validate class ammunition mode
 			static int iAmmo; iAmmo = ClassGetAmmunition(gClientData[client].Class);
-			if (iAmmo && GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") != -1) /// If weapon without any type of ammo, then skip
+			if (iAmmo && WeaponsGetAmmoType(weapon) != -1) /// If weapon without any type of ammo, then skip
 			{
 				// Validate weapon
 				ItemDef iItem = WeaponsGetDefIndex(iD);
@@ -1466,8 +1391,8 @@ Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon
 					// Use class ammunition mode
 					switch (iAmmo)
 					{
-						case 1 : { SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount")); }
-						case 2 : { SetEntProp(weapon, Prop_Send, "m_iClip1", GetEntProp(weapon, Prop_Send, "m_iClip2")); } 
+						case 1 : { WeaponsSetReserveAmmo(weapon, WeaponsGetMaxReserveAmmo(weapon)); }
+						case 2 : { WeaponsSetClipAmmo(weapon, WeaponsGetMaxClipAmmo(weapon)); } 
 						default : { /* < empty statement > */ }
 					}
 				}
@@ -1579,11 +1504,8 @@ public void WeaponMODOnHostagePost(int userID)
 	// Validate client
 	if (client)
 	{
-		// Gets weapon id from the reference
-		int iD = gClientData[client].IndexWeapon; /// Only viewmodel identification
-
-		// Validate id
-		if (iD != -1)
+		// Validate weapon
+		if (gClientData[client].CustomWeapon)
 		{
 			// Gets second viewmodel
 			int view2 = WeaponHDRGetPlayerViewModel(client, 1);
@@ -1646,7 +1568,7 @@ bool WeaponMODOnClientBuyammo(int client)
 	if (weapon != -1)
 	{
 		// If weapon without any type of ammo, then stop
-		if (GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") == -1)
+		if (WeaponsGetAmmoType(weapon) == -1)
 		{
 			return true;
 		}
@@ -1674,17 +1596,17 @@ bool WeaponMODOnClientBuyammo(int client)
 			}
 	
 			// Gets current/max reverse ammo
-			int iAmmo = GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount");
-			int iMaxAmmo = GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount");
+			int iAmmo = WeaponsGetReserveAmmo(weapon);
+			int iMaxAmmo = WeaponsGetMaxReserveAmmo(weapon);
 			
 			// Validate amount
 			if (iAmmo < iMaxAmmo)
 			{
 				// Generate amount
-				iAmmo += GetEntProp(weapon, Prop_Send, "m_iClip2"); if (!iAmmo) /*~*/ iAmmo++;
+				iAmmo += WeaponsGetMaxClipAmmo(weapon); if (!iAmmo) /*~*/ iAmmo++;
 
 				// Gives ammo of a certain type to a weapon
-				SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo);
+				WeaponsSetReserveAmmo(weapon, (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo);
 
 				// Remove money
 				AccountSetClientCash(client, gClientData[client].Money - iCost);

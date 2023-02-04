@@ -1196,7 +1196,7 @@ void ZMarketOptionMenu(int client)
 	
 	// Sets title
 	hMenu.SetTitle("%t", "rebuy");
-	
+
 	// i = array index
 	int iSize = gServerData.Types.Length;
 	for (int i = 0; i < iSize; i++)

@@ -26,42 +26,44 @@
  **/
 
 /**
- * @brief Creates the swapped (custom) weapon for the client.
+ * @brief Creates the secondary viewmodel for the client.
  *
- * @param client            The cleint index.
- * @param view              The view index.
- * @param iD                The weapon id.
+ * @param client            The client index.
+ * @return                  The view index
  **/
-void WeaponHDRToggleViewModel(int client, int view, int iD)
+int WeaponHDRCreateViewModel(int client)
 {
 	// Initialize index
-	int weapon;
-
-	// Resets toggle
-	if ((gClientData[client].ToggleSequence = !gClientData[client].ToggleSequence))
+	int view;
+	
+	// Validate entity
+	if ((view = CreateEntityByName("predicted_viewmodel")) == -1)
 	{
-		// Gets swapped weapon index from the reference
-		weapon = EntRefToEntIndex(gClientData[client].SwapWeapon);
-
-		// Validate no weapon, then create a swaped pair 
-		if (weapon == -1)
-		{
-			weapon = WeaponHDRCreateSwapWeapon(iD, client);
-			gClientData[client].SwapWeapon = EntIndexToEntRef(weapon);
-		}
-	}
-	else
-	{
-		// Gets weapon index from the reference
-		weapon = gClientData[client].CustomWeapon;
+		// Unexpected error, log it
+		LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to create secondary viewmodel");
+		return 0;
 	}
 
-	// Sets a model for the weapon
-	SetEntPropEnt(view, Prop_Send, "m_hWeapon", weapon);
+	// Sets owner to the entity
+	SetEntPropEnt(view, Prop_Send, "m_hOwner", client);
+	SetEntProp(view, Prop_Send, "m_nViewModelIndex", 1);
+
+	// Remove accuracity
+	SetEntProp(view, Prop_Send, "m_bShouldIgnoreOffsetAndAccuracy", true);
+	SetEntProp(view, Prop_Data, "m_bIsAutoaimTarget", false); // toogle state
+
+	// Spawn the entity into the world
+	DispatchSpawn(view);
+
+	// Sets viewmodel to the owner
+	WeaponHDRSetPlayerViewModel(client, 1, view);
+	
+	// Return on success
+	return view;
 }
 
 /**
- * @brief Sets a swap weapon to a player.
+ * @brief Creates the swapped weapon for the client.
  *
  * @param iD                The weapon id.
  * @param client            The client index.
@@ -69,7 +71,7 @@ void WeaponHDRToggleViewModel(int client, int view, int iD)
  **/
 int WeaponHDRCreateSwapWeapon(int iD, int client)
 {
-	// Gets weapon index from the reference
+	// Gets weapon index
 	int weapon1 = gClientData[client].CustomWeapon;
 
 	// i = weapon number
@@ -109,29 +111,267 @@ int WeaponHDRCreateSwapWeapon(int iD, int client)
 }
 
 /**
- * @brief Gets the view (player) weapon model.
+ * @brief Swaps the weapon view models for the client.
+ *
+ * @param client            The cleint index.
+ * @param view1             The view index.
+ * @param view2             The view index.
+ * @param iD                The weapon id.
+ **/
+void WeaponHDRSwapViewModel(int client, int weapon, int view1, int view2, int iD)
+{
+	//
+	ToolsSetVisibility(view1, false);
+	ToolsSetVisibility(view2, true);
+	
+	//
+	ParticlesStop(client, view2);
+
+	gClientData[client].DrawSequence = WeaponHDRGetSequence(view1);
+	// Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
+	WeaponHDRSetSequence(view1, -1);
+
+	ToolsUpdateTransmitState(view2);
+	
+	// Initialize variables
+	int iModel; static char sModel[PLATFORM_LINE_LENGTH]; sModel[0] = NULL_STRING[0];
+
+	{
+		// Gets weapon def index
+		ItemDef iItem = WeaponsGetDefIndex(iD);
+		
+		// Validate melee
+		if (IsMelee(iItem))
+		{
+			// Gets claw model
+			ClassGetClawModel(gClientData[client].Class, sModel, sizeof(sModel));
+			
+			// Update model index
+			iModel = ClassGetClawID(gClientData[client].Class);
+		}
+		// Validate grenade
+		else if (IsGrenade(iItem))
+		{
+			// Gets grenade model
+			ClassGetGrenadeModel(gClientData[client].Class, sModel, sizeof(sModel));
+			
+			// Update model index
+			iModel = ClassGetGrenadeID(gClientData[client].Class);
+		}
+
+		 // Gets model index
+		if (!iModel) iModel = WeaponsGetModelViewID(iD);
+		
+		// Gets weapon viewmodel
+		if (!hasLength(sModel)) WeaponsGetModelView(iD, sModel, sizeof(sModel));  
+	}
+	
+	//
+	SetEntityModel(weapon, sModel);
+
+	// If the sequence for the weapon didn't build yet
+	if (WeaponsGetSequenceCount(iD) == -1)
+	{
+		// Gets sequence amount from a weapon entity
+		int iSequenceCount = ToolsGetSequenceCount(weapon);
+
+		// Validate count
+		if (iSequenceCount)
+		{
+			// Initialize the sequence array
+			int iSequences[WEAPONS_SEQUENCE_MAX];
+
+			// Validate amount
+			if (iSequenceCount < WEAPONS_SEQUENCE_MAX)
+			{
+				// Build the sequence array
+				WeaponHDRBuildSwapSequenceArray(iSequences, iSequenceCount, weapon);
+				
+				// Update the sequence array
+				WeaponsSetSequenceCount(iD, iSequenceCount);
+				WeaponsSetSequenceSwap(iD, iSequences, sizeof(iSequences));
+			}
+			else
+			{
+				// Unexpected error, log it
+				LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "View model \"%s\" is having too many sequences! (Max %d, is %d) - Increase value of WEAPONS_SEQUENCE_MAX in plugin", sModel, WEAPONS_SEQUENCE_MAX, iSequenceCount);
+			}
+		}
+		else
+		{
+			// Remove swapped weapon
+			WeaponsClearSequenceSwap(iD);
+			
+			// Unexpected error, log it
+			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Weapons HDR", "Failed to get sequence count for weapon using model \"%s\" - Animations may not work as expected", sModel);
+		}
+	}
+
+	// Sets model for viewmodels
+	ToolsSetModelIndex(view1, iModel);
+	ToolsSetModelIndex(view2, iModel);
+	
+	// Gets body/skin index of a class
+	int iBody = ClassGetBody(gClientData[client].Class);
+	iBody = (iBody != -1) ? iBody : WeaponsGetModelBody(iD, ModelType_View);
+	int iSkin = ClassGetSkin(gClientData[client].Class);
+	iSkin = (iSkin != -1) ? iSkin : WeaponsGetModelSkin(iD, ModelType_View);
+	
+	// Sets skin and body for viewmodels
+	ToolsSetTextures(view1, iBody, iSkin);
+	ToolsSetTextures(view2, iBody, iSkin);
+	
+	// Update the animation interval delay for second viewmodel 
+	WeaponHDRSetPlaybackRate(view2, WeaponHDRGetPlaybackRate(view1));
+
+	//
+	// FIXME: Why am I calling this?
+	WeaponHDRToggleViewModel(client, view2, iD);
+	
+	// 
+	WeaponHDRSetLastSequence(view1, -1);
+	WeaponHDRSetLastSequenceParity(view1, -1);
+	WeaponHDRSetSwappedViewModel(view1, true);
+}
+
+/**
+ * @brief Toggles a view model.  
  *
  * @param client            The cleint index.
  * @param view              The view index.
+ * @param iD                The weapon id.
+ **/
+void WeaponHDRToggleViewModel(int client, int view, int iD)
+{
+	// Initialize variables
+	int weapon; bool toggle = view_as<bool>(GetEntProp(view, Prop_Data, "m_bIsAutoaimTarget"));
+
+	// Perform toggle
+	if ((toggle = !toggle))
+	{
+		// Validate no weapon
+		weapon = WeaponHDRGetSwappedWeapon(view);
+		if (weapon == -1)
+		{
+			// Create a swaped pair 
+			weapon = WeaponHDRCreateSwapWeapon(iD, client);
+			
+			// Store swapped weapon
+			WeaponHDRSetSwappedWeapon(view, weapon);
+		}
+	}
+	else
+	{
+		// Gets weapon index
+		weapon = gClientData[client].CustomWeapon;
+	}
+
+	// Sets a model for the weapon
+	SetEntPropEnt(view, Prop_Send, "m_hWeapon", weapon);
+	
+	// Sets a current toggle state
+	SetEntProp(view, Prop_Data, "m_bIsAutoaimTarget", toggle);
+}
+
+int WeaponHDRGetSequenceParity(int entity)
+{
+	return GetEntProp(entity, Prop_Send, "m_nNewSequenceParity");
+}
+
+void WeaponHDRSetSequence(int entity, int iSequence)
+{
+	SetEntProp(entity, Prop_Send, "m_nSequence", iSequence);
+}
+
+int WeaponHDRGetSequence(int entity)
+{
+	return GetEntProp(entity, Prop_Send, "m_nSequence");
+}
+
+void WeaponHDRSetPlaybackRate(int entity, float flRate)
+{
+	SetEntPropFloat(entity, Prop_Send, "m_flPlaybackRate", flRate);
+}
+
+float WeaponHDRGetPlaybackRate(int entity)
+{
+	return GetEntPropFloat(entity, Prop_Send, "m_flPlaybackRate");
+}
+
+void WeaponHDRSetLastSequence(int entity, int iSequence)
+{
+	SetEntProp(entity, Prop_Data, "m_iHealth", iSequence);
+}
+
+int WeaponHDRGetLastSequence(int entity)
+{
+	return GetEntProp(entity, Prop_Data, "m_iHealth");
+}
+
+void WeaponHDRSetLastSequenceParity(int entity, int iSequenceParity)
+{
+	SetEntProp(entity, Prop_Data, "m_iMaxHealth", iSequenceParity);
+}
+
+int WeaponHDRGetLastSequenceParity(int entity)
+{
+	return GetEntProp(entity, Prop_Data, "m_iMaxHealth");
+}
+
+void WeaponHDRSetSwappedViewModel(int entity, bool bSwapped)
+{
+	SetEntProp(entity, Prop_Data, "m_bIsAutoaimTarget", bSwapped);
+}
+
+bool WeaponHDRGetSwappedViewModel(int entity)
+{
+	return view_as<bool>(GetEntProp(entity, Prop_Data, "m_bIsAutoaimTarget"));
+}
+
+void WeaponHDRSetSwappedWeapon(int entity, int weapon)
+{
+	SetEntPropEnt(entity, Prop_Data, "m_hDamageFilter", weapon);
+}
+
+int WeaponHDRGetSwappedWeapon(int entity)
+{
+	return GetEntPropEnt(entity, Prop_Data, "m_hDamageFilter");
+}
+
+void WeaponHDRSetHolsteredViewModel(int entity, int iModel)
+{
+	SetEntProp(entity, Prop_Data, "m_iHammerID", iModel);
+}
+
+int WeaponHDRGetHolsteredViewModel(int entity)
+{
+	return GetEntProp(entity, Prop_Data, "m_iHammerID");
+}
+
+/**
+ * @brief Gets the view (player) weapon model.
+ *
+ * @param client            The cleint index.
+ * @param iView             The iView index.
  * @return                  The model index.
  **/
-int WeaponHDRGetPlayerViewModel(int client, int view)
+int WeaponHDRGetPlayerViewModel(int client, int iView)
 {
 	// Gets viewmodel of the client
-	return GetEntDataEnt2(client, Player_ViewModel + (view * 4));
+	return GetEntDataEnt2(client, Player_ViewModel + (iView * 4));
 }
 
 /**
  * @brief Sets the view (player) weapon model.
  *
  * @param client            The cleint index.
- * @param view              The view index.
+ * @param iView             The view index.
  * @param iModel            The model index.
 **/
-void WeaponHDRSetPlayerViewModel(int client, int view, int iModel)
+void WeaponHDRSetPlayerViewModel(int client, int iView, int iModel)
 {
 	// Sets viewmodel for the client
-	SetEntDataEnt2(client, Player_ViewModel + (view * 4), iModel, true);
+	SetEntDataEnt2(client, Player_ViewModel + (iView * 4), iModel, true);
 }
 
 /**
@@ -171,6 +411,7 @@ void WeaponHDRSetPlayerWorldModel(int weapon, int iD, ModelType nModel = ModelTy
 		{
 			// Sets body/skin index for the worldmodel
 			ToolsSetTextures(world, WeaponsGetModelBody(iD, nModel));
+			/// CBaseWeaponWorldModel missing m_nSkin in Prop_Send
 			SetEntProp(world, Prop_Data, "m_nSkin", WeaponsGetModelSkin(iD, nModel));
 		}
 	}                                                                                          
@@ -207,7 +448,7 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
 			UTIL_SetRenderColor(weapon, Color_Alpha, 0);
 			
 			// If dropped model wasn't created, then do
-			if (GetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter") == -1)
+			if (WeaponHDRGetSwappedWeapon(weapon) == -1)
 			{
 				// Initialize vector variables
 				static float vPosition[3]; static float vAngle[3];
@@ -233,7 +474,9 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
 					SetVariantString("!activator");
 					AcceptEntityInput(entity, "SetParent", weapon, entity);
 					ToolsSetOwner(entity, weapon);
-					SetEntPropEnt(weapon, Prop_Data, "m_hDamageFilter", entity);
+					
+					// Store as swapped weapon
+					WeaponHDRSetSwappedWeapon(weapon, entity);
 					
 					// Hook entity callbacks
 					SDKHook(entity, SDKHook_SetTransmit, WeaponHDROnDroppedTransmit);
@@ -269,18 +512,6 @@ public Action WeaponHDROnDroppedTransmit(int entity, int client)
 
 	// Allow transmitting
 	return Plugin_Continue;
-}
-
-/**
- * @brief Sets a visibility state of the weapon.
- *
- * @param weapon            The weapon index.
- * @param bInvisible        True or false.
- **/
-void WeaponHDRSetWeaponVisibility(int weapon, bool bInvisible)
-{
-	int iFlags = ToolsGetEffect(weapon);
-	ToolsSetEffect(weapon, bInvisible ? (iFlags & ~EF_NODRAW) : (iFlags | EF_NODRAW));
 }
 
 /**
