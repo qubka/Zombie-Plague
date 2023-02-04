@@ -2505,6 +2505,18 @@ void WeaponsSetOwner(int weapon, int owner)
 }
 
 /**
+ * @brief Gets the ammo type.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The ammo type.    
+ **/
+int WeaponsGetAmmoType(int weapon)
+{
+	// Gets value on the weapon
+	return GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
+} 
+
+/**
  * @brief Gets the current reserve ammo.
  *
  * @param weapon            The weapon index.
@@ -2513,7 +2525,7 @@ void WeaponsSetOwner(int weapon, int owner)
 int WeaponsGetReserveAmmo(int weapon)
 {
 	// Gets value on the weapon
-	return GetEntPropEnt(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount");
+	return GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount");
 }
 
 /**
@@ -2537,7 +2549,7 @@ void WeaponsSetReserveAmmo(int weapon, int iAmmo)
 int WeaponsGetMaxReserveAmmo(int weapon)
 {
 	// Gets value on the weapon
-	return GetEntPropEnt(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount");
+	return GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount");
 }
 
 /**
@@ -2561,7 +2573,7 @@ void WeaponsSetMaxReserveAmmo(int weapon, int iMaxAmmo)
 int WeaponsGetClipAmmo(int weapon)
 {
 	// Gets value on the weapon
-	return GetEntPropEnt(weapon, Prop_Send, "m_iClip1");
+	return GetEntProp(weapon, Prop_Send, "m_iClip1");
 }
 
 /**
@@ -2585,7 +2597,7 @@ void WeaponsSetClipAmmo(int weapon, int iAmmo)
 int WeaponsGetMaxClipAmmo(int weapon)
 {
 	// Gets value on the weapon
-	return GetEntPropEnt(weapon, Prop_Send, "m_iClip2");
+	return GetEntProp(weapon, Prop_Send, "m_iClip2");
 }
 
 /**
