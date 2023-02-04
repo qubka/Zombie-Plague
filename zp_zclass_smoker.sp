@@ -44,17 +44,15 @@ public Plugin myinfo =
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillDelay;
-ConVar gCvarSkillDamage;
-ConVar gCvarSkillRadius;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillDelay;
+ConVar hCvarSkillDamage;
+ConVar hCvarSkillRadius;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -63,10 +61,10 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillDelay  = CreateConVar("zp_zclass_smoker_delay", "0.5", "Delay between damage trigger", 0, true, 0.0);
-	gCvarSkillDamage = CreateConVar("zp_zclass_smoker_damage", "5.0", "Damage amount", 0, true, 0.0);
-	gCvarSkillRadius = CreateConVar("zp_zclass_smoker_radius", "200.0", "Cloud radius", 0, true, 0.0);
-	gCvarSkillEffect = CreateConVar("zp_zclass_smoker_effect", "explosion_smokegrenade_base_green", "Particle effect for the skill");
+	hCvarSkillDelay  = CreateConVar("zp_zclass_smoker_delay", "0.5", "Delay between damage trigger", 0, true, 0.0);
+	hCvarSkillDamage = CreateConVar("zp_zclass_smoker_damage", "5.0", "Damage amount", 0, true, 0.0);
+	hCvarSkillRadius = CreateConVar("zp_zclass_smoker_radius", "200.0", "Cloud radius", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_zclass_smoker_effect", "explosion_smokegrenade_base_green", "Particle effect for the skill");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_smoker", "sourcemod/zombieplague");
@@ -126,7 +124,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 
 		// Create a smoke effect
 		int entity = UTIL_CreateParticle(_, vPosition, _, _, sEffect, ZP_GetClassSkillDuration(gZombie));
@@ -138,7 +136,7 @@ public Action ZP_OnClientSkillUsed(int client)
 			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
 	
 			// Create gas damage task
-			CreateTimer(gCvarSkillDelay.FloatValue, ClientOnToxicGas, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(hCvarSkillDelay.FloatValue, ClientOnToxicGas, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	
@@ -168,8 +166,8 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
 		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 		
 		// Gets skill variables
-		float flRadius = gCvarSkillRadius.FloatValue;
-		float flDamage = gCvarSkillDamage.FloatValue;
+		float flRadius = hCvarSkillRadius.FloatValue;
+		float flDamage = hCvarSkillDamage.FloatValue;
 		
 		// Find any players in the radius
 		int i; int it = 1; /// iterator

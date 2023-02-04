@@ -58,11 +58,9 @@ Handle hWeaponSwingAgain[MAXPLAYERS+1] = { null, ... };
  
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSoundAttack; int gSoundHit; int gSoundIdle;
-#pragma unused gSoundAttack, gSoundHit, gSoundIdle
 
 // Animation sequences
 enum
@@ -99,11 +97,11 @@ enum
 };
 
 // Cvars
-ConVar gCvarSfswordSlashDamage;
-ConVar gCvarSfswordStabDamage;
-ConVar gCvarSfswordSlashDistance;
-ConVar gCvarSfswordStabDistance;
-ConVar gCvarSfswordRadiusDamage;
+ConVar hCvarSfswordSlashDamage;
+ConVar hCvarSfswordStabDamage;
+ConVar hCvarSfswordSlashDistance;
+ConVar hCvarSfswordStabDistance;
+ConVar hCvarSfswordRadiusDamage;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -112,11 +110,11 @@ ConVar gCvarSfswordRadiusDamage;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSfswordSlashDamage   = CreateConVar("zp_weapon_sfsword_slash_damage", "50.0", "Slash damage", 0, true, 0.0);
-	gCvarSfswordStabDamage    = CreateConVar("zp_weapon_sfsword_stab_damage", "100.0", "Stab damage", 0, true, 0.0);
-	gCvarSfswordSlashDistance = CreateConVar("zp_weapon_sfsword_slash_distance", "70.0", "Slash distance", 0, true, 0.0);
-	gCvarSfswordStabDistance  = CreateConVar("zp_weapon_sfsword_stab_distance", "35.0", "Stab distance", 0, true, 0.0);
-	gCvarSfswordRadiusDamage  = CreateConVar("zp_weapon_sfsword_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
+	hCvarSfswordSlashDamage   = CreateConVar("zp_weapon_sfsword_slash_damage", "50.0", "Slash damage", 0, true, 0.0);
+	hCvarSfswordStabDamage    = CreateConVar("zp_weapon_sfsword_stab_damage", "100.0", "Stab damage", 0, true, 0.0);
+	hCvarSfswordSlashDistance = CreateConVar("zp_weapon_sfsword_slash_distance", "70.0", "Slash distance", 0, true, 0.0);
+	hCvarSfswordStabDistance  = CreateConVar("zp_weapon_sfsword_stab_distance", "35.0", "Stab distance", 0, true, 0.0);
+	hCvarSfswordRadiusDamage  = CreateConVar("zp_weapon_sfsword_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_sfsword", "sourcemod/zombieplague");
@@ -193,8 +191,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
 	{
@@ -228,7 +224,6 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
 
 void Weapon_OnHolster(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
 	
 	// Delete timers
 	delete hWeaponStab[client];
@@ -241,8 +236,6 @@ void Weapon_OnHolster(int client, int weapon, int iStep, int iChangeMode, float 
 
 void Weapon_OnDeploy(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -263,8 +256,6 @@ void Weapon_OnDeploy(int client, int weapon, int iStep, int iChangeMode, float f
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -338,7 +329,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iStep, iChangeMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -390,14 +380,12 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode
 
 void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift, bool bSlash)
 {    
-	//#pragma unused client, weapon, flRightShift, bSlash
-
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 5.0 + flUpShift, vPosition);
-	ZP_GetPlayerEyePosition(client, (bSlash ? gCvarSfswordSlashDistance : gCvarSfswordStabDistance).FloatValue, flRightShift, 5.0 + flUpShift, vEndPosition);
+	ZP_GetPlayerEyePosition(client, (bSlash ? hCvarSfswordSlashDistance : hCvarSfswordStabDistance).FloatValue, flRightShift, 5.0 + flUpShift, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -455,7 +443,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? gCvarSfswordSlashDamage : gCvarSfswordStabDamage).FloatValue, gCvarSfswordRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? hCvarSfswordSlashDamage : hCvarSfswordStabDamage).FloatValue, hCvarSfswordRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 
 			// Validate victim
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))

@@ -47,14 +47,12 @@ Handle hZombieHallucination[MAXPLAYERS+1] = { null, ... };
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillRadius;
+ConVar hCvarSkillRadius;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -63,7 +61,7 @@ ConVar gCvarSkillRadius;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillRadius = CreateConVar("zp_zclass_tesla_radius", "300.0", "Tesla radius", 0, true, 0.0);
+	hCvarSkillRadius = CreateConVar("zp_zclass_tesla_radius", "300.0", "Tesla radius", 0, true, 0.0);
 
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_tesla", "sourcemod/zombieplague");
@@ -184,7 +182,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 		// Gets skill radius as string
 		static char sRadius[SMALL_LINE_LENGTH];
-		gCvarSkillRadius.GetString(sRadius, sizeof(sRadius));
+		hCvarSkillRadius.GetString(sRadius, sizeof(sRadius));
 
 		// Create a tesla entity
 		UTIL_CreateTesla(client, vPosition, _, _, sRadius, _, "15", "25", _, _, "7.0", "9.0", _, _, _, _, ZP_GetClassSkillDuration(gZombie));
@@ -230,7 +228,7 @@ public Action ClientOnHallucination(Handle hTimer, int userID)
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Gets skill radius
-		float flRadius = gCvarSkillRadius.FloatValue;
+		float flRadius = hCvarSkillRadius.FloatValue;
 
 		// Find any players in the radius
 		int i; int it = 1; /// iterator

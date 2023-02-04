@@ -43,11 +43,9 @@ public Plugin myinfo =
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Skill states
 enum
@@ -57,9 +55,9 @@ enum
 };
 
 // Cvars
-ConVar gCvarSkillAlpha;
-ConVar gCvarSkillDynamic;
-ConVar gCvarSkillRatio;
+ConVar hCvarSkillAlpha;
+ConVar hCvarSkillDynamic;
+ConVar hCvarSkillRatio;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -68,9 +66,9 @@ ConVar gCvarSkillRatio;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillAlpha   = CreateConVar("zp_zclass_mutation_light_alpha", "255", "Initial alpha value", 0, true, 0.0, true, 255.0);
-	gCvarSkillDynamic = CreateConVar("zp_zclass_mutation_light_dynamic", "1", "Dynamic invisibility", 0, true, 0.0, true, 1.0);
-	gCvarSkillRatio   = CreateConVar("zp_zclass_mutation_light_ratio", "0.2", "Alpha amount = speed * ratio", 0, true, 0.0, true, 1.0);
+	hCvarSkillAlpha   = CreateConVar("zp_zclass_mutation_light_alpha", "255", "Initial alpha value", 0, true, 0.0, true, 255.0);
+	hCvarSkillDynamic = CreateConVar("zp_zclass_mutation_light_dynamic", "1", "Dynamic invisibility", 0, true, 0.0, true, 1.0);
+	hCvarSkillRatio   = CreateConVar("zp_zclass_mutation_light_ratio", "0.2", "Alpha amount = speed * ratio", 0, true, 0.0, true, 1.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_mutation_light", "sourcemod/zombieplague");
@@ -117,7 +115,7 @@ public void ZP_OnEngineExecute(/*void*/)
 public void ZP_OnClientUpdated(int client, int attacker)
 {
 	// Resets visibility
-	UTIL_SetRenderColor(client, Color_Alpha, gCvarSkillAlpha.IntValue);
+	UTIL_SetRenderColor(client, Color_Alpha, hCvarSkillAlpha.IntValue);
 }
 
 /**
@@ -224,14 +222,14 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
 	{
 		// Validate dynamic invisibility
-		if (gCvarSkillDynamic.BoolValue)
+		if (hCvarSkillDynamic.BoolValue)
 		{
 			// Gets client velocity
 			static float vVelocity[3];
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
 			// If the zombie move, then increase alpha
-			int iAlpha = RoundToNearest(GetVectorLength(vVelocity) * gCvarSkillRatio.FloatValue);
+			int iAlpha = RoundToNearest(GetVectorLength(vVelocity) * hCvarSkillRatio.FloatValue);
 			
 			// Make model invisible
 			UTIL_SetRenderColor(client, Color_Alpha, iAlpha);

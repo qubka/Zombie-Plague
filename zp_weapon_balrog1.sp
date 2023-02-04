@@ -80,16 +80,14 @@ enum
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarBalrogDamage;
-ConVar gCvarBalrogRadius;
-ConVar gCvarBalrogExp;
+ConVar hCvarBalrogDamage;
+ConVar hCvarBalrogRadius;
+ConVar hCvarBalrogExp;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -98,9 +96,9 @@ ConVar gCvarBalrogExp;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarBalrogDamage = CreateConVar("zp_weapon_balrog1_damage", "600.0", "Explosion damage", 0, true, 0.0);
-	gCvarBalrogRadius = CreateConVar("zp_weapon_balrog1_radius", "150.0", "Explosion radius", 0, true, 0.0);
-	gCvarBalrogExp    = CreateConVar("zp_weapon_balrog1_explosion", "explosion_hegrenade_interior", "Particle effect for the explosion (''-default)");
+	hCvarBalrogDamage = CreateConVar("zp_weapon_balrog1_damage", "600.0", "Explosion damage", 0, true, 0.0);
+	hCvarBalrogRadius = CreateConVar("zp_weapon_balrog1_radius", "150.0", "Explosion radius", 0, true, 0.0);
+	hCvarBalrogExp    = CreateConVar("zp_weapon_balrog1_explosion", "explosion_hegrenade_interior", "Particle effect for the explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_balrog1", "sourcemod/zombieplague");
@@ -154,15 +152,12 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Cancel reload
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Sets draw animation
 	ZP_SetWeaponAnimation(client, ANIM_DRAW); 
@@ -173,7 +168,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate mode
 	if (!iStateMode)
@@ -196,8 +190,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 bool Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate mode
 	if (!iStateMode)
 	{
@@ -244,8 +236,6 @@ bool Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
 
@@ -259,8 +249,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 
 bool Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate mode
 	if (!iStateMode)
 	{
@@ -333,8 +321,6 @@ bool Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -390,7 +376,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 void Weapon_OnCreateExplosion(int client, int weapon)
 {
-	//#pragma unused client, weapon
 	
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vEndPosition[3]; 
@@ -410,7 +395,7 @@ void Weapon_OnCreateExplosion(int client, int weapon)
 	
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarBalrogExp.GetString(sEffect, sizeof(sEffect));
+		hCvarBalrogExp.GetString(sEffect, sizeof(sEffect));
 
 		// Initialze exp flag
 		int iFlags = EXP_NOSOUND;
@@ -424,7 +409,7 @@ void Weapon_OnCreateExplosion(int client, int weapon)
 		}
 		
 		// Create an explosion
-		UTIL_CreateExplosion(vEndPosition, iFlags, _, gCvarBalrogDamage.FloatValue, gCvarBalrogRadius.FloatValue, "balrog1", client, weapon);
+		UTIL_CreateExplosion(vEndPosition, iFlags, _, hCvarBalrogDamage.FloatValue, hCvarBalrogRadius.FloatValue, "balrog1", client, weapon);
 		
 		// Play sound
 		ZP_EmitAmbientSound(gSound, 2, vEndPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL);

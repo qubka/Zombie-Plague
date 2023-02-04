@@ -44,17 +44,15 @@ public Plugin myinfo =
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarBalrogRatio;
-ConVar gCvarBalrogDamage;
-ConVar gCvarBalrogRadius;
-ConVar gCvarBalrogExp;
+ConVar hCvarBalrogRatio;
+ConVar hCvarBalrogDamage;
+ConVar hCvarBalrogRadius;
+ConVar hCvarBalrogExp;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -63,10 +61,10 @@ ConVar gCvarBalrogExp;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarBalrogRatio  = CreateConVar("zp_weapon_balrog7_ratio", "6", "Amount of bullets to trigger explosion (clip/ratio = amount)", 0, true, 0.0);
-	gCvarBalrogDamage = CreateConVar("zp_weapon_balrog7_damage", "300.0", "Explosion damage", 0, true, 0.0);
-	gCvarBalrogRadius = CreateConVar("zp_weapon_balrog7_radius", "150.0", "Explosion radius", 0, true, 0.0);
-	gCvarBalrogExp    = CreateConVar("zp_weapon_balrog7_explosion", "explosion_hegrenade_interior", "Particle effect for the explosion (''-default)");
+	hCvarBalrogRatio  = CreateConVar("zp_weapon_balrog7_ratio", "6", "Amount of bullets to trigger explosion (clip/ratio = amount)", 0, true, 0.0);
+	hCvarBalrogDamage = CreateConVar("zp_weapon_balrog7_damage", "300.0", "Explosion damage", 0, true, 0.0);
+	hCvarBalrogRadius = CreateConVar("zp_weapon_balrog7_radius", "150.0", "Explosion radius", 0, true, 0.0);
+	hCvarBalrogExp    = CreateConVar("zp_weapon_balrog7_explosion", "explosion_hegrenade_interior", "Particle effect for the explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_balrog7", "sourcemod/zombieplague");
@@ -120,16 +118,12 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnReload(int client, int weapon, float vBullet[3], int iCounter, float flCurrentTime)
 {
-	//#pragma unused client, weapon, vBullet, iCounter, flCurrentTime
-
 	// Sets default FOV for the client
 	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
 }
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float vBullet[3], int iCounter, float flCurrentTime)
 {
-	//#pragma unused client, weapon, vBullet, iCounter, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
 	{
@@ -146,14 +140,13 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float vBullet[3], int iCou
 
 void Weapon_OnBullet(int client, int weapon, float vBullet[3], int iCounter, float flCurrentTime)
 {
-	//#pragma unused client, weapon, vBullet, iCounter, flCurrentTime
 	
 	// Validate counter
-	if (iCounter > (ZP_GetWeaponClip(gWeapon) / gCvarBalrogRatio.IntValue))
+	if (iCounter > (ZP_GetWeaponClip(gWeapon) / hCvarBalrogRatio.IntValue))
 	{
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarBalrogExp.GetString(sEffect, sizeof(sEffect));
+		hCvarBalrogExp.GetString(sEffect, sizeof(sEffect));
 
 		// Initialze exp flag
 		int iFlags = EXP_NOSOUND;
@@ -167,7 +160,7 @@ void Weapon_OnBullet(int client, int weapon, float vBullet[3], int iCounter, flo
 		}
 		
 		// Create an explosion
-		UTIL_CreateExplosion(vBullet, iFlags, _, gCvarBalrogDamage.FloatValue, gCvarBalrogRadius.FloatValue, "balrog7", client, weapon);
+		UTIL_CreateExplosion(vBullet, iFlags, _, hCvarBalrogDamage.FloatValue, hCvarBalrogRadius.FloatValue, "balrog7", client, weapon);
 
 		// Play sound
 		ZP_EmitAmbientSound(gSound, 1, vBullet, SOUND_FROM_WORLD, SNDLEVEL_NORMAL);

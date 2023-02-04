@@ -59,11 +59,9 @@ Handle hWeaponStab[MAXPLAYERS+1] = { null, ... };
  
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSoundAttack; int gSoundHit; int gSoundIdle;
-#pragma unused gSoundAttack, gSoundHit, gSoundIdle
 
 // Animation sequences
 enum
@@ -93,11 +91,11 @@ enum
 };
 
 // Cvars
-ConVar gCvarChainsawSlashDamage;
-ConVar gCvarChainsawStabDamage;
-ConVar gCvarChainsawSlashDistance;
-ConVar gCvarChainsawStabDistance;
-ConVar gCvarChainsawRadiusDamage;
+ConVar hCvarChainsawSlashDamage;
+ConVar hCvarChainsawStabDamage;
+ConVar hCvarChainsawSlashDistance;
+ConVar hCvarChainsawStabDistance;
+ConVar hCvarChainsawRadiusDamage;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -106,11 +104,11 @@ ConVar gCvarChainsawRadiusDamage;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarChainsawSlashDamage   = CreateConVar("zp_weapon_chainsaw_slash_damage", "100.0", "Slash damage", 0, true, 0.0);
-	gCvarChainsawStabDamage    = CreateConVar("zp_weapon_chainsaw_stab_damage", "50.0", "Stab damage", 0, true, 0.0);
-	gCvarChainsawSlashDistance = CreateConVar("zp_weapon_chainsaw_slash_distance", "80.0", "Slash distance", 0, true, 0.0);
-	gCvarChainsawStabDistance  = CreateConVar("zp_weapon_chainsaw_stab_distance", "90.0", "Stab distance", 0, true, 0.0);
-	gCvarChainsawRadiusDamage  = CreateConVar("zp_weapon_chainsaw_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
+	hCvarChainsawSlashDamage   = CreateConVar("zp_weapon_chainsaw_slash_damage", "100.0", "Slash damage", 0, true, 0.0);
+	hCvarChainsawStabDamage    = CreateConVar("zp_weapon_chainsaw_stab_damage", "50.0", "Stab damage", 0, true, 0.0);
+	hCvarChainsawSlashDistance = CreateConVar("zp_weapon_chainsaw_slash_distance", "80.0", "Slash distance", 0, true, 0.0);
+	hCvarChainsawStabDistance  = CreateConVar("zp_weapon_chainsaw_stab_distance", "90.0", "Stab distance", 0, true, 0.0);
+	hCvarChainsawRadiusDamage  = CreateConVar("zp_weapon_chainsaw_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_chainsaw", "sourcemod/zombieplague");
@@ -183,7 +181,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Delete timers
 	delete hWeaponStab[client];
@@ -197,7 +194,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate clip
 	if (iClip <= 0)
@@ -243,7 +239,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
@@ -290,8 +285,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
 
@@ -305,8 +298,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -327,8 +318,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -445,7 +434,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -502,14 +490,12 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 {    
-	//#pragma unused client, weapon, flRightShift, bSlash
-
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 10.0, vPosition);
-	ZP_GetPlayerEyePosition(client, (bSlash ? gCvarChainsawSlashDistance : gCvarChainsawStabDistance).FloatValue, flRightShift, 10.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, (bSlash ? hCvarChainsawSlashDistance : hCvarChainsawStabDistance).FloatValue, flRightShift, 10.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -567,7 +553,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? gCvarChainsawSlashDamage : gCvarChainsawStabDamage).FloatValue, gCvarChainsawRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? hCvarChainsawSlashDamage : hCvarChainsawStabDamage).FloatValue, hCvarChainsawRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 
 			// Validate victim
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
@@ -584,8 +570,6 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 
 void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate mode
 	if (iStateMode > STATE_BEGIN)
 	{

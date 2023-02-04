@@ -43,7 +43,6 @@ public Plugin myinfo =
 
 // Mode index
 int gGameMode;
-#pragma unused gGameMode
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 

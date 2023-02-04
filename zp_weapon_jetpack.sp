@@ -47,11 +47,9 @@ Handle hItemReload[MAXPLAYERS+1] = { null, ... }; Handle hItemDuration[MAXPLAYER
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 

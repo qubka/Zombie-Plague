@@ -43,7 +43,6 @@ public Plugin myinfo =
 
 // Item index
 int gItem;
-#pragma unused gItem
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 

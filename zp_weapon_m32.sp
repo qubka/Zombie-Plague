@@ -77,23 +77,20 @@ enum
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarM32Speed;
-ConVar gCvarM32Damage;
-ConVar gCvarM32Radius;
-ConVar gCvarM32Gravity;
-ConVar gCvarM32Trail;
-ConVar gCvarM32Exp;
+ConVar hCvarM32Speed;
+ConVar hCvarM32Damage;
+ConVar hCvarM32Radius;
+ConVar hCvarM32Gravity;
+ConVar hCvarM32Trail;
+ConVar hCvarM32Exp;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -102,12 +99,12 @@ ConVar gCvarM32Exp;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarM32Speed   = CreateConVar("zp_weapon_m32_speed", "1500.0", "Projectile speed", 0, true, 0.0);
-	gCvarM32Damage  = CreateConVar("zp_weapon_m32_damage", "150.0", "Projectile damage", 0, true, 0.0);
-	gCvarM32Radius  = CreateConVar("zp_weapon_m32_radius", "300.0", "Damage radius", 0, true, 0.0);
-	gCvarM32Gravity = CreateConVar("zp_weapon_m32_gravity", "1.5", "Projectile gravity", 0, true, 0.0);
-	gCvarM32Trail   = CreateConVar("zp_weapon_m32_trail", "critical_rocket_red", "Particle effect for the trail (''-default)");
-	gCvarM32Exp     = CreateConVar("zp_weapon_m32_explosion", "", "Particle effect for the explosion (''-default)");
+	hCvarM32Speed   = CreateConVar("zp_weapon_m32_speed", "1500.0", "Projectile speed", 0, true, 0.0);
+	hCvarM32Damage  = CreateConVar("zp_weapon_m32_damage", "150.0", "Projectile damage", 0, true, 0.0);
+	hCvarM32Radius  = CreateConVar("zp_weapon_m32_radius", "300.0", "Damage radius", 0, true, 0.0);
+	hCvarM32Gravity = CreateConVar("zp_weapon_m32_gravity", "1.5", "Projectile gravity", 0, true, 0.0);
+	hCvarM32Trail   = CreateConVar("zp_weapon_m32_trail", "critical_rocket_red", "Particle effect for the trail (''-default)");
+	hCvarM32Exp     = CreateConVar("zp_weapon_m32_explosion", "", "Particle effect for the explosion (''-default)");
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_m32", "sourcemod/zombieplague");
@@ -162,8 +159,6 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iReloadMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -221,8 +216,6 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iReloadMod
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iReloadMode, flCurrentTime
-
 	// Validate mode
 	if (iReloadMode == RELOAD_START)
 	{
@@ -253,8 +246,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iReloadMode
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iReloadMode, flCurrentTime
-
 	// Validate ammo
 	if (iAmmo <= 0)
 	{
@@ -297,8 +288,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iReloadMo
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iReloadMode, flCurrentTime
-
 	// Sets end animation
 	ZP_SetWeaponAnimation(client, ANIM_FINISH_INSERT);        
 	ZP_SetPlayerAnimation(client, AnimType_ReloadEnd);
@@ -319,8 +308,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iRe
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iReloadMode, flCurrentTime
-
 	// Sets draw animation
 	ZP_SetWeaponAnimation(client, ANIM_DRAW); 
 	
@@ -336,8 +323,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iReloadMo
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iReloadMode, flCurrentTime
-
 	// Validate mode
 	if (iReloadMode > RELOAD_START)
 	{
@@ -421,8 +406,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iR
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iReloadMode, flCurrentTime
-
 	// Validate mode
 	if (iReloadMode > RELOAD_START)
 	{
@@ -446,8 +429,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 void Weapon_OnCreateGrenade(int client)
 {
-	//#pragma unused client
-
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -473,7 +454,7 @@ void Weapon_OnCreateGrenade(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarM32Speed.FloatValue);
+		ScaleVector(vSpeed, hCvarM32Speed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -487,14 +468,14 @@ void Weapon_OnCreateGrenade(int client)
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", gCvarM32Gravity.FloatValue); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", hCvarM32Gravity.FloatValue); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, GrenadeTouchHook);
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarM32Trail.GetString(sEffect, sizeof(sEffect));
+		hCvarM32Trail.GetString(sEffect, sizeof(sEffect));
 
 		// Validate effect
 		if (hasLength(sEffect))
@@ -651,7 +632,7 @@ public Action GrenadeTouchHook(int entity, int target)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarM32Exp.GetString(sEffect, sizeof(sEffect));
+		hCvarM32Exp.GetString(sEffect, sizeof(sEffect));
 
 		// Initialze exp flag
 		int iFlags = EXP_NOSOUND;
@@ -665,7 +646,7 @@ public Action GrenadeTouchHook(int entity, int target)
 		}
 		
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarM32Damage.FloatValue, gCvarM32Radius.FloatValue, "m32", thrower, entity);
+		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarM32Damage.FloatValue, hCvarM32Radius.FloatValue, "m32", thrower, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);

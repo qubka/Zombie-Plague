@@ -43,20 +43,17 @@
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillChance;
-ConVar gCvarSkillDuration;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillChance;
+ConVar hCvarSkillDuration;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -65,9 +62,9 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillChance   = CreateConVar("zp_zclass_sleeper_chance", "20", "Smaller = more likely", 0, true, 0.0, true, 999.0);
-	gCvarSkillDuration = CreateConVar("zp_zclass_sleeper_duration", "3.5", "Sleep duration", 0, true, 0.0);
-	gCvarSkillEffect   = CreateConVar("zp_zclass_sleeper_effect", "sila_trail_apalaal", "Particle effect for the skill (''-default)");
+	hCvarSkillChance   = CreateConVar("zp_zclass_sleeper_chance", "20", "Smaller = more likely", 0, true, 0.0, true, 999.0);
+	hCvarSkillDuration = CreateConVar("zp_zclass_sleeper_duration", "3.5", "Sleep duration", 0, true, 0.0);
+	hCvarSkillEffect   = CreateConVar("zp_zclass_sleeper_effect", "sila_trail_apalaal", "Particle effect for the skill (''-default)");
 
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_sleeper", "sourcemod/zombieplague");
@@ -144,20 +141,20 @@ public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float fl
 		iChance[client] = GetRandomInt(0, 999);
 		
 		// Validate chance
-		if (iChance[client] < gCvarSkillChance.IntValue)
+		if (iChance[client] < hCvarSkillChance.IntValue)
 		{
 			// Play sound
 			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 			
 			// Gets skill duration
-			float flDuration = gCvarSkillDuration.FloatValue;
+			float flDuration = hCvarSkillDuration.FloatValue;
 			
 			// Create an fade
 			UTIL_CreateFadeScreen(attacker, flDuration, flDuration + 0.5, FFADE_IN, {0, 0, 0, 255});
 			
 			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
-			gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+			hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 			
 			// Validate effect
 			if (hasLength(sEffect))

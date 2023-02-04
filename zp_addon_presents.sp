@@ -63,13 +63,12 @@ Handle hPresentSpawn = null; ArrayList hPosition; bool bLoad; int gCaseCount;
 
 // Sound index
 int gSound;
-#pragma unused gSound  
  
 // Cvars
-ConVar gCvarPresentGlow;
-ConVar gCvarPresentMax;
-ConVar gCvarPresentHealth;
-ConVar gCvarPresentDelay;
+ConVar hCvarPresentGlow;
+ConVar hCvarPresentMax;
+ConVar hCvarPresentHealth;
+ConVar hCvarPresentDelay;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -78,10 +77,10 @@ ConVar gCvarPresentDelay;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarPresentGlow   = CreateConVar("zp_presents_glow", "0", "Enable glow effect", 0, true, 0.0, true, 1.0);
-	gCvarPresentMax    = CreateConVar("zp_presents_max", "6", "Maximum amount of presents on map", 0, true, 1.0);
-	gCvarPresentHealth = CreateConVar("zp_presents_health", "300", "Health of present. If disabled will be pickup on touch", 0, true, 0.0);
-	gCvarPresentDelay  = CreateConVar("zp_presents_delay", "60.0", "Delay between presents spawn", 0, true, 0.0);
+	hCvarPresentGlow   = CreateConVar("zp_presents_glow", "0", "Enable glow effect", 0, true, 0.0, true, 1.0);
+	hCvarPresentMax    = CreateConVar("zp_presents_max", "6", "Maximum amount of presents on map", 0, true, 1.0);
+	hCvarPresentHealth = CreateConVar("zp_presents_health", "300", "Health of present. If disabled will be pickup on touch", 0, true, 0.0);
+	hCvarPresentDelay  = CreateConVar("zp_presents_delay", "60.0", "Delay between presents spawn", 0, true, 0.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_addon_presents", "sourcemod/zombieplague");
@@ -487,7 +486,7 @@ public void ZP_OnGameModeStart(int mode)
 	{
 		// Create spawing hook
 		delete hPresentSpawn;
-		hPresentSpawn = CreateTimer(gCvarPresentDelay.FloatValue, CaseSpawnHook, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		hPresentSpawn = CreateTimer(hCvarPresentDelay.FloatValue, CaseSpawnHook, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -519,7 +518,7 @@ public Action RoundStateHook(Event hEvent, char[] sName, bool dontBroadcast)
 public Action CaseSpawnHook(Handle hTimer)
 {
 	// Validate amount
-	int iAmount = gCvarPresentMax.IntValue - gCaseCount;
+	int iAmount = hCvarPresentMax.IntValue - gCaseCount;
 	if (!iAmount)
 	{
 		// Allow timer
@@ -582,7 +581,7 @@ public Action CaseSpawnHook(Handle hTimer)
 		}
 		
 		// Gets presents health
-		int iHealth = gCvarPresentHealth.IntValue;
+		int iHealth = hCvarPresentHealth.IntValue;
 		
 		// Gets presents flag (disable motion for trigger)
 		int iFlags = PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR;
@@ -625,7 +624,7 @@ public Action CaseSpawnHook(Handle hTimer)
 			}
 			
 			// Validate glow
-			if (gCvarPresentGlow.BoolValue)
+			if (hCvarPresentGlow.BoolValue)
 			{		
 				// Create a prop_dynamic_override entity
 				int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");

@@ -52,23 +52,20 @@ public Plugin myinfo =
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Cvars
-ConVar gCvarFlareRadius;
-ConVar gCvarFlareDistance;
-ConVar gCvarFlareDuration;
-ConVar gCvarFlareTrail;
-ConVar gCvarFlareColor;
-ConVar gCvarFlareSmoke;
+ConVar hCvarFlareRadius;
+ConVar hCvarFlareDistance;
+ConVar hCvarFlareDuration;
+ConVar hCvarFlareTrail;
+ConVar hCvarFlareColor;
+ConVar hCvarFlareSmoke;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -77,12 +74,12 @@ ConVar gCvarFlareSmoke;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarFlareRadius   = CreateConVar("zp_weapon_flare_radius", "150.0", "Flare lightning size (radius)", 0, true, 0.0);
-	gCvarFlareDistance = CreateConVar("zp_weapon_flare_distance", "600.0", "Flare lightning size (distance)", 0, true, 0.0);
-	gCvarFlareDuration = CreateConVar("zp_weapon_flare_duration", "20.0", "Flare lightning duration in seconds", 0, true, 0.0);
-	gCvarFlareTrail    = CreateConVar("zp_weapon_flare_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
-	gCvarFlareColor    = CreateConVar("zp_weapon_flare_color", "255 0 0 255", "Flare color in 'RGBA'");
-	gCvarFlareSmoke    = CreateConVar("zp_weapon_flare_smoke", "smoking", "Particle effect for the smoke (''-off)");
+	hCvarFlareRadius   = CreateConVar("zp_weapon_flare_radius", "150.0", "Flare lightning size (radius)", 0, true, 0.0);
+	hCvarFlareDistance = CreateConVar("zp_weapon_flare_distance", "600.0", "Flare lightning size (distance)", 0, true, 0.0);
+	hCvarFlareDuration = CreateConVar("zp_weapon_flare_duration", "20.0", "Flare lightning duration in seconds", 0, true, 0.0);
+	hCvarFlareTrail    = CreateConVar("zp_weapon_flare_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	hCvarFlareColor    = CreateConVar("zp_weapon_flare_color", "255 0 0 255", "Flare color in 'RGBA'");
+	hCvarFlareSmoke    = CreateConVar("zp_weapon_flare_smoke", "smoking", "Particle effect for the smoke (''-off)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_flare", "sourcemod/zombieplague");
@@ -152,17 +149,17 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 
 		// Gets grenade life
-		float flDuration = gCvarFlareDuration.FloatValue;
+		float flDuration = hCvarFlareDuration.FloatValue;
 		
 		// Gets grenade color
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarFlareColor.GetString(sEffect, sizeof(sEffect));
+		hCvarFlareColor.GetString(sEffect, sizeof(sEffect));
 		
 		// Create light
-		UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, sEffect, gCvarFlareDistance.FloatValue, gCvarFlareRadius.FloatValue, flDuration);
+		UTIL_CreateLight(grenade, vPosition, _, _, _, _, _, _, _, sEffect, hCvarFlareDistance.FloatValue, hCvarFlareRadius.FloatValue, flDuration);
 		
 		// Gets grenade smoke
-		gCvarFlareSmoke.GetString(sEffect, sizeof(sEffect));
+		hCvarFlareSmoke.GetString(sEffect, sizeof(sEffect));
 
 		// Validate effect
 		if (hasLength(sEffect))
@@ -172,7 +169,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 		}
 		
 		// Validate trail
-		if (gCvarFlareTrail.BoolValue)
+		if (hCvarFlareTrail.BoolValue)
 		{
 			// Create an trail effect
 			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);

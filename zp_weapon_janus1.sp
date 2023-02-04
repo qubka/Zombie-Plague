@@ -86,25 +86,22 @@ enum
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarJanusSignalCounter;
-ConVar gCvarJanusActiveCounter;
-ConVar gCvarJanusGrenadeDamage;
-ConVar gCvarJanusGrenadeSpeed;
-ConVar gCvarJanusGrenadeGravity;
-ConVar gCvarJanusGrenadeRadius;
-ConVar gCvarJanusGrenadeTrail;
-ConVar gCvarJanusGrenadeExp;
+ConVar hCvarJanusSignalCounter;
+ConVar hCvarJanusActiveCounter;
+ConVar hCvarJanusGrenadeDamage;
+ConVar hCvarJanusGrenadeSpeed;
+ConVar hCvarJanusGrenadeGravity;
+ConVar hCvarJanusGrenadeRadius;
+ConVar hCvarJanusGrenadeTrail;
+ConVar hCvarJanusGrenadeExp;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -113,14 +110,14 @@ ConVar gCvarJanusGrenadeExp;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarJanusSignalCounter  = CreateConVar("zp_weapon_janus1_signal_counter", "7", "Amount of shots to activate second mode", 0, true, 0.0);
-	gCvarJanusActiveCounter  = CreateConVar("zp_weapon_janus1_active_counter", "14", "Amount of shots in the second mode", 0, true, 0.0);
-	gCvarJanusGrenadeDamage  = CreateConVar("zp_weapon_janus1_grenade_damage", "300.0", "", 0, true, 0.0);
-	gCvarJanusGrenadeSpeed   = CreateConVar("zp_weapon_janus1_grenade_speed", "1500.0", "", 0, true, 0.0);
-	gCvarJanusGrenadeGravity = CreateConVar("zp_weapon_janus1_grenade_gravity", "1.5", "", 0, true, 0.0);
-	gCvarJanusGrenadeRadius  = CreateConVar("zp_weapon_janus1_grenade_radius", "400.0", "", 0, true, 0.0);
-	gCvarJanusGrenadeTrail   = CreateConVar("zp_weapon_janus1_trail", "critical_rocket_blue", "Particle effect for the trail (''-default)");
-	gCvarJanusGrenadeExp     = CreateConVar("zp_weapon_janus1_grenade_explosion", "projectile_fireball_crit_blue", "Particle effect for the explosion (''-default)");
+	hCvarJanusSignalCounter  = CreateConVar("zp_weapon_janus1_signal_counter", "7", "Amount of shots to activate second mode", 0, true, 0.0);
+	hCvarJanusActiveCounter  = CreateConVar("zp_weapon_janus1_active_counter", "14", "Amount of shots in the second mode", 0, true, 0.0);
+	hCvarJanusGrenadeDamage  = CreateConVar("zp_weapon_janus1_grenade_damage", "300.0", "", 0, true, 0.0);
+	hCvarJanusGrenadeSpeed   = CreateConVar("zp_weapon_janus1_grenade_speed", "1500.0", "", 0, true, 0.0);
+	hCvarJanusGrenadeGravity = CreateConVar("zp_weapon_janus1_grenade_gravity", "1.5", "", 0, true, 0.0);
+	hCvarJanusGrenadeRadius  = CreateConVar("zp_weapon_janus1_grenade_radius", "400.0", "", 0, true, 0.0);
+	hCvarJanusGrenadeTrail   = CreateConVar("zp_weapon_janus1_trail", "critical_rocket_blue", "Particle effect for the trail (''-default)");
+	hCvarJanusGrenadeExp     = CreateConVar("zp_weapon_janus1_grenade_explosion", "projectile_fireball_crit_blue", "Particle effect for the explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_janus1", "sourcemod/zombieplague");
@@ -178,16 +175,12 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	// Cancel mode change
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
 void Weapon_OnIdle(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
 	{
@@ -203,8 +196,6 @@ void Weapon_OnIdle(int client, int weapon, int iAmmo, int iCounter, int iStateMo
 
 void Weapon_OnDeploy(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -222,8 +213,6 @@ void Weapon_OnDeploy(int client, int weapon, int iAmmo, int iCounter, int iState
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -240,7 +229,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 	if (iStateMode == STATE_ACTIVE)
 	{
 		// Validate counter
-		if (iCounter > gCvarJanusActiveCounter.IntValue)
+		if (iCounter > hCvarJanusActiveCounter.IntValue)
 		{
 			Weapon_OnFinish(client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime);
 			return;
@@ -271,7 +260,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 		iAmmo -= 1; SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo);
 
 		// Validate counter
-		if (iCounter > gCvarJanusSignalCounter.IntValue)
+		if (iCounter > hCvarJanusSignalCounter.IntValue)
 		{
 			// Sets signal mode
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_SIGNAL);
@@ -359,7 +348,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Validate mode
 	if (iStateMode == STATE_SIGNAL)
@@ -396,7 +384,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iAmmo, int iCounter, i
 
 void Weapon_OnFinish(int client, int weapon, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Sets change animation
 	ZP_SetWeaponAnimation(client, ANIM_CHANGE_B);        
@@ -420,8 +407,6 @@ void Weapon_OnFinish(int client, int weapon, int iAmmo, int iCounter, int iState
 
 void Weapon_OnCreateGrenade(int client)
 {
-	//#pragma unused client
-
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -447,7 +432,7 @@ void Weapon_OnCreateGrenade(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarJanusGrenadeSpeed.FloatValue);
+		ScaleVector(vSpeed, hCvarJanusGrenadeSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -461,14 +446,14 @@ void Weapon_OnCreateGrenade(int client)
 		SetEntPropEnt(entity, Prop_Data, "m_hThrower", client);
 
 		// Sets gravity
-		SetEntPropFloat(entity, Prop_Data, "m_flGravity", gCvarJanusGrenadeGravity.FloatValue); 
+		SetEntPropFloat(entity, Prop_Data, "m_flGravity", hCvarJanusGrenadeGravity.FloatValue); 
 
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, GrenadeTouchHook);
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarJanusGrenadeTrail.GetString(sEffect, sizeof(sEffect));
+		hCvarJanusGrenadeTrail.GetString(sEffect, sizeof(sEffect));
 
 		// Validate effect
 		if (hasLength(sEffect))
@@ -643,7 +628,7 @@ public Action GrenadeTouchHook(int entity, int target)
 
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarJanusGrenadeExp.GetString(sEffect, sizeof(sEffect));
+		hCvarJanusGrenadeExp.GetString(sEffect, sizeof(sEffect));
 
 		// Initialze exp flag
 		int iFlags = EXP_NOSOUND;
@@ -657,7 +642,7 @@ public Action GrenadeTouchHook(int entity, int target)
 		}
 
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarJanusGrenadeDamage.FloatValue, gCvarJanusGrenadeRadius.FloatValue, "janus1", thrower, entity);
+		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarJanusGrenadeDamage.FloatValue, hCvarJanusGrenadeRadius.FloatValue, "janus1", thrower, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);

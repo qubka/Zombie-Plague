@@ -43,11 +43,9 @@ public Plugin myinfo =
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Item index
 int gWeaponKevlar; int gWeaponAssault; int gWeaponHeavy;
-#pragma unused gWeaponKevlar, gWeaponAssault, gWeaponHeavy
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 

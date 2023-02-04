@@ -56,11 +56,9 @@ Handle hWeaponStab[MAXPLAYERS+1] = { null, ... };
  
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Animation sequences
 enum
@@ -85,12 +83,12 @@ enum
 };
 
 // Cvars
-ConVar gCvarHammerSlashDamage;
-ConVar gCvarHammerStabDamage;
-ConVar gCvarHammerSlashDistance;
-ConVar gCvarHammerStabDistance;
-ConVar gCvarHammerRadiusDamage;
-ConVar gCvarHammerActiveSlow;
+ConVar hCvarHammerSlashDamage;
+ConVar hCvarHammerStabDamage;
+ConVar hCvarHammerSlashDistance;
+ConVar hCvarHammerStabDistance;
+ConVar hCvarHammerRadiusDamage;
+ConVar hCvarHammerActiveSlow;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -99,12 +97,12 @@ ConVar gCvarHammerActiveSlow;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarHammerSlashDamage   = CreateConVar("zp_weapon_hammer_slash_damage", "1000.0", "Slash damage", 0, true, 0.0);
-	gCvarHammerStabDamage    = CreateConVar("zp_weapon_hammer_stab_damage", "500.0", "Stab damage", 0, true, 0.0);
-	gCvarHammerSlashDistance = CreateConVar("zp_weapon_hammer_slash_distance", "90.0", "Slash distance", 0, true, 0.0);
-	gCvarHammerStabDistance  = CreateConVar("zp_weapon_hammer_stab_distance", "80.0", "Stab distance", 0, true, 0.0);
-	gCvarHammerRadiusDamage  = CreateConVar("zp_weapon_hammer_radius_damage", "50.0", "Radius damage", 0, true, 0.0);
-	gCvarHammerActiveSlow    = CreateConVar("zp_weapon_hammer_active_slow", "25.0", "Stamina-based slowdown while carrying in active mode", 0, true, 0.0, true, 100.0);
+	hCvarHammerSlashDamage   = CreateConVar("zp_weapon_hammer_slash_damage", "1000.0", "Slash damage", 0, true, 0.0);
+	hCvarHammerStabDamage    = CreateConVar("zp_weapon_hammer_stab_damage", "500.0", "Stab damage", 0, true, 0.0);
+	hCvarHammerSlashDistance = CreateConVar("zp_weapon_hammer_slash_distance", "90.0", "Slash distance", 0, true, 0.0);
+	hCvarHammerStabDistance  = CreateConVar("zp_weapon_hammer_stab_distance", "80.0", "Stab distance", 0, true, 0.0);
+	hCvarHammerRadiusDamage  = CreateConVar("zp_weapon_hammer_radius_damage", "50.0", "Radius damage", 0, true, 0.0);
+	hCvarHammerActiveSlow    = CreateConVar("zp_weapon_hammer_active_slow", "25.0", "Stamina-based slowdown while carrying in active mode", 0, true, 0.0, true, 100.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_hammer", "sourcemod/zombieplague");
@@ -173,7 +171,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iChangeMode, flCurrentTime
 	
 	// Delete timers
 	delete hWeaponStab[client];
@@ -184,7 +181,6 @@ void Weapon_OnHolster(int client, int weapon, int iChangeMode, float flCurrentTi
 
 void Weapon_OnIdle(int client, int weapon, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iChangeMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
@@ -213,8 +209,6 @@ void Weapon_OnIdle(int client, int weapon, int iChangeMode, float flCurrentTime)
 
 void Weapon_OnDeploy(int client, int weapon, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iChangeMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -229,8 +223,6 @@ void Weapon_OnDeploy(int client, int weapon, int iChangeMode, float flCurrentTim
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iChangeMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -276,7 +268,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iChangeMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iChangeMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -303,14 +294,12 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iChangeMode, float flC
 
 void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 {    
-	//#pragma unused client, weapon, flRightShift, bSlash
-
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 5.0, vPosition);
-	ZP_GetPlayerEyePosition(client, (bSlash ? gCvarHammerSlashDistance : gCvarHammerStabDistance).FloatValue, flRightShift, 5.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, (bSlash ? hCvarHammerSlashDistance : hCvarHammerStabDistance).FloatValue, flRightShift, 5.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -365,7 +354,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? gCvarHammerSlashDamage : gCvarHammerStabDamage).FloatValue, gCvarHammerRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? hCvarHammerSlashDamage : hCvarHammerStabDamage).FloatValue, hCvarHammerRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 		}
 
 		// Play sound
@@ -488,7 +477,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	{
 		// Validate slowdown
 		static float flStamina;
-		if ((flStamina = gCvarHammerActiveSlow.FloatValue) && !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"))
+		if ((flStamina = hCvarHammerActiveSlow.FloatValue) && !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"))
 		{
 			// Apply the stamina-based slowdown
 			SetEntPropFloat(client, Prop_Send, "m_flStamina", flStamina);

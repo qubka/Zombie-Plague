@@ -44,15 +44,12 @@ public Plugin myinfo =
 
 // Decal index
 int gDecal[5]; int gTrail;
-#pragma unused gDecal, gTrail
 
 // Sound index
 int gSoundShoot; int gSoundUpgrade; ConVar gKnockBack;
-#pragma unused gSoundShoot, gSoundUpgrade, gKnockBack
  
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 /**
  * @section Variables to store virtual SDK adresses.
@@ -164,27 +161,27 @@ enum
 };
 
 // Cvars
-ConVar gCvarSentryAttackNpc;			
-ConVar gCvarSentryAttackVisibililty;
-ConVar gCvarSentryBulletDamage;
-ConVar gCvarSentryBulletRange;
-ConVar gCvarSentryBulletDistance;
-ConVar gCvarSentryBulletRadius;
-ConVar gCvarSentryBulletTurn;
-ConVar gCvarSentryBulletThink;
-ConVar gCvarSentryBulletSpeed;
-ConVar gCvarSentryRocketDelay;
-ConVar gCvarSentryRocketReload;
-ConVar gCvarSentryRocketSpeed;
-ConVar gCvarSentryRocketDamage;
-ConVar gCvarSentryRocketGravity;
-ConVar gCvarSentryRocketRadius;
-ConVar gCvarSentryRocketTrail;
-ConVar gCvarSentryRocketExp;
-ConVar gCvarSentryControlMenu;
-ConVar gCvarSentryControlUpgradeRatio;
-ConVar gCvarSentryControlRefillRatio;
-ConVar gCvarSentryDeathEffect;
+ConVar hCvarSentryAttackNpc;			
+ConVar hCvarSentryAttackVisibililty;
+ConVar hCvarSentryBulletDamage;
+ConVar hCvarSentryBulletRange;
+ConVar hCvarSentryBulletDistance;
+ConVar hCvarSentryBulletRadius;
+ConVar hCvarSentryBulletTurn;
+ConVar hCvarSentryBulletThink;
+ConVar hCvarSentryBulletSpeed;
+ConVar hCvarSentryRocketDelay;
+ConVar hCvarSentryRocketReload;
+ConVar hCvarSentryRocketSpeed;
+ConVar hCvarSentryRocketDamage;
+ConVar hCvarSentryRocketGravity;
+ConVar hCvarSentryRocketRadius;
+ConVar hCvarSentryRocketTrail;
+ConVar hCvarSentryRocketExp;
+ConVar hCvarSentryControlMenu;
+ConVar hCvarSentryControlUpgradeRatio;
+ConVar hCvarSentryControlRefillRatio;
+ConVar hCvarSentryDeathEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -193,26 +190,26 @@ ConVar gCvarSentryDeathEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSentryAttackNpc           = CreateConVar("zp_weapon_sentry_attack_npc", "0", "Attack npc? (chicken, ect)", 0, true, 0.0, true, 1.0);
-	gCvarSentryAttackVisibililty   = CreateConVar("zp_weapon_sentry_attack_visibility", "50.0", "Min alpha to see target", 0, true, 0.0);
-	gCvarSentryBulletDamage        = CreateConVar("zp_weapon_sentry_bullet_damage ", "20.0", "Bullet damage", 0, true, 0.0);
-	gCvarSentryBulletRange         = CreateConVar("zp_weapon_sentry_bullet_range", "1100.0", "Shoot range", 0, true, 0.0);
-	gCvarSentryBulletDistance      = CreateConVar("zp_weapon_sentry_bullet_distance", "8192.0", "Bullet distance", 0, true, 0.0);
-	gCvarSentryBulletRadius        = CreateConVar("zp_weapon_sentry_bullet_radius", "5.0", "Damage radius", 0, true, 0.0);
-	gCvarSentryBulletTurn          = CreateConVar("zp_weapon_sentry_bullet_turn", "2.0", "Turn rate", 0, true, 0.0);
-	gCvarSentryBulletThink         = CreateConVar("zp_weapon_sentry_bullet_think", "0.05", "Think rate", 0, true, 0.0);
-	gCvarSentryBulletSpeed         = CreateConVar("zp_weapon_sentry_bullet_speed", "0.2", "Shoot delay", 0, true, 0.0);
-	gCvarSentryRocketDelay         = CreateConVar("zp_weapon_sentry_rocket_delay", "3.0", "Rocket shoot delay", 0, true, 0.0);
-	gCvarSentryRocketReload        = CreateConVar("zp_weapon_sentry_rocket_reload", "1.8", "Rocket reload", 0, true, 0.0);
-	gCvarSentryRocketSpeed         = CreateConVar("zp_weapon_sentry_rocket_speed", "1000.0", "Projectile speed", 0, true, 0.0);
-	gCvarSentryRocketDamage        = CreateConVar("zp_weapon_sentry_rocket_damage", "300.0", "Projectile damage", 0, true, 0.0);
-	gCvarSentryRocketRadius        = CreateConVar("zp_weapon_sentry_rocket_radius", "400.0", "Damage radius", 0, true, 0.0);
-	gCvarSentryRocketTrail         = CreateConVar("zp_weapon_sentry_rocket_trail", "sentry_rocket", "Particle effect for the trail (''-default)");
-	gCvarSentryRocketExp           = CreateConVar("zp_weapon_sentry_rocket_explosion", "expl_coopmission_skyboom", "Particle effect for the explosion (''-default)");
-	gCvarSentryControlMenu         = CreateConVar("zp_weapon_sentry_control_menu", "10", "", 0, true, 0.0);
-	gCvarSentryControlUpgradeRatio = CreateConVar("zp_weapon_sentry_control_upgrade_ratio", "0.5", "", 0, true, 0.0);
-	gCvarSentryControlRefillRatio  = CreateConVar("zp_weapon_sentry_control_refill_ratio", "0.1 ", "", 0, true, 0.0); 
-	gCvarSentryDeathEffect         = CreateConVar("zp_weapon_sentry_death", "explosion_hegrenade_interior", "Particle effect for the death (''-off)");
+	hCvarSentryAttackNpc           = CreateConVar("zp_weapon_sentry_attack_npc", "0", "Attack npc? (chicken, ect)", 0, true, 0.0, true, 1.0);
+	hCvarSentryAttackVisibililty   = CreateConVar("zp_weapon_sentry_attack_visibility", "50.0", "Min alpha to see target", 0, true, 0.0);
+	hCvarSentryBulletDamage        = CreateConVar("zp_weapon_sentry_bullet_damage ", "20.0", "Bullet damage", 0, true, 0.0);
+	hCvarSentryBulletRange         = CreateConVar("zp_weapon_sentry_bullet_range", "1100.0", "Shoot range", 0, true, 0.0);
+	hCvarSentryBulletDistance      = CreateConVar("zp_weapon_sentry_bullet_distance", "8192.0", "Bullet distance", 0, true, 0.0);
+	hCvarSentryBulletRadius        = CreateConVar("zp_weapon_sentry_bullet_radius", "5.0", "Damage radius", 0, true, 0.0);
+	hCvarSentryBulletTurn          = CreateConVar("zp_weapon_sentry_bullet_turn", "2.0", "Turn rate", 0, true, 0.0);
+	hCvarSentryBulletThink         = CreateConVar("zp_weapon_sentry_bullet_think", "0.05", "Think rate", 0, true, 0.0);
+	hCvarSentryBulletSpeed         = CreateConVar("zp_weapon_sentry_bullet_speed", "0.2", "Shoot delay", 0, true, 0.0);
+	hCvarSentryRocketDelay         = CreateConVar("zp_weapon_sentry_rocket_delay", "3.0", "Rocket shoot delay", 0, true, 0.0);
+	hCvarSentryRocketReload        = CreateConVar("zp_weapon_sentry_rocket_reload", "1.8", "Rocket reload", 0, true, 0.0);
+	hCvarSentryRocketSpeed         = CreateConVar("zp_weapon_sentry_rocket_speed", "1000.0", "Projectile speed", 0, true, 0.0);
+	hCvarSentryRocketDamage        = CreateConVar("zp_weapon_sentry_rocket_damage", "300.0", "Projectile damage", 0, true, 0.0);
+	hCvarSentryRocketRadius        = CreateConVar("zp_weapon_sentry_rocket_radius", "400.0", "Damage radius", 0, true, 0.0);
+	hCvarSentryRocketTrail         = CreateConVar("zp_weapon_sentry_rocket_trail", "sentry_rocket", "Particle effect for the trail (''-default)");
+	hCvarSentryRocketExp           = CreateConVar("zp_weapon_sentry_rocket_explosion", "expl_coopmission_skyboom", "Particle effect for the explosion (''-default)");
+	hCvarSentryControlMenu         = CreateConVar("zp_weapon_sentry_control_menu", "10", "", 0, true, 0.0);
+	hCvarSentryControlUpgradeRatio = CreateConVar("zp_weapon_sentry_control_upgrade_ratio", "0.5", "", 0, true, 0.0);
+	hCvarSentryControlRefillRatio  = CreateConVar("zp_weapon_sentry_control_refill_ratio", "0.1 ", "", 0, true, 0.0); 
+	hCvarSentryDeathEffect         = CreateConVar("zp_weapon_sentry_death", "explosion_hegrenade_interior", "Particle effect for the death (''-off)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_dronegun", "sourcemod/zombieplague");
@@ -1052,7 +1049,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		float flCurrentTime = GetGameTime();
 		
 		// Create a small delay
-		float flDelay = gCvarSentryBulletThink.FloatValue;
+		float flDelay = hCvarSentryBulletThink.FloatValue;
 		this.State = SENTRY_STATE_ATTACKING; 
 		this.NextAttack = flCurrentTime + flDelay; 
 		if (this.NextRocket < flCurrentTime) 
@@ -1071,8 +1068,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
 		// If we have an enemy get his minimum distance to check against
 		int target = -1; int old = this.Enemy;
-		float flMinDistance = gCvarSentryBulletRange.FloatValue; float flOldDistance = MAX_FLOAT; float flNewDistance;
-		float flVisibility = gCvarSentryAttackVisibililty.FloatValue;
+		float flMinDistance = hCvarSentryBulletRange.FloatValue; float flOldDistance = MAX_FLOAT; float flNewDistance;
+		float flVisibility = hCvarSentryAttackVisibililty.FloatValue;
 		
 		// i = client index
 		for (int i = 1; i <= MaxClients; i++) 
@@ -1122,7 +1119,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		}
 
 		// Should attack npc?
-		if (gCvarSentryAttackNpc.BoolValue)
+		if (hCvarSentryAttackNpc.BoolValue)
 		{
 			// Initialize name char
 			static char sClassname[SMALL_LINE_LENGTH];
@@ -1212,8 +1209,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{ 
 		// Initialize variables
 		bool bMoved = false; 
-		float flDelay = gCvarSentryBulletThink.FloatValue;
-		float flTurnRate = gCvarSentryBulletTurn.FloatValue; 
+		float flDelay = hCvarSentryBulletThink.FloatValue;
+		float flTurnRate = hCvarSentryBulletTurn.FloatValue; 
 		
 		// Start it rotating
 		static float vGoal[3]; static float vCurrent[3];
@@ -1370,7 +1367,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			
 				// Gets particle name
 				static char sEffect[SMALL_LINE_LENGTH];
-				gCvarSentryRocketTrail.GetString(sEffect, sizeof(sEffect));
+				hCvarSentryRocketTrail.GetString(sEffect, sizeof(sEffect));
 
 				// Validate effect
 				if (hasLength(sEffect))
@@ -1407,7 +1404,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		this.Body = 1;
 		
 		// Initialize flags char
-		FormatEx(sBuffer, sizeof(sBuffer), "OnUser2 !self:SetBodyGroup:0:%f:1", gCvarSentryRocketReload.FloatValue);
+		FormatEx(sBuffer, sizeof(sBuffer), "OnUser2 !self:SetBodyGroup:0:%f:1", hCvarSentryRocketReload.FloatValue);
 		
 		// Sets modified flags on the entity
 		SetVariantString(sBuffer);
@@ -1421,7 +1418,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		static float vEndPosition[3]; static float vVelocity[3]; static float vSpeed[3];
 		
 		// Calculate and store endpoint
-		ScaleVector(vDirection, gCvarSentryBulletDistance.FloatValue);
+		ScaleVector(vDirection, hCvarSentryBulletDistance.FloatValue);
 		AddVectors(vDirection, vPosition, vEndPosition);
 		
 		// Sentryguns are perfectly accurate, but this doesn't look good for tracers
@@ -1458,7 +1455,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			else
 			{
 				// Create the damage for victims
-				UTIL_CreateDamage(_, vEndPosition, this.Index, gCvarSentryBulletDamage.FloatValue, gCvarSentryBulletRadius.FloatValue, DMG_BULLET);
+				UTIL_CreateDamage(_, vEndPosition, this.Index, hCvarSentryBulletDamage.FloatValue, hCvarSentryBulletRadius.FloatValue, DMG_BULLET);
 		
 				// Validate victim
 				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
@@ -1509,7 +1506,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{ 
 		// Initialize variables
 		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEnemy[3];
-		float flSpeed = gCvarSentryBulletSpeed.FloatValue; 
+		float flSpeed = hCvarSentryBulletSpeed.FloatValue; 
 		float flCurrentTime = GetGameTime();
 		
 		// Level 3 Turrets fire rockets every 3 seconds
@@ -1534,14 +1531,14 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				GetVectorAngles(vAngle, vAngle); 
 				GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
 				NormalizeVector(vVelocity, vVelocity);
-				ScaleVector(vVelocity, gCvarSentryRocketSpeed.FloatValue);
+				ScaleVector(vVelocity, hCvarSentryRocketSpeed.FloatValue);
 
 				// Create a rocket
 				this.EmitSound(SENTRY_MODE_ROCKET); 
 				this.Rocket(vPosition, vAngle, vVelocity); 
 
 				// Sets delay for the next rocket
-				this.NextRocket = flCurrentTime + gCvarSentryRocketDelay.FloatValue;
+				this.NextRocket = flCurrentTime + hCvarSentryRocketDelay.FloatValue;
 				this.Rockets--;
 			}
 			else
@@ -1869,7 +1866,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSentryDeathEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSentryDeathEffect.GetString(sEffect, sizeof(sEffect));
 
 		// Validate effect
 		if (hasLength(sEffect))
@@ -1917,16 +1914,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
 void Weapon_OnHolster(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, EFFECT_KILL);
 }
 
 void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Update an effect
 	Weapon_OnCreateEffect(client, weapon, EFFECT_UPDATE);
 	
@@ -1955,7 +1948,6 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
 	
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -1977,8 +1969,6 @@ void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnDrop(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Sets skin index
 	SetEntProp(weapon, Prop_Send, "m_nSkin", GetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount"));
 	
@@ -1988,16 +1978,12 @@ void Weapon_OnDrop(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Place an effect
 	Weapon_OnCreateEffect(client, weapon, EFFECT_PLACE);
 }
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Gets rotation angle
 	float flAngle = GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") + 0.5;
 	if (flAngle > 360.0) flAngle = 0.0;
@@ -2008,8 +1994,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 {
-	//#pragma unused client, weapon, iMode
-
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 
@@ -2158,8 +2142,6 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 
 bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 {
-	//#pragma unused client, entity, flCurrentTime
-
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; bool bHit;
 	
@@ -2235,8 +2217,6 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 
 bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
 {
-	//#pragma unused client, entity, flCurrentTime
-
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; bool bHit;
 	
@@ -2588,7 +2568,7 @@ public Action RocketTouchHook(int entity, int target)
 
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSentryRocketExp.GetString(sEffect, sizeof(sEffect));
+		hCvarSentryRocketExp.GetString(sEffect, sizeof(sEffect));
 
 		// Initialze exp flag
 		int iFlags = EXP_NOSOUND;
@@ -2602,7 +2582,7 @@ public Action RocketTouchHook(int entity, int target)
 		}
 		
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarSentryRocketDamage.FloatValue, gCvarSentryRocketRadius.FloatValue, "rocket", _, entity);
+		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarSentryRocketDamage.FloatValue, hCvarSentryRocketRadius.FloatValue, "rocket", _, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
@@ -2721,8 +2701,8 @@ void SentryMenu(int client, int entity)
 	// Initialize variables
 	static char sBuffer[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
-	int iUpgrade = GetCost(gCvarSentryControlUpgradeRatio.FloatValue);
-	int iRefill = GetCost(gCvarSentryControlRefillRatio.FloatValue);
+	int iUpgrade = GetCost(hCvarSentryControlUpgradeRatio.FloatValue);
+	int iRefill = GetCost(hCvarSentryControlRefillRatio.FloatValue);
 	
 	// Convert entity index to string
 	IntToString(entity, sInfo, sizeof(sInfo));
@@ -2761,7 +2741,7 @@ void SentryMenu(int client, int entity)
 	
 	// Sets options and display it
 	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
-	hMenu.Display(client, gCvarSentryControlMenu.IntValue);
+	hMenu.Display(client, hCvarSentryControlMenu.IntValue);
 }
 
 /**
@@ -2795,7 +2775,7 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 			if (IsValidEdict(entity))
 			{
 				// Validate cost
-				int iCost = GetCost(!mSlot ? gCvarSentryControlUpgradeRatio.FloatValue : gCvarSentryControlRefillRatio.FloatValue); 
+				int iCost = GetCost(!mSlot ? hCvarSentryControlUpgradeRatio.FloatValue : hCvarSentryControlRefillRatio.FloatValue); 
 				if (ZP_GetClientMoney(client) < iCost)
 				{
 					return 0;

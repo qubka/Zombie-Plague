@@ -44,12 +44,9 @@ public Plugin myinfo =
 
 // Sound index
 int gSound;
-//#pragma unused gSound 
  
 // Item index
 int gWeapon;
-//#pragma unused gWeapon
-
 // Timer index
 Handle hEmitterCreate[MAXPLAYERS+1] = { null, ... }; 
 
@@ -119,17 +116,17 @@ enum
  **/
 
 // Cvars
-ConVar gCvarAirdropGlow;        
-ConVar gCvarAirdropAmount;
-ConVar gCvarAirdropHeight; 
-ConVar gCvarAirdropHealth;
-ConVar gCvarAirdropSpeed; 
-ConVar gCvarAirdropExplosions;
-ConVar gCvarAirdropWeapons ;
-ConVar gCvarAirdropSmokeLife;
-ConVar gCvarBombardingHeight; 
-ConVar gCvarBombardingRadius; 
-ConVar gCvarBombardingSpeed ;
+ConVar hCvarAirdropGlow;        
+ConVar hCvarAirdropAmount;
+ConVar hCvarAirdropHeight; 
+ConVar hCvarAirdropHealth;
+ConVar hCvarAirdropSpeed; 
+ConVar hCvarAirdropExplosions;
+ConVar hCvarAirdropWeapons ;
+ConVar hCvarAirdropSmokeLife;
+ConVar hCvarBombardingHeight; 
+ConVar hCvarBombardingRadius; 
+ConVar hCvarBombardingSpeed ;
 	
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -138,17 +135,17 @@ ConVar gCvarBombardingSpeed ;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarAirdropGlow        = CreateConVar("zp_weapon_airdrop_glow", "0", "Enable glow ?", 0, true, 0.0, true, 1.0);        
-	gCvarAirdropAmount      = CreateConVar("zp_weapon_airdrop_amount", "6", "Amount of drops in heli", 0, true, 0.0);      
-	gCvarAirdropHeight      = CreateConVar("zp_weapon_airdrop_height", "700.0", "Drop height spawn", 0, true, 0.0);      
-	gCvarAirdropHealth      = CreateConVar("zp_weapon_airdrop_health", "300", "Health of drop", 0, true, 1.0);      
-	gCvarAirdropSpeed       = CreateConVar("zp_weapon_airdrop_speed", "175.0", "Initial speed of drop", 0, true, 0.0);       
-	gCvarAirdropExplosions  = CreateConVar("zp_weapon_airdrop_explosions", "3", "How many c4 needed to open safe", 0, true, 0.0);  
-	gCvarAirdropWeapons     = CreateConVar("zp_weapon_airdrop_weapons", "15", "Amount of weapons in the safe bag", 0, true, 0.0);     
-	gCvarAirdropSmokeLife   = CreateConVar("zp_weapon_airdrop_smoke_life", "14.0", "", 0, true, 0.0); 
-	gCvarBombardingHeight   = CreateConVar("zp_weapon_bombarding_height", "700.0", "Rocket height spawn", 0, true, 0.0);   
-	gCvarBombardingRadius   = CreateConVar("zp_weapon_bombarding_radius", "800.0", "Explosion radius", 0, true, 0.0);   
-	gCvarBombardingSpeed    = CreateConVar("zp_weapon_bombarding_speed", "500.0", "Rocket speed", 0, true, 0.0);    
+	hCvarAirdropGlow        = CreateConVar("zp_weapon_airdrop_glow", "0", "Enable glow ?", 0, true, 0.0, true, 1.0);        
+	hCvarAirdropAmount      = CreateConVar("zp_weapon_airdrop_amount", "6", "Amount of drops in heli", 0, true, 0.0);      
+	hCvarAirdropHeight      = CreateConVar("zp_weapon_airdrop_height", "700.0", "Drop height spawn", 0, true, 0.0);      
+	hCvarAirdropHealth      = CreateConVar("zp_weapon_airdrop_health", "300", "Health of drop", 0, true, 1.0);      
+	hCvarAirdropSpeed       = CreateConVar("zp_weapon_airdrop_speed", "175.0", "Initial speed of drop", 0, true, 0.0);       
+	hCvarAirdropExplosions  = CreateConVar("zp_weapon_airdrop_explosions", "3", "How many c4 needed to open safe", 0, true, 0.0);  
+	hCvarAirdropWeapons     = CreateConVar("zp_weapon_airdrop_weapons", "15", "Amount of weapons in the safe bag", 0, true, 0.0);     
+	hCvarAirdropSmokeLife   = CreateConVar("zp_weapon_airdrop_smoke_life", "14.0", "", 0, true, 0.0); 
+	hCvarBombardingHeight   = CreateConVar("zp_weapon_bombarding_height", "700.0", "Rocket height spawn", 0, true, 0.0);   
+	hCvarBombardingRadius   = CreateConVar("zp_weapon_bombarding_radius", "800.0", "Explosion radius", 0, true, 0.0);   
+	hCvarBombardingSpeed    = CreateConVar("zp_weapon_bombarding_speed", "500.0", "Rocket speed", 0, true, 0.0);    
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_airdrop", "sourcemod/zombieplague");
@@ -543,8 +540,6 @@ public void ZP_OnGameModeStart(int mode)
 
 void Weapon_OnHolster(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
-
 	// Delete timers
 	delete hEmitterCreate[client];
 	
@@ -554,7 +549,6 @@ void Weapon_OnHolster(int client, int weapon, int bTrigger, int iStateMode, floa
 
 void Weapon_OnIdle(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
@@ -583,7 +577,6 @@ void Weapon_OnIdle(int client, int weapon, int bTrigger, int iStateMode, float f
 
 void Weapon_OnDeploy(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
 	
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -599,8 +592,6 @@ void Weapon_OnDeploy(int client, int weapon, int bTrigger, int iStateMode, float
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -670,7 +661,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 				case STATE_TRIGGER_OFF : 
 				{
 					// Create a smoke
-					float flDuration = gCvarAirdropSmokeLife.FloatValue;
+					float flDuration = hCvarAirdropSmokeLife.FloatValue;
 					int smoke = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", flDuration, flDuration + 3.0);
 					
 					// Sent drop
@@ -712,8 +703,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, bTrigger, iStateMode, flCurrentTime
-
 	// Validate trigger
 	if (!bTrigger)
 	{
@@ -1003,7 +992,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 void CreateJet(float vPosition[3], float vAngle[3])
 {
 	// Add to the position
-	vPosition[2] += gCvarBombardingHeight.FloatValue;
+	vPosition[2] += hCvarBombardingHeight.FloatValue;
 
 	// Gets world size
 	static float vMaxs[3];
@@ -1070,7 +1059,7 @@ public Action JetBombHook(Handle hTimer, int refID)
 			NormalizeVector(vVelocity, vVelocity);
 
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vVelocity, gCvarBombardingSpeed.FloatValue);
+			ScaleVector(vVelocity, hCvarBombardingSpeed.FloatValue);
 	
 			// Push the bomb
 			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vVelocity);
@@ -1104,7 +1093,7 @@ public Action BombTouchHook(int entity, int target)
 	UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500_fallback", 2.0);
 	
 	// Gets bombarding radius
-	float flRadius = gCvarBombardingRadius.FloatValue;
+	float flRadius = hCvarBombardingRadius.FloatValue;
 	
 	// Find any players in the radius
 	int i; int it = 1; /// iterator
@@ -1151,7 +1140,7 @@ public Action BombTouchHook(int entity, int target)
 void CreateHelicopter(float vPosition[3], float vAngle[3])
 {
 	// Add to the position
-	vPosition[2] += gCvarAirdropHeight.FloatValue;
+	vPosition[2] += hCvarAirdropHeight.FloatValue;
 	
 	// Gets world size
 	static float vMaxs[3];
@@ -1173,7 +1162,7 @@ void CreateHelicopter(float vPosition[3], float vAngle[3])
 	
 		// Sets main parameters
 		SetEntProp(entity, Prop_Data, "m_iHammerID", SAFE);
-		SetEntProp(entity, Prop_Data, "m_iMaxHealth", gCvarAirdropAmount.FloatValue);
+		SetEntProp(entity, Prop_Data, "m_iMaxHealth", hCvarAirdropAmount.FloatValue);
 	}
 }
 
@@ -1305,7 +1294,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 		ZP_GetAttachment(entity, "dropped", vPosition, vAngle);
 		
 		// Gets drop type
-		int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int drop; int iCollision; int iDamage; int iHealth = gCvarAirdropHealth.IntValue;
+		int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int drop; int iCollision; int iDamage; int iHealth = hCvarAirdropHealth.IntValue;
 		switch (iType)
 		{
 			case SAFE :
@@ -1333,7 +1322,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 					{
 						// Show message
 						SetGlobalTransTarget(i);
-						PrintHintText(i, "%t", "airdrop safe", gCvarAirdropExplosions.IntValue);
+						PrintHintText(i, "%t", "airdrop safe", hCvarAirdropExplosions.IntValue);
 					}
 				}
 			}
@@ -1397,7 +1386,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 					SDKHook(drop, SDKHook_OnTakeDamage, CaseDamageHook);
 					
 					// Validate glow
-					if (gCvarAirdropGlow.BoolValue)
+					if (hCvarAirdropGlow.BoolValue)
 					{
 						// Create a prop_dynamic_override entity
 						int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
@@ -1436,7 +1425,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 			NormalizeVector(vVelocity, vVelocity);
 			
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vVelocity, gCvarAirdropSpeed.FloatValue);
+			ScaleVector(vVelocity, hCvarAirdropSpeed.FloatValue);
 		
 			// Push the entity 
 			TeleportEntity(drop, NULL_VECTOR, NULL_VECTOR, vVelocity);
@@ -1569,7 +1558,7 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 					SetEntProp(entity, Prop_Data, "m_iHammerID", iExp);
 			
 					// Validate explosions
-					if (iExp >= gCvarAirdropExplosions.IntValue)
+					if (iExp >= hCvarAirdropExplosions.IntValue)
 					{
 						// Initialize vectors
 						static float vPosition[3]; static float vAngle[3]; 
@@ -1592,7 +1581,7 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 							SetEntProp(bag, Prop_Data, "m_takedamage", DAMAGE_NO);
 							
 							// Sets weapon amount
-							SetEntProp(bag, Prop_Data, "m_iHammerID", gCvarAirdropWeapons.IntValue);
+							SetEntProp(bag, Prop_Data, "m_iHammerID", hCvarAirdropWeapons.IntValue);
 							
 							// Create use hook
 							SDKHook(bag, SDKHook_UsePost, BagUseHook);
@@ -1880,7 +1869,7 @@ public bool HullEnumerator(int entity, ArrayList hData)
 stock int LeftToBody(int iLeft)
 {
 	// Calculate left percentage
-	float flLeft = float(iLeft) / gCvarAirdropWeapons.IntValue;
+	float flLeft = float(iLeft) / hCvarAirdropWeapons.IntValue;
 	if (flLeft > 0.8)      return 0;    
 	else if (flLeft > 0.6) return 1;
 	else if (flLeft > 0.4) return 2;

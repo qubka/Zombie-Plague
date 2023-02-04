@@ -57,22 +57,19 @@ public Plugin myinfo =
 
 // Decal index
 int gBeam; int gHalo; 
-#pragma unused gBeam, gHalo
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillAttach;
-ConVar gCvarSkillHealth;
-ConVar gCvarSkillRadius;
-ConVar gCvarSkillKnockback;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillAttach;
+ConVar hCvarSkillHealth;
+ConVar hCvarSkillRadius;
+ConVar hCvarSkillKnockback;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -81,11 +78,11 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {  
 	// Initialize cvars
-	gCvarSkillAttach    = CreateConVar("zp_zclass_stamper_attach", "250.0", "Speed of attached victim", 0, true, 0.0);
-	gCvarSkillHealth    = CreateConVar("zp_zclass_stamper_health", "200.0 ", "Health of coffin", 0, true, 0.0);
-	gCvarSkillRadius    = CreateConVar("zp_zclass_stamper_radius", "250.0", "Radius of coffin attachment", 0, true, 0.0);
-	gCvarSkillKnockback = CreateConVar("zp_zclass_stamper_knockback", "1000.0", "Knockback on coffin explosion", 0, true, 0.0);
-	gCvarSkillEffect    = CreateConVar("zp_zclass_stamper_effect", "explosion_hegrenade_dirt", "Particle effect for the skill (''-default)");
+	hCvarSkillAttach    = CreateConVar("zp_zclass_stamper_attach", "250.0", "Speed of attached victim", 0, true, 0.0);
+	hCvarSkillHealth    = CreateConVar("zp_zclass_stamper_health", "200.0 ", "Health of coffin", 0, true, 0.0);
+	hCvarSkillRadius    = CreateConVar("zp_zclass_stamper_radius", "250.0", "Radius of coffin attachment", 0, true, 0.0);
+	hCvarSkillKnockback = CreateConVar("zp_zclass_stamper_knockback", "1000.0", "Knockback on coffin explosion", 0, true, 0.0);
+	hCvarSkillEffect    = CreateConVar("zp_zclass_stamper_effect", "explosion_hegrenade_dirt", "Particle effect for the skill (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_stamper", "sourcemod/zombieplague");
@@ -183,7 +180,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				SetEntPropEnt(entity, Prop_Data, "m_pParent", client);
 
 				// Validate health
-				int iHealth = gCvarSkillHealth.IntValue;
+				int iHealth = hCvarSkillHealth.IntValue;
 				if (iHealth > 0)
 				{
 					// Sets health
@@ -294,8 +291,8 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 	
 		// Gets skill variables
-		float flRadius = gCvarSkillRadius.FloatValue;
-		float flAttach = gCvarSkillAttach.FloatValue;
+		float flRadius = hCvarSkillRadius.FloatValue;
+		float flAttach = hCvarSkillAttach.FloatValue;
 	
 		// Find any players in the radius
 		int i; int it = 1; /// iterator
@@ -367,8 +364,8 @@ void CoffinExpload(int entity)
 	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 	// Gets skill radius
-	float flRadius = gCvarSkillRadius.FloatValue;
-	float flKnock = gCvarSkillKnockback.FloatValue;
+	float flRadius = hCvarSkillRadius.FloatValue;
+	float flKnock = hCvarSkillKnockback.FloatValue;
 
 	// Find any players in the radius
 	int i; int it = 1; /// iterator
@@ -386,7 +383,7 @@ void CoffinExpload(int entity)
 	
 	// Gets particle name
 	static char sEffect[SMALL_LINE_LENGTH];
-	gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+	hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 	
 	// Validate effect
 	if (hasLength(sEffect))

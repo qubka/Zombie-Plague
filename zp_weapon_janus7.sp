@@ -84,19 +84,17 @@ enum
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarJanusSignalCounter;
-ConVar gCvarJanusActiveCounter;
-ConVar gCvarJanusBeamDamage;
-ConVar gCvarJanusBeamRadius;
-ConVar gCvarJanusBeamMuzzle;
-ConVar gCvarJanusBeamTracer;
+ConVar hCvarJanusSignalCounter;
+ConVar hCvarJanusActiveCounter;
+ConVar hCvarJanusBeamDamage;
+ConVar hCvarJanusBeamRadius;
+ConVar hCvarJanusBeamMuzzle;
+ConVar hCvarJanusBeamTracer;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -105,12 +103,12 @@ ConVar gCvarJanusBeamTracer;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarJanusSignalCounter = CreateConVar("zp_weapon_janus7_signal_counter", "100", "Amount of shots to activate second mode", 0, true, 0.0);
-	gCvarJanusActiveCounter = CreateConVar("zp_weapon_janus7_active_counter", "150", "Amount of shots in the second mode", 0, true, 0.0);
-	gCvarJanusBeamDamage    = CreateConVar("zp_weapon_janus7_beam_damage", "50.0", "Beam damage per shoot", 0, true, 0.0);
-	gCvarJanusBeamRadius    = CreateConVar("zp_weapon_janus7_beam_radius", "500.0", "Radius when beam attach to nearby target", 0, true, 0.0);
-	gCvarJanusBeamMuzzle    = CreateConVar("zp_weapon_janus7_beam_muzzle", "medicgun_invulnstatus_fullcharge_red", "Particle effect for the muzzle");
-	gCvarJanusBeamTracer    = CreateConVar("zp_weapon_janus7_beam_tracer", "medicgun_beam_red_invun", "Particle effect for the tracer");
+	hCvarJanusSignalCounter = CreateConVar("zp_weapon_janus7_signal_counter", "100", "Amount of shots to activate second mode", 0, true, 0.0);
+	hCvarJanusActiveCounter = CreateConVar("zp_weapon_janus7_active_counter", "150", "Amount of shots in the second mode", 0, true, 0.0);
+	hCvarJanusBeamDamage    = CreateConVar("zp_weapon_janus7_beam_damage", "50.0", "Beam damage per shoot", 0, true, 0.0);
+	hCvarJanusBeamRadius    = CreateConVar("zp_weapon_janus7_beam_radius", "500.0", "Radius when beam attach to nearby target", 0, true, 0.0);
+	hCvarJanusBeamMuzzle    = CreateConVar("zp_weapon_janus7_beam_muzzle", "medicgun_invulnstatus_fullcharge_red", "Particle effect for the muzzle");
+	hCvarJanusBeamTracer    = CreateConVar("zp_weapon_janus7_beam_tracer", "medicgun_beam_red_invun", "Particle effect for the tracer");
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_janus7", "sourcemod/zombieplague");
@@ -158,7 +156,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, "Kill");
@@ -172,8 +169,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iCounter
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -201,7 +196,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iCounter,
 
 void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, "Kill");
@@ -209,7 +203,6 @@ void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, int iCounter, i
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Validate mode
 	if (iStateMode == STATE_ACTIVE)
@@ -252,7 +245,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iCounter,
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -267,8 +259,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iCo
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	// Validate mode
 	if (iStateMode != STATE_ACTIVE)
 	{
@@ -299,8 +289,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iCounter, i
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -311,7 +299,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	if (iStateMode == STATE_ACTIVE)
 	{
 		// Validate counter
-		if (iCounter > gCvarJanusActiveCounter.IntValue)
+		if (iCounter > hCvarJanusActiveCounter.IntValue)
 		{
 			Weapon_OnFinish(client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime);
 			return;
@@ -347,7 +335,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		
 		// Validate counter
-		if (iCounter > gCvarJanusSignalCounter.IntValue)
+		if (iCounter > hCvarJanusSignalCounter.IntValue)
 		{
 			// Sets signal mode
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_SIGNAL);
@@ -434,7 +422,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Validate mode
 	if (iStateMode == STATE_SIGNAL)
@@ -474,7 +461,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 void Weapon_OnFinish(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Sets change animation
 	ZP_SetWeaponAnimation(client, ANIM_CHANGE2);        
@@ -498,7 +484,6 @@ void Weapon_OnFinish(int client, int weapon, int iClip, int iAmmo, int iCounter,
 
 void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float flSpread, float flInaccuracy)
 {
-	//#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
 	
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
@@ -513,7 +498,6 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 
 void Weapon_OnCreateBeam(int client, int weapon)
 {
-	//#pragma unused client, weapon
 	
 	// Initialize variables
 	static float vPosition[3]; static float vAngle[3]; static float vEnemy[3]; bool bFound;
@@ -522,8 +506,8 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	ZP_GetPlayerEyePosition(client, 30.0, 10.0, -10.0, vPosition);
 
 	// Gets beam variables
-	float flRadius = gCvarJanusBeamRadius.FloatValue;
-	float flDamage = gCvarJanusBeamDamage.FloatValue;
+	float flRadius = hCvarJanusBeamRadius.FloatValue;
+	float flDamage = hCvarJanusBeamDamage.FloatValue;
 
 	// Find any players in the radius
 	int i; int it = 1; /// iterator
@@ -568,7 +552,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	
 	// Gets particle name
 	static char sEffect[SMALL_LINE_LENGTH];
-	gCvarJanusBeamTracer.GetString(sEffect, sizeof(sEffect));	
+	hCvarJanusBeamTracer.GetString(sEffect, sizeof(sEffect));	
 
 	// Sent a beam
 	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", sEffect, vEnemy, ZP_GetWeaponShoot(gWeapon));
@@ -576,8 +560,6 @@ void Weapon_OnCreateBeam(int client, int weapon)
 
 void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 {
-	//#pragma unused client, weapon, sInput
-
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	
@@ -592,7 +574,7 @@ void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarJanusBeamMuzzle.GetString(sEffect, sizeof(sEffect));
+		hCvarJanusBeamMuzzle.GetString(sEffect, sizeof(sEffect));
 
 		// Creates a muzzle
 		entity = UTIL_CreateParticle(ZP_GetClientViewModel(client, true), _, _, "1", sEffect, 9999.9);

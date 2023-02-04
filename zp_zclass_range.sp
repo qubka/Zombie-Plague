@@ -43,21 +43,18 @@ public Plugin myinfo =
 
 // Decal index
 int gBeam; int gHalo; 
-#pragma unused gBeam, gHalo
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillLast;
-ConVar gCvarSkillSingle;
-ConVar gCvarSkillRadius;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillLast;
+ConVar hCvarSkillSingle;
+ConVar hCvarSkillRadius;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -66,10 +63,10 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillLast   = CreateConVar("zp_zclass_range_last", "0", "Can a last human be infected?", 0, true, 0.0, true, 1.0);
-	gCvarSkillSingle = CreateConVar("zp_zclass_range_single", "1", "Only 1 human can be infected?", 0, true, 0.0, true, 1.0);
-	gCvarSkillRadius = CreateConVar("zp_zclass_range_radius", "200.0", "Infection radius", 0, true, 0.0);
-	gCvarSkillEffect = CreateConVar("zp_zclass_range_effect", "explosion_hegrenade_dirt", "Particle effect for the skill (''-default)");
+	hCvarSkillLast   = CreateConVar("zp_zclass_range_last", "0", "Can a last human be infected?", 0, true, 0.0, true, 1.0);
+	hCvarSkillSingle = CreateConVar("zp_zclass_range_single", "1", "Only 1 human can be infected?", 0, true, 0.0, true, 1.0);
+	hCvarSkillRadius = CreateConVar("zp_zclass_range_radius", "200.0", "Infection radius", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_zclass_range_effect", "explosion_hegrenade_dirt", "Particle effect for the skill (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_range", "sourcemod/zombieplague");
@@ -133,9 +130,9 @@ public void ZP_OnClientDeath(int client, int attacker)
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
 		// Gets skill variables
-		float flRadius = gCvarSkillRadius.FloatValue;
-		bool bLast = gCvarSkillLast.BoolValue;
-		bool bSingle = gCvarSkillSingle.BoolValue;
+		float flRadius = hCvarSkillRadius.FloatValue;
+		bool bLast = hCvarSkillLast.BoolValue;
+		bool bSingle = hCvarSkillSingle.BoolValue;
 			
 		// Validate infection round
 		if (ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
@@ -175,7 +172,7 @@ public void ZP_OnClientDeath(int client, int attacker)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))

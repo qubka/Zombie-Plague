@@ -44,7 +44,6 @@ public Plugin myinfo =
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -81,15 +80,12 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnReload(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Sets default FOV for the client
 	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
 }
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)

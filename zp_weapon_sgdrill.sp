@@ -69,16 +69,14 @@ Handle hWeaponStab[MAXPLAYERS+1] = { null, ... };
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSoundAttack; int gSoundIdle;
-#pragma unused gSoundAttack, gSoundIdle
 
 // Cvars
-ConVar gCvarSgdrillStabDamage;
-ConVar gCvarSgdrillStabDistance;
-ConVar gCvarSgdrillStabRadius;
+ConVar hCvarSgdrillStabDamage;
+ConVar hCvarSgdrillStabDistance;
+ConVar hCvarSgdrillStabRadius;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -87,9 +85,9 @@ ConVar gCvarSgdrillStabRadius;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSgdrillStabDamage   = CreateConVar("zp_weapon_sgdrill_stab_damage", "500.0", "Stab damage", 0, true, 0.0);
-	gCvarSgdrillStabDistance = CreateConVar("zp_weapon_sgdrill_stab_distance", "80.0", "Stab distance", 0, true, 0.0);
-	gCvarSgdrillStabRadius   = CreateConVar("zp_weapon_sgdrill_stab_radius", "50.0", "Radius damage", 0, true, 0.0);
+	hCvarSgdrillStabDamage   = CreateConVar("zp_weapon_sgdrill_stab_damage", "500.0", "Stab damage", 0, true, 0.0);
+	hCvarSgdrillStabDistance = CreateConVar("zp_weapon_sgdrill_stab_distance", "80.0", "Stab distance", 0, true, 0.0);
+	hCvarSgdrillStabRadius   = CreateConVar("zp_weapon_sgdrill_stab_radius", "50.0", "Radius damage", 0, true, 0.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_sgdrill", "sourcemod/zombieplague");
@@ -160,8 +158,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Delete timers
 	delete hWeaponStab[client];
 	
@@ -174,8 +170,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurr
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -193,8 +187,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
 	{
@@ -233,7 +225,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -248,8 +239,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float f
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -280,8 +269,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -368,8 +355,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -397,7 +382,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, floa
 
 void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float flSpread, float flInaccuracy)
 {
-	//#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
 	
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
@@ -412,14 +396,12 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 
 void Weapon_OnSlash(int client, int weapon)
 {    
-	//#pragma unused client, weapon
-
 	// Initialize variables
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 10.0, vPosition);
-	ZP_GetPlayerEyePosition(client, gCvarSgdrillStabDistance.FloatValue, 0.0, 10.0, vEndPosition);
+	ZP_GetPlayerEyePosition(client, hCvarSgdrillStabDistance.FloatValue, 0.0, 10.0, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -474,7 +456,7 @@ void Weapon_OnSlash(int client, int weapon)
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, gCvarSgdrillStabDamage.FloatValue, gCvarSgdrillStabRadius.FloatValue, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, hCvarSgdrillStabDamage.FloatValue, hCvarSgdrillStabRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 		}
 	}
 	

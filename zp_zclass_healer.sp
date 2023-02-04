@@ -44,21 +44,18 @@ public Plugin myinfo =
 
 // Decal index
 int gBeam; int gHalo; 
-#pragma unused gBeam, gHalo
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillReward;
-ConVar gCvarSkillRadius;
-ConVar gCvarSkillEffect;
-ConVar gCvarSkillHeal;
+ConVar hCvarSkillReward;
+ConVar hCvarSkillRadius;
+ConVar hCvarSkillEffect;
+ConVar hCvarSkillHeal;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -67,10 +64,10 @@ ConVar gCvarSkillHeal;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillReward = CreateConVar("zp_zclass_healer_reward", "1", "Reward for healing each zombie", 0, true, 0.0);
-	gCvarSkillRadius = CreateConVar("zp_zclass_healer_radius", "250.0", "Healing radius", 0, true, 0.0);
-	gCvarSkillEffect = CreateConVar("zp_zclass_sleeper_effect", "tornado", "Particle effect for the skill (''-default)");
-	gCvarSkillHeal   = CreateConVar("zp_zclass_sleeper_heal", "heal_ss", "Particle effect for the heal (''-off)");
+	hCvarSkillReward = CreateConVar("zp_zclass_healer_reward", "1", "Reward for healing each zombie", 0, true, 0.0);
+	hCvarSkillRadius = CreateConVar("zp_zclass_healer_radius", "250.0", "Healing radius", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_zclass_sleeper_effect", "tornado", "Particle effect for the skill (''-default)");
+	hCvarSkillHeal   = CreateConVar("zp_zclass_sleeper_heal", "heal_ss", "Particle effect for the heal (''-off)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_healer", "sourcemod/zombieplague");
@@ -144,13 +141,13 @@ public Action ZP_OnClientSkillUsed(int client)
 		UTIL_CreateFadeScreen(client, 0.3, 1.0, FFADE_IN, {255, 127, 80, 75});  
 
 		// Gets skill variables
-		float flRadius = gCvarSkillRadius.FloatValue;
-		int iTotal = 0; int iReward = gCvarSkillReward.IntValue;
+		float flRadius = hCvarSkillRadius.FloatValue;
+		int iTotal = 0; int iReward = hCvarSkillReward.IntValue;
 		float flDuration = ZP_GetClassSkillDuration(gZombie);
 				
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))
@@ -166,7 +163,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		}
 		
 		// Gets particle name
-		gCvarSkillHeal.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillHeal.GetString(sEffect, sizeof(sEffect));
 		
 		// Find any players in the radius
 		int i; int it = 1; /// iterator

@@ -54,15 +54,12 @@ public Plugin myinfo =
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSoundAttack; int gSoundIdle;
-#pragma unused gSoundAttack, gSoundIdle
 
 // Decal index
 int gBeam;
-#pragma unused gBeam
 
 // Animation sequences
 enum
@@ -132,8 +129,6 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Cancel reload
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	
@@ -143,8 +138,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -175,8 +168,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
 	{
@@ -219,8 +210,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
 
@@ -234,8 +223,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -252,8 +239,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -316,8 +301,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 void Weapon_OnCreateBeam(int client, int weapon)
 {
-	//#pragma unused client, weapon
-
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
 
@@ -367,8 +350,6 @@ void Weapon_OnCreateBeam(int client, int weapon)
 
 void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate mode
 	if (iStateMode > STATE_BEGIN)
 	{

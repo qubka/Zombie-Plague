@@ -43,19 +43,16 @@ public Plugin myinfo =
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie; 
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillReduction;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillReduction;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -64,8 +61,8 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillReduction = CreateConVar("zp_zclass_tank_reduction", "0.1", "Damage reduction multiplier", 0, true, 0.0, true, 1.0);
-	gCvarSkillEffect    = CreateConVar("zp_zclass_tank_effect", "cloud", "Particle effect for the skill (''-default)");
+	hCvarSkillReduction = CreateConVar("zp_zclass_tank_reduction", "0.1", "Damage reduction multiplier", 0, true, 0.0, true, 1.0);
+	hCvarSkillEffect    = CreateConVar("zp_zclass_tank_effect", "cloud", "Particle effect for the skill (''-default)");
 
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_tank", "sourcemod/zombieplague");
@@ -130,7 +127,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))
@@ -184,6 +181,6 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
 	{
-		flDamage *= gCvarSkillReduction.FloatValue;
+		flDamage *= hCvarSkillReduction.FloatValue;
 	}
 }

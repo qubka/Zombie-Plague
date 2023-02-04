@@ -44,7 +44,6 @@ public Plugin myinfo =
 
 // Weapon index
 int gWeaponSpanner; int gWeaponAxe; int gWeaponHammer; 
-#pragma unused gWeaponSpanner, gWeaponAxe, gWeaponHammer
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 

@@ -67,22 +67,19 @@ enum
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Cvars
-ConVar gCvarDrillSpeed;
-ConVar gCvarDrillDamage;
-ConVar gCvarDrillRadius;
-ConVar gCvarDrillLife;
-ConVar gCvarDrillTrail;
+ConVar hCvarDrillSpeed;
+ConVar hCvarDrillDamage;
+ConVar hCvarDrillRadius;
+ConVar hCvarDrillLife;
+ConVar hCvarDrillTrail;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -91,11 +88,11 @@ ConVar gCvarDrillTrail;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarDrillSpeed  = CreateConVar("zp_weapon_drill_speed", "1500.0", "Projectile speed", 0, true, 0.0);
-	gCvarDrillDamage = CreateConVar("zp_weapon_drill_damage", "1000.0", "Projectile damage", 0, true, 0.0);
-	gCvarDrillRadius = CreateConVar("zp_weapon_drill_radius", "30.0", "Damage radius", 0, true, 0.0);
-	gCvarDrillLife   = CreateConVar("zp_weapon_drill_life", "2.0", "Duration of life after hit", 0, true, 0.0);
-	gCvarDrillTrail  = CreateConVar("zp_weapon_drill_trail", "", "Particle effect for the trail (''-default)");
+	hCvarDrillSpeed  = CreateConVar("zp_weapon_drill_speed", "1500.0", "Projectile speed", 0, true, 0.0);
+	hCvarDrillDamage = CreateConVar("zp_weapon_drill_damage", "1000.0", "Projectile damage", 0, true, 0.0);
+	hCvarDrillRadius = CreateConVar("zp_weapon_drill_radius", "30.0", "Damage radius", 0, true, 0.0);
+	hCvarDrillLife   = CreateConVar("zp_weapon_drill_life", "2.0", "Duration of life after hit", 0, true, 0.0);
+	hCvarDrillTrail  = CreateConVar("zp_weapon_drill_trail", "", "Particle effect for the trail (''-default)");
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_drill", "sourcemod/zombieplague");
@@ -149,16 +146,12 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Cancel reload
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -185,8 +178,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
 	{
@@ -222,7 +213,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -237,8 +227,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float f
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -255,8 +243,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -326,8 +312,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 void Weapon_OnCreateBow(int client)
 {
-	//#pragma unused client
-
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -351,7 +335,7 @@ void Weapon_OnCreateBow(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarDrillSpeed.FloatValue);
+		ScaleVector(vSpeed, hCvarDrillSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -372,7 +356,7 @@ void Weapon_OnCreateBow(int client)
 
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarDrillTrail.GetString(sEffect, sizeof(sEffect));
+		hCvarDrillTrail.GetString(sEffect, sizeof(sEffect));
 
 		// Validate effect
 		if (hasLength(sEffect))
@@ -541,7 +525,7 @@ public Action BowTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
 		// Create the damage for victims
-		UTIL_CreateDamage(_, vPosition, thrower, gCvarDrillDamage.FloatValue, gCvarDrillRadius.FloatValue, DMG_NEVERGIB, gWeapon);
+		UTIL_CreateDamage(_, vPosition, thrower, hCvarDrillDamage.FloatValue, hCvarDrillRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 
 		// Validate client
 		if (IsPlayerExist(target))
@@ -558,7 +542,7 @@ public Action BowTouchHook(int entity, int target)
 			SDKUnhook(entity, SDKHook_Touch, BowTouchHook);
 
 			// Kill after some duration
-			UTIL_RemoveEntity(entity, gCvarDrillLife.FloatValue);
+			UTIL_RemoveEntity(entity, hCvarDrillLife.FloatValue);
 		}
 	}
 

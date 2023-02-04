@@ -56,11 +56,9 @@ Handle hWeaponSwing[MAXPLAYERS+1] = { null, ... };
  
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Animation sequences
 enum
@@ -78,11 +76,11 @@ enum
 };
 
 // Cvars
-ConVar gCvarSkullaxeSlashDamage;
-ConVar gCvarSkullaxeStabDamage;
-ConVar gCvarSkullaxeSlashDistance;
-ConVar gCvarSkullaxeStabDistance;
-ConVar gCvarSkullaxeRadiusDamage;
+ConVar hCvarSkullaxeSlashDamage;
+ConVar hCvarSkullaxeStabDamage;
+ConVar hCvarSkullaxeSlashDistance;
+ConVar hCvarSkullaxeStabDistance;
+ConVar hCvarSkullaxeRadiusDamage;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -91,11 +89,11 @@ ConVar gCvarSkullaxeRadiusDamage;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkullaxeSlashDamage   = CreateConVar("zp_weapon_skullaxe_slash_damage", "50.0", "Slash damage", 0, true, 0.0);
-	gCvarSkullaxeStabDamage    = CreateConVar("zp_weapon_skullaxe_stab_damage", "100.0", "Stab damage", 0, true, 0.0);
-	gCvarSkullaxeSlashDistance = CreateConVar("zp_weapon_skullaxe_slash_distance", "80.0", "Slash distance", 0, true, 0.0);
-	gCvarSkullaxeStabDistance  = CreateConVar("zp_weapon_skullaxe_stab_distance", "90.0", "Stab distance", 0, true, 0.0);
-	gCvarSkullaxeRadiusDamage  = CreateConVar("zp_weapon_skullaxe_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
+	hCvarSkullaxeSlashDamage   = CreateConVar("zp_weapon_skullaxe_slash_damage", "50.0", "Slash damage", 0, true, 0.0);
+	hCvarSkullaxeStabDamage    = CreateConVar("zp_weapon_skullaxe_stab_damage", "100.0", "Stab damage", 0, true, 0.0);
+	hCvarSkullaxeSlashDistance = CreateConVar("zp_weapon_skullaxe_slash_distance", "80.0", "Slash distance", 0, true, 0.0);
+	hCvarSkullaxeStabDistance  = CreateConVar("zp_weapon_skullaxe_stab_distance", "90.0", "Stab distance", 0, true, 0.0);
+	hCvarSkullaxeRadiusDamage  = CreateConVar("zp_weapon_skullaxe_radius_damage", "10.0", "Radius damage", 0, true, 0.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_skullaxe", "sourcemod/zombieplague");
@@ -166,8 +164,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -182,8 +178,6 @@ void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
 	{
@@ -199,8 +193,6 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -228,8 +220,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -257,14 +247,12 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift, bool bSlash)
 {    
-	//#pragma unused client, weapon, flRightShift, bSlash
-
 	// Initialize vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 0.0, 0.0, 5.0 + flUpShift, vPosition);
-	ZP_GetPlayerEyePosition(client, (bSlash ? gCvarSkullaxeSlashDistance : gCvarSkullaxeStabDistance).FloatValue, flRightShift, 5.0 + flUpShift, vEndPosition);
+	ZP_GetPlayerEyePosition(client, (bSlash ? hCvarSkullaxeSlashDistance : hCvarSkullaxeStabDistance).FloatValue, flRightShift, 5.0 + flUpShift, vEndPosition);
 
 	// Create the end-point trace
 	Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, client);
@@ -325,7 +313,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 		else
 		{
 			// Create the damage for victims
-			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? gCvarSkullaxeSlashDamage : gCvarSkullaxeStabDamage).FloatValue, gCvarSkullaxeRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
+			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? hCvarSkullaxeSlashDamage : hCvarSkullaxeStabDamage).FloatValue, hCvarSkullaxeRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 
 			// Validate victim
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))

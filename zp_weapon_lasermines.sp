@@ -81,19 +81,16 @@ Handle hMineCreate[MAXPLAYERS+1] = { null, ... };
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound; ConVar hKnockBack;
-#pragma unused gSound, hKnockBack
 
 // Decal index
 int gBeam;
-#pragma unused gBeam
 
 // Cvars
-ConVar gCvarMineImpulse;
-ConVar gCvarMineDamage;
+ConVar hCvarMineImpulse;
+ConVar hCvarMineDamage;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -102,8 +99,8 @@ ConVar gCvarMineDamage;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarMineImpulse = CreateConVar("zp_weapon_impulse", "0", "Use the classical beam?", 0, true, 0.0);
-	gCvarMineDamage = CreateConVar("zp_weapon_damage", "150.0", "Damage amount", 0, true, 0.0, true, 1.0);
+	hCvarMineImpulse = CreateConVar("zp_weapon_impulse", "0", "Use the classical beam?", 0, true, 0.0);
+	hCvarMineDamage = CreateConVar("zp_weapon_damage", "150.0", "Damage amount", 0, true, 0.0, true, 1.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_lasermines", "sourcemod/zombieplague");
@@ -191,7 +188,6 @@ public void OnClientDisconnect(int client)
 
 void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
 	
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -203,7 +199,6 @@ void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
@@ -220,8 +215,6 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 {
-	//#pragma unused client, weapon, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -618,7 +611,7 @@ public Action MineActivateHook(Handle hTimer, int refID)
 		CreateTimer(ZP_GetWeaponShoot(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
 		// Validate impulse
-		if (gCvarMineImpulse.BoolValue)
+		if (hCvarMineImpulse.BoolValue)
 		{
 			// Gets angle
 			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vEndPosition);
@@ -748,10 +741,10 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
 		// Gets mine damage
-		float flDamage = gCvarMineDamage.FloatValue;
+		float flDamage = hCvarMineDamage.FloatValue;
 
 		// Validate impulse
-		if (gCvarMineImpulse.BoolValue)
+		if (hCvarMineImpulse.BoolValue)
 		{
 			static float vVelocity[3]; static float vSpeed[3];
 		

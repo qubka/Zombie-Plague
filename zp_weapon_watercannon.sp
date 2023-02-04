@@ -54,11 +54,9 @@ public Plugin myinfo =
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Animation sequences
 enum
@@ -80,11 +78,11 @@ enum
 };
 
 // Cvars
-ConVar gCvarWaterSpeed;
-ConVar gCvarWaterDamage;
-ConVar gCvarWaterRadius;
-ConVar gCvarWaterLife;
-ConVar gCvarWaterIgnite;
+ConVar hCvarWaterSpeed;
+ConVar hCvarWaterDamage;
+ConVar hCvarWaterRadius;
+ConVar hCvarWaterLife;
+ConVar hCvarWaterIgnite;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -93,11 +91,11 @@ ConVar gCvarWaterIgnite;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarWaterSpeed  = CreateConVar("zp_weapon_watercannon_speed", "1000.0", "Projectile speed", 0, true, 0.0);
-	gCvarWaterDamage = CreateConVar("zp_weapon_watercannon_damage", "50.0", "Projectile damage", 0, true, 0.0);
-	gCvarWaterRadius = CreateConVar("zp_weapon_watercannon_radius", "30.0", "Damage radius", 0, true, 0.0);
-	gCvarWaterLife   = CreateConVar("zp_weapon_watercannon_life", "0.8", "Duration of life", 0, true, 0.0);
-	gCvarWaterIgnite = CreateConVar("zp_weapon_watercannon_ignite", "1.0", "Duration of ignite", 0, true, 0.0);
+	hCvarWaterSpeed  = CreateConVar("zp_weapon_watercannon_speed", "1000.0", "Projectile speed", 0, true, 0.0);
+	hCvarWaterDamage = CreateConVar("zp_weapon_watercannon_damage", "50.0", "Projectile damage", 0, true, 0.0);
+	hCvarWaterRadius = CreateConVar("zp_weapon_watercannon_radius", "30.0", "Damage radius", 0, true, 0.0);
+	hCvarWaterLife   = CreateConVar("zp_weapon_watercannon_life", "0.8", "Duration of life", 0, true, 0.0);
+	hCvarWaterIgnite = CreateConVar("zp_weapon_watercannon_ignite", "1.0", "Duration of ignite", 0, true, 0.0);
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_watercannon", "sourcemod/zombieplague");
@@ -142,8 +140,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Kill an effect
 	Weapon_OnCreateEffect(weapon, "Kill");
 	
@@ -153,8 +149,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -181,8 +175,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
 	{
@@ -225,7 +217,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -240,8 +231,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -264,7 +253,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Kill an effect
 	Weapon_OnCreateEffect(weapon, "Kill");
@@ -272,8 +260,6 @@ void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -379,8 +365,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 void Weapon_OnCreateFire(int client, int weapon)
 {
-	//#pragma unused client, weapon
-
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -409,7 +393,7 @@ void Weapon_OnCreateFire(int client, int weapon)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarWaterSpeed.FloatValue);
+		ScaleVector(vSpeed, hCvarWaterSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -433,14 +417,12 @@ void Weapon_OnCreateFire(int client, int weapon)
 		SDKHook(entity, SDKHook_Touch, FireTouchHook);
 		
 		// Kill after some duration
-		UTIL_RemoveEntity(entity, gCvarWaterLife.FloatValue);
+		UTIL_RemoveEntity(entity, hCvarWaterLife.FloatValue);
 	}
 }
 
 void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate mode
 	if (iStateMode > STATE_BEGIN)
 	{
@@ -464,8 +446,6 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
 
 void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
 {
-	//#pragma unused weapon, sInput
-
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	
@@ -690,13 +670,13 @@ public Action FireTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Create the damage for victims
-		UTIL_CreateDamage(_, vPosition, thrower, gCvarWaterDamage.FloatValue, gCvarWaterRadius.FloatValue, DMG_NEVERGIB, gWeapon);
+		UTIL_CreateDamage(_, vPosition, thrower, hCvarWaterDamage.FloatValue, hCvarWaterRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 		
 		// Validate zombie
 		if (IsPlayerExist(target) && ZP_IsPlayerZombie(target)) 
 		{
 			// Put the fire on
-			UTIL_IgniteEntity(target, gCvarWaterIgnite.FloatValue);   
+			UTIL_IgniteEntity(target, hCvarWaterIgnite.FloatValue);   
 		}
 		
 		// Remove the entity from the world

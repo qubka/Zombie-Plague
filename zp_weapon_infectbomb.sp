@@ -52,23 +52,20 @@ public Plugin myinfo =
  
 // Decal index
 int gBeam; int gHalo; int gTrail;
-#pragma unused gBeam, gHalo, gTrail
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Cvars
-ConVar gCvarInfectRadius;
-ConVar gCvarInfectLast;
-ConVar gCvarInfectSingle;
-ConVar gCvarInfectSticky;
-ConVar gCvarInfectTrail;
-ConVar gCvarInfectEffect;
+ConVar hCvarInfectRadius;
+ConVar hCvarInfectLast;
+ConVar hCvarInfectSingle;
+ConVar hCvarInfectSticky;
+ConVar hCvarInfectTrail;
+ConVar hCvarInfectEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -77,12 +74,12 @@ ConVar gCvarInfectEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarInfectRadius = CreateConVar("zp_weapon_infectbomb_radius", "200.0", "Infection radius", 0, true, 0.0);
-	gCvarInfectLast   = CreateConVar("zp_weapon_infectbomb_last", "0", "Can last human infect?", 0, true, 0.0, true, 1.0);
-	gCvarInfectSingle = CreateConVar("zp_weapon_infectbomb_single", "0", "Only 1 human can be infected?", 0, true, 0.0, true, 1.0);
-	gCvarInfectSticky = CreateConVar("zp_weapon_infectbomb_sticky", "0", "Sticky to walls?", 0, true, 0.0, true, 1.0);
-	gCvarInfectTrail  = CreateConVar("zp_weapon_infectbomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
-	gCvarInfectEffect = CreateConVar("zp_weapon_infectbomb_effect", "explosion_hegrenade_dirt", "Particle effect for the explosion (''-default)");
+	hCvarInfectRadius = CreateConVar("zp_weapon_infectbomb_radius", "200.0", "Infection radius", 0, true, 0.0);
+	hCvarInfectLast   = CreateConVar("zp_weapon_infectbomb_last", "0", "Can last human infect?", 0, true, 0.0, true, 1.0);
+	hCvarInfectSingle = CreateConVar("zp_weapon_infectbomb_single", "0", "Only 1 human can be infected?", 0, true, 0.0, true, 1.0);
+	hCvarInfectSticky = CreateConVar("zp_weapon_infectbomb_sticky", "0", "Sticky to walls?", 0, true, 0.0, true, 1.0);
+	hCvarInfectTrail  = CreateConVar("zp_weapon_infectbomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	hCvarInfectEffect = CreateConVar("zp_weapon_infectbomb_effect", "explosion_hegrenade_dirt", "Particle effect for the explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_infectbomb", "sourcemod/zombieplague");
@@ -175,7 +172,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 	if (weaponID == gWeapon)
 	{
 		// Validate trail
-		if (gCvarInfectTrail.BoolValue)
+		if (hCvarInfectTrail.BoolValue)
 		{
 			// Create an trail effect
 			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
@@ -192,7 +189,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action TanadeTouchHook(int entity, int target)
 {
-	return gCvarInfectSticky.BoolValue ? Plugin_Continue : Plugin_Handled;
+	return hCvarInfectSticky.BoolValue ? Plugin_Continue : Plugin_Handled;
 }
 
 /**
@@ -221,9 +218,9 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 	if (IsValidEdict(grenade))
 	{
 		// Gets grenade variables
-		float flRadius = gCvarInfectRadius.FloatValue;
-		bool bLast = gCvarInfectLast.BoolValue;
-		bool bSingle = gCvarInfectSingle.BoolValue;
+		float flRadius = hCvarInfectRadius.FloatValue;
+		bool bLast = hCvarInfectLast.BoolValue;
+		bool bSingle = hCvarInfectSingle.BoolValue;
 		
 		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
@@ -266,7 +263,7 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 
 			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
-			gCvarInfectEffect.GetString(sEffect, sizeof(sEffect));
+			hCvarInfectEffect.GetString(sEffect, sizeof(sEffect));
 			
 			// Validate effect
 			if (hasLength(sEffect))

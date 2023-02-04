@@ -43,19 +43,16 @@ public Plugin myinfo =
 
 // Decal index
 int gBeam; int gHalo;
-#pragma unused gBeam, gHalo
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Initialize human class index
 int gHuman;
-#pragma unused gHuman
 
 // Cvars
-ConVar gCvarSkillSpeed;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillSpeed;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -64,8 +61,8 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillSpeed  = CreateConVar("zp_hclass_redalice_speed", "1.2", "Speed multiplier", 0, true, 0.0);
-	gCvarSkillEffect = CreateConVar("zp_hclass_redalice_effect", "vixr_final", "Particle effect for the skill (''-default)");
+	hCvarSkillSpeed  = CreateConVar("zp_hclass_redalice_speed", "1.2", "Speed multiplier", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_hclass_redalice_effect", "vixr_final", "Particle effect for the skill (''-default)");
 
 	// Generate config
 	AutoExecConfig(true, "zp_hclass_redalice", "sourcemod/zombieplague");
@@ -127,7 +124,7 @@ public Action ZP_OnClientSkillUsed(int client)
 	if (ZP_GetClientClass(client) == gHuman)
 	{
 		// Sets a new speed
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", gCvarSkillSpeed.FloatValue);
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hCvarSkillSpeed.FloatValue);
 		
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
@@ -138,7 +135,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))

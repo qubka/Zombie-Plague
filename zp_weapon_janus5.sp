@@ -87,16 +87,14 @@ enum
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarJanusSignalCounter;
-ConVar gCvarJanusActiveCounter;
-ConVar gCvarJanusActiveMultiplier;
+ConVar hCvarJanusSignalCounter;
+ConVar hCvarJanusActiveCounter;
+ConVar hCvarJanusActiveMultiplier;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -105,9 +103,9 @@ ConVar gCvarJanusActiveMultiplier;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarJanusSignalCounter    = CreateConVar("zp_weapon_janus5_signal_counter", "150", "Amount of shots to activate second mode", 0, true, 0.0);
-	gCvarJanusActiveCounter    = CreateConVar("zp_weapon_janus5_active_counter", "100", "Amount of shots in the second mode", 0, true, 0.0);
-	gCvarJanusActiveMultiplier = CreateConVar("zp_weapon_janus5_active_multiplier", "2.0", "Multiplier on the active state", 0, true, 0.0);
+	hCvarJanusSignalCounter    = CreateConVar("zp_weapon_janus5_signal_counter", "150", "Amount of shots to activate second mode", 0, true, 0.0);
+	hCvarJanusActiveCounter    = CreateConVar("zp_weapon_janus5_active_counter", "100", "Amount of shots in the second mode", 0, true, 0.0);
+	hCvarJanusActiveMultiplier = CreateConVar("zp_weapon_janus5_active_multiplier", "2.0", "Multiplier on the active state", 0, true, 0.0);
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_janus5", "sourcemod/zombieplague");
@@ -155,7 +153,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Cancel mode change
 	SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
@@ -166,8 +163,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iCounter
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -185,7 +180,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iCounter,
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Validate mode
 	if (iStateMode == STATE_ACTIVE)
@@ -228,7 +222,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iCounter,
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -243,8 +236,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iCo
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	// Validate mode
 	if (iStateMode != STATE_ACTIVE)
 	{
@@ -275,8 +266,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iCounter, i
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -287,7 +276,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	if (iStateMode == STATE_ACTIVE)
 	{
 		// Validate counter
-		if (iCounter > gCvarJanusActiveCounter.IntValue)
+		if (iCounter > hCvarJanusActiveCounter.IntValue)
 		{
 			Weapon_OnFinish(client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime);
 			return;
@@ -314,7 +303,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		
 		// Validate counter
-		if (iCounter > gCvarJanusSignalCounter.IntValue)
+		if (iCounter > hCvarJanusSignalCounter.IntValue)
 		{
 			// Sets signal mode
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_SIGNAL);
@@ -402,7 +391,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Validate mode
 	if (iStateMode == STATE_SIGNAL)
@@ -439,7 +427,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 void Weapon_OnFinish(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iCounter, iStateMode, flCurrentTime
 	
 	// Sets change animation
 	ZP_SetWeaponAnimation(client, ANIM_CHANGE2);  
@@ -460,7 +447,6 @@ void Weapon_OnFinish(int client, int weapon, int iClip, int iAmmo, int iCounter,
 
 void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float flSpread, float flInaccuracy)
 {
-	//#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
 	
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
@@ -664,7 +650,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 			if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
 			{
 				// Add additional damage
-				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= gCvarJanusActiveMultiplier.FloatValue;
+				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= hCvarJanusActiveMultiplier.FloatValue;
 			}
 		}
 	}

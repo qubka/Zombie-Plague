@@ -79,14 +79,12 @@ enum
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarSfmgMultiplier;
+ConVar hCvarSfmgMultiplier;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -95,7 +93,7 @@ ConVar gCvarSfmgMultiplier;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSfmgMultiplier = CreateConVar("zp_weapon_sfmg_active_multiplier", "1.5", "Multiplier on the active state", 0, true, 0.0);
+	hCvarSfmgMultiplier = CreateConVar("zp_weapon_sfmg_active_multiplier", "1.5", "Multiplier on the active state", 0, true, 0.0);
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_sfmg", "sourcemod/zombieplague");
@@ -140,8 +138,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Cancel mode change
 	SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
 	
@@ -151,7 +147,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
@@ -170,7 +165,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
@@ -207,7 +201,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -222,7 +215,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate clip
 	if (iClip <= 0)
@@ -250,7 +242,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -288,7 +279,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	if (iStateMode)
 	{
 		// Sets next attack time
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon) * gCvarSfmgMultiplier.FloatValue));       
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon) * hCvarSfmgMultiplier.FloatValue));       
 
 		// Sets attack animation
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT2_1, ANIM_SHOOT2_2 });   
@@ -355,8 +346,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -382,7 +371,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float flSpread, float flInaccuracy)
 {
-	//#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
 	
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
@@ -584,7 +572,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 			if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
 			{
 				// Add additional damage
-				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= gCvarSfmgMultiplier.FloatValue;
+				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= hCvarSfmgMultiplier.FloatValue;
 			}
 		}
 	}

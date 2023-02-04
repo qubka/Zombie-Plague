@@ -43,18 +43,15 @@ public Plugin myinfo =
 
 // Decal index
 int gBeam; int gHalo;
-#pragma unused gBeam, gHalo
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Initialize human class index
 int gHuman;
-#pragma unused gHuman
 
 // Cvars
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -63,7 +60,7 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillEffect = CreateConVar("zp_hclass_bluetank_effect", "vixr_final", "Particle effect for the skill (''-default)");
+	hCvarSkillEffect = CreateConVar("zp_hclass_bluetank_effect", "vixr_final", "Particle effect for the skill (''-default)");
 
 	// Generate config
 	AutoExecConfig(true, "zp_hclass_bluetank", "sourcemod/zombieplague");
@@ -143,7 +140,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))

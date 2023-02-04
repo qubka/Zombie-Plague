@@ -51,21 +51,18 @@ public Plugin myinfo =
  
 // Decal index
 int gBeam; int gHalo; int gTrail;
-#pragma unused gBeam, gHalo, gTrail
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Cvars
-ConVar gCvarJumpRadius;
-ConVar gCvarJumpDamage;
-ConVar gCvarJumpTrail;
-ConVar gCvarJumpEffect;
+ConVar hCvarJumpRadius;
+ConVar hCvarJumpDamage;
+ConVar hCvarJumpTrail;
+ConVar hCvarJumpEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -74,10 +71,10 @@ ConVar gCvarJumpEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarJumpRadius = CreateConVar("zp_weapon_jumpbomb_radius", "400.0", "Explosiion radius", 0, true, 0.0);
-	gCvarJumpDamage = CreateConVar("zp_weapon_jumpbomb_damage", "1000.0", "Explosiion physics damage", 0, true, 0.0);
-	gCvarJumpTrail  = CreateConVar("zp_weapon_jumpbomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
-	gCvarJumpEffect = CreateConVar("zp_weapon_jumpbomb_effect", "explosion_hegrenade_water", "Particle effect for the explosion (''-default)");
+	hCvarJumpRadius = CreateConVar("zp_weapon_jumpbomb_radius", "400.0", "Explosiion radius", 0, true, 0.0);
+	hCvarJumpDamage = CreateConVar("zp_weapon_jumpbomb_damage", "1000.0", "Explosiion physics damage", 0, true, 0.0);
+	hCvarJumpTrail  = CreateConVar("zp_weapon_jumpbomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
+	hCvarJumpEffect = CreateConVar("zp_weapon_jumpbomb_effect", "explosion_hegrenade_water", "Particle effect for the explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_jumpbomb", "sourcemod/zombieplague");
@@ -137,7 +134,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 	if (weaponID == gWeapon)
 	{
 		// Validate trail
-		if (gCvarJumpTrail.BoolValue)
+		if (hCvarJumpTrail.BoolValue)
 		{
 			// Create an trail effect
 			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
@@ -175,7 +172,7 @@ public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast)
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
 			// Gets grenade variables
-			float flRadius = gCvarJumpRadius.FloatValue;
+			float flRadius = hCvarJumpRadius.FloatValue;
 			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
 			
 			// Find any players in the radius
@@ -194,7 +191,7 @@ public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast)
 
 			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
-			gCvarJumpEffect.GetString(sEffect, sizeof(sEffect));
+			hCvarJumpEffect.GetString(sEffect, sizeof(sEffect));
 			
 			// Validate effect
 			if (hasLength(sEffect))
@@ -255,7 +252,7 @@ public Action EntityOnPhysExp(Handle hTimer, int refID)
 			SetEntProp(entity, Prop_Data, "m_iHammerID", gWeapon);
 
 			// Create an explosion
-			UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, gCvarJumpDamage.FloatValue, gCvarJumpRadius.FloatValue, "jumpbomb", _, entity);
+			UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, hCvarJumpDamage.FloatValue, hCvarJumpRadius.FloatValue, "jumpbomb", _, entity);
 
 			// Remove the entity from the world
 			AcceptEntityInput(entity, "Kill");

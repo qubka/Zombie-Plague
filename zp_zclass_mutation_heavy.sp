@@ -47,14 +47,12 @@ Handle hHumanTrapped[MAXPLAYERS+1] = { null, ... }; bool bStandOnTrap[MAXPLAYERS
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillReward;
+ConVar hCvarSkillReward;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -63,7 +61,7 @@ ConVar gCvarSkillReward;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillReward = CreateConVar("zp_zclass_mutation_heavy_reward", "10", "Catch reward", 0, true, 0.0);
+	hCvarSkillReward = CreateConVar("zp_zclass_mutation_heavy_reward", "10", "Catch reward", 0, true, 0.0);
 
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_mutation_heavy", "sourcemod/zombieplague");
@@ -305,7 +303,7 @@ public Action TrapTouchHook(int entity, int target)
 				PrintHintText(owner, "%t", "mutationheavy catched", sName);
 				
 				// Give reward
-				ZP_SetClientMoney(owner, ZP_GetClientMoney(owner) + gCvarSkillReward.IntValue);
+				ZP_SetClientMoney(owner, ZP_GetClientMoney(owner) + hCvarSkillReward.IntValue);
 			}
 
 			// Gets trap model 

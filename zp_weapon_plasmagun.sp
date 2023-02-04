@@ -64,22 +64,19 @@ enum
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSoundAttack; int gSoundIdle;
-#pragma unused gSoundAttack, gSoundIdle
 
 // Cvars
-ConVar gCvarPlasmaSpeed;
-ConVar gCvarPlasmaDamage;
-ConVar gCvarPlasmaRadius;
-ConVar gCvarPlasmaTrail;
-ConVar gCvarPlasmaExp;
+ConVar hCvarPlasmaSpeed;
+ConVar hCvarPlasmaDamage;
+ConVar hCvarPlasmaRadius;
+ConVar hCvarPlasmaTrail;
+ConVar hCvarPlasmaExp;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -88,11 +85,11 @@ ConVar gCvarPlasmaExp;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarPlasmaSpeed  = CreateConVar("zp_weapon_plasma_speed", "2000.0", "Projectile speed", 0, true, 0.0);
-	gCvarPlasmaDamage = CreateConVar("zp_weapon_plasma_damage", "50.0", "Projectile damage", 0, true, 0.0);
-	gCvarPlasmaRadius = CreateConVar("zp_weapon_plasma_radius", "150.0", "Damage radius", 0, true, 0.0);
-	gCvarPlasmaTrail  = CreateConVar("zp_weapon_plasma_trail", "pyrovision_rockettrail", "Particle effect for the trail (''-default)");
-	gCvarPlasmaExp    = CreateConVar("zp_weapon_plasma_explosion", "Explosion_bubbles", "Particle effect for the explosion (''-default)");
+	hCvarPlasmaSpeed  = CreateConVar("zp_weapon_plasma_speed", "2000.0", "Projectile speed", 0, true, 0.0);
+	hCvarPlasmaDamage = CreateConVar("zp_weapon_plasma_damage", "50.0", "Projectile damage", 0, true, 0.0);
+	hCvarPlasmaRadius = CreateConVar("zp_weapon_plasma_radius", "150.0", "Damage radius", 0, true, 0.0);
+	hCvarPlasmaTrail  = CreateConVar("zp_weapon_plasma_trail", "pyrovision_rockettrail", "Particle effect for the trail (''-default)");
+	hCvarPlasmaExp    = CreateConVar("zp_weapon_plasma_explosion", "Explosion_bubbles", "Particle effect for the explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_plasmagun", "sourcemod/zombieplague");
@@ -149,8 +146,6 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, "Kill");
 	
@@ -163,8 +158,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurr
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -195,8 +188,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
 	{
@@ -235,7 +226,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -250,8 +240,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float f
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -271,7 +259,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 	
 	// Kill an effect
 	Weapon_OnCreateEffect(client, weapon, "Kill");
@@ -279,8 +266,6 @@ void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, float flCurrent
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -351,8 +336,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 void Weapon_OnCreatePlasma(int client, int weapon)
 {
-	//#pragma unused client, weapon
-
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -378,7 +361,7 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarPlasmaSpeed.FloatValue);
+		ScaleVector(vSpeed, hCvarPlasmaSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -403,7 +386,7 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarPlasmaTrail.GetString(sEffect, sizeof(sEffect));
+		hCvarPlasmaTrail.GetString(sEffect, sizeof(sEffect));
 
 		// Validate effect
 		if (hasLength(sEffect))
@@ -422,8 +405,6 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 
 void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 {
-	//#pragma unused client, weapon, sInput
-
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	
@@ -630,7 +611,7 @@ public Action PlasmaTouchHook(int entity, int target)
 
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarPlasmaExp.GetString(sEffect, sizeof(sEffect));
+		hCvarPlasmaExp.GetString(sEffect, sizeof(sEffect));
 
 		// Initialze exp flag
 		int iFlags = EXP_NOSOUND;
@@ -644,7 +625,7 @@ public Action PlasmaTouchHook(int entity, int target)
 		}
 
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarPlasmaDamage.FloatValue, gCvarPlasmaRadius.FloatValue, "plasma", thrower, entity);
+		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarPlasmaDamage.FloatValue, hCvarPlasmaRadius.FloatValue, "plasma", thrower, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSoundAttack, 2, entity, SNDCHAN_STATIC, SNDLEVEL_CONVO);

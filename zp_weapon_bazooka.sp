@@ -63,22 +63,19 @@ enum
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarBazookaSpeed;
-ConVar gCvarBazookaDamage;
-ConVar gCvarBazookaRadius;
-ConVar gCvarBazookaTrail;
-ConVar gCvarBazookaExp;
+ConVar hCvarBazookaSpeed;
+ConVar hCvarBazookaDamage;
+ConVar hCvarBazookaRadius;
+ConVar hCvarBazookaTrail;
+ConVar hCvarBazookaExp;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -87,11 +84,11 @@ ConVar gCvarBazookaExp;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarBazookaSpeed  = CreateConVar("zp_weapon_bazooka_speed", "2000.0", "Projectile speed", 0, true, 0.0);
-	gCvarBazookaDamage = CreateConVar("zp_weapon_bazooka_damage", "200.0", "Projectile damage", 0, true, 0.0);
-	gCvarBazookaRadius = CreateConVar("zp_weapon_bazooka_radius", "400.0", "Damage radius", 0, true, 0.0);
-	gCvarBazookaTrail  = CreateConVar("zp_weapon_bazooka_trail", "rockettrail_airstrike", "Particle effect for the trail (''-default)");
-	gCvarBazookaExp    = CreateConVar("zp_weapon_bazooka_explosion", "", "Particle effect for the explosion (''-default)");
+	hCvarBazookaSpeed  = CreateConVar("zp_weapon_bazooka_speed", "2000.0", "Projectile speed", 0, true, 0.0);
+	hCvarBazookaDamage = CreateConVar("zp_weapon_bazooka_damage", "200.0", "Projectile damage", 0, true, 0.0);
+	hCvarBazookaRadius = CreateConVar("zp_weapon_bazooka_radius", "400.0", "Damage radius", 0, true, 0.0);
+	hCvarBazookaTrail  = CreateConVar("zp_weapon_bazooka_trail", "rockettrail_airstrike", "Particle effect for the trail (''-default)");
+	hCvarBazookaExp    = CreateConVar("zp_weapon_bazooka_explosion", "", "Particle effect for the explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_bazooka", "sourcemod/zombieplague");
@@ -146,16 +143,12 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Cancel reload
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -182,8 +175,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, float flCurrent
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
 	{
@@ -219,7 +210,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -234,8 +224,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, float f
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -252,8 +240,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -330,8 +316,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 void Weapon_OnCreateRocket(int client)
 {
-	//#pragma unused client
-
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -357,7 +341,7 @@ void Weapon_OnCreateRocket(int client)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarBazookaSpeed.FloatValue);
+		ScaleVector(vSpeed, hCvarBazookaSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -381,7 +365,7 @@ void Weapon_OnCreateRocket(int client)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarBazookaTrail.GetString(sEffect, sizeof(sEffect));
+		hCvarBazookaTrail.GetString(sEffect, sizeof(sEffect));
 
 		// Validate effect
 		if (hasLength(sEffect))
@@ -551,7 +535,7 @@ public Action RocketTouchHook(int entity, int target)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarBazookaExp.GetString(sEffect, sizeof(sEffect));
+		hCvarBazookaExp.GetString(sEffect, sizeof(sEffect));
 
 		// Initialze exp flag
 		int iFlags = EXP_NOSOUND;
@@ -565,7 +549,7 @@ public Action RocketTouchHook(int entity, int target)
 		}
 		
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, iFlags, _, gCvarBazookaDamage.FloatValue, gCvarBazookaRadius.FloatValue, "bazooka", thrower, entity);
+		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarBazookaDamage.FloatValue, hCvarBazookaRadius.FloatValue, "bazooka", thrower, entity);
 
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);

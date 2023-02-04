@@ -43,19 +43,16 @@ public Plugin myinfo =
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillSpeed;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillSpeed;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -64,8 +61,8 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillSpeed  = CreateConVar("zp_zclass_fast_speed", "1.42", "Speed multiplier", 0, true, 0.0);
-	gCvarSkillEffect = CreateConVar("zp_zclass_fast_effect", "viy_viy_viy", "Particle effect for the skill (''-default)");
+	hCvarSkillSpeed  = CreateConVar("zp_zclass_fast_speed", "1.42", "Speed multiplier", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_zclass_fast_effect", "viy_viy_viy", "Particle effect for the skill (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_fast", "sourcemod/zombieplague");
@@ -126,14 +123,14 @@ public Action ZP_OnClientSkillUsed(int client)
 	if (ZP_GetClientClass(client) == gZombie)
 	{
 		// Sets a new speed multiplier
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", gCvarSkillSpeed.FloatValue);
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hCvarSkillSpeed.FloatValue);
 		
 		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))

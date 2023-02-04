@@ -44,21 +44,18 @@ public Plugin myinfo =
 
 // Decal index
 int gSmoke;
-#pragma unused gSmoke
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillSpeed;
-ConVar gCvarSkillAttach;
-ConVar gCvarSkillDuration;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillSpeed;
+ConVar hCvarSkillAttach;
+ConVar hCvarSkillDuration;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -67,10 +64,10 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillSpeed    = CreateConVar("zp_zclass_witch_speed", "1500.0", "Speed of bat cloud", 0, true, 0.0);
-	gCvarSkillAttach   = CreateConVar("zp_zclass_witch_attach", "150.0", "Speed of attached victim", 0, true, 0.0);
-	gCvarSkillDuration = CreateConVar("zp_zclass_witch_duration", "4.0", "Duration of carrying with bats", 0, true, 0.0);
-	gCvarSkillEffect   = CreateConVar("zp_zclass_witch_effect", "blood_pool", "Particle effect for the skill (''-off)");
+	hCvarSkillSpeed    = CreateConVar("zp_zclass_witch_speed", "1500.0", "Speed of bat cloud", 0, true, 0.0);
+	hCvarSkillAttach   = CreateConVar("zp_zclass_witch_attach", "150.0", "Speed of attached victim", 0, true, 0.0);
+	hCvarSkillDuration = CreateConVar("zp_zclass_witch_duration", "4.0", "Duration of carrying with bats", 0, true, 0.0);
+	hCvarSkillEffect   = CreateConVar("zp_zclass_witch_effect", "blood_pool", "Particle effect for the skill (''-off)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_witch", "sourcemod/zombieplague");
@@ -161,7 +158,7 @@ public Action ZP_OnClientSkillUsed(int client)
 			NormalizeVector(vSpeed, vSpeed);
 
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vSpeed, gCvarSkillSpeed.FloatValue);
+			ScaleVector(vSpeed, hCvarSkillSpeed.FloatValue);
 
 			// Adds two vectors
 			AddVectors(vSpeed, vVelocity, vSpeed);
@@ -254,7 +251,7 @@ public Action BatTouchHook(int entity, int target)
 				AcceptEntityInput(bat, "SetParentAttachment", target, bat);
 
 				// Kill after some duration
-				UTIL_RemoveEntity(bat, gCvarSkillDuration.FloatValue);
+				UTIL_RemoveEntity(bat, hCvarSkillDuration.FloatValue);
 
 				// Create a attach timer
 				CreateTimer(0.1, BatAttachHook, EntIndexToEntRef(bat), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -267,7 +264,7 @@ public Action BatTouchHook(int entity, int target)
 		{
 			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
-			gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+			hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 			
 			// Validate effect
 			if (hasLength(sEffect))
@@ -330,7 +327,7 @@ public Action BatAttachHook(Handle hTimer, int refID)
 			NormalizeVector(vVelocity, vVelocity);
 
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vVelocity, gCvarSkillAttach.FloatValue);
+			ScaleVector(vVelocity, hCvarSkillAttach.FloatValue);
 
 			// Push the target
 			TeleportEntity(target, NULL_VECTOR, NULL_VECTOR, vVelocity);

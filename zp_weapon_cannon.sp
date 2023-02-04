@@ -62,18 +62,16 @@ enum
 
 // Item index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSound;
-#pragma unused gSound
 
 // Cvars
-ConVar gCvarCannonSpeed;
-ConVar gCvarCannonDamage;
-ConVar gCvarCannonRadius;
-ConVar gCvarCannonLife;
-ConVar gCvarCannonIgnite;
+ConVar hCvarCannonSpeed;
+ConVar hCvarCannonDamage;
+ConVar hCvarCannonRadius;
+ConVar hCvarCannonLife;
+ConVar hCvarCannonIgnite;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -82,11 +80,11 @@ ConVar gCvarCannonIgnite;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarCannonSpeed  = CreateConVar("zp_weapon_cannon_speed", "1000.0", "Projectile speed", 0, true, 0.0);  
-	gCvarCannonDamage = CreateConVar("zp_weapon_cannon_damage", "400.0", "Projectile damage", 0, true, 0.0); 
-	gCvarCannonRadius = CreateConVar("zp_weapon_cannon_radius", "200.0", "Damage radius", 0, true, 0.0); 
-	gCvarCannonLife   = CreateConVar("zp_weapon_cannon_life", "0.7", "Duration of life", 0, true, 0.0);   
-	gCvarCannonIgnite = CreateConVar("zp_weapon_cannon_ignite", "3.0", "Duration of ignite", 0, true, 0.0);
+	hCvarCannonSpeed  = CreateConVar("zp_weapon_cannon_speed", "1000.0", "Projectile speed", 0, true, 0.0);  
+	hCvarCannonDamage = CreateConVar("zp_weapon_cannon_damage", "400.0", "Projectile damage", 0, true, 0.0); 
+	hCvarCannonRadius = CreateConVar("zp_weapon_cannon_radius", "200.0", "Damage radius", 0, true, 0.0); 
+	hCvarCannonLife   = CreateConVar("zp_weapon_cannon_life", "0.7", "Duration of life", 0, true, 0.0);   
+	hCvarCannonIgnite = CreateConVar("zp_weapon_cannon_ignite", "3.0", "Duration of ignite", 0, true, 0.0);
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_cannon", "sourcemod/zombieplague");
@@ -131,8 +129,6 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnDeploy(int client, int weapon, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -150,8 +146,6 @@ void Weapon_OnDeploy(int client, int weapon, int iAmmo, float flCurrentTime)
 
 void Weapon_OnIdle(int client, int weapon, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
 	{
@@ -167,15 +161,12 @@ void Weapon_OnIdle(int client, int weapon, int iAmmo, float flCurrentTime)
 
 void Weapon_OnHolster(int client, int weapon, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, flCurrentTime
-
 	// Stop an effect
 	Weapon_OnCreateEffect(weapon, "Kill");
 }
 
 void Weapon_OnDrop(int client, int weapon, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, flCurrentTime
 	
 	// Kill an effect
 	Weapon_OnCreateEffect(weapon, "Kill");
@@ -183,8 +174,6 @@ void Weapon_OnDrop(int client, int weapon, int iAmmo, float flCurrentTime)
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iAmmo, flCurrentTime
-
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
 	{
@@ -272,8 +261,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
 
 void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 {
-	//#pragma unused client, weapon, vPosition
-
 	// Initialize vectors
 	static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -299,7 +286,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarCannonSpeed.FloatValue);
+		ScaleVector(vSpeed, hCvarCannonSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -323,7 +310,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		SDKHook(entity, SDKHook_Touch, FireTouchHook);
 
 		// Gets fire life
-		float flDuration = gCvarCannonLife.FloatValue;
+		float flDuration = hCvarCannonLife.FloatValue;
 
 		// Create an effect
 		UTIL_CreateParticle(entity, vPosition, _, _, "new_flame_core", flDuration);
@@ -335,8 +322,6 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 
 void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
 {
-	//#pragma unused weapon, sInput
-
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	
@@ -524,7 +509,7 @@ public Action FireTouchHook(int entity, int target)
 			if (ZP_IsPlayerZombie(target)) 
 			{
 				// Put the fire on
-				UTIL_IgniteEntity(target, gCvarCannonIgnite.FloatValue);  
+				UTIL_IgniteEntity(target, hCvarCannonIgnite.FloatValue);  
 			}
 		}
 
@@ -533,7 +518,7 @@ public Action FireTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Create an explosion
-		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, gCvarCannonDamage.FloatValue, gCvarCannonRadius.FloatValue, "cannon", thrower, entity);
+		UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND, _, hCvarCannonDamage.FloatValue, hCvarCannonRadius.FloatValue, "cannon", thrower, entity);
 
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");

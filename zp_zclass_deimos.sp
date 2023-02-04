@@ -44,21 +44,18 @@ public Plugin myinfo =
 
 // Decal index
 int gBeam; int gHalo; int gTrail;
-#pragma unused gBeam, gHalo, gTrail
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillSpeed;
-ConVar gCvarSkillRadius;
-ConVar gCvarSkillEffect;
-ConVar gCvarSkillExp;
+ConVar hCvarSkillSpeed;
+ConVar hCvarSkillRadius;
+ConVar hCvarSkillEffect;
+ConVar hCvarSkillExp;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -67,10 +64,10 @@ ConVar gCvarSkillExp;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarSkillSpeed  = CreateConVar("zp_zclass_deimos_speed", "3000.0", "Speed of sting", 0, true, 0.0);
-	gCvarSkillRadius = CreateConVar("zp_zclass_deimos_radius", "150.0", "Dropping radius", 0, true, 0.0);
-	gCvarSkillEffect = CreateConVar("zp_zclass_deimos_effect", "gamma_trail_xz", "Particle effect for the skill (''-default)");
-	gCvarSkillExp    = CreateConVar("zp_zclass_deimos_explosion", "pyrovision_explosion", "Particle effect for the skill explosion (''-default)");
+	hCvarSkillSpeed  = CreateConVar("zp_zclass_deimos_speed", "3000.0", "Speed of sting", 0, true, 0.0);
+	hCvarSkillRadius = CreateConVar("zp_zclass_deimos_radius", "150.0", "Dropping radius", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_zclass_deimos_effect", "gamma_trail_xz", "Particle effect for the skill (''-default)");
+	hCvarSkillExp    = CreateConVar("zp_zclass_deimos_explosion", "pyrovision_explosion", "Particle effect for the skill explosion (''-default)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_deimos", "sourcemod/zombieplague");
@@ -163,7 +160,7 @@ public Action ZP_OnClientSkillUsed(int client)
 			NormalizeVector(vSpeed, vSpeed);
 			
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vSpeed, gCvarSkillSpeed.FloatValue);
+			ScaleVector(vSpeed, hCvarSkillSpeed.FloatValue);
 
 			// Adds two vectors
 			AddVectors(vSpeed, vVelocity, vSpeed);
@@ -181,7 +178,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
-			gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+			hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 			
 			// Validate effect
 			if (hasLength(sEffect))
@@ -231,7 +228,7 @@ public Action BombTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Gets skill radius
-		float flRadius = gCvarSkillRadius.FloatValue;
+		float flRadius = hCvarSkillRadius.FloatValue;
 
 		// Find any players in the radius
 		int i; int it = 1; /// iterator
@@ -255,7 +252,7 @@ public Action BombTouchHook(int entity, int target)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillExp.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillExp.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))

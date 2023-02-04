@@ -44,23 +44,20 @@ public Plugin myinfo =
 
 // Decal index
 int gTrail;
-#pragma unused gTrail
 
 // Timer index
 Handle hZombieScream[MAXPLAYERS+1] = { null, ... }; 
 
 // Sound index
 int gSound;
-#pragma unused gSound
  
 // Zombie index
 int gZombie;
-#pragma unused gZombie
 
 // Cvars
-ConVar gCvarSkillRadius;
-ConVar gCvarSkillDamage;
-ConVar gCvarSkillEffect;
+ConVar hCvarSkillRadius;
+ConVar hCvarSkillDamage;
+ConVar hCvarSkillEffect;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -69,9 +66,9 @@ ConVar gCvarSkillEffect;
 public void OnPluginStart()
 { 
 	// Initialize cvars
-	gCvarSkillRadius = CreateConVar("zp_zclass_psyh_radius", "250.0", "Wave radius", 0, true, 0.0);
-	gCvarSkillDamage = CreateConVar("zp_zclass_psyh_damage", "1.0", "Damage amount", 0, true, 0.0);
-	gCvarSkillEffect = CreateConVar("zp_zclass_psyh_effect", "hell_end", "Particle effect for the skill (''-off)");
+	hCvarSkillRadius = CreateConVar("zp_zclass_psyh_radius", "250.0", "Wave radius", 0, true, 0.0);
+	hCvarSkillDamage = CreateConVar("zp_zclass_psyh_damage", "1.0", "Damage amount", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_zclass_psyh_effect", "hell_end", "Particle effect for the skill (''-off)");
 	
 	// Generate config
 	AutoExecConfig(true, "zp_zclass_psyh", "sourcemod/zombieplague");
@@ -188,7 +185,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
-		gCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
+		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
 		// Validate effect
 		if (hasLength(sEffect))
@@ -238,8 +235,8 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition); vPosition[2] += 25.0;  
 
 		// Gets skill variables
-		float flRadius = gCvarSkillRadius.FloatValue;
-		float flDamage = gCvarSkillDamage.FloatValue;
+		float flRadius = hCvarSkillRadius.FloatValue;
+		float flDamage = hCvarSkillDamage.FloatValue;
 
 		// Find any players in the radius
 		int i; int it = 1; /// iterator

@@ -45,7 +45,6 @@ public Plugin myinfo =
 
 // Item index
 int gWeapon; int gDublicat;
-#pragma unused gWeapon, gDublicat
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 

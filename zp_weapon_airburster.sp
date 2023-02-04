@@ -75,21 +75,18 @@ enum
 
 // Weapon index
 int gWeapon;
-#pragma unused gWeapon
 
 // Sound index
 int gSoundAttack; int gSoundIdle;
-#pragma unused gSoundAttack, gSoundIdle
 
 // Decal index
 int gSmoke;
-#pragma unused gSmoke
 
 // Cvars
-ConVar gCvarAirSpeed;
-ConVar gCvarAirDamage;
-ConVar gCvarAirRadius;
-ConVar gCvarAirLife;
+ConVar hCvarAirSpeed;
+ConVar hCvarAirDamage;
+ConVar hCvarAirRadius;
+ConVar hCvarAirLife;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -98,10 +95,10 @@ ConVar gCvarAirLife;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	gCvarAirSpeed  = CreateConVar("zp_weapon_airburster_speed", "1000.0", "Projectile speed", 0, true, 0.0);
-	gCvarAirDamage = CreateConVar("zp_weapon_airburster_damage", "10.0", "Projectile damage", 0, true, 0.0);
-	gCvarAirRadius = CreateConVar("zp_weapon_airburster_radius", "50.0", "Damage radius", 0, true, 0.0);
-	gCvarAirLife   = CreateConVar("zp_weapon_airburster_life", "0.8", "Duration of life", 0, true, 0.0);
+	hCvarAirSpeed  = CreateConVar("zp_weapon_airburster_speed", "1000.0", "Projectile speed", 0, true, 0.0);
+	hCvarAirDamage = CreateConVar("zp_weapon_airburster_damage", "10.0", "Projectile damage", 0, true, 0.0);
+	hCvarAirRadius = CreateConVar("zp_weapon_airburster_radius", "50.0", "Damage radius", 0, true, 0.0);
+	hCvarAirLife   = CreateConVar("zp_weapon_airburster_life", "0.8", "Duration of life", 0, true, 0.0);
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_airburster", "sourcemod/zombieplague");
@@ -157,8 +154,6 @@ public void OnMapStart(/*void*/)
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Cancel reload
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0); 
 
@@ -171,8 +166,6 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	/// Block the real attack
 	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
@@ -193,7 +186,6 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Kill an effect
 	Weapon_OnCreateEffect(weapon, "Kill");
@@ -201,8 +193,6 @@ void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo) <= 0)
 	{
@@ -241,7 +231,6 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Gets new amount
 	int iAmount = min(ZP_GetWeaponClip(gWeapon) - iClip, iAmmo);
@@ -256,8 +245,6 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate clip
 	if (iClip <= 0)
 	{
@@ -288,7 +275,6 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
 	
 	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
@@ -362,8 +348,6 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate ammo
 	if (iAmmo <= 0)
 	{
@@ -441,8 +425,6 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 void Weapon_OnCreateAirBurst(int client, int weapon)
 {
-	//#pragma unused client, weapon
-
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
 
@@ -471,7 +453,7 @@ void Weapon_OnCreateAirBurst(int client, int weapon)
 		NormalizeVector(vSpeed, vSpeed);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, gCvarAirSpeed.FloatValue);
+		ScaleVector(vSpeed, hCvarAirSpeed.FloatValue);
 
 		// Adds two vectors
 		AddVectors(vSpeed, vVelocity, vSpeed);
@@ -495,14 +477,12 @@ void Weapon_OnCreateAirBurst(int client, int weapon)
 		SDKHook(entity, SDKHook_Touch, AirTouchHook);
 		
 		// Kill after some duration
-		UTIL_RemoveEntity(entity, gCvarAirLife.FloatValue);
+		UTIL_RemoveEntity(entity, hCvarAirLife.FloatValue);
 	}
 }
 
 void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
 {
-	//#pragma unused client, weapon, iClip, iAmmo, iStateMode, flCurrentTime
-
 	// Validate state
 	if (iStateMode)
 	{
@@ -529,8 +509,6 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
 
 void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
 {
-	//#pragma unused weapon, sInput
-
 	// Gets effect index
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	
@@ -576,7 +554,6 @@ void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
 
 void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float flSpread, float flInaccuracy)
 {
-	//#pragma unused client, weapon, iMode, iSeed, flSpread, flInaccuracy
 	
 	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3];
@@ -793,7 +770,7 @@ public Action AirTouchHook(int entity, int target)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Create the damage for victims
-		UTIL_CreateDamage(_, vPosition, thrower, gCvarAirDamage.FloatValue, gCvarAirRadius, DMG_NEVERGIB, gWeapon);
+		UTIL_CreateDamage(_, vPosition, thrower, hCvarAirDamage.FloatValue, hCvarAirRadius, DMG_NEVERGIB, gWeapon);
 
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");
