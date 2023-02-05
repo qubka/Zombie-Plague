@@ -57,7 +57,7 @@ void MenusOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Missing menus config file: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Missing menus config file: \"%s\"", sPathMenus);
 		return;
 	}
 
@@ -70,7 +70,7 @@ void MenusOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathMenus);
 		return;
 	}
 
@@ -99,7 +99,7 @@ void MenusOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error caching data from menus config file: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error caching data from menus config file: \"%s\"", sPathMenus);
 		return;
 	}
 
@@ -107,7 +107,7 @@ void MenusOnCacheData(/*void*/)
 	int iSize = gServerData.Menus.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sPathMenus);
 		return;
 	}
 	
@@ -120,7 +120,7 @@ void MenusOnCacheData(/*void*/)
 		if (!kvMenus.JumpToKey(sPathMenus))
 		{
 			// Log menu fatal
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sPathMenus);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sPathMenus);
 			continue;
 		}
 		
@@ -129,7 +129,7 @@ void MenusOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathMenus))
 		{
 			// Log menu error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu name: \"%s\" (check translation file)", sPathMenus);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu name: \"%s\" (check translation file)", sPathMenus);
 		}
 
 		// Initialize array block
@@ -162,7 +162,7 @@ void MenusOnCacheData(/*void*/)
 					if (!TranslationPhraseExists(sPathMenus))
 					{
 						// Log menu error
-						LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache submenu name: \"%s\" (check translation file)", sPathMenus);
+						LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache submenu name: \"%s\" (check translation file)", sPathMenus);
 						continue;
 					}
 
@@ -401,7 +401,7 @@ public int API_GetMenuName(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Menus.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
 		return -1;
 	}
 	
@@ -411,7 +411,7 @@ public int API_GetMenuName(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -436,7 +436,7 @@ public int API_GetMenuGroup(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Menus.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
 		return -1;
 	}
 	
@@ -446,7 +446,7 @@ public int API_GetMenuGroup(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -471,7 +471,7 @@ public int API_GetMenuClass(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Menus.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
 		return -1;
 	}
 	
@@ -481,7 +481,7 @@ public int API_GetMenuClass(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -506,7 +506,7 @@ public int API_IsMenuHide(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Menus.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
 		return -1;
 	}
 	
@@ -528,7 +528,7 @@ public int API_GetMenuCommandID(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Can't find menu with an empty command");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Can't find menu with an empty command");
 		return -1;
 	}
 	
@@ -559,7 +559,7 @@ public int API_GetMenuCommand(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Menus.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
 		return -1;
 	}
 	
@@ -569,7 +569,7 @@ public int API_GetMenuCommand(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -594,7 +594,7 @@ public int API_OpenMenuSub(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;
 	}
 	
@@ -604,7 +604,7 @@ public int API_OpenMenuSub(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Menus.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
 		return -1;
 	}
 	

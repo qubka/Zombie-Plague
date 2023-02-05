@@ -99,7 +99,7 @@ void ClassDump(int client, int iD)
 	ClassDumpData(iD, sBuffer, sizeof(sBuffer));
 
 	// Print all data to client
-	int iPos; int iCell = 1; // Initialize for the loop
+	int iPos; int iCell = 1; /// Initialize for the loop
 	while (iCell)
 	{
 		iCell = strcopy(sMessage, sizeof(sMessage), sBuffer[iPos]);

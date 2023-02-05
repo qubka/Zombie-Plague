@@ -64,10 +64,10 @@ enum ModelType
  * Variables to store SDK calls handlers.
  **/
 Handle hSDKCallGetItemSchema;
+Handle hSDKCallGetItemDefinitionByName;
 Handle hSDKCallSpawnItem;
 Handle hSDKCallWeaponSwitch;
 Handle hSDKCallGetSlot;
-Handle hSDKCallGetItemDefinitionByName;
 
 /**
  * Variables to store virtual SDK adresses.
@@ -96,104 +96,110 @@ int DHook_WeaponCanUse;
 /**
  * @brief Initialize the main virtual/dynamic offsets for the weapon SDK/DHook system.
  **/
-void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/counterstrike-global-offensive/152722-dumping-datamap_t.html
-{                                               /// @version C_BaseFlex -> C_EconEntity -> C_BaseCombatWeapon -> C_WeaponCSBase -> C_BaseCSGrenade
-	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Static);
-	PrepSDKCall_SetFromConf(gServerData.CStrike, SDKConf_Signature, "GetItemSchema");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
-	
-	// Validate call
-	if ((hSDKCallGetItemSchema = EndPrepSDKCall()) == null)
+void WeaponMODOnInit(/*void*/)
+{
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"GetItemSchema\". Update \"SourceMod\"");
-		return;
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Static);
+		PrepSDKCall_SetFromConf(gServerData.CStrike, SDKConf_Signature, "GetItemSchema");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
+		
+		// Validate call
+		if ((hSDKCallGetItemSchema = EndPrepSDKCall()) == null)
+		{
+			// Log failure
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"GetItemSchema\". Update \"SourceMod\"");
+			return;
+		}
 	}
+	
+	/*_________________________________________________________________________________________________________________________________________*/
 
+	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Raw);
+		PrepSDKCall_SetFromConf(gServerData.CStrike, SDKConf_Virtual, /*CEconItemSchema::*/"GetItemDefintionByName");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		
+		// Validate call
+		if ((hSDKCallGetItemDefinitionByName = EndPrepSDKCall()) == null)
+		{
+			// Log failure
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CEconItemSchema::GetItemDefinitionByName\". Update \"SourceMod\"");
+			return;
+		}
+	}
+	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Static);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CItemGeneration::SpawnItem");
-	
-	// Validate linux
-	if (gServerData.Platform != OS_Windows)
 	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Static);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CItemGeneration::SpawnItem");
+		
+		// Validate linux
+		if (gServerData.Platform != OS_Windows)
+		{
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		}
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	}
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_Pointer);
-	PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_Pointer);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	
-	// Validate call
-	if ((hSDKCallSpawnItem = EndPrepSDKCall()) == null)
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CItemGeneration::SpawnItem\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
+		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_Pointer);
+		PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_Pointer);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+		
+		// Validate call
+		if ((hSDKCallSpawnItem = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CItemGeneration::SpawnItem\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, /*CCSPlayer::*/"Weapon_Switch");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-
-	// Validate call
-	if ((hSDKCallWeaponSwitch = EndPrepSDKCall()) == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CCSPlayer::Weapon_Switch\". Update \"SourceMod\"");
-		return;
-	}
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Player);
+		PrepSDKCall_SetFromConf(gServerData.SDKHooks, SDKConf_Virtual, /*CCSPlayer::*/"Weapon_Switch");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 
-	/*_________________________________________________________________________________________________________________________________________*/
-
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
-	
-	// Validate call
-	if ((hSDKCallGetSlot = EndPrepSDKCall()) == null)
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Validate call
+		if ((hSDKCallWeaponSwitch = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CCSPlayer::Weapon_Switch\". Update \"SourceMod\"");
+		}
 	}
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(gServerData.CStrike, SDKConf_Virtual, /*CEconItemSchema::*/"GetItemDefintionByName");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	
-	// Validate call
-	if ((hSDKCallGetItemDefinitionByName = EndPrepSDKCall()) == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CEconItemSchema::GetItemDefinitionByName\". Update \"SourceMod\"");
-		return;
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
+		
+		// Validate call
+		if ((hSDKCallGetSlot = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 	
 	/*_________________________________________________________________________________________________________________________________________*/
@@ -202,7 +208,7 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	fnInitSendPropOffset(Player_ViewModel, "CBasePlayer", "m_hViewModel");
 	fnInitGameConfOffset(gServerData.Config, ItemDef_Index, "CEconItemDefinition::GetDefinitionIndex");
 	
-	// Load other offsets
+	// Load offsets for dhook
 	fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
 	fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
 	fnInitGameConfOffset(gServerData.Config, DHook_GetPlayerMaxSpeed, "CCSPlayer::GetPlayerMaxSpeed");
@@ -215,9 +221,8 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	// Validate hook
 	if (hDHookGetMaxClip == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 	}
 	
 	/// CBaseCombatWeapon::GetReserveAmmoMax(CBaseCombatWeapon *this, AmmoPosition_t)
@@ -227,9 +232,8 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	// Validate hook
 	if (hDHookGetReserveAmmoMax == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 	}
 	
 	/// CCSPlayer::GetPlayerMaxSpeed(CCSPlayer *this)
@@ -238,9 +242,8 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	// Validate hook
 	if (hDHookGetPlayerMaxSpeed == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CCSPlayer::GetPlayerMaxSpeed\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CCSPlayer::GetPlayerMaxSpeed\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 	}
 	
 	/// CCSPlayer::Weapon_CanUse(CBaseCombatWeapon *this)
@@ -250,23 +253,25 @@ void WeaponMODOnInit(/*void*/) /// @link https://www.unknowncheats.me/forum/coun
 	// Validate hook
 	if (hDHookWeaponCanUse == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"Weapon_CanUse\". Update \"SourceMod\"");
-		return;
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"Weapon_CanUse\". Update \"SourceMod\"");
 	}
 	
 	/// CBaseEntity::PrecacheModel(char const*, bool)
 	hDHookPrecacheModel = DHookCreate(DHook_Precache, HookType_Raw, ReturnType_Int, ThisPointer_Ignore, WeaponDHookOnPrecacheModel);
 	DHookAddParam(hDHookPrecacheModel, HookParamType_CharPtr);
 	DHookAddParam(hDHookPrecacheModel, HookParamType_Bool);
-	DHookRaw(hDHookPrecacheModel, false, gServerData.Engine);
 
 	// Validate hook
 	if (hDHookPrecacheModel == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseEntity::PrecacheModel\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseEntity::PrecacheModel\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+	}
+	else
+	{
+		// Hook engine callbacks
+		DHookRaw(hDHookPrecacheModel, false, gServerData.Engine);
 	}
 }
 
@@ -295,7 +300,7 @@ void WeaponMODOnUnload(/*void*/)
 		if (IsPlayerExist(i))
 		{
 			// Validate weapon
-			if (gClientData[i].CustomWeapon)
+			if (gClientData[i].CustomWeapon != -1)
 			{
 				// Gets entity index from the reference
 				int view1 = EntRefToEntIndex(gClientData[i].ViewModels[0]);
@@ -305,7 +310,7 @@ void WeaponMODOnUnload(/*void*/)
 				if (view1 != -1)
 				{
 					// Make the first viewmodel visible
-					ToolsSetVisibility(view1, true);
+					WeaponHDRSetVisibility(view1, true);
 					ToolsUpdateTransmitState(view1);
 				}
 
@@ -313,7 +318,7 @@ void WeaponMODOnUnload(/*void*/)
 				if (view2 != -1)
 				{
 					// Make the second viewmodel visible
-					ToolsSetVisibility(view2, false);
+					WeaponHDRSetVisibility(view2, false);
 					ToolsUpdateTransmitState(view2);
 				}
 			}
@@ -345,8 +350,28 @@ void WeaponMODOnClientInit(int client)
 	SDKHook(client, SDKHook_PostThinkPost,    WeaponMODOnPostThinkPost);
 
 	// Hook entity callbacks
-	DHookEntity(hDHookWeaponCanUse, true, client);
-	DHookEntity(hDHookGetPlayerMaxSpeed, true, client);
+
+	// Validate hook
+	if (hDHookWeaponCanUse)
+	{
+		DHookEntity(hDHookWeaponCanUse, true, client);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"Weapon_CanUse\". Update \"SourceMod\"");
+	}
+	
+	// Validate hook
+	if (hDHookGetPlayerMaxSpeed)
+	{
+		DHookEntity(hDHookGetPlayerMaxSpeed, true, client);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CCSPlayer::GetPlayerMaxSpeed\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+	}
 }
 
 /**
@@ -490,7 +515,7 @@ void WeaponMODOnEntityCreated(int weapon, const char[] sClassname)
 public void WeaponMODOnItemSpawn(int item)
 {
 	// Resets the weapon id
-	WeaponsSetCustomID(item, -1);
+	ToolsSetCustomID(item, -1);
 }
 
 /**
@@ -502,7 +527,7 @@ public void WeaponMODOnItemSpawn(int item)
 public void WeaponMODOnWeaponSpawn(int weapon)
 {
 	// Resets the weapon id
-	WeaponsSetCustomID(weapon, -1);
+	ToolsSetCustomID(weapon, -1);
 
 	// If weapon without any type of ammo, then skip
 	if (WeaponsGetAmmoType(weapon) != -1)
@@ -530,7 +555,7 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 	if (weapon != -1)
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Gets weapon clip
@@ -540,7 +565,17 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 				// Sets clip size and hook change
 				WeaponsSetClipAmmo(weapon, iClip); 
 				WeaponsSetMaxClipAmmo(weapon, iClip);
-				DHookEntity(hDHookGetMaxClip, true, weapon);
+				
+				// Validate hook
+				if (hDHookGetMaxClip) 
+				{
+					DHookEntity(hDHookGetMaxClip, true, weapon);
+				}
+				else
+				{
+					// Log error
+					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+				}
 			}
 
 			// Gets weapon ammo
@@ -550,7 +585,17 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 				// Sets reserve ammo count and hook change
 				WeaponsSetReserveAmmo(weapon, iAmmo); 
 				WeaponsSetMaxReserveAmmo(weapon, iAmmo);
-				DHookEntity(hDHookGetReserveAmmoMax, true, weapon);
+				
+				// Validate hook
+				if (hDHookGetReserveAmmoMax)
+				{
+					DHookEntity(hDHookGetReserveAmmoMax, true, weapon);
+				}
+				else
+				{
+					// Log error
+					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+				}
 			}
 		}
 	}
@@ -574,7 +619,7 @@ public void WeaponMODOnInfernoSpawn(int entity)
 	}
 
 	// Sets weapon id
-	WeaponsSetCustomID(entity, gClientData[client].LastGrenade);
+	ToolsSetCustomID(entity, gClientData[client].LastGrenade);
 }
 
 /**
@@ -586,7 +631,7 @@ public void WeaponMODOnInfernoSpawn(int entity)
 public void WeaponMODOnGrenadeSpawn(int grenade)
 {
 	// Resets the grenade id
-	WeaponsSetCustomID(grenade, -1);
+	ToolsSetCustomID(grenade, -1);
 	
 	// Call post throw hook on the next frame
 	_exec.WeaponMODOnGrenadeSpawnPost(grenade);
@@ -635,11 +680,11 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
 		}
 
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Duplicate index to the projectile for future use
-			WeaponsSetCustomID(grenade, iD);
+			ToolsSetCustomID(grenade, iD);
 
 			// Gets weapon def index
 			ItemDef iItem = WeaponsGetDefIndex(iD);
@@ -697,7 +742,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 		}
 		
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// If custom reload speed exist, then apply it
@@ -736,7 +781,7 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
 	if (IsValidEdict(weapon))
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Block drop, if not available
@@ -779,7 +824,7 @@ public void WeaponMODOnWeaponDropPost(int refID)
 	if (weapon != -1)
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Apply dropped model
@@ -858,14 +903,14 @@ public Action WeaponMODOnCanUse(int client, int weapon)
  **/
 void WeaponMODOnClientUpdate(int client)
 {
-	// Resets the custom weapon index
-	gClientData[client].CustomWeapon = 0;
+	// Client has swapped to a regular weapon
+	gClientData[client].CustomWeapon = -1;
 
 	// Gets player viewmodel indexes
 	int view1 = WeaponHDRGetPlayerViewModel(client, 0);
 	int view2 = WeaponHDRGetPlayerViewModel(client, 1);
 	
-	// If we have for some reason spawned without a primary view model, abort.
+	// If we have for some reason spawned without a primary view model, abort
 	if (view1 == -1)
 	{
 		return;
@@ -878,7 +923,7 @@ void WeaponMODOnClientUpdate(int client)
 	}
 
 	// Hide the secondary view model, in case the player has respawned
-	ToolsSetVisibility(view2, false);
+	WeaponHDRSetVisibility(view2, false);
 
 	// Sets entity index to the reference
 	gClientData[client].ViewModels[0] = EntIndexToEntRef(view1);
@@ -924,14 +969,14 @@ void WeaponMODOnClientDeath(int client)
 	if (view2 != -1)
 	{
 		// Hide the custom viewmodel if the player dies
-		ToolsSetVisibility(view2, false);
+		WeaponHDRSetVisibility(view2, false);
 		ToolsUpdateTransmitState(view2);
 	}
 
 	// Client has swapped to a regular weapon
 	gClientData[client].ViewModels[0] = -1;
 	gClientData[client].ViewModels[1] = -1;
-	gClientData[client].CustomWeapon = 0; 
+	gClientData[client].CustomWeapon = -1; 
 }
 
 /**
@@ -955,12 +1000,20 @@ public void WeaponMODOnSwitch(int client, int weapon)
 	{
 		return;
 	}
+	
+	// Make the first viewmodel invisible
+	WeaponHDRSetVisibility(view1, false);
+	ToolsUpdateTransmitState(view1);
+	
+	// Make the second viewmodel invisible
+	WeaponHDRSetVisibility(view2, false);
+	ToolsUpdateTransmitState(view2);
 
 	// Validate weapon
 	if (IsValidEdict(weapon))
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Gets last weapon index from the client
@@ -970,7 +1023,7 @@ public void WeaponMODOnSwitch(int client, int weapon)
 			if (last != -1)
 			{
 				// Validate last index
-				int iL = WeaponsGetCustomID(last);
+				int iD = ToolsGetCustomID(last);
 				if (iL != -1 && iD != iL)
 				{
 					// Call forward
@@ -1002,28 +1055,18 @@ public void WeaponMODOnSwitch(int client, int weapon)
 			ItemDef iItem = WeaponsGetDefIndex(iD);
 
 			// If view/world model exist, then set them
-			if (WeaponsGetModelViewID(iD) || WeaponsGetModelWorldID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
+			if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
 			{
 				// Sets the custom weapon index
 				gClientData[client].CustomWeapon = weapon;
-				gClientData[client].WeaponIndex = iD;
-				
-				// In case there is a holster animation, we will have to wait for the swapped weapon to be holstered.
-				WeaponHDRSetSwappedViewModel(view1, false);
 				WeaponHDRSetSwappedWeapon(view2, -1);
-				WeaponHDRSetHolsteredViewModel(view2, ToolsGetModelIndex(view1));
 				return;
 			}
 		}
 	}
 	
 	// Client has swapped to a regular weapon
-	if (gClientData[client].CustomWeapon)
-	{
-		// Resets the custom weapon index
-		gClientData[client].CustomWeapon = 0;
-		gClientData[client].WeaponIndex = -1;
-	}
+	gClientData[client].CustomWeapon = -1;
 	
 	// Gets class arm model
 	static char sArm[PLATFORM_LINE_LENGTH];
@@ -1051,59 +1094,59 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 	{
 		return;
 	}
-	
-	// Gets custom weapon index
-	int iD = gClientData[client].WeaponIndex; //WeaponsGetCustomID(weapon);
 
-	// If weapon not the same, then stop
-	if (weapon != gClientData[client].CustomWeapon)
+	// Validate weapon
+	if (IsValidEdict(weapon))
 	{
-		// Hide the secondary view model. This needs to be done on post because the weapon needs to be switched first
-		if (iD == -1)
+		// Validate custom index
+		int iD = ToolsGetCustomID(weapon);
+		if (iD != -1)
 		{
-			// Make the first viewmodel visible
-			ToolsSetVisibility(view1, true);
-			ToolsUpdateTransmitState(view1);
+			// Gets weapon def index
+			ItemDef iItem = WeaponsGetDefIndex(iD);
 
-			// Make the second viewmodel invisible
-			ToolsSetVisibility(view2, false);
-			ToolsUpdateTransmitState(view2);
+			// If viewmodel exist, then apply it
+			if (weapon == gClientData[client].CustomWeapon)
+			{
+				// Make the first viewmodel invisible
+				WeaponHDRSetVisibility(view1, false);
+				ToolsUpdateTransmitState(view1);
+				
+				// Make the second viewmodel visible
+				WeaponHDRSetVisibility(view2, true);
+				ToolsUpdateTransmitState(view2);
+
+				//
+				WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
+				
+				false;
+			}
+
+			// If worldmodel exist, then apply it
+			if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
+			{
+				WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
+			}
 			
-			//
-			gClientData[client].WeaponIndex = 0;
+			// Validate client
+			if (IsPlayerExist(client))
+			{
+				// Call forward
+				gForwardData._OnWeaponDeploy(client, weapon, iD);
+			}
 		}
-		
-		// Allow button hook
-		gClientData[client].RunCmd = true;
-		return;
-	}
-
-	// Gets weapon def index
-	ItemDef iItem = WeaponsGetDefIndex(iD);
-
-	// If viewmodel exist, then apply it
-	if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
-	{
-		// The view model index has changed, which means the old weapon is holstered, do the view model swap
-		if (ToolsGetModelIndex(view1) != WeaponHDRGetHolsteredViewModel(view2))
-		{
-			WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
-		}
-	}
-	else
-	{
-		// Resets the custom weapon index
-		gClientData[client].CustomWeapon = 0;
-	}
-
-	// If worldmodel exist, then apply it
-	if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
-	{
-		WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
 	}
 	
-	// Call forward
-	gForwardData._OnWeaponDeploy(client, weapon, iD);
+	if ()
+	{
+		// Make the first viewmodel visible
+		WeaponHDRSetVisibility(view1, true);
+		ToolsUpdateTransmitState(view1);
+		
+		// Make the second viewmodel invisible
+		WeaponHDRSetVisibility(view2, false);
+		ToolsUpdateTransmitState(view2);
+	}
 	
 	// Allow button hook
 	gClientData[client].RunCmd = true;
@@ -1122,7 +1165,7 @@ public void WeaponMODOnPostThinkPost(int client)
 	
 	// Validate weapon
 	int weapon = gClientData[client].CustomWeapon;
-	if (weapon == 0)
+	if (weapon == -1)
 	{
 		return;
 	}
@@ -1136,37 +1179,10 @@ public void WeaponMODOnPostThinkPost(int client)
 	{
 		return;
 	}
-	
-	// Gets custom index
-	int iD = gClientData[client].WeaponIndex; //WeaponsGetCustomID(weapon);
-	
-	//
-	if (!WeaponHDRGetSwappedViewModel(view1))
-	{
-		// The view model index has changed, which means the old weapon is holstered, do the view model swap.
-		if (ToolsGetModelIndex(view1) != WeaponHDRGetHolsteredViewModel(view2))
-		{
-			WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
-		}
-	}
-	else
-	{
-		// Ensure that viewModel1 always is invisible while the custom view model is active.
-		// For instance, the visibility can be toggled back when the weapon is being redeployed. (drop physics object)
-		ToolsSetVisibility(view1, false);
-		ToolsSetVisibility(view2, true);
-	}
-	
+
 	// Gets sequence index
 	int iSequence = WeaponHDRGetSequence(view1);
 
-	//
-	int drawSequence = gClientData[client].DrawSequence;
-	if (iSequence == -1)
-	{
-		iSequence = drawSequence;
-	}
-	
 	// Gets sequence parity index
 	int sequenceParity = WeaponHDRGetSequenceParity(view1);
 
@@ -1182,8 +1198,11 @@ public void WeaponMODOnPostThinkPost(int client)
 			{
 				return;
 			}
+			
+			// Gets custom weapon index
+			int iD = ToolsGetCustomID(weapon);
 
-			// Gets weapon id from the reference
+			// Gets swap sequence
 			int swapSequence = WeaponsGetSequenceSwap(iD, iSequence);
 			
 			// Change to swap sequence, if present
@@ -1198,20 +1217,19 @@ public void WeaponMODOnPostThinkPost(int client)
 			}
 			else
 			{
-				// Toggle view model
-				WeaponHDRToggleViewModel(client, view2, iD);
+				#define ACT_VM_IDLE 185
+		
+				// Stop toggling during the idle animation
+				if (ToolsGetSequenceActivity(view1, iSequence) != ACT_VM_IDLE)
+				{
+					// Creates a toggle model
+					WeaponHDRToggleViewModel(client, view2, iD);
+				}
 			}
 		}
 	}
 	else
 	{
-		//
-		if (drawSequence != -1 && iSequence != drawSequence) 
-		{
-			ToolsUpdateTransmitState(view1);
-			gClientData[client].DrawSequence = -1;
-		}
-
 		// Sets new sequence
 		WeaponHDRSetSequence(view2, iSequence);
 		WeaponHDRSetLastSequence(view1, iSequence);
@@ -1234,7 +1252,7 @@ public void WeaponMODOnEquipPost(int client, int weapon)
 	if (IsValidEdict(weapon))
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)    
 		{
 			// Validate knife
@@ -1257,7 +1275,7 @@ public void WeaponMODOnEquipPost(int client, int weapon)
 void WeaponMODOnFire(int client, int weapon) 
 {
 	// Validate custom index
-	int iD = WeaponsGetCustomID(weapon);
+	int iD = ToolsGetCustomID(weapon);
 	if (iD != -1)    
 	{
 		// Gets game time based on the game tick
@@ -1355,7 +1373,7 @@ void WeaponMODOnFire(int client, int weapon)
 void WeaponMODOnBullet(int client, float vBullet[3], int weapon) 
 { 
 	// Validate custom index
-	int iD = WeaponsGetCustomID(weapon);
+	int iD = ToolsGetCustomID(weapon);
 	if (iD != -1)    
 	{
 		// Call forward
@@ -1374,7 +1392,7 @@ void WeaponMODOnBullet(int client, float vBullet[3], int weapon)
 Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon)
 {
 	// Validate custom index
-	static int iD; iD = WeaponsGetCustomID(weapon); /** static for runcmd **/
+	static int iD; iD = ToolsGetCustomID(weapon); /** static for runcmd **/
 	if (iD != -1)    
 	{
 		// Button primary or secondary attack press
@@ -1418,7 +1436,7 @@ Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon
 Action WeaponMODOnShoot(int client, int weapon) 
 { 
 	// Validate custom index
-	int iD = WeaponsGetCustomID(weapon);
+	int iD = ToolsGetCustomID(weapon);
 	if (iD != -1)    
 	{
 		// Validate broadcast
@@ -1505,7 +1523,7 @@ public void WeaponMODOnHostagePost(int userID)
 	if (client)
 	{
 		// Validate weapon
-		if (gClientData[client].CustomWeapon)
+		if (gClientData[client].CustomWeapon != -1)
 		{
 			// Gets second viewmodel
 			int view2 = WeaponHDRGetPlayerViewModel(client, 1);
@@ -1574,7 +1592,7 @@ bool WeaponMODOnClientBuyammo(int client)
 		}
 
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// If cost is disabled, then stop
@@ -1641,7 +1659,7 @@ public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int 
 		if (weapon != -1)
 		{
 			// Validate custom index
-			int iD = WeaponsGetCustomID(weapon);
+			int iD = ToolsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				// Block drop, if not available
@@ -1724,7 +1742,7 @@ public MRESReturn WeaponDHookOnGetMaxClip1(int weapon, Handle hReturn)
 	if (IsValidEdict(weapon))
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Gets weapon clip
@@ -1755,7 +1773,7 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weapon, Handle hReturn, Handle 
 	if (IsValidEdict(weapon))
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Gets weapon ammo
@@ -1794,7 +1812,7 @@ public MRESReturn WeaponDHookGetPlayerMaxSpeed(int client, Handle hReturn)
 		if (weapon != -1)
 		{
 			// Validate custom index
-			int iD = WeaponsGetCustomID(weapon);
+			int iD = ToolsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				// Gets weapon speed
@@ -1832,7 +1850,7 @@ public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
 	if (IsValidEdict(weapon))
 	{
 		// Validate custom index
-		int iD = WeaponsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			// Validate knife/c4

@@ -1821,7 +1821,7 @@ bool ZMarketArsenallGive(int client)
 			{
 				// If knife is non default skip
 				int weapon2 = GetPlayerWeaponSlot(client, i);
-				if (weapon2 != -1 && WeaponsGetCustomID(weapon2) != gServerData.Melee)
+				if (weapon2 != -1 && ToolsGetCustomID(weapon2) != gServerData.Melee)
 				{
 					continue;
 				}
@@ -1877,7 +1877,7 @@ bool ZMarketArsenallGive(int client)
 				{
 					// If knife is non default skip
 					int weapon2 = GetPlayerWeaponSlot(client, i);
-					if (weapon2 != -1 && WeaponsGetCustomID(weapon2) != gServerData.Melee)
+					if (weapon2 != -1 && ToolsGetCustomID(weapon2) != gServerData.Melee)
 					{
 						continue;
 					}

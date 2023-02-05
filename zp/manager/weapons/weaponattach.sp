@@ -128,7 +128,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -165,7 +165,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -195,7 +195,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -225,7 +225,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -255,7 +255,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -285,7 +285,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -315,7 +315,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -345,7 +345,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -375,7 +375,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -405,7 +405,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -429,10 +429,10 @@ void WeaponAttachSetAddons(int client)
 		if (!(gClientData[client].AttachmentBits & CSAddon_DefuseKit))
 		{
 			// Validate defuser
-			if (ToolsGetDefuser(client))
+			if (ToolsHasDefuser(client))
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(client);
+				iD = ToolsGetCustomID(client);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -462,7 +462,7 @@ void WeaponAttachSetAddons(int client)
 			if (weapon != -1)
 			{
 				// Validate custom index
-				iD = WeaponsGetCustomID(weapon);
+				iD = ToolsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					// Create weapon addons
@@ -522,7 +522,7 @@ void WeaponAttachSetAddons(int client)
 	}
 	if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_DefuseKit]) != -1)
 	{
-		iBitPurge |= CSAddon_DefuseKit; if (!ToolsGetDefuser(client)) WeaponAttachRemoveAddons(client, BitType_DefuseKit);
+		iBitPurge |= CSAddon_DefuseKit; if (!ToolsHasDefuser(client)) WeaponAttachRemoveAddons(client, BitType_DefuseKit);
 	}
 	if (EntRefToEntIndex(gClientData[client].AttachmentAddons[BitType_Shield]) != -1)
 	{

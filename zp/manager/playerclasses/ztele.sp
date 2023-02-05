@@ -106,7 +106,7 @@ public Action ZTeleForceOnCommandCatched(int client, int iArguments)
 		}
 		
 		// Log action to game events
-		LogEvent(true, LogType_Normal, LOG_GAME_EVENTS, LogModule_ZTele, "Force ZTele", "\"%L\" teleported \"%L\" to spawn.", client, targets[i]);
+		LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_ZTele, "Force ZTele", "\"%L\" teleported \"%L\" to spawn.", client, targets[i]);
 	}
 	
 	// Log action to game events

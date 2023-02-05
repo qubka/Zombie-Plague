@@ -30,7 +30,7 @@
  **/ 
 #define DATABASE_SECTION     "zombiedatabase"
 #define DATABASE_MAIN        "zombieplague"
-#define DATABASE_CHILD       "zombieweapon"
+#define DATABASE_WEAPON      "zombieweapon"
 /**
  * @endsection
  **/
@@ -925,7 +925,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
 		case FactoryType_Parent :
 		{
 			/// Format request
-			FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `%s`", DATABASE_CHILD);
+			FormatEx(sRequest, iMaxLen, "CREATE TABLE IF NOT EXISTS `%s`", DATABASE_WEAPON);
 			Format(sRequest, iMaxLen, 
 			MySQL ? 
 			  "%s (`id` int(32) NOT NULL auto_increment, \
@@ -941,7 +941,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
 			sRequest, DATABASE_MAIN);
 			
 			// Log database creation info
-			LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Child table \"%s\" was created/loaded. \"%s\" - \"%s\"", DATABASE_CHILD, MySQL ? "MySQL" : "SQlite", sRequest);
+			LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Child table \"%s\" was created/loaded. \"%s\" - \"%s\"", DATABASE_WEAPON, MySQL ? "MySQL" : "SQlite", sRequest);
 		}
 		
 		case FactoryType_Drop :
@@ -1183,7 +1183,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
 				case ColumnType_Weapon :
 				{
 					StrCat(sRequest, iMaxLen, "`weapon`"); /// If client wouldn't has the id, it will not throw errors
-					Format(sRequest, iMaxLen, "%s FROM `%s` WHERE `client_id`= %d", sRequest, DATABASE_CHILD, gClientData[client].DataID);
+					Format(sRequest, iMaxLen, "%s FROM `%s` WHERE `client_id`= %d", sRequest, DATABASE_WEAPON, gClientData[client].DataID);
 					return;
 				}
 			}
@@ -1307,7 +1307,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
 				
 				case ColumnType_Weapon :
 				{
-					FormatEx(sRequest, iMaxLen, "INSERT INTO `%s` (`client_id`, `weapon`) VALUES (%d, '%s');", DATABASE_CHILD, gClientData[client].DataID, sData);
+					FormatEx(sRequest, iMaxLen, "INSERT INTO `%s` (`client_id`, `weapon`) VALUES (%d, '%s');", DATABASE_WEAPON, gClientData[client].DataID, sData);
 			
 					// Log database insertion info
 					LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Database, "Query", "Player \"%N\" was inserted. \"%s\"", client, sRequest);
@@ -1319,7 +1319,7 @@ void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnTy
 		case FactoryType_Delete :
 		{
 			/// Format request
-			FormatEx(sRequest, iMaxLen, "DELETE FROM `%s` WHERE `client_id` = %d AND `weapon` = '%s';", DATABASE_CHILD, gClientData[client].DataID, sData);
+			FormatEx(sRequest, iMaxLen, "DELETE FROM `%s` WHERE `client_id` = %d AND `weapon` = '%s';", DATABASE_WEAPON, gClientData[client].DataID, sData);
 		}
 	}
 }

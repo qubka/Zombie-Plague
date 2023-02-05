@@ -122,7 +122,7 @@ void GameModesOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "Missing gamemodes config file: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Missing gamemodes config file: \"%s\"", sPathModes);
 		return;
 	}
 	
@@ -135,7 +135,7 @@ void GameModesOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathModes);
 		return;
 	}
 
@@ -168,7 +168,7 @@ void GameModesOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error caching data from gamemodes config file: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error caching data from gamemodes config file: \"%s\"", sPathModes);
 		return;
 	}
 
@@ -176,7 +176,7 @@ void GameModesOnCacheData(/*void*/)
 	int iSize = gServerData.GameModes.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "No usable data found in gamemodes config file: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "No usable data found in gamemodes config file: \"%s\"", sPathModes);
 		return;
 	}
 	
@@ -189,7 +189,7 @@ void GameModesOnCacheData(/*void*/)
 		if (!kvGameModes.JumpToKey(sPathModes))
 		{
 			// Log gamemode fatal
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode data for: \"%s\" (check gamemodes config)", sPathModes);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode data for: \"%s\" (check gamemodes config)", sPathModes);
 			continue;
 		}
 		
@@ -198,7 +198,7 @@ void GameModesOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathModes))
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode name: \"%s\" (check translation file)", sPathModes);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode name: \"%s\" (check translation file)", sPathModes);
 			continue;
 		}
 
@@ -210,7 +210,7 @@ void GameModesOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathModes) && hasLength(sPathModes))
 		{
 			// Log gamemode error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode description: \"%s\" (check translation file)", sPathModes);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode description: \"%s\" (check translation file)", sPathModes);
 		}
 		arrayGameMode.PushString(sPathModes);                                       // Index: 1
 		int iColor[4]; kvGameModes.GetColor4("color", iColor);
@@ -957,7 +957,7 @@ public int API_StartGameMode(Handle hPlugin, int iNumParams)
 	// If mode already started, then stop
 	if (!gServerData.RoundNew)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Can't start game mode during the round");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Can't start game mode during the round");
 		return -1;
 	}
 	
@@ -967,7 +967,7 @@ public int API_StartGameMode(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -977,7 +977,7 @@ public int API_StartGameMode(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (target != -1 && !IsPlayerExist(target))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the target index (%d)", target);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the target index (%d)", target);
 		return -1;
 	}
 
@@ -1002,7 +1002,7 @@ public int API_GetGameModeNameID(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Can't find mode with an empty name");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Can't find mode with an empty name");
 		return -1;
 	}
 	
@@ -1035,7 +1035,7 @@ public int API_GetGameModeName(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1045,7 +1045,7 @@ public int API_GetGameModeName(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1076,7 +1076,7 @@ public int API_GetGameModeDesc(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1086,7 +1086,7 @@ public int API_GetGameModeDesc(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1117,7 +1117,7 @@ public int API_GetGameModeDescColor(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1127,7 +1127,7 @@ public int API_GetGameModeDescColor(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1158,7 +1158,7 @@ public int API_GetGameModeDescPosX(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1185,7 +1185,7 @@ public int API_GetGameModeDescPosY(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1212,7 +1212,7 @@ public int API_GetGameModeDescTime(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1239,7 +1239,7 @@ public int API_GetGameModeChance(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1266,7 +1266,7 @@ public int API_GetGameModeMinPlayers(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1293,7 +1293,7 @@ public int API_GetGameModeRatio(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1320,7 +1320,7 @@ public int API_GetGameModeHealth(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1347,7 +1347,7 @@ public int API_GetGameModeGroup(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1357,7 +1357,7 @@ public int API_GetGameModeGroup(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1388,7 +1388,7 @@ public int API_GetGameModeSoundStartID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1415,7 +1415,7 @@ public int API_GetGameModeSoundEndHumanID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1442,7 +1442,7 @@ public int API_GetGameModeSoundEndZombieID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1469,7 +1469,7 @@ public int API_GetGameModeSoundEndDrawID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1496,7 +1496,7 @@ public int API_GetGameModeSoundAmbientID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1523,7 +1523,7 @@ public int API_GetGameModeSoundDuration(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1550,7 +1550,7 @@ public int API_GetGameModeSoundVolume(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1577,7 +1577,7 @@ public int API_IsGameModeInfect(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1604,7 +1604,7 @@ public int API_IsGameModeRespawn(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1631,7 +1631,7 @@ public int API_GetGameModeHumanClass(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1641,7 +1641,7 @@ public int API_GetGameModeHumanClass(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1672,7 +1672,7 @@ public int API_GetGameModeZombieClass(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1682,7 +1682,7 @@ public int API_GetGameModeZombieClass(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1713,7 +1713,7 @@ public int API_GetGameModeOverlayHuman(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1723,7 +1723,7 @@ public int API_GetGameModeOverlayHuman(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1754,7 +1754,7 @@ public int API_GetGameModeOverlayZombie(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1764,7 +1764,7 @@ public int API_GetGameModeOverlayZombie(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1795,7 +1795,7 @@ public int API_GetGameModeOverlayDraw(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1805,7 +1805,7 @@ public int API_GetGameModeOverlayDraw(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1836,7 +1836,7 @@ public int API_GetGameModeMatch(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1863,7 +1863,7 @@ public int API_GetGameModeAmount(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1890,7 +1890,7 @@ public int API_GetGameModeDelay(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1917,7 +1917,7 @@ public int API_GetGameModeLast(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 
@@ -1944,7 +1944,7 @@ public int API_IsGameModeSuicide(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1971,7 +1971,7 @@ public int API_IsGameModeEscape(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -1998,7 +1998,7 @@ public int API_IsGameModeBlast(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -2025,7 +2025,7 @@ public int API_IsGameModeXRay(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -2052,7 +2052,7 @@ public int API_IsGameModeRegen(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -2079,7 +2079,7 @@ public int API_IsGameModeSkill(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -2106,7 +2106,7 @@ public int API_IsGameModeLeapJump(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -2133,7 +2133,7 @@ public int API_IsGameModeWeapon(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -2160,7 +2160,7 @@ public int API_IsGameModeExtraItem(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.GameModes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
 		return -1;
 	}
 	
@@ -3203,7 +3203,7 @@ void ModesKillEntities(bool bDrop = false)
 					if (!IsPlayerExist(client))
 					{
 						// Validate non map weapons, then remove
-						if (!WeaponsGetMap(i))
+						if (!WeaponsIsSpawnedByMap(i))
 						{
 							AcceptEntityInput(i, "Kill"); /// Destroy
 						}
@@ -3375,7 +3375,7 @@ void ModesBlast(float flDelay)
 		}
 
 		// Create timer for emit sounds
-		CreateTimer(flTime, GameModesOnBlast, _, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
+		CreateTimer(flTime, GameModesOnBlast, _, TIMER_FLAG_NO_MAPCHANGE); 
 	}
 } 
 

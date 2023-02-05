@@ -152,7 +152,7 @@ void GameEngineOnInit(/*void*/)
 		}
 	}
 	
-	// Load other offsets
+	// Load main offsets
 	fnInitGameConfOffset(gServerData.Config, view_as<int>(gServerData.Platform), "CServer::OS");
 	gServerData.Engine = fnCreateEngineInterface(gServerData.Config, "EngineInterface");
 }
@@ -339,12 +339,12 @@ stock int fnGetRandomZombie(/*void*/)
  * @param iOffset           An offset, or -1 on failure.
  * @param sKey              Key to retrieve from the offset section.
  **/
-stock void fnInitGameConfOffset(GameData gameConf, int &iOffset, char[] sKey)
+stock void fnInitGameConfOffset(GameData gameConf, int &iOffset, char[] sKey, bool bFatal = true)
 {
 	// Validate offset
 	if ((iOffset = gameConf.GetOffset(sKey)) == -1)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get offset: \"%s\"", sKey);
+		LogEvent(false, bFatal ? LogType_Fatal : LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get offset: \"%s\"", sKey);
 	}
 }
 
@@ -354,13 +354,14 @@ stock void fnInitGameConfOffset(GameData gameConf, int &iOffset, char[] sKey)
  * @param gameConf          The game config handle.
  * @param pAddress          An address, or null on failure.
  * @param sKey              Key to retrieve from the address section.
+ * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitGameConfAddress(GameData gameConf, Address &pAddress, char[] sKey)
+stock void fnInitGameConfAddress(GameData gameConf, Address &pAddress, char[] sKey, bool bFatal = true)
 {
 	// Validate address
 	if ((pAddress = gameConf.GetAddress(sKey)) == Address_Null)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get address: \"%s\"", sKey);
+		LogEvent(false, bFatal ? LogType_Fatal : LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get address: \"%s\"", sKey);
 	}
 }
 
@@ -371,13 +372,14 @@ stock void fnInitGameConfAddress(GameData gameConf, Address &pAddress, char[] sK
  * @param sKey              Key to retrieve from the key section.
  * @param sIdentifier       The string to return identifier in.
  * @param iMaxLen           The lenght of string.
+ * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitGameConfKey(GameData gameConf, char[] sKey, char[] sIdentifier, int iMaxLen)
+stock void fnInitGameConfKey(GameData gameConf, char[] sKey, char[] sIdentifier, int iMaxLen, bool bFatal = true)
 {
 	// Validate key
 	if (!gameConf.GetKeyValue(sKey, sIdentifier, iMaxLen)) 
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get key: \"%s\"", sKey);
+		LogEvent(false, bFatal ? LogType_Fatal : LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get key: \"%s\"", sKey);
 	}
 }
 
@@ -387,13 +389,14 @@ stock void fnInitGameConfKey(GameData gameConf, char[] sKey, char[] sIdentifier,
  * @param iOffset           An offset, or -1 on failure.
  * @param sClass            The entity classname.
  * @param sProp             The property name.
+ * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp)
+stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp, bool bFatal = true)
 {
 	// Validate prop
 	if ((iOffset = FindSendPropInfo(sClass, sProp)) < 1)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find send prop: \"%s\"", sProp);
+		LogEvent(false, bFatal ? LogType_Fatal : LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find send prop: \"%s\"", sProp);
 	}
 }
 
@@ -403,13 +406,14 @@ stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp)
  * @param iOffset           An offset, or -1 on failure.
  * @param entity            The entity index.
  * @param sProp             The property name.
+ * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitDataPropOffset(int &iOffset, int entity, char[] sProp)
+stock void fnInitDataPropOffset(int &iOffset, int entity, char[] sProp, bool bFatal = true)
 {
 	// Validate prop
 	if ((iOffset = FindDataMapInfo(entity, sProp)) < 1)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find data prop: \"%s\"", sProp);
+		LogEvent(false, bFatal ? LogType_Fatal : LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to find data prop: \"%s\"", sProp);
 	}
 }
 
@@ -492,7 +496,7 @@ stock Address fnCreateMemoryForSDKCall(/*void*/)
 	}
    
 	/* Align for safe code injection */
-	pZeroMemory = view_as<Address>(pAddress + 0x100 & 0xFFFFFF00); // 255 bytes
+	pZeroMemory = view_as<Address>(pAddress + 0x100 & 0xFFFFFF00); /// 255 bytes
 	return pZeroMemory;
 }
 
@@ -504,8 +508,8 @@ stock Address fnCreateMemoryForSDKCall(/*void*/)
  **/
 stock int fnGetModuleSize(Address pAddress)
 {
-	int iOffset = LoadFromAddress(pAddress + view_as<Address>(0x3C), NumberType_Int32);    // NT headers offset
-	return LoadFromAddress(pAddress + view_as<Address>(iOffset + 0x50), NumberType_Int32); // nt->OptionalHeader.SizeOfImage
+	int iOffset = LoadFromAddress(pAddress + view_as<Address>(0x3C), NumberType_Int32);    /// NT headers offset
+	return LoadFromAddress(pAddress + view_as<Address>(iOffset + 0x50), NumberType_Int32); /// nt->OptionalHeader.SizeOfImage
 }
 
 /**

@@ -384,7 +384,7 @@ void SEffectsInputStopAll(/*void*/)
 			return;
 		}
 	}
-	Format(sSound, sizeof(sSound), "%s volume %i", sSound, bEnable);
+	Format(sSound, sizeof(sSound), "%s volume %d", sSound, bEnable);
 	
 	// Sets sound
 	ClientCommand(client, sSound);

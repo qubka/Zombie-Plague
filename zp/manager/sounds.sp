@@ -70,7 +70,7 @@ void SoundsOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure and stop plugin
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
 		return;
 	}
 
@@ -83,7 +83,7 @@ void SoundsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathSounds);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathSounds);
 		return;
 	}
 	
@@ -112,15 +112,13 @@ void SoundsOnCacheData(/*void*/)
 	LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sPathSounds);
 
 	// Initialize numbers of sounds
-	int iSoundCount;
-	int iSoundValidCount;
-	int iSoundUnValidCount;
+	int iSoundCount; int iSoundValidCount; int iSoundUnValidCount;
 	
 	// Validate sound config
 	int iSounds = iSoundCount = gServerData.Sounds.Length;
 	if (!iSounds)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sPathSounds);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sPathSounds);
 		return;
 	}
 	
@@ -150,7 +148,7 @@ void SoundsOnCacheData(/*void*/)
 		else
 		{
 			// Log sound error info
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of the sound block: \"%d\" = \"%s\"", i + 1, sPathSounds);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of the sound block: \"%d\" = \"%s\"", i + 1, sPathSounds);
 			
 			// Remove sound block from array
 			gServerData.Sounds.Erase(i);
@@ -221,7 +219,7 @@ void SoundsOnRoundEnd(CSRoundEndReason reason)
 	
 	// Create timer for emit sounds
 	delete gServerData.EndTimer;
-	gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reason, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
+	gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reason, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
@@ -242,7 +240,7 @@ void SoundsOnBlast(/*void*/)
 {
 	// Create timer for emit sounds
 	delete gServerData.BlastTimer;
-	gServerData.BlastTimer = CreateTimer(0.3, PlayerSoundsOnBlastPost, _, TIMER_FLAG_NO_MAPCHANGE); /// HACK~HACK
+	gServerData.BlastTimer = CreateTimer(0.3, PlayerSoundsOnBlastPost, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
@@ -411,7 +409,7 @@ public int API_GetSoundKeyID(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Sounds, "Native Validation", "Can't find key with an empty name");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "Can't find key with an empty name");
 		return -1;
 	}
 
@@ -436,7 +434,7 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
 	// Validate s
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Sounds, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -695,7 +693,7 @@ bool SoundsPrecacheQuirk(char[] sPath)
 	}
 	else
 	{
-		LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Sounds, "Config Validation", "Invalid sound path. File not found: \"%s\"", sPath);
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Invalid sound path. File not found: \"%s\"", sPath);
 		return false;
 	}
 	

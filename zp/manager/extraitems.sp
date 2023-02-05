@@ -65,7 +65,7 @@ void ExtraItemsOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
 		return;
 	}
 
@@ -78,7 +78,7 @@ void ExtraItemsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathItems);
 		return;
 	}
 
@@ -107,7 +107,7 @@ void ExtraItemsOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
 		return;
 	}
 	
@@ -115,7 +115,7 @@ void ExtraItemsOnCacheData(/*void*/)
 	int iSize = gServerData.ExtraItems.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
 		return;
 	}
 
@@ -128,7 +128,7 @@ void ExtraItemsOnCacheData(/*void*/)
 		if (!kvExtraItems.JumpToKey(sPathItems))
 		{
 			// Log extraitem fatal
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sPathItems);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sPathItems);
 			continue;
 		}
 		
@@ -137,7 +137,7 @@ void ExtraItemsOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathItems))
 		{
 			// Log extraitem error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sPathItems);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sPathItems);
 			continue;
 		}
 
@@ -149,7 +149,7 @@ void ExtraItemsOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathItems) && hasLength(sPathItems))
 		{
 			// Log extraitem error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sPathItems);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sPathItems);
 		}
 		arrayExtraItem.PushString(sPathItems);                 // Index: 1
 		arrayExtraItem.Push(kvExtraItems.GetNum("cost", 0));   // Index: 2
@@ -324,7 +324,7 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client, false))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
 		return -1;
 	}
 	
@@ -334,7 +334,7 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 
@@ -367,7 +367,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client, false))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
 		return -1;
 	}
 	
@@ -377,7 +377,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -401,7 +401,7 @@ public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client, false))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
 		return -1;
 	}
 	
@@ -411,7 +411,7 @@ public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -443,7 +443,7 @@ public int API_GetExtraItemNameID(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Can't find item with an empty name");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Can't find item with an empty name");
 		return -1;
 	}
 	
@@ -470,7 +470,7 @@ public int API_GetExtraItemName(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -480,7 +480,7 @@ public int API_GetExtraItemName(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -505,7 +505,7 @@ public int API_GetExtraItemInfo(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -515,7 +515,7 @@ public int API_GetExtraItemInfo(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -540,7 +540,7 @@ public int API_GetExtraItemCost(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -561,7 +561,7 @@ public int API_GetExtraItemLevel(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -582,7 +582,7 @@ public int API_GetExtraItemOnline(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -603,7 +603,7 @@ public int API_GetExtraItemLimit(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -624,7 +624,7 @@ public int API_GetExtraItemGroup(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -634,7 +634,7 @@ public int API_GetExtraItemGroup(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -659,7 +659,7 @@ public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
 		return -1;
 	}
 	
@@ -669,7 +669,7 @@ public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
 		return -1;
 	}
 	

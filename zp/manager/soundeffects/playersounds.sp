@@ -466,7 +466,7 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 				{
 					// Call forward
 					Action hResult;
-					gForwardData._OnGrenadeSound(entity, WeaponsGetCustomID(entity), hResult); 
+					gForwardData._OnGrenadeSound(entity, ToolsGetCustomID(entity), hResult); 
 					return hResult;
 				}
 			}

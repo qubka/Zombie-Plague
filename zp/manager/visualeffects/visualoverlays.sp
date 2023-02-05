@@ -92,7 +92,7 @@ void VOverlayOnClientUpdate(int client, OverlayType nOverlay)
 		{
 			// Gets overlay path
 			ModesGetOverlayHuman(gServerData.RoundMode, sOverlay, sizeof(sOverlay)); 
-			if (!hasLength(sOverlay)) return; // Stop here if the path empty
+			if (!hasLength(sOverlay)) return; /// Stop here if the path empty
 		}    
 
 		// Sets 'Zombie Win' overlay
@@ -100,7 +100,7 @@ void VOverlayOnClientUpdate(int client, OverlayType nOverlay)
 		{
 			// Gets overlay path
 			ModesGetOverlayZombie(gServerData.RoundMode, sOverlay, sizeof(sOverlay)); 
-			if (!hasLength(sOverlay)) return; // Stop here if the path empty
+			if (!hasLength(sOverlay)) return; /// Stop here if the path empty
 		}
 		
 		// Sets 'Draw' overlay
@@ -108,7 +108,7 @@ void VOverlayOnClientUpdate(int client, OverlayType nOverlay)
 		{
 			// Gets overlay path
 			ModesGetOverlayDraw(gServerData.RoundMode, sOverlay, sizeof(sOverlay)); 
-			if (!hasLength(sOverlay)) return; // Stop here if the path empty
+			if (!hasLength(sOverlay)) return; /// Stop here if the path empty
 		}  
 		
 		// Sets 'Vision' overlay
@@ -120,7 +120,7 @@ void VOverlayOnClientUpdate(int client, OverlayType nOverlay)
 
 			// Gets overlay path
 			ClassGetOverlay(gClientData[client].Class, sOverlay, sizeof(sOverlay)); 
-			if (!hasLength(sOverlay)) return; // Stop here if the path empty
+			if (!hasLength(sOverlay)) return; /// Stop here if the path empty
 		}                        
 	}
 
@@ -141,5 +141,5 @@ void VOverlayOnClientUpdate(int client, OverlayType nOverlay)
 void VOverlayOnClientNvgs(int client)
 {
 	// Switch on/off nightvision 
-	VOverlayOnClientUpdate(client, ToolsGetNightVision(client, true) ? Overlay_Reset : Overlay_Vision);
+	VOverlayOnClientUpdate(client, ToolsHasNightVision(client, true) ? Overlay_Reset : Overlay_Vision);
 }

@@ -189,7 +189,7 @@ public void JumpBoostOnClientJumpPost(int userID)
 		if (weapon != -1)
 		{
 			// Validate custom index
-			int iD = WeaponsGetCustomID(weapon);
+			int iD = ToolsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				// Adds weapon jump power

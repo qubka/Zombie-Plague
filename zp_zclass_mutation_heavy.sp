@@ -327,7 +327,7 @@ public Action TrapTouchHook(int entity, int target)
 			SDKUnhook(entity, SDKHook_Touch, TrapTouchHook);
 		}
 		// Validate zombie
-		else if (ZP_IsPlayerZombie(target)) bStandOnTrap[target] = true; // Resets installing here!
+		else if (ZP_IsPlayerZombie(target)) bStandOnTrap[target] = true; /// Resets installing here!
 	}
 
 	// Return on the success

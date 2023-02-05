@@ -217,7 +217,7 @@ bool LogCheckModuleFilter(LogModule iModule)
  * @param sBuffer           Destination string buffer.
  * @param iMaxLen           The lenght of string.
  * @param iModule           Module type to convert.
- * @param shortName         Optional. Use short name instead of human readable names. Default is false
+ * @param shortName         (Optional) Use short name instead of human readable names. Default is false
  * @return                  Number of cells written.
  **/
 int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool shortName = false)
@@ -324,9 +324,8 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
  * @param isConsole         Optional. Specifies whether the log event came from
  *                          client 0. Used in console commands, do not mix with
  *                          regular log events. Default is false.
- * @param iType             Optional. Log type and action. Default is
- *                          LogType_Normal.
- * @param iEvent            Optional. A log flag describing What kind of log event
+ * @param iType             (Optional) Log type and action. Default is LogType_Normal.
+ * @param iEvent            (Optional) A log flag describing What kind of log event
  *                          it is. Default is LOG_CORE_EVENTS.
  * @param iModule           Module the log event were executed in.
  * @param sDescription      Event type or function name. A short descriptive phrase

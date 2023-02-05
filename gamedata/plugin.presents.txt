@@ -6,11 +6,11 @@
 		// You can update them only by yourself using tutorial in the link
 		"Signatures"
 		{
-			"nav_check_connectivity" // Str: "nav_check_connectivity took %2.2f ms\n"
+			"nav_update_lighting" // Str: "Computed lighting for %d/%d areas\n"
 			{
 				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x83\xE4\xC0\x8B\x0D\x2A\x2A\x2A\x2A\x83\xEC\x3C"
-				"linux"		"\x55\x89\xE5\x53\x83\xEC\x24\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x83\xC4\x24\x5B\x5D\xC3\x8D\x76\x00\x8D\xBC\x27\x00\x00\x00\x00\xA1\x2A\x2A\x2A\x2A\x89\x04\x24"
+				"windows"	"\x55\x8B\xEC\x8B\x45\x08\x57\x33\xFF"
+				"linux"		"\x55\x89\xE5\x56\x8B\x45\x08\x53\x83\x38\x02"
 			}
 		}
 		
@@ -20,29 +20,29 @@
 		{
 			"TheNavAreas"
 			{
-				"signature"	"nav_check_connectivity"
+				"signature"	"nav_update_lighting"
 				"linux"
 				{
-					"read"	"145"
+					"read"	"126"
 					"read"	"0"
 				}
 				"windows"
 				{
-					"read"	"194"
+					"read"	"99"
 					"read"	"0"
 				}
 			}
 			"TheNavAreas::Count"
 			{
-				"signature"	"nav_check_connectivity"
+				"signature"	"nav_update_lighting"
 				"linux"
 				{
-					"read"	"162"
+					"read"	"148"
 					"read"	"0"
 				}
 				"windows"
 				{
-					"read"	"209"
+					"read"	"92"
 					"read"	"0"
 				}
 			}

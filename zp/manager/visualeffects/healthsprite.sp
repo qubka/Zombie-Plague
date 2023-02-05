@@ -396,7 +396,7 @@ void HealthShowSprite(int client, int iFrame)
 	{
 		// Initialize frame char
 		static char sFrame[SMALL_LINE_LENGTH];
-		FormatEx(sFrame, sizeof(sFrame), "%i -1 0 0", iFrame);
+		FormatEx(sFrame, sizeof(sFrame), "%d -1 0 0", iFrame);
 		
 		// Sets modified flags on the entity
 		SetVariantString(sFrame);

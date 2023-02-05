@@ -134,7 +134,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		int iD = ClassTypeToIndex(sType);
 		if (iD == -1)
 		{
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\"", sType);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\"", sType);
 			return false;
 		}
 
@@ -267,7 +267,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	LevelSystemOnClientUpdate(client);
 	VEffectsOnClientUpdate(client);
 	VOverlayOnClientUpdate(client, Overlay_Reset);
-	if (gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision); /// HACK~HACK
+	if (gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision);
 	_call.AccountOnClientUpdate(client);
 	_call.WeaponsOnClientUpdate(client);
 
@@ -292,6 +292,14 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		// Terminate the round
 		ModesValidateRound();
 	}
+	
+	// Validate bot
+	if (IsFakeClient(client))
+	{
+		// Sets timer for bots logic
+		//delete gClientData[client].ThinkTimer;
+		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
 
 	// Call forward
 	gForwardData._OnClientUpdated(client, attacker);
@@ -307,10 +315,44 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 void ApplyOnClientTeam(int client, int iTeam)
 {
 	// Switch team
-	bool bState = ToolsGetDefuser(client);
+	bool bState = ToolsHasDefuser(client);
 	ToolsSetTeam(client, iTeam);
-	ToolsSetDefuser(client, bState); /// HACK~HACK
+	ToolsSetDefuser(client, bState); 
 
 	// Sets glowing for the zombie vision
 	ToolsSetDetecting(client, ModesIsXRay(gServerData.RoundMode));
 }   
+
+/**
+ * @brief Timer callback, bot think.
+ *
+ * @param hTimer            The timer handle.
+ * @param userID            The user id.
+ **/
+public Action ApplyOnBotClientThink(Handle hTimer, int userID)
+{
+	// Gets client index from the user ID
+	int client = GetClientOfUserId(userID);
+
+	// Validate client
+	if (client)
+	{
+		// Forward event to modules
+		SkillSystemOnFakeClientThink(client);
+		ExtraItemsOnFakeClientThink(client);
+		WeaponsOnFakeClientThink(client);
+		CostumesOnFakeClientThink(client);
+		
+		// Sets timer for bots logic
+		//delete gClientData[client].ThinkTimer;
+		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
+	else
+	{
+		// Clear timer
+		gClientData[client].ThinkTimer = null;
+	}
+
+	// Destroy timer
+	return Plugin_Stop;
+}

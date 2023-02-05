@@ -106,7 +106,7 @@ void HitGroupsOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Missing hitgroups config file: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Missing hitgroups config file: %s", sPathGroups);
 		return;
 	}
 
@@ -119,7 +119,7 @@ void HitGroupsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error encountered loading: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error encountered loading: %s", sPathGroups);
 		return;
 	}
 	
@@ -148,7 +148,7 @@ void HitGroupsOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error caching data from hitgroups config file: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error caching data from hitgroups config file: %s", sPathGroups);
 		return;
 	}
 	
@@ -156,7 +156,7 @@ void HitGroupsOnCacheData(/*void*/)
 	int iSize = gServerData.HitGroups.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "No usable data found in hitgroups config file: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "No usable data found in hitgroups config file: %s", sPathGroups);
 		return;
 	}
 
@@ -168,7 +168,7 @@ void HitGroupsOnCacheData(/*void*/)
 		kvHitGroups.Rewind();
 		if (!kvHitGroups.JumpToKey(sPathGroups))
 		{
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_HitGroups, "Config Validation", "Couldn't cache hitgroup data for: %s (check hitgroup config)", sPathGroups);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Couldn't cache hitgroup data for: %s (check hitgroup config)", sPathGroups);
 			continue;
 		}
 
@@ -408,7 +408,7 @@ public Action HitGroupsOnTakeDamage(int client, int &attacker, int &inflictor, f
 public void HitGroupsOnHurtSpawn(int entity)
 {
 	// Resets the weapon id
-	WeaponsSetCustomID(entity, -1);
+	ToolsSetCustomID(entity, -1);
 }    
  
 /**
@@ -435,7 +435,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 	}
 	
 	// Initialize variables
-	bool bInfectProtect = true; bool bSelfDamage = (client == attacker); bool bHasShield = (WeaponsFindByName(client, "weapon_shield") != -1); bool bHasHeavySuit = ToolsGetHeavySuit(client);
+	bool bInfectProtect = true; bool bSelfDamage = (client == attacker); bool bHasShield = (WeaponsFindByName(client, "weapon_shield") != -1); bool bHasHeavySuit = ToolsHasHeavySuit(client);
 	float flDamageRatio = 1.0; float flArmorRatio = 0.5; float flBonusRatio = 0.5; float flKnockRatio = ClassGetKnockBack(gClientData[client].Class); 
 
 	// Gets hitgroup index
@@ -538,7 +538,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 		if (dealer != -1)
 		{
 			// Validate custom index
-			int iD = WeaponsGetCustomID(dealer);
+			int iD = ToolsGetWeaponID(dealer);
 			if (iD != -1)
 			{
 				// Add multipliers
@@ -775,7 +775,7 @@ public int API_GetHitGroupNameID(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Can't find hitgroup with an empty name");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Can't find hitgroup with an empty name");
 		return -1;
 	}
 	
@@ -802,7 +802,7 @@ public int API_GetHitGroupName(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -812,7 +812,7 @@ public int API_GetHitGroupName(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -837,7 +837,7 @@ public int API_GetHitGroupIndex(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -858,7 +858,7 @@ public int API_IsHitGroupDamage(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -879,7 +879,7 @@ public int API_GetHitGroupKnockBack(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -900,7 +900,7 @@ public int API_GetHitGroupArmor(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -921,7 +921,7 @@ public int API_GetHitGroupBonus(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -942,7 +942,7 @@ public int API_GetHitGroupHeavy(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -963,7 +963,7 @@ public int API_GetHitGroupShield(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -984,7 +984,7 @@ public int API_IsHitGroupProtect(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.HitGroups.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_HitGroups, "Native Validation", "Invalid the hitgroup index (%d)", iD);
 		return -1;
 	}
 	
@@ -1270,7 +1270,7 @@ bool HitGroupsValidateArmor(int client, int iHitGroup)
 	{
 		case HITGROUP_HEAD :
 		{
-			bApplyArmor = ToolsGetHelmet(client);
+			bApplyArmor = ToolsHasHelmet(client);
 		}
 		
 		case HITGROUP_GENERIC, HITGROUP_CHEST, HITGROUP_STOMACH, HITGROUP_LEFTARM, HITGROUP_RIGHTARM :
@@ -1321,9 +1321,9 @@ void HitGroupsApplyKnock(int client, int attacker, float flForce)
 	}
 
 	// Apply multiplier if client on air
-	if (GetEntPropEnt(client, Prop_Send, "m_hGroundEntity") == -1) flForce *= gCvarList.HITGROUP_KNOCKBACK_AIR.FloatValue;
+	if (!HitGroupsIsOnGround(client) flForce *= gCvarList.HITGROUP_KNOCKBACK_AIR.FloatValue;
 	// Apply multiplier if client crouching
-	else if (GetEntProp(client, Prop_Send, "m_bDucking")) flForce *= gCvarList.HITGROUP_KNOCKBACK_CROUCH.FloatValue;
+	else if (HitGroupsIsDucking(client)) flForce *= gCvarList.HITGROUP_KNOCKBACK_CROUCH.FloatValue;
 	
 	// If knockback system is enabled, then apply
 	if (gCvarList.HITGROUP_KNOCKBACK.BoolValue) 
@@ -1446,6 +1446,28 @@ void HitGroupsGiveExp(int client, int iDamage)
 	
 	// Resets damage filter
 	iAppliedDamage[client] -= iBonus * iLimit;
+}
+
+/**
+ * @brief Gets the ground state on a client.
+ *
+ * @param client            The client index.
+ * @return                  True or false.
+ **/
+bool HitGroupsIsOnGround(int client)
+{
+	return GetEntPropEnt(client, Prop_Send, "m_hGroundEntity") != -1;
+}
+
+/**
+ * @brief Gets the ducking state on a client.
+ *
+ * @param client            The client index.
+ * @return                  True or false.
+ **/
+bool HitGroupsIsDucking(int client)
+{
+	return view_as<bool>(GetEntProp(client, Prop_Send, "m_bDucking"));
 }
 
 /**

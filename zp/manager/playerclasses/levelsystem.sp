@@ -115,7 +115,7 @@ void LevelSystemOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Levels, "Config Validation", "Missing levels config file: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Missing levels config file: %s", sPathLevels);
 		return;
 	}
 	
@@ -128,7 +128,7 @@ void LevelSystemOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Levels, "Config Validation", "Unexpected error encountered loading: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Unexpected error encountered loading: %s", sPathLevels);
 		return;
 	}
 
@@ -154,7 +154,7 @@ void LevelSystemOnCacheData(/*void*/)
 	int iLevels = gServerData.Levels.Length;
 	if (!iLevels)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sPathLevels);
 		return;
 	}
 	
@@ -171,7 +171,7 @@ void LevelSystemOnCacheData(/*void*/)
 		if (iLimit <= 0 || hLevel.FindValue(iLimit) != -1)
 		{
 			// Log level error info
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Levels, "Config Validation", "Incorrect level \"%s\" = %i , %i", sPathLevels, iLimit, i);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Incorrect level \"%s\" = %d , %d", sPathLevels, iLimit, i);
 			
 			// Remove level from array
 			gServerData.Levels.Erase(i);
@@ -191,7 +191,7 @@ void LevelSystemOnCacheData(/*void*/)
 	// Validate levels config (after converation)
 	if (!iLevels)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sPathLevels);
 		return;
 	}
 	
@@ -722,7 +722,7 @@ public int API_GetLevelLimit(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD < 1 || iD > gServerData.Levels.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Levels, "Native Validation", "Invalid the level index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Levels, "Native Validation", "Invalid the level index (%d)", iD);
 		return -1;
 	}
 

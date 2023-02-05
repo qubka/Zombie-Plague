@@ -52,56 +52,75 @@ void ParticlesOnInit(/*void*/)
 		return;
 	}
 	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemDictionary::~CParticleSystemDictionary");
-	
-	// Validate call
-	if ((hSDKCallDestructorParticleDictionary = EndPrepSDKCall()) == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CParticleSystemDictionary::~CParticleSystemDictionary\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Raw);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CParticleSystemDictionary::~CParticleSystemDictionary");
+		
+		// Validate call
+		if ((hSDKCallDestructorParticleDictionary = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CParticleSystemDictionary::~CParticleSystemDictionary\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+	}
+	
+	/*_________________________________________________________________________________________________________________________________________*/
+	
+	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Raw);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CNetworkStringTableContainer::FindTable");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); // 20CCStrike15ItemSchema
+		
+		// Validate call
+		if ((hSDKCallContainerFindTable = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CNetworkStringTableContainer::FindTable\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CNetworkStringTableContainer::FindTable");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); // 20CCStrike15ItemSchema
-	
-	// Validate call
-	if ((hSDKCallContainerFindTable = EndPrepSDKCall()) == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CNetworkStringTableContainer::FindTable\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
-	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
-
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CNetworkStringTable::DeleteAllStrings");
-	
-	// Validate call
-	if ((hSDKCallTableDeleteAllStrings = EndPrepSDKCall()) == null)
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CNetworkStringTable::DeleteAllStrings\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Raw);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CNetworkStringTable::DeleteAllStrings");
+		
+		// Validate call
+		if ((hSDKCallTableDeleteAllStrings = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "GameData Validation", "Failed to load SDK call \"CNetworkStringTable::DeleteAllStrings\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	// Load other offsets
-	fnInitGameConfAddress(gServerData.Config, pParticleSystemDictionary, "m_pParticleSystemDictionary");
-	fnInitGameConfAddress(gServerData.Config, pNetworkStringTable, "s_NetworkStringTable");
-	fnInitGameConfOffset(gServerData.Config, ParticleSystem_Count, "CParticleSystemDictionary::Count");
+	// Validate call
+	if (hSDKCallDestructorParticleDictionary)
+	{
+		// Load address of m_pParticleSystemDictionary
+		fnInitGameConfAddress(gServerData.Config, pParticleSystemDictionary, "m_pParticleSystemDictionary", false);
+	}
+	
+	// Validate call
+	if (hSDKCallContainerFindTable)
+	{
+		// Load address of s_NetworkStringTable
+		fnInitGameConfAddress(gServerData.Config, pNetworkStringTable, "s_NetworkStringTable", false);
+	}
+	
+	// Validate call
+	if (pParticleSystemDictionary != Address_Null)
+	{
+		// Load offset
+		fnInitGameConfOffset(gServerData.Config, ParticleSystem_Count, "CParticleSystemDictionary::Count", false);
+	}
 }
 
 /**
@@ -141,18 +160,10 @@ void ParticlesOnPurge(/*void*/)
 	ParticlesClear();
 
 	// Clear particles in the effect table
-	Address pTable = ParticlesFindTable("ParticleEffectNames");
-	if (pTable != Address_Null)   
-	{
-		ParticlesClearTable(pTable);
-	}
+	ParticlesClearTable(ParticlesFindTable("ParticleEffectNames"));
 
 	// Clear particles in the extra effect table
-	pTable = ParticlesFindTable("ExtraParticleFilesTable");
-	if (pTable != Address_Null)   
-	{
-		ParticlesClearTable(pTable);
-	}
+	ParticlesClearTable(ParticlesFindTable("ExtraParticleFilesTable"));
 }
 
 /**
@@ -197,7 +208,7 @@ void ParticlesOnCacheData(/*void*/)
 				// Precache model
 				int i; if (sPath[i] == '!') i++;
 				PrecacheGeneric(sPath[i], true);
-				ParticlesClearTable(pTable); /// HACK~HACK
+				ParticlesClearTable(pTable);
 				/// Clear tables after each file because some of them contains
 				/// huge amount of particles and we work around the limit
 			}
@@ -345,7 +356,16 @@ void ParticlesStop(int client, int entity)
  **/
 Address ParticlesFindTable(char[] sTable)
 {
-	return SDKCall(hSDKCallContainerFindTable, pNetworkStringTable, sTable);
+	// Validate call
+	if (hSDKCallContainerFindTable && pNetworkStringTable != Address_Null)
+	{
+		return SDKCall(hSDKCallContainerFindTable, pNetworkStringTable, sTable);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "SDKCall Validation", "Failed to execute SDK call \"CNetworkStringTableContainer::FindTable\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+	}
 }    
 
 /**
@@ -355,7 +375,16 @@ Address ParticlesFindTable(char[] sTable)
  **/
 void ParticlesClearTable(Address pTable) 
 {
-	SDKCall(hSDKCallTableDeleteAllStrings, pTable);
+	// Validate call
+	if (hSDKCallTableDeleteAllStrings && pTable != Address_Null)
+	{
+		SDKCall(hSDKCallTableDeleteAllStrings, pTable);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "SDKCall Validation", "Failed to execute SDK call \"CNetworkStringTable::DeleteAllStrings\". Update signature in \"%s\"", PLUGIN_CONFIG);
+	}
 }
 
 /**
@@ -365,7 +394,16 @@ void ParticlesClearTable(Address pTable)
  **/
 void ParticlesClear(/*void*/)
 {
-	SDKCall(hSDKCallDestructorParticleDictionary, pParticleSystemDictionary);
+	// Validate call
+	if (hSDKCallDestructorParticleDictionary && pParticleSystemDictionary != Address_Null)
+	{
+		SDKCall(hSDKCallDestructorParticleDictionary, pParticleSystemDictionary);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "SDKCall Validation", "Failed to execute SDK call \"CParticleSystemDictionary::~CParticleSystemDictionary\". Update signature in \"%s\"", PLUGIN_CONFIG);
+	}
 }   
 
 /**
@@ -377,5 +415,14 @@ void ParticlesClear(/*void*/)
  **/
 int ParticlesCount(/*void*/)
 {
-	return LoadFromAddress(pParticleSystemDictionary + view_as<Address>(ParticleSystem_Count), NumberType_Int16);
+	if (pParticleSystemDictionary != Address_Null)
+	{
+		return LoadFromAddress(pParticleSystemDictionary + view_as<Address>(ParticleSystem_Count), NumberType_Int16);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "Offset Validation", "Failed to load \"CParticleSystemDictionary::Count\". Update offset in \"%s\"", PLUGIN_CONFIG);
+		return 0;
+	}
 }

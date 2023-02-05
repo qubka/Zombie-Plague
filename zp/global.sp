@@ -166,16 +166,12 @@ enum struct ClientData
 	int AttachmentAddons[12]; /* Amount of weapon back attachments */
 	
 	/* Weapons */
-	int ViewModels[2];
-	int IndexWeapon;
-	int CustomWeapon;
 	int LastWeapon;
 	int LastGrenade;
 	int LastKnife;
-	int SwapWeapon;
-	int LastSequence;
-	int LastSequenceParity;
-	bool ToggleSequence;
+	
+	int ViewModels[2];
+	int CustomWeapon;
 	bool RunCmd;
 	
 	/* ZMarket */
@@ -250,18 +246,16 @@ enum struct ClientData
 		this.AttachmentAddons[9]  = -1;
 		this.AttachmentAddons[10] = -1;
 		this.AttachmentAddons[11] = -1;
-		this.ViewModels[0]        = -1;
-		this.ViewModels[1]        = -1;
-		this.IndexWeapon          = -1;
-		this.CustomWeapon         = -1;
+
 		this.LastWeapon           = -1;
 		this.LastGrenade          = -1;
 		this.LastKnife            = -1;
-		this.SwapWeapon           = -1;
-		this.LastSequence         = -1;
-		this.LastSequenceParity   = -1;
-		this.ToggleSequence       = false;
+		
+		this.ViewModels[0]        = -1;
+		this.ViewModels[1]        = -1;
+		this.CustomWeapon         = -1;
 		this.RunCmd               = false;
+		
 		this.AutoSelect           = false;
 		this.BlockMenu            = false;
 		this.CurrentMenu          = 0;
@@ -325,8 +319,8 @@ ClientData gClientData[MAXPLAYERS+1];
 /**
  * @section Core useful functions.
  **/
-#define _call.%0(%1)  RequestFrame(%0, GetClientUserId(%1))
-#define _exec.%0(%1)  RequestFrame(%0, EntIndexToEntRef(%1))
+#define _call.%0(%1) RequestFrame(%0, GetClientUserId(%1))
+#define _exec.%0(%1) RequestFrame(%0, EntIndexToEntRef(%1))
 /**
  * @endsection
  **/

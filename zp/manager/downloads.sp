@@ -52,7 +52,7 @@ void DownloadsOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure and stop plugin
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sPathDownloads);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sPathDownloads);
 		return;
 	}
 
@@ -65,7 +65,7 @@ void DownloadsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "Unexpected error encountered loading: %s", sPathDownloads);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Unexpected error encountered loading: %s", sPathDownloads);
 		return;
 	}
 	
@@ -99,7 +99,7 @@ void DownloadsOnCacheData(/*void*/)
 	int iDownloads = iDownloadCount = gServerData.Downloads.Length;
 	if (!iDownloads)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sPathDownloads);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sPathDownloads);
 		return;
 	}
 
@@ -132,7 +132,7 @@ void DownloadsOnCacheData(/*void*/)
 			if (hDirectory == null)
 			{
 				// Log download error info
-				LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sPathDownloads);
+				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sPathDownloads);
 				
 				// Remove download from array
 				gServerData.Downloads.Erase(i);
@@ -198,7 +198,7 @@ bool DownloadsOnPrecache(char[] sPath)
 	// If path is don't have format, then log, and stop
 	if (iFormat == -1)
 	{
-		LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Engine, "Config Validation", "Missing file format: %s", sPath);
 		return false;
 	}
 	

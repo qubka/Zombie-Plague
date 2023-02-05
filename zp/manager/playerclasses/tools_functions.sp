@@ -258,7 +258,6 @@ public Action ToolsOnHintHook(UserMsg hMessage, Protobuf hMsg, const int[] iPlay
 	if (StrContains(sBuffer, "</font>") != -1 || StrContains(sBuffer, "</span>") != -1)
 	{
 		DataPack hPack = new DataPack();
-		/// Initialize pack
 		hPack.WriteCell(playersNum);
 		for (int i = 0; i < playersNum; i++)
 		{
@@ -595,7 +594,7 @@ void ToolsSetTeam(int entity, int iValue)
  *                          If false, function will return the value of the entity on/off state of the nightvision.
  * @return                  True if aspect of nightvision is enabled on the entity, false if not.
  **/
-bool ToolsGetNightVision(int entity, bool bOwnership = false)
+bool ToolsHasNightVision(int entity, bool bOwnership = false)
 {
 	// If ownership is true, then gets the ownership of nightvision on entity
 	return view_as<bool>(GetEntProp(entity, Prop_Send, bOwnership ? "m_bHasNightVision" : "m_bNightVisionOn"));
@@ -621,7 +620,7 @@ void ToolsSetNightVision(int entity, bool bEnable, bool bOwnership = false)
  * @param entity            The entity index.
  * @return                  The aspect of the entity defuser.
  **/
-bool ToolsGetDefuser(int entity)
+bool ToolsHasDefuser(int entity)
 {
 	// Gets defuser on the entity
 	return view_as<bool>(GetEntProp(entity, Prop_Send, "m_bHasDefuser"));
@@ -645,7 +644,7 @@ void ToolsSetDefuser(int entity, bool bEnable)
  * @param entity            The entity index.
  * @return                  The aspect of the entity helmet.
  **/
-bool ToolsGetHelmet(int entity)
+bool ToolsHasHelmet(int entity)
 {
 	// Gets helmet on the entity
 	return view_as<bool>(GetEntProp(entity, Prop_Send, "m_bHasHelmet"));
@@ -669,7 +668,7 @@ void ToolsSetHelmet(int entity, bool bEnable)
  * @param entity            The entity index.
  * @return                  The aspect of the entity suit.
  **/
-bool ToolsGetHeavySuit(int entity)
+bool ToolsHasHeavySuit(int entity)
 {
 	// Gets suit on the entity
 	return view_as<bool>(GetEntProp(entity, Prop_Send, "m_bHasHeavyArmor"));
@@ -944,30 +943,6 @@ void ToolsSetEffect(int entity, int iValue)
 }
 
 /**
- * @brief Gets a visibility state of an entity.
- *
- * @param entity            The entity index.
- * @return                  True or false.
- **/
-/*bool ToolsGetVisibility(int entity)
-{
-	int iFlags = ToolsGetEffect(entity);
-	return !(iFlags & EF_NODRAW);
-}*/
-
-/**
- * @brief Sets a visibility state of an entity.
- *
- * @param entity            The entity index.
- * @param bVisible          True or false.
- **/
-void ToolsSetVisibility(int entity, bool bVisible)
-{
-	int iFlags = ToolsGetEffect(entity);
-	ToolsSetEffect(entity, bVisible ? (iFlags & ~EF_NODRAW) : (iFlags | EF_NODRAW));
-}
-
-/**
  * @brief Gets the model of an entity.
  * 
  * @param entity            The entity index.
@@ -989,6 +964,30 @@ void ToolsSetModelIndex(int entity, int iModel)
 {
 	// Sets index on the entity
 	SetEntProp(entity, Prop_Send, "m_nModelIndex", iModel);
+}
+ 
+/**
+ * @brief Gets the custom weapon ID.
+ *
+ * @param weapon            The entity index.
+ * @return                  The custom id.    
+ **/
+int ToolsGetCustomID(int entity)
+{
+	// Gets value on the entity
+	return GetEntProp(entity, Prop_Data, "m_iHammerID");
+}
+
+/**
+ * @brief Sets the custom ID.
+ *
+ * @param entity            The entity index.
+ * @param iD                The custom id.
+ **/
+void ToolsSetCustomID(int entity, int iD)
+{
+	// Sets value on the entity
+	SetEntProp(entity, Prop_Data, "m_iHammerID", iD);
 }
 
 /**
@@ -1062,7 +1061,17 @@ int ToolsGetActivator(int entity)
  **/
 bool ToolsLookupAttachment(int entity, char[] sAttach)
 {
-	return (hasLength(sAttach) && SDKCall(hSDKCallLookupAttachment, entity, sAttach));
+	// Validate call
+	if (hSDKCallLookupAttachment)
+	{
+		return (hasLength(sAttach) && SDKCall(hSDKCallLookupAttachment, entity, sAttach));
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		return false;
+	}
 }
 
 /**
@@ -1075,45 +1084,27 @@ bool ToolsLookupAttachment(int entity, char[] sAttach)
  **/
 void ToolsGetAttachment(int entity, char[] sAttach, float vPosition[3], float vAngle[3])
 {
-	// Validate windows
-	if (gServerData.Platform == OS_Windows)
+	// Validate call
+	if (hSDKCallGetAttachment)
 	{
-		SDKCall(hSDKCallGetAttachment, entity, sAttach, vPosition, vAngle); 
+		// Validate windows
+		if (gServerData.Platform == OS_Windows)
+		{
+			SDKCall(hSDKCallGetAttachment, entity, sAttach, vPosition, vAngle); 
+		}
+		else
+		{
+			int iAttach = SDKCall(hSDKCallLookupAttachment, entity, sAttach);
+			if (iAttach)
+			{
+				SDKCall(hSDKCallGetAttachment, entity, iAttach, vPosition, vAngle); 
+			}
+		}
 	}
 	else
 	{
-		int iAttach = SDKCall(hSDKCallLookupAttachment, entity, sAttach);
-		if (iAttach)
-		{
-			SDKCall(hSDKCallGetAttachment, entity, iAttach, vPosition, vAngle); 
-		}
-	}
-}
-
-/**
- * @brief Gets the sequence of the entity.
- *
- * @param entity            The entity index.
- * @param sAnim             The sequence name.
- * @return                  The sequence index.
- **/
-int ToolsLookupSequence(int entity, char[] sAnim)
-{
-	// Validate windows
-	if (gServerData.Platform == OS_Windows)
-	{
-		return SDKCall(hSDKCallLookupSequence, entity, sAnim); 
-	}
-	else
-	{
-		// Gets 'CStudioHdr' class
-		Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-		if (pStudioHdrClass == Address_Null)
-		{
-			return -1;
-		}
-		
-		return SDKCall(hSDKCallLookupSequence, pStudioHdrClass, sAnim); 
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
 	}
 }
 
@@ -1133,7 +1124,54 @@ int ToolsLookupPoseParameter(int entity, char[] sPose)
 		return -1;
 	}
 	
-	return SDKCall(hSDKCallLookupPoseParameter, entity, pStudioHdrClass, sPose); 
+	// Validate call
+	if (hSDKCallLookupPoseParameter)
+	{
+		return SDKCall(hSDKCallLookupPoseParameter, entity, pStudioHdrClass, sPose); 
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::LookupPoseParameter\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		return -1;
+	}
+}
+
+/**
+ * @brief Gets the sequence of the entity.
+ *
+ * @param entity            The entity index.
+ * @param sAnim             The sequence name.
+ * @return                  The sequence index.
+ **/
+int ToolsLookupSequence(int entity, char[] sAnim)
+{
+	// Validate call
+	if (hSDKCallLookupSequence)
+	{
+		// Validate windows
+		if (gServerData.Platform == OS_Windows)
+		{
+			return SDKCall(hSDKCallLookupSequence, entity, sAnim); 
+		}
+		else
+		{
+			// Gets 'CStudioHdr' class
+			Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
+			if (pStudioHdrClass == Address_Null)
+			{
+				return -1;
+			}
+			
+			return SDKCall(hSDKCallLookupSequence, pStudioHdrClass, sAnim); 
+		}
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		return -1;
+	}
 }
 
 /**
@@ -1151,11 +1189,20 @@ void ToolsResetSequence(int entity, char[] sAnim)
 		return; 
 	}
 	
-	// Tracker 17868: If the sequence number didn't actually change, but you call resetsequence info, it changes
-	// the newsequenceparity bit which causes the client to call m_flCycle.Resets() which causes a very slight 
-	// discontinuity in looping animations as they reset around to cycle 0.0. This was causing the parentattached
-	// helmet on barney to hitch every time barney's idle cycled back around to its start.
-	SDKCall(hSDKCallResetSequence, entity, iSequence);
+	// Validate call
+	if (hSDKCallResetSequence)
+	{
+		// Tracker 17868: If the sequence number didn't actually change, but you call resetsequence info, it changes
+		// the newsequenceparity bit which causes the client to call m_flCycle.Resets() which causes a very slight 
+		// discontinuity in looping animations as they reset around to cycle 0.0. This was causing the parentattached
+		// helmet on barney to hitch every time barney's idle cycled back around to its start.
+		SDKCall(hSDKCallResetSequence, entity, iSequence);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
+	}
 }
 
 /**
@@ -1201,18 +1248,6 @@ int ToolsGetSequenceCount(int entity)
 }
 
 /**
- * @brief Gets the activity of a sequence.
- *
- * @param entity            The entity index.
- * @param iSequence         The sequence index.
- * @return                  The activity index.
- **/
-int ToolsGetSequenceActivity(int entity, int iSequence)
-{
-	return SDKCall(hSDKCallGetSequenceActivity, entity, iSequence);
-}
-
-/**
  * @brief Gets the hdr class address.
  * 
  * @param entity            The entity index.
@@ -1224,13 +1259,45 @@ Address ToolsGetStudioHdrClass(int entity)
 }
 
 /**
+ * @brief Gets the activity of a sequence.
+ *
+ * @param entity            The entity index.
+ * @param iSequence         The sequence index.
+ * @return                  The activity index.
+ **/
+int ToolsGetSequenceActivity(int entity, int iSequence)
+{
+	// Validate call
+	if (hSDKCallGetSequenceActivity)
+	{
+		return SDKCall(hSDKCallGetSequenceActivity, entity, iSequence);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		return -1;
+	}
+}
+
+/**
  * @brief Update a entity transmit state.
  * 
  * @param entity            The entity index.
  **/
 void ToolsUpdateTransmitState(int entity)
 {
-	SDKCall(hSDKCallUpdateTransmitState, entity);
+	// Validate call
+	if (hSDKCallUpdateTransmitState)
+	{
+		SDKCall(hSDKCallUpdateTransmitState, entity);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseEntity::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		return;
+	}
 }
 
 /**
@@ -1240,7 +1307,17 @@ void ToolsUpdateTransmitState(int entity)
  **/
 bool ToolsIsBSPModel(int entity)
 {
-	return SDKCall(hSDKCallIsBSPModel, entity);
+	// Validate call
+	if (hSDKCallIsBSPModel)
+	{
+		return SDKCall(hSDKCallIsBSPModel, entity);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		return false;
+	}
 }
 
 /**
@@ -1277,21 +1354,30 @@ void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3
 	TE_SendToAll();
 
 	// Disable the lag compensation and store the status
-	bool bLock = view_as<bool>(GetEntProp(client, Prop_Data, "m_bLagCompensation"));
-	SetEntProp(client, Prop_Data, "m_bLagCompensation", false);
+	bool bCompensation = view_as<bool>(GetEntProp(client, Prop_Data, "m_bLagCompensation"));
+	if (bCompensation) SetEntProp(client, Prop_Data, "m_bLagCompensation", false);
 	
-	// Validate windows
-	if (gServerData.Platform == OS_Windows)
+	// Validate call
+	if (hSDKCallFireBullets)
 	{
-		// Write a new function in free memory and call it
-		memcpy(pFireBullets, ASMTRAMPOLINE, sizeof(ASMTRAMPOLINE));
+		// Validate windows
+		if (gServerData.Platform == OS_Windows)
+		{
+			// Write a new function in free memory and call it
+			memcpy(pFireBullets, ASMTRAMPOLINE, sizeof(ASMTRAMPOLINE));
+		}
+		
+		// Emulate bullet_shot on the server
+		SDKCall(hSDKCallFireBullets, client, weapon, 0/*CEconItemView*/, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, flFishTail, 0.0, iSoundType, flRecoilIndex);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
 	}
 	
-	// Emulate bullet_shot on the server
-	SDKCall(hSDKCallFireBullets, client, weapon, 0/*CEconItemView*/, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, flFishTail, 0.0, iSoundType, flRecoilIndex);
-	
 	// Reset the lag compensation back
-	SetEntProp(client, Prop_Data, "m_bLagCompensation", bLock);
+	SetEntProp(client, Prop_Data, "m_bLagCompensation", bCompensation);
 	
 	// Emulate custom file event on server
 	/*Event hEvent = CreateEvent("weapon_fire");
@@ -1299,7 +1385,7 @@ void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3
 	{
 		// Sets event properties
 		hEvent.SetInt("userid", GetClientUserId(client));
-		hEvent.SetString("weapon", "");
+		hEvent.SetString("weapon", ToolsGetCustomID(weapon));
 		hEvent.SetBool("silenced", false);
 
 		// Send event without broadcast

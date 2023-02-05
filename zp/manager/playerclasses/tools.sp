@@ -116,246 +116,264 @@ void ToolsOnInit(/*void*/)
 	fnInitSendPropOffset(Player_BlockingUseActionInProgress, "CCSPlayer", "m_iBlockingUseActionInProgress");
 	fnInitSendPropOffset(Entity_SimulationTime, "CBaseEntity", "m_flSimulationTime");
 
-	// Load other offsets
-	fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "CSendProp::m_nBits");
-	fnInitGameConfAddress(gServerData.Config, pSendTableCRC, "g_SendTableCRC");
-	fnInitGameConfAddress(gServerData.Config, pArmorValue, "m_ArmorValue");
-	fnInitGameConfAddress(gServerData.Config, pAccount, "m_iAccount");
-	fnInitGameConfAddress(gServerData.Config, pHealth, "m_iHealth");
-	fnInitGameConfAddress(gServerData.Config, pClip, "m_iClip1");
-	fnInitGameConfAddress(gServerData.Config, pPrimary, "m_iPrimaryReserveAmmoCount");
-	fnInitGameConfAddress(gServerData.Config, pSecondary, "m_iSecondaryReserveAmmoCount");
-
-	// Memory patching
-	StoreToAddress(pArmorValue + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
-	StoreToAddress(pAccount + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
-	StoreToAddress(pHealth + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
-	StoreToAddress(pClip + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
-	StoreToAddress(pPrimary + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
-	StoreToAddress(pSecondary  + view_as<Address>(SendProp_iBits), 32, NumberType_Int32);
-
-	/// 1337 -> it just a random and an invalid CRC32 byte
-	StoreToAddress(pSendTableCRC, 1337, NumberType_Int32);
+	// Load address of g_SendTableCRC
+	fnInitGameConfAddress(gServerData.Config, pSendTableCRC, "g_SendTableCRC", false);
 	
-	/*_________________________________________________________________________________________________________________________________________*/
-	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupAttachment");
-
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-
-	// Validate call
-	if ((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
+	// Validate address
+	if (pSendTableCRC != Address_Null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
+		/// 1337 -> it just a random and an invalid CRC32 byte
+		StoreToAddress(pSendTableCRC, 1337, NumberType_Int32);
+
+		// Load offset to indicate prop size
+		fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "CSendProp::m_nBits");
+
+		// Memory patching
+		ToolsPatchSendTable(gServerData.Config, pArmorValue, "m_ArmorValue", SendProp_iBits);
+		ToolsPatchSendTable(gServerData.Config, pAccount, "m_iAccount", SendProp_iBits);
+		ToolsPatchSendTable(gServerData.Config, pHealth, "m_iHealth", SendProp_iBits);
+		ToolsPatchSendTable(gServerData.Config, pClip, "m_iClip1", SendProp_iBits);
+		ToolsPatchSendTable(gServerData.Config, pPrimary, "m_iPrimaryReserveAmmoCount", SendProp_iBits);
+		ToolsPatchSendTable(gServerData.Config, pSecondary, "m_iSecondaryReserveAmmoCount", SendProp_iBits);
+		ToolsPatchSendTable(gServerData.Config, pArmorValue, "m_ArmorValue", SendProp_iBits);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SendTableCRC Patch", "Not able to patch \"g_SendTableCRC\" with invalid address");
 	}
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetAttachment");
-
-	// Validate windows
-	if (gServerData.Platform == OS_Windows)
 	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupAttachment");
+
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	}
-	else
-	{
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	}
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-	PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-	
-	// Validate call
-	if ((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
-	}
-	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity); 
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupPoseParameter"); 
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
-	
-	// Validate call
-	if ((hSDKCallLookupPoseParameter = EndPrepSDKCall()) == null) 
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupPoseParameter\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
-	}
-	
-	/*__________________________________________________________________________________________________*/
-	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(gServerData.Platform == OS_Windows ? SDKCall_Entity : SDKCall_Raw); 
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupSequence");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
-	// Validate call
-	if ((hSDKCallLookupSequence = EndPrepSDKCall()) == null) 
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
-	}
-	
-	/*__________________________________________________________________________________________________*/
-	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity); 
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::ResetSequence");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);  
-	
-	// Validate call
-	if ((hSDKCallResetSequence = EndPrepSDKCall()) == null) 
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
-	}
-	
-	/*__________________________________________________________________________________________________*/
-	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetSequenceActivity");
-
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-
-	// Validate call
-	if ((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)
-	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Validate call
+		if ((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseEntity::UpdateTransmitState");
-
-	// Validate call
-	if ((hSDKCallUpdateTransmitState = EndPrepSDKCall()) == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetAttachment");
+
+		// Validate windows
+		if (gServerData.Platform == OS_Windows)
+		{
+			PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		}
+		else
+		{
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		}
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
+		PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
+		
+		// Validate call
+		if ((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+	}
+	
+	/*_________________________________________________________________________________________________________________________________________*/
+	
+	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity); 
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupPoseParameter"); 
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
+		
+		// Validate call
+		if ((hSDKCallLookupPoseParameter = EndPrepSDKCall()) == null) 
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupPoseParameter\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+	}
+	
+	/*__________________________________________________________________________________________________*/
+	
+	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(gServerData.Platform == OS_Windows ? SDKCall_Entity : SDKCall_Raw); 
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupSequence");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
+
+		// Validate call
+		if ((hSDKCallLookupSequence = EndPrepSDKCall()) == null) 
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+	}
+	
+	/*__________________________________________________________________________________________________*/
+	
+	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity); 
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::ResetSequence");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);  
+		
+		// Validate call
+		if ((hSDKCallResetSequence = EndPrepSDKCall()) == null) 
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+	}
+	
+	/*__________________________________________________________________________________________________*/
+	
+	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetSequenceActivity");
+
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+
+		// Validate call
+		if ((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+	}
+	
+	/*_________________________________________________________________________________________________________________________________________*/
+	
+	{
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseEntity::UpdateTransmitState");
+
+		// Validate call
+		if ((hSDKCallUpdateTransmitState = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 	
 	/*__________________________________________________________________________________________________*/
 
-	// Starts the preparation of an SDK call
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseEntity::IsBSPModel");
-	
-	// Adds a parameter to the calling convention. This should be called in normal ascending order
-	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
-	
-	// Validate call
-	if ((hSDKCallIsBSPModel = EndPrepSDKCall()) == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return;
+		// Starts the preparation of an SDK call
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseEntity::IsBSPModel");
+		
+		// Adds a parameter to the calling convention. This should be called in normal ascending order
+		PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
+		
+		// Validate call
+		if ((hSDKCallIsBSPModel = EndPrepSDKCall()) == null)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 	
 	/*__________________________________________________________________________________________________*/
 	
-	// Validate windows
-	if (gServerData.Platform == OS_Windows)
 	{
-		// Find address of a signature
-		Address pSignature;
-		fnInitGameConfAddress(gServerData.Config, pSignature, "FX_FireBullets");
-		
-		/// Create a memory for the trampoline
-		pFireBullets = fnCreateMemoryForSDKCall();
-	   
-		// Starts the preparation of an SDK call
-		StartPrepSDKCall(SDKCall_Static);
-		PrepSDKCall_SetAddress(pFireBullets);
-		
-		// Adds a parameter to the calling convention. This should be called in normal ascending order
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-		PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-
-		// Validate call
-		if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
+		// Validate windows
+		if (gServerData.Platform == OS_Windows)
 		{
-			// Log failure
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
-			return;
-		}
-	   
-		// Replace 0x0 by the sig address
-		writeDWORD(ASMTRAMPOLINE, pSignature, 5);
-	}
-	else
-	{
-		// Starts the preparation of an SDK call
-		StartPrepSDKCall(SDKCall_Static);
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "FX_FireBullets");
-		
-		// Adds a parameter to the calling convention. This should be called in normal ascending order
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-		PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-		
-		// Validate call
-		if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
-		{
-			// Log failure
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
-			return;
-		}
-	}
+			// Find address of a signature
+			Address pSignature;
+			fnInitGameConfAddress(gServerData.Config, pSignature, "FX_FireBullets");
+			
+			/// Create a memory for the trampoline
+			pFireBullets = fnCreateMemoryForSDKCall();
+		   
+			// Starts the preparation of an SDK call
+			StartPrepSDKCall(SDKCall_Static);
+			PrepSDKCall_SetAddress(pFireBullets);
+			
+			// Adds a parameter to the calling convention. This should be called in normal ascending order
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+			PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 
+			// Validate call
+			if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
+			{
+				// Log error
+				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
+			}
+			else
+			{
+				// Replace 0x0 by the sig address
+				writeDWORD(ASMTRAMPOLINE, pSignature, 5);
+			}
+		}
+		else
+		{
+			// Starts the preparation of an SDK call
+			StartPrepSDKCall(SDKCall_Static);
+			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "FX_FireBullets");
+			
+			// Adds a parameter to the calling convention. This should be called in normal ascending order
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+			PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+			
+			// Validate call
+			if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
+			{
+				// Log failure
+				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
+			}
+		}
+	}
+	
 	/*__________________________________________________________________________________________________*/
 
 	/** ~ Retrieving the offsets from game-binary (Linux)
@@ -493,7 +511,7 @@ public int API_LookupAttachment(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return -1;
 	}
 
@@ -504,7 +522,7 @@ public int API_LookupAttachment(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -529,7 +547,7 @@ public int API_GetAttachment(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return -1;
 	}
 	
@@ -540,7 +558,7 @@ public int API_GetAttachment(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -570,7 +588,7 @@ public int API_LookupSequence(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return -1;
 	}
 	
@@ -581,7 +599,7 @@ public int API_LookupSequence(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -606,7 +624,7 @@ public int API_LookupPoseParameter(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return -1;
 	}
 	
@@ -617,7 +635,7 @@ public int API_LookupPoseParameter(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -642,7 +660,7 @@ public int API_ResetSequence(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return -1;
 	}
 	
@@ -653,7 +671,7 @@ public int API_ResetSequence(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -681,7 +699,7 @@ public int API_GetSequenceCount(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return -1;
 	}
 	
@@ -702,7 +720,7 @@ public int API_GetSequenceActivity(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return -1;
 	}
 
@@ -723,7 +741,7 @@ public int API_IsBSPModel(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return false;
 	}
 	
@@ -744,7 +762,7 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
 	}
 	
@@ -754,7 +772,7 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
 	// Validate weapon
 	if (!IsValidEdict(weapon))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the weapon index (%d)", weapon);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the weapon index (%d)", weapon);
 		return false;
 	}
 	
@@ -784,7 +802,7 @@ public int API_UpdateTransmitState(Handle hPlugin, int iNumParams)
 	// Validate entity
 	if (!IsValidEdict(entity))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
 		return false;
 	}
 	
@@ -806,7 +824,7 @@ public int API_RespawnPlayer(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
 	}
 	
@@ -851,11 +869,40 @@ public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
 	}
 	
 	// Sets progress bar
 	ToolsSetProgressBarTime(client, GetNativeCell(2));
 	return true;
+}
+
+/*
+ * Stocks tools API.
+ */
+
+/**
+ * @brief Returns an address value from a given config.
+ *
+ * @param gameConf          The game config handle.
+ * @param pAddress          An address to patch, or null on failure.
+ * @param sKey              Key to retrieve from the address section.
+ * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
+ **/
+void ToolsPatchSendTable(GameData gameConf, Address &pAddress, char[] sKey, int iBits)
+{
+	// Load from config
+	fnInitGameConfAddress(gameConf, pAddress, sKey, false);
+	
+	// Validate address
+	if (pAddress != Address_Null) 
+	{
+		StoreToAddress(pAddress + view_as<Address>(iBits), 32, NumberType_Int32);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SendTableCRC Patch", "Not able to patch \"%s\" with invalid address", sKey);
+	}
 }

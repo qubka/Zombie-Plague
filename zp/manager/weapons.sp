@@ -118,7 +118,7 @@ void WeaponsOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Missing weapons config file: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Missing weapons config file: \"%s\"", sPathWeapons);
 		return;
 	}
 
@@ -131,7 +131,7 @@ void WeaponsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathWeapons);
 		return;
 	}
 
@@ -164,7 +164,7 @@ void WeaponsOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sPathWeapons);
 		return;
 	}
 	
@@ -184,7 +184,7 @@ void WeaponsOnCacheData(/*void*/)
 	int iSize = gServerData.Weapons.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
 		return;
 	}
 
@@ -197,7 +197,7 @@ void WeaponsOnCacheData(/*void*/)
 		if (!kvWeapons.JumpToKey(sPathWeapons))
 		{
 			// Log weapon fatal
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
 			continue;
 		}
 		
@@ -206,7 +206,7 @@ void WeaponsOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathWeapons))
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sPathWeapons);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sPathWeapons);
 			continue;
 		}
 		
@@ -218,7 +218,7 @@ void WeaponsOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathWeapons) && hasLength(sPathWeapons))
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sPathWeapons);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sPathWeapons);
 		}
 		arrayWeapon.PushString(sPathWeapons);                                 // Index: 1
 		kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
@@ -227,7 +227,7 @@ void WeaponsOnCacheData(/*void*/)
 		if (iItem == 0)
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
 		}
 		arrayWeapon.Push(iItem);                                              // Index: 2
 		kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
@@ -696,7 +696,7 @@ public int API_CreateWeapon(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -724,7 +724,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;
 	}
 	
@@ -734,7 +734,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 
@@ -766,7 +766,7 @@ public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
 	}
 	
@@ -776,7 +776,7 @@ public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
 	// Validate weapon
 	if (!IsValidEdict(weapon))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weapon);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weapon);
 		return false;
 	}
 	
@@ -798,7 +798,7 @@ public int API_GetClientViewModel(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;
 	}
 	
@@ -819,7 +819,7 @@ public int API_GetClientAttachModel(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;
 	}
 	
@@ -827,7 +827,7 @@ public int API_GetClientAttachModel(Handle hPlugin, int iNumParams)
 	BitType mBits = GetNativeCell(2);
 	if (mBits == BitType_Invalid)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the bit index (%d)", mBits);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the bit index (%d)", mBits);
 		return -1;
 	}
 	
@@ -849,7 +849,7 @@ public int API_GetWeaponNameID(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Can't find weapon with an empty name");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Can't find weapon with an empty name");
 		return -1;
 	}
 
@@ -885,7 +885,7 @@ public int API_GetWeaponName(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -895,7 +895,7 @@ public int API_GetWeaponName(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -920,7 +920,7 @@ public int API_GetWeaponInfo(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -930,7 +930,7 @@ public int API_GetWeaponInfo(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -955,7 +955,7 @@ public int API_GetWeaponGroup(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -965,7 +965,7 @@ public int API_GetWeaponGroup(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -990,7 +990,7 @@ public int API_GetWeaponClass(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1000,7 +1000,7 @@ public int API_GetWeaponClass(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1025,7 +1025,7 @@ public int API_GetWeaponDefIndex(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1046,7 +1046,7 @@ public int API_GetWeaponCost(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1067,7 +1067,7 @@ public int API_GetWeaponSlot(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1088,7 +1088,7 @@ public int API_GetWeaponLevel(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1109,7 +1109,7 @@ public int API_GetWeaponOnline(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1130,7 +1130,7 @@ public int API_GetWeaponLimit(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1151,7 +1151,7 @@ public int API_GetWeaponDamage(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1172,7 +1172,7 @@ public int API_GetWeaponKnockBack(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1193,7 +1193,7 @@ public int API_GetWeaponSpeed(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1214,7 +1214,7 @@ public int API_GetWeaponJump(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1235,7 +1235,7 @@ public int API_GetWeaponClip(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1256,7 +1256,7 @@ public int API_GetWeaponAmmo(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1277,7 +1277,7 @@ public int API_GetWeaponAmmunition(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1298,7 +1298,7 @@ public int API_IsWeaponDrop(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1319,7 +1319,7 @@ public int API_GetWeaponShoot(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1340,7 +1340,7 @@ public int API_GetWeaponReload(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1361,7 +1361,7 @@ public int API_GetWeaponDeploy(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1382,7 +1382,7 @@ public int API_GetWeaponSoundID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 
@@ -1403,7 +1403,7 @@ public int API_GetWeaponIcon(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1413,7 +1413,7 @@ public int API_GetWeaponIcon(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1438,7 +1438,7 @@ public int API_GetWeaponModelView(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1448,7 +1448,7 @@ public int API_GetWeaponModelView(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1473,7 +1473,7 @@ public int API_GetWeaponModelViewID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1494,7 +1494,7 @@ public int API_GetWeaponModelWorld(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1504,7 +1504,7 @@ public int API_GetWeaponModelWorld(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1529,7 +1529,7 @@ public int API_GetWeaponModelWorldID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1550,7 +1550,7 @@ public int API_GetWeaponModelDrop(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1560,7 +1560,7 @@ public int API_GetWeaponModelDrop(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1585,7 +1585,7 @@ public int API_GetWeaponModelDropID(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1606,7 +1606,7 @@ public int API_GetWeaponModelBody(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1614,7 +1614,7 @@ public int API_GetWeaponModelBody(Handle hPlugin, int iNumParams)
 	ModelType nModel = GetNativeCell(2);
 	if (nModel == ModelType_Invalid)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
 		return -1;
 	}
 	
@@ -1635,7 +1635,7 @@ public int API_GetWeaponModelSkin(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 
@@ -1643,7 +1643,7 @@ public int API_GetWeaponModelSkin(Handle hPlugin, int iNumParams)
 	ModelType nModel = GetNativeCell(2);
 	if (nModel == ModelType_Invalid)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the model index (%d)", nModel);
 		return -1;
 	}
 	
@@ -1664,7 +1664,7 @@ public int API_GetWeaponModelMuzzle(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1674,7 +1674,7 @@ public int API_GetWeaponModelMuzzle(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1699,7 +1699,7 @@ public int API_GetWeaponModelShell(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -1709,7 +1709,7 @@ public int API_GetWeaponModelShell(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -1734,7 +1734,7 @@ public int API_GetWeaponModelHeat(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Weapons.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
 		return -1;
 	}
 	
@@ -2438,7 +2438,7 @@ void WeaponsClearSequenceSwap(int iD)
  * @param weapon            The weapon index.
  * @return                  True or false.    
  **/
-bool WeaponsGetMap(int weapon)
+bool WeaponsIsSpawnedByMap(int weapon)
 {
 	// Gets value on the weapon
 	return view_as<bool>(GetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget"));
@@ -2450,34 +2450,10 @@ bool WeaponsGetMap(int weapon)
  * @param weapon            The weapon index.
  * @param bSet              Enable or disable an aspect of map state.
  **/
-void WeaponsSetMap(int weapon, bool bSet)
+void WeaponsSetSpawnedByMap(int weapon, bool bSet)
 {
 	// Sets value on the weapon
 	SetEntProp(weapon, Prop_Data, "m_bIsAutoaimTarget", bSet);
-}
- 
-/**
- * @brief Gets the custom weapon ID.
- *
- * @param weapon            The weapon index.
- * @return                  The weapon id.    
- **/
-int WeaponsGetCustomID(int weapon)
-{
-	// Gets value on the weapon
-	return GetEntProp(weapon, Prop_Data, "m_iHammerID");
-}
-
-/**
- * @brief Sets the custom weapon ID.
- *
- * @param weapon            The weapon index.
- * @param iD                The weapon id.
- **/
-void WeaponsSetCustomID(int weapon, int iD)
-{
-	// Sets value on the weapon
-	SetEntProp(weapon, Prop_Data, "m_iHammerID", iD);
 }
 
 /**
@@ -2682,7 +2658,7 @@ bool WeaponsRemoveAll(int client, bool bDrop = false)
 			iAmount++;
 	
 			// Validate custom index
-			int iD = WeaponsGetCustomID(weapon);
+			int iD = ToolsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				// Validate access
@@ -2766,8 +2742,8 @@ void WeaponsSwitch(int client, int weapon)
 	// Gets active weapon index from the client
 	int weapon2 = ToolsGetActiveWeapon(client);
 	
-	// Validate switch to the same slot
-	if (weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2))
+	// Validate call (only for switching to the same slot)
+	if (hSDKCallWeaponSwitch && (weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2)))
 	{
 		// Create call to the switch weapons
 		SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
@@ -2810,7 +2786,7 @@ void WeaponsEquip(int client, int weapon, int iD, bool bSwitch = true)
 			weapon2 = WeaponsFindByName(client, sClassname);
 			
 			// If weapon same, then skip
-			if (weapon2 != -1 && WeaponsGetCustomID(weapon2) == iD)
+			if (weapon2 != -1 && ToolsGetCustomID(weapon2) == iD)
 			{
 				// Reset index
 				weapon2 = -1;
@@ -2880,7 +2856,7 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 			case ItemDef_Defuser, ItemDef_Cutters : 
 			{
 				// Sets item id
-				WeaponsSetCustomID(client, iD);
+				ToolsSetCustomID(client, iD);
 				
 				// Sets defuser
 				ToolsSetDefuser(client, true);
@@ -2994,10 +2970,10 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
 	if (weapon != -1)
 	{
 		// Sets weapon id
-		WeaponsSetCustomID(weapon, iD);
+		ToolsSetCustomID(weapon, iD);
 		
-		// Sets weapon map
-		WeaponsSetMap(weapon, false);
+		// Sets weapon spawning status
+		WeaponsSetSpawnedByMap(weapon, false);
 
 		// Apply dropped model
 		WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
@@ -3013,12 +2989,65 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
  * @param iItem             The def index.
  * @param vPosition         (Optional) The origin of the spawn.
  * @param vAngle            (Optional) The angle of the spawn.
- * @return                  The weapon index.
+ * @return                  The weapon index on success, or -1 on failure.
  **/
 int WeaponsSpawn(int iItem, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
 {
-	// Create weapon
-	return (gServerData.Platform == OS_Windows) ? SDKCall(hSDKCallSpawnItem, iItem, vPosition, vAngle, 1, 4, 0) : SDKCall(hSDKCallSpawnItem, 0, iItem, vPosition, vAngle, 1, 4, 0);
+	// Initialize index
+	int weapon = -1;
+	
+	// Validate call
+	if (hSDKCallSpawnItem)
+	{
+		// Create weapon
+		weapon = (gServerData.Platform == OS_Windows) ? SDKCall(hSDKCallSpawnItem, iItem, vPosition, vAngle, 1, 4, 0) : SDKCall(hSDKCallSpawnItem, 0, iItem, vPosition, vAngle, 1, 4, 0);
+		
+		// Validate weapon
+		if (weapon == -1)
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons", "Failed to create spawn item with def index (%d)", iItem);
+		}
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "SDKCall Validation", "Failed to execute SDK call \"CItemGeneration::SpawnItem\". Update signature in \"%s\"", PLUGIN_CONFIG);
+
+		// Use alternative approach
+
+		// Validate weapon id
+		CSWeaponID iD = CS_ItemDefIndexToID(iItem);
+		if (iD != CSWeapon_NONE)
+		{
+			// Gets weapon classname
+			static char sClassname[SMALL_LINE_LENGTH];
+			CS_WeaponIDToAlias(iD, sClassname, sizeof(sClassname));
+
+			// Create weapon
+			if ((weapon = CreateEntityByName(sClassname)) == -1)
+			{
+				// Unexpected error, log it
+				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons", "Failed to create \"%s\" entity with def index (%d)", sClassname, iItem);
+				return weapon;
+			}
+			
+			// Dispatch main values of the weapon
+			DispatchKeyValueVector(weapon, "origin", vPosition);
+			DispatchKeyValueVector(weapon, "angles", vAngle);
+			
+			// Spawn the entity into the world
+			DispatchSpawn(weapon);
+		}
+		else
+		{
+			// Log error
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons", "Failed to get weapon id from def index (%d)", iItem);
+		}
+	}
+	
+	// Return on success
+	return weapon;
 }
 
 /*
@@ -3071,13 +3100,14 @@ int WeaponsFindByName(int client, char[] sType)
 SlotType WeaponsGetSlotType(int weapon)
 {
 	// Gets the slot
-	SlotType mSlot = view_as<SlotType>(SDKCall(hSDKCallGetSlot, weapon));
+	SlotType mSlot = hSDKCallGetSlot ? view_as<SlotType>(SDKCall(hSDKCallGetSlot, weapon)) : SlotType_Max;
 	
 	// Validate slot, may be offset invalid
-	if (mSlot > SlotType_Max)
+	if (mSlot >= SlotType_Max)
 	{
-		// Log failure
-		LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "SDKCall Validation", "Failed to execute SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		return SlotType_Primary;
 	}
 	
 	// Return type
@@ -3136,7 +3166,7 @@ bool WeaponsValidateByID(int client, int iD)
 		if (weapon != -1)
 		{
 			// If weapon find, then return
-			if (WeaponsGetCustomID(weapon) == iD)
+			if (ToolsGetCustomID(weapon) == iD)
 			{
 				return true;
 			}
@@ -3209,7 +3239,7 @@ bool WeaponsValidateClass(int client, int iD)
 bool WeaponsValidateAccess(int client, int weapon)
 {
 	// Validate custom index
-	int iD = WeaponsGetCustomID(weapon);
+	int iD = ToolsGetCustomID(weapon);
 	if (iD != -1)
 	{
 		// Block pickup it, if not available
@@ -3259,10 +3289,10 @@ bool WeaponsValidateByMap(int weapon, char[] sClassname)
 	}
 
 	// Sets weapon id
-	WeaponsSetCustomID(weapon, iD);
+	ToolsSetCustomID(weapon, iD);
 
-	// Sets weapon map
-	WeaponsSetMap(weapon, true);
+	// Sets weapon spawning status
+	WeaponsSetSpawnedByMap(weapon, true);
 	
 	// Apply dropped model
 	WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);

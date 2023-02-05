@@ -87,7 +87,7 @@ void CostumesOnInit(/*void*/)
 			gCvarList.COSTUMES.BoolValue = false;
 		
 			// Log failure
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "You can't enable costume module after map start!");
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "You can't enable costume module after map start!");
 			return;
 		}
 	}
@@ -102,9 +102,8 @@ void CostumesOnInit(/*void*/)
 	// Validate hook
 	if (hDHookSetEntityModel == null)
 	{
-		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "GameData Validation", "Failed to create DHook for \"CCSPlayer::SetEntityModel\". Update \"SourceMod\"");
-		return;
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "GameData Validation", "Failed to create DHook for \"CCSPlayer::SetEntityModel\". Update \"SourceMod\"");
 	}
 }
 
@@ -130,7 +129,7 @@ void CostumesOnLoad(/*void*/)
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Missing costumes config file: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Missing costumes config file: %s", sPathCostumes);
 		return;
 	}
 
@@ -143,7 +142,7 @@ void CostumesOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sPathCostumes);
 		return;
 	}
 
@@ -172,7 +171,7 @@ void CostumesOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error caching data from costumes config file: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error caching data from costumes config file: %s", sPathCostumes);
 		return;
 	}
 
@@ -180,7 +179,7 @@ void CostumesOnCacheData(/*void*/)
 	int iSize = gServerData.Costumes.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sPathCostumes);
 		return;
 	}
 	
@@ -193,7 +192,7 @@ void CostumesOnCacheData(/*void*/)
 		if (!kvCostumes.JumpToKey(sPathCostumes))
 		{
 			// Log costume fatal
-			LogEvent(false, LogType_Fatal, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sPathCostumes);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sPathCostumes);
 			continue;
 		}
 		
@@ -202,7 +201,7 @@ void CostumesOnCacheData(/*void*/)
 		if (!TranslationPhraseExists(sPathCostumes))
 		{
 			// Log costume error
-			LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sPathCostumes);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sPathCostumes);
 			continue;
 		}
 
@@ -303,7 +302,17 @@ void CostumesOnClientInit(int client)
 	}
 	
 	// Hook entity callbacks
-	iD[client] = DHookEntity(hDHookSetEntityModel, true, client);
+	
+	// Validate hook
+	if (hDHookSetEntityModel)
+	{
+		iD[client] = DHookEntity(hDHookSetEntityModel, true, client);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "DHook Validation", "Failed to attach DHook to \"CCSPlayer::SetEntityModel\". Update \"SourceMod\"");
+	}
 }
 
 /**
@@ -456,7 +465,7 @@ public int API_SetClientCostume(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -489,7 +498,7 @@ public int API_GetCostumeNameID(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Can't find costume with an empty name");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Can't find costume with an empty name");
 		return -1;
 	}
 	
@@ -516,7 +525,7 @@ public int API_GetCostumeName(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -526,7 +535,7 @@ public int API_GetCostumeName(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -551,7 +560,7 @@ public int API_GetCostumeModel(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -561,7 +570,7 @@ public int API_GetCostumeModel(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -586,7 +595,7 @@ public int API_GetCostumeBody(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -607,7 +616,7 @@ public int API_GetCostumeSkin(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -628,7 +637,7 @@ public int API_GetCostumeAttach(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -638,7 +647,7 @@ public int API_GetCostumeAttach(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -663,7 +672,7 @@ public int API_GetCostumePosition(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -688,7 +697,7 @@ public int API_GetCostumeAngle(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -713,7 +722,7 @@ public int API_GetCostumeGroup(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -723,7 +732,7 @@ public int API_GetCostumeGroup(Handle hPlugin, int iNumParams)
 	// Validate size
 	if (!maxLen)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "No buffer size");
 		return -1;
 	}
 	
@@ -748,7 +757,7 @@ public int API_IsCostumeHide(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -769,7 +778,7 @@ public int API_IsCostumeMerge(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	
@@ -790,7 +799,7 @@ public int API_GetCostumeLevel(Handle hPlugin, int iNumParams)
 	// Validate index
 	if (iD >= gServerData.Costumes.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
 		return -1;
 	}
 	

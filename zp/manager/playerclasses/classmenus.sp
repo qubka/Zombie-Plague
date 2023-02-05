@@ -95,7 +95,7 @@ void ZombieValidateClass(int client)
 	int iClass = ClassValidateIndex(client, "zombie");
 	switch (iClass)
 	{
-		case -2 : LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"zombie\" class");
+		case -2 : LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"zombie\" class");
 		
 		case -1 : { /* < empty statement > */ }
 		
@@ -122,7 +122,7 @@ void HumanValidateClass(int client)
 	int iClass = ClassValidateIndex(client, "human");
 	switch (iClass)
 	{
-		case -2 : LogEvent(false, LogType_Error, LOG_GAME_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"human\" class");
+		case -2 : LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"human\" class");
 		
 		case -1 : { /* < empty statement > */ }
 		

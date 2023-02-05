@@ -51,6 +51,13 @@ void DeathOnInit(/*void*/)
 	hDHookCommitSuicide = DHookCreate(DHook_CommitSuicide, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity, DeathDhookOnCommitSuicide);
 	DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
 	DHookAddParam(hDHookCommitSuicide, HookParamType_Bool);
+	
+	// Validate hook
+	if (hDHookCommitSuicide == null)
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Death, "GameData Validation", "Failed to create DHook for \"CCSPlayer::CommitSuicide\". Update \"SourceMod\"");
+	}
 }
 
 /**
@@ -98,7 +105,17 @@ void DeathOnCommandInit(/*void*/)
 void DeathOnClientInit(int client)
 {
 	// Hook entity callbacks
-	DHookEntity(hDHookCommitSuicide, true, client);
+
+	// Validate hook
+	if (hDHookCommitSuicide)
+	{
+		DHookEntity(hDHookCommitSuicide, true, client);
+	}
+	else
+	{
+		// Log error
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Death, "DHook Validation", "Failed to attach DHook to \"CCSPlayer::CommitSuicide\". Update \"SourceMod\"");
+	}
 }
 
 /**

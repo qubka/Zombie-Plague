@@ -390,7 +390,7 @@ public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
 	// Validate client
 	if (!IsPlayerExist(client, false))
 	{
-		LogEvent(false, LogType_Native, LOG_GAME_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
 		return 0;
 	}
 	
