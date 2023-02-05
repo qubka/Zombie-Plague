@@ -538,7 +538,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 		if (dealer != -1)
 		{
 			// Validate custom index
-			int iD = ToolsGetWeaponID(dealer);
+			int iD = ToolsGetCustomID(dealer);
 			if (iD != -1)
 			{
 				// Add multipliers
@@ -1321,7 +1321,7 @@ void HitGroupsApplyKnock(int client, int attacker, float flForce)
 	}
 
 	// Apply multiplier if client on air
-	if (!HitGroupsIsOnGround(client) flForce *= gCvarList.HITGROUP_KNOCKBACK_AIR.FloatValue;
+	if (!HitGroupsIsOnGround(client)) flForce *= gCvarList.HITGROUP_KNOCKBACK_AIR.FloatValue;
 	// Apply multiplier if client crouching
 	else if (HitGroupsIsDucking(client)) flForce *= gCvarList.HITGROUP_KNOCKBACK_CROUCH.FloatValue;
 	

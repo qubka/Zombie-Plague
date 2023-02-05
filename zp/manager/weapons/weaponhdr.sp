@@ -138,7 +138,10 @@ void WeaponHDRSwapViewModel(int client, int weapon, int view1, int view2, int iD
 		}
 		
 		// If class models missing use weapon model
-		if (!iModel) iModel = WeaponsGetModelViewID(iD);
+		if (!iModel) 
+		{
+			iModel = WeaponsGetModelViewID(iD);
+		}
 	}
 
 	// Stops effects before showing viewmodel

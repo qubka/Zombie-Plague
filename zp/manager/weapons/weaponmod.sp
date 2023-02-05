@@ -1023,7 +1023,7 @@ public void WeaponMODOnSwitch(int client, int weapon)
 			if (last != -1)
 			{
 				// Validate last index
-				int iD = ToolsGetCustomID(last);
+				int iL = ToolsGetCustomID(last);
 				if (iL != -1 && iD != iL)
 				{
 					// Call forward
@@ -1094,6 +1094,9 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 	{
 		return;
 	}
+	
+	// Initialze update check
+	bool bUpdate = true;
 
 	// Validate weapon
 	if (IsValidEdict(weapon))
@@ -1115,11 +1118,12 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 				// Make the second viewmodel visible
 				WeaponHDRSetVisibility(view2, true);
 				ToolsUpdateTransmitState(view2);
-
-				//
-				WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
 				
-				false;
+				// Skip view model update
+				bUpdate = false;
+				
+				// Perform view model swap
+				WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
 			}
 
 			// If worldmodel exist, then apply it
@@ -1137,7 +1141,8 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 		}
 	}
 	
-	if ()
+	// Validate update
+	if (bUpdate)
 	{
 		// Make the first viewmodel visible
 		WeaponHDRSetVisibility(view1, true);

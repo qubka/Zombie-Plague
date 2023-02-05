@@ -365,6 +365,7 @@ Address ParticlesFindTable(char[] sTable)
 	{
 		// Log error
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Effects, "SDKCall Validation", "Failed to execute SDK call \"CNetworkStringTableContainer::FindTable\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		return Address_Null;
 	}
 }    
 
