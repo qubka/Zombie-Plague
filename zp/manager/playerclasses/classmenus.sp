@@ -458,7 +458,7 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 				ClassGetName(iD, sBuffer, sizeof(sBuffer));
   
 				// If help messages enabled, then show info
-				if (gCvarList.MESSAGES_CLASS_CHOOSE.BoolValue) TranslationPrintToChat(client, "class info", sBuffer, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
+				if (gCvarList.MESSAGES_CLASS_CHOOSE.BoolValue) TranslationPrintToChat(client, "info class", sBuffer, ClassGetHealth(iD), ClassGetArmor(iD), ClassGetSpeed(iD));
 			
 				// If help messages enabled, then show info
 				if (gCvarList.MESSAGES_CLASS_DUMP.BoolValue) 
@@ -493,7 +493,7 @@ void ClassesMenu(int client)
 	if (!gServerData.RoundStart)
 	{
 		// Show block info
-		TranslationPrintHintText(client, "classes round block"); 
+		TranslationPrintHintText(client, "block classes round"); 
 
 		// Emit error sound
 		EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
@@ -597,7 +597,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			if (!gServerData.RoundStart)
 			{
 				// Show block info
-				TranslationPrintHintText(client, "using menu block");
+				TranslationPrintHintText(client, "block using menu");
 		
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -628,7 +628,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			else
 			{
 				// Show block info
-				TranslationPrintHintText(client, "selecting target block");
+				TranslationPrintHintText(client, "block selecting target");
 					
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
@@ -737,7 +737,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			if (!gServerData.RoundStart)
 			{
 				// Show block info
-				TranslationPrintHintText(client, "using menu block");
+				TranslationPrintHintText(client, "block using menu");
 		
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -763,7 +763,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			else
 			{
 				// Show block info
-				TranslationPrintHintText(client, "selecting target block");
+				TranslationPrintHintText(client, "block selecting target");
 					
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  

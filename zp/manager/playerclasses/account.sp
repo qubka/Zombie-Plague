@@ -269,7 +269,7 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
 		}
 		
 		// Print hud text to the client
-		TranslationPrintHudText(gServerData.AccountSync, client, gCvarList.ACCOUNT_HUD_X.FloatValue, gCvarList.ACCOUNT_HUD_Y.FloatValue, 1.1, gCvarList.ACCOUNT_HUD_R.IntValue, gCvarList.ACCOUNT_HUD_G.IntValue, gCvarList.ACCOUNT_HUD_B.IntValue, gCvarList.ACCOUNT_HUD_A.IntValue, 0, 0.0, 0.0, 0.0, "account info", "money", gClientData[target].Money);
+		TranslationPrintHudText(gServerData.AccountSync, client, gCvarList.ACCOUNT_HUD_X.FloatValue, gCvarList.ACCOUNT_HUD_Y.FloatValue, 1.1, gCvarList.ACCOUNT_HUD_R.IntValue, gCvarList.ACCOUNT_HUD_G.IntValue, gCvarList.ACCOUNT_HUD_B.IntValue, gCvarList.ACCOUNT_HUD_A.IntValue, 0, 0.0, 0.0, 0.0, "info account", "money", gClientData[target].Money);
 
 		// Allow timer
 		return Plugin_Continue;
@@ -410,7 +410,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
 		GetClientName(target, sInfo[1], sizeof(sInfo[]));
 		
 		// Show message of successful transaction
-		TranslationPrintToChatAll("donate info", sInfo[0], iAmount, "money", sInfo[1]);
+		TranslationPrintToChatAll("info donate", sInfo[0], iAmount, "money", sInfo[1]);
 	}
 	
 	// Return on success
@@ -591,7 +591,7 @@ void AccountMenu(int client, int iMoney, float flCommision)
 	if (flCommision <= 0.0)
 	{
 		// Sets donate title
-		hMenu.SetTitle("%t", "donate", iMoney, "money");
+		hMenu.SetTitle("%t", "account donate", iMoney, "money");
 	}
 	else
 	{
@@ -605,18 +605,18 @@ void AccountMenu(int client, int iMoney, float flCommision)
 			FormatEx(sInfo, sizeof(sInfo), "%.2f%", flCommision * 100.0);
 		}
 		// Sets commission title
-		hMenu.SetTitle("%t", "commission", iMoney, "money", sInfo);
+		hMenu.SetTitle("%t", "account commission", iMoney, "money", sInfo);
 	}
 
 	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "increase");
+	FormatEx(sBuffer, sizeof(sBuffer), "%t", "account increase");
 	
 	// Show increase option
 	FormatEx(sInfo, sizeof(sInfo), "-2 %d %f", iMoney, flCommision);
 	hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
 
 	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "decrease");
+	FormatEx(sBuffer, sizeof(sBuffer), "%t", "account decrease");
 	
 	// Show decrease option
 	FormatEx(sInfo, sizeof(sInfo), "-1 %d %f", iMoney, flCommision);
@@ -757,14 +757,14 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 							GetClientName(target, sInfo[1], sizeof(sInfo[]));
 							
 							// Show message of successful transaction
-							TranslationPrintToChatAll("donate info", sInfo[0], iAmount, "money", sInfo[1]);
+							TranslationPrintToChatAll("info donate", sInfo[0], iAmount, "money", sInfo[1]);
 						}
 					}
 					else
 					{
 
 						// Show block info
-						TranslationPrintHintText(client, "selecting target block");
+						TranslationPrintHintText(client, "block selecting target");
 					
 						// Emit error sound
 						EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 

@@ -1057,7 +1057,7 @@ void CostumesMenu(int client)
 	hMenu.SetTitle("%t", "costumes menu");
 	
 	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "remove");
+	FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "costumes remove");
 	
 	// Show add option
 	hMenu.AddItem("-1", sBuffer);

@@ -1611,7 +1611,7 @@ bool WeaponMODOnClientBuyammo(int client)
 			if (gClientData[client].Money < iCost)
 			{
 				// Show block info
-				TranslationPrintHintText(client, "buying ammunition block");
+				TranslationPrintHintText(client, "block buying ammunition");
 				
 				// Emit error sound
 				//EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -1723,7 +1723,7 @@ public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int 
 					if (gCvarList.MESSAGES_WEAPON_DROP.BoolValue && gCvarList.GAMEMODE_WEAPONS_REMOVE.BoolValue && gServerData.RoundNew)
 					{
 						// Show remove info
-						TranslationPrintToChat(client, "drop info");
+						TranslationPrintToChat(client, "info drop");
 					}
 				}
 			}

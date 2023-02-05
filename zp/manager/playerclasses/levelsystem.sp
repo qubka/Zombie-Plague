@@ -494,7 +494,7 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
 		ClassGetName(gClientData[target].Class, sInfo, sizeof(sInfo));
 
 		// Print hud text to the client
-		TranslationPrintHudText(gServerData.LevelSync, client, gCvarList.LEVEL_HUD_X.FloatValue, gCvarList.LEVEL_HUD_Y.FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "level info", sInfo, gClientData[target].Level, gClientData[target].Exp, LevelSystemGetLimit(gClientData[target].Level));
+		TranslationPrintHudText(gServerData.LevelSync, client, gCvarList.LEVEL_HUD_X.FloatValue, gCvarList.LEVEL_HUD_Y.FloatValue, 1.1, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.0, 0.0, 0.0, "info level", sInfo, gClientData[target].Level, gClientData[target].Exp, LevelSystemGetLimit(gClientData[target].Level));
 
 		// Allow timer
 		return Plugin_Continue;

@@ -283,7 +283,7 @@ void ExtraItemsOnFakeClientThink(int client)
 		ItemsGetName(iD, sBuffer, sizeof(sBuffer));
 
 		// Show item buying info
-		TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+		TranslationPrintToChatAll("info buy", sInfo, sBuffer);
 	}
 }
 
@@ -963,7 +963,7 @@ void ItemsMenu(int client)
 	if (gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie)
 	{
 		// Show block info
-		TranslationPrintHintText(client, "buying round block");     
+		TranslationPrintHintText(client, "block buying round");     
 
 		// Emit error sound
 		EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
@@ -991,11 +991,14 @@ void ItemsMenu(int client)
 	// Sets title
 	hMenu.SetTitle("%t", "buy extraitems");
 	
-	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "buy equipments");
-	
-	// Show add option
-	hMenu.AddItem("-1", sBuffer);
+	if ()
+	{
+		// Format some chars for showing in menu
+		FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "buy equipments");
+		
+		// Show add option
+		hMenu.AddItem("-1", sBuffer);
+	}
 	
 	// Initialize forward
 	Action hResult;
@@ -1096,7 +1099,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			if ((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
 			{
 				// Show block info
-				TranslationPrintHintText(client, "buying round block");
+				TranslationPrintHintText(client, "block buying round");
 
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -1160,7 +1163,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 								GetClientName(client, sInfo, sizeof(sInfo));
 
 								// Show item buying info
-								TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+								TranslationPrintToChatAll("info buy", sInfo, sBuffer);
 							}
 						
 							// If help messages enabled, then show info
@@ -1179,7 +1182,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 					}
 
 					// Show block info
-					TranslationPrintHintText(client, "buying item block", sBuffer);
+					TranslationPrintHintText(client, "block buying item", sBuffer);
 			
 					// Emit error sound
 					EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);

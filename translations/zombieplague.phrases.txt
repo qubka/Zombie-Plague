@@ -48,90 +48,83 @@
 	// Generic
 	// ===========================
 
-	"zombie comming" // Hint
+	"generic zombie comming" // Hint
 	{
 		"#format"		"{1:d}"
 		"en"			"<font color='#FFFF00'>Infection will begin in</font>: <font color='#0000FF'>{1}</font>"
 	}
 
-	"zombie left" // Hint
+	"generic zombie left" // Hint
 	{
 		"#format"		"{1:s}"
 		"en"			"<font color='#B422A6'>The last zombie has left,</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>is the new zombie!</font>"
 	}
 
-	"human left" // Hint
+	"generic human left" // Hint
 	{
 		"#format"		"{1:s}"
 		"en"			"<font color='#B422A6'>The last human has left,</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>is the new human!</font>"
 	}
 	
-	"player left" // Hint
+	"generic player left" // Hint
 	{
 		"en"			"<font color='#D67E76'>The last player has left the game</font>!"
 	}
 
-	"account info" // DHUD (translated)
+	// ===========================
+	// Information
+	// ===========================
+	
+	"info account" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d}"
 		"en"			"{1}{2}"
 	}
 
-	"level info" // DHUD (translated)
+	"info level" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:d}"
 		"en"			"CLASS:[{1}]\nLVL:[{2}] EXP:[{3}/{4}]"
 	}
 
-	"class info" // Chat (translated)
+	"info class" // Chat (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:.1f}"
 		"en"			"Class: @red[{1}] @defaultHP: @red[{2}] @defaultArmor: @red[{3}] @defaultSpeed: @red[{4}]" 
 	}
 	
-	"damage info" // Hint
+	"info damage" // Hint
 	{
 		"#format"		"{1:d}"
 		"en"			"<font color='#FFFFFF'>HP</font>: <font color='#FF0000'>{1}</font>"
 	}
 	
-	"full damage info" // Hint
+	"info damage full" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"en"			"<font color='#FFFFFF'>HP</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Armor</font>: <font color='#FF0000'>{2}</font>"
 	}
 
-	"buy info" // Chat (translated)
+	"info buy" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:t}"
 		"en"			"Player: @red[{1}] @defaultbought: @red[{2}]"
 	}
 
-	"donate info" // Chat (translated)
+	"info donate" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:d},{3:t},{4:s}"
 		"en"			"Player: @red[{1}] @defaultdonate: @red[{2}{3}] @defaultto player: @red[{4}]"
 	}
 	
-	"drop info" // Chat
+	"info drop" // Chat
 	{
 		"en"			"All dropped weapons will be removed at the beginning of the game!"
 	}
 	
 	// ===========================
-	// Basics
+	// Menus
 	// ===========================
-	
-	"skill ready" // Hint
-	{
-		"en"			"<font color='#FF0000'>Skill ready</font>!"
-	}
-
-	"countdown" // Hint
-	{
-		"#format"		"{1:d}"
-		"en"			"<font color='#0EB411'>Countdown</font>: <font color='#0EB4A7'>{1}</font>"
-	}
 
 	"price" // Menu (translated)
 	{
@@ -161,95 +154,53 @@
 	{
 		"en"			"$"
 	}
-	
-	"donate" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t}"
-		"en"			"Donate: [{1}{2}]"
-	}
-	
-	"commission" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t},{3:s}"
-		"en"			"Amount: [{1}{2}] | Commission: [{3}]"
-	}
-	
+		
 	"empty" // Menu
 	{
 		"en"			"(Empty)"
 	}
-	
-	"add" // Menu
-	{
-		"en"			"Add"
-	}
-	
-	"remember" // Menu
-	{
-		"en"			"Remember"
-	}
-	
-	"remove" // Menu
-	{
-		"en"			"Remove"
-	}
-	
-	"increase" // Menu
-	{
-		"en"			"Increase"
-	}
-	
-	"decrease" // Menu
-	{
-		"en"			"Decrease\n \n"
-	}
-	
-	"buy" // Menu
-	{
-		"en"			"Buy all"
-	}
-	
+
 	// ===========================
 	// Validations
 	// ===========================
 	
-	"using menu block" // Hint
+	"block using menu" // Hint
 	{
 		"en"			"You can't use the menu!"
 	}
 
-	"buying item block" // Hint (translated)
+	"block buying item" // Hint (translated)
 	{
 		"#format"		"{1:t}"
 		"en"			"You can't buy: <font color='#FF0000'>{1}</font>"
 	}
 	
-	"buying ammunition block" // Hint
+	"block buying ammunition" // Hint
 	{
 		"en"			"You can't buy ammunition!"
 	}
 	
-	"selecting target block" // Hint
+	"block selecting target" // Hint
 	{
 		"en"			"Invalid target!"
 	}
 	
-	"unstucking prop block" // Hint
+	"block unstucking prop" // Hint
 	{
 		"en"			"You are not stuck in another prop!"
 	}
 	
-	"buying round block" // Hint
+	"block buying round" // Hint
 	{
 		"en"			"You can't buy during this round!"
 	}
 
-	"starting round block" // Hint
+	"block starting round" // Hint
 	{
 		"en"			"You can't start a gamemode, because one has already begun!"
 	}
 	
-	"classes round block" // Hint
+	"block classes round" // Hint
 	{
 		"en"			"You can't change your class, because the round hasn't started yet!"
 	}
@@ -462,10 +413,71 @@
 	{
 		"en"			"Players couldn't be found."
 	}
+		
+	// ===========================
+	// ZMarket
+	// ===========================
+	
+	"zmarket add" // Menu
+	{
+		"en"			"Add"
+	}
+
+	"zmarket buy" // Menu
+	{
+		"en"			"Buy\n \nLayout"
+	}
+	
+	"zmarket buy all" // Menu
+	{
+		"en"			"Buy all"
+	}
+		
+	"zmarket remember" // Menu
+	{
+		"en"			"Remember"
+	}
+	
+	// ===========================
+	// Skillsystem
+	// ===========================
+	
+	"skill ready" // Hint
+	{
+		"en"			"<font color='#FF0000'>Skill ready</font>!"
+	}
+
+	"skill countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"en"			"<font color='#0EB411'>Countdown</font>: <font color='#0EB4A7'>{1}</font>"
+	}
 
 	// ===========================
-	// Other
+	// Account
 	// ===========================
+	
+	"account donate" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"en"			"Donate: [{1}{2}]"
+	}
+	
+	"account commission" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:s}"
+		"en"			"Amount: [{1}{2}] | Commission: [{3}]"
+	}
+	
+	"account increase" // Menu
+	{
+		"en"			"Increase"
+	}
+	
+	"account decrease" // Menu
+	{
+		"en"			"Decrease\n \n"
+	}
 	
 	"account give invalid args" // Console
 	{
@@ -477,6 +489,15 @@
 		"#format"		"{1:d}"
 		"en"			"Invalid money amount ({1})"
 	}
+
+	"account donate invalid args" // Console
+	{
+		"en"			"Donates the money. Usage: zp_money_donate <name> [amount]\n\n"
+	}
+	
+	// ===========================
+	// Levelsystem
+	// ===========================
 
 	"level give invalid args" // Console
 	{
@@ -500,8 +521,12 @@
 		"en"			"Invalid experience amount ({1})"
 	}
 	
-	"account donate invalid args" // Console
+	// ===========================
+	// Costumes
+	// ===========================
+	
+	"costumes remove" // Menu
 	{
-		"en"			"Donates the money. Usage: zp_money_donate <name> [amount]\n\n"
+		"en"			"Remove"
 	}
 }

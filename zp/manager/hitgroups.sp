@@ -615,7 +615,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 		HitGroupsGiveExp(attacker, iDamage);
 		
 		// If help messages enabled, then show info
-		if (gCvarList.MESSAGES_DAMAGE.BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "full damage info" : "damage info", (iHealth > 0) ? iHealth : 0, iArmor);
+		if (gCvarList.MESSAGES_DAMAGE.BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "info damage full" : "info damage", (iHealth > 0) ? iHealth : 0, iArmor);
 
 		// Client was damaged by 'bullet' or 'knife'
 		if (iBits & DMG_NEVERGIB)

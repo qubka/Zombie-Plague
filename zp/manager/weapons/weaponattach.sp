@@ -441,6 +441,7 @@ void WeaponAttachSetAddons(int client)
 			}
 		}
 	}
+	/// REMOVED BELLOW
 	/*else if (gClientData[client].AttachmentBits & CSAddon_DefuseKit)
 	{
 		// Remove current addons

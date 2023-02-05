@@ -48,90 +48,83 @@
 	// Generic
 	// ===========================
 
-	"zombie comming" // Hint
+	"generic zombie comming" // Hint
 	{
 		"#format"		"{1:d}"
 		"ru"			"<font color='#FFFF00'>Заражение начнется</font>: <font color='#0000FF'>{1}</font>"
 	}
 
-	"zombie left" // Hint
+	"generic zombie left" // Hint
 	{
 		"#format"		"{1:s}"
 		"ru"			"<font color='#B422A6'>Последний зомби вышел, теперь</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>зомби!</font>"
 	}
 
-	"human left" // Hint
+	"generic human left" // Hint
 	{
 		"#format"		"{1:s}"
 		"ru"			"<font color='#B422A6'>Последний человек вышел, теперь</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>человек!</font>"
 	}
 	
-	"player left" // Hint
+	"generic player left" // Hint
 	{
 		"ru"			"<font color='#D67E76'>Последний игрок вышел</font>!"
 	}
 
-	"account info" // DHUD (translated)
+	// ===========================
+	// Information
+	// ===========================
+	
+	"info account" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d}"
 		"ru"			"{1}{2}"
 	}
 
-	"level info" // DHUD (translated)
+	"info level" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:d}"
 		"ru"			"КЛАСС:[{1}]\nУРОВЕНЬ:[{2}] ОПЫТ:[{3}/{4}]"
 	}
 
-	"class info" // Chat (translated)
+	"info class" // Chat (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:.1f}"
 		"ru"			"Класс: @red[{1}] @defaultЗдоровье: @red[{2}] @defaultБроня: @red[{3}] @defaultСкорость: @red[{4}]" 
 	}
 	
-	"damage info" // Hint
+	"info damage" // Hint
 	{
 		"#format"		"{1:d}"
 		"ru"			"<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>"
 	}
 	
-	"full damage info" // Hint
+	"info damage full" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"ru"			"<font color='#FFFFFF'>ХП</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Броня</font>: <font color='#FF0000'>{2}</font>"
 	}
 
-	"buy info" // Chat (translated)
+	"info buy" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:t}"
 		"ru"			"Игрок: @red[{1}] @defaultкупил: @red[{2}]"
 	}
 
-	"donate info" // Chat (translated)
+	"info donate" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:d},{3:t},{4:s}"
 		"ru"			"Игрок: @red[{1}] @defaultперевел: @red[{2}{3}] @defaultигроку: @red[{4}]"
 	}
 	
-	"drop info" // Chat
+	"info drop" // Chat
 	{
 		"ru"			"Все выброшенные оружия будут удалены при начале раунда!"
 	}
 	
 	// ===========================
-	// Basics
+	// Menus
 	// ===========================
-	
-	"skill ready" // Hint
-	{
-		"ru"			"<font color='#FF0000'>Способность готова</font>!"
-	}
-
-	"countdown" // Hint
-	{
-		"#format"		"{1:d}"
-		"ru"			"<font color='#0EB411'>Заряд способности</font>: <font color='#0EB4A7'>{1}</font>"
-	}
 
 	"price" // Menu (translated)
 	{
@@ -161,95 +154,53 @@
 	{
 		"ru"			"$"
 	}
-	
-	"donate" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t}"
-		"ru"			"Переслать: [{1}{2}]"
-	}
-	
-	"commission" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t},{3:s}"
-		"ru"			"Сумма: [{1}{2}] | Комиссия: [{3}]"
-	}
-	
+		
 	"empty" // Menu
 	{
 		"ru"			"(Пусто)"
 	}
-	
-	"add" // Menu
-	{
-		"ru"			"Добавить"
-	}
-	
-	"remember" // Menu
-	{
-		"ru"			"Запомнить"
-	}
-	
-	"remove" // Menu
-	{
-		"ru"			"Убрать"
-	}
-	
-	"increase" // Menu
-	{
-		"ru"			"Увеличить"
-	}
-	
-	"decrease" // Menu
-	{
-		"ru"			"Уменьшить\n \n"
-	}
-	
-	"buy" // Menu
-	{
-		"ru"			"Купить все"
-	}
-	
+
 	// ===========================
 	// Validations
 	// ===========================
 	
-	"using menu block" // Hint
+	"block using menu" // Hint
 	{
 		"ru"			"Вы не можете использовать меню!"
 	}
 
-	"buying item block" // Hint (translated)
+	"block buying item" // Hint (translated)
 	{
 		"#format"		"{1:t}"
 		"ru"			"Вы не можете купить: <font color='#FF0000'>{1}</font>"
 	}
 	
-	"buying ammunition block" // Hint
+	"block buying ammunition" // Hint
 	{
 		"ru"			"Вы не можете купить патроны!"
 	}
 	
-	"selecting target block" // Hint
+	"block selecting target" // Hint
 	{
 		"ru"			"Неверная цель!"
 	}
 	
-	"unstucking prop block" // Hint
+	"block unstucking prop" // Hint
 	{
 		"ru"			"Вы не застряли в другом обьекте!"
 	}
 	
-	"buying round block" // Hint
+	"block buying round" // Hint
 	{
 		"ru"			"Вы не можете покупать в течении этого раунда!"
 	}
 
-	"starting round block" // Hint
+	"block starting round" // Hint
 	{
 		"ru"			"Вы не можете начать раунд, потому что он уже запущен!"
 	}
 	
-	"classes round block" // Hint
+	"block classes round" // Hint
 	{
 		"ru"			"Вы не можете поменять класс, потому что раунд не начат!"
 	}
@@ -462,10 +413,71 @@
 	{
 		"ru"			"Игроков найти не удалось."
 	}
+			
+	// ===========================
+	// ZMarket
+	// ===========================
+	
+	"zmarket add" // Menu
+	{
+		"ru"			"Добавить"
+	}
 
+	"zmarket buy" // Menu
+	{
+		"ru"			"Купить\n \nНастройка"
+	}
+	
+	"zmarket buy all" // Menu
+	{
+		"ru"			"Купить все"
+	}
+		
+	"zmarket remember" // Menu
+	{
+		"ru"			"Запомнить"
+	}
+	
 	// ===========================
-	// Other
+	// Skillsystem
 	// ===========================
+	
+	"skill ready" // Hint
+	{
+		"ru"			"<font color='#FF0000'>Способность готова</font>!"
+	}
+
+	"skill countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"ru"			"<font color='#0EB411'>Заряд способности</font>: <font color='#0EB4A7'>{1}</font>"
+	}
+	
+	// ===========================
+	// Account
+	// ===========================
+	
+	"account donate" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"ru"			"Переслать: [{1}{2}]"
+	}
+	
+	"account commission" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:s}"
+		"ru"			"Сумма: [{1}{2}] | Комиссия: [{3}]"
+	}
+	
+	"account increase" // Menu
+	{
+		"ru"			"Увеличить"
+	}
+	
+	"account decrease" // Menu
+	{
+		"ru"			"Уменьшить\n \n"
+	}
 	
 	"account give invalid args" // Console
 	{
@@ -477,6 +489,15 @@
 		"#format"		"{1:d}"
 		"ru"			"Недействительная денежная сумма ({1})"
 	}
+
+	"account donate invalid args" // Console
+	{
+		"ru"			"Передача денег. Использование: zp_money_donate <name> [amount]\n\n"
+	}
+	
+	// ===========================
+	// Levelsystem
+	// ===========================
 
 	"level give invalid args" // Console
 	{
@@ -500,8 +521,12 @@
 		"ru"			"Недействительный опыт ({1})"
 	}
 	
-	"account donate invalid args" // Console
+	// ===========================
+	// Costumes
+	// ===========================
+	
+	"costumes remove" // Menu
 	{
-		"ru"			"Передача денег. Использование: zp_money_donate <name> [amount]\n\n"
+		"ru"			"Убрать"
 	}
 }

@@ -243,7 +243,7 @@ void ZMarketOnFakeClientThink(int client)
 			WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
 			
 			// Show item buying info
-			TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+			TranslationPrintToChatAll("info buy", sInfo, sBuffer);
 		}
 	}
 }
@@ -379,7 +379,7 @@ public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArgum
 		if (gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode) && !gClientData[client].Zombie)
 		{
 			// Show block info
-			TranslationPrintHintText(client, "buying round block"); 
+			TranslationPrintHintText(client, "block buying round"); 
 
 			// Emit error sound
 			EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
@@ -625,7 +625,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 	if (gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode) && !gClientData[client].Zombie)
 	{
 		// Show block info
-		TranslationPrintHintText(client, "buying round block"); 
+		TranslationPrintHintText(client, "block buying round"); 
 
 		// Emit error sound
 		EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
@@ -660,7 +660,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 		case MenuType_Option :
 		{
 			// Format some chars for showing in menu
-			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "add");
+			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "zmarket add");
 			
 			// Show add option
 			hMenu.AddItem("-1", sBuffer);
@@ -669,7 +669,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 		case MenuType_Rebuy :
 		{
 			// Format some chars for showing in menu
-			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "buy");
+			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "zmarket buy all");
 			
 			// Show add option
 			hMenu.AddItem("-1", sBuffer);
@@ -825,7 +825,7 @@ public int ZMarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int 
 				case -1 :
 				{
 					// Opens market menu back
-					ZMarketBuyMenu(client, "add", MenuType_Add);
+					ZMarketBuyMenu(client, "zmarket add", MenuType_Add);
 				}
 				
 				// Client hit 'Weapon' button
@@ -987,7 +987,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 			if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
 			{
 				// Show block info
-				TranslationPrintHintText(client, "buying round block");
+				TranslationPrintHintText(client, "block buying round");
 		
 				// Emit error sound
 				EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -1123,7 +1123,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 										WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
 										
 										// Show item buying info
-										TranslationPrintToChatAll("buy info", sInfo, sBuffer);
+										TranslationPrintToChatAll("info buy", sInfo, sBuffer);
 									}
 									
 									// If help messages enabled, then show info
@@ -1155,7 +1155,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 					WeaponsGetName(iD, sBuffer, sizeof(sBuffer));    
 			
 					// Show block info
-					TranslationPrintHintText(client, "buying item block", sBuffer);
+					TranslationPrintHintText(client, "block buying item", sBuffer);
 					
 					// Emit error sound
 					EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
@@ -1196,6 +1196,12 @@ void ZMarketOptionMenu(int client)
 	
 	// Sets title
 	hMenu.SetTitle("%t", "rebuy");
+
+	// Format some chars for showing in menu
+	FormatEx(sBuffer, sizeof(sBuffer), "%t", "zmarket buy");
+	
+	// Show add option
+	hMenu.AddItem("-1", sBuffer);
 
 	// i = array index
 	int iSize = gServerData.Types.Length;
@@ -1346,7 +1352,7 @@ void ZMarketArsenalMenu(int client, int mSlot)
 	}
 
 	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t [%t]", "remember", gClientData[client].AutoSelect ? "On" : "Off");
+	FormatEx(sBuffer, sizeof(sBuffer), "%t [%t]", "zmarket remember", gClientData[client].AutoSelect ? "On" : "Off");
 	
 	// Show toggle option
 	hMenu.AddItem("-1", sBuffer);
@@ -1431,7 +1437,7 @@ int ZMarketArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			if (gClientData[client].Zombie || gClientData[client].Custom)
 			{
 				// Show block info
-				TranslationPrintHintText(client, "using menu block");
+				TranslationPrintHintText(client, "block using menu");
 				
 				// Emit error sound
 				EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    

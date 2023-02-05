@@ -287,7 +287,7 @@ public Action AntiStickOnCommandCatched(int client, int iArguments)
 	else
 	{
 		// Show block info
-		TranslationPrintHintText(client, "unstucking prop block");
+		TranslationPrintHintText(client, "block unstucking prop");
 		
 		// Emit error sound
 		EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -323,7 +323,7 @@ void AntiStickBuildModelBox(int client, float flBoundaries[AntiStickBoxBound][3]
 	// i = side index
 	for (int x = 0; x < 4; x++)
 	{
-		// Jump to point on player left side.
+		// Jump to point on generic player left side.
 		AntiStickJumpToPoint(vOriginLoc, vTwistAngle, flWidth / 2, vSideLoc);
 
 		// From this point, jump to the corner, which would be half the width from the middle of a side

@@ -48,90 +48,83 @@
 	// Generic
 	// ===========================
 
-	"zombie comming" // Hint
+	"generic zombie comming" // Hint
 	{
 		"#format"		"{1:d}"
 		"chi"			"<font color='#FFFF00'>感染即将开始</font>： <font color='#0000FF'>{1}</font>"
 	}
 
-	"zombie left" // Hint
+	"generic zombie left" // Hint
 	{
 		"#format"		"{1:s}"
 		"chi"			"<font color='#B422A6'>最后一个丧尸离开了，</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>是新的丧尸！</font>"
 	}
 
-	"human left" // Hint
+	"generic human left" // Hint
 	{
 		"#format"		"{1:s}"
 		"chi"			"<font color='#B422A6'>最后一个人类离开了，</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>是新的人类！</font>"
 	}
 	
-	"player left" // Hint
+	"generic player left" // Hint
 	{
 		"chi"			"<font color='#D67E76'>最后一位玩家离开了游戏</font>！"
 	}
 
-	"account info" // DHUD (translated)
+	// ===========================
+	// Information
+	// ===========================
+	
+	"info account" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d}"
 		"chi"			"{1}{2}"
 	}
 
-	"level info" // DHUD (translated)
+	"info level" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:d}"
 		"chi"			"职业：[{1}]\n等级：[{2}] 经验：[{3}/{4}]"
 	}
 
-	"class info" // Chat (translated)
+	"info class" // Chat (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:.1f}"
 		"chi"			"职业： @red[{1}] @default生命： @red[{2}] @default护甲： @red[{3}] @default速度： @red[{4}]" 
 	}
 	
-	"damage info" // Hint
+	"info damage" // Hint
 	{
 		"#format"		"{1:d}"
 		"chi"			"<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>"
 	}
 	
-	"full damage info" // Hint
+	"info damage full" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"chi"			"<font color='#FFFFFF'>生命</font>： <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>盔甲</font>: <font color='#FF0000'>{2}</font>"
 	}
 
-	"buy info" // Chat (translated)
+	"info buy" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:t}"
 		"chi"			"玩家： @red[{1}] @default购买： @red[{2}]"
 	}
 
-	"donate info" // Chat (translated)
+	"info donate" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:d},{3:t},{4:s}"
 		"chi"			"玩家： @red[{1}] @default捐赠： @red[{2}{3}] @default给玩家： @red[{4}]"
 	}
 	
-	"drop info" // Chat
+	"info drop" // Chat
 	{
 		"chi"			"遊戲開始時將刪除所有掉落的武器！"
 	}
 	
 	// ===========================
-	// Basics
+	// Menus
 	// ===========================
-	
-	"skill ready" // Hint
-	{
-		"chi"			"<font color='#FF0000'>技能已就绪</font>！"
-	}
-
-	"countdown" // Hint
-	{
-		"#format"		"{1:d}"
-		"chi"			"<font color='#0EB411'>冷却</font>： <font color='#0EB4A7'>{1}</font>"
-	}
 
 	"price" // Menu (translated)
 	{
@@ -161,95 +154,53 @@
 	{
 		"chi"			"$"
 	}
-	
-	"donate" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t}"
-		"chi"			"捐赠： [{1}{2}]"
-	}
-	
-	"commission" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t},{3:s}"
-		"chi"			"数量： [{1}{2}] | 佣金： [{3}]"
-	}
-	
+		
 	"empty" // Menu
 	{
 		"chi"			"(空的)"
 	}
-	
-	"add" // Menu
-	{
-		"chi"			"加"
-	}
-	
-	"remember" // Menu
-	{
-		"chi"			"记住"
-	}
-	
-	"remove" // Menu
-	{
-		"chi"			"去掉"
-	}
-	
-	"increase" // Menu
-	{
-		"chi"			"增加"
-	}
-	
-	"decrease" // Menu
-	{
-		"chi"			"减少\n \n"
-	}
-	
-	"buy" // Menu
-	{
-		"chi"			"購買所有"
-	}
-	
+
 	// ===========================
 	// Validations
 	// ===========================
 	
-	"using menu block" // Hint
+	"block using menu" // Hint
 	{
 		"chi"			"你不能使用菜单！"
 	}
 
-	"buying item block" // Hint (translated)
+	"block buying item" // Hint (translated)
 	{
 		"#format"		"{1:t}"
 		"chi"			"你不能买： <font color='#FF0000'>{1}</font>"
 	}
 	
-	"buying ammunition block" // Hint
+	"block buying ammunition" // Hint
 	{
 		"chi"			"你不能买弹药！"
 	}
 	
-	"selecting target block" // Hint
+	"block selecting target" // Hint
 	{
 		"chi"			"无效目标！"
 	}
 	
-	"unstucking prop block" // Hint
+	"block unstucking prop" // Hint
 	{
 		"chi"			"你没有陷入另一个支撑物！（卡住或者重叠）"
 	}
 	
-	"buying round block" // Hint
+	"block buying round" // Hint
 	{
 		"chi"			"本回合你不能购买！"
 	}
 
-	"starting round block" // Hint
+	"block starting round" // Hint
 	{
 		"chi"			"你无法启动一个游戏模式， 因为其中一个已经开始了!"
 	}
 	
-	"classes round block" // Hint
+	"block classes round" // Hint
 	{
 		"chi"			"你不能改变你的职业，因为这回合还没有开始！"
 	}
@@ -462,11 +413,72 @@
 	{
 		"chi"			"找不到玩家。"
 	}
-
+			
 	// ===========================
-	// Other
+	// ZMarket
 	// ===========================
 	
+	"zmarket add" // Menu
+	{
+		"chi"			"加"
+	}
+
+	"zmarket buy" // Menu
+	{
+		"chi"			"購買\n \n佈局"
+	}
+	
+	"zmarket buy all" // Menu
+	{
+		"chi"			"購買所有"
+	}
+		
+	"zmarket remember" // Menu
+	{
+		"chi"			"记住"
+	}
+	
+	// ===========================
+	// Skillsystem
+	// ===========================
+	
+	"skill ready" // Hint
+	{
+		"chi"			"<font color='#FF0000'>技能已就绪</font>！"
+	}
+
+	"skill countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"chi"			"<font color='#0EB411'>冷却</font>： <font color='#0EB4A7'>{1}</font>"
+	}
+	
+	// ===========================
+	// Account
+	// ===========================
+	
+	"account donate" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"chi"			"捐赠： [{1}{2}]"
+	}
+	
+	"account commission" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:s}"
+		"chi"			"数量： [{1}{2}] | 佣金： [{3}]"
+	}
+	
+	"account increase" // Menu
+	{
+		"chi"			"增加"
+	}
+	
+	"account decrease" // Menu
+	{
+		"chi"			"减少\n \n"
+	}
+		
 	"account give invalid args" // Console
 	{
 		"chi"			"给予金钱。 用法： zp_money_give <名称> [数量]\n\n"
@@ -477,6 +489,15 @@
 		"#format"		"{1:d}"
 		"chi"			"无效的金钱额度 ({1})"
 	}
+
+	"account donate invalid args" // Console
+	{
+		"chi"			"轉賬。 用法： zp_money_donate <名称> [数量]\n\n"
+	}
+	
+	// ===========================
+	// Levelsystem
+	// ===========================
 
 	"level give invalid args" // Console
 	{
@@ -500,8 +521,12 @@
 		"chi"			"无效的经验数值 ({1})"
 	}
 	
-	"account donate invalid args" // Console
+	// ===========================
+	// Costumes
+	// ===========================
+	
+	"costumes remove" // Menu
 	{
-		"chi"			"轉賬。 用法： zp_money_donate <名称> [数量]\n\n"
+		"chi"			"去掉"
 	}
 }

@@ -48,90 +48,83 @@
 	// Generic
 	// ===========================
 
-	"zombie comming" // Hint
+	"generic zombie comming" // Hint
 	{
 		"#format"		"{1:d}"
 		"ro"			"<font color='#FFFF00'>Zombii apar in </font>: <font color='#0000FF'>{1}</font>"
 	}
 
-	"zombie left" // Hint
+	"generic zombie left" // Hint
 	{
 		"#format"		"{1:s}"
 		"ro"			"<font color='#B422A6'>Ultimul zombi a iesit,</font> <font color='#00FF00'>{1}</font> <font color='#B422A6'>este noul zombi!</font>"
 	}
 
-	"human left" // Hint
+	"generic human left" // Hint
 	{
 		"#format"		"{1:s}"
 		"ro"			"<font color='#B422A6'>Ultimul om a iesit,</font> <font color='#00ABFF'>{1}</font> <font color='#B422A6'>este noul om!</font>"
 	}
 	
-	"player left" // Hint
+	"generic player left" // Hint
 	{
 		"ro"			"<font color='#D67E76'>Ultimul jucator a parasit serverul</font>!"
 	}
 
-	"account info" // DHUD (translated)
+	// ===========================
+	// Information
+	// ===========================
+	
+	"info account" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d}"
 		"ro"			"{1}{2}"
 	}
 
-	"level info" // DHUD (translated)
+	"info level" // DHUD (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:d}"
 		"ro"			"CLASA:[{1}]\nNIVEL:[{2}] XP:[{3}/{4}]"
 	}
 
-	"class info" // Chat (translated)
+	"info class" // Chat (translated)
 	{
 		"#format"		"{1:t},{2:d},{3:d},{4:.1f}"
 		"ro"			"Clasa: @red[{1}] @defaultViata: @red[{2}] @defaultArmura: @red[{3}] @defaultViteza: @red[{4}]"
 	}
 	
-	"damage info" // Hint
+	"info damage" // Hint
 	{
 		"#format"		"{1:d}"
 		"ro"			"<font color='#FFFFFF'>VIATA</font>: <font color='#FF0000'>{1}</font>"
 	}
 	
-	"full damage info" // Hint
+	"info damage full" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"ro"			"<font color='#FFFFFF'>VIATA</font>: <font color='#FF0000'>{1}</font>\n<font color='#FFFFFF'>Armura</font>: <font color='#FF0000'>{2}</font>"
 	}
 
-	"buy info" // Chat (translated)
+	"info buy" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:t}"
 		"ro"			"Jucatorul: @red[{1}] @defaulta cumparat: @red[{2}]"
 	}
 
-	"donate info" // Chat (translated)
+	"info donate" // Chat (translated)
 	{
 		"#format"		"{1:s},{2:d},{3:t},{4:s}"
 		"ro"			"Jucatorul: @red[{1}] @default i-a donat: @red[{2}{3}] @defaultjucatorului: @red[{4}]"
 	}
 	
-	"drop info" // Chat
+	"info drop" // Chat
 	{
 		"ro"			"Toate armele aruncate vor fi eliminate la începutul jocului!"
 	}
 	
 	// ===========================
-	// Basics
+	// Menus
 	// ===========================
-	
-	"skill ready" // Hint
-	{
-		"ro"			"<font color='#FF0000'>Putere pregatita</font>!"
-	}
-
-	"countdown" // Hint
-	{
-		"#format"		"{1:d}"
-		"ro"			"<font color='#0EB411'>Numărătoarea inversă</font>: <font color='#0EB4A7'>{1}</font>"
-	}
 
 	"price" // Menu (translated)
 	{
@@ -161,95 +154,53 @@
 	{
 		"ro"			"$"
 	}
-	
-	"donate" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t}"
-		"ro"			"Doneaza: [{1}{2}]"
-	}
-	
-	"commission" // Menu (translated)
-	{
-		"#format"		"{1:d},{2:t},{3:s}"
-		"ro"			"Cantitate: [{1}{2}] | Comision: [{3}]"
-	}
-	
+		
 	"empty" // Menu
 	{
 		"ro"			"(Gol)"
 	}
-	
-	"add" // Menu
-	{
-		"ro"			"Adăuga"
-	}
-	
-	"remember" // Menu
-	{
-		"ro"			"Tine minte"
-	}
-	
-	"remove" // Menu
-	{
-		"ro"			"Elimina"
-	}
-	
-	"increase" // Menu
-	{
-		"ro"			"Creste"
-	}
-	
-	"decrease" // Menu
-	{
-		"ro"			"Scade\n \n"
-	}
-	
-	"buy" // Menu
-	{
-		"ro"			"Cumpara tot"
-	}
-	
+
 	// ===========================
 	// Validations
 	// ===========================
 	
-	"using menu block" // Hint
+	"block using menu" // Hint
 	{
 		"ro"			"Nu poti sa folosesti meniul!"
 	}
 
-	"buying item block" // Hint (translated)
+	"block buying item" // Hint (translated)
 	{
 		"#format"		"{1:t}"
 		"ro"			"Nu poti cumpara: <font color='#FF0000'>{1}</font>"
 	}
 	
-	"buying ammunition block" // Hint
+	"block buying ammunition" // Hint
 	{
 		"ro"			"Nu poti cumpara gloante!"
 	}
 	
-	"selecting target block" // Hint
+	"block selecting target" // Hint
 	{
 		"ro"			"Tinta invalida!"
 	}
 	
-	"unstucking prop block" // Hint
+	"block unstucking prop" // Hint
 	{
 		"ro"			"Nu esti blocat intr-un obiect!"
 	}
 	
-	"buying round block" // Hint
+	"block buying round" // Hint
 	{
 		"ro"			"Nu poti cumpara in timpul acestei runde!"
 	}
 
-	"starting round block" // Hint
+	"block starting round" // Hint
 	{
 		"ro"			"Nu poti incepe alt mod deoarece a inceput deja unul!"
 	}
 	
-	"classes round block" // Hint
+	"block classes round" // Hint
 	{
 		"ro"			"Nu poti schimba clasa deoarece runda nu a inceput inca!"
 	}
@@ -462,11 +413,72 @@
 	{
 		"ro"			"Jucătorii nu au putut fi găsiți."
 	}
-
+			
 	// ===========================
-	// Other
+	// ZMarket
 	// ===========================
 	
+	"zmarket add" // Menu
+	{
+		"ro"			"Adăuga"
+	}
+
+	"zmarket buy" // Menu
+	{
+		"ro"			"Cumpara\n \nAspect"
+	}
+	
+	"zmarket buy all" // Menu
+	{
+		"ro"			"Cumpara tot"
+	}
+		
+	"zmarket remember" // Menu
+	{
+		"ro"			"Tine minte"
+	}
+	
+	// ===========================
+	// Skillsystem
+	// ===========================
+	
+	"skill ready" // Hint
+	{
+		"ro"			"<font color='#FF0000'>Putere pregatita</font>!"
+	}
+
+	"skill countdown" // Hint
+	{
+		"#format"		"{1:d}"
+		"ro"			"<font color='#0EB411'>Numărătoarea inversă</font>: <font color='#0EB4A7'>{1}</font>"
+	}
+
+	// ===========================
+	// Account
+	// ===========================
+	
+	"account donate" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t}"
+		"ro"			"Doneaza: [{1}{2}]"
+	}
+	
+	"account commission" // Menu (translated)
+	{
+		"#format"		"{1:d},{2:t},{3:s}"
+		"ro"			"Cantitate: [{1}{2}] | Comision: [{3}]"
+	}
+	
+	"account increase" // Menu
+	{
+		"ro"			"Creste"
+	}
+	
+	"account decrease" // Menu
+	{
+		"ro"			"Scade\n \n"
+	}
+		
 	"account give invalid args" // Console
 	{
 		"ro"			"Ofera bani. Folosinta: zp_money_give <name> [cantitate]\n\n"
@@ -477,6 +489,15 @@
 		"#format"		"{1:d}"
 		"ro"			"Cantitatea de bani este gresita ({1})"
 	}
+
+	"account donate invalid args" // Console
+	{
+		"ro"			"Transferați bani. Folosinta: zp_money_donate <name> [cantitate]\n\n"
+	}
+	
+	// ===========================
+	// Levelsystem
+	// ===========================
 
 	"level give invalid args" // Console
 	{
@@ -500,8 +521,12 @@
 		"ro"			"Cantiatea levelului gresita ({1})"
 	}
 	
-	"account donate invalid args" // Console
+	// ===========================
+	// Costumes
+	// ===========================
+	
+	"costumes remove" // Menu
 	{
-		"ro"			"Transferați bani. Folosinta: zp_money_donate <name> [cantitate]\n\n"
+		"ro"			"Elimina"
 	}
 }

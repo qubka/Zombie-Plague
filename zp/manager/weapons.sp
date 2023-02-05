@@ -2692,6 +2692,7 @@ bool WeaponsRemoveAll(int client, bool bDrop = false)
 		ToolsSetArmor(client, 0);
 		ToolsSetHeavySuit(client, false);
 		ToolsSetDefuser(client, false);
+		ToolsSetCustomID(client, -1);
 	}
 
 	// Return on success
@@ -2726,7 +2727,7 @@ void WeaponsDrop(int client, int weapon, bool bMsg = true)
 		if (bMsg && gCvarList.MESSAGES_WEAPON_DROP.BoolValue && gCvarList.GAMEMODE_WEAPONS_REMOVE.BoolValue && gServerData.RoundNew)
 		{
 			// Show remove info
-			TranslationPrintToChat(client, "drop info");
+			TranslationPrintToChat(client, "info drop");
 		}
 	}
 }
@@ -2856,7 +2857,7 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 			case ItemDef_Defuser, ItemDef_Cutters : 
 			{
 				// Sets item id
-				ToolsSetCustomID(client, iD);
+				ToolsSetCustomID(client, iD); /// used for attachment model
 				
 				// Sets defuser
 				ToolsSetDefuser(client, true);

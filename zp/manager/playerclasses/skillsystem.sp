@@ -268,7 +268,7 @@ public Action SkillSystemOnClientCount(Handle hTimer, int userID)
 		}
 
 		// Show counter
-		TranslationPrintHintText(client, "countdown", RoundToNearest(gClientData[client].SkillCounter));
+		TranslationPrintHintText(client, "skill countdown", RoundToNearest(gClientData[client].SkillCounter));
 		
 		// Allow timer
 		return Plugin_Continue;

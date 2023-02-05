@@ -325,7 +325,7 @@ public Action MenusCommandOnCommandListened(int client, char[] commandMsg, int i
 	if (!MenusValidateByCommand(client, commandMsg))
 	{
 		// Show block info
-		TranslationPrintHintText(client, "using menu block"); 
+		TranslationPrintHintText(client, "block using menu"); 
 
 		// Emit error sound
 		EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
@@ -955,7 +955,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			else
 			{
 				// Show block info
-				TranslationPrintHintText(client, "using menu block"); 
+				TranslationPrintHintText(client, "block using menu"); 
 		
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -1134,7 +1134,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			else
 			{
 				// Show block info
-				TranslationPrintHintText(client, "using menu block"); 
+				TranslationPrintHintText(client, "block using menu"); 
 				
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    

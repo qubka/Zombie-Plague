@@ -499,7 +499,7 @@ public Action GameModesOnCounter(Handle hTimer)
 				if (gCvarList.MESSAGES_COUNTER.BoolValue)
 				{
 					// Show help information
-					TranslationPrintHintTextAll("zombie comming", gServerData.RoundCount);
+					TranslationPrintHintTextAll("generic zombie comming", gServerData.RoundCount);
 				}
 			}
 		}
@@ -3108,7 +3108,7 @@ void ModesDisconnectLast(/*void*/)
 		GetClientName(client, sType, sizeof(sType));
 		
 		// Show message
-		TranslationPrintHintTextAll("zombie left", sType); 
+		TranslationPrintHintTextAll("generic zombie left", sType); 
 	}
 	// If the last human disconnected, then choose another random human
 	else if (iZombies > 1 && !iHumans)
@@ -3126,7 +3126,7 @@ void ModesDisconnectLast(/*void*/)
 		GetClientName(client, sType, sizeof(sType));
 		
 		// Show message
-		TranslationPrintHintTextAll("human left", sType); 
+		TranslationPrintHintTextAll("generic human left", sType); 
 	}
 	// If all last players disconnected, then terminate round
 	else if (!iZombies && !iHumans)
@@ -3135,7 +3135,7 @@ void ModesDisconnectLast(/*void*/)
 		CS_TerminateRound(gCvarList.GAMEMODE_RESTART_DELAY.FloatValue, CSRoundEnd_Draw, false);
 		
 		// Show message
-		TranslationPrintHintTextAll("player left"); 
+		TranslationPrintHintTextAll("generic player left"); 
 	}
 }
 
@@ -3401,7 +3401,7 @@ void ModesMenu(int client, int target = -1)
 	if (!gServerData.RoundNew)
 	{
 		// Show block info
-		TranslationPrintHintText(client, "starting round block");     
+		TranslationPrintHintText(client, "block starting round");     
 
 		// Emit error sound
 		EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
@@ -3533,7 +3533,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			if (!gServerData.RoundNew)
 			{
 				// Show block info
-				TranslationPrintHintText(client, "starting round block");
+				TranslationPrintHintText(client, "block starting round");
 		
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -3558,7 +3558,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 					ModesMenu(client);
 					
 					// Show block info
-					TranslationPrintHintText(client, "selecting target block");
+					TranslationPrintHintText(client, "block selecting target");
 			
 					// Emit error sound
 					EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
@@ -3705,7 +3705,7 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 			else
 			{
 				// Show block info
-				TranslationPrintHintText(client, "selecting target block");
+				TranslationPrintHintText(client, "block selecting target");
 				
 				// Emit error sound
 				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
