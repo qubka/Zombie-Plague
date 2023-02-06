@@ -34,7 +34,7 @@
 			"CBaseCombatWeapon::GetSlot" // +5
 			{
 				"windows"	"362"
-				"linux"		"368"
+				"linux"		"369"
 			}
 			"CCSPlayer::GetPlayerMaxSpeed" // above CommitSuicide
 			{
