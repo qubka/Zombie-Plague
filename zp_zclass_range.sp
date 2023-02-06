@@ -188,7 +188,7 @@ public void ZP_OnClientDeath(int client, int attacker)
 		}
 		
 		// Play sound
-		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL); 
+		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_EXPLOSION); 
 	}
 }
 

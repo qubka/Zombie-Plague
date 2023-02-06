@@ -79,7 +79,7 @@ public void OnPluginStart()
 	// Initialize cvars
 	hCvarPresentGlow   = CreateConVar("zp_presents_glow", "0", "Enable glow effect", 0, true, 0.0, true, 1.0);
 	hCvarPresentMax    = CreateConVar("zp_presents_max", "6", "Maximum amount of presents on map", 0, true, 1.0);
-	hCvarPresentHealth = CreateConVar("zp_presents_health", "300", "Health of present. If disabled will be pickup on touch", 0, true, 0.0);
+	hCvarPresentHealth = CreateConVar("zp_presents_health", "0", "Health of present. If disabled will be pickup on touch", 0, true, 0.0);
 	hCvarPresentDelay  = CreateConVar("zp_presents_delay", "60.0", "Delay between presents spawn", 0, true, 0.0);
 	
 	// Generate config
@@ -664,7 +664,7 @@ public Action CaseSpawnHook(Handle hTimer)
 			}
 			
 			// Play sound
-			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
 		}
 	}
 	

@@ -44,9 +44,6 @@ public Plugin myinfo =
 // Item index
 int gItem;
 
-// Mode index
-int gMode;
-
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
  *        A library is either a plugin name or extension name, as exposed via its include file.
@@ -73,10 +70,6 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Items
 	gItem = ZP_GetExtraItemNameID("nemesis");
 	//if (gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"nemesis\" wasn't find");	
-	
-	// Modes
-	gMode = ZP_GetGameModeNameID("nemesis mode");
-	//if (gMode == -1) SetFailState("[ZP] Custom gamemode ID from name : \"nemesis mode\" wasn't find");
 }
 
 /**
@@ -93,8 +86,8 @@ public Action ZP_OnClientValidateExtraItem(int client, int itemID)
 	// Check the item's index
 	if (itemID == gItem)
 	{
-		// If round started, then disable
-		if (!ZP_IsNewRound() )
+		// If round didnt started, then stop
+		if (!ZP_IsStartedRound())
 		{
 			return Plugin_Handled;
 		}
@@ -115,7 +108,7 @@ public void ZP_OnClientBuyExtraItem(int client, int itemID)
 	// Check the item's index
 	if (itemID == gItem)
 	{
-		// Starts a survivor round
-		ZP_StartGameMode(gMode, client);
+		// Change class to nemesis
+		ZP_ChangeClient(client, -1, "nemesis");
 	}
 }

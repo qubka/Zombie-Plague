@@ -208,7 +208,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	hWeaponSwing[client] = CreateTimer(1.0, Weapon_OnSwing, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
 	// Play the attack sound
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
@@ -235,7 +235,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 	hWeaponStab[client] = CreateTimer(1.0, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	
 	// Play the attack sound
-	ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+	ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
@@ -308,7 +308,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			TE_SendToAll();
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_ITEM, SNDLEVEL_MELEE);
 		}
 		else
 		{
@@ -319,7 +319,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, 3, victim, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+				ZP_EmitSoundToAll(gSound, 3, victim, SNDCHAN_ITEM, SNDLEVEL_MELEE);
 			}
 		}
 	}
@@ -329,7 +329,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 		if (bSlash) ZP_SetWeaponAnimation(client, ANIM_STAB_MISS);   
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 5, client, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 5, client, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
 	}
 	
 	// Close trace 

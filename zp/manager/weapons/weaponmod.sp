@@ -385,6 +385,7 @@ void WeaponMODOnCvarInit(/*void*/)
 	gCvarList.WEAPON_PICKUP_RANGE   = FindConVar("zp_pickup_range");
 	gCvarList.WEAPON_PICKUP_LEVEL   = FindConVar("zp_pickup_level");
 	gCvarList.WEAPON_PICKUP_ONLINE  = FindConVar("zp_pickup_online");
+	gCvarList.WEAPON_PICKUP_GROUP   = FindConVar("zp_pickup_group");
 	gCvarList.WEAPON_DEFAULT_MELEE  = FindConVar("zp_default_melee");
 
 	// Hook cvars

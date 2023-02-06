@@ -420,7 +420,7 @@
 			
 	"zmarket favorites menu" // Menu
 	{
-		"ru"			"Избранное\n \n"
+		"ru"			"Избранное"
 	}
 	
 	"zmarket add" // Menu

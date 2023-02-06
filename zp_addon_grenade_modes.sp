@@ -565,7 +565,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 	if (flCounter <= 0.0)
 	{
 		// Play a sound
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_LIBRARY);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
 		
 		// Sets grenade next state
 		iState    = PROXIMITY_STATE_DETECT;
@@ -583,7 +583,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 		}
 		
 		// Play a sound
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_LIBRARY, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
 	}
 	
 	// Return on success
@@ -920,7 +920,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 	if (flCounter <= 0.0)
 	{
 		// Play a sound
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_LIBRARY);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
 		
 		// Sets grenade next state
 		iState    = TRIPWIRE_STATE_DETECT;
@@ -938,7 +938,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 		}
 		
 		// Play a sound
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_LIBRARY, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
 	}
 	
 	// Return on success
@@ -1243,7 +1243,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 	if (flCounter <= 0.0)
 	{
 		// Play a sound
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_LIBRARY);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
 		
 		// Sets grenade next state
 		iState    = SATCHEL_STATE_ENABLED;
@@ -1261,7 +1261,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 		}
 		
 		// Play a sound
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_LIBRARY, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
 	}
 	
 	// Return on success
@@ -1451,7 +1451,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 		else
 		{
 			// Play a sound
-			//EmitSoundToAll("buttons/bell1.wav", grenade, _, SNDLEVEL_LIBRARY);
+			//EmitSoundToAll("buttons/bell1.wav", grenade, _, SNDLEVEL_ITEM);
 	
 			// Gets grenade velocity
 			GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);

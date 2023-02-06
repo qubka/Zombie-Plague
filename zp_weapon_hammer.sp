@@ -256,7 +256,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 	}
 	
 	// Play attack sound
-	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
@@ -358,7 +358,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 		}
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, bSlash ? 2 : 1, client, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, bSlash ? 2 : 1, client, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
 	}
 	
 	// Close trace 

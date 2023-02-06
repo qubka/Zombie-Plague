@@ -250,7 +250,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	if (iClip <= 0)
 	{
 		// Emit empty sound
-		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_ITEM);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
@@ -272,7 +272,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
 	
 	// Play sound
-	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
 	// Sets attack animation
 	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });
@@ -358,7 +358,7 @@ void Weapon_OnCreateRocket(int client)
 		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_EXPLOSION / 2);
 		
 		// Create touch hook
 		SDKHook(entity, SDKHook_Touch, RocketTouchHook);
@@ -552,7 +552,7 @@ public Action RocketTouchHook(int entity, int target)
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarBazookaDamage.FloatValue, hCvarBazookaRadius.FloatValue, "bazooka", thrower, entity);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_EXPLOSION);
 		
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");

@@ -193,7 +193,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				}
 				
 				// Play sound
-				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_WHISPER);
+				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
 				
 				// Create remove/idle/think hook
 				CreateTimer(ZP_GetClassSkillDuration(gZombie), CoffinExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
@@ -233,7 +233,7 @@ public Action CoffinDamageHook(int entity, int &attacker, int &inflictor, float 
 	else
 	{
 		// Play sound
-		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
 		
 		// Apply damage
 		SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
@@ -258,7 +258,7 @@ public Action CoffinIdleHook(Handle hTimer, int refID)
 	if (entity != -1)
 	{
 		// Play sound
-		ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 	}
 	else
 	{
@@ -399,7 +399,7 @@ void CoffinExpload(int entity)
 	}
 	
 	// Play sound
-	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC, SNDLEVEL_EXPLOSION);
 	
 	// Create a breaked metal effect
 	static char sBuffer[NORMAL_LINE_LENGTH];

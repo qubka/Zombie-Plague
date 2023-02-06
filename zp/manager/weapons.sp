@@ -3260,6 +3260,20 @@ bool WeaponsValidateAccess(int client, int weapon)
 		{
 			return false;
 		}
+		
+		// Block pickup it, if not group not available
+		if (gCvarList.WEAPON_PICKUP_GROUP.BoolValue)
+		{
+			// Gets weapon group
+			static char sGroup[SMALL_LINE_LENGTH];
+			WeaponsGetGroup(iD, sGroup, sizeof(sGroup))
+		
+			// Validate access
+			if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup))
+			{
+				return false;
+			}
+		}
 	}
 	
 	// Return on success

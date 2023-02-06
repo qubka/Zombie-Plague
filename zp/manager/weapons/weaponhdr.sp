@@ -255,56 +255,122 @@ void WeaponHDRSetVisibility(int entity, bool bVisible)
 	ToolsSetEffect(entity, bVisible ? (iFlags & ~EF_NODRAW) : (iFlags | EF_NODRAW));
 }
 
+/**
+ * @brief Gets the new sequence parity.
+ *
+ * @param entity            The entity index.
+ * @return                  The new sequence parity.    
+ **/
 int WeaponHDRGetSequenceParity(int entity)
 {
 	return GetEntProp(entity, Prop_Send, "m_nNewSequenceParity");
 }
 
+/**
+ * @brief Sets the sequence index.
+ *
+ * @param entity            The entity index.
+ * @param flRate            The sequence index.  
+ **/
 void WeaponHDRSetSequence(int entity, int iSequence)
 {
 	SetEntProp(entity, Prop_Send, "m_nSequence", iSequence);
 }
 
+/**
+ * @brief Gets the sequence index.
+ *
+ * @param entity            The entity index.
+ * @return                  The sequence index.    
+ **/
 int WeaponHDRGetSequence(int entity)
 {
 	return GetEntProp(entity, Prop_Send, "m_nSequence");
 }
 
+/**
+ * @brief Sets the playback rate.
+ *
+ * @param entity            The entity index.
+ * @param flRate            The playback rate.  
+ **/
 void WeaponHDRSetPlaybackRate(int entity, float flRate)
 {
 	SetEntPropFloat(entity, Prop_Send, "m_flPlaybackRate", flRate);
 }
 
+/**
+ * @brief Gets the playback rate.
+ *
+ * @param entity            The entity index.
+ * @return                  The playback rate.    
+ **/
 float WeaponHDRGetPlaybackRate(int entity)
 {
 	return GetEntPropFloat(entity, Prop_Send, "m_flPlaybackRate");
 }
 
+/**
+ * @brief Sets the last sequence.
+ *
+ * @param entity            The entity index.
+ * @param iSequence         The last sequence index.  
+ **/
 void WeaponHDRSetLastSequence(int entity, int iSequence)
 {
 	SetEntProp(entity, Prop_Data, "m_iHealth", iSequence);
 }
 
+/**
+ * @brief Gets the last sequence.
+ *
+ * @param entity            The entity index.
+ * @return                  The last sequence index.    
+ **/
 int WeaponHDRGetLastSequence(int entity)
 {
 	return GetEntProp(entity, Prop_Data, "m_iHealth");
 }
 
+/**
+ * @brief Sets the last sequence parity.
+ *
+ * @param entity            The entity index.
+ * @param iSequenceParity   The last sequence parity.  
+ **/
 void WeaponHDRSetLastSequenceParity(int entity, int iSequenceParity)
 {
 	SetEntProp(entity, Prop_Data, "m_iMaxHealth", iSequenceParity);
 }
 
+/**
+ * @brief Gets the last sequence parity.
+ *
+ * @param entity            The entity index.
+ * @return                  The last sequence parity.    
+ **/
 int WeaponHDRGetLastSequenceParity(int entity)
 {
 	return GetEntProp(entity, Prop_Data, "m_iMaxHealth");
 }
 
+/**
+ * @brief Sets the swapped weapon.
+ *
+ * @param entity            The entity index.
+ * @param weapon            The weapon index.  
+ **/
 void WeaponHDRSetSwappedWeapon(int entity, int weapon)
 {
 	SetEntPropEnt(entity, Prop_Data, "m_hDamageFilter", weapon);
 }
 
+/**
+ * @brief Gets the swapped weapon.
+ *
+ * @param entity            The entity index.
+ * @return                  The weapon index.    
+ **/
 int WeaponHDRGetSwappedWeapon(int entity)
 {
 	return GetEntPropEnt(entity, Prop_Data, "m_hDamageFilter");

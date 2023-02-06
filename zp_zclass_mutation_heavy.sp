@@ -235,7 +235,7 @@ public void ZP_OnClientSkillOver(int client)
 			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_HOME);
+			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
 			
 			// Create touch hook
 			SDKHook(entity, SDKHook_Touch, TrapTouchHook);
@@ -282,7 +282,7 @@ public Action TrapTouchHook(int entity, int target)
 			hHumanTrapped[target] = CreateTimer(flDuration, ClientRemoveTrapEffect, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);
 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
 
 			// Show message
 			SetGlobalTransTarget(target);

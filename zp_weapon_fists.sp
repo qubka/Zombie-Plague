@@ -209,7 +209,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	hWeaponPunch[client] = CreateTimer(0.16, Weapon_OnPunch, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
 	// Play the attack sound
-	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
@@ -242,7 +242,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 	hWeaponPunch[client] = CreateTimer(0.83, Weapon_OnPunch, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	
 	// Play the attack sound
-	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+	ZP_EmitSoundToAll(gSound, GetRandomInt(3, 7), client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
 	// Adds the delay to the game tick
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
@@ -302,7 +302,7 @@ void Weapon_OnHit(int client, int weapon)
 		UTIL_CreateDamage(_, vEndPosition, client, hCvarFistsDamage.FloatValue, hCvarFistsRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_MELEE - 10);
 	}
 	
 	// Close trace 

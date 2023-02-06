@@ -218,7 +218,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_ON_TIME);
 	
 		// Play sound
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 }
 
@@ -279,7 +279,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 		hWeaponStab[client] = CreateTimer(0.35, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		
 		// Play the attack sound
-		ZP_EmitSoundToAll(gSoundAttack, 5, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+		ZP_EmitSoundToAll(gSoundAttack, 5, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 	else
 	{
@@ -295,7 +295,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 				ZP_SetWeaponAnimation(client, ANIM_STAB);   
 				
 				// Play the attack sound
-				ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+				ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 			}
 
 			default :
@@ -304,7 +304,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 				ZP_SetWeaponAnimation(client, ANIM_MIDSLASH1 + iCount);   
 				
 				// Play the attack sound
-				ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(1, 3), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+				ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(1, 3), client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 			}
 		}
 
@@ -438,7 +438,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			TE_SendToAll();
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(3, 4) : 5, client, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+			ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(3, 4) : 5, client, SNDCHAN_ITEM, SNDLEVEL_MELEE);
 		}
 		else
 		{
@@ -449,7 +449,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(1, 2) : 5, victim, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
+				ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(1, 2) : 5, victim, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
 			}
 		}
 	}

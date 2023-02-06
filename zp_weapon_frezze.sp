@@ -323,7 +323,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 					UTIL_RemoveEntity(ice, flDuration);
 					
 					// Play sound
-					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC, SNDLEVEL_HOME);
+					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC, SNDLEVEL_WEAPON);
 				}
 			}
 
@@ -380,7 +380,7 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
 		SetEntityMoveType(client, MOVETYPE_WALK);
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 
 		// Create a breaked glass effect
 		static char sBuffer[NORMAL_LINE_LENGTH];
@@ -433,7 +433,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			if (!strncmp(sSample[31], "hit", 3, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, GetRandomInt(4, 6), entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+				ZP_EmitSoundToAll(gSound, GetRandomInt(4, 6), entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
 				// Block sounds
 				return Plugin_Stop; 
@@ -441,7 +441,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			else if (!strncmp(sSample[29], "emit", 4, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 			   
 				// Block sounds
 				return Plugin_Stop; 

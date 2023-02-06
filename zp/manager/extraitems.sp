@@ -1118,7 +1118,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				case -1 :
 				{
 					// Opens market menu
-					ZMarketBuyMenu(client, "buy equipments"); 
+					ZMarketBuyMenu(client, _, "buy equipments"); 
 				}
 			
 				// Client hit 'Item' button

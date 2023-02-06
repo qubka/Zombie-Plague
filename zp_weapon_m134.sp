@@ -277,7 +277,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			Weapon_OnCreateEffect(client, weapon, "Start");
 		
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 
 			// Substract ammo
 			iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 

@@ -121,7 +121,7 @@ void PlayerSoundsOnCvarInit(/*void*/)
 void PlayerSoundsOnCounterStart(/*void*/)
 {
 	// Emit round start sound
-	SEffectsInputEmitToAll(gSoundData.Start, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+	SEffectsInputEmitToAll(gSoundData.Start, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
 }
 
 /**
@@ -138,9 +138,9 @@ public Action PlayerSoundsOnRoundEndPost(Handle hTimer, CSRoundEndReason reason)
 	switch (reason)
 	{
 		// Emit sounds
-		case CSRoundEnd_TerroristWin : SEffectsInputEmitToAll(ModesGetSoundEndZombieID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);   
-		case CSRoundEnd_CTWin :        SEffectsInputEmitToAll(ModesGetSoundEndHumanID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
-		case CSRoundEnd_Draw :         SEffectsInputEmitToAll(ModesGetSoundEndDrawID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+		case CSRoundEnd_TerroristWin : SEffectsInputEmitToAll(ModesGetSoundEndZombieID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);   
+		case CSRoundEnd_CTWin :        SEffectsInputEmitToAll(ModesGetSoundEndHumanID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
+		case CSRoundEnd_Draw :         SEffectsInputEmitToAll(ModesGetSoundEndDrawID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
 	}
 	
 	// Destroy timer
@@ -155,7 +155,7 @@ public Action PlayerSoundsOnRoundEndPost(Handle hTimer, CSRoundEndReason reason)
 bool PlayerSoundsOnCounter(/*void*/)
 {
 	// Emit counter sound
-	return SEffectsInputEmitToAll(gSoundData.Count, gServerData.RoundCount, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_CONVO);
+	return SEffectsInputEmitToAll(gSoundData.Count, gServerData.RoundCount, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT * 2);
 }
 
 /**
@@ -167,7 +167,7 @@ public Action PlayerSoundsOnBlastPost(Handle hTimer)
 	gServerData.BlastTimer = null;
 	
 	// Emit blast sound
-	SEffectsInputEmitToAll(gSoundData.Blast, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_CAR);
+	SEffectsInputEmitToAll(gSoundData.Blast, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_EXPLOSION);
 
 	// Destroy timer
 	return Plugin_Stop;
@@ -179,7 +179,7 @@ public Action PlayerSoundsOnBlastPost(Handle hTimer)
 void PlayerSoundsOnGameModeStart(/*void*/)
 {
 	// Emit round start sound
-	SEffectsInputEmitToAll(ModesGetSoundStartID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+	SEffectsInputEmitToAll(ModesGetSoundStartID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
 }
 
 /**
@@ -197,7 +197,7 @@ void PlayerSoundsOnClientDeath(int client)
 	}
 
 	// Emit death sound
-	SEffectsInputEmitToAll(ClassGetSoundDeathID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_DISHWASHER);
+	SEffectsInputEmitToAll(ClassGetSoundDeathID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_DEATH);
 }
 
 /**
@@ -225,13 +225,13 @@ void PlayerSoundsOnClientHurt(int client, bool bBurning)
 			if (gCvarList.SEFFECTS_BURN.BoolValue) 
 			{
 				// Emit burn sound
-				SEffectsInputEmitToAll(ClassGetSoundBurnID(gClientData[client].Class), _, client, SNDCHAN_BODY, SNDLEVEL_FRIDGE);
+				SEffectsInputEmitToAll(ClassGetSoundBurnID(gClientData[client].Class), _, client, SNDCHAN_BODY, SNDLEVEL_BURN);
 				return; /// Exit here
 			}
 		}
 		
 		// Emit hurt sound
-		SEffectsInputEmitToAll(ClassGetSoundHurtID(gClientData[client].Class), _, client, SNDCHAN_BODY, SNDLEVEL_FRIDGE);
+		SEffectsInputEmitToAll(ClassGetSoundHurtID(gClientData[client].Class), _, client, SNDCHAN_BODY, SNDLEVEL_HURT);
 	}
 }
 
@@ -250,12 +250,12 @@ void PlayerSoundsOnClientInfected(int client, int attacker)
 		if (!attacker)
 		{
 			// Emit respawn sound
-			SEffectsInputEmitToAll(ClassGetSoundRespawnID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_HOME);
+			SEffectsInputEmitToAll(ClassGetSoundRespawnID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_RESPAWN);
 		}
 		else
 		{
 			// Emit infect sound
-			SEffectsInputEmitToAll(ClassGetSoundInfectID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_DRYER);
+			SEffectsInputEmitToAll(ClassGetSoundInfectID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_INFECT);
 		}
 	}
 	
@@ -286,7 +286,7 @@ public Action PlayerSoundsOnMoanRepeat(Handle hTimer, int userID)
 	if (client)
 	{
 		// Emit moan sound
-		SEffectsInputEmitToAll(ClassGetSoundIdleID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_CONVO);
+		SEffectsInputEmitToAll(ClassGetSoundIdleID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_MOAN);
 
 		// Allow timer
 		return Plugin_Continue;
@@ -307,7 +307,7 @@ public Action PlayerSoundsOnMoanRepeat(Handle hTimer, int userID)
 void PlayerSoundsOnClientRegen(int client)
 {
 	// Emit regen sound
-	SEffectsInputEmitToAll(ClassGetSoundRegenID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+	SEffectsInputEmitToAll(ClassGetSoundRegenID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_REGEN);
 }
 
 /**
@@ -318,7 +318,7 @@ void PlayerSoundsOnClientRegen(int client)
 void PlayerSoundsOnClientJump(int client)
 {
 	// Emit jump sound
-	SEffectsInputEmitToAll(ClassGetSoundJumpID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
+	SEffectsInputEmitToAll(ClassGetSoundJumpID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_LEAPJUMP);
 }
 
 /**
@@ -329,7 +329,7 @@ void PlayerSoundsOnClientJump(int client)
 void PlayerSoundsOnClientNvgs(int client)
 {
 	// Emit player nightvision sound
-	SEffectsInputEmitToAll(gSoundData.Nvgs, _, client, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+	SEffectsInputEmitToAll(gSoundData.Nvgs, _, client, SNDCHAN_ITEM, SNDLEVEL_ITEM);
 }
 
 /**
@@ -340,7 +340,7 @@ void PlayerSoundsOnClientNvgs(int client)
 void PlayerSoundsOnClientFlashLight(int client)
 {
 	// Emit player flashlight sound
-	SEffectsInputEmitToAll(gSoundData.Flashlight, _, client, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+	SEffectsInputEmitToAll(gSoundData.Flashlight, _, client, SNDCHAN_ITEM, SNDLEVEL_ITEM);
 }
 
 /**
@@ -351,7 +351,7 @@ void PlayerSoundsOnClientFlashLight(int client)
 void PlayerSoundsOnClientAmmunition(int client)
 {
 	// Emit player ammunition sound
-	SEffectsInputEmitToAll(gSoundData.Ammunition, _, client, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+	SEffectsInputEmitToAll(gSoundData.Ammunition, _, client, SNDCHAN_ITEM, SNDLEVEL_ITEM);
 }
 
 /**
@@ -362,7 +362,7 @@ void PlayerSoundsOnClientAmmunition(int client)
 void PlayerSoundsOnClientLevelUp(int client)
 {
 	// Emit player levelup sound
-	SEffectsInputEmitToAll(gSoundData.Level, _, client, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+	SEffectsInputEmitToAll(gSoundData.Level, _, client, SNDCHAN_ITEM, SNDLEVEL_ITEM);
 }
 
 /**
@@ -375,7 +375,7 @@ void PlayerSoundsOnClientLevelUp(int client)
 bool PlayerSoundsOnClientShoot(int client, int iD)
 {
 	// Emit player shoot sound
-	return SEffectsInputEmitToAll(WeaponsGetSoundID(iD), _, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+	return SEffectsInputEmitToAll(WeaponsGetSoundID(iD), _, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 }
 
 /**
@@ -419,7 +419,7 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 				if (gCvarList.SEFFECTS_FOOTSTEPS.BoolValue) 
 				{
 					// Emit footstep sound
-					if (SEffectsInputEmitToAll(ClassGetSoundFootID(gClientData[entity].Class), _, entity, SNDCHAN_STREAM, SNDLEVEL_LIBRARY))
+					if (SEffectsInputEmitToAll(ClassGetSoundFootID(gClientData[entity].Class), _, entity, SNDCHAN_STREAM, SNDLEVEL_FOOTSTEPS))
 					{
 						// Block sounds
 						return Plugin_Stop; 
@@ -444,7 +444,7 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 					if (IsPlayerExist(client))
 					{
 						// Emit slash sound
-						if (SEffectsInputEmitToAll(ClassGetSoundAttackID(gClientData[client].Class), _, entity, SNDCHAN_STATIC, SNDLEVEL_HOME))
+						if (SEffectsInputEmitToAll(ClassGetSoundAttackID(gClientData[client].Class), _, entity, SNDCHAN_STATIC, SNDLEVEL_CLAWS))
 						{
 							// Block sounds
 							return Plugin_Stop; 

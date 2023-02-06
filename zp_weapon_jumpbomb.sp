@@ -349,7 +349,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			if (!strncmp(sSample[27], "hit", 3, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+				ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
 				// Block sounds
 				return Plugin_Stop; 
@@ -357,7 +357,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			else if (!strncmp(sSample[29], "exp", 3, false))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
 				// Block sounds
 				return Plugin_Stop; 

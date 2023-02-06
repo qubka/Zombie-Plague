@@ -243,7 +243,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));    
 	
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 	else
 	{
@@ -251,7 +251,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 		if (iAmmo <= 0)
 		{
 			// Emit empty sound
-			EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+			EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_ITEM);
 			SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 			return;
 		}
@@ -269,7 +269,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 			SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 
 			// Show message
 			SetGlobalTransTarget(client);
@@ -298,7 +298,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));  
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 	
 	// Sets attack animation
@@ -645,7 +645,7 @@ public Action GrenadeTouchHook(int entity, int target)
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarJanusGrenadeDamage.FloatValue, hCvarJanusGrenadeRadius.FloatValue, "janus1", thrower, entity);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_EXPLOSION);
 
 		// Remove the entity from the world
 		AcceptEntityInput(entity, "Kill");

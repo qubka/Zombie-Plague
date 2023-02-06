@@ -135,7 +135,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 
 		// Create an fade
 		UTIL_CreateFadeScreen(client, 0.3, 1.0, FFADE_IN, {255, 127, 80, 75});  
@@ -193,7 +193,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				if (iSound != -1)
 				{
 					// Play sound
-					ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+					ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 				}
 				
 				// Gets victim origin

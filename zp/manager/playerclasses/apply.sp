@@ -298,7 +298,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	{
 		// Sets timer for bots logic
 		//delete gClientData[client].ThinkTimer;
-		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	// Call forward
@@ -342,16 +342,13 @@ public Action ApplyOnBotClientThink(Handle hTimer, int userID)
 		ExtraItemsOnFakeClientThink(client);
 		WeaponsOnFakeClientThink(client);
 		CostumesOnFakeClientThink(client);
-		
-		// Sets timer for bots logic
-		//delete gClientData[client].ThinkTimer;
-		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+
+		// Allow timer
+		return Plugin_Continue;
 	}
-	else
-	{
-		// Clear timer
-		gClientData[client].ThinkTimer = null;
-	}
+	
+	// Clear timer
+	gClientData[client].ThinkTimer = null;
 
 	// Destroy timer
 	return Plugin_Stop;

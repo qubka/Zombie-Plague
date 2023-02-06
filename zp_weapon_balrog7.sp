@@ -163,7 +163,7 @@ void Weapon_OnBullet(int client, int weapon, float vBullet[3], int iCounter, flo
 		UTIL_CreateExplosion(vBullet, iFlags, _, hCvarBalrogDamage.FloatValue, hCvarBalrogRadius.FloatValue, "balrog7", client, weapon);
 
 		// Play sound
-		ZP_EmitAmbientSound(gSound, 1, vBullet, SOUND_FROM_WORLD, SNDLEVEL_NORMAL);
+		ZP_EmitAmbientSound(gSound, 1, vBullet, SOUND_FROM_WORLD, SNDLEVEL_EXPLOSION);
 		
 		// Sets shots count
 		iCounter = -1;

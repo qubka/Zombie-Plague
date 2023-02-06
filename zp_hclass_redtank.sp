@@ -132,7 +132,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		SetEntProp(client, Prop_Send, "m_ArmorValue", iArmor);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
 		// Gets client origin
 		static float vPosition[3];
@@ -171,6 +171,6 @@ public void ZP_OnClientSkillOver(int client)
 	if (ZP_GetClientClass(client) == gHuman)
 	{
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 	}
 }

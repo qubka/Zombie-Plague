@@ -135,7 +135,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		UTIL_SetRenderColor(client, Color_Alpha, 0);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
 		// Gets client viewmodel
 		int view = ZP_GetClientViewModel(client, true);
@@ -166,7 +166,7 @@ public void ZP_OnClientSkillOver(int client)
 		UTIL_SetRenderColor(client, Color_Alpha, 255);
 
 		// Play sound
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
 		// Gets client viewmodel
 		int view = ZP_GetClientViewModel(client, true);

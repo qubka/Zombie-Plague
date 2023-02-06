@@ -360,6 +360,30 @@
  * @endsection
  **/ 
  
+/**
+ * @section Custom sound levels.
+ **/
+#define SNDLEVEL_EXPLOSION   70
+#define SNDLEVEL_AMBIENT     30
+#define SNDLEVEL_WEAPON      40
+#define SNDLEVEL_MELEE       35
+#define SNDLEVEL_ITEM        30
+#define SNDLEVEL_SKILL       45
+#define SNDLEVEL_BURN        55
+#define SNDLEVEL_DEATH       60
+#define SNDLEVEL_HURT        50
+#define SNDLEVEL_RESPAWN     45
+#define SNDLEVEL_INFECT      55
+#define SNDLEVEL_MOAN        40
+#define SNDLEVEL_REGEN       30
+#define SNDLEVEL_LEAPJUMP    35
+#define SNDLEVEL_FOOTSTEPS   30
+#define SNDLEVEL_CLAWS       50
+#define SNDLEVEL_BOUNCE      45
+/**
+ * @endsection
+ **/ 
+ 
 /** 
  * @section Number of valid def indexes.
  *

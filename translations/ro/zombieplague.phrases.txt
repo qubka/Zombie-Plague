@@ -420,7 +420,7 @@
 			
 	"zmarket favorites menu" // Menu
 	{
-		"ro"			"Favorite\n \n"
+		"ro"			"Favorite"
 	}
 	
 	"zmarket add" // Menu

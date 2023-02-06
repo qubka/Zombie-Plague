@@ -225,7 +225,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 	
 		// Play sound
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 	else
 	{
@@ -382,7 +382,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			}
 
 			// Play sound
-			ZP_EmitSoundToAll(gSoundAttack, 2, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+			ZP_EmitSoundToAll(gSoundAttack, 2, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 			
 			// Adds the delay to the game tick
 			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
@@ -465,7 +465,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
 		
 		// Play sound
-		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 	else
 	{
@@ -473,7 +473,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });     
 
 		// Play sound
-		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 	
 	// Adds the delay to the game tick
@@ -548,7 +548,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 			TE_SendToAll();
 			
 			// Play sound
-			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_HOME);
+			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
 		}
 		else
 		{
@@ -559,7 +559,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
 				// Play sound
-				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM, SNDLEVEL_FRIDGE);
+				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
 			}
 		}
 	}

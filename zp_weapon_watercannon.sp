@@ -317,7 +317,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			}
 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_HOME);
+			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 
 			// Adds the delay to the game tick
 			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
