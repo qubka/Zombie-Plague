@@ -310,16 +310,6 @@ int WeaponHDRGetSwappedWeapon(int entity)
 	return GetEntPropEnt(entity, Prop_Data, "m_hDamageFilter");
 }
 
-void WeaponHDRSetHolsteredViewModel(int entity, int iModel)
-{
-	SetEntProp(entity, Prop_Data, "m_iHammerID", iModel);
-}
-
-int WeaponHDRGetHolsteredViewModel(int entity)
-{
-	return GetEntProp(entity, Prop_Data, "m_iHammerID");
-}
-
 /**
  * @brief Gets the view (player) weapon model.
  *

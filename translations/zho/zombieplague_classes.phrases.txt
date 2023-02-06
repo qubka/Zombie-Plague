@@ -13,20 +13,25 @@
 	{
 		"zho"			"復仇女神"
 	}
-	
-	"deimos" // Menu
-	{
-		"zho"			"妖女"
-	}
 
-	"sleeper" // Menu
+	"classic" // Menu
 	{
-		"zho"			"沈眠者"
+		"zho"			"经典的"
+	}
+	
+	"fast" // Menu
+	{
+		"zho"			"迅捷者"
 	}
 
 	"witch" // Menu
 	{
 		"zho"			"女巫"
+	}
+	
+	"deimos" // Menu
+	{
+		"zho"			"妖女"
 	}
 
 	"smoker" // Menu
@@ -49,11 +54,6 @@
 		"zho"			"治療者"
 	}
 
-	"baller" // Menu
-	{
-		"zho"			"投球者"
-	}
-
 	"range" // Menu
 	{
 		"zho"			"自爆怪"
@@ -69,9 +69,9 @@
 		"zho"			"幽靈"
 	}
 
-	"fast" // Menu
+	"hunter" // Menu
 	{
-		"zho"			"迅捷者"
+		"zho"			""
 	}
 
 	"tank" // Menu
@@ -85,20 +85,20 @@
 	}
 	
 	// Info
-	
-	"deimos info" // Hint
-	{
-		"zho"			"技能: <font color='#FF0000'>刺痛射擊</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
-	}
 
-	"sleeper info" // Hint
+	"classic info" // Hint
 	{
-		"zho"			"被動技能： <font color='#FF0000'>隨機致盲周圍攻擊者</font>"
+		"zho"			"\n被動技能： <font color='#FF0000'>隨機致盲周圍攻擊者</font>"
 	}
 
 	"witch info" // Hint
 	{
 		"zho"			"技能： <font color='#FF0000'>蝙蝠蜂擁</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
+	}
+	
+	"deimos info" // Hint
+	{
+		"zho"			"技能: <font color='#FF0000'>刺痛射擊</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
 	}
 
 	"smoker info" // Hint
@@ -121,11 +121,6 @@
 		"zho"			"技能： <font color='#FF0000'>賞金治療</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
 	}
 
-	"baller info" // Hint
-	{
-		"zho"			"技能： <font color='#FF0000'>癱瘓球</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
-	}
-
 	"range info" // Hint
 	{
 		"zho"			"技能： <font color='#FF0000'>感染毒氣</font>\n激活於 <font color='#FF0000'>死亡</font>"
@@ -141,7 +136,7 @@
 		"zho"			"技能： <font color='#FF0000'>隱身</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
 	}
 
-	"fast info" // Hint
+	"hunter info" // Hint
 	{
 		"zho"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按鈕： <font color='#FF0000'>F4</font>"
 	}

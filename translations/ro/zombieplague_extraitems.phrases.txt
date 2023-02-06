@@ -2,6 +2,16 @@
 {
 	// Items
 	
+	"nemesis" // Menu
+	{
+		"ro"			"Cumpără nemesis"
+	}
+	
+	"survivor" // Menu
+	{
+		"ro"			"Cumpără supraviețuitor"
+	}
+	
 	"antidot" // Menu
 	{
 		"ro"			"Antidot"

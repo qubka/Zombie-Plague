@@ -209,7 +209,7 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
 	///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
 	// Initialize vectors
-	static float vPosition[3]; static float vEnemy[3];
+	static float vPosition[3]; static float vPosition2[3];
 
 	// Gets all required event info
 	int grenade = hEvent.GetInt("entityid");
@@ -239,13 +239,13 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
 				}
 				
 				// Gets victim origin
-				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 				
 				// Put the fire on
 				UTIL_IgniteEntity(i, flDuration);   
 				
 				// Create a knockback
-				UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), flKnock, flRadius);
+				UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
 				
 				// Create a shake
 				UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);

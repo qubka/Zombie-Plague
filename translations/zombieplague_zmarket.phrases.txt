@@ -1,21 +1,16 @@
 "Phrases"
 {
-	"rebuy" // Menu
-	{
-		"en"			"Auto-rebuy"
-	}
-	
-	"primary" // Menu
+	"choose primary" // Menu
 	{
 		"en"			"Primary weapons"
 	}
 	
-	"secondary" // Menu
+	"choose secondary" // Menu
 	{
 		"en"			"Secondary weapons"
 	}	
 	
-	"melee" // Menu
+	"choose melee" // Menu
 	{
 		"en"			"Knifes"
 	}

@@ -44,7 +44,8 @@ enum
 	GAMEMODES_DATA_CHANCE,
 	GAMEMODES_DATA_MINPLAYERS,
 	GAMEMODES_DATA_RATIO,
-	GAMEMODES_DATA_HEALTH,
+	GAMEMODES_DATA_HEALTHHUMAN,
+	GAMEMODES_DATA_HEALTHZOMBIE,
 	GAMEMODES_DATA_GROUP,
 	GAMEMODES_DATA_SOUNDSTART,
 	GAMEMODES_DATA_SOUNDENDHUMAN,
@@ -221,36 +222,29 @@ void GameModesOnCacheData(/*void*/)
 		arrayGameMode.Push(kvGameModes.GetNum("chance", 0));                        // Index: 6
 		arrayGameMode.Push(kvGameModes.GetNum("min", 0));                           // Index: 7
 		arrayGameMode.Push(kvGameModes.GetFloat("ratio", 0.0));                     // Index: 8
-		arrayGameMode.Push(kvGameModes.GetNum("health", 0));                        // Index: 9
+		arrayGameMode.Push(kvGameModes.GetNum("health_human", 0));                  // Index: 9
+		arrayGameMode.Push(kvGameModes.GetNum("health_zombie", 0));                 // Index: 10
 		kvGameModes.GetString("group", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 10
+		arrayGameMode.PushString(sPathModes);                                       // Index: 11
 		kvGameModes.GetString("start", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 11
-		kvGameModes.GetString("end_human", sPathModes, sizeof(sPathModes), "");
 		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 12
-		kvGameModes.GetString("end_zombie", sPathModes, sizeof(sPathModes), "");
+		kvGameModes.GetString("end_human", sPathModes, sizeof(sPathModes), "");
 		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 13
-		kvGameModes.GetString("end_draw", sPathModes, sizeof(sPathModes), "");
+		kvGameModes.GetString("end_zombie", sPathModes, sizeof(sPathModes), "");
 		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 14
-		kvGameModes.GetString("ambient", sPathModes, sizeof(sPathModes), "");
+		kvGameModes.GetString("end_draw", sPathModes, sizeof(sPathModes), "");
 		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 15
-		arrayGameMode.Push(kvGameModes.GetFloat("duration", 60.0));                 // Index: 16
-		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 17
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 18
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 19
+		kvGameModes.GetString("ambient", sPathModes, sizeof(sPathModes), "");
+		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 16
+		arrayGameMode.Push(kvGameModes.GetFloat("duration", 60.0));                 // Index: 17
+		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 18
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 19
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 20
 		kvGameModes.GetString("humanclass", sPathModes, sizeof(sPathModes), "human");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 20
-		kvGameModes.GetString("zombieclass", sPathModes, sizeof(sPathModes), "zombie");
 		arrayGameMode.PushString(sPathModes);                                       // Index: 21
-		kvGameModes.GetString("overlay_human", sPathModes, sizeof(sPathModes), "");
+		kvGameModes.GetString("zombieclass", sPathModes, sizeof(sPathModes), "zombie");
 		arrayGameMode.PushString(sPathModes);                                       // Index: 22
-		if (hasLength(sPathModes)) 
-		{
-			// Precache material
-			Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
-			DecryptPrecacheTextures("self", sPathModes);
-		}
-		kvGameModes.GetString("overlay_zombie", sPathModes, sizeof(sPathModes), "");
+		kvGameModes.GetString("overlay_human", sPathModes, sizeof(sPathModes), "");
 		arrayGameMode.PushString(sPathModes);                                       // Index: 23
 		if (hasLength(sPathModes)) 
 		{
@@ -258,7 +252,7 @@ void GameModesOnCacheData(/*void*/)
 			Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
 			DecryptPrecacheTextures("self", sPathModes);
 		}
-		kvGameModes.GetString("overlay_draw", sPathModes, sizeof(sPathModes), "");
+		kvGameModes.GetString("overlay_zombie", sPathModes, sizeof(sPathModes), "");
 		arrayGameMode.PushString(sPathModes);                                       // Index: 24
 		if (hasLength(sPathModes)) 
 		{
@@ -266,19 +260,27 @@ void GameModesOnCacheData(/*void*/)
 			Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
 			DecryptPrecacheTextures("self", sPathModes);
 		}
-		arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 25
-		arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 26
-		arrayGameMode.Push(kvGameModes.GetFloat("delay", 0.0));                     // Index: 27
-		arrayGameMode.Push(kvGameModes.GetNum("last", 0));                          // Index: 28
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "suicide", "no"));    // Index: 29
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "escape", "off"));    // Index: 30
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "blast", "on"));      // Index: 31
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 32
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 33
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 34
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 35
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "weapon", "yes"));    // Index: 36
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "extraitem", "yes")); // Index: 37
+		kvGameModes.GetString("overlay_draw", sPathModes, sizeof(sPathModes), "");
+		arrayGameMode.PushString(sPathModes);                                       // Index: 25
+		if (hasLength(sPathModes)) 
+		{
+			// Precache material
+			Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
+			DecryptPrecacheTextures("self", sPathModes);
+		}
+		arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 26
+		arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 27
+		arrayGameMode.Push(kvGameModes.GetFloat("delay", 0.0));                     // Index: 28
+		arrayGameMode.Push(kvGameModes.GetNum("last", 0));                          // Index: 29
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "suicide", "no"));    // Index: 30
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "escape", "off"));    // Index: 31
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "blast", "on"));      // Index: 32
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 33
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 34
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 35
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 36
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "weapon", "yes"));    // Index: 37
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "extraitem", "yes")); // Index: 38
 	}
 
 	// We're done with this file now, so we can close it
@@ -602,7 +604,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 	
 		// Make zombies
 		ApplyOnClientUpdate(client, _, sBuffer);
-		ToolsSetHealth(client, ToolsGetHealth(client) + (iAlive * ModesGetHealth(gServerData.RoundMode))); /// Give additional health
+		ToolsSetHealth(client, ToolsGetHealth(client) + (iAlive * ModesGetHealthZombie(gServerData.RoundMode))); /// Give additional health
 	
 		// Store the userid of a zombie for next round
 		gServerData.LastZombies.Push(GetClientUserId(client));
@@ -619,8 +621,12 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 		// i = client index    
 		for (int i = iMaxZombies; i < iAlive; i++) /// Remaining players should be humans
 		{
+			// Gets the client index from array
+			int client = gServerData.Clients.Get(i);
+		
 			// Switch team
-			ApplyOnClientTeam(gServerData.Clients.Get(i), TEAM_HUMAN);
+			ApplyOnClientTeam(client, TEAM_HUMAN);
+			ToolsSetHealth(client, ToolsGetHealth(client) + (iAlive * ModesGetHealthHuman(gServerData.RoundMode))); /// Give additional health
 		}
 	}
 	// Make custom humans
@@ -629,8 +635,12 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 		// i = client index
 		for (int i = iMaxZombies; i < iAlive; i++) /// Remaining players should be humans
 		{
+			// Gets the client index from array
+			int client = gServerData.Clients.Get(i);
+		
 			// Make humans
-			ApplyOnClientUpdate(gServerData.Clients.Get(i), _, sBuffer);
+			ApplyOnClientUpdate(client, _, sBuffer);
+			ToolsSetHealth(client, ToolsGetHealth(client) + (iAlive * ModesGetHealthHuman(gServerData.RoundMode))); /// Give additional health
 		}
 	}
 
@@ -883,7 +893,8 @@ void GameModesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetGameModeChance",           API_GetGameModeChance);
 	CreateNative("ZP_GetGameModeMinPlayers",       API_GetGameModeMinPlayers);
 	CreateNative("ZP_GetGameModeRatio",            API_GetGameModeRatio);
-	CreateNative("ZP_GetGameModeHealth",           API_GetGameModeHealth);
+	CreateNative("ZP_GetGameModeHealthHuman",      API_GetGameModeHealthHuman);
+	CreateNative("ZP_GetGameModeHealthZombie",     API_GetGameModeHealthZombie);
 	CreateNative("ZP_GetGameModeGroup",            API_GetGameModeGroup);
 	CreateNative("ZP_GetGameModeSoundStartID",     API_GetGameModeSoundStartID);
 	CreateNative("ZP_GetGameModeSoundEndHumanID",  API_GetGameModeSoundEndHumanID);
@@ -1302,11 +1313,11 @@ public int API_GetGameModeRatio(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the health of the game mode.
+ * @brief Gets the human health of the game mode.
  *
- * @note native int ZP_GetGameModeHealth(iD);
+ * @note native int ZP_GetGameModeHealthHuman(iD);
  **/
-public int API_GetGameModeHealth(Handle hPlugin, int iNumParams)
+public int API_GetGameModeHealthHuman(Handle hPlugin, int iNumParams)
 {
 	// Gets mode index from native cell
 	int iD = GetNativeCell(1);
@@ -1325,7 +1336,34 @@ public int API_GetGameModeHealth(Handle hPlugin, int iNumParams)
 	}
 	
 	// Return value
-	return ModesGetHealth(iD);
+	return ModesGetHealthHuman(iD);
+}
+
+/**
+ * @brief Gets the zombie health of the game mode.
+ *
+ * @note native int ZP_GetGameModeHealthZombie(iD);
+ **/
+public int API_GetGameModeHealthZombie(Handle hPlugin, int iNumParams)
+{
+	// Gets mode index from native cell
+	int iD = GetNativeCell(1);
+	
+	// Validate no game mode
+	if (iD == -1)
+	{
+		return iD;
+	}
+	
+	// Validate index
+	if (iD >= gServerData.GameModes.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		return -1;
+	}
+	
+	// Return value
+	return ModesGetHealthZombie(iD);
 }
 
 /**
@@ -2367,12 +2405,12 @@ float ModesGetRatio(int iD)
 }
 
 /**
- * @brief Gets the health of the game mode.
+ * @brief Gets the human health of the game mode.
  *
  * @param iD                The mode index.
  * @return                  The health amount.
  **/
-int ModesGetHealth(int iD)
+int ModesGetHealthHuman(int iD)
 {
 	// Validate no game mode
 	if (iD == -1)
@@ -2383,8 +2421,29 @@ int ModesGetHealth(int iD)
 	// Gets array handle of game mode at given index
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	// Gets game mode health
-	return arrayGameMode.Get(GAMEMODES_DATA_HEALTH);
+	// Gets game mode human health
+	return arrayGameMode.Get(GAMEMODES_DATA_HEALTHHUMAN);
+}
+
+/**
+ * @brief Gets the zombie health of the game mode.
+ *
+ * @param iD                The mode index.
+ * @return                  The health amount.
+ **/
+int ModesGetHealthZombie(int iD)
+{
+	// Validate no game mode
+	if (iD == -1)
+	{
+		return 0;
+	}
+	
+	// Gets array handle of game mode at given index
+	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
+	
+	// Gets game mode zombie health
+	return arrayGameMode.Get(GAMEMODES_DATA_HEALTHZOMBIE);
 }
 
 /**
@@ -3404,7 +3463,7 @@ void ModesMenu(int client, int target = -1)
 		TranslationPrintHintText(client, "block starting round");     
 
 		// Emit error sound
-		EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+		EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
 	}
 
@@ -3427,20 +3486,22 @@ void ModesMenu(int client, int target = -1)
 	// Sets title
 	hMenu.SetTitle("%t", "modes menu");
 
-	// If there are no target, add an "(Empty)" line
-	if (target != -1)
 	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%N\n \n", target);
+		// If there are no target, add an "(Empty)" line
+		if (target != -1)
+		{
+			// Format some chars for showing in menu
+			FormatEx(sBuffer, sizeof(sBuffer), "%N\n \n", target);
+		}
+		else
+		{
+			// Format some chars for showing in menu
+			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "empty");
+		}
+		
+		// Show target option
+		hMenu.AddItem("-1 -1", sBuffer);
 	}
-	else
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "empty");
-	}
-	
-	// Show target option
-	hMenu.AddItem("-1 -1", sBuffer);
 	
 	// Initialize forward
 	Action hResult;
@@ -3536,7 +3597,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				TranslationPrintHintText(client, "block starting round");
 		
 				// Emit error sound
-				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 			
@@ -3561,7 +3622,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 					TranslationPrintHintText(client, "block selecting target");
 			
 					// Emit error sound
-					EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+					EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 					return 0;
 				}
 			}
@@ -3708,7 +3769,7 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 				TranslationPrintHintText(client, "block selecting target");
 				
 				// Emit error sound
-				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
+				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 			}
 		}
 	}

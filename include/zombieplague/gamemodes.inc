@@ -183,13 +183,22 @@ native int ZP_GetGameModeMinPlayers(int modeID);
 native float ZP_GetGameModeRatio(int modeID);
 
 /**
- * @brief Gets the health of the game mode.
+ * @brief Gets the human health of the game mode.
  * 
  * @param modeID            The mode index.
  *
  * @return                  The health amount.    
  **/
-native int ZP_GetGameModeHealth(int modeID);
+native int ZP_GetGameModeHealthHuman(int modeID);
+
+/**
+ * @brief Gets the zombie health of the game mode.
+ * 
+ * @param modeID            The mode index.
+ *
+ * @return                  The health amount.    
+ **/
+native int ZP_GetGameModeHealthZombie(int modeID);
 
 /**
  * @brief Gets the group of a game mode at a given index.

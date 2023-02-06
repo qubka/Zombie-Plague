@@ -51,6 +51,7 @@ enum
 	CLASSES_DATA_GROUP,
 	CLASSES_DATA_SKILLDURATION,
 	CLASSES_DATA_SKILLCOUNTDOWN,
+	CLASSES_DATA_SKILLCOST,
 	CLASSES_DATA_SKILLBAR,
 	CLASSES_DATA_HEALTHSPRITE,
 	CLASSES_DATA_REGENHEALTH,
@@ -264,7 +265,7 @@ void ClassesOnCacheData(/*void*/)
 	for (int i = 0; i < iSize; i++)
 	{
 		// General
-		ClassGetName(i, sPathClasses, sizeof(sPathClasses)); // Index: 0
+		ClassGetName(i, sPathClasses, sizeof(sPathClasses));                    // Index: 0
 		kvClasses.Rewind();
 		if (!kvClasses.JumpToKey(sPathClasses))
 		{
@@ -329,17 +330,18 @@ void ClassesOnCacheData(/*void*/)
 		arrayClass.PushString(sPathClasses);                                    // Index: 18
 		arrayClass.Push(kvClasses.GetFloat("duration", 0.0));                   // Index: 19
 		arrayClass.Push(kvClasses.GetFloat("countdown", 0.0));                  // Index: 20
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "bar", "off"));        // Index: 21
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "sprite", "off"));     // Index: 22
-		arrayClass.Push(kvClasses.GetNum("regenerate", 0));                     // Index: 23
-		arrayClass.Push(kvClasses.GetFloat("interval", 0.0));                   // Index: 24
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "fall", "on"));        // Index: 25
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "spotted", "on"));     // Index: 26
-		arrayClass.Push(kvClasses.GetNum("fov", 90));                           // Index: 27
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "crosshair", "yes"));  // Index: 28
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "nvgs", "no"));        // Index: 29
+		arrayClass.Push(kvClasses.GetNum("cost", 0));                           // Index: 21
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "bar", "off"));        // Index: 22
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "sprite", "off"));     // Index: 23
+		arrayClass.Push(kvClasses.GetNum("regenerate", 0));                     // Index: 24
+		arrayClass.Push(kvClasses.GetFloat("interval", 0.0));                   // Index: 25
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "fall", "on"));        // Index: 26
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "spotted", "on"));     // Index: 27
+		arrayClass.Push(kvClasses.GetNum("fov", 90));                           // Index: 28
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "crosshair", "yes"));  // Index: 29
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "nvgs", "no"));        // Index: 30
 		kvClasses.GetString("overlay", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 30
+		arrayClass.PushString(sPathClasses);                                    // Index: 31
 		if (hasLength(sPathClasses)) 
 		{
 			// Precache material
@@ -357,7 +359,7 @@ void ClassesOnCacheData(/*void*/)
 			// Push data into array
 			iWeapon[x] = WeaponsNameToIndex(sWeapon[x]);
 		} 
-		arrayClass.PushArray(iWeapon, sizeof(iWeapon));                         // Index: 31
+		arrayClass.PushArray(iWeapon, sizeof(iWeapon));                         // Index: 32
 		kvClasses.GetString("money", sPathClasses, sizeof(sPathClasses), "");
 		static char sMoney[6][SMALL_LINE_LENGTH]; int iMoney[6];
 		int nMoney = ExplodeString(sPathClasses, ",", sMoney, sizeof(sMoney), sizeof(sMoney[]));
@@ -369,7 +371,7 @@ void ClassesOnCacheData(/*void*/)
 			// Push data into array
 			iMoney[x] = StringToInt(sMoney[x]);
 		}
-		arrayClass.PushArray(iMoney, sizeof(iMoney));                           // Index: 32
+		arrayClass.PushArray(iMoney, sizeof(iMoney));                           // Index: 33
 		kvClasses.GetString("experience", sPathClasses, sizeof(sPathClasses), "");
 		static char sExp[6][SMALL_LINE_LENGTH]; int iExp[6];
 		int nExp = ExplodeString(sPathClasses, ",", sExp, sizeof(sExp), sizeof(sExp[]));
@@ -381,37 +383,37 @@ void ClassesOnCacheData(/*void*/)
 			// Push data into array
 			iExp[x] = StringToInt(sExp[x]);
 		}
-		arrayClass.PushArray(iExp, sizeof(iExp));                               // Index: 33
-		arrayClass.Push(kvClasses.GetNum("lifesteal", 0));                      // Index: 34
-		arrayClass.Push(kvClasses.GetNum("ammunition", 0));                     // Index: 35
-		arrayClass.Push(kvClasses.GetNum("leap", 0));                           // Index: 36
-		arrayClass.Push(kvClasses.GetFloat("force", 0.0));                      // Index: 37
-		arrayClass.Push(kvClasses.GetFloat("cooldown", 0.0));                   // Index: 38
+		arrayClass.PushArray(iExp, sizeof(iExp));                               // Index: 34
+		arrayClass.Push(kvClasses.GetNum("lifesteal", 0));                      // Index: 35
+		arrayClass.Push(kvClasses.GetNum("ammunition", 0));                     // Index: 36
+		arrayClass.Push(kvClasses.GetNum("leap", 0));                           // Index: 37
+		arrayClass.Push(kvClasses.GetFloat("force", 0.0));                      // Index: 38
+		arrayClass.Push(kvClasses.GetFloat("cooldown", 0.0));                   // Index: 39
 		kvClasses.GetString("effect", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 39
-		kvClasses.GetString("attachment", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.PushString(sPathClasses);                                    // Index: 40
-		arrayClass.Push(kvClasses.GetFloat("time", 1.0));                       // Index: 41
+		kvClasses.GetString("attachment", sPathClasses, sizeof(sPathClasses), "");
+		arrayClass.PushString(sPathClasses);                                    // Index: 41
+		arrayClass.Push(kvClasses.GetFloat("time", 1.0));                       // Index: 42
 		kvClasses.GetString("death", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 42
-		kvClasses.GetString("hurt", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 43
-		kvClasses.GetString("idle", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("hurt", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 44
-		kvClasses.GetString("infect", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("idle", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 45
-		kvClasses.GetString("respawn", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("infect", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 46
-		kvClasses.GetString("burn", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("respawn", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 47
-		kvClasses.GetString("attack", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("burn", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 48
-		kvClasses.GetString("footstep", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("attack", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 49
-		kvClasses.GetString("regen", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("footstep", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 50
-		kvClasses.GetString("jump", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("regen", sPathClasses, sizeof(sPathClasses), "");
 		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 51
+		kvClasses.GetString("jump", sPathClasses, sizeof(sPathClasses), "");
+		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 52
 	}
 
 	// We're done with this file now, so we can close it
@@ -543,6 +545,7 @@ void ClassesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetClassGroup",            API_GetClassGroup);
 	CreateNative("ZP_GetClassSkillDuration",    API_GetClassSkillDuration);
 	CreateNative("ZP_GetClassSkillCountdown",   API_GetClassSkillCountdown);
+	CreateNative("ZP_GetClassSkillCost",        API_GetClassSkillCost);
 	CreateNative("ZP_IsClassSkillBar",          API_IsClassSkillBar);
 	CreateNative("ZP_IsClassHealthSprite",      API_IsClassHealthSprite);
 	CreateNative("ZP_GetClassRegenHealth",      API_GetClassRegenHealth);
@@ -1319,6 +1322,27 @@ public int API_GetClassSkillCountdown(Handle hPlugin, int iNumParams)
 	
 	// Return value (Float fix)
 	return view_as<int>(ClassGetSkillCountdown(iD));
+}
+
+/**
+ * @brief Gets the skill cost of the class.
+ *
+ * @note native int ZP_GetClassSkillCost(iD);
+ **/
+public int API_GetClassSkillCost(Handle hPlugin, int iNumParams)
+{
+	// Gets class index from native cell
+	int iD = GetNativeCell(1);
+	
+	// Validate index
+	if (iD >= gServerData.Classes.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+		return -1;
+	}
+	
+	// Return value
+	return ClassGetSkillCost(iD);
 }
 
 /**
@@ -2393,6 +2417,21 @@ float ClassGetSkillCountdown(int iD)
 
 	// Gets class skill countdown  
 	return arrayClass.Get(CLASSES_DATA_SKILLCOUNTDOWN);
+}
+
+/**
+ * @brief Gets the skill cost of the class.
+ *
+ * @param iD                The class index.
+ * @return                  The cost amount.    
+ **/
+int ClassGetSkillCost(int iD)
+{
+	// Gets array handle of class at given index
+	ArrayList arrayClass = gServerData.Classes.Get(iD);
+
+	// Gets class skill cost  
+	return arrayClass.Get(CLASSES_DATA_SKILLCOST);
 }
 
 /**

@@ -1562,7 +1562,7 @@ public Action WeaponMODOnCommandListenedBuy(int client, char[] commandMsg, int i
 		if (!WeaponMODOnClientBuyammo(client))
 		{
 			// Emit error sound
-			EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+			EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 		}
 	}
 
@@ -1614,7 +1614,7 @@ bool WeaponMODOnClientBuyammo(int client)
 				TranslationPrintHintText(client, "block buying ammunition");
 				
 				// Emit error sound
-				//EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				//EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return false;
 			}
 	

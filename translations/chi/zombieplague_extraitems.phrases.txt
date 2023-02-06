@@ -1,7 +1,17 @@
 "Phrases"
 {
 	// Items
+
+	"nemesis" // Menu
+	{
+		"chi"			"購買剋星"
+	}
 	
+	"survivor" // Menu
+	{
+		"chi"			"購買倖存者"
+	}
+
 	"antidot" // Menu
 	{
 		"chi"			"解毒剂"

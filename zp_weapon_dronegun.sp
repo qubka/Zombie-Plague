@@ -975,14 +975,14 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		return bHit;
 	} 
 	 
-	public void SelectTargetPoint(float vStart[3], float vMid[3]) 
+	public void SelectTargetPoint(float vStart[3], float vCenter[3]) 
 	{
 		// Track the enemy 
-		GetCenterOrigin(this.Enemy, vMid); 
+		GetCenterOrigin(this.Enemy, vCenter); 
 	 
 		// If we cannot see their GetCenterOrigin ( possible, as we do our target finding based 
 		// on the eye position of the target) then fire at the eye position 
-		TR_TraceRayFilter(vStart, vMid, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
+		TR_TraceRayFilter(vStart, vCenter, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
 		
 		// Validate collision
 		if (TR_DidHit()) 
@@ -993,8 +993,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			{
 				// Hack it lower a little bit
 				// The eye position is not always within the hitboxes for a standing CS player 
-				GetEyePosition(this.Enemy, vMid); 
-				vMid[2] -= 5.0; 
+				GetEyePosition(this.Enemy, vCenter); 
+				vCenter[2] -= 5.0; 
 			}
 		}
 	}
@@ -1061,7 +1061,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	public bool FindTarget() 
 	{ 
 		// Initialize vectors
-		static float vPosition[3]; static float vEnemy[3]; 
+		static float vPosition[3]; static float vPosition2[3]; 
 	
 		// Loop through players within 1100 units (sentry range)
 		this.GetGunPosition(vPosition); 
@@ -1093,10 +1093,10 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			}
 			
 			// Gets victim origin
-			GetAbsOrigin(i, vEnemy);
+			GetAbsOrigin(i, vPosition2);
 			
 			// Gets target distance
-			flNewDistance = GetVectorDistance(vPosition, vEnemy);
+			flNewDistance = GetVectorDistance(vPosition, vPosition2);
 			
 			// Store the current target distance if we come across it 
 			if (i == old) 
@@ -1111,7 +1111,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			}
 			
 			// It is closer, check to see if the target is valid
-			if (this.ValidTargetPlayer(i, vPosition, vEnemy)) 
+			if (this.ValidTargetPlayer(i, vPosition, vPosition2)) 
 			{ 
 				flMinDistance = flNewDistance; 
 				target = i; 
@@ -1154,10 +1154,10 @@ methodmap SentryGun /** Regards to Pelipoika **/
 						else continue;
 					
 						// Gets victim origin
-						GetAbsOrigin(i, vEnemy);
+						GetAbsOrigin(i, vPosition2);
 						
 						// Gets target distance
-						flNewDistance = GetVectorDistance(vPosition, vEnemy);
+						flNewDistance = GetVectorDistance(vPosition, vPosition2);
 						
 						// Store the current target distance if we come across it 
 						if (i == old) 
@@ -1172,7 +1172,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 						}
 						
 						// It is closer, check to see if the target is valid
-						if (this.ValidTargetPlayer(i, vPosition, vEnemy)) 
+						if (this.ValidTargetPlayer(i, vPosition, vPosition2)) 
 						{ 
 							flMinDistance = flNewDistance; 
 							target = i; 
@@ -1415,7 +1415,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	public void Shot(float vPosition[3], float vDirection[3], char[] sAttach) 
 	{ 
 		// Initialize vectors
-		static float vEndPosition[3]; static float vVelocity[3]; static float vSpeed[3];
+		static float vEndPosition[3]; static float vVelocity[3]; static float vVelocity2[3];
 		
 		// Calculate and store endpoint
 		ScaleVector(vDirection, hCvarSentryBulletDistance.FloatValue);
@@ -1480,10 +1480,10 @@ methodmap SentryGun /** Regards to Pelipoika **/
 						ScaleVector(vVelocity, flForce);
 						
 						// Gets client velocity
-						GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vSpeed);
+						GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vVelocity2);
 						
 						// Add to the current
-						AddVectors(vSpeed, vVelocity, vVelocity);
+						AddVectors(vVelocity2, vVelocity, vVelocity);
 					
 						// Push the target
 						TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, vVelocity);
@@ -1505,7 +1505,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	public void Fire() 
 	{ 
 		// Initialize variables
-		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEnemy[3];
+		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vPosition2[3];
 		float flSpeed = hCvarSentryBulletSpeed.FloatValue; 
 		float flCurrentTime = GetGameTime();
 		
@@ -1525,8 +1525,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				this.GetLauncherPosition(vPosition); 
 
 				// Calculate a velocity
-				GetCenterOrigin(this.Enemy, vEnemy); 
-				MakeVectorFromPoints(vPosition, vEnemy, vAngle);
+				GetCenterOrigin(this.Enemy, vPosition2); 
+				MakeVectorFromPoints(vPosition, vPosition2, vAngle);
 				NormalizeVector(vAngle, vAngle); 
 				GetVectorAngles(vAngle, vAngle); 
 				GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
@@ -1586,8 +1586,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			ZP_GetAttachment(this.Index, sAttach, vPosition, vVelocity);
 			
 			// Calculate an angle
-			this.SelectTargetPoint(vPosition, vEnemy);
-			MakeVectorFromPoints(vPosition, vEnemy, vAngle);
+			this.SelectTargetPoint(vPosition, vPosition2);
+			MakeVectorFromPoints(vPosition, vPosition2, vAngle);
 			NormalizeVector(vAngle, vAngle); 
 
 			// Create a bullet
@@ -1788,12 +1788,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		} 
 	 
 		// Initialize vectors
-		static float vMid[3]; static float vEnemy[3]; static float vDirection[3]; static float vAngle[3]; 
+		static float vCenter[3]; static float vPosition2[3]; static float vDirection[3]; static float vAngle[3]; 
 	 
 		// Track the enemy 
-		GetCenterOrigin(this.Index, vMid); 
-		this.SelectTargetPoint(vMid, vEnemy);
-		MakeVectorFromPoints(vMid, vEnemy, vDirection);
+		GetCenterOrigin(this.Index, vCenter); 
+		this.SelectTargetPoint(vCenter, vPosition2);
+		MakeVectorFromPoints(vCenter, vPosition2, vDirection);
 		GetVectorAngles(vDirection, vAngle); 
 	 
 		// Calculate angles

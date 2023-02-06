@@ -417,10 +417,15 @@
 	// ===========================
 	// ZMarket
 	// ===========================
+			
+	"zmarket favorites menu" // Menu
+	{
+		"ru"			"Избранное\n \n"
+	}
 	
 	"zmarket add" // Menu
 	{
-		"ru"			"Добавить"
+		"ru"			"Добавить\n \nУдалить"
 	}
 
 	"zmarket buy" // Menu
@@ -430,7 +435,7 @@
 	
 	"zmarket buy all" // Menu
 	{
-		"ru"			"Купить все"
+		"ru"			"Купить все\n \n"
 	}
 		
 	"zmarket remember" // Menu
@@ -527,6 +532,6 @@
 	
 	"costumes remove" // Menu
 	{
-		"ru"			"Убрать"
+		"ru"			"Убрать\n \n"
 	}
 }

@@ -1,6 +1,16 @@
 "Phrases"
 {
 	// Items
+
+	"nemesis" // Menu
+	{
+		"en"			"Buy Nemesis"
+	}
+	
+	"survivor" // Menu
+	{
+		"en"			"Buy Survivor"
+	}
 	
 	"antidot" // Menu
 	{

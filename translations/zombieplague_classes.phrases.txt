@@ -13,20 +13,25 @@
 	{
 		"en"			"Nemesis"
 	}
-	
-	"deimos" // Menu
+
+	"classic" // Menu
 	{
-		"en"			"Deimos"
+		"en"			"Classic"
 	}
 
-	"sleeper" // Menu
+	"fast" // Menu
 	{
-		"en"			"Sleeper"
+		"en"			"Fast"
 	}
 
 	"witch" // Menu
 	{
 		"en"			"Witch"
+	}
+	
+	"deimos" // Menu
+	{
+		"en"			"Deimos"
 	}
 
 	"smoker" // Menu
@@ -49,11 +54,6 @@
 		"en"			"Healer"
 	}
 
-	"baller" // Menu
-	{
-		"en"			"Baller"
-	}
-
 	"range" // Menu
 	{
 		"en"			"Explosive"
@@ -69,9 +69,9 @@
 		"en"			"Ghost"
 	}
 
-	"fast" // Menu
+	"hunter" // Menu
 	{
-		"en"			"Fast"
+		"en"			"Hunter"
 	}
 
 	"tank" // Menu
@@ -85,13 +85,8 @@
 	}
 	
 	// Info
-	
-	"deimos info" // Hint
-	{
-		"en"			"Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>F4</font>"
-	}
 
-	"sleeper info" // Hint
+	"classic info" // Hint
 	{
 		"en"			"Passive skill: <font color='#FF0000'>Randomly dazzles the assailant</font>"
 	}
@@ -99,6 +94,11 @@
 	"witch info" // Hint
 	{
 		"en"			"Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+	}
+	
+	"deimos info" // Hint
+	{
+		"en"			"Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>F4</font>"
 	}
 
 	"smoker info" // Hint
@@ -121,11 +121,6 @@
 		"en"			"Skill: <font color='#FF0000'>Healing for money rewards</font>\nActivation on button: <font color='#FF0000'>F4</font>"
 	}
 
-	"baller info" // Hint
-	{
-		"en"			"Skill: <font color='#FF0000'>Paralyzing ball</font>\nActivation on button: <font color='#FF0000'>F4</font>"
-	}
-
 	"range info" // Hint
 	{
 		"en"			"Skill: <font color='#FF0000'>Infection gas</font>\nActivation on <font color='#FF0000'>death</font>"
@@ -141,7 +136,7 @@
 		"en"			"Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
 	}
 
-	"fast info" // Hint
+	"hunter info" // Hint
 	{
 		"en"			"Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
 	}

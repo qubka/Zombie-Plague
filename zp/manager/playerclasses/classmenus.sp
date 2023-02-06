@@ -450,7 +450,7 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 				else 
 				{
 					// Emit error sound
-					EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+					EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 					return 0;
 				}
 				
@@ -496,7 +496,7 @@ void ClassesMenu(int client)
 		TranslationPrintHintText(client, "block classes round"); 
 
 		// Emit error sound
-		EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+		EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
 	}
 	
@@ -600,7 +600,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 				TranslationPrintHintText(client, "block using menu");
 		
 				// Emit error sound
-				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -631,7 +631,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 				TranslationPrintHintText(client, "block selecting target");
 					
 				// Emit error sound
-				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
+				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 			}
 
 			// Opens classes menu back
@@ -740,7 +740,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 				TranslationPrintHintText(client, "block using menu");
 		
 				// Emit error sound
-				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -766,7 +766,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 				TranslationPrintHintText(client, "block selecting target");
 					
 				// Emit error sound
-				EmitSoundToClient(client, "*/buttons/button11.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
+				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
 			}
 			
 			// Opens classes menu back

@@ -34,7 +34,7 @@
  **/
 public Plugin myinfo =
 {
-	name            = "[ZP] Zombie Class: Fast",
+	name            = "[ZP] Zombie Class: Hunter",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of zombie classses",
 	version         = "2.0",
@@ -61,11 +61,11 @@ ConVar hCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	hCvarSkillSpeed  = CreateConVar("zp_zclass_fast_speed", "1.42", "Speed multiplier", 0, true, 0.0);
-	hCvarSkillEffect = CreateConVar("zp_zclass_fast_effect", "viy_viy_viy", "Particle effect for the skill (''-default)");
+	hCvarSkillSpeed  = CreateConVar("zp_zclass_hunter_speed", "1.42", "Speed multiplier", 0, true, 0.0);
+	hCvarSkillEffect = CreateConVar("zp_zclass_hunter_effect", "viy_viy_viy", "Particle effect for the skill (''-default)");
 	
 	// Generate config
-	AutoExecConfig(true, "zp_zclass_fast", "sourcemod/zombieplague");
+	AutoExecConfig(true, "zp_zclass_hunter", "sourcemod/zombieplague");
 }
 
 /**
@@ -92,8 +92,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 public void ZP_OnEngineExecute(/*void*/)
 {
 	// Classes
-	gZombie = ZP_GetClassNameID("fast");
-	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"fast\" wasn't find");
+	gZombie = ZP_GetClassNameID("hunter");
+	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"hunter\" wasn't find");
 	
 	// Sounds
 	gSound = ZP_GetSoundKeyID("FAST_SKILL_SOUNDS");

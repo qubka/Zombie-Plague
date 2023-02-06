@@ -285,7 +285,7 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 	if (entity != -1)
 	{
 		// Initialize vectors
-		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEnemy[3];  
+		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vPosition2[3];  
 
 		// Gets entity position
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
@@ -311,10 +311,10 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 			}
 			
 			// Gets target's eye position 
-			GetClientEyePosition(i, vEnemy);
+			GetClientEyePosition(i, vPosition2);
 			
 			// Push the target
-			UTIL_GetVelocityByAim(vEnemy, vPosition, vAngle, vVelocity, flAttach);
+			UTIL_GetVelocityByAim(vPosition2, vPosition, vAngle, vVelocity, flAttach);
 			TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
 		}
 	}
@@ -358,7 +358,7 @@ public Action CoffinExploadHook(Handle hTimer, int refID)
 void CoffinExpload(int entity)
 {
 	// Initialize vectors
-	static float vPosition[3]; static float vEnemy[3]; static float vGib[3]; float vShoot[3];
+	static float vPosition[3]; static float vPosition2[3]; static float vGib[3]; float vShoot[3];
 
 	// Gets entity position
 	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
@@ -372,10 +372,10 @@ void CoffinExpload(int entity)
 	while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 	{
 		// Gets victim origin
-		GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+		GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
 		// Create a knockback
-		UTIL_CreatePhysForce(i, vPosition, vEnemy, GetVectorDistance(vPosition, vEnemy), flKnock, flRadius);
+		UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
 		
 		// Create a shake
 		UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);

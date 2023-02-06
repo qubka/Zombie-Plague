@@ -261,7 +261,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 	///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
 	// Initialize vectors
-	static float vPosition[3]; static float vAngle[3]; static float vEnemy[3];
+	static float vPosition[3]; static float vAngle[3]; static float vPosition2[3];
 
 	// Gets all required event info
 	int grenade = hEvent.GetInt("entityid");
@@ -297,13 +297,13 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 				SetEntityMoveType(i, MOVETYPE_NONE);
 
 				// Gets victim origin
-				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
 				// Validate effect
 				if (hasLength(sEffect))
 				{
 					// Create an effect
-					UTIL_CreateParticle(i, vEnemy, _, _, sEffect, flDuration + 0.5);
+					UTIL_CreateParticle(i, vPosition2, _, _, sEffect, flDuration + 0.5);
 				}
 				
 				// Create timer for removing freezing
@@ -314,7 +314,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 				vAngle[1] = GetRandomFloat(0.0, 360.0);
 	   
 				// Create a prop_dynamic_override entity
-				int ice = UTIL_CreateDynamic("ice", vEnemy, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", "idle");
+				int ice = UTIL_CreateDynamic("ice", vPosition2, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", "idle");
 
 				// Validate entity
 				if (ice != -1)

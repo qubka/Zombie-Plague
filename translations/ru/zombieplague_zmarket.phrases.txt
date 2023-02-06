@@ -1,21 +1,16 @@
 "Phrases"
 {
-	"rebuy" // Menu
-	{
-		"ru"			"Авто-покупка"
-	}
-	
-	"primary" // Menu
+	"choose primary" // Menu
 	{
 		"ru"			"Главные оружия"
 	}
 	
-	"secondary" // Menu
+	"choose secondary" // Menu
 	{
 		"ru"			"Доп. оружия"
 	}	
 	
-	"melee" // Menu
+	"choose melee" // Menu
 	{
 		"ru"			"Ножи"
 	}

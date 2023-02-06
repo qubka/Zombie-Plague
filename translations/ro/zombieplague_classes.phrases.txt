@@ -13,20 +13,25 @@
 	{
 		"ro"			"Razbunatorul"
 	}
-	
-	"deimos" // Menu
+
+	"classic" // Menu
 	{
-		"ro"			"Deimos"
+		"ro"			"Classic"
 	}
 
-	"sleeper" // Menu
+	"fast" // Menu
 	{
-		"ro"			"Somnorosul"
+		"ro"			"Rapid"
 	}
 
 	"witch" // Menu
 	{
 		"ro"			"Vrajitor"
+	}
+	
+	"deimos" // Menu
+	{
+		"ro"			"Deimos"
 	}
 
 	"smoker" // Menu
@@ -49,11 +54,6 @@
 		"ro"			"Vindecator"
 	}
 
-	"baller" // Menu
-	{
-		"ro"			"Baller"
-	}
-
 	"range" // Menu
 	{
 		"ro"			"Exploziv"
@@ -69,9 +69,9 @@
 		"ro"			"Fantoma"
 	}
 
-	"fast" // Menu
+	"hunter" // Menu
 	{
-		"ro"			"Rapid"
+		"ro"			""
 	}
 
 	"tank" // Menu
@@ -85,20 +85,20 @@
 	}
 	
 	// Info
-	
-	"deimos info" // Hint
-	{
-		"ro"			"Putere: <font color='#FF0000'>lovitura usturatoaret</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
-	}
 
-	"sleeper info" // Hint
+	"classic info" // Hint
 	{
-		"ro"			"Putere pasiva: <font color='#FF0000'>Orbirea aleatorie a atacatorului</font>"
+		"ro"			"\nPutere pasiva: <font color='#FF0000'>Orbirea aleatorie a atacatorului</font>"
 	}
 
 	"witch info" // Hint
 	{
 		"ro"			"Putere: <font color='#FF0000'>Lilieci atacatori</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
+	}
+	
+	"deimos info" // Hint
+	{
+		"ro"			"Putere: <font color='#FF0000'>lovitura usturatoaret</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
 	}
 
 	"smoker info" // Hint
@@ -121,11 +121,6 @@
 		"ro"			"Putere: <font color='#FF0000'>Healing for money rewards</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
 	}
 
-	"baller info" // Hint
-	{
-		"ro"			"Putere: <font color='#FF0000'>Bila paralizanta</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
-	}
-
 	"range info" // Hint
 	{
 		"ro"			"Putere: <font color='#FF0000'>Gaz infectat</font>\nActivare la <font color='#FF0000'>moarte</font>"
@@ -141,7 +136,7 @@
 		"ro"			"Putere: <font color='#FF0000'>Invizibilitate</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
 	}
 
-	"fast info" // Hint
+	"hunter info" // Hint
 	{
 		"ro"			"Putere: <font color='#FF0000'>Alergare rapida</font>\nActivarea de pe butonul: <font color='#FF0000'>F4</font>"
 	}

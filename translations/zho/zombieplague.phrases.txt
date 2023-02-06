@@ -418,9 +418,14 @@
 	// ZMarket
 	// ===========================
 	
+	"zmarket favorites menu" // Menu
+	{
+		"zho"			"最爱\n \n"
+	}
+	
 	"zmarket add" // Menu
 	{
-		"zho"			"加"
+		"zho"			"加\n \n消除"
 	}
 
 	"zmarket buy" // Menu
@@ -430,7 +435,7 @@
 	
 	"zmarket buy all" // Menu
 	{
-		"zho"			"购买所有"
+		"zho"			"购买所有\n \n"
 	}
 		
 	"zmarket remember" // Menu
@@ -527,6 +532,6 @@
 	
 	"costumes remove" // Menu
 	{
-		"zho"			"去掉"
+		"zho"			"去掉\n \n"
 	}
 }

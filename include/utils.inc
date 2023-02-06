@@ -43,12 +43,12 @@
 #define HUGE_LINE_LENGTH        512
 #define CONSOLE_LINE_LENGTH     1024
 #define FILE_LINE_LENGTH        2048
-#define TEAM_NONE               0    /**< No team yet       */
-#define TEAM_SPECTATOR          1    /**< Spectators        */
-#define TEAM_T                  2    /**< Terrorist         */
-#define TEAM_CT                 3    /**< Counter-Terrorist */
-#define TEAM_ZOMBIE             2    /**< Zombies           */
-#define TEAM_HUMAN              3    /**< Humans            */
+#define TEAM_NONE               0    /**< No team yet */
+#define TEAM_SPECTATOR          1    /**< Spectators  */
+#define TEAM_T                  2    /**< Terrorist   */
+#define TEAM_CT                 3    /**< CT          */
+#define TEAM_ZOMBIE             2    /**< Zombies     */
+#define TEAM_HUMAN              3    /**< Humans      */
 #define SPECMODE_NONE           0
 #define SPECMODE_FIRSTPERSON    4
 #define SPECMODE_3RDPERSON      5
@@ -349,6 +349,17 @@
  * @endsection
  **/
 
+/**
+ * @section Default sounds.
+ **/
+#define SOUND_CLIP_EMPTY            "*/weapons/clipempty_rifle.wav"
+#define SOUND_WEAPON_CANT_BUY       "*/buttons/weapon_cant_buy.wav"
+#define SOUND_BUTTON_CMD_ERROR      "*/buttons/button10.wav"
+#define SOUND_BUTTON_MENU_ERROR     "*/buttons/button11.wav"
+/**
+ * @endsection
+ **/ 
+ 
 /** 
  * @section Number of valid def indexes.
  *
@@ -456,7 +467,7 @@ enum ItemDef
 /**
  * @endsection
  **/
- 
+
 /**
  * @section Number of valid render types.
  **/
@@ -2470,25 +2481,40 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
 /**
  * @brief Returns the smaller of two provided values.
  *  
- * @param i1                The first value.
- * @param i2                The second value.
+ * @param v1                The first value.
+ * @param v2                The second value.
  *
  * @return                  The smallest value.
  **/
-stock any min(any i1, any i2) 
+stock any min(any v1, any v2) 
 {
-	return (i1 < i2 ? i1 : i2); 
+	return (v1 < v2 ? v1 : v2); 
 } 
 
 /**
  * @brief Returns the bigger of two provided values.
  *  
- * @param i1                The first value.
- * @param i2                The second value.
+ * @param v1                The first value.
+ * @param v2                The second value.
  *
  * @return                  The biggest value.
  **/
-stock any max(any i1, any i2) 
+stock any max(any v1, any v2) 
 {
-	return (i1 > i2 ? i1 : i2); 
+	return (v1 > v2 ? v1 : v2); 
+}
+
+/**
+ * @brief Clamps a value between a minimum and a maximum floating point value
+ *  
+ * @param v                 The value to be clamped
+ * @param mi                The minimum value
+ * @param ma                The maximum value
+ *
+ * @return                  The value clamped.
+ **/
+stock any clamp(any v, any mi, any ma)
+{
+    v = max(v, ma);
+    return min(v, mi);
 }

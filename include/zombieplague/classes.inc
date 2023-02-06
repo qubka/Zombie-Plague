@@ -377,6 +377,15 @@ native float ZP_GetClassSkillDuration(int classID);
 native float ZP_GetClassSkillCountdown(int classID);
 
 /**
+ * @brief Gets the skill cost of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  The cost amount.    
+ **/
+native int ZP_GetClassSkillCost(int classID);
+
+/**
  * @brief Checks the skill bar of the class.
  *
  * @param classID           The class index.

@@ -1056,11 +1056,13 @@ void CostumesMenu(int client)
 	// Sets title
 	hMenu.SetTitle("%t", "costumes menu");
 	
-	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "costumes remove");
-	
-	// Show add option
-	hMenu.AddItem("-1", sBuffer);
+	{
+		// Format some chars for showing in menu
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "costumes remove");
+		
+		// Show add option
+		hMenu.AddItem("-1", sBuffer);
+	}
 	
 	// Initialize forward
 	Action hResult;

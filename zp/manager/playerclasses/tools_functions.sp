@@ -400,11 +400,11 @@ void ToolsSetVelocity(int entity, float vVelocity[3], bool bApply = true, bool b
 	if (bStack)
 	{
 		// Gets entity velocity
-		static float vSpeed[3];
-		ToolsGetVelocity(entity, vSpeed);
+		static float vVelocity2[3];
+		ToolsGetVelocity(entity, vVelocity2);
 		
 		// Add to the current
-		AddVectors(vSpeed, vVelocity, vVelocity);
+		AddVectors(vVelocity2, vVelocity, vVelocity);
 	}
 	
 	// Apply velocity on entity

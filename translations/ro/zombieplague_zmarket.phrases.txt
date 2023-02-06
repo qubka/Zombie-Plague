@@ -1,21 +1,16 @@
 "Phrases"
 {
-	"rebuy" // Menu
-	{
-		"ro"			"Recumparare-automata"
-	}
-	
-	"primary" // Menu
+	"choose primary" // Menu
 	{
 		"ro"			"Armele primare"
 	}
 	
-	"secondary" // Menu
+	"choose secondary" // Menu
 	{
 		"ro"			"Arme secundare"
 	}	
 	
-	"melee" // Menu
+	"choose melee" // Menu
 	{
 		"ro"			"Cutite"
 	}

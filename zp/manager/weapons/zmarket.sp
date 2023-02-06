@@ -41,10 +41,10 @@ enum MenuType
 	MenuType_Knifes,              /** Knife menu */
 	MenuType_Equipments,          /** Equipment menu */
 	
-	/* Rebuy */
-	MenuType_Rebuy,               /** Rebuy menu */  
-	MenuType_Option,              /** Option menu */  
-	MenuType_Add                  /** Add menu */
+	/* Favorites */
+	MenuType_Favorites,           /** Favorites menu */  
+	MenuType_Option,              /** Favorites (option) menu */  
+	MenuType_Add                  /** Favorites (add) menu */
 };
 /**
  * @endsection
@@ -55,9 +55,9 @@ enum MenuType
  **/
 enum /*ArsenalType*/
 {
-	ArsenalType_Primary,             /** Primary menu */  
-	ArsenalType_Secondary,           /** Secondary menu */  
-	ArsenalType_Melee                /** Melee menu */
+	ArsenalType_Primary,          /** Primary menu */  
+	ArsenalType_Secondary,        /** Secondary menu */  
+	ArsenalType_Melee             /** Melee menu */
 };
 /**
  * @endsection
@@ -154,8 +154,8 @@ void ZMarketOnClientUpdate(int client)
 	// Validate cart size
 	if (!bOpen && gClientData[client].DefaultCart.Length)
 	{
-		// Opens rebuy menu
-		ZMarketBuyMenu(client, "rebuy", MenuType_Rebuy);
+		// Opens favorites menu
+		ZMarketBuyMenu(client, MenuType_Favorites);
 	}
 	
 	// Validate real client
@@ -254,7 +254,7 @@ void ZMarketOnFakeClientThink(int client)
 void ZMarketOnCommandInit(/*void*/)
 {
 	// Hook commands
-	RegConsoleCmd("zrebuy", ZMarketRebuyOnCommandCatched, "Opens the rebuy menu.");
+	RegConsoleCmd("zfavor", ZMarketFavorOnCommandCatched, "Opens the favorites menu.");
 	RegConsoleCmd("zpistol", ZMarketPistolsOnCommandCatched, "Opens the pistols menu.");
 	RegConsoleCmd("zshotgun", ZMarketShotgunsOnCommandCatched, "Opens the shotguns menu.");
 	RegConsoleCmd("zrifle", ZMarketRiflesOnCommandCatched, "Opens the rifles menu.");
@@ -273,7 +273,7 @@ void ZMarketOnCvarInit(/*void*/)
 	// Creates cvars
 	gCvarList.ZMARKET_BUTTON         = FindConVar("zp_zmarket_button");
 	gCvarList.ZMARKET_REOPEN         = FindConVar("zp_zmarket_reopen");
-	gCvarList.ZMARKET_REBUY          = FindConVar("zp_zmarket_rebuy");
+	gCvarList.ZMARKET_FAVORITES      = FindConVar("zp_zmarket_favorites");
 	gCvarList.ZMARKET_PISTOL         = FindConVar("zp_zmarket_pistol");
 	gCvarList.ZMARKET_SHOTGUN        = FindConVar("zp_zmarket_shotgun");
 	gCvarList.ZMARKET_RIFLE          = FindConVar("zp_zmarket_rifle");
@@ -382,7 +382,7 @@ public Action ZMarketOnCommandListened(int client, char[] commandMsg, int iArgum
 			TranslationPrintHintText(client, "block buying round"); 
 
 			// Emit error sound
-			EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+			EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 			return Plugin_Continue;
 		}
 		
@@ -440,16 +440,16 @@ public Action CS_OnBuyCommand(int client, const char[] sName)
 }
 
 /**
- * Console command callback (zrebuy)
- * @brief Changes the rebuy state.
+ * Console command callback (zfavor)
+ * @brief Opens the favorites menu.
  * 
  * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ZMarketRebuyOnCommandCatched(int client, int iArguments)
+public Action ZMarketFavorOnCommandCatched(int client, int iArguments)
 {
 	// Validate menu
-	if (gCvarList.ZMARKET_REBUY.BoolValue)
+	if (gCvarList.ZMARKET_FAVORITES.BoolValue)
 	{
 		ZMarketOptionMenu(client);
 	}
@@ -468,7 +468,7 @@ public Action ZMarketPistolsOnCommandCatched(int client, int iArguments)
 	// Validate menu
 	if (gCvarList.ZMARKET_PISTOL.BoolValue)
 	{
-		ZMarketBuyMenu(client, "buy pistols", MenuType_Pistols); 
+		ZMarketBuyMenu(client, MenuType_Pistols, "buy pistols"); 
 	}
 	return Plugin_Handled;
 }
@@ -485,7 +485,7 @@ public Action ZMarketShotgunsOnCommandCatched(int client, int iArguments)
 	// Validate menu
 	if (gCvarList.ZMARKET_SHOTGUN.BoolValue)
 	{
-		ZMarketBuyMenu(client, "buy shotguns", MenuType_Shotguns); 
+		ZMarketBuyMenu(client, MenuType_Shotguns, "buy shotguns"); 
 	}
 	return Plugin_Handled;
 }
@@ -502,7 +502,7 @@ public Action ZMarketRiflesOnCommandCatched(int client, int iArguments)
 	// Validate menu
 	if (gCvarList.ZMARKET_RIFLE.BoolValue)
 	{
-		ZMarketBuyMenu(client, "buy rifles", MenuType_Rifles); 
+		ZMarketBuyMenu(client, MenuType_Rifles, "buy rifles"); 
 	}
 	return Plugin_Handled;
 }
@@ -519,7 +519,7 @@ public Action ZMarketSnipersOnCommandCatched(int client, int iArguments)
 	// Validate menu
 	if (gCvarList.ZMARKET_SNIPER.BoolValue)
 	{
-		ZMarketBuyMenu(client, "buy snipers", MenuType_Snipers); 
+		ZMarketBuyMenu(client, MenuType_Snipers, "buy snipers"); 
 	}
 	return Plugin_Handled;
 }
@@ -536,7 +536,7 @@ public Action ZMarketMachinegunsOnCommandCatched(int client, int iArguments)
 	// Validate menu
 	if (gCvarList.ZMARKET_MACH.BoolValue)
 	{
-		ZMarketBuyMenu(client, "buy machineguns", MenuType_Machineguns); 
+		ZMarketBuyMenu(client, MenuType_Machineguns, "buy machineguns"); 
 	}
 	return Plugin_Handled;
 }
@@ -553,7 +553,7 @@ public Action ZMarketKnifesOnCommandCatched(int client, int iArguments)
 	// Validate menu
 	if (gCvarList.ZMARKET_KNIFE.BoolValue)
 	{
-		ZMarketBuyMenu(client, "buy knifes", MenuType_Knifes); 
+		ZMarketBuyMenu(client, MenuType_Knifes, "buy knifes"); 
 	}
 	return Plugin_Handled;
 }
@@ -570,7 +570,7 @@ public Action ZMarketEquipsOnCommandCatched(int client, int iArguments)
 	// Validate menu
 	if (gCvarList.ZMARKET_EQUIP.BoolValue)
 	{
-		ZMarketBuyMenu(client, "buy equipments", MenuType_Equipments); 
+		ZMarketBuyMenu(client, MenuType_Equipments, "buy equipments"); 
 	}
 	return Plugin_Handled;
 }
@@ -600,17 +600,17 @@ public Action ZMarketArsenalOnCommandCatched(int client, int iArguments)
  * @brief Creates the buy menu.
  *
  * @param client            The client index.
- * @param sTitle            The menu title.
+ * @param sTitle            (Optional) The menu title.
  * @param mSlot             (Optional) The slot index.
  * @param sType             (Optional) The class type.
  **/
-void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipments, char[] sType = "") 
+void ZMarketBuyMenu(int client, MenuType mSlot = MenuType_Equipments, char[] sTitle = "zmarket favorites menu", char[] sType = "") 
 {
 	// Initialize variables
-	bool bMenu = (mSlot != MenuType_Rebuy); bool bRebuy = (mSlot == MenuType_Add || mSlot == MenuType_Option);
+	bool bMenu = (mSlot != MenuType_Favorites); bool bEdit = (mSlot == MenuType_Add || mSlot == MenuType_Option);
 	
 	// Validate menu
-	if (!bMenu && !gCvarList.ZMARKET_REBUY.BoolValue)
+	if (!bMenu && !gCvarList.ZMARKET_FAVORITES.BoolValue)
 	{
 		return;
 	}
@@ -628,7 +628,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 		TranslationPrintHintText(client, "block buying round"); 
 
 		// Emit error sound
-		EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+		EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
 	}
 
@@ -649,7 +649,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 	if (hasLength(sType)) strcopy(sClass[client], sizeof(sClass[]), sType);
 	
 	// Creates menu handle
-	Action hResult; Menu hMenu = ZMarketSlotToHandle(client, mSlot);
+	Action hResult; Menu hMenu = ZMarketSlotToHandle(mSlot);
 
 	// Sets language to target
 	SetGlobalTransTarget(client);
@@ -660,16 +660,16 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 		case MenuType_Option :
 		{
 			// Format some chars for showing in menu
-			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "zmarket add");
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", "zmarket add");
 			
 			// Show add option
 			hMenu.AddItem("-1", sBuffer);
 		}
 		
-		case MenuType_Rebuy :
+		case MenuType_Favorites :
 		{
 			// Format some chars for showing in menu
-			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "zmarket buy all");
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", "zmarket buy all");
 			
 			// Show add option
 			hMenu.AddItem("-1", sBuffer);
@@ -677,7 +677,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 	}
 	
 	// Format title for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", bRebuy && hasLength(sClass[client]) ? sClass[client] : sTitle);
+	FormatEx(sBuffer, sizeof(sBuffer), "%t", bEdit && hasLength(sClass[client]) ? sClass[client] : sTitle);
 
 	// Sets title
 	hMenu.SetTitle(sBuffer);
@@ -690,7 +690,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 		int iD = ZMarketSlotToIndex(client, mSlot, i);
 
 		// Validate add/option menu
-		if (bRebuy)
+		if (bEdit)
 		{
 			// Skip some weapons, if class isn't equal
 			if (!WeaponsValidateByClass(iD, sClass[client]))
@@ -775,7 +775,7 @@ void ZMarketBuyMenu(int client, char[] sTitle, MenuType mSlot = MenuType_Equipme
 }
 
 /**
- * @brief Called when client selects option in the rebuy menu, and handles it.
+ * @brief Called when client selects option in the favorites menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -825,7 +825,7 @@ public int ZMarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int 
 				case -1 :
 				{
 					// Opens market menu back
-					ZMarketBuyMenu(client, "zmarket add", MenuType_Add);
+					ZMarketBuyMenu(client, MenuType_Add, "zmarket add");
 				}
 				
 				// Client hit 'Weapon' button
@@ -846,7 +846,7 @@ public int ZMarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int 
 					DataBaseOnClientUpdate(client, ColumnType_Weapon, FactoryType_Delete, sBuffer);
 					
 					// Opens market menu back
-					ZMarketBuyMenu(client, "rebuy", MenuType_Option);
+					ZMarketBuyMenu(client, MenuType_Option);
 				}
 			}
 		}
@@ -856,7 +856,7 @@ public int ZMarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int 
 }
 
 /**
- * @brief Called when client selects option in the rebuy menu, and handles it.
+ * @brief Called when client selects option in the favorites menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -880,7 +880,7 @@ public int ZMarketBuyMenuSlots2(Menu hMenu, MenuAction mAction, int client, int 
 			if (mSlot == MenuCancel_ExitBack)
 			{
 				// Opens market menu back
-				ZMarketBuyMenu(client, "rebuy", MenuType_Option);
+				ZMarketBuyMenu(client, MenuType_Option);
 			}
 		}
 		
@@ -908,7 +908,7 @@ public int ZMarketBuyMenuSlots2(Menu hMenu, MenuAction mAction, int client, int 
 			DataBaseOnClientUpdate(client, ColumnType_Weapon, FactoryType_Insert, sBuffer);
 			
 			// Opens market menu back
-			ZMarketBuyMenu(client, "rebuy", MenuType_Option);
+			ZMarketBuyMenu(client, MenuType_Option);
 		}
 	}
 	
@@ -916,7 +916,7 @@ public int ZMarketBuyMenuSlots2(Menu hMenu, MenuAction mAction, int client, int 
 }
 
 /**
- * @brief Called when client selects option in the rebuy menu, and handles it.
+ * @brief Called when client selects option in the favorites menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -950,9 +950,9 @@ public int ZMarketBuyMenuSlots4(Menu hMenu, MenuAction mAction, int client, int 
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
  * @param client            The client index.
  * @param mSlot             The slot index selected (starting from 0).
- * @param bRebuy            (Optional) True to set the rebuy mode, false to set normal mode.
+ * @param bFavorites        (Optional) True to set the favorites mode, false to set normal mode.
  **/ 
-int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bRebuy = false)
+int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bool bFavorites = false)
 {
 	// Switch the menu action
 	switch (mAction)
@@ -990,7 +990,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 				TranslationPrintHintText(client, "block buying round");
 		
 				// Emit error sound
-				EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -1002,7 +1002,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 			// Validate button info
 			switch (iD)
 			{
-				// Client hit 'Buy' button
+				// Client hit 'Buy all' button
 				case -1 :
 				{
 					// Initialize variables
@@ -1092,8 +1092,8 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 									WeaponsSetLimits(client, iD, WeaponsGetLimits(client, iD) + 1);
 								}
 
-								// Is it rebuy menu ?
-								if (bRebuy)
+								// Is it favorites menu ?
+								if (bFavorites)
 								{
 									// Validate index
 									int iIndex = gClientData[client].ShoppingCart.FindValue(iD);
@@ -1106,7 +1106,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 										if (gClientData[client].ShoppingCart.Length)
 										{
 											// Reopen menu
-											ZMarketBuyMenu(client, "rebuy", MenuType_Rebuy);
+											ZMarketBuyMenu(client, MenuType_Favorites);
 										}
 									}
 								}
@@ -1158,7 +1158,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 					TranslationPrintHintText(client, "block buying item", sBuffer);
 					
 					// Emit error sound
-					EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
+					EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
 				}
 			}
 		}
@@ -1168,7 +1168,7 @@ int ZMarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, b
 }
 
 /*
- * Rebuy menu.
+ * Favorites (option) menu.
  */
 
 /**
@@ -1195,14 +1195,16 @@ void ZMarketOptionMenu(int client)
 	SetGlobalTransTarget(client);
 	
 	// Sets title
-	hMenu.SetTitle("%t", "rebuy");
+	hMenu.SetTitle("%t", "zmarket favorites menu");
 
-	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "zmarket buy");
+	{
+		// Format some chars for showing in menu
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "zmarket buy");
+		
+		// Show buy option
+		hMenu.AddItem("", sBuffer);
+	}
 	
-	// Show add option
-	hMenu.AddItem("-1", sBuffer);
-
 	// i = array index
 	int iSize = gServerData.Types.Length;
 	for (int i = 0; i < iSize; i++)
@@ -1277,8 +1279,25 @@ public int ZMarketOptionMenuSlots(Menu hMenu, MenuAction mAction, int client, in
 			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 
-			// Opens market menu back
-			ZMarketBuyMenu(client, "rebuy", MenuType_Option, sBuffer);
+			// Client hit 'Type' button
+			if (hasLength(sBuffer))
+			{
+				// Opens market menu back
+				ZMarketBuyMenu(client, MenuType_Option, _, sBuffer);
+			}
+			// Client hit 'Buy' button
+			else
+			{
+				// Resets shopping cart for client
+				ZMarketResetShoppingCart(client); 
+				
+				// Validate cart size
+				if (gClientData[client].DefaultCart.Length)
+				{
+					// Opens favorites menu
+					ZMarketBuyMenu(client, MenuType_Favorites);
+				}
+			}
 		}
 	}
 	
@@ -1324,7 +1343,7 @@ void ZMarketArsenalMenu(int client, int mSlot)
 	SetGlobalTransTarget(client);
 	
 	// Sets title
-	static char sTitle[3][SMALL_LINE_LENGTH] = { "primary", "secondary", "melee" };
+	static char sTitle[3][SMALL_LINE_LENGTH] = { "choose primary", "choose secondary", "choose melee" };
 	hMenu.SetTitle("%t", sTitle[mSlot]);
 
 	// Gets current arsenal list
@@ -1351,12 +1370,14 @@ void ZMarketArsenalMenu(int client, int mSlot)
 		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((bDisabled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < WeaponsGetLevel(iD) || iPlaying < WeaponsGetOnline(iD)) ? false : true));
 	}
 
-	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t [%t]", "zmarket remember", gClientData[client].AutoSelect ? "On" : "Off");
+	{
+		// Format some chars for showing in menu
+		FormatEx(sBuffer, sizeof(sBuffer), "%t [%t]", "zmarket remember", gClientData[client].AutoSelect ? "On" : "Off");
+		
+		// Show toggle option
+		hMenu.AddItem("-1", sBuffer);
+	}
 	
-	// Show toggle option
-	hMenu.AddItem("-1", sBuffer);
-
 	// Sets exit button
 	hMenu.ExitButton = true;
 
@@ -1440,7 +1461,7 @@ int ZMarketArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 				TranslationPrintHintText(client, "block using menu");
 				
 				// Emit error sound
-				EmitSoundToClient(client, "*buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -1489,7 +1510,7 @@ int ZMarketArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 						return 0;
 					}
 
-					// If last one, give additional weapons and opens rebuy menu
+					// If last one, give additional weapons and opens favorites menu
 
 					// Give additional weapons
 					ZMarketArsenalGiveAdds(client);
@@ -1497,8 +1518,8 @@ int ZMarketArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 					// Validate cart size
 					if (gClientData[client].DefaultCart.Length)
 					{
-						// Opens rebuy menu
-						ZMarketBuyMenu(client, "rebuy", MenuType_Rebuy);
+						// Opens favorites menu
+						ZMarketBuyMenu(client, MenuType_Favorites);
 					}
 				}
 			}
@@ -1540,7 +1561,7 @@ void ZMarketResetShoppingCart(int client)
  * 
  * @param client            The client index.
  **/
-void ZMarketClearShoppingCart(int client)
+/*void ZMarketClearShoppingCart(int client)
 {
 	// If mode already started, then stop
 	if (!gServerData.RoundNew)
@@ -1554,7 +1575,7 @@ void ZMarketClearShoppingCart(int client)
 		// Clear out the array of all data
 		gClientData[client].ShoppingCart.Clear();
 	}
-}
+}*/
 
 /**
  * @brief Find the type at which the slot name is at.
@@ -1579,55 +1600,36 @@ MenuType ZMarketNameToIndex(char[] sName)
 /**
  * @brief Find the handle at which the slot type is at.
  * 
- * @param client            The client index.
  * @param mSlot             The slot index.
  * @return                  The menu handle.
  **/
-Menu ZMarketSlotToHandle(int client, MenuType mSlot)
+Menu ZMarketSlotToHandle(MenuType mSlot)
 {
-	// Intitialize bool variable
-	static bool bLock[MAXPLAYERS+1];
-	
 	// Validate shop menu
 	switch (mSlot)
 	{
-		// Option menu
+		// Favorites (option) menu
 		case MenuType_Option :
 		{
 			return new Menu(ZMarketBuyMenuSlots1);
 		}
 		
-		// Add menu
+		// Favorites (add) menu
 		case MenuType_Add :
 		{
 			return new Menu(ZMarketBuyMenuSlots2);
 		}
 
-		// Rebuy menu
-		case MenuType_Rebuy :
+		// Favorites menu
+		case MenuType_Favorites :
 		{
-			// Boolean for reseting history
-			bLock[client] = false;
-		
-			// Creates menu handle
 			return new Menu(ZMarketBuyMenuSlots3);
 		}
 
 		// Default menu
 		default :
 		{
-			// Creates menu handle
-			Menu hMenu = new Menu(ZMarketBuyMenuSlots4);
-			
-			// Clear history
-			if (!bLock[client]) 
-			{
-				ZMarketClearShoppingCart(client);
-				bLock[client] = true;
-			}
-			
-			// Return on success
-			return hMenu;
+			return new Menu(ZMarketBuyMenuSlots4);
 		}
 	}
 }
@@ -1645,14 +1647,14 @@ int ZMarketSlotToIndex(int client, MenuType mSlot, int iIndex)
 	// Validate shop menu
 	switch (mSlot)
 	{
-		// Option menu
+		// Favorites (option) menu
 		case MenuType_Option :
 		{
 			return gClientData[client].DefaultCart.Get(iIndex);
 		}
 
-		// Rebuy menu
-		case MenuType_Rebuy :
+		// Favorites menu
+		case MenuType_Favorites :
 		{
 			return gClientData[client].ShoppingCart.Get(iIndex);
 		}
@@ -1677,14 +1679,14 @@ int ZMarketSlotToCount(int client, MenuType mSlot)
 	// Validate shop menu
 	switch (mSlot)
 	{
-		// Option menu
+		// Favorites (option) menu
 		case MenuType_Option :
 		{
 			return gClientData[client].DefaultCart.Length;
 		}
    
-		// Rebuy menu
-		case MenuType_Rebuy :
+		// Favorites menu
+		case MenuType_Favorites :
 		{
 			return gClientData[client].ShoppingCart.Length;
 		}

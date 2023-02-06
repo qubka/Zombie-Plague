@@ -130,7 +130,7 @@ public Action ZP_OnClientSkillUsed(int client)
 	if (ZP_GetClientClass(client) == gZombie)
 	{
 		// Initialize vectors
-		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
+		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vEndVelocity[3];
 		
 		// Gets client eye position
 		GetClientEyePosition(client, vPosition);
@@ -154,19 +154,19 @@ public Action ZP_OnClientSkillUsed(int client)
 			SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 0.0);
 			
 			// Returns vectors in the direction of an angle
-			GetAngleVectors(vAngle, vSpeed, NULL_VECTOR, NULL_VECTOR);
+			GetAngleVectors(vAngle, vEndVelocity, NULL_VECTOR, NULL_VECTOR);
 			
 			// Normalize the vector (equal magnitude at varying distances)
-			NormalizeVector(vSpeed, vSpeed);
+			NormalizeVector(vEndVelocity, vEndVelocity);
 			
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vSpeed, hCvarSkillSpeed.FloatValue);
+			ScaleVector(vEndVelocity, hCvarSkillSpeed.FloatValue);
 
 			// Adds two vectors
-			AddVectors(vSpeed, vVelocity, vSpeed);
+			AddVectors(vEndVelocity, vVelocity, vEndVelocity);
 
 			// Push the bomb
-			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
+			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 
 			// Sets parent for the entity
 			SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 

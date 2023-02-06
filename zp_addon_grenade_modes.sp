@@ -1403,7 +1403,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 	if (grenade != -1)
 	{
 		// Initialize vectors
-		static float vPosition[3]; static float vAngle[3]; static float vEnemy[3]; static float vVelocity[3]; static float vSpeed[3];
+		static float vPosition[3]; static float vAngle[3]; static float vPosition2[3]; static float vVelocity[3]; static float vEndVelocity[3];
 
 		// Gets grenade origin
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
@@ -1433,10 +1433,10 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 				}
 				
 				// Gets target origin
-				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 			
 				// Gets target distance
-				flNewDistance = GetVectorDistance(vPosition, vEnemy);
+				flNewDistance = GetVectorDistance(vPosition, vPosition2);
 				
 				// It is closer, then store index
 				if (flNewDistance < flOldDistance)
@@ -1457,34 +1457,34 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 			GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);
 	
 			// Gets target origin
-			GetEntPropVector(target, Prop_Data, "m_vecAbsOrigin", vEnemy);
+			GetEntPropVector(target, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
 			// Gets vector from the given starting and ending points
-			MakeVectorFromPoints(vPosition, vEnemy, vSpeed);
+			MakeVectorFromPoints(vPosition, vPosition2, vEndVelocity);
 
 			// Ignore turning arc if the missile is close to the enemy to avoid it circling them
 			if (GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle") > hCvarGrenadeHomingAvoid.FloatValue)
 			{
 				// Normalize the vector (equal magnitude at varying distances)
-				NormalizeVector(vSpeed, vSpeed);
+				NormalizeVector(vEndVelocity, vEndVelocity);
 				NormalizeVector(vVelocity, vVelocity);
 				
 				// Calculate and store speed
-				ScaleVector(vSpeed, hCvarGrenadeHomingRotation.FloatValue); 
-				AddVectors(vSpeed, vVelocity, vSpeed);
+				ScaleVector(vEndVelocity, hCvarGrenadeHomingRotation.FloatValue); 
+				AddVectors(vEndVelocity, vVelocity, vEndVelocity);
 			}
 		
 			// Normalize the vector (equal magnitude at varying distances)
-			NormalizeVector(vSpeed, vSpeed);
+			NormalizeVector(vEndVelocity, vEndVelocity);
 			
 			// Apply the magnitude by scaling the vector
-			ScaleVector(vSpeed, hCvarGrenadeHomingSpeed.FloatValue);
+			ScaleVector(vEndVelocity, hCvarGrenadeHomingSpeed.FloatValue);
 
 			// Gets angles of the speed vector
-			GetVectorAngles(vSpeed, vAngle);
+			GetVectorAngles(vEndVelocity, vAngle);
 
 			// Push the entity
-			TeleportEntity(grenade, NULL_VECTOR, vAngle, vSpeed);
+			TeleportEntity(grenade, NULL_VECTOR, vAngle, vEndVelocity);
 		}
 	}
 	else

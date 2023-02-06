@@ -746,7 +746,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		// Validate impulse
 		if (hCvarMineImpulse.BoolValue)
 		{
-			static float vVelocity[3]; static float vSpeed[3];
+			static float vVelocity[3]; static float vVelocity2[3];
 		
 			// Create the end-point trace
 			TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, HumanFilter, entity);
@@ -786,10 +786,10 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 							ScaleVector(vVelocity, flForce);
 							
 							// Gets client velocity
-							GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vSpeed);
+							GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vVelocity2);
 							
 							// Add to the current
-							AddVectors(vSpeed, vVelocity, vVelocity);
+							AddVectors(vVelocity2, vVelocity, vVelocity);
 						
 							// Push the target
 							TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, vVelocity);

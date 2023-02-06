@@ -326,7 +326,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		if (iClip <= 0)
 		{
 			// Emit empty sound
-			EmitSoundToClient(client, "*/weapons/clipempty_rifle.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+			EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 			SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 			return;
 		}
@@ -500,7 +500,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 {
 	
 	// Initialize variables
-	static float vPosition[3]; static float vAngle[3]; static float vEnemy[3]; bool bFound;
+	static float vPosition[3]; static float vAngle[3]; static float vPosition2[3]; bool bFound;
 
 	// Gets weapon position
 	ZP_GetPlayerEyePosition(client, 30.0, 10.0, -10.0, vPosition);
@@ -520,10 +520,10 @@ void Weapon_OnCreateBeam(int client, int weapon)
 		}
 
 		// Gets victim center
-		GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy); vEnemy[2] += 45.0;
+		GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2); vPosition2[2] += 45.0;
 
 		// Validate visibility
-		if (!UTIL_TraceRay(client, i, vPosition, vEnemy, SelfFilter))
+		if (!UTIL_TraceRay(client, i, vPosition, vPosition2, SelfFilter))
 		{
 			continue;
 		}
@@ -547,7 +547,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 
 		// Calculate aim end-vector
 		TR_TraceRayFilter(vPosition, vAngle, (MASK_SHOT|CONTENTS_GRATE), RayType_Infinite, SelfFilter, client);
-		TR_GetEndPosition(vEnemy);
+		TR_GetEndPosition(vPosition2);
 	}
 	
 	// Gets particle name
@@ -555,7 +555,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	hCvarJanusBeamTracer.GetString(sEffect, sizeof(sEffect));	
 
 	// Sent a beam
-	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", sEffect, vEnemy, ZP_GetWeaponShoot(gWeapon));
+	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", sEffect, vPosition2, ZP_GetWeaponShoot(gWeapon));
 }
 
 void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")

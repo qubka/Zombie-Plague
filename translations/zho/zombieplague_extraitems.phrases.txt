@@ -2,6 +2,16 @@
 {
 	// Items
 	
+	"nemesis" // Menu
+	{
+		"zho"			"购买克星"
+	}
+	
+	"survivor" // Menu
+	{
+		"zho"			"购买幸存者"
+	}
+	
 	"antidot" // Menu
 	{
 		"zho"			"解毒劑"

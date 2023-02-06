@@ -966,7 +966,7 @@ void ItemsMenu(int client)
 		TranslationPrintHintText(client, "block buying round");     
 
 		// Emit error sound
-		EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+		EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
 	}
 
@@ -991,7 +991,7 @@ void ItemsMenu(int client)
 	// Sets title
 	hMenu.SetTitle("%t", "buy extraitems");
 	
-	if ()
+	/*if (REDIRECT ON)*/
 	{
 		// Format some chars for showing in menu
 		FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "buy equipments");
@@ -1102,7 +1102,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 				TranslationPrintHintText(client, "block buying round");
 
 				// Emit error sound
-				EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -1185,7 +1185,7 @@ public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 					TranslationPrintHintText(client, "block buying item", sBuffer);
 			
 					// Emit error sound
-					EmitSoundToClient(client, "*/buttons/weapon_cant_buy.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+					EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 				}
 			}
 		}

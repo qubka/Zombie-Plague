@@ -297,7 +297,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 {
 	// Initialize vectors
-	static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
+	static float vAngle[3]; static float vVelocity[3]; static float vEndVelocity[3];
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -315,19 +315,19 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 10.0);
 		
 		// Returns vectors in the direction of an angle
-		GetAngleVectors(vAngle, vSpeed, NULL_VECTOR, NULL_VECTOR);
+		GetAngleVectors(vAngle, vEndVelocity, NULL_VECTOR, NULL_VECTOR);
 
 		// Normalize the vector (equal magnitude at varying distances)
-		NormalizeVector(vSpeed, vSpeed);
+		NormalizeVector(vEndVelocity, vEndVelocity);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, hCvarBalrogSpeed.FloatValue);
+		ScaleVector(vEndVelocity, hCvarBalrogSpeed.FloatValue);
 
 		// Adds two vectors
-		AddVectors(vSpeed, vVelocity, vSpeed);
+		AddVectors(vEndVelocity, vVelocity, vEndVelocity);
 
 		// Push the fire
-		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
+		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 		
 		// Sets an entity color
 		UTIL_SetRenderColor(entity, Color_Alpha, 0);

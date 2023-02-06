@@ -34,7 +34,7 @@
  **/
  public Plugin myinfo =
 {
-	name            = "[ZP] Zombie Class: Sleeper",
+	name            = "[ZP] Zombie Class: Classic",
 	author          = "qubka (Nikita Ushakov)",
 	description     = "Addon of zombie classses",
 	version         = "2.0",
@@ -62,12 +62,12 @@ ConVar hCvarSkillEffect;
 public void OnPluginStart()
 {
 	// Initialize cvars
-	hCvarSkillChance   = CreateConVar("zp_zclass_sleeper_chance", "20", "Smaller = more likely", 0, true, 0.0, true, 999.0);
-	hCvarSkillDuration = CreateConVar("zp_zclass_sleeper_duration", "3.5", "Sleep duration", 0, true, 0.0);
-	hCvarSkillEffect   = CreateConVar("zp_zclass_sleeper_effect", "sila_trail_apalaal", "Particle effect for the skill (''-default)");
+	hCvarSkillChance   = CreateConVar("zp_zclass_classic_chance", "20", "Smaller = more likely", 0, true, 0.0, true, 999.0);
+	hCvarSkillDuration = CreateConVar("zp_zclass_classic_duration", "3.5", "Sleep duration", 0, true, 0.0);
+	hCvarSkillEffect   = CreateConVar("zp_zclass_classic_effect", "sila_trail_apalaal", "Particle effect for the skill (''-default)");
 
 	// Generate config
-	AutoExecConfig(true, "zp_zclass_sleeper", "sourcemod/zombieplague");
+	AutoExecConfig(true, "zp_zclass_classic", "sourcemod/zombieplague");
 }
 
 /**
@@ -94,8 +94,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  public void ZP_OnEngineExecute(/*void*/)
 {
 	// Classes
-	gZombie = ZP_GetClassNameID("sleeper");
-	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"sleeper\" wasn't find");
+	gZombie = ZP_GetClassNameID("classic");
+	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"classic\" wasn't find");
 	
 	// Sounds
 	gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");

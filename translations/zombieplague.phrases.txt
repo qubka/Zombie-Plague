@@ -417,10 +417,15 @@
 	// ===========================
 	// ZMarket
 	// ===========================
+		
+	"zmarket favorites menu" // Menu
+	{
+		"en"			"Favorites\n \n"
+	}
 	
 	"zmarket add" // Menu
 	{
-		"en"			"Add"
+		"en"			"Add\n \nRemove"
 	}
 
 	"zmarket buy" // Menu
@@ -430,7 +435,7 @@
 	
 	"zmarket buy all" // Menu
 	{
-		"en"			"Buy all"
+		"en"			"Buy all\n \n"
 	}
 		
 	"zmarket remember" // Menu
@@ -527,6 +532,6 @@
 	
 	"costumes remove" // Menu
 	{
-		"en"			"Remove"
+		"en"			"Remove\n \n"
 	}
 }

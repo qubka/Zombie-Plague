@@ -608,19 +608,21 @@ void AccountMenu(int client, int iMoney, float flCommision)
 		hMenu.SetTitle("%t", "account commission", iMoney, "money", sInfo);
 	}
 
-	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "account increase");
-	
-	// Show increase option
-	FormatEx(sInfo, sizeof(sInfo), "-2 %d %f", iMoney, flCommision);
-	hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
+	{
+		// Format some chars for showing in menu
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "account increase");
+		
+		// Show increase option
+		FormatEx(sInfo, sizeof(sInfo), "-2 %d %f", iMoney, flCommision);
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
 
-	// Format some chars for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "account decrease");
-	
-	// Show decrease option
-	FormatEx(sInfo, sizeof(sInfo), "-1 %d %f", iMoney, flCommision);
-	hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney > iBet));
+		// Format some chars for showing in menu
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "account decrease");
+		
+		// Show decrease option
+		FormatEx(sInfo, sizeof(sInfo), "-1 %d %f", iMoney, flCommision);
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney > iBet));
+	}
 	
 	// i = client index
 	int iAmount;
@@ -767,7 +769,7 @@ public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 						TranslationPrintHintText(client, "block selecting target");
 					
 						// Emit error sound
-						EmitSoundToClient(client, "*/buttons/button10.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
+						EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 					}
 				}
 			}

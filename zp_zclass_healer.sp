@@ -129,7 +129,7 @@ public Action ZP_OnClientSkillUsed(int client)
 	if (ZP_GetClientClass(client) == gZombie)
 	{
 		// Initialize vectors
-		static float vPosition[3]; static float vEnemy[3];
+		static float vPosition[3]; static float vPosition2[3];
 		
 		// Gets client origin
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
@@ -197,7 +197,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				}
 				
 				// Gets victim origin
-				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vEnemy);
+				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 				
 				// Append to total reward
 				iTotal += iReward;
@@ -206,7 +206,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				if (hasLength(sEffect))
 				{
 					// Create an effect
-					UTIL_CreateParticle(i, vEnemy, _, _, sEffect, flDuration);
+					UTIL_CreateParticle(i, vPosition2, _, _, sEffect, flDuration);
 				}
 			}
 		}

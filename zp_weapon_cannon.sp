@@ -184,7 +184,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
 	if (iAmmo <= 0)
 	{
 		// Emit empty sound
-		EmitSoundToClient(client, "*/weapons/clipempty_rifle.wav", SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
+		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
@@ -262,7 +262,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
 void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 {
 	// Initialize vectors
-	static float vAngle[3]; static float vVelocity[3]; static float vSpeed[3];
+	static float vAngle[3]; static float vVelocity[3]; static float vEndVelocity[3];
 
 	// Gets client eye angle
 	GetClientEyeAngles(client, vAngle);
@@ -280,19 +280,19 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 10.0);
 		
 		// Returns vectors in the direction of an angle
-		GetAngleVectors(vAngle, vSpeed, NULL_VECTOR, NULL_VECTOR);
+		GetAngleVectors(vAngle, vEndVelocity, NULL_VECTOR, NULL_VECTOR);
 
 		// Normalize the vector (equal magnitude at varying distances)
-		NormalizeVector(vSpeed, vSpeed);
+		NormalizeVector(vEndVelocity, vEndVelocity);
 
 		// Apply the magnitude by scaling the vector
-		ScaleVector(vSpeed, hCvarCannonSpeed.FloatValue);
+		ScaleVector(vEndVelocity, hCvarCannonSpeed.FloatValue);
 
 		// Adds two vectors
-		AddVectors(vSpeed, vVelocity, vSpeed);
+		AddVectors(vEndVelocity, vVelocity, vEndVelocity);
 
 		// Push the fire
-		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vSpeed);
+		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 		
 		// Sets an entity color
 		UTIL_SetRenderColor(entity, Color_Alpha, 0);

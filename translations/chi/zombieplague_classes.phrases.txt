@@ -13,20 +13,25 @@
 	{
 		"chi"			"复仇女神"
 	}
-	
-	"deimos" // Menu
+
+	"classic" // Menu
 	{
-		"chi"			"妖女"
+		"chi"			"經典的"
 	}
 
-	"sleeper" // Menu
+	"fast" // Menu
 	{
-		"chi"			"沉眠者"
+		"chi"			"迅捷者"
 	}
 
 	"witch" // Menu
 	{
 		"chi"			"女巫"
+	}
+	
+	"deimos" // Menu
+	{
+		"chi"			"妖女"
 	}
 
 	"smoker" // Menu
@@ -48,12 +53,7 @@
 	{
 		"chi"			"治疗者"
 	}
-
-	"baller" // Menu
-	{
-		"chi"			"投球者"
-	}
-
+	
 	"range" // Menu
 	{
 		"chi"			"自爆怪"
@@ -69,9 +69,9 @@
 		"chi"			"幽灵"
 	}
 
-	"fast" // Menu
+	"hunter" // Menu
 	{
-		"chi"			"迅捷者"
+		"chi"			""
 	}
 
 	"tank" // Menu
@@ -85,20 +85,20 @@
 	}
 	
 	// Info
-	
-	"deimos info" // Hint
-	{
-		"chi"			"技能: <font color='#FF0000'>刺痛射击</font>\n激活按钮： <font color='#FF0000'>F4</font>"
-	}
 
-	"sleeper info" // Hint
+	"classic info" // Hint
 	{
-		"chi"			"被动技能： <font color='#FF0000'>随机致盲周围攻击者</font>"
+		"chi"			"\n被动技能： <font color='#FF0000'>随机致盲周围攻击者</font>"
 	}
 
 	"witch info" // Hint
 	{
 		"chi"			"技能： <font color='#FF0000'>蝙蝠蜂拥</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+	}
+	
+	"deimos info" // Hint
+	{
+		"chi"			"技能: <font color='#FF0000'>刺痛射击</font>\n激活按钮： <font color='#FF0000'>F4</font>"
 	}
 
 	"smoker info" // Hint
@@ -121,11 +121,6 @@
 		"chi"			"技能： <font color='#FF0000'>赏金治疗</font>\n激活按钮： <font color='#FF0000'>F4</font>"
 	}
 
-	"baller info" // Hint
-	{
-		"chi"			"技能： <font color='#FF0000'>瘫痪球</font>\n激活按钮： <font color='#FF0000'>F4</font>"
-	}
-
 	"range info" // Hint
 	{
 		"chi"			"技能： <font color='#FF0000'>感染毒气</font>\n激活于 <font color='#FF0000'>死亡</font>"
@@ -141,7 +136,7 @@
 		"chi"			"技能： <font color='#FF0000'>隐身</font>\n激活按钮： <font color='#FF0000'>F4</font>"
 	}
 
-	"fast info" // Hint
+	"hunter info" // Hint
 	{
 		"chi"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按钮： <font color='#FF0000'>F4</font>"
 	}

@@ -1,21 +1,16 @@
 "Phrases"
 {
-	"rebuy" // Menu
-	{
-		"chi"			"自动重买"
-	}
-	
-	"primary" // Menu
+	"choose primary" // Menu
 	{
 		"chi"			"主要武器"
 	}
 	
-	"secondary" // Menu
+	"choose secondary" // Menu
 	{
 		"chi"			"副武器"
 	}	
 	
-	"melee" // Menu
+	"choose melee" // Menu
 	{
 		"chi"			"刀具"
 	}

@@ -34,12 +34,15 @@
  **/
 public Plugin myinfo =
 {
-	name            = "[ZP] Game Mode: Plague",
-	author          = "qubka (Nikita Ushakov)",
-	description     = "Addon of game modes",
-	version         = "2.0",
+	name            = "[ZP] ExtraItem: Buy Survivor",
+	author          = "qubka (Nikita Ushakov)",     
+	description     = "Addon of extra items",
+	version         = "1.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
+
+// Item index
+int gItem;
 
 // Mode index
 int gMode;
@@ -67,23 +70,52 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute(/*void*/)
 {
+	// Items
+	gItem = ZP_GetExtraItemNameID("survivor");
+	//if (gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"survivor\" wasn't find");	
+	
 	// Modes
-	gMode = ZP_GetGameModeNameID("plague mode");
-	//if (gMode == -1) SetFailState("[ZP] Custom gamemode ID from name : \"plague mode\" wasn't find");
+	gMode = ZP_GetGameModeNameID("survivor mode");
+	//if (gMode == -1) SetFailState("[ZP] Custom gamemode ID from name : \"survivor mode\" wasn't find");
 }
 
 /**
- * @brief Called after a zombie round is started.
+ * @brief Called before show an extraitem in the equipment menu.
+ * 
+ * @param client            The client index.
+ * @param itemID            The item index.
  *
- * @param mode              The mode index. 
+ * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
+ *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
  **/
-public void ZP_OnGameModeStart(int mode)
+public Action ZP_OnClientValidateExtraItem(int client, int itemID)
 {
-	// Validate plague mode
-	if (mode == gMode) /* OR if (ZP_GetCurrentGameMode() == ZP_GetGameModeNameID("plague mode"))*/
+	// Check the item's index
+	if (itemID == gItem)
 	{
-		// Make a random nemesis/survivor
-		ZP_ChangeClient(ZP_GetRandomZombie(), _, "nemesis");
-		ZP_ChangeClient(ZP_GetRandomHuman(), _, "survivor");
+		// If round started, then disable
+		if (!ZP_IsNewRound())
+		{
+			return Plugin_Handled;
+		}
+	}
+
+	// Allow showing
+	return Plugin_Continue;
+}
+
+/**
+ * @brief Called after select an extraitem in the equipment menu.
+ * 
+ * @param client            The client index.
+ * @param itemID            The item index.
+ **/
+public void ZP_OnClientBuyExtraItem(int client, int itemID)
+{
+	// Check the item's index
+	if (itemID == gItem)
+	{
+		// Starts a survivor round
+		ZP_StartGameMode(gMode, client);
 	}
 }
