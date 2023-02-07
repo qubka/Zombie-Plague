@@ -63,19 +63,19 @@ void SoundsOnLoad(/*void*/)
 	ConfigRegisterConfig(File_Sounds, Structure_ArrayList, CONFIG_FILE_ALIAS_SOUNDS);
 
 	// Gets sounds file path
-	static char sPathSounds[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_SOUNDS, sPathSounds, sizeof(sPathSounds));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_SOUNDS, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure and stop plugin
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sPathSounds);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Sounds, sPathSounds);
+	ConfigSetConfigPath(File_Sounds, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Sounds, gServerData.Sounds, PLATFORM_LINE_LENGTH);
@@ -83,7 +83,7 @@ void SoundsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathSounds);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error encountered loading: \"%s\"", sBuffer);
 		return;
 	}
 	
@@ -105,11 +105,11 @@ void SoundsOnLoad(/*void*/)
 void SoundsOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathSounds[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Sounds, sPathSounds, sizeof(sPathSounds));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Sounds, sBuffer, sizeof(sBuffer));
 	
 	// Log what sounds file that is loaded
-	LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sPathSounds);
+	LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sBuffer);
 
 	// Initialize numbers of sounds
 	int iSoundCount; int iSoundValidCount; int iSoundUnValidCount;
@@ -118,7 +118,7 @@ void SoundsOnCacheData(/*void*/)
 	int iSounds = iSoundCount = gServerData.Sounds.Length;
 	if (!iSounds)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sPathSounds);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sBuffer);
 		return;
 	}
 	
@@ -126,29 +126,29 @@ void SoundsOnCacheData(/*void*/)
 	for (int i = 0; i < iSounds; i++)
 	{
 		// Gets array line
-		ArrayList arraySound = SoundsGetKey(i, sPathSounds, sizeof(sPathSounds), true);
+		ArrayList arraySound = SoundsGetKey(i, sBuffer, sizeof(sBuffer), true);
 
 		// Parses a parameter string in key="value" format
-		if (ParamParseString(arraySound, sPathSounds, sizeof(sPathSounds), '=') == PARAM_ERROR_NO)
+		if (ParamParseString(arraySound, sBuffer, sizeof(sBuffer), '=') == PARAM_ERROR_NO)
 		{
 			// i = block index
 			int iSize = arraySound.Length;
 			for (int x = 1; x < iSize; x++)
 			{
 				// Gets sound path
-				arraySound.GetString(x, sPathSounds, sizeof(sPathSounds));
+				arraySound.GetString(x, sBuffer, sizeof(sBuffer));
 
 				// Format the full path
-				Format(sPathSounds, sizeof(sPathSounds), "sound/%s", sPathSounds);
+				Format(sBuffer, sizeof(sBuffer), "sound/%s", sBuffer);
 
 				// Add to server precache list
-				if (DownloadsOnPrecache(sPathSounds)) iSoundValidCount++; else iSoundUnValidCount++;
+				if (DownloadsOnPrecache(sBuffer)) iSoundValidCount++; else iSoundUnValidCount++;
 			}
 		}
 		else
 		{
 			// Log sound error info
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of the sound block: \"%d\" = \"%s\"", i + 1, sPathSounds);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of the sound block: \"%d\" = \"%s\"", i + 1, sBuffer);
 			
 			// Remove sound block from array
 			gServerData.Sounds.Erase(i);

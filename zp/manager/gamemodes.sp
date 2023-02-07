@@ -113,22 +113,22 @@ void GameModesOnPurge(/*void*/)
 void GameModesOnLoad(/*void*/)
 {
 	// Register config file
-	ConfigRegisterConfig(File_GameModes, Structure_Keyvalue, CONFIG_FILE_ALIAS_GAMEMODES);
+	ConfigRegisterConfig(File_GameModes, Structure_KeyValue, CONFIG_FILE_ALIAS_GAMEMODES);
 
 	// Gets gamemodes config path
-	static char sPathModes[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_GAMEMODES, sPathModes, sizeof(sPathModes));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_GAMEMODES, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Missing gamemodes config file: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Missing gamemodes config file: \"%s\"", sBuffer);
 		return;
 	}
 	
 	// Sets path to the config file
-	ConfigSetConfigPath(File_GameModes, sPathModes);
+	ConfigSetConfigPath(File_GameModes, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_GameModes, gServerData.GameModes);
@@ -136,7 +136,7 @@ void GameModesOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -159,8 +159,8 @@ void GameModesOnLoad(/*void*/)
 void GameModesOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathModes[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_GameModes, sPathModes, sizeof(sPathModes));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_GameModes, sBuffer, sizeof(sBuffer));
 
 	// Opens config
 	KeyValues kvGameModes;
@@ -169,7 +169,7 @@ void GameModesOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error caching data from gamemodes config file: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Unexpected error caching data from gamemodes config file: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -177,7 +177,7 @@ void GameModesOnCacheData(/*void*/)
 	int iSize = gServerData.GameModes.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "No usable data found in gamemodes config file: \"%s\"", sPathModes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "No usable data found in gamemodes config file: \"%s\"", sBuffer);
 		return;
 	}
 	
@@ -185,21 +185,20 @@ void GameModesOnCacheData(/*void*/)
 	for (int i = 0; i < iSize; i++)
 	{
 		// General
-		ModesGetName(i, sPathModes, sizeof(sPathModes)); // Index: 0
+		ModesGetName(i, sBuffer, sizeof(sBuffer)); // Index: 0
 		kvGameModes.Rewind();
-		if (!kvGameModes.JumpToKey(sPathModes))
+		if (!kvGameModes.JumpToKey(sBuffer))
 		{
 			// Log gamemode fatal
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode data for: \"%s\" (check gamemodes config)", sPathModes);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode data for: \"%s\" (check gamemodes config)", sBuffer);
 			continue;
 		}
 		
 		// Validate translation
-		StringToLower(sPathModes);
-		if (!TranslationPhraseExists(sPathModes))
+		if (!TranslationIsPhraseExists(sBuffer))
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode name: \"%s\" (check translation file)", sPathModes);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode name: \"%s\" (check translation file)", sBuffer);
 			continue;
 		}
 
@@ -207,13 +206,13 @@ void GameModesOnCacheData(/*void*/)
 		ArrayList arrayGameMode = gServerData.GameModes.Get(i);
 
 		// Push data into array
-		kvGameModes.GetString("desc", sPathModes, sizeof(sPathModes), ""); StringToLower(sPathModes);
-		if (!TranslationPhraseExists(sPathModes) && hasLength(sPathModes))
+		kvGameModes.GetString("desc", sBuffer, sizeof(sBuffer), "");
+		if (!TranslationIsPhraseExists(sBuffer) && hasLength(sBuffer))
 		{
 			// Log gamemode error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode description: \"%s\" (check translation file)", sPathModes);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_GameModes, "Config Validation", "Couldn't cache gamemode description: \"%s\" (check translation file)", sBuffer);
 		}
-		arrayGameMode.PushString(sPathModes);                                       // Index: 1
+		arrayGameMode.PushString(sBuffer);                                          // Index: 1
 		int iColor[4]; kvGameModes.GetColor4("color", iColor);
 		arrayGameMode.PushArray(iColor, sizeof(iColor));                            // Index: 2
 		arrayGameMode.Push(kvGameModes.GetFloat("position_X", -1.0));               // Index: 3
@@ -224,49 +223,49 @@ void GameModesOnCacheData(/*void*/)
 		arrayGameMode.Push(kvGameModes.GetFloat("ratio", 0.0));                     // Index: 8
 		arrayGameMode.Push(kvGameModes.GetNum("health_human", 0));                  // Index: 9
 		arrayGameMode.Push(kvGameModes.GetNum("health_zombie", 0));                 // Index: 10
-		kvGameModes.GetString("group", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 11
-		kvGameModes.GetString("start", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 12
-		kvGameModes.GetString("end_human", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 13
-		kvGameModes.GetString("end_zombie", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 14
-		kvGameModes.GetString("end_draw", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 15
-		kvGameModes.GetString("ambient", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.Push(SoundsKeyToIndex(sPathModes));                           // Index: 16
+		kvGameModes.GetString("group", sBuffer, sizeof(sBuffer), "");
+		arrayGameMode.PushString(sBuffer);                                          // Index: 11
+		kvGameModes.GetString("start", sBuffer, sizeof(sBuffer), "");               
+		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 12
+		kvGameModes.GetString("end_human", sBuffer, sizeof(sBuffer), "");           
+		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 13
+		kvGameModes.GetString("end_zombie", sBuffer, sizeof(sBuffer), "");          
+		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 14
+		kvGameModes.GetString("end_draw", sBuffer, sizeof(sBuffer), "");            
+		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 15
+		kvGameModes.GetString("ambient", sBuffer, sizeof(sBuffer), "");             
+		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 16
 		arrayGameMode.Push(kvGameModes.GetFloat("duration", 60.0));                 // Index: 17
 		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 18
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 19
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 20
-		kvGameModes.GetString("humanclass", sPathModes, sizeof(sPathModes), "human");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 21
-		kvGameModes.GetString("zombieclass", sPathModes, sizeof(sPathModes), "zombie");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 22
-		kvGameModes.GetString("overlay_human", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 23
-		if (hasLength(sPathModes)) 
+		kvGameModes.GetString("humanclass", sBuffer, sizeof(sBuffer), "human");
+		arrayGameMode.PushString(sBuffer);                                          // Index: 21
+		kvGameModes.GetString("zombieclass", sBuffer, sizeof(sBuffer), "zombie");   
+		arrayGameMode.PushString(sBuffer);                                          // Index: 22
+		kvGameModes.GetString("overlay_human", sBuffer, sizeof(sBuffer), "");       
+		arrayGameMode.PushString(sBuffer);                                          // Index: 23
+		if (hasLength(sBuffer))                                                     
 		{
 			// Precache material
-			Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
-			DecryptPrecacheTextures("self", sPathModes);
+			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
+			DecryptPrecacheTextures("self", sBuffer);
 		}
-		kvGameModes.GetString("overlay_zombie", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 24
-		if (hasLength(sPathModes)) 
+		kvGameModes.GetString("overlay_zombie", sBuffer, sizeof(sBuffer), "");
+		arrayGameMode.PushString(sBuffer);                                       // Index: 24
+		if (hasLength(sBuffer)) 
 		{
 			// Precache material
-			Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
-			DecryptPrecacheTextures("self", sPathModes);
+			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
+			DecryptPrecacheTextures("self", sBuffer);
 		}
-		kvGameModes.GetString("overlay_draw", sPathModes, sizeof(sPathModes), "");
-		arrayGameMode.PushString(sPathModes);                                       // Index: 25
-		if (hasLength(sPathModes)) 
+		kvGameModes.GetString("overlay_draw", sBuffer, sizeof(sBuffer), "");
+		arrayGameMode.PushString(sBuffer);                                       // Index: 25
+		if (hasLength(sBuffer)) 
 		{
 			// Precache material
-			Format(sPathModes, sizeof(sPathModes), "materials/%s", sPathModes);
-			DecryptPrecacheTextures("self", sPathModes);
+			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
+			DecryptPrecacheTextures("self", sBuffer);
 		}
 		arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 26
 		arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 27

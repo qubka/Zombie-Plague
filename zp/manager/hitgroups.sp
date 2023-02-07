@@ -90,7 +90,7 @@ void HitGroupsOnInit(/*void*/)
 void HitGroupsOnLoad(/*void*/)
 {
 	// Register config file
-	ConfigRegisterConfig(File_HitGroups, Structure_Keyvalue, CONFIG_FILE_ALIAS_HITGROUPS);
+	ConfigRegisterConfig(File_HitGroups, Structure_KeyValue, CONFIG_FILE_ALIAS_HITGROUPS);
 
 	// If hitgroups is disabled, then stop
 	if (!gCvarList.HITGROUP.BoolValue)
@@ -99,19 +99,19 @@ void HitGroupsOnLoad(/*void*/)
 	}
 
 	// Gets hitgroups config path
-	static char sPathGroups[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_HITGROUPS, sPathGroups, sizeof(sPathGroups));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_HITGROUPS, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Missing hitgroups config file: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Missing hitgroups config file: %s", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_HitGroups, sPathGroups);
+	ConfigSetConfigPath(File_HitGroups, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_HitGroups, gServerData.HitGroups);
@@ -119,7 +119,7 @@ void HitGroupsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error encountered loading: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error encountered loading: %s", sBuffer);
 		return;
 	}
 	
@@ -138,8 +138,8 @@ void HitGroupsOnLoad(/*void*/)
 void HitGroupsOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathGroups[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_HitGroups, sPathGroups, sizeof(sPathGroups)); 
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_HitGroups, sBuffer, sizeof(sBuffer)); 
 	
 	// Opens config
 	KeyValues kvHitGroups;
@@ -148,7 +148,7 @@ void HitGroupsOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error caching data from hitgroups config file: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Unexpected error caching data from hitgroups config file: %s", sBuffer);
 		return;
 	}
 	
@@ -156,7 +156,7 @@ void HitGroupsOnCacheData(/*void*/)
 	int iSize = gServerData.HitGroups.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "No usable data found in hitgroups config file: %s", sPathGroups);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "No usable data found in hitgroups config file: %s", sBuffer);
 		return;
 	}
 
@@ -164,11 +164,11 @@ void HitGroupsOnCacheData(/*void*/)
 	for (int i = 0; i < iSize; i++)
 	{
 		// General
-		HitGroupsGetName(i, sPathGroups, sizeof(sPathGroups)); // Index: 0
+		HitGroupsGetName(i, sBuffer, sizeof(sBuffer)); // Index: 0
 		kvHitGroups.Rewind();
-		if (!kvHitGroups.JumpToKey(sPathGroups))
+		if (!kvHitGroups.JumpToKey(sBuffer))
 		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Couldn't cache hitgroup data for: %s (check hitgroup config)", sPathGroups);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_HitGroups, "Config Validation", "Couldn't cache hitgroup data for: %s (check hitgroup config)", sBuffer);
 			continue;
 		}
 

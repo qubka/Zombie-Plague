@@ -108,19 +108,19 @@ void LevelSystemOnLoad(/*void*/)
 	}
 	
 	// Gets levels config path
-	static char sPathLevels[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_LEVELS, sPathLevels, sizeof(sPathLevels));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_LEVELS, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Missing levels config file: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Missing levels config file: %s", sBuffer);
 		return;
 	}
 	
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Levels, sPathLevels);
+	ConfigSetConfigPath(File_Levels, sBuffer);
 	
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Levels, gServerData.Levels);
@@ -128,7 +128,7 @@ void LevelSystemOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Unexpected error encountered loading: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Unexpected error encountered loading: %s", sBuffer);
 		return;
 	}
 
@@ -147,14 +147,14 @@ void LevelSystemOnLoad(/*void*/)
 void LevelSystemOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathLevels[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Levels, sPathLevels, sizeof(sPathLevels));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Levels, sBuffer, sizeof(sBuffer));
 	
 	// Validate levels config
 	int iLevels = gServerData.Levels.Length;
 	if (!iLevels)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sBuffer);
 		return;
 	}
 	
@@ -171,7 +171,7 @@ void LevelSystemOnCacheData(/*void*/)
 		if (iLimit <= 0 || hLevel.FindValue(iLimit) != -1)
 		{
 			// Log level error info
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Incorrect level \"%s\" = %d , %d", sPathLevels, iLimit, i);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Incorrect level \"%s\" = %d , %d", sBuffer, iLimit, i);
 			
 			// Remove level from array
 			gServerData.Levels.Erase(i);
@@ -191,7 +191,7 @@ void LevelSystemOnCacheData(/*void*/)
 	// Validate levels config (after converation)
 	if (!iLevels)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sPathLevels);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "No usable data found in levels config file: %s", sBuffer);
 		return;
 	}
 	

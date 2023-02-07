@@ -5,11 +5,6 @@
 		"ro"			"Meniu principal"
 	}
 
-	"buy weapons" // Menu
-	{
-		"ro"			"Cumpara arme"
-	}
-
 	"buy extraitems" // Menu
 	{
 		"ro"			"Cumpara lucruri extra"

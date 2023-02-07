@@ -5,11 +5,6 @@
 		"zho"			"主要菜單"
 	}
 
-	"buy weapons" // Menu
-	{
-		"zho"			"購買武器"
-	}
-
 	"buy extraitems" // Menu
 	{
 		"zho"			"購買額外物品"

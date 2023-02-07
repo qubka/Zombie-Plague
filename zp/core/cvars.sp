@@ -334,18 +334,18 @@ void CvarsOnLoad(/*void*/)
 	ConfigRegisterConfig(File_Cvars, Structure_ArrayList, CONFIG_FILE_ALIAS_CVARS);
 
 	// Gets cvars file path
-	static char sPathCvars[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CVARS, sPathCvars, sizeof(sPathCvars), false);
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CVARS, sBuffer, sizeof(sBuffer), false);
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure and stop plugin
-		SetFailState("Missing cvars file: \"%s\"", sPathCvars);
+		SetFailState("Missing cvars file: \"%s\"", sBuffer);
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Cvars, sPathCvars);
+	ConfigSetConfigPath(File_Cvars, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Cvars, gServerData.Cvars, PLATFORM_LINE_LENGTH);
@@ -353,7 +353,7 @@ void CvarsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		SetFailState("Unexpected error encountered loading: \"%s\"", sPathCvars);
+		SetFailState("Unexpected error encountered loading: \"%s\"", sBuffer);
 	}
 
 	// Now copy data to array structure
@@ -371,38 +371,38 @@ void CvarsOnLoad(/*void*/)
 void CvarsOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathCvars[PLATFORM_LINE_LENGTH]; static char sValueCvars[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Cvars, sPathCvars, sizeof(sPathCvars));
+	static char sBuffer[PLATFORM_LINE_LENGTH]; static char sValueCvars[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Cvars, sBuffer, sizeof(sBuffer));
 
 	// Validate cvar config
 	int iCvars = gServerData.Cvars.Length;
 	if (!iCvars)
 	{
-		SetFailState("No usable data found in cvar config file: \"%s\"", sPathCvars);
+		SetFailState("No usable data found in cvar config file: \"%s\"", sBuffer);
 	}
 	
 	// i = cvar array index
 	for (int i = 0; i < iCvars; i++)
 	{
 		// Gets array line
-		ArrayList arrayCvar = CvarsGetKey(i, sPathCvars, sizeof(sPathCvars), true);
+		ArrayList arrayCvar = CvarsGetKey(i, sBuffer, sizeof(sBuffer), true);
 
 		// Parses a parameter string in key="value" format
-		if (ParamParseString(arrayCvar, sPathCvars, sizeof(sPathCvars), ' ') == PARAM_ERROR_NO)
+		if (ParamParseString(arrayCvar, sBuffer, sizeof(sBuffer), ' ') == PARAM_ERROR_NO)
 		{
 			// Gets cvar key
-			arrayCvar.GetString(CVARS_DATA_KEY, sPathCvars, sizeof(sPathCvars));
+			arrayCvar.GetString(CVARS_DATA_KEY, sBuffer, sizeof(sBuffer));
 			
 			// Gets cvar value
 			arrayCvar.GetString(CVARS_DATA_VALUE, sValueCvars, sizeof(sValueCvars));
 
 			// Creates a new console variable
-			CreateConVar(sPathCvars, sValueCvars);
+			CreateConVar(sBuffer, sValueCvars);
 		}
 		else
 		{
 			// Log cvar error info
-			SetFailState("Error with parsing of the cvar block: \"%d\" = \"%s\"", i + 1, sPathCvars);
+			SetFailState("Error with parsing of the cvar block: \"%d\" = \"%s\"", i + 1, sBuffer);
 	
 			// Remove cvar block from array
 			gServerData.Cvars.Erase(i);
@@ -425,14 +425,14 @@ void CvarsOnCacheData(/*void*/)
 public void CvarsOnConfigReload(/*void*/)
 {
 	// Gets config file path
-	static char sPathCvars[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Cvars, sPathCvars, sizeof(sPathCvars));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Cvars, sBuffer, sizeof(sBuffer));
 
 	// If file is exist, then execute
-	if (FileExists(sPathCvars))
+	if (FileExists(sBuffer))
 	{
 		// Reloads cvars config
-		ServerCommand("exec %s", sPathCvars[4]);
+		ServerCommand("exec %s", sBuffer[4]);
 	}
 }
 

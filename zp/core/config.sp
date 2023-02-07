@@ -128,7 +128,7 @@ enum ConfigStructure
 	Structure_StringList,         /** Config is structured as a simple list of strings. */
 	Structure_IntegerList,        /** Config is structured as a simple list of numbers. */
 	Structure_ArrayList,          /** Config is structured as an array list of strings. */
-	Structure_Keyvalue            /** Config is a keyvalue structure */
+	Structure_KeyValue            /** Config is a keyvalue structure */
 };
 /**
  * @endsection
@@ -538,7 +538,7 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 	}
 	
 	// Initialize buffer char
-	static char sLine[PLATFORM_LINE_LENGTH];
+	static char sBuffer[PLATFORM_LINE_LENGTH];
 	
 	// Gets config structure
 	ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
@@ -562,25 +562,25 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 			arrayConfig.Clear();
 
 			// Read lines in the file
-			while (hFile.ReadLine(sLine, sizeof(sLine)))
+			while (hFile.ReadLine(sBuffer, sizeof(sBuffer)))
 			{
 				// Cut out comments at the end of a line
-				SplitString(sLine, "//", sLine, sizeof(sLine));
+				SplitString(sBuffer, "//", sBuffer, sizeof(sBuffer));
 
 				// Trim off whitespace
-				TrimString(sLine);
+				TrimString(sBuffer);
 				
 				// Strips a quote pair off a string 
-				StripQuotes(sLine);
+				StripQuotes(sBuffer);
 
 				// If line is empty, then stop
-				if (!hasLength(sLine))
+				if (!hasLength(sBuffer))
 				{
 					continue;
 				}
 
 				// Push line into array
-				arrayConfig.PushString(sLine);
+				arrayConfig.PushString(sBuffer);
 			}
 
 			// We're done this file, so now we can destory it from memory
@@ -604,25 +604,25 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 			arrayConfig.Clear();
 
 			// Read lines in the file
-			while (hFile.ReadLine(sLine, sizeof(sLine)))
+			while (hFile.ReadLine(sBuffer, sizeof(sBuffer)))
 			{
 				// Cut out comments at the end of a line
-				SplitString(sLine, "//", sLine, sizeof(sLine));
+				SplitString(sBuffer, "//", sBuffer, sizeof(sBuffer));
 
 				// Trim off whitespace
-				TrimString(sLine);
+				TrimString(sBuffer);
 				
 				// Strips a quote pair off a string 
-				StripQuotes(sLine);
+				StripQuotes(sBuffer);
 
 				// If line is empty, then stop
-				if (!hasLength(sLine))
+				if (!hasLength(sBuffer))
 				{
 					continue;
 				}
 
 				// Push number into array
-				arrayConfig.Push(StringToInt(sLine));
+				arrayConfig.Push(StringToInt(sBuffer));
 			}
 
 			// We're done this file, so now we can destory it from memory
@@ -646,16 +646,16 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 			ConfigClearKvArray(arrayConfig);
 
 			// Read lines in the file
-			while (hFile.ReadLine(sLine, sizeof(sLine)))
+			while (hFile.ReadLine(sBuffer, sizeof(sBuffer)))
 			{
 				// Cut out comments at the end of a line
-				SplitString(sLine, "//", sLine, sizeof(sLine));
+				SplitString(sBuffer, "//", sBuffer, sizeof(sBuffer));
 
 				// Trim off whitespace
-				TrimString(sLine);
+				TrimString(sBuffer);
 
 				// If line is empty, then stop
-				if (!hasLength(sLine))
+				if (!hasLength(sBuffer))
 				{
 					continue;
 				}
@@ -664,7 +664,7 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 				ArrayList arrayConfigEntry = new ArrayList(blockSize);
 
 				// Push line into array
-				arrayConfigEntry.PushString(sLine); // Index: 0
+				arrayConfigEntry.PushString(sBuffer); // Index: 0
 
 				// Store this handle in the main array
 				arrayConfig.Push(arrayConfigEntry);
@@ -675,7 +675,7 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 			return true;
 		}
 		
-		case Structure_Keyvalue :
+		case Structure_KeyValue :
 		{
 			// Opens file
 			KeyValues hKeyvalue;
@@ -699,14 +699,13 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 					ArrayList arrayConfigEntry = new ArrayList(blockSize);
 					
 					// Push the key name into the config entry array
-					static char sKeyName[NORMAL_LINE_LENGTH];
-					hKeyvalue.GetSectionName(sKeyName, sizeof(sKeyName));
+					hKeyvalue.GetSectionName(sBuffer, sizeof(sBuffer));
 
-					// Converts uppercase chars
-					StringToLower(sKeyName);
-					
+					// Move name to low case
+					StringToLower(sBuffer);
+
 					// Push data into array
-					arrayConfigEntry.PushString(sKeyName); // Index: 0
+					arrayConfigEntry.PushString(sBuffer); // Index: 0
 					
 					// Store this handle in the main array
 					arrayConfig.Push(arrayConfigEntry);
@@ -763,27 +762,27 @@ stock bool ConfigOpenConfigFile(int iConfig, Handle &hConfig)
 	ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
 	
 	// Gets config file path
-	static char sConfigPath[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(iConfig, sConfigPath, sizeof(sConfigPath));
+	static char sPath[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(iConfig, sPath, sizeof(sPath));
 	
 	// Gets config alias
-	static char sConfigAlias[NORMAL_LINE_LENGTH];
-	ConfigGetConfigAlias(iConfig, sConfigAlias, sizeof(sConfigAlias));
+	static char sAlias[NORMAL_LINE_LENGTH];
+	ConfigGetConfigAlias(iConfig, sAlias, sizeof(sAlias));
 	
 	// Validate structure
 	switch (iStructure)
 	{
-		case Structure_Keyvalue :
+		case Structure_KeyValue :
 		{
 			// Creates config
-			hConfig = CreateKeyValues(sConfigAlias);
-			return FileToKeyValues(hConfig, sConfigPath);
+			hConfig = CreateKeyValues(sAlias);
+			return FileToKeyValues(hConfig, sPath);
 		}
 		
 		default :
 		{
 			// Opens file
-			hConfig = OpenFile(sConfigPath, "r");
+			hConfig = OpenFile(sPath, "r");
 			
 			// If file couldn't be opened, then stop
 			if (hConfig == null)
@@ -818,7 +817,7 @@ stock bool ConfigKeyvalueTreeSetting(int iConfig, ConfigKvAction mAction = KvAct
 	ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
 	
 	// If the config is any other structure beside keyvalue, then stop
-	if (iStructure != Structure_Keyvalue)
+	if (iStructure != Structure_KeyValue)
 	{
 		return false;
 	}

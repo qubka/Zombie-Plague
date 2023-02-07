@@ -452,3 +452,19 @@ stock void TranslationReplyToCommand(int client, any ...)
 	// Print translated phrase to the client console
 	ReplyToCommand(client, sTranslation);
 }
+
+
+/**
+ * @brief Determines if the specified phrase exists within the plugin's translation cache.
+ * 
+ * @param sPhrase           The phrase to look.
+ * @return                  True or false.
+ **/
+bool TranslationIsPhraseExists(char[] sPhrase)
+{
+	// Move phrase to low case
+	StringToLower(sBuffer); 
+	
+	// Pefrom checking after
+	return TranslationPhraseExists(sBuffer);
+}

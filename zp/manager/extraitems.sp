@@ -30,12 +30,15 @@
  **/
 enum
 {
+	EXTRAITEMS_DATA_SECTION,
 	EXTRAITEMS_DATA_NAME,
 	EXTRAITEMS_DATA_INFO,
+	EXTRAITEMS_DATA_WEAPON,
 	EXTRAITEMS_DATA_COST,
 	EXTRAITEMS_DATA_LEVEL,
 	EXTRAITEMS_DATA_ONLINE,
 	EXTRAITEMS_DATA_LIMIT,
+	EXTRAITEMS_DATA_FLAGS,
 	EXTRAITEMS_DATA_GROUP,
 	EXTRAITEMS_DATA_CLASS
 };
@@ -49,7 +52,7 @@ enum
 void ExtraItemsOnLoad(/*void*/)
 {
 	// Register config file
-	ConfigRegisterConfig(File_ExtraItems, Structure_Keyvalue, CONFIG_FILE_ALIAS_EXTRAITEMS);
+	ConfigRegisterConfig(File_ExtraItems, Structure_FlattenKeyValue, CONFIG_FILE_ALIAS_EXTRAITEMS);
 
 	// If extraitems is disabled, then stop
 	if (!gCvarList.EXTRAITEMS.BoolValue)
@@ -58,19 +61,19 @@ void ExtraItemsOnLoad(/*void*/)
 	}
 
 	// Gets extraitems config path
-	static char sPathItems[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_EXTRAITEMS, sPathItems, sizeof(sPathItems));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_EXTRAITEMS, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Missing extraitems config file: \"%s\"", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_ExtraItems, sPathItems);
+	ConfigSetConfigPath(File_ExtraItems, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_ExtraItems, gServerData.ExtraItems);
@@ -78,7 +81,7 @@ void ExtraItemsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error encountered loading: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -97,8 +100,8 @@ void ExtraItemsOnLoad(/*void*/)
 void ExtraItemsOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathItems[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_ExtraItems, sPathItems, sizeof(sPathItems));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_ExtraItems, sBuffer, sizeof(sBuffer));
 
 	// Opens config
 	KeyValues kvExtraItems;
@@ -107,59 +110,114 @@ void ExtraItemsOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Unexpected error caching data from extraitems config file: \"%s\"", sBuffer);
 		return;
+	}
+	
+	// If array hasn't been created, then create
+	if (gServerData.Sections == null)
+	{
+		// Initialize a section list array
+		gServerData.Sections = new ArrayList(SMALL_LINE_LENGTH);
+	}
+	else
+	{
+		// Clear out the array of all data
+		gServerData.Sections.Clear();
 	}
 	
 	// Validate size
 	int iSize = gServerData.ExtraItems.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sPathItems);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "No usable data found in extraitems config file: \"%s\"", sBuffer);
 		return;
 	}
-
+	
 	// i = array index
 	for (int i = 0; i < iSize; i++)
 	{
+		// Gets section name
+		ArrayList arrayExtraItem = gServerData.ExtraItems.Get(i);
+		arrayExtraItem.Get(EXTRAITEMS_DATA_SECTION, sBuffer, sizeof(sBuffer));
+
+		// Push section into separated array
+		gServerData.Sections.PushString(sBuffer);
+	}
+
+	// Cleanup array for rebuilding
+	arrayExtraItem.Clean(); /// we flattening everything
+
+	// i = array index
+	iSize = gServerData.Sections.Length;
+	for (int i = 0; i < iSize; i++)
+	{
 		// General
-		ItemsGetName(i, sPathItems, sizeof(sPathItems)); // Index: 0
+		gServerData.Sections.GetString(i, sBuffer, sizeof(sBuffer));
 		kvExtraItems.Rewind();
-		if (!kvExtraItems.JumpToKey(sPathItems))
+		if (!kvExtraItems.JumpToKey(sBuffer))
 		{
 			// Log extraitem fatal
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sPathItems);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem data for: \"%s\" (check extraitems config)", sBuffer);
 			continue;
 		}
-		
+
 		// Validate translation
-		StringToLower(sPathItems);
-		if (!TranslationPhraseExists(sPathItems))
+		if (!TranslationIsPhraseExists(sBuffer))
 		{
 			// Log extraitem error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sPathItems);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem section: \"%s\" (check translation file)", sBuffer);
 			continue;
 		}
 
-		// Initialize array block
-		ArrayList arrayExtraItem = gServerData.ExtraItems.Get(i);
-
-		// Push data into array
-		kvExtraItems.GetString("info", sPathItems, sizeof(sPathItems), ""); StringToLower(sPathItems);
-		if (!TranslationPhraseExists(sPathItems) && hasLength(sPathItems))
+		// Read keys in the file
+		if (kvExtraItems.GotoFirstSubKey())
 		{
-			// Log extraitem error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sPathItems);
+			do
+			{
+				// Retrieves the sub section name
+				kvExtraItems.GetSectionName(sBuffer, sizeof(sBuffer));
+			
+				// Validate translation
+				if (!TranslationIsPhraseExists(sBuffer))
+				{
+					// Log menu error
+					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache extraitem name: \"%s\" (check translation file)", sBuffer);
+					continue;
+				}
+				
+								
+				// Creates new array to store information
+				ArrayList arrayExtraItem = new ArrayList(NORMAL_LINE_LENGTH);
+
+				// Push data into array
+				arrayExtraItem.Push(i);                                // Index: 0
+				arrayExtraItem.PushString(sBuffer);                    // Index: 1
+				kvExtraItems.GetString("info", sBuffer, sizeof(sBuffer), "");
+				if (!TranslationIsPhraseExists(sBuffer) && hasLength(sBuffer))
+				{
+					// Log extraitem error
+					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_ExtraItems, "Config Validation", "Couldn't cache extraitem info: \"%s\" (check translation file)", sBuffer);
+				}
+				arrayExtraItem.PushString(sBuffer);                    // Index: 2
+				kvExtraItems.GetString("weapon", sBuffer, sizeof(sBuffer), ""); 
+				arrayExtraItem.Push(WeaponsNameToIndex(sBuffer));      // Index: 3
+				arrayExtraItem.Push(kvExtraItems.GetNum("cost", 0));   // Index: 4
+				arrayExtraItem.Push(kvExtraItems.GetNum("level", 0));  // Index: 5
+				arrayExtraItem.Push(kvExtraItems.GetNum("online", 0)); // Index: 6
+				arrayExtraItem.Push(kvExtraItems.GetNum("limit", 0));  // Index: 7
+				kvExtraItems.GetString("flags", sBuffer, sizeof(sBuffer), ""); 
+				arrayExtraItem.Push(ReadFlagString(sBuffer));          // Index: 8
+				kvExtraItems.GetString("group", sBuffer, sizeof(sBuffer), ""); 
+				arrayExtraItem.PushString(sBuffer);                    // Index: 9
+				kvExtraItems.GetString("class", sBuffer, sizeof(sBuffer), ""); 
+				arrayExtraItem.PushString(sBuffer);                    // Index: 10
+				
+				// Store this handle in the main array
+				gServerData.ExtraItems.Push(arrayConfigEntry);
+			}
+			while (kvExtraItems.GotoNextKey());
 		}
-		arrayExtraItem.PushString(sPathItems);                 // Index: 1
-		arrayExtraItem.Push(kvExtraItems.GetNum("cost", 0));   // Index: 2
-		arrayExtraItem.Push(kvExtraItems.GetNum("level", 0));  // Index: 3
-		arrayExtraItem.Push(kvExtraItems.GetNum("online", 0)); // Index: 4
-		arrayExtraItem.Push(kvExtraItems.GetNum("limit", 0));  // Index: 5
-		kvExtraItems.GetString("group", sPathItems, sizeof(sPathItems), ""); 
-		arrayExtraItem.PushString(sPathItems);                 // Index: 6
-		kvExtraItems.GetString("class", sPathItems, sizeof(sPathItems), ""); 
-		arrayExtraItem.PushString(sPathItems);                 // Index: 7
 	}
 
 	// We're done with this file now, so we can close it
@@ -303,10 +361,12 @@ void ExtraItemsOnNativeInit(/*void*/)
 	CreateNative("ZP_GetExtraItemNameID",      API_GetExtraItemNameID);
 	CreateNative("ZP_GetExtraItemName",        API_GetExtraItemName); 
 	CreateNative("ZP_GetExtraItemInfo",        API_GetExtraItemInfo); 
+	CreateNative("ZP_GetExtraItemWeaponID",    API_GetExtraItemWeaponID); 
 	CreateNative("ZP_GetExtraItemCost",        API_GetExtraItemCost); 
 	CreateNative("ZP_GetExtraItemLevel",       API_GetExtraItemLevel); 
 	CreateNative("ZP_GetExtraItemOnline",      API_GetExtraItemOnline); 
 	CreateNative("ZP_GetExtraItemLimit",       API_GetExtraItemLimit); 
+	CreateNative("ZP_GetExtraItemFlags",       API_GetExtraItemFlags); 
 	CreateNative("ZP_GetExtraItemGroup",       API_GetExtraItemGroup); 
 	CreateNative("ZP_GetExtraItemClass",       API_GetExtraItemClass);
 }
@@ -528,6 +588,27 @@ public int API_GetExtraItemInfo(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Gets the weapon of a extra item at a given name.
+ *
+ * @note native int ZP_GetExtraItemWeaponID(iD);
+ **/
+public int API_GetExtraItemWeaponID(Handle hPlugin, int iNumParams)
+{
+	// Gets item index from native cell
+	int iD = GetNativeCell(1);
+
+	// Validate index
+	if (iD >= gServerData.ExtraItems.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		return -1;
+	}
+	
+	// Return value
+	return ItemsGetWeaponID(iD);
+}
+
+/**
  * @brief Gets the cost of the extra item.
  *
  * @note native int ZP_GetExtraItemCost(iD);
@@ -612,6 +693,27 @@ public int API_GetExtraItemLimit(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Gets the flags of the extra item.
+ *
+ * @note native int ZP_GetExtraItemFlags(iD);
+ **/
+public int API_GetExtraItemFlags(Handle hPlugin, int iNumParams)
+{
+	// Gets item index from native cell
+	int iD = GetNativeCell(1);
+	
+	// Validate index
+	if (iD >= gServerData.ExtraItems.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		return -1;
+	}
+	
+	// Return value
+	return ItemsGetFlags(iD);
+}
+
+/**
  * @brief Gets the group of a extra item at a given index.
  *
  * @note native void ZP_GetExtraItemGroup(iD, group, maxlen);
@@ -684,6 +786,22 @@ public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
 /*
  * Extra items data reading API.
  */
+ 
+/**
+ * @brief Gets the section of a item at a given index.
+ *
+ * @param iD                The item index.
+ * @param sSection          The string to return section in.
+ * @param iMaxLen           The lenght of string.
+ **/
+void ItemsGetSection(int iD, char[] sSection, int iMaxLen)
+{
+	// Gets array handle of extra item at given index
+	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
+
+	// Gets extra item section
+	arrayExtraItem.GetString(EXTRAITEMS_DATA_SECTION, sSection, iMaxLen);
+}
 
 /**
  * @brief Gets the name of a item at a given index.
@@ -718,10 +836,25 @@ void ItemsGetInfo(int iD, char[] sInfo, int iMaxLen)
 }
 
 /**
- * @brief Gets the price of ammo for the item.
+ * @brief Gets the weapon for the item.
  *
  * @param iD                The item index.
- * @return                  The ammo price.    
+ * @return                  The weapon id.    
+ **/
+int ItemsGetWeaponID(int iD)
+{
+	// Gets array handle of extra item at given index
+	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
+
+	// Gets extra item weapon
+	return arrayExtraItem.Get(EXTRAITEMS_DATA_WEAPON);
+}
+
+/**
+ * @brief Gets the cost for the item.
+ *
+ * @param iD                The item index.
+ * @return                  The cost amount.    
  **/
 int ItemsGetCost(int iD)
 {
@@ -764,6 +897,7 @@ int ItemsGetOnline(int iD)
 
 /**
  * @brief Gets the limit for the item.
+ *
  * @param iD                The item index.
  * @return                  The limit value.    
  **/
@@ -840,6 +974,21 @@ int ItemsGetLimits(int client, int iD)
 	// Gets buy limit for the client
 	int iLimit; gClientData[client].ItemLimit.GetValue(sKey, iLimit);
 	return iLimit;
+}
+
+/**
+ * @brief Gets the flags for the item.
+ *
+ * @param iD                The item index.
+ * @return                  The flags values.   
+ **/
+int ItemsGetFlags(int iD)
+{
+	// Gets array handle of extra item at given index
+	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
+
+	// Gets extra item flags
+	return arrayExtraItem.Get(EXTRAITEMS_DATA_FLAGS);
 }
 
 /**

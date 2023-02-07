@@ -88,6 +88,7 @@ enum struct ServerData
 	Handle GameSync;
 	
 	/* Configs */
+	ArrayList Sections;
 	ArrayList ExtraItems;
 	ArrayList HitGroups;
 	ArrayList GameModes;

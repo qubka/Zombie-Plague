@@ -113,7 +113,7 @@ void CostumesOnInit(/*void*/)
 void CostumesOnLoad(/*void*/)
 {
 	// Register config file
-	ConfigRegisterConfig(File_Costumes, Structure_Keyvalue, CONFIG_FILE_ALIAS_COSTUMES);
+	ConfigRegisterConfig(File_Costumes, Structure_KeyValue, CONFIG_FILE_ALIAS_COSTUMES);
 
 	// If costumes is disabled, then stop
 	if (!gCvarList.COSTUMES.BoolValue)
@@ -122,19 +122,19 @@ void CostumesOnLoad(/*void*/)
 	}
 	
 	// Gets costumes config path
-	static char sPathCostumes[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_COSTUMES, sPathCostumes, sizeof(sPathCostumes));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_COSTUMES, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Missing costumes config file: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Missing costumes config file: %s", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Costumes, sPathCostumes);
+	ConfigSetConfigPath(File_Costumes, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Costumes, gServerData.Costumes);
@@ -142,7 +142,7 @@ void CostumesOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error encountered loading: %s", sBuffer);
 		return;
 	}
 
@@ -161,8 +161,8 @@ void CostumesOnLoad(/*void*/)
 void CostumesOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathCostumes[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Costumes, sPathCostumes, sizeof(sPathCostumes)); 
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Costumes, sBuffer, sizeof(sBuffer)); 
 	
 	// Opens config
 	KeyValues kvCostumes;
@@ -171,7 +171,7 @@ void CostumesOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error caching data from costumes config file: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Unexpected error caching data from costumes config file: %s", sBuffer);
 		return;
 	}
 
@@ -179,7 +179,7 @@ void CostumesOnCacheData(/*void*/)
 	int iSize = gServerData.Costumes.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sPathCostumes);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "No usable data found in costumes config file: %s", sBuffer);
 		return;
 	}
 	
@@ -187,21 +187,20 @@ void CostumesOnCacheData(/*void*/)
 	for (int i = 0; i < iSize; i++)
 	{
 		// General
-		CostumesGetName(i, sPathCostumes, sizeof(sPathCostumes)); // Index: 0
+		CostumesGetName(i, sBuffer, sizeof(sBuffer)); // Index: 0
 		kvCostumes.Rewind();
-		if (!kvCostumes.JumpToKey(sPathCostumes))
+		if (!kvCostumes.JumpToKey(sBuffer))
 		{
 			// Log costume fatal
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sPathCostumes);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume data for: %s (check costume config)", sBuffer);
 			continue;
 		}
 		
 		// Validate translation
-		StringToLower(sPathCostumes);
-		if (!TranslationPhraseExists(sPathCostumes))
+		if (!TranslationIsPhraseExists(sBuffer))
 		{
 			// Log costume error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sPathCostumes);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Costumes, "Config Validation", "Couldn't cache costume name: \"%s\" (check translation file)", sBuffer);
 			continue;
 		}
 
@@ -209,19 +208,19 @@ void CostumesOnCacheData(/*void*/)
 		ArrayList arrayCostume = gServerData.Costumes.Get(i);
 		
 		// Push data into array
-		kvCostumes.GetString("model", sPathCostumes, sizeof(sPathCostumes), ""); 
-		arrayCostume.PushString(sPathCostumes);                               // Index: 1
-		DecryptPrecacheModel(sPathCostumes); 
+		kvCostumes.GetString("model", sBuffer, sizeof(sBuffer), ""); 
+		arrayCostume.PushString(sBuffer);                                     // Index: 1
+		DecryptPrecacheModel(sBuffer); 
 		arrayCostume.Push(kvCostumes.GetNum("body", 0));                      // Index: 2
 		arrayCostume.Push(kvCostumes.GetNum("skin", 0));                      // Index: 3
-		kvCostumes.GetString("attachment", sPathCostumes, sizeof(sPathCostumes), "facemask");  
-		arrayCostume.PushString(sPathCostumes);                               // Index: 4
+		kvCostumes.GetString("attachment", sBuffer, sizeof(sBuffer), "facemask");  
+		arrayCostume.PushString(sBuffer);                                     // Index: 4
 		float vPosition[3]; kvCostumes.GetVector("position", vPosition);   
 		arrayCostume.PushArray(vPosition, sizeof(vPosition));                 // Index: 5        
 		float vAngle[3]; kvCostumes.GetVector("angle", vAngle);
 		arrayCostume.PushArray(vAngle, sizeof(vAngle));                       // Index: 6
-		kvCostumes.GetString("group", sPathCostumes, sizeof(sPathCostumes), "");  
-		arrayCostume.PushString(sPathCostumes);                               // Index: 7
+		kvCostumes.GetString("group", sBuffer, sizeof(sBuffer), "");  
+		arrayCostume.PushString(sBuffer);                                     // Index: 7
 		arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no"));   // Index: 8
 		arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "merge", "off")); // Index: 9
 		arrayCostume.Push(kvCostumes.GetNum("level", 0));                     // Index: 10

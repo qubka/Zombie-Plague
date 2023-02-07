@@ -108,22 +108,22 @@ void WeaponsOnInit(/*void*/)
 void WeaponsOnLoad(/*void*/)
 {
 	// Register config file
-	ConfigRegisterConfig(File_Weapons, Structure_Keyvalue, CONFIG_FILE_ALIAS_WEAPONS);
+	ConfigRegisterConfig(File_Weapons, Structure_KeyValue, CONFIG_FILE_ALIAS_WEAPONS);
 
 	// Gets weapons config path
-	static char sPathWeapons[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_WEAPONS, sPathWeapons, sizeof(sPathWeapons));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_WEAPONS, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Missing weapons config file: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Missing weapons config file: \"%s\"", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Weapons, sPathWeapons);
+	ConfigSetConfigPath(File_Weapons, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Weapons, gServerData.Weapons);
@@ -131,7 +131,7 @@ void WeaponsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error encountered loading: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -154,8 +154,8 @@ void WeaponsOnLoad(/*void*/)
 void WeaponsOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathWeapons[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Weapons, sPathWeapons, sizeof(sPathWeapons));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Weapons, sBuffer, sizeof(sBuffer));
 
 	// Opens config
 	KeyValues kvWeapons;
@@ -164,7 +164,7 @@ void WeaponsOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sBuffer);
 		return;
 	}
 	
@@ -184,7 +184,7 @@ void WeaponsOnCacheData(/*void*/)
 	int iSize = gServerData.Weapons.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sPathWeapons);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "No usable data found in weapons config file: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -192,21 +192,20 @@ void WeaponsOnCacheData(/*void*/)
 	for (int i = 0; i < iSize; i++)
 	{
 		// General
-		WeaponsGetName(i, sPathWeapons, sizeof(sPathWeapons)); // Index: 0
+		WeaponsGetName(i, sBuffer, sizeof(sBuffer)); // Index: 0
 		kvWeapons.Rewind();
-		if (!kvWeapons.JumpToKey(sPathWeapons))
+		if (!kvWeapons.JumpToKey(sBuffer))
 		{
 			// Log weapon fatal
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sPathWeapons);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon data for: \"%s\" (check weapons config)", sBuffer);
 			continue;
 		}
 		
 		// Validate translation
-		StringToLower(sPathWeapons);
-		if (!TranslationPhraseExists(sPathWeapons))
+		if (!TranslationIsPhraseExists(sBuffer))
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sPathWeapons);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon name: \"%s\" (check translation file)", sBuffer);
 			continue;
 		}
 		
@@ -214,73 +213,73 @@ void WeaponsOnCacheData(/*void*/)
 		ArrayList arrayWeapon = gServerData.Weapons.Get(i); 
  
 		// Push data into array
-		kvWeapons.GetString("info", sPathWeapons, sizeof(sPathWeapons), ""); StringToLower(sPathWeapons);
-		if (!TranslationPhraseExists(sPathWeapons) && hasLength(sPathWeapons))
+		kvWeapons.GetString("info", sBuffer, sizeof(sBuffer), "");
+		if (!TranslationIsPhraseExists(sBuffer) && hasLength(sBuffer))
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sPathWeapons);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon info: \"%s\" (check translation file)", sBuffer);
 		}
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 1
-		kvWeapons.GetString("entity", sPathWeapons, sizeof(sPathWeapons), "");
-		gServerData.Entities.SetValue(sPathWeapons, i, false);  /// Unique entity catched
-		int iItem = WeaponsGetItemDefIndex(sPathWeapons);
+		arrayWeapon.PushString(sBuffer);                                  // Index: 1
+		kvWeapons.GetString("entity", sBuffer, sizeof(sBuffer), "");
+		gServerData.Entities.SetValue(sBuffer, i, false);  /// Unique entity catched
+		int iItem = WeaponsGetItemDefIndex(sBuffer);
 		if (iItem == 0)
 		{
 			// Log weapon error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sPathWeapons);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sBuffer);
 		}
-		arrayWeapon.Push(iItem);                                              // Index: 2
-		kvWeapons.GetString("group", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 3
-		kvWeapons.GetString("class", sPathWeapons, sizeof(sPathWeapons), "human");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 4
-		arrayWeapon.Push(kvWeapons.GetNum("cost", 0));                        // Index: 5
-		kvWeapons.GetString("slot", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.Push(ZMarketNameToIndex(sPathWeapons));                   // Index: 6
-		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                       // Index: 7
-		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                      // Index: 8
-		arrayWeapon.Push(kvWeapons.GetNum("limit", 0));                       // Index: 9
-		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));                  // Index: 10
-		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));               // Index: 11
-		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));                   // Index: 12
-		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                    // Index: 13
-		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                        // Index: 14
-		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                        // Index: 15
-		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));                  // Index: 16
-		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on"));     // Index: 17
-		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));                   // Index: 18
-		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));                  // Index: 19
-		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));                  // Index: 20
-		kvWeapons.GetString("sound", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.Push(SoundsKeyToIndex(sPathWeapons));                     // Index: 21
-		kvWeapons.GetString("icon", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 22
-		if (hasLength(sPathWeapons))
+		arrayWeapon.Push(iItem);                                          // Index: 2
+		kvWeapons.GetString("group", sBuffer, sizeof(sBuffer), "");       
+		arrayWeapon.PushString(sBuffer);                                  // Index: 3
+		kvWeapons.GetString("class", sBuffer, sizeof(sBuffer), "human");  
+		arrayWeapon.PushString(sBuffer);                                  // Index: 4
+		arrayWeapon.Push(kvWeapons.GetNum("cost", 0));                    // Index: 5
+		kvWeapons.GetString("slot", sBuffer, sizeof(sBuffer), "");        
+		arrayWeapon.Push(ZMarketNameToIndex(sBuffer));                    // Index: 6
+		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 7
+		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 8
+		arrayWeapon.Push(kvWeapons.GetNum("limit", 0));                   // Index: 9
+		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 10
+		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));           // Index: 11
+		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));               // Index: 12
+		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                // Index: 13
+		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 14
+		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 15
+		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 16
+		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 17
+		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 18
+		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 19
+		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 20
+		kvWeapons.GetString("sound", sBuffer, sizeof(sBuffer), "");       
+		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 21
+		kvWeapons.GetString("icon", sBuffer, sizeof(sBuffer), "");        
+		arrayWeapon.PushString(sBuffer);                                  // Index: 22
+		if (hasLength(sBuffer))
 		{
 			// Precache custom icon
-			Format(sPathWeapons, sizeof(sPathWeapons), "materials/panorama/images/icons/equipment/%s.svg", sPathWeapons);
-			if (FileExists(sPathWeapons)) AddFileToDownloadsTable(sPathWeapons); 
+			Format(sBuffer, sizeof(sBuffer), "materials/panorama/images/icons/equipment/%s.svg", sBuffer);
+			if (FileExists(sBuffer)) AddFileToDownloadsTable(sBuffer); 
 		}
-		kvWeapons.GetString("view", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 23    
-		arrayWeapon.Push(DecryptPrecacheWeapon(sPathWeapons));                // Index: 24
-		kvWeapons.GetString("world", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 25
-		arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 26
-		kvWeapons.GetString("dropped", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 27
-		arrayWeapon.Push(DecryptPrecacheModel(sPathWeapons));                 // Index: 28
-		int iBody[4]; kvWeapons.GetColor4("body", iBody);                     
-		arrayWeapon.PushArray(iBody, sizeof(iBody));                          // Index: 29
+		kvWeapons.GetString("view", sBuffer, sizeof(sBuffer), "");
+		arrayWeapon.PushString(sBuffer);                                  // Index: 23    
+		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 24
+		kvWeapons.GetString("world", sBuffer, sizeof(sBuffer), "");       
+		arrayWeapon.PushString(sBuffer);                                  // Index: 25
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 26
+		kvWeapons.GetString("dropped", sBuffer, sizeof(sBuffer), "");     
+		arrayWeapon.PushString(sBuffer);                                  // Index: 27
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 28
+		int iBody[4]; kvWeapons.GetColor4("body", iBody);                 
+		arrayWeapon.PushArray(iBody, sizeof(iBody));                      // Index: 29
 		int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
-		arrayWeapon.PushArray(iSkin, sizeof(iSkin));                          // Index: 30
-		kvWeapons.GetString("muzzle", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 31
-		kvWeapons.GetString("shell", sPathWeapons, sizeof(sPathWeapons), "");
-		arrayWeapon.PushString(sPathWeapons);                                 // Index: 32
-		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                    // Index: 33
-		arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];                 // Index: 34
-		arrayWeapon.PushArray(iSeq, sizeof(iSeq));                            // Index: 35
+		arrayWeapon.PushArray(iSkin, sizeof(iSkin));                      // Index: 30
+		kvWeapons.GetString("muzzle", sBuffer, sizeof(sBuffer), "");
+		arrayWeapon.PushString(sBuffer);                                  // Index: 31
+		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
+		arrayWeapon.PushString(sBuffer);                                  // Index: 32
+		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 33
+		arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];             // Index: 34
+		arrayWeapon.PushArray(iSeq, sizeof(iSeq));                        // Index: 35
 	}
 
 	// We're done with this file now, so we can close it

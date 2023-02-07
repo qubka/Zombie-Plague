@@ -5,11 +5,6 @@
 		"en"			"Main menu"
 	}
 
-	"buy weapons" // Menu
-	{
-		"en"			"Buy weapons"
-	}
-
 	"buy extraitems" // Menu
 	{
 		"en"			"Buy extra items"

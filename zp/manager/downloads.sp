@@ -45,19 +45,19 @@ void DownloadsOnLoad(/*void*/)
 	ConfigRegisterConfig(File_Downloads, Structure_StringList, CONFIG_FILE_ALIAS_DOWNLOADS);
 
 	// Gets downloads file path
-	static char sPathDownloads[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_DOWNLOADS, sPathDownloads, sizeof(sPathDownloads));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_DOWNLOADS, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure and stop plugin
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sPathDownloads);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Missing downloads file: \"%s\"", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Downloads, sPathDownloads);
+	ConfigSetConfigPath(File_Downloads, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Downloads, gServerData.Downloads, PLATFORM_LINE_LENGTH);
@@ -65,7 +65,7 @@ void DownloadsOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Unexpected error encountered loading: %s", sPathDownloads);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Unexpected error encountered loading: %s", sBuffer);
 		return;
 	}
 	
@@ -84,11 +84,11 @@ void DownloadsOnLoad(/*void*/)
 void DownloadsOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathDownloads[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Downloads, sPathDownloads, sizeof(sPathDownloads));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Downloads, sBuffer, sizeof(sBuffer));
 	
 	// Log what download file that is loaded
-	LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Downloads, "Config Validation", "Loading downloads from file \"%s\"", sPathDownloads);
+	LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Downloads, "Config Validation", "Loading downloads from file \"%s\"", sBuffer);
 
 	// Initialize numbers of downloads
 	int iDownloadCount;
@@ -99,7 +99,7 @@ void DownloadsOnCacheData(/*void*/)
 	int iDownloads = iDownloadCount = gServerData.Downloads.Length;
 	if (!iDownloads)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sPathDownloads);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "No usable data found in downloads config file: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -107,32 +107,32 @@ void DownloadsOnCacheData(/*void*/)
 	for (int i = 0; i < iDownloads; i++)
 	{
 		// Gets download path
-		gServerData.Downloads.GetString(i, sPathDownloads, sizeof(sPathDownloads));
+		gServerData.Downloads.GetString(i, sBuffer, sizeof(sBuffer));
 
 		// If file exist
-		if (FileExists(sPathDownloads) || FileExists(sPathDownloads, true)) 
+		if (FileExists(sBuffer) || FileExists(sBuffer, true)) 
 		{
 			// Add to server precache list
-			if (DownloadsOnPrecache(sPathDownloads)) iDownloadValidCount++; else iDownloadUnValidCount++;
+			if (DownloadsOnPrecache(sBuffer)) iDownloadValidCount++; else iDownloadUnValidCount++;
 		}
 		// If doesn't exist, it might be directory ?
 		else
 		{
 			// Opens directory
-			DirectoryListing hDirectory = OpenDirectory(sPathDownloads);
+			DirectoryListing hDirectory = OpenDirectory(sBuffer);
 			
 			// If directory doesn't exist, try to open folder in .vpk
 			if (hDirectory == null)
 			{
 				// Opens directory
-				hDirectory = OpenDirectory(sPathDownloads, true);
+				hDirectory = OpenDirectory(sBuffer, true);
 			}
 
 			// If directory doesn't exist, then log, and stop
 			if (hDirectory == null)
 			{
 				// Log download error info
-				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sPathDownloads);
+				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Downloads, "Config Validation", "Incorrect path \"%s\"", sBuffer);
 				
 				// Remove download from array
 				gServerData.Downloads.Erase(i);
@@ -155,7 +155,7 @@ void DownloadsOnCacheData(/*void*/)
 				if (hType == FileType_File) 
 				{
 					// Format full path to file
-					Format(sFile, sizeof(sFile), "%s%s", sPathDownloads, sFile);
+					Format(sFile, sizeof(sFile), "%s%s", sBuffer, sFile);
 					
 					// Add to server precache list
 					if (DownloadsOnPrecache(sFile)) iDownloadValidCount++; else iDownloadUnValidCount++;

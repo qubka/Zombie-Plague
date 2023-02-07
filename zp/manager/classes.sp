@@ -185,22 +185,22 @@ void ClassesOnLoad(/*void*/)
 	DeathOnLoad();
 	
 	// Register config file
-	ConfigRegisterConfig(File_Classes, Structure_Keyvalue, CONFIG_FILE_ALIAS_CLASSES);
+	ConfigRegisterConfig(File_Classes, Structure_KeyValue, CONFIG_FILE_ALIAS_CLASSES);
 
 	// Gets classes config path
-	static char sPathClasses[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CLASSES, sPathClasses, sizeof(sPathClasses));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_CLASSES, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Missing classes config file: \"%s\"", sPathClasses);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Missing classes config file: \"%s\"", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Classes, sPathClasses);
+	ConfigSetConfigPath(File_Classes, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Classes, gServerData.Classes);
@@ -208,7 +208,7 @@ void ClassesOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathClasses);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error encountered loading: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -227,8 +227,8 @@ void ClassesOnLoad(/*void*/)
 void ClassesOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathClasses[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Classes, sPathClasses, sizeof(sPathClasses));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Classes, sBuffer, sizeof(sBuffer));
 
 	// Opens config
 	KeyValues kvClasses;
@@ -237,7 +237,7 @@ void ClassesOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error caching data from classes config file: \"%s\"", sPathClasses);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unexpected error caching data from classes config file: \"%s\"", sBuffer);
 		return;
 	}
 	
@@ -257,7 +257,7 @@ void ClassesOnCacheData(/*void*/)
 	int iSize = gServerData.Classes.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sPathClasses);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sBuffer);
 		return;
 	}
 	
@@ -265,21 +265,20 @@ void ClassesOnCacheData(/*void*/)
 	for (int i = 0; i < iSize; i++)
 	{
 		// General
-		ClassGetName(i, sPathClasses, sizeof(sPathClasses));                    // Index: 0
+		ClassGetName(i, sBuffer, sizeof(sBuffer)); // Index: 0
 		kvClasses.Rewind();
-		if (!kvClasses.JumpToKey(sPathClasses))
+		if (!kvClasses.JumpToKey(sBuffer))
 		{
 			// Log class fatal
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class data for: \"%s\" (check classes config)", sPathClasses);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class data for: \"%s\" (check classes config)", sBuffer);
 			continue;
 		}
 		
 		// Validate translation
-		StringToLower(sPathClasses);
-		if (!TranslationPhraseExists(sPathClasses))
+		if (!TranslationIsPhraseExists(sBuffer))
 		{
 			// Log class error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class name: \"%s\" (check translation file)", sPathClasses);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class name: \"%s\" (check translation file)", sBuffer);
 			continue;
 		}
 
@@ -287,70 +286,70 @@ void ClassesOnCacheData(/*void*/)
 		ArrayList arrayClass = gServerData.Classes.Get(i);
 
 		// Push data into array
-		kvClasses.GetString("info", sPathClasses, sizeof(sPathClasses), ""); StringToLower(sPathClasses);
-		if (!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
+		kvClasses.GetString("info", sBuffer, sizeof(sBuffer), "");
+		if (!TranslationIsPhraseExists(sBuffer) && hasLength(sBuffer))
 		{
 			// Log class error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class info: \"%s\" (check translation file)", sPathClasses);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class info: \"%s\" (check translation file)", sBuffer);
 		}
-		arrayClass.PushString(sPathClasses);                                    // Index: 1
-		kvClasses.GetString("type", sPathClasses, sizeof(sPathClasses), ""); StringToLower(sPathClasses);
-		if (!TranslationPhraseExists(sPathClasses) && hasLength(sPathClasses))
+		arrayClass.PushString(sBuffer);                                        // Index: 1
+		kvClasses.GetString("type", sBuffer, sizeof(sBuffer), "");
+		if (!TranslationIsPhraseExists(sBuffer) && hasLength(sBuffer))
 		{
 			// Log class error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\" (check translation file)", sPathClasses);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\" (check translation file)", sBuffer);
 		}
-		arrayClass.PushString(sPathClasses);                                    // Index: 2
-		if (gServerData.Types.FindString(sPathClasses) == -1)
-		{
-			gServerData.Types.PushString(sPathClasses); /// Unique type catched
-		}
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "zombie", "no"));      // Index: 3
-		kvClasses.GetString("model", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 4
-		DecryptPrecacheModel(sPathClasses);
-		kvClasses.GetString("claw_model", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 5
-		arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                   // Index: 6
-		kvClasses.GetString("gren_model", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 7
-		arrayClass.Push(DecryptPrecacheWeapon(sPathClasses));                   // Index: 8
-		kvClasses.GetString("arm_model", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 9
-		DecryptPrecacheModel(sPathClasses);
-		arrayClass.Push(kvClasses.GetNum("body", -1));                          // Index: 10 
-		arrayClass.Push(kvClasses.GetNum("skin", -1));                          // Index: 11 
-		arrayClass.Push(kvClasses.GetNum("health", 0));                         // Index: 12 
-		arrayClass.Push(kvClasses.GetFloat("speed", 0.0));                      // Index: 13
-		arrayClass.Push(kvClasses.GetFloat("gravity", 0.0));                    // Index: 14
-		arrayClass.Push(kvClasses.GetFloat("knockback", 0.0));                  // Index: 15
-		arrayClass.Push(kvClasses.GetNum("armor", 0));                          // Index: 16
-		arrayClass.Push(kvClasses.GetNum("level", 0));                          // Index: 18
-		kvClasses.GetString("group", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 18
-		arrayClass.Push(kvClasses.GetFloat("duration", 0.0));                   // Index: 19
-		arrayClass.Push(kvClasses.GetFloat("countdown", 0.0));                  // Index: 20
-		arrayClass.Push(kvClasses.GetNum("cost", 0));                           // Index: 21
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "bar", "off"));        // Index: 22
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "sprite", "off"));     // Index: 23
-		arrayClass.Push(kvClasses.GetNum("regenerate", 0));                     // Index: 24
-		arrayClass.Push(kvClasses.GetFloat("interval", 0.0));                   // Index: 25
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "fall", "on"));        // Index: 26
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "spotted", "on"));     // Index: 27
-		arrayClass.Push(kvClasses.GetNum("fov", 90));                           // Index: 28
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "crosshair", "yes"));  // Index: 29
-		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "nvgs", "no"));        // Index: 30
-		kvClasses.GetString("overlay", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 31
-		if (hasLength(sPathClasses)) 
+		arrayClass.PushString(sBuffer);                                        // Index: 2
+		if (gServerData.Types.FindString(sBuffer) == -1)                       
+		{                                                                      
+			gServerData.Types.PushString(sBuffer); /// Unique type catched     
+		}                                                                      
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "zombie", "no"));     // Index: 3
+		kvClasses.GetString("model", sBuffer, sizeof(sBuffer), "");            
+		arrayClass.PushString(sBuffer);                                        // Index: 4
+		DecryptPrecacheModel(sBuffer);                                         
+		kvClasses.GetString("claw_model", sBuffer, sizeof(sBuffer), "");       
+		arrayClass.PushString(sBuffer);                                        // Index: 5
+		arrayClass.Push(DecryptPrecacheWeapon(sBuffer));                       // Index: 6
+		kvClasses.GetString("gren_model", sBuffer, sizeof(sBuffer), "");       
+		arrayClass.PushString(sBuffer);                                        // Index: 7
+		arrayClass.Push(DecryptPrecacheWeapon(sBuffer));                       // Index: 8
+		kvClasses.GetString("arm_model", sBuffer, sizeof(sBuffer), "");        
+		arrayClass.PushString(sBuffer);                                        // Index: 9
+		DecryptPrecacheModel(sBuffer);                                         
+		arrayClass.Push(kvClasses.GetNum("body", -1));                         // Index: 10 
+		arrayClass.Push(kvClasses.GetNum("skin", -1));                         // Index: 11 
+		arrayClass.Push(kvClasses.GetNum("health", 0));                        // Index: 12 
+		arrayClass.Push(kvClasses.GetFloat("speed", 0.0));                     // Index: 13
+		arrayClass.Push(kvClasses.GetFloat("gravity", 0.0));                   // Index: 14
+		arrayClass.Push(kvClasses.GetFloat("knockback", 0.0));                 // Index: 15
+		arrayClass.Push(kvClasses.GetNum("armor", 0));                         // Index: 16
+		arrayClass.Push(kvClasses.GetNum("level", 0));                         // Index: 18
+		kvClasses.GetString("group", sBuffer, sizeof(sBuffer), "");
+		arrayClass.PushString(sBuffer);                                        // Index: 18
+		arrayClass.Push(kvClasses.GetFloat("duration", 0.0));                  // Index: 19
+		arrayClass.Push(kvClasses.GetFloat("countdown", 0.0));                 // Index: 20
+		arrayClass.Push(kvClasses.GetNum("cost", 0));                          // Index: 21
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "bar", "off"));       // Index: 22
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "sprite", "off"));    // Index: 23
+		arrayClass.Push(kvClasses.GetNum("regenerate", 0));                    // Index: 24
+		arrayClass.Push(kvClasses.GetFloat("interval", 0.0));                  // Index: 25
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "fall", "on"));       // Index: 26
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "spotted", "on"));    // Index: 27
+		arrayClass.Push(kvClasses.GetNum("fov", 90));                          // Index: 28
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "crosshair", "yes")); // Index: 29
+		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "nvgs", "no"));       // Index: 30
+		kvClasses.GetString("overlay", sBuffer, sizeof(sBuffer), "");
+		arrayClass.PushString(sBuffer);                                        // Index: 31
+		if (hasLength(sBuffer)) 
 		{
 			// Precache material
-			Format(sPathClasses, sizeof(sPathClasses), "materials/%s", sPathClasses);
-			DecryptPrecacheTextures("self", sPathClasses);
+			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
+			DecryptPrecacheTextures("self", sBuffer);
 		}
-		kvClasses.GetString("weapon", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("weapon", sBuffer, sizeof(sBuffer), "");
 		static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH]; int iWeapon[SMALL_LINE_LENGTH] = { -1, ... };
-		int nWeapon = ExplodeString(sPathClasses, ",", sWeapon, sizeof(sWeapon), sizeof(sWeapon[]));
+		int nWeapon = ExplodeString(sBuffer, ",", sWeapon, sizeof(sWeapon), sizeof(sWeapon[]));
 		for (int x = 0; x < nWeapon; x++)
 		{
 			// Trim string
@@ -360,9 +359,9 @@ void ClassesOnCacheData(/*void*/)
 			iWeapon[x] = WeaponsNameToIndex(sWeapon[x]);
 		} 
 		arrayClass.PushArray(iWeapon, sizeof(iWeapon));                         // Index: 32
-		kvClasses.GetString("money", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("money", sBuffer, sizeof(sBuffer), "");
 		static char sMoney[6][SMALL_LINE_LENGTH]; int iMoney[6];
-		int nMoney = ExplodeString(sPathClasses, ",", sMoney, sizeof(sMoney), sizeof(sMoney[]));
+		int nMoney = ExplodeString(sBuffer, ",", sMoney, sizeof(sMoney), sizeof(sMoney[]));
 		for (int x = 0; x < nMoney; x++)
 		{
 			// Trim string
@@ -372,9 +371,9 @@ void ClassesOnCacheData(/*void*/)
 			iMoney[x] = StringToInt(sMoney[x]);
 		}
 		arrayClass.PushArray(iMoney, sizeof(iMoney));                           // Index: 33
-		kvClasses.GetString("experience", sPathClasses, sizeof(sPathClasses), "");
+		kvClasses.GetString("experience", sBuffer, sizeof(sBuffer), "");
 		static char sExp[6][SMALL_LINE_LENGTH]; int iExp[6];
-		int nExp = ExplodeString(sPathClasses, ",", sExp, sizeof(sExp), sizeof(sExp[]));
+		int nExp = ExplodeString(sBuffer, ",", sExp, sizeof(sExp), sizeof(sExp[]));
 		for (int x = 0; x < nExp; x++)
 		{
 			// Trim string
@@ -389,31 +388,31 @@ void ClassesOnCacheData(/*void*/)
 		arrayClass.Push(kvClasses.GetNum("leap", 0));                           // Index: 37
 		arrayClass.Push(kvClasses.GetFloat("force", 0.0));                      // Index: 38
 		arrayClass.Push(kvClasses.GetFloat("cooldown", 0.0));                   // Index: 39
-		kvClasses.GetString("effect", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 40
-		kvClasses.GetString("attachment", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.PushString(sPathClasses);                                    // Index: 41
+		kvClasses.GetString("effect", sBuffer, sizeof(sBuffer), "");
+		arrayClass.PushString(sBuffer);                                    // Index: 40
+		kvClasses.GetString("attachment", sBuffer, sizeof(sBuffer), "");
+		arrayClass.PushString(sBuffer);                                    // Index: 41
 		arrayClass.Push(kvClasses.GetFloat("time", 1.0));                       // Index: 42
-		kvClasses.GetString("death", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 43
-		kvClasses.GetString("hurt", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 44
-		kvClasses.GetString("idle", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 45
-		kvClasses.GetString("infect", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 46
-		kvClasses.GetString("respawn", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 47
-		kvClasses.GetString("burn", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 48
-		kvClasses.GetString("attack", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 49
-		kvClasses.GetString("footstep", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 50
-		kvClasses.GetString("regen", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 51
-		kvClasses.GetString("jump", sPathClasses, sizeof(sPathClasses), "");
-		arrayClass.Push(SoundsKeyToIndex(sPathClasses));                        // Index: 52
+		kvClasses.GetString("death", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 43
+		kvClasses.GetString("hurt", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 44
+		kvClasses.GetString("idle", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 45
+		kvClasses.GetString("infect", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 46
+		kvClasses.GetString("respawn", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 47
+		kvClasses.GetString("burn", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 48
+		kvClasses.GetString("attack", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 49
+		kvClasses.GetString("footstep", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 50
+		kvClasses.GetString("regen", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 51
+		kvClasses.GetString("jump", sBuffer, sizeof(sBuffer), "");
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 52
 	}
 
 	// We're done with this file now, so we can close it

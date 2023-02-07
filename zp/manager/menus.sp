@@ -47,22 +47,22 @@ enum
 void MenusOnLoad(/*void*/)
 {
 	// Register config file
-	ConfigRegisterConfig(File_Menus, Structure_Keyvalue, CONFIG_FILE_ALIAS_MENUS);
+	ConfigRegisterConfig(File_Menus, Structure_KeyValue, CONFIG_FILE_ALIAS_MENUS);
 
 	// Gets menus config path
-	static char sPathMenus[PLATFORM_LINE_LENGTH];
-	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_MENUS, sPathMenus, sizeof(sPathMenus));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_MENUS, sBuffer, sizeof(sBuffer));
 
 	// If file doesn't exist, then log and stop
 	if (!bExists)
 	{
 		// Log failure
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Missing menus config file: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Missing menus config file: \"%s\"", sBuffer);
 		return;
 	}
 
 	// Sets path to the config file
-	ConfigSetConfigPath(File_Menus, sPathMenus);
+	ConfigSetConfigPath(File_Menus, sBuffer);
 
 	// Load config from file and create array structure
 	bool bSuccess = ConfigLoadConfig(File_Menus, gServerData.Menus);
@@ -70,7 +70,7 @@ void MenusOnLoad(/*void*/)
 	// Unexpected error, stop plugin
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error encountered loading: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error encountered loading: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -89,8 +89,8 @@ void MenusOnLoad(/*void*/)
 void MenusOnCacheData(/*void*/)
 {
 	// Gets config file path
-	static char sPathMenus[PLATFORM_LINE_LENGTH];
-	ConfigGetConfigPath(File_Menus, sPathMenus, sizeof(sPathMenus));
+	static char sBuffer[PLATFORM_LINE_LENGTH];
+	ConfigGetConfigPath(File_Menus, sBuffer, sizeof(sBuffer));
 
 	// Opens config
 	KeyValues kvMenus;
@@ -99,7 +99,7 @@ void MenusOnCacheData(/*void*/)
 	// Validate config
 	if (!bSuccess)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error caching data from menus config file: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Unexpected error caching data from menus config file: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -107,7 +107,7 @@ void MenusOnCacheData(/*void*/)
 	int iSize = gServerData.Menus.Length;
 	if (!iSize)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sPathMenus);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "No usable data found in menus config file: \"%s\"", sBuffer);
 		return;
 	}
 	
@@ -115,39 +115,38 @@ void MenusOnCacheData(/*void*/)
 	for (int i = 0; i < iSize; i++)
 	{
 		// General
-		MenusGetName(i, sPathMenus, sizeof(sPathMenus)); // Index: 0
+		MenusGetName(i, sBuffer, sizeof(sBuffer)); // Index: 0
 		kvMenus.Rewind();
-		if (!kvMenus.JumpToKey(sPathMenus))
+		if (!kvMenus.JumpToKey(sBuffer))
 		{
 			// Log menu fatal
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sPathMenus);
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu data for: \"%s\" (check menus config)", sBuffer);
 			continue;
 		}
 		
 		// Validate translation
-		StringToLower(sPathMenus);
-		if (!TranslationPhraseExists(sPathMenus))
+		if (!TranslationIsPhraseExists(sBuffer))
 		{
 			// Log menu error
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu name: \"%s\" (check translation file)", sPathMenus);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache menu name: \"%s\" (check translation file)", sBuffer);
 		}
 
 		// Initialize array block
 		ArrayList arrayMenu = gServerData.Menus.Get(i);
 
 		// Push data into array
-		kvMenus.GetString("group", sPathMenus, sizeof(sPathMenus), "");  
-		arrayMenu.PushString(sPathMenus);                             // Index: 1
-		kvMenus.GetString("class", sPathMenus, sizeof(sPathMenus), "");  
-		arrayMenu.PushString(sPathMenus);                             // Index: 2
+		kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
+		arrayMenu.PushString(sBuffer);                                // Index: 1
+		kvMenus.GetString("class", sBuffer, sizeof(sBuffer), "");  
+		arrayMenu.PushString(sBuffer);                                // Index: 2
 		arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: 3
-		kvMenus.GetString("command", sPathMenus, sizeof(sPathMenus), "");
-		arrayMenu.PushString(sPathMenus);                             // Index: 4
-		if (hasLength(sPathMenus)) 
+		kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
+		arrayMenu.PushString(sBuffer);                                // Index: 4
+		if (hasLength(sBuffer)) 
 		{
-			AddCommandListener(MenusCommandOnCommandListened, sPathMenus);
+			AddCommandListener(MenusCommandOnCommandListened, sBuffer);
 		}
-		else if (kvMenus.JumpToKey("submenu"))                         // Index: 5
+		else if (kvMenus.JumpToKey("submenu"))                        // Index: 5
 		{
 			// Read keys in the file
 			if (kvMenus.GotoFirstSubKey())
@@ -155,29 +154,28 @@ void MenusOnCacheData(/*void*/)
 				do
 				{
 					// Retrieves the sub section name
-					kvMenus.GetSectionName(sPathMenus, sizeof(sPathMenus));
+					kvMenus.GetSectionName(sBuffer, sizeof(sBuffer));
 					
 					// Validate translation
-					StringToLower(sPathMenus);
-					if (!TranslationPhraseExists(sPathMenus))
+					if (!TranslationIsPhraseExists(sBuffer))
 					{
 						// Log menu error
-						LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache submenu name: \"%s\" (check translation file)", sPathMenus);
+						LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Menus, "Config Validation", "Couldn't cache submenu name: \"%s\" (check translation file)", sBuffer);
 						continue;
 					}
 
 					// Push data into array ~ (i = submenu index)
-					arrayMenu.PushString(sPathMenus);                                // Index: i + 0
-					kvMenus.GetString("group", sPathMenus, sizeof(sPathMenus), "");  
-					arrayMenu.PushString(sPathMenus);                                // Index: i + 1
-					kvMenus.GetString("class", sPathMenus, sizeof(sPathMenus), "");  
-					arrayMenu.PushString(sPathMenus);                                // Index: i + 2
+					arrayMenu.PushString(sBuffer);                                // Index: i + 0
+					kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
+					arrayMenu.PushString(sBuffer);                                // Index: i + 1
+					kvMenus.GetString("class", sBuffer, sizeof(sBuffer), "");  
+					arrayMenu.PushString(sBuffer);                                // Index: i + 2
 					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no"));    // Index: i + 3
-					kvMenus.GetString("command", sPathMenus, sizeof(sPathMenus), "");
-					arrayMenu.PushString(sPathMenus);                                // Index: i + 4
-					if (hasLength(sPathMenus)) 
+					kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
+					arrayMenu.PushString(sBuffer);                                // Index: i + 4
+					if (hasLength(sBuffer)) 
 					{
-						AddCommandListener(MenusCommandOnCommandListened, sPathMenus);
+						AddCommandListener(MenusCommandOnCommandListened, sBuffer);
 					}
 				}
 				while (kvMenus.GotoNextKey());
