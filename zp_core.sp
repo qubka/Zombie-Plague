@@ -123,7 +123,6 @@ public void OnPluginStart(/*void*/)
 	DataBaseOnInit();
 	GameModesOnInit();
 	WeaponsOnInit();
-	VEffectsOnInit();
 }
 
 /**
@@ -155,7 +154,6 @@ public void OnMapEnd(/*void*/)
 {
 	// Forward event to modules
 	ClassesOnPurge();
-	VEffectsOnPurge();
 	GameModesOnPurge();
 	GameEngineOnPurge();
 }

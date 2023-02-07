@@ -36,32 +36,13 @@
 #include "zp/manager/visualeffects/healthsprite.sp"
 
 /**
- * @brief Effects module init function.
- **/
-void VEffectsOnInit(/*void*/)
-{
-	// Forward event to sub-modules
-	ParticlesOnInit();
-}
-
-/**
  * @brief Effects module load function.
  **/         
 void VEffectsOnLoad(/*void*/)
 {
 	// Forward event to sub-modules
 	VAmbienceOnLoad();
-	ParticlesOnLoad();
 	HealthOnLoad();
-}
-
-/**
- * @brief Effects module purge function.
- **/
-void VEffectsOnPurge(/*void*/)
-{
-	// Forward event to sub-modules
-	ParticlesOnPurge();
 }
 
 /**
