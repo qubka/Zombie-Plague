@@ -26,12 +26,12 @@
 				"windows"	"353"
 				"linux"		"359"
 			}
-			"CBaseCombatWeapon::GetReserveAmmoMax" // center
+			"CBaseCombatWeapon::GetReserveAmmoMax" // center (Find CBaseCombatWeapon with "BaseCombatWeapon.WeaponDrop" str in CBaseCombatWeapon::FallThink)
 			{
 				"windows"	"357"
 				"linux"		"363"
 			}
-			"CBaseCombatWeapon::GetSlot" // +5
+			"CBaseCombatWeapon::GetSlot" // +6
 			{
 				"windows"	"362"
 				"linux"		"369"
@@ -188,38 +188,6 @@
 
 			/*___________________________________________________________________________________________*/
 			
-			/*
-			 * Info: Every custom particle precached during a map is not removed from precache table on the map end. 
-			 *	   Then, if a lot of maps that uses custom particles are running in my server the precache table will be filled 
-			 *	   and the custom particles used on the next maps will not show right but erros will appear in their place.
-			 */
-			"CParticleSystemDictionary::~CParticleSystemDictionary" // Str: "CParticleSystemMgr::InitAttributeTable has an out-of-date attribute list! (element %d not set up)\n" | "CParticleSystemMgr::InitAttributeTable" -> "CParticleSystemMgr::CParticleSystemMgr" -> "CParticleSystemMgr::~CParticleSystemMgr" 
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x33\xF6\x8B\x47\x58"
-				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x18\x8B\x75\x08\x56\xE8\x2A\x2A\x2A\x2A\x8B\x9E\x8C\x00\x00\x00"
-			}
-			"PrecacheStandardParticleSystems" // Str: "PrecacheStandardParticleSystems()"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x51\x56\x8B\x35\x2A\x2A\x2A\x2A\x57\x33\xFF\x0F\xB7\x46\x26"
-				"linux"		"\x55\x89\xE5\x56\x53\x31\xDB\xEB\x2A"
-			}
-			"SV_ActivateServer" // Str: "SV_ActivateServer"
-			{
-				"library"	"engine"
-				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x0C\x53\x8B\x1D\x2A\x2A\x2A\x2A"
-				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x28\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xC7\x04\x24\x2A\x2A\x2A\x2A"
-			}
-			"CNetworkStringTable::DeleteAllStrings" // Str: "Error reading string table %s\n"
-			{
-				"library"	"engine"
-				"windows"	"\x56\x8B\xF1\x57\x8B\x4E\x40"
-				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x6C\x8B\x75\x08\x8B\x5E\x40"
-			}
-			
-			/*___________________________________________________________________________________________*/
-			
 			"ServerClassInit<DT_CSPlayer::ignored>" // Str: "DT_CSPlayer"
 			{
 				"library"	"server"
@@ -257,34 +225,6 @@
 			"FX_FireBullets"
 			{
 				"signature"	"FX_FireBullets"
-			}
-			"m_pParticleSystemDictionary"
-			{
-				"signature"	"PrecacheStandardParticleSystems"
-				"linux"
-				{
-					"read"	"24"
-					"read"	"0"
-					"read"	"140"
-				}
-				"windows"
-				{
-					"read"	"7"
-					"read"	"0"
-				}
-			}
-			"s_NetworkStringTable"
-			{
-				"signature"	"SV_ActivateServer"
-				"linux"
-				{
-					"read"	"37"
-				}
-				"windows"
-				{
-					"read"	"997"
-				}
-				"read"	"0"
 			}
 			"m_ArmorValue"
 			{
@@ -363,7 +303,7 @@
 				"signature"	"SendTable_Init"
 				"linux"
 				{
-					"read"	"218"
+					"read"	"236"
 				}
 				"windows"
 				{
