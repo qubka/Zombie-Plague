@@ -333,13 +333,13 @@ native ItemDef ZP_GetWeaponDefIndex(int weaponID);
 native void ZP_GetWeaponGroup(int weaponID, char[] group, int maxlenght = 32);
 
 /**
- * @brief Gets the class of a weapon at a given id.
- *
+ * @brief Gets the types of the weapon.
+ * 
  * @param weaponID          The weapon ID.
- * @param class             The string to return class in.
- * @param maxlenght         The lenght of string.
+ *
+ * @return                  The types bits.    
  **/
-native void ZP_GetWeaponClass(int weaponID, char[] class, int maxlenght = 128);
+native int ZP_GetWeaponTypes(int weaponID);
 
 /**
  * @brief Gets the level of the weapon.

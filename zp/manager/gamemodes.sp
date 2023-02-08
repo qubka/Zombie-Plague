@@ -56,8 +56,8 @@ enum
 	GAMEMODES_DATA_SOUNDVOLUME,
 	GAMEMODES_DATA_INFECTION,
 	GAMEMODES_DATA_RESPAWN,
-	GAMEMODES_DATA_HUMANCLASS,
-	GAMEMODES_DATA_ZOMBIECLASS,
+	GAMEMODES_DATA_HUMANTYPE,
+	GAMEMODES_DATA_ZOMBIETYPE,
 	GAMEMODES_DATA_OVERLAYHUMAN,
 	GAMEMODES_DATA_OVERLAYZOMBIE,
 	GAMEMODES_DATA_OVERLAYDRAW,
@@ -244,10 +244,10 @@ void GameModesOnCacheData(/*void*/)
 		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 18
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 19
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 20
-		kvGameModes.GetString("humanclass", sBuffer, sizeof(sBuffer), "human");
-		arrayGameMode.PushString(sBuffer);                                          // Index: 21
-		kvGameModes.GetString("zombieclass", sBuffer, sizeof(sBuffer), "zombie");   
-		arrayGameMode.PushString(sBuffer);                                          // Index: 22
+		kvGameModes.GetString("humantype", sBuffer, sizeof(sBuffer), "human");
+		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 21
+		kvGameModes.GetString("zombietype", sBuffer, sizeof(sBuffer), "zombie");   
+		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 22
 		kvGameModes.GetString("overlay_human", sBuffer, sizeof(sBuffer), "");       
 		arrayGameMode.PushString(sBuffer);                                          // Index: 23
 		if (hasLength(sBuffer))                                                     
@@ -585,7 +585,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 	/*_________________________________________________________________________________________________________________________________________*/
 	
 	// Gets zombie class type
-	ModesGetZombieClass(gServerData.RoundMode, sBuffer, sizeof(sBuffer));
+	int iType = ModesGetZombieTypeID(gServerData.RoundMode);
 	
 	// i = client index
 	for (int i = 0; i < iMaxZombies; i++) /// Turn players into the zombies
@@ -594,7 +594,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 		int client = gServerData.Clients.Get(i);
 	
 		// Make zombies
-		ApplyOnClientUpdate(client, _, sBuffer);
+		ApplyOnClientUpdate(client, _, iType);
 		ToolsSetHealth(client, ToolsGetHealth(client) + (iAlive * ModesGetHealthZombie(gServerData.RoundMode))); /// Give additional health
 	
 		// Store the userid of a zombie for next round
@@ -604,10 +604,10 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 	/*_________________________________________________________________________________________________________________________________________*/
 	
 	// Gets human class type
-	ModesGetHumanClass(gServerData.RoundMode, sBuffer, sizeof(sBuffer));
+	iType = ModesGetHumanTypeID(gServerData.RoundMode);
 
 	// Make standard humans
-	if (!strcmp(sBuffer, "human", false))
+	if (iType == gServerData.Human)
 	{
 		// i = client index    
 		for (int i = iMaxZombies; i < iAlive; i++) /// Remaining players should be humans
@@ -630,7 +630,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 			int client = gServerData.Clients.Get(i);
 		
 			// Make humans
-			ApplyOnClientUpdate(client, _, sBuffer);
+			ApplyOnClientUpdate(client, _, iType);
 			ToolsSetHealth(client, ToolsGetHealth(client) + (iAlive * ModesGetHealthHuman(gServerData.RoundMode))); /// Give additional health
 		}
 	}
@@ -896,8 +896,8 @@ void GameModesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetGameModeSoundVolume",      API_GetGameModeSoundVolume);
 	CreateNative("ZP_IsGameModeInfect",            API_IsGameModeInfect);
 	CreateNative("ZP_IsGameModeRespawn",           API_IsGameModeRespawn);
-	CreateNative("ZP_GetGameModeHumanClass",       API_GetGameModeHumanClass);
-	CreateNative("ZP_GetGameModeZombieClass",      API_GetGameModeZombieClass);
+	CreateNative("ZP_GetGameModeHumanClassID",     API_GetGameModeHumanClassID);
+	CreateNative("ZP_GetGameModeZombieClassID",    API_GetGameModeZombieClassID);
 	CreateNative("ZP_GetGameModeOverlayHuman",     API_GetGameModeOverlayHuman);
 	CreateNative("ZP_GetGameModeOverlayZombie",    API_GetGameModeOverlayZombie);
 	CreateNative("ZP_GetGameModeOverlayDraw",      API_GetGameModeOverlayDraw);
@@ -1642,19 +1642,19 @@ public int API_IsGameModeRespawn(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the human class of a game mode at a given index.
+ * @brief Gets the human type of a game mode.
  *
- * @note native void ZP_GetGameModeNameClass(iD, type, maxlen);
+ * @note native int ZP_GetGameModeNameClassID(iD);
  **/
-public int API_GetGameModeHumanClass(Handle hPlugin, int iNumParams)
+public int API_GetGameModeHumanClassID(Handle hPlugin, int iNumParams)
 {
 	// Gets mode index from native cell
 	int iD = GetNativeCell(1);
-
+	
 	// Validate no game mode
 	if (iD == -1)
 	{
-		return iD;
+		return false;
 	}
 	
 	// Validate index
@@ -1664,38 +1664,24 @@ public int API_GetGameModeHumanClass(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	// Gets string size from native cell
-	int maxLen = GetNativeCell(3);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize type char
-	static char sType[SMALL_LINE_LENGTH];
-	ModesGetHumanClass(iD, sType, sizeof(sType));
-
-	// Return on success
-	return SetNativeString(2, sType, maxLen);
+	// Return value
+	return ModesGetHumanTypeID(iD);
 }
 
 /**
- * @brief Gets the human class of a game mode at a given index.
+ * @brief Gets the human type of a game mode.
  *
- * @note native void ZP_GetGameModeZombieClass(iD, type, maxlen);
+ * @note native int ZP_GetGameModeZombieClassID(iD);
  **/
-public int API_GetGameModeZombieClass(Handle hPlugin, int iNumParams)
+public int API_GetGameModeZombieClassID(Handle hPlugin, int iNumParams)
 {
 	// Gets mode index from native cell
 	int iD = GetNativeCell(1);
-
+	
 	// Validate no game mode
 	if (iD == -1)
 	{
-		return iD;
+		return false;
 	}
 	
 	// Validate index
@@ -1705,22 +1691,8 @@ public int API_GetGameModeZombieClass(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	// Gets string size from native cell
-	int maxLen = GetNativeCell(3);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize type char
-	static char sType[SMALL_LINE_LENGTH];
-	ModesGetZombieClass(iD, sType, sizeof(sType));
-
-	// Return on success
-	return SetNativeString(2, sType, maxLen);
+	// Return value
+	return ModesGetZombieTypeID(iD);
 }
 
 /**
@@ -2650,49 +2622,45 @@ bool ModesIsRespawn(int iD)
 }
 
 /**
- * @brief Gets the human class of a game mode at a given index.
+ * @brief Gets the human type of a game mode.
  *
  * @param iD                The mode index.
- * @param sType             The string to return type in.
- * @param iMaxLen           The lenght of string.
+ * @return                  The type index.
  **/
-void ModesGetHumanClass(int iD, char[] sType, int iMaxLen)
+int ModesGetHumanTypeID(int iD)
 {
 	// Validate no game mode
 	if (iD == -1)
 	{
-		strcopy(sType, iMaxLen, "");
-		return;
+		return gServerData.Human;
 	}
 	
 	// Gets array handle of game mode at given index
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	// Gets game mode human class
-	arrayGameMode.GetString(GAMEMODES_DATA_HUMANCLASS, sType, iMaxLen);
+	// Gets game mode human type
+	return arrayGameMode.Get(GAMEMODES_DATA_HUMANTYPE);
 }
 
 /**
- * @brief Gets the zombie class of a game mode at a given index.
+ * @brief Gets the zombie type of a game mode.
  *
  * @param iD                The mode index.
- * @param sType             The string to return type in.
- * @param iMaxLen           The lenght of string.
+ * @return                  The type index.
  **/
-void ModesGetZombieClass(int iD, char[] sType, int iMaxLen)
+int ModesGetZombieTypeID(int iD)
 {
 	// Validate no game mode
 	if (iD == -1)
 	{
-		strcopy(sType, iMaxLen, "");
-		return;
+		return gServerData.Zombie;
 	}
 	
 	// Gets array handle of game mode at given index
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	// Gets game mode zombie class
-	arrayGameMode.GetString(GAMEMODES_DATA_ZOMBIECLASS, sType, iMaxLen);
+	// Gets game mode zombie type
+	return arrayGameMode.Get(GAMEMODES_DATA_ZOMBIETYPE);
 }
 
 /**
@@ -3136,7 +3104,7 @@ void ModesDisconnectLast(/*void*/)
 	}
 
 	// Initialize variables 
-	static char sType[SMALL_LINE_LENGTH]; int client;
+	static char sName[SMALL_LINE_LENGTH]; int client;
 	
 	// Gets amount of total humans and zombies
 	int iHumans  = fnGetHumans();
@@ -3145,38 +3113,32 @@ void ModesDisconnectLast(/*void*/)
 	// If the last zombie disconnected, then choose another random zombie
 	if (!iZombies && iHumans > 1)
 	{
-		// Gets zombie class type
-		ModesGetZombieClass(gServerData.RoundMode, sType, sizeof(sType));
-		
 		// Gets random client index
 		client = fnGetRandomHuman();
 		
 		// Make random zombie
-		ApplyOnClientUpdate(client, _, sType);
+		ApplyOnClientUpdate(client, _, ModesGetZombieTypeID(gServerData.RoundMode));
 		
 		// Gets client name
-		GetClientName(client, sType, sizeof(sType));
+		GetClientName(client, sName, sizeof(sName));
 		
 		// Show message
-		TranslationPrintHintTextAll("generic zombie left", sType); 
+		TranslationPrintHintTextAll("generic zombie left", sName); 
 	}
 	// If the last human disconnected, then choose another random human
 	else if (iZombies > 1 && !iHumans)
 	{
-		// Gets human class type
-		ModesGetHumanClass(gServerData.RoundMode, sType, sizeof(sType));
-		
 		// Gets random client index
 		client = fnGetRandomZombie();
 		
 		// Make random human
-		ApplyOnClientUpdate(client, _, sType);
+		ApplyOnClientUpdate(client, _, ModesGetHumanTypeID(gServerData.RoundMode));
 		
 		// Gets client name
-		GetClientName(client, sType, sizeof(sType));
+		GetClientName(client, sName, sizeof(sName));
 		
 		// Show message
-		TranslationPrintHintTextAll("generic human left", sType); 
+		TranslationPrintHintTextAll("generic human left", sName); 
 	}
 	// If all last players disconnected, then terminate round
 	else if (!iZombies && !iHumans)
@@ -3292,7 +3254,7 @@ void ModesKillEntities(bool bDrop = false)
 					if (!IsPlayerExist(client))
 					{
 						// Validate spawn, if allowed sets custom properties, otherwise remove
-						if (!WeaponsValidateByMap(i, sClassname))
+						if (!WeaponsSpawnedByMap(i, sClassname))
 						{
 							AcceptEntityInput(i, "Kill"); /// Destroy
 						}

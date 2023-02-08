@@ -32,7 +32,7 @@ enum
 {
 	MENUS_DATA_NAME,
 	MENUS_DATA_GROUP,
-	MENUS_DATA_CLASS,
+	MENUS_DATA_TYPES,
 	MENUS_DATA_HIDE,
 	MENUS_DATA_COMMAND,
 	MENUS_DATA_SUBMENU
@@ -142,8 +142,8 @@ void MenusOnCacheData(/*void*/)
 		// Push data into array
 		kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
 		arrayMenu.PushString(sBuffer);                                // Index: 1
-		kvMenus.GetString("class", sBuffer, sizeof(sBuffer), "");  
-		arrayMenu.PushString(sBuffer);                                // Index: 2
+		kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");  
+		arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: 2
 		arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: 3
 		kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
 		arrayMenu.PushString(sBuffer);                                // Index: 4
@@ -173,9 +173,9 @@ void MenusOnCacheData(/*void*/)
 					arrayMenu.PushString(sBuffer);                                // Index: i + 0
 					kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
 					arrayMenu.PushString(sBuffer);                                // Index: i + 1
-					kvMenus.GetString("class", sBuffer, sizeof(sBuffer), "");  
-					arrayMenu.PushString(sBuffer);                                // Index: i + 2
-					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no"));    // Index: i + 3
+					kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");  
+					arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: i + 2
+					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: i + 3
 					kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
 					arrayMenu.PushString(sBuffer);                                // Index: i + 4
 					if (hasLength(sBuffer)) 
@@ -296,7 +296,7 @@ public Action MenusOnCommandListenedCommand(int client, char[] commandMsg, int i
 	}
 	
 	// Validate access
-	if (!MenusValidateByCommand(client, commandMsg))
+	if (!MenusHasAccessByCommand(client, commandMsg))
 	{
 		// Show block info
 		TranslationPrintHintText(client, "block using menu"); 
@@ -344,7 +344,7 @@ void MenusOnNativeInit(/*void*/)
 	CreateNative("ZP_GetNumberMenu",    API_GetNumberMenu);
 	CreateNative("ZP_GetMenuName",      API_GetMenuName);
 	CreateNative("ZP_GetMenuGroup",     API_GetMenuGroup);
-	CreateNative("ZP_GetMenuClass",     API_GetMenuClass);
+	CreateNative("ZP_GetMenuTypes",     API_GetMenuTypes);
 	CreateNative("ZP_IsMenuHide",       API_IsMenuHide);
 	CreateNative("ZP_GetMenuCommandID", API_GetMenuCommandID);
 	CreateNative("ZP_GetMenuCommand",   API_GetMenuCommand);
@@ -433,11 +433,11 @@ public int API_GetMenuGroup(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the class of a menu at a given id.
+ * @brief Gets the types of a menu.
  *
- * @note native void ZP_GetMenuClass(iD, class, maxlen, sub);
+ * @note native int ZP_GetMenuTypes(iD, sub);
  **/
-public int API_GetMenuClass(Handle hPlugin, int iNumParams)
+public int API_GetMenuTypes(Handle hPlugin, int iNumParams)
 {
 	// Gets menu index from native cell
 	int iD = GetNativeCell(1);
@@ -449,22 +449,8 @@ public int API_GetMenuClass(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	// Gets string size from native cell
-	int maxLen = GetNativeCell(3);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize class char
-	static char sClass[BIG_LINE_LENGTH];
-	MenusGetClass(iD, sClass, sizeof(sClass), GetNativeCell(4));
-
-	// Return on success
-	return SetNativeString(2, sClass, maxLen);
+	// Return the value 
+	return MenusGetTypes(iD, GetNativeCell(2));
 }
 
 /**
@@ -628,20 +614,19 @@ void MenusGetGroup(int iD, char[] sGroup, int iMaxLen, int iSubMenu = 0)
 }
 
 /**
- * @brief Gets the class of a menu at a given index.
+ * @brief Gets the types of a menu.
  *
  * @param iD                The menu index.
- * @param sClass            The string to return class in.
- * @param iMaxLen           The lenght of string.
  * @param iSubMenu          (Optional) The submenu index.
+ * @return                  The types bits.
  **/
-void MenusGetClass(int iD, char[] sClass, int iMaxLen, int iSubMenu = 0)
+int MenusGetTypes(int iD, int iSubMenu = 0)
 {
 	// Gets array handle of menu at given index
 	ArrayList arrayMenu = gServerData.Menus.Get(iD);
-
-	// Gets menu class
-	arrayMenu.GetString(MENUS_DATA_CLASS + iSubMenu, sClass, iMaxLen);
+	
+	// Gets class bits
+	return arrayMenu.Get(MENUS_DATA_TYPES + iSubMenu);
 }
 
 /**
@@ -680,7 +665,7 @@ void MenusGetCommand(int iD, char[] sCommand, int iMaxLen, int iSubMenu = 0)
 /*
  * Stocks menus API.
  */
- 
+
 /**
  * @brief Find the indexes at which the menu command is at.
  * 
@@ -724,7 +709,7 @@ int[] MenusCommandToArray(char[] sCommand)
 	// Command doesn't exist
 	return iD;
 }
-
+ 
 /**
  * @brief Returns true if the player has an access by the command to the menu id, false if not.
  *
@@ -732,7 +717,7 @@ int[] MenusCommandToArray(char[] sCommand)
  * @param sCommand          The menu command.
  * @return                  True or false.    
  **/
-bool MenusValidateByCommand(int client, char[] sCommand)
+bool MenusHasAccessByCommand(int client, char[] sCommand)
 {
 	// Validate menu index
 	int iD[2]; iD = MenusCommandToArray(sCommand);
@@ -743,7 +728,7 @@ bool MenusValidateByCommand(int client, char[] sCommand)
 		MenusGetGroup(iD[0], sGroup, sizeof(sGroup), iD[1]);
 
 		// Validate access
-		if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup) || !MenusValidateClass(client, iD[0], iD[1]))
+		if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup) || !MenusHasAccessByType(client, iD[0], iD[1]))
 		{
 			return false;
 		}
@@ -761,25 +746,13 @@ bool MenusValidateByCommand(int client, char[] sCommand)
  * @param iSubMenu          (Optional) The submenu index.
  * @return                  True or false.    
  **/
-bool MenusValidateClass(int client, int iD, int iSubMenu = 0)
+bool MenusHasAccessByType(int client, int iD, int iSubMenu = 0)
 {
 	// Gets menu class
-	static char sClass[BIG_LINE_LENGTH];
-	MenusGetClass(iD, sClass, sizeof(sClass), iSubMenu);
-	
-	// Validate length
-	if (hasLength(sClass))
-	{
-		// Gets class type 
-		static char sType[SMALL_LINE_LENGTH];
-		ClassGetType(gClientData[client].Class, sType, sizeof(sType));
+	int iTypes = MenusGetTypes(iD, iSubMenu);
 
-		// If class find, then return
-		return (hasLength(sType) && StrContain(sType, sClass, ','));
-	}
-	
-	// Return on success
-	return true;
+	// If class find, then return
+	return !iTypes || view_as<bool>((1 << ClassGetTypeID(gClientData[client].Class)) & iTypes);
 }
 
 /**

@@ -102,14 +102,15 @@ void MarketOnCvarLoad(/*void*/)
  * @brief Client has been changed class state.
  * 
  * @param client            The client index.
+ * @param bOpen             True to open favorites menu, false to skip. 
  **/
-void MarketOnClientUpdate(int client)
+void MarketOnClientUpdate(int client, bool bOpen = true)
 {
 	// Resets shopping cart for client
 	MarketResetShoppingCart(client); 
 	
 	// Validate cart size
-	if (gClientData[client].DefaultCart.Length)
+	if (bOpen && gClientData[client].DefaultCart.Length)
 	{
 		// Opens favorites menu
 		MarketBuyMenu(client, MenuType_FavBuy);
@@ -146,7 +147,7 @@ void MarketOnFakeClientThink(int client)
 	}
 		
 	// Validate access
-	if (!ItemsValidateClass(client, iD)) 
+	if (!ItemsHasAccessByType(client, iD)) 
 	{
 		return;
 	}
@@ -291,28 +292,6 @@ public Action CS_OnBuyCommand(int client, const char[] sName)
 	// Allow buy for humans if default buymenu is enable
 	return gCvarList.MARKET_BUYMENU.BoolValue && !gClientData[client].Zombie ? Plugin_Continue : Plugin_Handled;
 }
-
-
-/**
- * @brief Called when a player attempts to purchase an item.
- * 
- * @param client            The client index.
- * @param sName             The weapon name.
- **/
-public Action CS_OnBuyCommand(int client, const char[] sName)
-{
-	// Find the custom weapon id in the map by an ent name (first one)
-	int iD = -1; gServerData.Entities.GetValue(sName, iD);
-	if (iD == -1)
-	{
-		// If wan't found, then remove
-		return Plugin_Handled;
-	}
-	
-	// Sets weapon id
-	ToolsSetCustomID(weapon, iD);
-}
-
 
 /*
  * Stocks market API.

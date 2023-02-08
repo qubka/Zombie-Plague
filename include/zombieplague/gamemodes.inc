@@ -291,22 +291,22 @@ native bool ZP_IsGameModeInfect(int modeID);
 native bool ZP_IsGameModeRespawn(int modeID);
 
 /**
- * @brief Checks the human class of the game mode.
- * 
+ * @brief Gets the human type of the game mode.
+ *
  * @param modeID            The mode index.
- * @param type              The string to return type in.
- * @param maxlenght         The lenght of string.
+ *
+ * @return                  The type index. 
  **/
-native void ZP_GetGameModeHumanClass(int modeID, char[] type, int maxlenght = 32);
+native int ZP_GetGameModeHumanTypeID(int modeID);
 
 /**
- * @brief Checks the zombie class of the game mode.
- * 
+ * @brief Gets the zombie type of the game mode.
+ *
  * @param modeID            The mode index.
- * @param type              The string to return type in.
- * @param maxlenght         The lenght of string.
+ *
+ * @return                  The type index. 
  **/
-native void ZP_GetGameModeZombieClass(int modeID, char[] type, int maxlenght = 32);
+native int ZP_GetGameModeZombieTypeID(int modeID);
 
 /**
  * @brief Checks the human win overlay of the game mode.

@@ -45,31 +45,22 @@ void ApplyOnClientSpawn(int client)
 		// Resets limit of items
 		ItemsRemoveLimits(client);
 	}
-	
-	// Initialize type char
-	static char sType[SMALL_LINE_LENGTH];
-	
+
 	// Validate respawn
 	switch (gClientData[client].Respawn)
 	{
 		// Respawn as zombie?
 		case TEAM_ZOMBIE : 
 		{
-			// Gets zombie class type
-			ModesGetZombieClass(gServerData.RoundMode, sType, sizeof(sType));
-	
 			// Make zombies
-			ApplyOnClientUpdate(client, _, hasLength(sType) ? sType : "zombie");
+			ApplyOnClientUpdate(client, _, ModesGetZombieTypeID(gServerData.RoundMode));
 		}
 		
 		// Respawn as human ?
 		case TEAM_HUMAN  : 
 		{
-			// Gets human class type
-			ModesGetHumanClass(gServerData.RoundMode, sType, sizeof(sType));
-		
 			// Make humans
-			ApplyOnClientUpdate(client, _, hasLength(sType) ? sType : "human");
+			ApplyOnClientUpdate(client, _, ModesGetHumanTypeID(gServerData.RoundMode));
 		}
 	}    
 }
@@ -79,10 +70,10 @@ void ApplyOnClientSpawn(int client)
  *
  * @param client            The victim index.
  * @param attacker          (Optional) The attacker index.
- * @param sType             (Optional) The class type.
+ * @param iType             (Optional) The class type.
  * @return                  True or false.
  **/
-bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
+bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 {
 	// Validate client 
 	if (!IsPlayerExist(client))
@@ -90,10 +81,13 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		return false;
 	}
 	
+	// If no class, choose zombie as default
+	if (iType == -2) iType = gServerData.Zombie;
+	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
 	// Validate human
-	if (!strcmp(sType, "human", false))
+	if (iType == gServerData.Human)
 	{
 		// Update class class
 		gClientData[client].Class = gClientData[client].HumanClassNext; HumanValidateClass(client);
@@ -107,12 +101,12 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 			if (gCvarList.HUMAN_MENU.BoolValue)
 			{
 				// Opens the human classes menu
-				ClassMenu(client, "choose humanclass", "human", gClientData[client].HumanClassNext, true);
+				ClassMenu(client, "choose humanclass", gServerData.Human, gClientData[client].HumanClassNext, true);
 			}
 		}
 	}
 	// Validate zombie
-	else if (!strcmp(sType, "zombie", false))
+	else if (iType == gServerData.Zombie)
 	{
 		// Update class class
 		gClientData[client].Class = gClientData[client].ZombieClassNext; ZombieValidateClass(client);
@@ -123,16 +117,21 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 		if (gCvarList.ZOMBIE_MENU.BoolValue)
 		{
 			// Opens the zombie classes menu
-			ClassMenu(client, "choose zombieclass", "zombie", gClientData[client].ZombieClassNext, true);
+			ClassMenu(client, "choose zombieclass", gServerData.Zombie, gClientData[client].ZombieClassNext, true);
 		}
 	}
 	// Validate custom
 	else
 	{
 		// Validate class index
-		int iD = ClassTypeToIndex(sType);
+		int iD = ClassTypeToRandomClassIndex(iType);
 		if (iD == -1)
 		{
+			// Gets type name
+			static char sType[SMALL_LINE_LENGTH];
+			gServerData.Types.GetString(iD, sType, sizeof(sType));
+			
+			// Log error
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\"", sType);
 			return false;
 		}
@@ -265,12 +264,11 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	SkillSystemOnClientUpdate(client);
 	LevelSystemOnClientUpdate(client);
 	VEffectsOnClientUpdate(client);
-	MarketOnClientUpdate(client);
-	ArsenalOnClientUpdate(client);
 	VOverlayOnClientUpdate(client, Overlay_Reset);
 	if (gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision);
 	_call.AccountOnClientUpdate(client);
 	_call.WeaponsOnClientUpdate(client);
+	_call.ApplyOnClientUpdatePost(client);
 
 	// If mode already started, then change team
 	if (!gServerData.RoundNew)
@@ -323,6 +321,25 @@ void ApplyOnClientTeam(int client, int iTeam)
 	// Sets glowing for the zombie vision
 	ToolsSetDetecting(client, ModesIsXRay(gServerData.RoundMode));
 }   
+
+/**
+ * @brief Client has been changed class state. *(Post)
+ *
+ * @param userID            The user id.
+ **/
+public void ApplyOnClientUpdatePost(int userID)
+{
+	// Gets client index from the user ID
+	int client = GetClientOfUserId(userID);
+	
+	// Validate client
+	if (client)
+	{
+		// Forward event to modules
+		bool bOpen = ArsenalOnClientUpdate(client);
+		MarketOnClientUpdate(client, !bOpen); /// prevent opening two menus at once
+	}
+}
 
 /**
  * @brief Timer callback, bot think.

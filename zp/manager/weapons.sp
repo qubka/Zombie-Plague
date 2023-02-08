@@ -39,7 +39,7 @@ enum
 	WEAPONS_DATA_INFO,
 	WEAPONS_DATA_DEFINDEX,
 	WEAPONS_DATA_GROUP,
-	WEAPONS_DATA_CLASS,
+	WEAPONS_DATA_TYPES,
 	WEAPONS_DATA_LEVEL,
 	WEAPONS_DATA_ONLINE,
 	WEAPONS_DATA_DAMAGE,
@@ -225,8 +225,8 @@ void WeaponsOnCacheData(/*void*/)
 		arrayWeapon.Push(iItem);                                          // Index: 2
 		kvWeapons.GetString("group", sBuffer, sizeof(sBuffer), "");       
 		arrayWeapon.PushString(sBuffer);                                  // Index: 3
-		kvWeapons.GetString("class", sBuffer, sizeof(sBuffer), "human");  
-		arrayWeapon.PushString(sBuffer);                                  // Index: 4
+		kvWeapons.GetString("types", sBuffer, sizeof(sBuffer), "human");  
+		arrayWeapon.Push(ClassTypeToIndex(sBuffer));                      // Index: 4
 		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 5
 		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 6
 		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 7
@@ -636,7 +636,7 @@ void WeaponsOnNativeInit(/*void*/)
 	CreateNative("ZP_GetWeaponInfo",         API_GetWeaponInfo);
 	CreateNative("ZP_GetWeaponDefIndex",     API_GetWeaponDefIndex);
 	CreateNative("ZP_GetWeaponGroup",        API_GetWeaponGroup);
-	CreateNative("ZP_GetWeaponClass",        API_GetWeaponClass);
+	CreateNative("ZP_GetWeaponTypes",        API_GetWeaponTypes);
 	CreateNative("ZP_GetWeaponLevel",        API_GetWeaponLevel);
 	CreateNative("ZP_GetWeaponOnline",       API_GetWeaponOnline);
 	CreateNative("ZP_GetWeaponDamage",       API_GetWeaponDamage);
@@ -949,12 +949,12 @@ public int API_GetWeaponGroup(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the class of a weapon at a given id.
+ * @brief Gets the types of the weapon.
  *
- * @note native void ZP_GetWeaponClass(iD, class, maxlen);
+ * @note native int ZP_GetWeaponTypes(iD);
  **/
-public int API_GetWeaponClass(Handle hPlugin, int iNumParams)
-{ 
+public int API_GetWeaponTypes(Handle hPlugin, int iNumParams)
+{
 	// Gets weapon index from native cell
 	int iD = GetNativeCell(1);
 	
@@ -965,22 +965,8 @@ public int API_GetWeaponClass(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	// Gets string size from native cell
-	int maxLen = GetNativeCell(3);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize class char
-	static char sClass[BIG_LINE_LENGTH];
-	WeaponsGetClass(iD, sClass, sizeof(sClass));
-
-	// Return on success
-	return SetNativeString(2, sClass, maxLen);
+	// Return the value 
+	return WeaponsGetTypes(iD);
 }
 
 /**
@@ -1703,19 +1689,18 @@ void WeaponsGetGroup(int iD, char[] sGroup, int iMaxLen)
 }
 
 /**
- * @brief Gets the access class of a weapon at a given id.
+ * @brief Gets the types of a weapon.
  *
- * @param iD                The weapon index.
- * @param sClass            The string to return class in.
- * @param iMaxLen           The lenght of string.
+ * @param iD                The weapon id.
+ * @return                  The types bits.
  **/
-void WeaponsGetClass(int iD, char[] sClass, int iMaxLen)
+int WeaponsGetTypes(int iD)
 {
 	// Gets array handle of weapon at given index
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
 	
-	// Gets weapon class
-	arrayWeapon.GetString(WEAPONS_DATA_CLASS, sClass, iMaxLen);
+	// Gets weapon types
+	return arrayWeapon.Get(WEAPONS_DATA_TYPES);
 }
 
 /**
@@ -2459,7 +2444,7 @@ bool WeaponsRemoveAll(int client, bool bDrop = false)
 			if (iD != -1)
 			{
 				// Validate access
-				if (!WeaponsValidateClass(client, iD)) 
+				if (!WeaponsHasAccessByType(client, iD)) 
 				{
 					// Can weapon be dropped ?
 					if (bDrop && WeaponsIsDrop(iD))
@@ -2641,7 +2626,7 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 	if (iD != -1)   
 	{
 		// Validate access
-		if (!WeaponsValidateClass(client, iD)) 
+		if (!WeaponsHasAccessByType(client, iD)) 
 		{
 			return -1;
 		}
@@ -2856,10 +2841,10 @@ int WeaponsSpawn(int iItem, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3
  * @brief Returns index if the player has a weapon.
  *
  * @param client            The client index.
- * @param sType             The weapon entity.
+ * @param sName             The weapon entity.
  * @return                  The weapon index.
  **/
-int WeaponsFindByName(int client, char[] sType)
+int WeaponsFindByName(int client, char[] sName)
 {
 	// Initialize classname char
 	static char sClassname[SMALL_LINE_LENGTH];
@@ -2878,7 +2863,7 @@ int WeaponsFindByName(int client, char[] sType)
 			GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 
 			// If weapon find, then return
-			if (!strcmp(sClassname[7], sType[7], false))
+			if (!strcmp(sClassname[7], sName[7], false))
 			{
 				return weapon;
 			}
@@ -2886,6 +2871,37 @@ int WeaponsFindByName(int client, char[] sType)
 	}
 
 	// Weapon doesn't exist
+	return -1;
+}
+
+/**
+ * @brief Returns index if the player has a weapon.
+ *
+ * @param client            The client index.
+ * @param iD                The weapon id.
+ * @return                  The weapon index.
+ **/
+int WeaponsFindByID(int client, int iD)
+{
+	// i = weapon number
+	int iSize = ToolsGetMyWeapons(client);
+	for (int i = 0; i < iSize; i++)
+	{
+		// Gets weapon index
+		int weapon = ToolsGetWeapon(client, i);
+		
+		// Validate weapon
+		if (weapon != -1)
+		{
+			// If weapon find, then return
+			if (ToolsGetCustomID(weapon) == iD)
+			{
+				return weapon;
+			}
+		}
+	}
+
+	// Index doesn't exist
 	return -1;
 }
 
@@ -2945,86 +2961,19 @@ int WeaponsGetItemDefIndex(char[] sClassname)
 }
 
 /**
- * @brief Returns true if the player has a weapon, false if not.
- *
- * @param client            The client index.
- * @param iD                The weapon id.
- * @return                  True or false.
- **/
-bool WeaponsValidateByID(int client, int iD)
-{
-	// i = weapon number
-	int iSize = ToolsGetMyWeapons(client);
-	for (int i = 0; i < iSize; i++)
-	{
-		// Gets weapon index
-		int weapon = ToolsGetWeapon(client, i);
-		
-		// Validate weapon
-		if (weapon != -1)
-		{
-			// If weapon find, then return
-			if (ToolsGetCustomID(weapon) == iD)
-			{
-				return true;
-			}
-		}
-	}
-
-	// Index doesn't exist
-	return false;
-}
-
-/**
- * @brief Returns true if the class of the weapon id, false if not.
- *
- * @param iD                The weapon id.
- * @param sType             The class type.
- * @return                  True or false.    
- **/
-bool WeaponsValidateByClass(int iD, char[] sType)
-{
-	// Gets weapon class
-	static char sClass[BIG_LINE_LENGTH];
-	WeaponsGetClass(iD, sClass, sizeof(sClass));
-	
-	// Validate length
-	if (hasLength(sClass))
-	{
-		// If class find, then return
-		return (hasLength(sType) && StrContain(sType, sClass, ','));
-	}
-	
-	// Return on success
-	return true;
-}
-
-/**
  * @brief Returns true if the player has an access by the class to the weapon id, false if not.
  *
  * @param client            The client index.
  * @param iD                The weapon id.
  * @return                  True or false.    
  **/
-bool WeaponsValidateClass(int client, int iD)
+bool WeaponsHasAccessByType(int client, int iD)
 {
 	// Gets weapon class
-	static char sClass[BIG_LINE_LENGTH];
-	WeaponsGetClass(iD, sClass, sizeof(sClass));
-	
-	// Validate length
-	if (hasLength(sClass))
-	{
-		// Gets class type 
-		static char sType[SMALL_LINE_LENGTH];
-		ClassGetType(gClientData[client].Class, sType, sizeof(sType));
-		
-		// If class find, then return
-		return (hasLength(sType) && StrContain(sType, sClass, ','));
-	}
-	
-	// Return on success
-	return true;
+	int iTypes = WeaponsGetTypes(iD);
+
+	// If class find, then return
+	return !iTypes || view_as<bool>((1 << ClassGetTypeID(gClientData[client].Class)) & iTypes);
 }
 
 /**
@@ -3034,14 +2983,14 @@ bool WeaponsValidateClass(int client, int iD)
  * @param weapon            The weapon index.
  * @return                  True or false.    
  **/
-bool WeaponsValidateAccess(int client, int weapon)
+bool WeaponsCanUse(int client, int weapon)
 {
 	// Validate custom index
 	int iD = ToolsGetCustomID(weapon);
 	if (iD != -1)
 	{
 		// Block pickup it, if not available
-		if (!WeaponsValidateClass(client, iD)) 
+		if (!WeaponsHasAccessByType(client, iD)) 
 		{
 			return false;
 		}
@@ -3084,7 +3033,7 @@ bool WeaponsValidateAccess(int client, int weapon)
  * @param sClassname        The weapon entity.
  * @return                  True or false.
  **/
-bool WeaponsValidateByMap(int weapon, char[] sClassname)
+bool WeaponsSpawnedByMap(int weapon, char[] sClassname)
 {
 	// If array hasn't been created, then stop
 	if (gServerData.Entities == null)

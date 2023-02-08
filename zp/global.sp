@@ -88,13 +88,11 @@ enum struct ServerData
 	Handle GameSync;
 	
 	/* Configs */
-	ArrayList Sections;
 	ArrayList ExtraItems;
 	ArrayList HitGroups;
 	ArrayList GameModes;
 	ArrayList Cvars;
 	ArrayList Classes;
-	ArrayList Types;
 	ArrayList Costumes;
 	ArrayList Menus;
 	ArrayList Logs;
@@ -102,13 +100,17 @@ enum struct ServerData
 	ArrayList Downloads;
 	ArrayList Sounds;
 	ArrayList Levels;
+
+	/* Other */
 	StringMap Configs;
 	StringMap Modules;
-	
-	/* Other */
-	int Melee;
+	ArrayList Sections;
+	ArrayList Types;
 	ArrayList Arsenal;
-
+	int Melee;
+	int Human;
+	int Zombie;
+	
 	/**
 	 * @brief Clear all timers.
 	 **/

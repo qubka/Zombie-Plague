@@ -705,7 +705,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
 			if (hResult.FetchRow())
 			{
 				// Initialize some variables 
-				static char sColumn[SMALL_LINE_LENGTH]; ColumnType nColumn; int iIndex;
+				static char sColumn[SMALL_LINE_LENGTH]; ColumnType nColumn; int iD;
  
 				// i = field index
 				int iCount = hResult.FieldCount;
@@ -726,13 +726,13 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
 							case ColumnType_Exp :    gClientData[client].Exp    = hResult.FetchInt(i); 
 							case ColumnType_Zombie :
 							{
-								hResult.FetchString(i, sColumn, sizeof(sColumn)); iIndex = ClassNameToIndex(sColumn);
-								gClientData[client].ZombieClassNext = (iIndex != -1) ? iIndex : 0;
+								hResult.FetchString(i, sColumn, sizeof(sColumn)); iD = ClassNameToIndex(sColumn);
+								gClientData[client].ZombieClassNext = (iD != -1) ? iD : 0;
 							}
 							case ColumnType_Human :
 							{
-								hResult.FetchString(i, sColumn, sizeof(sColumn)); iIndex = ClassNameToIndex(sColumn);
-								gClientData[client].HumanClassNext  = (iIndex != -1) ? iIndex : 0;
+								hResult.FetchString(i, sColumn, sizeof(sColumn)); iD = ClassNameToIndex(sColumn);
+								gClientData[client].HumanClassNext  = (iD != -1) ? iD : 0;
 							}
 							case ColumnType_Costume :
 							{
@@ -802,8 +802,8 @@ public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, cha
 				hResult.FetchString(0, sItem, sizeof(sItem));
 				
 				// Validate index
-				int iIndex = ItemsNameToIndex(sItem);
-				if (iIndex != -1)
+				int iD = ItemsNameToIndex(sItem);
+				if (iD != -1)
 				{   
 					// If array hasn't been created, then create
 					if (gClientData[client].DefaultCart == null)
@@ -813,7 +813,7 @@ public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, cha
 					}
 			
 					// Push data into array
-					gClientData[client].DefaultCart.Push(iIndex);
+					gClientData[client].DefaultCart.Push(iD);
 				}
 			}
 		}

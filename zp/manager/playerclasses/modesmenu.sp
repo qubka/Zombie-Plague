@@ -31,7 +31,7 @@
 void ModesMenuOnCommandInit(/*void*/)
 {
 	// Create commands
-	RegAdminCmd("zp_mode_menu", ConfigReloadOnCommandCatched, ADMFLAG_CONFIG, "Opens the modes menu.");
+	RegAdminCmd("zp_mode_menu", ModesMenuOnCommandCatched, ADMFLAG_CONFIG, "Opens the modes menu.");
 }
 
 /**

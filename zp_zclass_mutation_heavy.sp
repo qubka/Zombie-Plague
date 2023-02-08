@@ -282,7 +282,7 @@ public Action TrapTouchHook(int entity, int target)
 			hHumanTrapped[target] = CreateTimer(flDuration, ClientRemoveTrapEffect, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);
 
 			// Play sound
-			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
+			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
 			// Show message
 			SetGlobalTransTarget(target);

@@ -97,22 +97,13 @@ native int ZP_GetNumberExtraItem();
 native int ZP_GetExtraItemNameID(char[] name);
 
 /**
- * @brief Gets the section id of a extra item at a given name.
+ * @brief Gets the section id of a extra item.
  * 
  * @param itemID            The item index.
  *
- * @return                  The section ID, or -1 on failure.
+ * @return                  The section ID.
  **/
 native int ZP_GetExtraItemSectionID(int itemID);
-
-/**
- * @brief Gets the section of a extra item at a given index.
- *
- * @param itemID            The item index.
- * @param section           The string to return section in.
- * @param maxlenght         The lenght of string.
- **/
-native void ZP_GetExtraItemSection(int itemID, char[] section, int maxlenght = 32);
 
 /**
  * @brief Gets the name of a extra item at a given index.
@@ -133,11 +124,11 @@ native void ZP_GetExtraItemName(int itemID, char[] name, int maxlenght = 32);
 native void ZP_GetExtraItemInfo(int itemID, char[] info, int maxlenght = 128);
 
 /**
- * @brief Gets the weapon of a extra item at a given name.
+ * @brief Gets the weapon of a extra item.
  * 
  * @param itemID            The item index.
  *
- * @return                  The weapon ID, or -1 on failure.
+ * @return                  The weapon ID.
  **/
 native int ZP_GetExtraItemWeaponID(int itemID);
 
@@ -182,7 +173,7 @@ native int ZP_GetExtraItemLimit(int itemID);
  * 
  * @param itemID            The item index.
  *
- * @return                  The flags values.
+ * @return                  The flags bits.
  **/
 native int ZP_GetExtraItemFlags(int itemID);
 
@@ -196,10 +187,10 @@ native int ZP_GetExtraItemFlags(int itemID);
 native void ZP_GetExtraItemGroup(int itemID, char[] group, int maxlenght = 32);
 
 /**
- * @brief Gets the class of a extra item at a given index.
- *
+ * @brief Gets the types of a extra item.
+ * 
  * @param itemID            The item index.
- * @param class             The string to return class in.
- * @param maxlenght         The lenght of string.
+ *
+ * @return                  The types bits.
  **/
-native void ZP_GetExtraItemClass(int itemID, char[] class, int maxlenght = 128);
+native int ZP_GetExtraItemTypes(int itemID);

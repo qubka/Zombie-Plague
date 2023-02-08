@@ -32,7 +32,7 @@ void MarketMenuOnCommandInit(/*void*/)
 {
 	// Create commands
 	RegConsoleCmd("zfavor", MarketMenuFavorOnCommandCatched, "Opens the favorites menu.");
-	RegConsoleCmd("zmarket ", MarketMenuBuyOnCommandCatched, "Opens the market menu.");
+	RegConsoleCmd("zmarket", MarketMenuBuyOnCommandCatched, "Opens the market menu.");
 }
 
 /**
@@ -53,7 +53,7 @@ public Action MarketMenuFavorOnCommandCatched(int client, int iArguments)
 }
 
 /**
- * Console command callback (market)
+ * Console command callback (zmarket)
  * @brief Opens the pistols menu.
  * 
  * @param client            The client index.
@@ -163,7 +163,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 			if (mSlot == MenuCancel_ExitBack)
 			{
 				// Opens menu back
-				int iD[2]; iD = MenusCommandToArray("market ");
+				int iD[2]; iD = MenusCommandToArray("zmarket");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
 		}
@@ -214,9 +214,9 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
  * @param client            The client index.
  * @param sTitle            (Optional) The menu title.
  * @param mSection          (Optional) The section index.
- * @param sType             (Optional) The class type.
+ * @param iType             (Optional) The class type.
  **/
-void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "market favorites menu", char[] sType = "") 
+void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "market favorites menu", int iType = -1) 
 {
 	// Initialize variables
 	bool bMenu = (mSection != MenuType_FavBuy); bool bEdit = (mSection == MenuType_FavAdd || mSection == MenuType_FavEdit);
@@ -235,13 +235,20 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 	static char sLimit[SMALL_LINE_LENGTH];
 	static char sOnline[SMALL_LINE_LENGTH];
 	static char sGroup[SMALL_LINE_LENGTH];
-	static char sClass[MAXPLAYERS+1][SMALL_LINE_LENGTH];
+	static int iTypes[MAXPLAYERS+1];
 	
 	// Gets amount of total players
 	int iPlaying = fnGetPlaying();
 	
 	// Update class type mode
-	if (hasLength(sType)) strcopy(sClass[client], sizeof(sClass[]), sType);
+	if (iType != -1) 
+	{
+		iTypes[client] = iType;
+	}
+	else
+	{
+		iType = iTypes[client];
+	}
 	
 	// Creates menu handle
 	Action hResult; Menu hMenu = MarketSectionToHandle(mSection);
@@ -271,11 +278,15 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 		}
 	}
 	
-	// Format title for showing in menu
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", bEdit && hasLength(sClass[client]) ? sClass[client] : sTitle);
+	// Edit mode ?
+	if (bEdit && iType != -1)
+	{
+		// Updates the title for the edit mode
+		gServerData.Types.GetString(iType, sTitle, SMALL_LINE_LENGTH);
+	}
 
 	// Sets title
-	hMenu.SetTitle(sBuffer);
+	hMenu.SetTitle("%t", sTitle);
 
 	// i = array number
 	int iSize = MarketSectionToCount(client, mSection); int iAmount;
@@ -287,8 +298,11 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 		// Validate add/option menu
 		if (bEdit)
 		{
+			// Gets item class
+			int iTypes = ItemsGetTypes(iD);
+			
 			// Skip some items, if class isn't equal
-			if (!ItemsValidateByClass(iD, sClass[client]))
+			if (iTypes && view_as<bool>((1 << iType) & ~iTypes))
 			{
 				continue;
 			}
@@ -322,7 +336,7 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 			}
 			
 			// Skip some items, if class isn't equal
-			if (!ItemsValidateClass(client, iD))
+			if (!ItemsHasAccessByType(client, iD))
 			{
 				continue;
 			}    
@@ -330,7 +344,7 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 			// Gets item data
 			ItemsGetName(iD, sName, sizeof(sName));
 			ItemsGetGroup(iD, sGroup, sizeof(sGroup));
-			int weaponID = ItemsGetWeaponID(iD);
+			int iWeapon = ItemsGetWeaponID(iD);
 			
 			// Format some chars for showing in menu
 			FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(iD));
@@ -340,7 +354,7 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 
 			// Show option
 			IntToString(iD, sInfo, sizeof(sInfo));
-			hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || (weaponID != -1 && WeaponsValidateByID(client, weaponID)) || gClientData[client].Level < ItemsGetLevel(iD) || iPlaying < ItemsGetOnline(iD) || (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) || (ItemsGetCost(iD) && gClientData[client].Money < ItemsGetCost(iD))) ? false : true));
+			hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || (iWeapon != -1 && WeaponsFindByID(client, iWeapon) != -1) || gClientData[client].Level < ItemsGetLevel(iD) || iPlaying < ItemsGetOnline(iD) || (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) || (ItemsGetCost(iD) && gClientData[client].Money < ItemsGetCost(iD))) ? false : true));
 		}
 		
 		// Increment amount
@@ -575,18 +589,7 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 			int iD = StringToInt(sBuffer);
-
-			// If item/weapon is not available during gamemode, then stop
-			if (gServerData.RoundStart && !(ItemsGetWeaponID(iD) != -1 ? ModesIsWeapon(gServerData.RoundMode) : ModesIsExtraItem(gServerData.RoundMode)) || (gServerData.RoundEnd && gClientData[client].Zombie))
-			{
-				// Show block info
-				TranslationPrintHintText(client, "block buying round");
 		
-				// Emit error sound
-				EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
-				return 0;
-			}
-
 			// Validate button info
 			switch (iD)
 			{
@@ -605,10 +608,16 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 						
 						// Gets item data
 						ItemsGetGroup(iD, sBuffer, sizeof(sBuffer));
-						int weaponID = ItemsGetWeaponID(iD);
+						int iWeapon = ItemsGetWeaponID(iD);
+						
+						// If item/weapon is not available during gamemode, then skip
+						if (gServerData.RoundStart && !(iWeapon != -1 ? ModesIsWeapon(gServerData.RoundMode) : ModesIsExtraItem(gServerData.RoundMode)) || (gServerData.RoundEnd && gClientData[client].Zombie))
+						{
+							continue
+						}
 						
 						// Access validation should be made here, because user is trying to buy all weapons without accessing a menu cases
-						if ((hasLength(sBuffer) && !IsPlayerInGroup(client, sBuffer)) || (weaponID != -1 && WeaponsValidateByID(client, weaponID)) || !ItemsValidateClass(client, iD) || gClientData[client].Level < ItemsGetLevel(iD) || iPlaying < ItemsGetOnline(iD) || (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) || (ItemsGetCost(iD) && gClientData[client].Money < ItemsGetCost(iD)))
+						if ((hasLength(sBuffer) && !IsPlayerInGroup(client, sBuffer)) || (iWeapon != -1 && WeaponsFindByID(client, iWeapon) != -1) || !ItemsHasAccessByType(client, iD) || gClientData[client].Level < ItemsGetLevel(iD) || iPlaying < ItemsGetOnline(iD) || (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) || (ItemsGetCost(iD) && gClientData[client].Money < ItemsGetCost(iD)))
 						{
 							continue;
 						}
@@ -620,7 +629,7 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 						if (hResult == Plugin_Continue || hResult == Plugin_Changed)
 						{
 							// Give weapon for the player
-							WeaponsGive(client, weaponID);
+							WeaponsGive(client, iWeapon);
 
 							// If item has a cost
 							if (ItemsGetCost(iD))
@@ -655,6 +664,20 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 				// Client hit 'Item' button
 				default :
 				{
+					// Gets item data
+					int iWeapon = ItemsGetWeaponID(iD);		
+
+					// If item/weapon is not available during gamemode, then stop
+					if (gServerData.RoundStart && !(iWeapon != -1 ? ModesIsWeapon(gServerData.RoundMode) : ModesIsExtraItem(gServerData.RoundMode)) || (gServerData.RoundEnd && gClientData[client].Zombie))
+					{
+						// Show block info
+						TranslationPrintHintText(client, "block buying round");
+				
+						// Emit error sound
+						EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+						return 0;
+					}
+					
 					// Call forward
 					Action hResult; 
 					gForwardData._OnClientValidateExtraItem(client, iD, hResult);
@@ -662,14 +685,11 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 					// Validate handle
 					if (hResult == Plugin_Continue || hResult == Plugin_Changed)
 					{
-						// Gets item data
-						int weaponID = ItemsGetWeaponID(iD);		
-					
 						// Validate access
-						if ((weaponID == -1 || !WeaponsValidateByID(client, weaponID)) && ItemsValidateClass(client, iD))
+						if ((iWeapon == -1 || !WeaponsFindByID(client, iWeapon) != -1) && ItemsHasAccessByType(client, iD))
 						{
 							// Give weapon for the player
-							WeaponsGive(client, weaponID);
+							WeaponsGive(client, iWeapon);
 
 							// If item has a cost
 							if (ItemsGetCost(iD))
@@ -798,21 +818,21 @@ void MarketEditMenu(int client)
 		FormatEx(sBuffer, sizeof(sBuffer), "%t", "market buy");
 		
 		// Show buy option
-		hMenu.AddItem("", sBuffer);
+		hMenu.AddItem("-1", sBuffer);
 	}
 	
 	// i = array index
 	int iSize = gServerData.Types.Length;
 	for (int i = 0; i < iSize; i++)
 	{
-		// Gets type data
+		// Gets type name
 		gServerData.Types.GetString(i, sType, sizeof(sType));
 		
 		// Format some chars for showing in menu
 		FormatEx(sBuffer, sizeof(sBuffer), "%t", sType);
 		
 		// Show option
-		FormatEx(sInfo, sizeof(sInfo), "%s", sType);
+		IntToString(i, sInfo, sizeof(sInfo));
 		hMenu.AddItem(sInfo, sBuffer);
 	}
 	
@@ -873,24 +893,30 @@ public int MarketEditMenuSlots(Menu hMenu, MenuAction mAction, int client, int m
 			// Gets menu info
 			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
+			int iD = StringToInt(sBuffer);
 
-			// Client hit 'Type' button
-			if (hasLength(sBuffer))
+			// Validate button info
+			switch (iD)
 			{
-				// Opens market menu back
-				MarketBuyMenu(client, MenuType_FavEdit, _, sBuffer);
-			}
-			// Client hit 'Buy' button
-			else
-			{
-				// Resets shopping cart for client
-				MarketResetShoppingCart(client); 
-				
-				// Validate cart size
-				if (gClientData[client].DefaultCart.Length)
+				// Client hit 'Buy' button
+				case -1 :
 				{
-					// Opens favorites menu
-					MarketBuyMenu(client, MenuType_FavBuy);
+					// Resets shopping cart for client
+					MarketResetShoppingCart(client); 
+					
+					// Validate cart size
+					if (gClientData[client].DefaultCart.Length)
+					{
+						// Opens favorites menu
+						MarketBuyMenu(client, MenuType_FavBuy);
+					}
+				}
+				
+				// Client hit 'Type' button
+				default :
+				{
+					// Opens market menu back
+					MarketBuyMenu(client, MenuType_FavEdit, _, iD);
 				}
 			}
 		}
@@ -937,26 +963,26 @@ Menu MarketSectionToHandle(int mSection)
  * 
  * @param client            The client index.
  * @param mSection          The section index.
- * @param iIndex            The id variable.
+ * @param iD                The id variable.
  * @return                  The index variable.
  **/
-int MarketSectionToIndex(int client, int mSection, int iIndex)
+int MarketSectionToIndex(int client, int mSection, int iD)
 {
 	switch (mSection)
 	{
 		case MenuType_FavEdit :
 		{
-			return gClientData[client].DefaultCart.Get(iIndex);
+			return gClientData[client].DefaultCart.Get(iD);
 		}
 
 		case MenuType_FavBuy :
 		{
-			return gClientData[client].ShoppingCart.Get(iIndex);
+			return gClientData[client].ShoppingCart.Get(iD);
 		}
 
 		default :
 		{
-			return iIndex;
+			return iD;
 		}
 	}
 }

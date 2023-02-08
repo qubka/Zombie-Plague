@@ -239,51 +239,6 @@ int StrExtract(char[] sBuffer, char[] sSource, int startPos, int endPos)
 }
 
 /**
- * @brief Checks whether a substring is found inside another string.
- * @param sBuffer           The substring to find inside the original string.
- * @param sSource           The string to search in. 
- * @param cSeparator        The separator character.
- * @return                  True or false.
- **/
-bool StrContain(char[] sBuffer, char[] sSource, char cSeparator)
-{
-	// i = char index
-	int iLen1 = strlen(sSource); int iLen2 = strlen(sBuffer); int x; int y;
-	for (int i = 0; i < iLen1; i++) 
-	{
-		// Validate char
-		if (sSource[i] == sBuffer[x])
-		{
-			if (++x == iLen2) /// Check length 
-			{
-				// Validate delimitter
-				y = i + 1;
-				if (y >= iLen1 || (sSource[y] == cSeparator || sSource[y] == ' '))
-				{
-					return true;
-				}
-			}
-			else if (x == 1) /// Check first comparator
-			{
-				// Validate prefix
-				y = i - 1;
-				if (y != -1 && (sSource[y] != cSeparator && sSource[y] != ' '))
-				{
-					x = 0; /// Resets counter
-				}
-			}
-		}
-		else 
-		{
-			x = 0; /// Resets counter
-		}
-	}
-	
-	// Return on unsuccess
-	return false;
-}
-
-/**
  * @brief Finds the amount of all occurrences of a character in a string.
  *
  * @param sBuffer           Input string buffer.

@@ -80,14 +80,14 @@ native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32, int iSub
 native void ZP_GetMenuGroup(int menuID, char[] group, int maxlenght = 32, int iSub = 0);
 
 /**
- * @brief Gets the class of a menu at a given index.
+ * @brief Gets the types of the menu.
  *
  * @param menuID            The menu index.
- * @param class             The string to return class in.
- * @param maxlenght         The lenght of string.
  * @param iSub              (Optional) The submenu index.
+ *
+ * @return                  The types bits.
  **/
-native void ZP_GetMenuClass(int menuID, char[] class, int maxlenght = 128, int iSub = 0);
+native int ZP_GetMenuTypes(int menuID, int iSub = 0);
 
 /**
  * @brief Gets the hide value of the menu.
@@ -97,7 +97,7 @@ native void ZP_GetMenuClass(int menuID, char[] class, int maxlenght = 128, int i
  *
  * @return                  True if menu is hide, false if not.
  **/
-native bool ZP_IsMenuHide(int costumeID, int iSub = 0);
+native bool ZP_IsMenuHide(int menuID, int iSub = 0);
 
 /**
  * @brief Gets the array of a menu at a given command.

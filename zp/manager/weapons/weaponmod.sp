@@ -886,7 +886,7 @@ public Action WeaponMODOnCanUse(int client, int weapon)
 	if (IsValidEdict(weapon))
 	{
 		// Validate access
-		if (!WeaponsValidateAccess(client, weapon))
+		if (!WeaponsCanUse(client, weapon))
 		{
 			// Block pickup
 			return Plugin_Handled;
@@ -1483,7 +1483,7 @@ void WeaponMODOnUse(int client)
 		  (sClassname[7] == 'f' && sClassname[9] == 's'))) // fists
 		{
 			// If not available, then stop
-			if (!WeaponsValidateAccess(client, entity))
+			if (!WeaponsCanUse(client, entity))
 			{
 				return;
 			}

@@ -179,13 +179,19 @@ void ClassesOnPurge(/*void*/)
 
 /**
  * @brief Prepare all class data.
+ *
+ * @param bInit             The preprocessing. (only init)
  **/
-void ClassesOnLoad(/*void*/)
+void ClassesOnLoad(bool bInit = false)
 {
-	// Forward event to sub-modules
-	SpawnOnLoad();
-	DeathOnLoad();
-	ArsenalOnLoad();
+	// Not run during init phase
+	if (!bInit) 
+	{
+		// Forward event to sub-modules
+		SpawnOnLoad();
+		DeathOnLoad();
+		ArsenalOnLoad();
+	}
 	
 	// Register config file
 	ConfigRegisterConfig(File_Classes, Structure_KeyValue, CONFIG_FILE_ALIAS_CLASSES);
@@ -216,7 +222,7 @@ void ClassesOnLoad(/*void*/)
 	}
 
 	// Now copy data to array structure
-	ClassesOnCacheData();
+	ClassesOnCacheData(bInit);
 
 	// Sets config data
 	ConfigSetConfigLoaded(File_Classes, true);
@@ -227,7 +233,7 @@ void ClassesOnLoad(/*void*/)
 /**
  * @brief Caches class data from file into arrays.
  **/
-void ClassesOnCacheData(/*void*/)
+void ClassesOnCacheData(bool bInit)
 {
 	// Gets config file path
 	static char sBuffer[PLATFORM_LINE_LENGTH];
@@ -263,7 +269,7 @@ void ClassesOnCacheData(/*void*/)
 		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "No usable data found in classes config file: \"%s\"", sBuffer);
 		return;
 	}
-	
+
 	// i = array index
 	for (int i = 0; i < iSize; i++)
 	{
@@ -274,6 +280,26 @@ void ClassesOnCacheData(/*void*/)
 		{
 			// Log class fatal
 			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class data for: \"%s\" (check classes config)", sBuffer);
+			continue;
+		}
+		
+		/// Only process types for generating array required for other modules
+		if (bInit) 
+		{
+			kvClasses.GetString("type", sBuffer, sizeof(sBuffer), "");
+			
+			// If doesnt exist, then insert
+			int iD = gServerData.Types.FindString(sBuffer);
+			if (iD == -1) /// Unique type catched                      
+			{                                                                      
+				iD = gServerData.Types.Length;
+				if (iD == 31)
+				{
+					// Log class fatal
+					LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unique class types exceeds the limit! (Max 32)");
+				}
+				gServerData.Types.PushString(sBuffer);
+			}
 			continue;
 		}
 		
@@ -302,11 +328,18 @@ void ClassesOnCacheData(/*void*/)
 			// Log class error
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache class type: \"%s\" (check translation file)", sBuffer);
 		}
-		arrayClass.PushString(sBuffer);                                        // Index: 2
-		if (gServerData.Types.FindString(sBuffer) == -1)                       
+		int iD = gServerData.Types.FindString(sBuffer);
+		if (iD == -1) /// Unique type catched                      
 		{                                                                      
-			gServerData.Types.PushString(sBuffer); /// Unique type catched     
-		}                                                                      
+			iD = gServerData.Types.Length;
+			if (iD == 31)
+			{
+				// Log class fatal
+				LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Unique class types exceeds the limit! (Max 32)");
+			}
+			gServerData.Types.PushString(sBuffer);
+		}
+		arrayClass.Push(iD);                                                   // Index: 2	
 		arrayClass.Push(ConfigKvGetStringBool(kvClasses, "zombie", "no"));     // Index: 3
 		kvClasses.GetString("model", sBuffer, sizeof(sBuffer), "");            
 		arrayClass.PushString(sBuffer);                                        // Index: 4
@@ -392,31 +425,35 @@ void ClassesOnCacheData(/*void*/)
 		arrayClass.Push(kvClasses.GetFloat("force", 0.0));                      // Index: 38
 		arrayClass.Push(kvClasses.GetFloat("cooldown", 0.0));                   // Index: 39
 		kvClasses.GetString("effect", sBuffer, sizeof(sBuffer), "");
-		arrayClass.PushString(sBuffer);                                    // Index: 40
-		kvClasses.GetString("attachment", sBuffer, sizeof(sBuffer), "");
-		arrayClass.PushString(sBuffer);                                    // Index: 41
+		arrayClass.PushString(sBuffer);                                         // Index: 40
+		kvClasses.GetString("attachment", sBuffer, sizeof(sBuffer), "");        
+		arrayClass.PushString(sBuffer);                                         // Index: 41
 		arrayClass.Push(kvClasses.GetFloat("time", 1.0));                       // Index: 42
-		kvClasses.GetString("death", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 43
-		kvClasses.GetString("hurt", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 44
-		kvClasses.GetString("idle", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 45
-		kvClasses.GetString("infect", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 46
-		kvClasses.GetString("respawn", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 47
-		kvClasses.GetString("burn", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 48
-		kvClasses.GetString("attack", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 49
-		kvClasses.GetString("footstep", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 50
-		kvClasses.GetString("regen", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 51
-		kvClasses.GetString("jump", sBuffer, sizeof(sBuffer), "");
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                        // Index: 52
+		kvClasses.GetString("death", sBuffer, sizeof(sBuffer), "");             
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 43
+		kvClasses.GetString("hurt", sBuffer, sizeof(sBuffer), "");              
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 44
+		kvClasses.GetString("idle", sBuffer, sizeof(sBuffer), "");              
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 45
+		kvClasses.GetString("infect", sBuffer, sizeof(sBuffer), "");            
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 46
+		kvClasses.GetString("respawn", sBuffer, sizeof(sBuffer), "");           
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 47
+		kvClasses.GetString("burn", sBuffer, sizeof(sBuffer), "");              
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 48
+		kvClasses.GetString("attack", sBuffer, sizeof(sBuffer), "");            
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 49
+		kvClasses.GetString("footstep", sBuffer, sizeof(sBuffer), "");          
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 50
+		kvClasses.GetString("regen", sBuffer, sizeof(sBuffer), "");             
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 51
+		kvClasses.GetString("jump", sBuffer, sizeof(sBuffer), "");              
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 52
 	}
+	
+	// Store default classes
+	gServerData.Zombie = gServerData.Types.FindString("zombie");
+	gServerData.Human = gServerData.Types.FindString("human");
 
 	// We're done with this file now, so we can close it
 	delete kvClasses;
@@ -437,7 +474,7 @@ void ClassesOnUnload(/*void*/)
 public void ClassesOnConfigReload(/*void*/)
 {
 	// Reloads class config
-	ClassesOnLoad();
+	ClassesOnLoad(false);
 }
 
 /**
@@ -530,11 +567,10 @@ void ClassesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetClientZombieClassNext", API_GetClientZombieClassNext);
 	CreateNative("ZP_SetClientHumanClassNext",  API_SetClientHumanClassNext);
 	CreateNative("ZP_SetClientZombieClassNext", API_SetClientZombieClassNext);
+	CreateNative("ZP_GetRandomClassTypeID",     API_GetRandomClassTypeID);
 	CreateNative("ZP_GetClassNameID",           API_GetClassNameID);
 	CreateNative("ZP_GetClassName",             API_GetClassName);
 	CreateNative("ZP_GetClassInfo",             API_GetClassInfo);
-	CreateNative("ZP_GetClassTypeID",           API_GetClassTypeID);
-	CreateNative("ZP_GetClassType",             API_GetClassType);
 	CreateNative("ZP_IsClassZombie",            API_IsClassZombie);
 	CreateNative("ZP_GetClassModel",            API_GetClassModel);
 	CreateNative("ZP_GetClassClaw",             API_GetClassClaw);
@@ -573,6 +609,7 @@ void ClassesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetClassEffectName",       API_GetClassEffectName);
 	CreateNative("ZP_GetClassEffectAttach",     API_GetClassEffectAttach);
 	CreateNative("ZP_GetClassEffectTime",       API_GetClassEffectTime);
+	CreateNative("ZP_GetClassTypeID",           API_GetClassTypeID);
 	CreateNative("ZP_GetClassClawID",           API_GetClassClawID);
 	CreateNative("ZP_GetClassGrenadeID",        API_GetClassGrenadeID);
 	CreateNative("ZP_GetClassSoundDeathID",     API_GetClassSoundDeathID);
@@ -637,7 +674,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
 	GetNativeString(3, sType, sizeof(sType));
 	
 	// Force client to update
-	return ApplyOnClientUpdate(client, attacker, sType);
+	return ApplyOnClientUpdate(client, attacker, gServerData.Types.FindString(sType));
 }
  
 /**
@@ -764,6 +801,34 @@ public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Gets the random index of a class at a given type.
+ *
+ * @note native int ZP_GetRandomClassTypeID(type);
+ **/
+public int API_GetRandomClassTypeID(Handle hPlugin, int iNumParams)
+{
+	// Retrieves the string length from a native parameter string
+	int maxLen;
+	GetNativeStringLength(1, maxLen);
+
+	// Validate size
+	if (!maxLen)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty type");
+		return -1;
+	}
+	
+	// Gets native data
+	static char sType[SMALL_LINE_LENGTH];
+
+	// General
+	GetNativeString(1, sType, sizeof(sType));
+	
+	// Return the value
+	return ClassTypeToRandomClassIndex(gServerData.Types.FindString(sType)); 
+}
+
+/**
  * @brief Gets the index of a class at a given name.
  *
  * @note native int ZP_GetClassNameID(name);
@@ -859,69 +924,6 @@ public int API_GetClassInfo(Handle hPlugin, int iNumParams)
 
 	// Return on success
 	return SetNativeString(2, sInfo, maxLen);
-}
-
-/**
- * @brief Gets the index of a class at a given type.
- *
- * @note native int ZP_GetClassTypeID(type);
- **/
-public int API_GetClassTypeID(Handle hPlugin, int iNumParams)
-{
-	// Retrieves the string length from a native parameter string
-	int maxLen;
-	GetNativeStringLength(1, maxLen);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty type");
-		return -1;
-	}
-	
-	// Gets native data
-	static char sType[SMALL_LINE_LENGTH];
-
-	// General
-	GetNativeString(1, sType, sizeof(sType));
-	
-	// Return the value
-	return ClassTypeToIndex(sType); 
-}
-
-/**
- * @brief Gets the type of a class at a given index.
- *
- * @note native void ZP_GetClassType(iD, type, maxlen);
- **/
-public int API_GetClassType(Handle hPlugin, int iNumParams)
-{
-	// Gets class index from native cell
-	int iD = GetNativeCell(1);
-
-	// Validate index
-	if (iD >= gServerData.Classes.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
-		return -1;
-	}
-	
-	// Gets string size from native cell
-	int maxLen = GetNativeCell(3);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize type char
-	static char sType[SMALL_LINE_LENGTH];
-	ClassGetType(iD, sType, sizeof(sType));
-
-	// Return on success
-	return SetNativeString(2, sType, maxLen);
 }
 
 /**
@@ -1877,7 +1879,28 @@ public int API_GetClassEffectTime(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the index of the class.
+ * @brief Gets the type of the class.
+ *
+ * @note native int ZP_GetClassTypeID(iD);
+ **/
+public int API_GetClassTypeID(Handle hPlugin, int iNumParams)
+{
+	// Gets class index from native cell
+	int iD = GetNativeCell(1);
+	
+	// Validate index
+	if (iD >= gServerData.Classes.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+		return -1;
+	}
+	
+	// Return value
+	return ClassGetTypeID(iD);
+}
+
+/**
+ * @brief Gets the index of the class claw model.
  *
  * @note native int ZP_GetClassClawID(iD);
  **/
@@ -2165,19 +2188,18 @@ void ClassGetInfo(int iD, char[] sInfo, int iMaxLen)
 }
 
 /**
- * @brief Gets the type of a class at a given index.
+ * @brief Gets the type of the class.
  *
  * @param iD                The class index.
- * @param sType             The string to return type in.
- * @param iMaxLen           The lenght of string.
+ * @return                  The type index.    
  **/
-void ClassGetType(int iD, char[] sType, int iMaxLen)
+int ClassGetTypeID(int iD)
 {
 	// Gets array handle of class at given index
 	ArrayList arrayClass = gServerData.Classes.Get(iD);
 
 	// Gets class type
-	arrayClass.GetString(CLASSES_DATA_TYPE, sType, iMaxLen);
+	return arrayClass.Get(CLASSES_DATA_TYPE);
 }
 
 /**
@@ -2976,12 +2998,43 @@ int ClassNameToIndex(char[] sName)
 }
 
 /**
+ * @brief Find the bit at which the class types is at.
+ * 
+ * @param sBuffer           The class types.
+ * @return                  The class bits.
+ **/
+int ClassTypeToIndex(char[] sBuffer)
+{
+	// Initialize variables
+	static char sClass[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH]; int iType;
+
+	// Gets the class types divived by commas
+	int nClass = ExplodeString(sBuffer, ",", sClass, sizeof(sClass), sizeof(sClass[]));
+	for (int i = 0; i < nClass; i++)
+	{
+		// Trim string
+		TrimString(sClass[i]);
+
+		// Validate type
+		int iD = gServerData.Types.FindString(sClass[i]);
+		if (iD != -1)
+		{
+			//
+			iType |= (1 << iD);
+		}
+	}
+
+	//
+	return iType;
+}
+
+/**
  * @brief Find the random index at which the class type is at.
  * 
- * @param sType             The class type.
+ * @param iType             The class type.
  * @return                  The array index containing the given class type.
  **/
-int ClassTypeToIndex(char[] sType)
+int ClassTypeToRandomClassIndex(int iType)
 {
 	// Initialize type char
 	static char sClassType[SMALL_LINE_LENGTH]; 
@@ -2990,11 +3043,8 @@ int ClassTypeToIndex(char[] sType)
 	int iSize = gServerData.Classes.Length; int iRandom; static int class[MAXPLAYERS+1];
 	for (int i = 0; i < iSize; i++)
 	{
-		// Gets class type 
-		ClassGetType(i, sClassType, sizeof(sClassType));
-		
 		// If types match, then store index
-		if (!strcmp(sClassType, sType, false))
+		if (ClassGetTypeID(i) == iType)
 		{
 			// Increment amount
 			class[iRandom++] = i;

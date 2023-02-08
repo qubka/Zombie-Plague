@@ -132,11 +132,12 @@ public void OnMapStart(/*void*/)
 {
 	// Forward event to modules
 	ConfigOnLoad();
+	ClassesOnLoad(true); /// init only types
 	MenusOnLoad();
 	SoundsOnLoad();
-	WeaponsOnLoad();
 	VEffectsOnLoad();
 	DownloadsOnLoad();
+	WeaponsOnLoad();
 	ClassesOnLoad();
 	CostumesOnLoad();
 	GameModesOnLoad();

@@ -104,7 +104,7 @@ void MainMenu(int client)
 		MenusGetGroup(i, sName, sizeof(sName));
 
 		// Validate access
-		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusValidateClass(client, i));
+		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusHasAccessByType(client, i));
 
 		// Skip, if menu is hided
 		if (bHide && MenusIsHide(i))
@@ -176,7 +176,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			int iD = StringToInt(sBuffer);
 			
 			// Validate access
-			if (MenusValidateClass(client, iD)) 
+			if (MenusHasAccessByType(client, iD)) 
 			{
 				// Gets menu command
 				MenusGetCommand(iD, sBuffer, sizeof(sBuffer));
@@ -270,7 +270,7 @@ void SubMenu(int client, int iD)
 		MenusGetGroup(iD, sName, sizeof(sName), i);
 
 		// Validate access
-		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusValidateClass(client, iD, i));
+		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusHasAccessByType(client, iD, i));
 
 		// Skip, if menu is hided
 		if (bHide && MenusIsHide(iD, i))
@@ -360,7 +360,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
 
 			// Validate access
-			if (MenusValidateClass(client, iD, i)) 
+			if (MenusHasAccessByType(client, iD, i)) 
 			{
 				// Gets menu command
 				MenusGetCommand(iD, sBuffer, sizeof(sBuffer), i);

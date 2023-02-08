@@ -151,7 +151,7 @@ int ClassDumpData(int iD, char[] sBuffer, int iMaxLen)
 	FormatEx(sAttribute, sizeof(sAttribute), "info:       \"%s\"\n", sFormat);
 	iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
 	
-	ClassGetType(iD, sFormat, sizeof(sFormat));
+	gServerData.Types.GetString(ClassGetTypeID(iD), sFormat, sizeof(sFormat));
 	FormatEx(sAttribute, sizeof(sAttribute), "type:       \"%s\"\n", sFormat);
 	iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
 	

@@ -40,7 +40,7 @@ enum
 	EXTRAITEMS_DATA_LIMIT,
 	EXTRAITEMS_DATA_FLAGS,
 	EXTRAITEMS_DATA_GROUP,
-	EXTRAITEMS_DATA_CLASS
+	EXTRAITEMS_DATA_TYPES
 };
 /**
  * @endsection
@@ -210,8 +210,8 @@ void ExtraItemsOnCacheData(/*void*/)
 				arrayExtraItem.Push(ReadFlagString(sBuffer));          // Index: 8
 				kvExtraItems.GetString("group", sBuffer, sizeof(sBuffer), ""); 
 				arrayExtraItem.PushString(sBuffer);                    // Index: 9
-				kvExtraItems.GetString("class", sBuffer, sizeof(sBuffer), ""); 
-				arrayExtraItem.PushString(sBuffer);                    // Index: 10
+				kvExtraItems.GetString("types", sBuffer, sizeof(sBuffer), ""); 
+				arrayExtraItem.Push(ClassTypeToIndex(sBuffer));        // Index: 10
 				
 				// Store this handle in the main array
 				gServerData.ExtraItems.Push(arrayExtraItem);
@@ -257,7 +257,6 @@ void ExtraItemsOnNativeInit(/*void*/)
 	CreateNative("ZP_GetClientExtraItemLimit", API_GetClientExtraItemLimit); 
 	CreateNative("ZP_GetNumberExtraItem",      API_GetNumberExtraItem); 
 	CreateNative("ZP_GetExtraItemSectionID",   API_GetExtraItemSectionID);
-	CreateNative("ZP_GetExtraItemSection",     API_GetExtraItemSection);
 	CreateNative("ZP_GetExtraItemNameID",      API_GetExtraItemNameID);
 	CreateNative("ZP_GetExtraItemName",        API_GetExtraItemName); 
 	CreateNative("ZP_GetExtraItemInfo",        API_GetExtraItemInfo); 
@@ -268,7 +267,7 @@ void ExtraItemsOnNativeInit(/*void*/)
 	CreateNative("ZP_GetExtraItemLimit",       API_GetExtraItemLimit); 
 	CreateNative("ZP_GetExtraItemFlags",       API_GetExtraItemFlags); 
 	CreateNative("ZP_GetExtraItemGroup",       API_GetExtraItemGroup); 
-	CreateNative("ZP_GetExtraItemClass",       API_GetExtraItemClass);
+	CreateNative("ZP_GetExtraItemTypes",       API_GetExtraItemTypes);
 }
 
 /**
@@ -436,41 +435,6 @@ public int API_GetExtraItemSectionID(Handle hPlugin, int iNumParams)
 	
 	// Return value
 	return ItemsGetSectionID(iD);
-}
-
-/**
- * @brief Gets the section of a extra item at a given index.
- *
- * @note native void ZP_GetExtraItemSection(iD, section, maxlen);
- **/
-public int API_GetExtraItemSection(Handle hPlugin, int iNumParams)
-{
-	// Gets item index from native cell
-	int iD = GetNativeCell(1);
-
-	// Validate index
-	if (iD >= gServerData.ExtraItems.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
-		return -1;
-	}
-	
-	// Gets string size from native cell
-	int maxLen = GetNativeCell(3);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize name char
-	static char sName[SMALL_LINE_LENGTH];
-	gServerData.Sections.GetString(ItemsGetSectionID(iD), sName, sizeof(sName));
-
-	// Return on success
-	return SetNativeString(2, sName, maxLen);
 }
 
 /**
@@ -705,15 +669,15 @@ public int API_GetExtraItemGroup(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the class of a extra item at a given index.
+ * @brief Gets the types of the extra item.
  *
- * @note native void ZP_GetExtraItemClass(iD, class, maxlen);
+ * @note native int ZP_GetExtraItemTypes(iD);
  **/
-public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
+public int API_GetExtraItemTypes(Handle hPlugin, int iNumParams)
 {
 	// Gets item index from native cell
 	int iD = GetNativeCell(1);
-
+	
 	// Validate index
 	if (iD >= gServerData.ExtraItems.Length)
 	{
@@ -721,22 +685,8 @@ public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	// Gets string size from native cell
-	int maxLen = GetNativeCell(3);
-
-	// Validate size
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	// Initialize class char
-	static char sClass[BIG_LINE_LENGTH];
-	ItemsGetClass(iD, sClass, sizeof(sClass));
-
-	// Return on success
-	return SetNativeString(2, sClass, maxLen);
+	// Return value
+	return ItemsGetTypes(iD);
 }
 
 /*
@@ -935,7 +885,7 @@ int ItemsGetLimits(int client, int iD)
  * @brief Gets the flags for the item.
  *
  * @param iD                The item index.
- * @return                  The flags values.   
+ * @return                  The flags bits.   
  **/
 int ItemsGetFlags(int iD)
 {
@@ -963,19 +913,18 @@ void ItemsGetGroup(int iD, char[] sGroup, int iMaxLen)
 }
 
 /**
- * @brief Gets the class of a item at a given index.
+ * @brief Gets the types for the item.
  *
  * @param iD                The item index.
- * @param sClass            The string to return class in.
- * @param iMaxLen           The lenght of string.
+ * @return                  The types bits.   
  **/
-void ItemsGetClass(int iD, char[] sClass, int iMaxLen)
+int ItemsGetTypes(int iD)
 {
 	// Gets array handle of extra item at given index
 	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
-	// Gets extra item class
-	arrayExtraItem.GetString(EXTRAITEMS_DATA_CLASS, sClass, iMaxLen);
+	// Gets extra item types
+	return arrayExtraItem.Get(EXTRAITEMS_DATA_TYPES);
 }
 
 /*
@@ -1013,53 +962,17 @@ int ItemsNameToIndex(char[] sName)
 }
 
 /**
- * @brief Returns true if the class of the weapon id, false if not.
- *
- * @param iD                The weapon id.
- * @param sType             The class type.
- * @return                  True or false.    
- **/
-bool ItemsValidateByClass(int iD, char[] sType)
-{
-	// Gets item class
-	static char sClass[BIG_LINE_LENGTH];
-	ItemsGetClass(iD, sClass, sizeof(sClass));
-	
-	// Validate length
-	if (hasLength(sClass))
-	{
-		// If class find, then return
-		return (hasLength(sType) && StrContain(sType, sClass, ','));
-	}
-	
-	// Return on success
-	return true;
-}
-
-/**
  * @brief Returns true if the player has an access by the class to the item id, false if not.
  *
  * @param client            The client index.
  * @param iD                The item id.
  * @return                  True or false.    
  **/
-bool ItemsValidateClass(int client, int iD)
+bool ItemsHasAccessByType(int client, int iD)
 {
 	// Gets item class
-	static char sClass[BIG_LINE_LENGTH];
-	ItemsGetClass(iD, sClass, sizeof(sClass));
-	
-	// Validate length
-	if (hasLength(sClass))
-	{
-		// Gets class type 
-		static char sType[SMALL_LINE_LENGTH];
-		ClassGetType(gClientData[client].Class, sType, sizeof(sType));
-		
-		// If class find, then return
-		return (hasLength(sType) && StrContain(sType, sClass, ','));
-	}
-	
-	// Return on success
-	return true;
+	int iTypes = ItemsGetTypes(iD);
+
+	// If class find, then return
+	return !iTypes || view_as<bool>((1 << ClassGetTypeID(gClientData[client].Class)) & iTypes)
 }

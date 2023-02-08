@@ -186,6 +186,17 @@ native void ZP_SetClientHumanClassNext(int client, int classID);
 native void ZP_SetClientZombieClassNext(int client, int classID);
 
 /**
+ * @brief Gets the random index of a class at a given type.
+ * 
+ * @param type              The class type.
+ *
+ * @return                  The class index, or -1 on failure.
+ *
+ * @note                    Can return a random index for multiple same unique types!
+ **/
+native int ZP_GetRandomClassTypeID(char[] type);
+
+/**
  * @brief Gets the index of a class at a given name.
  * 
  * @param name              The class name.
@@ -211,26 +222,6 @@ native void ZP_GetClassName(int classID, char[] name, int maxlenght = 32);
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetClassInfo(int classID, char[] info, int maxlenght = 128);
-
-/**
- * @brief Gets the index of a class at a given type.
- * 
- * @param type              The class type.
- *
- * @return                  The class index, or -1 on failure.
- *
- * @note                    Can return a random index for multiple same unique types!
- **/
-native int ZP_GetClassTypeID(char[] type);
-
-/**
- * @brief Gets the type of a class at a given index.
- *
- * @param classID           The class index.
- * @param type              The string to return type in.
- * @param maxlenght         The lenght of string.
- **/
-native void ZP_GetClassType(int classID, char[] type, int maxlenght = 32);
 
 /**
  * @brief Checks the zombie type of the class.
@@ -573,6 +564,15 @@ native void ZP_GetClassEffectAttach(int classID, char[] attach, int maxlenght = 
  * @return                  The effect time.    
  **/
 native float ZP_GetClassEffectTime(int classID);
+
+/**
+ * @brief Gets the type of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  The type index.    
+ **/
+native int ZP_GetClassTypeID(int classID);
 
 /**
  * @brief Gets the index of the class claw model.

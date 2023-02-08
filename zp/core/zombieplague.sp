@@ -565,6 +565,22 @@ stock void writeDWORD(char[] asm, any pAddress, int iOffset = 0)
 }
 
 /**
+ * Convert bit value to the bit index. 
+ *
+ * @link http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+ *
+ * @param iBit           The bit value.
+ * @return               The bit index. 
+ **/
+stock int bitIndex(int iBit) 
+{
+	iBit -= 1;
+	iBit = iBit - ((iBit >> 1) & 0x55555555);
+	iBit = (iBit & 0x33333333) + ((iBit >> 2) & 0x33333333);
+	return (((iBit + (iBit >> 4) & 0xF0F0F0F) * 0x1010101) >> 24);
+}
+
+/**
  * @brief Removes a hook for when a game event is fired. (Avoid errors)
  *
  * @param sName             The name of the event.

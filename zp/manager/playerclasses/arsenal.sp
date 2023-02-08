@@ -146,8 +146,9 @@ public void ArsenalOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
  * @brief Client has been changed class state.
  * 
  * @param client            The client index.
+ * @return                  True when menu was opened, false otherwise.
  **/
-void ArsenalOnClientUpdate(int client)
+bool ArsenalOnClientUpdate(int client)
 {
 	// Resets the current arsenal menu
 	gClientData[client].CurrentMenu = ArsenalType_Primary;
@@ -156,9 +157,12 @@ void ArsenalOnClientUpdate(int client)
 	// Validate arsenal
 	if (gCvarList.ARSENAL.BoolValue)
 	{
-		// Give weapons
-		ArsenallGive(client);
+		// Give weapons and get opening state
+		return ArsenallGive(client);
 	}
+	
+	// Return on success
+	return false;
 }
 
 /*
@@ -177,7 +181,7 @@ void ArsenalSet(ConVar hConVar)
 	static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH];
 	
 	// Create array of indexes
-	ArrayList hList = new ArrayList();
+	ArrayList hList = new ArrayList(); int iType = gServerData.Types.FindString("human");
 	
 	// Gets the weapon string divived by commas
 	hConVar.GetString(sBuffer, sizeof(sBuffer));
@@ -188,14 +192,17 @@ void ArsenalSet(ConVar hConVar)
 		TrimString(sWeapon[i]);
 
 		// Validate index
-		int iIndex = WeaponsNameToIndex(sWeapon[i]);
-		if (iIndex != -1)
+		int iD = WeaponsNameToIndex(sWeapon[i]);
+		if (iD != -1)
 		{  
+			// Gets weapon class
+			int iTypes = WeaponsGetTypes(iD);
+		
 			// Validate access
-			if (WeaponsValidateByClass(iIndex, "human"))
+			if (!iTypes || view_as<bool>((1 << iType) & iTypes))
 			{
 				// Push data into array
-				hList.Push(iIndex);
+				hList.Push(iD);
 			}
 		}
 	}

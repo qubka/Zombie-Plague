@@ -442,7 +442,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 	int iHitGroup = ToolsGetHitGroup(client);
 
 	// Validate bit
-	if (!HitGroupsValidateBits(client, iBits, iHitGroup))
+	if (!HitGroupsHasBits(client, iBits, iHitGroup))
 	{
 		// Block damage
 		return false;
@@ -534,7 +534,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 		}
 
 		/// Validate entity which is inflict damage
-		int dealer = IsValidEdict(weapon) ? weapon : HitGroupsValidateInfclictor(sClassname) ? inflictor : -1;
+		int dealer = IsValidEdict(weapon) ? weapon : HitGroupsHasInfclictor(sClassname) ? inflictor : -1;
 		if (dealer != -1)
 		{
 			// Validate custom index
@@ -563,7 +563,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 	
 	// Armor doesn't protect against fall or drown damage!
 	int iArmor = ToolsGetArmor(client); 
-	if (iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsValidateArmor(client, iHitGroup))
+	if (iArmor > 0 && !(iBits & (DMG_DROWN | DMG_FALL)) && HitGroupsHasArmor(client, iHitGroup))
 	{
 		// Calculate reduced amount
 		float flReduce = flDamage * flArmorRatio;
@@ -639,12 +639,8 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 					// Validate lethal damage
 					if (iHealth <= 0 || (!bHasShield && !iArmor)) /// Checks for shield protection
 					{
-						// Gets default zombie type
-						static char sType[SMALL_LINE_LENGTH];
-						ModesGetZombieClass(gServerData.RoundMode, sType, sizeof(sType));
-				
 						// Infect victim
-						ApplyOnClientUpdate(client, attacker, sType);
+						ApplyOnClientUpdate(client, attacker, ModesGetZombieTypeID(gServerData.RoundMode));
 						return false;
 					}
 					
@@ -1201,7 +1197,7 @@ int HitGroupToIndex(int iHitGroup)
  * @param iHitGroup         The hitgroup index output.
  * @return                  True or false.
  **/
-bool HitGroupsValidateBits(int client, int iBits, int &iHitGroup)
+bool HitGroupsHasBits(int client, int iBits, int &iHitGroup)
 {
 	// Validate bits
 	if (iBits & (DMG_BURN | DMG_DIRECT))
@@ -1260,7 +1256,7 @@ bool HitGroupsValidateBits(int client, int iBits, int &iHitGroup)
  * @param iHitGroup         The hitgroup index.
  * @return                  True or false.
  **/
-bool HitGroupsValidateArmor(int client, int iHitGroup)
+bool HitGroupsHasArmor(int client, int iHitGroup)
 {
 	// Initialize bool
 	bool bApplyArmor;
@@ -1289,7 +1285,7 @@ bool HitGroupsValidateArmor(int client, int iHitGroup)
  * @param inflictor         The inflictor index.
  * @return                  True or false.    
  **/
-bool HitGroupsValidateInfclictor(char[] sClassname)
+bool HitGroupsHasInfclictor(char[] sClassname)
 {
 	// Gets string length
 	int iLen = strlen(sClassname) - 11;

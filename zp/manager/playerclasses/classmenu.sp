@@ -50,7 +50,7 @@ void ClassMenuOnCommandInit(/*void*/)
  **/ 
 public Action ClassHumanOnCommandCatched(int client, int iArguments)
 {
-	ClassMenu(client, "choose humanclass", "human", gClientData[client].HumanClassNext);
+	ClassMenu(client, "choose humanclass", gServerData.Human, gClientData[client].HumanClassNext);
 	return Plugin_Handled;
 }
 
@@ -63,7 +63,7 @@ public Action ClassHumanOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ClassZombieOnCommandCatched(int client, int iArguments)
 {
-	ClassMenu(client, "choose zombieclass", "zombie", gClientData[client].ZombieClassNext);
+	ClassMenu(client, "choose zombieclass", gServerData.Zombie, gClientData[client].ZombieClassNext);
 	return Plugin_Handled;
 }
 
@@ -92,7 +92,7 @@ public Action ClassMenuOnCommandCatched(int client, int iArguments)
 void ZombieValidateClass(int client)
 {
 	// Validate class
-	int iClass = ClassValidateIndex(client, "zombie");
+	int iClass = ClassValidateIndex(client, gServerData.Zombie);
 	switch (iClass)
 	{
 		case -2 : LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"zombie\" class");
@@ -119,7 +119,7 @@ void ZombieValidateClass(int client)
 void HumanValidateClass(int client)
 {
 	// Validate class
-	int iClass = ClassValidateIndex(client, "human");
+	int iClass = ClassValidateIndex(client, gServerData.Human);
 	switch (iClass)
 	{
 		case -2 : LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Classes, "Config Validation", "Couldn't cache any default \"human\" class");
@@ -142,10 +142,10 @@ void HumanValidateClass(int client)
  * @brief Validate class for client availability.
  *
  * @param client            The client index.
- * @param sType             The class type.
+ * @param iType             The class type.
  * @return                  The class index. 
  **/
-int ClassValidateIndex(int client, char[] sType)
+int ClassValidateIndex(int client, int iType)
 {
 	// Gets array size
 	int iSize = gServerData.Classes.Length;
@@ -154,7 +154,7 @@ int ClassValidateIndex(int client, char[] sType)
 	if (IsFakeClient(client) || iSize <= gClientData[client].Class)
 	{
 		// Validate class index
-		int iD = ClassTypeToIndex(sType);
+		int iD = ClassTypeToRandomClassIndex(iType);
 		if (iD == -1)
 		{
 			return -2;
@@ -167,13 +167,9 @@ int ClassValidateIndex(int client, char[] sType)
 	// Gets class group
 	static char sClassGroup[SMALL_LINE_LENGTH];
 	ClassGetGroup(gClientData[client].Class, sClassGroup, sizeof(sClassGroup));
-	
-	// Gets class type
-	static char sClassType[SMALL_LINE_LENGTH];
-	ClassGetType(gClientData[client].Class, sClassType, sizeof(sClassType));
-	
+
 	// Find any accessable class 
-	if ((hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || strcmp(sClassType, sType, false))
+	if ((hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || ClassGetTypeID(gClientData[client].Class) != iType)
 	{
 		// Choose any accessable class
 		for (int i = 0; i < iSize; i++)
@@ -186,8 +182,7 @@ int ClassValidateIndex(int client, char[] sType)
 			}
 			
 			// Skip some classes, if types isn't equal
-			ClassGetType(i, sClassType, sizeof(sClassType));
-			if (strcmp(sClassType, sType, false))
+			if (ClassGetTypeID(i) != iType)
 			{
 				continue;
 			}
@@ -218,11 +213,11 @@ int ClassValidateIndex(int client, char[] sType)
  *
  * @param client            The client index.
  * @param sTitle            The menu title.
- * @param sType             The class type.
+ * @param iType             The class type.
  * @param iClass            The current class.
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/
-void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstant = false) 
+void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant = false) 
 {
 	// Validate client
 	if (!IsPlayerExist(client, false))
@@ -238,7 +233,7 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
 	static char sGroup[SMALL_LINE_LENGTH];
 
 	// Creates menu handle
-	Menu hMenu = new Menu((!strcmp(sType, "zombie", false)) ? (bInstant ? ClassZombieMenuSlots2 : ClassZombieMenuSlots1) : (bInstant ? ClassHumanMenuSlots2 : ClassHumanMenuSlots1));
+	Menu hMenu = new Menu(iType == gServerData.Zombie ? (bInstant ? ClassZombieMenuSlots2 : ClassZombieMenuSlots1) : (bInstant ? ClassHumanMenuSlots2 : ClassHumanMenuSlots1));
 
 	// Sets language to target
 	SetGlobalTransTarget(client);
@@ -261,15 +256,15 @@ void ClassMenu(int client, char[] sTitle, char[] sType, int iClass, bool bInstan
 		{
 			continue;
 		}
-		
-		// Gets class type
-		ClassGetType(i, sName, sizeof(sName));
-		
+
 		// Skip some classes, if types isn't equal
-		if (strcmp(sName, sType, false))
+		if (ClassGetTypeID(i) != iType)
 		{
 			continue;
 		}
+	
+		// Gets class type name
+		gServerData.Types.GetString(iType, sName, sizeof(sName));
 		
 		// Gets general class data
 		ClassGetName(i, sName, sizeof(sName));
@@ -413,10 +408,10 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 			if (hResult == Plugin_Continue || hResult == Plugin_Changed)
 			{
 				// Gets class type
-				ClassGetType(iD, sBuffer, sizeof(sBuffer));
+				int iType = ClassGetTypeID(iD);
 				
 				// Validate human
-				if (!strcmp(sBuffer, "human", false))
+				if (iType == gServerData.Human)
 				{
 					// Sets next human class
 					gClientData[client].HumanClassNext = iD;
@@ -428,11 +423,11 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 					if (bInstant)
 					{
 						// Make human
-						ApplyOnClientUpdate(client, _, "human");
+						ApplyOnClientUpdate(client, _, gServerData.Human);
 					}
 				}
 				// Validate zombie
-				else if (!strcmp(sBuffer, "zombie", false))
+				else if (iType == gServerData.Zombie)
 				{
 					// Sets next zombie class
 					gClientData[client].ZombieClassNext = iD;
@@ -444,7 +439,7 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 					if (bInstant)
 					{
 						// Make zombie
-						ApplyOnClientUpdate(client, _, "zombie");
+						ApplyOnClientUpdate(client, _, gServerData.Zombie);
 					}
 				}
 				else 
@@ -524,8 +519,8 @@ void ClassesMenu(int client)
 			continue;
 		}
 
-		// Gets class data
-		ClassGetType(gClientData[i].Class, sType, sizeof(sType));
+		// Gets type name
+		gServerData.Types.GetString(ClassGetTypeID(gClientData[i].Class), sType, sizeof(sType));
 		
 		// Format some chars for showing in menu
 		FormatEx(sBuffer, sizeof(sBuffer), "%N [%t]", i, IsPlayerAlive(i) ? sType : "dead");
@@ -668,14 +663,14 @@ void ClassesOptionMenu(int client, int target)
 	int iSize = gServerData.Types.Length;
 	for (int i = 0; i < iSize; i++)
 	{
-		// Gets type data
+		// Gets type name
 		gServerData.Types.GetString(i, sType, sizeof(sType));
 		
 		// Format some chars for showing in menu
 		FormatEx(sBuffer, sizeof(sBuffer), "%t", sType);
 		
 		// Show option
-		FormatEx(sInfo, sizeof(sInfo), "%s¬%d", sType, GetClientUserId(target));
+		FormatEx(sInfo, sizeof(sInfo), "%d %d", i, GetClientUserId(target));
 		hMenu.AddItem(sInfo, sBuffer);
 	}
 	
@@ -748,17 +743,20 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 			static char sInfo[2][SMALL_LINE_LENGTH];
-			ExplodeString(sBuffer, "¬", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-			int target = GetClientOfUserId(StringToInt(sInfo[1]));
+			ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
+			int iD = StringToInt(sInfo[0]); int target = GetClientOfUserId(StringToInt(sInfo[1]));
 
 			// Validate target
 			if (target && IsPlayerAlive(target))
 			{
 				// Force client to update
-				ApplyOnClientUpdate(target, _, sInfo[0]);
+				ApplyOnClientUpdate(target, _, iD);
+				
+				// Gets type name
+				gServerData.Types.GetString(iD, sBuffer, sizeof(sBuffer));
 				
 				// Log action to game events
-				LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_GameModes, "Command", "Admin \"%N\" changed a class for Player \"%N\" to \"%s\"", client, target, sInfo[0]);
+				LogEvent(true, LogType_Normal, LOG_PLAYER_COMMANDS, LogModule_GameModes, "Command", "Admin \"%N\" changed a class for Player \"%N\" to \"%s\"", client, target, sBuffer);
 			}
 			else
 			{

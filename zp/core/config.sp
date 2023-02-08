@@ -196,7 +196,7 @@ enum ConfigKvAction
  /*
  * Load other menus modules
  */
-#include "zp/manager/playerclasses/configmenu.sp"
+#include "zp/core/configmenu.sp"
 
 /**
  * @brief Config module init function.
