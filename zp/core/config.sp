@@ -193,6 +193,11 @@ enum ConfigKvAction
  * @endsection
  **/
  
+ /*
+ * Load other menus modules
+ */
+#include "zp/manager/playerclasses/configmenu.sp"
+
 /**
  * @brief Config module init function.
  **/
@@ -350,9 +355,11 @@ void ConfigOnCacheData(/*void*/)
 void ConfigOnCommandInit(/*void*/)
 {
 	// Creates config admin commands
-	RegConsoleCmd("zp_config_menu", ConfigMenuOnCommandCatched, "Opens the configs menu.");
 	RegAdminCmd("zp_config_reload", ConfigReloadOnCommandCatched, ADMFLAG_CONFIG, "Reloads a config file. Usage: zp_config_reload <file alias>");
 	RegAdminCmd("zp_config_reloadall", ConfigReloadAllOnCommandCatched, ADMFLAG_CONFIG, "Reloads all config files. Usage: zp_config_reloadall");
+	
+	// Forward event to sub-modules
+	ConfigMenuOnCommandInit();
 }
 
 /*
@@ -1058,19 +1065,6 @@ stock bool ConfigKvGetStringBool(KeyValues kv, char[] sKey, char[] sDefaultValue
 }
 
 /**
- * Console command callback (zp_config_menu)
- * @brief Opens the config menu.
- * 
- * @param client            The client index.
- * @param iArguments        The number of arguments that were in the argument string.
- **/ 
-public Action ConfigMenuOnCommandCatched(int client, int iArguments)
-{
-	ConfigMenu(client);
-	return Plugin_Handled;
-}
-
-/**
  * Console command callback (zp_config_reload)
  * @brief Reloads a config file and forwards event to modules.
  * 
@@ -1183,136 +1177,4 @@ public Action ConfigReloadAllOnCommandCatched(int client, int iArguments)
 
 	// Return on success
 	return Plugin_Handled;
-}
-
-/*
- * Menu config API.
- */
-
-/**
- * @brief Creates the reload configs menu.
- *
- * @param client            The client index.
- **/
-void ConfigMenu(int client) 
-{
-	// Validate client
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
-	// Initialize variables
-	static char sBuffer[NORMAL_LINE_LENGTH];
-	static char sAlias[SMALL_LINE_LENGTH];
-	static char sInfo[SMALL_LINE_LENGTH];
-
-	// Creates menu handle
-	Menu hMenu = new Menu(ConfigMenuSlots);
-
-	// Sets language to target
-	SetGlobalTransTarget(client);
-	
-	// Sets title
-	hMenu.SetTitle("%t", "configs menu");
-	
-	// i = config file entry index
-	for (int i = File_Cvars; i < File_Size; i++)
-	{
-		// Gets config alias
-		ConfigGetConfigAlias(i, sAlias, sizeof(sAlias));
-		
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "config menu reload", sAlias);
-		
-		// Show option
-		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer);
-	}
-	
-	// If there are no cases, add an "(Empty)" line
-	/*if (!iSize)
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
-		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
-	}*/
-	
-	// Sets exit and back button
-	hMenu.ExitBackButton = true;
-
-	// Sets options and display it
-	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-	hMenu.Display(client, MENU_TIME_FOREVER); 
-}
-
-/**
- * @brief Called when client selects option in the config menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param client            The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
-{
-	// Switch the menu action
-	switch (mAction)
-	{
-		// Client hit 'Exit' button
-		case MenuAction_End :
-		{
-			delete hMenu;
-		}
-		
-		// Client hit 'Back' button
-		case MenuAction_Cancel :
-		{
-			if (mSlot == MenuCancel_ExitBack)
-			{
-				// Opens menu back
-				int iD[2]; iD = MenusCommandToArray("zp_config_menu");
-				if (iD[0] != -1) SubMenu(client, iD[0]);
-			}
-		}
-		
-		// Client selected an option
-		case MenuAction_Select :
-		{
-			// Validate client
-			if (!IsPlayerExist(client, false))
-			{
-				return 0;
-			}
-
-			// Gets menu info
-			static char sBuffer[SMALL_LINE_LENGTH];
-			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-			int iD = StringToInt(sBuffer);
-			
-			// Gets config alias
-			ConfigGetConfigAlias(iD, sBuffer, sizeof(sBuffer));
-			
-			// Reloads config file
-			bool bSuccessful = ConfigReloadConfig(iD);
-			
-			// Validate load
-			if (bSuccessful)
-			{
-				TranslationPrintToChat(client, "config reload finish", sBuffer);
-			}
-			else
-			{
-				TranslationPrintToChat(client, "config reload falied", sBuffer);
-			}
-			
-			// Log action to game events
-			LogEvent(true, _, _, _, "Command", "Admin \"%N\" reloaded all config files", client);
-			
-			// Opens config menu back
-			ConfigMenu(client);
-		}
-	}
-	
-	return 0;
 }
