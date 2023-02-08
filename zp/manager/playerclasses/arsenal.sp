@@ -181,7 +181,7 @@ void ArsenalSet(ConVar hConVar)
 	static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH];
 	
 	// Create array of indexes
-	ArrayList hList = new ArrayList(); int iType = gServerData.Types.FindString("human");
+	ArrayList hList = new ArrayList(); int iType = gServerData.Human;
 	
 	// Gets the weapon string divived by commas
 	hConVar.GetString(sBuffer, sizeof(sBuffer));
@@ -258,7 +258,7 @@ bool ArsenallGive(int client)
 	}
 	
 	// Random weapons setting enabled / Bots pick their weapons randomly
-	if (gCvarList.ARSENAL_RANDOM_WEAPONS || IsFakeClient(client))
+	if (gCvarList.ARSENAL_RANDOM_WEAPONS.BoolValue || IsFakeClient(client))
 	{
 		// Give additional weapons
 		int weapon = ArsenalGiveAdds(client);
