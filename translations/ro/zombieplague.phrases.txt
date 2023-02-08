@@ -340,105 +340,105 @@
 	}
 	
 	// ===========================
-	// ZTele
+	// Teleport
 	// ===========================
 
-	"ztele restricted escape" // Chat
+	"teleport restricted escape" // Chat
 	{
-		"ro"			"ZTele is restricted on non-escape modes."
+		"ro"			"Teleport is restricted on non-escape modes."
 	}
 	
-	"ztele restricted zombie" // Chat
+	"teleport restricted zombie" // Chat
 	{
-		"ro"			"ZTele este restricționat pentru zombi în acest moment."
+		"ro"			"Teleport este restricționat pentru zombi în acest moment."
 	}
 	
-	"ztele restricted human" // Chat
+	"teleport restricted human" // Chat
 	{
-		"ro"			"ZTele este restricționat pentru oameni în acest moment."
+		"ro"			"Teleport este restricționat pentru oameni în acest moment."
 	}
 
-	"ztele max" // Chat
+	"teleport max" // Chat
 	{
 		"#format"		"{1:d}"
 		"ro"			"Ați atins valoarea maximă a @red{1} @defaultteleportării(teleportărilor) per rundă."
 	}
 
-	"ztele in progress" // Chat
+	"teleport in progress" // Chat
 	{
 		"ro"			"Sunteți în curs de teleportare."
 	}
 
-	"ztele autocancel text" // Chat
+	"teleport autocancel text" // Chat
 	{
 		"#format"		"{1:d}"
 		"ro"			"Teleportarea a fost anulată. (Restrictionary boundary is @red{1}@lgreenft@default.)"
 	}
 
-	"ztele countdown" // Hint
+	"teleport countdown" // Hint
 	{
 		"#format"		"{1:d}"
 		"ro"			"Teleportare înapoi la icre în: <font color='#FF0000'>{1}</font> sec."
 	}
 
-	"ztele autocancel centertext" // Hint
+	"teleport autocancel centertext" // Hint
 	{
 		"ro"			"Teleportarea a fost anulată."
 	}
 
-	"ztele countdown end" // Hint
+	"teleport countdown end" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"ro"			"Teleportat înapoi la icre. (Număr: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
 	}
 
-	"ztele command force syntax" // Console
+	"teleport command force syntax" // Console
 	{
-		"ro"			"Forțează ZTele pe un client. Utilizare: zp_ztele_force <client>"
+		"ro"			"Forțează Teleport pe un client. Utilizare: zp_teleport_force <client>"
 	}
 
-	"ztele command force successful" // Console
+	"teleport command force successful" // Console
 	{
 		"#format"		"{1:s}"
 		"ro"			"Jucătorul {1} a fost teleportat cu succes."
 	}
 
-	"ztele command force unsuccessful" // Console
+	"teleport command force unsuccessful" // Console
 	{
 		"#format"		"{1:s}"
 		"ro"			"Jucătorul {1} nu a putut fi teleportat."
 	}
 	
-	"ztele invalid client" // Console
+	"teleport invalid client" // Console
 	{
 		"ro"			"Jucătorii nu au putut fi găsiți."
 	}
 			
 	// ===========================
-	// ZMarket
+	// Market
 	// ===========================
 			
-	"zmarket favorites menu" // Menu
+	"market favorites menu" // Menu
 	{
 		"ro"			"Favorite"
 	}
 	
-	"zmarket add" // Menu
+	"market add" // Menu
 	{
 		"ro"			"Adăuga\n \nElimina"
 	}
 
-	"zmarket buy" // Menu
+	"market buy" // Menu
 	{
 		"ro"			"Cumpara\n \nAspect"
 	}
 	
-	"zmarket buy all" // Menu
+	"market buy all" // Menu
 	{
 		"ro"			"Cumpara tot\n \n"
 	}
 		
-	"zmarket remember" // Menu
+	"market remember" // Menu
 	{
 		"ro"			"Tine minte"
 	}

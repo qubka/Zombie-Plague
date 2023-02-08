@@ -5,9 +5,9 @@
 		"en"			"Main menu"
 	}
 
-	"buy extraitems" // Menu
+	"market menu" // Menu
 	{
-		"en"			"Buy extra items"
+		"en"			"Buy weapon/items"
 	}
 	
 	"choose classes" // Menu
@@ -27,7 +27,7 @@
 
 	"costumes menu" // Menu
 	{
-		"en"			"Hats/Costumes"
+		"en"			"Hats/costumes"
 	}
 	
 	"help menu" // Menu
@@ -45,7 +45,7 @@
 		"en"			"Arsenal"
 	}
 	
-	"ztele menu" // Menu
+	"teleport menu" // Menu
 	{
 		"en"			"Teleport!"
 	}

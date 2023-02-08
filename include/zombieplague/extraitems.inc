@@ -97,6 +97,24 @@ native int ZP_GetNumberExtraItem();
 native int ZP_GetExtraItemNameID(char[] name);
 
 /**
+ * @brief Gets the section id of a extra item at a given name.
+ * 
+ * @param itemID            The item index.
+ *
+ * @return                  The section ID, or -1 on failure.
+ **/
+native int ZP_GetExtraItemSectionID(int itemID);
+
+/**
+ * @brief Gets the section of a extra item at a given index.
+ *
+ * @param itemID            The item index.
+ * @param section           The string to return section in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetExtraItemSection(int itemID, char[] section, int maxlenght = 32);
+
+/**
  * @brief Gets the name of a extra item at a given index.
  *
  * @param itemID            The item index.
@@ -113,6 +131,15 @@ native void ZP_GetExtraItemName(int itemID, char[] name, int maxlenght = 32);
  * @param maxlenght         The lenght of string.
  **/
 native void ZP_GetExtraItemInfo(int itemID, char[] info, int maxlenght = 128);
+
+/**
+ * @brief Gets the weapon of a extra item at a given name.
+ * 
+ * @param itemID            The item index.
+ *
+ * @return                  The weapon ID, or -1 on failure.
+ **/
+native int ZP_GetExtraItemWeaponID(int itemID);
 
 /**
  * @brief Gets the cost of the extra item.
@@ -149,6 +176,15 @@ native int ZP_GetExtraItemOnline(int itemID);
  * @return                  The limit amount.    
  **/
 native int ZP_GetExtraItemLimit(int itemID);
+
+/**
+ * @brief Gets the flags of the extra item.
+ * 
+ * @param itemID            The item index.
+ *
+ * @return                  The flags values.
+ **/
+native int ZP_GetExtraItemFlags(int itemID);
 
 /**
  * @brief Gets the group of a extra item at a given index.

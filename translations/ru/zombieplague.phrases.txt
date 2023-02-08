@@ -340,105 +340,105 @@
 	}
 	
 	// ===========================
-	// ZTele
+	// Teleport
 	// ===========================
 
-	"ztele restricted escape" // Chat
+	"teleport restricted escape" // Chat
 	{
-		"ru"			"ZTele огнаничен для режимов без выживания."
+		"ru"			"Телепорт огнаничен для режимов без выживания."
 	}
 	
-	"ztele restricted zombie" // Chat
+	"teleport restricted zombie" // Chat
 	{
-		"ru"			"ZTele огнаничен для зомби."
+		"ru"			"Телепорт огнаничен для зомби."
 	}
 	
-	"ztele restricted human" // Chat
+	"teleport restricted human" // Chat
 	{
-		"ru"			"ZTele огнаничен для людей."
+		"ru"			"Телепорт огнаничен для людей."
 	}
 
-	"ztele max" // Chat
+	"teleport max" // Chat
 	{
 		"#format"		"{1:d}"
 		"ru"			"Вы достигли своего максимума @red{1} @defaultтелепорта(ов) за раунд."
 	}
 
-	"ztele in progress" // Chat
+	"teleport in progress" // Chat
 	{
 		"ru"			"В данный момент вы ожидаете телепортации."
 	}
 
-	"ztele autocancel text" // Chat
+	"teleport autocancel text" // Chat
 	{
 		"#format"		"{1:d}"
 		"ru"			"Телепортация отменена. (Ограничительная граница @red{1}@lgreenмт@default.)"
 	}
 
-	"ztele countdown" // Hint
+	"teleport countdown" // Hint
 	{
 		"#format"		"{1:d}"
 		"ru"			"Телепортация обратно на спавн за: <font color='#FF0000'>{1}</font> сек."
 	}
 
-	"ztele autocancel centertext" // Hint
+	"teleport autocancel centertext" // Hint
 	{
 		"ru"			"Телепортация отменена."
 	}
 
-	"ztele countdown end" // Hint
+	"teleport countdown end" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"ru"			"Телепортировался обратно на cпавн. (Кол-во: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
 	}
 
-	"ztele command force syntax" // Console
+	"teleport command force syntax" // Console
 	{
-		"ru"			"Телепортировать клиента. Использование: zp_ztele_force <client>"
+		"ru"			"Телепортировать клиента. Использование: zp_teleport_force <client>"
 	}
 
-	"ztele command force successful" // Console
+	"teleport command force successful" // Console
 	{
 		"#format"		"{1:s}"
 		"ru"			"Игрок {1} был успешно телепортирован."
 	}
 
-	"ztele command force unsuccessful" // Console
+	"teleport command force unsuccessful" // Console
 	{
 		"#format"		"{1:s}"
 		"ru"			"Игрока {1} нельзя было телепортировать."
 	}
 	
-	"ztele invalid client" // Console
+	"teleport invalid client" // Console
 	{
 		"ru"			"Игроков найти не удалось."
 	}
 			
 	// ===========================
-	// ZMarket
+	// Market
 	// ===========================
 			
-	"zmarket favorites menu" // Menu
+	"market favorites menu" // Menu
 	{
 		"ru"			"Избранное"
 	}
 	
-	"zmarket add" // Menu
+	"market add" // Menu
 	{
 		"ru"			"Добавить\n \nУдалить"
 	}
 
-	"zmarket buy" // Menu
+	"market buy" // Menu
 	{
 		"ru"			"Купить\n \nНастройка"
 	}
 	
-	"zmarket buy all" // Menu
+	"market buy all" // Menu
 	{
 		"ru"			"Купить все\n \n"
 	}
 		
-	"zmarket remember" // Menu
+	"market remember" // Menu
 	{
 		"ru"			"Запомнить"
 	}

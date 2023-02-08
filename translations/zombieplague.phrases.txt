@@ -340,105 +340,105 @@
 	}
 	
 	// ===========================
-	// ZTele
+	// Teleport
 	// ===========================
 
-	"ztele restricted escape" // Chat
+	"teleport restricted escape" // Chat
 	{
-		"en"			"ZTele is restricted on non-escape modes."
+		"en"			"Teleport is restricted on non-escape modes."
 	}
 	
-	"ztele restricted zombie" // Chat
+	"teleport restricted zombie" // Chat
 	{
-		"en"			"ZTele is restricted for zombies at this time."
+		"en"			"Teleport is restricted for zombies at this time."
 	}
 	
-	"ztele restricted human" // Chat
+	"teleport restricted human" // Chat
 	{
-		"en"			"ZTele is restricted for humans at this time."
+		"en"			"Teleport is restricted for humans at this time."
 	}
 
-	"ztele max" // Chat
+	"teleport max" // Chat
 	{
 		"#format"		"{1:d}"
 		"en"			"You have reached your max of @red{1} @defaultteleport(s) per round."
 	}
 
-	"ztele in progress" // Chat
+	"teleport in progress" // Chat
 	{
 		"en"			"You are currently pending teleportation."
 	}
 
-	"ztele autocancel text" // Chat
+	"teleport autocancel text" // Chat
 	{
 		"#format"		"{1:d}"
 		"en"			"Teleport has been cancelled. (Restrictive boundary is @red{1}@lgreenft@default.)"
 	}
 
-	"ztele countdown" // Hint
+	"teleport countdown" // Hint
 	{
 		"#format"		"{1:d}"
 		"en"			"Teleporting back to spawn in: <font color='#FF0000'>{1}</font> sec."
 	}
 
-	"ztele autocancel centertext" // Hint
+	"teleport autocancel centertext" // Hint
 	{
 		"en"			"Teleport has been cancelled."
 	}
 
-	"ztele countdown end" // Hint
+	"teleport countdown end" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"en"			"Teleported back to spawn. (Count: <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>)"
 	}
 
-	"ztele command force syntax" // Console
+	"teleport command force syntax" // Console
 	{
-		"en"			"Force ZTele on a client. Usage: zp_ztele_force <client>"
+		"en"			"Force Teleport on a client. Usage: zp_teleport_force <client>"
 	}
 
-	"ztele command force successful" // Console
+	"teleport command force successful" // Console
 	{
 		"#format"		"{1:s}"
 		"en"			"Player {1} was successfully teleported."
 	}
 
-	"ztele command force unsuccessful" // Console
+	"teleport command force unsuccessful" // Console
 	{
 		"#format"		"{1:s}"
 		"en"			"Player {1} couldn't be teleported."
 	}
 	
-	"ztele invalid client" // Console
+	"teleport invalid client" // Console
 	{
 		"en"			"Players couldn't be found."
 	}
 		
 	// ===========================
-	// ZMarket
+	// Market
 	// ===========================
 		
-	"zmarket favorites menu" // Menu
+	"market favorites menu" // Menu
 	{
 		"en"			"Favorites"
 	}
 	
-	"zmarket add" // Menu
+	"market add" // Menu
 	{
 		"en"			"Add\n \nRemove"
 	}
 
-	"zmarket buy" // Menu
+	"market buy" // Menu
 	{
 		"en"			"Buy\n \nLayout"
 	}
 	
-	"zmarket buy all" // Menu
+	"market buy all" // Menu
 	{
 		"en"			"Buy all\n \n"
 	}
 		
-	"zmarket remember" // Menu
+	"market remember" // Menu
 	{
 		"en"			"Remember"
 	}

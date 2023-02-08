@@ -5,14 +5,9 @@
 		"chi"			"主要菜单"
 	}
 
-	"buy weapons" // Menu
+	"market menu" // Menu
 	{
-		"chi"			"购买武器"
-	}
-
-	"buy extraitems" // Menu
-	{
-		"chi"			"购买额外物品"
+		"chi"			"购买武器/物品"
 	}
 	
 	"choose classes" // Menu
@@ -50,7 +45,7 @@
 		"chi"			"兵工厂"
 	}
 	
-	"ztele menu" // Menu
+	"teleport menu" // Menu
 	{
 		"chi"			"傳送！"
 	}

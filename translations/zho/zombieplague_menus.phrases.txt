@@ -5,9 +5,9 @@
 		"zho"			"主要菜單"
 	}
 
-	"buy extraitems" // Menu
+	"market menu" // Menu
 	{
-		"zho"			"購買額外物品"
+		"zho"			"購買武器/物品"
 	}
 	
 	"choose classes" // Menu
@@ -45,7 +45,7 @@
 		"zho"			"兵工廠"
 	}
 	
-	"ztele menu" // Menu
+	"teleport menu" // Menu
 	{
 		"zho"			"传送！"
 	}

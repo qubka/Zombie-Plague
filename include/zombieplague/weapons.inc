@@ -48,26 +48,7 @@ enum SlotType
 /**
  * @endsection
  **/
- 
-/**
- * @section Number of valid menus.
- **/
-enum MenuType
-{
-	MenuType_Invalid = -1,        /** Used as return value when a menu doens't exist. */
-	
-	MenuType_Pistols,             /** Pistol menu */
-	MenuType_Shotguns,            /** Shotgun menu */
-	MenuType_Rifles,              /** Rifle menu */
-	MenuType_Snipers,             /** Sniper menu */
-	MenuType_Machineguns,         /** Machineguns menu */
-	MenuType_Knifes,              /** Knife menu */
-	MenuType_Equipments           /** Equipment menu */
-};
-/**
- * @endsection
- **/
- 
+
 /**
  * @section Number of valid addons.
  **/
@@ -107,18 +88,7 @@ enum ModelType
 /**
  * @endsection
  **/
- 
-/**
- * @brief Called before show a weapon in the weapons menu.
- * 
- * @param client            The client index.
- * @param weaponID          The weapon index.
- *
- * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
- *                              (like Plugin_Continue) to allow showing and selecting.
- **/
-forward Action ZP_OnClientValidateWeapon(int client, int weaponID);
- 
+
 /**
  * @brief Called after a custom grenade is created. (Only for projectiles)
  *
@@ -372,24 +342,6 @@ native void ZP_GetWeaponGroup(int weaponID, char[] group, int maxlenght = 32);
 native void ZP_GetWeaponClass(int weaponID, char[] class, int maxlenght = 128);
 
 /**
- * @brief Gets the cost of the weapon.
- * 
- * @param weaponID          The weapon ID.
- *
- * @return                  The cost amount.    
- **/
-native int ZP_GetWeaponCost(int weaponID);
-
-/**
- * @brief Gets the menu slot of the weapon.
- * 
- * @param weaponID          The weapon ID.
- *
- * @return                  The weapon slot.    
- **/
-native MenuType ZP_GetWeaponSlot(int weaponID);
-
-/**
  * @brief Gets the level of the weapon.
  * 
  * @param weaponID          The weapon ID.
@@ -406,15 +358,6 @@ native int ZP_GetWeaponLevel(int weaponID);
  * @return                  The online amount.    
  **/
 native int ZP_GetWeaponOnline(int weaponID);
-
-/**
- * @brief Gets the limit of the weapon.
- * 
- * @param weaponID          The weapon ID.
- *
- * @return                  The limit amount.    
- **/
-native int ZP_GetWeaponLimit(int weaponID);
 
 /**
  * @brief Gets the damage of the weapon.

@@ -5,9 +5,9 @@
 		"ru"			"Главное меню"
 	}
 
-	"buy extraitems" // Menu
+	"market menu" // Menu
 	{
-		"ru"			"Купить дополнительные предметы"
+		"ru"			"Купить оружия/предметы"
 	}
 	
 	"choose classes" // Menu
@@ -27,7 +27,7 @@
 
 	"costumes menu" // Menu
 	{
-		"ru"			"Шапки/Костюмы"
+		"ru"			"Шапки/костюмы"
 	}
 	
 	"help menu" // Menu
@@ -45,7 +45,7 @@
 		"ru"			"Оружейка"
 	}
 	
-	"ztele menu" // Menu
+	"teleport menu" // Menu
 	{
 		"ru"			"Телепорт!"
 	}

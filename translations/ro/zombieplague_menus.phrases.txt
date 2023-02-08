@@ -5,9 +5,9 @@
 		"ro"			"Meniu principal"
 	}
 
-	"buy extraitems" // Menu
+	"market menu" // Menu
 	{
-		"ro"			"Cumpara lucruri extra"
+		"ro"			"Cumpărați arme/articole"
 	}
 	
 	"choose classes" // Menu
@@ -45,7 +45,7 @@
 		"ro"			"Arsenal"
 	}
 	
-	"ztele menu" // Menu
+	"teleport menu" // Menu
 	{
 		"ro"			"Teleportare!"
 	}

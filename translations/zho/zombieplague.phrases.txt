@@ -340,105 +340,105 @@
 	}
 	
 	// ===========================
-	// ZTele
+	// Teleport
 	// ===========================
 
-	"ztele restricted escape" // Chat
+	"teleport restricted escape" // Chat
 	{
 		"zho"			"ZTele在非生存模式下具有防火功能。"
 	}
 	
-	"ztele restricted zombie" // Chat
+	"teleport restricted zombie" // Chat
 	{
 		"zho"			"ZTele目前仅适用于僵尸。"
 	}
 	
-	"ztele restricted human" // Chat
+	"teleport restricted human" // Chat
 	{
 		"zho"			"ZTele目前仅限人类使用。"
 	}
 
-	"ztele max" // Chat
+	"teleport max" // Chat
 	{
 		"#format"		"{1:d}"
 		"zho"			"您已达到每回合@red{1}@default个传送的最大值。"
 	}
 
-	"ztele in progress" // Chat
+	"teleport in progress" // Chat
 	{
 		"zho"			"您当前正在等待传送。"
 	}
 
-	"ztele autocancel text" // Chat
+	"teleport autocancel text" // Chat
 	{
 		"#format"		"{1:d}"
 		"zho"			"传送已被取消。 （限制边界为@red{1}@lgreen英尺@default。）"
 	}
 
-	"ztele countdown" // Hint
+	"teleport countdown" // Hint
 	{
 		"#format"		"{1:d}"
 		"zho"			"传送回城： <font color='#FF0000'>{1}</font>秒。"
 	}
 
-	"ztele autocancel centertext" // Hint
+	"teleport autocancel centertext" // Hint
 	{
 		"zho"			"传送已被取消。"
 	}
 
-	"ztele countdown end" // Hint
+	"teleport countdown end" // Hint
 	{
 		"#format"		"{1:d},{2:d}"
 		"zho"			"传送回生成。 （计数： <font color='#3FFF00'>{1}</font>/<font color='#FF0000'>{2}</font>）"
 	}
 
-	"ztele command force syntax" // Console
+	"teleport command force syntax" // Console
 	{
-		"zho"			"在客户端上强制ZTele。 用法： zp_ztele_force <client>"
+		"zho"			"在客户端上强制ZTele。 用法： zp_teleport_force <client>"
 	}
 
-	"ztele command force successful" // Console
+	"teleport command force successful" // Console
 	{
 		"#format"		"{1:s}"
 		"zho"			"玩家{1}已成功传送。"
 	}
 
-	"ztele command force unsuccessful" // Console
+	"teleport command force unsuccessful" // Console
 	{
 		"#format"		"{1:s}"
 		"zho"			"玩家{1}无法被传送。"
 	}
 	
-	"ztele invalid client" // Console
+	"teleport invalid client" // Console
 	{
 		"zho"			"找不到玩家。"
 	}
 		
 	// ===========================
-	// ZMarket
+	// Market
 	// ===========================
 	
-	"zmarket favorites menu" // Menu
+	"market favorites menu" // Menu
 	{
 		"zho"			"最爱"
 	}
 	
-	"zmarket add" // Menu
+	"market add" // Menu
 	{
 		"zho"			"加\n \n消除"
 	}
 
-	"zmarket buy" // Menu
+	"market buy" // Menu
 	{
 		"zho"			"购买\n \n布局"
 	}
 	
-	"zmarket buy all" // Menu
+	"market buy all" // Menu
 	{
 		"zho"			"购买所有\n \n"
 	}
 		
-	"zmarket remember" // Menu
+	"market remember" // Menu
 	{
 		"zho"			"記住"
 	}
