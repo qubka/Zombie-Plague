@@ -62,12 +62,12 @@ void SkillSystemOnCvarLoad(/*void*/)
 	// Validate alias
 	if (!hasLength(sCommand))
 	{
-		// Unhook listeners
+		// Unhook commands
 		RemoveCommandListener2(SkillSystemOnCommandListened, sCommand);
 		return;
 	}
 	
-	// Hook listeners
+	// Hook commands
 	AddCommandListener(SkillSystemOnCommandListened, sCommand);
 }
 

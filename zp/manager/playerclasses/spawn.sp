@@ -84,7 +84,7 @@ void SpawnOnCacheData(char[] sClassname)
  **/
 void SpawnOnCommandInit(/*void*/)
 {
-	// Hook listeners
+	// Hook commands
 	AddCommandListener(SpawnOnCommandListened, "jointeam");
 }
 

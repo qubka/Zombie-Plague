@@ -101,7 +101,7 @@ enum StudioAnimDesc
  **/
 
 // Tools Functions
-#include "zp/manager/playerclasses/tools_functions.sp"
+#include "zp/manager/playerclasses/toolsfunctions.sp"
 
 /**
  * @brief Tools module init function.

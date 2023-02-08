@@ -218,7 +218,7 @@ public void LevelSystemOnConfigReload(/*void*/)
  **/
 void LevelSystemOnCommandInit(/*void*/)
 {
-	// Hook commands
+	// Create commands
 	RegAdminCmd("zp_level_give", LevelSystemLevelOnCommandCatched, ADMFLAG_GENERIC, "Gives the level. Usage: zp_level_give <name> [amount]");
 	RegAdminCmd("zp_exp_give", LevelSystemExpOnCommandCatched, ADMFLAG_GENERIC, "Gives the experience. Usage: zp_exp_give <name> [amount]");
 }

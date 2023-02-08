@@ -105,9 +105,8 @@ enum struct ServerData
 	StringMap Configs;
 	StringMap Modules;
 	
-	/* ZMarket */
+	/* Other */
 	int Melee;
-	StringMap Market;
 	ArrayList Arsenal;
 
 	/**
@@ -175,7 +174,7 @@ enum struct ClientData
 	int CustomWeapon;
 	bool RunCmd;
 	
-	/* ZMarket */
+	/* Market */
 	bool AutoSelect;
 	bool BlockMenu;
 	int CurrentMenu;
@@ -199,7 +198,7 @@ enum struct ClientData
 	ArrayList ShoppingCart;
 	ArrayList DefaultCart;
 	StringMap ItemLimit;
-	StringMap WeaponLimit;
+	StringMap ItemMapLimit;
 
 	/**
 	 * @brief Resets all variables.
@@ -267,7 +266,7 @@ enum struct ClientData
 		delete this.ShoppingCart;
 		delete this.DefaultCart;
 		delete this.ItemLimit;
-		delete this.WeaponLimit;
+		delete this.ItemMapLimit;
 	}
 	
 	/**

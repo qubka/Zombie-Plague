@@ -41,6 +41,11 @@ enum
  * @endsection
  **/
  
+/*
+ * Load other menus modules
+ */
+#include "zp/manager/playerclasses/mainmenu.sp"
+
 /**
  * @brief Prepare all menu data.
  **/
@@ -144,7 +149,7 @@ void MenusOnCacheData(/*void*/)
 		arrayMenu.PushString(sBuffer);                                // Index: 4
 		if (hasLength(sBuffer)) 
 		{
-			AddCommandListener(MenusCommandOnCommandListened, sBuffer);
+			AddCommandListener(MenusOnCommandListenedCommand, sBuffer);
 		}
 		else if (kvMenus.JumpToKey("submenu"))                        // Index: 5
 		{
@@ -175,7 +180,7 @@ void MenusOnCacheData(/*void*/)
 					arrayMenu.PushString(sBuffer);                                // Index: i + 4
 					if (hasLength(sBuffer)) 
 					{
-						AddCommandListener(MenusCommandOnCommandListened, sBuffer);
+						AddCommandListener(MenusOnCommandListenedCommand, sBuffer);
 					}
 				}
 				while (kvMenus.GotoNextKey());
@@ -201,15 +206,6 @@ public void MenusOnConfigReload(/*void*/)
 }
 
 /**
- * @brief Creates commands for menus module.
- **/
-void MenusOnCommandInit(/*void*/)
-{
-	// Hook commands
-	RegConsoleCmd("zmenu", MenusOnCommandCatched, "Opens the main menu.");
-}
-
-/**
  * @brief Hook menus cvar changes.
  **/
 void MenusOnCvarInit(/*void*/)
@@ -226,6 +222,15 @@ void MenusOnCvarInit(/*void*/)
 }
 
 /**
+ * @brief Creates commands for menus module.
+ **/
+void MenusOnCommandInit(/*void*/)
+{
+	// Forward event to sub-modules
+	MainMenuOnCommandInit();
+}
+
+/**
  * @brief Load menus listeners changes.
  **/
 void MenusOnCvarLoad(/*void*/)
@@ -237,7 +242,7 @@ void MenusOnCvarLoad(/*void*/)
 	if (hasLength(sCommand))
 	{
 		// Unhook listeners
-		RemoveCommandListener2(MenusMainOnCommandListened, sCommand);
+		RemoveCommandListener2(MenusOnCommandListened, sCommand);
 	}
 	
 	// Gets menu command alias
@@ -247,46 +252,17 @@ void MenusOnCvarLoad(/*void*/)
 	if (!hasLength(sCommand))
 	{
 		// Unhook listeners
-		RemoveCommandListener2(MenusMainOnCommandListened, sCommand);
+		RemoveCommandListener2(MenusOnCommandListened, sCommand);
 		return;
 	}
 	
 	// Hook listeners
-	AddCommandListener(MenusMainOnCommandListened, sCommand);
+	AddCommandListener(MenusOnCommandListened, sCommand);
 }
 
 /*
  * Menus main functions.
  */
-
-/**
- * Console command callback (zmenu)
- * @brief Opens the main menu.
- * 
- * @param client            The client index.
- * @param iArguments        The number of arguments that were in the argument string.
- **/ 
-public Action MenusOnCommandCatched(int client, int iArguments)
-{
-	// Validate client
-	if (!IsPlayerExist(client, false))
-	{
-		return Plugin_Handled;
-	}
-	
-	// Call forward
-	Action hResult;
-	gForwardData._OnClientValidateButton(client, hResult);
-	
-	// Validate handle
-	if (hResult == Plugin_Continue || hResult == Plugin_Changed)
-	{
-		MainMenu(client);
-	}
-	
-	// Return on success
-	return Plugin_Handled;
-}
 
 /**
  * Listener command callback (any)
@@ -296,9 +272,9 @@ public Action MenusOnCommandCatched(int client, int iArguments)
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action MenusMainOnCommandListened(int client, char[] commandMsg, int iArguments)
+public Action MenusOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
-	MenusOnCommandCatched(client, iArguments);
+	MainMenuOnCommandCatched(client, iArguments);
 	return gCvarList.MENU_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
 }
 
@@ -310,7 +286,7 @@ public Action MenusMainOnCommandListened(int client, char[] commandMsg, int iArg
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action MenusCommandOnCommandListened(int client, char[] commandMsg, int iArguments)
+public Action MenusOnCommandListenedCommand(int client, char[] commandMsg, int iArguments)
 {
 	// Validate client
 	if (!IsPlayerExist(client, false))
@@ -814,331 +790,4 @@ bool MenusValidateClass(int client, int iD, int iSubMenu = 0)
 int MenusGetItemDraw(bool menuCondition)
 {
 	return menuCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
-}
-
-/*
- * Menu main API.
- */
-
-/**
- * @brief Creates a main menu.
- *
- * @param client            The client index.
- **/
-void MainMenu(int client)
-{
-	// Initialize variables
-	static char sBuffer[NORMAL_LINE_LENGTH];
-	static char sName[SMALL_LINE_LENGTH];
-	static char sInfo[SMALL_LINE_LENGTH];
-
-	// Creates menu handle
-	Menu hMenu = new Menu(MainMenuSlots);
-	
-	// Sets language to target
-	SetGlobalTransTarget(client);
-	
-	// Sets title
-	hMenu.SetTitle("%t", "main menu");
-	
-	// Initialize forward
-	Action hResult;
-	
-	// i = menu index
-	int iSize = gServerData.Menus.Length; int iAmount;
-	for (int i = 0; i < iSize; i++)
-	{
-		// Call forward
-		gForwardData._OnClientValidateMenu(client, i, _, hResult);
-		
-		// Skip, if menu is disabled
-		if (hResult == Plugin_Stop)
-		{
-			continue;
-		}
-
-		// Gets menu group
-		MenusGetGroup(i, sName, sizeof(sName));
-
-		// Validate access
-		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusValidateClass(client, i));
-
-		// Skip, if menu is hided
-		if (bHide && MenusIsHide(i))
-		{
-			continue;
-		}
-
-		// Gets menu name
-		MenusGetName(i, sName, sizeof(sName));
-
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
-
-		// Show option
-		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bHide) ? false : true));
-	
-		// Increment amount
-		iAmount++;
-	}
-	
-	// If there are no cases, add an "(Empty)" line
-	if (!iAmount)
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
-		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
-	}
-
-	// Sets exit button
-	hMenu.ExitButton = true;
-
-	// Sets options and display it
-	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
-	hMenu.Display(client, MENU_TIME_FOREVER); 
-}
-
-/**
- * @brief Called when client selects option in the main menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param client            The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
-{
-	// Switch the menu action
-	switch (mAction)
-	{
-		// Client hit 'Exit' button
-		case MenuAction_End :
-		{
-			delete hMenu;
-		}
-		
-		// Client selected an option
-		case MenuAction_Select :
-		{
-			// Validate client
-			if (!IsPlayerExist(client, false))
-			{
-				return 0;
-			}
-
-			// Gets menu info
-			static char sBuffer[SMALL_LINE_LENGTH];
-			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-			int iD = StringToInt(sBuffer);
-			
-			// Validate access
-			if (MenusValidateClass(client, iD)) 
-			{
-				// Gets menu command
-				MenusGetCommand(iD, sBuffer, sizeof(sBuffer));
-				
-				// Validate command
-				if (hasLength(sBuffer))
-				{
-					// Run the command
-					FakeClientCommand(client, sBuffer);
-				}
-				else
-				{
-					// Opens sub menu
-					SubMenu(client, iD);
-				}
-			}
-			else
-			{
-				// Show block info
-				TranslationPrintHintText(client, "block using menu"); 
-		
-				// Emit error sound
-				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
-			}
-		}
-	}
-	
-	return 0;
-}
-
-/**
- * @brief Creates a sub menu.
- *
- * @param client            The client index.
- * @param iD                The menu index.
- **/
-void SubMenu(int client, int iD)
-{
-	// Validate client
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-	
-	// Gets array handle of menu at given index
-	ArrayList arrayMenu = gServerData.Menus.Get(iD);
-
-	// Validate size
-	int iSize = arrayMenu.Length;
-	if (!(iSize - MENUS_DATA_SUBMENU))
-	{
-		// Opens main menu back
-		MainMenu(client);
-		return;
-	}
-	
-	// Initialize variables
-	static char sBuffer[NORMAL_LINE_LENGTH];
-	static char sName[SMALL_LINE_LENGTH];
-	static char sInfo[SMALL_LINE_LENGTH];
-	
-	// Gets menu name
-	MenusGetName(iD, sBuffer, sizeof(sBuffer));
-	
-	// Creates menu handle
-	Menu hMenu = new Menu(SubMenuSlots);
-	
-	// Sets language to target
-	SetGlobalTransTarget(client);
-	
-	// Sets title
-	hMenu.SetTitle("%t", sBuffer);
-	
-	// Initialize forward
-	Action hResult;
-	
-	// i = submenu index
-	int iAmount;
-	for (int i = MENUS_DATA_SUBMENU; i < iSize; i += MENUS_DATA_SUBMENU)
-	{
-		// Call forward
-		gForwardData._OnClientValidateMenu(client, iD, i, hResult);
-		
-		// Skip, if menu is disabled
-		if (hResult == Plugin_Stop)
-		{
-			continue;
-		}
-		
-		// Gets menu group
-		MenusGetGroup(iD, sName, sizeof(sName), i);
-
-		// Validate access
-		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusValidateClass(client, iD, i));
-
-		// Skip, if menu is hided
-		if (bHide && MenusIsHide(iD, i))
-		{
-			continue;
-		}
-
-		// Gets menu name
-		MenusGetName(iD, sName, sizeof(sName), i);
-
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
-
-		// Show option
-		FormatEx(sInfo, sizeof(sInfo), "%d %d", iD, i);
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || bHide ? false : true));
-	
-		// Increment amount
-		iAmount++;
-	}
-	
-	// If there are no cases, add an "(Empty)" line
-	if (!iAmount)
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
-		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
-	}
-	
-	// Sets exit and back button
-	hMenu.ExitBackButton = true;
-
-	// Sets options and display it
-	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-	hMenu.Display(client, MENU_TIME_FOREVER); 
-}
-
-/**
- * @brief Called when client selects option in the sub menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param client            The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
-{
-	// Switch the menu action
-	switch (mAction)
-	{
-		// Client hit 'Exit' button
-		case MenuAction_End :
-		{
-			delete hMenu;
-		}
-		
-		// Client hit 'Back' button
-		case MenuAction_Cancel :
-		{
-			if (mSlot == MenuCancel_ExitBack)
-			{
-				// Validate client
-				if (!IsPlayerExist(client, false))
-				{
-					return 0;
-				}
-				
-				// Opens main menu back
-				MainMenu(client);
-			}
-		}
-		
-		// Client selected an option
-		case MenuAction_Select :
-		{
-			// Validate client
-			if (!IsPlayerExist(client, false))
-			{
-				return 0;
-			}
-
-			// Gets menu info
-			static char sBuffer[SMALL_LINE_LENGTH];
-			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-			static char sInfo[2][SMALL_LINE_LENGTH];
-			ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-			int iD = StringToInt(sInfo[0]); int i = StringToInt(sInfo[1]);
-
-			// Validate access
-			if (MenusValidateClass(client, iD, i)) 
-			{
-				// Gets menu command
-				MenusGetCommand(iD, sBuffer, sizeof(sBuffer), i);
-				
-				// Validate command
-				if (hasLength(sBuffer))
-				{
-					// Run the command
-					FakeClientCommand(client, sBuffer);
-				}
-			}
-			else
-			{
-				// Show block info
-				TranslationPrintHintText(client, "block using menu"); 
-				
-				// Emit error sound
-				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
-			}
-		}
-	}
-	
-	return 0;
 }

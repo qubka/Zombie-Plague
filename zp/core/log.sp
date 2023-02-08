@@ -85,7 +85,7 @@ enum LogModule
 	LogModule_Menus,
 	LogModule_HitGroups,
 	LogModule_AntiStick,
-	LogModule_ZTele,
+	LogModule_Teleport,
 	LogModule_Death,
 	LogModule_Levels,
 	LogModule_Classes,
@@ -127,7 +127,7 @@ void LogOnInit(/*void*/)
 	gServerData.Modules.SetValue("menus", LogModule_Menus);
 	gServerData.Modules.SetValue("hitgroups", LogModule_HitGroups);
 	gServerData.Modules.SetValue("antistick", LogModule_AntiStick);
-	gServerData.Modules.SetValue("ztele", LogModule_ZTele);
+	gServerData.Modules.SetValue("teleport", LogModule_Teleport);
 	gServerData.Modules.SetValue("death", LogModule_Death);
 	gServerData.Modules.SetValue("levels", LogModule_Levels);
 	gServerData.Modules.SetValue("classes", LogModule_Classes);
@@ -276,9 +276,9 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
 		{
 			return shortName ? strcopy(sBuffer, iMaxLen, "antistick") : strcopy(sBuffer, iMaxLen, "Antistick");
 		}
-		case LogModule_ZTele :
+		case LogModule_Teleport :
 		{
-			return shortName ? strcopy(sBuffer, iMaxLen, "ztele") : strcopy(sBuffer, iMaxLen, "ZTele");
+			return shortName ? strcopy(sBuffer, iMaxLen, "teleport") : strcopy(sBuffer, iMaxLen, "Teleport");
 		}
 		case LogModule_Death :
 		{

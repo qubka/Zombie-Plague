@@ -42,9 +42,8 @@ void ApplyOnClientSpawn(int client)
 		gClientData[client].Respawn = TEAM_HUMAN;
 		gClientData[client].LastPurchase = 0;
 		
-		// Resets limit of weapons/items
+		// Resets limit of items
 		ItemsRemoveLimits(client);
-		WeaponsRemoveLimits(client);
 	}
 	
 	// Initialize type char
@@ -266,6 +265,8 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, char[] sType = "zombie")
 	SkillSystemOnClientUpdate(client);
 	LevelSystemOnClientUpdate(client);
 	VEffectsOnClientUpdate(client);
+	MarketOnClientUpdate(client);
+	ArsenalOnClientUpdate(client);
 	VOverlayOnClientUpdate(client, Overlay_Reset);
 	if (gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision);
 	_call.AccountOnClientUpdate(client);
@@ -339,7 +340,7 @@ public Action ApplyOnBotClientThink(Handle hTimer, int userID)
 	{
 		// Forward event to modules
 		SkillSystemOnFakeClientThink(client);
-		ExtraItemsOnFakeClientThink(client);
+		MarketOnFakeClientThink(client);
 		WeaponsOnFakeClientThink(client);
 		CostumesOnFakeClientThink(client);
 

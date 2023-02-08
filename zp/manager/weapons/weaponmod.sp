@@ -331,7 +331,7 @@ void WeaponMODOnUnload(/*void*/)
  **/
 void WeaponMODOnCommandInit(/*void*/)
 {
-	// Hook listener
+	// Hook commands
 	AddCommandListener(WeaponMODOnCommandListenedDrop, "drop");
 }
 
@@ -389,7 +389,7 @@ void WeaponMODOnCvarInit(/*void*/)
 	gCvarList.WEAPON_DEFAULT_MELEE  = FindConVar("zp_default_melee");
 
 	// Hook cvars
-	HookConVarChange(gCvarList.WEAPON_BUYAMMO,       WeaponMODOnCvarHook);
+	HookConVarChange(gCvarList.WEAPON_BUYAMMO,       WeaponMODOnCvarHookAmmo);
 	HookConVarChange(gCvarList.WEAPON_DEFAULT_MELEE, WeaponMODOnCvarHookDefault);
 	
 	// Load cvars
@@ -404,13 +404,13 @@ void WeaponMODOnCvarLoad(/*void*/)
 	// Validate buy ammo
 	if (gCvarList.WEAPON_BUYAMMO.BoolValue)
 	{
-		// Hook listeners
+		// Hook commands
 		AddCommandListener(WeaponMODOnCommandListenedBuy, "buyammo1");
 		AddCommandListener(WeaponMODOnCommandListenedBuy, "buyammo2");
 	}
 	else
 	{
-		// Unhook listeners
+		// Unhook commands
 		RemoveCommandListener2(WeaponMODOnCommandListenedBuy, "buyammo1");
 		RemoveCommandListener2(WeaponMODOnCommandListenedBuy, "buyammo2");
 	}
@@ -428,7 +428,7 @@ void WeaponMODOnCvarLoad(/*void*/)
  * @param oldValue          The value before the attempted change.
  * @param newValue          The new value.
  **/
-public void WeaponMODOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+public void WeaponMODOnCvarHookAmmo(ConVar hConVar, char[] oldValue, char[] newValue)
 {
 	// Validate new value
 	if (!strcmp(oldValue, newValue, false))

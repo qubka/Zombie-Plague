@@ -91,7 +91,7 @@ void DeathOnCvarInit(/*void*/)
  **/
 void DeathOnCommandInit(/*void*/)
 {
-	// Hook listeners
+	// Hook commands
 	AddCommandListener(DeathOnCommandListened, "kill");
 	AddCommandListener(DeathOnCommandListened, "explode");
 	AddCommandListener(DeathOnCommandListened, "killvector");

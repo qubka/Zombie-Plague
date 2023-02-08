@@ -3,7 +3,7 @@
  *
  *  Zombie Plague
  *
- *  File:          tools_functions.sp
+ *  File:          toolsfunctions.sp
  *  Type:          Module 
  *  Description:   API for offsets/signatures exposed in tools.sp
  *
@@ -74,7 +74,6 @@ void ToolsOnCvarInit(/*void*/)
 	gCvarList.MESSAGES_ITEM_INFO           = FindConVar("zp_messages_item_info");
 	gCvarList.MESSAGES_ITEM_ALL            = FindConVar("zp_messages_item_all");
 	gCvarList.MESSAGES_WEAPON_INFO         = FindConVar("zp_messages_weapon_info");
-	gCvarList.MESSAGES_WEAPON_ALL          = FindConVar("zp_messages_weapon_all");
 	gCvarList.MESSAGES_WEAPON_DROP         = FindConVar("zp_messages_weapon_drop");
 	gCvarList.MESSAGES_WELCOME_HUD_TIME    = FindConVar("zp_messages_welcome_hud_time");
 	gCvarList.MESSAGES_WELCOME_HUD_FADEIN  = FindConVar("zp_messages_welcome_hud_fadein");
@@ -125,7 +124,7 @@ void ToolsOnCommandLoad(/*void*/)
 		return;
 	}
 	
-	// Hook listeners
+	// Hook commands
 	AddCommandListener(ToolsOnCommandListened, sCommand);
 }
 

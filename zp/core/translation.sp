@@ -463,8 +463,8 @@ stock void TranslationReplyToCommand(int client, any ...)
 bool TranslationIsPhraseExists(char[] sPhrase)
 {
 	// Move phrase to low case
-	StringToLower(sBuffer); 
+	StringToLower(sPhrase); 
 	
 	// Pefrom checking after
-	return TranslationPhraseExists(sBuffer);
+	return TranslationPhraseExists(sPhrase);
 }

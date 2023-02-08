@@ -30,7 +30,7 @@
  **/
 void ClassCommandsOnCommandInit(/*void*/)
 {
-	// Hook commands
+	// Create commands
 	RegAdminCmd("zp_class_dump", ClassDumpOnCommandCatched, ADMFLAG_CONFIG, "Dumps class data at a specified index. Usage: zp_class_dump <index|name>");
 }
 

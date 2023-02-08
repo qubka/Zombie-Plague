@@ -147,8 +147,10 @@ enum AnimType
 #include "zp/manager/playerclasses/spawn.sp"
 #include "zp/manager/playerclasses/death.sp"
 #include "zp/manager/playerclasses/apply.sp"
-#include "zp/manager/playerclasses/ztele.sp"
-#include "zp/manager/playerclasses/classmenus.sp"
+#include "zp/manager/playerclasses/teleport.sp"
+#include "zp/manager/playerclasses/arsenal.sp"
+#include "zp/manager/playerclasses/market.sp"
+#include "zp/manager/playerclasses/classmenu.sp"
 #include "zp/manager/playerclasses/classcommands.sp"
 #include "zp/manager/playerclasses/tools.sp" /// player helpers
 
@@ -183,6 +185,7 @@ void ClassesOnLoad(/*void*/)
 	// Forward event to sub-modules
 	SpawnOnLoad();
 	DeathOnLoad();
+	ArsenalOnLoad();
 	
 	// Register config file
 	ConfigRegisterConfig(File_Classes, Structure_KeyValue, CONFIG_FILE_ALIAS_CLASSES);
@@ -444,9 +447,11 @@ void ClassesOnCommandInit(/*void*/)
 {
 	// Forward event to sub-modules
 	AccountOnCommandInit();
-	ZTeleOnCommandsCreate();
+	TeleportOnCommandInit();
+	ArsenalOnCommandInit();
+	MarketOnCommandInit();
 	AntiStickOnCommandInit();
-	ClassMenusOnCommandInit();
+	ClassMenuOnCommandInit();
 	LevelSystemOnCommandInit();
 	ClassCommandsOnCommandInit();
 }
@@ -460,10 +465,12 @@ void ClassesOnCvarInit(/*void*/)
 	JumpBoostOnCvarInit();
 	LevelSystemOnCvarInit();
 	AccountOnCvarInit();
+	ArsenalOnCvarInit();
+	MarketOnCvarInit();
 	SkillSystemOnCvarInit();
 	ToolsOnCvarInit();
 	DeathOnCvarInit();
-	ZTeleOnCvarInit();
+	TeleportOnCvarInit();
 	AntiStickOnCvarInit();
 	
 	// Creates cvars

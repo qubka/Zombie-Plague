@@ -103,7 +103,7 @@ void AntiStickOnClientInit(int client)
  **/
 void AntiStickOnCommandInit(/*void*/)
 {
-	// Hook commands
+	// Create commands
 	RegConsoleCmd("zstuck", AntiStickOnCommandCatched, "Unstucks player from the another prop.");
 }
 

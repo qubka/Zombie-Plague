@@ -37,6 +37,11 @@ enum /*AccountType*/
 /**
  * @endsection
  **/   
+ 
+/*
+ * Load other accont modules
+ */
+#include "zp/manager/playerclasses/donatemenu.sp"
 
 /**
  * @brief Account module init function.
@@ -100,10 +105,12 @@ void AccountOnInit(/*void*/)
  **/
 void AccountOnCommandInit(/*void*/)
 {
-	// Hook commands
+	// Create commands
 	RegAdminCmd("zp_money_give", AccountGiveOnCommandCatched, ADMFLAG_GENERIC, "Gives the money. Usage: zp_money_give <name> [amount]");
 	RegConsoleCmd("zp_money_donate", AccountDonateOnCommandCatched, "Donates the money. Usage: zp_money_donate <name> [amount]");
-	RegConsoleCmd("zdonate", AccountMenuOnCommandCatched, "Opens the donates menu.");
+	
+	// Forward event to sub-modules
+	DonateMenuOnCommandInit();
 }
 
 /**
@@ -417,19 +424,6 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
 	return Plugin_Handled;
 }
 
-/**
- * Console command callback (zdonate)
- * @brief Opens the donates menu.
- * 
- * @param client            The client index.
- * @param iArguments        The number of arguments that were in the argument string.
- **/ 
-public Action AccountMenuOnCommandCatched(int client, int iArguments)
-{
-	AccountMenu(client, gCvarList.ACCOUNT_BET.IntValue, gCvarList.ACCOUNT_COMMISION.FloatValue);
-	return Plugin_Handled;
-}
-
 /*
  * Account natives API.
  */
@@ -549,232 +543,4 @@ void AccountSetClientCash(int client, int iMoney)
 void AccountSetMoney(int client, int iMoney)
 {
 	SetEntProp(client, Prop_Send, "m_iAccount", iMoney);
-}
-
-/*
- * Menu account API.
- */
-
-/**
- * @brief Creates the donates menu.
- *
- * @param client            The client index.
- * @param iMoney            The money amount.   
- * @param flCommision       The commission amount.
- **/
-void AccountMenu(int client, int iMoney, float flCommision) 
-{
-	// If amount below bet, then set to default
-	int iBet = gCvarList.ACCOUNT_BET.IntValue;
-	if (iMoney < iBet)
-	{
-		iMoney = iBet;
-	}
-
-	// Validate client
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
-	// Initialize variables
-	static char sBuffer[NORMAL_LINE_LENGTH]; 
-	static char sInfo[SMALL_LINE_LENGTH];
-	
-	// Creates menu handle
-	Menu hMenu = new Menu(AccountMenuSlots);
-	
-	// Sets language to target
-	SetGlobalTransTarget(client);
-
-	// Validate commission
-	if (flCommision <= 0.0)
-	{
-		// Sets donate title
-		hMenu.SetTitle("%t", "account donate", iMoney, "money");
-	}
-	else
-	{
-		// Round mode for above 1% commision
-		if (flCommision >= 0.01)
-		{
-			FormatEx(sInfo, sizeof(sInfo), "%d%", RoundToNearest(flCommision * 100.0));
-		}
-		else
-		{
-			FormatEx(sInfo, sizeof(sInfo), "%.2f%", flCommision * 100.0);
-		}
-		// Sets commission title
-		hMenu.SetTitle("%t", "account commission", iMoney, "money", sInfo);
-	}
-
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "account increase");
-		
-		// Show increase option
-		FormatEx(sInfo, sizeof(sInfo), "-2 %d %f", iMoney, flCommision);
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
-
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "account decrease");
-		
-		// Show decrease option
-		FormatEx(sInfo, sizeof(sInfo), "-1 %d %f", iMoney, flCommision);
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney > iBet));
-	}
-	
-	// i = client index
-	int iAmount;
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Validate client
-		if (!IsPlayerExist(i, false) || client == i)
-		{
-			continue;
-		}
-
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%N", i);
-
-		// Show option
-		FormatEx(sInfo, sizeof(sInfo), "%d %d %f", GetClientUserId(i), iMoney, flCommision);
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(iMoney <= gClientData[client].Money));
-
-		// Increment amount
-		iAmount++;
-	}
-	
-	// If there are no cases, add an "(Empty)" line
-	if (!iAmount)
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
-		hMenu.AddItem("empty", sBuffer);
-	}
-	
-	// Sets exit and back button
-	hMenu.ExitBackButton = true;
-
-	// Sets options and display it
-	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-	hMenu.Display(client, MENU_TIME_FOREVER); 
-}
-
-/**
- * @brief Called when client selects option in the donates menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param client            The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-public int AccountMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
-{   
-	// Switch the menu action
-	switch (mAction)
-	{
-		// Client hit 'Exit' button
-		case MenuAction_End :
-		{
-			delete hMenu;
-		}
-		
-		// Client hit 'Back' button
-		case MenuAction_Cancel :
-		{
-			if (mSlot == MenuCancel_ExitBack)
-			{
-				// Opens menu back
-				int iD[2]; iD = MenusCommandToArray("zdonate");
-				if (iD[0] != -1) SubMenu(client, iD[0]);
-			}
-		}
-		
-		// Client selected an option
-		case MenuAction_Select :
-		{
-			// Validate client
-			if (!IsPlayerExist(client, false))
-			{
-				return 0;
-			}
-
-			// Gets menu info
-			static char sBuffer[SMALL_LINE_LENGTH];
-			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-			static char sInfo[3][SMALL_LINE_LENGTH];
-			ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
-			int target = StringToInt(sInfo[0]); int iMoney = StringToInt(sInfo[1]); 
-			float flCommision = StringToFloat(sInfo[2]);
-
-			// Validate button info
-			switch (target)
-			{
-				// Client hit 'Decrease' button 
-				case -1 :
-				{
-					AccountMenu(client, iMoney - gCvarList.ACCOUNT_BET.IntValue, flCommision + gCvarList.ACCOUNT_DECREASE.FloatValue);
-				}
-				
-				// Client hit 'Increase' button
-				case -2  :
-				{
-					AccountMenu(client, iMoney + gCvarList.ACCOUNT_BET.IntValue, flCommision - gCvarList.ACCOUNT_DECREASE.FloatValue);
-				}
-				
-				// Client hit 'Target' button
-				default :
-				{
-					/// Function returns 0 if invalid userid, then stop
-					target = GetClientOfUserId(target);
-				
-					// Validate target
-					if (target)
-					{
-						// Validate commision
-						int iAmount;
-						if (flCommision <= 0.0)
-						{
-							// Sets amount
-							iAmount = iMoney;
-						}
-						else
-						{
-							// Calculate amount
-							iAmount = RoundToNearest(float(iMoney) * (1.0 - flCommision));
-						}
-						
-						// Sets money for the client
-						AccountSetClientCash(client, gClientData[client].Money - iMoney);
-						
-						// Sets money for the target 
-						AccountSetClientCash(target, gClientData[target].Money + iAmount);
-						
-						// If help messages enabled, then show info
-						if (gCvarList.MESSAGES_DONATE.BoolValue)
-						{
-							// Gets client/target name
-							GetClientName(client, sInfo[0], sizeof(sInfo[]));
-							GetClientName(target, sInfo[1], sizeof(sInfo[]));
-							
-							// Show message of successful transaction
-							TranslationPrintToChatAll("info donate", sInfo[0], iAmount, "money", sInfo[1]);
-						}
-					}
-					else
-					{
-
-						// Show block info
-						TranslationPrintHintText(client, "block selecting target");
-					
-						// Emit error sound
-						EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
-					}
-				}
-			}
-		}
-	}
-	
-	return 0;
 }
