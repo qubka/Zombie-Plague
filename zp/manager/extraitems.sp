@@ -52,7 +52,7 @@ enum
 void ExtraItemsOnLoad(/*void*/)
 {
 	// Register config file
-	ConfigRegisterConfig(File_ExtraItems, Structure_FlattenKeyValue, CONFIG_FILE_ALIAS_EXTRAITEMS);
+	ConfigRegisterConfig(File_ExtraItems, Structure_KeyValue, CONFIG_FILE_ALIAS_EXTRAITEMS);
 
 	// If extraitems is disabled, then stop
 	if (!gCvarList.EXTRAITEMS.BoolValue)
@@ -139,14 +139,14 @@ void ExtraItemsOnCacheData(/*void*/)
 	{
 		// Gets section name
 		ArrayList arrayExtraItem = gServerData.ExtraItems.Get(i);
-		arrayExtraItem.Get(EXTRAITEMS_DATA_SECTION, sBuffer, sizeof(sBuffer));
+		arrayExtraItem.GetString(EXTRAITEMS_DATA_SECTION, sBuffer, sizeof(sBuffer));
 
 		// Push section into separated array
 		gServerData.Sections.PushString(sBuffer);
 	}
 
-	// Cleanup array for rebuilding
-	arrayExtraItem.Clean(); /// we flattening everything
+	// Clean array for rebuilding
+	gServerData.ExtraItems.Clear(); /// we flattening everything
 
 	// i = array index
 	iSize = gServerData.Sections.Length;
@@ -214,7 +214,7 @@ void ExtraItemsOnCacheData(/*void*/)
 				arrayExtraItem.PushString(sBuffer);                    // Index: 10
 				
 				// Store this handle in the main array
-				gServerData.ExtraItems.Push(arrayConfigEntry);
+				gServerData.ExtraItems.Push(arrayExtraItem);
 			}
 			while (kvExtraItems.GotoNextKey());
 		}
@@ -234,15 +234,6 @@ public void ExtraItemsOnConfigReload(/*void*/)
 }
 
 /**
- * @brief Creates commands for extra items module.
- **/
-void ExtraItemsOnCommandInit(/*void*/)
-{
-	// Hook commands
-	RegConsoleCmd("zitem", ExtraItemsOnCommandCatched, "Opens the extra items menu.");
-}
-
-/**
  * @brief Hook extra items cvar changes.
  **/
 void ExtraItemsOnCvarInit(/*void*/)
@@ -251,99 +242,6 @@ void ExtraItemsOnCvarInit(/*void*/)
 	gCvarList.EXTRAITEMS = FindConVar("zp_extraitems");
 }
 
-/**
- * Console command callback (zitem)
- * @brief Opens the extra items menu.
- * 
- * @param client            The client index.
- * @param iArguments        The number of arguments that were in the argument string.
- **/ 
-public Action ExtraItemsOnCommandCatched(int client, int iArguments)
-{
-	ItemsMenu(client);
-	return Plugin_Handled;
-}
-
-/**
- * @brief Fake client has been think.
- *
- * @param client            The client index.
- **/
-void ExtraItemsOnFakeClientThink(int client)
-{
-	// Buying chance
-	if (GetRandomInt(0, 10))
-	{
-		return
-	} 
-	
-	// If mode already started, then stop
-	if ((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
-	{ 
-		return;
-	}
-	
-	// Get random item
-	int iD = GetRandomInt(0, gServerData.ExtraItems.Length - 1);
-	
-	// Validate access
-	if (!ItemsValidateClass(client, iD)) 
-	{
-		return;
-	}
-	
-	// Call forward
-	Action hResult;
-	gForwardData._OnClientValidateExtraItem(client, iD, hResult);
-	
-	// Validate access
-	if (hResult == Plugin_Stop || hResult == Plugin_Handled)
-	{
-		return;
-	}
-	
-	// Gets extra item group
-	static char sBuffer[SMALL_LINE_LENGTH];
-	ItemsGetGroup(iD, sBuffer, sizeof(sBuffer));
-	
-	// Validate access
-	if ((hasLength(sBuffer) && !IsPlayerInGroup(client, sBuffer)) || gClientData[client].Level < ItemsGetLevel(iD) || fnGetPlaying() < ItemsGetOnline(iD) || (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) || (ItemsGetCost(iD) && gClientData[client].Money < ItemsGetCost(iD)))
-	{
-		return;
-	}
-
-	// Call forward
-	gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
-
-	// If item has a cost
-	if (ItemsGetCost(iD))
-	{
-		// Remove money and store it for returning if player will be first zombie
-		AccountSetClientCash(client, gClientData[client].Money - ItemsGetCost(iD));
-		gClientData[client].LastPurchase += ItemsGetCost(iD);
-	}
-	
-	// If item has a limit
-	if (ItemsGetLimit(iD))
-	{
-		// Increment count
-		ItemsSetLimits(client, iD, ItemsGetLimits(client, iD) + 1);
-	}
-	
-	// If help messages enabled, then show info
-	if (gCvarList.MESSAGES_ITEM_ALL.BoolValue)
-	{
-		// Gets client name
-		static char sInfo[SMALL_LINE_LENGTH];
-		GetClientName(client, sInfo, sizeof(sInfo));
-
-		// Gets extra item name
-		ItemsGetName(iD, sBuffer, sizeof(sBuffer));
-
-		// Show item buying info
-		TranslationPrintToChatAll("info buy", sInfo, sBuffer);
-	}
-}
 
 /*
  * Extra items natives API.
@@ -358,6 +256,8 @@ void ExtraItemsOnNativeInit(/*void*/)
 	CreateNative("ZP_SetClientExtraItemLimit", API_SetClientExtraItemLimit); 
 	CreateNative("ZP_GetClientExtraItemLimit", API_GetClientExtraItemLimit); 
 	CreateNative("ZP_GetNumberExtraItem",      API_GetNumberExtraItem); 
+	CreateNative("ZP_GetExtraItemSectionID",   API_GetExtraItemSectionID);
+	CreateNative("ZP_GetExtraItemSection",     API_GetExtraItemSection);
 	CreateNative("ZP_GetExtraItemNameID",      API_GetExtraItemNameID);
 	CreateNative("ZP_GetExtraItemName",        API_GetExtraItemName); 
 	CreateNative("ZP_GetExtraItemInfo",        API_GetExtraItemInfo); 
@@ -515,6 +415,62 @@ public int API_GetExtraItemNameID(Handle hPlugin, int iNumParams)
 
 	// Return the value
 	return ItemsNameToIndex(sName); 
+}
+
+/**
+ * @brief Gets the section id of a extra item at a given name.
+ *
+ * @note native int ZP_GetExtraItemSectionID(iD);
+ **/
+public int API_GetExtraItemSectionID(Handle hPlugin, int iNumParams)
+{
+	// Gets item index from native cell
+	int iD = GetNativeCell(1);
+
+	// Validate index
+	if (iD >= gServerData.ExtraItems.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		return -1;
+	}
+	
+	// Return value
+	return ItemsGetSectionID(iD);
+}
+
+/**
+ * @brief Gets the section of a extra item at a given index.
+ *
+ * @note native void ZP_GetExtraItemSection(iD, section, maxlen);
+ **/
+public int API_GetExtraItemSection(Handle hPlugin, int iNumParams)
+{
+	// Gets item index from native cell
+	int iD = GetNativeCell(1);
+
+	// Validate index
+	if (iD >= gServerData.ExtraItems.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		return -1;
+	}
+	
+	// Gets string size from native cell
+	int maxLen = GetNativeCell(3);
+
+	// Validate size
+	if (!maxLen)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "No buffer size");
+		return -1;
+	}
+	
+	// Initialize name char
+	static char sName[SMALL_LINE_LENGTH];
+	gServerData.Sections.GetString(ItemsGetSectionID(iD), sName, sizeof(sName));
+
+	// Return on success
+	return SetNativeString(2, sName, maxLen);
 }
 
 /**
@@ -788,19 +744,18 @@ public int API_GetExtraItemClass(Handle hPlugin, int iNumParams)
  */
  
 /**
- * @brief Gets the section of a item at a given index.
+ * @brief Gets the section id for the item.
  *
  * @param iD                The item index.
- * @param sSection          The string to return section in.
- * @param iMaxLen           The lenght of string.
+ * @return                  The section id.    
  **/
-void ItemsGetSection(int iD, char[] sSection, int iMaxLen)
+int ItemsGetSectionID(int iD)
 {
 	// Gets array handle of extra item at given index
 	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
 	// Gets extra item section
-	arrayExtraItem.GetString(EXTRAITEMS_DATA_SECTION, sSection, iMaxLen);
+	return arrayExtraItem.Get(EXTRAITEMS_DATA_SECTION);
 }
 
 /**
@@ -1058,6 +1013,30 @@ int ItemsNameToIndex(char[] sName)
 }
 
 /**
+ * @brief Returns true if the class of the weapon id, false if not.
+ *
+ * @param iD                The weapon id.
+ * @param sType             The class type.
+ * @return                  True or false.    
+ **/
+bool ItemsValidateByClass(int iD, char[] sType)
+{
+	// Gets item class
+	static char sClass[BIG_LINE_LENGTH];
+	ItemsGetClass(iD, sClass, sizeof(sClass));
+	
+	// Validate length
+	if (hasLength(sClass))
+	{
+		// If class find, then return
+		return (hasLength(sType) && StrContain(sType, sClass, ','));
+	}
+	
+	// Return on success
+	return true;
+}
+
+/**
  * @brief Returns true if the player has an access by the class to the item id, false if not.
  *
  * @param client            The client index.
@@ -1083,262 +1062,4 @@ bool ItemsValidateClass(int client, int iD)
 	
 	// Return on success
 	return true;
-}
-
-/*
- * Menu extra items API.
- */
-
-/**
- * @brief Creates the extra items menu.
- *  
- * @param client            The client index.
- **/ 
-void ItemsMenu(int client)
-{
-	// If module is disabled, then stop
-	if (!gCvarList.EXTRAITEMS.BoolValue)
-	{
-		return;
-	}
-	
-	// Validate client
-	if (!IsPlayerExist(client))
-	{
-		return;
-	}
-
-	// If mode already started, then stop
-	if (gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie)
-	{
-		// Show block info
-		TranslationPrintHintText(client, "block buying round");     
-
-		// Emit error sound
-		EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
-		return;
-	}
-
-	// Initialize variables
-	static char sBuffer[NORMAL_LINE_LENGTH];
-	static char sName[SMALL_LINE_LENGTH];
-	static char sInfo[SMALL_LINE_LENGTH];
-	static char sLevel[SMALL_LINE_LENGTH];
-	static char sLimit[SMALL_LINE_LENGTH];
-	static char sOnline[SMALL_LINE_LENGTH];
-	static char sGroup[SMALL_LINE_LENGTH];
-	
-	// Gets amount of total players
-	int iPlaying = fnGetPlaying();
-
-	// Creates extra items menu handle
-	Menu hMenu = new Menu(ItemsMenuSlots);
-
-	// Sets language to target
-	SetGlobalTransTarget(client);
-	
-	// Sets title
-	hMenu.SetTitle("%t", "buy extraitems");
-	
-	/*if (REDIRECT ON)*/
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "buy equipments");
-		
-		// Show add option
-		hMenu.AddItem("-1", sBuffer);
-	}
-	
-	// Initialize forward
-	Action hResult;
-
-	// i = extraitem index
-	int iSize = gServerData.ExtraItems.Length; int iAmount;
-	for (int i = 0; i < iSize; i++)
-	{
-		// Call forward
-		gForwardData._OnClientValidateExtraItem(client, i, hResult);
-		
-		// Skip, if item is disabled
-		if (hResult == Plugin_Stop)
-		{
-			continue;
-		}
-		
-		// Skip some item, if class isn't equal
-		if (!ItemsValidateClass(client, i)) 
-		{
-			continue;
-		}
-		
-		// Gets extra item data
-		ItemsGetName(i, sName, sizeof(sName));
-		ItemsGetGroup(i, sGroup, sizeof(sGroup));
-
-		// Format some chars for showing in menu
-		FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(i));
-		FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(i));
-		FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(i));
-		FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(i)) ? "%t  %s  %t" : "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (gClientData[client].Level < ItemsGetLevel(i)) ? sLevel : (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) ? sLimit : (iPlaying < ItemsGetOnline(i)) ? sOnline :  "", "price", ItemsGetCost(i), "money");
-
-		// Show option
-		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ItemsGetLevel(i) || iPlaying < ItemsGetOnline(i) || (ItemsGetLimit(i) && ItemsGetLimit(i) <= ItemsGetLimits(client, i)) || (ItemsGetCost(i) && gClientData[client].Money < ItemsGetCost(i))) ? false : true));
-	
-		// Increment amount
-		iAmount++;
-	}
-	
-	// If there are no cases, add an "(Empty)" line
-	if (!iAmount)
-	{
-		// Format some chars for showing in menu
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
-		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
-	}
-	
-	// Sets exit and back button
-	hMenu.ExitBackButton = true;
-	
-	// Sets options and display it
-	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT | MENUFLAG_BUTTON_EXITBACK;
-	hMenu.Display(client, MENU_TIME_FOREVER); 
-}
-
-/**
- * @brief Called when client selects option in the extra items menu, and handles it.
- *  
- * @param hMenu             The handle of the menu being used.
- * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
- * @param client            The client index.
- * @param mSlot             The slot index selected (starting from 0).
- **/ 
-public int ItemsMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
-{
-	// Switch the menu action
-	switch (mAction)
-	{
-		// Client hit 'Exit' button
-		case MenuAction_End :
-		{
-			delete hMenu;
-		}
-		
-		// Client hit 'Back' button
-		case MenuAction_Cancel :
-		{
-			if (mSlot == MenuCancel_ExitBack)
-			{
-				// Opens menu back
-				int iD[2]; iD = MenusCommandToArray("zitem");
-				if (iD[0] != -1) SubMenu(client, iD[0]);
-			}
-		}
-		
-		// Client selected an option
-		case MenuAction_Select :
-		{
-			// Validate client
-			if (!IsPlayerExist(client))
-			{
-				return 0;
-			}
-			
-			// If mode already started, then stop
-			if ((gServerData.RoundStart && !ModesIsExtraItem(gServerData.RoundMode) && !gClientData[client].Zombie) || gServerData.RoundEnd)
-			{
-				// Show block info
-				TranslationPrintHintText(client, "block buying round");
-
-				// Emit error sound
-				EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
-				return 0;
-			}
-
-			// Gets menu info
-			static char sBuffer[SMALL_LINE_LENGTH];
-			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
-			int iD = StringToInt(sBuffer);
-			
-			// Validate button info
-			switch (iD)
-			{
-				// Client hit 'Redirect' button
-				case -1 :
-				{
-					// Opens market menu
-					ZMarketBuyMenu(client, _, "buy equipments"); 
-				}
-			
-				// Client hit 'Item' button
-				default :
-				{
-					// Gets extra item name
-					ItemsGetName(iD, sBuffer, sizeof(sBuffer));
-					
-					// Call forward
-					Action hResult;
-					gForwardData._OnClientValidateExtraItem(client, iD, hResult);
-
-					// Validate handle
-					if (hResult == Plugin_Continue || hResult == Plugin_Changed)
-					{
-						// Validate access
-						if (ItemsValidateClass(client, iD)) 
-						{
-							// Call forward
-							gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item
-					
-							// If item has a cost
-							if (ItemsGetCost(iD))
-							{
-								// Remove money and store it for returning if player will be first zombie
-								AccountSetClientCash(client, gClientData[client].Money - ItemsGetCost(iD));
-								gClientData[client].LastPurchase += ItemsGetCost(iD);
-							}
-							
-							// If item has a limit
-							if (ItemsGetLimit(iD))
-							{
-								// Increment count
-								ItemsSetLimits(client, iD, ItemsGetLimits(client, iD) + 1);
-							}
-							
-							// If help messages enabled, then show info
-							if (gCvarList.MESSAGES_ITEM_ALL.BoolValue)
-							{
-								// Gets client name
-								static char sInfo[SMALL_LINE_LENGTH];
-								GetClientName(client, sInfo, sizeof(sInfo));
-
-								// Show item buying info
-								TranslationPrintToChatAll("info buy", sInfo, sBuffer);
-							}
-						
-							// If help messages enabled, then show info
-							if (gCvarList.MESSAGES_ITEM_INFO.BoolValue)
-							{
-								// Gets item info
-								ItemsGetInfo(iD, sBuffer, sizeof(sBuffer));
-								
-								// Show item personal info
-								if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
-							}
-							
-							// Return on success
-							return 0;
-						}
-					}
-
-					// Show block info
-					TranslationPrintHintText(client, "block buying item", sBuffer);
-			
-					// Emit error sound
-					EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
-				}
-			}
-		}
-	}
-	
-	return 0;
 }

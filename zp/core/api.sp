@@ -51,7 +51,6 @@ enum struct ForwardData
 	Handle OnClientBuyItem;
 	Handle OnClientValidateClass;
 	Handle OnClientValidateCostume;
-	Handle OnClientValidateWeapon;
 	Handle OnClientValidateMode;
 	Handle OnClientValidateButton;
 	Handle OnClientValidateMenu;
@@ -89,7 +88,6 @@ enum struct ForwardData
 		this.OnClientBuyItem         = CreateGlobalForward("ZP_OnClientBuyExtraItem", ET_Ignore, Param_Cell, Param_Cell);
 		this.OnClientValidateClass   = CreateGlobalForward("ZP_OnClientValidateClass", ET_Hook, Param_Cell, Param_Cell);
 		this.OnClientValidateCostume = CreateGlobalForward("ZP_OnClientValidateCostume", ET_Hook, Param_Cell, Param_Cell);
-		this.OnClientValidateWeapon  = CreateGlobalForward("ZP_OnClientValidateWeapon", ET_Hook, Param_Cell, Param_Cell);
 		this.OnClientValidateMode    = CreateGlobalForward("ZP_OnClientValidateMode", ET_Hook, Param_Cell, Param_Cell);
 		this.OnClientValidateButton  = CreateGlobalForward("ZP_OnClientValidateButton", ET_Hook, Param_Cell);
 		this.OnClientValidateMenu    = CreateGlobalForward("ZP_OnClientValidateMenu", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
@@ -272,23 +270,6 @@ enum struct ForwardData
 		Call_Finish(hResult);
 	}
 
-	/**
-	 * @brief Called before show a weapon in the weapons menu.
-	 * 
-	 * @param client            The client index.
-	 * @param weapon            The weapon index.
-	 *
-	 * @param hResult           Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
-	 *                              (like Plugin_Continue) to allow showing and selecting.
-	 **/
-	void _OnClientValidateWeapon(int client, int weapon, Action &hResult)
-	{
-		Call_StartForward(this.OnClientValidateWeapon);
-		Call_PushCell(client);
-		Call_PushCell(weapon);
-		Call_Finish(hResult);
-	}
-	
 	/**
 	 * @brief Called before show a game mode in the modes menu.
 	 * 

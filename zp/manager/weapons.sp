@@ -40,11 +40,8 @@ enum
 	WEAPONS_DATA_DEFINDEX,
 	WEAPONS_DATA_GROUP,
 	WEAPONS_DATA_CLASS,
-	WEAPONS_DATA_COST,
-	WEAPONS_DATA_SLOT,
 	WEAPONS_DATA_LEVEL,
 	WEAPONS_DATA_ONLINE,
-	WEAPONS_DATA_LIMIT,
 	WEAPONS_DATA_DAMAGE,
 	WEAPONS_DATA_KNOCKBACK,
 	WEAPONS_DATA_SPEED,
@@ -82,7 +79,6 @@ enum
 #include "zp/manager/weapons/weaponmod.sp"
 #include "zp/manager/weapons/weaponhdr.sp"
 #include "zp/manager/weapons/weaponattach.sp"
-#include "zp/manager/weapons/zmarket.sp"
 
 /**
  * @brief Weapons module init function.
@@ -99,7 +95,6 @@ void WeaponsOnInit(/*void*/)
 	
 	// Forward event to sub-modules
 	WeaponMODOnInit();
-	ZMarketOnInit();
 }
 
 /**
@@ -145,7 +140,6 @@ void WeaponsOnLoad(/*void*/)
 	
 	// Forward event to sub-modules
 	WeaponMODOnLoad();
-	ZMarketOnLoad();
 }
 
 /**
@@ -233,27 +227,23 @@ void WeaponsOnCacheData(/*void*/)
 		arrayWeapon.PushString(sBuffer);                                  // Index: 3
 		kvWeapons.GetString("class", sBuffer, sizeof(sBuffer), "human");  
 		arrayWeapon.PushString(sBuffer);                                  // Index: 4
-		arrayWeapon.Push(kvWeapons.GetNum("cost", 0));                    // Index: 5
-		kvWeapons.GetString("slot", sBuffer, sizeof(sBuffer), "");        
-		arrayWeapon.Push(ZMarketNameToIndex(sBuffer));                    // Index: 6
-		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 7
-		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 8
-		arrayWeapon.Push(kvWeapons.GetNum("limit", 0));                   // Index: 9
-		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 10
-		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));           // Index: 11
-		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));               // Index: 12
-		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                // Index: 13
-		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 14
-		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 15
-		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 16
-		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 17
-		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 18
-		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 19
-		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 20
+		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 5
+		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 6
+		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 7
+		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));           // Index: 8
+		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));               // Index: 9
+		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                // Index: 10
+		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 11
+		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 12
+		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 13
+		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 14
+		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 15
+		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 16
+		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 17
 		kvWeapons.GetString("sound", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 21
+		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 18
 		kvWeapons.GetString("icon", sBuffer, sizeof(sBuffer), "");        
-		arrayWeapon.PushString(sBuffer);                                  // Index: 22
+		arrayWeapon.PushString(sBuffer);                                  // Index: 19
 		if (hasLength(sBuffer))
 		{
 			// Precache custom icon
@@ -261,25 +251,25 @@ void WeaponsOnCacheData(/*void*/)
 			if (FileExists(sBuffer)) AddFileToDownloadsTable(sBuffer); 
 		}
 		kvWeapons.GetString("view", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 23    
-		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 24
+		arrayWeapon.PushString(sBuffer);                                  // Index: 20    
+		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 21
 		kvWeapons.GetString("world", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.PushString(sBuffer);                                  // Index: 25
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 26
+		arrayWeapon.PushString(sBuffer);                                  // Index: 22
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 23
 		kvWeapons.GetString("dropped", sBuffer, sizeof(sBuffer), "");     
-		arrayWeapon.PushString(sBuffer);                                  // Index: 27
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 28
+		arrayWeapon.PushString(sBuffer);                                  // Index: 24
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 25
 		int iBody[4]; kvWeapons.GetColor4("body", iBody);                 
-		arrayWeapon.PushArray(iBody, sizeof(iBody));                      // Index: 29
+		arrayWeapon.PushArray(iBody, sizeof(iBody));                      // Index: 26
 		int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
-		arrayWeapon.PushArray(iSkin, sizeof(iSkin));                      // Index: 30
+		arrayWeapon.PushArray(iSkin, sizeof(iSkin));                      // Index: 27
 		kvWeapons.GetString("muzzle", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 31
+		arrayWeapon.PushString(sBuffer);                                  // Index: 28
 		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.PushString(sBuffer);                                  // Index: 32
-		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 33
-		arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];             // Index: 34
-		arrayWeapon.PushArray(iSeq, sizeof(iSeq));                        // Index: 35
+		arrayWeapon.PushString(sBuffer);                                  // Index: 29
+		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 30
+		arrayWeapon.Push(-1); int iSeq[WEAPONS_SEQUENCE_MAX];             // Index: 31
+		arrayWeapon.PushArray(iSeq, sizeof(iSeq));                        // Index: 32
 	}
 
 	// We're done with this file now, so we can close it
@@ -311,7 +301,6 @@ public void WeaponsOnConfigReload(/*void*/)
 void WeaponsOnCommandInit(/*void*/)
 {
 	// Forward event to sub-modules
-	ZMarketOnCommandInit();
 	WeaponMODOnCommandInit();
 }
 
@@ -377,7 +366,6 @@ void WeaponsOnCvarInit(/*void*/)
 	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_PRIMARY,    CvarsLockOnCvarHook3);
 
 	// Forward event to sub-modules
-	ZMarketOnCvarInit();
 	WeaponMODOnCvarInit();
 }
 
@@ -575,7 +563,6 @@ public void WeaponsOnClientUpdate(int userID)
 		// Forward event to sub-modules
 		WeaponAttachOnClientUpdate(client);
 		WeaponMODOnClientUpdate(client);
-		ZMarketOnClientUpdate(client);
 	}
 }
 
@@ -588,7 +575,6 @@ void WeaponsOnFakeClientThink(int client)
 {
 	// Forward event to sub-modules
 	WeaponMODOnFakeClientThink(client);
-	ZMarketOnFakeClientThink(client);
 }
 
 /**
@@ -651,11 +637,8 @@ void WeaponsOnNativeInit(/*void*/)
 	CreateNative("ZP_GetWeaponDefIndex",     API_GetWeaponDefIndex);
 	CreateNative("ZP_GetWeaponGroup",        API_GetWeaponGroup);
 	CreateNative("ZP_GetWeaponClass",        API_GetWeaponClass);
-	CreateNative("ZP_GetWeaponCost",         API_GetWeaponCost);
-	CreateNative("ZP_GetWeaponSlot",         API_GetWeaponSlot);
 	CreateNative("ZP_GetWeaponLevel",        API_GetWeaponLevel);
 	CreateNative("ZP_GetWeaponOnline",       API_GetWeaponOnline);
-	CreateNative("ZP_GetWeaponLimit",        API_GetWeaponLimit);
 	CreateNative("ZP_GetWeaponDamage",       API_GetWeaponDamage);
 	CreateNative("ZP_GetWeaponKnockBack",    API_GetWeaponKnockBack);
 	CreateNative("ZP_GetWeaponSpeed",        API_GetWeaponSpeed);
@@ -737,19 +720,8 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 
-	// Call forward
-	Action hResult;
-	gForwardData._OnClientValidateWeapon(client, iD, hResult);
-
-	// Validate handle
-	if (hResult == Plugin_Continue || hResult == Plugin_Changed)
-	{
-		// Give weapon
-		return WeaponsGive(client, iD, GetNativeCell(3));
-	}
-	
-	// Return on unsuccess
-	return -1;
+	// Give weapon
+	return WeaponsGive(client, iD, GetNativeCell(3));
 }
 
 /**
@@ -1033,48 +1005,6 @@ public int API_GetWeaponDefIndex(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the cost of the weapon.
- *
- * @note native int ZP_GetWeaponCost(iD);
- **/
-public int API_GetWeaponCost(Handle hPlugin, int iNumParams)
-{    
-	// Gets weapon index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if (iD >= gServerData.Weapons.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
-		return -1;
-	}
-	
-	// Return the value 
-	return WeaponsGetCost(iD);
-}
-
-/**
- * @brief Gets the slot of the weapon.
- *
- * @note native int ZP_GetWeaponSlot(iD);
- **/
-public int API_GetWeaponSlot(Handle hPlugin, int iNumParams)
-{
-	// Gets weapon index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if (iD >= gServerData.Weapons.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
-		return -1;
-	}
-	
-	// Return the value 
-	return view_as<int>(WeaponsGetSlot(iD));
-}
-
-/**
  * @brief Gets the level of the weapon.
  *
  * @note native int ZP_GetWeaponLevel(iD);
@@ -1114,27 +1044,6 @@ public int API_GetWeaponOnline(Handle hPlugin, int iNumParams)
 	
 	// Return the value 
 	return WeaponsGetOnline(iD);
-}
-
-/**
- * @brief Gets the limit of the weapon.
- *
- * @note native int ZP_GetWeaponLimit(iD);
- **/
-public int API_GetWeaponLimit(Handle hPlugin, int iNumParams)
-{
-	// Gets weapon index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if (iD >= gServerData.Weapons.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
-		return -1;
-	}
-	
-	// Return the value 
-	return WeaponsGetLimit(iD);
 }
 
 /**
@@ -1825,36 +1734,6 @@ ItemDef WeaponsGetDefIndex(int iD)
 }
 
 /**
- * @brief Gets the cost of the weapon.
- *
- * @param iD                The weapon id.
- * @return                  The cost amount.
- **/
-int WeaponsGetCost(int iD)
-{
-	// Gets array handle of weapon at given index
-	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
-	
-	// Gets weapon cost
-	return arrayWeapon.Get(WEAPONS_DATA_COST);
-}
-
-/**
- * @brief Gets the slot of the weapon.
- *
- * @param iD                The weapon id.
- * @return                  The weapon slot.    
- **/
-MenuType WeaponsGetSlot(int iD)
-{
-	// Gets array handle of weapon at given index
-	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
-	
-	// Gets weapon slot
-	return arrayWeapon.Get(WEAPONS_DATA_SLOT);
-}
-
-/**
  * @brief Gets the level of the weapon.
  *
  * @param iD                The weapon id.
@@ -1882,87 +1761,6 @@ int WeaponsGetOnline(int iD)
 	
 	// Gets weapon online
 	return arrayWeapon.Get(WEAPONS_DATA_ONLINE);
-}
-
-/**
- * @brief Gets the limit of the weapon.
- *
- * @param iD                The weapon id.
- * @return                  The limit amount.
- **/
-int WeaponsGetLimit(int iD)
-{
-	// Gets array handle of weapon at given index
-	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
-	
-	// Gets weapon limit
-	return arrayWeapon.Get(WEAPONS_DATA_LIMIT);
-}
-
-/**
- * @brief Remove the buy limit of the all client weapons.
- *
- * @param client            The client index.
- **/
-void WeaponsRemoveLimits(int client)
-{
-	// If array hasn't been created, then create
-	if (gClientData[client].WeaponLimit == null)
-	{
-		// Initialize a buy limit array
-		gClientData[client].WeaponLimit = new StringMap();
-	}
-
-	// Clear out the array of all data
-	gClientData[client].WeaponLimit.Clear();
-}
-
-/**
- * @brief Sets the buy limit of the current client weapon.
- *
- * @param client            The client index.
- * @param iD                The weapon id.
- * @param iLimit            The limit value.    
- **/
-void WeaponsSetLimits(int client, int iD, int iLimit)
-{
-	// If array hasn't been created, then create
-	if (gClientData[client].WeaponLimit == null)
-	{
-		// Initialize a buy limit array
-		gClientData[client].WeaponLimit = new StringMap();
-	}
-
-	// Initialize key char
-	static char sKey[SMALL_LINE_LENGTH];
-	IntToString(iD, sKey, sizeof(sKey));
-	
-	// Sets buy limit for the client
-	gClientData[client].WeaponLimit.SetValue(sKey, iLimit);
-}
-
-/**
- * @brief Gets the buy limit of the current client weapon.
- *
- * @param client            The client index.
- * @param iD                The weapon id.
- **/
-int WeaponsGetLimits(int client, int iD)
-{
-	// If array hasn't been created, then create
-	if (gClientData[client].WeaponLimit == null)
-	{
-		// Initialize a buy limit array
-		gClientData[client].WeaponLimit = new StringMap();
-	}
-	
-	// Initialize key char
-	static char sKey[SMALL_LINE_LENGTH];
-	IntToString(iD, sKey, sizeof(sKey));
-	
-	// Gets buy limit for the client
-	int iLimit; gClientData[client].WeaponLimit.GetValue(sKey, iLimit);
-	return iLimit;
 }
 
 /**

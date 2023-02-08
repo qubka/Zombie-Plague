@@ -41,7 +41,6 @@ void CommandsOnInit(/*void*/)
 	ClassesOnCommandInit();
 	WeaponsOnCommandInit();
 	GameModesOnCommandInit();
-	ExtraItemsOnCommandInit();
 	CostumesOnCommandInit();
 	VersionOnCommandInit();
 }

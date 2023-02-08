@@ -30,7 +30,7 @@
  **/
 void DebugOnCommandInit(/*void*/)
 {
-	// Hook commands
+	// Create commands
 	RegAdminCmd("zp_debug", DebugOnCommandCatched, ADMFLAG_GENERIC, "Prints debugging dump info the log file.");
 }
 

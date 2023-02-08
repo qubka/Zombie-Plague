@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  *
- *   Plague
+ *  Zombie Plague
  *
  *  File:          classmenus.sp
  *  Type:          Module 
@@ -33,12 +33,12 @@
 /**
  * @brief Creates commands for classes module.
  **/
-void ClassMenusOnCommandInit(/*void*/)
+void ClassMenuOnCommandInit(/*void*/)
 {
-	// Hook commands
+	// Create commands
 	RegConsoleCmd("zhuman", ClassHumanOnCommandCatched, "Opens the human classes menu.");
 	RegConsoleCmd("zzombie", ClassZombieOnCommandCatched, "Opens the zombie classes menu.");
-	RegConsoleCmd("zp_class_menu", ClassesOnCommandCatched, "Opens the classes menu.");
+	RegAdminCmd("zp_class_menu", ClassMenuOnCommandCatched, ADMFLAG_CONFIG, "Opens the classes menu.");
 }
 
 /**
@@ -74,7 +74,7 @@ public Action ClassZombieOnCommandCatched(int client, int iArguments)
  * @param client            The client index.
  * @param iArguments        The number of arguments that were in the argument string.
  **/ 
-public Action ClassesOnCommandCatched(int client, int iArguments)
+public Action ClassMenuOnCommandCatched(int client, int iArguments)
 {
 	ClassesMenu(client);
 	return Plugin_Handled;
