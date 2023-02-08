@@ -52,7 +52,7 @@
 		"zho"			"撞矿"
 	}
 	
-	"drone gun" // Menu
+	"turret" // Menu
 	{
 		"zho"			"自動炮塔"
 	}

@@ -262,12 +262,7 @@
 	{
 		"ru"			"Walther WA2000"
 	}
-	
-	"airburster" // Menu
-	{
-		"ru"			"Воздушная пушка"
-	}
-	
+
 	"skull5" // Menu
 	{
 		"ru"			"Скулл V"
@@ -438,7 +433,12 @@
 	}
 	
 	// Others
-
+	
+	"airburster" // Menu
+	{
+		"ru"			"Воздушная пушка"
+	}
+	
 	"etherial" // Menu
 	{
 		"ru"			"Эфириал"

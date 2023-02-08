@@ -52,7 +52,7 @@
 		"ro"			"Lovește-o pe a mea."
 	}
 	
-	"drone gun" // Menu
+	"turret" // Menu
 	{
 		"ro"			"Tureta automata"
 	}

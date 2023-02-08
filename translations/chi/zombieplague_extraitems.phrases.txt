@@ -52,7 +52,7 @@
 		"chi"			"撞矿"
 	}
 	
-	"drone gun" // Menu
+	"turret" // Menu
 	{
 		"chi"			"自动炮塔"
 	}

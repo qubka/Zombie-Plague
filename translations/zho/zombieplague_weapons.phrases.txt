@@ -262,12 +262,7 @@
 	{
 		"zho"			"Walther WA2000"
 	}
-	
-	"airburster" // Menu
-	{
-		"zho"			"Airburster"
-	}
-	
+
 	"skull5" // Menu
 	{
 		"zho"			"Skull V"
@@ -438,7 +433,12 @@
 	}
 	
 	// Others
-
+	
+	"airburster" // Menu
+	{
+		"zho"			"Airburster"
+	}
+	
 	"etherial" // Menu
 	{
 		"zho"			"靈氣"

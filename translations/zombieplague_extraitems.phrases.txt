@@ -52,7 +52,7 @@
 		"en"			"Bump mine"
 	}
 	
-	"drone gun" // Menu
+	"turret" // Menu
 	{
 		"en"			"Auto turret"
 	}

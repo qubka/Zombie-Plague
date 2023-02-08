@@ -262,12 +262,7 @@
 	{
 		"chi"			"Walther WA2000"
 	}
-	
-	"airburster" // Menu
-	{
-		"chi"			"Airburster"
-	}
-	
+
 	"skull5" // Menu
 	{
 		"chi"			"Skull V"
@@ -438,7 +433,12 @@
 	}
 	
 	// Others
-
+	
+	"airburster" // Menu
+	{
+		"chi"			"Airburster"
+	}
+	
 	"etherial" // Menu
 	{
 		"chi"			"灵气"

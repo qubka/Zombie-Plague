@@ -52,7 +52,7 @@
 		"ru"			"Ударная мина"
 	}
 	
-	"drone gun" // Menu
+	"turret" // Menu
 	{
 		"ru"			"Авто турель"
 	}

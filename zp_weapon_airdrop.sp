@@ -46,7 +46,8 @@ public Plugin myinfo =
 int gSound;
  
 // Item index
-int gWeapon;
+int gWeapon; int gWeaponC4;
+
 // Timer index
 Handle hEmitterCreate[MAXPLAYERS+1] = { null, ... }; 
 
@@ -203,7 +204,9 @@ public void ZP_OnEngineExecute(/*void*/)
 {
 	// Weapons
 	gWeapon = ZP_GetWeaponNameID("airdrop");
-	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
+	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");	
+	gWeaponC4 = ZP_GetWeaponNameID("breachcharge");
+	//if (gWeaponC4 == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
 
 	// Sounds
 	gSound = ZP_GetSoundKeyID("HELICOPTER_SOUNDS");
@@ -837,10 +840,13 @@ public Action Weapon_OnRemove(Handle hTimer, int refID)
 		int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
 
 		// Validate client
-		if (IsPlayerExist(client, false))
+		if (IsPlayerExist(client))
 		{
 			// Forces a player to remove weapon
 			ZP_RemoveWeapon(client, weapon);
+			
+			// Give charges to explode safe
+			ZP_GiveClientWeapon(client, gWeaponC4);
 		}
 		else
 		{

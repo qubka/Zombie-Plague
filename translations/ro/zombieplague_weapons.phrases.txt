@@ -262,12 +262,7 @@
 	{
 		"ro"			"Walther WA2000"
 	}
-	
-	"airburster" // Menu
-	{
-		"ro"			"Airburster"
-	}
-	
+
 	"skull5" // Menu
 	{
 		"ro"			"Skull V"
@@ -438,7 +433,12 @@
 	}
 	
 	// Others
-
+	
+	"airburster" // Menu
+	{
+		"ro"			"Airburster"
+	}
+	
 	"etherial" // Menu
 	{
 		"ro"			"Etherial"
