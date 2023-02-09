@@ -43,7 +43,7 @@ public Plugin myinfo =
 }
 
 // Item index
-int gWeapon;
+int gWeapon; int gWeaponS;
 
 // Sound index
 int gSound;
@@ -102,6 +102,7 @@ public void ZP_OnEngineExecute(/*void*/)
 {
 	// Weapons
 	gWeapon = ZP_GetWeaponNameID("m134");
+	gWeaponS = ZP_GetWeaponNameID("m134s");
 	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"m134\" wasn't find");
 	
 	// Sounds
@@ -444,7 +445,7 @@ void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 {
 	// Validate custom weapon
-	if (weaponID == gWeapon)
+	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
 		// Resets variables
 		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
@@ -463,7 +464,7 @@ public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
 public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
 {
 	// Validate custom weapon
-	if (weaponID == gWeapon)
+	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
 		// Sent a tracer
 		ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", "weapon_tracers_mach", vBullet, ZP_GetWeaponShoot(gWeapon));
@@ -480,7 +481,7 @@ public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weap
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
 	// Validate custom weapon
-	if (weaponID == gWeapon)
+	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
 		// Call event
 		_call.Deploy(client, weapon);
@@ -497,7 +498,7 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
 public void ZP_OnWeaponHolster(int client, int weapon, int weaponID) 
 {
 	// Validate custom weapon
-	if (weaponID == gWeapon)
+	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
 		// Call event
 		_call.Holster(client, weapon);
@@ -513,7 +514,7 @@ public void ZP_OnWeaponHolster(int client, int weapon, int weaponID)
 public void ZP_OnWeaponDrop(int weapon, int weaponID)
 {
 	// Validate custom weapon
-	if (weaponID == gWeapon)
+	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
 		// Call event
 		_call.Drop(-1, weapon);
@@ -535,7 +536,7 @@ public void ZP_OnWeaponDrop(int weapon, int weaponID)
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
 	// Validate custom weapon
-	if (weaponID == gWeapon)
+	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
 		// Time to reload weapon
 		static float flReloadTime;
