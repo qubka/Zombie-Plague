@@ -59,6 +59,9 @@ int gSound;
 // Item index
 int gWeapon;
 
+// Type index
+int gType;
+
 // Cvars
 ConVar hCvarInfectRadius;
 ConVar hCvarInfectLast;
@@ -121,6 +124,9 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("INFECT_GRENADE_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"INFECT_GRENADE_SOUNDS\" wasn't find");
+	
+	// Types
+	gType = ZP_GetClassTypeID("zombie");
 }
 
 /**
@@ -251,7 +257,7 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 					}
 
 					// Change class to zombie
-					ZP_ChangeClient(i, owner, "zombie");
+					ZP_ChangeClient(i, owner, gType);
 					
 					// Single infection ?
 					if (bSingle)

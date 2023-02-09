@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Zombie Plague X Copyright (C) 2015-2023 qubka (Nikita Ushakov).
+ * Zombie Plague Copyright (C) 2015-2023 qubka (Nikita Ushakov).
  * =============================================================================
  *
  * This file is part of the Zombie Plague Core.
@@ -129,11 +129,11 @@ forward Action ZP_OnClientValidateClass(int client, int classID);
  *
  * @param client            The client index.
  * @param attacker          (Optional) The attacker index.
- * @param type              (Optional) The class type. (human/zombie - default)
+ * @param type              (Optional) The class type. (-2 = zombie | -3 = human)
  *  
  * @return                  True or false.
  **/
-native bool ZP_ChangeClient(int client, int attacker = 0, char[] type = "zombie");
+native bool ZP_ChangeClient(int client, int attacker = 0, int type = -2);
 
 /**
  * @brief Gets the amount of all classes.
@@ -194,7 +194,7 @@ native void ZP_SetClientZombieClassNext(int client, int classID);
  *
  * @note                    Can return a random index for multiple same unique types!
  **/
-native int ZP_GetRandomClassTypeID(char[] type);
+native int ZP_GetRandomClassTypeID(int type);
 
 /**
  * @brief Gets the index of a class at a given name.
@@ -691,22 +691,16 @@ native int ZP_GetClassSoundRegenID(int classID);
  **/
 native int ZP_GetClassSoundJumpID(int classID);
 
+
 /**
- * @brief Returns true if the player is a type, false if not.
- *
- * @param client            The class index.
- * @param sType             The type name.
- *
- * @return                  True or false.
+ * @brief Return true if type flag exist.
+ * 
+ * @param iTypes            The class types.
+ * @param iType             The class type.
  **/
-stock bool ZP_IsPlayerType(int client, char[] sType)
+stock bool ZP_ClassHasType(int iTypes, int iType)
 {
-	// Gets class type
-	static char sClassType[SMALL_LINE_LENGTH];
-	ZP_GetClassType(ZP_GetClientClass(client), sClassType, sizeof(sClassType));
-	
-	// Return on success
-	return (!strcmp(sClassType, sType, false));
+	return (!iTypes || (iTypes & (1 << iType)));
 }
 
 /**

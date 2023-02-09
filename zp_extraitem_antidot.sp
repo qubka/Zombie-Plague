@@ -42,7 +42,7 @@ public Plugin myinfo =
 }
 
 // Type index
-int gHuman;
+int gType;
 
 // Item index
 int gItem;
@@ -75,7 +75,7 @@ public void ZP_OnEngineExecute(/*void*/)
 	//if (gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"antidot\" wasn't find");
 	
 	// Types
-	gHuman = ZP_GetClassTypeID("human");
+	gType = ZP_GetClassTypeID("human");
 }
 
 /**
@@ -96,7 +96,7 @@ public Action ZP_OnClientValidateExtraItem(int client, int itemID)
 		int mode = ZP_GetCurrentGameMode();
 		
 		// Validate access
-		if (ZP_GetZombieAmount() <= 1 || ZP_GetGameModeHumanType(mode) != gHuman)
+		if (ZP_GetZombieAmount() <= 1 || ZP_GetGameModeHumanType(mode) != gType)
 		{
 			return Plugin_Handled;
 		}
@@ -118,6 +118,6 @@ public void ZP_OnClientBuyExtraItem(int client, int itemID)
 	if (itemID == gItem)
 	{
 		// Change class to human
-		ZP_ChangeClient(client, -1, "human");
+		ZP_ChangeClient(client, -1, gType);
 	}
 }

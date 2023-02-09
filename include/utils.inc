@@ -61,6 +61,17 @@
  **/
 
 /**
+ * @section Macros for bit manipulation.
+ **/
+#define SET_BIT(x, pos) (x |= (1 << pos))
+#define CLEAR_BIT(x, pos) (x &= (~(1 << pos)))
+#define TOGGLE_BIT(x, pos) x ^= (1 << pos)
+#define CHECK_BIT(x, pos) (x & (1 << pos))
+/**
+ * @endsection
+ **/
+ 
+/**
  * @section Damage type values.
  **/
 #define DAMAGE_NO               0

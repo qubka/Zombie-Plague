@@ -44,6 +44,9 @@ public Plugin myinfo =
 // Mode index
 int gMode;
 
+// Type index
+int gNemesis; int gSurvivor;
+
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
  *        A library is either a plugin name or extension name, as exposed via its include file.
@@ -70,6 +73,10 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Modes
 	gMode = ZP_GetGameModeNameID("plague mode");
 	//if (gMode == -1) SetFailState("[ZP] Custom gamemode ID from name : \"plague mode\" wasn't find");
+	
+	// Types
+	gNemesis = ZP_GetClassTypeID("nemesis");
+	gSurvivor = ZP_GetClassTypeID("survivor");
 }
 
 /**
@@ -83,7 +90,7 @@ public void ZP_OnGameModeStart(int mode)
 	if (mode == gMode) /* OR if (ZP_GetCurrentGameMode() == ZP_GetGameModeNameID("plague mode"))*/
 	{
 		// Make a random nemesis/survivor
-		ZP_ChangeClient(ZP_GetRandomZombie(), _, "nemesis");
-		ZP_ChangeClient(ZP_GetRandomHuman(), _, "survivor");
+		ZP_ChangeClient(ZP_GetRandomZombie(), _, gNemesis);
+		ZP_ChangeClient(ZP_GetRandomHuman(), _, gSurvivor);
 	}
 }

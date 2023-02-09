@@ -96,7 +96,7 @@
 			{
 				"library"	"engine"
 				"windows"	"@CreateInterface"
-				"linux"		"@CreateInterface"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x0C\x8B\x1D\x2A\x2A\x2A\x2A\x8B\x75\x08\x8B\x7D\x0C"
 			}
 			"Find_Server"
 			{

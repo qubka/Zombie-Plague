@@ -48,8 +48,11 @@ int gDecal[5]; int gTrail;
 // Sound index
 int gSoundShoot; int gSoundUpgrade; ConVar gKnockBack;
  
+// Weapon index
+int gWeapon;  
+
 // Item index
-int gWeapon;
+int gItem; 
 
 /**
  * @section Variables to store virtual SDK adresses.
@@ -288,6 +291,10 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Weapons
 	gWeapon = ZP_GetWeaponNameID("drone gun");
 	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"drone gun\" wasn't find");
+	
+	// Items
+	gItem = ZP_GetExtraItemNameID("drone gun");
+	//if (gItem == -1) SetFailState("[ZP] Custom item ID from name : \"drone gun\" wasn't find");
 	
 	// Sounds
 	gSoundShoot = ZP_GetSoundKeyID("TURRET_SOUNDS");
@@ -2893,7 +2900,7 @@ stock void GetEyePosition(int entity, float vOutput[3])
  **/
 int GetCost(float flPercentage)
 {
-	return RoundToCeil(float(ZP_GetWeaponCost(gWeapon)) * flPercentage);
+	return RoundToCeil(float(ZP_GetExtraItemCost(gItem)) * flPercentage);
 }
 
 /**

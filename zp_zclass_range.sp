@@ -50,6 +50,9 @@ int gSound;
 // Zombie index
 int gZombie;
 
+// Type index
+int gType;
+
 // Cvars
 ConVar hCvarSkillLast;
 ConVar hCvarSkillSingle;
@@ -102,6 +105,9 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("RANGE_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"RANGE_SKILL_SOUNDS\" wasn't find");
+	
+	// Types
+	gType = ZP_GetClassTypeID("zombie");
 }
 
 /**
@@ -160,7 +166,7 @@ public void ZP_OnClientDeath(int client, int attacker)
 				}
 		  
 				// Change class to zombie
-				ZP_ChangeClient(i, client, "zombie");
+				ZP_ChangeClient(i, client, gType);
 				
 				// Single infection ?
 				if (bSingle)

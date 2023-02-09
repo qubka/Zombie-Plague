@@ -44,6 +44,9 @@ public Plugin myinfo =
 // Item index
 int gItem;
 
+// Type index
+int gType;
+
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
  *        A library is either a plugin name or extension name, as exposed via its include file.
@@ -70,6 +73,9 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Items
 	gItem = ZP_GetExtraItemNameID("survivor");
 	//if (gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"survivor\" wasn't find");	
+	
+	// Types
+	gType = ZP_GetClassTypeID("survivor");
 }
 
 /**
@@ -109,6 +115,6 @@ public void ZP_OnClientBuyExtraItem(int client, int itemID)
 	if (itemID == gItem)
 	{
 		// Change class to survivor
-		ZP_ChangeClient(client, -1, "survivor");
+		ZP_ChangeClient(client, -1, gType);
 	}
 }
