@@ -282,7 +282,7 @@ void WeaponMODOnLoad(/*void*/)
 {
 	// Gets weapon name
 	static char sWeapon[SMALL_LINE_LENGTH];
-	gCvarList.WEAPON_DEFAULT_MELEE.GetString(sWeapon, sizeof(sWeapon));
+	gCvarList.WEAPONS_DEFAULT_MELEE.GetString(sWeapon, sizeof(sWeapon));
 	
 	// Store index
 	gServerData.Melee = WeaponsNameToIndex(sWeapon);
@@ -380,17 +380,17 @@ void WeaponMODOnClientInit(int client)
 void WeaponMODOnCvarInit(/*void*/)
 {
 	// Create cvars
-	gCvarList.WEAPON_BUYAMMO        = FindConVar("zp_buyammo");
-	gCvarList.WEAPON_REMOVE_DROPPED = FindConVar("zp_remove_dropped");
-	gCvarList.WEAPON_PICKUP_RANGE   = FindConVar("zp_pickup_range");
-	gCvarList.WEAPON_PICKUP_LEVEL   = FindConVar("zp_pickup_level");
-	gCvarList.WEAPON_PICKUP_ONLINE  = FindConVar("zp_pickup_online");
-	gCvarList.WEAPON_PICKUP_GROUP   = FindConVar("zp_pickup_group");
-	gCvarList.WEAPON_DEFAULT_MELEE  = FindConVar("zp_default_melee");
+	gCvarList.WEAPONS_BUYAMMO        = FindConVar("zp_weapons_buyammo");
+	gCvarList.WEAPONS_REMOVE_DROPPED = FindConVar("zp_weapons_remove_dropped");
+	gCvarList.WEAPONS_PICKUP_RANGE   = FindConVar("zp_weapons_pickup_range");
+	gCvarList.WEAPONS_PICKUP_LEVEL   = FindConVar("zp_weapons_pickup_level");
+	gCvarList.WEAPONS_PICKUP_ONLINE  = FindConVar("zp_weapons_pickup_online");
+	gCvarList.WEAPONS_PICKUP_GROUP   = FindConVar("zp_weapons_pickup_group");
+	gCvarList.WEAPONS_DEFAULT_MELEE  = FindConVar("zp_weapons_default_melee");
 
 	// Hook cvars
-	HookConVarChange(gCvarList.WEAPON_BUYAMMO,       WeaponMODOnCvarHookAmmo);
-	HookConVarChange(gCvarList.WEAPON_DEFAULT_MELEE, WeaponMODOnCvarHookDefault);
+	HookConVarChange(gCvarList.WEAPONS_BUYAMMO,       WeaponMODOnCvarHookAmmo);
+	HookConVarChange(gCvarList.WEAPONS_DEFAULT_MELEE, WeaponMODOnCvarHookDefault);
 	
 	// Load cvars
 	WeaponMODOnCvarLoad();
@@ -402,7 +402,7 @@ void WeaponMODOnCvarInit(/*void*/)
 void WeaponMODOnCvarLoad(/*void*/)
 {
 	// Validate buy ammo
-	if (gCvarList.WEAPON_BUYAMMO.BoolValue)
+	if (gCvarList.WEAPONS_BUYAMMO.BoolValue)
 	{
 		// Hook commands
 		AddCommandListener(WeaponMODOnCommandListenedBuy, "buyammo1");
@@ -836,7 +836,7 @@ public void WeaponMODOnWeaponDropPost(int refID)
 		}
 		
 		// Remove weapons?
-		float flRemoval = gCvarList.WEAPON_REMOVE_DROPPED.FloatValue;
+		float flRemoval = gCvarList.WEAPONS_REMOVE_DROPPED.FloatValue;
 		if (flRemoval > 0.0)
 		{
 			// Create timer for a weapon removal
@@ -949,7 +949,7 @@ void WeaponMODOnClientUpdate(int client)
 void WeaponMODOnFakeClientThink(int client)
 {
 	// Validate buy ammo
-	if (gCvarList.WEAPON_BUYAMMO.BoolValue)
+	if (gCvarList.WEAPONS_BUYAMMO.BoolValue)
 	{
 		// Buy ammo for client
 		WeaponMODOnClientBuyammo(client);
@@ -1489,7 +1489,7 @@ void WeaponMODOnUse(int client)
 			}
 			
 			// If too far, then stop
-			if (UTIL_GetDistanceBetween(client, entity) > gCvarList.WEAPON_PICKUP_RANGE.FloatValue) 
+			if (UTIL_GetDistanceBetween(client, entity) > gCvarList.WEAPONS_PICKUP_RANGE.FloatValue) 
 			{
 				return;
 			}

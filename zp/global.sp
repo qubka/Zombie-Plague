@@ -102,11 +102,14 @@ enum struct ServerData
 	ArrayList Levels;
 
 	/* Other */
+	StringMap Listeners
 	StringMap Configs;
 	StringMap Modules;
 	ArrayList Sections;
 	ArrayList Types;
 	ArrayList Arsenal;
+	
+	/* IDs */
 	int Melee;
 	int Human;
 	int Zombie;

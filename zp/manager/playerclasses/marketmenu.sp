@@ -298,11 +298,8 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 		// Validate add/option menu
 		if (bEdit)
 		{
-			// Gets item class
-			int iTypes = ItemsGetTypes(iD);
-			
 			// Skip some items, if class isn't equal
-			if (iTypes && view_as<bool>((1 << iType) & ~iTypes))
+			if (!ClassHasType(ItemsGetTypes(iD), iType))
 			{
 				continue;
 			}
@@ -686,7 +683,7 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 					if (hResult == Plugin_Continue || hResult == Plugin_Changed)
 					{
 						// Validate access
-						if ((iWeapon == -1 || !WeaponsFindByID(client, iWeapon) != -1) && ItemsHasAccessByType(client, iD))
+						if ((iWeapon == -1 || WeaponsFindByID(client, iWeapon) == -1) && ItemsHasAccessByType(client, iD))
 						{
 							// Give weapon for the player
 							WeaponsGive(client, iWeapon);

@@ -103,31 +103,9 @@ void ToolsOnCvarInit(/*void*/)
  **/
 void ToolsOnCommandLoad(/*void*/)
 {
-	// Initialize command char
-	static char sCommand[SMALL_LINE_LENGTH];
-	
-	// Validate alias
-	if (hasLength(sCommand))
-	{
-		// Unhook listeners
-		RemoveCommandListener2(ToolsOnCommandListened, sCommand);
-	}
-	
-	// Gets flashlight command alias
-	gCvarList.LIGHT_BUTTON.GetString(sCommand, sizeof(sCommand));
-	
-	// Validate alias
-	if (!hasLength(sCommand))
-	{
-		// Unhook listeners
-		RemoveCommandListener2(ToolsOnCommandListened, sCommand);
-		return;
-	}
-	
 	// Hook commands
-	AddCommandListener(ToolsOnCommandListened, sCommand);
+	CreateCommandListener(gCvarList.LIGHT_BUTTON, ToolsOnCommandListened);
 }
-
 
 /**
  * Cvar hook callback (zp_light_button)
@@ -947,11 +925,11 @@ void ToolsSetEffect(int entity, int iValue)
  * @param entity            The entity index.
  * @return                  The model index.
  **/
-int ToolsGetModelIndex(int entity)
+/*int ToolsGetModelIndex(int entity)
 {
 	// Sets index on the entity
 	return GetEntProp(entity, Prop_Send, "m_nModelIndex");
-}
+}*/
 
 /**
  * @brief Sets the model of an entity.

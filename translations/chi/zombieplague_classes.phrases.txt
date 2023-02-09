@@ -93,32 +93,32 @@
 
 	"witch info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>蝙蝠蜂拥</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>蝙蝠蜂拥</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 	
 	"deimos info" // Hint
 	{
-		"chi"			"技能: <font color='#FF0000'>刺痛射击</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能: <font color='#FF0000'>刺痛射击</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"smoker info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>毒雾</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>毒雾</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"stamper info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>爆破棺材</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>爆破棺材</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"tesla info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>幻觉爆炸</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>幻觉爆炸</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"healer info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>赏金治疗</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>赏金治疗</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"range info" // Hint
@@ -128,27 +128,27 @@
 
 	"mutationheavy info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>报酬陷阱</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>报酬陷阱</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 	
 	"mutationlight info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>隐身</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>隐身</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"hunter info" // Hint
 	{
-		"chi"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"tank info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>无敌</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>无敌</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"psyh info" // Hint
 	{
-		"chi"			"技能： <font color='#FF0000'>尖叫</font>\n激活按钮： <font color='#FF0000'>F4</font>"
+		"chi"			"技能： <font color='#FF0000'>尖叫</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 	
 	// Humans

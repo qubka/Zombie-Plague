@@ -181,7 +181,7 @@ void ArsenalSet(ConVar hConVar)
 	static char sWeapon[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH];
 	
 	// Create array of indexes
-	ArrayList hList = new ArrayList(); int iType = gServerData.Human;
+	ArrayList hList = new ArrayList();
 	
 	// Gets the weapon string divived by commas
 	hConVar.GetString(sBuffer, sizeof(sBuffer));
@@ -195,11 +195,8 @@ void ArsenalSet(ConVar hConVar)
 		int iD = WeaponsNameToIndex(sWeapon[i]);
 		if (iD != -1)
 		{  
-			// Gets weapon class
-			int iTypes = WeaponsGetTypes(iD);
-		
 			// Validate access
-			if (!iTypes || view_as<bool>((1 << iType) & iTypes))
+			if (ClassHasType(WeaponsGetTypes(iD), gServerData.Human))
 			{
 				// Push data into array
 				hList.Push(iD);

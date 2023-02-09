@@ -114,9 +114,9 @@ public void OnPluginStart(/*void*/)
 	TranslationOnInit();  
 	ConfigOnInit();
 	CvarsOnInit();
+	GameEngineOnInit();
 	CommandsOnInit();
 	LogOnInit();
-	GameEngineOnInit();
 	ClassesOnInit();
 	CostumesOnInit(); 
 	SoundsOnInit();

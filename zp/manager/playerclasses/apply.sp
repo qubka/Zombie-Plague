@@ -264,11 +264,12 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 	SkillSystemOnClientUpdate(client);
 	LevelSystemOnClientUpdate(client);
 	VEffectsOnClientUpdate(client);
+	bool bOpen = ArsenalOnClientUpdate(client);
+	MarketOnClientUpdate(client, !bOpen); /// prevent opening two menus at once
 	VOverlayOnClientUpdate(client, Overlay_Reset);
 	if (gClientData[client].Vision) VOverlayOnClientUpdate(client, Overlay_Vision);
 	_call.AccountOnClientUpdate(client);
 	_call.WeaponsOnClientUpdate(client);
-	_call.ApplyOnClientUpdatePost(client);
 
 	// If mode already started, then change team
 	if (!gServerData.RoundNew)
@@ -320,25 +321,6 @@ void ApplyOnClientTeam(int client, int iTeam)
 
 	// Sets glowing for the zombie vision
 	ToolsSetDetecting(client, ModesIsXRay(gServerData.RoundMode));
-}   
-
-/**
- * @brief Client has been changed class state. *(Post)
- *
- * @param userID            The user id.
- **/
-public void ApplyOnClientUpdatePost(int userID)
-{
-	// Gets client index from the user ID
-	int client = GetClientOfUserId(userID);
-	
-	// Validate client
-	if (client)
-	{
-		// Forward event to modules
-		bool bOpen = ArsenalOnClientUpdate(client);
-		MarketOnClientUpdate(client, !bOpen); /// prevent opening two menus at once
-	}
 }
 
 /**

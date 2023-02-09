@@ -970,9 +970,6 @@ int ItemsNameToIndex(char[] sName)
  **/
 bool ItemsHasAccessByType(int client, int iD)
 {
-	// Gets item class
-	int iTypes = ItemsGetTypes(iD);
-
 	// If class find, then return
-	return !iTypes || view_as<bool>((1 << ClassGetTypeID(gClientData[client].Class)) & iTypes)
+	return ClassHasType(ItemsGetTypes(iD), ClassGetTypeID(gClientData[client].Class));
 }

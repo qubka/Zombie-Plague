@@ -232,6 +232,8 @@ void ClassesOnLoad(bool bInit = false)
 
 /**
  * @brief Caches class data from file into arrays.
+ *
+ * @param bInit             The preprocessing. (only init)
  **/
 void ClassesOnCacheData(bool bInit)
 {
@@ -474,7 +476,7 @@ void ClassesOnUnload(/*void*/)
 public void ClassesOnConfigReload(/*void*/)
 {
 	// Reloads class config
-	ClassesOnLoad(false);
+	ClassesOnLoad();
 }
 
 /**
@@ -3019,12 +3021,12 @@ int ClassTypeToIndex(char[] sBuffer)
 		int iD = gServerData.Types.FindString(sClass[i]);
 		if (iD != -1)
 		{
-			//
+			// Combine class type
 			iType |= (1 << iD);
 		}
 	}
 
-	//
+	// Return index
 	return iType;
 }
 
@@ -3036,9 +3038,6 @@ int ClassTypeToIndex(char[] sBuffer)
  **/
 int ClassTypeToRandomClassIndex(int iType)
 {
-	// Initialize type char
-	static char sClassType[SMALL_LINE_LENGTH]; 
-	
 	// i = class index
 	int iSize = gServerData.Classes.Length; int iRandom; static int class[MAXPLAYERS+1];
 	for (int i = 0; i < iSize; i++)
@@ -3053,4 +3052,15 @@ int ClassTypeToRandomClassIndex(int iType)
 	
 	// Return index
 	return (iRandom) ? class[GetRandomInt(0, iRandom-1)] : -1;
+}
+
+/**
+ * @brief Return true if type flag exist.
+ * 
+ * @param iTypes            The class types.
+ * @param iType             The class type.
+ **/
+bool ClassHasType(int iTypes, int iType)
+{
+	return (!iTypes || view_as<bool>((1 << iType) & iTypes));
 }

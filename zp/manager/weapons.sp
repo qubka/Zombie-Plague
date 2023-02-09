@@ -321,49 +321,49 @@ void WeaponsOnClientInit(int client)
 void WeaponsOnCvarInit(/*void*/)
 {
 	// Create cvars
-	gCvarList.WEAPON_GIVE_TASER           = FindConVar("mp_weapons_allow_zeus");
-	gCvarList.WEAPON_GIVE_BOMB            = FindConVar("mp_give_player_c4");
-	gCvarList.WEAPON_DROP_GRENADE         = FindConVar("mp_drop_grenade_enable");
-	gCvarList.WEAPON_DROP_KNIFE           = FindConVar("mp_drop_knife_enable");
-	gCvarList.WEAPON_DROP_BREACH          = FindConVar("mp_death_drop_breachcharge");
-	gCvarList.WEAPON_CT_DEFAULT_GRENADES  = FindConVar("mp_ct_default_grenades");
-	gCvarList.WEAPON_CT_DEFAULT_MELEE     = FindConVar("mp_ct_default_melee");
-	gCvarList.WEAPON_CT_DEFAULT_SECONDARY = FindConVar("mp_ct_default_secondary");
-	gCvarList.WEAPON_CT_DEFAULT_PRIMARY   = FindConVar("mp_ct_default_primary");
-	gCvarList.WEAPON_T_DEFAULT_GRENADES   = FindConVar("mp_t_default_grenades");
-	gCvarList.WEAPON_T_DEFAULT_MELEE      = FindConVar("mp_t_default_melee");
-	gCvarList.WEAPON_T_DEFAULT_SECONDARY  = FindConVar("mp_t_default_secondary");
-	gCvarList.WEAPON_T_DEFAULT_PRIMARY    = FindConVar("mp_t_default_primary");
+	gCvarList.WEAPONS_GIVE_TASER           = FindConVar("mp_weapons_allow_zeus");
+	gCvarList.WEAPONS_GIVE_BOMB            = FindConVar("mp_give_player_c4");
+	gCvarList.WEAPONS_DROP_GRENADE         = FindConVar("mp_drop_grenade_enable");
+	gCvarList.WEAPONS_DROP_KNIFE           = FindConVar("mp_drop_knife_enable");
+	gCvarList.WEAPONS_DROP_BREACH          = FindConVar("mp_death_drop_breachcharge");
+	gCvarList.WEAPONS_CT_DEFAULT_GRENADES  = FindConVar("mp_ct_default_grenades");
+	gCvarList.WEAPONS_CT_DEFAULT_MELEE     = FindConVar("mp_ct_default_melee");
+	gCvarList.WEAPONS_CT_DEFAULT_SECONDARY = FindConVar("mp_ct_default_secondary");
+	gCvarList.WEAPONS_CT_DEFAULT_PRIMARY   = FindConVar("mp_ct_default_primary");
+	gCvarList.WEAPONS_T_DEFAULT_GRENADES   = FindConVar("mp_t_default_grenades");
+	gCvarList.WEAPONS_T_DEFAULT_MELEE      = FindConVar("mp_t_default_melee");
+	gCvarList.WEAPONS_T_DEFAULT_SECONDARY  = FindConVar("mp_t_default_secondary");
+	gCvarList.WEAPONS_T_DEFAULT_PRIMARY    = FindConVar("mp_t_default_primary");
 
 	// Sets locked cvars to their locked value
-	gCvarList.WEAPON_GIVE_TASER.IntValue   = 1;
-	gCvarList.WEAPON_GIVE_BOMB.IntValue    = 0;
-	gCvarList.WEAPON_DROP_GRENADE.IntValue = 1;
-	gCvarList.WEAPON_DROP_BREACH.IntValue  = 1;
-	gCvarList.WEAPON_DROP_KNIFE.IntValue   = 0;
-	gCvarList.WEAPON_CT_DEFAULT_GRENADES.SetString("");
-	gCvarList.WEAPON_CT_DEFAULT_MELEE.SetString("");
-	gCvarList.WEAPON_CT_DEFAULT_SECONDARY.SetString("");
-	gCvarList.WEAPON_CT_DEFAULT_PRIMARY.SetString("");
-	gCvarList.WEAPON_T_DEFAULT_GRENADES.SetString("");
-	gCvarList.WEAPON_T_DEFAULT_MELEE.SetString("");
-	gCvarList.WEAPON_T_DEFAULT_SECONDARY.SetString("");
-	gCvarList.WEAPON_T_DEFAULT_PRIMARY.SetString("");
+	gCvarList.WEAPONS_GIVE_TASER.IntValue   = 1;
+	gCvarList.WEAPONS_GIVE_BOMB.IntValue    = 0;
+	gCvarList.WEAPONS_DROP_GRENADE.IntValue = 1;
+	gCvarList.WEAPONS_DROP_BREACH.IntValue  = 1;
+	gCvarList.WEAPONS_DROP_KNIFE.IntValue   = 0;
+	gCvarList.WEAPONS_CT_DEFAULT_GRENADES.SetString("");
+	gCvarList.WEAPONS_CT_DEFAULT_MELEE.SetString("");
+	gCvarList.WEAPONS_CT_DEFAULT_SECONDARY.SetString("");
+	gCvarList.WEAPONS_CT_DEFAULT_PRIMARY.SetString("");
+	gCvarList.WEAPONS_T_DEFAULT_GRENADES.SetString("");
+	gCvarList.WEAPONS_T_DEFAULT_MELEE.SetString("");
+	gCvarList.WEAPONS_T_DEFAULT_SECONDARY.SetString("");
+	gCvarList.WEAPONS_T_DEFAULT_PRIMARY.SetString("");
 	
 	// Hook locked cvars to prevent it from changing
-	HookConVarChange(gCvarList.WEAPON_GIVE_TASER,           CvarsUnlockOnCvarHook);
-	HookConVarChange(gCvarList.WEAPON_GIVE_BOMB,            CvarsLockOnCvarHook);
-	HookConVarChange(gCvarList.WEAPON_DROP_GRENADE,         CvarsUnlockOnCvarHook);
-	HookConVarChange(gCvarList.WEAPON_DROP_BREACH,          CvarsUnlockOnCvarHook);
-	HookConVarChange(gCvarList.WEAPON_DROP_KNIFE,           CvarsLockOnCvarHook);  
-	HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_GRENADES,  CvarsLockOnCvarHook3);
-	HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_MELEE,     CvarsLockOnCvarHook3);
-	HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_SECONDARY, CvarsLockOnCvarHook3);
-	HookConVarChange(gCvarList.WEAPON_CT_DEFAULT_PRIMARY,   CvarsLockOnCvarHook3);
-	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_GRENADES,   CvarsLockOnCvarHook3);
-	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_MELEE,      CvarsLockOnCvarHook3);
-	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_SECONDARY,  CvarsLockOnCvarHook3);
-	HookConVarChange(gCvarList.WEAPON_T_DEFAULT_PRIMARY,    CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_GIVE_TASER,           CvarsUnlockOnCvarHook);
+	HookConVarChange(gCvarList.WEAPONS_GIVE_BOMB,            CvarsLockOnCvarHook);
+	HookConVarChange(gCvarList.WEAPONS_DROP_GRENADE,         CvarsUnlockOnCvarHook);
+	HookConVarChange(gCvarList.WEAPONS_DROP_BREACH,          CvarsUnlockOnCvarHook);
+	HookConVarChange(gCvarList.WEAPONS_DROP_KNIFE,           CvarsLockOnCvarHook);  
+	HookConVarChange(gCvarList.WEAPONS_CT_DEFAULT_GRENADES,  CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_CT_DEFAULT_MELEE,     CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_CT_DEFAULT_SECONDARY, CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_CT_DEFAULT_PRIMARY,   CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_T_DEFAULT_GRENADES,   CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_T_DEFAULT_MELEE,      CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_T_DEFAULT_SECONDARY,  CvarsLockOnCvarHook3);
+	HookConVarChange(gCvarList.WEAPONS_T_DEFAULT_PRIMARY,    CvarsLockOnCvarHook3);
 
 	// Forward event to sub-modules
 	WeaponMODOnCvarInit();
@@ -2328,11 +2328,11 @@ void WeaponsSetMaxReserveAmmo(int weapon, int iMaxAmmo)
  * @param weapon            The weapon index.
  * @return                  The ammo count.    
  **/
-int WeaponsGetClipAmmo(int weapon)
+/*int WeaponsGetClipAmmo(int weapon)
 {
 	// Gets value on the weapon
 	return GetEntProp(weapon, Prop_Send, "m_iClip1");
-}
+}*/
 
 /**
  * @brief Sets the current clip ammo.
@@ -2969,11 +2969,8 @@ int WeaponsGetItemDefIndex(char[] sClassname)
  **/
 bool WeaponsHasAccessByType(int client, int iD)
 {
-	// Gets weapon class
-	int iTypes = WeaponsGetTypes(iD);
-
 	// If class find, then return
-	return !iTypes || view_as<bool>((1 << ClassGetTypeID(gClientData[client].Class)) & iTypes);
+	return ClassHasType(WeaponsGetTypes(iD), ClassGetTypeID(gClientData[client].Class));
 }
 
 /**
@@ -2996,19 +2993,19 @@ bool WeaponsCanUse(int client, int weapon)
 		}
 
 		// Block pickup it, if online too low
-		if (gCvarList.WEAPON_PICKUP_ONLINE.BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
+		if (gCvarList.WEAPONS_PICKUP_ONLINE.BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
 		{
 			return false;
 		}
 
 		// Block pickup it, if level too low
-		if (gCvarList.WEAPON_PICKUP_LEVEL.BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
+		if (gCvarList.WEAPONS_PICKUP_LEVEL.BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
 		{
 			return false;
 		}
 		
 		// Block pickup it, if not group not available
-		if (gCvarList.WEAPON_PICKUP_GROUP.BoolValue)
+		if (gCvarList.WEAPONS_PICKUP_GROUP.BoolValue)
 		{
 			// Gets weapon group
 			static char sGroup[SMALL_LINE_LENGTH];

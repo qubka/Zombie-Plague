@@ -31,11 +31,14 @@
 void SkillSystemOnCvarInit(/*void*/)
 {    
 	// Creates cvars
-	gCvarList.SKILL_BUTTON       = FindConVar("zp_skill_button");  
-	gCvarList.SKILL_BUTTON_BLOCK = FindConVar("zp_skill_button_block");  
+	gCvarList.SKILL_ZOMBIE_BUTTON       = FindConVar("zp_skill_zombie_button");  
+	gCvarList.SKILL_ZOMBIE_BUTTON_BLOCK = FindConVar("zp_skill_zombie_button_block");  	
+	gCvarList.SKILL_HUMAN_BUTTON        = FindConVar("zp_skill_human_button");  
+	gCvarList.SKILL_HUMAN_BUTTON_BLOCK  = FindConVar("zp_skill_human_button_block");  
 
 	// Hook cvars
-	HookConVarChange(gCvarList.SKILL_BUTTON, SkillSystemOnCvarHook);
+	HookConVarChange(gCvarList.SKILL_ZOMBIE_BUTTON, SkillSystemOnCvarHook);
+	HookConVarChange(gCvarList.SKILL_HUMAN_BUTTON, SkillSystemOnCvarHook);
 	
 	// Load cvars
 	SkillSystemOnCvarLoad();
@@ -44,31 +47,11 @@ void SkillSystemOnCvarInit(/*void*/)
 /**
  * @brief Load tools listeners changes.
  **/
-void SkillSystemOnCvarLoad(/*void*/)
+void SkillSystemOnCvarLoad()
 {
-	// Initialize command char
-	static char sCommand[SMALL_LINE_LENGTH];
-	
-	// Validate alias
-	if (hasLength(sCommand))
-	{
-		// Unhook listeners
-		RemoveCommandListener2(SkillSystemOnCommandListened, sCommand);
-	}
-	
-	// Gets skill command alias
-	gCvarList.SKILL_BUTTON.GetString(sCommand, sizeof(sCommand));
-	
-	// Validate alias
-	if (!hasLength(sCommand))
-	{
-		// Unhook commands
-		RemoveCommandListener2(SkillSystemOnCommandListened, sCommand);
-		return;
-	}
-	
 	// Hook commands
-	AddCommandListener(SkillSystemOnCommandListened, sCommand);
+	CreateCommandListener(gCvarList.SKILL_ZOMBIE_BUTTON, SkillSystemOnCommandListenedZombie);
+	CreateCommandListener(gCvarList.SKILL_HUMAN_BUTTON, SkillSystemOnCommandListenedHuman);
 }
 
 /**
@@ -93,20 +76,42 @@ public void SkillSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newVal
 
 /**
  * Listener command callback (any)
- * @brief Usage of the skill for human/zombie.
+ * @brief Usage of the skill for zombie.
  *
  * @param client            The client index.
  * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
  * @param iArguments        Argument count.
  **/
-public Action SkillSystemOnCommandListened(int client, char[] commandMsg, int iArguments)
+public Action SkillSystemOnCommandListenedZombie(int client, char[] commandMsg, int iArguments)
 {
 	// Validate client 
-	if (IsPlayerExist(client))
+	if (IsPlayerExist(client) && gClientData[client].Zombie)
 	{
 		// Do the skill
 		SkillSystemOnClientStart(client);
-		return gCvarList.SKILL_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
+		return gCvarList.SKILL_ZOMBIE_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
+	}
+	
+	// Allow command
+	return Plugin_Continue;
+}
+
+/**
+ * Listener command callback (any)
+ * @brief Usage of the skill for human.
+ *
+ * @param client            The client index.
+ * @param commandMsg        Command name, lower case. To get name as typed, use GetCmdArg() and specify argument 0.
+ * @param iArguments        Argument count.
+ **/
+public Action SkillSystemOnCommandListenedHuman(int client, char[] commandMsg, int iArguments)
+{
+	// Validate client 
+	if (IsPlayerExist(client) && !gClientData[client].Zombie)
+	{
+		// Do the skill
+		SkillSystemOnClientStart(client);
+		return gCvarList.SKILL_HUMAN_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
 	}
 	
 	// Allow command
@@ -171,7 +176,7 @@ void SkillSystemOnClientStart(int client)
 	{
 		return;
 	}
-	
+
 	// Verify that the skills are avalible
 	if (!gClientData[client].Skill && gClientData[client].SkillCounter <= 0.0)
 	{
@@ -193,6 +198,14 @@ void SkillSystemOnClientStart(int client)
 		{
 			// Sets progress bar 
 			ToolsSetProgressBarTime(client, RoundToNearest(flInterval));
+		}
+		
+		// Validate skill cost
+		int iCost = ClassGetSkillCost(gClientData[client].Class);
+		if (iCost)
+		{
+			// Apply damage but not critical
+			ToolsSetHealth(client, max(ToolsGetHealth(client) - iCost, 1));
 		}
 		
 		// Sets timer for removing skill usage

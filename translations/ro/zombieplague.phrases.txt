@@ -26,7 +26,7 @@
 
 	"general buttons reminder" // Hint
 	{
-		"ro"			"Apasa <font color='#FF0000'>F3/B</font> pentru a deschide meniul\nApasa <font color='#FF0000'F4</font> pentru puterile zombilor/oamenilor\nApasa <font color='#FF0000'>F</font> pentru a deschide/inchide lumina lanternei"
+		"ro"			"Apasa <font color='#FF0000'>F/B</font> pentru a deschide meniul\nApasa <font color='#FF0000'G/F4</font> pentru puterile zombilor/oamenilor\nApasa <font color='#FF0000'>F3</font> pentru a deschide/inchide lumina lanternei"
 	}
 	
 	"general ammunition reminder" // Chat

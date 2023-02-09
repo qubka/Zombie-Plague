@@ -93,32 +93,32 @@
 
 	"witch info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Bats flock</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 	
 	"deimos info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Sting shot</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"smoker info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Toxic cloud</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Toxic cloud</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"stamper info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Explosive coffin</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Explosive coffin</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"tesla info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Hallucination blast</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Hallucination blast</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"healer info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Healing for money rewards</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Healing for money rewards</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"range info" // Hint
@@ -128,27 +128,27 @@
 
 	"mutationheavy info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Traping for money rewards</font>\nPress button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Traping for money rewards</font>\nPress button: <font color='#FF0000'>G</font>"
 	}
 	
 	"mutationlight info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Invisibility</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"hunter info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"tank info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Invulnerability</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Invulnerability</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"psyh info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Scream</font>\nActivation on button: <font color='#FF0000'>F4</font>"
+		"en"			"Skill: <font color='#FF0000'>Scream</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 	
 	// Humans

@@ -308,7 +308,7 @@ void GameModesOnCvarInit(/*void*/)
 	// Creates cvars
 	gCvarList.GAMEMODE                     = FindConVar("zp_gamemode");
 	gCvarList.GAMEMODE_BLAST_TIME          = FindConVar("zp_blast_time");
-	gCvarList.GAMEMODE_WEAPONS_REMOVE      = FindConVar("zp_weapons_remove");
+	gCvarList.GAMEMODE_WEAPONS_REMOVE      = FindConVar("zp_remove_weapons_when_mode_started");
 	gCvarList.GAMEMODE_TEAM_BALANCE        = FindConVar("mp_autoteambalance"); 
 	gCvarList.GAMEMODE_LIMIT_TEAMS         = FindConVar("mp_limitteams");
 	gCvarList.GAMEMODE_WARMUP_TIME         = FindConVar("mp_warmuptime");

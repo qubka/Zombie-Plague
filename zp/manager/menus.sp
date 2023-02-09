@@ -235,29 +235,8 @@ void MenusOnCommandInit(/*void*/)
  **/
 void MenusOnCvarLoad(/*void*/)
 {
-	// Initialize command char
-	static char sCommand[SMALL_LINE_LENGTH];
-	
-	// Validate alias
-	if (hasLength(sCommand))
-	{
-		// Unhook listeners
-		RemoveCommandListener2(MenusOnCommandListened, sCommand);
-	}
-	
-	// Gets menu command alias
-	gCvarList.MENU_BUTTON.GetString(sCommand, sizeof(sCommand));
-	
-	// Validate alias
-	if (!hasLength(sCommand))
-	{
-		// Unhook listeners
-		RemoveCommandListener2(MenusOnCommandListened, sCommand);
-		return;
-	}
-	
-	// Hook listeners
-	AddCommandListener(MenusOnCommandListened, sCommand);
+	// Hook commands
+	CreateCommandListener(gCvarList.MENU_BUTTON, MenusOnCommandListened);
 }
 
 /*
@@ -748,11 +727,8 @@ bool MenusHasAccessByCommand(int client, char[] sCommand)
  **/
 bool MenusHasAccessByType(int client, int iD, int iSubMenu = 0)
 {
-	// Gets menu class
-	int iTypes = MenusGetTypes(iD, iSubMenu);
-
 	// If class find, then return
-	return !iTypes || view_as<bool>((1 << ClassGetTypeID(gClientData[client].Class)) & iTypes);
+	return ClassHasType(MenusGetTypes(iD, iSubMenu), ClassGetTypeID(gClientData[client].Class));
 }
 
 /**

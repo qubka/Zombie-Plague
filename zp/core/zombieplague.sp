@@ -620,3 +620,44 @@ stock void UnhookConVarChange2(ConVar hConVar, ConVarChanged hCallBack)
 	HookConVarChange(hConVar, hCallBack);
 	UnhookConVarChange(hConVar, hCallBack);
 }
+
+/**
+ * @brief Adds a callback that will fire when a command is sent to the server.
+ *        If command was hooked before, it will remove previous listener.
+ *
+ * @param hConVar           The cvar handle.
+ * @param hCallBack         The callback.            
+ **/
+void CreateCommandListener(ConVar hConvar, CommandListener hCallBack)
+{
+	// Gets cvar name
+	static char sName[SMALL_LINE_LENGTH];
+	hConvar.GetName(sName, sizeof(sName));
+	
+	// Gets command alias
+	static char sCommand[SMALL_LINE_LENGTH];
+	bool bListened = gServerData.Listeners.GetString(sName, sCommand, sizeof(sCommand));
+	
+	// If cvar was listened, remove listner before adding a new one
+	if (bListened)
+	{
+		// Unhook commands
+		RemoveCommandListener(hCallBack, sCommand);
+		
+		// Remove current listener
+		gServerData.Listeners.Remove(sName);
+	}
+	
+	// Gets command alias
+	hConvar.GetString(sCommand, sizeof(sCommand));
+
+	// Validate alias
+	if (hasLength(sCommand))
+	{
+		// Hook commands
+		AddCommandListener(hCallBack, sCommand);
+
+		// Store current listener
+		gServerData.Listeners.SetString(sName, sCommand);
+	}
+}

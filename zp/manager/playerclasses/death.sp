@@ -247,8 +247,19 @@ void DeathOnClientDeath(int client, int attacker = 0)
 	ToolsSetHud(client, true);
 	ToolsSetFov(client);
 	
-	// Call forward
-	gForwardData._OnClientDeath(client, attacker);
+	// Verify that the attacker is exist
+	if (IsPlayerExist(attacker, false))
+	{
+		// Gets class exp and money bonuses
+		static int iExp[6]; static int iMoney[6];
+		ClassGetExp(gClientData[attacker].Class, iExp, sizeof(iExp));
+		ClassGetMoney(gClientData[attacker].Class, iMoney, sizeof(iMoney));
+
+		// Increment money/exp/health
+		LevelSystemOnSetExp(attacker, gClientData[attacker].Exp + iExp[BonusType_Kill]);
+		AccountSetClientCash(attacker, gClientData[attacker].Money + iMoney[BonusType_Kill]);
+		ToolsSetHealth(attacker, ToolsGetHealth(attacker) + ClassGetLifeSteal(gClientData[attacker].Class));
+	}
 	
 	// Forward event to modules
 	RagdollOnClientDeath(client);
@@ -265,6 +276,9 @@ void DeathOnClientDeath(int client, int attacker = 0)
 		// Terminate the round
 		ModesValidateRound();
 	}
+
+	// Call forward
+	gForwardData._OnClientDeath(client, attacker);
 }
 
 /**
@@ -307,20 +321,6 @@ bool DeathOnClientRespawn(int client, int attacker = 0,  bool bTimer = true)
 		return false;
 	}
 
-	// Verify that the attacker is exist
-	if (IsPlayerExist(attacker, false))
-	{
-		// Gets class exp and money bonuses
-		static int iExp[6]; static int iMoney[6];
-		ClassGetExp(gClientData[attacker].Class, iExp, sizeof(iExp));
-		ClassGetMoney(gClientData[attacker].Class, iMoney, sizeof(iMoney));
-
-		// Increment money/exp/health
-		LevelSystemOnSetExp(attacker, gClientData[attacker].Exp + iExp[BonusType_Kill]);
-		AccountSetClientCash(attacker, gClientData[attacker].Money + iMoney[BonusType_Kill]);
-		ToolsSetHealth(attacker, ToolsGetHealth(attacker) + ClassGetLifeSteal(gClientData[attacker].Class));
-	}
-		
 	// Validate timer
 	if (bTimer)
 	{

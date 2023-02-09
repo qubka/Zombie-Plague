@@ -216,8 +216,9 @@ void ConfigOnInit(/*void*/)
 		return;
 	}
 	
-	// Initialize a config array
+	// Initialize maps
 	gServerData.Configs = new StringMap();
+	gServerData.Listeners = new StringMap();
 }
 
 /**
