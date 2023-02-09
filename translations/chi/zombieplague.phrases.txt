@@ -189,11 +189,6 @@
 	{
 		"chi"			"你没有陷入另一个支撑物！（卡住或者重叠）"
 	}
-	
-	"block buying round" // Hint
-	{
-		"chi"			"本回合你不能购买！"
-	}
 
 	"block starting round" // Hint
 	{

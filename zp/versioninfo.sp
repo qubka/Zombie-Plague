@@ -29,7 +29,7 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "X.042"
+#define PLUGIN_VERSION      "1.0.0"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"

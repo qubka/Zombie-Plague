@@ -284,6 +284,11 @@
 	{
 		"en"			"M134 Monkey"
 	}
+		
+	"m134s" // Menu
+	{
+		"en"			"M134 Monkey"
+	}
 	
 	"sfmg" // Menu
 	{

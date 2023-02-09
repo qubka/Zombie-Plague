@@ -91,15 +91,6 @@ void MainMenu(int client)
 	int iSize = gServerData.Menus.Length; int iAmount;
 	for (int i = 0; i < iSize; i++)
 	{
-		// Call forward
-		gForwardData._OnClientValidateMenu(client, i, _, hResult);
-		
-		// Skip, if menu is disabled
-		if (hResult == Plugin_Stop)
-		{
-			continue;
-		}
-
 		// Gets menu group
 		MenusGetGroup(i, sName, sizeof(sName));
 
@@ -108,6 +99,15 @@ void MainMenu(int client)
 
 		// Skip, if menu is hided
 		if (bHide && MenusIsHide(i))
+		{
+			continue;
+		}
+
+		// Call forward
+		gForwardData._OnClientValidateMenu(client, i, _, hResult);
+		
+		// Skip, if menu is disabled
+		if (hResult == Plugin_Stop)
 		{
 			continue;
 		}

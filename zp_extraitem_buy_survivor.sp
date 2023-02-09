@@ -76,6 +76,7 @@ public void ZP_OnEngineExecute(/*void*/)
 	
 	// Types
 	gType = ZP_GetClassTypeID("survivor");
+	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"survivor\" wasn't find");
 }
 
 /**

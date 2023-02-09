@@ -189,11 +189,6 @@
 	{
 		"en"			"You are not stuck in another prop!"
 	}
-	
-	"block buying round" // Hint
-	{
-		"en"			"You can't buy during this round!"
-	}
 
 	"block starting round" // Hint
 	{

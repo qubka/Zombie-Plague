@@ -45,6 +45,9 @@ void ApplyOnClientSpawn(int client)
 		// Resets limit of items
 		ItemsRemoveLimits(client);
 	}
+	
+	// Sets spawning time
+	gClientData[client].SpawnTime = GetGameTime();
 
 	// Validate respawn
 	switch (gClientData[client].Respawn)
@@ -81,8 +84,9 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 		return false;
 	}
 	
-	// If no class, choose zombie as default
+	// If no type, choose default
 	if (iType == -2) iType = gServerData.Zombie;
+	else if (iType == -3) iType = gServerData.Human;
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	

@@ -1560,11 +1560,7 @@ public Action WeaponMODOnCommandListenedBuy(int client, char[] commandMsg, int i
 	if (IsPlayerExist(client))
 	{
 		// Buy ammo for client
-		if (!WeaponMODOnClientBuyammo(client))
-		{
-			// Emit error sound
-			EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
-		}
+		WeaponMODOnClientBuyammo(client);
 	}
 
 	// Allow commands
@@ -1575,14 +1571,13 @@ public Action WeaponMODOnCommandListenedBuy(int client, char[] commandMsg, int i
  * @brief Client has been buying ammunition.
  *
  * @param client            The client index.
- * @return                  True if not enough money to buy, false otherwise.
  **/
-bool WeaponMODOnClientBuyammo(int client)
+void WeaponMODOnClientBuyammo(int client)
 {
 	// Validate class ammunition mode
 	if (ClassGetAmmunition(gClientData[client].Class))
 	{
-		return true;
+		return;
 	}
 	
 	// Gets active weapon index from the client
@@ -1594,7 +1589,7 @@ bool WeaponMODOnClientBuyammo(int client)
 		// If weapon without any type of ammo, then stop
 		if (WeaponsGetAmmoType(weapon) == -1)
 		{
-			return true;
+			return;
 		}
 
 		// Validate custom index
@@ -1605,7 +1600,7 @@ bool WeaponMODOnClientBuyammo(int client)
 			int iCost = WeaponsGetAmmunition(iD);
 			if (!iCost)
 			{
-				return true;
+				return;
 			}
 			
 			// Validate ammunition cost
@@ -1615,8 +1610,8 @@ bool WeaponMODOnClientBuyammo(int client)
 				TranslationPrintHintText(client, "block buying ammunition");
 				
 				// Emit error sound
-				//EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
-				return false;
+				EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				return;
 			}
 	
 			// Gets current/max reverse ammo
@@ -1640,9 +1635,6 @@ bool WeaponMODOnClientBuyammo(int client)
 			}
 		}
 	}
-	
-	// Return on success
-	return true;
 }
 
 /**

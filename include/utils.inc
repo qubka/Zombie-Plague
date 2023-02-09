@@ -63,10 +63,10 @@
 /**
  * @section Macros for bit manipulation.
  **/
-#define SET_BIT(x, pos) (x |= (1 << pos))
-#define CLEAR_BIT(x, pos) (x &= (~(1 << pos)))
-#define TOGGLE_BIT(x, pos) x ^= (1 << pos)
-#define CHECK_BIT(x, pos) (x & (1 << pos))
+#define SetBit(%1,%2)      (%1 |= (1<<%2))
+#define ClearBit(%1,%2)    (%1 &= ~(1<<%2))
+#define ToogleBit(%1,%2)   (%1 ^= (1<<%2))
+#define CheckBit(%1,%2)    (%1 & (1<<%2)) 
 /**
  * @endsection
  **/
@@ -374,21 +374,21 @@
 /**
  * @section Custom sound levels.
  **/
-#define SNDLEVEL_EXPLOSION   70
+#define SNDLEVEL_EXPLOSION   80
 #define SNDLEVEL_AMBIENT     30
-#define SNDLEVEL_WEAPON      40
+#define SNDLEVEL_WEAPON      45
 #define SNDLEVEL_MELEE       35
-#define SNDLEVEL_ITEM        30
-#define SNDLEVEL_SKILL       45
-#define SNDLEVEL_BURN        55
+#define SNDLEVEL_ITEM        35
+#define SNDLEVEL_SKILL       55
+#define SNDLEVEL_BURN        60
 #define SNDLEVEL_DEATH       60
-#define SNDLEVEL_HURT        50
-#define SNDLEVEL_RESPAWN     45
-#define SNDLEVEL_INFECT      55
+#define SNDLEVEL_HURT        65
+#define SNDLEVEL_RESPAWN     55
+#define SNDLEVEL_INFECT      70
 #define SNDLEVEL_MOAN        40
-#define SNDLEVEL_REGEN       30
-#define SNDLEVEL_LEAPJUMP    35
-#define SNDLEVEL_FOOTSTEPS   30
+#define SNDLEVEL_REGEN       35
+#define SNDLEVEL_LEAPJUMP    30
+#define SNDLEVEL_FOOTSTEPS   40
 #define SNDLEVEL_CLAWS       50
 #define SNDLEVEL_BOUNCE      45
 /**

@@ -217,6 +217,7 @@ public void ZP_OnEngineExecute(/*void*/)
 	
 	// Types
 	gType = ZP_GetClassTypeID("human");
+	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"human\" wasn't find");
 }
 
 /**

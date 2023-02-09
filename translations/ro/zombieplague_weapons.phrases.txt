@@ -284,6 +284,11 @@
 	{
 		"ro"			"M134 Monkey"
 	}
+		
+	"m134s" // Menu
+	{
+		"ro"			"M134 Monkey"
+	}
 	
 	"sfmg" // Menu
 	{

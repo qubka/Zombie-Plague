@@ -222,7 +222,7 @@ public void ZP_OnClientUpdated(int client, int attacker)
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
 	// If the client is frozen, then stop
-	if (hCvarFreezeDamage.BoolValue && GetEntityMoveType(client) == MOVETYPE_NONE) flDamage = 0.0;
+	if (hCvarFreezeDamage.BoolValue && hZombieFreezed[client] != null) flDamage = 0.0;
 }
 
 /**

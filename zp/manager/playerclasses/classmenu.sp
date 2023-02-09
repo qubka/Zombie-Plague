@@ -248,6 +248,12 @@ void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant =
 	int iSize = gServerData.Classes.Length; int iAmount;
 	for (int i = 0; i < iSize; i++)
 	{
+		// Skip some classes, if types isn't equal
+		if (ClassGetType(i) != iType)
+		{
+			continue;
+		}
+	
 		// Call forward
 		gForwardData._OnClientValidateClass(client, i, hResult);
 		
@@ -257,12 +263,6 @@ void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant =
 			continue;
 		}
 
-		// Skip some classes, if types isn't equal
-		if (ClassGetType(i) != iType)
-		{
-			continue;
-		}
-	
 		// Gets class type name
 		gServerData.Types.GetString(iType, sName, sizeof(sName));
 		

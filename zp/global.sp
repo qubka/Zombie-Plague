@@ -150,6 +150,7 @@ enum struct ClientData
 	int ZombieClassNext;
 	int Respawn;
 	int RespawnTimes;
+	float SpawnTime;
 	int Money;
 	int LastPurchase;
 	int Level;
@@ -203,7 +204,7 @@ enum struct ClientData
 	ArrayList ShoppingCart;
 	ArrayList DefaultCart;
 	StringMap ItemLimit;
-	StringMap ItemMapLimit;
+	//StringMap ItemMapLimit;
 
 	/**
 	 * @brief Resets all variables.
@@ -221,6 +222,7 @@ enum struct ClientData
 		this.ZombieClassNext      = 0;
 		this.Respawn              = TEAM_HUMAN;
 		this.RespawnTimes         = 0;
+		this.SpawnTime            = 0.0;
 		this.Money                = 0;
 		this.LastPurchase         = 0;
 		this.Level                = 1;
@@ -271,7 +273,7 @@ enum struct ClientData
 		delete this.ShoppingCart;
 		delete this.DefaultCart;
 		delete this.ItemLimit;
-		delete this.ItemMapLimit;
+		//delete this.ItemMapLimit;
 	}
 	
 	/**

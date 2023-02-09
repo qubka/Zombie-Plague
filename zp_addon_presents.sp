@@ -62,7 +62,7 @@ enum
 Handle hPresentSpawn = null; ArrayList hPosition; bool bLoad; int gCaseCount;
 
 // Type index
-int gHuman;
+int gType;
 
 // Sound index
 int gSound;
@@ -127,7 +127,8 @@ public void ZP_OnEngineExecute(/*void*/)
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PRESENT_SOUNDS\" wasn't find");
 	
 	// Types
-	gHuman = ZP_GetClassTypeID("human");
+	gType = ZP_GetClassTypeID("human");
+	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"human\" wasn't find");
 }
 
 /**
@@ -488,7 +489,7 @@ public void ZP_OnGameModeStart(int mode)
 	}
 	
 	// Validate access
-	if (ZP_GetGameModeHumanType(mode) == gHuman)
+	if (ZP_GetGameModeHumanType(mode) == gType)
 	{
 		// Create spawing hook
 		delete hPresentSpawn;
@@ -703,7 +704,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
 	
 		// Create random weapon
-		SpawnRandomWeapon(vPosition, vAngle, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID")));
+		SpawnRandomWeapon(vPosition, vAngle/*, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID"))*/);
 		
 		// Remove damage hook
 		SDKUnhook(entity, SDKHook_OnTakeDamage, CaseDamageHook);
@@ -738,7 +739,7 @@ public Action CaseTouchHook(int entity, int target)
 			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
 
 			// Create random weapon
-			SpawnRandomWeapon(vPosition, vAngle, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID")));
+			SpawnRandomWeapon(vPosition, vAngle/*, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID"))*/);
 
 			// Remove entity from world
 			AcceptEntityInput(entity, "Kill");
@@ -777,12 +778,11 @@ public Action CaseTouchHook(int entity, int target)
  *       
  * @param vPosition         The origin of the spawn.
  * @param vAngle            The angle of the spawn.
- * @param mSlot             The slot index.
  **/
-stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3], MenuType mSlot)
+stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3])
 {
 	// Valdiate random weapon id
-	int iD = FindRandomWeapon(mSlot);
+	int iD = FindRandomWeapon();
 	if (iD != -1)
 	{
 		// Create a random weapon entity
@@ -793,66 +793,34 @@ stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3], MenuType mSlot
 /**
  * @brief Find the random id of any custom weapons.
  *       
- * @param mSlot             (Optional) The slot index.
  * @return                  The weapon id.
  **/
-stock int FindRandomWeapon(MenuType mSlot = MenuType_Invalid) 
+stock int FindRandomWeapon() 
 {
-	// Initialize name char
-	static char sClassname[SMALL_LINE_LENGTH];
-	
 	// Gets total amount of weapons
 	int iSize = ZP_GetNumberWeapon();
 	
 	// Dynamicly allocate array
 	int[] weaponID = new int[iSize]; int x;
 	
-	// Validate all types
-	if (mSlot == MenuType_Invalid)
+	// i = weapon id 
+	for (int i = 0; i < iSize; i++)
 	{
-		// i = weapon id 
-		for (int i = 0; i < iSize; i++)
+		// Validate def index
+		ItemDef iItem = ZP_GetWeaponDefIndex(i);
+		if (!IsGun(iItem))
 		{
-			// Validate class/drop/slot
-			ZP_GetWeaponClass(i, sClassname, sizeof(sClassname));
-			if (StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i))
-			{
-				continue;
-			}
-
-			// Validate def index
-			ItemDef iItem = ZP_GetWeaponDefIndex(i);
-			if (IsItem(iItem) || iItem == ItemDef_Fists)
-			{
-				continue;
-			}
-			
-			// Append to list
-			weaponID[x++] = i;
+			continue;
 		}
-	}
-	else
-	{
-		// i = weapon id 
-		for (int i = 0; i < iSize; i++)
+		
+		// Validate class/drop
+		if (!ZP_ClassHasType(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
 		{
-			// Validate class/drop/slot
-			ZP_GetWeaponClass(i, sClassname, sizeof(sClassname));
-			if (StrContains(sClassname, "human", false) == -1 || !ZP_IsWeaponDrop(i) || ZP_GetWeaponSlot(i) != mSlot)
-			{
-				continue;
-			}
-
-			// Validate def index
-			ItemDef iItem = ZP_GetWeaponDefIndex(i);
-			if (IsItem(iItem) || iItem == ItemDef_Fists)
-			{
-				continue;
-			}
-			
-			// Append to list
-			weaponID[x++] = i;
+			continue;
 		}
+		
+		// Append to list
+		weaponID[x++] = i;
 	}
 	
 	// Return on success
@@ -883,26 +851,4 @@ stock bool FindRandomPosition(float vPosition[3])
 	
 	// Validate no collisions
 	return !TR_DidHit();
-}
-
-/**
- * @brief Convert the type index to the menu slot.
- *       
- * @param iType             The type index.
- * @return                  The menu slot.
- **/
-stock MenuType TypeToSlot(int iType)
-{
-	switch (iType)
-	{
-		case EXPL   : return MenuType_Shotguns;
-		case HEAVY  : return MenuType_Machineguns;
-		case LIGHT  : return MenuType_Rifles;
-		case PISTOL : return MenuType_Pistols;
-		case HPIST  : return MenuType_Snipers;
-		case TOOLS  : return MenuType_Knifes;
-		case HTOOL  : return MenuType_Invalid;
-	}
-	return MenuType_Invalid;
-			
 }

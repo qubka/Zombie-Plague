@@ -247,13 +247,7 @@ bool ArsenallGive(int client)
 	{
 		return false;
 	}
-	
-	// If mode already started, then stop
-	if ((gServerData.RoundStart && !ModesIsWeapon(gServerData.RoundMode)) || gServerData.RoundEnd)
-	{ 
-		return false;
-	}
-	
+
 	// Random weapons setting enabled / Bots pick their weapons randomly
 	if (gCvarList.ARSENAL_RANDOM_WEAPONS.BoolValue || IsFakeClient(client))
 	{

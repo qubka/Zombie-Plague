@@ -71,9 +71,7 @@ enum
 	GAMEMODES_DATA_XRAY,
 	GAMEMODES_DATA_REGEN,
 	GAMEMODES_DATA_SKILL,
-	GAMEMODES_DATA_LEAPJUMP,
-	GAMEMODES_DATA_WEAPON,
-	GAMEMODES_DATA_EXTRAITEM
+	GAMEMODES_DATA_LEAPJUMP
 };
 /**
  * @endsection
@@ -283,8 +281,6 @@ void GameModesOnCacheData(/*void*/)
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 34
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 35
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 36
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "weapon", "yes"));    // Index: 37
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "extraitem", "yes")); // Index: 38
 	}
 
 	// We're done with this file now, so we can close it
@@ -912,8 +908,6 @@ void GameModesOnNativeInit(/*void*/)
 	CreateNative("ZP_IsGameModeRegen",             API_IsGameModeRegen);
 	CreateNative("ZP_IsGameModeSkill",             API_IsGameModeSkill);
 	CreateNative("ZP_IsGameModeLeapJump",          API_IsGameModeLeapJump);
-	CreateNative("ZP_IsGameModeWeapon",            API_IsGameModeWeapon);
-	CreateNative("ZP_IsGameModeExtraItem",         API_IsGameModeExtraItem);
 }
  
 /**
@@ -2115,60 +2109,6 @@ public int API_IsGameModeLeapJump(Handle hPlugin, int iNumParams)
 	return ModesIsLeapJump(iD);
 }
 
-/**
- * @brief Checks the weapon access of the game mode.
- *
- * @note native bool ZP_IsGameModeWeapon(iD);
- **/
-public int API_IsGameModeWeapon(Handle hPlugin, int iNumParams)
-{
-	// Gets mode index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate no game mode
-	if (iD == -1)
-	{
-		return false;
-	}
-	
-	// Validate index
-	if (iD >= gServerData.GameModes.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ModesIsWeapon(iD);
-}
-
-/**
- * @brief Checks the extraitem access of the game mode.
- *
- * @note native bool ZP_IsGameModeExtraItem(iD);
- **/
-public int API_IsGameModeExtraItem(Handle hPlugin, int iNumParams)
-{
-	// Gets mode index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate no game mode
-	if (iD == -1)
-	{
-		return false;
-	}
-	
-	// Validate index
-	if (iD >= gServerData.GameModes.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ModesIsExtraItem(iD);
-}
-
 /*
  * Game modes data reading API.
  */
@@ -2961,48 +2901,6 @@ bool ModesIsLeapJump(int iD)
 
 	// Gets game mode leapjump access
 	return arrayGameMode.Get(GAMEMODES_DATA_LEAPJUMP);
-}
-
-/**
- * @brief Checks the weapon access of the game mode.
- *
- * @param iD                The mode index.
- * @return                  True or false.
- **/
-bool ModesIsWeapon(int iD)
-{
-	// Validate no game mode
-	if (iD == -1)
-	{
-		return false;
-	}
-	
-	// Gets array handle of game mode at given index
-	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
-
-	// Gets game mode weapon access
-	return arrayGameMode.Get(GAMEMODES_DATA_WEAPON);
-}
-
-/**
- * @brief Checks the extraitem access of the game mode.
- *
- * @param iD                The mode index.
- * @return                  True or false.
- **/
-bool ModesIsExtraItem(int iD)
-{
-	// Validate no game mode
-	if (iD == -1)
-	{
-		return false;
-	}
-	
-	// Gets array handle of game mode at given index
-	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
-
-	// Gets game mode extraitem access
-	return arrayGameMode.Get(GAMEMODES_DATA_EXTRAITEM);
 }
 
 /*

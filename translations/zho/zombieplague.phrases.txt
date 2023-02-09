@@ -189,11 +189,6 @@
 	{
 		"zho"			"妳沒有陷入另壹個支撐物！（卡住或者重疊）"
 	}
-	
-	"block buying round" // Hint
-	{
-		"zho"			"本回合妳不能購買！"
-	}
 
 	"block starting round" // Hint
 	{

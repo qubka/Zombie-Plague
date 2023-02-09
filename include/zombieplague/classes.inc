@@ -700,7 +700,7 @@ native int ZP_GetClassSoundJumpID(int classID);
  **/
 stock bool ZP_ClassHasType(int iTypes, int iType)
 {
-	return (!iTypes || (iTypes & (1 << iType)));
+	return (!iTypes || CheckBit(iTypes, iType));
 }
 
 /**

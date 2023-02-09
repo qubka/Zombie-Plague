@@ -659,25 +659,18 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
 		return false;
 	}
 	
-	// Retrieves the string length from a native parameter string
-	int maxLen;
-	GetNativeStringLength(3, maxLen);
+	// Gets type index from native cell
+	int iType = GetNativeCell(3);
 
-	// Validate size
-	if (!maxLen)
+	// Validate index
+	if (iType == -1 || iType >= gServerData.Types.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty name");
-		return false;
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the type index (%d)", iType);
+		return -1;
 	}
-	
-	// Gets native data
-	static char sType[SMALL_LINE_LENGTH];
 
-	// General
-	GetNativeString(3, sType, sizeof(sType));
-	
 	// Force client to update
-	return ApplyOnClientUpdate(client, attacker, gServerData.Types.FindString(sType));
+	return ApplyOnClientUpdate(client, attacker, iType);
 }
 
 /**
@@ -810,25 +803,18 @@ public int API_SetClientZombieClassNext(Handle hPlugin, int iNumParams)
  **/
 public int API_GetRandomClassTypeID(Handle hPlugin, int iNumParams)
 {
-	// Retrieves the string length from a native parameter string
-	int maxLen;
-	GetNativeStringLength(1, maxLen);
+	// Gets type index from native cell
+	int iType = GetNativeCell(1);
 
-	// Validate size
-	if (!maxLen)
+	// Validate index
+	if (iType == -1 || iType >= gServerData.Types.Length)
 	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty type");
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the type index (%d)", iType);
 		return -1;
 	}
 	
-	// Gets native data
-	static char sType[SMALL_LINE_LENGTH];
-
-	// General
-	GetNativeString(1, sType, sizeof(sType));
-	
 	// Return the value
-	return ClassTypeToRandomClassIndex(gServerData.Types.FindString(sType)); 
+	return ClassTypeToRandomClassIndex(iType); 
 }
 
 /**
@@ -3051,7 +3037,7 @@ int ClassTypeToIndex(char[] sBuffer)
 		if (iD != -1)
 		{
 			// Combine class type
-			iType |= (1 << iD);
+			SetBit(iType, iD);
 		}
 	}
 
@@ -3091,5 +3077,5 @@ int ClassTypeToRandomClassIndex(int iType)
  **/
 bool ClassHasType(int iTypes, int iType)
 {
-	return (!iTypes || view_as<bool>((1 << iType) & iTypes));
+	return (!iTypes || CheckBit(iTypes, iType));
 }

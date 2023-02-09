@@ -189,11 +189,6 @@
 	{
 		"ro"			"Nu esti blocat intr-un obiect!"
 	}
-	
-	"block buying round" // Hint
-	{
-		"ro"			"Nu poti cumpara in timpul acestei runde!"
-	}
 
 	"block starting round" // Hint
 	{

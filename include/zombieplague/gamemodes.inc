@@ -433,21 +433,3 @@ native bool ZP_IsGameModeSkill(int modeID);
  * @return                  True or false. 
  **/
 native bool ZP_IsGameModeLeapJump(int modeID);
-
-/**
- * @brief Checks the weapon access of the game mode.
- *
- * @param modeID            The mode index.
- *
- * @return                  True or false. 
- **/
-native bool ZP_IsGameModeWeapon(int modeID);
-
-/**
- * @brief Checks the extraitem access of the game mode.
- *
- * @param modeID            The mode index.
- *
- * @return                  True or false. 
- **/
-native bool ZP_IsGameModeExtraItem(int modeID);

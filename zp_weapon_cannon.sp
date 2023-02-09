@@ -84,7 +84,7 @@ public void OnPluginStart()
 	hCvarCannonDamage = CreateConVar("zp_weapon_cannon_damage", "400.0", "Projectile damage", 0, true, 0.0); 
 	hCvarCannonRadius = CreateConVar("zp_weapon_cannon_radius", "200.0", "Damage radius", 0, true, 0.0); 
 	hCvarCannonLife   = CreateConVar("zp_weapon_cannon_life", "0.7", "Duration of life", 0, true, 0.0);   
-	hCvarCannonIgnite = CreateConVar("zp_weapon_cannon_ignite", "3.0", "Duration of ignite", 0, true, 0.0);
+	hCvarCannonIgnite = CreateConVar("zp_weapon_cannon_ignite", "5.0", "Duration of ignite", 0, true, 0.0);
 
 	// Generate config
 	AutoExecConfig(true, "zp_weapon_cannon", "sourcemod/zombieplague");

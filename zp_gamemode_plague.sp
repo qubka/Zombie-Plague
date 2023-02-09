@@ -76,7 +76,9 @@ public void ZP_OnEngineExecute(/*void*/)
 	
 	// Types
 	gNemesis = ZP_GetClassTypeID("nemesis");
+	if (gNemesis == -1) SetFailState("[ZP] Custom class type ID from name : \"nemesis\" wasn't find");
 	gSurvivor = ZP_GetClassTypeID("survivor");
+	if (gSurvivor == -1) SetFailState("[ZP] Custom class type ID from name : \"survivor\" wasn't find");
 }
 
 /**
