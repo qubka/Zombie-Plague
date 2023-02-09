@@ -53,14 +53,14 @@ void ApplyOnClientSpawn(int client)
 		case TEAM_ZOMBIE : 
 		{
 			// Make zombies
-			ApplyOnClientUpdate(client, _, ModesGetZombieTypeID(gServerData.RoundMode));
+			ApplyOnClientUpdate(client, _, ModesGetZombieType(gServerData.RoundMode));
 		}
 		
 		// Respawn as human ?
 		case TEAM_HUMAN  : 
 		{
 			// Make humans
-			ApplyOnClientUpdate(client, _, ModesGetHumanTypeID(gServerData.RoundMode));
+			ApplyOnClientUpdate(client, _, ModesGetHumanType(gServerData.RoundMode));
 		}
 	}    
 }

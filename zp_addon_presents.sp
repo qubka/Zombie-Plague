@@ -61,6 +61,9 @@ enum
 // Timer index
 Handle hPresentSpawn = null; ArrayList hPosition; bool bLoad; int gCaseCount;
 
+// Type index
+int gHuman;
+
 // Sound index
 int gSound;
  
@@ -122,6 +125,9 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("PRESENT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PRESENT_SOUNDS\" wasn't find");
+	
+	// Types
+	gHuman = ZP_GetClassTypeID("human");
 }
 
 /**
@@ -482,7 +488,7 @@ public void ZP_OnGameModeStart(int mode)
 	}
 	
 	// Validate access
-	if (ZP_IsGameModeHumanClass(mode, "human"))
+	if (ZP_GetGameModeHumanType(mode) == gHuman)
 	{
 		// Create spawing hook
 		delete hPresentSpawn;

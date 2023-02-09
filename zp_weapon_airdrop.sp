@@ -44,7 +44,10 @@ public Plugin myinfo =
 
 // Sound index
 int gSound;
- 
+
+ // Type index
+int gHuman;
+
 // Item index
 int gWeapon; int gWeaponC4;
 
@@ -211,6 +214,9 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Sounds
 	gSound = ZP_GetSoundKeyID("HELICOPTER_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HELICOPTER_SOUNDS\" wasn't find");
+	
+	// Types
+	gHuman = ZP_GetClassTypeID("human");
 }
 
 /**
@@ -506,7 +512,7 @@ public void ZP_OnGameModeStart(int mode)
 	}
 	
 	// Validate access
-	if (ZP_IsGameModeHumanClass(mode, "human") && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
+	if (ZP_GetGameModeHumanType(mode) == gHuman && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
 	{
 		// Gets random index of a human
 		int client = ZP_GetRandomHuman();

@@ -169,7 +169,7 @@ int ClassValidateIndex(int client, int iType)
 	ClassGetGroup(gClientData[client].Class, sClassGroup, sizeof(sClassGroup));
 
 	// Find any accessable class 
-	if ((hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || ClassGetTypeID(gClientData[client].Class) != iType)
+	if ((hasLength(sClassGroup) && !IsPlayerInGroup(client, sClassGroup)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || ClassGetType(gClientData[client].Class) != iType)
 	{
 		// Choose any accessable class
 		for (int i = 0; i < iSize; i++)
@@ -182,7 +182,7 @@ int ClassValidateIndex(int client, int iType)
 			}
 			
 			// Skip some classes, if types isn't equal
-			if (ClassGetTypeID(i) != iType)
+			if (ClassGetType(i) != iType)
 			{
 				continue;
 			}
@@ -258,7 +258,7 @@ void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant =
 		}
 
 		// Skip some classes, if types isn't equal
-		if (ClassGetTypeID(i) != iType)
+		if (ClassGetType(i) != iType)
 		{
 			continue;
 		}
@@ -408,7 +408,7 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 			if (hResult == Plugin_Continue || hResult == Plugin_Changed)
 			{
 				// Gets class type
-				int iType = ClassGetTypeID(iD);
+				int iType = ClassGetType(iD);
 				
 				// Validate human
 				if (iType == gServerData.Human)
@@ -520,7 +520,7 @@ void ClassesMenu(int client)
 		}
 
 		// Gets type name
-		gServerData.Types.GetString(ClassGetTypeID(gClientData[i].Class), sType, sizeof(sType));
+		gServerData.Types.GetString(ClassGetType(gClientData[i].Class), sType, sizeof(sType));
 		
 		// Format some chars for showing in menu
 		FormatEx(sBuffer, sizeof(sBuffer), "%N [%t]", i, IsPlayerAlive(i) ? sType : "dead");

@@ -573,6 +573,8 @@ void ClassesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetClassNameID",           API_GetClassNameID);
 	CreateNative("ZP_GetClassName",             API_GetClassName);
 	CreateNative("ZP_GetClassInfo",             API_GetClassInfo);
+	CreateNative("ZP_GetClassTypeID",           API_GetClassTypeID);
+	CreateNative("ZP_GetClassType",             API_GetClassType);
 	CreateNative("ZP_IsClassZombie",            API_IsClassZombie);
 	CreateNative("ZP_GetClassModel",            API_GetClassModel);
 	CreateNative("ZP_GetClassClaw",             API_GetClassClaw);
@@ -611,7 +613,6 @@ void ClassesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetClassEffectName",       API_GetClassEffectName);
 	CreateNative("ZP_GetClassEffectAttach",     API_GetClassEffectAttach);
 	CreateNative("ZP_GetClassEffectTime",       API_GetClassEffectTime);
-	CreateNative("ZP_GetClassTypeID",           API_GetClassTypeID);
 	CreateNative("ZP_GetClassClawID",           API_GetClassClawID);
 	CreateNative("ZP_GetClassGrenadeID",        API_GetClassGrenadeID);
 	CreateNative("ZP_GetClassSoundDeathID",     API_GetClassSoundDeathID);
@@ -678,7 +679,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
 	// Force client to update
 	return ApplyOnClientUpdate(client, attacker, gServerData.Types.FindString(sType));
 }
- 
+
 /**
  * @brief Gets the amount of all classes.
  *
@@ -926,6 +927,55 @@ public int API_GetClassInfo(Handle hPlugin, int iNumParams)
 
 	// Return on success
 	return SetNativeString(2, sInfo, maxLen);
+}
+
+/**
+ * @brief Gets the index of a type at a given name.
+ *
+ * @note native int ZP_GetClassTypeID(name);
+ **/
+public int API_GetClassTypeID(Handle hPlugin, int iNumParams)
+{
+	// Retrieves the string length from a native parameter string
+	int maxLen;
+	GetNativeStringLength(1, maxLen);
+
+	// Validate size
+	if (!maxLen)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Can't find class with an empty name");
+		return -1;
+	}
+	
+	// Gets native data
+	static char sType[SMALL_LINE_LENGTH];
+
+	// General
+	GetNativeString(1, sType, sizeof(sType));
+	
+	// Return the value
+	return gServerData.Types.FindString(sType);
+}
+ 
+/**
+ * @brief Gets the type of the class.
+ *
+ * @note native int ZP_GetClassType(iD);
+ **/
+public int API_GetClassType(Handle hPlugin, int iNumParams)
+{
+	// Gets class index from native cell
+	int iD = GetNativeCell(1);
+	
+	// Validate index
+	if (iD >= gServerData.Classes.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
+		return -1;
+	}
+	
+	// Return value
+	return ClassGetType(iD);
 }
 
 /**
@@ -1881,27 +1931,6 @@ public int API_GetClassEffectTime(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the type of the class.
- *
- * @note native int ZP_GetClassTypeID(iD);
- **/
-public int API_GetClassTypeID(Handle hPlugin, int iNumParams)
-{
-	// Gets class index from native cell
-	int iD = GetNativeCell(1);
-	
-	// Validate index
-	if (iD >= gServerData.Classes.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
-		return -1;
-	}
-	
-	// Return value
-	return ClassGetTypeID(iD);
-}
-
-/**
  * @brief Gets the index of the class claw model.
  *
  * @note native int ZP_GetClassClawID(iD);
@@ -2195,7 +2224,7 @@ void ClassGetInfo(int iD, char[] sInfo, int iMaxLen)
  * @param iD                The class index.
  * @return                  The type index.    
  **/
-int ClassGetTypeID(int iD)
+int ClassGetType(int iD)
 {
 	// Gets array handle of class at given index
 	ArrayList arrayClass = gServerData.Classes.Get(iD);
@@ -3043,7 +3072,7 @@ int ClassTypeToRandomClassIndex(int iType)
 	for (int i = 0; i < iSize; i++)
 	{
 		// If types match, then store index
-		if (ClassGetTypeID(i) == iType)
+		if (ClassGetType(i) == iType)
 		{
 			// Increment amount
 			class[iRandom++] = i;

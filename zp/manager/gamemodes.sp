@@ -585,7 +585,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 	/*_________________________________________________________________________________________________________________________________________*/
 	
 	// Gets zombie class type
-	int iType = ModesGetZombieTypeID(gServerData.RoundMode);
+	int iType = ModesGetZombieType(gServerData.RoundMode);
 	
 	// i = client index
 	for (int i = 0; i < iMaxZombies; i++) /// Turn players into the zombies
@@ -604,7 +604,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 	/*_________________________________________________________________________________________________________________________________________*/
 	
 	// Gets human class type
-	iType = ModesGetHumanTypeID(gServerData.RoundMode);
+	iType = ModesGetHumanType(gServerData.RoundMode);
 
 	// Make standard humans
 	if (iType == gServerData.Human)
@@ -896,8 +896,8 @@ void GameModesOnNativeInit(/*void*/)
 	CreateNative("ZP_GetGameModeSoundVolume",      API_GetGameModeSoundVolume);
 	CreateNative("ZP_IsGameModeInfect",            API_IsGameModeInfect);
 	CreateNative("ZP_IsGameModeRespawn",           API_IsGameModeRespawn);
-	CreateNative("ZP_GetGameModeHumanClassID",     API_GetGameModeHumanClassID);
-	CreateNative("ZP_GetGameModeZombieClassID",    API_GetGameModeZombieClassID);
+	CreateNative("ZP_GetGameModeHumanType",        API_GetGameModeHumanType);
+	CreateNative("ZP_GetGameModeZombieType",       API_GetGameModeZombieType);
 	CreateNative("ZP_GetGameModeOverlayHuman",     API_GetGameModeOverlayHuman);
 	CreateNative("ZP_GetGameModeOverlayZombie",    API_GetGameModeOverlayZombie);
 	CreateNative("ZP_GetGameModeOverlayDraw",      API_GetGameModeOverlayDraw);
@@ -1644,9 +1644,9 @@ public int API_IsGameModeRespawn(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the human type of a game mode.
  *
- * @note native int ZP_GetGameModeNameClassID(iD);
+ * @note native int ZP_GetGameModeHumanType(iD);
  **/
-public int API_GetGameModeHumanClassID(Handle hPlugin, int iNumParams)
+public int API_GetGameModeHumanType(Handle hPlugin, int iNumParams)
 {
 	// Gets mode index from native cell
 	int iD = GetNativeCell(1);
@@ -1665,15 +1665,15 @@ public int API_GetGameModeHumanClassID(Handle hPlugin, int iNumParams)
 	}
 	
 	// Return value
-	return ModesGetHumanTypeID(iD);
+	return ModesGetHumanType(iD);
 }
 
 /**
  * @brief Gets the human type of a game mode.
  *
- * @note native int ZP_GetGameModeZombieClassID(iD);
+ * @note native int ZP_GetGameModeZombieType(iD);
  **/
-public int API_GetGameModeZombieClassID(Handle hPlugin, int iNumParams)
+public int API_GetGameModeZombieType(Handle hPlugin, int iNumParams)
 {
 	// Gets mode index from native cell
 	int iD = GetNativeCell(1);
@@ -1692,7 +1692,7 @@ public int API_GetGameModeZombieClassID(Handle hPlugin, int iNumParams)
 	}
 	
 	// Return value
-	return ModesGetZombieTypeID(iD);
+	return ModesGetZombieType(iD);
 }
 
 /**
@@ -2627,7 +2627,7 @@ bool ModesIsRespawn(int iD)
  * @param iD                The mode index.
  * @return                  The type index.
  **/
-int ModesGetHumanTypeID(int iD)
+int ModesGetHumanType(int iD)
 {
 	// Validate no game mode
 	if (iD == -1)
@@ -2648,7 +2648,7 @@ int ModesGetHumanTypeID(int iD)
  * @param iD                The mode index.
  * @return                  The type index.
  **/
-int ModesGetZombieTypeID(int iD)
+int ModesGetZombieType(int iD)
 {
 	// Validate no game mode
 	if (iD == -1)
@@ -3117,7 +3117,7 @@ void ModesDisconnectLast(/*void*/)
 		client = fnGetRandomHuman();
 		
 		// Make random zombie
-		ApplyOnClientUpdate(client, _, ModesGetZombieTypeID(gServerData.RoundMode));
+		ApplyOnClientUpdate(client, _, ModesGetZombieType(gServerData.RoundMode));
 		
 		// Gets client name
 		GetClientName(client, sName, sizeof(sName));
@@ -3132,7 +3132,7 @@ void ModesDisconnectLast(/*void*/)
 		client = fnGetRandomZombie();
 		
 		// Make random human
-		ApplyOnClientUpdate(client, _, ModesGetHumanTypeID(gServerData.RoundMode));
+		ApplyOnClientUpdate(client, _, ModesGetHumanType(gServerData.RoundMode));
 		
 		// Gets client name
 		GetClientName(client, sName, sizeof(sName));

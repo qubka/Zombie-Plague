@@ -971,5 +971,5 @@ int ItemsNameToIndex(char[] sName)
 bool ItemsHasAccessByType(int client, int iD)
 {
 	// If class find, then return
-	return ClassHasType(ItemsGetTypes(iD), ClassGetTypeID(gClientData[client].Class));
+	return ClassHasType(ItemsGetTypes(iD), ClassGetType(gClientData[client].Class));
 }

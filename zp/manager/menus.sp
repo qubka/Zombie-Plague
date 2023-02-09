@@ -728,7 +728,7 @@ bool MenusHasAccessByCommand(int client, char[] sCommand)
 bool MenusHasAccessByType(int client, int iD, int iSubMenu = 0)
 {
 	// If class find, then return
-	return ClassHasType(MenusGetTypes(iD, iSubMenu), ClassGetTypeID(gClientData[client].Class));
+	return ClassHasType(MenusGetTypes(iD, iSubMenu), ClassGetType(gClientData[client].Class));
 }
 
 /**

@@ -640,7 +640,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 					if (iHealth <= 0 || (!bHasShield && !iArmor)) /// Checks for shield protection
 					{
 						// Infect victim
-						ApplyOnClientUpdate(client, attacker, ModesGetZombieTypeID(gServerData.RoundMode));
+						ApplyOnClientUpdate(client, attacker, ModesGetZombieType(gServerData.RoundMode));
 						return false;
 					}
 					

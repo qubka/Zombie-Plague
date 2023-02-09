@@ -2970,7 +2970,7 @@ int WeaponsGetItemDefIndex(char[] sClassname)
 bool WeaponsHasAccessByType(int client, int iD)
 {
 	// If class find, then return
-	return ClassHasType(WeaponsGetTypes(iD), ClassGetTypeID(gClientData[client].Class));
+	return ClassHasType(WeaponsGetTypes(iD), ClassGetType(gClientData[client].Class));
 }
 
 /**

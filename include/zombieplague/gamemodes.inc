@@ -297,7 +297,7 @@ native bool ZP_IsGameModeRespawn(int modeID);
  *
  * @return                  The type index. 
  **/
-native int ZP_GetGameModeHumanTypeID(int modeID);
+native int ZP_GetGameModeHumanType(int modeID);
 
 /**
  * @brief Gets the zombie type of the game mode.
@@ -306,7 +306,7 @@ native int ZP_GetGameModeHumanTypeID(int modeID);
  *
  * @return                  The type index. 
  **/
-native int ZP_GetGameModeZombieTypeID(int modeID);
+native int ZP_GetGameModeZombieType(int modeID);
 
 /**
  * @brief Checks the human win overlay of the game mode.
@@ -451,39 +451,3 @@ native bool ZP_IsGameModeWeapon(int modeID);
  * @return                  True or false. 
  **/
 native bool ZP_IsGameModeExtraItem(int modeID);
-
-/**
- * @brief Returns true if the gamemode has a zombie class, false if not.
- *
- * @param modeID            The mode index.
- * @param sClass            The class name.
- *
- * @return                  True or false.
- **/
-stock bool ZP_IsGameModeZombieClass(int modeID, char[] sClass)
-{
-	// Gets zombie class type
-	static char sClassType[SMALL_LINE_LENGTH];
-	ZP_GetGameModeZombieClass(modeID, sClassType, sizeof(sClassType));
-
-	// Return on success
-	return (!strcmp(sClassType, sClass, false));
-}
-
-/**
- * @brief Returns true if the gamemode has a human class, false if not.
- *
- * @param modeID            The mode index.
- * @param sClass            The class name.
- *
- * @return                  True or false.
- **/
-stock bool ZP_IsGameModeHumanClass(int modeID, char[] sClass)
-{
-	// Gets human class type
-	static char sClassType[SMALL_LINE_LENGTH];
-	ZP_GetGameModeHumanClass(modeID, sClassType, sizeof(sClassType));
-
-	// Return on success
-	return (!strcmp(sClassType, sClass, false));
-}

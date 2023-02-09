@@ -41,6 +41,9 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+// Type index
+int gHuman;
+
 // Item index
 int gItem;
 
@@ -70,6 +73,9 @@ public void ZP_OnEngineExecute(/*void*/)
 	// Items
 	gItem = ZP_GetExtraItemNameID("antidot");
 	//if (gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"antidot\" wasn't find");
+	
+	// Types
+	gHuman = ZP_GetClassTypeID("human");
 }
 
 /**
@@ -90,7 +96,7 @@ public Action ZP_OnClientValidateExtraItem(int client, int itemID)
 		int mode = ZP_GetCurrentGameMode();
 		
 		// Validate access
-		if (ZP_GetZombieAmount() <= 1 || !ZP_IsGameModeHumanClass(mode, "human"))
+		if (ZP_GetZombieAmount() <= 1 || ZP_GetGameModeHumanType(mode) != gHuman)
 		{
 			return Plugin_Handled;
 		}

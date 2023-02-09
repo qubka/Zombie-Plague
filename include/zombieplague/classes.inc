@@ -224,6 +224,24 @@ native void ZP_GetClassName(int classID, char[] name, int maxlenght = 32);
 native void ZP_GetClassInfo(int classID, char[] info, int maxlenght = 128);
 
 /**
+ * @brief Gets the index of a type at a given name.
+ * 
+ * @param name              The type name.
+ *
+ * @return                  The type index, or -1 on failure.
+ **/
+native int ZP_GetClassTypeID(char[] name);
+
+/**
+ * @brief Gets the type of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  The type index.    
+ **/
+native int ZP_GetClassType(int classID);
+
+/**
  * @brief Checks the zombie type of the class.
  *
  * @param classID           The class index.
@@ -564,15 +582,6 @@ native void ZP_GetClassEffectAttach(int classID, char[] attach, int maxlenght = 
  * @return                  The effect time.    
  **/
 native float ZP_GetClassEffectTime(int classID);
-
-/**
- * @brief Gets the type of the class.
- *
- * @param classID           The class index.
- *
- * @return                  The type index.    
- **/
-native int ZP_GetClassTypeID(int classID);
 
 /**
  * @brief Gets the index of the class claw model.
