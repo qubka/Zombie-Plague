@@ -169,15 +169,6 @@ void ClassesOnInit(/*void*/)
 }
 
 /**
- * @brief Classes module purge function.
- **/
-void ClassesOnPurge(/*void*/)
-{
-	// Forward event to sub-modules
-	ToolsOnPurge();
-}
-
-/**
  * @brief Prepare all class data.
  *
  * @param bInit             The preprocessing. (only init)
@@ -459,15 +450,6 @@ void ClassesOnCacheData(bool bInit)
 
 	// We're done with this file now, so we can close it
 	delete kvClasses;
-}
-
-/**
- * @brief Classes module unload function.
- **/
-void ClassesOnUnload(/*void*/)
-{
-	// Forward event to sub-modules
-	ToolsOnUnload();
 }
 
 /**

@@ -125,6 +125,10 @@ public Action SkillSystemOnCommandListenedHuman(int client, char[] commandMsg, i
  **/
 void SkillSystemOnClientUpdate(int client)
 {
+	// Resets variables
+	gClientData[client].Skill = false;
+	gClientData[client].SkillCounter = 0.0;
+
 	// Resets the progress bar 
 	ToolsSetProgressBarTime(client, 0);
 	

@@ -57,17 +57,17 @@ enum struct ServerData
 	/* Map */
 	bool MapLoaded;
 	ArrayList Spawns;
-	ArrayList Particles;
 	StringMap Entities;
+	StringMap ItemLimit;
 	
 	/* OS */
 	Address Engine;
 	EngineOS Platform;
+	bool NightTime;
 	
-	/* Timer */
+	/* Timers */
+	Handle UpdateTimer;
 	Handle CounterTimer;
-	
-	/* Sounds */
 	Handle EndTimer; 
 	Handle BlastTimer;
 	
@@ -119,6 +119,7 @@ enum struct ServerData
 	 **/
 	void PurgeTimers(/*void*/)
 	{
+		//this.UpdateTimer  = null; not a TIMER_FLAG_NO_MAPCHANGE
 		this.CounterTimer = null;
 		this.EndTimer     = null;
 		this.BlastTimer   = null;
@@ -165,22 +166,18 @@ enum struct ClientData
 	int TeleCounter;
 	float TeleOrigin[3];
 	float HealthDuration;
+	int AppliedDamage[2];
 	int AttachmentCostume;
 	int AttachmentHealth;
 	int AttachmentController;
 	int AttachmentBits;
 	int AttachmentAddons[12]; /* Amount of weapon back attachments */
-	
-	/* Weapons */
 	int LastWeapon;
 	int LastGrenade;
 	int LastKnife;
-	
 	int ViewModels[2];
 	int CustomWeapon;
 	bool RunCmd;
-	
-	/* Market */
 	bool AutoSelect;
 	bool BlockMenu;
 	int CurrentMenu;
@@ -204,7 +201,6 @@ enum struct ClientData
 	ArrayList ShoppingCart;
 	ArrayList DefaultCart;
 	StringMap ItemLimit;
-	//StringMap ItemMapLimit;
 
 	/**
 	 * @brief Resets all variables.
@@ -237,6 +233,8 @@ enum struct ClientData
 		this.TeleCounter          = 0;
 		this.TeleOrigin           = NULL_VECTOR;
 		this.HealthDuration       = 0.0;
+		this.AppliedDamage[0]     = 0;
+		this.AppliedDamage[1]     = 0;
 		this.AttachmentCostume    = -1;
 		this.AttachmentHealth     = -1;
 		this.AttachmentController = -1;
@@ -253,16 +251,13 @@ enum struct ClientData
 		this.AttachmentAddons[9]  = -1;
 		this.AttachmentAddons[10] = -1;
 		this.AttachmentAddons[11] = -1;
-
 		this.LastWeapon           = -1;
 		this.LastGrenade          = -1;
 		this.LastKnife            = -1;
-		
 		this.ViewModels[0]        = -1;
 		this.ViewModels[1]        = -1;
 		this.CustomWeapon         = -1;
 		this.RunCmd               = false;
-		
 		this.AutoSelect           = false;
 		this.BlockMenu            = false;
 		this.CurrentMenu          = 0;
@@ -273,7 +268,6 @@ enum struct ClientData
 		delete this.ShoppingCart;
 		delete this.DefaultCart;
 		delete this.ItemLimit;
-		//delete this.ItemMapLimit;
 	}
 	
 	/**

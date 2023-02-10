@@ -2407,6 +2407,145 @@ stock int GetParticleEffectCount(/*void*/)
 /*_____________________________________________________________________________________________________________*/
 
 /**
+ * @brief Finds the amount of all occurrences of a character in a string.
+ *
+ * @param sBuffer           Input string buffer.
+ * @param cSymbol           The character to search for.
+ * @return                  The amount of characters in the string, or -1 if the characters were not found.
+ */
+int CountCharInString(char[] sBuffer, char cSymbol)
+{
+	// Initialize index
+	int iCount;
+	
+	// i = char index
+	int iLen = strlen(sBuffer);
+	for (int i = 0; i < iLen; i++) 
+	{
+		// Validate char
+		if (sBuffer[i] == cSymbol)
+		{
+			// Increment amount
+			iCount++;
+		}
+	}
+
+	// Return amount
+	return iCount ? iCount : -1;
+}
+
+/**
+ * @brief Extracts a area in a string between two positions.
+ *
+ * @param sBuffer           Destination string buffer.
+ * @param sSource           Source string to extract from.
+ * @param startPos          Start position of string to extract.
+ * @param endPos            End position of string to extract.
+ * @return                  The number of cells written.
+ **/
+int StrExtract(char[] sBuffer, char[] sSource, int startPos, int endPos)
+{
+	// Calculate string length. Also add space for null terminator
+	int iMaxLen = endPos - startPos + 1;
+	
+	// Validate length
+	if (iMaxLen < 0)
+	{
+		sBuffer[0] = NULL_STRING[0];
+		return 0;
+	}
+	
+	// Extract string and store it in the buffer
+	return strcopy(sBuffer, iMaxLen, sSource[startPos]);
+}
+
+/**
+ * @brief Converts uppercase chars in the string to lowercase chars.
+ *
+ * @param sBuffer           Input string buffer.
+ */
+void StringToLower(char[] sBuffer)
+{
+	// i = char index
+	int iLen = strlen(sBuffer);
+	for (int i = 0; i < iLen; i++) 
+	{
+		// Character to convert
+		sBuffer[i] = CharToLower(sBuffer[i]);
+	}
+}
+
+/**
+ * @brief Converts lowercase chars in the string to uppercase chars.
+ *
+ * @param sBuffer           Input string buffer.
+ */
+void StringToUpper(char[] sBuffer)
+{
+	// i = char index
+	int iLen = strlen(sBuffer);
+	for (int i = 0; i < iLen; i++) 
+	{
+		// Character to convert
+		sBuffer[i] = CharToUpper(sBuffer[i]);
+	}
+}
+
+/*_____________________________________________________________________________________________________________*/
+
+/**
+ * @brief Randomly permutes the specified list using a default source of randomness.
+ *
+ * @param hArrayList        The array that is being shuffle.
+ **/
+void ArrayShuffle(ArrayList hArrayList)
+{
+	// i = client index
+	int iSize = hArrayList.Length; int iLen = iSize - 1;
+	for (int i = 0; i < iSize; i++)
+	{
+		// Simple swap
+		hArrayList.SwapAt(i, GetRandomInt(0, iLen));
+	}
+}
+
+/**
+ * @brief Sort comparison function by string length.
+ *
+ * @param iIndex1           The first index to compare.
+ * @param iIndex2           The second index to compare.
+ * @param hArrayList        The array that is being sorted (order is undefined).
+ * @param hCustom           Handle optionally passed in while sorting.
+ **/
+stock int Sort_ByLength(int iIndex1, int iIndex2, ArrayList hArrayList, Handle hCustom)
+{
+	// Gets strings
+	static char sBuffer1[PLATFORM_LINE_LENGTH]; 
+	hArrayList.GetString(iIndex1, sBuffer1, sizeof(sBuffer1));
+	static char sBuffer2[PLATFORM_LINE_LENGTH];
+	hArrayList.GetString(iIndex2, sBuffer2, sizeof(sBuffer2));
+	
+	// Gets string lengths
+	int iLen1 = strlen(sBuffer1); int iLen2 = strlen(sBuffer2); 
+	
+	// Move left
+	if (iLen1 < iLen2)
+	{
+		return -1;
+	}
+	// Move right
+	else if (iLen1 > iLen2)
+	{
+		return 1;
+	}
+	
+	// Skip it
+	return 0;
+}
+
+/*_____________________________________________________________________________________________________________*/
+
+/**
  * @brief Returns true if the player is connected and alive, false if not.
  *
  * @param client            The client index.
@@ -2509,6 +2648,107 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
 	
 	// No groups or no match
 	return false;
+}
+
+/**
+ * @brief Determines if the current server time is between the given min and max.
+ *
+ * @param min               The min time in format HHMM, where HH is the hour and MM is the minute.
+ * @param max               The max time in format HHMM, where HH is the hour and MM is the minute.
+ *
+ * @return                  True or false.
+ **/
+stock bool IsTimeBetween(int min, int max)
+{
+	// Get the current server time
+	static char sTime[5];
+	FormatTime(sTime, sizeof(sTime), "%H%M");
+	int time = StringToInt(sTime);
+
+	// Handle wrap-around case if...
+	//  ...max time is less than min time.
+	if (max <= min)
+	{
+		max += 2400;
+		if (time <= min)
+		{
+			time += 2400;
+		}
+	}
+
+	// Return true on success
+	return min <= time && time <= max;
+}
+
+/*_____________________________________________________________________________________________________________*/
+
+
+/**
+ * @brief Copies the values of num bytes from the location pointed to by source directly to the memory block pointed to by destination.
+ *
+ * @param pDest        The destination address where the content is to be copied.
+ * @param sSource      The source of data to be copied.
+ * @param iSize        The number of bytes to copy.
+ **/
+stock void memcpy(Address pDest, char[] sSource, int iSize)
+{
+	// For more copying speed
+	int i = iSize / 4;
+	memcpy4b(pDest, view_as<any>(sSource), i);
+   
+	// Copy the rest of staff
+	for (i *= 4, pDest += view_as<Address>(i); i < iSize; i++)
+	{
+		StoreToAddress(pDest++, sSource[i], NumberType_Int8);
+	}
+}
+
+/**
+ * @brief Copies the 4 bytes from the location pointed to by source directly to the memory block pointed to by destination. 
+ *
+ * @param pDest        The destination address where the content is to be copied.
+ * @param sSource      The source of data to be copied.
+ * @param iSize        The number of bytes to copy.
+ **/
+stock void memcpy4b(Address pDest, any[] sSource, int iSize)
+{
+	// Copy 4 bytes at once
+	for (int i = 0; i < iSize; i++)
+	{
+		StoreToAddress(pDest, sSource[i], NumberType_Int32);
+		pDest += view_as<Address>(4);
+	}
+}
+
+/**
+ * @brief Writes the DWord D (i.e. 4 bytes) to the string. 
+ *
+ * @param asm             The assemly string.
+ * @param pAddress        The address of the call.
+ * @param iOffset         (Optional) The address offset. (Where 0x0 starts)
+ **/
+stock void writeDWORD(char[] asm, any pAddress, int iOffset = 0)
+{
+	asm[iOffset]   = pAddress & 0xFF;
+	asm[iOffset+1] = pAddress >> 8 & 0xFF;
+	asm[iOffset+2] = pAddress >> 16 & 0xFF;
+	asm[iOffset+3] = pAddress >> 24 & 0xFF;
+}
+
+/**
+ * Convert bit value to the bit index. 
+ *
+ * @link http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+ *
+ * @param iBit           The bit value.
+ * @return               The bit index. 
+ **/
+stock int bitIndex(int iBit) 
+{
+	iBit -= 1;
+	iBit = iBit - ((iBit >> 1) & 0x55555555);
+	iBit = (iBit & 0x33333333) + ((iBit >> 2) & 0x33333333);
+	return (((iBit + (iBit >> 4) & 0xF0F0F0F) * 0x1010101) >> 24);
 }
 
 /*_____________________________________________________________________________________________________________*/

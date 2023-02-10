@@ -286,6 +286,9 @@ enum struct CvarsList
 
 	ConVar ICON_INFECT;
 	ConVar ICON_HEAD;
+	
+	ConVar NIGHT_TIME_MIN;
+	ConVar NIGHT_TIME_MAX;
 
 	ConVar SEND_TABLES;
 }
@@ -307,6 +310,7 @@ void CvarsOnInit(/*void*/)
 	CvarsOnLoad();
 	
 	// Forward event to modules
+	GameEngineOnCvarInit();
 	DataBaseOnCvarInit();
 	LogOnCvarInit();
 	VEffectsOnCvarInit();

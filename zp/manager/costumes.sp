@@ -62,7 +62,7 @@ int DHook_SetEntityModel;
 #include "zp/manager/playerclasses/costumesmenu.sp"
 
 /**
- * –°ostumes module init function.
+ * @brief Costumes module init function.
  **/
 void CostumesOnInit(/*void*/)
 {

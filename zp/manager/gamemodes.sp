@@ -102,15 +102,6 @@ void GameModesOnInit(/*void*/)
 }
 
 /**
- * @brief Gamemodes module purge function.
- **/
-void GameModesOnPurge(/*void*/)
-{
-	// Purge server timers
-	gServerData.PurgeTimers();
-}
-
-/**
  * @brief Prepare all gamemode data.
  **/
 void GameModesOnLoad(/*void*/)
@@ -302,18 +293,18 @@ public void GameModesOnConfigReload(/*void*/)
 void GameModesOnCvarInit(/*void*/)
 {
 	// Creates cvars
-	gCvarList.GAMEMODE                     = FindConVar("zp_gamemode");
-	gCvarList.GAMEMODE_BLAST_TIME          = FindConVar("zp_blast_time");
-	gCvarList.GAMEMODE_WEAPONS_REMOVE      = FindConVar("zp_remove_weapons_when_mode_started");
-	gCvarList.GAMEMODE_TEAM_BALANCE        = FindConVar("mp_autoteambalance"); 
-	gCvarList.GAMEMODE_LIMIT_TEAMS         = FindConVar("mp_limitteams");
-	gCvarList.GAMEMODE_WARMUP_TIME         = FindConVar("mp_warmuptime");
-	gCvarList.GAMEMODE_WARMUP_PERIOD       = FindConVar("mp_do_warmup_period");
-	gCvarList.GAMEMODE_ROUNDTIME_ZP        = FindConVar("mp_roundtime");
-	gCvarList.GAMEMODE_ROUNDTIME_CS        = FindConVar("mp_roundtime_hostage");
-	gCvarList.GAMEMODE_ROUNDTIME_DE        = FindConVar("mp_roundtime_defuse");
-	gCvarList.GAMEMODE_ROUND_RESTART       = FindConVar("mp_restartgame");
-	gCvarList.GAMEMODE_RESTART_DELAY       = FindConVar("mp_round_restart_delay");
+	gCvarList.GAMEMODE                = FindConVar("zp_gamemode");
+	gCvarList.GAMEMODE_BLAST_TIME     = FindConVar("zp_blast_time");
+	gCvarList.GAMEMODE_WEAPONS_REMOVE = FindConVar("zp_remove_weapons_when_mode_started");
+	gCvarList.GAMEMODE_TEAM_BALANCE   = FindConVar("mp_autoteambalance"); 
+	gCvarList.GAMEMODE_LIMIT_TEAMS    = FindConVar("mp_limitteams");
+	gCvarList.GAMEMODE_WARMUP_TIME    = FindConVar("mp_warmuptime");
+	gCvarList.GAMEMODE_WARMUP_PERIOD  = FindConVar("mp_do_warmup_period");
+	gCvarList.GAMEMODE_ROUNDTIME_ZP   = FindConVar("mp_roundtime");
+	gCvarList.GAMEMODE_ROUNDTIME_CS   = FindConVar("mp_roundtime_hostage");
+	gCvarList.GAMEMODE_ROUNDTIME_DE   = FindConVar("mp_roundtime_defuse");
+	gCvarList.GAMEMODE_ROUND_RESTART  = FindConVar("mp_restartgame");
+	gCvarList.GAMEMODE_RESTART_DELAY  = FindConVar("mp_round_restart_delay");
 	
 	// Sets locked cvars to their locked value
 	gCvarList.GAMEMODE_TEAM_BALANCE.IntValue  = 0;

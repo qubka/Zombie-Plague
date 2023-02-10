@@ -659,6 +659,7 @@ void APIOnNativeInit(/*void*/)
 	CreateNative("ZP_IsPlayerCustom",   API_IsPlayerCustom);
 	CreateNative("ZP_GetPlayerTime",    API_GetPlayerTime);
 	CreateNative("ZP_IsMapLoaded",      API_IsMapLoaded);
+	CreateNative("ZP_IsNightTime",      API_IsNightTime);
 	CreateNative("ZP_IsNewRound",       API_IsNewRound);
 	CreateNative("ZP_IsEndRound",       API_IsEndRound);
 	CreateNative("ZP_IsStartedRound",   API_IsStartedRound);
@@ -756,6 +757,17 @@ public int API_IsMapLoaded(Handle hPlugin, int iNumParams)
 {
 	// Return the value 
 	return gServerData.MapLoaded;
+}
+
+/**
+ * @brief Gets the night time state.
+ *
+ * @note native bool ZP_IsNightTime();
+ **/
+public int API_IsNightTime(Handle hPlugin, int iNumParams)
+{
+	// Return the value 
+	return gServerData.NightTime;
 }
 
 /**

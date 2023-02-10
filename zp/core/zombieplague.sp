@@ -155,6 +155,11 @@ void GameEngineOnInit(/*void*/)
 	// Load main offsets
 	fnInitGameConfOffset(gServerData.Config, view_as<int>(gServerData.Platform), "CServer::OS");
 	gServerData.Engine = fnCreateEngineInterface(gServerData.Config, "EngineInterface");
+
+	// Create a global timer to update a server state
+	gServerData.UpdateTimer = CreateTimer(60.0, GameEngineOnUpdate, _, TIMER_REPEAT);
+	GameEngineOnUpdate(null);
+	//TriggerTimer(gServerData.UpdateTimer, true);
 }
 
 /**
@@ -170,12 +175,82 @@ void GameEngineOnLoad(/*void*/)
 }
 
 /**
- * @brief Core module purge function.
+ * @brief Core module unload function.
  **/
-void GameEngineOnPurge(/*void*/)
+void GameEngineOnUnload(/*void*/)
 {
 	// Clear map bool
 	gServerData.MapLoaded = false;
+	
+	// Purge server timers
+	gServerData.PurgeTimers();
+	
+	// i = client index
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		// Purge player timers
+		gClientData[i].PurgeTimers();
+	}
+}
+
+/**
+ * @brief Hook gameengine cvar changes.
+ **/
+void GameEngineOnCvarInit(/*void*/)
+{
+	// Creates cvars
+	gCvarList.NIGHT_TIME_MIN = FindConVar("zp_night_time_min");
+	gCvarList.NIGHT_TIME_MAX = FindConVar("zp_night_time_max");
+
+	// Hook locked cvars to prevent it from changing
+	HookConVarChange(gCvarList.NIGHT_TIME_MIN, GameEngineOnCvarHook);
+	HookConVarChange(gCvarList.NIGHT_TIME_MAX, GameEngineOnCvarHook);
+}
+
+/**
+ * Cvar hook callback (zp_night_time_min, zp_night_time_max)
+ * @brief Update time checker.
+ * 
+ * @param hConVar           The cvar handle.
+ * @param oldValue          The value before the attempted change.
+ * @param newValue          The new value.
+ **/
+public void GameEngineOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
+{
+	// Validate timer
+	if (gServerData.UpdateTimer != null)
+	{
+		// Update a server state and reset timer
+		TriggerTimer(gServerData.UpdateTimer, true);
+	}
+}
+
+/**
+ * @brief Timer callback, updates some core states.
+ *
+ * @param hTimer            The timer handle.
+ **/
+public void GameEngineOnUpdate(Handle hTimer)
+{
+	// Initialize char buffer
+	static char sBuffer[SMALL_LINE_LENGTH];
+	
+	// Converts string HHMM to integer format
+	gCvarList.NIGHT_TIME_MIN.GetString(sBuffer, sizeof(sBuffer));
+	int min = StringToInt(sBuffer);
+	gCvarList.NIGHT_TIME_MAX.GetString(sBuffer, sizeof(sBuffer));
+	int max = StringToInt(sBuffer);
+
+	// Set a night time state
+	bool pPrev = gServerData.NightTime;
+	gServerData.NightTime = IsTimeBetween(min, max);
+	if (pPrev != gServerData.NightTime)
+	{
+		LogEvent(false, LogType_Normal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Update", "Zombie Plague: %s night time state!", gServerData.NightTime ? "enter" : "leave");
+	}
+
+	// Allow timer
+	return Plugin_Continue;
 }
 
 /*
@@ -513,74 +588,6 @@ stock int fnGetModuleSize(Address pAddress)
 }
 
 /**
- * @brief Copies the values of num bytes from the location pointed to by source directly to the memory block pointed to by destination.
- *
- * @param pDest        The destination address where the content is to be copied.
- * @param sSource      The source of data to be copied.
- * @param iSize        The number of bytes to copy.
- **/
-stock void memcpy(Address pDest, char[] sSource, int iSize)
-{
-	// For more copying speed
-	int i = iSize / 4;
-	memcpy4b(pDest, view_as<any>(sSource), i);
-   
-	// Copy the rest of staff
-	for (i *= 4, pDest += view_as<Address>(i); i < iSize; i++)
-	{
-		StoreToAddress(pDest++, sSource[i], NumberType_Int8);
-	}
-}
-
-/**
- * @brief Copies the 4 bytes from the location pointed to by source directly to the memory block pointed to by destination. 
- *
- * @param pDest        The destination address where the content is to be copied.
- * @param sSource      The source of data to be copied.
- * @param iSize        The number of bytes to copy.
- **/
-stock void memcpy4b(Address pDest, any[] sSource, int iSize)
-{
-	// Copy 4 bytes at once
-	for (int i = 0; i < iSize; i++)
-	{
-		StoreToAddress(pDest, sSource[i], NumberType_Int32);
-		pDest += view_as<Address>(4);
-	}
-}
-
-/**
- * @brief Writes the DWord D (i.e. 4 bytes) to the string. 
- *
- * @param asm             The assemly string.
- * @param pAddress        The address of the call.
- * @param iOffset         (Optional) The address offset. (Where 0x0 starts)
- **/
-stock void writeDWORD(char[] asm, any pAddress, int iOffset = 0)
-{
-	asm[iOffset]   = pAddress & 0xFF;
-	asm[iOffset+1] = pAddress >> 8 & 0xFF;
-	asm[iOffset+2] = pAddress >> 16 & 0xFF;
-	asm[iOffset+3] = pAddress >> 24 & 0xFF;
-}
-
-/**
- * Convert bit value to the bit index. 
- *
- * @link http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
- *
- * @param iBit           The bit value.
- * @return               The bit index. 
- **/
-stock int bitIndex(int iBit) 
-{
-	iBit -= 1;
-	iBit = iBit - ((iBit >> 1) & 0x55555555);
-	iBit = (iBit & 0x33333333) + ((iBit >> 2) & 0x33333333);
-	return (((iBit + (iBit >> 4) & 0xF0F0F0F) * 0x1010101) >> 24);
-}
-
-/**
  * @brief Removes a hook for when a game event is fired. (Avoid errors)
  *
  * @param sName             The name of the event.
@@ -625,10 +632,10 @@ stock void UnhookConVarChange2(ConVar hConVar, ConVarChanged hCallBack)
  * @brief Adds a callback that will fire when a command is sent to the server.
  *        If command was hooked before, it will remove previous listener.
  *
- * @param hConVar           The cvar handle.
+ * @param hConVar           The handle to the convar.
  * @param hCallBack         The callback.            
  **/
-void CreateCommandListener(ConVar hConvar, CommandListener hCallBack)
+stock void CreateCommandListener(ConVar hConvar, CommandListener hCallBack)
 {
 	// Gets cvar name
 	static char sName[SMALL_LINE_LENGTH];

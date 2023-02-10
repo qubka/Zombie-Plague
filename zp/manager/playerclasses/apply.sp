@@ -154,11 +154,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 	ToolsSetDetecting(client, false);
 	ToolsResetProgressBarTime(client);
 	ToolsSetLMV(client, 1.0);
-	
-	// Resets some variables
-	gClientData[client].Skill = false;
-	gClientData[client].SkillCounter = 0.0;
-	
+
 	// Remove player weapons
 	if (WeaponsRemoveAll(client, !!attacker)) /// Give default
 	{
@@ -267,6 +263,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 	SoundsOnClientUpdate(client);
 	SkillSystemOnClientUpdate(client);
 	LevelSystemOnClientUpdate(client);
+	HitGroupsOnClientUpdate(client);
 	VEffectsOnClientUpdate(client);
 	bool bOpen = ArsenalOnClientUpdate(client);
 	MarketOnClientUpdate(client, !bOpen); /// prevent opening two menus at once

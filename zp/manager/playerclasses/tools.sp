@@ -408,26 +408,6 @@ void ToolsOnInit(/*void*/)
 }
 
 /**
- * @brief Tools module purge function.
- **/
-void ToolsOnPurge(/*void*/)
-{
-	// i = client index
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		// Purge player timers
-		gClientData[i].PurgeTimers();
-	}
-}
-
-/**
- * @brief Tools module unload function.
- **/
-void ToolsOnUnload(/*void*/)
-{
-}
-
-/**
  * @brief Called once a client successfully connects.
  *
  * @param client            The client index.

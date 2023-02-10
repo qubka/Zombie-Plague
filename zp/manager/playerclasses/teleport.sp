@@ -36,7 +36,7 @@
 void TeleportOnCommandInit(/*void*/)
 {
 	// Create commands
-	RegAdminCmd("zp_teleport_force", TeleportForceOnCommandCatched, ADMFLAG_GENERIC, "Force Teleport on a client. Usage: zp_teleport_force <client>");
+	RegAdminCmd("zp_teleport_force", TeleportForceOnCommandCatched, ADMFLAG_GENERIC, "Force teleport on a client. Usage: zp_teleport_force <client>");
 	RegConsoleCmd("ztele", TeleportOnCommandCatched, "Teleport back to spawn.");
 	
 	// Forward event to sub-modules

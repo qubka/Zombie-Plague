@@ -153,9 +153,7 @@ public void OnMapStart(/*void*/)
 public void OnMapEnd(/*void*/)
 {
 	// Forward event to modules
-	ClassesOnPurge();
-	GameModesOnPurge();
-	GameEngineOnPurge();
+	GameEngineOnUnload();
 }
 
 /**
@@ -164,11 +162,9 @@ public void OnMapEnd(/*void*/)
 public void OnPluginEnd(/*void*/)
 {
 	// Forward event to modules
-	ClassesOnUnload();
 	WeaponsOnUnload();
 	DataBaseOnUnload();
 	CostumesOnUnload();
-	///ConfigOnUnload();
 }
 
 /**

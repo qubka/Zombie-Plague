@@ -292,6 +292,18 @@ public void HitGroupsOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue
 	HitGroupsOnInit();
 }
 
+/**
+ * @brief Client has been changed class state.
+ * 
+ * @param client            The client index.
+ **/
+void HitGroupsOnClientUpdate(int client)
+{
+	// Resets damage counters
+	gClientData[client].AppliedDamage[0] = 0;
+	gClientData[client].AppliedDamage[1] = 0;
+}
+
 /*
  * Hit groups main functions.
  */
@@ -610,9 +622,13 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 	// Validate attacker
 	if (attacker > 0 && !bSelfDamage)
 	{
-		// Give rewards for applied damage
-		HitGroupsGiveMoney(attacker, iDamage);
-		HitGroupsGiveExp(attacker, iDamage);
+		// Skip if damage too small
+		if (iDamage > 0) 
+		{
+			// Give rewards for applied damage
+			HitGroupsGiveMoney(attacker, iDamage);
+			HitGroupsGiveExp(attacker, iDamage);
+		}
 		
 		// If help messages enabled, then show info
 		if (gCvarList.MESSAGES_DAMAGE.BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "info damage full" : "info damage", (iHealth > 0) ? iHealth : 0, iArmor);
@@ -1368,12 +1384,6 @@ void HitGroupsApplyKnock(int client, int attacker, float flForce)
  **/
 void HitGroupsGiveMoney(int client, int iDamage)
 {
-	// Initialize client applied damage
-	static int iAppliedDamage[MAXPLAYERS+1];
-	
-	// Increment total damage
-	iAppliedDamage[client] += iDamage;
-
 	// Gets class money bonuses
 	static int iMoney[6];
 	ClassGetMoney(gClientData[client].Class, iMoney, sizeof(iMoney));  
@@ -1385,8 +1395,11 @@ void HitGroupsGiveMoney(int client, int iDamage)
 		return;
 	}
 
+	// Increment total damage
+	gClientData[client].AppliedDamage[0] += iDamage;
+
 	// Validate bonus
-	int iBonus = iAppliedDamage[client] / iLimit;
+	int iBonus = gClientData[client].AppliedDamage[0] / iLimit;
 	if (!iBonus) 
 	{
 		return;
@@ -1395,8 +1408,8 @@ void HitGroupsGiveMoney(int client, int iDamage)
 	// Give money for the attacker
 	AccountSetClientCash(client, gClientData[client].Money + iBonus);
 	
-	// Resets damage filter
-	iAppliedDamage[client] -= iBonus * iLimit;
+	// Reduce damage value
+	gClientData[client].AppliedDamage[0] -= iBonus * iLimit;
 }
 
 /**
@@ -1412,13 +1425,7 @@ void HitGroupsGiveExp(int client, int iDamage)
 	{
 		return;
 	}
-	
-	// Initialize client applied damage
-	static int iAppliedDamage[MAXPLAYERS+1];
-	
-	// Increment total damage
-	iAppliedDamage[client] += iDamage;
-	
+
 	// Gets class exp bonuses
 	static int iExp[6];
 	ClassGetExp(gClientData[client].Class, iExp, sizeof(iExp));
@@ -1430,8 +1437,11 @@ void HitGroupsGiveExp(int client, int iDamage)
 		return;
 	}
 	
+	// Increment total damage
+	gClientData[client].AppliedDamage[1] += iDamage;
+	
 	// Validate bonus
-	int iBonus = iAppliedDamage[client] / iLimit;
+	int iBonus = gClientData[client].AppliedDamage[1] / iLimit;
 	if (!iBonus) 
 	{
 		return;
@@ -1440,8 +1450,8 @@ void HitGroupsGiveExp(int client, int iDamage)
 	// Give experience for the attacker
 	LevelSystemOnSetExp(client, gClientData[client].Exp + iBonus);
 	
-	// Resets damage filter
-	iAppliedDamage[client] -= iBonus * iLimit;
+	// Reduce damage value
+	gClientData[client].AppliedDamage[1] -= iBonus * iLimit;
 }
 
 /**

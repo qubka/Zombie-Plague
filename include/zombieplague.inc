@@ -232,6 +232,13 @@ native bool ZP_RespawnPlayer(int client);
 native bool ZP_IsMapLoaded();
 
 /**
+ * @brief Gets the night time state.
+ *
+ * @return                  True or false.
+ **/
+native bool ZP_IsNightTime();
+
+/**
  * @brief Gets the new round state.
  *
  * @return                  True or false.

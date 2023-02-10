@@ -47,6 +47,24 @@ enum
  **/
  
 /**
+ * @brief Extraitem module init function.
+ **/
+void ExtraItemsOnInit(/*void*/)
+{
+	// Initialize a item limit map
+	gServerData.ItemLimit = new StringMap(); 
+} 
+ 
+/**
+ * @brief Extraitems module purge function.
+ **/
+void ExtraItemsOnPurge(/*void*/)
+{
+	// Clear map for resetting
+	gServerData.ItemLimit.Clear();
+}
+
+/**
  * @brief Prepare all extraitem data.
  **/
 void ExtraItemsOnLoad(/*void*/)
@@ -145,7 +163,7 @@ void ExtraItemsOnCacheData(/*void*/)
 		gServerData.Sections.PushString(sBuffer);
 	}
 
-	// Clean array for rebuilding
+	// Clear array for rebuilding
 	gServerData.ExtraItems.Clear(); /// we flattening everything
 
 	// i = array index
