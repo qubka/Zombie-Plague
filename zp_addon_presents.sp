@@ -592,7 +592,7 @@ public Action CaseSpawnHook(Handle hTimer)
 		
 		// Gets presents flag (disable motion for trigger)
 		int iFlags = PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR;
-		if (iHealth > 0) iFlags |= PHYS_MOTIONDISABLED;
+		if (iHealth <= 0) iFlags |= PHYS_MOTIONDISABLED;
 
 		// Create a prop_physics entity
 		int drop = UTIL_CreatePhysics("present", vPosition, NULL_VECTOR, sModel, iFlags);

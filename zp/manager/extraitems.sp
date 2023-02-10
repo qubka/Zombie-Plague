@@ -900,6 +900,58 @@ int ItemsGetLimits(int client, int iD)
 }
 
 /**
+ * @brief Sets the map buy limit of the current client item.
+ *
+ * @param client            The client index.
+ * @param iD                The item index.
+ * @param iLimit            The limit value.    
+ **/
+void ItemsSetMapLimits(int client, int iD)
+{
+	ArrayList hList;
+	
+	// If key exist, just push new item value
+	if (gServerData.ItemMapLimit.GetValue(gClientID[client], hList))
+	{
+		// Push new value
+		hList.Push(iD);
+	}
+	else
+	{
+		// Initialize a item list array
+		hList = new ArrayList();
+		
+		// Push new value
+		hList.Push(iD);
+		
+		// Set array to the map
+		gServerData.ItemMapLimit.SetValue(gClientID[client], hList);
+	}
+}
+
+/**
+ * @brief Gets the map buy limit of the current client item.
+ *
+ * @param client            The client index.
+ * @param iD                The item index.
+ **/
+bool ItemsGetMapLimits(int client, int iD)
+{
+	// If client not exist, then skip
+	if (!gServerData.ItemMapLimit.ContainsKey(gClientID[client]))
+	{
+		return false;
+	}
+	
+	// Gets the list at the given value
+	ArrayList hList;
+	gServerData.ItemMapLimit.GetValue(gClientID[client], hList);
+
+	// Lookup for id
+	return hList.FindValue(iD) != -1;
+}
+
+/**
  * @brief Gets the flags for the item.
  *
  * @param iD                The item index.

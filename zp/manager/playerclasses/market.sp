@@ -414,6 +414,145 @@ bool MarketBuyItem(int client, int iD, bool bInfo = true)
  **/
 bool MarketItemNotAvailable(int client, int iD)
 {
+	// Gets item flags
+	int iFlags = ItemsGetFlags(iD);
+	if (iFlags)
+	{
+		// Validate flags access
+		if (iFlags & ADMFLAG_RESERVATION) // "a" - the item is not available until the round starts.
+		{
+			// If round didnt started, then stop
+			if (!gServerData.RoundStart) 
+			{
+				return false;
+			}
+		}
+		else if (iFlags & ADMFLAG_GENERIC) // "b" - the item is not available after the round starts.
+		{
+			// If round started, then stop
+			if (gServerData.RoundStart) 
+			{
+				return false;
+			}
+		}
+		
+		if (iFlags & ADMFLAG_KICK) // "c" - the item is not available when a single zombie.
+		{
+			// If single zombie, then stop
+			if (fnGetZombies() <= 1)
+			{
+				return false;
+			}
+		}
+		else if (iFlags & ADMFLAG_BAN) // "d" - the item is only available when a single zombie.
+		{
+			// If not a single zombie, then stop
+			if (fnGetZombies() > 1)
+			{
+				return false;
+			}
+		}
+
+		if (iFlags & ADMFLAG_UNBAN) // "e" - the item is not available when a single human.
+		{
+			// If single human, then stop
+			if (fnGetHumans() <= 1)
+			{
+				return false;
+			}
+		}
+		else if (iFlags & ADMFLAG_SLAY) // "f" - the item is only available when a single human.
+		{
+			// If not a single human, then stop
+			if (fnGetHumans() > 1)
+			{
+				return false;
+			}
+		}
+		
+		if (iFlags & ADMFLAG_CHANGEMAP) // "g" - the item is not available in an infection mode.
+		{
+			// If the gamemode allow infection, then stop
+			if (ModesIsInfection(gServerData.RoundMode))
+			{
+				return false;
+			}
+		}
+		else if (iFlags & ADMFLAG_CONVARS) // "h" - the item is only available in an infection mode.
+		{
+			// If the gamemode doesn't allow infection, then stop
+			if (!ModesIsInfection(gServerData.RoundMode))
+			{
+				return false;
+			}
+		}
+		
+		if (iFlags & ADMFLAG_CONFIG) // "i" - the item is not available in a respawn mode.
+		{
+			// If the gamemode allow respawn, then stop
+			if (ModesIsRespawn(gServerData.RoundMode))
+			{
+				return false;
+			}
+		}
+		else if (iFlags & ADMFLAG_CHAT) // "j" - the item is only available in a respawn mode.
+		{
+			// If the gamemode doesn't allow respawn, then stop
+			if (!ModesIsRespawn(gServerData.RoundMode))
+			{
+				return false;
+			}
+		}
+		
+		if (iFlags & ADMFLAG_VOTE) // "k" - the item is not available in a default human mode.
+		{
+			// If the gamemode have human default type, then stop
+			if (ModesGetHumanType(gServerData.RoundMode) == gServerData.Human)
+			{
+				return false;
+			}
+		}
+		else if (iFlags & ADMFLAG_PASSWORD) // "l" - the item is only available in a default human mode.
+		{
+			// If the gamemode doesn't have human default type, then stop
+			if (ModesGetHumanType(gServerData.RoundMode) != gServerData.Human)
+			{
+				return false;
+			}
+		}
+		
+		if (iFlags & ADMFLAG_RCON) // "m" - the item is not available in a default zombie mode.
+		{
+			// If the gamemode have human zombie type, then stop
+			if (ModesGetZombieType(gServerData.RoundMode) == gServerData.Zombie)
+			{
+				return false;
+			}
+		}
+		else if (iFlags & ADMFLAG_CHEATS) // "n" - the item is only available in a default zombie mode.
+		{
+			// If the gamemode doesn't have zombie default type, then stop
+			if (ModesGetZombieType(gServerData.RoundMode) != gServerData.Zombie)
+			{
+				return false;
+			}
+		}
+		
+		if (iFlags & ADMFLAG_CUSTOM1) // "o" - the item available once per map.
+		{
+			
+
+		}
+		if (iFlags & ADMFLAG_CUSTOM2) // "p" - the item available only during night time.
+		{
+			// If not the night time state, then stop
+			if (!gServerData.NightTime)
+			{
+				return false;
+			}
+		}
+	}
+
 	// Gets item data
 	static char sGroup[SMALL_LINE_LENGTH];
 	ItemsGetGroup(iD, sGroup, sizeof(sGroup));

@@ -2553,8 +2553,8 @@ stock void ClearTrieList(StringMap hTrieList)
 		return;
 	}
 	
-	// Initialize char buffer
-	static char sKey[SMALL_LINE_LENGTH];
+	// Initialize variables
+	static char sKey[SMALL_LINE_LENGTH]; ArrayList hList;
 	
 	// i = key index
 	for (int i = 0; i < iSize; i++)
@@ -2563,7 +2563,6 @@ stock void ClearTrieList(StringMap hTrieList)
 		hSnapshot.GetKey(i, sKey, sizeof(sKey));
 		
 		// Get the array at the given key
-		ArrayList hList;
 		if (hTrieList.GetValue(sKey, hList))
 		{
 			// Destroy nested array

@@ -106,6 +106,11 @@ enum FactoryType
 /**
  * @endsection
  **/ 
+ 
+/**
+ * Array to store the client id strings.
+ **/
+char gClientID[MAXPLAYERS+1][SMALL_LINE_LENGTH]; 
 
 /**
  * @brief Database module init function.
@@ -199,7 +204,7 @@ void DataBaseOnLoad(/*void*/)
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		// If client was loaded, then skip
-		if (gClientData[i].Loaded || gClientData[i].AccountID)
+		if (gClientData[i].Loaded)
 		{
 			continue;
 		}
@@ -208,7 +213,7 @@ void DataBaseOnLoad(/*void*/)
 		if (IsPlayerExist(i, false) && !IsFakeClient(i))
 		{
 			// Validate client authentication string (SteamID)
-			gClientData[i].AccountID = GetSteamAccountID(i);
+			//gClientData[client].AccountID = GetSteamAccountID(client);
 			if (gClientData[i].AccountID)
 			{ 
 				// Generate request
@@ -216,6 +221,11 @@ void DataBaseOnLoad(/*void*/)
 			
 				// Adds a query to the transaction
 				hTxn.AddQuery(sRequest, i);
+			}
+			else
+			{
+				// Unexpected error, log it
+				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "SteamID Validation", "Player: \"%N\" - doesn't have an account (steam) id", client);
 			}
 		}
 	}
@@ -245,7 +255,7 @@ void DataBaseOnUnload(/*void*/)
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		// If client wasn't loaded, then skip
-		if (!gClientData[i].Loaded || !gClientData[i].AccountID)
+		if (!gClientData[i].Loaded)
 		{
 			continue;
 		}
@@ -257,7 +267,6 @@ void DataBaseOnUnload(/*void*/)
 		hTxn.AddQuery(sRequest, i);
 		
 		// Resets variables
-		gClientData[i].AccountID = 0;
 		gClientData[i].Loaded = false;
 		gClientData[i].DataID = -1;
 	}
@@ -334,28 +343,43 @@ public void DataBaseOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
  **/
 void DataBaseOnClientInit(int client)
 {
+	// Initialize request char
+	static char sRequest[HUGE_LINE_LENGTH]; 
+
+	// Verify that the client is a fake player
+	if (IsFakeClient(client))
+	{
+		// Sets the  client's id using client name
+		GetClientName(client, sRequest, sizeof(sRequest));
+		IntToString(sRequest, gClientID[client], sizeof(gClientID[]));
+		return;
+	}
+	
+	// Sets the client's Steam account ID
+	gClientData[client].AccountID = GetSteamAccountID(client);
+
+	// Store id as string to the char array
+	IntToString(gClientData[client].AccountID, gClientID[client], sizeof(gClientID[]));
+
 	// If database doesn't exist, then stop
 	if (gServerData.DBI == null)
 	{
 		return;
 	}
 	
-	// Verify that the client is a real player
-	if (!IsFakeClient(client))
+	// Validate client authentication string (SteamID)
+	if (gClientData[client].AccountID)
 	{
-		// Initialize request char
-		static char sRequest[HUGE_LINE_LENGTH]; 
+		// Generate request
+		SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Select, client);
 
-		// Validate client authentication string (SteamID)
-		gClientData[client].AccountID = GetSteamAccountID(client);
-		if (gClientData[client].AccountID)
-		{
-			// Generate request
-			SQLBaseFactory__(_, sRequest, sizeof(sRequest), ColumnType_Default, FactoryType_Select, client);
-
-			// Sent a request
-			gServerData.DBI.Query(SQLBaseSelect_Callback, sRequest, client, DBPrio_High);
-		}
+		// Sent a request
+		gServerData.DBI.Query(SQLBaseSelect_Callback, sRequest, client, DBPrio_High);
+	}
+	else
+	{
+		// Unexpected error, log it
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Database, "SteamID Validation", "Player: \"%N\" - doesn't have an account (steam) id", client);
 	}
 }
 
@@ -387,7 +411,7 @@ void DataBaseOnClientUpdate(int client, ColumnType nColumn, FactoryType mFactory
 	}
 	
 	// If client wasn't loaded, then stop
-	if (!gClientData[client].Loaded || !gClientData[client].AccountID)
+	if (!gClientData[client].Loaded)
 	{
 		return;
 	}
@@ -560,7 +584,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 	static char sColumn[SMALL_LINE_LENGTH]; ColumnType nColumn;
 	
 	// Initialize a column existance array
-	ArrayList hColumn = new ArrayList(SMALL_LINE_LENGTH);
+	ArrayList hList = new ArrayList(SMALL_LINE_LENGTH);
 	
 	// Info was found, get name from the rows
 	while (hResult.FetchRow())
@@ -569,10 +593,10 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 		hResult.FetchString(!MySQL, sColumn, sizeof(sColumn));
 
 		// Validate unique column
-		if (hColumn.FindString(sColumn) == -1)
+		if (hList.FindString(sColumn) == -1)
 		{
 			// Push data into array
-			hColumn.PushString(sColumn);
+			hList.PushString(sColumn);
 		}
 	}
 	
@@ -590,7 +614,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 		gServerData.Columns.GetKey(i, sColumn, sizeof(sColumn));
 		
 		// Validate non exist column
-		if (hColumn.FindString(sColumn) == -1)
+		if (hList.FindString(sColumn) == -1)
 		{
 			// Gets column type
 			gServerData.Cols.GetValue(sColumn, nColumn);
@@ -609,7 +633,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 				}
 				
 				/// Remove steam_id here, because we are recreate table before
-				hColumn.Erase(hColumn.FindString("steam_id"));
+				hList.Erase(hList.FindString("steam_id"));
 			}
 			else
 			{
@@ -633,11 +657,11 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 	}
 
 	// i = column index
-	iSize = hColumn.Length;
+	iSize = hList.Length;
 	for (int i = 0; i < iSize; i++)
 	{
 		// Gets string from the array
-		hColumn.GetString(i, sColumn, sizeof(sColumn));
+		hList.GetString(i, sColumn, sizeof(sColumn));
 		
 		// Validate not exist column
 		if (!gServerData.Cols.GetValue(sColumn, nColumn))
@@ -673,7 +697,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
 	gServerData.DBI.Execute(hTxn, SQLTxnSuccess_Callback, SQLTxnFailure_Callback, TransactionType_Create, DBPrio_Normal); 
 	
 	// Close list
-	delete hColumn;
+	delete hList;
 }
 
 /**
