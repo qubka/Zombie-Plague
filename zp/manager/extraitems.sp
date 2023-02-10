@@ -45,7 +45,7 @@ enum
 /**
  * @endsection
  **/
- 
+
 /**
  * @brief Extraitem module init function.
  **/
@@ -61,7 +61,7 @@ void ExtraItemsOnInit(/*void*/)
 void ExtraItemsOnPurge(/*void*/)
 {
 	// Clear map for resetting
-	gServerData.ItemLimit.Clear();
+	ClearTrieList(gServerData.ItemLimit);
 }
 
 /**

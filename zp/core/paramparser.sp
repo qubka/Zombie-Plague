@@ -125,7 +125,7 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
 	/*__________________________________________________________________________*/
 	
 	// Extract key name
-	StrExtract(sValue[0], sParamString, 0, iSeparatorPos);
+	ExtractString(sValue[0], sParamString, 0, iSeparatorPos);
 
 	// Trim string
 	TrimString(sValue[0]);
@@ -146,7 +146,7 @@ int ParamParseString(ArrayList &arrayBuffer, char[] sParamString, int iMaxLen, c
 	/*__________________________________________________________________________*/
 
 	// Extract value string
-	StrExtract(sParamString, sParamString, iSeparatorPos + 1, iLen);
+	ExtractString(sParamString, sParamString, iSeparatorPos + 1, iLen);
 
 	// Trim string
 	TrimString(sParamString);

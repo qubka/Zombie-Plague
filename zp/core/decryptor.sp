@@ -178,7 +178,7 @@ void DecryptPrecacheResources(char[] sModel)
 	for (int i = 0; i < iSize; i++)
 	{
 		// Extract value string
-		StrExtract(sResource, sModel, 0, iFormat);
+		ExtractString(sResource, sModel, 0, iFormat);
 		
 		// Concatenates one string onto another
 		StrCat(sResource, sizeof(sResource), sTypes[i]);
@@ -212,7 +212,7 @@ bool DecryptPrecacheSounds(char[] sModel)
 	
 	// Extract value string
 	static char sPath[PLATFORM_LINE_LENGTH];
-	StrExtract(sPath, sModel, 0, iFormat);
+	ExtractString(sPath, sModel, 0, iFormat);
 
 	// Concatenates one string onto another
 	StrCat(sPath, sizeof(sPath), "_sounds.txt");
@@ -341,7 +341,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
 	
 	// Extract value string
 	static char sPath[PLATFORM_LINE_LENGTH];
-	StrExtract(sPath, sModel, 0, iFormat);
+	ExtractString(sPath, sModel, 0, iFormat);
 
 	// Concatenates one string onto another
 	StrCat(sPath, sizeof(sPath), "_materials.txt");
@@ -570,7 +570,7 @@ bool DecryptPrecacheEffects(char[] sModel)
 
 	// Extract value string
 	static char sPath[PLATFORM_LINE_LENGTH];
-	StrExtract(sPath, sModel, 0, iFormat);
+	ExtractString(sPath, sModel, 0, iFormat);
 
 	// Concatenates one string onto another
 	StrCat(sPath, sizeof(sPath), "_particles.txt");

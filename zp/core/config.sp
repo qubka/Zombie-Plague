@@ -651,7 +651,7 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 			}
 			
 			// Destroy all old data
-			ConfigClearKvArray(arrayConfig);
+			ClearArrayList(arrayConfig);
 
 			// Read lines in the file
 			while (hFile.ReadLine(sBuffer, sizeof(sBuffer)))
@@ -696,7 +696,7 @@ stock bool ConfigLoadConfig(int iConfig, ArrayList &arrayConfig, int blockSize =
 			}
 			
 			// Destroy all old data
-			ConfigClearKvArray(arrayConfig);
+			ClearArrayList(arrayConfig);
 			
 			// Read keys in the file
 			if (hKeyvalue.GotoFirstSubKey())
@@ -819,7 +819,7 @@ stock bool ConfigOpenConfigFile(int iConfig, Handle &hConfig)
  * @param iMaxLen           (Optional) The maxlength of the retrieved value.
  * @return                  True if the change was made successfully, false otherwise. 
  **/
-stock bool ConfigKeyvalueTreeSetting(int iConfig, ConfigKvAction mAction = KvAction_Create, char[][] sKeys, int keysMax, char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
+stock bool ConfigKeyValueTreeSetting(int iConfig, ConfigKvAction mAction = KvAction_Create, char[][] sKeys, int keysMax, char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
 {
 	// Gets config file structure
 	ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
@@ -900,26 +900,6 @@ stock bool ConfigKeyvalueTreeSetting(int iConfig, ConfigKvAction mAction = KvAct
 	
 	// We successfully set or got the value
 	return true;
-}
-
-/**
- * @brief Destroy all array handles within an array, and clear main array.
- * 
- * @param arrayKv           The array converted from a keyvalue structure.
- **/
-stock void ConfigClearKvArray(ArrayList arrayKv)
-{
-	// i = array index
-	int iSize = arrayKv.Length;
-	for (int i = 0; i < iSize; i++)
-	{
-		// Destroy nested arrays
-		ArrayList arrayKvKey = arrayKv.Get(i);
-		delete arrayKvKey;
-	}
-	
-	// Now that all data within has been destroyed, we can clear the main array
-	arrayKv.Clear();
 }
 
 /**

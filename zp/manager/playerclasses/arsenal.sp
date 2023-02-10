@@ -63,7 +63,7 @@ void ArsenalOnLoad(/*void*/)
 	else
 	{
 		// Clear out the array of all data
-		ConfigClearKvArray(gServerData.Arsenal);
+		ClearArrayList(gServerData.Arsenal);
 	}
 	
 	// Load weapons from cvars

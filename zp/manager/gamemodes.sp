@@ -3180,8 +3180,8 @@ void ModesUpdateClientArray(int target = -1)
 	}
 
 	// Reshuffle both arrays
-	ArrayShuffle(gServerData.Clients);
-	ArrayShuffle(gServerData.LastZombies);
+	ShuffleArray(gServerData.Clients);
+	ShuffleArray(gServerData.LastZombies);
 
 	// i = cell index
 	int iSize = gServerData.LastZombies.Length;

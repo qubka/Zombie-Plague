@@ -421,7 +421,7 @@ void CvarsOnCacheData(/*void*/)
 	}
 	
 	// Destroy all data
-	ConfigClearKvArray(gServerData.Cvars);
+	ClearArrayList(gServerData.Cvars);
 }
 
 /**

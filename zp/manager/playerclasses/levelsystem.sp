@@ -159,7 +159,7 @@ void LevelSystemOnCacheData(/*void*/)
 	}
 	
 	// Initialize a level list array
-	ArrayList hLevel = new ArrayList();
+	ArrayList hList = new ArrayList();
 
 	// i = level array index
 	for (int i = 0; i < iLevels; i++)
@@ -168,7 +168,7 @@ void LevelSystemOnCacheData(/*void*/)
 		int iLimit = gServerData.Levels.Get(i);
 		
 		// Validate unique integer
-		if (iLimit <= 0 || hLevel.FindValue(iLimit) != -1)
+		if (iLimit <= 0 || hList.FindValue(iLimit) != -1)
 		{
 			// Log level error info
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Levels, "Config Validation", "Incorrect level \"%s\" = %d , %d", sBuffer, iLimit, i);
@@ -185,7 +185,7 @@ void LevelSystemOnCacheData(/*void*/)
 		}
 		
 		// Push data into array
-		hLevel.Push(iLimit);
+		hList.Push(iLimit);
 	}
 	
 	// Validate levels config (after converation)
@@ -196,12 +196,12 @@ void LevelSystemOnCacheData(/*void*/)
 	}
 	
 	/// Do quick sort!
-	SortADTArray(hLevel, Sort_Ascending, Sort_Integer);
+	SortADTArray(hList, Sort_Ascending, Sort_Integer);
 	
 	// Replace with new array
 	delete gServerData.Levels;
-	gServerData.Levels = hLevel.Clone();
-	delete hLevel;
+	gServerData.Levels = hList.Clone();
+	delete hList;
 }
 
 /**

@@ -2409,7 +2409,7 @@ stock int GetParticleEffectCount(/*void*/)
 /**
  * @brief Finds the amount of all occurrences of a character in a string.
  *
- * @param sBuffer           Input string buffer.
+ * @param sBuffer           The input string buffer.
  * @param cSymbol           The character to search for.
  * @return                  The amount of characters in the string, or -1 if the characters were not found.
  */
@@ -2437,13 +2437,13 @@ int CountCharInString(char[] sBuffer, char cSymbol)
 /**
  * @brief Extracts a area in a string between two positions.
  *
- * @param sBuffer           Destination string buffer.
- * @param sSource           Source string to extract from.
- * @param startPos          Start position of string to extract.
- * @param endPos            End position of string to extract.
+ * @param sBuffer           The destination string buffer.
+ * @param sSource           The source string to extract from.
+ * @param startPos          The start position of string to extract.
+ * @param endPos            The end position of string to extract.
  * @return                  The number of cells written.
  **/
-int StrExtract(char[] sBuffer, char[] sSource, int startPos, int endPos)
+int ExtractString(char[] sBuffer, char[] sSource, int startPos, int endPos)
 {
 	// Calculate string length. Also add space for null terminator
 	int iMaxLen = endPos - startPos + 1;
@@ -2462,7 +2462,7 @@ int StrExtract(char[] sBuffer, char[] sSource, int startPos, int endPos)
 /**
  * @brief Converts uppercase chars in the string to lowercase chars.
  *
- * @param sBuffer           Input string buffer.
+ * @param sBuffer           The input string buffer.
  */
 void StringToLower(char[] sBuffer)
 {
@@ -2478,7 +2478,7 @@ void StringToLower(char[] sBuffer)
 /**
  * @brief Converts lowercase chars in the string to uppercase chars.
  *
- * @param sBuffer           Input string buffer.
+ * @param sBuffer           The input string buffer.
  */
 void StringToUpper(char[] sBuffer)
 {
@@ -2496,17 +2496,84 @@ void StringToUpper(char[] sBuffer)
 /**
  * @brief Randomly permutes the specified list using a default source of randomness.
  *
- * @param hArrayList        The array that is being shuffle.
+ * @param hList             The array that is being shuffle.
  **/
-void ArrayShuffle(ArrayList hArrayList)
+void ShuffleArray(ArrayList hList)
 {
 	// i = client index
-	int iSize = hArrayList.Length; int iLen = iSize - 1;
+	int iSize = hList.Length; int iLen = iSize - 1;
 	for (int i = 0; i < iSize; i++)
 	{
 		// Simple swap
-		hArrayList.SwapAt(i, GetRandomInt(0, iLen));
+		hList.SwapAt(i, GetRandomInt(0, iLen));
 	}
+}
+
+/**
+ * @brief Destroy all array handles within an array, and clear it.
+ * 
+ * @param hArrayList        The array containing sub arrays.
+ **/
+stock void ClearArrayList(ArrayList hArrayList)
+{
+	// Validate size
+	int iSize = hArrayList.Length;
+	if (!iSize)
+	{
+		return;
+	}
+	
+	// i = array index
+	for (int i = 0; i < iSize; i++)
+	{
+		// Destroy nested array
+		ArrayList hList = hArrayList.Get(i);
+		delete hList;
+	}
+	
+	// Now that all data within has been destroyed, we can clear the main array
+	hArrayList.Clear();
+}
+
+/**
+ * @brief Destroy all array handles within an string map, and clear it.
+ * 
+ * @param hTrieList         The map containing sub arrays.
+ **/
+stock void ClearTrieList(StringMap hTrieList)
+{
+	// Create a snapshot of the map's keys
+	StringMapSnapshot hSnapshot = hTrieList.Snapshot();
+	
+	// Validate size
+	int iSize = hSnapshot.Length;
+	if (!iSize)
+	{
+		delete hSnapshot;
+		return;
+	}
+	
+	// Initialize char buffer
+	static char sKey[SMALL_LINE_LENGTH];
+	
+	// i = key index
+	for (int i = 0; i < iSize; i++)
+	{
+		// Gets the key at the index
+		hSnapshot.GetKey(i, sKey, sizeof(sKey));
+		
+		// Get the array at the given key
+		ArrayList hList;
+		if (hTrieList.GetValue(sKey, hList))
+		{
+			// Destroy nested array
+			delete hList;
+		}
+	}
+
+	// Now that all data within has been destroyed, we can clear the main map
+	delete hSnapshot;
+	hTrieList.Clear();
 }
 
 /**
@@ -2514,16 +2581,16 @@ void ArrayShuffle(ArrayList hArrayList)
  *
  * @param iIndex1           The first index to compare.
  * @param iIndex2           The second index to compare.
- * @param hArrayList        The array that is being sorted (order is undefined).
+ * @param hList             The array that is being sorted (order is undefined).
  * @param hCustom           Handle optionally passed in while sorting.
  **/
-stock int Sort_ByLength(int iIndex1, int iIndex2, ArrayList hArrayList, Handle hCustom)
+stock int Sort_ByLength(int iIndex1, int iIndex2, ArrayList hList, Handle hCustom)
 {
 	// Gets strings
 	static char sBuffer1[PLATFORM_LINE_LENGTH]; 
-	hArrayList.GetString(iIndex1, sBuffer1, sizeof(sBuffer1));
+	hList.GetString(iIndex1, sBuffer1, sizeof(sBuffer1));
 	static char sBuffer2[PLATFORM_LINE_LENGTH];
-	hArrayList.GetString(iIndex2, sBuffer2, sizeof(sBuffer2));
+	hList.GetString(iIndex2, sBuffer2, sizeof(sBuffer2));
 	
 	// Gets string lengths
 	int iLen1 = strlen(sBuffer1); int iLen2 = strlen(sBuffer2); 
