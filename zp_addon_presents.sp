@@ -79,13 +79,11 @@ ConVar hCvarPresentDelay;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarPresentGlow   = CreateConVar("zp_presents_glow", "0", "Enable glow effect", 0, true, 0.0, true, 1.0);
 	hCvarPresentMax    = CreateConVar("zp_presents_max", "6", "Maximum amount of presents on map", 0, true, 1.0);
 	hCvarPresentHealth = CreateConVar("zp_presents_health", "0", "Health of present. If disabled will be pickup on touch", 0, true, 0.0);
 	hCvarPresentDelay  = CreateConVar("zp_presents_delay", "60.0", "Delay between presents spawn", 0, true, 0.0);
 	
-	// Generate config
 	AutoExecConfig(true, "zp_addon_presents", "sourcemod/zombieplague");
 }
 
@@ -95,23 +93,17 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// Initialize a position array
 		hPosition = new ArrayList(3);
 		
-		// Load translations phrases used by plugin
 		LoadTranslations("presents.phrases");
 		
-		// Hook server events
 		HookEvent("round_prestart", RoundStateHook, EventHookMode_Pre);
 		HookEvent("round_end", RoundStateHook, EventHookMode_Pre);
 		
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -120,13 +112,11 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Sounds
 	gSound = ZP_GetSoundKeyID("PRESENT_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PRESENT_SOUNDS\" wasn't find");
 	
-	// Types
 	gType = ZP_GetClassTypeID("human");
 	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"human\" wasn't find");
 }
@@ -134,81 +124,62 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief The map is loading.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Loads a game config file
 	GameData hConfig = LoadGameConfigFile("plugin.presents");
 
-	// Validate config
 	if (!hConfig) 
 	{
 		SetFailState("Failed to load presents gamedata.");
 		return;
 	}
 
-	// Load other addresses
 	Address TheNavAreas = hConfig.GetAddress("TheNavAreas");
 
-	// Validate address
 	if (TheNavAreas == Address_Null) SetFailState("Failed to load SDK address \"TheNavAreas\". Update address in \"plugin.presents\"");    
 
-	// Validate count
 	int TheNavAreas_Count = view_as<int>(hConfig.GetAddress("TheNavAreas::Count"));
 	if (TheNavAreas_Count <= 0)
 	{
-		// Log info
 		PrintToServer("[ZP] Addon: Presents = unloaded on the current map. Generate \"nav_mesh\" to make it work!");
 		
-		// Sets on unsucess
 		bLoad = false;
 		
-		// Close file
 		delete hConfig;
 		return;
 	}
 
-	// Close file
 	delete hConfig;
 	
-	// Clear out the array of all data
 	hPosition.Clear();
 	
-	// Gets a random positions
 	for (int i = 0; i < TheNavAreas_Count; ++i)
 	{
-		// Valiate area
 		Address pNavArea = view_as<Address>(LoadFromAddress(TheNavAreas + view_as<Address>(i * 4), NumberType_Int32));
 		if (pNavArea != Address_Null)
 		{
-			// Initialize vectors
 			static float nwCorner[3]; static float seCorner[3]; static float vCenter[3];
 	
-			// Gets north-west corner point
 			nwCorner[0] = view_as<float>(LoadFromAddress(pNavArea + view_as<Address>(4), NumberType_Int32));
 			nwCorner[1] = view_as<float>(LoadFromAddress(pNavArea + view_as<Address>(8), NumberType_Int32));
 			nwCorner[2] = view_as<float>(LoadFromAddress(pNavArea + view_as<Address>(12), NumberType_Int32));
 
-			// Gets south-east corner point
 			seCorner[0] = view_as<float>(LoadFromAddress(pNavArea + view_as<Address>(16), NumberType_Int32));
 			seCorner[1] = view_as<float>(LoadFromAddress(pNavArea + view_as<Address>(20), NumberType_Int32));
 			seCorner[2] = view_as<float>(LoadFromAddress(pNavArea + view_as<Address>(24), NumberType_Int32));
 			
-			// Check that the area is bigger than 50 units wide on both sides
 			if ((seCorner[0] - nwCorner[0]) <= 50.0 || (seCorner[1] - nwCorner[1]) <= 50.0)
 			{
 				continue;
 			}
 
-			// Calculate area center position
 			AddVectors(nwCorner, seCorner, vCenter);
 			ScaleVector(vCenter, 0.5);
 
-			// Push data into array 
 			hPosition.PushArray(vCenter, sizeof(vCenter));
 		}
 	}
 	
-	// Validate lenght
 	int iSize = hPosition.Length;
 	if (!iSize)
 	{
@@ -216,10 +187,8 @@ public void OnMapStart(/*void*/)
 		return;
 	}
 	
-	// Nav mesh load successfully
 	bLoad = true;
 
-	// Sounds
 	PrecacheSound("survival/container_death_01.wav", true);
 	PrecacheSound("survival/container_death_02.wav", true);
 	PrecacheSound("survival/container_death_03.wav", true);
@@ -229,7 +198,6 @@ public void OnMapStart(/*void*/)
 	PrecacheSound("survival/container_damage_04.wav", true);
 	PrecacheSound("survival/container_damage_05.wav", true);
 	
-	// Models
 	PrecacheModel("models/props_survival/cases/case_explosive.mdl", true);
 	PrecacheModel("models/props_survival/cases/case_heavy_weapon.mdl", true);
 	PrecacheModel("models/props_survival/cases/case_light_weapon.mdl", true);
@@ -469,9 +437,8 @@ public void OnMapStart(/*void*/)
 /**
  * @brief The map is ending.
  **/
-public void OnMapEnd(/*void*/)
+public void OnMapEnd()
 {
-	// Purge timer
 	hPresentSpawn = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
 }
 
@@ -482,16 +449,13 @@ public void OnMapEnd(/*void*/)
  **/
 public void ZP_OnGameModeStart(int mode)
 {
-	// Is nav mesh loaded ?
 	if (!bLoad)
 	{
 		return;
 	}
 	
-	// Validate access
 	if (ZP_GetGameModeHumanType(mode) == gType)
 	{
-		// Create spawing hook
 		delete hPresentSpawn;
 		hPresentSpawn = CreateTimer(hCvarPresentDelay.FloatValue, CaseSpawnHook, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
@@ -507,13 +471,10 @@ public void ZP_OnGameModeStart(int mode)
  **/
 public Action RoundStateHook(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	// Resets amount
 	gCaseCount = 0;
 	
-	// Remove timer
 	delete hPresentSpawn;
 	
-	// Allow event
 	return Plugin_Continue;
 }
 
@@ -524,27 +485,21 @@ public Action RoundStateHook(Event hEvent, char[] sName, bool dontBroadcast)
  **/
 public Action CaseSpawnHook(Handle hTimer)
 {
-	// Validate amount
 	int iAmount = hCvarPresentMax.IntValue - gCaseCount;
 	if (!iAmount)
 	{
-		// Allow timer
 		return Plugin_Continue;
 	}
 	
-	// i = case index
 	for (int i = 0; i < iAmount; i++)
 	{
-		// Gets random position
 		static float vPosition[3];
 		if (!FindRandomPosition(vPosition))
 		{
-			// Increment amount
 			iAmount++;
 			continue;
 		}
 
-		// Gets model path
 		static char sModel[PLATFORM_LINE_LENGTH]; int iType = GetRandomInt(EXPL, HTOOL); 
 		static int vColor[4];
 
@@ -587,95 +542,69 @@ public Action CaseSpawnHook(Handle hTimer)
 			} 
 		}
 		
-		// Gets presents health
 		int iHealth = hCvarPresentHealth.IntValue;
 		
-		// Gets presents flag (disable motion for trigger)
 		int iFlags = PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR;
 		if (iHealth <= 0) iFlags |= PHYS_MOTIONDISABLED;
 
-		// Create a prop_physics entity
 		int drop = UTIL_CreatePhysics("present", vPosition, NULL_VECTOR, sModel, iFlags);
 		
-		// Validate entity
 		if (drop != -1)
 		{
-			// Sets type
 			SetEntProp(drop, Prop_Data, "m_iHammerID", iType);
 			
-			// Validate health
 			if (iHealth > 0)
 			{
-				// Sets physics
 				SetEntProp(drop, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
 				SetEntProp(drop, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
 				SetEntPropFloat(drop, Prop_Data, "m_flElasticity", 0.01);
 
-				// Sets health
 				SetEntProp(drop, Prop_Data, "m_takedamage", DAMAGE_YES);
 				SetEntProp(drop, Prop_Data, "m_iHealth", iHealth);
 				SetEntProp(drop, Prop_Data, "m_iMaxHealth", iHealth);
 
-				// Create damage hook
 				SDKHook(drop, SDKHook_OnTakeDamage, CaseDamageHook);
 			}
 			else
 			{
-				// Sets physics
 				SetEntProp(drop, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
 				SetEntProp(drop, Prop_Data, "m_usSolidFlags", FSOLID_NOT_SOLID|FSOLID_TRIGGER); /// Make trigger
 				SetEntProp(drop, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
 				
-				// Create touch hook
 				SDKHook(drop, SDKHook_Touch, CaseTouchHook);
 			}
 			
-			// Validate glow
 			if (hCvarPresentGlow.BoolValue)
 			{		
-				// Create a prop_dynamic_override entity
 				int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
 
-				// Validate entity
 				if (glow != -1)
 				{
-					// Sets parent to the entity
 					SetVariantString("!activator");
 					AcceptEntityInput(glow, "SetParent", drop, glow);
 
-					// Sets glowing mode
 					UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
-					
-					// Create transmit hook
-					///SDKHook(glow, SDKHook_SetTransmit, CaseTransmitHook);
 				}
 			}
 		}
 		
-		// Increment amount
 		gCaseCount++;
 	}
 	
-	// i = client index
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		// Validate client
 		if (IsPlayerExist(i))
 		{
-			// Validate human
 			if (ZP_IsPlayerHuman(i))
 			{
-				// Show message
 				SetGlobalTransTarget(i);
 				PrintHintText(i, "%t", "present arrived");
 			}
 			
-			// Play sound
 			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
 		}
 	}
 	
-	// Allow timer
 	return Plugin_Continue;
 }
 
@@ -690,30 +619,22 @@ public Action CaseSpawnHook(Handle hTimer)
  **/
 public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &flDamage, int &iBits)
 {
-	// Calculate the damage
 	int iHealth = GetEntProp(entity, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
-	// Validate death
 	if (!iHealth)
 	{
-		// Initialize vectors
 		static float vPosition[3]; static float vAngle[3];
 						
-		// Gets entity position
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
 	
-		// Create random weapon
-		SpawnRandomWeapon(vPosition, vAngle/*, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID"))*/);
+		SpawnRandomWeapon(vPosition, vAngle);
 		
-		// Remove damage hook
 		SDKUnhook(entity, SDKHook_OnTakeDamage, CaseDamageHook);
 				
-		// Decrease amount
 		gCaseCount--;
 	}
 	
-	// Allow event
 	return Plugin_Continue;
 }
 
@@ -725,28 +646,21 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
  **/
 public Action CaseTouchHook(int entity, int target)
 {
-	// Validate target
 	if (IsPlayerExist(target))
 	{
-		// Validate human
 		if (ZP_IsPlayerHuman(target))
 		{
-			// Initialize vectors
 			static float vPosition[3]; static float vAngle[3];
 							
-			// Gets entity position
 			GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
 
-			// Create random weapon
-			SpawnRandomWeapon(vPosition, vAngle/*, TypeToSlot(GetEntProp(entity, Prop_Data, "m_iHammerID"))*/);
+			SpawnRandomWeapon(vPosition, vAngle);
 
-			// Remove entity from world
 			AcceptEntityInput(entity, "Kill");
 		}
 	}
 	
-	// Allow event
 	return Plugin_Continue;
 }
 
@@ -758,14 +672,11 @@ public Action CaseTouchHook(int entity, int target)
  **/
 /*public Action CaseTransmitHook(int entity, int client)
 {
-	// Validate zombie
 	if (ZP_IsPlayerZombie(client))
 	{
-		// Block transmitting
 		return Plugin_Handled;
 	}
 
-	// Allow transmitting
 	return Plugin_Continue;
 }*/
 
@@ -781,11 +692,9 @@ public Action CaseTouchHook(int entity, int target)
  **/
 stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3])
 {
-	// Valdiate random weapon id
 	int iD = FindRandomWeapon();
 	if (iD != -1)
 	{
-		// Create a random weapon entity
 		ZP_CreateWeapon(iD, vPosition, vAngle);
 	}
 }
@@ -797,33 +706,26 @@ stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3])
  **/
 stock int FindRandomWeapon() 
 {
-	// Gets total amount of weapons
 	int iSize = ZP_GetNumberWeapon();
 	
-	// Dynamicly allocate array
 	int[] weaponID = new int[iSize]; int x;
 	
-	// i = weapon id 
 	for (int i = 0; i < iSize; i++)
 	{
-		// Validate def index
 		ItemDef iItem = ZP_GetWeaponDefIndex(i);
 		if (!IsGun(iItem))
 		{
 			continue;
 		}
 		
-		// Validate class/drop
 		if (!ZP_ClassHasType(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
 		{
 			continue;
 		}
 		
-		// Append to list
 		weaponID[x++] = i;
 	}
 	
-	// Return on success
 	return (x) ? weaponID[GetRandomInt(0, x-1)] : -1;
 }
 
@@ -835,20 +737,15 @@ stock int FindRandomWeapon()
  **/
 stock bool FindRandomPosition(float vPosition[3])
 {
-	// Gets random array
 	hPosition.GetArray(GetRandomInt(0, hPosition.Length - 1), vPosition, sizeof(vPosition));
 
-	// Dublicate vector
 	static float vCenter[3]; vCenter = vPosition;
 		
-	// Initialize the hull vectors
 	static const float vMins[3] = { -30.0, -30.0, 0.0   }; 
 	static const float vMaxs[3] = {  30.0,  30.0, 30.0  }; 
 	
-	// Create the hull trace
 	vCenter[2] += vMaxs[2] / 2.0; /// Move center of hull upward
 	TR_TraceHull(vCenter, vCenter, vMins, vMaxs, MASK_SOLID);
 	
-	// Validate no collisions
 	return !TR_DidHit();
 }

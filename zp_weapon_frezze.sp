@@ -89,7 +89,6 @@ ConVar hCvarFreezeExp;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarFreezeDuration = CreateConVar("zp_weapon_freeze_duration", "3.5", "Freeze duration", 0, true, 0.0);
 	hCvarFreezeRadius   = CreateConVar("zp_weapon_freeze_radius", "200.0", "Freeze radius", 0, true, 0.0);
 	hCvarFreezeDamage   = CreateConVar("zp_weapon_freeze_damage", "1", "Zombie will immune to damage when frost", 0, true, 0.0, true, 1.0);
@@ -97,7 +96,6 @@ public void OnPluginStart()
 	hCvarFreezeEffect   = CreateConVar("zp_weapon_freeze_effect", "dynamic_smoke5", "Particle effect for the freezing (''-off)");
 	hCvarFreezeExp      = CreateConVar("zp_weapon_freeze_explosion", "explosion_hegrenade_dirt", "Particle effect for the explosion (''-default)");
 	
-	// Generate config
 	AutoExecConfig(true, "zp_weapon_freeze", "sourcemod/zombieplague");
 }
 
@@ -107,19 +105,14 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// Hook entity events
 		HookEvent("smokegrenade_detonate", EventEntitySmoke, EventHookMode_Post);
 
-		// Hook server sounds
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 		
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -128,13 +121,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeapon = ZP_GetWeaponNameID("freeze grenade");
-	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"freeze grenade\" wasn't find");
 
-	// Sounds
 	gSound = ZP_GetSoundKeyID("FREEZE_GRENADE_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FREEZE_GRENADE_SOUNDS\" wasn't find");
 }
@@ -142,9 +132,8 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Models
 	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
 	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
@@ -159,12 +148,10 @@ public void OnMapStart(/*void*/)
 /**
  * @brief The map is ending.
  **/
-public void OnMapEnd(/*void*/)
+public void OnMapEnd()
 {
-	// i = client index
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		// Purge timer
 		hZombieFreezed[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
 	}
 }
@@ -176,7 +163,6 @@ public void OnMapEnd(/*void*/)
  **/
 public void OnClientDisconnect(int client)
 {
-	// Delete timer
 	delete hZombieFreezed[client];
 }
 
@@ -188,7 +174,6 @@ public void OnClientDisconnect(int client)
  **/
 public void ZP_OnClientDeath(int client, int attacker)
 {
-	// Delete timer
 	delete hZombieFreezed[client];
 }
 
@@ -200,10 +185,8 @@ public void ZP_OnClientDeath(int client, int attacker)
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	// Resets move
 	SetEntityMoveType(client, MOVETYPE_WALK);
 
-	// Delete timer
 	delete hZombieFreezed[client];
 }
 
@@ -221,7 +204,6 @@ public void ZP_OnClientUpdated(int client, int attacker)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-	// If the client is frozen, then stop
 	if (hCvarFreezeDamage.BoolValue && hZombieFreezed[client] != null) flDamage = 0.0;
 }
 
@@ -234,13 +216,10 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
  **/
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
-	// Validate custom grenade
 	if (weaponID == gWeapon)
 	{
-		// Validate trail
 		if (hCvarFreezeTrail.BoolValue)
 		{
-			// Create an trail effect
 			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
 			TE_SendToAll();	
 		}
@@ -257,102 +236,75 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	// Gets real player index from event key
-	///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
-	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vPosition2[3];
 
-	// Gets all required event info
 	int grenade = hEvent.GetInt("entityid");
 	vPosition[0] = hEvent.GetFloat("x"); 
 	vPosition[1] = hEvent.GetFloat("y"); 
 	vPosition[2] = hEvent.GetFloat("z");
 	
-	// Validate entity
 	if (IsValidEdict(grenade))
 	{
-		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
-			// Gets grenade radius
 			float flRadius = hCvarFreezeRadius.FloatValue;
 			float flDuration = hCvarFreezeDuration.FloatValue;
 			
-			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
 			hCvarFreezeEffect.GetString(sEffect, sizeof(sEffect));
 
-			// Find any players in the radius
 			int i; int it = 1; /// iterator
 			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
-				// Skip humans
 				if (ZP_IsPlayerHuman(i))
 				{
 					continue;
 				}
 				
-				// Freeze the client
 				SetEntityMoveType(i, MOVETYPE_NONE);
 
-				// Gets victim origin
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
-				// Validate effect
 				if (hasLength(sEffect))
 				{
-					// Create an effect
 					UTIL_CreateParticle(i, vPosition2, _, _, sEffect, flDuration + 0.5);
 				}
 				
-				// Create timer for removing freezing
 				delete hZombieFreezed[i];
 				hZombieFreezed[i] = CreateTimer(flDuration, ClientRemoveFreezeEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
 
-				// Randomize pitch
 				vAngle[1] = GetRandomFloat(0.0, 360.0);
 	   
-				// Create a prop_dynamic_override entity
 				int ice = UTIL_CreateDynamic("ice", vPosition2, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", "idle");
 
-				// Validate entity
 				if (ice != -1)
 				{
-					// Kill after some duration
 					UTIL_RemoveEntity(ice, flDuration);
 					
-					// Play sound
 					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC, SNDLEVEL_WEAPON);
 				}
 			}
 
-			// Gets particle name
 			hCvarFreezeExp.GetString(sEffect, sizeof(sEffect));
 			
-			// Validate effect
 			if (hasLength(sEffect))
 			{
-				// Create an explosion effect
 				UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
 			}
 			else
 			{
-				// Create a simple effect
 				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
 				TE_SendToAll();
 			}
 			
-			// Create sparks splash effect
 			TE_SetupSparks(vPosition, NULL_VECTOR, 5000, 1000);
 			TE_SendToAll();
 			
-			// Remove grenade
 			AcceptEntityInput(grenade, "Kill");
 		}
 	}
 	
-	// Allow event
 	return Plugin_Continue;
 }
 
@@ -364,29 +316,21 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
  **/
 public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
 {
-	// Gets client index from the user ID
 	int client = GetClientOfUserId(userID);
 	
-	// Clear timer 
 	hZombieFreezed[client] = null;
 
-	// Validate client
 	if (client)
 	{
-		// Initialize vectors
 		static float vGib[3]; float vShoot[3]; 
 
-		// Unfreeze the client
 		SetEntityMoveType(client, MOVETYPE_WALK);
 		
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 
-		// Create a breaked glass effect
 		static char sBuffer[NORMAL_LINE_LENGTH];
 		for (int x = 0; x <= 5; x++)
 		{
-			// Find gib positions
 			vShoot[1] += 60.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
 			{
 				case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard01.mdl");
@@ -397,12 +341,10 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
 				case 5 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard06.mdl");
 			}
 		
-			// Create gibs
 			UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, sBuffer, vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
 		}
 	}
 	
-	// Destroy timer
 	return Plugin_Stop;
 }
 
@@ -423,32 +365,24 @@ public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
  **/ 
 public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
-	// Validate client
 	if (IsValidEdict(entity))
 	{
-		// Validate custom grenade
 		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
 		{
-			// Validate sound
 			if (!strncmp(sSample[31], "hit", 3, false))
 			{
-				// Play sound
 				ZP_EmitSoundToAll(gSound, GetRandomInt(4, 6), entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
-				// Block sounds
 				return Plugin_Stop; 
 			}
 			else if (!strncmp(sSample[29], "emit", 4, false))
 			{
-				// Play sound
 				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 			   
-				// Block sounds
 				return Plugin_Stop; 
 			}
 		}
 	}
 	
-	// Allow sounds
 	return Plugin_Continue;
 }

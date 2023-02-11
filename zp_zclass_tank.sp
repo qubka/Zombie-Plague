@@ -60,11 +60,9 @@ ConVar hCvarSkillEffect;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarSkillReduction = CreateConVar("zp_zclass_tank_reduction", "0.1", "Damage reduction multiplier", 0, true, 0.0, true, 1.0);
 	hCvarSkillEffect    = CreateConVar("zp_zclass_tank_effect", "cloud", "Particle effect for the skill (''-default)");
 
-	// Generate config
 	AutoExecConfig(true, "zp_zclass_tank", "sourcemod/zombieplague");
 }
 
@@ -74,13 +72,10 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -89,13 +84,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Classes
 	gZombie = ZP_GetClassNameID("tank");
-	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"tank\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("TANK_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TANK_SKILL_SOUNDS\" wasn't find");
 }
@@ -103,9 +95,8 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Models
 	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 }
 
@@ -119,33 +110,26 @@ public void OnMapStart(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
-		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
-		// Validate effect
 		if (hasLength(sEffect))
 		{
-			// Create an effect
 			static float vPosition[3];
 			GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 			UTIL_CreateParticle(client, vPosition, _, _, sEffect, ZP_GetClassSkillDuration(gZombie));
 		}
 		else
 		{
-			// Create an trail effect
 			TE_SetupBeamFollow(client, gTrail, 0, ZP_GetClassSkillDuration(gZombie), 6.0, 6.0, 3, {255, 255, 0, 200});
 			TE_SendToAll();	
 		}
 	}
 	
-	// Allow usage
 	return Plugin_Continue;
 }
 
@@ -156,10 +140,8 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public void ZP_OnClientSkillOver(int client)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 	}
 }
@@ -178,7 +160,6 @@ public void ZP_OnClientSkillOver(int client)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
 	{
 		flDamage *= hCvarSkillReduction.FloatValue;

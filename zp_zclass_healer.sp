@@ -63,13 +63,11 @@ ConVar hCvarSkillHeal;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarSkillReward = CreateConVar("zp_zclass_healer_reward", "1", "Reward for healing each zombie", 0, true, 0.0);
 	hCvarSkillRadius = CreateConVar("zp_zclass_healer_radius", "250.0", "Healing radius", 0, true, 0.0);
 	hCvarSkillEffect = CreateConVar("zp_zclass_sleeper_effect", "tornado", "Particle effect for the skill (''-default)");
 	hCvarSkillHeal   = CreateConVar("zp_zclass_sleeper_heal", "heal_ss", "Particle effect for the heal (''-off)");
 	
-	// Generate config
 	AutoExecConfig(true, "zp_zclass_healer", "sourcemod/zombieplague");
 }
 
@@ -79,13 +77,10 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -94,13 +89,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Classes
 	gZombie = ZP_GetClassNameID("healer");
-	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"healer\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("HEALER_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HEALER_SKILL_SOUNDS\" wasn't find");
 }
@@ -108,9 +100,8 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Models
 	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
 	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
 }
@@ -125,96 +116,71 @@ public void OnMapStart(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		// Initialize vectors
 		static float vPosition[3]; static float vPosition2[3];
 		
-		// Gets client origin
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 
-		// Create an fade
 		UTIL_CreateFadeScreen(client, 0.3, 1.0, FFADE_IN, {255, 127, 80, 75});  
 
-		// Gets skill variables
 		float flRadius = hCvarSkillRadius.FloatValue;
 		int iTotal = 0; int iReward = hCvarSkillReward.IntValue;
 		float flDuration = ZP_GetClassSkillDuration(gZombie);
 				
-		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
-		// Validate effect
 		if (hasLength(sEffect))
 		{
-			// Create an effect
 			UTIL_CreateParticle(client, vPosition, _, _, sEffect, flDuration);
 		}
 		else
 		{
-			// Create a simple effect
 			TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, {0, 255, 0, 255}, 0, 0);
 			TE_SendToAll();
 		}
 		
-		// Gets particle name
 		hCvarSkillHeal.GetString(sEffect, sizeof(sEffect));
 		
-		// Find any players in the radius
 		int i; int it = 1; /// iterator
 		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 		{
-			// Skip humans
 			if (ZP_IsPlayerHuman(i))
 			{
 				continue;
 			}
 
-			// Gets victim zombie class/health
 			int iClass = ZP_GetClientClass(i);
 			int iHealth = ZP_GetClassHealth(iClass);
 			int iSound = ZP_GetClassSoundRegenID(iClass);
 
-			// Validate lower health
 			if (GetEntProp(i, Prop_Send, "m_iHealth") < iHealth)
 			{
-				// Sets a new health 
 				SetEntProp(i, Prop_Send, "m_iHealth", iHealth); 
 				
-				// Create a fade
 				UTIL_CreateFadeScreen(i, 0.3, 1.0, FFADE_IN, {0, 255, 0, 75});
 				
-				// Validate sound key
 				if (iSound != -1)
 				{
-					// Play sound
 					ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 				}
 				
-				// Gets victim origin
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 				
-				// Append to total reward
 				iTotal += iReward;
 				
-				// Validate effect
 				if (hasLength(sEffect))
 				{
-					// Create an effect
 					UTIL_CreateParticle(i, vPosition2, _, _, sEffect, flDuration);
 				}
 			}
 		}
 		
-		// Give reward
 		ZP_SetClientMoney(client, ZP_GetClientMoney(client) + iTotal);	
 	}
 	
-	// Allow usage
 	return Plugin_Continue;
 }

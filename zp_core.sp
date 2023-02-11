@@ -44,34 +44,30 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-// Main
+// Modules
 #include "zp/global.sp"  
 #include "zp/versioninfo.sp"  
-
-// Core
-#include "zp/core/api.sp"
-#include "zp/core/paramparser.sp" 
-#include "zp/core/config.sp"
-#include "zp/core/cvars.sp"  
-#include "zp/core/log.sp"
-#include "zp/core/zombieplague.sp" 
-#include "zp/core/debug.sp" 
-#include "zp/core/commands.sp"
-#include "zp/core/database.sp"
-#include "zp/core/translation.sp"   
-#include "zp/core/decryptor.sp"
-
-// Manager
-#include "zp/manager/visualeffects.sp"
-#include "zp/manager/menus.sp"
-#include "zp/manager/classes.sp"
-#include "zp/manager/extraitems.sp"
-#include "zp/manager/downloads.sp"
-#include "zp/manager/hitgroups.sp"
-#include "zp/manager/costumes.sp"
-#include "zp/manager/weapons.sp"
-#include "zp/manager/sounds.sp"
-#include "zp/manager/gamemodes.sp"
+#include "zp/api.sp"
+#include "zp/paramparser.sp" 
+#include "zp/config.sp"
+#include "zp/cvars.sp"  
+#include "zp/log.sp"
+#include "zp/zombieplague.sp" 
+#include "zp/debug.sp" 
+#include "zp/commands.sp"
+#include "zp/database.sp"
+#include "zp/translation.sp"   
+#include "zp/decryptor.sp"
+#include "zp/visualeffects.sp"
+#include "zp/menus.sp"
+#include "zp/classes.sp"
+#include "zp/extraitems.sp"
+#include "zp/downloads.sp"
+#include "zp/hitgroups.sp"
+#include "zp/costumes.sp"
+#include "zp/weapons.sp"
+#include "zp/sounds.sp"
+#include "zp/gamemodes.sp"
 
 
 /* 
@@ -100,16 +96,14 @@ public Plugin myinfo =
  **/
 public APLRes AskPluginLoad2(Handle hMySelf, bool bLate, char[] sError, int iErrorMax)
 {
-	// Load API
 	return APIOnInit();
 }
 
 /**
  * @brief Plugin is loading.
  **/
-public void OnPluginStart(/*void*/)
+public void OnPluginStart()
 {
-	// Forward event to modules
 	TranslationOnInit();  
 	ConfigOnInit();
 	CvarsOnInit();
@@ -122,14 +116,14 @@ public void OnPluginStart(/*void*/)
 	DataBaseOnInit();
 	GameModesOnInit();
 	WeaponsOnInit();
+	ExtraItemsOnInit();
 }
 
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Forward event to modules
 	ConfigOnLoad();
 	ClassesOnLoad(true); /// init only types
 	MenusOnLoad();
@@ -150,18 +144,17 @@ public void OnMapStart(/*void*/)
 /**
  * @brief The map is ending.
  **/
-public void OnMapEnd(/*void*/)
+public void OnMapEnd()
 {
-	// Forward event to modules
 	GameEngineOnUnload();
+	ExtraItemsOnUnload();
 }
 
 /**
  * @brief Plugin is unload.
  **/
-public void OnPluginEnd(/*void*/)
+public void OnPluginEnd()
 {
-	// Forward event to modules
 	WeaponsOnUnload();
 	DataBaseOnUnload();
 	CostumesOnUnload();
@@ -174,7 +167,6 @@ public void OnPluginEnd(/*void*/)
  **/
 public void OnClientConnected(int client)
 {
-	// Forward event to modules
 	ClassesOnClientConnect(client);
 }
 
@@ -185,7 +177,6 @@ public void OnClientConnected(int client)
  **/
 public void OnClientDisconnect_Post(int client)
 {
-	// Forward event to modules
 	DataBaseOnClientDisconnectPost(client);
 	ClassesOnClientDisconnectPost(client);
 }
@@ -201,7 +192,6 @@ public void OnClientDisconnect_Post(int client)
  **/
 public void OnClientPostAdminCheck(int client)
 {
-	// Forward event to modules
 	HitGroupsOnClientInit(client);
 	WeaponsOnClientInit(client);
 	ClassesOnClientInit(client);

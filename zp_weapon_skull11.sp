@@ -51,13 +51,10 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -66,11 +63,9 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeapon = ZP_GetWeaponNameID("skull11");
-	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"skull11\" wasn't find");
 }
 
 //*********************************************************************
@@ -80,23 +75,18 @@ public void ZP_OnEngineExecute(/*void*/)
 
 void Weapon_OnReload(int client, int weapon, float flCurrentTime)
 {
-	// Sets default FOV for the client
 	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
 }
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	
-	// Validate animation delay
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
 	{
 		return;
 	}
 	
-	// Sets next attack time
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 0.3);
 	
-	// Sets FOV for the client
 	int iDefaultFOV = GetEntProp(client, Prop_Send, "m_iDefaultFOV");
 	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iFOV") == iDefaultFOV ? 55 : iDefaultFOV);
 }
@@ -129,20 +119,16 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-	// Validate custom weapon
 	if (weaponID == gWeapon)
 	{
-		// Button secondary attack press
 		if (!(iButtons & IN_ATTACK) && iButtons & IN_ATTACK2)
 		{
-			// Call event
 			_call.SecondaryAttack(client, weapon);
 			iButtons &= (~IN_ATTACK2); //! Bugfix
 			return Plugin_Changed;
 		}
 	}
 	
-	// Allow button
 	return Plugin_Continue;
 }
 
@@ -155,10 +141,8 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  **/
 public void ZP_OnWeaponReload(int client, int weapon, int weaponID)
 {
-	// Validate custom weapon
 	if (weaponID == gWeapon)
 	{
-		// Call event
 		_call.Reload(client, weapon);
 	}
 }

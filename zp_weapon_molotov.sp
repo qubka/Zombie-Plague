@@ -52,13 +52,10 @@ int gWeapon; int gDublicat;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -67,9 +64,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeapon = ZP_GetWeaponNameID("molotov");
 	gDublicat = ZP_GetWeaponNameID("inc grenade"); /// Bugfix
 	if (gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"molotov\" or \"inc grenade\" wasn't find");
@@ -86,10 +82,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 {
-	// Check the weapon index
 	if (weaponID == gWeapon)
 	{
-		// Validate access
 		if (ZP_IsPlayerHasWeapon(client, gDublicat) != -1)
 		{
 			return Plugin_Handled;
@@ -97,14 +91,12 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 	}
 	else if (weaponID == gDublicat)
 	{
-		// Validate access
 		if (ZP_IsPlayerHasWeapon(client, gWeapon) != -1)
 		{
 			return Plugin_Handled;
 		}
 	}
 
-	// Allow showing
 	return Plugin_Continue;
 }
 
@@ -116,10 +108,8 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	// Validate human
 	if (ZP_IsPlayerHuman(client))
 	{
-		// This instead of 'ExtinguishEntity' function
 		UTIL_ExtinguishEntity(client);
 	}
 }
@@ -138,60 +128,44 @@ public void ZP_OnClientUpdated(int client, int attacker)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-	// Client was damaged by 'fire' or 'burn'
 	if (iBits & DMG_BURN || iBits & DMG_DIRECT)
 	{
-		// Verify that the victim is zombie
 		if (ZP_IsPlayerZombie(client))
 		{
-			// If the victim is in the water or freezed
 			if (GetEntProp(client, Prop_Data, "m_nWaterLevel") > WLEVEL_CSGO_FEET || GetEntityMoveType(client) == MOVETYPE_NONE)
 			{
-				// This instead of 'ExtinguishEntity' function
 				UTIL_ExtinguishEntity(client);
 			}
 			else
 			{
-				// Initialize some variables
 				float flStamina; float flDuration; int iD = GetEntProp(inflictor, Prop_Data, "m_iHammerID");
 		
-				// Validate custom grenade
 				if (iD == gDublicat)
 				{
-					// Return damage multiplier
 					flDamage *= ZP_GetWeaponDamage(gDublicat);
 					
-					// Sets stamina
 					flStamina = ZP_GetWeaponKnockBack(gDublicat);
 					
-					// Sets duration
 					flDuration = ZP_GetWeaponModelHeat(gDublicat);
 				}
 				else if (iD == gWeapon)
 				{
-					// Return damage multiplier
 					flDamage *= ZP_GetWeaponDamage(gWeapon);
 					
-					// Sets stamina
 					flStamina = ZP_GetWeaponKnockBack(gWeapon);
 					
-					// Sets duration
 					flDuration = ZP_GetWeaponModelHeat(gWeapon);
 				}
 				else return;
 
-				// Put the fire on
 				if (iBits & DMG_BURN) UTIL_IgniteEntity(client, flDuration);
 
-				// Apply the stamina-based slowdown
 				SetEntPropFloat(client, Prop_Send, "m_flStamina", flStamina);
 	
-				// Return on success
 				return;
 			}
 		}
 		
-		// Block damage
 		flDamage *= 0.0;
 	}
 }

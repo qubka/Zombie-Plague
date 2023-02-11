@@ -53,13 +53,10 @@ int gItem;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -68,13 +65,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Items
 	gItem = ZP_GetExtraItemNameID("antidot");
-	//if (gItem == -1) SetFailState("[ZP] Custom extraitem ID from name : \"antidot\" wasn't find");
 	
-	// Types
 	gType = ZP_GetClassTypeID("human");
 	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"human\" wasn't find");
 }
@@ -90,20 +84,16 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnClientValidateExtraItem(int client, int itemID)
 {
-	// Check the item's index
 	if (itemID == gItem)
 	{
-		// Initialize round type
 		int mode = ZP_GetCurrentGameMode();
 		
-		// Validate access
 		if (ZP_GetZombieAmount() <= 1 || ZP_GetGameModeHumanType(mode) != gType)
 		{
 			return Plugin_Handled;
 		}
 	}
 
-	// Allow showing
 	return Plugin_Continue;
 }
 
@@ -115,10 +105,8 @@ public Action ZP_OnClientValidateExtraItem(int client, int itemID)
  **/
 public void ZP_OnClientBuyExtraItem(int client, int itemID)
 {
-	// Check the item's index
 	if (itemID == gItem)
 	{
-		// Change class to human
 		ZP_ChangeClient(client, -1, gType);
 	}
 }

@@ -54,13 +54,10 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -69,11 +66,9 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeapon = ZP_GetWeaponNameID("breachcharge");
-	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"breachcharge\" wasn't find");
 }
 
 /**
@@ -90,16 +85,12 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-	// Client was damaged by 'explosion'
 	if (iBits & DMG_BLAST)
 	{
-		// Validate inflicter
 		if (IsValidEdict(inflictor))
 		{
-			// Validate custom grenade
 			if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
 			{
-				// Resets explosion damage
 				flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
 			}
 		}

@@ -51,13 +51,10 @@ int gWeaponSpanner; int gWeaponAxe; int gWeaponHammer;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -66,9 +63,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeaponSpanner = ZP_GetWeaponNameID("spanner");
 	if (gWeaponSpanner == -1) SetFailState("[ZP] Custom weapon ID from name : \"spanner\" wasn't find");
 	gWeaponAxe = ZP_GetWeaponNameID("axe");
@@ -96,10 +92,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-	// Validate custom weapon
 	if (weaponID == gWeaponSpanner || weaponID == gWeaponAxe || weaponID == gWeaponHammer)
 	{
-		// Button secondary attack press
 		if (iButtons & IN_ATTACK2)
 		{
 			iButtons &= (~IN_ATTACK2); //! Bugfix
@@ -107,6 +101,5 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		}
 	}
 	
-	// Allow button
 	return Plugin_Continue;
 }

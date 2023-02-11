@@ -84,13 +84,11 @@ ConVar hCvarHolyEffect;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarHolyRadius   = CreateConVar("zp_weapon_holybomb_radius", "300.0", "Explosion radius", 0, true, 0.0);
 	hCvarHolyDuration = CreateConVar("zp_weapon_holybomb_duration", "5.0", "Ignite duration", 0, true, 0.0);
 	hCvarHolyTrail    = CreateConVar("zp_weapon_holybomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
 	hCvarHolyEffect   = CreateConVar("zp_weapon_holybomb_effect", "explosion_hegrenade_water", "Particle effect for the explosion (''-default)");
 		
-	// Generate config
 	AutoExecConfig(true, "zp_weapon_holybomb", "sourcemod/zombieplague");
 }
 
@@ -100,19 +98,14 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// Hook entity events
 		HookEvent("hegrenade_detonate", EventEntityNapalm, EventHookMode_Post);
 
-		// Hook server sounds
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 		
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -121,13 +114,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeapon = ZP_GetWeaponNameID("holy grenade");
-	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"holy grenade\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("HOLY_GRENADE_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HOLY_GRENADE_SOUNDS\" wasn't find");
 }
@@ -135,9 +125,8 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Models
 	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
 	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
@@ -157,16 +146,12 @@ public void OnMapStart(/*void*/)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-	// Client was damaged by 'explosion'
 	if (iBits & DMG_BLAST)
 	{
-		// Validate inflicter
 		if (IsValidEdict(inflictor))
 		{
-			// Validate custom grenade
 			if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
 			{
-				// Resets explosion damage
 				flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
 			}
 		}
@@ -182,13 +167,10 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
  **/
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
-	// Validate custom grenade
 	if (weaponID == gWeapon)
 	{
-		// Validate trail
 		if (hCvarHolyTrail.BoolValue)
 		{
-			// Create an trail effect
 			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
 			TE_SendToAll();	
 		}
@@ -205,72 +187,54 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	// Gets real player index from event key
-	///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
-	// Initialize vectors
 	static float vPosition[3]; static float vPosition2[3];
 
-	// Gets all required event info
 	int grenade = hEvent.GetInt("entityid");
 	vPosition[0] = hEvent.GetFloat("x"); 
 	vPosition[1] = hEvent.GetFloat("y"); 
 	vPosition[2] = hEvent.GetFloat("z");
 
-	// Validate entity
 	if (IsValidEdict(grenade))
 	{
-		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
-			// Gets grenade variables
 			float flDuration = hCvarHolyDuration.FloatValue;
 			float flRadius = hCvarHolyRadius.FloatValue;
 			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
 			
-			// Find any players in the radius
 			int i; int it = 1; /// iterator
 			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
-				// Skip humans
 				if (ZP_IsPlayerHuman(i))
 				{
 					continue;
 				}
 				
-				// Gets victim origin
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 				
-				// Put the fire on
 				UTIL_IgniteEntity(i, flDuration);   
 				
-				// Create a knockback
 				UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
 				
-				// Create a shake
 				UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
 			}
 
-			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
 			hCvarHolyEffect.GetString(sEffect, sizeof(sEffect));
 			
-			// Validate effect
 			if (hasLength(sEffect))
 			{
-				// Create an explosion effect
 				UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
 			}
 			else
 			{
-				// Create a simple effect
 				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
 				TE_SendToAll();
 			}
 		}
 	}
 	
-	// Allow event
 	return Plugin_Continue;
 }
 
@@ -291,32 +255,24 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
  **/ 
 public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
-	// Validate client
 	if (IsValidEdict(entity))
 	{
-		// Validate custom grenade
 		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
 		{
-			// Validate sound
 			if (!strncmp(sSample[23], "bounce", 6, false))
 			{
-				// Play sound
 				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
-				// Block sounds
 				return Plugin_Stop; 
 			}
 			else if (!strncmp(sSample[20], "explode", 7, false))
 			{
-				// Play sound
 				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
-				// Block sounds
 				return Plugin_Stop; 
 			}
 		}
 	}
 	
-	// Allow sounds
 	return Plugin_Continue;
 }

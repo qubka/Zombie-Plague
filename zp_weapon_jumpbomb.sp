@@ -70,13 +70,11 @@ ConVar hCvarJumpEffect;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarJumpRadius = CreateConVar("zp_weapon_jumpbomb_radius", "400.0", "Explosiion radius", 0, true, 0.0);
 	hCvarJumpDamage = CreateConVar("zp_weapon_jumpbomb_damage", "1000.0", "Explosiion physics damage", 0, true, 0.0);
 	hCvarJumpTrail  = CreateConVar("zp_weapon_jumpbomb_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
 	hCvarJumpEffect = CreateConVar("zp_weapon_jumpbomb_effect", "explosion_hegrenade_water", "Particle effect for the explosion (''-default)");
 	
-	// Generate config
 	AutoExecConfig(true, "zp_weapon_jumpbomb", "sourcemod/zombieplague");
 }
 
@@ -86,22 +84,16 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// Hook player events
 		HookEvent("player_blind", EventPlayerBlind, EventHookMode_Pre);
 
-		// Hook entity events
 		HookEvent("flashbang_detonate", EventEntityFlash, EventHookMode_Post);
 
-		// Hook server sounds
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 		
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -110,13 +102,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeapon = ZP_GetWeaponNameID("jump bomb");
-	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"jump bomb\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("JUMP_GRENADE_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JUMP_GRENADE_SOUNDS\" wasn't find");
 }
@@ -130,13 +119,10 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
-	// Validate custom grenade
 	if (weaponID == gWeapon)
 	{
-		// Validate trail
 		if (hCvarJumpTrail.BoolValue)
 		{
-			// Create an trail effect
 			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
 			TE_SendToAll();	
 		}
@@ -153,74 +139,54 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	// Gets real player index from event key
-	///int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
 
-	// Initialize vectors
 	static float vPosition[3]; static float vPosition2[3];
 
-	// Gets all required event info
 	int grenade = hEvent.GetInt("entityid");
 	vPosition[0] = hEvent.GetFloat("x"); 
 	vPosition[1] = hEvent.GetFloat("y"); 
 	vPosition[2] = hEvent.GetFloat("z");
 
-	// Validate entity
 	if (IsValidEdict(grenade))
 	{
-		// Validate custom grenade
 		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
-			// Gets grenade variables
 			float flRadius = hCvarJumpRadius.FloatValue;
 			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
 			
-			// Find any players in the radius
 			int i; int it = 1; /// iterator
 			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
-				// Gets victim origin
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 		
-				// Create a knockback
 				UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
 				
-				// Create a shake
 				UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
 			}
 
-			// Gets particle name
 			static char sEffect[SMALL_LINE_LENGTH];
 			hCvarJumpEffect.GetString(sEffect, sizeof(sEffect));
 			
-			// Validate effect
 			if (hasLength(sEffect))
 			{
-				// Create an explosion effect
 				int entity = UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
 				
-				// Validate entity
 				if (entity != -1)
 				{
-					// Create phys exp task
 					CreateTimer(0.1, EntityOnPhysExp, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 				}
 			}
 			else 
 			{
-				// Create a simple effect
 				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
 				TE_SendToAll();
 			}
 			
-			/// Fix of "Detonation of grenade 'flashbang_projectile' attempted to record twice!"
 			
-			// Remove grenade
 			AcceptEntityInput(grenade, "Kill");
 		}
 	}
 	
-	// Allow event
 	return Plugin_Continue;
 }
 
@@ -232,34 +198,25 @@ public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast)
  **/
 public Action EntityOnPhysExp(Handle hTimer, int refID)
 {
-	// Gets entity index from reference key
 	int entity = EntRefToEntIndex(refID);
 
-	// Validate entity
 	if (entity != -1)
 	{
-		// Gets entity position
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
  
-		/// Create additional grenade to exploade for phys force and to avoid from recursion
 		entity = UTIL_CreateProjectile(vPosition, NULL_VECTOR);
 		
-		// Validate entity
 		if (entity != -1)
 		{
-			// Sets grenade id
 			SetEntProp(entity, Prop_Data, "m_iHammerID", gWeapon);
 
-			// Create an explosion
 			UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, hCvarJumpDamage.FloatValue, hCvarJumpRadius.FloatValue, "jumpbomb", _, entity);
 
-			// Remove the entity from the world
 			AcceptEntityInput(entity, "Kill");
 		}
 	}
 	
-	// Destroy timer
 	return Plugin_Stop;
 }
 
@@ -277,10 +234,8 @@ public Action EntityOnPhysExp(Handle hTimer, int refID)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-	// Validate grenade
 	if (IsValidEdict(inflictor))
 	{
-		// Validate custom weapon
 		if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
 		{
 			flDamage = 0.0;
@@ -298,27 +253,21 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
  **/
 public Action EventPlayerBlind(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	// Sets whether an event broadcasting will be disabled
 	if (!dontBroadcast) 
 	{
-		// Disable broadcasting
 		hEvent.BroadcastDisabled = true;
 	}
 	
-	// Gets all required event info
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	// Validate client
 	if (!IsPlayerExist(client))
 	{
 		return Plugin_Continue;
 	}
 	
-	// Remove blindness
 	SetEntPropFloat(client, Prop_Send, "m_flFlashMaxAlpha", 0.0);
 	SetEntPropFloat(client, Prop_Send, "m_flFlashDuration", 0.0);
 	
-	// Block event
 	return Plugin_Handled;
 }
 
@@ -339,32 +288,24 @@ public Action EventPlayerBlind(Event hEvent, char[] sName, bool dontBroadcast)
  **/ 
 public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
-	// Validate client
 	if (IsValidEdict(entity))
 	{
-		// Validate custom grenade
 		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
 		{
-			// Validate sound
 			if (!strncmp(sSample[27], "hit", 3, false))
 			{
-				// Play sound
 				ZP_EmitSoundToAll(gSound, GetRandomInt(1, 2), entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
-				// Block sounds
 				return Plugin_Stop; 
 			}
 			else if (!strncmp(sSample[29], "exp", 3, false))
 			{
-				// Play sound
 				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
 				
-				// Block sounds
 				return Plugin_Stop; 
 			}
 		}
 	}
 	
-	// Allow sounds
 	return Plugin_Continue;
 }

@@ -60,10 +60,8 @@ ConVar hCvarSkillRadius;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarSkillRadius = CreateConVar("zp_zclass_tesla_radius", "300.0", "Tesla radius", 0, true, 0.0);
 
-	// Generate config
 	AutoExecConfig(true, "zp_zclass_tesla", "sourcemod/zombieplague");
 }
 
@@ -73,13 +71,10 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -88,13 +83,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Classes
 	gZombie = ZP_GetClassNameID("tesla");
-	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"tesla\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("TESLA_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TESLA_SKILL_SOUNDS\" wasn't find");
 }
@@ -102,21 +94,18 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Models
 	PrecacheModel("materials/sprites/physbeam.vmt", true);
 }
 
 /**
  * @brief The map is ending.
  **/
-public void OnMapEnd(/*void*/)
+public void OnMapEnd()
 {
-	// i = client index
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		// Purge timer
 		hZombieHallucination[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
 	}
 }
@@ -128,7 +117,6 @@ public void OnMapEnd(/*void*/)
  **/
 public void OnClientDisconnect(int client)
 {
-	// Delete timer
 	delete hZombieHallucination[client];
 }
 
@@ -140,7 +128,6 @@ public void OnClientDisconnect(int client)
  **/
 public void ZP_OnClientDeath(int client, int attacker)
 {
-	// Delete timer
 	delete hZombieHallucination[client];
 }
 
@@ -152,7 +139,6 @@ public void ZP_OnClientDeath(int client, int attacker)
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	// Delete timer
 	delete hZombieHallucination[client];
 }
 
@@ -166,29 +152,22 @@ public void ZP_OnClientUpdated(int client, int attacker)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
-		// Gets client eye position
 		static float vPosition[3]; 
 		GetClientEyePosition(client, vPosition); vPosition[2] += 40.0;
 
-		// Create hallucination task
 		delete hZombieHallucination[client];
 		hZombieHallucination[client] = CreateTimer(0.1, ClientOnHallucination, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
-		// Gets skill radius as string
 		static char sRadius[SMALL_LINE_LENGTH];
 		hCvarSkillRadius.GetString(sRadius, sizeof(sRadius));
 
-		// Create a tesla entity
 		UTIL_CreateTesla(client, vPosition, _, _, sRadius, _, "15", "25", _, _, "7.0", "9.0", _, _, _, _, ZP_GetClassSkillDuration(gZombie));
 	}
 	
-	// Allow usage
 	return Plugin_Continue;
 }
 
@@ -199,10 +178,8 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public void ZP_OnClientSkillOver(int client)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie) 
 	{
-		// Delete timer
 		delete hZombieHallucination[client];
 	}
 }
@@ -215,51 +192,38 @@ public void ZP_OnClientSkillOver(int client)
  **/
 public Action ClientOnHallucination(Handle hTimer, int userID)
 {
-	// Gets client index from the user ID
 	int client = GetClientOfUserId(userID);
 	
-	// Validate client
 	if (client)
 	{
-		// Initialize vectors
 		static float vPosition[3]; static int vColor[4];
 
-		// Gets client origin
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		// Gets skill radius
 		float flRadius = hCvarSkillRadius.FloatValue;
 
-		// Find any players in the radius
 		int i; int it = 1; /// iterator
 		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 		{
-			// Skip zombies
 			if (ZP_IsPlayerZombie(i))
 			{
 				continue;
 			}
 
-			// Generate color
 			vColor[0] = GetRandomInt(50, 200);
 			vColor[1] = GetRandomInt(50, 200);
 			vColor[2] = GetRandomInt(50, 200);
 			vColor[3] = GetRandomInt(200, 230);
 
-			// Create an fade
 			UTIL_CreateFadeScreen(i, 0.1, 0.2, FFADE_IN, vColor);
 			
-			// Create a shake
 			UTIL_CreateShakeScreen(i, 2.0, 1.0, 0.1);
 		}
 
-		// Allow timer
 		return Plugin_Continue;
 	}
 
-	// Clear timer
 	hZombieHallucination[client] = null;
 
-	// Destroy timer
 	return Plugin_Stop;
 }

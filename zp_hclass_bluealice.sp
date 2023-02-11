@@ -58,12 +58,10 @@ ConVar hCvarSkillRatio;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarSkillAlpha   = CreateConVar("zp_hclass_bluealice_alpha", "255", "Initial alpha value", 0, true, 0.0, true, 255.0);
 	hCvarSkillDynamic = CreateConVar("zp_hclass_bluealice_dynamic", "1", "Dynamic invisibility", 0, true, 0.0, true, 1.0);
 	hCvarSkillRatio   = CreateConVar("zp_hclass_bluealice_ratio", "0.2", "Alpha amount = speed * ratio", 0, true, 0.0, true, 1.0);
 	
-	// Generate config
 	AutoExecConfig(true, "zp_hclass_bluealice", "sourcemod/zombieplague");
 }
 
@@ -73,13 +71,10 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -88,13 +83,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Classes
 	gHuman = ZP_GetClassNameID("bluealice");
-	//if (gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"bluealice\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("BLUEALICE_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BLUEALICE_SKILL_SOUNDS\" wasn't find");
 }
@@ -107,7 +99,6 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	// Resets visibility
 	UTIL_SetRenderColor(client, Color_Alpha, hCvarSkillAlpha.IntValue);
 }
 
@@ -121,17 +112,13 @@ public void ZP_OnClientUpdated(int client, int attacker)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-	// Validate the human class index
 	if (ZP_GetClientClass(client) == gHuman)
 	{
-		// Make model invisible
 		UTIL_SetRenderColor(client, Color_Alpha, 0);
 
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 	}
 	
-	// Allow usage
 	return Plugin_Continue;
 }
 
@@ -142,13 +129,10 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public void ZP_OnClientSkillOver(int client)
 {
-	// Validate the human class index
 	if (ZP_GetClientClass(client) == gHuman)
 	{
-		// Resets visibility
 		UTIL_SetRenderColor(client, Color_Alpha, 255);
 
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 	}
 }
@@ -167,24 +151,18 @@ public void ZP_OnClientSkillOver(int client)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-	// Validate the human class index
 	if (ZP_GetClientClass(client) == gHuman && ZP_GetClientSkillUsage(client))
 	{
-		// Validate dynamic invisibility
 		if (hCvarSkillDynamic.BoolValue)
 		{
-			// Gets client velocity
 			static float vVelocity[3];
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-			// If the human move, then increase alpha
 			int iAlpha = RoundToNearest(GetVectorLength(vVelocity) * hCvarSkillRatio.FloatValue);
 			
-			// Make model invisible
 			UTIL_SetRenderColor(client, Color_Alpha, iAlpha);
 		}
 	}
 	
-	// Allow button
 	return Plugin_Continue;
 }

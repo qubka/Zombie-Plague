@@ -57,16 +57,12 @@ int gWeapon;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// Load translations phrases used by plugin
 		LoadTranslations("jetpack.phrases");
 		
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -75,12 +71,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief The map is ending.
  **/
-public void OnMapEnd(/*void*/)
+public void OnMapEnd()
 {
-	// i = client index
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		// Purge timers
 		hItemReload[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
 		hItemDuration[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
 	}
@@ -89,13 +83,10 @@ public void OnMapEnd(/*void*/)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Weapons
 	gWeapon = ZP_GetWeaponNameID("jetpack");
-	//if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"jetpack\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("JETPACK_FLY_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JETPACK_FLY_SOUNDS\" wasn't find");
 }
@@ -107,7 +98,6 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void OnClientDisconnect(int client)
 {
-	// Delete timers
 	delete hItemReload[client];
 	delete hItemDuration[client];
 }
@@ -120,7 +110,6 @@ public void OnClientDisconnect(int client)
  **/
 public void ZP_OnClientDeath(int client, int attacker)
 {
-	// Delete timers
 	delete hItemReload[client];
 	delete hItemDuration[client];
 }
@@ -133,7 +122,6 @@ public void ZP_OnClientDeath(int client, int attacker)
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	// Delete timer
 	delete hItemReload[client];
 	delete hItemDuration[client];
 }
@@ -149,17 +137,14 @@ public void ZP_OnClientUpdated(int client, int attacker)
  **/
 public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 {
-	// Check the weapon index
 	if (weaponID == gWeapon)
 	{
-		// Validate access
 		if (GetEntProp(client, Prop_Send, "m_bHasDefuser"))
 		{
 			return Plugin_Handled;
 		}
 	}
 
-	// Allow showing
 	return Plugin_Continue;
 }
 
@@ -170,63 +155,46 @@ public Action ZP_OnClientValidateWeapon(int client, int weaponID)
 
 void Item_OnActive(int client)
 {
-	// Validate delay
 	if (IsItemActive(client, 0.1))
 	{
 		return;
 	}
 	
-	// If jetpack is reloaded, then stop
 	if (hItemReload[client] != null)
 	{
 		return;
 	}
 	
-	// If jetpack isn't started, then begin
 	if (hItemDuration[client] == null)
 	{
-		// Get the working duration
 		float flDuration = ZP_GetWeaponDeploy(gWeapon);
 		
-		// Create a disabling timer
 		hItemDuration[client] = CreateTimer(flDuration, Item_OnDisable, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	
-		// Sets progress bar
 		ZP_SetProgressBarTime(client, RoundToNearest(flDuration));
 	}
 	
-	// Initialize vectors
 	static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; 
 	
-	// Gets client angle
 	GetClientEyeAngles(client, vAngle); vAngle[0] = -40.0;
 	
-	// Gets location's angles
 	GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
 	
-	// Scale vector for the boost
 	ScaleVector(vVelocity, ZP_GetWeaponShoot(gWeapon));
 	
-	// Push the player
 	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
 	
-	// Play sound
 	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_CAR);
 	
-	// Gets backback index
 	int entity = ZP_GetClientAttachModel(client, BitType_DefuseKit);
 
-	// Validate entity
 	if (entity != -1)
 	{
-		// Gets attachment position
 		ZP_GetAttachment(entity, "1", vPosition, vAngle);
 		
-		// Gets weapon muzzleflesh
 		static char sMuzzle[NORMAL_LINE_LENGTH];
 		ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));
 		
-		// Create an effect
 		UTIL_CreateParticle(entity, vPosition, _, _, sMuzzle, 0.5);
 	}
 }
@@ -239,28 +207,21 @@ void Item_OnActive(int client)
  **/
 public Action Item_OnDisable(Handle hTimer, int userID)
 {
-	// Gets client index from the user ID
 	int client = GetClientOfUserId(userID);
 	
-	// Clear timer 
 	hItemDuration[client] = null;
 	
-	// Validate client
 	if (client)
 	{
-		// Resets the progress bar
 		ZP_SetProgressBarTime(client, 0);
 		
-		// Show message
 		SetGlobalTransTarget(client);
 		PrintHintText(client, "%t", "jetpack empty");
 		
-		// Create a reloading timer
 		delete hItemReload[client];
 		hItemReload[client] = CreateTimer(ZP_GetWeaponReload(gWeapon), Item_OnReload, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
-	// Destroy timer
 	return Plugin_Stop;
 }
 
@@ -272,21 +233,16 @@ public Action Item_OnDisable(Handle hTimer, int userID)
  **/
 public Action Item_OnReload(Handle hTimer, int userID)
 {
-	// Gets client index from the user ID
 	int client = GetClientOfUserId(userID);
 	
-	// Clear timer 
 	hItemReload[client] = null;
 	
-	// Validate client
 	if (client)
 	{
-		// Show message
 		SetGlobalTransTarget(client);
 		PrintHintText(client, "%t", "jetpack reloaded");
 	}
 	
-	// Destroy timer
 	return Plugin_Stop;
 }
 
@@ -315,18 +271,14 @@ public Action Item_OnReload(Handle hTimer, int userID)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-	// Button jump/duck press
 	if ((iButtons & IN_JUMP) && (iButtons & IN_DUCK))
 	{
-		// Validate defuser
 		if (GetEntProp(client, Prop_Send, "m_bHasDefuser"))
 		{
-			// Call event
 			_call.Active(client);
 		}
 	}
 	
-	// Allow button
 	return Plugin_Continue;
 }
 
@@ -342,19 +294,15 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  **/
 stock bool IsItemActive(int client, float flTimeDelay)
 {
-	// Initialize delay
 	static float flActiveTime[MAXPLAYERS+1];
 	
-	// Gets simulated game time
 	float flCurrentTime = GetTickedTime();
 	
-	// Validate delay
 	if ((flCurrentTime - flActiveTime[client]) < flTimeDelay)
 	{
 		return true;
 	}
 	
-	// Update the active delay
 	flActiveTime[client] = flCurrentTime;
 	return false;
 }

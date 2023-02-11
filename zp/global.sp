@@ -117,9 +117,8 @@ enum struct ServerData
 	/**
 	 * @brief Clear all timers.
 	 **/
-	void PurgeTimers(/*void*/)
+	void PurgeTimers()
 	{
-		//this.UpdateTimer  = null; not a TIMER_FLAG_NO_MAPCHANGE
 		this.CounterTimer = null;
 		this.EndTimer     = null;
 		this.BlastTimer   = null;
@@ -205,7 +204,7 @@ enum struct ClientData
 	/**
 	 * @brief Resets all variables.
 	 **/
-	void ResetVars(/*void*/)
+	void ResetVars()
 	{
 		this.AccountID            = 0;                
 		this.Zombie               = false;
@@ -273,7 +272,7 @@ enum struct ClientData
 	/**
 	 * @brief Delete all timers.
 	 **/
-	void ResetTimers(/*void*/)
+	void ResetTimers()
 	{
 		delete this.LevelTimer;
 		delete this.AccountTimer;
@@ -292,7 +291,7 @@ enum struct ClientData
 	/**
 	 * @brief Clear all timers.
 	 **/
-	void PurgeTimers(/*void*/)
+	void PurgeTimers()
 	{
 		this.LevelTimer   = null;
 		this.AccountTimer = null;
@@ -334,7 +333,6 @@ ClientData gClientData[MAXPLAYERS+1];
  **/
 public void OnEntityCreated(int entity, const char[] sClassname)
 {
-	// Forward event to modules
 	WeaponOnEntityCreated(entity, sClassname);
 	HitGroupsOnEntityCreated(entity, sClassname);
 }

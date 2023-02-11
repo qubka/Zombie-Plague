@@ -53,13 +53,10 @@ int gNemesis; int gSurvivor;
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -68,13 +65,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Modes
 	gMode = ZP_GetGameModeNameID("plague mode");
-	//if (gMode == -1) SetFailState("[ZP] Custom gamemode ID from name : \"plague mode\" wasn't find");
 	
-	// Types
 	gNemesis = ZP_GetClassTypeID("nemesis");
 	if (gNemesis == -1) SetFailState("[ZP] Custom class type ID from name : \"nemesis\" wasn't find");
 	gSurvivor = ZP_GetClassTypeID("survivor");
@@ -88,10 +82,8 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnGameModeStart(int mode)
 {
-	// Validate plague mode
 	if (mode == gMode) /* OR if (ZP_GetCurrentGameMode() == ZP_GetGameModeNameID("plague mode"))*/
 	{
-		// Make a random nemesis/survivor
 		ZP_ChangeClient(ZP_GetRandomZombie(), _, gNemesis);
 		ZP_ChangeClient(ZP_GetRandomHuman(), _, gSurvivor);
 	}

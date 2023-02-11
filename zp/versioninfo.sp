@@ -29,7 +29,7 @@
  * @section Modification information.
  **/
 #define PLUGIN_NAME         "Zombie Plague"
-#define PLUGIN_VERSION      "1.0.0"
+#define PLUGIN_VERSION      "1.1.0"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
 #define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
@@ -45,7 +45,7 @@
 /**
  * @brief Creates commands for version module.
  **/
-void VersionOnCommandInit(/*void*/)
+void VersionOnCommandInit()
 {
 	RegConsoleCmd("zp_version", VersionOnCommandCatched, "Prints version info about this plugin.");
 }
@@ -53,9 +53,8 @@ void VersionOnCommandInit(/*void*/)
 /**
  * @brief Version module load function.
  **/
-void VersionOnLoad(/*void*/)
+void VersionOnLoad()
 {
-	// Print a version into the console
 	VersionOnCommandCatched(LANG_SERVER, LANG_SERVER);
 }
 
@@ -68,11 +67,9 @@ void VersionOnLoad(/*void*/)
  **/ 
 public Action VersionOnCommandCatched(int client, int iArguments)
 {
-	// Initialize variables
 	static char sBuffer[HUGE_LINE_LENGTH]; sBuffer[0] = NULL_STRING[0];
 	static char sLine[BIG_LINE_LENGTH]; sLine[0] = NULL_STRING[0];
 
-	/// Format strings
 	FormatEx(sLine, sizeof(sLine), "\n%s\n", PLUGIN_NAME);
 	StrCat(sBuffer, sizeof(sBuffer), sLine);
 	FormatEx(sLine, sizeof(sLine), "%s\n\n", PLUGIN_COPYRIGHT);
@@ -88,7 +85,6 @@ public Action VersionOnCommandCatched(int client, int iArguments)
 	FormatEx(sLine, sizeof(sLine), "%23s: %s\n", "Branch", PLUGIN_BRANCH);
 	StrCat(sBuffer, sizeof(sBuffer), sLine);
 
-	// Send information into the console
 	ReplyToCommand(client, sBuffer);
 	return Plugin_Handled;
 }

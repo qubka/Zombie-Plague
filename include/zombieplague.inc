@@ -49,7 +49,7 @@
  *
  * @noreturn
  **/
-forward void ZP_OnEngineExecute(/*void*/);
+forward void ZP_OnEngineExecute();
 
 //*********************************************************************
 //*                       CORE MAIN NATIVES                           *

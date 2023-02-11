@@ -65,12 +65,10 @@ ConVar hCvarSkillRatio;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarSkillAlpha   = CreateConVar("zp_zclass_mutation_light_alpha", "255", "Initial alpha value", 0, true, 0.0, true, 255.0);
 	hCvarSkillDynamic = CreateConVar("zp_zclass_mutation_light_dynamic", "1", "Dynamic invisibility", 0, true, 0.0, true, 1.0);
 	hCvarSkillRatio   = CreateConVar("zp_zclass_mutation_light_ratio", "0.2", "Alpha amount = speed * ratio", 0, true, 0.0, true, 1.0);
 	
-	// Generate config
 	AutoExecConfig(true, "zp_zclass_mutation_light", "sourcemod/zombieplague");
 }
 
@@ -80,13 +78,10 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -95,13 +90,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Classes
 	gZombie = ZP_GetClassNameID("mutationlight");
-	//if (gZombie == -1) SetFailState("[ZP] Custom zombie class ID from name : \"mutationlight\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("GHOST_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"GHOST_SKILL_SOUNDS\" wasn't find");
 }
@@ -114,7 +106,6 @@ public void ZP_OnEngineExecute(/*void*/)
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	// Resets visibility
 	UTIL_SetRenderColor(client, Color_Alpha, hCvarSkillAlpha.IntValue);
 }
 
@@ -128,27 +119,20 @@ public void ZP_OnClientUpdated(int client, int attacker)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		// Make model invisible
 		UTIL_SetRenderColor(client, Color_Alpha, 0);
 
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
-		// Gets client viewmodel
 		int view = ZP_GetClientViewModel(client, true);
 		
-		// Validate entity
 		if (view != -1)
 		{
-			// Sets body index
 			SetEntProp(view, Prop_Send, "m_nBody", STATE_INVISIBLE);
 		}
 	}
 	
-	// Allow usage
 	return Plugin_Continue;
 }
 
@@ -159,22 +143,16 @@ public Action ZP_OnClientSkillUsed(int client)
  **/
 public void ZP_OnClientSkillOver(int client)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		// Resets visibility
 		UTIL_SetRenderColor(client, Color_Alpha, 255);
 
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
-		// Gets client viewmodel
 		int view = ZP_GetClientViewModel(client, true);
 		
-		// Validate entity
 		if (view != -1)
 		{
-			// Sets body index
 			SetEntProp(view, Prop_Send, "m_nBody", STATE_NORMAL);
 		}
 	}
@@ -189,16 +167,12 @@ public void ZP_OnClientSkillOver(int client)
  **/
 public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
 	{
-		// Gets client viewmodel
 		int view = ZP_GetClientViewModel(client, true);
 		
-		// Validate entity
 		if (view != -1)
 		{
-			// Sets body index
 			SetEntProp(view, Prop_Send, "m_nBody", STATE_INVISIBLE);
 		}
 	}
@@ -218,24 +192,18 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-	// Validate the zombie class index
 	if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
 	{
-		// Validate dynamic invisibility
 		if (hCvarSkillDynamic.BoolValue)
 		{
-			// Gets client velocity
 			static float vVelocity[3];
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-			// If the zombie move, then increase alpha
 			int iAlpha = RoundToNearest(GetVectorLength(vVelocity) * hCvarSkillRatio.FloatValue);
 			
-			// Make model invisible
 			UTIL_SetRenderColor(client, Color_Alpha, iAlpha);
 		}
 	}
 	
-	// Allow button
 	return Plugin_Continue;
 }

@@ -35,7 +35,7 @@
 /**
  * @section Number of valid bonuses.
  **/
-enum /*BonusType*/
+enum BonusType
 {
 	BonusType_Invalid = -1,       /** Used as return value when a bonus doens't exist. */
 	
@@ -494,22 +494,25 @@ native void ZP_GetClassOverlay(int classID, char[] overlay, int maxlenght = 256)
 native void ZP_GetClassWeapon(int classID, int[] weapon, int maxlenght = 16);
 
 /**
- * @brief Gets the money of a class at a given index.
+ * @brief Gets the money of a class.
  *
  * @param classID           The class index.
- * @param money             The array to return money in.
- * @param maxlenght         The lenght of array.
+ * @param model             The model type.
+ *
+ * @return                  The money amount. 
  **/
-native void ZP_GetClassMoney(int classID, int[] money, int maxlenght = 6);
+native int ZP_GetClassMoney(int classID, BonusType bonus);
 
 /**
- * @brief Gets the experience of a class at a given index.
+ * @brief Gets the experience of a class.
  *
  * @param classID           The class index.
  * @param experience        The array to return experience in.
  * @param maxlenght         The lenght of array.
+ *
+ * @return                  The experience amount. 
  **/
-native void ZP_GetClassExperience(int classID, int[] experience, int maxlenght = 6);
+native int ZP_GetClassExperience(int classID, BonusType bonus);
 
 /**
  * @brief Gets the lifesteal of the class.

@@ -59,10 +59,8 @@ ConVar hCvarSkillEffect;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarSkillEffect = CreateConVar("zp_hclass_bluetank_effect", "vixr_final", "Particle effect for the skill (''-default)");
 
-	// Generate config
 	AutoExecConfig(true, "zp_hclass_bluetank", "sourcemod/zombieplague");
 }
 
@@ -72,13 +70,10 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// If map loaded, then run custom forward
 		if (ZP_IsMapLoaded())
 		{
-			// Execute it
 			ZP_OnEngineExecute();
 		}
 	}
@@ -87,13 +82,10 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief Called after a zombie core is loaded.
  **/
-public void ZP_OnEngineExecute(/*void*/)
+public void ZP_OnEngineExecute()
 {
-	// Classes
 	gHuman = ZP_GetClassNameID("bluetank");
-	//if (gHuman == -1) SetFailState("[ZP] Custom human class ID from name : \"bluetank\" wasn't find");
 	
-	// Sounds
 	gSound = ZP_GetSoundKeyID("BLUETANK_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BLUETANK_SKILL_SOUNDS\" wasn't find");
 }
@@ -101,9 +93,8 @@ public void ZP_OnEngineExecute(/*void*/)
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Models
 	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
 	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
 }
@@ -118,44 +109,34 @@ public void OnMapStart(/*void*/)
  **/
 public Action ZP_OnClientSkillUsed(int client)
 {
-	// Validate the human class index
 	if (ZP_GetClientClass(client) == gHuman)
 	{
-		// Validate amount
 		int iHealth = ZP_GetClassHealth(gHuman);
 		if (GetEntProp(client, Prop_Send, "m_iHealth") >= iHealth)
 		{
 			return Plugin_Handled;
 		}
 
-		// Sets health
 		SetEntProp(client, Prop_Send, "m_iHealth", iHealth);
 
-		// Play sound
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
-		// Gets client origin
 		static float vPosition[3];
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
-		// Gets particle name
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 		
-		// Validate effect
 		if (hasLength(sEffect))
 		{
-			// Create an effect
 			UTIL_CreateParticle(client, vPosition, _, _, sEffect, ZP_GetClassSkillDuration(gHuman));
 		}
 		else
 		{
-			// Create a simple effect
 			TE_SetupBeamRingPoint(vPosition, 10.0, 100.0, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, {0, 128, 255, 255}, 0, 0);
 			TE_SendToAll();
 		}
 	}
 	
-	// Allow usage
 	return Plugin_Continue;
 }

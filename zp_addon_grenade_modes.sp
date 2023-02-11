@@ -146,7 +146,6 @@ ConVar hCvarGrenadeHomingAvoid;
  **/
 public void OnPluginStart()
 {
-	// Initialize cvars
 	hCvarGrenadeDamageMode           = CreateConVar("zp_grenade_modes_damage_mode", "1", "Allow activation from the other damage", 0, true, 0.0, true, 1.0);
 	hCvarGrenadeProximityPowerupTime = CreateConVar("zp_grenade_modes_proximity_powerup_time", "2.0", "Proximity powerup time", 0, true, 0.0);
 	hCvarGrenadeProximityRadius      = CreateConVar("zp_grenade_modes_proximity_radius", "100.0", "Radius of detection", 0, true, 0.0);
@@ -160,7 +159,6 @@ public void OnPluginStart()
 	hCvarGrenadeHomingRotation       = CreateConVar("zp_grenade_modes_homing_rotation", "0.5", "Speed of rotation", 0, true, 0.0);
 	hCvarGrenadeHomingAvoid          = CreateConVar("zp_grenade_modes_homing_avoid", "100.0", "Range of avoid homing", 0, true, 0.0);
 
-	// Generate config
 	AutoExecConfig(true, "zp_addon_grenade_modes", "sourcemod/zombieplague");
 }
 
@@ -170,10 +168,8 @@ public void OnPluginStart()
  **/
 public void OnLibraryAdded(const char[] sLibrary)
 {
-	// Validate library
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		// Load translations phrases used by plugin
 		LoadTranslations("grenade_modes.phrases");
 	}
 }
@@ -181,15 +177,13 @@ public void OnLibraryAdded(const char[] sLibrary)
 /**
  * @brief The map is starting.
  **/
-public void OnMapStart(/*void*/)
+public void OnMapStart()
 {
-	// Models
 	gBeacon = PrecacheModel("materials/sprites/physbeam.vmt", true);
 	gBeam   = PrecacheModel("materials/sprites/purplelaser1.vmt", true);
 	gHalo   = PrecacheModel("materials/sprites/purpleglow1.vmt", true);
 	gGlow   = PrecacheModel("materials/sprites/blueflare1.vmt", true);
 	
-	// Sounds
 	PrecacheSound("buttons/blip1.wav", true);
 	PrecacheSound("buttons/blip2.wav", true);
 	PrecacheSound("buttons/bell1.wav", true);
@@ -202,7 +196,6 @@ public void OnMapStart(/*void*/)
  **/
 public void OnClientDisconnect(int client)
 {
-	// Activate list
 	GrenadeActivate(client);
 }
 
@@ -214,7 +207,6 @@ public void OnClientDisconnect(int client)
  **/
 public void ZP_OnClientDeath(int client, int attacker)
 {
-	// Activate list
 	GrenadeActivate(client);
 }
 
@@ -226,7 +218,6 @@ public void ZP_OnClientDeath(int client, int attacker)
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	// Activate list
 	GrenadeActivate(client);
 }
 
@@ -248,39 +239,29 @@ public void ZP_OnClientUpdated(int client, int attacker)
  **/
 public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
 {
-	// Button reload press
 	if (iButtons & IN_RELOAD && !(iLastButtons & IN_RELOAD))
 	{
-		// Validate custom grenade
 		ItemDef iItem = ZP_GetWeaponDefIndex(weaponID);
 		if (IsProjectile(iItem))
 		{
-			// Cache the grenade mode and limit
 			int iMode = iGrenadeMode[client];
 			
-			// Go to the next grenade mode
 			iMode = (iMode + 1) % GRENADE_MODE_MAXIMUM;
 
-			// Sets grenade mode
 			iGrenadeMode[client] = iMode;
 			
-			// Display the grenade mode
 			SetGlobalTransTarget(client);
 			PrintHintText(client, "%t", "grenade mode", sModes[iMode]);
 		}
 	}
-	// Button secondary attack press
 	else if (iButtons & IN_ATTACK2 && !(iLastButtons & IN_ATTACK2))
 	{
-		// Validate client
 		if (IsPlayerAlive(client))
 		{
-			// Activate list
 			GrenadeActivate(client);
 		}
 	}
 
-	// Allow button
 	return Plugin_Continue;
 }
 
@@ -294,12 +275,10 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
 	DataPack hPack = new DataPack();
-	/// Initialize pack
 	hPack.WriteCell(GetClientUserId(client));
 	hPack.WriteCell(EntIndexToEntRef(grenade));
 	hPack.WriteCell(weaponID);
 	
-	// Execute forward on the next frame
 	RequestFrame(ZP_OnGrenadeCreatedPost, hPack);
 }
 
@@ -310,111 +289,87 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 {
-	/// Extract data from pack and delete it
 	hPack.Reset();
 	int client = GetClientOfUserId(hPack.ReadCell());
 	int grenade = EntRefToEntIndex(hPack.ReadCell());
 	int weaponID = hPack.ReadCell();
 	delete hPack;
 	
-	// Validate ouputs
 	if (!client || grenade == -1)
 	{
 		return;
 	}
 	
-	// If grenade is disabled, then stop
 	if (GetEntProp(grenade, Prop_Data, "m_nNextThinkTick") == -1)
 	{
 		return;
 	}
 	
-	// Validate custom grenade
 	ItemDef iItem = ZP_GetWeaponDefIndex(weaponID);
 	if (IsProjectile(iItem))
 	{
-		// Gets grenade owner
 		int owner = GetEntPropEnt(grenade, Prop_Data, "m_hOwnerEntity");
 
-		// Validate owner
 		if (owner != -1)
 		{
-			// Switch on the player grenade mode
 			switch (iGrenadeMode[owner])
 			{
 				case GRENADE_MODE_NORMAL :
 				{
-					// Nothing to do
 				}
 				
 				case GRENADE_MODE_IMPACT :
 				{
-					// Sets grenade as infinite
 					SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
 					
-					// Hook the grenade touch function
 					SDKHook(grenade, SDKHook_TouchPost, GrenadeImpactTouchPost);
 				}
 				
 				case GRENADE_MODE_TRIPWIRE :
 				{
-					// Sets grenade as infinite
 					SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
 					
-					// Resets variables
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", false);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", TRIPWIRE_STATE_POWERUP);
 					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", hCvarGrenadeTripwirePowerupTime.FloatValue);
 					
-					// Hook the grenade touch function
 					SDKHook(grenade, SDKHook_Touch, GrenadeTripwireTouch);
 				}
 				
 				case GRENADE_MODE_PROXIMITY, GRENADE_MODE_SENSOR :
 				{
-					// Sets grenade as infinite
 					SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
 					
-					// Resets variables
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", (iGrenadeMode[owner] == GRENADE_MODE_SENSOR));
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", PROXIMITY_STATE_WAIT_IDLE);
 					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", 0.0);
 					
-					// Sets grenade think function
 					CreateTimer(0.1, GrenadeProximityThinkHook, EntIndexToEntRef(grenade), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 					
-					// Hook the grenade touch function
 					SDKHook(grenade, SDKHook_Touch, GrenadeProximityTouch);
 				}
 				
 				case GRENADE_MODE_SATCHEL :
 				{
-					// Sets grenade as infinite
 					SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
 
-					// Resets variables
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", false);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", SATCHEL_STATE_POWERUP);
 					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", hCvarGrenadeSatchelPowerupTime.FloatValue);
 
-					// Hook the grenade touch function
 					SDKHook(grenade, SDKHook_Touch, GrenadeSatchelTouch);
 					
-					// Push grenade to the list
 					GrenadePush(client, grenade);
 					
-					// Show message
 					SetGlobalTransTarget(client);
 					PrintHintText(client, "%t", "satchel info");   
 				}
 				
 				case GRENADE_MODE_HOMING :
 				{
-					// Resets variables
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", GetEntProp(grenade, Prop_Data, "m_iTeamNum"));
 					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", 0.0);
 					
-					// Sets grenade think function
 					CreateTimer(0.1, GrenadeHomingThinkHook, EntIndexToEntRef(grenade), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 				}
 			}
@@ -433,28 +388,21 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
  **/
 public Action GrenadeDamageHook(int grenade, int &attacker, int &inflictor, float &flDamage, int &damageBits)
 {
-	// Validate damage mode
 	if (hCvarGrenadeDamageMode.BoolValue)
 	{
-		// Validate attacker
 		if (IsPlayerExist(attacker))
 		{
-			// Gets grenade team
 			int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 			
-			// Check if the owner is still connected and in the same team than the attacker
 			if (ZP_GetPlayerTeam(attacker) == iTeam)
 			{
-				// Block damage
 				return Plugin_Handled;
 			}
 		}
 		
-		// Allow damage
 		return Plugin_Continue;
 	}
 
-	// Block damage
 	return Plugin_Handled;
 }
 
@@ -470,16 +418,13 @@ public Action GrenadeDamageHook(int grenade, int &attacker, int &inflictor, floa
  **/
 public void GrenadeImpactTouchPost(int grenade, int target)
 {
-	// Gets grenade owner
 	int owner = GetEntPropEnt(grenade, Prop_Data, "m_hOwnerEntity");
 	
-	// Check if it's not the owner
 	if (owner == target)
 	{
 		return;
 	}
 	
-	// Detonate the grenade
 	GrenadeDetonate(grenade);
 }
 
@@ -491,17 +436,13 @@ public void GrenadeImpactTouchPost(int grenade, int target)
  **/
 public Action GrenadeDetonateHook(Handle hTimer, int refID)
 {
-	// Gets entity index from reference key
 	int grenade = EntRefToEntIndex(refID);
 	
-	// Validate grenade
 	if (grenade != -1)
 	{
-		// Detonate the grenade
 		GrenadeDetonate(grenade);
 	}
 	
-	// Stop timer
 	return Plugin_Stop;
 }
 
@@ -517,7 +458,6 @@ public Action GrenadeDetonateHook(Handle hTimer, int refID)
  **/
 public Action GrenadeProximityTouch(int grenade, int target)
 {
-	// Block touch
 	return Plugin_Handled;
 }
 
@@ -530,22 +470,17 @@ public Action GrenadeProximityTouch(int grenade, int target)
  **/
 Action GrenadeProximityThinkWaitIdle(int grenade, int &iState, float &flCounter)
 {
-	// Gets grenade velocity
 	static float vVelocity[3];
 	GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);
 	
-	// Check if the grenade is stationary
 	if (GetVectorLength(vVelocity) <= 0.0)
 	{
-		// Sets grenade as breakable
 		GrenadeSetBreakable(grenade);
 
-		// Sets grenade next state
 		iState    = PROXIMITY_STATE_POWERUP;
 		flCounter = hCvarGrenadeProximityPowerupTime.FloatValue;
 	}
 	
-	// Return on success
 	return Plugin_Continue;
 }
 
@@ -558,35 +493,27 @@ Action GrenadeProximityThinkWaitIdle(int grenade, int &iState, float &flCounter)
  **/
 Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 {
-	// Convert seconds to milis
 	int iCounter = RoundToNearest(flCounter * 10.0);
 	
-	// Check if the grenade is ready
 	if (flCounter <= 0.0)
 	{
-		// Play a sound
 		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
 		
-		// Sets grenade next state
 		iState    = PROXIMITY_STATE_DETECT;
 		flCounter = 0.0;
 	}
 	else if (!(iCounter % 2))
 	{
-		// Determine the pitch
 		int iPitch = 200 - iCounter * 4;
 		
-		// Validate max
 		if (iPitch <= 100)
 		{
 			iPitch = 100;
 		}
 		
-		// Play a sound
 		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
 	}
 	
-	// Return on success
 	return Plugin_Continue;
 }
 
@@ -599,76 +526,57 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
  **/
 Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 {
-	// Gets grenade owner
 	int owner = GetEntPropEnt(grenade, Prop_Data, "m_hOwnerEntity");
 	
-	// Validate owner
 	if (owner != -1)
 	{
-		// Initialize vectors
 		static float vPosition[3]; static float vVelocity[3];
 
-		// Gets grenade origin
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
-		// Initialize the context
 		bool bDetonate; int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 		bool bSensor = view_as<bool>(GetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget"));
 		
-		// Gets grenade radius
 		float flRadius = hCvarGrenadeProximityRadius.FloatValue;
 		float flSensorActivate = hCvarGrenadeSensorActivate.FloatValue;
 		
-		// Find any players in the radius
 		int i; int it = 1; /// iterator
 		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 		{
-			// Skip same team
 			if (ZP_GetPlayerTeam(i) == iTeam)
 			{
 				continue;
 			}
 			
-			// Validate sensor mode
 			if (bSensor)
 			{
-				// Gets victim origin
 				GetEntPropVector(i, Prop_Data, "m_vecVelocity", vVelocity);
 				
-				// Validate speed
 				if (GetVectorLength(vVelocity) < flSensorActivate)
 				{
 					continue;
 				}
 			}
 
-			// Allow to detonate
 			bDetonate = true;
 		}
 		
-		// Check if the grenade must detonate
 		if (bDetonate)
 		{
 			CreateTimer(0.1, GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 			return Plugin_Stop;
 		}
 		
-		// Warn the players
 		if (flCounter <= 0.0)
 		{
-			// Initialize some variables
 			static int iPlayers[MAXPLAYERS+1]; static int vColor[4];
 			
-			// Gets all the players in range
 			int iMaxPlayers = GetClientsInRange(vPosition, RangeType_Audibility, iPlayers, MaxClients);
 			
-			// Send the beam effect to all the close players
 			for (i = 0 ; i < iMaxPlayers ; i++)
 			{
-				// Gets client index
 				int client = iPlayers[i];
    
-				// Determine the color of the beam
 				if (ZP_GetPlayerTeam(client) == iTeam)
 				{
 					vColor = (client == owner) ? GRENADE_SELF_COLOR : GRENADE_TEAMMATE_COLOR;
@@ -678,23 +586,19 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 					vColor = GRENADE_ENEMY_COLOR;
 				}
 				
-				// Create the beacon effect
 				TE_SetupBeamRingPoint(vPosition, bSensor ? flRadius : 0.0, flRadius * 2.0, gBeacon, gHalo, 0, 0, 0.5, 4.0, 0.0, vColor, 30, 0);
 				TE_SendToClient(client);
 			}
 			
-			// 1.0 sec
 			flCounter = 1.0; 
 		}
 	}
 	else
 	{
-		// Detonate the grenade
 		CreateTimer(GetRandomFloat(0.5, 2.0), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 		return Plugin_Stop;
 	}
 	
-	// Return on success
 	return Plugin_Continue;
 }
 
@@ -706,26 +610,20 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
  **/
 public Action GrenadeProximityThinkHook(Handle hTimer, int refID)
 {
-	// Gets entity index from reference key
 	int grenade = EntRefToEntIndex(refID);
 
-	// By default, exit the timer
 	Action hResult = Plugin_Stop;
 	
-	// Check if the grenade is still valid
 	if (grenade != -1)
 	{
-		// Gets local variables
 		int iState = GetEntProp(grenade, Prop_Data, "m_iMaxHealth");
 		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle");
 
-		// Decrement the grenade counter
 		if (flCounter > 0.0)
 		{
 			flCounter -= 0.1;
 		}
 		
-		// Execute the grenade think function
 		switch (iState)
 		{
 			case PROXIMITY_STATE_WAIT_IDLE :
@@ -742,12 +640,10 @@ public Action GrenadeProximityThinkHook(Handle hTimer, int refID)
 			}
 		}
 		
-		// Update variables
 		SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iState);
 		SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flCounter);
 	}
 	
-	// Return on success
 	return hResult;
 }
 
@@ -763,22 +659,17 @@ public Action GrenadeProximityThinkHook(Handle hTimer, int refID)
  **/
 public Action GrenadeTripwireTouch(int grenade, int target)
 {
-	// Avoid double touch
 	if (!GetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget"))
 	{
-		// Check if the grenade touches the world or static entity
 		if (!target || ZP_IsBSPModel(target))
 		{
-			// Search a wall near the grenade
 			GrenadeTripwireTrackWall(grenade);
 		}
 	}
 	
-	// Make grenade non-physical entity in order to prevent players and bots blocking
 	SetEntProp(grenade, Prop_Data, "m_nSolidType", SOLID_NONE);
 	SetEntProp(grenade, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_NONE);
 	
-	// Block touch
 	return Plugin_Handled;
 }
 
@@ -789,45 +680,32 @@ public Action GrenadeTripwireTouch(int grenade, int target)
  **/
 void GrenadeTripwireTrackWall(int grenade)
 {
-	// Initialize some vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 	
-	/// Search in order: +Z axis -Z axis +X axis -X axis +Y axis -Y axis
 	static const int vLoop[6][2] = { {2, 1}, {2, -1}, {0, 1}, {0, -1}, {1, 1}, {1, -1} };
 	
-	// Gets grenade origin
 	GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-	// Initialize some variables
 	int victim; float flFraction; float flBestFraction = 1.0;
 	
-	// i = dimention order
 	for (int i = 0; i < 6; i++)
 	{
-		// Calculate the end position
 		vEndPosition[vLoop[i][0]] = vPosition[vLoop[i][0]] + (2.0 * float(vLoop[i][1]));
 		
-		// Create the end-point trace
 		Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, PlayerFilter, grenade);
 
-		// Validate collisions
 		if (!TR_DidHit(hTrace))
 		{
-			// Initialize the hull box
 			static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
 			static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
 			
-			// Create the hull trace
 			delete hTrace;
 			hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, PlayerFilter, grenade);
 			
-			// Validate collisions
 			if (TR_DidHit(hTrace))
 			{
-				// Gets victim index
 				victim = TR_GetEntityIndex(hTrace);
 
-				// Is hit world ?
 				if (victim < 1 || ZP_IsBSPModel(victim))
 				{
 					UTIL_FindHullIntersection(hTrace, vPosition, vMins, vMaxs, PlayerFilter, grenade);
@@ -835,71 +713,50 @@ void GrenadeTripwireTrackWall(int grenade)
 			}
 		}
 		
-		// Validate collisions
 		if (TR_DidHit(hTrace))
 		{
-			// Gets victim index
 			victim = TR_GetEntityIndex(hTrace);
 
-			// Is hit world ?
 			if (victim < 1 || ZP_IsBSPModel(victim))
 			{
-				// Find smallest collision
 				flFraction = TR_GetFraction(hTrace);
 				if (flBestFraction > flFraction)
 				{
-					// Store the best suiltable value
 					flBestFraction = flFraction;
 					
-					// Returns the collision position/normal of a trace result
 					TR_GetEndPosition(vEndPosition, hTrace);
 					TR_GetPlaneNormal(hTrace, vNormal);
 				}
 			}
 		}
 		
-		// Close trace 
 		delete hTrace;
 	}
 	
-	// Validate collision
 	if (flBestFraction < 1.0)
 	{
-		// Teleport the entity
 		TeleportEntity(grenade, vEndPosition, NULL_VECTOR, NULL_VECTOR);
 
-		// Calculate and store endpoint
 		ScaleVector(vNormal, hCvarGrenadeTripwireDistance.FloatValue);
 		AddVectors(vNormal, vPosition, vEndPosition);
 
-		// Create the end-point trace
 		TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, PlayerFilter, grenade);
 
-		// Returns the collision position of a trace result
 		TR_GetEndPosition(vEndPosition); 
 		
-		// Store end position
 		SetEntPropVector(grenade, Prop_Data, "m_vecViewOffset", vEndPosition);
 		
-		// Sets grenade think function
 		CreateTimer(0.1, GrenadeTripwireThinkHook, EntIndexToEntRef(grenade), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
-		// Block the grenade touch function
 		SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", true);
 		
-		// Block the grenade
 		SetEntityMoveType(grenade, MOVETYPE_NONE);
 		
-		// Sets grenade breakable
 		GrenadeSetBreakable(grenade);
 	}
 	else
 	{
-		/// If we reach here, we have serious problems. This means that the grenade hit something like a func_breakable
-		/// that disappeared before the scan was able to take place. Now, the grenade is floating in mid air. So we just
-		/// explode it!!!
 		
-		// Detonate the grenade
 		CreateTimer(GetRandomFloat(0.5, 2.0), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
@@ -913,35 +770,27 @@ void GrenadeTripwireTrackWall(int grenade)
  **/
 Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 {
-	// Convert seconds to milis
 	int iCounter = RoundToNearest(flCounter * 10.0);
 	
-	// Check if the grenade is ready
 	if (flCounter <= 0.0)
 	{
-		// Play a sound
 		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
 		
-		// Sets grenade next state
 		iState    = TRIPWIRE_STATE_DETECT;
 		flCounter = 0.0;
 	}
 	else if (!(iCounter % 2))
 	{
-		// Determine the pitch
 		int iPitch = 200 - iCounter * 4;
 		
-		// Validate max
 		if (iPitch <= 100)
 		{
 			iPitch = 100;
 		}
 		
-		// Play a sound
 		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
 	}
 	
-	// Return on success
 	return Plugin_Continue;
 }
 
@@ -954,65 +803,47 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
  **/
 Action GrenadeTripwireThinkDetect(int grenade, int &iState, float &flCounter)
 {
-	// Gets grenade owner
 	int owner = GetEntPropEnt(grenade, Prop_Data, "m_hOwnerEntity");
 	
-	// Validate owner
 	if (owner != -1)
 	{
-		// Initialize vectors
 		static float vPosition[3]; static float vEndPosition[3];
 
-		// Gets grenade origin
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(grenade, Prop_Data, "m_vecViewOffset", vEndPosition);
 		
-		// Initialize the context
 		bool bDetonate; int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 		
-		// Create the end-point trace
 		TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, SelfFilter, grenade);
 
-		// Validate collisions
 		if (TR_DidHit())
 		{
-			// Returns the collision position of a trace result
 			TR_GetEndPosition(vEndPosition);
 			
-			// Gets victim index
 			int victim = TR_GetEntityIndex();
 			
-			// Validate victim
 			if ((IsPlayerExist(victim)) && (ZP_GetPlayerTeam(victim) != iTeam))
 			{
-				// Allow detonation
 				bDetonate = true;
 			}
 		}
 		
-		// Check if the grenade must detonate
 		if (bDetonate)
 		{
 			CreateTimer(0.1, GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 			return Plugin_Stop;
 		}
 		
-		// Warn the players
 		if (flCounter <= 0.0)
 		{
-			// Initialize some variables
 			static int iPlayers[MAXPLAYERS+1]; static int vColor[4];
 			
-			// Gets all the players in range
 			int iMaxPlayers = GetClientsInRange(vPosition, RangeType_Audibility, iPlayers, MaxClients);
 			
-			// Send the beam effect to all the close players
 			for (int i = 0; i < iMaxPlayers; i++)
 			{
-				// Gets client index
 				int client = iPlayers[i];
 				
-				// Determine the color of the beam
 				if (ZP_GetPlayerTeam(client) == iTeam)
 				{
 					vColor = (client == owner) ? GRENADE_SELF_COLOR : GRENADE_TEAMMATE_COLOR;
@@ -1022,23 +853,19 @@ Action GrenadeTripwireThinkDetect(int grenade, int &iState, float &flCounter)
 					vColor = GRENADE_ENEMY_COLOR;
 				}
 				
-				// Create the beam effect
 				TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, gHalo, 0, 0, 0.1, 8.0, 8.0, 0, 0.0, vColor, 30);
 				TE_SendToClient(client);
 			}
 			
-			// 0.1 sec
 			flCounter = 0.1; 
 		}
 	}
 	else
 	{
-		// Detonate the grenade
 		CreateTimer(GetRandomFloat(0.5, 2.0), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 		return Plugin_Stop;
 	}
 	
-	// Return on success
 	return Plugin_Continue;
 }
 
@@ -1050,26 +877,20 @@ Action GrenadeTripwireThinkDetect(int grenade, int &iState, float &flCounter)
  **/
 public Action GrenadeTripwireThinkHook(Handle hTimer, int refID)
 {
-	// Gets entity index from reference key
 	int grenade = EntRefToEntIndex(refID);
 
-	// By default, exit the timer
 	Action hResult = Plugin_Stop;
 	
-	// Check if the grenade is still valid
 	if (grenade != -1)
 	{
-		// Gets local variables
 		int iState = GetEntProp(grenade, Prop_Data, "m_iMaxHealth");
 		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle");
 
-		// Decrement the grenade counter
 		if (flCounter > 0.0)
 		{
 			flCounter -= 0.1;
 		}
 		
-		// Execute the grenade think function
 		switch (iState)
 		{
 			case TRIPWIRE_STATE_POWERUP :
@@ -1082,12 +903,10 @@ public Action GrenadeTripwireThinkHook(Handle hTimer, int refID)
 			}
 		}
 		
-		// Update variables
 		SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iState);
 		SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flCounter);
 	}
 	
-	// Return on success
 	return hResult;
 }
 
@@ -1103,18 +922,14 @@ public Action GrenadeTripwireThinkHook(Handle hTimer, int refID)
  **/
 public Action GrenadeSatchelTouch(int grenade, int target)
 {
-	// Avoid double touch
 	if (!GetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget"))
 	{
-		// Check if the grenade touches the world or static entity
 		if (!target || ZP_IsBSPModel(target))
 		{
-			// Search a wall near the grenade
 			GrenadeSatchelTrackWall(grenade);
 		}
 	}
 	
-	// Block touch
 	return Plugin_Handled;
 }
 
@@ -1125,45 +940,32 @@ public Action GrenadeSatchelTouch(int grenade, int target)
  **/
 void GrenadeSatchelTrackWall(int grenade)
 {
-	// Initialize some vectors
 	static float vPosition[3]; static float vEndPosition[3]; static float vNormal[3];
 	
-	/// Search in order: +Z axis -Z axis +X axis -X axis +Y axis -Y axis
 	static const int vLoop[6][2] = { {2, 1}, {2, -1}, {0, 1}, {0, -1}, {1, 1}, {1, -1} };
 	
-	// Gets grenade origin
 	GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-	// Initialize some variables
 	int victim; float flFraction; float flBestFraction = 1.0;
 	
-	// i = dimention order
 	for (int i = 0; i < 6; i++)
 	{
-		// Calculate the end position
 		vEndPosition[vLoop[i][0]] = vPosition[vLoop[i][0]] + (2.0 * float(vLoop[i][1]));
 		
-		// Create the end-point trace
 		Handle hTrace = TR_TraceRayFilterEx(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, PlayerFilter, grenade);
 
-		// Validate collisions
 		if (!TR_DidHit(hTrace))
 		{
-			// Initialize the hull box
 			static const float vMins[3] = { -16.0, -16.0, -18.0  }; 
 			static const float vMaxs[3] = {  16.0,  16.0,  18.0  }; 
 			
-			// Create the hull trace
 			delete hTrace;
 			hTrace = TR_TraceHullFilterEx(vPosition, vEndPosition, vMins, vMaxs, MASK_SHOT_HULL, PlayerFilter, grenade);
 			
-			// Validate collisions
 			if (TR_DidHit(hTrace))
 			{
-				// Gets victim index
 				victim = TR_GetEntityIndex(hTrace);
 
-				// Is hit world ?
 				if (victim < 1 || ZP_IsBSPModel(victim))
 				{
 					UTIL_FindHullIntersection(hTrace, vPosition, vMins, vMaxs, PlayerFilter, grenade);
@@ -1171,58 +973,41 @@ void GrenadeSatchelTrackWall(int grenade)
 			}
 		}
 		
-		// Validate collisions
 		if (TR_DidHit(hTrace))
 		{
-			// Gets victim index
 			victim = TR_GetEntityIndex(hTrace);
 
-			// Is hit world ?
 			if (victim < 1 || ZP_IsBSPModel(victim))
 			{
-				// Find smallest collision
 				flFraction = TR_GetFraction(hTrace);
 				if (flBestFraction > flFraction)
 				{
-					// Store the best suiltable value
 					flBestFraction = flFraction;
 					
-					// Returns the collision position/normal of a trace result
 					TR_GetEndPosition(vEndPosition, hTrace);
 					TR_GetPlaneNormal(hTrace, vNormal);
 				}
 			}
 		}
 		
-		// Close trace 
 		delete hTrace;
 	}
 	
-	// Validate collision
 	if (flBestFraction < 1.0)
 	{
-		// Teleport the entity
 		TeleportEntity(grenade, vEndPosition, NULL_VECTOR, NULL_VECTOR);
 
-		// Sets grenade think function
 		CreateTimer(0.1, GrenadeSatchelThinkHook, EntIndexToEntRef(grenade), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
-		// Block the grenade touch function
 		SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", true);
 		
-		// Block the grenade
 		SetEntityMoveType(grenade, MOVETYPE_NONE);
 		
-		// Sets grenade breakable
 		GrenadeSetBreakable(grenade);
 	}
 	else
 	{
-		/// If we reach here, we have serious problems. This means that the grenade hit something like a func_breakable
-		/// that disappeared before the scan was able to take place. Now, the grenade is floating in mid air. So we just
-		/// explode it!!!
 		
-		// Detonate the grenade
 		CreateTimer(GetRandomFloat(0.5, 2.0), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
@@ -1236,35 +1021,27 @@ void GrenadeSatchelTrackWall(int grenade)
  **/
 Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 {
-	// Convert seconds to milis
 	int iCounter = RoundToNearest(flCounter * 10.0);
 	
-	// Check if the grenade is ready
 	if (flCounter <= 0.0)
 	{
-		// Play a sound
 		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
 		
-		// Sets grenade next state
 		iState    = SATCHEL_STATE_ENABLED;
 		flCounter = 0.0;
 	}
 	else if (!(iCounter % 2))
 	{
-		// Determine the pitch
 		int iPitch = 200 - iCounter * 4;
 		
-		// Validate max
 		if (iPitch <= 100)
 		{
 			iPitch = 100;
 		}
 		
-		// Play a sound
 		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
 	}
 	
-	// Return on success
 	return Plugin_Continue;
 }
 
@@ -1277,35 +1054,25 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
  **/
 Action GrenadeSatchelThinkEnabled(int grenade, int &iState, float &flCounter)
 {
-	// Gets grenade owner
 	int owner = GetEntPropEnt(grenade, Prop_Data, "m_hOwnerEntity");
 	
-	// Validate owner
 	if (owner != -1)
 	{
-		// Gets grenade origin
 		static float vPosition[3];
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		// Warn the players
 		if (flCounter <= 0.0)
 		{
-			// Initialize some variables
 			static int iPlayers[MAXPLAYERS+1]; static int vColor[4]; int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 			
-			// Gets all the players in range
 			int iMaxPlayers = GetClientsInRange(vPosition, RangeType_Audibility, iPlayers, MaxClients);
 			
-			// Gets grenade radius
 			float flRadius = hCvarGrenadeSatchelRadius.FloatValue;
 			
-			// Send the beam effect to all the close players
 			for (int i = 0; i < iMaxPlayers; i++)
 			{
-				// Gets client index
 				int client = iPlayers[i];
 				
-				// Determine the color of the beam
 				if (ZP_GetPlayerTeam(client) == iTeam)
 				{
 					vColor = (client == owner) ? GRENADE_SELF_COLOR : GRENADE_TEAMMATE_COLOR;
@@ -1315,23 +1082,19 @@ Action GrenadeSatchelThinkEnabled(int grenade, int &iState, float &flCounter)
 					vColor = GRENADE_ENEMY_COLOR;
 				}
 				
-				// Create the beacon effect
 				TE_SetupBeamRingPoint(vPosition, flRadius, flRadius * 2.0, gBeacon, gHalo, 0, 0, 0.1, 4.0, 0.0, vColor, 30, 0);
 				TE_SendToClient(client);
 			}
 			
-			// 0.1 sec
 			flCounter = 0.1; 
 		}
 	}
 	else
 	{
-		// Detonate the grenade
 		CreateTimer(GetRandomFloat(0.5, 2.0), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 		return Plugin_Stop;
 	}
 	
-	// Return on success
 	return Plugin_Continue;
 }
 
@@ -1343,26 +1106,20 @@ Action GrenadeSatchelThinkEnabled(int grenade, int &iState, float &flCounter)
  **/
 public Action GrenadeSatchelThinkHook(Handle hTimer, int refID)
 {
-	// Gets entity index from reference key
 	int grenade = EntRefToEntIndex(refID);
 
-	// By default, exit the timer
 	Action hResult = Plugin_Stop;
 	
-	// Check if the grenade is still valid
 	if (grenade != -1)
 	{
-		// Gets local variables
 		int iState = GetEntProp(grenade, Prop_Data, "m_iMaxHealth");
 		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle");
 
-		// Decrement the grenade counter
 		if (flCounter > 0.0)
 		{
 			flCounter -= 0.1;
 		}
 		
-		// Execute the grenade think function
 		switch (iState)
 		{
 			case SATCHEL_STATE_POWERUP :
@@ -1375,12 +1132,10 @@ public Action GrenadeSatchelThinkHook(Handle hTimer, int refID)
 			}
 		}
 		
-		// Update variables
 		SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iState);
 		SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flCounter);
 	}
 	
-	// Return on success
 	return hResult;
 }
 
@@ -1396,49 +1151,36 @@ public Action GrenadeSatchelThinkHook(Handle hTimer, int refID)
  **/
 public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 { 
-	// Gets entity index from reference key
 	int grenade = EntRefToEntIndex(refID);
 
-	// Validate grenade
 	if (grenade != -1)
 	{
-		// Initialize vectors
 		static float vPosition[3]; static float vAngle[3]; static float vPosition2[3]; static float vVelocity[3]; static float vEndVelocity[3];
 
-		// Gets grenade origin
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 			
-		// Find target
 		int target = GetEntPropEnt(grenade, Prop_Data, "m_pParent");
 		if (target != 0 || !UTIL_CanSeeEachOther(grenade, target, vPosition, SelfFilter) || ZP_GetPlayerTeam(target) != GetEntProp(grenade, Prop_Data, "m_iMaxHealth")) /// If team was changed, reset target
 		{
-			// Gets grenade team
 			int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 	
-			// If we have an enemy get his minimum distance to check against
 			float flOldDistance = MAX_FLOAT; float flNewDistance;
 
-			// Gets grenade radius
 			float flRadius = hCvarGrenadeHomingRadius.FloatValue;
 
-			// Find any players in the radius
 			int i; int it = 1; /// iterator
 			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
 			{
-				// Skip same team
 				int iPending = ZP_GetPlayerTeam(i);
 				if (iPending == iTeam)
 				{
 					continue;
 				}
 				
-				// Gets target origin
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 			
-				// Gets target distance
 				flNewDistance = GetVectorDistance(vPosition, vPosition2);
 				
-				// It is closer, then store index
 				if (flNewDistance < flOldDistance)
 				{
 					flOldDistance = flNewDistance;
@@ -1450,50 +1192,36 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 		}
 		else
 		{
-			// Play a sound
-			//EmitSoundToAll("buttons/bell1.wav", grenade, _, SNDLEVEL_ITEM);
 	
-			// Gets grenade velocity
 			GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);
 	
-			// Gets target origin
 			GetEntPropVector(target, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
-			// Gets vector from the given starting and ending points
 			MakeVectorFromPoints(vPosition, vPosition2, vEndVelocity);
 
-			// Ignore turning arc if the missile is close to the enemy to avoid it circling them
 			if (GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle") > hCvarGrenadeHomingAvoid.FloatValue)
 			{
-				// Normalize the vector (equal magnitude at varying distances)
 				NormalizeVector(vEndVelocity, vEndVelocity);
 				NormalizeVector(vVelocity, vVelocity);
 				
-				// Calculate and store speed
 				ScaleVector(vEndVelocity, hCvarGrenadeHomingRotation.FloatValue); 
 				AddVectors(vEndVelocity, vVelocity, vEndVelocity);
 			}
 		
-			// Normalize the vector (equal magnitude at varying distances)
 			NormalizeVector(vEndVelocity, vEndVelocity);
 			
-			// Apply the magnitude by scaling the vector
 			ScaleVector(vEndVelocity, hCvarGrenadeHomingSpeed.FloatValue);
 
-			// Gets angles of the speed vector
 			GetVectorAngles(vEndVelocity, vAngle);
 
-			// Push the entity
 			TeleportEntity(grenade, NULL_VECTOR, vAngle, vEndVelocity);
 		}
 	}
 	else
 	{
-		// Destroy timer
 		return Plugin_Stop;
 	}
 	
-	// Allow timer
 	return Plugin_Continue;
 }
 
@@ -1508,11 +1236,9 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
  **/
 stock void GrenadeSetBreakable(int grenade)
 {
-	// Sets grenade as breakable
 	SetEntProp(grenade, Prop_Data, "m_takedamage", DAMAGE_YES);
 	SetEntProp(grenade, Prop_Data, "m_iHealth", 1);
 	
-	// Hook the grenade takedamage function
 	SDKHook(grenade, SDKHook_OnTakeDamage, GrenadeDamageHook);
 }
 
@@ -1523,26 +1249,20 @@ stock void GrenadeSetBreakable(int grenade)
  **/
 stock void GrenadeDetonate(int grenade)
 {
-	// Gets grenade classname
 	static char sClassname[SMALL_LINE_LENGTH];
 	GetEdictClassname(grenade, sClassname, sizeof(sClassname));
 
-	// Check if the grenade is a smoke or a tactical
 	if (!strncmp(sClassname, "smoke", 5, false) || !strncmp(sClassname, "tag", 3, false))
 	{
-		// Stop the grenade velocity
 		static float vEmpty[3];
 		TeleportEntity(grenade, NULL_VECTOR, NULL_VECTOR, vEmpty);
 		
-		// Explode in the next tick
 		SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", 1);
 	}
 	else
 	{
-		// Sets grenade as breakable
 		GrenadeSetBreakable(grenade);
 		
-		// Inflict some damage
 		SDKHooks_TakeDamage(grenade, grenade, grenade, 1.0);
 	}
 }
@@ -1554,25 +1274,20 @@ stock void GrenadeDetonate(int grenade)
  **/
 stock void GrenadeActivate(int client)
 {
-	// Validate array
 	if (hGrenadeList[client] != null)
 	{
 		int i; int grenade; /// Pop all grenades in the list
 		while ((i = hGrenadeList[client].Length - 1) != -1)
 		{
-			// Validate grenade
 			grenade = EntRefToEntIndex(hGrenadeList[client].Get(i));
 			if (grenade != -1)
 			{
-				// Detonate the grenade
 				CreateTimer(GetRandomFloat(0.3, 0.5), GrenadeDetonateHook, EntIndexToEntRef(grenade), TIMER_FLAG_NO_MAPCHANGE);
 			}
 			
-			// Remove index from array
 			hGrenadeList[client].Erase(i);
 		}
 		
-		// Delete array
 		delete hGrenadeList[client];
 	}
 }
@@ -1585,14 +1300,11 @@ stock void GrenadeActivate(int client)
  **/
 stock void GrenadePush(int client, int grenade)
 {
-	// If array hasn't been created, then create
 	if (hGrenadeList[client] == null)
 	{
-		// Initialize a default list array
 		hGrenadeList[client] = new ArrayList();
 	}
 	
-	// Push ref into array
 	hGrenadeList[client].Push(EntIndexToEntRef(grenade));
 }
 
@@ -1620,7 +1332,6 @@ public bool SelfFilter(int entity, int contentsMask, int filter)
  **/
 public bool PlayerFilter(int entity, int contentsMask, int filter)
 {
-	// Validate player
 	if (IsPlayerExist(entity)) 
 	{
 		return false;
