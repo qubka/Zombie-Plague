@@ -143,7 +143,8 @@ public Action ZP_OnClientSkillUsed(int client)
 
 			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 
-			UTIL_SetRenderColor(entity, Color_Alpha, 0);
+			//UTIL_SetRenderColor(entity, Color_Alpha, 0);
+			AcceptEntityInput(entity, "DisableDraw"); 
 			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 			
 			int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly", false);
@@ -208,7 +209,9 @@ public Action BatTouchHook(int entity, int target)
 				SetVariantString("eholster"); 
 				AcceptEntityInput(bat, "SetParentAttachment", target, bat);
 
-				UTIL_RemoveEntity(bat, hCvarSkillDuration.FloatValue);
+				float flDuration = hCvarSkillDuration.FloatValue;
+
+				UTIL_RemoveEntity(bat, flDuration);
 
 				CreateTimer(0.1, BatAttachHook, EntIndexToEntRef(bat), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 			}

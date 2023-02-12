@@ -80,6 +80,7 @@ ConVar hCvarBalrogCounter;
 ConVar hCvarBalrogLife;
 ConVar hCvarBalrogTrail;
 ConVar hCvarBalrogExp;
+ConVar hCvarBalrogIgnite;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -87,13 +88,14 @@ ConVar hCvarBalrogExp;
  **/
 public void OnPluginStart()
 {
-	hCvarBalrogDamage  = CreateConVar("zp_weapon_balrog11_damage", "200.0", "Explosion damage", 0, true, 0.0);
+	hCvarBalrogDamage  = CreateConVar("zp_weapon_balrog11_damage", "250.0", "Explosion damage", 0, true, 0.0);
 	hCvarBalrogRadius  = CreateConVar("zp_weapon_balrog11_radius", "50.0", "Explosion radius", 0, true, 0.0);
 	hCvarBalrogSpeed   = CreateConVar("zp_weapon_balrog11_speed", "1000.0", "Projectile speed", 0, true, 0.0);
 	hCvarBalrogCounter = CreateConVar("zp_weapon_balrog11_counter", "4", "Amount of bullets shoot to gain 1 fire bullet", 0, true, 0.0);
 	hCvarBalrogLife    = CreateConVar("zp_weapon_balrog11_life", "0.5", "Duration of life", 0, true, 0.0);
 	hCvarBalrogTrail   = CreateConVar("zp_weapon_balrog11_trail", "flaregun_trail_crit_red", "Particle effect for the trail (''-default)");
 	hCvarBalrogExp     = CreateConVar("zp_weapon_balrog11_explosion", "projectile_fireball_crit_red", "Particle effect for the explosion (''-default)");
+	hCvarBalrogIgnite  = CreateConVar("zp_weapon_balrog11_ignite", "5.0", "Duration of ignite", 0, true, 0.0);
 
 	AutoExecConfig(true, "zp_weapon_balrog11", "sourcemod/zombieplague");
 }
@@ -276,7 +278,8 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 
 		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 		
-		UTIL_SetRenderColor(entity, Color_Alpha, 0);
+		//UTIL_SetRenderColor(entity, Color_Alpha, 0);
+		AcceptEntityInput(entity, "DisableDraw"); 
 		AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 		
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
@@ -327,11 +330,10 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
@@ -416,6 +418,14 @@ public Action FireTouchHook(int entity, int target)
 		if (thrower == target)
 		{
 			return Plugin_Continue;
+		}
+
+		if (IsPlayerExist(target))
+		{
+			if (ZP_IsPlayerZombie(target)) 
+			{
+				UTIL_IgniteEntity(target, hCvarBalrogIgnite.FloatValue);  
+			}
 		}
 
 		static float vPosition[3];

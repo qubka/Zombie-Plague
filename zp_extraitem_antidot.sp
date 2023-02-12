@@ -74,30 +74,6 @@ public void ZP_OnEngineExecute()
 }
 
 /**
- * @brief Called before show an extraitem in the equipment menu.
- * 
- * @param client            The client index.
- * @param itemID            The item index.
- *
- * @return                  Plugin_Handled to disactivate showing and Plugin_Stop to disabled showing. Anything else
- *                              (like Plugin_Continue) to allow showing and calling the ZP_OnClientBuyExtraItem() forward.
- **/
-public Action ZP_OnClientValidateExtraItem(int client, int itemID)
-{
-	if (itemID == gItem)
-	{
-		int mode = ZP_GetCurrentGameMode();
-		
-		if (ZP_GetZombieAmount() <= 1 || ZP_GetGameModeHumanType(mode) != gType)
-		{
-			return Plugin_Handled;
-		}
-	}
-
-	return Plugin_Continue;
-}
-
-/**
  * @brief Called after select an extraitem in the equipment menu.
  * 
  * @param client            The client index.

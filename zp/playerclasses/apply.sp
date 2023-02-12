@@ -199,6 +199,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 		VEffectsOnClientHumanized(client);
 	}
 	
+	ToolsOnClientUpdate(client);
 	SoundsOnClientUpdate(client);
 	SkillSystemOnClientUpdate(client);
 	LevelSystemOnClientUpdate(client);

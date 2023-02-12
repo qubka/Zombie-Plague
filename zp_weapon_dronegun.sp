@@ -1215,7 +1215,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		{
 			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vVelocity);
 
-			UTIL_SetRenderColor(entity, Color_Alpha, 0);
+			//UTIL_SetRenderColor(entity, Color_Alpha, 0);
+			AcceptEntityInput(entity, "DisableDraw"); 
 			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 			
 			SetEntPropString(entity, Prop_Data, "m_iGlobalname", "rocket");
@@ -1953,11 +1954,10 @@ bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

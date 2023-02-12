@@ -112,11 +112,10 @@ forward Action ZP_OnGrenadeSound(int grenade, int weaponID);
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-forward void ZP_OnWeaponCreated(int client, int weapon, int weaponID);
+forward void ZP_OnWeaponCreated(int weapon, int weaponID);
 
 /**
  * @brief Called on each frame of a weapon holding.

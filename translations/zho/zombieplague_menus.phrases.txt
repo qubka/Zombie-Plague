@@ -39,7 +39,7 @@
 	{
 		"zho"			"逃脫！"
 	}
-	
+
 	"arsenal menu" // Menu
 	{
 		"zho"			"兵工廠"

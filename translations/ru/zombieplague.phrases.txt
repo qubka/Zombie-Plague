@@ -340,17 +340,17 @@
 
 	"teleport restricted escape" // Chat
 	{
-		"ru"			"Телепорт огнаничен для режимов без выживания."
+		"ru"			"Телепорт ограничен для режимов без выживания."
 	}
 	
 	"teleport restricted zombie" // Chat
 	{
-		"ru"			"Телепорт огнаничен для зомби."
+		"ru"			"Телепорт ограничен для зомби."
 	}
 	
 	"teleport restricted human" // Chat
 	{
-		"ru"			"Телепорт огнаничен для людей."
+		"ru"			"Телепорт ограничен для людей."
 	}
 
 	"teleport max" // Chat

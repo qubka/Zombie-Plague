@@ -83,6 +83,7 @@ Handle hDHookGetMaxClip;
 Handle hDHookGetReserveAmmoMax;
 Handle hDHookGetPlayerMaxSpeed;
 Handle hDHookWeaponCanUse;
+Handle hDHookWeaponHolster;
 
 /**
  * Variables to store dynamic DHook offsets.
@@ -192,12 +193,16 @@ void WeaponMODOnInit()
 	fnInitGameConfOffset(gServerData.Config, DHook_Precache, "CBaseEntity::PrecacheModel");
 	fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CCSPlayer::*/"Weapon_CanUse");
    
+   	/*_________________________________________________________________________________________________________________________________________*/
+   
 	hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
 	
 	if (hDHookGetMaxClip == null)
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 	}
+	
+	/*_________________________________________________________________________________________________________________________________________*/
 	
 	hDHookGetReserveAmmoMax = DHookCreate(DHook_GetReserveAmmoMax, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetReverseMax);
 	DHookAddParam(hDHookGetReserveAmmoMax, HookParamType_Unknown);
@@ -207,12 +212,16 @@ void WeaponMODOnInit()
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 	}
 	
+	/*_________________________________________________________________________________________________________________________________________*/
+	
 	hDHookGetPlayerMaxSpeed = DHookCreate(DHook_GetPlayerMaxSpeed, HookType_Entity, ReturnType_Float, ThisPointer_CBaseEntity, WeaponDHookGetPlayerMaxSpeed);
 	
 	if (hDHookGetPlayerMaxSpeed == null)
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CCSPlayer::GetPlayerMaxSpeed\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 	}
+	
+	/*_________________________________________________________________________________________________________________________________________*/
 	
 	hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_Ignore, WeaponDHookOnCanUse);
 	DHookAddParam(hDHookWeaponCanUse, HookParamType_CBaseEntity);
@@ -221,6 +230,8 @@ void WeaponMODOnInit()
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"Weapon_CanUse\". Update \"SourceMod\"");
 	}
+
+	/*_________________________________________________________________________________________________________________________________________*/
 	
 	hDHookPrecacheModel = DHookCreate(DHook_Precache, HookType_Raw, ReturnType_Int, ThisPointer_Ignore, WeaponDHookOnPrecacheModel);
 	DHookAddParam(hDHookPrecacheModel, HookParamType_CharPtr);
@@ -233,6 +244,22 @@ void WeaponMODOnInit()
 	else
 	{
 		DHookRaw(hDHookPrecacheModel, false, gServerData.Engine);
+	}
+	
+	/*_________________________________________________________________________________________________________________________________________*/
+	
+	hDHookWeaponHolster = DHookCreateDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
+
+	if (!DHookSetFromConf(hDHookWeaponHolster, gServerData.Config, SDKConf_Signature, "CBaseCombatWeapon::Holster"))
+	{
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load signature \"CBaseCombatWeapon::Holster\". Update \"%s\"", PLUGIN_CONFIG);
+	}
+
+	DHookAddParam(hDHookWeaponHolster, HookParamType_CBaseEntity);
+
+	if (!DHookEnableDetour(hDHookWeaponHolster, true, WeaponDetourOnHolster))
+	{
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create Detour for \"CBaseCombatWeapon::Holster\". Update signature in \"%s\"", PLUGIN_CONFIG);
 	}
 }
 
@@ -523,13 +550,8 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 public void WeaponMODOnInfernoSpawn(int entity)
 {
 	int client = ToolsGetOwner(entity);
-	
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
 
-	ToolsSetCustomID(entity, gClientData[client].LastGrenade);
+	ToolsSetCustomID(entity, IsPlayerExist(client, false) ? gClientData[client].LastGrenade : -1);
 }
 
 /**
@@ -781,7 +803,7 @@ void WeaponMODOnClientUpdate(int client)
 	gClientData[client].ViewModels[1] = EntIndexToEntRef(view2);
 
 	int weapon = ToolsGetActiveWeapon(client);
-
+	
 	if (weapon != -1)
 	{
 		WeaponsSwitch(client, weapon);
@@ -851,19 +873,6 @@ public void WeaponMODOnSwitch(int client, int weapon)
 		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
-			int last = EntRefToEntIndex(gClientData[client].LastWeapon);
-
-			if (last != -1)
-			{
-				int iL = ToolsGetCustomID(last);
-				if (iL != -1 && iD != iL)
-				{
-					gForwardData._OnWeaponHolster(client, last, iL);
-				}
-			}
-			
-			gClientData[client].LastWeapon = EntIndexToEntRef(weapon);
-			
 			float flDeploy = WeaponsGetDeploy(iD);
 			if (flDeploy)
 			{
@@ -877,7 +886,6 @@ public void WeaponMODOnSwitch(int client, int weapon)
 			}
 			
 			ItemDef iItem = WeaponsGetDefIndex(iD);
-
 			if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
 			{
 				gClientData[client].CustomWeapon = weapon;
@@ -969,6 +977,7 @@ public void WeaponMODOnPostThinkPost(int client)
 	WeaponAttachSetAddons(client); /// Back weapon models
 	
 	int weapon = gClientData[client].CustomWeapon;
+	
 	if (weapon == -1)
 	{
 		return;
@@ -999,7 +1008,6 @@ public void WeaponMODOnPostThinkPost(int client)
 			int iD = ToolsGetCustomID(weapon);
 
 			int swapSequence = WeaponsGetSequenceSwap(iD, iSequence);
-			
 			if (swapSequence != -1)
 			{
 				WeaponHDRSetSequence(view1, swapSequence);
@@ -1190,9 +1198,7 @@ Action WeaponMODOnShoot(int client, int weapon)
 	if (iD != -1)    
 	{
 		Action hResult = SoundsOnClientShoot(client, iD);
-
 		gForwardData._OnWeaponShoot(client, weapon, iD);
-
 		return hResult;
 	}
 	
@@ -1551,3 +1557,28 @@ public MRESReturn WeaponDHookOnPrecacheModel(Handle hReturn, Handle hParams)
 	
 	return MRES_Ignored;
 }
+
+/**
+ * Detour: Hook weapon holster.
+ * @note bool CBaseCombatWeapon::Holster(CBaseCombatWeapon *)
+ *
+ * @param hReturn           Handle to return structure.
+ * @param hParams           Handle with parameters.
+ **/
+public MRESReturn WeaponDetourOnHolster(int weapon, Handle hReturn, Handle hParams)
+{
+	int iD = ToolsGetCustomID(weapon);
+	if (iD != -1)
+	{
+		int client = WeaponsGetOwner(weapon);
+		
+		/*if (!IsPlayerExist(client)) 
+		{
+			return;
+		}*/
+		
+		gForwardData._OnWeaponHolster(client, weapon, iD);
+	}
+	
+	return MRES_Ignored;
+} 

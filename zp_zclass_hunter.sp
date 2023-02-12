@@ -61,7 +61,7 @@ ConVar hCvarSkillEffect;
 public void OnPluginStart()
 {
 	hCvarSkillSpeed  = CreateConVar("zp_zclass_hunter_speed", "1.42", "Speed multiplier", 0, true, 0.0);
-	hCvarSkillEffect = CreateConVar("zp_zclass_hunter_effect", "viy_viy_viy", "Particle effect for the skill (''-default)");
+	hCvarSkillEffect = CreateConVar("zp_zclass_hunter_effect", "sila_trail_apalaal", "Particle effect for the skill (''-default)");
 	
 	AutoExecConfig(true, "zp_zclass_hunter", "sourcemod/zombieplague");
 }

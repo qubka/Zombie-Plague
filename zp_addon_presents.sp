@@ -571,6 +571,8 @@ public Action CaseSpawnHook(Handle hTimer)
 				SetEntProp(drop, Prop_Data, "m_usSolidFlags", FSOLID_NOT_SOLID|FSOLID_TRIGGER); /// Make trigger
 				SetEntProp(drop, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
 				
+				SetEntProp(drop, Prop_Data, "m_takedamage", DAMAGE_NO);
+				
 				SDKHook(drop, SDKHook_Touch, CaseTouchHook);
 			}
 			

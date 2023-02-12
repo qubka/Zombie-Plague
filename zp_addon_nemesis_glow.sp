@@ -34,18 +34,33 @@
  **/
 public Plugin myinfo =
 {
-	name            = "[ZP] ExtraItem: Buy Nemesis",
+	name            = "[ZP] Addon: Nemesis Glow",
 	author          = "qubka (Nikita Ushakov)",     
-	description     = "Addon of extra items",
+	description     = "Adds a dynamic lighting to a single nemesis",
 	version         = "1.0",
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
-// Item index
-int gItem;
+// Mode index
+int gMode;
 
-// Type index
-int gType;
+// Cvars
+ConVar hCvarNemesisRadius;
+ConVar hCvarNemesisDistance;
+ConVar hCvarNemesisColor;
+
+/**
+ * @brief Called when the plugin is fully initialized and all known external references are resolved. 
+ *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
+ **/
+public void OnPluginStart()
+{
+	hCvarNemesisRadius   = CreateConVar("zp_nemesis_glow_radius", "300.0", "Glow lightning size (radius)", 0, true, 0.0);
+	hCvarNemesisDistance = CreateConVar("zp_nemesis_glow_distance", "600.0", "Glow lightning size (distance)", 0, true, 0.0);
+	hCvarNemesisColor    = CreateConVar("zp_nemesis_glow_color", "75 0 130 255", "Glow color in 'RGBA'");
+	
+	AutoExecConfig(true, "zp_addon_nemesis_glow", "sourcemod/zombieplague");
+}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -61,28 +76,32 @@ public void OnLibraryAdded(const char[] sLibrary)
 		}
 	}
 }
-
+ 
 /**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute()
 {
-	gItem = ZP_GetExtraItemNameID("nemesis");
-
-	gType = ZP_GetClassTypeID("nemesis");
-	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"nemesis\" wasn't find");
+	gMode = ZP_GetGameModeNameID("nemesis mode");
 }
 
 /**
- * @brief Called after select an extraitem in the equipment menu.
- * 
- * @param client            The client index.
- * @param itemID            The item index.
+ * @brief Called after a zombie round is started.
+ *
+ * @param mode              The mode index. 
  **/
-public void ZP_OnClientBuyExtraItem(int client, int itemID)
+public void ZP_OnGameModeStart(int mode)
 {
-	if (itemID == gItem)
+	if (mode == gMode)
 	{
-		ZP_ChangeClient(client, -1, gType);
+		int client = ZP_GetRandomZombie();
+	
+		static float vPosition[3];
+		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+		
+		static char sEffect[SMALL_LINE_LENGTH];
+		hCvarNemesisColor.GetString(sEffect, sizeof(sEffect));
+	
+		UTIL_CreateLight(client, vPosition, _, _, _, _, _, _, _, sEffect, hCvarNemesisDistance.FloatValue, hCvarNemesisRadius.FloatValue);
 	}
 }

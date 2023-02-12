@@ -67,9 +67,6 @@ void ArsenalMenu(int client, int mSection)
 	static char sBuffer[NORMAL_LINE_LENGTH]; 
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
-	static char sLevel[SMALL_LINE_LENGTH];
-	static char sOnline[SMALL_LINE_LENGTH];
-	static char sGroup[SMALL_LINE_LENGTH];
 
 	int iPlaying = fnGetPlaying();
 
@@ -88,14 +85,35 @@ void ArsenalMenu(int client, int mSection)
 		int iD = hList.Get(i);
 
 		WeaponsGetName(iD, sName, sizeof(sName));
-		WeaponsGetGroup(iD, sGroup, sizeof(sGroup))
-
-		FormatEx(sLevel, sizeof(sLevel), "%t", "level", WeaponsGetLevel(iD));
-		FormatEx(sOnline, sizeof(sOnline), "%t", "online", WeaponsGetOnline(iD));  
-		FormatEx(sBuffer, sizeof(sBuffer), (i == iSize - 1) ? "%t  %s\n \n" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[client].Level < WeaponsGetLevel(iD)) ? sLevel : (iPlaying < WeaponsGetOnline(iD)) ? sOnline : "");
-
+		WeaponsGetGroup(iD, sInfo, sizeof(sInfo))
+		int iLevel = WeaponsGetLevel(iD);
+		int iOnline = WeaponsGetOnline(iD);
+		
+		bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
+		if (bMissGroup)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+		}
+		else if (gClientData[client].Level < iLevel)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "level", iLevel);
+		}
+		else if (iPlaying < iOnline)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "online", iOnline);    
+		}
+		else
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		}
+		
+		if (i == iSize - 1)
+		{
+			StrCat(sBuffer, sizeof(sBuffer), "\n \n");
+		}
+		
 		IntToString(iD, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((bDisabled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < WeaponsGetLevel(iD) || iPlaying < WeaponsGetOnline(iD)) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((bDisabled || bMissGroup || gClientData[client].Level < iLevel || iPlaying < iOnline) ? false : true));
 	}
 
 	{

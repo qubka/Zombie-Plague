@@ -272,7 +272,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 				}
 				
 				delete hZombieFreezed[i];
-				hZombieFreezed[i] = CreateTimer(flDuration, ClientRemoveFreezeEffect, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
+				hZombieFreezed[i] = CreateTimer(flDuration, ClientRemoveFreeze, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
 
 				vAngle[1] = GetRandomFloat(0.0, 360.0);
 	   
@@ -309,12 +309,12 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 }
 
 /**
- * @brief Timer for the remove freeze effect.
+ * @brief Timer for the remove freeze.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveFreezeEffect(Handle hTimer, int userID)
+public Action ClientRemoveFreeze(Handle hTimer, int userID)
 {
 	int client = GetClientOfUserId(userID);
 	

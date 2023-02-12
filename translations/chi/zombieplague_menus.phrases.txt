@@ -39,7 +39,7 @@
 	{
 		"chi"			"逃脱！"
 	}
-	
+
 	"arsenal menu" // Menu
 	{
 		"chi"			"兵工厂"

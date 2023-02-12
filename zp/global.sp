@@ -171,7 +171,6 @@ enum struct ClientData
 	int AttachmentController;
 	int AttachmentBits;
 	int AttachmentAddons[12]; /* Amount of weapon back attachments */
-	int LastWeapon;
 	int LastGrenade;
 	int LastKnife;
 	int ViewModels[2];
@@ -250,7 +249,6 @@ enum struct ClientData
 		this.AttachmentAddons[9]  = -1;
 		this.AttachmentAddons[10] = -1;
 		this.AttachmentAddons[11] = -1;
-		this.LastWeapon           = -1;
 		this.LastGrenade          = -1;
 		this.LastKnife            = -1;
 		this.ViewModels[0]        = -1;

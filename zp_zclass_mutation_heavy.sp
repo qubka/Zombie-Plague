@@ -184,6 +184,8 @@ public void ZP_OnClientSkillOver(int client)
 			SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
 			SetEntProp(entity, Prop_Data, "m_usSolidFlags", FSOLID_NOT_SOLID|FSOLID_TRIGGER); /// Make trigger
 			SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+			
+			SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
 
 			int trap = UTIL_CreateDynamic("trap", vPosition, vAngle, "models/player/custom_player/zombie/zombie_trap/trap.mdl", "idle", false);
 			
@@ -199,7 +201,8 @@ public void ZP_OnClientSkillOver(int client)
 			
 			SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 
-			UTIL_SetRenderColor(entity, Color_Alpha, 0);
+			//UTIL_SetRenderColor(entity, Color_Alpha, 0);
+			AcceptEntityInput(entity, "DisableDraw"); 
 			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 			
 			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
@@ -235,8 +238,10 @@ public Action TrapTouchHook(int entity, int target)
 
 			float flDuration = ZP_GetClassSkillDuration(gZombie);
 
+			ZP_SetProgressBarTime(target, RoundToNearest(flDuration));
+
 			delete hHumanTrapped[target];
-			hHumanTrapped[target] = CreateTimer(flDuration, ClientRemoveTrapEffect, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);
+			hHumanTrapped[target] = CreateTimer(flDuration, ClientRemoveTrap, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);
 
 			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
@@ -293,12 +298,12 @@ public Action TrapTransmitHook(int entity, int client)
 }
 
 /**
- * @brief Timer for remove trap effect.
+ * @brief Timer for remove trap.
  *
  * @param hTimer            The timer handle.
  * @param userID            The user id.
  **/
-public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
+public Action ClientRemoveTrap(Handle hTimer, int userID)
 {
 	int client = GetClientOfUserId(userID);
 	
@@ -307,6 +312,8 @@ public Action ClientRemoveTrapEffect(Handle hTimer, int userID)
 	if (client)
 	{    
 		SetEntityMoveType(client, MOVETYPE_WALK);
+		
+		ZP_SetProgressBarTime(client, 0);
 	}
 
 	return Plugin_Stop;

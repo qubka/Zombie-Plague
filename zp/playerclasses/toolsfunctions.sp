@@ -117,6 +117,19 @@ public void ToolsFOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 }
 
 /**
+ * @brief Client has been changed class state.
+ * 
+ * @param client            The client index.
+ **/
+void ToolsOnClientUpdate(int client)
+{
+	if (IsFakeClient(client) && !gClientData[client].Zombie)
+	{
+		ToolsSetFlashLight(client, true);
+	}
+}
+
+/**
  * Listener command callback (any)
  * @brief Usage of the on/off flashlight/nvgs.
  *

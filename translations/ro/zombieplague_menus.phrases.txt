@@ -39,7 +39,7 @@
 	{
 		"ro"			"Deblocare!"
 	}
-	
+
 	"arsenal menu" // Menu
 	{
 		"ro"			"Arsenal"

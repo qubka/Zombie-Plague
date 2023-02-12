@@ -11,7 +11,12 @@
 	{
 		"en"			"Buy Survivor"
 	}
-	
+
+	"madness" // Menu
+	{
+		"en"			"Madness"
+	}
+
 	"antidot" // Menu
 	{
 		"en"			"Antidote"

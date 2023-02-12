@@ -2324,16 +2324,10 @@ stock bool IsPlayerExist(int client, bool bAlive = true)
  **/
 stock bool IsPlayerInGroup(int client, char[] sGroup)
 {
-	if (!IsPlayerExist(client, false))
+	if (!hasLength(sGroup))
 	{
-		return false;
+		return true;
 	}
-
-	/*********************************
-	 *                               *
-	 *   FLAG GROUP AUTHENTICATION   *
-	 *                               *
-	 *********************************/
 
 	GroupId nGroup = FindAdmGroup(sGroup);
 	
@@ -2341,8 +2335,13 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
 	{
 		return false;
 	}
-	 
-	AdminId iD = GetUserAdmin(client);
+	 	
+	if (!IsPlayerExist(client, false))
+	{
+		return false;
+	}
+
+	AdminId nAdmin = GetUserAdmin(client);
 	
 	if (iD == INVALID_ADMIN_ID)
 	{
@@ -2351,10 +2350,10 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
 
 	static char sGroupName[SMALL_LINE_LENGTH];
 
-	int iSize = GetAdminGroupCount(iD);
+	int iSize = nAdmin.GroupCount;
 	for (int i = 0; i < iSize; i++)
 	{
-		nGroup = GetAdminGroup(iD, i, sGroupName, sizeof(sGroupName));
+		nGroup = nAdmin.GetGroup(i, sGroupName, sizeof(sGroupName));
 
 		if (!strcmp(sGroup, sGroupName, false))
 		{
@@ -2389,6 +2388,23 @@ stock bool IsTimeBetween(int min, int max)
 	}
 
 	return min <= time && time <= max;
+}
+
+/**
+ * @brief Returns the flag set that is added to users from this group.
+ *
+ * @param sGroup            The SourceMod group name to check.
+ *
+ * @return                  True or false.
+ **/
+stock int FindAdmGroup(char[] sGroup)
+{
+	if (hasLength(sGroup))
+	{
+		GroupId nGroup = FindAdmGroup(sGroup);
+		return nGroup != INVALID_GROUP_ID ? nGroup.GetFlags() : 0;
+	}
+	return 0;
 }
 
 /*_____________________________________________________________________________________________________________*/

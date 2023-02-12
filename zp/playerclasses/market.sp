@@ -349,7 +349,7 @@ bool MarketBuyItem(int client, int iD, bool bInfo = true)
 }
 
 /**
- * @brief .
+ * @brief Validates that item byu is not available.
  * 
  * @param client            The client index.
  * @param iD                The item index.
@@ -364,14 +364,14 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (!gServerData.RoundStart) 
 			{
-				return false;
+				return true;
 			}
 		}
 		else if (iFlags & ADMFLAG_GENERIC) // "b" - the item is not available after the round starts.
 		{
 			if (gServerData.RoundStart) 
 			{
-				return false;
+				return true;
 			}
 		}
 		
@@ -379,14 +379,14 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (fnGetZombies() <= 1)
 			{
-				return false;
+				return true;
 			}
 		}
 		else if (iFlags & ADMFLAG_BAN) // "d" - the item is only available when a single zombie.
 		{
 			if (fnGetZombies() > 1)
 			{
-				return false;
+				return true;
 			}
 		}
 
@@ -394,14 +394,14 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (fnGetHumans() <= 1)
 			{
-				return false;
+				return true;
 			}
 		}
 		else if (iFlags & ADMFLAG_SLAY) // "f" - the item is only available when a single human.
 		{
 			if (fnGetHumans() > 1)
 			{
-				return false;
+				return true;
 			}
 		}
 		
@@ -409,14 +409,14 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (ModesIsInfection(gServerData.RoundMode))
 			{
-				return false;
+				return true;
 			}
 		}
 		else if (iFlags & ADMFLAG_CONVARS) // "h" - the item is only available in an infection mode.
 		{
 			if (!ModesIsInfection(gServerData.RoundMode))
 			{
-				return false;
+				return true;
 			}
 		}
 		
@@ -424,14 +424,14 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (ModesIsRespawn(gServerData.RoundMode))
 			{
-				return false;
+				return true;
 			}
 		}
 		else if (iFlags & ADMFLAG_CHAT) // "j" - the item is only available in a respawn mode.
 		{
 			if (!ModesIsRespawn(gServerData.RoundMode))
 			{
-				return false;
+				return true;
 			}
 		}
 		
@@ -439,14 +439,14 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (ModesGetHumanType(gServerData.RoundMode) == gServerData.Human)
 			{
-				return false;
+				return true;
 			}
 		}
 		else if (iFlags & ADMFLAG_PASSWORD) // "l" - the item is only available in a default human mode.
 		{
 			if (ModesGetHumanType(gServerData.RoundMode) != gServerData.Human)
 			{
-				return false;
+				return true;
 			}
 		}
 		
@@ -454,14 +454,14 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (ModesGetZombieType(gServerData.RoundMode) == gServerData.Zombie)
 			{
-				return false;
+				return true;
 			}
 		}
 		else if (iFlags & ADMFLAG_CHEATS) // "n" - the item is only available in a default zombie mode.
 		{
 			if (ModesGetZombieType(gServerData.RoundMode) != gServerData.Zombie)
 			{
-				return false;
+				return true;
 			}
 		}
 		
@@ -469,7 +469,7 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (ItemsGetMapLimits(client, iD))
 			{
-				return false;
+				return true;
 			}
 
 		}
@@ -477,19 +477,47 @@ bool MarketItemNotAvailable(int client, int iD)
 		{
 			if (!gServerData.NightTime)
 			{
-				return false;
+				return true;
 			}
 		}
+	}
+
+	if (gCvarList.LEVEL_SYSTEM.BoolValue && gClientData[client].Level < ItemsGetLevel(iD))
+	{
+		return true;
+	}
+
+	if (gClientData[client].Money < ItemsGetCost(iD))
+	{
+		return true;
+	}
+
+	int iLimit = ItemsGetLimit(iD);
+	if (iLimit && iLimit <= ItemsGetLimits(client, iD))
+	{
+		return true;
+	}
+
+	int iOnline = ItemsGetOnline(iD);
+	if (iOnline > 1 && fnGetPlaying() < iOnline)
+	{
+		return true;
+	}
+	
+	int iWeapon = ItemsGetWeaponID(iD);
+	if (iWeapon != -1 && WeaponsFindByID(client, iWeapon) != -1)
+	{
+		return true;
 	}
 
 	static char sGroup[SMALL_LINE_LENGTH];
 	ItemsGetGroup(iD, sGroup, sizeof(sGroup));
 	
-	return (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || (ItemsGetWeaponID(iD) != -1 && WeaponsFindByID(client, ItemsGetWeaponID(iD)) != -1) || gClientData[client].Level < ItemsGetLevel(iD) || fnGetPlaying() < ItemsGetOnline(iD) || (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) || (ItemsGetCost(iD) && gClientData[client].Money < ItemsGetCost(iD));
+	return (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup));
 }
 
 /**
- * @brief .
+ * @brief Validates that buytime is expired.
  * 
  * @param client            The client index.
  * @param mSection          (Optional) The section index.

@@ -235,7 +235,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		{
 			Weapon_OnCreateEffect(client, weapon, "Start");
 		
-			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON, _, 0.5);
 
 			iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		
@@ -254,7 +254,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 			static float vVelocity[3]; int iFlags = GetEntityFlags(client); 
 			float flSpread = 0.01; float flInaccuracy = 0.013;
-			float vKickback[] = { /*upBase = */0.5, /* lateralBase = */1.1, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */1.1, /* lateralMax = */1.45, /* directionChange = */5.0 };
+			float vKickback[] = { /*upBase = */0.5, /* lateralBase = */0.9, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */1.1, /* lateralMax = */1.45, /* directionChange = */5.0 };
 			
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
@@ -365,11 +365,10 @@ void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
@@ -454,6 +453,11 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 {
 	if (weaponID == gWeapon || weaponID == gWeaponS)
 	{
+		if (IsFakeClient(client))
+		{
+			 iButtons |= IN_ATTACK;
+		}
+	
 		static float flReloadTime;
 		if ((flReloadTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flReloadTime <= GetGameTime())
 		{

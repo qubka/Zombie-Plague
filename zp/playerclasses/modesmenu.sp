@@ -74,8 +74,6 @@ void ModesMenu(int client, int target = -1)
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
-	static char sOnline[SMALL_LINE_LENGTH];
-	static char sGroup[SMALL_LINE_LENGTH];
 
 	int iAlive = fnGetAlive();
 	
@@ -111,13 +109,25 @@ void ModesMenu(int client, int target = -1)
 		}
 		
 		ModesGetName(i, sName, sizeof(sName));
-		ModesGetGroup(i, sGroup, sizeof(sGroup));
+		ModesGetGroup(i, sInfo, sizeof(sInfo));
+		int iMin = ModesGetMinPlayers(i);
 		
-		FormatEx(sOnline, sizeof(sOnline), "%t", "online", ModesGetMinPlayers(i));
-		FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (iAlive < ModesGetMinPlayers(i)) ? sOnline : "");
+		bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
+		if (bMissGroup)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+		}
+		else if (iAlive < iMin)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "online", iMin);
+		}
+		else
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		}
 
 		FormatEx(sInfo, sizeof(sInfo), "%d %d", i, (target == -1) ? -1 : GetClientUserId(target));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || iAlive < ModesGetMinPlayers(i)) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bMissGroup || iAlive < iMin) ? false : true));
 	
 		iAmount++;
 	}

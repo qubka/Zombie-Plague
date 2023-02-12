@@ -111,7 +111,7 @@ public void OnPluginStart()
 {
 	hCvarJanusSignalCounter  = CreateConVar("zp_weapon_janus1_signal_counter", "7", "Amount of shots to activate second mode", 0, true, 0.0);
 	hCvarJanusActiveCounter  = CreateConVar("zp_weapon_janus1_active_counter", "14", "Amount of shots in the second mode", 0, true, 0.0);
-	hCvarJanusGrenadeDamage  = CreateConVar("zp_weapon_janus1_grenade_damage", "300.0", "", 0, true, 0.0);
+	hCvarJanusGrenadeDamage  = CreateConVar("zp_weapon_janus1_grenade_damage", "350.0", "", 0, true, 0.0);
 	hCvarJanusGrenadeSpeed   = CreateConVar("zp_weapon_janus1_grenade_speed", "1500.0", "", 0, true, 0.0);
 	hCvarJanusGrenadeGravity = CreateConVar("zp_weapon_janus1_grenade_gravity", "1.5", "", 0, true, 0.0);
 	hCvarJanusGrenadeRadius  = CreateConVar("zp_weapon_janus1_grenade_radius", "400.0", "", 0, true, 0.0);
@@ -409,11 +409,10 @@ void Weapon_OnCreateGrenade(int client)
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

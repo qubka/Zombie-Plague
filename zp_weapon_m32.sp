@@ -99,7 +99,7 @@ ConVar hCvarM32Exp;
 public void OnPluginStart()
 {
 	hCvarM32Speed   = CreateConVar("zp_weapon_m32_speed", "1500.0", "Projectile speed", 0, true, 0.0);
-	hCvarM32Damage  = CreateConVar("zp_weapon_m32_damage", "150.0", "Projectile damage", 0, true, 0.0);
+	hCvarM32Damage  = CreateConVar("zp_weapon_m32_damage", "400.0", "Projectile damage", 0, true, 0.0);
 	hCvarM32Radius  = CreateConVar("zp_weapon_m32_radius", "300.0", "Damage radius", 0, true, 0.0);
 	hCvarM32Gravity = CreateConVar("zp_weapon_m32_gravity", "1.5", "Projectile gravity", 0, true, 0.0);
 	hCvarM32Trail   = CreateConVar("zp_weapon_m32_trail", "critical_rocket_red", "Particle effect for the trail (''-default)");
@@ -432,11 +432,10 @@ void Weapon_OnCreateGrenade(int client)
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

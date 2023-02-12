@@ -80,9 +80,9 @@ void MainMenu(int client)
 	int iSize = gServerData.Menus.Length; int iAmount;
 	for (int i = 0; i < iSize; i++)
 	{
-		MenusGetGroup(i, sName, sizeof(sName));
+		MenusGetGroup(i, sInfo, sizeof(sInfo));
 
-		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusHasAccessByType(client, i));
+		bool bHide = ((hasLength(sInfo) && !IsPlayerInGroup(client, sInfo)) || !MenusHasAccessByType(client, i));
 
 		if (bHide && MenusIsHide(i))
 		{
@@ -217,9 +217,9 @@ void SubMenu(int client, int iD)
 			continue;
 		}
 		
-		MenusGetGroup(iD, sName, sizeof(sName), i);
+		MenusGetGroup(iD, sInfo, sizeof(sInfo), i);
 
-		bool bHide = ((hasLength(sName) && !IsPlayerInGroup(client, sName)) || !MenusHasAccessByType(client, iD, i));
+		bool bHide = ((hasLength(sInfo) && !IsPlayerInGroup(client, sInfo)) || !MenusHasAccessByType(client, iD, i));
 
 		if (bHide && MenusIsHide(iD, i))
 		{

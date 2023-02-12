@@ -11,7 +11,12 @@
 	{
 		"zho"			"购买幸存者"
 	}
-	
+
+	"madness" // Menu
+	{
+		"zho"			"疯狂"
+	}
+
 	"antidot" // Menu
 	{
 		"zho"			"解毒劑"

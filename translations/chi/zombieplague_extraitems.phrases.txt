@@ -12,6 +12,11 @@
 		"chi"			"購買倖存者"
 	}
 
+	"madness" // Menu
+	{
+		"chi"			"瘋狂"
+	}
+
 	"antidot" // Menu
 	{
 		"chi"			"解毒剂"

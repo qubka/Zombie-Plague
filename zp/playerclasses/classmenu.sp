@@ -207,8 +207,6 @@ void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant =
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
-	static char sLevel[SMALL_LINE_LENGTH];
-	static char sGroup[SMALL_LINE_LENGTH];
 
 	Menu hMenu = new Menu(iType == gServerData.Zombie ? (bInstant ? ClassZombieMenuSlots2 : ClassZombieMenuSlots1) : (bInstant ? ClassHumanMenuSlots2 : ClassHumanMenuSlots1));
 
@@ -236,13 +234,25 @@ void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant =
 		gServerData.Types.GetString(iType, sName, sizeof(sName));
 		
 		ClassGetName(i, sName, sizeof(sName));
-		ClassGetGroup(i, sGroup, sizeof(sGroup));
+		ClassGetGroup(i, sInfo, sizeof(sInfo));
+		int iLevel = ClassGetLevel(i);
 		
-		FormatEx(sLevel, sizeof(sLevel), "%t", "level", ClassGetLevel(i));
-		FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (gClientData[client].Level < ClassGetLevel(i)) ? sLevel : "");
+		bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
+		if (bMissGroup)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+		}
+		else if (gClientData[client].Level < iLevel)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "level", iLevel);
+		}
+		else
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		}
 
 		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < ClassGetLevel(i) || iClass == i) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bMissGroup || gClientData[client].Level < iLevel || iClass == i) ? false : true));
 	
 		iAmount++;
 	}

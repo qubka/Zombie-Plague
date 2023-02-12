@@ -59,7 +59,6 @@ void ConfigMenu(int client)
 	}
 
 	static char sBuffer[NORMAL_LINE_LENGTH];
-	static char sAlias[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 
 	Menu hMenu = new Menu(ConfigMenuSlots);
@@ -70,9 +69,9 @@ void ConfigMenu(int client)
 	
 	for (int i = File_Cvars; i < File_Size; i++)
 	{
-		ConfigGetConfigAlias(i, sAlias, sizeof(sAlias));
+		ConfigGetConfigAlias(i, sInfo, sizeof(sInfo));
 		
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "config menu reload", sAlias);
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "config menu reload", sInfo);
 		
 		IntToString(i, sInfo, sizeof(sInfo));
 		hMenu.AddItem(sInfo, sBuffer);

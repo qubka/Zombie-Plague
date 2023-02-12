@@ -11,7 +11,12 @@
 	{
 		"ro"			"Cumpără supraviețuitor"
 	}
-	
+
+	"madness" // Menu
+	{
+		"ro"			"Nebunie"
+	}
+
 	"antidot" // Menu
 	{
 		"ro"			"Antidot"

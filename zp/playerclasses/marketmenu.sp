@@ -209,10 +209,6 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
-	static char sLevel[SMALL_LINE_LENGTH];
-	static char sLimit[SMALL_LINE_LENGTH];
-	static char sOnline[SMALL_LINE_LENGTH];
-	static char sGroup[SMALL_LINE_LENGTH];
 	static int iTypes[MAXPLAYERS+1];
 	
 	int iPlaying = fnGetPlaying();
@@ -291,12 +287,42 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 			}
 
 			ItemsGetName(iD, sName, sizeof(sName));
-			ItemsGetGroup(iD, sGroup, sizeof(sGroup));
+			ItemsGetGroup(iD, sInfo, sizeof(sInfo));
+			int iCost = ItemsGetCost(iD);
+			int iLevel = ItemsGetLevel(iD);
+			int iLimit = ItemsGetLimit(iD);
+			int iOnline = ItemsGetOnline(iD);
+			int iMapLimit = ItemsGetFlags(iD) & ADMFLAG_CUSTOM1;
 			
-			FormatEx(sLevel, sizeof(sLevel), "%t", "level", ItemsGetLevel(iD));
-			FormatEx(sLimit, sizeof(sLimit), "%t", "limit", ItemsGetLimit(iD));
-			FormatEx(sOnline, sizeof(sOnline), "%t", "online", ItemsGetOnline(iD));      
-			FormatEx(sBuffer, sizeof(sBuffer), (ItemsGetCost(iD)) ? "%t  %s  %t" : "%t  %s", sName, hasLength(sGroup) ? sGroup : (gClientData[client].Level < ItemsGetLevel(iD)) ? sLevel : (ItemsGetLimit(iD) && ItemsGetLimit(iD) <= ItemsGetLimits(client, iD)) ? sLimit : (iPlaying < ItemsGetOnline(iD)) ? sOnline : "", "price", ItemsGetCost(iD), "money");
+			bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
+			if (bMissGroup)
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+			}
+			else if (gCvarList.LEVEL_SYSTEM.BoolValue && gClientData[client].Level < iLevel)
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "level", iLevel);
+			}
+			else if (iMapLimit && ItemsGetMapLimits(client, iD))
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t*", sName, "limit", 1);
+			}
+			else if (iLimit && iLimit <= ItemsGetLimits(client, iD))
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "limit", iLimit);
+			}
+			else if (iPlaying < iOnline)
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "online", iOnline);    
+			}
+			else if (iCost)
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "price", iCost, "money");
+			}
+			else
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+			}
 
 			IntToString(iD, sInfo, sizeof(sInfo));
 			hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || MarketBuyTimeExpired(client, ItemsGetSectionID(iD)) || MarketItemNotAvailable(client, iD)) ? false : true));

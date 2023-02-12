@@ -269,7 +269,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client); 
 	float flSpread = 0.01; float flInaccuracy = 0.013;
-	float vKickback[] = { /*upBase = */1.5, /* lateralBase = */0.45, /* upMod = */0.05, /* lateralMod = */0.05, /* upMax = */1.5, /* lateralMax = */3.5, /* directionChange = */5.0 };
+	float vKickback[] = { /*upBase = */0.4, /* lateralBase = */0.45, /* upMod = */0.05, /* lateralMod = */0.05, /* upMax = */1.5, /* lateralMax = */1.5, /* directionChange = */5.0 };
 	
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
@@ -420,11 +420,10 @@ public Action Weapon_OnStab(Handle hTimer, int userID)
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

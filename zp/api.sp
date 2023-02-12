@@ -98,7 +98,7 @@ enum struct ForwardData
 		this.OnClientExp             = CreateGlobalForward("ZP_OnClientExp", ET_Ignore, Param_Cell, Param_CellByRef);
 		this.OnGrenadeCreated        = CreateGlobalForward("ZP_OnGrenadeCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 		this.OnGrenadeSound          = CreateGlobalForward("ZP_OnGrenadeSound", ET_Hook, Param_Cell, Param_Cell);
-		this.OnWeaponCreated         = CreateGlobalForward("ZP_OnWeaponCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+		this.OnWeaponCreated         = CreateGlobalForward("ZP_OnWeaponCreated", ET_Ignore, Param_Cell, Param_Cell);
 		this.OnWeaponRunCmd          = CreateGlobalForward("ZP_OnWeaponRunCmd", ET_Hook, Param_Cell, Param_CellByRef, Param_Cell, Param_Cell, Param_Cell);
 		this.OnWeaponDeploy          = CreateGlobalForward("ZP_OnWeaponDeploy", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 		this.OnWeaponHolster         = CreateGlobalForward("ZP_OnWeaponHolster", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
@@ -426,14 +426,12 @@ enum struct ForwardData
 	/**
 	 * @brief Called after a custom weapon is created.
 	 *
-	 * @param client            The client index.
 	 * @param weapon            The weapon index.
 	 * @param weaponID          The weapon id.
 	 **/
-	void _OnWeaponCreated(int client, int weapon, int weaponID)
+	void _OnWeaponCreated(int weapon, int weaponID)
 	{
 		Call_StartForward(this.OnWeaponCreated);
-		Call_PushCell(client);
 		Call_PushCell(weapon);
 		Call_PushCell(weaponID);
 		Call_Finish();

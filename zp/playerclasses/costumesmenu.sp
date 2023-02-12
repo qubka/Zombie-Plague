@@ -70,8 +70,6 @@ void CostumesMenu(int client)
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
-	static char sLevel[SMALL_LINE_LENGTH];
-	static char sGroup[SMALL_LINE_LENGTH];
 	
 	Menu hMenu = new Menu(CostumesMenuSlots);
 	
@@ -97,13 +95,25 @@ void CostumesMenu(int client)
 		}
 		
 		CostumesGetName(i, sName, sizeof(sName));
-		CostumesGetGroup(i, sGroup, sizeof(sGroup));
+		CostumesGetGroup(i, sInfo, sizeof(sInfo));
+		int iLevel = CostumesGetLevel(i);
 		
-		FormatEx(sLevel, sizeof(sLevel), "%t", "level", CostumesGetLevel(i));
-		FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) ? sGroup : (gClientData[client].Level < CostumesGetLevel(i)) ? sLevel : "");
+		bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
+		if (bMissGroup)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+		}
+		else if (gClientData[client].Level < iLevel)
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "level", iLevel);
+		}
+		else
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		}
 
 		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || gClientData[client].Level < CostumesGetLevel(i) || gClientData[client].Costume == i) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bMissGroup || gClientData[client].Level < iLevel || gClientData[client].Costume == i) ? false : true));
 	
 		iAmount++;
 	}

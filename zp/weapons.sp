@@ -2314,8 +2314,6 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 					if (weapon != -1) 
 					{
 						WeaponsEquip(client, weapon, iD, bSwitch);
-
-						gForwardData._OnWeaponCreated(client, weapon, iD);
 					}
 				}
 
@@ -2346,6 +2344,8 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
 		WeaponsSetSpawnedByMap(weapon, false);
 
 		WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
+		
+		gForwardData._OnWeaponCreated(weapon, iD);
 	}
 	
 	return weapon;
@@ -2539,16 +2539,20 @@ bool WeaponsCanUse(int client, int weapon)
 			return false;
 		}
 
-		if (gCvarList.WEAPONS_PICKUP_ONLINE.BoolValue && fnGetPlaying() < WeaponsGetOnline(iD))
-		{
-			return false;
-		}
-
 		if (gCvarList.WEAPONS_PICKUP_LEVEL.BoolValue && gClientData[client].Level < WeaponsGetLevel(iD))
 		{
 			return false;
 		}
 		
+		if (gCvarList.WEAPONS_PICKUP_ONLINE.BoolValue)
+		{
+			int iOnline = WeaponsGetOnline(iD);
+			if (iOnline > 1 && fnGetPlaying() < iOnline)
+			{
+				return false;
+			}
+		}
+
 		if (gCvarList.WEAPONS_PICKUP_GROUP.BoolValue)
 		{
 			static char sGroup[SMALL_LINE_LENGTH];

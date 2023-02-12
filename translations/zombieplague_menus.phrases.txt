@@ -39,7 +39,7 @@
 	{
 		"en"			"Unstuck!"
 	}
-	
+
 	"arsenal menu" // Menu
 	{
 		"en"			"Arsenal"

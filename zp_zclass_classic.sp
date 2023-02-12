@@ -132,7 +132,7 @@ public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float fl
 			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 			
 			float flDuration = hCvarSkillDuration.FloatValue;
-			
+
 			UTIL_CreateFadeScreen(attacker, flDuration, flDuration + 0.5, FFADE_IN, {0, 0, 0, 255});
 			
 			static char sEffect[SMALL_LINE_LENGTH];

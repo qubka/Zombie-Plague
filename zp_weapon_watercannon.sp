@@ -333,7 +333,8 @@ void Weapon_OnCreateFire(int client, int weapon)
 
 		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 		
-		UTIL_SetRenderColor(entity, Color_Alpha, 0);
+		//UTIL_SetRenderColor(entity, Color_Alpha, 0);
+		AcceptEntityInput(entity, "DisableDraw"); 
 		AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 		
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
@@ -425,11 +426,10 @@ void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

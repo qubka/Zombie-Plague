@@ -264,7 +264,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client); 
 	float flSpread = 0.01; float flInaccuracy = 0.02;
-	float vKickback[] = { /*upBase = */2.5, /* lateralBase = */1.45, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */5.5, /* lateralMax = */4.5, /* directionChange = */7.0 };
+	float vKickback[] = { /*upBase = */0.5, /* lateralBase = */0.9, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */3.5, /* lateralMax = */2.5, /* directionChange = */4.0 };
 	
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
@@ -379,7 +379,8 @@ void Weapon_OnCreateAirBurst(int client, int weapon)
 
 		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 		
-		UTIL_SetRenderColor(entity, Color_Alpha, 0);
+		//UTIL_SetRenderColor(entity, Color_Alpha, 0);
+		AcceptEntityInput(entity, "DisableDraw"); 
 		AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
 		
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
@@ -480,11 +481,10 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 /**
  * @brief Called after a custom weapon is created.
  *
- * @param client            The client index.
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponCreated(int client, int weapon, int weaponID)
+public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
