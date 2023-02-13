@@ -42,7 +42,10 @@ void ModesMenuOnCommandInit()
  **/ 
 public Action ModesMenuOnCommandCatched(int client, int iArguments)
 {
-	ModesMenu(client); 
+	if (IsPlayerExist(client, false))
+	{
+		ModesMenu(client); 
+	}
 	return Plugin_Handled;
 }
 
@@ -58,11 +61,6 @@ public Action ModesMenuOnCommandCatched(int client, int iArguments)
  **/
 void ModesMenu(int client, int target = -1)
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
 	if (!gServerData.RoundNew)
 	{
 		TranslationPrintHintText(client, "block starting round");     
@@ -169,6 +167,11 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray("zp_mode_menu");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
@@ -194,6 +197,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			static char sInfo[2][SMALL_LINE_LENGTH];
 			ExplodeString(sBuffer, " ", sInfo, sizeof(sInfo), sizeof(sInfo[]));
 			int iD = StringToInt(sInfo[0]); int target = StringToInt(sInfo[1]);
+			
 			if (target != -1) // then userid should be here 
 			{
 				target = GetClientOfUserId(target);
@@ -297,6 +301,11 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+			
 				ModesMenu(client);
 			}
 		}

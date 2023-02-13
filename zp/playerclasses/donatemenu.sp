@@ -42,7 +42,10 @@ void DonateMenuOnCommandInit()
  **/ 
 public Action DonateMenuOnCommandCatched(int client, int iArguments)
 {
-	DonateMenu(client, gCvarList.ACCOUNT_BET.IntValue, gCvarList.ACCOUNT_COMMISION.FloatValue);
+	if (IsPlayerExist(client, false))
+	{
+		DonateMenu(client, gCvarList.ACCOUNT_BET.IntValue, gCvarList.ACCOUNT_COMMISION.FloatValue);
+	}
 	return Plugin_Handled;
 }
 
@@ -59,11 +62,6 @@ void DonateMenu(int client, int iMoney, float flCommision)
 	if (iMoney < iBet)
 	{
 		iMoney = iBet;
-	}
-
-	if (!IsPlayerExist(client, false))
-	{
-		return;
 	}
 
 	static char sBuffer[NORMAL_LINE_LENGTH]; 
@@ -151,6 +149,11 @@ public int DonateMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray("zdonate");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
@@ -199,7 +202,6 @@ public int DonateMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 						}
 						
 						AccountSetClientCash(client, gClientData[client].Money - iMoney);
-						
 						AccountSetClientCash(target, gClientData[target].Money + iAmount);
 						
 						if (gCvarList.MESSAGES_DONATE.BoolValue)

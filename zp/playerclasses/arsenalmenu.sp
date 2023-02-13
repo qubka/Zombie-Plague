@@ -42,7 +42,7 @@ void ArsenalMenuOnCommandInit()
  **/ 
 public Action ArsenalMenuOnCommandCatched(int client, int iArguments)
 {
-	if (gCvarList.ARSENAL.BoolValue && !gCvarList.ARSENAL_RANDOM_WEAPONS.BoolValue)
+	if (IsPlayerExist(client) && gCvarList.ARSENAL.BoolValue && !gCvarList.ARSENAL_RANDOM_WEAPONS.BoolValue)
 	{
 		ArsenalOpen(client, gClientData[client].CurrentMenu);
 	}
@@ -57,11 +57,6 @@ public Action ArsenalMenuOnCommandCatched(int client, int iArguments)
  **/
 void ArsenalMenu(int client, int mSection)
 {
-	if (!IsPlayerExist(client))
-	{
-		return;
-	}
-	
 	bool bDisabled = gClientData[client].BlockMenu || gClientData[client].Zombie || gClientData[client].Custom;
 
 	static char sBuffer[NORMAL_LINE_LENGTH]; 
@@ -234,7 +229,6 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 					{
 						return 0;
 					}
-
 
 					ArsenalGiveAdds(client);
 					

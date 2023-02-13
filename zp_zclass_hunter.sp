@@ -122,7 +122,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		float flDuration = ZP_GetClassSkillDuration(gZombie);
 		
-		UTIL_CreateFadeScreen(client, 0.3, flDuration, FFADE_IN, {200, 60, 60, 50});  
+		UTIL_CreateFadeScreen(client, 0.3, flDuration, FFADE_IN, {200, 60, 60, 75});  
 		
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));

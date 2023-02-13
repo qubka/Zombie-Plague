@@ -28,17 +28,17 @@
 /**
  * @section Number of valid slots.
  **/
-enum SlotType
+enum /*SlotIndex*/
 { 
-	SlotType_Invalid = -1,        /** Used as return value when a slot doens't exist. */
+	SlotIndex_Invalid = -1,       /** Used as return value when a slot doens't exist. */
 	
-	SlotType_Primary,             /** Primary slot */
-	SlotType_Secondary,           /** Secondary slot */
-	SlotType_Melee,               /** Melee slot */
-	SlotType_Equipment,           /** Equipment slot */  
-	SlotType_C4,                  /** C4 slot */ 
+	SlotIndex_Primary,            /** Primary slot */
+	SlotIndex_Secondary,          /** Secondary slot */
+	SlotIndex_Melee,              /** Melee slot */
+	SlotIndex_Equipment,          /** Equipment slot */  
+	SlotIndex_C4,                 /** C4 slot */ 
 
-	SlotType_Max = 16			  /** Used as validation value to check that offset is broken. */	
+	SlotIndex_Max = 16			  /** Used as validation value to check that offset is broken. */	
 };
 /**
  * @endsection
@@ -60,6 +60,7 @@ enum ModelType
  * @endsection
  **/
  
+
 /**
  * Variables to store SDK calls handlers.
  **/
@@ -72,7 +73,12 @@ Handle hSDKCallGetSlot;
 /**
  * Variables to store virtual SDK adresses.
  **/
-int Player_ViewModel;
+Address pItemSchema;
+
+/**
+ * Variables to store dynamic SDK offsets.
+ **/
+int Player_hViewModel;
 int ItemDef_Index;
 
 /**
@@ -127,6 +133,10 @@ void WeaponMODOnInit()
 			return;
 		}
 	}
+		
+	/*_________________________________________________________________________________________________________________________________________*/
+
+	
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
@@ -184,8 +194,10 @@ void WeaponMODOnInit()
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 
-	fnInitSendPropOffset(Player_ViewModel, "CBasePlayer", "m_hViewModel");
+	pItemSchema = (gServerData.Platform == OS_Linux) ? view_as<Address>(SDKCall(hSDKCallGetItemSchema)) : view_as<Address>(SDKCall(hSDKCallGetItemSchema) + 4);
+
 	fnInitGameConfOffset(gServerData.Config, ItemDef_Index, "CEconItemDefinition::GetDefinitionIndex");
+	fnInitSendPropOffset(Player_hViewModel, "CBasePlayer", "m_hViewModel");
 	
 	fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
 	fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
@@ -462,6 +474,10 @@ void WeaponMODOnEntityCreated(int weapon, const char[] sClassname)
 	}
 }
 
+/*
+ * Weapons spawn functions.
+ */
+
 /**
  * Hook: ItemSpawnPost
  * @brief Item is spawned.
@@ -550,8 +566,16 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 public void WeaponMODOnInfernoSpawn(int entity)
 {
 	int client = ToolsGetOwner(entity);
-
-	ToolsSetCustomID(entity, IsPlayerExist(client, false) ? gClientData[client].LastGrenade : -1);
+	
+	int iD = -1;
+	
+	if (IsPlayerExist(client, false))
+	{
+		iD = gClientData[client].LastGrenade;
+		gClientData[client].LastGrenade = -1;
+	}
+	
+	ToolsSetCustomID(entity, iD);
 }
 
 /**
@@ -562,9 +586,40 @@ public void WeaponMODOnInfernoSpawn(int entity)
  **/
 public void WeaponMODOnGrenadeSpawn(int grenade)
 {
-	ToolsSetCustomID(grenade, -1);
+	if (GetEntProp(grenade, Prop_Data, "m_nNextThinkTick") == -1)
+	{
+		return;
+	}
+
+	int client = ToolsGetOwner(grenade);
 	
-	_exec.WeaponMODOnGrenadeSpawnPost(grenade);
+	if (IsPlayerExist(client, false)) 
+	{
+		int weapon = ToolsGetActiveWeapon(client);
+	
+		if (weapon != -1)
+		{
+			int iD = ToolsGetCustomID(weapon);
+			if (iD != -1)
+			{
+				ToolsSetCustomID(grenade, iD);
+
+				ItemDef iItem = WeaponsGetDefIndex(iD);
+				if (IsFireble(iItem))
+				{
+					gClientData[client].LastGrenade = iD;
+				}
+				
+				gForwardData._OnGrenadeCreated(client, grenade, iD);
+				
+				_exec.WeaponMODOnGrenadeSpawnPost(grenade);
+				
+				return;
+			}
+		}
+	}
+	
+	ToolsSetCustomID(grenade, -1);
 }
 
 /**
@@ -579,46 +634,18 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
 
 	if (grenade != -1)
 	{
-		/*if (GetEntProp(grenade, Prop_Data, "m_nNextThinkTick") == -1)
-		{
-			return;
-		}*/
-		
-		int client = GetEntPropEnt(grenade, Prop_Data, "m_hThrower");
-		
-		if (!IsPlayerExist(client)) 
-		{
-			return;
-		}
-		
-		SetEntProp(grenade, Prop_Data, "m_iTeamNum", gClientData[client].Zombie ? TEAM_ZOMBIE : TEAM_HUMAN);
-		SetEntProp(grenade, Prop_Data, "m_iInitialTeamNum", ToolsGetTeam(client));
-		
-		int weapon = ToolsGetActiveWeapon(client);
-		
-		if (weapon == -1)
-		{
-			return;
-		}
-
-		int iD = ToolsGetCustomID(weapon);
+		int iD = ToolsGetCustomID(grenade);
 		if (iD != -1)
 		{
-			ToolsSetCustomID(grenade, iD);
-
-			ItemDef iItem = WeaponsGetDefIndex(iD);
-			if (IsGrenade(iItem))
-			{
-				WeaponHDRSetDroppedModel(grenade, iD, ModelType_Projectile);
-			}
-			
-			gClientData[client].LastGrenade = IsFireble(iItem) ? iD : -1;
-			
-			gForwardData._OnGrenadeCreated(client, grenade, iD);
+			WeaponHDRSetDroppedModel(grenade, iD, ModelType_Projectile);
 		}
 	}
 }
 
+/*
+ * Weapons reload functions.
+ */
+ 
 /**
  * Hook: WeaponReloadPost
  * @brief Weapon is reloaded.
@@ -671,6 +698,10 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 	}
 }
 
+/*
+ * Weapons drop functions.
+ */
+ 
 /**
  * Hook: WeaponDrop
  * @brief Player drop any weapon.
@@ -696,8 +727,16 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
 				
 				return Plugin_Handled;
 			}
+			
+			gForwardData._OnWeaponDrop(weapon, iD);
 
 			_exec.WeaponMODOnWeaponDropPost(weapon);
+		}
+		
+		float flRemoval = gCvarList.WEAPONS_REMOVE_DROPPED.FloatValue;
+		if (flRemoval > 0.0)
+		{
+			CreateTimer(flRemoval, WeaponMODOnWeaponRemove, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	
@@ -718,16 +757,8 @@ public void WeaponMODOnWeaponDropPost(int refID)
 	{
 		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
-		{
+		{	
 			WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
-
-			gForwardData._OnWeaponDrop(weapon, iD);
-		}
-		
-		float flRemoval = gCvarList.WEAPONS_REMOVE_DROPPED.FloatValue;
-		if (flRemoval > 0.0)
-		{
-			CreateTimer(flRemoval, WeaponMODOnWeaponRemove, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 }
@@ -755,6 +786,10 @@ public Action WeaponMODOnWeaponRemove(Handle hTimer, int refID)
 	return Plugin_Stop;
 }
 
+/*
+ * Weapons use functions.
+ */
+
 /**
  * Hook: WeaponCanUse
  * @brief Player pick-up any weapon.
@@ -774,6 +809,44 @@ public Action WeaponMODOnCanUse(int client, int weapon)
 	
 	return Plugin_Continue;
 }
+
+/**
+ * @brief Weapon has been used.
+ *
+ * @param client            The client index.
+ **/
+void WeaponMODOnUse(int client)
+{
+	int entity = GetClientAimTarget(client, false);
+	
+	if (entity != -1)
+	{
+		static char sClassname[SMALL_LINE_LENGTH];
+		GetEdictClassname(entity, sClassname, sizeof(sClassname));
+
+		if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && // weapon_
+		  (sClassname[7] == 'k' || // knife
+		  (sClassname[7] == 'm' && sClassname[8] == 'e') ||  // melee
+		  (sClassname[7] == 'f' && sClassname[9] == 's'))) // fists
+		{
+			if (!WeaponsCanUse(client, entity))
+			{
+				return;
+			}
+			
+			if (UTIL_GetDistanceBetween(client, entity) > gCvarList.WEAPONS_PICKUP_RANGE.FloatValue) 
+			{
+				return;
+			}
+			
+			WeaponsEquip(client, entity, -1); /// id not used
+		}
+	}
+}
+
+/*
+ * Weapons update functions.
+ */
 
 /**
  * @brief Client has been changed class state. *(Post)
@@ -842,6 +915,10 @@ void WeaponMODOnClientDeath(int client)
 	gClientData[client].ViewModels[1] = -1;
 	gClientData[client].CustomWeapon = -1; 
 }
+
+/*
+ * Weapons switch functions.
+ */
 
 /**
  * Hook: WeaponSwitch
@@ -966,6 +1043,10 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 	gClientData[client].RunCmd = true;
 }
 
+/*
+ * Weapons think functions.
+ */
+
 /**
  * Hook: PostThinkPost
  * @brief Player hold any weapon.
@@ -1035,6 +1116,10 @@ public void WeaponMODOnPostThinkPost(int client)
 	WeaponHDRSetLastSequenceParity(view1, sequenceParity);
 }
 
+/*
+ * Weapons equip functions.
+ */
+
 /**
  * Hook: WeaponEquipPost
  * @brief Player equiped by any weapon.
@@ -1057,6 +1142,10 @@ public void WeaponMODOnEquipPost(int client, int weapon)
 		}
 	}
 }
+
+/*
+ * Weapons attack functions.
+ */
 
 /**
  * @brief Weapon has been fired.
@@ -1085,6 +1174,21 @@ void WeaponMODOnFire(int client, int weapon)
 		
 		if (WeaponsGetAmmoType(weapon) != -1) 
 		{
+			int iAmmo = ClassGetAmmunition(gClientData[client].Class);
+			if (iAmmo)
+			{
+				ItemDef iItem = WeaponsGetDefIndex(iD);
+				if (iItem != ItemDef_Taser)
+				{
+					switch (iAmmo)
+					{
+						case 1 : { WeaponsSetReserveAmmo(weapon, WeaponsGetMaxReserveAmmo(weapon)); }
+						case 2 : { WeaponsSetClipAmmo(weapon, WeaponsGetMaxClipAmmo(weapon)); } 
+						default : { /* < empty statement > */ }
+					}
+				}
+			}
+			
 			if (WeaponsGetModelViewID(iD))
 			{
 				int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
@@ -1148,45 +1252,6 @@ void WeaponMODOnBullet(int client, float vBullet[3], int weapon)
 }
 
 /**
- * @brief Weapon is holding.
- *
- * @param client            The client index.
- * @param iButtons          The button buffer.
- * @param iLastButtons      The last button buffer.
- * @param weapon            The weapon index.
- **/
-Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon)
-{
-	static int iD; iD = ToolsGetCustomID(weapon); /** static for runcmd **/
-	if (iD != -1)    
-	{
-		if (iButtons & IN_ATTACK || iButtons & IN_ATTACK2)
-		{
-			static int iAmmo; iAmmo = ClassGetAmmunition(gClientData[client].Class);
-			if (iAmmo && WeaponsGetAmmoType(weapon) != -1) /// If weapon without any type of ammo, then skip
-			{
-				ItemDef iItem = WeaponsGetDefIndex(iD);
-				if (iItem != ItemDef_Taser)
-				{
-					switch (iAmmo)
-					{
-						case 1 : { WeaponsSetReserveAmmo(weapon, WeaponsGetMaxReserveAmmo(weapon)); }
-						case 2 : { WeaponsSetClipAmmo(weapon, WeaponsGetMaxClipAmmo(weapon)); } 
-						default : { /* < empty statement > */ }
-					}
-				}
-			}
-		}
-		
-		Action hResult;
-		gForwardData._OnWeaponRunCmd(client, iButtons, iLastButtons, weapon, iD, hResult);
-		return hResult;
-	}
-	
-	return Plugin_Continue;
-}
-
-/**
  * @brief Weapon has been shoot.
  *
  * @param client            The client index.
@@ -1205,39 +1270,34 @@ Action WeaponMODOnShoot(int client, int weapon)
 	return Plugin_Continue;
 }
 
+/*
+ * Weapons cmd functions.
+ */
+
 /**
- * @brief Weapon has been used.
+ * @brief Weapon is holding.
  *
  * @param client            The client index.
+ * @param iButtons          The button buffer.
+ * @param iLastButtons      The last button buffer.
+ * @param weapon            The weapon index.
  **/
-void WeaponMODOnUse(int client)
+Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon)
 {
-	int entity = GetClientAimTarget(client, false);
-	
-	if (entity != -1)
+	static int iD; iD = ToolsGetCustomID(weapon); /** static for runcmd **/
+	if (iD != -1)    
 	{
-		static char sClassname[SMALL_LINE_LENGTH];
-		GetEdictClassname(entity, sClassname, sizeof(sClassname));
-
-		if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && // weapon_
-		  (sClassname[7] == 'k' || // knife
-		  (sClassname[7] == 'm' && sClassname[8] == 'e') ||  // melee
-		  (sClassname[7] == 'f' && sClassname[9] == 's'))) // fists
-		{
-			if (!WeaponsCanUse(client, entity))
-			{
-				return;
-			}
-			
-			if (UTIL_GetDistanceBetween(client, entity) > gCvarList.WEAPONS_PICKUP_RANGE.FloatValue) 
-			{
-				return;
-			}
-			
-			WeaponsEquip(client, entity, -1); /// id not used
-		}
+		Action hResult;
+		gForwardData._OnWeaponRunCmd(client, iButtons, iLastButtons, weapon, iD, hResult);
+		return hResult;
 	}
+	
+	return Plugin_Continue;
 }
+
+/*
+ * Weapons hostage functions.
+ */
 
 /**
  * @brief Weapon has been switch by hostage.
@@ -1276,6 +1336,10 @@ public void WeaponMODOnHostagePost(int userID)
 		}
 	}
 }
+
+/*
+ * Weapons command functions.
+ */
 
 /**
  * Listener command callback (buyammo1, buyammo2)
@@ -1386,9 +1450,9 @@ public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int 
 					
 					if (WeaponsGive(client, gServerData.Melee) == -1)
 					{
-						for (SlotType i = SlotType_Primary; i <= SlotType_C4; i++)
+						for (int i = SlotIndex_Primary; i <= SlotIndex_C4; i++)
 						{
-							weapon = GetPlayerWeaponSlot(client, view_as<int>(i));
+							weapon = GetPlayerWeaponSlot(client, i);
 							
 							if (weapon != -1) 
 							{
@@ -1419,6 +1483,10 @@ public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int 
 	
 	return Plugin_Continue;
 }
+
+/*
+ * Weapons dhooks functions.
+ */
 
 /**
  * DHook: Sets a weapon clip when its spawned, picked, dropped or reloaded.

@@ -35,6 +35,7 @@ enum
 	MENUS_DATA_GROUP_FLAGS,
 	MENUS_DATA_TYPES,
 	MENUS_DATA_HIDE,
+	MENUS_DATA_SPACE,
 	MENUS_DATA_COMMAND,
 	MENUS_DATA_SUBMENU
 };
@@ -122,18 +123,19 @@ void MenusOnCacheData()
 		ArrayList arrayMenu = gServerData.Menus.Get(i);
 
 		kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
-		arrayMenu.PushString(sBuffer);                                // Index: 1
-		arrayMenu.Push(ConfigGetAdmFlags(sBuffer));                   // Index: 2
-		kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");  
-		arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: 3
-		arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: 4
+		arrayMenu.PushString(sBuffer);                                  // Index: 1
+		arrayMenu.Push(ConfigGetAdmFlags(sBuffer));                     // Index: 2
+		kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");       
+		arrayMenu.Push(ClassTypeToIndex(sBuffer));                      // Index: 3
+		arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no"));   // Index: 4
+		arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "space", "off")); // Index: 5
 		kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
-		arrayMenu.PushString(sBuffer);                                // Index: 5
+		arrayMenu.PushString(sBuffer);                                  // Index: 6
 		if (hasLength(sBuffer)) 
 		{
 			AddCommandListener(MenusOnCommandListenedCommand, sBuffer);
 		}
-		else if (kvMenus.JumpToKey("submenu"))                        // Index: 6
+		else if (kvMenus.JumpToKey("submenu"))                          // Index: 7
 		{
 			if (kvMenus.GotoFirstSubKey())
 			{
@@ -147,15 +149,16 @@ void MenusOnCacheData()
 						continue;
 					}
 
-					arrayMenu.PushString(sBuffer);                                // Index: i + 0
-					kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
-					arrayMenu.PushString(sBuffer);                                // Index: i + 1
-					arrayMenu.Push(ConfigGetAdmFlags(sBuffer));                   // Index: i + 2
-					kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");  
-					arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: i + 3
-					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: i + 4
+					arrayMenu.PushString(sBuffer);                                  // Index: i + 0
+					kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");       
+					arrayMenu.PushString(sBuffer);                                  // Index: i + 1
+					arrayMenu.Push(ConfigGetAdmFlags(sBuffer));                     // Index: i + 2
+					kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");       
+					arrayMenu.Push(ClassTypeToIndex(sBuffer));                      // Index: i + 3
+					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no"));   // Index: i + 4
+					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "space", "off")); // Index: i + 5
 					kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
-					arrayMenu.PushString(sBuffer);                                // Index: i + 5
+					arrayMenu.PushString(sBuffer);                                  // Index: i + 6
 					if (hasLength(sBuffer)) 
 					{
 						AddCommandListener(MenusOnCommandListenedCommand, sBuffer);
@@ -287,6 +290,7 @@ void MenusOnNativeInit()
 	CreateNative("ZP_GetMenuGroupFlags", API_GetMenuGroupFlags);
 	CreateNative("ZP_GetMenuTypes",      API_GetMenuTypes);
 	CreateNative("ZP_IsMenuHide",        API_IsMenuHide);
+	CreateNative("ZP_IsMenuSpace",       API_IsMenuSpace);
 	CreateNative("ZP_GetMenuCommandID",  API_GetMenuCommandID);
 	CreateNative("ZP_GetMenuCommand",    API_GetMenuCommand);
 	CreateNative("ZP_OpenMenuSub",       API_OpenMenuSub);
@@ -397,7 +401,7 @@ public int API_GetMenuTypes(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the menu value of the menu.
+ * @brief Gets the hide value of the menu.
  *
  * @note native bool ZP_IsMenuHide(iD, sub);
  **/
@@ -412,6 +416,24 @@ public int API_IsMenuHide(Handle hPlugin, int iNumParams)
 	}
 	
 	return MenusIsHide(iD, GetNativeCell(2));
+}
+
+/**
+ * @brief Gets the space value of the menu.
+ *
+ * @note native bool ZP_IsMenuSpace, sub);
+ **/
+public int API_IsMenuSpace(Handle hPlugin, int iNumParams)
+{    
+	int iD = GetNativeCell(1);
+	
+	if (iD >= gServerData.Menus.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		return -1;
+	}
+	
+	return MenusIsSpace(iD, GetNativeCell(2));
 }
 
 /**
@@ -571,6 +593,20 @@ bool MenusIsHide(int iD, int iSubMenu = 0)
 	ArrayList arrayMenu = gServerData.Menus.Get(iD);
 	
 	return arrayMenu.Get(MENUS_DATA_HIDE + iSubMenu);
+}
+
+/**
+ * @brief Retrieve menu space value.
+ * 
+ * @param iD                The menu index.
+ * @param iSubMenu          (Optional) The submenu index.
+ * @return                  True if menu has space, false if not.
+ **/
+bool MenusIsSpace(int iD, int iSubMenu = 0)
+{
+	ArrayList arrayMenu = gServerData.Menus.Get(iD);
+	
+	return arrayMenu.Get(MENUS_DATA_SPACE + iSubMenu);
 }
 
 /**

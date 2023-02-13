@@ -42,7 +42,10 @@ void CostumesMenuOnCommandInit()
  **/ 
 public Action CostumesMenuOnCommandCatched(int client, int iArguments)
 {
-	CostumesMenu(client);
+	if (IsPlayerExist(client, false) && gCvarList.COSTUMES.BoolValue)
+	{
+		CostumesMenu(client);
+	}
 	return Plugin_Handled;
 }
 
@@ -57,16 +60,6 @@ public Action CostumesMenuOnCommandCatched(int client, int iArguments)
  **/
 void CostumesMenu(int client)
 {
-	if (!gCvarList.COSTUMES.BoolValue)
-	{
-		return;
-	}
-	
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
@@ -156,6 +149,11 @@ public int CostumesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray("zcostume");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}

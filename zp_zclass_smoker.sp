@@ -155,7 +155,7 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
 				continue;
 			}
 			
-			UTIL_CreateFadeScreen(client, 0.1, 0.2, FFADE_IN, {38, 87, 16, 50});  
+			UTIL_CreateFadeScreen(client, 0.1, 0.2, FFADE_IN, {38, 87, 16, 75});  
 
 			ZP_TakeDamage(i, owner, owner, flDamage, DMG_NERVEGAS);
 		}

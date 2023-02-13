@@ -49,7 +49,10 @@ void ClassMenuOnCommandInit()
  **/ 
 public Action ClassHumanOnCommandCatched(int client, int iArguments)
 {
-	ClassMenu(client, "choose humanclass", gServerData.Human, gClientData[client].HumanClassNext);
+	if (IsPlayerExist(client, false))
+	{
+		ClassMenu(client, "choose humanclass", gServerData.Human, gClientData[client].HumanClassNext);
+	}
 	return Plugin_Handled;
 }
 
@@ -62,7 +65,10 @@ public Action ClassHumanOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ClassZombieOnCommandCatched(int client, int iArguments)
 {
-	ClassMenu(client, "choose zombieclass", gServerData.Zombie, gClientData[client].ZombieClassNext);
+	if (IsPlayerExist(client, false))
+	{
+		ClassMenu(client, "choose zombieclass", gServerData.Zombie, gClientData[client].ZombieClassNext);
+	}
 	return Plugin_Handled;
 }
 
@@ -75,7 +81,10 @@ public Action ClassZombieOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ClassMenuOnCommandCatched(int client, int iArguments)
 {
-	ClassesMenu(client);
+	if (IsPlayerExist(client, false))
+	{
+		ClassesMenu(client);
+	}
 	return Plugin_Handled;
 }
 
@@ -153,15 +162,17 @@ int ClassValidateIndex(int client, int iType)
 		gClientData[client].Class = iD;
 	}
 	
-	static char sGroup[SMALL_LINE_LENGTH];
-	ClassGetGroup(gClientData[client].Class, sGroup, sizeof(sGroup));
+	int iFlags = GetUserFlagBits(client);
+	
+	int iGroup = ClassGetGroupFlags(gClientData[client].Class);
 
-	if ((hasLength(sGroup) && !IsPlayerInGroup(client, sGroup)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || ClassGetType(gClientData[client].Class) != iType)
+	if ((iGroup && !(iGroup & iFlags)) || ClassGetLevel(gClientData[client].Class) > gClientData[client].Level || ClassGetType(gClientData[client].Class) != iType)
 	{
 		for (int i = 0; i < iSize; i++)
 		{
-			ClassGetGroup(i, sGroup, sizeof(sGroup));
-			if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup))
+			iGroup = ClassGetGroupFlags(i);
+			
+			if (iGroup && !(iGroup & iFlags))
 			{
 				continue;
 			}
@@ -199,11 +210,6 @@ int ClassValidateIndex(int client, int iType)
  **/
 void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant = false) 
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
@@ -351,6 +357,11 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray(sCommand);
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
@@ -358,7 +369,7 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsPlayerExist(client, bInstant))
 			{
 				return 0;
 			}
@@ -426,11 +437,6 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
  **/
 void ClassesMenu(int client) 
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
 	if (!gServerData.RoundStart)
 	{
 		TranslationPrintHintText(client, "block classes round"); 
@@ -500,6 +506,11 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray("zp_class_menu");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
@@ -612,6 +623,11 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+			
 				ClassesMenu(client);
 			}
 		}

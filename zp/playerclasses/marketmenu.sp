@@ -43,7 +43,7 @@ void MarketMenuOnCommandInit()
  **/ 
 public Action MarketMenuFavorOnCommandCatched(int client, int iArguments)
 {
-	if (gCvarList.MARKET.BoolValue && gCvarList.MARKET_FAVORITES.BoolValue)
+	if (IsPlayerExist(client, false) && gCvarList.MARKET.BoolValue && gCvarList.MARKET_FAVORITES.BoolValue)
 	{
 		MarketEditMenu(client);
 	}
@@ -59,7 +59,7 @@ public Action MarketMenuFavorOnCommandCatched(int client, int iArguments)
  **/ 
 public Action MarketMenuBuyOnCommandCatched(int client, int iArguments)
 {
-	if (gCvarList.MARKET.BoolValue)
+	if (IsPlayerExist(client, false) && gCvarList.MARKET.BoolValue)
 	{
 		MarketMenu(client);
 	}
@@ -78,15 +78,10 @@ public Action MarketMenuBuyOnCommandCatched(int client, int iArguments)
  **/
 void MarketMenu(int client)
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 	
-	if (MarketIsBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
+	if (IsPlayerAlive(client) && MarketIsBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
 	{
 		int iD = gServerData.Sections.Length - 1;
 		
@@ -150,6 +145,11 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray("zmarket");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
@@ -175,7 +175,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 				
 				default :
 				{
-					if (MarketIsBuyTimeExpired(client, iD))
+					if (!IsPlayerAlive(client) || MarketIsBuyTimeExpired(client, iD))
 					{
 						TranslationPrintHintText(client, "block buying round");
 				
@@ -378,6 +378,11 @@ public int MarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int m
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+
 				if (MarketIsBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
 				{
 					int iD[2]; iD = MenusCommandToArray("zmarket");
@@ -531,6 +536,11 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+					
 				MarketMenu(client);
 			}
 		}
@@ -620,11 +630,6 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
  **/
 void MarketEditMenu(int client)
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
 	static char sBuffer[NORMAL_LINE_LENGTH]; 
 	static char sType[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
@@ -684,6 +689,11 @@ public int MarketEditMenuSlots(Menu hMenu, MenuAction mAction, int client, int m
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+					
 				MarketMenu(client);
 			}
 		}

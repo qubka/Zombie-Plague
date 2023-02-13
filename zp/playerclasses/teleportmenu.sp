@@ -42,7 +42,10 @@ void TeleportMenuOnCommandInit()
  **/ 
 public Action TeleportMenuOnCommandCatched(int client, int iArguments)
 {
-	TeleportMenu(client);
+	if (IsPlayerExist(client, false))
+	{
+		TeleportMenu(client);
+	}
 	return Plugin_Handled;
 }
 
@@ -53,11 +56,6 @@ public Action TeleportMenuOnCommandCatched(int client, int iArguments)
  **/
 void TeleportMenu(int client) 
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-	
 	static char sBuffer[NORMAL_LINE_LENGTH]; 
 	static char sInfo[SMALL_LINE_LENGTH];
 	
@@ -116,6 +114,11 @@ public int TeleportMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray("zp_ztele_menu");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
@@ -137,7 +140,7 @@ public int TeleportMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 				GetClientName(target, sBuffer, sizeof(sBuffer));
 				
 				bool bSuccess = TeleportClient(target, true);
-				
+
 				if (bSuccess)
 				{
 					TranslationPrintToChat(client, "teleport command force successful", sBuffer);

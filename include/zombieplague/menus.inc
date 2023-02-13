@@ -110,6 +110,16 @@ native int ZP_GetMenuTypes(int menuID, int iSub = 0);
 native bool ZP_IsMenuHide(int menuID, int iSub = 0);
 
 /**
+ * @brief Gets the space value of the menu.
+ *
+ * @param menuID            The menu index.
+ * @param iSub              (Optional) The submenu index.
+ *
+ * @return                  True if menu has space, false if not.
+ **/
+native bool ZP_IsMenuSpace(int menuID, int iSub = 0);
+
+/**
  * @brief Gets the array of a menu at a given command.
  *
  * @param command           The menu command.

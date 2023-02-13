@@ -111,6 +111,11 @@ void MainMenu(int client)
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
 		}
 		
+		if (MenusIsSpace(i))
+		{
+			StrCat(sBuffer, sizeof(sBuffer), "\n \n");
+		}
+		
 		IntToString(i, sInfo, sizeof(sInfo));
 		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(!bHidden && hResult != Plugin_Handled));
 	
@@ -190,11 +195,6 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
  **/
 void SubMenu(int client, int iD)
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-	
 	ArrayList arrayMenu = gServerData.Menus.Get(iD);
 
 	int iSize = arrayMenu.Length;
@@ -249,6 +249,11 @@ void SubMenu(int client, int iD)
 		else
 		{
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		}
+		
+		if (MenusIsSpace(iD, i))
+		{
+			StrCat(sBuffer, sizeof(sBuffer), "\n \n");
 		}
 
 		FormatEx(sInfo, sizeof(sInfo), "%d %d", iD, i);

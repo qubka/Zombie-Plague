@@ -42,7 +42,10 @@ void ConfigMenuOnCommandInit()
  **/ 
 public Action ConfigMenuOnCommandCatched(int client, int iArguments)
 {
-	ConfigMenu(client);
+	if (IsPlayerExist(client, false))
+	{
+		ConfigMenu(client);
+	}
 	return Plugin_Handled;
 }
 
@@ -53,11 +56,6 @@ public Action ConfigMenuOnCommandCatched(int client, int iArguments)
  **/
 void ConfigMenu(int client) 
 {
-	if (!IsPlayerExist(client, false))
-	{
-		return;
-	}
-
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 
@@ -110,6 +108,11 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
+				if (!IsPlayerExist(client, false))
+				{
+					return 0;
+				}
+				
 				int iD[2]; iD = MenusCommandToArray("zp_config_menu");
 				if (iD[0] != -1) SubMenu(client, iD[0]);
 			}
@@ -129,7 +132,7 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 			ConfigGetConfigAlias(iD, sBuffer, sizeof(sBuffer));
 			
 			bool bSuccessful = ConfigReloadConfig(iD);
-			
+
 			if (bSuccessful)
 			{
 				TranslationPrintToChat(client, "config reload finish", sBuffer);
