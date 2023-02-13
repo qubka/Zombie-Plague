@@ -165,7 +165,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 		return;
 	}
 	
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_IDLE2_1, ANIM_IDLE2_2});
+	ZP_SetViewAnimation(client, { ANIM_IDLE2_1, ANIM_IDLE2_2});
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE2_TIME);
 }
@@ -252,7 +252,7 @@ bool Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	 
 	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT2_1, ANIM_SHOOT2_2});
+	ZP_SetViewAnimation(client, { ANIM_SHOOT2_1, ANIM_SHOOT2_2});
 	
 	Weapon_OnCreateExplosion(client, weapon);
 	

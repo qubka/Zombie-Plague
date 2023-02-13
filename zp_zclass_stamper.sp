@@ -139,46 +139,40 @@ public Action ZP_OnClientSkillUsed(int client)
 	if (ZP_GetClientClass(client) == gZombie)
 	{
 		static float vPosition[3]; static float vAngle[3];
-
+		
+		//static const float vMins[3] = { -3.077446, -9.829969, -37.660713 }; 
+		//static const float vMaxs[3] = { 11.564661, 20.737569, 38.451633  }; 
+		
 		GetClientEyeAngles(client, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
-		GetOriginDistance(client, vAngle, 40.0, 0.0, 0.0, vPosition);
-		
-		static const float vMins[3] = { -3.077446, -9.829969, -37.660713 }; 
-		static const float vMaxs[3] = { 11.564661, 20.737569, 38.451633  }; 
-		
-		vPosition[2] += vMaxs[2] / 2.0; /// Move center of hull upward
-		TR_TraceHull(vPosition, vPosition, vMins, vMaxs, MASK_SOLID);
-		
-		if (!TR_DidHit())
+		GetOriginDistance(client, vAngle, 40.0, 0.0, 38.451633, vPosition);
+
+		int entity = UTIL_CreatePhysics("coffin", vPosition, vAngle, "models/player/custom_player/zombie/zombiepile/zombiepile.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+
+		if (entity != -1)
 		{
-			int entity = UTIL_CreatePhysics("coffin", vPosition, vAngle, "models/player/custom_player/zombie/zombiepile/zombiepile.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+			SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
+			SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
+			
+			SetEntPropEnt(entity, Prop_Data, "m_pParent", client);
 
-			if (entity != -1)
+			int iHealth = hCvarSkillHealth.IntValue;
+			if (iHealth > 0)
 			{
-				SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
-				SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-				
-				SetEntPropEnt(entity, Prop_Data, "m_pParent", client);
+				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
+				SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
+				SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
 
-				int iHealth = hCvarSkillHealth.IntValue;
-				if (iHealth > 0)
-				{
-					SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
-					SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
-					SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
-
-					SDKHook(entity, SDKHook_OnTakeDamage, CoffinDamageHook);
-				}
-				
-				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
-				
-				TE_SetupBeamRingPoint(vPosition, 10.0, 200.0, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, {150, 150, 150, 200}, 0, 0);
-				TE_SendToAll();
-				
-				CreateTimer(ZP_GetClassSkillDuration(gZombie), CoffinExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-				CreateTimer(1.0, CoffinIdleHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-				CreateTimer(0.1, CoffinThinkHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+				SDKHook(entity, SDKHook_OnTakeDamage, CoffinDamageHook);
 			}
+			
+			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
+			
+			TE_SetupBeamRingPoint(vPosition, 10.0, 200.0, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, {150, 150, 150, 200}, 0, 0);
+			TE_SendToAll();
+			
+			CreateTimer(ZP_GetClassSkillDuration(gZombie), CoffinExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(1.0, CoffinIdleHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, CoffinThinkHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	
@@ -391,15 +385,11 @@ void GetOriginDistance(int entity, float vAngle[3], float flForward = 0.0, float
 bool IsEntityStuck(int entity, float vPosition[3])
 {
 	static float vCenter[3]; vCenter = vPosition;
+
+	static const float vMins[3] = { -1.0, -1.0, -15.0 }; 
+	static const float vMaxs[3] = { 1.0, 1.0, 15.0  }; 
 	
-	static float vMins[3]; static float vMaxs[3];
-	GetEntPropVector(entity, Prop_Data, "m_vecMins", vMins);
-	GetEntPropVector(entity, Prop_Data, "m_vecMaxs", vMaxs);
-	
-	vCenter[2] += vMaxs[2]; 
-	
-	ScaleVector(vMins, 0.90);
-	ScaleVector(vMaxs, 0.90);
+	vCenter[2] += 38.451633; 
 
 	TR_TraceHullFilter(vCenter, vCenter, vMins, vMaxs, MASK_SOLID, SelfFilter, entity);
 

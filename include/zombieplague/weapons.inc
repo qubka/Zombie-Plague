@@ -35,15 +35,15 @@
 /**
  * @section Number of valid slots.
  **/
-enum SlotType
+enum /*SlotIndex*/
 { 
-	SlotType_Invalid = -1,        /** Used as return value when a slot doens't exist. */
+	SlotIndex_Invalid = -1,       /** Used as return value when a slot doens't exist. */
 	
-	SlotType_Primary,             /** Primary slot */
-	SlotType_Secondary,           /** Secondary slot */
-	SlotType_Melee,               /** Melee slot */
-	SlotType_Equipment,           /** Equipment slot */  
-	SlotType_C4,                  /** C4 slot */  
+	SlotIndex_Primary,            /** Primary slot */
+	SlotIndex_Secondary,          /** Secondary slot */
+	SlotIndex_Melee,              /** Melee slot */
+	SlotIndex_Equipment,          /** Equipment slot */  
+	SlotIndex_C4,                 /** C4 slot */  
 };
 /**
  * @endsection
@@ -707,20 +707,18 @@ stock void ZP_SetWeaponAnimation(int client, int nSequence)
  * @brief Sets the weapon animating paired index. (Important for animations, which should played in the not-repeatable row, like an attack to avoid parity)
  *
  * @param client            The client index.
- * @param weapon            The weapon index.
  * @param nSequence         The sequence array.
  **/
-stock void ZP_SetWeaponAnimationPair(int client, int weapon, int nSequence[2])
+stock void ZP_SetViewAnimation(int client, int nSequence[2])
 {
 	int view = ZP_GetClientViewModel(client, false); /// Play anims on the original model 
 
 	if (view != -1)
 	{
-		bool bPrevAnim = view_as<bool>(GetEntProp(weapon, Prop_Send, "m_bSilencerOn"));
+		int toggle = !GetEntProp(view, Prop_Data, "m_bIsAutoaimTarget");
 		
-		SetEntProp(view, Prop_Send, "m_nSequence", nSequence[bPrevAnim ? 0 : 1]);
-		
-		SetEntProp(weapon, Prop_Send, "m_bSilencerOn", !bPrevAnim);
+		SetEntProp(view, Prop_Send, "m_nSequence", nSequence[toggle]);
+		SetEntProp(view, Prop_Data, "m_bIsAutoaimTarget", toggle);
 	}
 }
 
@@ -762,9 +760,9 @@ stock int ZP_GetPlayerWeapon(int client, char[] sType)
  * @param weapon            The weapon index.
  * @param slot              (Optional) The slot index to replace.
  **/
-stock void ZP_RemoveWeapon(int client, int weapon, SlotType slot = SlotType_Melee)
+stock void ZP_RemoveWeapon(int client, int weapon, int slot = SlotIndex_Melee)
 {
-	int weapon2 = GetPlayerWeaponSlot(client, view_as<int>(slot));
+	int weapon2 = GetPlayerWeaponSlot(client, slot);
 	
 	if (weapon2 != -1)
 	{

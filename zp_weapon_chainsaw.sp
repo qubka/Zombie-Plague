@@ -315,7 +315,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 		case STATE_ATTACK :
 		{
-			ZP_SetWeaponAnimationPair(client, weapon, { ANIM_ATTACK_LOOP1, ANIM_ATTACK_LOOP2 });   
+			ZP_SetViewAnimation(client, { ANIM_ATTACK_LOOP1, ANIM_ATTACK_LOOP2 });   
 			ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
 	
 			iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); if (!iClip)
@@ -388,13 +388,13 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 
 	if (!iClip)
 	{
-		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
+		ZP_SetViewAnimation(client, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
 		
 		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}
 	else
 	{
-		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });     
+		ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });     
 
 		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	}

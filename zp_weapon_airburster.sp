@@ -240,7 +240,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 	iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1_MAIN, ANIM_SHOOT2_MAIN });   
+	ZP_SetViewAnimation(client, { ANIM_SHOOT1_MAIN, ANIM_SHOOT2_MAIN });   
 
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 	ZP_EmitSoundToAll(gSoundAttack, 2, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
@@ -313,7 +313,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });
+	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });
 	
 	Weapon_OnCreateAirBurst(client, weapon);
 

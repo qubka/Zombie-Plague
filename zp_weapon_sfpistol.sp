@@ -228,7 +228,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		return;
 	}
 
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_ATTACK_LOOP1, ANIM_ATTACK_LOOP2 });   
+	ZP_SetViewAnimation(client, { ANIM_ATTACK_LOOP1, ANIM_ATTACK_LOOP2 });   
 	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
 	
 	SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ATTACK);

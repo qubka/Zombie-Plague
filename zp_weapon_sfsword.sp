@@ -238,7 +238,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 
 	if (iChangeMode)
 	{
-		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_OFF_SLASH1, ANIM_OFF_SLASH2 });
+		ZP_SetViewAnimation(client, { ANIM_OFF_SLASH1, ANIM_OFF_SLASH2 });
 
 		ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
 		

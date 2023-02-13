@@ -202,7 +202,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 		return;
 	}
 
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SLASH2, ANIM_SLASH3 });
+	ZP_SetViewAnimation(client, { ANIM_SLASH2, ANIM_SLASH3 });
 	ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
 	
 	delete hWeaponStab[client];

@@ -206,7 +206,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
  
 	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT_BSC1, ANIM_SHOOT_BSC2 });
+	ZP_SetViewAnimation(client, { ANIM_SHOOT_BSC1, ANIM_SHOOT_BSC2 });
 	
 	static float vPosition[5][3];
 

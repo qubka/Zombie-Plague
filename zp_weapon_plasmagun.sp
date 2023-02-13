@@ -255,7 +255,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
 	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
+	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });   
 	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
 	
 	Weapon_OnCreatePlasma(client, weapon);

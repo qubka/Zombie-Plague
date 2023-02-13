@@ -172,7 +172,7 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iReloadMod
 				return;
 			}
 
-			ZP_SetWeaponAnimationPair(client, weapon, { ANIM_INSERT1, ANIM_INSERT2 });
+			ZP_SetViewAnimation(client, { ANIM_INSERT1, ANIM_INSERT2 });
 			ZP_SetPlayerAnimation(client, AnimType_ReloadLoop);
 			
 			flCurrentTime += WEAPON_INSERT_TIME;
@@ -310,7 +310,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iR
 	
 	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
 	
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });
+	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });
 	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
 	
 	Weapon_OnCreateGrenade(client);

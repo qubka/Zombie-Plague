@@ -182,7 +182,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 		return;
 	}
 
-	ZP_SetWeaponAnimationPair(client, weapon, { ANIM_PUNCH_LEFT, ANIM_PUNCH_RIGHT });
+	ZP_SetViewAnimation(client, { ANIM_PUNCH_LEFT, ANIM_PUNCH_RIGHT });
 	ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
 	
 	delete hWeaponPunch[client];

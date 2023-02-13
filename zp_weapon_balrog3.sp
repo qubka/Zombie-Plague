@@ -236,7 +236,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		
 		iAmmo -= 1; SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 		
-		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1_M, ANIM_SHOOT2_M });
+		ZP_SetViewAnimation(client, { ANIM_SHOOT1_M, ANIM_SHOOT2_M });
 	}
 	else
 	{
@@ -244,7 +244,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 
 		iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		
-		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SHOOT1, ANIM_SHOOT2 });   
+		ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });   
 	}
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);

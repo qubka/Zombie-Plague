@@ -206,7 +206,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 	
 	if (!iChangeMode)
 	{
-		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_SLASH1, ANIM_SLASH2 });  
+		ZP_SetViewAnimation(client, { ANIM_SLASH1, ANIM_SLASH2 });  
 		
 		ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
 		
@@ -215,7 +215,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 	}
 	else
 	{
-		ZP_SetWeaponAnimationPair(client, weapon, { ANIM_STAB1, ANIM_STAB2 }); 
+		ZP_SetViewAnimation(client, { ANIM_STAB1, ANIM_STAB2 }); 
 		
 		ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
 		
