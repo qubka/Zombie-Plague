@@ -275,7 +275,7 @@ void Weapon_OnCreateBow(int client)
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/drillgun/w_drillgun_projectile.mdl");
+	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/cso/drillgun/w_drillgun_projectile.mdl");
 
 	if (entity != -1)
 	{

@@ -127,7 +127,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
-		int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
+		int entity = UTIL_CreateProjectile(vPosition, vAngle, _, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
 		if (entity != -1)
 		{

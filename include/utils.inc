@@ -703,19 +703,24 @@ stock int UTIL_CreateDynamic(char[] sClassname, float vPosition[3], float vAngle
  * 
  * @param vPosition         The position to the spawn.
  * @param vAngle            The angle to the spawn.
+ * @param weaponID          (Optional) The weapon index or -1 for unspecified.
  * @param sModel            (Optional) The model path.
  *
  * @return                  The entity index.                       
  **/
-stock int UTIL_CreateProjectile(float vPosition[3], float vAngle[3], char[] sModel = "")
+stock int UTIL_CreateProjectile(float vPosition[3], float vAngle[3], int weaponID = -1, char[] sModel = "")
 {
 	int entity = CreateEntityByName("hegrenade_projectile");
 
 	if (entity != -1)
 	{
+		SetEntProp(entity, Prop_Data, "m_iHammerID", weaponID);
+		SetEntProp(entity, Prop_Data, "m_nNextThinkTick", -1);
+	
 		DispatchSpawn(entity);
-		TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
 		
+		TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
+
 		if (hasLength(sModel)) SetEntityModel(entity, sModel);
 	}
 

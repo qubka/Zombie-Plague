@@ -204,12 +204,10 @@ public Action EntityOnPhysExp(Handle hTimer, int refID)
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
  
-		entity = UTIL_CreateProjectile(vPosition, NULL_VECTOR);
+		entity = UTIL_CreateProjectile(vPosition, NULL_VECTOR, gWeapon);
 		
 		if (entity != -1)
 		{
-			SetEntProp(entity, Prop_Data, "m_iHammerID", gWeapon);
-
 			UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, hCvarJumpDamage.FloatValue, hCvarJumpRadius.FloatValue, "jumpbomb", _, entity);
 
 			AcceptEntityInput(entity, "Kill");

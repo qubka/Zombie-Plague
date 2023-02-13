@@ -1208,7 +1208,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{
 		static char sBuffer[SMALL_LINE_LENGTH];
 	
-		int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
+		int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
 		if (entity != -1)
 		{
@@ -1249,8 +1249,6 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			}
 
 			SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01);
-			
-			SetEntProp(entity, Prop_Data, "m_iHammerID", gWeapon);
 
 			SDKHook(entity, SDKHook_Touch, RocketTouchHook);
 			
@@ -2307,7 +2305,7 @@ void SentryMenu(int client, int entity)
 
 	SetGlobalTransTarget(client);
 
-	hMenu.SetTitle("%t", "turret control", iUpgrade, "money", iRefill, "money");
+	hMenu.SetTitle("%t", "turret control", iUpgrade, "menu money", iRefill, "menu money");
 
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "turret level", sentry.UpgradeState + 1);
 	hMenu.AddItem(sInfo, sBuffer, GetDraw(ZP_GetClientMoney(client) < iUpgrade || sentry.UpgradeState >= SENTRY_MODE_ROCKET ? false : true));
@@ -2349,6 +2347,11 @@ public int SentryMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 
 		case MenuAction_Select :
 		{
+			if (!IsPlayerExist(client, false))
+			{
+				return 0;
+			}
+				
 			static char sBuffer[SMALL_LINE_LENGTH];
 			hMenu.GetItem(mSlot, sBuffer, sizeof(sBuffer));
 			int entity = StringToInt(sBuffer);

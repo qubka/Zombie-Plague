@@ -923,7 +923,7 @@ public Action JetBombHook(Handle hTimer, int refID)
 
 		ZP_GetAttachment(entity, "sound_maker", vPosition, vAngle); vAngle[0] += 180.0;
 		
-		entity = UTIL_CreateProjectile(vPosition, vAngle, "models/player/custom_player/zombie/bomb/bomb.mdl");
+		entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/player/custom_player/zombie/bomb/bomb.mdl");
 
 		if (entity != -1)
 		{

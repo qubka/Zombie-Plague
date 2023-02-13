@@ -349,7 +349,7 @@ void Weapon_OnCreateGrenade(int client)
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/m32/w_m32_projectile.mdl");
+	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/cso/m32/w_m32_projectile.mdl");
 
 	if (entity != -1)
 	{

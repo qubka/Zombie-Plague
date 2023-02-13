@@ -293,7 +293,7 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	int entity = UTIL_CreateProjectile(vPosition, vAngle);
+	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon);
 
 	if (entity != -1)
 	{

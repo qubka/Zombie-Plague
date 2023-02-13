@@ -278,7 +278,7 @@ void Weapon_OnCreateRocket(int client)
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	int entity = UTIL_CreateProjectile(vPosition, vAngle, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
+	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
 	if (entity != -1)
 	{

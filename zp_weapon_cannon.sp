@@ -232,7 +232,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	int entity = UTIL_CreateProjectile(vPosition, vAngle);
+	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon);
 
 	if (entity != -1)
 	{
