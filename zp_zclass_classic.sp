@@ -62,7 +62,7 @@ ConVar hCvarSkillEffect;
 public void OnPluginStart()
 {
 	hCvarSkillChance   = CreateConVar("zp_zclass_classic_chance", "20", "Smaller = more likely", 0, true, 0.0, true, 999.0);
-	hCvarSkillDuration = CreateConVar("zp_zclass_classic_duration", "3.5", "Sleep duration", 0, true, 0.0);
+	hCvarSkillDuration = CreateConVar("zp_zclass_classic_duration", "2.5", "Sleep duration", 0, true, 0.0);
 	hCvarSkillEffect   = CreateConVar("zp_zclass_classic_effect", "sila_trail_apalaal", "Particle effect for the skill (''-default)");
 
 	AutoExecConfig(true, "zp_zclass_classic", "sourcemod/zombieplague");

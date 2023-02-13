@@ -41,6 +41,9 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+// Caching speed multipliers
+float flLMV[MAXPLAYERS+1];
+
 // Decal index
 int gTrail;
 
@@ -112,9 +115,14 @@ public Action ZP_OnClientSkillUsed(int client)
 {
 	if (ZP_GetClientClass(client) == gZombie)
 	{
+		flLMV[client] = GetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue");
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hCvarSkillSpeed.FloatValue);
 		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		
+		float flDuration = ZP_GetClassSkillDuration(gZombie);
+		
+		UTIL_CreateFadeScreen(client, 0.3, flDuration, FFADE_IN, {200, 60, 60, 50});  
 		
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
@@ -127,7 +135,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		}
 		else
 		{
-			TE_SetupBeamFollow(client, gTrail, 0, ZP_GetClassSkillDuration(gZombie), 6.0, 6.0, 3, {255, 0, 0, 200});
+			TE_SetupBeamFollow(client, gTrail, 0, flDuration, 6.0, 6.0, 3, {255, 0, 0, 200});
 			TE_SendToAll();	
 		}
 	}
@@ -144,6 +152,6 @@ public void ZP_OnClientSkillOver(int client)
 {
 	if (ZP_GetClientClass(client) == gZombie) 
 	{
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", flLMV[client]);
 	}
 }

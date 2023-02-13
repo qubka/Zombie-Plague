@@ -239,6 +239,8 @@ public Action TrapTouchHook(int entity, int target)
 			float flDuration = ZP_GetClassSkillDuration(gZombie);
 
 			ZP_SetProgressBarTime(target, RoundToNearest(flDuration));
+			
+			UTIL_CreateFadeScreen(client, 0.3, flDuration / 2.0, FFADE_IN, {200, 80, 80, 75});  
 
 			delete hHumanTrapped[target];
 			hHumanTrapped[target] = CreateTimer(flDuration, ClientRemoveTrap, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);

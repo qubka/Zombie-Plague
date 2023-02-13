@@ -44,7 +44,7 @@ public Plugin myinfo =
 // Sound index
 int gSound;
  
-// Initialize human class index
+// Human index
 int gHuman;
 
 // Cvars

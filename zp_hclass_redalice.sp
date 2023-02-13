@@ -41,13 +41,16 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+// Caching speed multipliers
+float flLMV[MAXPLAYERS+1];
+ 
 // Decal index
 int gBeam; int gHalo;
 
 // Sound index
 int gSound;
  
-// Initialize human class index
+// Human index
 int gHuman;
 
 // Cvars
@@ -113,6 +116,7 @@ public Action ZP_OnClientSkillUsed(int client)
 {
 	if (ZP_GetClientClass(client) == gHuman)
 	{
+		flLMV[client] = GetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue");
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hCvarSkillSpeed.FloatValue);
 		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
@@ -146,6 +150,6 @@ public void ZP_OnClientSkillOver(int client)
 {
 	if (ZP_GetClientClass(client) == gHuman) 
 	{
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);
+		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", flLMV[client]);
 	}
 }

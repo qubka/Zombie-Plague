@@ -266,6 +266,8 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 			{
 				continue;
 			}
+			
+			UTIL_CreateFadeScreen(client, 0.1, 0.2, FFADE_IN, {174, 186, 134, 50});  
 
 			SetEntPropFloat(i, Prop_Send, "m_flStamina", max(flSlowdown, GetEntPropFloat(i, Prop_Send, "m_flStamina")));
 		}
