@@ -719,14 +719,14 @@ void ToolsSetSpot(int entity, bool bEnable)
 {
 	if (!bEnable)
 	{
-		SetEntData(entity, Player_Spotted, false, 1, true);
-		SetEntData(entity, Player_SpottedByMask, false, _, true);
-		SetEntData(entity, Player_SpottedByMask + 4, false, _, true); /// That is table
-		SetEntData(entity, Player_Spotted - 4, 0, _, true);
+		SetEntData(entity, Player_bSpotted, false, 1, true);
+		SetEntData(entity, Player_bSpottedByMask, false, _, true);
+		SetEntData(entity, Player_bSpottedByMask + 4, false, _, true); /// That is table
+		SetEntData(entity, Player_bSpotted - 4, 0, _, true);
 	}
 	else
 	{
-		SetEntData(entity, Player_Spotted - 4, 9, _, true);
+		SetEntData(entity, Player_bSpotted - 4, 9, _, true);
 	}
 }
 
@@ -1249,11 +1249,11 @@ void ToolsSetProgressBarTime(int client, int iDuration)
 {
 	float flGameTime = GetGameTime();
 	
-	SetEntData(client, Player_ProgressBarDuration, iDuration, 4, true);
-	SetEntDataFloat(client, Player_ProgressBarStartTime, flGameTime, true);
-	SetEntDataFloat(client, Entity_SimulationTime, flGameTime + float(iDuration), true);
+	SetEntData(client, Player_iProgressBarDuration, iDuration, 4, true);
+	SetEntDataFloat(client, Player_flProgressBarStartTime, flGameTime, true);
+	SetEntDataFloat(client, Entity_flSimulationTime, flGameTime + float(iDuration), true);
 	
-	SetEntData(client, Player_BlockingUseActionInProgress, 0, 4, true);
+	SetEntData(client, Player_iBlockingUseActionInProgress, 0, 4, true);
 }
 
 /**
@@ -1264,6 +1264,6 @@ void ToolsSetProgressBarTime(int client, int iDuration)
  **/
 void ToolsResetProgressBarTime(int client)
 {
-	SetEntDataFloat(client, Player_ProgressBarStartTime, 0.0, true);
-	SetEntData(client, Player_ProgressBarDuration, 0, 1, true);
+	SetEntDataFloat(client, Player_flProgressBarStartTime, 0.0, true);
+	SetEntData(client, Player_iProgressBarDuration, 0, 1, true);
 }

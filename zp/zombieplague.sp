@@ -151,7 +151,7 @@ void GameEngineOnInit()
 		}
 	}
 	
-	fnInitGameConfOffset(gServerData.Config, view_as<int>(gServerData.Platform), "CServer::OS");
+	fnInitGameConfOffset(gServerData.Config, view_as<int>(gServerData.Platform), "OS");
 	gServerData.Engine = fnCreateEngineInterface(gServerData.Config, "EngineInterface");
 
 	gServerData.UpdateTimer = CreateTimer(60.0, GameEngineOnUpdate, _, TIMER_REPEAT);

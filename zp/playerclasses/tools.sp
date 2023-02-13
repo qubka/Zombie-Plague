@@ -49,13 +49,18 @@ Address pClip;
 Address pPrimary;
 Address pSecondary;
 Address pFireBullets;
-int Player_Spotted;
-int Player_SpottedByMask;
-int Player_ProgressBarStartTime; 
-int Player_ProgressBarDuration;
-int Player_BlockingUseActionInProgress;
-int Entity_SimulationTime;
-int SendProp_iBits; 
+
+/**
+ * Variables to store dynamic SDK offsets.
+ **/
+int Player_bSpotted;
+int Player_bSpottedByMask;
+int Player_flProgressBarStartTime; 
+int Player_iProgressBarDuration;
+int Player_iBlockingUseActionInProgress;
+int Entity_flSimulationTime;
+int SendProp_iBits;
+
 int Animating_StudioHdr;
 int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
@@ -108,12 +113,12 @@ enum StudioAnimDesc
  **/
 void ToolsOnInit()
 {
-	fnInitSendPropOffset(Player_Spotted, "CBasePlayer", "m_bSpotted");
-	fnInitSendPropOffset(Player_SpottedByMask, "CBasePlayer", "m_bSpottedByMask");
-	fnInitSendPropOffset(Player_ProgressBarStartTime, "CCSPlayer", "m_flProgressBarStartTime");
-	fnInitSendPropOffset(Player_ProgressBarDuration, "CCSPlayer", "m_iProgressBarDuration");
-	fnInitSendPropOffset(Player_BlockingUseActionInProgress, "CCSPlayer", "m_iBlockingUseActionInProgress");
-	fnInitSendPropOffset(Entity_SimulationTime, "CBaseEntity", "m_flSimulationTime");
+	fnInitSendPropOffset(Player_bSpotted, "CBasePlayer", "m_bSpotted");
+	fnInitSendPropOffset(Player_bSpottedByMask, "CBasePlayer", "m_bSpottedByMask");
+	fnInitSendPropOffset(Player_flProgressBarStartTime, "CCSPlayer", "m_flProgressBarStartTime");
+	fnInitSendPropOffset(Player_iProgressBarDuration, "CCSPlayer", "m_iProgressBarDuration");
+	fnInitSendPropOffset(Player_iBlockingUseActionInProgress, "CCSPlayer", "m_iBlockingUseActionInProgress");
+	fnInitSendPropOffset(Entity_flSimulationTime, "CBaseEntity", "m_flSimulationTime");
 
 	fnInitGameConfAddress(gServerData.Config, pSendTableCRC, "g_SendTableCRC", false);
 	
@@ -121,7 +126,7 @@ void ToolsOnInit()
 	{
 		StoreToAddress(pSendTableCRC, 1337, NumberType_Int32);
 
-		fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "CSendProp::m_nBits");
+		fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "m_nBits");
 
 		ToolsPatchSendTable(gServerData.Config, pArmorValue, "m_ArmorValue", SendProp_iBits);
 		ToolsPatchSendTable(gServerData.Config, pAccount, "m_iAccount", SendProp_iBits);
@@ -349,9 +354,9 @@ void ToolsOnInit()
 	fnInitGameConfOffset(gServerData.Config, StudioHdrStruct_SequenceCount, "StudioHdrStruct::SequenceCount");
 	fnInitGameConfOffset(gServerData.Config, VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct::SequenceVectorSize"); 
 
-	int iOffset_LightingOrigin;
-	fnInitSendPropOffset(iOffset_LightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
-	Animating_StudioHdr += iOffset_LightingOrigin;
+	int iOffset_hLightingOrigin;
+	fnInitSendPropOffset(iOffset_hLightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
+	Animating_StudioHdr += iOffset_hLightingOrigin;
 }
 
 /**

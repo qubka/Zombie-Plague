@@ -21,6 +21,7 @@
 				"windows"	"5"
 				"linux"		"5"
 			}
+			
 			"CBaseCombatWeapon::GetMaxClip1" // - 4
 			{
 				"windows"	"353"
@@ -41,25 +42,22 @@
 				"windows"	"506"
 				"linux"		"507"
 			}
-			"CEconItemDefinition::GetDefinitionIndex"
-			{
-				"windows"	"8"
-				"linux"		"8"
-			}
-			"CParticleSystemDictionary::Count" // Str: "PrecacheStandardParticleSystems()"
-			{
-				"windows"	"38"
-				"linux"		"38"
-			}
-			"CSendProp::m_nBits"
+
+			"m_nBits"
 			{
 				"windows"	"12"
 				"linux"		"12"
 			}
-			"CServer::OS"
+			"OS"
 			{
 				"windows"	"1"
 				"linux"		"2"
+			}
+			
+			"CEconItemDefinition::GetDefinitionIndex"
+			{
+				"windows"	"8"
+				"linux"		"8"
 			}
 			
 			// @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
@@ -80,12 +78,6 @@
 				"windows"	"20"
 				"linux"		"20"
 			}
-			// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/particles/particles.cpp#L2659
-			"CNetworkStringTableContainer::FindTable"
-			{
-				"windows"	"3"
-				"linux"		"4"
-			}
 		}
 
 		// Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
@@ -103,7 +95,15 @@
 				"library"	"server"
 				"windows"	"\x4D\x5A"
 			}
-
+			
+			// GetCCSWeaponDataFromDef(const CEconItemDefinition *)
+			// GetCCSWeaponData + 0x20 on Linux 
+			"GetCCSWeaponDataFromDef" // Str: "#Alias_Not_Avail"
+			{
+				"library"   "server"
+				"windows"   ""
+				"linux"     ""
+			}
 			"CBaseCombatWeapon::Holster" // Str: "BaseCombatWeapon_HideThink" 
 			{
 				"library"	"server"

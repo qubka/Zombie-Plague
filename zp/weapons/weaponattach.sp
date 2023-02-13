@@ -112,7 +112,7 @@ void WeaponAttachSetAddons(int client)
 	{
 		if (!(gClientData[client].AttachmentBits & CSAddon_PrimaryWeapon))
 		{
-			weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Primary));
+			weapon = GetPlayerWeaponSlot(client, SlotIndex_Primary);
 			
 			if (weapon != -1)
 			{
@@ -135,7 +135,7 @@ void WeaponAttachSetAddons(int client)
 	{
 		if (!(gClientData[client].AttachmentBits & CSAddon_SecondaryWeapon))
 		{
-			weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Secondary));
+			weapon = GetPlayerWeaponSlot(client, SlotIndex_Secondary);
 
 			if (weapon == ToolsGetActiveWeapon(client))
 			{
@@ -278,7 +278,7 @@ void WeaponAttachSetAddons(int client)
 	{
 		if (!(gClientData[client].AttachmentBits & CSAddon_Knife))
 		{
-			weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_Melee));
+			weapon = GetPlayerWeaponSlot(client, SlotIndex_Melee);
 			
 			if (weapon != -1)
 			{
@@ -324,7 +324,7 @@ void WeaponAttachSetAddons(int client)
 	{
 		if (!(gClientData[client].AttachmentBits & CSAddon_C4))
 		{
-			weapon = GetPlayerWeaponSlot(client, view_as<int>(SlotType_C4));
+			weapon = GetPlayerWeaponSlot(client, SlotIndex_C4);
 			
 			if (weapon != -1)
 			{

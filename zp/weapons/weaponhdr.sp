@@ -336,7 +336,7 @@ int WeaponHDRGetSwappedWeapon(int entity)
  **/
 int WeaponHDRGetPlayerViewModel(int client, int iView)
 {
-	return GetEntDataEnt2(client, Player_ViewModel + (iView * 4));
+	return GetEntDataEnt2(client, Player_hViewModel + (iView * 4));
 }
 
 /**
@@ -348,7 +348,7 @@ int WeaponHDRGetPlayerViewModel(int client, int iView)
 **/
 void WeaponHDRSetPlayerViewModel(int client, int iView, int iModel)
 {
-	SetEntDataEnt2(client, Player_ViewModel + (iView * 4), iModel, true);
+	SetEntDataEnt2(client, Player_hViewModel + (iView * 4), iModel, true);
 }
 
 /**

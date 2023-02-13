@@ -2200,7 +2200,7 @@ void WeaponsSwitch(int client, int weapon)
 {
 	int weapon2 = ToolsGetActiveWeapon(client);
 	
-	if (hSDKCallWeaponSwitch && (weapon2 == -1 || WeaponsGetSlotType(weapon) == WeaponsGetSlotType(weapon2)))
+	if (hSDKCallWeaponSwitch && (weapon2 == -1 || WeaponsGetSlot(weapon) == WeaponsGetSlot(weapon2)))
 	{
 		SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
 	}
@@ -2225,10 +2225,10 @@ void WeaponsEquip(int client, int weapon, int iD, bool bSwitch = true)
 {
 	static char sClassname[SMALL_LINE_LENGTH]; int weapon2 = -1;
 
-	SlotType mSlot = WeaponsGetSlotType(weapon);
+	int mSlot = WeaponsGetSlot(weapon);
 	switch (mSlot)
 	{
-		case SlotType_Equipment :
+		case SlotIndex_Equipment :
 		{
 			GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 			
@@ -2240,7 +2240,7 @@ void WeaponsEquip(int client, int weapon, int iD, bool bSwitch = true)
 			}
 		}
 	
-		case SlotType_C4 :
+		case SlotIndex_C4 :
 		{
 			GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 			
@@ -2249,7 +2249,7 @@ void WeaponsEquip(int client, int weapon, int iD, bool bSwitch = true)
 
 		default : 
 		{
-			weapon2 = GetPlayerWeaponSlot(client, view_as<int>(mSlot));
+			weapon2 = GetPlayerWeaponSlot(client, mSlot);
 		}
 	}
 	
@@ -2498,19 +2498,19 @@ int WeaponsFindByID(int client, int iD)
 }
 
 /**
- * @brief Gets the slot type of a weapon.
+ * @brief Gets the slot index of a weapon.
  *
  * @param weapon            The weapon index.
  * @return                  The slot index.
  **/
-SlotType WeaponsGetSlotType(int weapon)
+int WeaponsGetSlot(int weapon)
 {
-	SlotType mSlot = hSDKCallGetSlot ? view_as<SlotType>(SDKCall(hSDKCallGetSlot, weapon)) : SlotType_Max;
+	int mSlot = hSDKCallGetSlot ? SDKCall(hSDKCallGetSlot, weapon) : SlotIndex_Max;
 	
-	if (mSlot >= SlotType_Max)
+	if (mSlot >= SlotIndex_Max)
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "SDKCall Validation", "Failed to execute SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return SlotType_Primary;
+		return SlotIndex_Primary;
 	}
 	
 	return mSlot;
@@ -2524,24 +2524,18 @@ SlotType WeaponsGetSlotType(int weapon)
  **/
 int WeaponsGetItemDefIndex(char[] sClassname)
 {
-	static Address pItemSchema;
-	if (pItemSchema == Address_Null)
-	{
-		pItemSchema = (gServerData.Platform == OS_Linux) ? view_as<Address>(SDKCall(hSDKCallGetItemSchema)) : view_as<Address>(SDKCall(hSDKCallGetItemSchema) + 4);
-	}
-	
 	if (!hasLength(sClassname))
 	{
 		return 0;
 	}
 	
-	Address pItem = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sClassname));
-	if (pItem == Address_Null)
+	Address pItemDefenition = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sClassname));
+	if (pItemDefenition == Address_Null)
 	{
 		return 0;
 	}
 	
-	return LoadFromAddress(pItem + view_as<Address>(ItemDef_Index), NumberType_Int16);
+	return LoadFromAddress(pItemDefenition + view_as<Address>(ItemDef_Index), NumberType_Int16);
 }
 
 /**
