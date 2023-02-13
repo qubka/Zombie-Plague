@@ -121,7 +121,7 @@ static const char sModes[GRENADE_MODE_MAXIMUM][SMALL_LINE_LENGTH] =
 };
 
 // Decal index
-int gBeacon; int gBeam; int gHalo; int gGlow;
+int gBeacon; int gBeam; int gHalo;
 
 // Player index
 int iGrenadeMode[MAXPLAYERS+1]; ArrayList hGrenadeList[MAXPLAYERS+1] = { null, ... };
@@ -182,7 +182,6 @@ public void OnMapStart()
 	gBeacon = PrecacheModel("materials/sprites/physbeam.vmt", true);
 	gBeam   = PrecacheModel("materials/sprites/purplelaser1.vmt", true);
 	gHalo   = PrecacheModel("materials/sprites/purpleglow1.vmt", true);
-	gGlow   = PrecacheModel("materials/sprites/blueflare1.vmt", true);
 	
 	PrecacheSound("buttons/blip1.wav", true);
 	PrecacheSound("buttons/blip2.wav", true);

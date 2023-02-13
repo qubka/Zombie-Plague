@@ -645,7 +645,6 @@ APLRes APIOnInit()
  **/
 void APIOnNativeInit()
 {
-	CreateNative("ZP_IsPlayerInGroup",  API_IsPlayerInGroup);
 	CreateNative("ZP_IsPlayerZombie",   API_IsPlayerZombie);
 	CreateNative("ZP_IsPlayerHuman",    API_IsPlayerHuman);
 	CreateNative("ZP_IsPlayerCustom",   API_IsPlayerCustom);
@@ -662,21 +661,6 @@ void APIOnNativeInit()
 	CreateNative("ZP_GetPlayingAmount", API_GetPlayingAmount);
 	CreateNative("ZP_GetRandomHuman",   API_GetRandomHuman);
 	CreateNative("ZP_GetRandomZombie",  API_GetRandomZombie); 
-}
-
-/**
- * @brief Returns whether a player is in group or not.
- *
- * @note native bool ZP_IsPlayerInGroup(client, group);
- **/
-public int API_IsPlayerInGroup(Handle hPlugin, int iNumParams)
-{
-	int client = GetNativeCell(1);
-
-	static char sGroup[SMALL_LINE_LENGTH];
-	GetNativeString(2, sGroup, sizeof(sGroup));
-	
-	return IsPlayerInGroup(client, sGroup);
 }
 
 /**

@@ -79,7 +79,7 @@ void ConfigMenu(int client)
 	
 	/*if (!iSize)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}*/
 	

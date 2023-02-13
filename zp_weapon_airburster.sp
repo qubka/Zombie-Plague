@@ -79,9 +79,6 @@ int gWeapon;
 // Sound index
 int gSoundAttack; int gSoundIdle;
 
-// Decal index
-int gSmoke;
-
 // Cvars
 ConVar hCvarAirSpeed;
 ConVar hCvarAirDamage;
@@ -128,14 +125,6 @@ public void ZP_OnEngineExecute()
 	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"AIRBURSTER_SHOOT_SOUNDS\" wasn't find");
 	gSoundIdle = ZP_GetSoundKeyID("AIRBURSTER_IDLE_SOUNDS");
 	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"AIRBURSTER_IDLE_SOUNDS\" wasn't find");
-}
-
-/**
- * @brief The map is starting.
- **/
-public void OnMapStart()
-{
-	gSmoke = PrecacheModel("sprites/steam1.vmt", true);
 }
 
 //*********************************************************************
@@ -632,7 +621,7 @@ public Action AirTouchHook(int entity, int target)
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		UTIL_CreateDamage(_, vPosition, thrower, hCvarAirDamage.FloatValue, hCvarAirRadius, DMG_NEVERGIB, gWeapon);
+		UTIL_CreateDamage(_, vPosition, thrower, hCvarAirDamage.FloatValue, hCvarAirRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 
 		AcceptEntityInput(entity, "Kill");
 	}

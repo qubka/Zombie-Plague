@@ -1145,6 +1145,11 @@ void ToolsUpdateTransmitState(int entity)
 {
 	if (hSDKCallUpdateTransmitState)
 	{
+		if (GetEntProp(entity, Prop_Data, "m_nTransmitStateOwnedCounter") != 0)
+		{
+			return;
+		}
+		
 		SDKCall(hSDKCallUpdateTransmitState, entity);
 	}
 	else

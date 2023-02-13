@@ -68,14 +68,15 @@ void ArsenalMenu(int client, int mSection)
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 
-	int iPlaying = fnGetPlaying();
-
 	Menu hMenu = ArsenalSectionToHandle(mSection);
 	
 	SetGlobalTransTarget(client);
 	
 	static char sTitle[3][SMALL_LINE_LENGTH] = { "choose primary", "choose secondary", "choose melee" };
 	hMenu.SetTitle("%t", sTitle[mSection]);
+
+	int iPlaying = fnGetPlaying();
+	int iFlags = GetUserFlagBits(client);
 
 	ArrayList hList = gServerData.Arsenal.Get(mSection);
 
@@ -85,26 +86,29 @@ void ArsenalMenu(int client, int mSection)
 		int iD = hList.Get(i);
 
 		WeaponsGetName(iD, sName, sizeof(sName));
-		WeaponsGetGroup(iD, sInfo, sizeof(sInfo))
 		int iLevel = WeaponsGetLevel(iD);
 		int iOnline = WeaponsGetOnline(iD);
+		int iGroup = WeaponsGetGroupFlags(iD);
 		
-		bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
-		if (bMissGroup)
+		bool bEnabled = false;
+		
+		if (iGroup && !(iGroup & iFlags))
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+			WeaponsGetGroup(iD, sInfo, sizeof(sInfo));
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu group", sInfo);
 		}
-		else if (gClientData[client].Level < iLevel)
+		else if (gCvarList.LEVEL_SYSTEM.BoolValue && gClientData[client].Level < iLevel)
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "level", iLevel);
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu level", iLevel);
 		}
 		else if (iPlaying < iOnline)
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "online", iOnline);    
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu online", iOnline);    
 		}
 		else
 		{
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+			bEnabled = true;
 		}
 		
 		if (i == iSize - 1)
@@ -113,7 +117,7 @@ void ArsenalMenu(int client, int mSection)
 		}
 		
 		IntToString(iD, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((bDisabled || bMissGroup || gClientData[client].Level < iLevel || iPlaying < iOnline) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(bEnabled && !bDisabled));
 	}
 
 	{

@@ -899,6 +899,22 @@ stock bool ConfigKvGetStringBool(KeyValues kv, char[] sKey, char[] sDefaultValue
 }
 
 /**
+ * @brief Returns the flag set that is added to users from this group.
+ *
+ * @param sGroup            The SourceMod group name to check.
+ * @return                  A  bitstring containing which flags are enabled.
+ **/
+stock int ConfigGetAdmFlags(char[] sGroup)
+{
+	if (hasLength(sGroup))
+	{
+		GroupId nGroup = FindAdmGroup(sGroup);
+		return nGroup != INVALID_GROUP_ID ? nGroup.GetFlags() : 0;
+	}
+	return 0;
+}
+
+/**
  * Console command callback (zp_config_reload)
  * @brief Reloads a config file and forwards event to modules.
  * 

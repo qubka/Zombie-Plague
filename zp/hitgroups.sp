@@ -540,13 +540,13 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 
 				if (ModesIsInfection(gServerData.RoundMode))
 				{
-					if (iHealth <= 0 || (!bHasShield && !iArmor)) /// Checks for shield protection
+					if (iHealth <= 0 || !iArmor && fnGetHumans() > 1) /// Armor work when more then 1 human
 					{
-						ApplyOnClientUpdate(client, attacker, ModesGetZombieType(gServerData.RoundMode));
+						ApplyOnClientUpdate(client, attacker, ModesGetTypeZombie(gServerData.RoundMode));
 						return false;
 					}
 					
-					if (bInfectProtect && !bHasShield) 
+					if (bInfectProtect) 
 					{
 						return false;
 					}
@@ -563,7 +563,6 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 	if (iHealth > 0)
 	{
 		ToolsSetHealth(client, iHealth);
-		
 		return false;
 	}
 
@@ -1151,10 +1150,7 @@ void HitGroupsApplyKnock(int client, int attacker, float flForce)
 	}
 	else
 	{
-		if (flForce > 100.0) flForce = 100.0;
-		else if (flForce <= 0.0) return;
-		
-		SetEntPropFloat(client, Prop_Send, "m_flStamina", flForce); 
+		SetEntPropFloat(client, Prop_Send, "m_flStamina", max(max(flForce, GetEntPropFloat(client, Prop_Send, "m_flStamina")), 100.0)); 
 	}
 }
 

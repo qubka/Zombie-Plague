@@ -172,7 +172,7 @@ void ArsenalSet(ConVar hConVar)
 		int iD = WeaponsNameToIndex(sWeapon[i]);
 		if (iD != -1)
 		{  
-			if (ClassHasType(WeaponsGetTypes(iD), gServerData.Human))
+			if (ClassHasTypeBits(WeaponsGetTypes(iD), gServerData.Human))
 			{
 				hList.Push(iD);
 			}

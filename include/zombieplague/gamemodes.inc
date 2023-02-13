@@ -210,6 +210,15 @@ native int ZP_GetGameModeHealthZombie(int modeID);
 native void ZP_GetGameModeGroup(int modeID, char[] group, int maxlenght = 32);
 
 /**
+ * @brief Gets the group flags of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The flags bits.
+ **/
+native int ZP_GetGameModeGroupFlags(int modeID);
+
+/**
  * @brief Gets the start sound key of the game mode.
  *
  * @param modeID            The mode index.
@@ -297,7 +306,7 @@ native bool ZP_IsGameModeRespawn(int modeID);
  *
  * @return                  The type index. 
  **/
-native int ZP_GetGameModeHumanType(int modeID);
+native int ZP_GetGameModeTypeHuman(int modeID);
 
 /**
  * @brief Gets the zombie type of the game mode.
@@ -306,7 +315,7 @@ native int ZP_GetGameModeHumanType(int modeID);
  *
  * @return                  The type index. 
  **/
-native int ZP_GetGameModeZombieType(int modeID);
+native int ZP_GetGameModeTypeZombie(int modeID);
 
 /**
  * @brief Checks the human win overlay of the game mode.

@@ -214,6 +214,8 @@ void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant =
 	
 	hMenu.SetTitle("%t", sTitle);
 	
+	int iFlags = GetUserFlagBits(client);
+	
 	Action hResult;
 	
 	int iSize = gServerData.Classes.Length; int iAmount;
@@ -231,35 +233,36 @@ void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant =
 			continue;
 		}
 
-		gServerData.Types.GetString(iType, sName, sizeof(sName));
-		
 		ClassGetName(i, sName, sizeof(sName));
-		ClassGetGroup(i, sInfo, sizeof(sInfo));
 		int iLevel = ClassGetLevel(i);
+		int iGroup = ClassGetGroupFlags(i);
 		
-		bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
-		if (bMissGroup)
+		bool bEnabled = false;
+		
+		if (iGroup && !(iGroup & iFlags))
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+			ClassGetGroup(i, sInfo, sizeof(sInfo));
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu group", sInfo);
 		}
-		else if (gClientData[client].Level < iLevel)
+		else if (gCvarList.LEVEL_SYSTEM.BoolValue && gClientData[client].Level < iLevel)
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "level", iLevel);
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu level", iLevel);
 		}
 		else
 		{
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+			bEnabled = true;
 		}
 
 		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bMissGroup || gClientData[client].Level < iLevel || iClass == i) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(bEnabled && hResult != Plugin_Handled && iClass != i));
 	
 		iAmount++;
 	}
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 
@@ -466,7 +469,7 @@ void ClassesMenu(int client)
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 	
@@ -578,7 +581,7 @@ void ClassesOptionMenu(int client, int target)
 	
 	if (!iSize)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 	

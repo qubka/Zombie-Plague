@@ -48,12 +48,12 @@ void ApplyOnClientSpawn(int client)
 	{
 		case TEAM_ZOMBIE : 
 		{
-			ApplyOnClientUpdate(client, _, ModesGetZombieType(gServerData.RoundMode));
+			ApplyOnClientUpdate(client, _, ModesGetTypeZombie(gServerData.RoundMode));
 		}
 		
 		case TEAM_HUMAN  : 
 		{
-			ApplyOnClientUpdate(client, _, ModesGetHumanType(gServerData.RoundMode));
+			ApplyOnClientUpdate(client, _, ModesGetTypeHuman(gServerData.RoundMode));
 		}
 	}    
 }

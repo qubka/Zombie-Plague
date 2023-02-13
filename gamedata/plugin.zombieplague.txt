@@ -31,10 +31,10 @@
 				"windows"	"357"
 				"linux"		"363"
 			}
-			"CBaseCombatWeapon::GetSlot" // +6
+			"CBaseCombatWeapon::GetSlot" // +5
 			{
 				"windows"	"362"
-				"linux"		"369"
+				"linux"		"368"
 			}
 			"CCSPlayer::GetPlayerMaxSpeed" // above CommitSuicide
 			{
@@ -103,12 +103,12 @@
 				"library"	"server"
 				"windows"	"\x4D\x5A"
 			}
-			
+
 			"CBaseCombatWeapon::Holster" // Str: "BaseCombatWeapon_HideThink" 
 			{
 				"library"	"server"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x10\x53\x56\x8B\x35\x2A\x2A\x2A\x2A\x57"
-				"linux"		""
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x28\x8B\x35\x2A\x2A\x2A\x2A\x8B\x5D\x08\x8B\x06\x56\xFF\x90\x84\x00\x00\x00\x59"
 			}
 			///  v2 = CBaseAnimating::GetSequenceActivity(*((CBaseAnimating **)this + 7), *(_DWORD *)(*((_DWORD *)this + 7) + 1004));
 			///  if ( v2 == 29 || v2 == 6 || v2 == 30 || v2 == 1 || v2 == 462 || v2 == 396 || v2 == 146 )
@@ -314,6 +314,24 @@
 				"windows"
 				{
 					"read"	"205"
+				}
+			}
+		}
+
+		"Functions"
+		{
+			"CBaseCombatWeapon::Holster"
+			{
+				"signature"	"CBaseCombatWeapon::Holster"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"	"entity"
+				"arguments"
+				{
+					"pSwitchingTo"
+					{
+						"type"	"cbaseentity"
+					}
 				}
 			}
 		}

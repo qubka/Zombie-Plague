@@ -248,18 +248,18 @@ void WeaponMODOnInit()
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	hDHookWeaponHolster = DHookCreateDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
+	hDHookWeaponHolster = DHookCreateFromConf(gServerData.Config, "CBaseCombatWeapon::Holster");
 
-	if (!DHookSetFromConf(hDHookWeaponHolster, gServerData.Config, SDKConf_Signature, "CBaseCombatWeapon::Holster"))
+	if (hDHookWeaponHolster == null)
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load signature \"CBaseCombatWeapon::Holster\". Update \"%s\"", PLUGIN_CONFIG);
 	}
-
-	DHookAddParam(hDHookWeaponHolster, HookParamType_CBaseEntity);
-
-	if (!DHookEnableDetour(hDHookWeaponHolster, true, WeaponDetourOnHolster))
+	else
 	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create Detour for \"CBaseCombatWeapon::Holster\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		if (!DHookEnableDetour(hDHookWeaponHolster, true, WeaponDetourOnHolster))
+		{
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create Detour for \"CBaseCombatWeapon::Holster\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
 	}
 }
 

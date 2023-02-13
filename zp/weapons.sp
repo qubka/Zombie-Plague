@@ -37,8 +37,9 @@ enum
 {
 	WEAPONS_DATA_NAME,
 	WEAPONS_DATA_INFO,
-	WEAPONS_DATA_DEFINDEX,
+	WEAPONS_DATA_DEF_INDEX,
 	WEAPONS_DATA_GROUP,
+	WEAPONS_DATA_GROUP_FLAGS,
 	WEAPONS_DATA_TYPES,
 	WEAPONS_DATA_LEVEL,
 	WEAPONS_DATA_ONLINE,
@@ -56,14 +57,14 @@ enum
 	WEAPONS_DATA_SOUND,
 	WEAPONS_DATA_ICON,
 	WEAPONS_DATA_MODEL_VIEW,
-	WEAPONS_DATA_MODEL_VIEW_,
+	WEAPONS_DATA_MODEL_VIEW_ID,
 	WEAPONS_DATA_MODEL_WORLD,
-	WEAPONS_DATA_MODEL_WORLD_,
+	WEAPONS_DATA_MODEL_WORLD_ID,
 	WEAPONS_DATA_MODEL_DROP,
 	WEAPONS_DATA_MODEL_DROP_,
-	WEAPONS_DATA_MODEL_BODY = 26,
-	WEAPONS_DATA_MODEL_SKIN = 30,
-	WEAPONS_DATA_MODEL_MUZZLE = 34,
+	WEAPONS_DATA_MODEL_BODY = 27,
+	WEAPONS_DATA_MODEL_SKIN = 31,
+	WEAPONS_DATA_MODEL_MUZZLE = 35,
 	WEAPONS_DATA_MODEL_SHELL,
 	WEAPONS_DATA_MODEL_HEAT,
 	WEAPONS_DATA_SEQUENCE_COUNT,
@@ -196,58 +197,59 @@ void WeaponsOnCacheData()
 		arrayWeapon.Push(iItem);                                          // Index: 2
 		kvWeapons.GetString("group", sBuffer, sizeof(sBuffer), "");       
 		arrayWeapon.PushString(sBuffer);                                  // Index: 3
+		arrayWeapon.Push(ConfigGetAdmFlags(sBuffer));                     // Index: 4
 		kvWeapons.GetString("types", sBuffer, sizeof(sBuffer), "human");  
-		arrayWeapon.Push(ClassTypeToIndex(sBuffer));                      // Index: 4
-		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 5
-		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 6
-		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 7
-		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));           // Index: 8
-		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));               // Index: 9
-		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                // Index: 10
-		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 11
-		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 12
-		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 13
-		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 14
-		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 15
-		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 16
-		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 17
+		arrayWeapon.Push(ClassTypeToIndex(sBuffer));                      // Index: 5 
+		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 6 
+		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 7 
+		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 8 
+		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));           // Index: 9 
+		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));               // Index: 10
+		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                // Index: 11
+		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 12
+		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 13
+		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 14
+		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 15
+		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 16
+		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 17
+		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 18
 		kvWeapons.GetString("sound", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 18
+		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 19
 		kvWeapons.GetString("icon", sBuffer, sizeof(sBuffer), "");        
-		arrayWeapon.PushString(sBuffer);                                  // Index: 19
+		arrayWeapon.PushString(sBuffer);                                  // Index: 20
 		if (hasLength(sBuffer))
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/panorama/images/icons/equipment/%s.svg", sBuffer);
 			if (FileExists(sBuffer)) AddFileToDownloadsTable(sBuffer); 
 		}
 		kvWeapons.GetString("view", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 20    
-		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 21
+		arrayWeapon.PushString(sBuffer);                                  // Index: 21    
+		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 22
 		kvWeapons.GetString("world", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.PushString(sBuffer);                                  // Index: 22
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 23
+		arrayWeapon.PushString(sBuffer);                                  // Index: 23
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 24
 		kvWeapons.GetString("dropped", sBuffer, sizeof(sBuffer), "");     
-		arrayWeapon.PushString(sBuffer);                                  // Index: 24
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 25
+		arrayWeapon.PushString(sBuffer);                                  // Index: 25
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 26
 		int iBody[4]; kvWeapons.GetColor4("body", iBody);                 
 		for (int x = 0; x < 4; x++)
 		{
-			arrayWeapon.Push(iBody[x]);                                   // Index: 26+x
+			arrayWeapon.Push(iBody[x]);                                   // Index: 27+x
 		}
 		int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
 		for (int x = 0; x < 4; x++)
 		{
-			arrayWeapon.Push(iSkin[x]);                                   // Index: 30+x
+			arrayWeapon.Push(iSkin[x]);                                   // Index: 31+x
 		}
 		kvWeapons.GetString("muzzle", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 34
-		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
 		arrayWeapon.PushString(sBuffer);                                  // Index: 35
-		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 36
-		arrayWeapon.Push(-1);                                             // Index: 37
+		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
+		arrayWeapon.PushString(sBuffer);                                  // Index: 36
+		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 37
+		arrayWeapon.Push(-1);                                             // Index: 38
 		for (int x = 0; x < WEAPONS_SEQUENCE_MAX; x++)
 		{
-			arrayWeapon.Push(-1);                                         // Index: 38+x
+			arrayWeapon.Push(-1);                                         // Index: 39+x
 		}                      
 	}
 
@@ -566,6 +568,7 @@ void WeaponsOnNativeInit()
 	CreateNative("ZP_GetWeaponInfo",         API_GetWeaponInfo);
 	CreateNative("ZP_GetWeaponDefIndex",     API_GetWeaponDefIndex);
 	CreateNative("ZP_GetWeaponGroup",        API_GetWeaponGroup);
+	CreateNative("ZP_GetWeaponGroupFlags",   API_GetWeaponGroupFlags);
 	CreateNative("ZP_GetWeaponTypes",        API_GetWeaponTypes);
 	CreateNative("ZP_GetWeaponLevel",        API_GetWeaponLevel);
 	CreateNative("ZP_GetWeaponOnline",       API_GetWeaponOnline);
@@ -831,6 +834,24 @@ public int API_GetWeaponGroup(Handle hPlugin, int iNumParams)
 	WeaponsGetGroup(iD, sGroup, sizeof(sGroup));
 
 	return SetNativeString(2, sGroup, maxLen);
+}
+
+/**
+ * @brief Gets the group flags of the weapon.
+ *
+ * @note native int ZP_GetWeaponGroupFlags(iD);
+ **/
+public int API_GetWeaponGroupFlags(Handle hPlugin, int iNumParams)
+{
+	int iD = GetNativeCell(1);
+	
+	if (iD >= gServerData.Weapons.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		return -1;
+	}
+	
+	return WeaponsGetGroupFlags(iD);
 }
 
 /**
@@ -1450,7 +1471,7 @@ void WeaponsGetInfo(int iD, char[] sInfo, int iMaxLen)
 }
 
 /**
- * @brief Gets the access group of a weapon at a given id.
+ * @brief Gets the group of a weapon at a given id.
  *
  * @param iD                The weapon index.
  * @param sGroup            The string to return group in.
@@ -1461,6 +1482,19 @@ void WeaponsGetGroup(int iD, char[] sGroup, int iMaxLen)
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
 	
 	arrayWeapon.GetString(WEAPONS_DATA_GROUP, sGroup, iMaxLen);
+}
+
+/**
+ * @brief Gets the group flags of a weapon.
+ *
+ * @param iD                The weapon id.
+ * @return                  The flags bits.
+ **/
+int WeaponsGetGroupFlags(int iD)
+{
+	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
+	
+	return arrayWeapon.Get(WEAPONS_DATA_GROUP_FLAGS);
 }
 
 /**
@@ -1486,7 +1520,7 @@ ItemDef WeaponsGetDefIndex(int iD)
 {
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
 	
-	return arrayWeapon.Get(WEAPONS_DATA_DEFINDEX);
+	return arrayWeapon.Get(WEAPONS_DATA_DEF_INDEX);
 }
 
 /**
@@ -1709,7 +1743,7 @@ int WeaponsGetModelViewID(int iD)
 {
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
 	
-	return arrayWeapon.Get(WEAPONS_DATA_MODEL_VIEW_);
+	return arrayWeapon.Get(WEAPONS_DATA_MODEL_VIEW_ID);
 }
 
 /**
@@ -1736,7 +1770,7 @@ int WeaponsGetModelWorldID(int iD)
 {
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
 	
-	return arrayWeapon.Get(WEAPONS_DATA_MODEL_WORLD_);
+	return arrayWeapon.Get(WEAPONS_DATA_MODEL_WORLD_ID);
 }
 
 /**
@@ -2519,7 +2553,7 @@ int WeaponsGetItemDefIndex(char[] sClassname)
  **/
 bool WeaponsHasAccessByType(int client, int iD)
 {
-	return ClassHasType(WeaponsGetTypes(iD), ClassGetType(gClientData[client].Class));
+	return ClassHasTypeBits(WeaponsGetTypes(iD), ClassGetType(gClientData[client].Class));
 }
 
 /**
@@ -2555,10 +2589,8 @@ bool WeaponsCanUse(int client, int weapon)
 
 		if (gCvarList.WEAPONS_PICKUP_GROUP.BoolValue)
 		{
-			static char sGroup[SMALL_LINE_LENGTH];
-			WeaponsGetGroup(iD, sGroup, sizeof(sGroup))
-		
-			if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup))
+			int iGroup = WeaponsGetGroupFlags(iD);
+			if (iGroup && !(iGroup & GetUserFlagBits(client)))
 			{
 				return false;
 			}

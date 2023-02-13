@@ -45,12 +45,12 @@ public Plugin myinfo =
 /**
  * @section Properties of the gibs shooter.
  **/
-#define METAL_GIBS_AMOUNT             5.0
-#define METAL_GIBS_DELAY              0.05
-#define METAL_GIBS_SPEED              500.0
-#define METAL_GIBS_VARIENCE           1.0  
-#define METAL_GIBS_LIFE               1.0  
-#define METAL_GIBS_DURATION           2.0
+#define WOOD_GIBS_AMOUNT   5.0
+#define WOOD_GIBS_DELAY    0.05
+#define WOOD_GIBS_SPEED    500.0
+#define WOOD_GIBS_VARIENCE 1.0  
+#define WOOD_GIBS_LIFE     1.0  
+#define WOOD_GIBS_DURATION 2.0
 /**
  * @endsection
  **/
@@ -65,7 +65,7 @@ int gSound;
 int gZombie;
 
 // Cvars
-ConVar hCvarSkillAttach;
+ConVar hCvarSkillSlowdown;
 ConVar hCvarSkillHealth;
 ConVar hCvarSkillRadius;
 ConVar hCvarSkillKnockback;
@@ -77,7 +77,7 @@ ConVar hCvarSkillEffect;
  **/
 public void OnPluginStart()
 {  
-	hCvarSkillAttach    = CreateConVar("zp_zclass_stamper_attach", "250.0", "Speed of attached victim", 0, true, 0.0);
+	hCvarSkillSlowdown  = CreateConVar("zp_zclass_stamper_slowdown", "50.0", "Stamina-based slowdown while in radius", 0, true, 0.0, true, 100.0);
 	hCvarSkillHealth    = CreateConVar("zp_zclass_stamper_health", "200.0 ", "Health of coffin", 0, true, 0.0);
 	hCvarSkillRadius    = CreateConVar("zp_zclass_stamper_radius", "250.0", "Radius of coffin attachment", 0, true, 0.0);
 	hCvarSkillKnockback = CreateConVar("zp_zclass_stamper_knockback", "1000.0", "Knockback on coffin explosion", 0, true, 0.0);
@@ -119,11 +119,11 @@ public void OnMapStart()
 {
 	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
 	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
-	PrecacheModel("models/gibs/metal_gib1.mdl", true);
-	PrecacheModel("models/gibs/metal_gib2.mdl", true);
-	PrecacheModel("models/gibs/metal_gib3.mdl", true);
-	PrecacheModel("models/gibs/metal_gib4.mdl", true);
-	PrecacheModel("models/gibs/metal_gib5.mdl", true);
+	PrecacheModel("models/gibs/wood_gib01a.mdl", true);
+	PrecacheModel("models/gibs/wood_gib01b.mdl", true);
+	PrecacheModel("models/gibs/wood_gib01c.mdl", true);
+	PrecacheModel("models/gibs/wood_gib01d.mdl", true);
+	PrecacheModel("models/gibs/wood_gib01e.mdl", true);
 }
 
 /**
@@ -140,8 +140,8 @@ public Action ZP_OnClientSkillUsed(int client)
 	{
 		static float vPosition[3]; static float vAngle[3];
 
-		ZP_GetPlayerEyePosition(client, 60.0, _, _, vPosition);
 		GetClientEyeAngles(client, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
+		GetOriginDistance(client, vAngle, 40.0, 0.0, 0.0, vPosition);
 		
 		static const float vMins[3] = { -3.077446, -9.829969, -37.660713 }; 
 		static const float vMaxs[3] = { 11.564661, 20.737569, 38.451633  }; 
@@ -171,6 +171,9 @@ public Action ZP_OnClientSkillUsed(int client)
 				}
 				
 				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
+				
+				TE_SetupBeamRingPoint(vPosition, 10.0, 200.0, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, {150, 150, 150, 200}, 0, 0);
+				TE_SendToAll();
 				
 				CreateTimer(ZP_GetClassSkillDuration(gZombie), CoffinExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 				CreateTimer(1.0, CoffinIdleHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -245,12 +248,17 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 
 	if (entity != -1)
 	{
-		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3]; static float vPosition2[3];  
-
+		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 	
+		if (IsEntityStuck(entity, vPosition)) 
+		{
+			CoffinExpload(entity);
+			return Plugin_Stop;
+		}
+	
 		float flRadius = hCvarSkillRadius.FloatValue;
-		float flAttach = hCvarSkillAttach.FloatValue;
+		float flSlowdown = hCvarSkillSlowdown.FloatValue;
 	
 		int i; int it = 1; /// iterator
 		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
@@ -264,11 +272,8 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 			{
 				continue;
 			}
-			
-			GetClientEyePosition(i, vPosition2);
-			
-			UTIL_GetVelocityByAim(vPosition2, vPosition, vAngle, vVelocity, flAttach);
-			TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, vVelocity);
+
+			SetEntPropFloat(i, Prop_Send, "m_flStamina", max(flSlowdown, GetEntPropFloat(i, Prop_Send, "m_flStamina")));
 		}
 	}
 	else
@@ -341,17 +346,64 @@ void CoffinExpload(int entity)
 	{
 		vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
 		{
-			case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
-			case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");
-			case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib3.mdl");
-			case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib4.mdl");
-			case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib5.mdl");
+			case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01a.mdl");
+			case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01b.mdl");
+			case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01c.mdl");
+			case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01d.mdl");
+			case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01e.mdl");
 		}
 	
-		UTIL_CreateShooter(entity, "1", _, MAT_METAL, _, sBuffer, vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+		UTIL_CreateShooter(entity, "1", _, MAT_WOOD, _, sBuffer, vShoot, vGib, WOOD_GIBS_AMOUNT, WOOD_GIBS_DELAY, WOOD_GIBS_SPEED, WOOD_GIBS_VARIENCE, WOOD_GIBS_LIFE, WOOD_GIBS_DURATION);
 	}
 
 	UTIL_RemoveEntity(entity, 0.1);
+}
+
+/**
+ * @brief Gets the entity position.
+ *
+ * @param entity            The entity index.
+ * @param vAngle            The given angles vector to calculate.
+ * @param flForward         (Optional) The forward distance.
+ * @param flRight           (Optional) The right distance. 
+ * @param flVertical        (Optional) The vertical distance.
+ * @param vOutput           The calculated position vector output.
+ **/
+void GetOriginDistance(int entity, float vAngle[3], float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOutput[3])
+{
+	static float vPosition[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
+
+	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
+	GetAngleVectors(vAngle, vForward, vRight, vVertical);
+
+	vOutput[0] = vPosition[0] + (vForward[0] * flForward) + (vRight[0] * flRight) + (vVertical[0] * flVertical);
+	vOutput[1] = vPosition[1] + (vForward[1] * flForward) + (vRight[1] * flRight) + (vVertical[1] * flVertical);
+	vOutput[2] = vPosition[2] + (vForward[2] * flForward) + (vRight[2] * flRight) + (vVertical[2] * flVertical);
+}
+
+/**
+ * @brief Checks that nothing is stuck inside an entity.
+ *  
+ * @param entity            The entity index.
+ * @param vPosition         The position of the entity.
+ * @return                  True or false.
+ **/
+bool IsEntityStuck(int entity, float vPosition[3])
+{
+	static float vCenter[3]; vCenter = vPosition;
+	
+	static float vMins[3]; static float vMaxs[3];
+	GetEntPropVector(entity, Prop_Data, "m_vecMins", vMins);
+	GetEntPropVector(entity, Prop_Data, "m_vecMaxs", vMaxs);
+	
+	vCenter[2] += vMaxs[2]; 
+	
+	ScaleVector(vMins, 0.90);
+	ScaleVector(vMaxs, 0.90);
+
+	TR_TraceHullFilter(vCenter, vCenter, vMins, vMaxs, MASK_SOLID, SelfFilter, entity);
+
+	return TR_DidHit();
 }
 
 /**

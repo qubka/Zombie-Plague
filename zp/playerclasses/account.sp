@@ -237,7 +237,7 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
 			}
 		}
 		
-		TranslationPrintHudText(gServerData.AccountSync, client, gCvarList.ACCOUNT_HUD_X.FloatValue, gCvarList.ACCOUNT_HUD_Y.FloatValue, 1.1, gCvarList.ACCOUNT_HUD_R.IntValue, gCvarList.ACCOUNT_HUD_G.IntValue, gCvarList.ACCOUNT_HUD_B.IntValue, gCvarList.ACCOUNT_HUD_A.IntValue, 0, 0.0, 0.0, 0.0, "info account", "money", gClientData[target].Money);
+		TranslationPrintHudText(gServerData.AccountSync, client, gCvarList.ACCOUNT_HUD_X.FloatValue, gCvarList.ACCOUNT_HUD_Y.FloatValue, 1.1, gCvarList.ACCOUNT_HUD_R.IntValue, gCvarList.ACCOUNT_HUD_G.IntValue, gCvarList.ACCOUNT_HUD_B.IntValue, gCvarList.ACCOUNT_HUD_A.IntValue, 0, 0.0, 0.0, 0.0, "info account", "menu money", gClientData[target].Money);
 
 		return Plugin_Continue;
 	}
@@ -346,7 +346,7 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
 		GetClientName(client, sInfo[0], sizeof(sInfo[]));
 		GetClientName(target, sInfo[1], sizeof(sInfo[]));
 		
-		TranslationPrintToChatAll("info donate", sInfo[0], iAmount, "money", sInfo[1]);
+		TranslationPrintToChatAll("info donate", sInfo[0], iAmount, "menu money", sInfo[1]);
 	}
 	
 	return Plugin_Handled;

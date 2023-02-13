@@ -145,6 +145,15 @@ native void ZP_GetCostumeAngle(int costumeID, float angle[3]);
 native void ZP_GetCostumeGroup(int costumeID, char[] group, int maxlenght = 32);
 
 /**
+ * @brief Gets the group flags of the costume.
+ *
+ * @param classID           The costume index.
+ *
+ * @return                  The flags bits.    
+ **/
+native int ZP_GetCostumeGroupFlags(int costumeID);
+
+/**
  * @brief Gets the hide value of the costume.
  *
  * @param costumeID         The costume index.

@@ -75,20 +75,13 @@ void MainMenu(int client)
 	
 	hMenu.SetTitle("%t", "main menu");
 	
+	int iFlags = GetUserFlagBits(client);
+
 	Action hResult;
 	
 	int iSize = gServerData.Menus.Length; int iAmount;
 	for (int i = 0; i < iSize; i++)
 	{
-		MenusGetGroup(i, sInfo, sizeof(sInfo));
-
-		bool bHide = ((hasLength(sInfo) && !IsPlayerInGroup(client, sInfo)) || !MenusHasAccessByType(client, i));
-
-		if (bHide && MenusIsHide(i))
-		{
-			continue;
-		}
-
 		gForwardData._OnClientValidateMenu(client, i, _, hResult);
 		
 		if (hResult == Plugin_Stop)
@@ -96,19 +89,37 @@ void MainMenu(int client)
 			continue;
 		}
 
+		int iGroup = MenusGetGroupFlags(i);
+		bool bMissGroup = iGroup && !(iGroup & iFlags);
+		
+		bool bHidden = bMissGroup || !MenusHasAccessByType(client, i);
+
+		if (bHidden && MenusIsHide(i))
+		{
+			continue;
+		}
+
 		MenusGetName(i, sName, sizeof(sName));
 
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
-
+		if (bMissGroup)
+		{
+			MenusGetGroup(i, sInfo, sizeof(sInfo));
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu group", sInfo);
+		}
+		else
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		}
+		
 		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bHide) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(!bHidden && hResult != Plugin_Handled));
 	
 		iAmount++;
 	}
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 
@@ -205,6 +216,8 @@ void SubMenu(int client, int iD)
 	
 	hMenu.SetTitle("%t", sBuffer);
 	
+	int iFlags = GetUserFlagBits(client);
+	
 	Action hResult;
 	
 	int iAmount;
@@ -217,28 +230,36 @@ void SubMenu(int client, int iD)
 			continue;
 		}
 		
-		MenusGetGroup(iD, sInfo, sizeof(sInfo), i);
+		int iGroup = MenusGetGroupFlags(iD, i);
+		bool bMissGroup = iGroup && !(iGroup & iFlags);
 
-		bool bHide = ((hasLength(sInfo) && !IsPlayerInGroup(client, sInfo)) || !MenusHasAccessByType(client, iD, i));
-
-		if (bHide && MenusIsHide(iD, i))
+		bool bHidden = bMissGroup || !MenusHasAccessByType(client, iD, i);
+		if (bHidden && MenusIsHide(iD, i))
 		{
 			continue;
 		}
 
 		MenusGetName(iD, sName, sizeof(sName), i);
 
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		if (bMissGroup)
+		{
+			MenusGetGroup(iD, sInfo, sizeof(sInfo), i);
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu group", sInfo);
+		}
+		else
+		{
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+		}
 
 		FormatEx(sInfo, sizeof(sInfo), "%d %d", iD, i);
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(hResult == Plugin_Handled || bHide ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(!bHidden && hResult != Plugin_Handled));
 	
 		iAmount++;
 	}
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 	

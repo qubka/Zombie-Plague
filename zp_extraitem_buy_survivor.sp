@@ -67,7 +67,7 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute()
 {
-	gItem = ZP_GetExtraItemNameID("survivor");
+	gItem = ZP_GetExtraItemNameID("buy survivor");
 	
 	gType = ZP_GetClassTypeID("survivor");
 	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"survivor\" wasn't find");

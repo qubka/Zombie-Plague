@@ -86,7 +86,7 @@ void MarketMenu(int client)
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 	
-	if (MarketBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
+	if (MarketIsBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
 	{
 		int iD = gServerData.Sections.Length - 1;
 		
@@ -114,12 +114,12 @@ void MarketMenu(int client)
 		FormatEx(sBuffer, sizeof(sBuffer), "%t", sBuffer);
 
 		IntToString(i, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(MarketBuyTimeExpired(client, i) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(MarketIsBuyTimeExpired(client, i) ? false : true));
 	}
 	
 	if (!iSize)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 
@@ -175,7 +175,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 				
 				default :
 				{
-					if (MarketBuyTimeExpired(client, iD))
+					if (MarketIsBuyTimeExpired(client, iD))
 					{
 						TranslationPrintHintText(client, "block buying round");
 				
@@ -210,9 +210,7 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 	static int iTypes[MAXPLAYERS+1];
-	
-	int iPlaying = fnGetPlaying();
-	
+
 	if (iType != -1) 
 	{
 		iTypes[client] = iType;
@@ -247,7 +245,10 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 	}
 
 	hMenu.SetTitle("%t", sTitle);
-
+	
+	int iPlaying = fnGetPlaying();
+	int iFlags = GetUserFlagBits(client);
+	
 	int iSize = MarketSectionToCount(client, mSection); int iAmount;
 	for (int i = 0; i < iSize; i++)
 	{
@@ -255,7 +256,7 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 
 		if (bEdit)
 		{
-			if (!ClassHasType(ItemsGetTypes(iD), iType))
+			if (!ClassHasTypeBits(ItemsGetTypes(iD), iType))
 			{
 				continue;
 			}
@@ -287,45 +288,57 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 			}
 
 			ItemsGetName(iD, sName, sizeof(sName));
-			ItemsGetGroup(iD, sInfo, sizeof(sInfo));
 			int iCost = ItemsGetCost(iD);
 			int iLevel = ItemsGetLevel(iD);
 			int iLimit = ItemsGetLimit(iD);
 			int iOnline = ItemsGetOnline(iD);
-			int iMapLimit = ItemsGetFlags(iD) & ADMFLAG_CUSTOM1;
+			int iWeapon = ItemsGetWeaponID(iD);
+			int iGroup = ItemsGetGroupFlags(iD);
 			
-			bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
-			if (bMissGroup)
+			bool bEnabled = false;
+			
+			if (iGroup && !(iGroup & iFlags))
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+				ItemsGetGroup(iD, sInfo, sizeof(sInfo));
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu group", sInfo);
 			}
 			else if (gCvarList.LEVEL_SYSTEM.BoolValue && gClientData[client].Level < iLevel)
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "level", iLevel);
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu level", iLevel);
 			}
-			else if (iMapLimit && ItemsGetMapLimits(client, iD))
+			else if ((ItemsGetFlags(iD) & ADMFLAG_CUSTOM1) && ItemsGetMapLimits(client, iD))
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t*", sName, "limit", 1);
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t*", sName, "menu limit", 1);
 			}
 			else if (iLimit && iLimit <= ItemsGetLimits(client, iD))
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "limit", iLimit);
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu limit", iLimit);
 			}
 			else if (iPlaying < iOnline)
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "online", iOnline);    
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu online", iOnline);    
+			}
+			else if (gClientData[client].Money < iCost)
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu price", iCost, "menu money");
+			}
+			else if (iWeapon != -1 && WeaponsFindByID(client, iWeapon) != -1)
+			{
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu weapon");    
 			}
 			else if (iCost)
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "price", iCost, "money");
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu price", iCost, "menu money");
+				bEnabled = true;
 			}
 			else
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+				bEnabled = true;
 			}
 
 			IntToString(iD, sInfo, sizeof(sInfo));
-			hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || MarketBuyTimeExpired(client, ItemsGetSectionID(iD)) || MarketItemNotAvailable(client, iD)) ? false : true));
+			hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(bEnabled && hResult != Plugin_Handled && !MarketIsBuyTimeExpired(client, ItemsGetSectionID(iD)) && !ItemHasFlags(client, iD)));
 		}
 		
 		iAmount++;
@@ -333,7 +346,7 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 	
@@ -365,7 +378,7 @@ public int MarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int m
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (MarketBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
+				if (MarketIsBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
 				{
 					int iD[2]; iD = MenusCommandToArray("zmarket");
 					if (iD[0] != -1) SubMenu(client, iD[0]);
@@ -640,7 +653,7 @@ void MarketEditMenu(int client)
 	
 	if (!iSize)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 	

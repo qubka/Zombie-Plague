@@ -2343,7 +2343,7 @@ stock bool IsPlayerInGroup(int client, char[] sGroup)
 
 	AdminId nAdmin = GetUserAdmin(client);
 	
-	if (iD == INVALID_ADMIN_ID)
+	if (nAdmin == INVALID_ADMIN_ID)
 	{
 		return false;
 	}
@@ -2388,23 +2388,6 @@ stock bool IsTimeBetween(int min, int max)
 	}
 
 	return min <= time && time <= max;
-}
-
-/**
- * @brief Returns the flag set that is added to users from this group.
- *
- * @param sGroup            The SourceMod group name to check.
- *
- * @return                  True or false.
- **/
-stock int FindAdmGroup(char[] sGroup)
-{
-	if (hasLength(sGroup))
-	{
-		GroupId nGroup = FindAdmGroup(sGroup);
-		return nGroup != INVALID_GROUP_ID ? nGroup.GetFlags() : 0;
-	}
-	return 0;
 }
 
 /*_____________________________________________________________________________________________________________*/

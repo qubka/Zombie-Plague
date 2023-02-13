@@ -454,7 +454,7 @@ public void ZP_OnGameModeStart(int mode)
 		return;
 	}
 	
-	if (ZP_GetGameModeHumanType(mode) == gType)
+	if (ZP_GetGameModeTypeHuman(mode) == gType)
 	{
 		delete hPresentSpawn;
 		hPresentSpawn = CreateTimer(hCvarPresentDelay.FloatValue, CaseSpawnHook, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -720,7 +720,7 @@ stock int FindRandomWeapon()
 			continue;
 		}
 		
-		if (!ZP_ClassHasType(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
+		if (!ZP_ClassHasTypeBits(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
 		{
 			continue;
 		}

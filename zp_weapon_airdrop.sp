@@ -495,7 +495,7 @@ public void ZP_OnGameModeStart(int mode)
 		return;
 	}
 	
-	if (ZP_GetGameModeHumanType(mode) == gType && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
+	if (ZP_GetGameModeTypeHuman(mode) == gType && ZP_GetPlayingAmount() >= ZP_GetWeaponOnline(gWeapon))
 	{
 		int client = ZP_GetRandomHuman();
 
@@ -1637,7 +1637,7 @@ stock int FindRandomWeapon()
 			continue;
 		}
 		
-		if (!ZP_ClassHasType(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
+		if (!ZP_ClassHasTypeBits(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
 		{
 			continue;
 		}

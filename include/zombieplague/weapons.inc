@@ -332,6 +332,15 @@ native ItemDef ZP_GetWeaponDefIndex(int weaponID);
 native void ZP_GetWeaponGroup(int weaponID, char[] group, int maxlenght = 32);
 
 /**
+ * @brief Gets the group flags of the weapon.
+ * 
+ * @param weaponID          The weapon ID.
+ *
+ * @return                  The flags bits.    
+ **/
+native int ZP_GetWeaponGroupFlags(int weaponID);
+
+/**
  * @brief Gets the types of the weapon.
  * 
  * @param weaponID          The weapon ID.

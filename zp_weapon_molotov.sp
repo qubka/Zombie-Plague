@@ -138,13 +138,13 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 			}
 			else
 			{
-				float flStamina; float flDuration; int iD = GetEntProp(inflictor, Prop_Data, "m_iHammerID");
+				float flSlowdown; float flDuration; int iD = GetEntProp(inflictor, Prop_Data, "m_iHammerID");
 		
 				if (iD == gDublicat)
 				{
 					flDamage *= ZP_GetWeaponDamage(gDublicat);
 					
-					flStamina = ZP_GetWeaponKnockBack(gDublicat);
+					flSlowdown = ZP_GetWeaponKnockBack(gDublicat);
 					
 					flDuration = ZP_GetWeaponModelHeat(gDublicat);
 				}
@@ -152,7 +152,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 				{
 					flDamage *= ZP_GetWeaponDamage(gWeapon);
 					
-					flStamina = ZP_GetWeaponKnockBack(gWeapon);
+					flSlowdown = ZP_GetWeaponKnockBack(gWeapon);
 					
 					flDuration = ZP_GetWeaponModelHeat(gWeapon);
 				}
@@ -160,7 +160,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 
 				if (iBits & DMG_BURN) UTIL_IgniteEntity(client, flDuration);
 
-				SetEntPropFloat(client, Prop_Send, "m_flStamina", flStamina);
+				SetEntPropFloat(client, Prop_Send, "m_flStamina", max(max(flSlowdown, GetEntPropFloat(client, Prop_Send, "m_flStamina")), 100.0));
 	
 				return;
 			}

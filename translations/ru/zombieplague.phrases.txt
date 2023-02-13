@@ -126,36 +126,47 @@
 	// Menus
 	// ===========================
 
-	"price" // Menu (translated)
+	"menu price" // Menu (translated)
 	{
 		"#format"		"{1:d},{2:t}"
 		"ru"			"[{1}{2}]"
 	}
+		
+	"menu group" // Menu
+	{
+		"#format"		"{1:s}"
+		"ru"			"[{1}]"
+	}
 	
-	"level" // Menu
+	"menu level" // Menu
 	{
 		"#format"		"{1:d}"
 		"ru"			"[УРВ:{1}]"
 	}
 	
-	"online" // Menu
+	"menu online" // Menu
 	{
 		"#format"		"{1:d}"
 		"ru"			"[ОНЛ:{1}]"
 	}
 	
-	"limit" // Menu
+	"menu limit" // Menu
 	{
 		"#format"		"{1:d}"
 		"ru"			"[ЛМТ:{1}]"
 	}
 	
-	"money" // Universal
+	"menu weapon" // Menu
+	{
+		"ru"			"[Куплено]"
+	}
+	
+	"menu money" // Universal
 	{
 		"ru"			"$"
 	}
 		
-	"empty" // Menu
+	"menu empty" // Menu
 	{
 		"ru"			"(Пусто)"
 	}

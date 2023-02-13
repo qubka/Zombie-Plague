@@ -75,8 +75,6 @@ void ModesMenu(int client, int target = -1)
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 
-	int iAlive = fnGetAlive();
-	
 	Menu hMenu = new Menu(ModesMenuSlots);
 	
 	SetGlobalTransTarget(client);
@@ -90,11 +88,14 @@ void ModesMenu(int client, int target = -1)
 		}
 		else
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "empty");
+			FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "menu empty");
 		}
 		
 		hMenu.AddItem("-1 -1", sBuffer);
 	}
+
+	int iAlive = fnGetAlive();
+	int iFlags = GetUserFlagBits(client);
 	
 	Action hResult;
 	
@@ -109,32 +110,35 @@ void ModesMenu(int client, int target = -1)
 		}
 		
 		ModesGetName(i, sName, sizeof(sName));
-		ModesGetGroup(i, sInfo, sizeof(sInfo));
 		int iMin = ModesGetMinPlayers(i);
+		int iGroup = ModesGetGroupFlags(i);
 		
-		bool bMissGroup = hasLength(sInfo) && !IsPlayerInGroup(client, sInfo);
-		if (bMissGroup)
+		bool bEnabled = false;
+		
+		if (iGroup && !(iGroup & iFlags))
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t  %s", sName, sInfo);
+			ModesGetGroup(i, sInfo, sizeof(sInfo));
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu group", sInfo);
 		}
 		else if (iAlive < iMin)
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "online", iMin);
+			FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu online", iMin);
 		}
 		else
 		{
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", sName);
+			bEnabled = true;
 		}
 
 		FormatEx(sInfo, sizeof(sInfo), "%d %d", i, (target == -1) ? -1 : GetClientUserId(target));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw((hResult == Plugin_Handled || bMissGroup || iAlive < iMin) ? false : true));
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(bEnabled && hResult != Plugin_Handled));
 	
 		iAmount++;
 	}
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 
@@ -262,7 +266,7 @@ void ModesOptionMenu(int client)
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer, ITEMDRAW_DISABLED);
 	}
 	

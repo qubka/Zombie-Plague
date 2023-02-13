@@ -85,7 +85,7 @@ void TeleportMenu(int client)
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer);
 	}
 	

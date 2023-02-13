@@ -126,36 +126,47 @@
 	// Menus
 	// ===========================
 
-	"price" // Menu (translated)
+	"menu price" // Menu (translated)
 	{
 		"#format"		"{1:d},{2:t}"
 		"zho"			"[{1}{2}]"
 	}
+		
+	"menu group" // Menu
+	{
+		"#format"		"{1:s}"
+		"zho"			"[{1}]"
+	}
 	
-	"level" // Menu
+	"menu level" // Menu
 	{
 		"#format"		"{1:d}"
 		"zho"			"[等級:{1}]"
 	}
 	
-	"online" // Menu
+	"menu online" // Menu
 	{
 		"#format"		"{1:d}"
 		"zho"			"[在綫:{1}]"
 	}
 	
-	"limit" // Menu
+	"menu limit" // Menu
 	{
 		"#format"		"{1:d}"
 		"zho"			"[限制:{1}]"
 	}
 	
-	"money" // Universal
+	"menu weapon" // Menu
+	{
+		"zho"			"[購買]"
+	}
+	
+	"menu money" // Menu
 	{
 		"zho"			"$"
 	}
 		
-	"empty" // Menu
+	"menu empty" // Menu
 	{
 		"zho"			"(空的)"
 	}

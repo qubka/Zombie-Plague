@@ -32,6 +32,7 @@ enum
 {
 	MENUS_DATA_NAME,
 	MENUS_DATA_GROUP,
+	MENUS_DATA_GROUP_FLAGS,
 	MENUS_DATA_TYPES,
 	MENUS_DATA_HIDE,
 	MENUS_DATA_COMMAND,
@@ -122,16 +123,17 @@ void MenusOnCacheData()
 
 		kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
 		arrayMenu.PushString(sBuffer);                                // Index: 1
+		arrayMenu.Push(ConfigGetAdmFlags(sBuffer));                   // Index: 2
 		kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");  
-		arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: 2
-		arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: 3
+		arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: 3
+		arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: 4
 		kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
-		arrayMenu.PushString(sBuffer);                                // Index: 4
+		arrayMenu.PushString(sBuffer);                                // Index: 5
 		if (hasLength(sBuffer)) 
 		{
 			AddCommandListener(MenusOnCommandListenedCommand, sBuffer);
 		}
-		else if (kvMenus.JumpToKey("submenu"))                        // Index: 5
+		else if (kvMenus.JumpToKey("submenu"))                        // Index: 6
 		{
 			if (kvMenus.GotoFirstSubKey())
 			{
@@ -148,11 +150,12 @@ void MenusOnCacheData()
 					arrayMenu.PushString(sBuffer);                                // Index: i + 0
 					kvMenus.GetString("group", sBuffer, sizeof(sBuffer), "");  
 					arrayMenu.PushString(sBuffer);                                // Index: i + 1
+					arrayMenu.Push(ConfigGetAdmFlags(sBuffer));                   // Index: i + 2
 					kvMenus.GetString("types", sBuffer, sizeof(sBuffer), "");  
-					arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: i + 2
-					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: i + 3
+					arrayMenu.Push(ClassTypeToIndex(sBuffer));                    // Index: i + 3
+					arrayMenu.Push(ConfigKvGetStringBool(kvMenus, "hide", "no")); // Index: i + 4
 					kvMenus.GetString("command", sBuffer, sizeof(sBuffer), "");
-					arrayMenu.PushString(sBuffer);                                // Index: i + 4
+					arrayMenu.PushString(sBuffer);                                // Index: i + 5
 					if (hasLength(sBuffer)) 
 					{
 						AddCommandListener(MenusOnCommandListenedCommand, sBuffer);
@@ -278,14 +281,15 @@ public void MenusOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
  **/
 void MenusOnNativeInit() 
 {
-	CreateNative("ZP_GetNumberMenu",    API_GetNumberMenu);
-	CreateNative("ZP_GetMenuName",      API_GetMenuName);
-	CreateNative("ZP_GetMenuGroup",     API_GetMenuGroup);
-	CreateNative("ZP_GetMenuTypes",     API_GetMenuTypes);
-	CreateNative("ZP_IsMenuHide",       API_IsMenuHide);
-	CreateNative("ZP_GetMenuCommandID", API_GetMenuCommandID);
-	CreateNative("ZP_GetMenuCommand",   API_GetMenuCommand);
-	CreateNative("ZP_OpenMenuSub",      API_OpenMenuSub);
+	CreateNative("ZP_GetNumberMenu",     API_GetNumberMenu);
+	CreateNative("ZP_GetMenuName",       API_GetMenuName);
+	CreateNative("ZP_GetMenuGroup",      API_GetMenuGroup);
+	CreateNative("ZP_GetMenuGroupFlags", API_GetMenuGroupFlags);
+	CreateNative("ZP_GetMenuTypes",      API_GetMenuTypes);
+	CreateNative("ZP_IsMenuHide",        API_IsMenuHide);
+	CreateNative("ZP_GetMenuCommandID",  API_GetMenuCommandID);
+	CreateNative("ZP_GetMenuCommand",    API_GetMenuCommand);
+	CreateNative("ZP_OpenMenuSub",       API_OpenMenuSub);
 }
  
 /**
@@ -354,6 +358,24 @@ public int API_GetMenuGroup(Handle hPlugin, int iNumParams)
 	MenusGetGroup(iD, sGroup, sizeof(sGroup), GetNativeCell(4));
 
 	return SetNativeString(2, sGroup, maxLen);
+}
+
+/**
+ * @brief Gets the group flags of a menu.
+ *
+ * @note native int ZP_GetMenuGroupFlags(iD, sub);
+ **/
+public int API_GetMenuGroupFlags(Handle hPlugin, int iNumParams)
+{
+	int iD = GetNativeCell(1);
+	
+	if (iD >= gServerData.Menus.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the menu index (%d)", iD);
+		return -1;
+	}
+	
+	return MenusGetGroupFlags(iD, GetNativeCell(2));
 }
 
 /**
@@ -510,6 +532,20 @@ void MenusGetGroup(int iD, char[] sGroup, int iMaxLen, int iSubMenu = 0)
 }
 
 /**
+ * @brief Gets the group flags of a menu.
+ *
+ * @param iD                The menu index.
+ * @param iSubMenu          (Optional) The submenu index.
+ * @return                  The flags bits.
+ **/
+int MenusGetGroupFlags(int iD, int iSubMenu = 0)
+{
+	ArrayList arrayMenu = gServerData.Menus.Get(iD);
+	
+	return arrayMenu.Get(MENUS_DATA_GROUP_FLAGS + iSubMenu);
+}
+
+/**
  * @brief Gets the types of a menu.
  *
  * @param iD                The menu index.
@@ -602,10 +638,8 @@ bool MenusHasAccessByCommand(int client, char[] sCommand)
 	int iD[2]; iD = MenusCommandToArray(sCommand);
 	if (iD[0] != -1)
 	{
-		static char sGroup[SMALL_LINE_LENGTH];
-		MenusGetGroup(iD[0], sGroup, sizeof(sGroup), iD[1]);
-
-		if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup) || !MenusHasAccessByType(client, iD[0], iD[1]))
+		int iGroup = MenusGetGroupFlags(iD[0], iD[1]);
+		if ((iGroup && !(iGroup & GetUserFlagBits(client))) || !MenusHasAccessByType(client, iD[0], iD[1]))
 		{
 			return false;
 		}
@@ -624,15 +658,15 @@ bool MenusHasAccessByCommand(int client, char[] sCommand)
  **/
 bool MenusHasAccessByType(int client, int iD, int iSubMenu = 0)
 {
-	return ClassHasType(MenusGetTypes(iD, iSubMenu), ClassGetType(gClientData[client].Class));
+	return ClassHasTypeBits(MenusGetTypes(iD, iSubMenu), ClassGetType(gClientData[client].Class));
 }
 
 /**
  * @brief Return itemdraw flag for radio menus.
  * 
- * @param menuCondition     If this is true, item will be drawn normally.
+ * @param bCondition        If this is true, item will be drawn normally.
  **/
-int MenusGetItemDraw(bool menuCondition)
+int MenusGetItemDraw(bool bCondition)
 {
-	return menuCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
+	return bCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
 }

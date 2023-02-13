@@ -187,6 +187,15 @@ native int ZP_GetExtraItemFlags(int itemID);
 native void ZP_GetExtraItemGroup(int itemID, char[] group, int maxlenght = 32);
 
 /**
+ * @brief Gets the group flags of a extra item.
+ * 
+ * @param itemID            The item index.
+ *
+ * @return                  The flags bits.
+ **/
+native int ZP_GetExtraItemGroupFlags(int itemID);
+
+/**
  * @brief Gets the types of a extra item.
  * 
  * @param itemID            The item index.

@@ -2,12 +2,12 @@
 {
 	// Items
 
-	"nemesis" // Menu
+	"buy nemesis" // Menu
 	{
 		"chi"			"購買剋星"
 	}
 	
-	"survivor" // Menu
+	"buy survivor" // Menu
 	{
 		"chi"			"購買倖存者"
 	}

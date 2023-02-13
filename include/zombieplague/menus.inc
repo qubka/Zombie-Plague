@@ -80,6 +80,16 @@ native void ZP_GetMenuName(int menuID, char[] name, int maxlenght = 32, int iSub
 native void ZP_GetMenuGroup(int menuID, char[] group, int maxlenght = 32, int iSub = 0);
 
 /**
+ * @brief Gets the group flags of the menu.
+ *
+ * @param menuID            The menu index.
+ * @param iSub              (Optional) The submenu index.
+ *
+ * @return                  The flags bits.
+ **/
+native int ZP_GetMenuGroupFlags(int menuID, int iSub = 0);
+
+/**
  * @brief Gets the types of the menu.
  *
  * @param menuID            The menu index.

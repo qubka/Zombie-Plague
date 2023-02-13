@@ -46,7 +46,7 @@ public Plugin myinfo =
 int gDecal[5]; int gTrail;
 
 // Sound index
-int gSoundShoot; int gSoundUpgrade; ConVar gKnockBack;
+int gSoundShoot; int gSoundUpgrade; ConVar gKnockback;
  
 // Weapon index
 int gWeapon;  
@@ -177,7 +177,6 @@ ConVar hCvarSentryRocketDelay;
 ConVar hCvarSentryRocketReload;
 ConVar hCvarSentryRocketSpeed;
 ConVar hCvarSentryRocketDamage;
-ConVar hCvarSentryRocketGravity;
 ConVar hCvarSentryRocketRadius;
 ConVar hCvarSentryRocketTrail;
 ConVar hCvarSentryRocketExp;
@@ -282,8 +281,8 @@ public void ZP_OnEngineExecute()
 	gSoundUpgrade = ZP_GetSoundKeyID("TURRET_UP_SOUNDS");
 	if (gSoundUpgrade == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_UP_SOUNDS\" wasn't find");
 
-	gKnockBack = FindConVar("zp_knockback"); 
-	if (gKnockBack == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_knockback\" wasn't find");
+	gKnockback = FindConVar("zp_knockback"); 
+	if (gKnockback == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_knockback\" wasn't find");
 }
 
 /**
@@ -1308,7 +1307,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 						return;
 					}
 					
-					if (gKnockBack.BoolValue)
+					if (gKnockback.BoolValue)
 					{
 						MakeVectorFromPoints(vPosition, vEndPosition, vVelocity);
 
@@ -1324,10 +1323,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 					}
 					else
 					{
-						if (flForce > 100.0) flForce = 100.0;
-						else if (flForce <= 0.0) return;
-				
-						SetEntPropFloat(victim, Prop_Send, "m_flStamina", flForce);
+						SetEntPropFloat(victim, Prop_Send, "m_flStamina", max(max(flForce, GetEntPropFloat(victim, Prop_Send, "m_flStamina")), 100.0));
 					}
 				}
 			}

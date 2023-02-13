@@ -126,36 +126,48 @@
 	// Menus
 	// ===========================
 
-	"price" // Menu (translated)
+	"menu price" // Menu (translated)
 	{
 		"#format"		"{1:d},{2:t}"
 		"ro"			"[{1}{2}]"
 	}
+		
+	"menu group" // Menu
+	{
+		"#format"		"{1:s}"
+		"ro"			"[{1}]"
+	}
 	
-	"level" // Menu
+	"menu level" // Menu
 	{
 		"#format"		"{1:d}"
 		"ro"			"[NIVEL:{1}]"
 	}
 	
-	"online" // Menu
+	"menu online" // Menu
 	{
 		"#format"		"{1:d}"
 		"ro"			"[CONECTAT:{1}]"
 	}
 	
-	"limit" // Menu
+	"menu limit" // Menu
 	{
 		"#format"		"{1:d}"
 		"ro"			"[LIMITA:{1}]"
 	}
 	
-	"money" // Universal
+	"menu weapon" // Menu
+	{
+		"ro"			"[Cumparat]"
+	}
+	
+	
+	"menu money" // Universal
 	{
 		"ro"			"$"
 	}
 		
-	"empty" // Menu
+	"menu empty" // Menu
 	{
 		"ro"			"(Gol)"
 	}

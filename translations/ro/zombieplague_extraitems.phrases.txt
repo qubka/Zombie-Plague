@@ -2,12 +2,12 @@
 {
 	// Items
 	
-	"nemesis" // Menu
+	"buy nemesis" // Menu
 	{
 		"ro"			"Cumpără nemesis"
 	}
 	
-	"survivor" // Menu
+	"buy survivor" // Menu
 	{
 		"ro"			"Cumpără supraviețuitor"
 	}

@@ -2,12 +2,12 @@
 {
 	// Items
 
-	"nemesis" // Menu
+	"buy nemesis" // Menu
 	{
 		"en"			"Buy Nemesis"
 	}
 	
-	"survivor" // Menu
+	"buy survivor" // Menu
 	{
 		"en"			"Buy Survivor"
 	}

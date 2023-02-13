@@ -53,12 +53,12 @@ public Plugin myinfo =
 /**
  * @section Properties of the gibs shooter.
  **/
-#define GLASS_GIBS_AMOUNT              5.0
-#define GLASS_GIBS_DELAY               0.05
-#define GLASS_GIBS_SPEED               500.0
-#define GLASS_GIBS_VARIENCE            1.0  
-#define GLASS_GIBS_LIFE                1.0  
-#define GLASS_GIBS_DURATION            2.0
+#define GLASS_GIBS_AMOUNT   5.0
+#define GLASS_GIBS_DELAY    0.05
+#define GLASS_GIBS_SPEED    500.0
+#define GLASS_GIBS_VARIENCE 1.0  
+#define GLASS_GIBS_LIFE     1.0  
+#define GLASS_GIBS_DURATION 2.0
 /**
  * @endsection
  **/

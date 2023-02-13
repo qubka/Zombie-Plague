@@ -37,30 +37,31 @@ enum
 {
 	GAMEMODES_DATA_NAME,
 	GAMEMODES_DATA_DESC,
-	GAMEMODES_DATA_DESCCOLOR,
-	GAMEMODES_DATA_DESCPOSX,
-	GAMEMODES_DATA_DESCPOSY,
-	GAMEMODES_DATA_DESCTIME,
+	GAMEMODES_DATA_DESC_COLOR,
+	GAMEMODES_DATA_DESC_POSX,
+	GAMEMODES_DATA_DESC_POSY,
+	GAMEMODES_DATA_DESC_TIME,
 	GAMEMODES_DATA_CHANCE,
 	GAMEMODES_DATA_MINPLAYERS,
 	GAMEMODES_DATA_RATIO,
-	GAMEMODES_DATA_HEALTHHUMAN,
-	GAMEMODES_DATA_HEALTHZOMBIE,
+	GAMEMODES_DATA_HEALTH_HUMAN,
+	GAMEMODES_DATA_HEALTH_ZOMBIE,
 	GAMEMODES_DATA_GROUP,
-	GAMEMODES_DATA_SOUNDSTART,
-	GAMEMODES_DATA_SOUNDENDHUMAN,
-	GAMEMODES_DATA_SOUNDENDZOMBIE,
-	GAMEMODES_DATA_SOUNDENDDRAW,
-	GAMEMODES_DATA_SOUNDAMBIENT,
-	GAMEMODES_DATA_SOUNDDURATION,
-	GAMEMODES_DATA_SOUNDVOLUME,
+	GAMEMODES_DATA_GROUP_FLAGS,
+	GAMEMODES_DATA_SOUND_START,
+	GAMEMODES_DATA_SOUND_ENDHUMAN,
+	GAMEMODES_DATA_SOUND_ENDZOMBIE,
+	GAMEMODES_DATA_SOUND_ENDDRAW,
+	GAMEMODES_DATA_SOUND_AMBIENT,
+	GAMEMODES_DATA_SOUND_DURATION,
+	GAMEMODES_DATA_SOUND_VOLUME,
 	GAMEMODES_DATA_INFECTION,
 	GAMEMODES_DATA_RESPAWN,
-	GAMEMODES_DATA_HUMANTYPE,
-	GAMEMODES_DATA_ZOMBIETYPE,
-	GAMEMODES_DATA_OVERLAYHUMAN,
-	GAMEMODES_DATA_OVERLAYZOMBIE,
-	GAMEMODES_DATA_OVERLAYDRAW,
+	GAMEMODES_DATA_TYPEHUMAN,
+	GAMEMODES_DATA_TYPEZOMBIE,
+	GAMEMODES_DATA_OVERLAY_HUMAN,
+	GAMEMODES_DATA_OVERLAY_ZOMBIE,
+	GAMEMODES_DATA_OVERLAY_DRAW,
 	GAMEMODES_DATA_DEATHMATCH,
 	GAMEMODES_DATA_AMOUNT,
 	GAMEMODES_DATA_DELAY,
@@ -192,56 +193,57 @@ void GameModesOnCacheData()
 		arrayGameMode.Push(kvGameModes.GetNum("health_zombie", 0));                 // Index: 10
 		kvGameModes.GetString("group", sBuffer, sizeof(sBuffer), "");
 		arrayGameMode.PushString(sBuffer);                                          // Index: 11
+		arrayGameMode.Push(ConfigGetAdmFlags(sBuffer));                             // Index: 12
 		kvGameModes.GetString("start", sBuffer, sizeof(sBuffer), "");               
-		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 12
-		kvGameModes.GetString("end_human", sBuffer, sizeof(sBuffer), "");           
 		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 13
-		kvGameModes.GetString("end_zombie", sBuffer, sizeof(sBuffer), "");          
+		kvGameModes.GetString("end_human", sBuffer, sizeof(sBuffer), "");           
 		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 14
-		kvGameModes.GetString("end_draw", sBuffer, sizeof(sBuffer), "");            
+		kvGameModes.GetString("end_zombie", sBuffer, sizeof(sBuffer), "");          
 		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 15
-		kvGameModes.GetString("ambient", sBuffer, sizeof(sBuffer), "");             
+		kvGameModes.GetString("end_draw", sBuffer, sizeof(sBuffer), "");            
 		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 16
-		arrayGameMode.Push(kvGameModes.GetFloat("duration", 60.0));                 // Index: 17
-		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 18
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 19
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 20
+		kvGameModes.GetString("ambient", sBuffer, sizeof(sBuffer), "");             
+		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 17
+		arrayGameMode.Push(kvGameModes.GetFloat("duration", 60.0));                 // Index: 18
+		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 19
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 20
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 21
 		kvGameModes.GetString("humantype", sBuffer, sizeof(sBuffer), "human");
-		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 21
-		kvGameModes.GetString("zombietype", sBuffer, sizeof(sBuffer), "zombie");   
 		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 22
+		kvGameModes.GetString("zombietype", sBuffer, sizeof(sBuffer), "zombie");   
+		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 23
 		kvGameModes.GetString("overlay_human", sBuffer, sizeof(sBuffer), "");       
-		arrayGameMode.PushString(sBuffer);                                          // Index: 23
+		arrayGameMode.PushString(sBuffer);                                          // Index: 24
 		if (hasLength(sBuffer))                                                     
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
 			DecryptPrecacheTextures("self", sBuffer);
 		}
 		kvGameModes.GetString("overlay_zombie", sBuffer, sizeof(sBuffer), "");
-		arrayGameMode.PushString(sBuffer);                                       // Index: 24
+		arrayGameMode.PushString(sBuffer);                                          // Index: 25
 		if (hasLength(sBuffer)) 
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
 			DecryptPrecacheTextures("self", sBuffer);
 		}
 		kvGameModes.GetString("overlay_draw", sBuffer, sizeof(sBuffer), "");
-		arrayGameMode.PushString(sBuffer);                                       // Index: 25
+		arrayGameMode.PushString(sBuffer);                                          // Index: 26
 		if (hasLength(sBuffer)) 
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
 			DecryptPrecacheTextures("self", sBuffer);
 		}
-		arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 26
-		arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 27
-		arrayGameMode.Push(kvGameModes.GetFloat("delay", 0.0));                     // Index: 28
-		arrayGameMode.Push(kvGameModes.GetNum("last", 0));                          // Index: 29
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "suicide", "no"));    // Index: 30
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "escape", "off"));    // Index: 31
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "blast", "on"));      // Index: 32
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 33
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 34
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 35
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 36
+		arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 27
+		arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 28
+		arrayGameMode.Push(kvGameModes.GetFloat("delay", 0.0));                     // Index: 29
+		arrayGameMode.Push(kvGameModes.GetNum("last", 0));                          // Index: 30
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "suicide", "no"));    // Index: 31
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "escape", "off"));    // Index: 32
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "blast", "on"));      // Index: 33
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 34
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 35
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 36
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 37
 	}
 
 	delete kvGameModes;
@@ -489,7 +491,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	int iType = ModesGetZombieType(gServerData.RoundMode);
+	int iType = ModesGetTypeZombie(gServerData.RoundMode);
 	
 	for (int i = 0; i < iMaxZombies; i++) /// Turn players into the zombies
 	{
@@ -504,7 +506,7 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	iType = ModesGetHumanType(gServerData.RoundMode);
+	iType = ModesGetTypeHuman(gServerData.RoundMode);
 
 	if (iType == gServerData.Human)
 	{
@@ -731,6 +733,7 @@ void GameModesOnNativeInit()
 	CreateNative("ZP_GetGameModeHealthHuman",      API_GetGameModeHealthHuman);
 	CreateNative("ZP_GetGameModeHealthZombie",     API_GetGameModeHealthZombie);
 	CreateNative("ZP_GetGameModeGroup",            API_GetGameModeGroup);
+	CreateNative("ZP_GetGameModeGroupFlags",       API_GetGameModeGroupFlags);
 	CreateNative("ZP_GetGameModeSoundStartID",     API_GetGameModeSoundStartID);
 	CreateNative("ZP_GetGameModeSoundEndHumanID",  API_GetGameModeSoundEndHumanID);
 	CreateNative("ZP_GetGameModeSoundEndZombieID", API_GetGameModeSoundEndZombieID);
@@ -740,8 +743,8 @@ void GameModesOnNativeInit()
 	CreateNative("ZP_GetGameModeSoundVolume",      API_GetGameModeSoundVolume);
 	CreateNative("ZP_IsGameModeInfect",            API_IsGameModeInfect);
 	CreateNative("ZP_IsGameModeRespawn",           API_IsGameModeRespawn);
-	CreateNative("ZP_GetGameModeHumanType",        API_GetGameModeHumanType);
-	CreateNative("ZP_GetGameModeZombieType",       API_GetGameModeZombieType);
+	CreateNative("ZP_GetGameModeTypeHuman",        API_GetGameModeTypeHuman);
+	CreateNative("ZP_GetGameModeTypeZombie",       API_GetGameModeTypeZombie);
 	CreateNative("ZP_GetGameModeOverlayHuman",     API_GetGameModeOverlayHuman);
 	CreateNative("ZP_GetGameModeOverlayZombie",    API_GetGameModeOverlayZombie);
 	CreateNative("ZP_GetGameModeOverlayDraw",      API_GetGameModeOverlayDraw);
@@ -1166,6 +1169,29 @@ public int API_GetGameModeGroup(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Gets the group flags of the game mode.
+ *
+ * @note native int ZP_GetGameModeGroupFlags(iD);
+ **/
+public int API_GetGameModeGroupFlags(Handle hPlugin, int iNumParams)
+{
+	int iD = GetNativeCell(1);
+
+	if (iD == -1)
+	{
+		return iD;
+	}
+	
+	if (iD >= gServerData.GameModes.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
+		return -1;
+	}
+
+	return ModesGetGroupFlags(iD);
+}
+
+/**
  * @brief Gets the start sound key of the game mode.
  *
  * @note native int ZP_GetGameModeSoundStartID(iD);
@@ -1375,9 +1401,9 @@ public int API_IsGameModeRespawn(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the human type of a game mode.
  *
- * @note native int ZP_GetGameModeHumanType(iD);
+ * @note native int ZP_GetGameModeTypeHuman(iD);
  **/
-public int API_GetGameModeHumanType(Handle hPlugin, int iNumParams)
+public int API_GetGameModeTypeHuman(Handle hPlugin, int iNumParams)
 {
 	int iD = GetNativeCell(1);
 	
@@ -1392,15 +1418,15 @@ public int API_GetGameModeHumanType(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	return ModesGetHumanType(iD);
+	return ModesGetTypeHuman(iD);
 }
 
 /**
  * @brief Gets the human type of a game mode.
  *
- * @note native int ZP_GetGameModeZombieType(iD);
+ * @note native int ZP_GetGameModeTypeZombie(iD);
  **/
-public int API_GetGameModeZombieType(Handle hPlugin, int iNumParams)
+public int API_GetGameModeTypeZombie(Handle hPlugin, int iNumParams)
 {
 	int iD = GetNativeCell(1);
 	
@@ -1415,7 +1441,7 @@ public int API_GetGameModeZombieType(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	return ModesGetZombieType(iD);
+	return ModesGetTypeZombie(iD);
 }
 
 /**
@@ -1833,7 +1859,7 @@ void ModesGetDescColor(int iD, int[] iColor, int iMaxLen)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	arrayGameMode.GetArray(GAMEMODES_DATA_DESCCOLOR, iColor, iMaxLen);
+	arrayGameMode.GetArray(GAMEMODES_DATA_DESC_COLOR, iColor, iMaxLen);
 }
 
 /**
@@ -1851,7 +1877,7 @@ float ModesGetDescPosX(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_DESCPOSX);
+	return arrayGameMode.Get(GAMEMODES_DATA_DESC_POSX);
 }
 
 /**
@@ -1869,7 +1895,7 @@ float ModesGetDescPosY(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_DESCPOSY);
+	return arrayGameMode.Get(GAMEMODES_DATA_DESC_POSY);
 }
 
 /**
@@ -1887,7 +1913,7 @@ float ModesGetDescTime(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_DESCTIME);
+	return arrayGameMode.Get(GAMEMODES_DATA_DESC_TIME);
 }
 
 /**
@@ -1959,7 +1985,7 @@ int ModesGetHealthHuman(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_HEALTHHUMAN);
+	return arrayGameMode.Get(GAMEMODES_DATA_HEALTH_HUMAN);
 }
 
 /**
@@ -1977,7 +2003,7 @@ int ModesGetHealthZombie(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_HEALTHZOMBIE);
+	return arrayGameMode.Get(GAMEMODES_DATA_HEALTH_ZOMBIE);
 }
 
 /**
@@ -2001,6 +2027,24 @@ void ModesGetGroup(int iD, char[] sGroup, int iMaxLen)
 }
 
 /**
+ * @brief Gets the group flags of the game mode.
+ *
+ * @param iD                The mode index.
+ * @return                  The flags bits.  
+ **/
+int ModesGetGroupFlags(int iD)
+{
+	if (iD == -1)
+	{
+		return 0;
+	}
+	
+	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
+	
+	return arrayGameMode.Get(GAMEMODES_DATA_GROUP_FLAGS);
+}
+
+/**
  * @brief Gets the start sound key of the game mode.
  *
  * @param iD                The mode index.
@@ -2015,7 +2059,7 @@ int ModesGetSoundStartID(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUNDSTART);
+	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_START);
 }
 
 /**
@@ -2033,7 +2077,7 @@ int ModesGetSoundEndHumanID(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUNDENDHUMAN);
+	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_ENDHUMAN);
 }
 
 /**
@@ -2051,7 +2095,7 @@ int ModesGetSoundEndZombieID(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUNDENDZOMBIE);
+	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_ENDZOMBIE);
 }
 
 /**
@@ -2069,7 +2113,7 @@ int ModesGetSoundEndDrawID(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUNDENDDRAW);
+	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_ENDDRAW);
 }
 
 /**
@@ -2087,7 +2131,7 @@ int ModesGetSoundAmbientID(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUNDAMBIENT);
+	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_AMBIENT);
 }
 
 /**
@@ -2105,7 +2149,7 @@ float ModesGetSoundDuration(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUNDDURATION);
+	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_DURATION);
 }
 
 /**
@@ -2123,7 +2167,7 @@ float ModesGetSoundVolume(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUNDVOLUME);
+	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_VOLUME);
 }
 
 /**
@@ -2168,7 +2212,7 @@ bool ModesIsRespawn(int iD)
  * @param iD                The mode index.
  * @return                  The type index.
  **/
-int ModesGetHumanType(int iD)
+int ModesGetTypeHuman(int iD)
 {
 	if (iD == -1)
 	{
@@ -2177,7 +2221,7 @@ int ModesGetHumanType(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_HUMANTYPE);
+	return arrayGameMode.Get(GAMEMODES_DATA_TYPEHUMAN);
 }
 
 /**
@@ -2186,7 +2230,7 @@ int ModesGetHumanType(int iD)
  * @param iD                The mode index.
  * @return                  The type index.
  **/
-int ModesGetZombieType(int iD)
+int ModesGetTypeZombie(int iD)
 {
 	if (iD == -1)
 	{
@@ -2195,7 +2239,7 @@ int ModesGetZombieType(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_ZOMBIETYPE);
+	return arrayGameMode.Get(GAMEMODES_DATA_TYPEZOMBIE);
 }
 
 /**
@@ -2215,7 +2259,7 @@ void ModesGetOverlayHuman(int iD, char[] sOverlay, int iMaxLen)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	arrayGameMode.GetString(GAMEMODES_DATA_OVERLAYHUMAN, sOverlay, iMaxLen);
+	arrayGameMode.GetString(GAMEMODES_DATA_OVERLAY_HUMAN, sOverlay, iMaxLen);
 }
 
 /**
@@ -2235,7 +2279,7 @@ void ModesGetOverlayZombie(int iD, char[] sOverlay, int iMaxLen)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	arrayGameMode.GetString(GAMEMODES_DATA_OVERLAYZOMBIE, sOverlay, iMaxLen);
+	arrayGameMode.GetString(GAMEMODES_DATA_OVERLAY_ZOMBIE, sOverlay, iMaxLen);
 }
 
 /**
@@ -2255,7 +2299,7 @@ void ModesGetOverlayDraw(int iD, char[] sOverlay, int iMaxLen)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	arrayGameMode.GetString(GAMEMODES_DATA_OVERLAYDRAW, sOverlay, iMaxLen);
+	arrayGameMode.GetString(GAMEMODES_DATA_OVERLAY_DRAW, sOverlay, iMaxLen);
 }
 
 /**
@@ -2547,7 +2591,7 @@ void ModesDisconnectLast()
 	{
 		client = fnGetRandomHuman();
 		
-		ApplyOnClientUpdate(client, _, ModesGetZombieType(gServerData.RoundMode));
+		ApplyOnClientUpdate(client, _, ModesGetTypeZombie(gServerData.RoundMode));
 		
 		GetClientName(client, sName, sizeof(sName));
 		
@@ -2557,7 +2601,7 @@ void ModesDisconnectLast()
 	{
 		client = fnGetRandomZombie();
 		
-		ApplyOnClientUpdate(client, _, ModesGetHumanType(gServerData.RoundMode));
+		ApplyOnClientUpdate(client, _, ModesGetTypeHuman(gServerData.RoundMode));
 		
 		GetClientName(client, sName, sizeof(sName));
 		

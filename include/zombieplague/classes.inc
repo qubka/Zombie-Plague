@@ -368,6 +368,15 @@ native int ZP_GetClassLevel(int classID);
 native void ZP_GetClassGroup(int classID, char[] group, int maxlenght = 32);
 
 /**
+ * @brief Gets the group flags of the class.
+ *
+ * @param classID           The class index.
+ *
+ * @return                  The flags bits.    
+ **/
+native int ZP_GetClassGroupFlags(int classID);
+
+/**
  * @brief Gets the skill duration of the class.
  *
  * @param classID           The class index.
@@ -696,12 +705,12 @@ native int ZP_GetClassSoundJumpID(int classID);
 
 
 /**
- * @brief Return true if type flag exist.
+ * @brief Return true if type flag bit set.
  * 
  * @param iTypes            The class types.
  * @param iType             The class type.
  **/
-stock bool ZP_ClassHasType(int iTypes, int iType)
+stock bool ZP_ClassHasTypeBits(int iTypes, int iType)
 {
 	return (!iTypes || CheckBit(iTypes, iType));
 }

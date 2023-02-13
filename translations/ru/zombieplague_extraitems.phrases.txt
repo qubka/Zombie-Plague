@@ -2,12 +2,12 @@
 {
 	// Items
 	
-	"nemesis" // Menu
+	"buy nemesis" // Menu
 	{
 		"ru"			"Купить немезис"
 	}
 	
-	"survivor" // Menu
+	"buy survivor" // Menu
 	{
 		"ru"			"Купить выжившего"
 	}

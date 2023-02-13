@@ -40,6 +40,7 @@ enum
 	EXTRAITEMS_DATA_LIMIT,
 	EXTRAITEMS_DATA_FLAGS,
 	EXTRAITEMS_DATA_GROUP,
+	EXTRAITEMS_DATA_GROUP_FLAGS,
 	EXTRAITEMS_DATA_TYPES
 };
 /**
@@ -193,8 +194,9 @@ void ExtraItemsOnCacheData()
 				arrayExtraItem.Push(ReadFlagString(sBuffer));          // Index: 8
 				kvExtraItems.GetString("group", sBuffer, sizeof(sBuffer), ""); 
 				arrayExtraItem.PushString(sBuffer);                    // Index: 9
+				arrayExtraItem.Push(ConfigGetAdmFlags(sBuffer));       // Index: 10
 				kvExtraItems.GetString("types", sBuffer, sizeof(sBuffer), ""); 
-				arrayExtraItem.Push(ClassTypeToIndex(sBuffer));        // Index: 10
+				arrayExtraItem.Push(ClassTypeToIndex(sBuffer));        // Index: 11
 				
 				gServerData.ExtraItems.Push(arrayExtraItem);
 			}
@@ -245,6 +247,7 @@ void ExtraItemsOnNativeInit()
 	CreateNative("ZP_GetExtraItemLimit",       API_GetExtraItemLimit); 
 	CreateNative("ZP_GetExtraItemFlags",       API_GetExtraItemFlags); 
 	CreateNative("ZP_GetExtraItemGroup",       API_GetExtraItemGroup); 
+	CreateNative("ZP_GetExtraItemGroupFlags",  API_GetExtraItemGroupFlags); 
 	CreateNative("ZP_GetExtraItemTypes",       API_GetExtraItemTypes);
 }
 
@@ -584,6 +587,24 @@ public int API_GetExtraItemGroup(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Gets the group flags of the extra item.
+ *
+ * @note native int ZP_GetExtraItemGroupFlags(iD);
+ **/
+public int API_GetExtraItemGroupFlags(Handle hPlugin, int iNumParams)
+{
+	int iD = GetNativeCell(1);
+	
+	if (iD >= gServerData.ExtraItems.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Invalid the item index (%d)", iD);
+		return -1;
+	}
+	
+	return ItemsGetGroupFlags(iD);
+}
+
+/**
  * @brief Gets the types of the extra item.
  *
  * @note native int ZP_GetExtraItemTypes(iD);
@@ -825,6 +846,145 @@ int ItemsGetFlags(int iD)
 }
 
 /**
+ * @brief Checks the flags are set on the current client item.
+ *
+ * @param client            The client index.
+ * @param iD                The item index.
+ * @return                  True or false.   
+ **/
+bool ItemHasFlags(int client, int iD)
+{
+	int iFlags = ItemsGetFlags(iD);
+	if (!iFlags) 
+	{
+		return false;
+	}
+	
+	if (iFlags & ADMFLAG_RESERVATION) // "a" - the item is not available until the round starts.
+	{
+		if (!gServerData.RoundStart) 
+		{
+			return true;
+		}
+	}
+	else if (iFlags & ADMFLAG_GENERIC) // "b" - the item is not available after the round starts.
+	{
+		if (gServerData.RoundStart) 
+		{
+			return true;
+		}
+	}
+	
+	if (iFlags & ADMFLAG_KICK) // "c" - the item is not available when a single zombie.
+	{
+		if (fnGetZombies() <= 1)
+		{
+			return true;
+		}
+	}
+	else if (iFlags & ADMFLAG_BAN) // "d" - the item is only available when a single zombie.
+	{
+		if (fnGetZombies() > 1)
+		{
+			return true;
+		}
+	}
+
+	if (iFlags & ADMFLAG_UNBAN) // "e" - the item is not available when a single human.
+	{
+		if (fnGetHumans() <= 1)
+		{
+			return true;
+		}
+	}
+	else if (iFlags & ADMFLAG_SLAY) // "f" - the item is only available when a single human.
+	{
+		if (fnGetHumans() > 1)
+		{
+			return true;
+		}
+	}
+	
+	if (iFlags & ADMFLAG_CHANGEMAP) // "g" - the item is not available in an infection mode.
+	{
+		if (ModesIsInfection(gServerData.RoundMode))
+		{
+			return true;
+		}
+	}
+	else if (iFlags & ADMFLAG_CONVARS) // "h" - the item is only available in an infection mode.
+	{
+		if (!ModesIsInfection(gServerData.RoundMode))
+		{
+			return true;
+		}
+	}
+	
+	if (iFlags & ADMFLAG_CONFIG) // "i" - the item is not available in a respawn mode.
+	{
+		if (ModesIsRespawn(gServerData.RoundMode))
+		{
+			return true;
+		}
+	}
+	else if (iFlags & ADMFLAG_CHAT) // "j" - the item is only available in a respawn mode.
+	{
+		if (!ModesIsRespawn(gServerData.RoundMode))
+		{
+			return true;
+		}
+	}
+	
+	if (iFlags & ADMFLAG_VOTE) // "k" - the item is not available in a default human mode.
+	{
+		if (ModesGetTypeHuman(gServerData.RoundMode) == gServerData.Human)
+		{
+			return true;
+		}
+	}
+	else if (iFlags & ADMFLAG_PASSWORD) // "l" - the item is only available in a default human mode.
+	{
+		if (ModesGetTypeHuman(gServerData.RoundMode) != gServerData.Human)
+		{
+			return true;
+		}
+	}
+	
+	if (iFlags & ADMFLAG_RCON) // "m" - the item is not available in a default zombie mode.
+	{
+		if (ModesGetTypeZombie(gServerData.RoundMode) == gServerData.Zombie)
+		{
+			return true;
+		}
+	}
+	else if (iFlags & ADMFLAG_CHEATS) // "n" - the item is only available in a default zombie mode.
+	{
+		if (ModesGetTypeZombie(gServerData.RoundMode) != gServerData.Zombie)
+		{
+			return true;
+		}
+	}
+	
+	if (iFlags & ADMFLAG_CUSTOM1) // "o" - the item available once per map.
+	{
+		if (ItemsGetMapLimits(client, iD))
+		{
+			return true;
+		}
+
+	}
+	if (iFlags & ADMFLAG_CUSTOM2) // "p" - the item available only during night time.
+	{
+		if (!gServerData.NightTime)
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+/**
  * @brief Gets the group of a item at a given index.
  *
  * @param iD                The item index.
@@ -836,6 +996,19 @@ void ItemsGetGroup(int iD, char[] sGroup, int iMaxLen)
 	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
 	arrayExtraItem.GetString(EXTRAITEMS_DATA_GROUP, sGroup, iMaxLen);
+}
+
+/**
+ * @brief Gets the group flags for the item.
+ *
+ * @param iD                The item index.
+ * @return                  The flags bits.   
+ **/
+int ItemsGetGroupFlags(int iD)
+{
+	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
+
+	return arrayExtraItem.Get(EXTRAITEMS_DATA_GROUP_FLAGS);
 }
 
 /**
@@ -888,5 +1061,5 @@ int ItemsNameToIndex(char[] sName)
  **/
 bool ItemsHasAccessByType(int client, int iD)
 {
-	return ClassHasType(ItemsGetTypes(iD), ClassGetType(gClientData[client].Class));
+	return ClassHasTypeBits(ItemsGetTypes(iD), ClassGetType(gClientData[client].Class));
 }

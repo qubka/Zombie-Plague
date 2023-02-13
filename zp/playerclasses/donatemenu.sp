@@ -75,7 +75,7 @@ void DonateMenu(int client, int iMoney, float flCommision)
 
 	if (flCommision <= 0.0)
 	{
-		hMenu.SetTitle("%t", "account donate", iMoney, "money");
+		hMenu.SetTitle("%t", "account donate", iMoney, "menu money");
 	}
 	else
 	{
@@ -87,7 +87,7 @@ void DonateMenu(int client, int iMoney, float flCommision)
 		{
 			FormatEx(sInfo, sizeof(sInfo), "%.2f%", flCommision * 100.0);
 		}
-		hMenu.SetTitle("%t", "account commission", iMoney, "money", sInfo);
+		hMenu.SetTitle("%t", "account commission", iMoney, "menu money", sInfo);
 	}
 
 	{
@@ -120,7 +120,7 @@ void DonateMenu(int client, int iMoney, float flCommision)
 	
 	if (!iAmount)
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "empty");
+		FormatEx(sBuffer, sizeof(sBuffer), "%t", "menu empty");
 		hMenu.AddItem("empty", sBuffer);
 	}
 	
@@ -207,7 +207,7 @@ public int DonateMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 							GetClientName(client, sInfo[0], sizeof(sInfo[]));
 							GetClientName(target, sInfo[1], sizeof(sInfo[]));
 							
-							TranslationPrintToChatAll("info donate", sInfo[0], iAmount, "money", sInfo[1]);
+							TranslationPrintToChatAll("info donate", sInfo[0], iAmount, "menu money", sInfo[1]);
 						}
 					}
 					else

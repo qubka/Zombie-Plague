@@ -126,36 +126,47 @@
 	// Menus
 	// ===========================
 
-	"price" // Menu (translated)
+	"menu price" // Menu (translated)
 	{
 		"#format"		"{1:d},{2:t}"
 		"en"			"[{1}{2}]"
 	}
 	
-	"level" // Menu
+	"menu group" // Menu
+	{
+		"#format"		"{1:s}"
+		"en"			"[{1}]"
+	}
+	
+	"menu level" // Menu
 	{
 		"#format"		"{1:d}"
 		"en"			"[LVL:{1}]"
 	}
 	
-	"online" // Menu
+	"menu online" // Menu
 	{
 		"#format"		"{1:d}"
 		"en"			"[ONL:{1}]"
 	}
 	
-	"limit" // Menu
+	"menu limit" // Menu
 	{
 		"#format"		"{1:d}"
 		"en"			"[LMT:{1}]"
 	}
 	
-	"money" // Universal
+	"menu weapon" // Menu
+	{
+		"en"			"[Purchased]"
+	}
+	
+	"menu money" // Menu
 	{
 		"en"			"$"
 	}
 		
-	"empty" // Menu
+	"menu empty" // Menu
 	{
 		"en"			"(Empty)"
 	}

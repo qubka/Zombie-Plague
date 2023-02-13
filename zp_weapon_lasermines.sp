@@ -58,12 +58,12 @@ public Plugin myinfo =
 /**
  * @section Properties of the gibs shooter.
  **/
-#define METAL_GIBS_AMOUNT            5.0
-#define METAL_GIBS_DELAY             0.05
-#define METAL_GIBS_SPEED             500.0
-#define METAL_GIBS_VARIENCE          1.0  
-#define METAL_GIBS_LIFE              1.0  
-#define METAL_GIBS_DURATION          2.0
+#define METAL_GIBS_AMOUNT   5.0
+#define METAL_GIBS_DELAY    0.05
+#define METAL_GIBS_SPEED    500.0
+#define METAL_GIBS_VARIENCE 1.0  
+#define METAL_GIBS_LIFE     1.0  
+#define METAL_GIBS_DURATION 2.0
 /**
  * @endsection
  **/
@@ -90,6 +90,7 @@ int gBeam;
 
 // Cvars
 ConVar hCvarMineImpulse;
+ConVar hCvarMineRewards;
 ConVar hCvarMineDamage;
 
 /**
@@ -98,8 +99,9 @@ ConVar hCvarMineDamage;
  **/
 public void OnPluginStart()
 {
-	hCvarMineImpulse = CreateConVar("zp_weapon_impulse", "0", "Use the classical beam?", 0, true, 0.0);
-	hCvarMineDamage = CreateConVar("zp_weapon_damage", "150.0", "Damage amount", 0, true, 0.0, true, 1.0);
+	hCvarMineImpulse = CreateConVar("zp_weapon_lasermine_impulse", "0", "Use the classical beam?", 0, true, 0.0, true, 1.0);
+	hCvarMineRewards = CreateConVar("zp_weapon_lasermine_rewards", "0", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
+	hCvarMineDamage = CreateConVar("zp_weapon_lasermine_damage", "150.0", "Damage amount", 0, true, 0.0);
 	
 	AutoExecConfig(true, "zp_weapon_lasermines", "sourcemod/zombieplague");
 }
@@ -610,6 +612,8 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
+		int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+		int attacker = hCvarMineRewards.BoolValue && IsPlayerExist(owner, false) && ZP_IsPlayerHuman(owner) ? owner : -1;
 		float flDamage = hCvarMineDamage.FloatValue;
 
 		if (hCvarMineImpulse.BoolValue)
@@ -626,7 +630,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 
 				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 				{    
-					ZP_TakeDamage(victim, -1, entity, flDamage, DMG_BULLET);
+					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 			
 					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_HURT);
 					
@@ -649,9 +653,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 						}
 						else
 						{
-							if (flForce > 100.0) flForce = 100.0;
-					
-							SetEntPropFloat(victim, Prop_Send, "m_flStamina", flForce);
+							SetEntPropFloat(victim, Prop_Send, "m_flStamina",  max(max(flForce, GetEntPropFloat(victim, Prop_Send, "m_flStamina")), 100.0));
 						}
 					}
 				}
@@ -675,7 +677,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 				
 				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 				{
-					ZP_TakeDamage(victim, -1, entity, flDamage, DMG_BULLET);
+					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 				
 					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_HURT);
 				}

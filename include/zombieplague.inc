@@ -166,16 +166,6 @@ native bool ZP_SetProgressBarTime(int client, int duration);
 native int ZP_FindPlayerInSphere(int &it, float center[3], float radius);
 
 /**
- * @brief Returns whether a player is in group or not.
- *
- * @param client            The client index.
- * @param group             The group name.
- *  
- * @return                  True or false.
- **/
-native bool ZP_IsPlayerInGroup(int client, char[] group);
-
-/**
  * @brief Returns true if the player is a zombie, false if not. 
  *
  * @param client            The client index.

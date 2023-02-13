@@ -38,6 +38,7 @@ enum
 	COSTUMES_DATA_POSITION,
 	COSTUMES_DATA_ANGLE,
 	COSTUMES_DATA_GROUP,
+	COSTUMES_DATA_GROUP_FLAGS,
 	COSTUMES_DATA_HIDE,
 	COSTUMES_DATA_MERGE,
 	COSTUMES_DATA_LEVEL
@@ -193,9 +194,10 @@ void CostumesOnCacheData()
 		arrayCostume.PushArray(vAngle, sizeof(vAngle));                       // Index: 6
 		kvCostumes.GetString("group", sBuffer, sizeof(sBuffer), "");  
 		arrayCostume.PushString(sBuffer);                                     // Index: 7
-		arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no"));   // Index: 8
-		arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "merge", "off")); // Index: 9
-		arrayCostume.Push(kvCostumes.GetNum("level", 0));                     // Index: 10
+		arrayCostume.Push(ConfigGetAdmFlags(sBuffer));                        // Index: 8
+		arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "hide", "no"));   // Index: 9
+		arrayCostume.Push(ConfigKvGetStringBool(kvCostumes, "merge", "off")); // Index: 10
+		arrayCostume.Push(kvCostumes.GetNum("level", 0));                     // Index: 11
 	}
 	
 	delete kvCostumes;
@@ -352,6 +354,7 @@ void CostumesOnNativeInit()
 	CreateNative("ZP_GetCostumePosition",   API_GetCostumePosition);
 	CreateNative("ZP_GetCostumeAngle",      API_GetCostumeAngle);
 	CreateNative("ZP_GetCostumeGroup",      API_GetCostumeGroup);
+	CreateNative("ZP_GetCostumeGroupFlags", API_GetCostumeGroupFlags);
 	CreateNative("ZP_IsCostumeHide",        API_IsCostumeHide);
 	CreateNative("ZP_IsCostumeMerge",       API_IsCostumeMerge);
 	CreateNative("ZP_GetCostumeLevel",      API_GetCostumeLevel);
@@ -625,6 +628,24 @@ public int API_GetCostumeGroup(Handle hPlugin, int iNumParams)
 }
 
 /**
+ * @brief Gets the group flags of the costume.
+ *
+ * @note native int ZP_GetCostumeGroupFlags(iD);
+ **/
+public int API_GetCostumeGroupFlags(Handle hPlugin, int iNumParams)
+{    
+	int iD = GetNativeCell(1);
+	
+	if (iD >= gServerData.Costumes.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Costumes, "Native Validation", "Invalid the costume index (%d)", iD);
+		return -1;
+	}
+	
+	return CostumesGetGroupFlags(iD);
+}
+
+/**
  * @brief Gets the hide value of the costume.
  *
  * @note native bool ZP_IsCostumeHide(iD);
@@ -783,7 +804,7 @@ void CostumesGetAngle(int iD, float vAngle[3])
 }
 
 /**
- * @brief Gets the access group of a costume at a given index.
+ * @brief Gets the group of a costume at a given index.
  *
  * @param iD                The costume index.
  * @param sGroup            The string to return group in.
@@ -796,6 +817,19 @@ void CostumesGetGroup(int iD, char[] sGroup, int iMaxLen)
 	arrayCostume.GetString(COSTUMES_DATA_GROUP, sGroup, iMaxLen);
 } 
 
+/**
+ * @brief Gets the group flags of the costume.
+ * 
+ * @param iD                The costume index.
+ * @return                  The flags bits.     
+ **/
+int CostumesGetGroupFlags(int iD)
+{
+	ArrayList arrayCostume = gServerData.Costumes.Get(iD);
+	
+	return arrayCostume.Get(COSTUMES_DATA_GROUP_FLAGS);
+}
+ 
 /**
  * @brief Retrieve costume hide value.
  * 
@@ -899,11 +933,9 @@ void CostumesCreateEntity(int client)
 			gClientData[client].Costume = -1;
 			return;
 		}
-		
-		static char sGroup[SMALL_LINE_LENGTH];
-		CostumesGetGroup(gClientData[client].Costume, sGroup, sizeof(sGroup));
-		
-		if (hasLength(sGroup) && !IsPlayerInGroup(client, sGroup))
+
+		int iGroup = CostumesGetGroupFlags(gClientData[client].Costume);
+		if (iGroup && !(iGroup & GetUserFlagBits(client)))
 		{
 			gClientData[client].Costume = -1;
 			return;
