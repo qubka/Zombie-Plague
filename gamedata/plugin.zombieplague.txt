@@ -7,10 +7,27 @@
 			"EngineInterface"	"VEngineServer023"
 		}
 	
+		// Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
+		// You can update them only by yourself using tutorial in the link
 		"Offsets"
 		{
-			// Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
-			// You can update them only by yourself using tutorial in the link
+			"OS"
+			{
+				"windows"	"1"
+				"linux"		"2"
+			}
+			"m_nBits"
+			{
+				"windows"	"12"
+				"linux"		"12"
+			}
+			
+			"CEconItemDefinition::GetDefinitionIndex"
+			{
+				"windows"	"8"
+				"linux"		"8"
+			}
+
 			"CBaseEntity::UpdateTransmitState"
 			{
 				"windows"	"22"
@@ -37,27 +54,11 @@
 				"windows"	"362"
 				"linux"		"368"
 			}
+			
 			"CCSPlayer::GetPlayerMaxSpeed" // above CommitSuicide
 			{
 				"windows"	"506"
 				"linux"		"507"
-			}
-
-			"m_nBits"
-			{
-				"windows"	"12"
-				"linux"		"12"
-			}
-			"OS"
-			{
-				"windows"	"1"
-				"linux"		"2"
-			}
-			
-			"CEconItemDefinition::GetDefinitionIndex"
-			{
-				"windows"	"8"
-				"linux"		"8"
 			}
 			
 			// @link https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/baseanimating.h#L421
@@ -95,15 +96,7 @@
 				"library"	"server"
 				"windows"	"\x4D\x5A"
 			}
-			
-			// GetCCSWeaponDataFromDef(const CEconItemDefinition *)
-			// GetCCSWeaponData + 0x20 on Linux 
-			"GetCCSWeaponDataFromDef" // Str: "#Alias_Not_Avail"
-			{
-				"library"   "server"
-				"windows"   ""
-				"linux"     ""
-			}
+
 			"CBaseCombatWeapon::Holster" // Str: "BaseCombatWeapon_HideThink" 
 			{
 				"library"	"server"
@@ -131,47 +124,6 @@
 				"library"	"server"
 				"windows"	"\x55\x8B\xEC\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\xFF"
 				"linux"		"\x55\x89\xE5\x56\x53\x8B\x5D\x0C\x8B\x75\x08\x83\xFB\xFF\x74\x2A\x8B\x86\xD8\x04\x00\x00"
-			}
-			///v10 = CBaseAnimating::LookupAttachment(this, "weapon_hand_R");
-			///if ( (v10 || (v10 = CBaseAnimating::LookupAttachment(this, "weapon_bone")) != 0)
-			///&& (unsigned __int8)CBaseAnimating::GetAttachment(this, v10, &v69, &v75) )
-			///{
-			///	 CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
-			///}
-			///else
-			///{
-			///	Warning("Missing weapon hand bone attachment for player model.\n");
-			///	CBaseEntity::SetLocalOrigin((CBaseEntity *)v6, (const Vector *)&v69);
-			///} 
-			"CBaseAnimating::LookupAttachment" // Str: "Missing weapon hand bone attachment for player model.\n"
-			{
-				"library"	"server" 
-				"windows"	"\x55\x8B\xEC\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x56\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x5E\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\x8F\xC0\x04\x00\x00\x5F\x85\xC9\x74\x2A\x83\x39\x00\x74\x2A\x8B\x55\x08\xE8\x2A\x2A\x2A\x2A"
-				"linux"		"\x55\x89\xE5\x53\x83\xEC\x04\x8B\x5D\x08\x8B\x83\xD8\x04\x00\x00\x85\xC0\x74\x2A\x8B\x10\x85\xD2\x74\x2A\x83\xEC\x08" 
-			}
-			"CBaseAnimating::GetAttachment" // Str: "Missing weapon hand bone attachment for player model.\n"
-			{
-				"library"	"server"			
-				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x8B\x01"
-				"linux"		"\x55\x89\xE5\x57\x56\x8D\x75\xB8\x53\x83\xEC\x40\x8B\x45\x08"
-			}
-			"CBaseAnimating::LookupPoseParameter" // Str: "body_pitch"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x57\x8B\x7D\x08\x85\xFF\x75\x2A\x33\xC0\x5F\x5D\xC2\x08\x00"
-				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x0C\x8B\x75\x0C\x8B\x7D\x10\x85\xF6"
-			}
-			"CBaseAnimating::LookupSequence" // Str: "Discarding missing sequence %s on load.\n"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x51\x56\x57\x8B\xF9\x83\xBF\xC0\x04\x00\x00\x00\x75\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x30\x8B\x07\xFF\x50\x18\x8B\x0D\x2A\x2A\x2A\x2A\x50\xFF\x56\x04\x85\xC0\x74\x2A\x8B\xCF\xE8\x2A\x2A\x2A\x2A\x8B\xB7\xC0\x04\x00\x00\x85\xF6\x74\x2A\x83\x3E\x00\x74\x2A\x8B\xCE"
-				"linux"		"\x55\x89\xE5\x57\x56\x8D\x95\xD8\xFD\xFF\xFF"
-			}
-			"CBaseAnimating::ResetSequence" // Str: "ResetSequence : %s: %s -> %s\n"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x08\x53\x56\x8B\xD9"
-				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x1C\xA1\x2A\x2A\x2A\x2A\x8B\x5D\x08\x8B\x7D\x0C\x3D\x2A\x2A\x2A\x2A\x0F\x84\x2A\x2A\x2A\x2A\x8B\x10\x8B\x52\x40\x81\xFA\x2A\x2A\x2A\x2A\x0F\x85\x2A\x2A\x2A\x2A\x8B\x70\x1C\x39\xC6\x0F\x84\x2A\x2A\x2A\x2A\x8B\x06\x8B\x40\x40\x3D\x2A\x2A\x2A\x2A\x0F\x85\x2A\x2A\x2A\x2A\x8B\x46\x1C\x39\xC6\x0F\x84\x2A\x2A\x2A\x2A\x8B\x10\x8B\x52\x40\x81\xFA\x2A\x2A\x2A\x2A\x0F\x85\x2A\x2A\x2A\x2A\x8B\x70\x1C\x39\xF0\x0F\x84\x2A\x2A\x2A\x2A\x8B\x06\x8B\x40\x40\x3D\x2A\x2A\x2A\x2A\x0F\x85\x2A\x2A\x2A\x2A\x8B\x46\x1C\x39\xC6\x0F\x84\x2A\x2A\x2A\x2A\x8B\x10\x83\xEC\x0C\x50\xFF\x52\x40\x83\xC4\x10\x85\xC0\x74\x2A"
 			}
 			"CBaseEntity::IsBSPModel" // Str: "Weapon_Knife.Stab" | "Warning: Softbarrier trigger couldn't find front or back planes. Removing!\n"
 			{
