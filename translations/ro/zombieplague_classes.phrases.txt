@@ -16,72 +16,72 @@
 
 	"classic" // Menu
 	{
-		"ro"			"Classic"
+		"ro"			"Classic (Dazzles)"
 	}
 
 	"fast" // Menu
 	{
-		"ro"			"Rapid"
+		"ro"			"Rapid (Viteză)"
 	}
 
 	"witch" // Menu
 	{
-		"ro"			"Vrajitor"
+		"ro"			"Vrajitor (g - > Lilieci turma)"
 	}
 	
 	"deimos" // Menu
 	{
-		"ro"			"Deimos"
+		"ro"			"Deimos (G -> lovitură de înțepătură)"
 	}
 
 	"smoker" // Menu
 	{
-		"ro"			"Fumator"
+		"ro"			"Fumator (G -> Nor toxic)"
 	}
 
 	"stamper" // Menu
 	{
-		"ro"			"Stamper"
+		"ro"			"Stamper (G -> Sicriu exploziv"
 	}
 
 	"tesla" // Menu
 	{
-		"ro"			"Tesla"
+		"ro"			"Tesla (G - > Explozie de halucinație)"
 	}
 
 	"healer" // Menu
 	{
-		"ro"			"Vindecator"
+		"ro"			"Vindecator (G - > Vindecare pentru echipă)"
 	}
 
 	"range" // Menu
 	{
-		"ro"			"Exploziv"
+		"ro"			"Exploziv (Gaz de infecție)"
 	}
 
 	"mutationheavy" // Menu
 	{
-		"ro"			"Greu"
+		"ro"			"Greu (G - > Faceți o capcană)"
 	}
 
 	"mutationlight" // Menu
 	{
-		"ro"			"Fantoma"
+		"ro"			"Fantoma (G - > Invizibilitate)"
 	}
 
 	"hunter" // Menu
 	{
-		"ro"			""
+		"ro"			"Vânător (G -> Furie)"
 	}
 
 	"tank" // Menu
 	{
-		"ro"			"Tanc"
+		"ro"			"Tanc (G - > Invulnerabilitate)"
 	}
 
 	"psyh" // Menu
 	{
-		"ro"			"Psyh"
+		"ro"			"Psyh (G - > Scream)"
 	}
 	
 	// Info
@@ -138,7 +138,7 @@
 
 	"hunter info" // Hint
 	{
-		"ro"			"Putere: <font color='#FF0000'>Alergare rapida</font>\nActivarea de pe butonul: <font color='#FF0000'>G</font>"
+		"ro"			"Putere: <font color='#FF0000'>Furie</font>\nActivarea de pe butonul: <font color='#FF0000'>G</font>"
 	}
 
 	"tank info" // Hint
@@ -250,22 +250,22 @@
 	
 	"redtank" // Menu
 	{
-		"ro"			"Tanc rosu"
+		"ro"			"Tanc roșu (F4 -> Armura)"
 	}
 	
 	"bluetank" // Menu
 	{
-		"ro"			"Tanc albastru"
+		"ro"			"Tanc albastru (F4 -> Regenerare)"
 	}
 	
 	"redalice" // Menu
 	{
-		"ro"			"Red Alice"
+		"ro"			"Alice roșie (F4 -> Alergare rapida)"
 	}
 	
 	"bluealice" // Menu
 	{
-		"ro"			"Blue Alice"
+		"ro"			"Alice albastră (F4 -> Invizibilitate)"
 	}
 	
 	// Info

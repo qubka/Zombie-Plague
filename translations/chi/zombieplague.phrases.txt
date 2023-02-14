@@ -179,6 +179,11 @@
 	{
 		"chi"			"你不能使用菜单！"
 	}
+	
+	"block buying time" // Hint
+	{
+		"chi"			"購買時間結束!"
+	}
 
 	"block buying item" // Hint (translated)
 	{

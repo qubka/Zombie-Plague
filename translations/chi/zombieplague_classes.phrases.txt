@@ -16,72 +16,72 @@
 
 	"classic" // Menu
 	{
-		"chi"			"經典的"
+		"chi"			"經典的 （炫目）"
 	}
 
 	"fast" // Menu
 	{
-		"chi"			"迅捷者"
+		"chi"			"迅捷者 （速度）"
 	}
 
 	"witch" // Menu
 	{
-		"chi"			"女巫"
+		"chi"			"女巫 （G -> 蝙蝠群）"
 	}
 	
 	"deimos" // Menu
 	{
-		"chi"			"妖女"
+		"chi"			"妖女 (G -> 毒刺射擊)"
 	}
 
 	"smoker" // Menu
 	{
-		"chi"			"烟鬼"
+		"chi"			"烟鬼 （G -> 毒雲）"
 	}
 
 	"stamper" // Menu
 	{
-		"chi"			"定棺师"
+		"chi"			"定棺师 (G -> 爆破棺材)"
 	}
 
 	"tesla" // Menu
 	{
-		"chi"			"特斯拉"
+		"chi"			"特斯拉 (G -> 幻覺衝擊波)"
 	}
 
 	"healer" // Menu
 	{
-		"chi"			"治疗者"
+		"chi"			"治疗者 （G -> 團隊治療）"
 	}
 	
 	"range" // Menu
 	{
-		"chi"			"自爆怪"
+		"chi"			"自爆怪 （感染氣體）"
 	}
 
 	"mutationheavy" // Menu
 	{
-		"chi"			"猎者"
+		"chi"			"猎者 （G -> 製造陷阱）"
 	}
 
 	"mutationlight" // Menu
 	{
-		"chi"			"幽灵"
+		"chi"			"幽灵 (G -> 隱形)"
 	}
 
 	"hunter" // Menu
 	{
-		"chi"			""
+		"chi"			"獵人 （G -> 憤怒）"
 	}
 
 	"tank" // Menu
 	{
-		"chi"			"坦克"
+		"chi"			"坦克 （G -> 刀槍不入）"
 	}
 
 	"psyh" // Menu
 	{
-		"chi"			"疯子"
+		"chi"			"疯子 (G -> Scream)"
 	}
 	
 	// Info
@@ -138,7 +138,7 @@
 
 	"hunter info" // Hint
 	{
-		"chi"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按钮： <font color='#FF0000'>G</font>"
+		"chi"			"Skill: <font color='#FF0000'>憤怒</font>\n激活按钮： <font color='#FF0000'>G</font>"
 	}
 
 	"tank info" // Hint
@@ -250,22 +250,22 @@
 	
 	"redtank" // Menu
 	{
-		"chi"			"赤红坦克"
+		"chi"			"赤红坦克 (F4 -> 铁壁)"
 	}
 	
 	"bluetank" // Menu
 	{
-		"chi"			"湛蓝坦克"
+		"chi"			"湛蓝坦克 （F4 -> 再生）"
 	}
 	
 	"redalice" // Menu
 	{
-		"chi"			"赤红爱丽丝"
+		"chi"			"赤红爱丽丝 (F4 -> 快跑)"
 	}
 	
 	"bluealice" // Menu
 	{
-		"chi"			"湛蓝爱丽丝"
+		"chi"			"湛蓝爱丽丝 （F4 -> 无敌）"
 	}
 	
 	// Info

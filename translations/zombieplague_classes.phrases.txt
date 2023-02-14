@@ -16,72 +16,72 @@
 
 	"classic" // Menu
 	{
-		"en"			"Classic"
+		"en"			"Classic (Dazzles)"
 	}
 
 	"fast" // Menu
 	{
-		"en"			"Fast"
+		"en"			"Fast (Speed)"
 	}
 
 	"witch" // Menu
 	{
-		"en"			"Witch"
+		"en"			"Witch (G -> Bats flock)"
 	}
 	
 	"deimos" // Menu
 	{
-		"en"			"Deimos"
+		"en"			"Deimos (G -> Sting shot)"
 	}
 
 	"smoker" // Menu
 	{
-		"en"			"Smoker"
+		"en"			"Smoker (G -> Toxic cloud)"
 	}
 
 	"stamper" // Menu
 	{
-		"en"			"Stamper"
+		"en"			"Stamper (G -> Explosive coffin)"
 	}
 
 	"tesla" // Menu
 	{
-		"en"			"Tesla"
+		"en"			"Tesla (G -> Hallucination blast)"
 	}
 
 	"healer" // Menu
 	{
-		"en"			"Healer"
+		"en"			"Healer (G -> Heal for team)"
 	}
 
 	"range" // Menu
 	{
-		"en"			"Explosive"
+		"en"			"Explosive (Infection gas)"
 	}
 
 	"mutationheavy" // Menu
 	{
-		"en"			"Heavy"
+		"en"			"Heavy (G -> Make a trap)"
 	}
 
 	"mutationlight" // Menu
 	{
-		"en"			"Ghost"
+		"en"			"Ghost (G -> Invisibility)"
 	}
 
 	"hunter" // Menu
 	{
-		"en"			"Hunter"
+		"en"			"Hunter (G -> Rage)"
 	}
 
 	"tank" // Menu
 	{
-		"en"			"Tank"
+		"en"			"Tank (G -> Invulnerability)"
 	}
 
 	"psyh" // Menu
 	{
-		"en"			"Psyh"
+		"en"			"Psyh (G -> Scream)"
 	}
 	
 	// Info
@@ -138,7 +138,7 @@
 
 	"hunter info" // Hint
 	{
-		"en"			"Skill: <font color='#FF0000'>Fast running</font>\nActivation on button: <font color='#FF0000'>G</font>"
+		"en"			"Skill: <font color='#FF0000'>Rage</font>\nActivation on button: <font color='#FF0000'>G</font>"
 	}
 
 	"tank info" // Hint
@@ -250,22 +250,22 @@
 	
 	"redtank" // Menu
 	{
-		"en"			"Red tank"
+		"en"			"Red tank (F4 -> Armorup)"
 	}
 	
 	"bluetank" // Menu
 	{
-		"en"			"Blue tank"
+		"en"			"Blue tank (F4 -> Regeneration)"
 	}
 	
 	"redalice" // Menu
 	{
-		"en"			"Red Alice"
+		"en"			"Red Alice (F4 -> Fast running)"
 	}
 	
 	"bluealice" // Menu
 	{
-		"en"			"Blue Alice"
+		"en"			"Blue Alice (F4 -> Invisibility)"
 	}
 	
 	// Info

@@ -16,72 +16,72 @@
 
 	"classic" // Menu
 	{
-		"zho"			"经典的"
+		"zho"			"经典的 （炫目）"
 	}
 	
 	"fast" // Menu
 	{
-		"zho"			"迅捷者"
+		"zho"			"迅捷者 （速度）"
 	}
 
 	"witch" // Menu
 	{
-		"zho"			"女巫"
+		"zho"			"女巫 （G -> 蝙蝠群）"
 	}
 	
 	"deimos" // Menu
 	{
-		"zho"			"妖女"
+		"zho"			"妖女 (G -> 毒刺射击)"
 	}
 
 	"smoker" // Menu
 	{
-		"zho"			"煙鬼"
+		"zho"			"煙鬼 （G -> 毒云)"
 	}
 
 	"stamper" // Menu
 	{
-		"zho"			"定棺師"
+		"zho"			"定棺師 (G -> 爆炸棺材)"
 	}
 
 	"tesla" // Menu
 	{
-		"zho"			"特斯拉"
+		"zho"			"特斯拉 (G -> 幻觉冲击波)"
 	}
 
 	"healer" // Menu
 	{
-		"zho"			"治療者"
+		"zho"			"治療者 （G -> 团队治疗）"
 	}
 
 	"range" // Menu
 	{
-		"zho"			"自爆怪"
+		"zho"			"自爆怪 （感染气体）"
 	}
 
 	"mutationheavy" // Menu
 	{
-		"zho"			"獵者"
+		"zho"			"獵者 （G -> 制造陷阱）"
 	}
 
 	"mutationlight" // Menu
 	{
-		"zho"			"幽靈"
+		"zho"			"幽靈 （G -> 隐形）"
 	}
 
 	"hunter" // Menu
 	{
-		"zho"			""
+		"zho"			"猎人 （G -> 愤怒）"
 	}
 
 	"tank" // Menu
 	{
-		"zho"			"坦克"
+		"zho"			"坦克 （G -> 刀枪不入）"
 	}
 
 	"psyh" // Menu
 	{
-		"zho"			"瘋子"
+		"zho"			"瘋子 （G -> 尖叫）"
 	}
 	
 	// Info
@@ -138,7 +138,7 @@
 
 	"hunter info" // Hint
 	{
-		"zho"			"Skill: <font color='#FF0000'>疾奔</font>\n激活按鈕： <font color='#FF0000'>G</font>"
+		"zho"			"Skill: <font color='#FF0000'>愤怒</font>\n激活按鈕： <font color='#FF0000'>G</font>"
 	}
 
 	"tank info" // Hint
@@ -250,22 +250,22 @@
 	
 	"redtank" // Menu
 	{
-		"zho"			"赤紅坦克"
+		"zho"			"赤紅坦克 (F4 -> 鐵壁)"
 	}
 	
 	"bluetank" // Menu
 	{
-		"zho"			"湛藍坦克"
+		"zho"			"湛藍坦克 (F4 -> 再生）"
 	}
 	
 	"redalice" // Menu
 	{
-		"zho"			"赤紅愛麗絲"
+		"zho"			"赤紅愛麗絲 (F4 -> 快跑）"
 	}
 	
 	"bluealice" // Menu
 	{
-		"zho"			"湛藍愛麗絲"
+		"zho"			"湛藍愛麗絲 （F4 -> 無敵）"
 	}
 	
 	// Info

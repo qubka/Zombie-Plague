@@ -179,6 +179,11 @@
 	{
 		"ru"			"Вы не можете использовать меню!"
 	}
+	
+	"block buying time" // Hint
+	{
+		"ru"			"Время покупки закончилось!"
+	}
 
 	"block buying item" // Hint (translated)
 	{

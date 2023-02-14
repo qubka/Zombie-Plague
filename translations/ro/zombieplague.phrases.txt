@@ -180,6 +180,11 @@
 	{
 		"ro"			"Nu poti sa folosesti meniul!"
 	}
+	
+	"block buying time" // Hint
+	{
+		"ro"			"Timpul de cumpărare a trecut!"
+	}
 
 	"block buying item" // Hint (translated)
 	{

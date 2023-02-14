@@ -179,6 +179,11 @@
 	{
 		"zho"			"你不能使用菜單！"
 	}
+	
+	"block buying time" // Hint
+	{
+		"zho"			"购买时间结束!"
+	}
 
 	"block buying item" // Hint (translated)
 	{

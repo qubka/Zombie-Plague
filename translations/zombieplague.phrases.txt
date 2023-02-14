@@ -179,6 +179,11 @@
 	{
 		"en"			"You can't use the menu!"
 	}
+	
+	"block buying time" // Hint
+	{
+		"en"			"Purchase time is over!"
+	}
 
 	"block buying item" // Hint (translated)
 	{
