@@ -921,7 +921,9 @@ public Action JetBombHook(Handle hTimer, int refID)
 
 		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
 
-		ZP_GetAttachment(entity, "sound_maker", vPosition, vAngle); vAngle[0] += 180.0;
+		static int iAttach = -1;
+		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "sound_maker");
+		GetEntityAttachment(entity, iAttach, vPosition, vAngle); vAngle[0] += 180.0;
 		
 		entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/player/custom_player/zombie/bomb/bomb.mdl");
 
@@ -1056,7 +1058,9 @@ public Action HelicopterSoundHook(Handle hTimer, int refID)
 	{
 		static float vPosition[3]; static float vAngle[3];
 
-		ZP_GetAttachment(entity, "dropped", vPosition, vAngle); 
+		static int iAttach = -1;
+		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "dropped");
+		GetEntityAttachment(entity, entity, vPosition, vAngle); 
 
 		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_HELICOPTER); 
 	}
@@ -1119,7 +1123,9 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 
 		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
 		
-		ZP_GetAttachment(entity, "dropped", vPosition, vAngle);
+		static int iAttach = -1;
+		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "dropped");
+		GetEntityAttachment(entity, iAttach, vPosition, vAngle);
 		
 		int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int drop; int iCollision; int iDamage; int iHealth = hCvarAirdropHealth.IntValue;
 		switch (iType)
@@ -1356,7 +1362,9 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 							SDKHook(bag, SDKHook_UsePost, BagUseHook);
 						}
 
-						ZP_GetAttachment(entity, "door", vPosition, vAngle);
+						static int iAttach = -1;
+						if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "door");
+						GetEntityAttachment(entity, iAttach, vPosition, vAngle);
 						
 						SetEntProp(entity, Prop_Send, "m_nBody", 1);
 						

@@ -160,7 +160,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 
 				if (iBits & DMG_BURN) UTIL_IgniteEntity(client, flDuration);
 
-				SetEntPropFloat(client, Prop_Send, "m_flStamina", max(max(flSlowdown, GetEntPropFloat(client, Prop_Send, "m_flStamina")), 100.0));
+				SetEntPropFloat(client, Prop_Send, "m_flStamina", min(flSlowdown, 100.0));
 	
 				return;
 			}

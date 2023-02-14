@@ -404,7 +404,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		static float flSlowdown;
 		if ((flSlowdown = hCvarHammerActiveSlow.FloatValue) && !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"))
 		{
-			SetEntPropFloat(client, Prop_Send, "m_flStamina", max(flSlowdown, GetEntPropFloat(client, Prop_Send, "m_flStamina")));
+			SetEntPropFloat(client, Prop_Send, "m_flStamina", flSlowdown);
 		}
 		
 		static float flApplyModeTime;

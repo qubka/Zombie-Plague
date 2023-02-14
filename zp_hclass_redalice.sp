@@ -121,6 +121,10 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
+		float flDuration = ZP_GetClassSkillDuration(gHuman);
+		
+		UTIL_CreateFadeScreen(client, 0.3, flDuration, FFADE_IN, {50, 50, 200, 50});  
+		
 		static float vPosition[3];
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
@@ -129,7 +133,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		if (hasLength(sEffect))
 		{
-			UTIL_CreateParticle(client, vPosition, _, _, sEffect, ZP_GetClassSkillDuration(gHuman));
+			UTIL_CreateParticle(client, vPosition, _, _, sEffect, flDuration);
 		}
 		else
 		{

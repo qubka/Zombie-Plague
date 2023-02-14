@@ -136,7 +136,7 @@ public void OnMapStart()
 
 	Address TheNavAreas = hConfig.GetAddress("TheNavAreas");
 
-	if (TheNavAreas == Address_Null) SetFailState("Failed to load SDK address \"TheNavAreas\". Update address in \"plugin.presents\"");    
+	if (TheNavAreas == Address_Null) SetFailState("Failed to get address: \"TheNavAreas\". Update address in \"plugin.presents\"");    
 
 	int TheNavAreas_Count = view_as<int>(hConfig.GetAddress("TheNavAreas::Count"));
 	if (TheNavAreas_Count <= 0)

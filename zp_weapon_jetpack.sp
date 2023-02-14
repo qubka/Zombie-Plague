@@ -190,7 +190,9 @@ void Item_OnActive(int client)
 
 	if (entity != -1)
 	{
-		ZP_GetAttachment(entity, "1", vPosition, vAngle);
+		static int iAttach = -1;
+		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "1");
+		GetEntityAttachment(entity, iAttach, vPosition, vAngle);
 		
 		static char sMuzzle[NORMAL_LINE_LENGTH];
 		ZP_GetWeaponModelMuzzle(gWeapon, sMuzzle, sizeof(sMuzzle));

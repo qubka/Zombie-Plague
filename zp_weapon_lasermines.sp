@@ -653,7 +653,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 						}
 						else
 						{
-							SetEntPropFloat(victim, Prop_Send, "m_flStamina",  max(max(flForce, GetEntPropFloat(victim, Prop_Send, "m_flStamina")), 100.0));
+							SetEntPropFloat(victim, Prop_Send, "m_flStamina",  min(flForce, 100.0));
 						}
 					}
 				}

@@ -55,10 +55,30 @@ int gWeapon;
 int gItem; 
 
 /**
+ * @section List of operation systems.
+ **/
+enum EngineOS
+{
+	OS_Unknown,
+	OS_Windows,
+	OS_Linux
+};
+/**
+ * @endsection
+ **/
+ 
+// Platform
+EngineOS gPlatform;
+ 
+/**
  * @section Variables to store virtual SDK adresses.
  **/
+Handle hSDKCallLookupPoseParameter; 
+Handle hSDKCallLookupSequence;
+Handle hSDKCallResetSequence; 
 Handle hSDKCallStudioFrameAdvance; 
 Handle hSDKCallAddLayeredSequence;
+int Animating_StudioHdr;
 int AnimatingOverlay_Count;
 /**
  * @endsection
@@ -223,12 +243,67 @@ public void OnLibraryAdded(const char[] sLibrary)
 {
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		GameData hConfig = LoadGameConfigFile("plugin.turret"); 
+		GameData hConfig = LoadGameConfigFile("plugin.zombieplague"); 
+
+		if (!hConfig) 
+		{
+			SetFailState("Failed to load zombieplague gamedata.");
+			return;
+		}
+
+		if ((gPlatform = view_as<EngineOS>(hConfig.GetOffset("OS"))) == OS_Unknown) SetFailState("Failed to get offset: \"OS\"");    
+		
+		if ((Animating_StudioHdr = hConfig.GetOffset("CBaseAnimating::StudioHdr")) == -1) SetFailState("Failed to get offset: \"CBaseAnimating::StudioHdr\""); 
+		int iOffset_hLightingOrigin;
+		if ((iOffset_hLightingOrigin = FindSendPropInfo("CBaseAnimating", "m_hLightingOrigin")) < 1) SetFailState("Failed to find send prop: \"m_hLightingOrigin\"");
+		Animating_StudioHdr += iOffset_hLightingOrigin;
+		
+		delete hConfig;
+		
+		/*__________________________________________________________________________________________________*/
+		
+		hConfig = LoadGameConfigFile("plugin.turret"); 
 
 		if (!hConfig) 
 		{
 			SetFailState("Failed to load turret gamedata.");
 			return;
+		}
+		
+		/*_________________________________________________________________________________________________________________________________________*/
+		
+		{
+			StartPrepSDKCall(SDKCall_Entity); 
+			PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::LookupPoseParameter"); 
+			
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
+			PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
+			
+			if ((hSDKCallLookupPoseParameter = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimating::LookupPoseParameter\". Update signature in \"plugin.turret\"");
+		}
+		
+		/*__________________________________________________________________________________________________*/
+		
+		{
+			StartPrepSDKCall(gPlatform == OS_Windows ? SDKCall_Entity : SDKCall_Raw); 
+			PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::LookupSequence");
+			
+			PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
+			PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
+
+			if ((hSDKCallLookupSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"plugin.turret\"");
+		}
+		
+		/*__________________________________________________________________________________________________*/
+		
+		{
+			StartPrepSDKCall(SDKCall_Entity); 
+			PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::ResetSequence");
+			
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);  
+			
+			if ((hSDKCallResetSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"plugin.turret\"");
 		}
 
 		/*__________________________________________________________________________________________________*/
@@ -237,26 +312,30 @@ public void OnLibraryAdded(const char[] sLibrary)
 
 		/*__________________________________________________________________________________________________*/
 		
-		StartPrepSDKCall(SDKCall_Entity); 
-		PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimatingOverlay::StudioFrameAdvance"); 
-		
-		if ((hSDKCallStudioFrameAdvance = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::StudioFrameAdvance\". Update signature in \"plugin.turret\"");      
+		{
+			StartPrepSDKCall(SDKCall_Entity); 
+			PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimatingOverlay::StudioFrameAdvance"); 
+			
+			if ((hSDKCallStudioFrameAdvance = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::StudioFrameAdvance\". Update signature in \"plugin.turret\"");      
+		}
 		
 		/*__________________________________________________________________________________________________*/
 		
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimatingOverlay::AddLayeredSequence"); 
-		
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		{
+			StartPrepSDKCall(SDKCall_Entity);
+			PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimatingOverlay::AddLayeredSequence"); 
+			
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
-		if ((hSDKCallAddLayeredSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::AddLayeredSequence\". Update signature in \"plugin.turret\""); 
+			if ((hSDKCallAddLayeredSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::AddLayeredSequence\". Update signature in \"plugin.turret\""); 
+		}
 		
 		/*__________________________________________________________________________________________________*/
 
 		delete hConfig;
-		
+
 		LoadTranslations("zombieplague.phrases");
 		LoadTranslations("turret.phrases");
 		
@@ -822,7 +901,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	
 	public int FindGestureLayer(char[] sAnim) 
 	{
-		int iSequence = ZP_LookupSequence(this.Index, sAnim); 
+		int iSequence = this.LookupSequence(sAnim); 
 		if (iSequence < 0) 
 		{
 			return -1; 
@@ -853,7 +932,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
 	public int AddGesture(char[] sAnim, bool bAutoKill = true) 
 	{ 
-		int iSequence = ZP_LookupSequence(this.Index, sAnim); 
+		int iSequence = this.LookupSequence(sAnim); 
 		if (iSequence < 0) 
 		{
 			return -1; 
@@ -1115,7 +1194,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 					vCurrent[0] = vGoal[0]; 
 			} 
 	 
-			this.SetPoseParameter(ZP_LookupPoseParameter(this.Index, "aim_pitch"), -50.0, 50.0, -vCurrent[0]); 
+			this.SetPoseParameter(this.LookupPoseParameter("aim_pitch"), -50.0, 50.0, -vCurrent[0]); 
 			bMoved = true; 
 		} 
 		 
@@ -1191,7 +1270,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			this.GetAbsAngles(vAngle); 
 			
 			float flYaw = AngleNormalize(vCurrent[1] - vAngle[1]); 
-			this.SetPoseParameter(ZP_LookupPoseParameter(this.Index, "aim_yaw"), -180.0, 180.0, -flYaw); 
+			this.SetPoseParameter(this.LookupPoseParameter("aim_yaw"), -180.0, 180.0, -flYaw); 
 			this.SetCurAngles(vCurrent);
 			bMoved = true; 
 		} 
@@ -1321,7 +1400,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 					}
 					else
 					{
-						SetEntPropFloat(victim, Prop_Send, "m_flStamina", max(max(flForce, GetEntPropFloat(victim, Prop_Send, "m_flStamina")), 100.0));
+						SetEntPropFloat(victim, Prop_Send, "m_flStamina", min(flForce, 100.0));
 					}
 				}
 			}
@@ -1391,10 +1470,16 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				case SENTRY_MODE_AGRESSIVE : this.EmitSound(SENTRY_SOUND_SHOOT2); 
 				case SENTRY_MODE_ROCKET    : this.EmitSound(SENTRY_SOUND_SHOOT3); 
 			}
-			
+
 			static char sAttach[SMALL_LINE_LENGTH];
 			strcopy(sAttach, sizeof(sAttach), (this.UpgradeLevel == SENTRY_MODE_NORMAL) ? "muzzle" : ((this.Ammo & 1) ? "muzzle_l" : "muzzle_r"));
-			ZP_GetAttachment(this.Index, sAttach, vPosition, vVelocity);
+			
+			static int iAttach[3] = { -1, ... };
+			if (iAttach[0] == -1) iAttach[0] = LookupEntityAttachment(this.Index, "muzzle");
+			if (iAttach[1] == -1) iAttach[1] = LookupEntityAttachment(this.Index, "muzzle_l");
+			if (iAttach[2] == -1) iAttach[2] = LookupEntityAttachment(this.Index, "muzzle_r");
+
+			GetEntityAttachment(this.Index, (this.UpgradeLevel == SENTRY_MODE_NORMAL) ? iAttach[0] : ((this.Ammo & 1) ? iAttach[1] : iAttach[2]), vPosition, vVelocity);
 			
 			this.SelectTargetPoint(vPosition, vPosition2);
 			MakeVectorFromPoints(vPosition, vPosition2, vAngle);
@@ -1439,8 +1524,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		
 		SDKUnhook(this.Index, SDKHook_ThinkPost, SentryThinkHook);
 		
-		int iYaw = ZP_LookupPoseParameter(this.Index, "aim_yaw"); 
-		int iPitch = ZP_LookupPoseParameter(this.Index, "aim_pitch");
+		int iYaw = this.LookupPoseParameter("aim_yaw"); 
+		int iPitch = this.LookupPoseParameter("aim_pitch");
 		
 		static float vPosition[3];
 		GetAbsOrigin(this.Index, vPosition);
@@ -1655,6 +1740,51 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		}
 
 		UTIL_RemoveEntity(this.Index, 0.1);
+	}
+	
+	public int LookupPoseParameter(char[] sPose)
+	{
+		Address pStudioHdrClass = this.GetStudioHdrClass();
+		if (pStudioHdrClass == Address_Null)
+		{
+			return -1;
+		}
+		
+		return SDKCall(hSDKCallLookupPoseParameter, this.Index, pStudioHdrClass, sPose); 
+	}
+
+	public int LookupSequence(char[] sAnim)
+	{
+		if (gPlatform == OS_Windows)
+		{
+			return SDKCall(hSDKCallLookupSequence, this.Index, sAnim); 
+		}
+		else
+		{
+			Address pStudioHdrClass = this.GetStudioHdrClass();
+			if (pStudioHdrClass == Address_Null)
+			{
+				return -1;
+			}
+			
+			return SDKCall(hSDKCallLookupSequence, pStudioHdrClass, sAnim); 
+		}
+	}
+
+	public void ResetSequence(char[] sAnim) 
+	{ 
+		int iSequence = this.LookupSequence(sAnim); 
+		if (iSequence < 0) 
+		{
+			return; 
+		}
+		
+		SDKCall(hSDKCallResetSequence, this.Index, iSequence);
+	}
+	
+	public Address GetStudioHdrClass()
+	{
+		return view_as<Address>(GetEntData(this.Index, Animating_StudioHdr));
 	}
 };
 
