@@ -221,7 +221,7 @@ native void ZP_GetClassName(int classID, char[] name, int maxlenght = 32);
  * @param info              The string to return info in.
  * @param maxlenght         The lenght of string.
  **/
-native void ZP_GetClassInfo(int classID, char[] info, int maxlenght = 128);
+native void ZP_GetClassInfo(int classID, char[] info, int maxlenght = 32);
 
 /**
  * @brief Gets the index of a type at a given name.

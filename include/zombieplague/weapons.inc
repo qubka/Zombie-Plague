@@ -311,7 +311,16 @@ native void ZP_GetWeaponName(int weaponID, char[] name, int maxlenght = 32);
  * @param info              The string to return info in.
  * @param maxlenght         The lenght of string.
  **/
-native void ZP_GetWeaponInfo(int weaponID, char[] info, int maxlenght = 128);
+native void ZP_GetWeaponInfo(int weaponID, char[] info, int maxlenght = 32);
+
+/**
+ * @brief Gets the entity of a weapon at a given id.
+ *
+ * @param weaponID          The weapon ID.
+ * @param entity            The string to return entity in.
+ * @param maxlenght         The lenght of string.
+ **/
+native void ZP_GetWeaponEntity(int weaponID, char[] entity, int maxlenght = 32);
 
 /**
  * @brief Gets the defenition index of the weapon.
@@ -804,7 +813,7 @@ stock void ZP_CreateWeaponTracer(int client, int weapon, char[] sAttach1, char[]
 		return;
 	}
 
-	if ((sAttach1[0] != NULL_STRING[0] && !ZP_LookupAttachment(view, sAttach1)) || (sAttach2[0] != NULL_STRING[0] && !ZP_LookupAttachment(world, sAttach2)))
+	if ((sAttach1[0] != NULL_STRING[0] && !LookupEntityAttachment(view, sAttach1)) || (sAttach2[0] != NULL_STRING[0] && !LookupEntityAttachment(world, sAttach2)))
 	{
 		return;
 	}

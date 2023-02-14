@@ -56,58 +56,6 @@ forward void ZP_OnEngineExecute();
 //*********************************************************************
 
 /**
- * Validate the attachment on the entity.
- *
- * @param entity            The entity index.
- * @param attach            The attachment name.
- *
- * @return                  True or false.
- **/
-native bool ZP_LookupAttachment(int entity, char[] attach);
-
-/**
- * Gets the attachment of the entity.
- *
- * @param entity            The entity index.
- * @param attach            The attachment name.
- * @param origin            The origin output.
- * @param angle             The angle output.
- *
- * @noreturn
- **/
-native void ZP_GetAttachment(int entity, char[] attach, float origin[3], float angles[3]);
-
-/**
- * @brief Gets the sequence of the entity.
- *
- * @param entity            The entity index.
- * @param anim              The sequence name. (activity name)
- *
- * @return                  The sequence index.
- **/
-native int ZP_LookupSequence(int entity, char[] anim);
-
-/**
- * @brief Gets the pose of the entity.
- *
- * @param entity            The entity index.
- * @param pose              The pose name.
- *
- * @return                  The pose parameter.
- **/
-native int ZP_LookupPoseParameter(int entity, char[] pose);
-
-/**
- * @brief Resets the sequence of the entity.
- *
- * @param entity            The entity index.
- * @param anim              The sequence name. (activity name)
- *
- * @noreturn
- **/
-native void ZP_ResetSequence(int entity, char[] anim);
-
-/**
  * @brief Gets the total sequence amount.
  *
  * @param entity            The entity index.

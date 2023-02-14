@@ -363,10 +363,10 @@
 /**
  * @section Default sounds.
  **/
-#define SOUND_CLIP_EMPTY            "*/weapons/clipempty_rifle.wav"
-#define SOUND_WEAPON_CANT_BUY       "*/buttons/weapon_cant_buy.wav"
-#define SOUND_BUTTON_CMD_ERROR      "*/buttons/button10.wav"
-#define SOUND_BUTTON_MENU_ERROR     "*/buttons/button11.wav"
+#define SOUND_CLIP_EMPTY            "weapons/clipempty_rifle.wav"
+#define SOUND_WEAPON_CANT_BUY       "buttons/weapon_cant_buy.wav"
+#define SOUND_BUTTON_CMD_ERROR      "buttons/button10.wav"
+#define SOUND_BUTTON_MENU_ERROR     "buttons/button11.wav"
 /**
  * @endsection
  **/ 
