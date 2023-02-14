@@ -623,7 +623,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 					
 					if (smoke != -1)
 					{
-						EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, SNDLEVEL_WEAPON);
+						EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 					}
 				}
 				
@@ -631,7 +631,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 				{
 					CreateJet(vPosition, vAngle);
 					
-					EmitSoundToAll("survival/rocketalarm.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+					EmitSoundToAll("survival/rocketalarm.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 				}
 			}
 			
@@ -714,7 +714,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 				SetEntPropEnt(entity, Prop_Data, "m_pParent", client);
 				SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", entity);
 				
-				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
+				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 				
 			}
 			
@@ -852,7 +852,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"));
 			
-			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 		}
 	
 		if (iButtons & IN_ATTACK)
@@ -917,7 +917,7 @@ public Action JetBombHook(Handle hTimer, int refID)
 
 	if (entity != -1)
 	{
-		EmitSoundToAll("survival/rocketincoming.wav", entity, SNDCHAN_STATIC, SNDLEVEL_AIRCRAFT);
+		EmitSoundToAll("survival/rocketincoming.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
 		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
 
@@ -978,12 +978,12 @@ public Action BombTouchHook(int entity, int target)
 	
 	switch (GetRandomInt(0, 5))
 	{
-		case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
-		case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
-		case 2 : EmitSoundToAll("survival/missile_land_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
-		case 3 : EmitSoundToAll("survival/missile_land_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
-		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
-		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC, SNDLEVEL_ROCKET);
+		case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 2 : EmitSoundToAll("survival/missile_land_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 3 : EmitSoundToAll("survival/missile_land_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 	}
 
 	AcceptEntityInput(entity, "Kill");
@@ -1062,7 +1062,7 @@ public Action HelicopterSoundHook(Handle hTimer, int refID)
 		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "dropped");
 		GetEntityAttachment(entity, entity, vPosition, vAngle); 
 
-		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_HELICOPTER); 
+		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL); 
 	}
 	else
 	{
@@ -1087,7 +1087,7 @@ public Action HelicopterIdleHook(Handle hTimer, int refID)
 		SetVariantString("helicopter_coop_towerhover_idle");
 		AcceptEntityInput(entity, "SetAnimation");
 		
-		EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 		
 		CreateTimer(1.0, HelicopterDropHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		
@@ -1307,11 +1307,11 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 {
 	switch (GetRandomInt(0, 4))
 	{
-		case 0 : EmitSoundToAll("survival/container_damage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
-		case 1 : EmitSoundToAll("survival/container_damage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
-		case 2 : EmitSoundToAll("survival/container_damage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
-		case 3 : EmitSoundToAll("survival/container_damage_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
-		case 4 : EmitSoundToAll("survival/container_damage_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
+		case 0 : EmitSoundToAll("survival/container_damage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 1 : EmitSoundToAll("survival/container_damage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 2 : EmitSoundToAll("survival/container_damage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 3 : EmitSoundToAll("survival/container_damage_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 4 : EmitSoundToAll("survival/container_damage_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 	}
 	
 	if (GetEntProp(entity, Prop_Send, "m_nBody"))
@@ -1421,9 +1421,9 @@ void SafeExpload(int entity)
 	
 	switch (GetRandomInt(0, 2))
 	{
-		case 0 : EmitSoundToAll("survival/container_death_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_DEATH);
-		case 1 : EmitSoundToAll("survival/container_death_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_DEATH);
-		case 2 : EmitSoundToAll("survival/container_death_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_DEATH);
+		case 0 : EmitSoundToAll("survival/container_death_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 1 : EmitSoundToAll("survival/container_death_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 2 : EmitSoundToAll("survival/container_death_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 	}
 
 	UTIL_RemoveEntity(entity, 0.1);

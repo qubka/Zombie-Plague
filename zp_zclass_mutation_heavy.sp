@@ -204,7 +204,7 @@ public void ZP_OnClientSkillOver(int client)
 			AcceptEntityInput(entity, "DisableDraw"); 
 			AcceptEntityInput(entity, "DisableShadow"); 
 			
-			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
+			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 			
 			SDKHook(entity, SDKHook_Touch, TrapTouchHook);
 		}

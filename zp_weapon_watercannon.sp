@@ -269,7 +269,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 				return;
 			}
 
-			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 
 			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 			
@@ -579,7 +579,7 @@ public Action FireTouchHook(int entity, int target)
  * @param iPitch            The sound pitch.
  * @param iFlags            The sound flags.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
+/*public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
 {
 	if (IsValidEdict(entity))
 	{
@@ -587,7 +587,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[
 	}
 	
 	return Plugin_Continue;
-}
+}*/
 
 /**
  * @brief Called before a grenade sound is emitted.

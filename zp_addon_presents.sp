@@ -603,7 +603,7 @@ public Action CaseSpawnHook(Handle hTimer)
 				PrintHintText(i, "%t", "present arrived");
 			}
 			
-			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_AMBIENT);
+			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 		}
 	}
 	

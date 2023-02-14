@@ -184,7 +184,7 @@ void Item_OnActive(int client)
 	
 	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
 	
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_CAR);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 	
 	int entity = ZP_GetClientAttachModel(client, BitType_DefuseKit);
 

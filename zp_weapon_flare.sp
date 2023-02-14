@@ -73,8 +73,8 @@ ConVar hCvarFlareSmoke;
  **/
 public void OnPluginStart()
 {
-	hCvarFlareRadius   = CreateConVar("zp_weapon_flare_radius", "150.0", "Flare lightning size (radius)", 0, true, 0.0);
-	hCvarFlareDistance = CreateConVar("zp_weapon_flare_distance", "600.0", "Flare lightning size (distance)", 0, true, 0.0);
+	hCvarFlareRadius   = CreateConVar("zp_weapon_flare_radius", "500.0", "Flare lightning size (radius)", 0, true, 0.0);
+	hCvarFlareDistance = CreateConVar("zp_weapon_flare_distance", "1000.0", "Flare lightning size (distance)", 0, true, 0.0);
 	hCvarFlareDuration = CreateConVar("zp_weapon_flare_duration", "20.0", "Flare lightning duration in seconds", 0, true, 0.0);
 	hCvarFlareTrail    = CreateConVar("zp_weapon_flare_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
 	hCvarFlareColor    = CreateConVar("zp_weapon_flare_color", "255 0 0 255", "Flare color in 'RGBA'");
@@ -133,7 +133,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 		static float vPosition[3];
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
 		float flDuration = hCvarFlareDuration.FloatValue;
 		

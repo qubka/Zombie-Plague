@@ -54,19 +54,6 @@ int gWeapon;
 // Item index
 int gItem; 
 
-/**
- * @section List of operation systems.
- **/
-enum EngineOS
-{
-	OS_Unknown,
-	OS_Windows,
-	OS_Linux
-};
-/**
- * @endsection
- **/
- 
 // Platform
 EngineOS gPlatform;
  
@@ -563,7 +550,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				
 				SetEntPropEnt(entity, Prop_Data, "m_hInteractionPartner", upgrade); 
 				
-				ZP_EmitSoundToAll(gSoundUpgrade, 1, upgrade, SNDCHAN_STATIC, SNDLEVEL_WEAPON);
+				ZP_EmitSoundToAll(gSoundUpgrade, 1, upgrade, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 				
 				CreateTimer(5.0, SentryActivateHook, EntIndexToEntRef(upgrade), TIMER_FLAG_NO_MAPCHANGE);
 			}
@@ -1033,7 +1020,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	
 	public void EmitSound(int iIndex)
 	{
-		ZP_EmitSoundToAll(gSoundShoot, iIndex, this.Index, SNDCHAN_STATIC, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSoundShoot, iIndex, this.Index, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 	}
 	
 	public void FoundTarget(int target) 
@@ -1542,7 +1529,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			
 			SetEntPropEnt(upgrade, Prop_Data, "m_hOwnerEntity", this.Index); 
 			
-			ZP_EmitSoundToAll(gSoundUpgrade, 2, upgrade, SNDCHAN_STATIC, SNDLEVEL_WEAPON);
+			ZP_EmitSoundToAll(gSoundUpgrade, 2, upgrade, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 			
 			this.UpgradeModel = upgrade;
 			
@@ -1707,7 +1694,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{
 		static float vPosition[3]; static float vGib[3]; float vShoot[3];
 
-		EmitSoundToAll("survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC, SNDLEVEL_DEATH);
+		EmitSoundToAll("survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 		
 		GetAbsOrigin(this.Index, vPosition);
 		
@@ -2294,9 +2281,9 @@ public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float 
 				
 				switch (GetRandomInt(0, 2))
 				{
-					case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
-					case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
-					case 2 : EmitSoundToAll("survival/turret_takesdamage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
+					case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+					case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+					case 2 : EmitSoundToAll("survival/turret_takesdamage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 				}
 			}
 		}
@@ -2331,7 +2318,7 @@ public Action RocketTouchHook(int entity, int target)
 		
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarSentryRocketDamage.FloatValue, hCvarSentryRocketRadius.FloatValue, "rocket", _, entity);
 
-		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC, SNDLEVEL_EXPLOSION);
+		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 
 		AcceptEntityInput(entity, "Kill");
 	}

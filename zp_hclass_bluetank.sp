@@ -119,7 +119,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 		SetEntProp(client, Prop_Send, "m_iHealth", iHealth);
 
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 		
 		float flDuration = ZP_GetClassSkillDuration(gHuman);
 		

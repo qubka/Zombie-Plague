@@ -370,31 +370,7 @@
 /**
  * @endsection
  **/ 
- 
-/**
- * @section Custom sound levels.
- **/
-#define SNDLEVEL_EXPLOSION   80
-#define SNDLEVEL_AMBIENT     30
-#define SNDLEVEL_WEAPON      45
-#define SNDLEVEL_MELEE       35
-#define SNDLEVEL_ITEM        35
-#define SNDLEVEL_SKILL       55
-#define SNDLEVEL_BURN        60
-#define SNDLEVEL_DEATH       60
-#define SNDLEVEL_HURT        65
-#define SNDLEVEL_RESPAWN     55
-#define SNDLEVEL_INFECT      70
-#define SNDLEVEL_MOAN        40
-#define SNDLEVEL_REGEN       35
-#define SNDLEVEL_LEAPJUMP    30
-#define SNDLEVEL_FOOTSTEPS   40
-#define SNDLEVEL_CLAWS       50
-#define SNDLEVEL_BOUNCE      45
-/**
- * @endsection
- **/ 
- 
+
 /** 
  * @section Number of valid def indexes.
  *
@@ -503,6 +479,19 @@ enum ItemDef
  * @endsection
  **/
 
+/**
+ * @section List of operation systems.
+ **/
+enum EngineOS
+{
+	OS_Unknown,
+	OS_Windows,
+	OS_Linux
+};
+/**
+ * @endsection
+ **/
+ 
 /**
  * @section Number of valid render types.
  **/

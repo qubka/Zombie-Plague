@@ -129,7 +129,7 @@ public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float fl
 		
 		if (iChance[client] < hCvarSkillChance.IntValue)
 		{
-			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 			
 			float flDuration = hCvarSkillDuration.FloatValue;
 

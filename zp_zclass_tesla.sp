@@ -154,7 +154,7 @@ public Action ZP_OnClientSkillUsed(int client)
 {
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 		
 		static float vPosition[3]; 
 		GetClientEyePosition(client, vPosition); vPosition[2] += 40.0;

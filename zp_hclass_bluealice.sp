@@ -112,7 +112,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 		UTIL_CreateFadeScreen(client, 0.3, ZP_GetClassSkillDuration(gHuman), FFADE_IN, {200, 200, 200, 50});  
 		
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 	}
 	
 	return Plugin_Continue;
@@ -132,6 +132,6 @@ public void ZP_OnClientSkillOver(int client)
 		
 		bInvisible[client] = false;
 
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 	}
 }

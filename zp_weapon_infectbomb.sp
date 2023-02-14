@@ -297,19 +297,19 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 		{
 			if (!strncmp(sSample[30], "arm", 3, false))
 			{
-				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
+				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				return Plugin_Stop; 
 			}
 			else if (!strncmp(sSample[30], "det", 3, false))
 			{
-				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
+				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				return Plugin_Stop; 
 			}
 			else if (!strncmp(sSample[30], "exp", 3, false))
 			{
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				return Plugin_Stop; 
 			}

@@ -26,19 +26,6 @@
  **/
 
 /**
- * @section List of operation systems.
- **/
-enum EngineOS
-{
-	OS_Unknown,
-	OS_Windows,
-	OS_Linux
-};
-/**
- * @endsection
- **/
- 
-/**
  * @section Struct of operation types for server arrays.
  **/
 enum struct ServerData

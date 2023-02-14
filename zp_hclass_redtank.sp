@@ -119,7 +119,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 		SetEntProp(client, Prop_Send, "m_ArmorValue", iArmor);
 
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 		
 		float flDuration = ZP_GetClassSkillDuration(gHuman);
 		
@@ -154,6 +154,6 @@ public void ZP_OnClientSkillOver(int client)
 {
 	if (ZP_GetClientClass(client) == gHuman)
 	{
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 	}
 }

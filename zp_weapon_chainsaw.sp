@@ -201,7 +201,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 		
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 	
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 	}
 	else
 	{
@@ -306,6 +306,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			ZP_SetWeaponAnimation(client, ANIM_ATTACK_START);        
 
 			SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ATTACK);
+			SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
 
 			flCurrentTime += WEAPON_ATTACK_START_TIME;
 			
@@ -324,7 +325,11 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 				return;
 			}
 
-			ZP_EmitSoundToAll(gSoundAttack, 2, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+			if (GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") < flCurrentTime)
+			{
+				ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+				SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flCurrentTime + 0.335);
+			}
 			
 			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 			
@@ -390,13 +395,13 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 	{
 		ZP_SetViewAnimation(client, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
 		
-		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 	}
 	else
 	{
 		ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });     
 
-		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 	}
 	
 	flCurrentTime += WEAPON_ATTACK_TIME;
@@ -451,7 +456,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 			TE_SetupSparks(vEndPosition, vNormal, 50, 2);
 			TE_SendToAll();
 			
-			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
+			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
 		}
 		else
 		{
@@ -459,7 +464,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
-				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
+				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
 			}
 		}
 	}
@@ -537,6 +542,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 	if (weaponID == gWeapon)
 	{
 		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
+		SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
 } 

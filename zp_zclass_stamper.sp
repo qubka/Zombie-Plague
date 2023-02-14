@@ -165,7 +165,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				SDKHook(entity, SDKHook_OnTakeDamage, CoffinDamageHook);
 			}
 			
-			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
+			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 			
 			TE_SetupBeamRingPoint(vPosition, 10.0, 200.0, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, {150, 150, 150, 200}, 0, 0);
 			TE_SendToAll();
@@ -200,7 +200,7 @@ public Action CoffinDamageHook(int entity, int &attacker, int &inflictor, float 
 	}
 	else
 	{
-		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 		
 		SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
 	}
@@ -220,7 +220,7 @@ public Action CoffinIdleHook(Handle hTimer, int refID)
 
 	if (entity != -1)
 	{
-		ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 	}
 	else
 	{
@@ -335,7 +335,7 @@ void CoffinExpload(int entity)
 		TE_SendToAll();
 	}
 	
-	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC, SNDLEVEL_EXPLOSION);
+	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 	
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	for (int x = 0; x <= 4; x++)

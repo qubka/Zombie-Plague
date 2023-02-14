@@ -1388,7 +1388,7 @@ void WeaponMODOnClientBuyammo(int client)
 			{
 				TranslationPrintHintText(client, "block buying ammunition");
 				
-				EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_NORMAL);    
 				return;
 			}
 	

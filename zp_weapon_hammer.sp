@@ -223,7 +223,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 		hWeaponStab[client] = CreateTimer(0.2, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
-	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 	
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 	
@@ -298,7 +298,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? hCvarHammerSlashDamage : hCvarHammerStabDamage).FloatValue, hCvarHammerRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 		}
 
-		ZP_EmitSoundToAll(gSound, bSlash ? 2 : 1, client, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSound, bSlash ? 2 : 1, client, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
 	}
 	
 	delete hTrace;

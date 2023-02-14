@@ -496,7 +496,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 	
 	if (flCounter <= 0.0)
 	{
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_NORMAL);
 		
 		iState    = PROXIMITY_STATE_DETECT;
 		flCounter = 0.0;
@@ -510,7 +510,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 			iPitch = 100;
 		}
 		
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_NORMAL, _, _, iPitch);
 	}
 	
 	return Plugin_Continue;
@@ -773,7 +773,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 	
 	if (flCounter <= 0.0)
 	{
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_NORMAL);
 		
 		iState    = TRIPWIRE_STATE_DETECT;
 		flCounter = 0.0;
@@ -787,7 +787,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 			iPitch = 100;
 		}
 		
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_NORMAL, _, _, iPitch);
 	}
 	
 	return Plugin_Continue;
@@ -1024,7 +1024,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 	
 	if (flCounter <= 0.0)
 	{
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_ITEM);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_NORMAL);
 		
 		iState    = SATCHEL_STATE_ENABLED;
 		flCounter = 0.0;
@@ -1038,7 +1038,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 			iPitch = 100;
 		}
 		
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_ITEM, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_NORMAL, _, _, iPitch);
 	}
 	
 	return Plugin_Continue;

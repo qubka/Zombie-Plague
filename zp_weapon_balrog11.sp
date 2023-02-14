@@ -160,7 +160,7 @@ void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCur
 		{
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", iAmmo + 1);
 		 
-			ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+			ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 			
 			iCounter = -1;
 		}
@@ -204,7 +204,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
  
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 	
 	ZP_SetViewAnimation(client, { ANIM_SHOOT_BSC1, ANIM_SHOOT_BSC2 });
 	
@@ -443,7 +443,7 @@ public Action FireTouchHook(int entity, int target)
 
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarBalrogDamage.FloatValue, hCvarBalrogRadius.FloatValue, "balrog11", thrower, entity);
 		
-		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_HURT);
+		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 		
 		AcceptEntityInput(entity, "Kill");
 	}

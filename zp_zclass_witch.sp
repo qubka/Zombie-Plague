@@ -125,7 +125,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 		
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 		
 		int entity = UTIL_CreateProjectile(vPosition, vAngle, _, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
 
@@ -215,7 +215,7 @@ public Action BatTouchHook(int entity, int target)
 				CreateTimer(0.1, BatAttachHook, EntIndexToEntRef(bat), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 			}
 
-			ZP_EmitSoundToAll(gSound, 2, target, SNDCHAN_VOICE, SNDLEVEL_SKILL);
+			ZP_EmitSoundToAll(gSound, 2, target, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 		}
 		else
 		{
@@ -227,7 +227,7 @@ public Action BatTouchHook(int entity, int target)
 				UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
 			}
 			
-			ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
+			ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 			
 			TE_SetupSmoke(vPosition, gSmoke, 130.0, 10);
 			TE_SendToAll();

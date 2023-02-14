@@ -261,13 +261,13 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 		{
 			if (!strncmp(sSample[23], "bounce", 6, false))
 			{
-				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
+				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				return Plugin_Stop; 
 			}
 			else if (!strncmp(sSample[20], "explode", 7, false))
 			{
-				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_BOUNCE);
+				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
 				
 				return Plugin_Stop; 
 			}

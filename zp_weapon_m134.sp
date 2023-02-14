@@ -235,7 +235,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		{
 			Weapon_OnCreateEffect(client, weapon, "Start");
 		
-			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON, _, 0.5);
+			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL, _, 0.5);
 
 			iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		

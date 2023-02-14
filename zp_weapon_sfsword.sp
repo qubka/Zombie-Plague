@@ -199,7 +199,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
 	
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_ON_TIME);
 	
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 	}
 }
 
@@ -245,7 +245,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 		delete hWeaponStab[client];
 		hWeaponStab[client] = CreateTimer(0.35, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		
-		ZP_EmitSoundToAll(gSoundAttack, 5, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+		ZP_EmitSoundToAll(gSoundAttack, 5, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 	}
 	else
 	{
@@ -257,14 +257,14 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 			{
 				ZP_SetWeaponAnimation(client, ANIM_STAB);   
 				
-				ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+				ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 			}
 
 			default :
 			{
 				ZP_SetWeaponAnimation(client, ANIM_MIDSLASH1 + iCount);   
 				
-				ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(1, 3), client, SNDCHAN_WEAPON, SNDLEVEL_WEAPON);
+				ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(1, 3), client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
 			}
 		}
 
@@ -363,7 +363,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			TE_SetupSparks(vEndPosition, vNormal, 50, 2);
 			TE_SendToAll();
 			
-			ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(3, 4) : 5, client, SNDCHAN_ITEM, SNDLEVEL_MELEE);
+			ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(3, 4) : 5, client, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
 		}
 		else
 		{
@@ -371,7 +371,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
-				ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(1, 2) : 5, victim, SNDCHAN_ITEM, SNDLEVEL_WEAPON);
+				ZP_EmitSoundToAll(gSoundHit, bSlash ? GetRandomInt(1, 2) : 5, victim, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
 			}
 		}
 	}
