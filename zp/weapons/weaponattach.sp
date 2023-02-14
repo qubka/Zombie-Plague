@@ -454,7 +454,7 @@ void WeaponAttachCreateAddons(int client, int iD, BitType mBits, char[] sAttach)
 
 	if (WeaponsGetModelDropID(iD))
 	{
-		if (ToolsLookupAttachment(client, sAttach))
+		if (LookupEntityAttachment(client, sAttach))
 		{
 			static char sModel[PLATFORM_LINE_LENGTH];
 			WeaponsGetModelDrop(iD, sModel, sizeof(sModel)); 

@@ -892,7 +892,11 @@ void WeaponMODOnFakeClientThink(int client)
 {
 	if (gCvarList.WEAPONS_BUYAMMO.BoolValue)
 	{
-		WeaponMODOnClientBuyammo(client);
+		int iAmount = GetRandomInt(4, 6);
+		for (int i = 0; i < iAmount; i++)
+		{
+			WeaponMODOnClientBuyammo(client);
+		}
 	}
 }
 
@@ -1174,21 +1178,6 @@ void WeaponMODOnFire(int client, int weapon)
 		
 		if (WeaponsGetAmmoType(weapon) != -1) 
 		{
-			int iAmmo = ClassGetAmmunition(gClientData[client].Class);
-			if (iAmmo)
-			{
-				ItemDef iItem = WeaponsGetDefIndex(iD);
-				if (iItem != ItemDef_Taser)
-				{
-					switch (iAmmo)
-					{
-						case 1 : { WeaponsSetReserveAmmo(weapon, WeaponsGetMaxReserveAmmo(weapon)); }
-						case 2 : { WeaponsSetClipAmmo(weapon, WeaponsGetMaxClipAmmo(weapon)); } 
-						default : { /* < empty statement > */ }
-					}
-				}
-			}
-			
 			if (WeaponsGetModelViewID(iD))
 			{
 				int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
@@ -1287,6 +1276,24 @@ Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon
 	static int iD; iD = ToolsGetCustomID(weapon); /** static for runcmd **/
 	if (iD != -1)    
 	{
+		if (iButtons & IN_ATTACK || iButtons & IN_ATTACK2)
+		{
+			static int iAmmo; iAmmo = ClassGetAmmunition(gClientData[client].Class);
+			if (iAmmo && WeaponsGetAmmoType(weapon) != -1) /// If weapon without any type of ammo, then skip
+			{
+				ItemDef iItem = WeaponsGetDefIndex(iD);
+				if (iItem != ItemDef_Taser)
+				{
+					switch (iAmmo)
+					{
+						case 1 : { WeaponsSetReserveAmmo(weapon, WeaponsGetMaxReserveAmmo(weapon)); }
+						case 2 : { WeaponsSetClipAmmo(weapon, WeaponsGetMaxClipAmmo(weapon)); } 
+						default : { /* < empty statement > */ }
+					}
+				}
+			}
+		}
+	
 		Action hResult;
 		gForwardData._OnWeaponRunCmd(client, iButtons, iLastButtons, weapon, iD, hResult);
 		return hResult;
