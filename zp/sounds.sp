@@ -562,7 +562,7 @@ bool SoundsPrecacheQuirk(char[] sPath)
 	{
 		if (FileExists(sPath, true))
 		{
-			PrecacheSound(sPath, true);
+			PrecacheSound(sPath[6], true);
 			return true;
 		}
 

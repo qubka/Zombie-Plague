@@ -57,8 +57,8 @@ enum
 	GAMEMODES_DATA_SOUND_VOLUME,
 	GAMEMODES_DATA_INFECTION,
 	GAMEMODES_DATA_RESPAWN,
-	GAMEMODES_DATA_TYPEHUMAN,
-	GAMEMODES_DATA_TYPEZOMBIE,
+	GAMEMODES_DATA_TYPE_HUMAN,
+	GAMEMODES_DATA_TYPE_ZOMBIE,
 	GAMEMODES_DATA_OVERLAY_HUMAN,
 	GAMEMODES_DATA_OVERLAY_ZOMBIE,
 	GAMEMODES_DATA_OVERLAY_DRAW,
@@ -208,9 +208,9 @@ void GameModesOnCacheData()
 		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 19
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 20
 		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 21
-		kvGameModes.GetString("humantype", sBuffer, sizeof(sBuffer), "human");
+		kvGameModes.GetString("type_human", sBuffer, sizeof(sBuffer), "human");
 		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 22
-		kvGameModes.GetString("zombietype", sBuffer, sizeof(sBuffer), "zombie");   
+		kvGameModes.GetString("type_zombie", sBuffer, sizeof(sBuffer), "zombie");   
 		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 23
 		kvGameModes.GetString("overlay_human", sBuffer, sizeof(sBuffer), "");       
 		arrayGameMode.PushString(sBuffer);                                          // Index: 24
@@ -2221,7 +2221,7 @@ int ModesGetTypeHuman(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_TYPEHUMAN);
+	return arrayGameMode.Get(GAMEMODES_DATA_TYPE_HUMAN);
 }
 
 /**
@@ -2239,7 +2239,7 @@ int ModesGetTypeZombie(int iD)
 	
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
-	return arrayGameMode.Get(GAMEMODES_DATA_TYPEZOMBIE);
+	return arrayGameMode.Get(GAMEMODES_DATA_TYPE_ZOMBIE);
 }
 
 /**

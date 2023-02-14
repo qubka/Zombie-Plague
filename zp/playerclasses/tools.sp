@@ -28,11 +28,6 @@
 /**
  * Variables to store SDK calls handlers.
  **/
-Handle hSDKCallLookupPoseParameter; 
-Handle hSDKCallLookupSequence; 
-Handle hSDKCallLookupAttachment;
-Handle hSDKCallGetAttachment;
-Handle hSDKCallResetSequence; 
 Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallUpdateTransmitState;
 Handle hSDKCallIsBSPModel;
@@ -139,90 +134,6 @@ void ToolsOnInit()
 	else
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SendTableCRC Patch", "Not able to patch \"g_SendTableCRC\" with invalid address");
-	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
-	
-	{
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupAttachment");
-
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-
-		if ((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
-	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
-	
-	{
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetAttachment");
-
-		if (gServerData.Platform == OS_Windows)
-		{
-			PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		}
-		else
-		{
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		}
-		
-		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-		PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-		
-		if ((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
-	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
-	
-	{
-		StartPrepSDKCall(SDKCall_Entity); 
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupPoseParameter"); 
-		
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
-		
-		if ((hSDKCallLookupPoseParameter = EndPrepSDKCall()) == null) 
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupPoseParameter\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
-	}
-	
-	/*__________________________________________________________________________________________________*/
-	
-	{
-		StartPrepSDKCall(gServerData.Platform == OS_Windows ? SDKCall_Entity : SDKCall_Raw); 
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::LookupSequence");
-		
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);  
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
-
-		if ((hSDKCallLookupSequence = EndPrepSDKCall()) == null) 
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
-	}
-	
-	/*__________________________________________________________________________________________________*/
-	
-	{
-		StartPrepSDKCall(SDKCall_Entity); 
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::ResetSequence");
-		
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);  
-		
-		if ((hSDKCallResetSequence = EndPrepSDKCall()) == null) 
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
 	}
 	
 	/*__________________________________________________________________________________________________*/
@@ -409,11 +320,6 @@ public Action ToolsOnEntityTransmit(int entity, int client)
  **/
 void ToolsOnNativeInit()
 {
-	CreateNative("ZP_LookupAttachment",     API_LookupAttachment);
-	CreateNative("ZP_GetAttachment",        API_GetAttachment);
-	CreateNative("ZP_LookupSequence",       API_LookupSequence);
-	CreateNative("ZP_LookupPoseParameter",  API_LookupPoseParameter);
-	CreateNative("ZP_ResetSequence",        API_ResetSequence);
 	CreateNative("ZP_GetSequenceActivity",  API_GetSequenceActivity);
 	CreateNative("ZP_GetSequenceCount",     API_GetSequenceCount);
 	CreateNative("ZP_IsBSPModel",           API_IsBSPModel);
@@ -422,161 +328,6 @@ void ToolsOnNativeInit()
 	CreateNative("ZP_RespawnPlayer",        API_RespawnPlayer);
 	CreateNative("ZP_FindPlayerInSphere",   API_FindPlayerInSphere);
 	CreateNative("ZP_SetProgressBarTime",   API_SetProgressBarTime);
-}
-
-/**
- * @brief Validate the attachment on the entity.
- *
- * @note native bool ZP_LookupAttachment(entity, attach);
- **/
-public int API_LookupAttachment(Handle hPlugin, int iNumParams)
-{
-	int entity = GetNativeCell(1);
-	
-	if (!IsValidEdict(entity))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-		return -1;
-	}
-
-	int maxLen;
-	GetNativeStringLength(2, maxLen);
-
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	static char sAttach[SMALL_LINE_LENGTH];
-	GetNativeString(2, sAttach, sizeof(sAttach));
-	
-	return ToolsLookupAttachment(entity, sAttach);
-}
-
-/**
- * @brief Gets the attachment of the entity.
- *
- * @note native void ZP_GetAttachment(entity, attach, origin, angles);
- **/
-public int API_GetAttachment(Handle hPlugin, int iNumParams)
-{
-	int entity = GetNativeCell(1);
-	
-	if (!IsValidEdict(entity))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-		return -1;
-	}
-	
-	int maxLen;
-	GetNativeStringLength(2, maxLen);
-
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	static char sAttach[SMALL_LINE_LENGTH]; static float vPosition[3]; static float vAngle[3];
-
-	GetNativeString(2, sAttach, sizeof(sAttach));
-	
-	ToolsGetAttachment(entity, sAttach, vPosition, vAngle);
-	
-	SetNativeArray(3, vPosition, sizeof(vPosition)); return SetNativeArray(4, vAngle, sizeof(vAngle));
-}
-
-/**
- * @brief Gets the sequence of the entity.
- *
- * @note native int ZP_LookupSequence(entity, anim);
- **/
-public int API_LookupSequence(Handle hPlugin, int iNumParams)
-{
-	int entity = GetNativeCell(1);
-	
-	if (!IsValidEdict(entity))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-		return -1;
-	}
-	
-	int maxLen;
-	GetNativeStringLength(2, maxLen);
-
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	static char sAnim[SMALL_LINE_LENGTH];
-	GetNativeString(2, sAnim, sizeof(sAnim));
-	
-	return ToolsLookupSequence(entity, sAnim);
-}
-
-/**
- * @brief Gets the pose of the entity.
- *
- * @note native int ZP_LookupPoseParameter(entity, pose);
- **/
-public int API_LookupPoseParameter(Handle hPlugin, int iNumParams)
-{
-	int entity = GetNativeCell(1);
-	
-	if (!IsValidEdict(entity))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-		return -1;
-	}
-	
-	int maxLen;
-	GetNativeStringLength(2, maxLen);
-
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	static char sPose[SMALL_LINE_LENGTH];
-	GetNativeString(2, sPose, sizeof(sPose));
-	
-	return ToolsLookupPoseParameter(entity, sPose);
-} 
-
-/**
- * @brief Resets the sequence of the entity.
- *
- * @note native int ZP_ResetSequence(entity, name);
- **/
-public int API_ResetSequence(Handle hPlugin, int iNumParams)
-{
-	int entity = GetNativeCell(1);
-	
-	if (!IsValidEdict(entity))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-		return -1;
-	}
-	
-	int maxLen;
-	GetNativeStringLength(2, maxLen);
-
-	if (!maxLen)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "No buffer size");
-		return -1;
-	}
-	
-	static char sAnim[SMALL_LINE_LENGTH];
-	GetNativeString(2, sAnim, sizeof(sAnim));
-	
-	ToolsResetSequence(entity, sAnim);
-	
-	return 1;
 }
 
 /**

@@ -177,7 +177,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 				{
 					if (!IsPlayerAlive(client) || MarketIsBuyTimeExpired(client, iD))
 					{
-						TranslationPrintHintText(client, "block buying round");
+						TranslationPrintHintText(client, "block buying time");
 				
 						EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 						return 0;

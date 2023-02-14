@@ -419,16 +419,16 @@ int ToolsGetHealth(int entity, bool bMax = false)
  * @brief Sets the health of a entity.
  *
  * @param entity            The entity index.
- * @param iValue            The health value.
+ * @param iHealth           The health value.
  * @param bSet              True to set maximum value, false to modify health.  
  **/
-void ToolsSetHealth(int entity, int iValue, bool bSet = false)
+void ToolsSetHealth(int entity, int iHealth, bool bSet = false)
 {
-	SetEntProp(entity, Prop_Send, "m_iHealth", iValue);
+	SetEntProp(entity, Prop_Send, "m_iHealth", iHealth);
 	
 	if (bSet) 
 	{
-		SetEntProp(entity, Prop_Data, "m_iMaxHealth", iValue);
+		SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
 	}
 }
 
@@ -447,11 +447,11 @@ float ToolsGetLMV(int entity)
  * @brief Sets the speed of a entity.
  *
  * @param entity            The entity index.
- * @param flValue           The LMV value.
+ * @param flLMV             The LMV value.
  **/
-void ToolsSetLMV(int entity, float flValue)
+void ToolsSetLMV(int entity, float flLMV)
 {
-	SetEntPropFloat(entity, Prop_Data, "m_flLaggedMovementValue", flValue);
+	SetEntPropFloat(entity, Prop_Data, "m_flLaggedMovementValue", flLMV);
 }
 
 /**
@@ -469,11 +469,11 @@ int ToolsGetArmor(int entity)
  * @brief Sets the armor of a entity.
  *
  * @param entity            The entity index.
- * @param iValue            The armor value.
+ * @param iArmor            The armor value.
  **/
-void ToolsSetArmor(int entity, int iValue)
+void ToolsSetArmor(int entity, int iArmor)
 {
-	SetEntProp(entity, Prop_Send, "m_ArmorValue", iValue);
+	SetEntProp(entity, Prop_Send, "m_ArmorValue", iArmor);
 }
 
 /**
@@ -491,17 +491,17 @@ int ToolsGetTeam(int entity)
  * @brief Sets the team of a entity.
  *
  * @param entity            The entity index.
- * @param iValue            The team index.
+ * @param iTeam             The team index.
  **/
-void ToolsSetTeam(int entity, int iValue)
+void ToolsSetTeam(int entity, int iTeam)
 {
 	if (ToolsGetTeam(entity) <= TEAM_SPECTATOR) /// Fix, thanks to inklesspen!
 	{
-		ChangeClientTeam(entity, iValue);
+		ChangeClientTeam(entity, iTeam);
 	}
 	else
 	{
-		CS_SwitchTeam(entity, iValue); 
+		CS_SwitchTeam(entity, iTeam); 
 	}
 }
 
@@ -634,11 +634,11 @@ int ToolsGetAddonBits(int entity)
  * @brief Sets the addon bits index of a entity.
  *
  * @param entity            The entity index.
- * @param iValue            The addon bits.
+ * @param iBits             The addon bits.
  **/
-void ToolsSetAddonBits(int entity, int iValue)
+void ToolsSetAddonBits(int entity, int iBits)
 {
-	SetEntProp(entity, Prop_Send, "m_iAddonBits", iValue);
+	SetEntProp(entity, Prop_Send, "m_iAddonBits", iBits);
 }
 
 /**
@@ -767,11 +767,11 @@ void ToolsSetArm(int entity, char[] sModel)
  * @brief Sets the attack delay of a entity.
  * 
  * @param entity            The entity index.
- * @param flValue           The speed amount.
+ * @param flTime            The time value.
  **/
-void ToolsSetAttack(int entity, float flValue)
+void ToolsSetAttack(int entity, float flTime)
 {
-	SetEntPropFloat(entity, Prop_Send, "m_flNextAttack", flValue);
+	SetEntPropFloat(entity, Prop_Send, "m_flNextAttack", flTime);
 }
 
 /**
@@ -789,12 +789,12 @@ void ToolsSetFlashLight(int entity, bool bEnable)
  * @brief Sets the fov of a entity.
  * 
  * @param entity            The entity index.
- * @param iValue            (Optional) The fov amount.
+ * @param iFOV              (Optional) The fov amount.
  **/
-void ToolsSetFov(int entity, int iValue = 90)
+void ToolsSetFov(int entity, int iFOV = 90)
 {
-	SetEntProp(entity, Prop_Send, "m_iFOV", iValue);
-	SetEntProp(entity, Prop_Send, "m_iDefaultFOV", iValue);
+	SetEntProp(entity, Prop_Send, "m_iFOV", iFOV);
+	SetEntProp(entity, Prop_Send, "m_iDefaultFOV", iFOV);
 }
 
 /**
@@ -825,11 +825,11 @@ int ToolsGetEffect(int entity)
  * @brief Sets the effect of an entity.
  * 
  * @param entity            The entity index.
- * @param iValue            The effect value.
+ * @param iFlags            The effect value.
  **/
-void ToolsSetEffect(int entity, int iValue)
+void ToolsSetEffect(int entity, int iFlags)
 {
-	SetEntProp(entity, Prop_Send, "m_fEffects", iValue);
+	SetEntProp(entity, Prop_Send, "m_fEffects", iFlags);
 }
 
 /**
@@ -933,139 +933,6 @@ int ToolsGetActivator(int entity)
 
 /*_____________________________________________________________________________________________________*/
 
-/**
- * @brief Validate the attachment on the entity.
- *
- * @param entity            The entity index.
- * @param sAttach           The attachment name.
- * @return                  True or false.
- **/
-bool ToolsLookupAttachment(int entity, char[] sAttach)
-{
-	if (hSDKCallLookupAttachment)
-	{
-		return (hasLength(sAttach) && SDKCall(hSDKCallLookupAttachment, entity, sAttach));
-	}
-	else
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return false;
-	}
-}
-
-/**
- * @brief Gets the attachment of the entity.
- *
- * @param entity            The entity index.
- * @param sAttach           The attachment name.
- * @param vPosition         The origin output.
- * @param vAngle            The angle output.
- **/
-void ToolsGetAttachment(int entity, char[] sAttach, float vPosition[3], float vAngle[3])
-{
-	if (hSDKCallGetAttachment)
-	{
-		if (gServerData.Platform == OS_Windows)
-		{
-			SDKCall(hSDKCallGetAttachment, entity, sAttach, vPosition, vAngle); 
-		}
-		else
-		{
-			int iAttach = SDKCall(hSDKCallLookupAttachment, entity, sAttach);
-			if (iAttach)
-			{
-				SDKCall(hSDKCallGetAttachment, entity, iAttach, vPosition, vAngle); 
-			}
-		}
-	}
-	else
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"%s\"", PLUGIN_CONFIG);
-	}
-}
-
-/**
- * @brief Gets the pose of the entity.
- *
- * @param entity            The entity index.
- * @param sPose             The pose name.
- * @return                  The pose parameter.
- **/
-int ToolsLookupPoseParameter(int entity, char[] sPose)
-{
-	Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-	if (pStudioHdrClass == Address_Null)
-	{
-		return -1;
-	}
-	
-	if (hSDKCallLookupPoseParameter)
-	{
-		return SDKCall(hSDKCallLookupPoseParameter, entity, pStudioHdrClass, sPose); 
-	}
-	else
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::LookupPoseParameter\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return -1;
-	}
-}
-
-/**
- * @brief Gets the sequence of the entity.
- *
- * @param entity            The entity index.
- * @param sAnim             The sequence name.
- * @return                  The sequence index.
- **/
-int ToolsLookupSequence(int entity, char[] sAnim)
-{
-	if (hSDKCallLookupSequence)
-	{
-		if (gServerData.Platform == OS_Windows)
-		{
-			return SDKCall(hSDKCallLookupSequence, entity, sAnim); 
-		}
-		else
-		{
-			Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-			if (pStudioHdrClass == Address_Null)
-			{
-				return -1;
-			}
-			
-			return SDKCall(hSDKCallLookupSequence, pStudioHdrClass, sAnim); 
-		}
-	}
-	else
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		return -1;
-	}
-}
-
-/**
- * @brief Resets the sequence of the entity.
- *
- * @param entity            The entity index.
- * @param sAnim             The sequence name.
- **/
-void ToolsResetSequence(int entity, char[] sAnim) 
-{ 
-	int iSequence = ToolsLookupSequence(entity, sAnim); 
-	if (iSequence < 0) 
-	{
-		return; 
-	}
-	
-	if (hSDKCallResetSequence)
-	{
-		SDKCall(hSDKCallResetSequence, entity, iSequence);
-	}
-	else
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"%s\"", PLUGIN_CONFIG);
-	}
-}
 
 /**
  * @brief Gets the total sequence amount.

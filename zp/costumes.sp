@@ -957,7 +957,7 @@ void CostumesCreateEntity(int client)
 			static char sAttach[SMALL_LINE_LENGTH];
 			CostumesGetAttach(gClientData[client].Costume, sAttach, sizeof(sAttach)); 
 
-			if (ToolsLookupAttachment(client, sAttach))
+			if (LookupEntityAttachment(client, sAttach))
 			{
 				SetVariantString(sAttach);
 				AcceptEntityInput(entity, "SetParentAttachment", client, entity);

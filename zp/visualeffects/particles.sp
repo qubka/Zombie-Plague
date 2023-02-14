@@ -40,7 +40,7 @@
  **/
 int ParticlesCreate(int parent, char[] sAttach, char[] sEffect, float flDurationTime)
 {
-	if (!hasLength(sEffect) || (hasLength(sAttach) && !ToolsLookupAttachment(parent, sAttach)))
+	if (!hasLength(sEffect) || (hasLength(sAttach) && !LookupEntityAttachment(parent, sAttach)))
 	{
 		return -1;
 	}

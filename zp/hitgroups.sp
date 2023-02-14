@@ -1150,7 +1150,7 @@ void HitGroupsApplyKnock(int client, int attacker, float flForce)
 	}
 	else
 	{
-		SetEntPropFloat(client, Prop_Send, "m_flStamina", max(max(flForce, GetEntPropFloat(client, Prop_Send, "m_flStamina")), 100.0)); 
+		SetEntPropFloat(client, Prop_Send, "m_flStamina", min(flForce, 100.0)); 
 	}
 }
 
