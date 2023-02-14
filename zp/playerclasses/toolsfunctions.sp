@@ -1004,29 +1004,6 @@ int ToolsGetSequenceActivity(int entity, int iSequence)
 }
 
 /**
- * @brief Update a entity transmit state.
- * 
- * @param entity            The entity index.
- **/
-void ToolsUpdateTransmitState(int entity)
-{
-	if (hSDKCallUpdateTransmitState)
-	{
-		if (GetEntProp(entity, Prop_Data, "m_nTransmitStateOwnedCounter") != 0)
-		{
-			return;
-		}
-		
-		SDKCall(hSDKCallUpdateTransmitState, entity);
-	}
-	else
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SDKCall Validation", "Failed to execute SDK call \"CBaseEntity::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		return;
-	}
-}
-
-/**
  * @brief Checks that the entity is a brush.
  * 
  * @param entity            The entity index.

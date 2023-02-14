@@ -35,7 +35,7 @@
  **/
 public Plugin myinfo =
 {
-	name            = "[ZP] Weapon: DroneGun (Turret)",
+	name            = "[ZP] Weapon: Turret",
 	author          = "qubka (Nikita Ushakov), Pelipoika",     
 	description     = "Addon of custom weapons",
 	version         = "2.0",
@@ -351,9 +351,9 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute()
 {
-	gWeapon = ZP_GetWeaponNameID("drone gun");
+	gWeapon = ZP_GetWeaponNameID("turret");
 	
-	gItem = ZP_GetExtraItemNameID("drone gun");
+	gItem = ZP_GetExtraItemNameID("turret");
 	
 	gSoundShoot = ZP_GetSoundKeyID("TURRET_SOUNDS");
 	if (gSoundShoot == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_SOUNDS\" wasn't find");
@@ -545,8 +545,9 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			SetEntProp(entity, Prop_Data, "m_iHammerID", iLevel); 
 			SetEntProp(entity, Prop_Data, "m_iDesiredWeaponState", SENTRY_MODE_NORMAL); 
 			SetEntPropFloat(entity, Prop_Data, "m_flUseLookAtAngle", 0.0); ///
-			
-			UTIL_SetRenderColor(entity, Color_Alpha, 0);
+
+			AcceptEntityInput(entity, "DisableDraw"); 
+			AcceptEntityInput(entity, "DisableShadow"); 
 			
 			SDKHook(entity, SDKHook_OnTakeDamage, SentryDamageHook);
 			
@@ -1293,9 +1294,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		{
 			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vVelocity);
 
-			//UTIL_SetRenderColor(entity, Color_Alpha, 0);
 			AcceptEntityInput(entity, "DisableDraw"); 
-			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
+			AcceptEntityInput(entity, "DisableShadow"); 
 			
 			SetEntPropString(entity, Prop_Data, "m_iGlobalname", "rocket");
 
@@ -1563,7 +1563,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		
 		SetEntityModel(this.Index, sModel);
 
-		UTIL_SetRenderColor(this.Index, Color_Alpha, 0);
+		AcceptEntityInput(this.Index, "DisableDraw"); 
+		AcceptEntityInput(this.Index, "DisableShadow"); 
 	}
 	
 	public void Rotate() 
@@ -2249,7 +2250,8 @@ public Action SentryActivateHook(Handle hTimer, int refID)
 	  
 		if (sentry != -1)
 		{
-			UTIL_SetRenderColor(sentry, Color_Alpha, 255);
+			AcceptEntityInput(sentry, "EnableDraw"); 
+			AcceptEntityInput(sentry, "EnableShadow"); 
 			
 			SDKHook(sentry, SDKHook_ThinkPost, SentryThinkHook);
 		}

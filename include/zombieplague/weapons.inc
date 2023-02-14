@@ -813,10 +813,10 @@ stock void ZP_CreateWeaponTracer(int client, int weapon, char[] sAttach1, char[]
 		return;
 	}
 
-	if ((sAttach1[0] != NULL_STRING[0] && !LookupEntityAttachment(view, sAttach1)) || (sAttach2[0] != NULL_STRING[0] && !LookupEntityAttachment(world, sAttach2)))
+	/*if ((sAttach1[0] != NULL_STRING[0] && !LookupEntityAttachment(view, sAttach1)) || (sAttach2[0] != NULL_STRING[0] && !LookupEntityAttachment(world, sAttach2)))
 	{
 		return;
-	}
+	}*/
 
 	static int entity[4];
 	entity[ClientSrt] = CreateEntityByName("info_particle_system");

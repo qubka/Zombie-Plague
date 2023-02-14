@@ -64,7 +64,7 @@ void WeaponAttachOnUnload()
 }
 
 /**
- * @brief Client has been changed class state. *(Post)
+ * @brief Client has been changed class state. *(Next frame)
  *
  * @param client            The client index.
  **/

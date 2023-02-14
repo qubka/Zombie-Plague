@@ -37,6 +37,7 @@ enum
 {
 	WEAPONS_DATA_NAME,
 	WEAPONS_DATA_INFO,
+	WEAPONS_DATA_ENTITY,
 	WEAPONS_DATA_DEF_INDEX,
 	WEAPONS_DATA_GROUP,
 	WEAPONS_DATA_GROUP_FLAGS,
@@ -62,9 +63,9 @@ enum
 	WEAPONS_DATA_MODEL_WORLD_ID,
 	WEAPONS_DATA_MODEL_DROP,
 	WEAPONS_DATA_MODEL_DROP_,
-	WEAPONS_DATA_MODEL_BODY = 27,
-	WEAPONS_DATA_MODEL_SKIN = 31,
-	WEAPONS_DATA_MODEL_MUZZLE = 35,
+	WEAPONS_DATA_MODEL_BODY = 28,
+	WEAPONS_DATA_MODEL_SKIN = 32,
+	WEAPONS_DATA_MODEL_MUZZLE = 36,
 	WEAPONS_DATA_MODEL_SHELL,
 	WEAPONS_DATA_MODEL_HEAT,
 	WEAPONS_DATA_SEQUENCE_COUNT,
@@ -188,69 +189,70 @@ void WeaponsOnCacheData()
 		}
 		arrayWeapon.PushString(sBuffer);                                  // Index: 1
 		kvWeapons.GetString("entity", sBuffer, sizeof(sBuffer), "");
+		arrayWeapon.PushString(sBuffer);                                  // Index: 2
 		gServerData.Entities.SetValue(sBuffer, i, false);  /// Unique entity catched
 		int iItem = WeaponsGetItemDefIndex(sBuffer);
 		if (iItem == 0)
 		{
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sBuffer);
 		}
-		arrayWeapon.Push(iItem);                                          // Index: 2
+		arrayWeapon.Push(iItem);                                          // Index: 3
 		kvWeapons.GetString("group", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.PushString(sBuffer);                                  // Index: 3
-		arrayWeapon.Push(ConfigGetAdmFlags(sBuffer));                     // Index: 4
+		arrayWeapon.PushString(sBuffer);                                  // Index: 4
+		arrayWeapon.Push(ConfigGetAdmFlags(sBuffer));                     // Index: 5
 		kvWeapons.GetString("types", sBuffer, sizeof(sBuffer), "human");  
-		arrayWeapon.Push(ClassTypeToIndex(sBuffer));                      // Index: 5 
-		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 6 
-		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 7 
-		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 8 
-		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));           // Index: 9 
-		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));               // Index: 10
-		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                // Index: 11
-		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 12
-		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 13
-		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 14
-		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 15
-		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 16
-		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 17
-		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 18
+		arrayWeapon.Push(ClassTypeToIndex(sBuffer));                      // Index: 6 
+		arrayWeapon.Push(kvWeapons.GetNum("level", 0));                   // Index: 7 
+		arrayWeapon.Push(kvWeapons.GetNum("online", 0));                  // Index: 8 
+		arrayWeapon.Push(kvWeapons.GetFloat("damage", 1.0));              // Index: 9 
+		arrayWeapon.Push(kvWeapons.GetFloat("knockback", 1.0));           // Index: 10
+		arrayWeapon.Push(kvWeapons.GetFloat("speed", 0.0));               // Index: 11
+		arrayWeapon.Push(kvWeapons.GetFloat("jump", 0.0));                // Index: 12
+		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 13
+		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 14
+		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 15
+		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 16
+		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 17
+		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 18
+		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 19
 		kvWeapons.GetString("sound", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 19
+		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 20
 		kvWeapons.GetString("icon", sBuffer, sizeof(sBuffer), "");        
-		arrayWeapon.PushString(sBuffer);                                  // Index: 20
+		arrayWeapon.PushString(sBuffer);                                  // Index: 21
 		if (hasLength(sBuffer))
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/panorama/images/icons/equipment/%s.svg", sBuffer);
 			if (FileExists(sBuffer)) AddFileToDownloadsTable(sBuffer); 
 		}
 		kvWeapons.GetString("view", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 21    
-		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 22
+		arrayWeapon.PushString(sBuffer);                                  // Index: 22    
+		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 23
 		kvWeapons.GetString("world", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.PushString(sBuffer);                                  // Index: 23
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 24
+		arrayWeapon.PushString(sBuffer);                                  // Index: 24
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 25
 		kvWeapons.GetString("dropped", sBuffer, sizeof(sBuffer), "");     
-		arrayWeapon.PushString(sBuffer);                                  // Index: 25
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 26
+		arrayWeapon.PushString(sBuffer);                                  // Index: 26
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 27
 		int iBody[4]; kvWeapons.GetColor4("body", iBody);                 
 		for (int x = 0; x < 4; x++)
 		{
-			arrayWeapon.Push(iBody[x]);                                   // Index: 27+x
+			arrayWeapon.Push(iBody[x]);                                   // Index: 28+x
 		}
 		int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
 		for (int x = 0; x < 4; x++)
 		{
-			arrayWeapon.Push(iSkin[x]);                                   // Index: 31+x
+			arrayWeapon.Push(iSkin[x]);                                   // Index: 32+x
 		}
 		kvWeapons.GetString("muzzle", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 35
-		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
 		arrayWeapon.PushString(sBuffer);                                  // Index: 36
-		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 37
-		arrayWeapon.Push(-1);                                             // Index: 38
-		for (int x = 0; x < WEAPONS_SEQUENCE_MAX; x++)
+		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
+		arrayWeapon.PushString(sBuffer);                                  // Index: 37
+		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 38
+		arrayWeapon.Push(-1);                                             // Index: 39
+		/*for (int x = 0; x < WEAPONS_SEQUENCE_MAX; x++)
 		{
-			arrayWeapon.Push(-1);                                         // Index: 39+x
-		}                      
+			arrayWeapon.Push(-1);                                         // Index: 40+x
+		}*/          
 	}
 
 	delete kvWeapons;
@@ -488,7 +490,7 @@ Action WeaponsOnRunCmd(int client, int &iButtons, int iLastButtons)
 }
 
 /**
- * @brief Client has been changed class state. *(Post)
+ * @brief Client has been changed class state. *(Next frame)
  *
  * @param userID            The user id.
  **/
@@ -566,6 +568,7 @@ void WeaponsOnNativeInit()
 	CreateNative("ZP_GetNumberWeapon",       API_GetNumberWeapon);
 	CreateNative("ZP_GetWeaponName",         API_GetWeaponName);
 	CreateNative("ZP_GetWeaponInfo",         API_GetWeaponInfo);
+	CreateNative("ZP_GetWeaponEntity",       API_GetWeaponEntity);
 	CreateNative("ZP_GetWeaponDefIndex",     API_GetWeaponDefIndex);
 	CreateNative("ZP_GetWeaponGroup",        API_GetWeaponGroup);
 	CreateNative("ZP_GetWeaponGroupFlags",   API_GetWeaponGroupFlags);
@@ -805,6 +808,35 @@ public int API_GetWeaponInfo(Handle hPlugin, int iNumParams)
 	WeaponsGetInfo(iD, sInfo, sizeof(sInfo));
 
 	return SetNativeString(2, sInfo, maxLen);
+}
+
+/**
+ * @brief Gets the entity of a weapon at a given id.
+ *
+ * @note native void ZP_GetWeaponEntity(iD, entity, maxlen);
+ **/
+public int API_GetWeaponEntity(Handle hPlugin, int iNumParams)
+{
+	int iD = GetNativeCell(1);
+	
+	if (iD >= gServerData.Weapons.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		return -1;
+	}
+	
+	int maxLen = GetNativeCell(3);
+
+	if (!maxLen)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "No buffer size");
+		return -1;
+	}
+	
+	static char sEntity[SMALL_LINE_LENGTH];
+	WeaponsGetEntity(iD, sEntity, sizeof(sEntity));
+
+	return SetNativeString(2, sEntity, maxLen);
 }
 
 /**
@@ -1471,6 +1503,20 @@ void WeaponsGetInfo(int iD, char[] sInfo, int iMaxLen)
 }
 
 /**
+ * @brief Gets the entity of a weapon at a given id.
+ *
+ * @param iD                The weapon index.
+ * @param sEntity           The string to return entity in.
+ * @param iMaxLen           The lenght of string.
+ **/
+void WeaponsGetEntity(int iD, char[] sEntity, int iMaxLen)
+{
+	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
+	
+	arrayWeapon.GetString(WEAPONS_DATA_ENTITY, sEntity, iMaxLen);
+}
+
+/**
  * @brief Gets the group of a weapon at a given id.
  *
  * @param iD                The weapon index.
@@ -1905,6 +1951,11 @@ int WeaponsGetSequenceCount(int iD)
 int WeaponsGetSequenceSwap(int iD, int iSequence)
 {
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
+	
+	if (arrayWeapon.Length == WEAPONS_DATA_SEQUENCE_SWAP)
+	{
+		return -1;
+	}
 
 	return arrayWeapon.Get(WEAPONS_DATA_SEQUENCE_SWAP + iSequence);
 }
@@ -1922,7 +1973,8 @@ void WeaponsSetSequenceSwap(int iD, int[] iSeq, int iMaxLen)
 	
 	for (int i = 0; i < iMaxLen; i++)
 	{
-		arrayWeapon.Set(WEAPONS_DATA_SEQUENCE_SWAP + i, iSeq[i]);
+		arrayWeapon.Push(iSeq[i]);
+		//arrayWeapon.Set(WEAPONS_DATA_SEQUENCE_SWAP + i, iSeq[i]);
 	}
 }
 
@@ -2225,8 +2277,8 @@ void WeaponsEquip(int client, int weapon, int iD, bool bSwitch = true)
 {
 	static char sClassname[SMALL_LINE_LENGTH]; int weapon2 = -1;
 
-	int mSlot = WeaponsGetSlot(weapon);
-	switch (mSlot)
+	int iSlot = WeaponsGetSlot(weapon);
+	switch (iSlot)
 	{
 		case SlotIndex_Equipment :
 		{
@@ -2249,7 +2301,7 @@ void WeaponsEquip(int client, int weapon, int iD, bool bSwitch = true)
 
 		default : 
 		{
-			weapon2 = GetPlayerWeaponSlot(client, mSlot);
+			weapon2 = GetPlayerWeaponSlot(client, iSlot);
 		}
 	}
 	
@@ -2369,17 +2421,16 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
  **/
 int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
 {
-	int weapon = WeaponsSpawn(view_as<int>(WeaponsGetDefIndex(iD)), vPosition, vAngle);
+	int weapon = WeaponsSpawn(iD, vPosition, vAngle);
 	
 	if (weapon != -1)
 	{
 		ToolsSetCustomID(weapon, iD);
-		
 		WeaponsSetSpawnedByMap(weapon, false);
 
-		WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
-		
 		gForwardData._OnWeaponCreated(weapon, iD);
+		
+		_exec.WeaponMODOnWeaponDropPost(weapon);
 	}
 	
 	return weapon;
@@ -2388,17 +2439,19 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
 /**
  * @brief Spawn a weapon by a defindex.
  *
- * @param iItem             The def index.
+ * @param iD                The weapon id.
  * @param vPosition         (Optional) The origin of the spawn.
  * @param vAngle            (Optional) The angle of the spawn.
  * @return                  The weapon index on success, or -1 on failure.
  **/
-int WeaponsSpawn(int iItem, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
+int WeaponsSpawn(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
 {
 	int weapon = -1;
 	
 	if (hSDKCallSpawnItem)
 	{
+		int iItem = view_as<int>(WeaponsGetDefIndex(iD));
+		
 		weapon = (gServerData.Platform == OS_Windows) ? SDKCall(hSDKCallSpawnItem, iItem, vPosition, vAngle, 1, 4, 0) : SDKCall(hSDKCallSpawnItem, 0, iItem, vPosition, vAngle, 1, 4, 0);
 		
 		if (weapon == -1)
@@ -2409,29 +2462,20 @@ int WeaponsSpawn(int iItem, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3
 	else
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "SDKCall Validation", "Failed to execute SDK call \"CItemGeneration::SpawnItem\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		
+		static char sClassname[SMALL_LINE_LENGTH];
+		WeaponsGetEntity(iD, sClassname, sizeof(sClassname));
 
-
-		CSWeaponID iD = CS_ItemDefIndexToID(iItem);
-		if (iD != CSWeapon_NONE)
+		if ((weapon = CreateEntityByName(sClassname)) == -1)
 		{
-			static char sClassname[SMALL_LINE_LENGTH];
-			CS_WeaponIDToAlias(iD, sClassname, sizeof(sClassname));
-
-			if ((weapon = CreateEntityByName(sClassname)) == -1)
-			{
-				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons", "Failed to create \"%s\" entity with def index (%d)", sClassname, iItem);
-				return weapon;
-			}
-			
-			DispatchKeyValueVector(weapon, "origin", vPosition);
-			DispatchKeyValueVector(weapon, "angles", vAngle);
-			
-			DispatchSpawn(weapon);
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons", "Failed to create \"%s\" entity", sClassname);
+			return weapon;
 		}
-		else
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Weapons", "Failed to get weapon id from def index (%d)", iItem);
-		}
+		
+		DispatchKeyValueVector(weapon, "origin", vPosition);
+		DispatchKeyValueVector(weapon, "angles", vAngle);
+		
+		DispatchSpawn(weapon);
 	}
 	
 	return weapon;
@@ -2505,15 +2549,15 @@ int WeaponsFindByID(int client, int iD)
  **/
 int WeaponsGetSlot(int weapon)
 {
-	int mSlot = hSDKCallGetSlot ? SDKCall(hSDKCallGetSlot, weapon) : SlotIndex_Max;
+	int iSlot = hSDKCallGetSlot ? SDKCall(hSDKCallGetSlot, weapon) : SlotIndex_Max;
 	
-	if (mSlot >= SlotIndex_Max)
+	if (iSlot >= SlotIndex_Max)
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "SDKCall Validation", "Failed to execute SDK call \"CBaseCombatWeapon::GetSlot\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 		return SlotIndex_Primary;
 	}
 	
-	return mSlot;
+	return iSlot;
 }
 
 /**
@@ -2615,12 +2659,10 @@ bool WeaponsSpawnedByMap(int weapon, char[] sClassname)
 	}
 
 	ToolsSetCustomID(weapon, iD);
-
 	WeaponsSetSpawnedByMap(weapon, true);
 	
-	WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
-
 	_exec.WeaponMODOnWeaponSpawnPost(weapon);
+	_exec.WeaponMODOnWeaponDropPost(weapon);
 	
 	return true; 
 }

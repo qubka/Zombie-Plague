@@ -26,7 +26,7 @@
 
 	"general buttons reminder" // Hint
 	{
-		"en"			"Press <font color='#FF0000'>F/B</font> to open menu\nPress <font color='#FF0000'G/F4</font> for zombie/human skill\nPress <font color='#FF0000'>F3</font> to turn on flashlight"
+		"en"			"Press <font color='#FF0000'>F/B</font> to open menu\nPress <font color='#FF0000'>G/F4</font> for zombie/human skill\nPress <font color='#FF0000'>F3</font> to turn on flashlight"
 	}
 	
 	"general ammunition reminder" // Chat

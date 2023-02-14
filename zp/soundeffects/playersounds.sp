@@ -114,7 +114,7 @@ void PlayerSoundsOnCounterStart()
 }
 
 /**
- * @brief Timer callback, the round is ending. *(Post)
+ * @brief Timer callback, the round is ending. *(Next frame)
  *
  * @param reason            The reason index.
  **/
@@ -143,7 +143,7 @@ bool PlayerSoundsOnCounter()
 }
 
 /**
- * @brief Timer callback, the blast is started. *(Post)
+ * @brief Timer callback, the blast is started. *(Next frame)
  **/
 public Action PlayerSoundsOnBlastPost(Handle hTimer)
 {

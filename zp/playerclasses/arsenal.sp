@@ -141,7 +141,7 @@ bool ArsenalOnClientUpdate(int client)
 	
 	if (gCvarList.ARSENAL.BoolValue)
 	{
-		return ArsenallGive(client);
+		return ArsenallDistribute(client);
 	}
 	
 	return false;
@@ -196,12 +196,12 @@ void ArsenalSet(ConVar hConVar)
  * @brief Open the arsenal menu at which the section is at. (or next available)
  * 
  * @param client            The client index.
- * @param mSection          The section index.
+ * @param iSection          The section index.
  * @return                  True or false.
  **/
-bool ArsenalOpen(int client, int mSection)
+bool ArsenalOpen(int client, int iSection)
 {
-	for (int i = mSection; i <= ArsenalType_Melee; i++) 
+	for (int i = iSection; i <= ArsenalType_Melee; i++) 
 	{
 		ArrayList hList = gServerData.Arsenal.Get(i);
 		if (hList.Length > 0)
@@ -215,12 +215,12 @@ bool ArsenalOpen(int client, int mSection)
 }
 
 /**
- * @brief Gives an arsenal weapons.
+ * @brief Distibutes an arsenal weapons.
  *
  * @param client            The client index.
  * @return 					True if the menu was open, false otherwise.
  **/
-bool ArsenallGive(int client)
+bool ArsenallDistribute(int client)
 {
 	if (gClientData[client].Zombie || gClientData[client].Custom)
 	{
@@ -233,21 +233,12 @@ bool ArsenallGive(int client)
 
 		for (int i = ArsenalType_Melee; i != -1; i--)
 		{
-			if (i != ArsenalType_Melee)
-			{
-				int weapon2 = GetPlayerWeaponSlot(client, i);
-				if (weapon2 != -1 && ToolsGetCustomID(weapon2) != gServerData.Melee)
-				{
-					continue;
-				}
-			}
-			
 			ArrayList hList = gServerData.Arsenal.Get(i);
 			
 			int iSize = hList.Length;
 			if (iSize > 0)
 			{
-				weapon = WeaponsGive(client, hList.Get(GetRandomInt(0, iSize - 1)), false);
+				weapon = ArsenalGiveMain(client, i, hList.Get(GetRandomInt(0, iSize - 1)));
 			}
 		}
 		
@@ -277,16 +268,7 @@ bool ArsenallGive(int client)
 
 			for (int i = ArsenalType_Melee; i != -1; i--)
 			{
-				if (i != ArsenalType_Melee)
-				{
-					int weapon2 = GetPlayerWeaponSlot(client, i);
-					if (weapon2 != -1 && ToolsGetCustomID(weapon2) != gServerData.Melee)
-					{
-						continue;
-					}
-				}
-				
-				weapon = WeaponsGive(client, gClientData[client].Arsenal[i], false);
+				weapon = ArsenalGiveMain(client, i, gClientData[client].Arsenal[i]);
 			}
 			
 			if (weapon != -1)
@@ -299,20 +281,70 @@ bool ArsenallGive(int client)
 	return false;
 }
 
+
 /**
- * @brief Gives an additional weapons.
+ * @brief Creates a main weapon.
+ *
+ * @param client            The client index.
+ * @param iSection          The section index.
+ * @param iD                The weapon id.
+ * @return                  The last weapon index.
+ **/
+int ArsenalGiveMain(int client, int iSection, int iD)
+{
+	int weapon = -1;
+
+	int weapon2 = GetPlayerWeaponSlot(client, iSection);
+	if (weapon2 == -1 || ToolsGetCustomID(weapon2) == gServerData.Melee)
+	{
+		weapon = WeaponsGive(client, iD, false);
+	}
+	else
+	{
+		static float vPosition[3]; static float vAngle[3];
+	
+		ToolsGetAbsOrigin(client, vPosition); 
+		ToolsGetAbsAngles(client, vAngle);
+		
+		WeaponsCreate(iD, vPosition, vAngle);
+	}
+	
+	return weapon;
+}
+
+/**
+ * @brief Creates an additional weapons.
  *
  * @param client            The client index.
  * @return                  The last weapon index.
  **/
 int ArsenalGiveAdds(int client)
 {
+	static char sClassname[SMALL_LINE_LENGTH];
+	
 	ArrayList hList = gServerData.Arsenal.Get(gServerData.Arsenal.Length - 1); int weapon = -1;
 	
 	int iSize = hList.Length;
 	for (int i = 0; i < iSize; i++)
 	{
-		weapon = WeaponsGive(client, hList.Get(i), false);
+		int iD = hList.Get(i);
+		
+		WeaponsGetEntity(iD, sClassname, sizeof(sClassname));
+		
+		int weapon2 = WeaponsFindByName(client, sClassname);
+		if (weapon2 == -1)
+		{
+			weapon = WeaponsGive(client, iD, false);
+		}
+		else
+		{
+			static float vPosition[3]; static float vAngle[3];
+		
+			ToolsGetAbsOrigin(client, vPosition); 
+			ToolsGetAbsAngles(client, vAngle);
+			
+			WeaponsCreate(iD, vPosition, vAngle);
+		}
 	}
 
 	gClientData[client].CurrentMenu = ArsenalType_Primary;

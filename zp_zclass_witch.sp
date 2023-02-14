@@ -143,9 +143,8 @@ public Action ZP_OnClientSkillUsed(int client)
 
 			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
 
-			//UTIL_SetRenderColor(entity, Color_Alpha, 0);
 			AcceptEntityInput(entity, "DisableDraw"); 
-			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
+			AcceptEntityInput(entity, "DisableShadow"); 
 			
 			int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly", false);
 

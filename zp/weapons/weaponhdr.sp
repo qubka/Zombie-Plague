@@ -408,7 +408,8 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
 		}
 		else
 		{
-			UTIL_SetRenderColor(weapon, Color_Alpha, 0);
+			AcceptEntityInput(weapon, "DisableDraw"); 
+			AcceptEntityInput(weapon, "DisableShadow"); 
 			
 			if (WeaponHDRGetSwappedWeapon(weapon) == -1)
 			{

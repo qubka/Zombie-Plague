@@ -135,7 +135,7 @@ public Action JumpBoostOnClientJump(Event hEvent, char[] sName, bool dontBroadca
 }
 
 /**
- * @brief Client has been jumped. *(Post)
+ * @brief Client has been jumped. *(Next frame)
  *
  * @param userID            The user id.
  **/

@@ -201,9 +201,8 @@ public void ZP_OnClientSkillOver(int client)
 			
 			SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 
-			//UTIL_SetRenderColor(entity, Color_Alpha, 0);
 			AcceptEntityInput(entity, "DisableDraw"); 
-			AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
+			AcceptEntityInput(entity, "DisableShadow"); 
 			
 			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_SKILL);
 			

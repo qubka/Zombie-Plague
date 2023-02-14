@@ -26,7 +26,7 @@
 
 	"general buttons reminder" // Hint
 	{
-		"zho"			"按 <font color='#FF0000'>F/B</font> 打開彩蛋\n按 <font color='#FF0000'G/F4</font> 打開 人類/喪尸 技能\n按 <font color='#FF0000'>F3</font> 打開手電筒"
+		"zho"			"按 <font color='#FF0000'>F/B</font> 打開彩蛋\n按 <font color='#FF0000'>G/F4</font> 打開 人類/喪尸 技能\n按 <font color='#FF0000'>F3</font> 打開手電筒"
 	}
 	
 	"general ammunition reminder" // Chat

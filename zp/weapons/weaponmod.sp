@@ -309,14 +309,12 @@ void WeaponMODOnUnload()
 
 				if (view1 != -1)
 				{
-					WeaponHDRSetVisibility(view1, true);
-					ToolsUpdateTransmitState(view1);
+					AcceptEntityInput(view1, "EnableDraw"); 
 				}
 
 				if (view2 != -1)
 				{
-					WeaponHDRSetVisibility(view2, false);
-					ToolsUpdateTransmitState(view2);
+					AcceptEntityInput(view2, "DisableDraw"); 
 				}
 			}
 		}
@@ -509,7 +507,7 @@ public void WeaponMODOnWeaponSpawn(int weapon)
 
 /**
  * Hook: WeaponSpawnPost
- * @brief Weapon is spawned. *(Post)
+ * @brief Weapon is spawned. *(Next frame)
  *
  * @param refID             The reference index.
  **/
@@ -624,7 +622,7 @@ public void WeaponMODOnGrenadeSpawn(int grenade)
 
 /**
  * Hook: WeaponSpawnPost
- * @brief Grenade is spawned. *(Post)
+ * @brief Grenade is spawned. *(Next frame)
  *
  * @param refID             The reference index.
  **/
@@ -661,7 +659,7 @@ public Action WeaponMODOnWeaponReload(int weapon)
 
 /**
  * Hook: WeaponReloadPost
- * @brief Weapon is reloaded. *(Post)
+ * @brief Weapon is reloaded. *(Next frame)
  *
  * @param refID             The reference index.
  **/
@@ -745,7 +743,7 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
 
 /**
  * Hook: WeaponDropPost
- * @brief Weapon is dropped. *(Post)
+ * @brief Weapon is dropped. *(Next frame)
  *
  * @param refID             The reference index.
  **/
@@ -849,7 +847,7 @@ void WeaponMODOnUse(int client)
  */
 
 /**
- * @brief Client has been changed class state. *(Post)
+ * @brief Client has been changed class state. *(Next frame)
  *
  * @param client            The client index.
  **/
@@ -911,8 +909,7 @@ void WeaponMODOnClientDeath(int client)
 
 	if (view2 != -1)
 	{
-		WeaponHDRSetVisibility(view2, false);
-		ToolsUpdateTransmitState(view2);
+		AcceptEntityInput(view2, "DisableDraw"); 
 	}
 
 	gClientData[client].ViewModels[0] = -1;
@@ -942,12 +939,9 @@ public void WeaponMODOnSwitch(int client, int weapon)
 	{
 		return;
 	}
-	
-	WeaponHDRSetVisibility(view1, false);
-	ToolsUpdateTransmitState(view1);
-	
-	WeaponHDRSetVisibility(view2, false);
-	ToolsUpdateTransmitState(view2);
+
+	AcceptEntityInput(view1, "DisableDraw"); 
+	AcceptEntityInput(view2, "DisableDraw"); 
 
 	if (IsValidEdict(weapon))
 	{
@@ -1012,11 +1006,8 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 
 			if (weapon == gClientData[client].CustomWeapon)
 			{
-				WeaponHDRSetVisibility(view1, false);
-				ToolsUpdateTransmitState(view1);
-				
-				WeaponHDRSetVisibility(view2, true);
-				ToolsUpdateTransmitState(view2);
+				AcceptEntityInput(view1, "DisableDraw"); 
+				AcceptEntityInput(view2, "EnableDraw"); 
 				
 				bUpdate = false;
 				
@@ -1037,11 +1028,8 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 	
 	if (bUpdate)
 	{
-		WeaponHDRSetVisibility(view1, true);
-		ToolsUpdateTransmitState(view1);
-		
-		WeaponHDRSetVisibility(view2, false);
-		ToolsUpdateTransmitState(view2);
+		AcceptEntityInput(view1, "EnableDraw"); 
+		AcceptEntityInput(view2, "DisableDraw"); 
 	}
 	
 	gClientData[client].RunCmd = true;
@@ -1320,7 +1308,7 @@ void WeaponMODOnHostage(int client)
 }
 	
 /**
- * @brief Weapon has been switch by hostage. *(Post)
+ * @brief Weapon has been switch by hostage. *(Next frame)
  *
  * @param userID            The user id.
  **/

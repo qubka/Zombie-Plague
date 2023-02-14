@@ -279,9 +279,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	
 	if (world != -1)
 	{
-		static int iAttach = -1;
-		if (iAttach == -1) iAttach = LookupEntityAttachment(world, "muzzle_flash");
-		GetEntityAttachment(world, iAttach, vPosition, vAngle);
+		GetEntPropVector(world, Prop_Data, "m_vecAbsOrigin", vPosition); 
 		
 		TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
 		int[] iClients = new int[MaxClients]; int iCount;

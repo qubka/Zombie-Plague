@@ -199,12 +199,12 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
  *
  * @param client            The client index.
  * @param sTitle            (Optional) The menu title.
- * @param mSection          (Optional) The section index.
+ * @param iSection          (Optional) The section index.
  * @param iType             (Optional) The class type.
  **/
-void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "market favorites menu", int iType = -1) 
+void MarketBuyMenu(int client, int iSection = MenuType_Buy, char[] sTitle = "market favorites menu", int iType = -1) 
 {
-	bool bMenu = (mSection != MenuType_FavBuy); bool bEdit = (mSection == MenuType_FavAdd || mSection == MenuType_FavEdit);
+	bool bMenu = (iSection != MenuType_FavBuy); bool bEdit = (iSection == MenuType_FavAdd || iSection == MenuType_FavEdit);
 
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
@@ -220,11 +220,11 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 		iType = iTypes[client];
 	}
 	
-	Action hResult; Menu hMenu = MarketSectionToHandle(mSection);
+	Action hResult; Menu hMenu = MarketSectionToHandle(iSection);
 
 	SetGlobalTransTarget(client);
 
-	switch (mSection)
+	switch (iSection)
 	{
 		case MenuType_FavEdit :
 		{
@@ -249,10 +249,10 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 	int iPlaying = fnGetPlaying();
 	int iFlags = GetUserFlagBits(client);
 	
-	int iSize = MarketSectionToCount(client, mSection); int iAmount;
+	int iSize = MarketSectionToCount(client, iSection); int iAmount;
 	for (int i = 0; i < iSize; i++)
 	{
-		int iD = MarketSectionToIndex(client, mSection, i);
+		int iD = MarketSectionToIndex(client, iSection, i);
 
 		if (bEdit)
 		{
@@ -275,7 +275,7 @@ void MarketBuyMenu(int client, int mSection = MenuType_Buy, char[] sTitle = "mar
 				continue;
 			}    
 			
-			if (bMenu && ItemsGetSectionID(iD) != mSection) 
+			if (bMenu && ItemsGetSectionID(iD) != iSection) 
 			{
 				continue;
 			}
@@ -735,12 +735,12 @@ public int MarketEditMenuSlots(Menu hMenu, MenuAction mAction, int client, int m
 /**
  * @brief Find the handle at which the section is at.
  * 
- * @param mSection          The section index.
+ * @param iSection          The section index.
  * @return                  The menu handle.
  **/
-Menu MarketSectionToHandle(int mSection)
+Menu MarketSectionToHandle(int iSection)
 {
-	switch (mSection)
+	switch (iSection)
 	{
 		case MenuType_FavEdit :
 		{
@@ -768,13 +768,13 @@ Menu MarketSectionToHandle(int mSection)
  * @brief Find the index at which the section is at.
  * 
  * @param client            The client index.
- * @param mSection          The section index.
+ * @param iSection          The section index.
  * @param iD                The id variable.
  * @return                  The index variable.
  **/
-int MarketSectionToIndex(int client, int mSection, int iD)
+int MarketSectionToIndex(int client, int iSection, int iD)
 {
-	switch (mSection)
+	switch (iSection)
 	{
 		case MenuType_FavEdit :
 		{
@@ -797,12 +797,12 @@ int MarketSectionToIndex(int client, int mSection, int iD)
  * @brief Find the count at which the section is at.
  * 
  * @param client            The client index.
- * @param mSection          The section index.
+ * @param iSection          The section index.
  * @return                  The amount variable.
  **/
-int MarketSectionToCount(int client, int mSection)
+int MarketSectionToCount(int client, int iSection)
 {
-	switch (mSection)
+	switch (iSection)
 	{
 		case MenuType_FavEdit :
 		{

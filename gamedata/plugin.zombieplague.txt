@@ -27,12 +27,6 @@
 				"windows"	"8"
 				"linux"		"8"
 			}
-
-			"CBaseEntity::UpdateTransmitState"
-			{
-				"windows"	"22"
-				"linux"		"23"
-			}
 			"CBaseEntity::PrecacheModel"
 			{
 				"windows"	"5"

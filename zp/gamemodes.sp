@@ -628,7 +628,7 @@ public Action GameModesOnPanel(Event hEvent, char[] sName, bool dontBroadcast)
 }
 
 /**
- * @brief Timer callback, the blast is started. *(Post)
+ * @brief Timer callback, the blast is started. *(Next frame)
  **/
 public Action GameModesOnBlast(Handle hTimer)
 {

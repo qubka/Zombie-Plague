@@ -247,10 +247,9 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 		AddVectors(vEndVelocity, vVelocity, vEndVelocity);
 
 		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vEndVelocity);
-		
-		//UTIL_SetRenderColor(entity, Color_Alpha, 0);
+
 		AcceptEntityInput(entity, "DisableDraw"); 
-		AcceptEntityInput(entity, "DisableShadow"); /// Prevents the entity from receiving shadows
+		AcceptEntityInput(entity, "DisableShadow"); 
 		
 		SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
 		SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);

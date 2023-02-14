@@ -53,9 +53,9 @@ public Action ArsenalMenuOnCommandCatched(int client, int iArguments)
  * @brief Creates an arsenal menu.
  *
  * @param client            The client index.
- * @param mSection          The section index.
+ * @param iSection          The section index.
  **/
-void ArsenalMenu(int client, int mSection)
+void ArsenalMenu(int client, int iSection)
 {
 	bool bDisabled = gClientData[client].BlockMenu || gClientData[client].Zombie || gClientData[client].Custom;
 
@@ -63,17 +63,17 @@ void ArsenalMenu(int client, int mSection)
 	static char sName[SMALL_LINE_LENGTH];
 	static char sInfo[SMALL_LINE_LENGTH];
 
-	Menu hMenu = ArsenalSectionToHandle(mSection);
+	Menu hMenu = ArsenalSectionToHandle(iSection);
 	
 	SetGlobalTransTarget(client);
 	
 	static char sTitle[3][SMALL_LINE_LENGTH] = { "choose primary", "choose secondary", "choose melee" };
-	hMenu.SetTitle("%t", sTitle[mSection]);
+	hMenu.SetTitle("%t", sTitle[iSection]);
 
 	int iPlaying = fnGetPlaying();
 	int iFlags = GetUserFlagBits(client);
 
-	ArrayList hList = gServerData.Arsenal.Get(mSection);
+	ArrayList hList = gServerData.Arsenal.Get(iSection);
 
 	int iSize = hList.Length;
 	for (int i = 0; i < iSize; i++)
@@ -247,12 +247,12 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 /**
  * @brief Find the handle at which the section is at.
  * 
- * @param mSection          The section index.
+ * @param iSection          The section index.
  * @return                  The menu handle.
  **/
-Menu ArsenalSectionToHandle(int mSection)
+Menu ArsenalSectionToHandle(int iSection)
 {
-	switch (mSection)
+	switch (iSection)
 	{
 		case ArsenalType_Primary :
 		{

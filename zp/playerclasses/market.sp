@@ -404,12 +404,12 @@ bool MarketIsItemAvailable(int client, int iD)
  * @brief Checks that buytime is expired.
  * 
  * @param client            The client index.
- * @param mSection          (Optional) The section index.
+ * @param iSection          (Optional) The section index.
  * @return                  True or false.
  **/
-bool MarketIsBuyTimeExpired(int client, int mSection = -1)
+bool MarketIsBuyTimeExpired(int client, int iSection = -1)
 {
-	if (mSection == gServerData.Sections.Length - 1)
+	if (iSection == gServerData.Sections.Length - 1)
 	{
 		return false;
 	}

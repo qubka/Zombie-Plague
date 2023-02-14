@@ -167,7 +167,7 @@ void AccountOnClientDeath(int client)
 }
 
 /**
- * @brief Client has been changed class state. *(Post)
+ * @brief Client has been changed class state. *(Next frame)
  *
  * @param userID            The user id.
  **/

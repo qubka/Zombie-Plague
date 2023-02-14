@@ -29,7 +29,6 @@
  * Variables to store SDK calls handlers.
  **/
 Handle hSDKCallGetSequenceActivity;
-Handle hSDKCallUpdateTransmitState;
 Handle hSDKCallIsBSPModel;
 Handle hSDKCallFireBullets;
 
@@ -150,19 +149,7 @@ void ToolsOnInit()
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseAnimating::GetSequenceActivity\". Update signature in \"%s\"", PLUGIN_CONFIG);
 		}
 	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
-	
-	{
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseEntity::UpdateTransmitState");
 
-		if ((hSDKCallUpdateTransmitState = EndPrepSDKCall()) == null)
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::UpdateTransmitState\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		}
-	}
-	
 	/*__________________________________________________________________________________________________*/
 
 	{
@@ -324,7 +311,6 @@ void ToolsOnNativeInit()
 	CreateNative("ZP_GetSequenceCount",     API_GetSequenceCount);
 	CreateNative("ZP_IsBSPModel",           API_IsBSPModel);
 	CreateNative("ZP_FireBullets",          API_FireBullets);
-	CreateNative("ZP_UpdateTransmitState",  API_UpdateTransmitState);
 	CreateNative("ZP_RespawnPlayer",        API_RespawnPlayer);
 	CreateNative("ZP_FindPlayerInSphere",   API_FindPlayerInSphere);
 	CreateNative("ZP_SetProgressBarTime",   API_SetProgressBarTime);
@@ -414,25 +400,6 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
 	GetNativeArray(4, vAngle, sizeof(vAngle));
 	
 	ToolsFireBullets(client, weapon, vPosition, vAngle, GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9), GetNativeCell(10), GetNativeCell(11));
-	return true;
-}
-
-/**
- * @brief Update a entity transmit state.
- *
- * @note native bool ZP_UpdateTransmitState(entity);
- **/
-public int API_UpdateTransmitState(Handle hPlugin, int iNumParams)
-{
-	int entity = GetNativeCell(1);
-	
-	if (!IsValidEdict(entity))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the entity index (%d)", entity);
-		return false;
-	}
-	
-	ToolsUpdateTransmitState(entity);
 	return true;
 }
 
