@@ -122,7 +122,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		float flDuration = ZP_GetClassSkillDuration(gZombie);
 		
-		UTIL_CreateFadeScreen(client, 0.3, flDuration, FFADE_IN, {200, 60, 60, 75});  
+		UTIL_CreateFadeScreen(client, 0.3, flDuration, FFADE_IN, {200, 60, 60, 50});  
 		
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
@@ -131,7 +131,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		{
 			static float vPosition[3];
 			GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
-			UTIL_CreateParticle(client, vPosition, _, _, sEffect, ZP_GetClassSkillDuration(gZombie));
+			UTIL_CreateParticle(client, vPosition, _, _, sEffect, flDuration);
 		}
 		else
 		{

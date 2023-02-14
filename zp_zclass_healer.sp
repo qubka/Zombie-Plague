@@ -124,7 +124,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 
-		UTIL_CreateFadeScreen(client, 0.3, 1.0, FFADE_IN, {255, 127, 80, 75});  
+		UTIL_CreateFadeScreen(client, 0.3, 1.0, FFADE_IN, {255, 127, 80, 50});  
 
 		float flRadius = hCvarSkillRadius.FloatValue;
 		int iTotal = 0; int iReward = hCvarSkillReward.IntValue;
@@ -161,7 +161,7 @@ public Action ZP_OnClientSkillUsed(int client)
 			{
 				SetEntProp(i, Prop_Send, "m_iHealth", iHealth); 
 				
-				UTIL_CreateFadeScreen(i, 0.3, 1.0, FFADE_IN, {0, 255, 0, 75});
+				UTIL_CreateFadeScreen(i, 0.3, 1.0, FFADE_IN, {0, 255, 0, 50});
 				
 				if (iSound != -1)
 				{

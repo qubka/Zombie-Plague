@@ -41,6 +41,9 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+// Invisible state
+bool bInvisible[MAXPLAYERS+1];
+
 // Sound index
 int gSound;
 
@@ -53,24 +56,6 @@ enum
 	STATE_NORMAL,
 	STATE_INVISIBLE
 };
-
-// Cvars
-ConVar hCvarSkillAlpha;
-ConVar hCvarSkillDynamic;
-ConVar hCvarSkillRatio;
-
-/**
- * @brief Called when the plugin is fully initialized and all known external references are resolved. 
- *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
- **/
-public void OnPluginStart()
-{
-	hCvarSkillAlpha   = CreateConVar("zp_zclass_mutation_light_alpha", "255", "Initial alpha value", 0, true, 0.0, true, 255.0);
-	hCvarSkillDynamic = CreateConVar("zp_zclass_mutation_light_dynamic", "1", "Dynamic invisibility", 0, true, 0.0, true, 1.0);
-	hCvarSkillRatio   = CreateConVar("zp_zclass_mutation_light_ratio", "0.2", "Alpha amount = speed * ratio", 0, true, 0.0, true, 1.0);
-	
-	AutoExecConfig(true, "zp_zclass_mutation_light", "sourcemod/zombieplague");
-}
 
 /**
  * @brief Called after a library is added that the current plugin references optionally. 
@@ -106,7 +91,13 @@ public void ZP_OnEngineExecute()
  **/
 public void ZP_OnClientUpdated(int client, int attacker)
 {
-	UTIL_SetRenderColor(client, Color_Alpha, hCvarSkillAlpha.IntValue);
+	if (bInvisible[client])
+	{
+		AcceptEntityInput(client, "EnableDraw"); 
+		AcceptEntityInput(client, "EnableShadow");
+		
+		bInvisible[client] = false;
+	}
 }
 
 /**
@@ -121,7 +112,10 @@ public Action ZP_OnClientSkillUsed(int client)
 {
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		UTIL_SetRenderColor(client, Color_Alpha, 0);
+		AcceptEntityInput(client, "DisableDraw"); 
+		AcceptEntityInput(client, "DisableShadow");
+		
+		bInvisible[client] = true;
 
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
@@ -145,7 +139,10 @@ public void ZP_OnClientSkillOver(int client)
 {
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		UTIL_SetRenderColor(client, Color_Alpha, 255);
+		AcceptEntityInput(client, "EnableDraw"); 
+		AcceptEntityInput(client, "EnableShadow");
+		
+		bInvisible[client] = false;
 
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_SKILL);
 		
@@ -176,34 +173,4 @@ public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID)
 			SetEntProp(view, Prop_Send, "m_nBody", STATE_INVISIBLE);
 		}
 	}
-}
-
-/**
- * @brief Called on each frame of a weapon holding.
- *
- * @param client            The client index.
- * @param iButtons          The buttons buffer.
- * @param iLastButtons      The last buttons buffer.
- * @param weapon            The weapon index.
- * @param weaponID          The weapon id.
- *
- * @return                  Plugin_Continue to allow buttons. Anything else 
- *                                (like Plugin_Changed) to change buttons.
- **/
-public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
-{
-	if (ZP_GetClientClass(client) == gZombie && ZP_GetClientSkillUsage(client))
-	{
-		if (hCvarSkillDynamic.BoolValue)
-		{
-			static float vVelocity[3];
-			GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
-
-			int iAlpha = RoundToNearest(GetVectorLength(vVelocity) * hCvarSkillRatio.FloatValue);
-			
-			UTIL_SetRenderColor(client, Color_Alpha, iAlpha);
-		}
-	}
-	
-	return Plugin_Continue;
 }
