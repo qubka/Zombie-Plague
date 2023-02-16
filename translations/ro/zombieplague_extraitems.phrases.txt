@@ -51,6 +51,11 @@
 	{
 		"ro"			"Seringa medicala"
 	}
+		
+	"double jump" // Menu
+	{
+		"ro"			"Săritură dublă"
+	}
 	
 	"bump mine"
 	{

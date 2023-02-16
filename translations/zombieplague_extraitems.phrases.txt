@@ -52,6 +52,11 @@
 		"en"			"Medical Shot"
 	}
 	
+	"double jump" // Menu
+	{
+		"en"			"Double Jump"
+	}
+	
 	"bump mine"
 	{
 		"en"			"Bump mine"

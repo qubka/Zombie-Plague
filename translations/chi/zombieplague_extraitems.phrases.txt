@@ -51,6 +51,11 @@
 	{
 		"chi"			"医疗射击"
 	}
+		
+	"double jump" // Menu
+	{
+		"chi"			"雙跳"
+	}
 	
 	"bump mine"
 	{

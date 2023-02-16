@@ -52,6 +52,11 @@
 		"zho"			"醫療射擊"
 	}
 	
+	"double jump" // Menu
+	{
+		"zho"			"双跳"
+	}
+	
 	"bump mine"
 	{
 		"zho"			"撞矿"
