@@ -50,6 +50,7 @@ public Plugin myinfo =
 #define WEAPON_ATTACK_TIME       1.5
 #define WEAPON_ATTACK_START_TIME 0.5
 #define WEAPON_ATTACK_END_TIME   1.5
+#define WEAPON_ATTACK_SOUND_TIME 0.335
 /**
  * @endsection
  **/
@@ -328,7 +329,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			if (GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") < flCurrentTime)
 			{
 				ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
-				SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flCurrentTime + 0.335);
+				SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flCurrentTime + WEAPON_ATTACK_SOUND_TIME);
 			}
 			
 			flCurrentTime += ZP_GetWeaponShoot(gWeapon);

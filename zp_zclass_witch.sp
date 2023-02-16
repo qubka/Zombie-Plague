@@ -200,6 +200,7 @@ public Action BatTouchHook(int entity, int target)
 				SetVariantString("!activator");
 				AcceptEntityInput(bat, "SetParent", target, bat);
 				SetEntPropEnt(bat, Prop_Data, "m_pParent", target); 
+				
 				if (thrower != -1)
 				{
 					SetEntPropEnt(bat, Prop_Data, "m_hOwnerEntity", thrower);

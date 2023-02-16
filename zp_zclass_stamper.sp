@@ -164,6 +164,10 @@ public Action ZP_OnClientSkillUsed(int client)
 
 				SDKHook(entity, SDKHook_OnTakeDamage, CoffinDamageHook);
 			}
+			else
+			{
+				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
+			}
 			
 			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 			

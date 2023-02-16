@@ -45,12 +45,15 @@ public Plugin myinfo =
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_BEAM_LIFE    0.1
-#define WEAPON_BEAM_WIDTH   3.0
-#define WEAPON_BEAM_COLOR   {0, 0, 255, 255}
-#define WEAPON_BEAM_COLOR_F "0 0 255" // non impulse
-#define WEAPON_GLOW_COLOR   {0, 255, 0, 255} /// Only for impulse mode, because normal already have a child (beam)
-#define WEAPON_IDLE_TIME    1.66
+#define WEAPON_BEAM_LIFE           0.1
+#define WEAPON_BEAM_WIDTH          3.0
+#define WEAPON_BEAM_HUMAN_COLOR    {0, 0, 255, 255}
+#define WEAPON_BEAM_HUMAN_COLOR_F  "0 0 255"
+#define WEAPON_GLOW_HUMAN_COLOR    0, 255, 0, 255
+#define WEAPON_BEAM_ZOMBIE_COLOR   {255, 0, 0, 255}
+#define WEAPON_BEAM_ZOMBIE_COLOR_F "255 0 0"
+#define WEAPON_GLOW_ZOMBIE_COLOR   255, 255, 0, 255
+#define WEAPON_IDLE_TIME           1.66
 /**
  * @endsection
  **/
@@ -272,11 +275,19 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 
 				int iHealth = GetEntProp(weapon, Prop_Data, "m_iHealth");
 				
-				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
-				SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
-				SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
+				if (iHealth > 0)
+				{
+					SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
+					SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
+					SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
+					
+					SDKHook(entity, SDKHook_OnTakeDamage, MineDamageHook);
+				}
+				else
+				{
+					SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
+				}
 				
-				SDKHook(entity, SDKHook_OnTakeDamage, MineDamageHook);
 				SDKHook(entity, SDKHook_UsePost, MineUseHook);
 				
 				vAngle[0] -= 90.0; /// Bugfix for beam
@@ -287,6 +298,8 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 				SetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 				
 				SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
+				
+				SetEntProp(entity, Prop_Data, "m_iTeamNum", ZP_IsPlayerZombie(client) ? TEAM_ZOMBIE : TEAM_HUMAN); 
 
 				CreateTimer(ZP_GetWeaponModelHeat(gWeapon), MineActivateHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 				CreateTimer(0.1, MineSolidHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -411,17 +424,20 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  **/ 
 public void MineUseHook(int entity, int activator, int caller, UseType use, float flValue)
 {
-	if (IsPlayerExist(activator) && ZP_IsPlayerHuman(activator) && ZP_IsPlayerHasWeapon(activator, gWeapon) == -1)
+	if (IsPlayerExist(activator))
 	{
-		if (GetEntPropEnt(entity, Prop_Data, "m_pParent") == activator)
+		if (ZP_IsPlayerHasWeapon(activator, gWeapon) == -1 && IsEntitySameTeam(entity, activator))
 		{
-			int weapon = ZP_GiveClientWeapon(activator, gWeapon);
-			
-			if (weapon != -1)
+			if (GetEntPropEnt(entity, Prop_Data, "m_pParent") == activator)
 			{
-				SetEntProp(weapon, Prop_Data, "m_iHealth", GetEntProp(entity, Prop_Data, "m_iHealth"));
+				int weapon = ZP_GiveClientWeapon(activator, gWeapon);
 				
-				AcceptEntityInput(entity, "Kill");
+				if (weapon != -1)
+				{
+					SetEntProp(weapon, Prop_Data, "m_iHealth", GetEntProp(entity, Prop_Data, "m_iHealth"));
+					
+					AcceptEntityInput(entity, "Kill");
+				}
 			}
 		}
 	}
@@ -440,7 +456,7 @@ public Action MineDamageHook(int entity, int &attacker, int &inflictor, float &f
 {
 	if (IsPlayerExist(attacker))
 	{
-		if (ZP_IsPlayerZombie(attacker))
+		if (!IsEntitySameTeam(entity, attacker))
 		{
 			int iHealth = GetEntProp(entity, Prop_Data, "m_iHealth") - RoundToNearest(flDamage); iHealth = (iHealth > 0) ? iHealth : 0;
 
@@ -513,6 +529,8 @@ public Action MineActivateHook(Handle hTimer, int refID)
 		
 		CreateTimer(ZP_GetWeaponShoot(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
+		bool bZombie = GetEntProp(entity, Prop_Data, "m_iTeamNum") == TEAM_ZOMBIE;
+
 		if (hCvarMineImpulse.BoolValue)
 		{
 			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vEndPosition);
@@ -526,16 +544,22 @@ public Action MineActivateHook(Handle hTimer, int refID)
 			{
 				SetVariantString("!activator");
 				AcceptEntityInput(glow, "SetParent", entity, glow);
-
-				static const int vColor[4] = WEAPON_GLOW_COLOR;
-				UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
+				
+				if (bZombie)
+				{
+					UTIL_CreateGlowing(glow, true, _, WEAPON_GLOW_ZOMBIE_COLOR);
+				}
+				else
+				{
+					UTIL_CreateGlowing(glow, true, _, WEAPON_GLOW_HUMAN_COLOR);
+				}
 			}
 		}
 		else
 		{
 			GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 			
-			int beam = UTIL_CreateBeam(vPosition, vEndPosition, _, _, _, _, _, _, _, _, _, "materials/sprites/purplelaser1.vmt", _, _, _, _, _, _, WEAPON_BEAM_COLOR_F, 0.002, 0.0, "beam");
+			int beam = UTIL_CreateBeam(vPosition, vEndPosition, _, _, _, _, _, _, _, _, _, "materials/sprites/purplelaser1.vmt", _, _, _, _, _, _, bZombie ? WEAPON_BEAM_ZOMBIE_COLOR_F : WEAPON_BEAM_HUMAN_COLOR_F, 0.002, 0.0, "beam");
 			
 			if (beam != -1)
 			{
@@ -613,14 +637,14 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
 		int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
-		int attacker = hCvarMineRewards.BoolValue && IsPlayerExist(owner, false) && ZP_IsPlayerHuman(owner) ? owner : -1;
+		int attacker = hCvarMineRewards.BoolValue && IsPlayerExist(owner, false) && IsEntitySameTeam(entity, owner) ? owner : -1;
 		float flDamage = hCvarMineDamage.FloatValue;
 
 		if (hCvarMineImpulse.BoolValue)
 		{
 			static float vVelocity[3]; static float vVelocity2[3];
 		
-			TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, HumanFilter, entity);
+			TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TeamFilter, entity);
 
 			if (TR_DidHit())
 			{
@@ -628,7 +652,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 
 				TR_GetEndPosition(vEndPosition);
 
-				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+				if (IsPlayerExist(victim) && !IsEntitySameTeam(entity, victim))
 				{    
 					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 			
@@ -658,7 +682,9 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 					}
 				}
 				
-				TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+				bool bZombie = GetEntProp(entity, Prop_Data, "m_iTeamNum") == TEAM_ZOMBIE;
+				
+				TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, bZombie ? WEAPON_BEAM_ZOMBIE_COLOR : WEAPON_BEAM_HUMAN_COLOR, 30);
 				TE_SendToAll();
 
 				EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
@@ -675,7 +701,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 			{
 				int victim = hList.Get(i);
 				
-				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+				if (IsPlayerExist(victim) && !IsEntitySameTeam(entity, victim))
 				{
 					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 				
@@ -704,7 +730,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
  * @param entity            The entity index.
  * @return                  True or false.
  **/
-stock bool IsEntityBeam(int entity)
+/*bool IsEntityBeam(int entity)
 {
 	if (entity <= MaxClients || !IsValidEdict(entity))
 	{
@@ -715,7 +741,7 @@ stock bool IsEntityBeam(int entity)
 	GetEntPropString(entity, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
 	
 	return (!strncmp(sClassname, "beam", 4, false));
-}
+}*/
 
 /**
  * @brief Validate a lasermine.
@@ -723,7 +749,7 @@ stock bool IsEntityBeam(int entity)
  * @param entity            The entity index.
  * @return                  True or false.
  **/
-stock bool IsEntityLasermine(int entity)
+/*bool IsEntityLasermine(int entity)
 {
 	if (entity <= MaxClients || !IsValidEdict(entity))
 	{
@@ -734,6 +760,19 @@ stock bool IsEntityLasermine(int entity)
 	GetEntPropString(entity, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
 	
 	return (!strcmp(sClassname, "mine", false));
+}*/
+
+/**
+ * @brief Validates that an entity in the same team as a given client.
+ *
+ * @param entity            The entity index.
+ * @param client            The client index.
+ * @return                  True or false.
+ **/
+bool IsEntitySameTeam(int entity, int client)
+{
+	int iTeam = GetEntProp(entity, Prop_Data, "m_iTeamNum");
+	return (iTeam == TEAM_HUMAN && ZP_IsPlayerHuman(client)) || (iTeam == TEAM_ZOMBIE && ZP_IsPlayerZombie(client));
 }
 
 /**
@@ -774,9 +813,9 @@ public bool PlayerFilter(int entity, int contentsMask, int filter)
  * @param filter            The filter index.
  * @return                  True or false.
  **/
-public bool HumanFilter(int entity, int contentsMask, int filter)
+public bool TeamFilter(int entity, int contentsMask, int filter)
 {
-	if (IsPlayerExist(entity) && ZP_IsPlayerHuman(entity)) 
+	if (IsPlayerExist(entity) && IsEntitySameTeam(entity, filter)) 
 	{
 		return false;
 	}

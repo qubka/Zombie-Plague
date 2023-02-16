@@ -84,6 +84,33 @@ public void ZP_OnEngineExecute()
 }
 
 /**
+ * @brief Called when a client is disconnecting from the server.
+ *
+ * @param client            The client index.
+ **/
+public void OnClientDisconnect(int client)
+{
+	bInvisible[client] = false;
+}
+
+/**
+ * @brief Called when a client has been killed.
+ * 
+ * @param client            The client index.
+ * @param attacker          The attacker index.
+ **/
+public void ZP_OnClientDeath(int client, int attacker)
+{
+	if (bInvisible[client])
+	{
+		AcceptEntityInput(client, "EnableDraw"); 
+		AcceptEntityInput(client, "EnableShadow");
+		
+		bInvisible[client] = false;
+	}
+}
+
+/**
  * @brief Called when a client became a zombie/human.
  * 
  * @param client            The client index.

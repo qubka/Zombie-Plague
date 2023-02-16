@@ -112,6 +112,7 @@ public void OnMapEnd()
 public void OnClientDisconnect(int client)
 {
 	delete hHumanTrapped[client];
+	bStandOnTrap[client] = false;
 }
 
 /**
@@ -123,6 +124,7 @@ public void OnClientDisconnect(int client)
 public void ZP_OnClientDeath(int client, int attacker)
 {
 	delete hHumanTrapped[client];
+	bStandOnTrap[client] = false;
 }
 
 /**
@@ -136,6 +138,7 @@ public void ZP_OnClientUpdated(int client, int attacker)
 	SetEntityMoveType(client, MOVETYPE_WALK);
 	
 	delete hHumanTrapped[client];
+	bStandOnTrap[client] = false;
 }
 
 /**

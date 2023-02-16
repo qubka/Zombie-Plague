@@ -521,10 +521,18 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			SetEntProp(entity, Prop_Send, "m_nSkin", iSkin);
 			SetEntProp(entity, Prop_Send, "m_nBody", 2);
 
-			SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
-			SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
-			SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
-
+			int iHealth = hCvarSkillHealth.IntValue;
+			if (iHealth > 0)
+			{
+				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
+				SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
+				SetEntProp(entity, Prop_Data, "m_iMaxHealth", iHealth);
+			}
+			else
+			{
+				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
+			}
+			
 			SetEntPropEnt(entity, Prop_Data, "m_pParent", owner); 
 
 			SetEntProp(entity, Prop_Data, "m_iAmmo", iAmmo); 
@@ -2602,7 +2610,7 @@ int GetDraw(bool menuCondition)
  * @param entity            The entity index.
  * @return                  True or false.
  **/
-stock bool IsEntityTurret(int entity)
+bool IsEntityTurret(int entity)
 {
 	if (entity <= MaxClients || !IsValidEdict(entity))
 	{
@@ -2621,7 +2629,7 @@ stock bool IsEntityTurret(int entity)
  * @param entity            The entity index.
  * @return                  True or false.
  **/
-stock bool IsEntityRocket(int entity)
+bool IsEntityRocket(int entity)
 {
 	if (entity <= MaxClients || !IsValidEdict(entity))
 	{
