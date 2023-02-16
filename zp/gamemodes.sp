@@ -99,6 +99,14 @@ void GameModesOnInit()
 }
 
 /**
+ * @brief Gamemodes module unload function.
+ **/
+void GameModesOnUnload()
+{
+	gServerData.RoundNumber = 0;
+}
+
+/**
  * @brief Prepare all gamemode data.
  **/
 void GameModesOnLoad()
@@ -132,7 +140,6 @@ void GameModesOnLoad()
 	
 	GameModesOnStartPre(view_as<Event>(null), "", false); 
 }
-
 /**
  * @brief Caches gamemode data from file into arrays.
  **/

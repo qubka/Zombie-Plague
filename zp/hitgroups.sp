@@ -538,9 +538,9 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 					return false;
 				}
 
-				if (ModesIsInfection(gServerData.RoundMode))
+				if (ModesIsInfection(gServerData.RoundMode) && fnGetHumans() > 1)
 				{
-					if (iHealth <= 0 || !iArmor && fnGetHumans() > 1) /// Armor work when more then 1 human
+					if (iHealth <= 0 || !iArmor)
 					{
 						ApplyOnClientUpdate(client, attacker, ModesGetTypeZombie(gServerData.RoundMode));
 						return false;

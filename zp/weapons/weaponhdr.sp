@@ -76,14 +76,21 @@ int WeaponHDRCreateSwapWeapon(int iD, int client)
 		}
 	}
 	
-	weapon1 = WeaponsCreate(iD);
+	weapon1 = WeaponsSpawn(iD);
 
 	if (weapon1 != -1)
 	{
-		WeaponsSetOwner(weapon1, client);
+		ToolsSetCustomID(weapon1, iD);
+		WeaponsSetSpawnedByMap(weapon1, false);
+		
 		ToolsSetOwner(weapon1, client);
+		WeaponsSetOwner(weapon1, client);
 
 		SetEntityMoveType(weapon1, MOVETYPE_NONE);
+		
+		//AcceptEntityInput(weapon1, "DisableDraw"); 
+		//AcceptEntityInput(weapon1, "DisableShadow"); 
+		UTIL_SetRenderColor(weapon1, Color_Alpha, 0);
 
 		SetVariantString("!activator");
 		AcceptEntityInput(weapon1, "SetParent", client, weapon1);
@@ -157,8 +164,11 @@ void WeaponHDRSwapViewModel(int client, int weapon, int view1, int view2, int iD
 	
 	WeaponHDRSetPlaybackRate(view2, WeaponHDRGetPlaybackRate(view1));
 
+	WeaponHDRSetSwappedWeapon(view2, -1);
 	WeaponHDRToggleViewModel(client, view2, iD);
 
+	// Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
+	WeaponHDRSetSequence(view1, -1); 
 	WeaponHDRSetLastSequence(view1, -1);
 	WeaponHDRSetLastSequenceParity(view1, -1);
 }
@@ -192,18 +202,6 @@ void WeaponHDRToggleViewModel(int client, int view, int iD)
 	SetEntPropEnt(view, Prop_Send, "m_hWeapon", weapon);
 	
 	SetEntProp(view, Prop_Data, "m_bIsAutoaimTarget", toggle);
-}
-
-/**
- * @brief Sets a visibility state of an entity.
- *
- * @param entity            The entity index.
- * @param bVisible          True or false.
- **/
-void WeaponHDRSetVisibility(int entity, bool bVisible)
-{
-	int iFlags = ToolsGetEffect(entity);
-	ToolsSetEffect(entity, bVisible ? (iFlags & ~EF_NODRAW) : (iFlags | EF_NODRAW));
 }
 
 /**
@@ -362,6 +360,28 @@ int WeaponHDRGetPlayerWorldModel(int weapon)
 }
 
 /**
+ * @brief Gets the weapon draw sequence index.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The sequence index.
+ **/
+int WeaponHDRFindDrawSequence(int weapon)
+{
+	int iActivity = hSDKCallGetDrawActivity ? SDKCall(hSDKCallGetDrawActivity, weapon) : WEAPONS_ACT_VM_DRAW;
+	
+	int iCount = ToolsGetSequenceCount(weapon);
+	for (int i = 0; i < iCount; i++)
+	{
+		if (ToolsGetSequenceActivity(weapon, i) == iActivity)
+		{
+			return i;
+		}
+	}
+	
+	return -1;
+}
+
+/**
  * @brief Sets the world (player) weapon model.
  *
  * @param weapon            The weapon index.
@@ -408,8 +428,9 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
 		}
 		else
 		{
-			AcceptEntityInput(weapon, "DisableDraw"); 
-			AcceptEntityInput(weapon, "DisableShadow"); 
+			//AcceptEntityInput(weapon, "DisableDraw"); 
+			//AcceptEntityInput(weapon, "DisableShadow");
+			UTIL_SetRenderColor(weapon, Color_Alpha, 0);
 			
 			if (WeaponHDRGetSwappedWeapon(weapon) == -1)
 			{

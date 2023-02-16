@@ -31,6 +31,13 @@
 #define WEAPONS_SEQUENCE_MAX 32
 
 /**
+ * Basic weapon activities.
+ **/
+#define WEAPONS_ACT_VM_DRAW      183
+#define WEAPONS_ACT_VM_HOLSTERED 184
+#define WEAPONS_ACT_VM_IDLE      185
+
+/**
  * @section Weapon config data indexes.
  **/
 enum
@@ -2126,6 +2133,17 @@ void WeaponsSetMaxClipAmmo(int weapon, int iMaxAmmo)
 }
 
 /**
+ * @brief Gets the animation delay.
+ *
+ * @param weapon            The weapon index.
+ * @param flDelay           The delay duration.  
+ **/
+/*float WeaponsGetsAnimating(int weapon)
+{
+	return GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle");
+}*/
+
+/**
  * @brief Sets the animation delay.
  *
  * @param weapon            The weapon index.
@@ -2341,7 +2359,6 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 			case ItemDef_Defuser, ItemDef_Cutters : 
 			{
 				ToolsSetCustomID(client, iD); /// used for attachment model
-				
 				ToolsSetDefuser(client, true);
 				
 				return 0;
@@ -2395,7 +2412,7 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 
 				for (int i = 0; i < iAmount; i++)
 				{
-					weapon = WeaponsCreate(iD);
+					weapon = WeaponsCreate(iD, _, _, false);
 					
 					if (weapon != -1) 
 					{
@@ -2417,9 +2434,10 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
  * @param iD                The weapon id.
  * @param vPosition         (Optional) The origin of the spawn.
  * @param vAngle            (Optional) The angle of the spawn.
+ * @param bDrop             (Optional) Spawn as dropped?
  * @return                  The weapon index.
  **/
-int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
+int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0}, bool bDrop = true)
 {
 	int weapon = WeaponsSpawn(iD, vPosition, vAngle);
 	
@@ -2430,7 +2448,10 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
 
 		gForwardData._OnWeaponCreated(weapon, iD);
 		
-		_exec.WeaponMODOnWeaponDropPost(weapon);
+		if (bDrop)
+		{
+			_exec.WeaponMODOnWeaponDropPost(weapon);
+		}
 	}
 	
 	return weapon;

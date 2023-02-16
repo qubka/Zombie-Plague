@@ -68,6 +68,7 @@ Handle hSDKCallGetItemSchema;
 Handle hSDKCallGetItemDefinitionByName;
 Handle hSDKCallSpawnItem;
 Handle hSDKCallWeaponSwitch;
+Handle hSDKCallGetDrawActivity;
 Handle hSDKCallGetSlot;
 
 /**
@@ -85,20 +86,21 @@ int ItemDef_Index;
  * Variables to store DHook calls handlers.
  **/
 Handle hDHookPrecacheModel;
+Handle hDHookWeaponCanUse;
+Handle hDHookWeaponHolster;
 Handle hDHookGetMaxClip;
 Handle hDHookGetReserveAmmoMax;
 Handle hDHookGetPlayerMaxSpeed;
-Handle hDHookWeaponCanUse;
-Handle hDHookWeaponHolster;
 
 /**
  * Variables to store dynamic DHook offsets.
  **/
 int DHook_Precache;
+int DHook_WeaponCanUse;
+int DHook_WeaponHolster;
 int DHook_GetMaxClip1;
 int DHook_GetReserveAmmoMax;
 int DHook_GetPlayerMaxSpeed;
-int DHook_WeaponCanUse;
 
 /**
  * @brief Initialize the main virtual/dynamic offsets for the weapon SDK/DHook system.
@@ -133,11 +135,7 @@ void WeaponMODOnInit()
 			return;
 		}
 	}
-		
-	/*_________________________________________________________________________________________________________________________________________*/
 
-	
-	
 	/*_________________________________________________________________________________________________________________________________________*/
 	
 	{
@@ -182,9 +180,23 @@ void WeaponMODOnInit()
 
 	{
 		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseCombatWeapon::GetDrawActivity");
+		
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		
+		if ((hSDKCallGetDrawActivity = EndPrepSDKCall()) == null)
+		{
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetDrawActivity\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+		}
+	}
+		
+	/*_________________________________________________________________________________________________________________________________________*/
+
+	{
+		StartPrepSDKCall(SDKCall_Entity);
 		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot");
 		
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 		
 		if ((hSDKCallGetSlot = EndPrepSDKCall()) == null)
 		{
@@ -199,12 +211,33 @@ void WeaponMODOnInit()
 	fnInitGameConfOffset(gServerData.Config, ItemDef_Index, "CEconItemDefinition::GetDefinitionIndex");
 	fnInitSendPropOffset(Player_hViewModel, "CBasePlayer", "m_hViewModel");
 	
+	fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CCSPlayer::*/"Weapon_CanUse");
+	fnInitGameConfOffset(gServerData.Config, DHook_WeaponHolster, "CBaseCombatWeapon::Holster");
 	fnInitGameConfOffset(gServerData.Config, DHook_GetMaxClip1, "CBaseCombatWeapon::GetMaxClip1");
 	fnInitGameConfOffset(gServerData.Config, DHook_GetReserveAmmoMax, "CBaseCombatWeapon::GetReserveAmmoMax");
 	fnInitGameConfOffset(gServerData.Config, DHook_GetPlayerMaxSpeed, "CCSPlayer::GetPlayerMaxSpeed");
 	fnInitGameConfOffset(gServerData.Config, DHook_Precache, "CBaseEntity::PrecacheModel");
-	fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CCSPlayer::*/"Weapon_CanUse");
+   	
+	/*_________________________________________________________________________________________________________________________________________*/
+	
+	hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_Ignore, WeaponDHookOnCanUse);
+	DHookAddParam(hDHookWeaponCanUse, HookParamType_CBaseEntity);
+	
+	if (hDHookWeaponCanUse == null)
+	{
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"Weapon_CanUse\". Update \"SourceMod\"");
+	}
+
+   	/*_________________________________________________________________________________________________________________________________________*/
    
+	hDHookWeaponHolster = DHookCreate(DHook_WeaponHolster, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, WeaponDHookOnHolster);
+	DHookAddParam(hDHookWeaponHolster, HookParamType_CBaseEntity);
+	
+	if (hDHookWeaponHolster == null)
+	{
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CBaseCombatWeapon::Holster\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+	}   
+	
    	/*_________________________________________________________________________________________________________________________________________*/
    
 	hDHookGetMaxClip = DHookCreate(DHook_GetMaxClip1, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity, WeaponDHookOnGetMaxClip1);
@@ -232,16 +265,6 @@ void WeaponMODOnInit()
 	{
 		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"CCSPlayer::GetPlayerMaxSpeed\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
-	
-	hDHookWeaponCanUse = DHookCreate(DHook_WeaponCanUse, HookType_Entity, ReturnType_Bool, ThisPointer_Ignore, WeaponDHookOnCanUse);
-	DHookAddParam(hDHookWeaponCanUse, HookParamType_CBaseEntity);
-	
-	if (hDHookWeaponCanUse == null)
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create DHook for \"Weapon_CanUse\". Update \"SourceMod\"");
-	}
 
 	/*_________________________________________________________________________________________________________________________________________*/
 	
@@ -257,22 +280,6 @@ void WeaponMODOnInit()
 	{
 		DHookRaw(hDHookPrecacheModel, false, gServerData.Engine);
 	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
-	
-	hDHookWeaponHolster = DHookCreateFromConf(gServerData.Config, "CBaseCombatWeapon::Holster");
-
-	if (hDHookWeaponHolster == null)
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load signature \"CBaseCombatWeapon::Holster\". Update \"%s\"", PLUGIN_CONFIG);
-	}
-	else
-	{
-		if (!DHookEnableDetour(hDHookWeaponHolster, true, WeaponDetourOnHolster))
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to create Detour for \"CBaseCombatWeapon::Holster\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
-	}
 }
 
 /**
@@ -284,13 +291,6 @@ void WeaponMODOnLoad()
 	gCvarList.WEAPONS_DEFAULT_MELEE.GetString(sWeapon, sizeof(sWeapon));
 	
 	gServerData.Melee = WeaponsNameToIndex(sWeapon);
-	/*if (gServerData.Melee == -1)
-	{ 
-		static char sName[SMALL_LINE_LENGTH];
-		hConVar.GetName(sName, sizeof(sName));
-		
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "ConVar Validation", "ConVar: \"%s\" couldn't cache weapon data for: \"%s\" (check weapons config)", sName, sWeapon);
-	}*/
 }
 
 /**
@@ -497,10 +497,19 @@ public void WeaponMODOnWeaponSpawn(int weapon)
 {
 	ToolsSetCustomID(weapon, -1);
 
+	if (hDHookWeaponHolster) 
+	{
+		DHookEntity(hDHookWeaponHolster, true, weapon);
+	}
+	else
+	{
+		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CBaseCombatWeapon::Holster\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+	}
+
 	if (WeaponsGetAmmoType(weapon) != -1)
 	{
 		SDKHook(weapon, SDKHook_ReloadPost, WeaponMODOnWeaponReload);
-		
+
 		_exec.WeaponMODOnWeaponSpawnPost(weapon);
 	}
 }
@@ -679,12 +688,14 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
+			float flCurrentTime = GetGameTime();
+			
 			float flReload = WeaponsGetReload(iD);
 			if (flReload)
 			{
 				if (flReload < 0.0) flReload = 0.0;
 			
-				flReload += GetGameTime();
+				flReload += flCurrentTime;
 		
 				WeaponsSetAnimating(weapon, flReload);
 				
@@ -694,6 +705,139 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 			gForwardData._OnWeaponReload(client, weapon, iD);
 		}
 	}
+}
+
+/*
+ * Weapons use functions.
+ */
+
+/**
+ * Hook: WeaponCanUse
+ * @brief Player pick-up any weapon.
+ *
+ * @param client            The client index.
+ * @param weapon            The weapon index.
+ **/
+public Action WeaponMODOnCanUse(int client, int weapon)
+{
+	if (IsValidEdict(weapon))
+	{
+		if (!WeaponsCanUse(client, weapon))
+		{
+			return Plugin_Handled;
+		}
+	}
+	
+	return Plugin_Continue;
+}
+
+/**
+ * @brief Weapon has been used.
+ *
+ * @param client            The client index.
+ **/
+void WeaponMODOnUse(int client)
+{
+	int entity = GetClientAimTarget(client, false);
+	
+	if (entity != -1)
+	{
+		static char sClassname[SMALL_LINE_LENGTH];
+		GetEdictClassname(entity, sClassname, sizeof(sClassname));
+
+		if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && // weapon_
+		  (sClassname[7] == 'k' || // knife
+		  (sClassname[7] == 'm' && sClassname[8] == 'e') ||  // melee
+		  (sClassname[7] == 'f' && sClassname[9] == 's'))) // fists
+		{
+			if (!WeaponsCanUse(client, entity))
+			{
+				return;
+			}
+			
+			if (UTIL_GetDistanceBetween(client, entity) > gCvarList.WEAPONS_PICKUP_RANGE.FloatValue) 
+			{
+				return;
+			}
+			
+			WeaponsEquip(client, entity, -1); /// id not used
+		}
+	}
+}
+
+/*
+ * Weapons update functions.
+ */
+
+/**
+ * @brief Client has been changed class state. *(Next frame)
+ *
+ * @param client            The client index.
+ **/
+void WeaponMODOnClientUpdate(int client)
+{
+	gClientData[client].CustomWeapon = -1;
+
+	int view1 = WeaponHDRGetPlayerViewModel(client, 0);
+	int view2 = WeaponHDRGetPlayerViewModel(client, 1);
+	
+	if (view1 == -1)
+	{
+		return;
+	}
+	
+	if (view2 == -1)
+	{
+		view2 = WeaponHDRCreateViewModel(client);
+	}
+
+	AcceptEntityInput(view2, "DisableDraw");
+
+	gClientData[client].ViewModels[0] = EntIndexToEntRef(view1);
+	gClientData[client].ViewModels[1] = EntIndexToEntRef(view2);
+
+	int weapon = ToolsGetActiveWeapon(client);
+	
+	if (weapon != -1)
+	{
+		WeaponsSwitch(client, weapon);
+	}
+}
+
+/**
+ * @brief Fake client has been think.
+ *
+ * @param client            The client index.
+ **/
+void WeaponMODOnFakeClientThink(int client)
+{
+	if (gCvarList.WEAPONS_BUYAMMO.BoolValue)
+	{
+		int iAmount = GetRandomInt(4, 6);
+		for (int i = 0; i < iAmount; i++)
+		{
+			WeaponMODOnClientBuyammo(client);
+		}
+	}
+}
+
+/**
+ * @brief Client has been killed.
+ *
+ * @param client            The client index.
+ **/
+void WeaponMODOnClientDeath(int client)
+{
+	int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
+
+	if (view2 != -1)
+	{
+		AcceptEntityInput(view2, "DisableDraw"); 
+	}
+
+	gClientData[client].ViewModels[0] = -1;
+	gClientData[client].ViewModels[1] = -1;
+	gClientData[client].CustomWeapon = -1; 
 }
 
 /*
@@ -785,145 +929,12 @@ public Action WeaponMODOnWeaponRemove(Handle hTimer, int refID)
 }
 
 /*
- * Weapons use functions.
- */
-
-/**
- * Hook: WeaponCanUse
- * @brief Player pick-up any weapon.
- *
- * @param client            The client index.
- * @param weapon            The weapon index.
- **/
-public Action WeaponMODOnCanUse(int client, int weapon)
-{
-	if (IsValidEdict(weapon))
-	{
-		if (!WeaponsCanUse(client, weapon))
-		{
-			return Plugin_Handled;
-		}
-	}
-	
-	return Plugin_Continue;
-}
-
-/**
- * @brief Weapon has been used.
- *
- * @param client            The client index.
- **/
-void WeaponMODOnUse(int client)
-{
-	int entity = GetClientAimTarget(client, false);
-	
-	if (entity != -1)
-	{
-		static char sClassname[SMALL_LINE_LENGTH];
-		GetEdictClassname(entity, sClassname, sizeof(sClassname));
-
-		if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && // weapon_
-		  (sClassname[7] == 'k' || // knife
-		  (sClassname[7] == 'm' && sClassname[8] == 'e') ||  // melee
-		  (sClassname[7] == 'f' && sClassname[9] == 's'))) // fists
-		{
-			if (!WeaponsCanUse(client, entity))
-			{
-				return;
-			}
-			
-			if (UTIL_GetDistanceBetween(client, entity) > gCvarList.WEAPONS_PICKUP_RANGE.FloatValue) 
-			{
-				return;
-			}
-			
-			WeaponsEquip(client, entity, -1); /// id not used
-		}
-	}
-}
-
-/*
- * Weapons update functions.
- */
-
-/**
- * @brief Client has been changed class state. *(Next frame)
- *
- * @param client            The client index.
- **/
-void WeaponMODOnClientUpdate(int client)
-{
-	gClientData[client].CustomWeapon = -1;
-
-	int view1 = WeaponHDRGetPlayerViewModel(client, 0);
-	int view2 = WeaponHDRGetPlayerViewModel(client, 1);
-	
-	if (view1 == -1)
-	{
-		return;
-	}
-	
-	if (view2 == -1)
-	{
-		view2 = WeaponHDRCreateViewModel(client);
-	}
-
-	WeaponHDRSetVisibility(view2, false);
-
-	gClientData[client].ViewModels[0] = EntIndexToEntRef(view1);
-	gClientData[client].ViewModels[1] = EntIndexToEntRef(view2);
-
-	int weapon = ToolsGetActiveWeapon(client);
-	
-	if (weapon != -1)
-	{
-		WeaponsSwitch(client, weapon);
-	}
-}
-
-/**
- * @brief Fake client has been think.
- *
- * @param client            The client index.
- **/
-void WeaponMODOnFakeClientThink(int client)
-{
-	if (gCvarList.WEAPONS_BUYAMMO.BoolValue)
-	{
-		int iAmount = GetRandomInt(4, 6);
-		for (int i = 0; i < iAmount; i++)
-		{
-			WeaponMODOnClientBuyammo(client);
-		}
-	}
-}
-
-/**
- * @brief Client has been killed.
- *
- * @param client            The client index.
- **/
-void WeaponMODOnClientDeath(int client)
-{
-	int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
-
-	if (view2 != -1)
-	{
-		AcceptEntityInput(view2, "DisableDraw"); 
-	}
-
-	gClientData[client].ViewModels[0] = -1;
-	gClientData[client].ViewModels[1] = -1;
-	gClientData[client].CustomWeapon = -1; 
-}
-
-/*
  * Weapons switch functions.
  */
 
 /**
  * Hook: WeaponSwitch
- * @brief Player deploy any weapon.
+ * @brief Player deploying any weapon.
  *
  * @param client            The client index.
  * @param weapon            The weapon index.
@@ -931,7 +942,8 @@ void WeaponMODOnClientDeath(int client)
 public void WeaponMODOnSwitch(int client, int weapon) 
 {
 	gClientData[client].RunCmd = false;
-	
+	gClientData[client].CustomWeapon = -1;
+
 	int view1 = EntRefToEntIndex(gClientData[client].ViewModels[0]);
 	int view2 = EntRefToEntIndex(gClientData[client].ViewModels[1]);
 
@@ -940,37 +952,36 @@ public void WeaponMODOnSwitch(int client, int weapon)
 		return;
 	}
 
-	AcceptEntityInput(view1, "DisableDraw"); 
-	AcceptEntityInput(view2, "DisableDraw"); 
+	AcceptEntityInput(view2, "DisableDraw");
 
-	if (IsValidEdict(weapon))
+	int iD = ToolsGetCustomID(weapon);
+	if (iD != -1)
 	{
-		int iD = ToolsGetCustomID(weapon);
-		if (iD != -1)
+		float flCurrentTime = GetGameTime();
+		
+		float flDeploy = WeaponsGetDeploy(iD);
+		if (flDeploy)
 		{
-			float flDeploy = WeaponsGetDeploy(iD);
-			if (flDeploy)
-			{
-				if (flDeploy < 0.0) flDeploy = 0.0;
-		
-				flDeploy += GetGameTime();
-		
-				WeaponsSetAnimating(weapon, flDeploy);
-				
-				ToolsSetAttack(client, flDeploy);
-			}
+			if (flDeploy < 0.0) flDeploy = 0.0;
+	
+			flDeploy += flCurrentTime;
+	
+			WeaponsSetAnimating(weapon, flDeploy);
 			
-			ItemDef iItem = WeaponsGetDefIndex(iD);
-			if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
-			{
-				gClientData[client].CustomWeapon = weapon;
-				WeaponHDRSetSwappedWeapon(view2, -1);
-				return;
-			}
+			ToolsSetAttack(client, flDeploy);
+		}
+		
+		ItemDef iItem = WeaponsGetDefIndex(iD);
+		if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
+		{
+			gClientData[client].CustomWeapon = weapon;
+		}
+
+		if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
+		{
+			WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
 		}
 	}
-	
-	gClientData[client].CustomWeapon = -1;
 	
 	static char sArm[PLATFORM_LINE_LENGTH];
 	ClassGetArmModel(gClientData[client].Class, sArm, sizeof(sArm));
@@ -980,7 +991,7 @@ public void WeaponMODOnSwitch(int client, int weapon)
 
 /**
  * Hook: WeaponSwitchPost
- * @brief Player deploy any weapon.
+ * @brief Player deployed any weapon.
  *
  * @param client            The client index.
  * @param weapon            The weapon index.
@@ -994,8 +1005,6 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 	{
 		return;
 	}
-	
-	bool bUpdate = true;
 
 	if (IsValidEdict(weapon))
 	{
@@ -1006,12 +1015,13 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 
 			if (weapon == gClientData[client].CustomWeapon)
 			{
+				WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
+				
 				AcceptEntityInput(view1, "DisableDraw"); 
 				AcceptEntityInput(view2, "EnableDraw"); 
-				
-				bUpdate = false;
-				
-				WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
+
+				// Switch back from an invalid sequence
+				WeaponHDRSetSequence(view1, WeaponHDRFindDrawSequence(weapon));
 			}
 
 			if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
@@ -1019,17 +1029,8 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 				WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
 			}
 			
-			if (IsPlayerExist(client))
-			{
-				gForwardData._OnWeaponDeploy(client, weapon, iD);
-			}
+			gForwardData._OnWeaponDeploy(client, weapon, iD);
 		}
-	}
-	
-	if (bUpdate)
-	{
-		AcceptEntityInput(view1, "EnableDraw"); 
-		AcceptEntityInput(view2, "DisableDraw"); 
 	}
 	
 	gClientData[client].RunCmd = true;
@@ -1090,9 +1091,7 @@ public void WeaponMODOnPostThinkPost(int client)
 			}
 			else
 			{
-				#define ACT_VM_IDLE 185
-		
-				if (ToolsGetSequenceActivity(view1, iSequence) != ACT_VM_IDLE)
+				if (ToolsGetSequenceActivity(view1, iSequence) != WEAPONS_ACT_VM_IDLE)
 				{
 					WeaponHDRToggleViewModel(client, view2, iD);
 				}
@@ -1131,6 +1130,13 @@ public void WeaponMODOnEquipPost(int client, int weapon)
 			{
 				gClientData[client].LastKnife = EntIndexToEntRef(weapon);
 			}
+		}
+
+		int dropped = WeaponHDRGetSwappedWeapon(weapon);
+		
+		if (dropped != -1)
+		{
+			AcceptEntityInput(dropped, "Kill"); /// Destroy
 		}
 	}
 }
@@ -1484,6 +1490,86 @@ public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int 
  */
 
 /**
+ * DHook: Allow to pick-up some weapons.
+ * @note bool CCSPlayer::Weapon_CanUse(CBaseCombatWeapon *)
+ *
+ * @param hReturn           Handle to return structure.
+ * @param hParams           Handle with parameters.
+ **/
+public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
+{
+	int weapon = DHookGetParam(hParams, 1);
+	
+	if (IsValidEdict(weapon))
+	{
+		int iD = ToolsGetCustomID(weapon);
+		if (iD != -1)
+		{
+			ItemDef iItem = WeaponsGetDefIndex(iD);
+			if (IsKnife(iItem) || iItem == ItemDef_C4)
+			{
+				DHookSetReturn(hReturn, true);
+				return MRES_Override;
+			}
+		}
+	}
+	
+	return MRES_Ignored;
+}
+
+/**
+ * DHook: Hook weapon deploy.
+ * @note bool CBaseCombatWeapon::Deploy(void *)
+ *
+ * @param weapon            The weapon index.
+ * @param hReturn           Handle to return structure.
+ **/
+/*public MRESReturn WeaponDHookOnDeploy(int weapon, Handle hReturn)
+{
+	int iD = ToolsGetCustomID(weapon);
+	if (iD != -1)
+	{
+		int client = WeaponsGetOwner(weapon);
+		
+		if (!IsPlayerExist(client)) 
+		{
+			return MRES_Ignored;
+		}
+		
+		WeaponModOnDeploy(client, weapon);
+		gForwardData._OnWeaponDeploy(client, weapon, iD);
+	}
+	
+	return MRES_Ignored;
+}*/
+
+/**
+ * DHook: Hook weapon holster.
+ * @note bool CBaseCombatWeapon::Holster(CBaseCombatWeapon *)
+ *
+ * @param weapon            The weapon index.
+ * @param hReturn           Handle to return structure.
+ * @param hParams           Handle with parameters.
+ **/
+public MRESReturn WeaponDHookOnHolster(int weapon, Handle hReturn, Handle hParams)
+{
+	int iD = ToolsGetCustomID(weapon);
+	if (iD != -1)
+	{
+		int client = WeaponsGetOwner(weapon);
+		
+		/*if (!IsPlayerExist(client)) 
+		{
+			return MRES_Ignored;
+		}*/
+		
+		gForwardData._OnWeaponHolster(client, weapon, iD);
+	}
+	
+	return MRES_Ignored;
+} 
+
+/**
  * DHook: Sets a weapon clip when its spawned, picked, dropped or reloaded.
  * @note int CBaseCombatWeapon::GetMaxClip1(void *)
  *
@@ -1540,7 +1626,7 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weapon, Handle hReturn, Handle 
  * DHook: Sets a moving speed when holding a weapon. 
  * @note float CCSPlayer::GetPlayerMaxSpeed(void *)
  *
- * @param weapon            The weapon index.
+ * @param client            The client index.
  * @param hReturn           Handle to return structure.
  **/
 public MRESReturn WeaponDHookGetPlayerMaxSpeed(int client, Handle hReturn)
@@ -1573,34 +1659,6 @@ public MRESReturn WeaponDHookGetPlayerMaxSpeed(int client, Handle hReturn)
 }
 
 /**
- * DHook: Allow to pick-up some weapons.
- * @note bool CCSPlayer::Weapon_CanUse(CBaseCombatWeapon *)
- *
- * @param hReturn           Handle to return structure.
- * @param hParams           Handle with parameters.
- **/
-public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
-{
-	int weapon = DHookGetParam(hParams, 1);
-	
-	if (IsValidEdict(weapon))
-	{
-		int iD = ToolsGetCustomID(weapon);
-		if (iD != -1)
-		{
-			ItemDef iItem = WeaponsGetDefIndex(iD);
-			if (IsKnife(iItem) || iItem == ItemDef_C4)
-			{
-				DHookSetReturn(hReturn, true);
-				return MRES_Override;
-			}
-		}
-	}
-	
-	return MRES_Ignored;
-}
-
-/**
  * DHook: Block to precache some arms models.
  * @note int CBaseEntity::PrecacheModel(char const*, bool)
  *
@@ -1620,28 +1678,3 @@ public MRESReturn WeaponDHookOnPrecacheModel(Handle hReturn, Handle hParams)
 	
 	return MRES_Ignored;
 }
-
-/**
- * Detour: Hook weapon holster.
- * @note bool CBaseCombatWeapon::Holster(CBaseCombatWeapon *)
- *
- * @param hReturn           Handle to return structure.
- * @param hParams           Handle with parameters.
- **/
-public MRESReturn WeaponDetourOnHolster(int weapon, Handle hReturn, Handle hParams)
-{
-	int iD = ToolsGetCustomID(weapon);
-	if (iD != -1)
-	{
-		int client = WeaponsGetOwner(weapon);
-		
-		/*if (!IsPlayerExist(client)) 
-		{
-			return;
-		}*/
-		
-		gForwardData._OnWeaponHolster(client, weapon, iD);
-	}
-	
-	return MRES_Ignored;
-} 

@@ -147,6 +147,7 @@ public void OnMapStart()
 public void OnMapEnd()
 {
 	GameEngineOnUnload();
+	GameModesOnUnload();
 	ExtraItemsOnUnload();
 }
 
