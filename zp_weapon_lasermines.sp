@@ -297,7 +297,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 				
 				SetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 				
-				SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
+				SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client); 
 				
 				SetEntProp(entity, Prop_Data, "m_iTeamNum", ZP_IsPlayerZombie(client) ? TEAM_ZOMBIE : TEAM_HUMAN); 
 
@@ -428,7 +428,9 @@ public void MineUseHook(int entity, int activator, int caller, UseType use, floa
 	{
 		if (ZP_IsPlayerHasWeapon(activator, gWeapon) == -1 && IsEntitySameTeam(entity, activator))
 		{
-			if (GetEntPropEnt(entity, Prop_Data, "m_pParent") == activator)
+			int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+			
+			if (owner == activator)
 			{
 				int weapon = ZP_GiveClientWeapon(activator, gWeapon);
 				
@@ -565,13 +567,6 @@ public Action MineActivateHook(Handle hTimer, int refID)
 			{
 				SetEntPropEnt(entity, Prop_Data, "m_hMoveChild", beam);
 				SetEntPropEnt(beam, Prop_Data, "m_hEffectEntity", entity);
-
-				/*int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
-				
-				if (owner != -1)
-				{
-					SetEntPropEnt(beam, Prop_Data, "m_pParent", owner); 
-				}*/
 			}
 		}
 	}
@@ -636,7 +631,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
-		int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 		int attacker = hCvarMineRewards.BoolValue && IsPlayerExist(owner, false) && IsEntitySameTeam(entity, owner) ? owner : -1;
 		float flDamage = hCvarMineDamage.FloatValue;
 
