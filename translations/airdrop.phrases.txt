@@ -13,6 +13,6 @@
 
 	"airdrop info" // Hint (no color)
 	{
-		"en"			"To activate the call, set the sensor and activate the remote"
+		"en"			"Calling for an Airdrop to be dropped by helicopter on its location"
 	}
 }

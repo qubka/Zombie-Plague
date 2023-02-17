@@ -13,6 +13,6 @@
 
 	"airdrop info" // Hint (no color)
 	{
-		"chi"			"要激活呼叫，请设置传感器并激活遥控器"
+		"chi"			"要求用直升機在其位置空投"
 	}
 }

@@ -13,6 +13,6 @@
 
 	"airdrop info" // Hint (no color)
 	{
-		"zho"			"要激活呼叫，請設置傳感器並激活遙控器"
+		"zho"			"要求用直升机在其位置空投"
 	}
 }

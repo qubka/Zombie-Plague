@@ -42,6 +42,9 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+// Decal index
+int gTrail;
+
 // Sound index
 int gSound;
 
@@ -81,9 +84,7 @@ enum
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_IDLE_TIME    1.66  
-#define WEAPON_IDLE2_TIME   2.0
-#define WEAPON_SWITCH_TIME  1.0
+#define WEAPON_BEAM_COLOR {174, 56, 139, 255}
 /**
  * @endsection
  **/
@@ -128,27 +129,23 @@ ConVar hCvarAirdropSpeed;
 ConVar hCvarAirdropExplosions;
 ConVar hCvarAirdropWeapons ;
 ConVar hCvarAirdropSmokeLife;
-ConVar hCvarBombardingHeight; 
-ConVar hCvarBombardingRadius; 
-ConVar hCvarBombardingSpeed ;
-	
+ConVar hCvarAirdropTrail;
+
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
  *        This is only called once in the lifetime of the plugin, and is paired with OnPluginEnd().
  **/
 public void OnPluginStart()
 {
-	hCvarAirdropGlow        = CreateConVar("zp_weapon_airdrop_glow", "0", "Enable glow ?", 0, true, 0.0, true, 1.0);        
-	hCvarAirdropAmount      = CreateConVar("zp_weapon_airdrop_amount", "6", "Amount of drops in heli", 0, true, 0.0);      
-	hCvarAirdropHeight      = CreateConVar("zp_weapon_airdrop_height", "700.0", "Drop height spawn", 0, true, 0.0);      
-	hCvarAirdropHealth      = CreateConVar("zp_weapon_airdrop_health", "300", "Health of drop", 0, true, 1.0);      
-	hCvarAirdropSpeed       = CreateConVar("zp_weapon_airdrop_speed", "175.0", "Initial speed of drop", 0, true, 0.0);       
-	hCvarAirdropExplosions  = CreateConVar("zp_weapon_airdrop_explosions", "3", "How many c4 needed to open safe", 0, true, 0.0);  
-	hCvarAirdropWeapons     = CreateConVar("zp_weapon_airdrop_weapons", "15", "Amount of weapons in the safe bag", 0, true, 0.0);     
-	hCvarAirdropSmokeLife   = CreateConVar("zp_weapon_airdrop_smoke_life", "14.0", "", 0, true, 0.0); 
-	hCvarBombardingHeight   = CreateConVar("zp_weapon_bombarding_height", "700.0", "Rocket height spawn", 0, true, 0.0);   
-	hCvarBombardingRadius   = CreateConVar("zp_weapon_bombarding_radius", "800.0", "Explosion radius", 0, true, 0.0);   
-	hCvarBombardingSpeed    = CreateConVar("zp_weapon_bombarding_speed", "500.0", "Rocket speed", 0, true, 0.0);    
+	hCvarAirdropGlow       = CreateConVar("zp_weapon_airdrop_glow", "0", "Enable glow ?", 0, true, 0.0, true, 1.0);        
+	hCvarAirdropAmount     = CreateConVar("zp_weapon_airdrop_amount", "6", "Amount of drops in heli", 0, true, 0.0);      
+	hCvarAirdropHeight     = CreateConVar("zp_weapon_airdrop_height", "700.0", "Drop height spawn", 0, true, 0.0);      
+	hCvarAirdropHealth     = CreateConVar("zp_weapon_airdrop_health", "300", "Health of drop", 0, true, 1.0);      
+	hCvarAirdropSpeed      = CreateConVar("zp_weapon_airdrop_speed", "175.0", "Initial speed of drop", 0, true, 0.0);       
+	hCvarAirdropExplosions = CreateConVar("zp_weapon_airdrop_explosions", "3", "How many c4 needed to open safe", 0, true, 0.0);  
+	hCvarAirdropWeapons    = CreateConVar("zp_weapon_airdrop_weapons", "15", "Amount of weapons in the safe bag", 0, true, 0.0);     
+	hCvarAirdropSmokeLife  = CreateConVar("zp_weapon_airdrop_smoke_life", "14.0", "", 0, true, 0.0); 
+	hCvarAirdropTrail      = CreateConVar("zp_weapon_airdrop_trail", "0", "Attach trail to the projectile?", 0, true, 0.0, true, 1.0);
 	
 	AutoExecConfig(true, "zp_weapon_airdrop", "sourcemod/zombieplague");
 }
@@ -161,6 +158,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 {
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
+		HookEvent("tagrenade_detonate", EventEntityTanade, EventHookMode_Post);
+		
 		LoadTranslations("airdrop.phrases");
 		
 		if (ZP_IsMapLoaded())
@@ -211,6 +210,8 @@ public void ZP_OnEngineExecute()
  **/
 public void OnMapStart()
 {
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+
 	PrecacheSound("survival/container_death_01.wav", true);
 	PrecacheSound("survival/container_death_02.wav", true);
 	PrecacheSound("survival/container_death_03.wav", true);
@@ -225,7 +226,7 @@ public void OnMapStart()
 	PrecacheSound("survival/dropzone_parachute_success.wav", true);
 	PrecacheSound("survival/dropzone_parachute_success_02.wav", true);
 	PrecacheSound("survival/dropbigguns.wav", true);
-	PrecacheSound("survival/breach_activate_nobombs_01.wav", true);
+	/*PrecacheSound("survival/breach_activate_nobombs_01.wav", true);
 	PrecacheSound("survival/breach_land_01.wav", true);
 	PrecacheSound("survival/rocketincoming.wav", true);
 	PrecacheSound("survival/rocketalarm.wav", true);
@@ -234,9 +235,9 @@ public void OnMapStart()
 	PrecacheSound("survival/missile_land_03.wav", true);
 	PrecacheSound("survival/missile_land_04.wav", true);
 	PrecacheSound("survival/missile_land_05.wav", true);
-	PrecacheSound("survival/missile_land_06.wav", true);
+	PrecacheSound("survival/missile_land_06.wav", true);*/
 
-	PrecacheModel("models/f18/f18.mdl", true);
+	//PrecacheModel("models/f18/f18.mdl", true);
 	PrecacheModel("models/props_survival/safe/safe_door.mdl", true);
 	PrecacheModel("models/props_survival/cash/dufflebag.mdl", true);
 	PrecacheModel("models/props_survival/cases/case_explosive.mdl", true);
@@ -519,476 +520,79 @@ public void ZP_OnGameModeStart(int mode)
 	}
 }
 
-//*********************************************************************
-//*          Don't modify the code below this line unless             *
-//*             you know _exactly_ what you are doing!!!              *
-//*********************************************************************
-
-void Weapon_OnHolster(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
-{
-	delete hEmitterCreate[client];
-	
-	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
-}
-
-void Weapon_OnIdle(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
-{
-	if (GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle") > flCurrentTime)
-	{
-		return;
-	}
-	
-	if (!bTrigger)
-	{
-		ZP_SetWeaponAnimation(client, ANIM_IDLE);
-	
-		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
-	}
-	else 
-	{
-		ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_IDLE_TRIGGER_OFF : ANIM_IDLE_TRIGGER_ON);
-		
-		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE2_TIME);
-	}
-}
-
-void Weapon_OnDeploy(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
-{
-	SetEntPropFloat(client, Prop_Send, "m_flNextAttack", MAX_FLOAT);
-	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
-	SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", MAX_FLOAT);
-
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
-	
-	ZP_SetWeaponAnimation(client, !bTrigger ? ANIM_DRAW : !iStateMode ? ANIM_DRAW_TRIGGER_OFF : ANIM_DRAW_TRIGGER_ON); 
-}
-
-void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
-{
-	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
-	{
-		return;
-	}
-
-	if (GetEntProp(client, Prop_Data, "m_nWaterLevel") == WLEVEL_CSGO_FULL)
-	{
-		return;
-	}
-
-	static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
-
-	if (!bTrigger)
-	{
-		GetClientEyePosition(client, vPosition);
-		ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
-
-		TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
-
-		if (TR_DidHit() && TR_GetEntityIndex() < 1)
-		{
-			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
-		
-			ZP_SetWeaponAnimation(client, ANIM_SHOOT);  
-			
-			delete hEmitterCreate[client]; /// Bugfix
-			hEmitterCreate[client] = CreateTimer(ZP_GetWeaponShoot(gWeapon) - 0.1, Weapon_OnCreateEmitter, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-		}
-		else
-		{
-			flCurrentTime += 0.1;
-		}
-	}
-	else
-	{
-		flCurrentTime += ZP_GetWeaponReload(gWeapon);
-
-		int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity"); 
-
-		if (entity != -1)
-		{    
-			GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
-			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
-
-			TE_SetupSparks(vPosition, NULL_VECTOR, 5000, 1000);
-			TE_SendToAll();
-
-			switch (iStateMode)
-			{
-				case STATE_TRIGGER_OFF : 
-				{
-					float flDuration = hCvarAirdropSmokeLife.FloatValue;
-					int smoke = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", flDuration, flDuration + 3.0);
-					
-					CreateHelicopter(vPosition, vAngle);
-					
-					if (smoke != -1)
-					{
-						EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-					}
-				}
-				
-				case STATE_TRIGGER_ON : 
-				{
-					CreateJet(vPosition, vAngle);
-					
-					EmitSoundToAll("survival/rocketalarm.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
-				}
-			}
-			
-			AcceptEntityInput(entity, "Kill");
-		}
-		
-		ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_SHOOT_TRIGGER_OFF : ANIM_SHOOT_TRIGGER_ON);  
-		
-		CreateTimer(0.99, Weapon_OnRemove, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE);
-	}
-	
-	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);   
-}
-
-void Weapon_OnSecondaryAttack(int client, int weapon, int bTrigger, int iStateMode, float flCurrentTime)
-{
-	if (!bTrigger)
-	{
-		return;
-	}
-	
-	if (GetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime") > flCurrentTime)
-	{
-		return;
-	}
-
-	ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_SWITCH_TRIGGER_ON : ANIM_SWITCH_TRIGGER_OFF);
-	
-	flCurrentTime += WEAPON_SWITCH_TIME;
-
-	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);   
-	
-	flCurrentTime -= 0.5;
-	
-	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", flCurrentTime);
-	
-	SetGlobalTransTarget(client);
-	PrintHintText(client, "%t", !iStateMode ? "trigger on info" : "trigger off info");
-}
-
 /**
- * @brief Timer for creating emitter.
- *
- * @param hTimer            The timer handle.
- * @param userID            The user id.
- **/
-public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
-{
-	int client = GetClientOfUserId(userID); int weapon;
-
-	hEmitterCreate[client] = null;
-
-	if (ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
-	{
-		 // Initialize vectors
-		static float vPosition[3]; static float vEndPosition[3]; static float vAngle[3];
-
-		GetClientEyePosition(client, vPosition);
-		ZP_GetPlayerEyePosition(client, 80.0, 0.0, 0.0, vEndPosition);
-
-		TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, ClientFilter);
-
-		if (TR_DidHit() && TR_GetEntityIndex() < 1)
-		{
-			TR_GetEndPosition(vPosition);
-			TR_GetPlaneNormal(null, vAngle); 
-			
-			static char sModel[PLATFORM_LINE_LENGTH];
-			ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
-			
-			int entity = UTIL_CreatePhysics("emitter", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
-			
-			if (entity != -1)
-			{
-				SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
-				SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-				
-				SetEntPropEnt(entity, Prop_Data, "m_pParent", client);
-				SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", entity);
-				
-				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-				
-			}
-			
-			SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_TRIGGER_ON);
-
-			ZP_SetWeaponAnimation(client, ANIM_DRAW_TRIGGER_OFF);
-		}
-		else
-		{
-			ZP_SetWeaponAnimation(client, ANIM_DRAW);
-		}
-
-		float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon);
-		
-		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
-	}
-	
-	return Plugin_Stop;
-}
-
-/**
- * @brief Timer for removing trigger.
- *
- * @param hTimer            The timer handle.
- * @param refID             The reference index.
- **/
-public Action Weapon_OnRemove(Handle hTimer, int refID)
-{
-	int weapon = EntRefToEntIndex(refID);
-
-	if (weapon != -1)
-	{
-		int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
-
-		if (IsPlayerExist(client))
-		{
-			ZP_RemoveWeapon(client, weapon);
-			
-			ZP_GiveClientWeapon(client, gWeaponC4);
-		}
-		else
-		{
-			AcceptEntityInput(weapon, "Kill");
-		}
-	}
-	
-	return Plugin_Stop;
-}
-
-//**********************************************
-//* Item (weapon) hooks.                       *
-//**********************************************
-
-#define _call.%0(%1,%2) \
-						\
-	Weapon_On%0         \
-	(                   \
-		%1,             \
-		%2,             \
-						\
-		GetEntProp(%2, Prop_Data, "m_iHealth"), \
-						\
-		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
-						\
-		GetGameTime()   \
-   )    
-
-/**
- * @brief Called after a custom weapon is created.
- *
- * @param weapon            The weapon index.
- * @param weaponID          The weapon id.
- **/
-public void ZP_OnWeaponCreated(int weapon, int weaponID)
-{
-	if (weaponID == gWeapon)
-	{
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_TRIGGER_OFF);
-		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_TRIGGER_OFF);
-		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
-	}
-}    
-   
-/**
- * @brief Called on deploy of a weapon.
+ * @brief Called after a custom grenade is created.
  *
  * @param client            The client index.
- * @param weapon            The weapon index.
+ * @param grenade           The grenade index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponDeploy(int client, int weapon, int weaponID) 
+public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		_call.Deploy(client, weapon);
-	}
-}    
-
-/**
- * @brief Called on holster of a weapon.
- *
- * @param client            The client index.
- * @param weapon            The weapon index.
- * @param weaponID          The weapon id.
- **/
-public void ZP_OnWeaponHolster(int client, int weapon, int weaponID) 
-{
-	if (weaponID == gWeapon)
-	{
-		_call.Holster(client, weapon);
+		if (hCvarAirdropTrail.BoolValue)
+		{
+			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
+			TE_SendToAll();	
+		}
+		
+		ZP_GiveClientWeapon(client, gWeaponC4, false);
 	}
 }
 
 /**
- * @brief Called on each frame of a weapon holding.
- *
- * @param client            The client index.
- * @param iButtons          The buttons buffer.
- * @param iLastButtons      The last buttons buffer.
- * @param weapon            The weapon index.
- * @param weaponID          The weapon id.
- *
- * @return                  Plugin_Continue to allow buttons. Anything else 
- *                                (like Plugin_Changed) to change buttons.
+ * Event callback (tagrenade_detonate)
+ * @brief The tagrenade is exployed.
+ * 
+ * @param hEvent            The event handle.
+ * @param sName             The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int weapon, int weaponID)
+public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	if (weaponID == gWeapon)
-	{
-		static float flApplyModeTime;
-		if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flApplyModeTime <= GetGameTime())
-		{
-			SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
+	static float vPosition[3]; static float vAngle[3];
 
-			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"));
-			
-			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
-		}
+	int grenade = hEvent.GetInt("entityid");
+	vPosition[0] = hEvent.GetFloat("x"); 
+	vPosition[1] = hEvent.GetFloat("y"); 
+	vPosition[2] = hEvent.GetFloat("z");
+
+	if (IsValidEdict(grenade))
+	{
+		GetEntPropVector(grenade, Prop_Data, "m_angAbsRotation", vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
 	
-		if (iButtons & IN_ATTACK)
+		float flDuration = hCvarAirdropSmokeLife.FloatValue;
+		int smoke = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", flDuration, flDuration + 3.0);
+		
+		CreateHelicopter(vPosition, vAngle);
+		
+		if (smoke != -1)
 		{
-			_call.PrimaryAttack(client, weapon); 
-			iButtons &= (~IN_ATTACK);
-			return Plugin_Changed;
-		}
-		else if (iButtons & IN_ATTACK2)
-		{
-			_call.SecondaryAttack(client, weapon);
-			iButtons &= (~IN_ATTACK2);
-			return Plugin_Changed;
+			EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 		}
 		
-		_call.Idle(client, weapon);
+		AcceptEntityInput(grenade, "Kill");
+		
+		RequestFrame(EventEntityTanadePost);
 	}
-
+	
 	return Plugin_Continue;
 }
 
-//**********************************************
-//* Jet functions.                             *
-//**********************************************
-
 /**
- * @brief Create a jet entity.
- * 
- * @param vPosition         The position to the spawn.
- * @param vAngle            The angle to the spawn.    
+ * Event callback (tagrenade_detonate)
+ * @brief The tagrenade was exployed. (Post)
  **/
-void CreateJet(float vPosition[3], float vAngle[3])
+public void EventEntityTanadePost()
 {
-	vPosition[2] += hCvarBombardingHeight.FloatValue;
-
-	static float vMaxs[3];
-	GetEntPropVector(0, Prop_Data, "m_WorldMaxs", vMaxs);
-	
-	float vMax = vMaxs[2] - 100.0;
-	if (vPosition[2] > vMax) vPosition[2] = vMax; 
-	
-
-	int entity = UTIL_CreateDynamic("f18", vPosition, vAngle, "models/f18/f18.mdl", "flyby1", false);
-	
-	if (entity != -1)
+	for (int i = 1; i <= MaxClients; i++)
 	{
-		CreateTimer(2.7, JetBombHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-
-		UTIL_RemoveEntity(entity, 6.6);
-	}
-}
-
-/**
- * @brief Main timer for spawn bombs.
- *
- * @param hTimer            The timer handle.
- * @param refID             The reference index.
- **/
-public Action JetBombHook(Handle hTimer, int refID)
-{
-	int entity = EntRefToEntIndex(refID);
-
-	if (entity != -1)
-	{
-		EmitSoundToAll("survival/rocketincoming.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-
-		static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
-
-		static int iAttach = -1;
-		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "sound_maker");
-		GetEntityAttachment(entity, iAttach, vPosition, vAngle); vAngle[0] += 180.0;
-		
-		entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/player/custom_player/zombie/bomb/bomb.mdl");
-
-		if (entity != -1)
+		if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
 		{
-			vAngle[0] -= 90.0;//45.0;
-	
-			GetAngleVectors(vAngle, vVelocity, NULL_VECTOR, NULL_VECTOR);
-
-			NormalizeVector(vVelocity, vVelocity);
-
-			ScaleVector(vVelocity, hCvarBombardingSpeed.FloatValue);
-	
-			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vVelocity);
-			
-			 // Sets physics
-			SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01);
-
-			SDKHook(entity, SDKHook_Touch, BombTouchHook);
+			SetEntPropFloat(i, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
 		}
 	}
-	
-	return Plugin_Stop;
-}
-
-/**
- * @brief Bomb touch hook.
- * 
- * @param entity            The entity index.        
- * @param target            The target index.               
- **/
-public Action BombTouchHook(int entity, int target)
-{
-	static float vPosition[3];
-	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
-
-	UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500", 2.0);
-	UTIL_CreateParticle(_, vPosition, _, _, "explosion_c4_500_fallback", 2.0);
-	
-	float flRadius = hCvarBombardingRadius.FloatValue;
-	
-	int i; int it = 1; /// iterator
-	while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
-	{
-		if (ZP_IsPlayerHuman(i))
-		{
-			continue;
-		}
-		
-		ForcePlayerSuicide(i);
-	}
-	
-	switch (GetRandomInt(0, 5))
-	{
-		case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 2 : EmitSoundToAll("survival/missile_land_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 3 : EmitSoundToAll("survival/missile_land_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-	}
-
-	AcceptEntityInput(entity, "Kill");
-	
-	return Plugin_Continue;
 }
 
 //**********************************************
@@ -1495,65 +1099,6 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 	return Plugin_Continue;
 }
 
-/**
- * @brief Called right before the entity transmitting to other entities.
- *
- * @param entity            The entity index.
- * @param client            The client index.
- **/
-/*public Action CaseTransmitHook(int entity, int client)
-{
-	if (ZP_IsPlayerZombie(client))
-	{
-		return Plugin_Handled;
-	}
-
-	return Plugin_Continue;
-}*/
-
-//**********************************************
-//* Item (both) functions.                     *
-//**********************************************
-
-/**
- * @brief Main timer for making solid emitter.
- *
- * @param hTimer            The timer handle.
- * @param refID             The reference index.
- **/
-/*public Action EmitterSolidHook(Handle hTimer, int refID)
-{
-	int entity = EntRefToEntIndex(refID);
-
-	if (entity != -1)
-	{
-		static float vPosition[3];
-		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
-
-		static const float vMins[3] = { -20.0, -20.0, 0.0   }; 
-		static const float vMaxs[3] = {  20.0,  20.0, 20.0  }; 
-		
-		ArrayList hList = new ArrayList();
-		
-		TR_EnumerateEntitiesHull(vPosition, vPosition, vMins, vMaxs, false, HullEnumerator, hList);
-
-		if (!hList.Length)
-		{
-			SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
-			
-			delete hList;
-			return Plugin_Stop;
-		}
-		
-		delete hList;
-	}
-	else
-	{
-		return Plugin_Stop;
-	}
-	
-	return Plugin_Continue;
-}*/
 
 //**********************************************
 //* Item (npc) stocks.                         *

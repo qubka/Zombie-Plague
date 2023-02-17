@@ -106,7 +106,7 @@ public void OnPluginStart()
 	hCvarMineRewards = CreateConVar("zp_weapon_lasermine_rewards", "0", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
 	hCvarMineDamage = CreateConVar("zp_weapon_lasermine_damage", "150.0", "Damage amount", 0, true, 0.0);
 	
-	AutoExecConfig(true, "zp_weapon_lasermines", "sourcemod/zombieplague");
+	AutoExecConfig(true, "zp_weapon_lasermine", "sourcemod/zombieplague");
 }
 
 /**

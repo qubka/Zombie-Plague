@@ -13,6 +13,6 @@
 
 	"airdrop info" // Hint (no color)
 	{
-		"ro"			"Pentru a suna, seteaza senzorul"
+		"ro"			"Solicită ca un Airdrop să fie aruncat cu elicopterul în locația sa"
 	}
 }
