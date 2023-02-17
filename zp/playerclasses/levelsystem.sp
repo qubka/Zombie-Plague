@@ -180,8 +180,8 @@ public void LevelSystemOnConfigReload()
  **/
 void LevelSystemOnCommandInit()
 {
-	RegAdminCmd("zp_level_give", LevelSystemLevelOnCommandCatched, ADMFLAG_GENERIC, "Gives the level. Usage: zp_level_give <name> [amount]");
-	RegAdminCmd("zp_exp_give", LevelSystemExpOnCommandCatched, ADMFLAG_GENERIC, "Gives the experience. Usage: zp_exp_give <name> [amount]");
+	RegAdminCmd("zp_level_give", LevelSystemLevelOnCommandCatched, ADMFLAG_GENERIC, "Gives the level. Usage: zp_level_give <#userid|name|steamid|@accountid> [amount]");
+	RegAdminCmd("zp_exp_give", LevelSystemExpOnCommandCatched, ADMFLAG_GENERIC, "Gives the experience. Usage: zp_exp_give <#userid|name|steamid|@accountid> [amount]");
 }
 
 /**
@@ -494,7 +494,8 @@ public Action LevelSystemLevelOnCommandCatched(int client, int iArguments)
 	static char sArgument[SMALL_LINE_LENGTH];
 	
 	GetCmdArg(1, sArgument, sizeof(sArgument));
-	int target = FindTarget(client, sArgument, true, false);
+
+	int target = FindTargetByID(client, sArgument);
 
 	if (target < 0)
 	{
@@ -539,7 +540,8 @@ public Action LevelSystemExpOnCommandCatched(int client, int iArguments)
 	static char sArgument[SMALL_LINE_LENGTH];
 	
 	GetCmdArg(1, sArgument, sizeof(sArgument));
-	int target = FindTarget(client, sArgument, true, false);
+
+	int target = FindTargetByID(client, sArgument);
 
 	if (target < 0)
 	{

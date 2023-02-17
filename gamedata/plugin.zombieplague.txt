@@ -38,11 +38,6 @@
 				"windows"	"294"
 				"linux"		"300"
 			}
-			"CBaseCombatWeapon::GetDrawActivity" // Str: "ACT_VM_EMPTY_DRAW"
-			{
-				"windows"	"318"
-				"linux"		"456"
-			}
 			"CBaseCombatWeapon::GetMaxClip1" // - 4
 			{
 				"windows"	"353"

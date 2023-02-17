@@ -92,8 +92,8 @@ void AccountOnInit()
  **/
 void AccountOnCommandInit()
 {
-	RegAdminCmd("zp_money_give", AccountGiveOnCommandCatched, ADMFLAG_GENERIC, "Gives the money. Usage: zp_money_give <name> [amount]");
-	RegConsoleCmd("zp_money_donate", AccountDonateOnCommandCatched, "Donates the money. Usage: zp_money_donate <name> [amount]");
+	RegAdminCmd("zp_money_give", AccountGiveOnCommandCatched, ADMFLAG_GENERIC, "Gives the money. Usage: zp_money_give <#userid|name|steamid|@accountid> [amount]");
+	RegConsoleCmd("zp_money_donate", AccountDonateOnCommandCatched, "Donates the money. Usage: zp_money_donate <#userid|name|steamid|@accountid> [amount]");
 	
 	DonateMenuOnCommandInit();
 }
@@ -265,7 +265,8 @@ public Action AccountGiveOnCommandCatched(int client, int iArguments)
 	static char sArgument[SMALL_LINE_LENGTH];
 	
 	GetCmdArg(1, sArgument, sizeof(sArgument));
-	int target = FindTarget(client, sArgument, true, false);
+
+	int target = FindTargetByID(client, sArgument);
 
 	if (target < 0)
 	{
@@ -310,7 +311,8 @@ public Action AccountDonateOnCommandCatched(int client, int iArguments)
 	static char sArgument[SMALL_LINE_LENGTH];
 	
 	GetCmdArg(1, sArgument, sizeof(sArgument));
-	int target = FindTarget(client, sArgument, true, false);
+
+	int target = FindTargetByID(client, sArgument);
 
 	if (target < 0 || client == target)
 	{

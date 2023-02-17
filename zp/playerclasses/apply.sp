@@ -231,6 +231,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 	if (IsFakeClient(client))
 	{
 		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		gClientData[client].Money += GetRandomInt(5000, 20000);
 	}
 
 	gForwardData._OnClientUpdated(client, attacker);

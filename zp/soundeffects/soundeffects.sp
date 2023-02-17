@@ -53,7 +53,7 @@ bool SEffectsInputEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAY
 	{
 		Format(sSound, sizeof(sSound), "*/%s", sSound);
 
-		EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+		EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, gCvarList.SEFFECTS_VOLUME.FloatValue * flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
 		return true;
 	}
 
@@ -89,7 +89,7 @@ bool SEffectsInputEmitToClient(int iKey, int iNum = 0, int client, int entity = 
 	{
 		Format(sSound, sizeof(sSound), "*/%s", sSound);
 
-		EmitSoundToClient(client, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+		EmitSoundToClient(client, sSound, entity, iChannel, iLevel, iFlags, gCvarList.SEFFECTS_VOLUME.FloatValue * flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
 		return true;
 	}
 
@@ -120,7 +120,7 @@ bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int en
 	{
 		Format(sSound, sizeof(sSound), "*/%s", sSound);
 
-		EmitAmbientSound(sSound, vPosition, entity, iLevel, iFlags, flVolume, iPitch, flDelay);
+		EmitAmbientSound(sSound, vPosition, entity, iLevel, iFlags, gCvarList.SEFFECTS_VOLUME.FloatValue * flVolume, iPitch, flDelay);
 		return true;
 	}
 

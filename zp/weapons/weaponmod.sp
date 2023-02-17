@@ -68,7 +68,6 @@ Handle hSDKCallGetItemSchema;
 Handle hSDKCallGetItemDefinitionByName;
 Handle hSDKCallSpawnItem;
 Handle hSDKCallWeaponSwitch;
-Handle hSDKCallGetDrawActivity;
 Handle hSDKCallGetSlot;
 
 /**
@@ -175,21 +174,7 @@ void WeaponMODOnInit()
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CCSPlayer::Weapon_Switch\". Update \"SourceMod\"");
 		}
 	}
-	
-	/*_________________________________________________________________________________________________________________________________________*/
 
-	{
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "CBaseCombatWeapon::GetDrawActivity");
-		
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-		
-		if ((hSDKCallGetDrawActivity = EndPrepSDKCall()) == null)
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "GameData Validation", "Failed to load SDK call \"CBaseCombatWeapon::GetDrawActivity\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-		}
-	}
-		
 	/*_________________________________________________________________________________________________________________________________________*/
 
 	{
@@ -975,6 +960,7 @@ public void WeaponMODOnSwitch(int client, int weapon)
 		if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
 		{
 			gClientData[client].CustomWeapon = weapon;
+			//SEffectsInputClientWeapon(client, iItem, false);
 		}
 
 		if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
@@ -1019,9 +1005,6 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 				
 				AcceptEntityInput(view1, "DisableDraw"); 
 				AcceptEntityInput(view2, "EnableDraw"); 
-
-				// Switch back from an invalid sequence
-				WeaponHDRSetSequence(view1, WeaponHDRFindDrawSequence(weapon));
 			}
 
 			if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))

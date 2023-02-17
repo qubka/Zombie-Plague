@@ -43,3 +43,68 @@ void CommandsOnInit()
 	CostumesOnCommandInit();
 	VersionOnCommandInit();
 }
+
+/**
+ * @brief Wraps ProcessTargetString() and handles producing error messages for bad targets.
+ *
+ * @param client        The client who issued command.
+ * @param sArgument     The target argument.
+ * @return              The index of target client, or -1 on error.
+ */
+stock int FindTargetByID(int client, char[] sArgument)
+{
+	int iD = strlen(sArgument);
+	if (iD == 0)
+	{
+		return -1;
+	}
+
+	AuthIdType mType = AuthId_Engine; // account id
+	
+	if (!strncmp(sArgument, "STEAM_", 6) && sArgument[7] == ':')
+	{
+		mType = AuthId_Steam2;
+	}
+	else if (!strncmp(sArgument, "[U:", 3))
+	{
+		mType = AuthId_Steam3;
+	}
+	else if (iD == 17 && IsStringNumeric(sArgument))
+	{
+		mType = AuthId_SteamID64;
+	}
+	else if (iD == 9 && sArgument[0] == '@' && IsStringNumeric(sArgument[1]))
+	{
+		iD = StringToInt(sArgument[1]);
+	}
+	else
+	{
+		return FindTarget(client, sArgument, true, false);
+	}
+	
+	static char sAuth[SMALL_LINE_LENGTH];
+
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsPlayerExist(i, false) && !IsFakeClient(i))
+		{
+			if (mType == AuthId_Engine)
+			{
+				if (gClientData[i].AccountID == iD)
+				{
+					return i;
+				}
+			}
+			else
+			{
+				GetClientAuthId(i, mType, sAuth, sizeof(sAuth));
+				if (!strcmp(sAuth, sArgument))
+				{
+					return i;
+				}
+			}
+		}
+	}
+	
+	return -1;
+}

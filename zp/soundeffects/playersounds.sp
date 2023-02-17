@@ -81,6 +81,7 @@ void PlayerSoundsOnOnLoad()
  **/
 void PlayerSoundsOnCvarInit()
 {
+	gCvarList.SEFFECTS_VOLUME            = FindConVar("zp_seffects_volume");
 	gCvarList.SEFFECTS_INFECT            = FindConVar("zp_seffects_infect");
 	gCvarList.SEFFECTS_MOAN              = FindConVar("zp_seffects_moan");
 	gCvarList.SEFFECTS_GROAN             = FindConVar("zp_seffects_groan");

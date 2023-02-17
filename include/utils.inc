@@ -2169,6 +2169,25 @@ stock void StringToUpper(char[] sBuffer)
 	}
 }
 
+/**
+ * @brief Returns whether a string is numeric.
+ *
+ * @param sBuffer           The input string buffer.
+ */
+stock bool IsStringNumeric(char[] sBuffer)
+{
+	int iLen = strlen(sBuffer);
+	for (int i = 0; i < iLen; i++) 
+	{
+		if (!IsCharNumeric(sBuffer[i]))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 /*_____________________________________________________________________________________________________________*/
 
 /**

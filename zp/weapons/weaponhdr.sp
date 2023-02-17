@@ -167,8 +167,8 @@ void WeaponHDRSwapViewModel(int client, int weapon, int view1, int view2, int iD
 	WeaponHDRSetSwappedWeapon(view2, -1);
 	WeaponHDRToggleViewModel(client, view2, iD);
 
-	// Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
-	WeaponHDRSetSequence(view1, -1); 
+	/// TODO: Switch to an invalid sequence to prevent it from playing sounds before UpdateTransmitStateTime() is called
+	//WeaponHDRSetSequence(view1, -1); 
 	WeaponHDRSetLastSequence(view1, -1);
 	WeaponHDRSetLastSequenceParity(view1, -1);
 }
@@ -365,7 +365,7 @@ int WeaponHDRGetPlayerWorldModel(int weapon)
  * @param weapon            The weapon index.
  * @return                  The sequence index.
  **/
-int WeaponHDRFindDrawSequence(int weapon)
+/*int WeaponHDRFindDrawSequence(int weapon)
 {
 	int iActivity = hSDKCallGetDrawActivity ? SDKCall(hSDKCallGetDrawActivity, weapon) : WEAPONS_ACT_VM_DRAW;
 	
@@ -379,7 +379,7 @@ int WeaponHDRFindDrawSequence(int weapon)
 	}
 	
 	return -1;
-}
+}*/
 
 /**
  * @brief Sets the world (player) weapon model.
