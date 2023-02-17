@@ -15,14 +15,4 @@
 	{
 		"en"			"To activate the call, set the sensor and activate the remote"
 	}
-
-	"trigger on info" // Hint (no color)
-	{
-		"en"			"Call air bomber with nicbomb"
-	}
-
-	"trigger off info" // Hint (no color)
-	{
-		"en"			"Call helicopter with airdrop"
-	}
 }

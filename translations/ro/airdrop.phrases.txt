@@ -15,14 +15,4 @@
 	{
 		"ro"			"Pentru a suna, seteaza senzorul"
 	}
-
-	"trigger on info" // Hint (no color)
-	{
-		"ro"			"Suna catre bomba aeriana cu nicbomb"
-	}
-
-	"trigger off info" // Hint (no color)
-	{
-		"ro"			"Suna elicopterul cu drop aerian"
-	}
 }

@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"trigger on info" // Hint (no color)
+	{
+		"ro"			"Режим датчика: включен"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"ro"			"Режим датчика: отключен"
+	}
+}

@@ -152,8 +152,6 @@ public Action ZP_OnClientSkillUsed(int client)
 		{
 			SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_PLAYER);
 			SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
-			
-			SetEntPropEnt(entity, Prop_Data, "m_pParent", client);
 
 			int iHealth = hCvarSkillHealth.IntValue;
 			if (iHealth > 0)

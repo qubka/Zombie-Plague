@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"trigger on info" // Hint (no color)
+	{
+		"chi"			"傳感器模式：啟用"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"chi"			"傳感器模式：禁用"
+	}
+}

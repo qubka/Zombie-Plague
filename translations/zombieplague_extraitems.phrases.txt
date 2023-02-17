@@ -104,7 +104,12 @@
 	
 	"airdrop" // Menu
 	{
-		"en"			"Call airdrop"
+		"en"			"Call Airdrop"
+	}
+	
+	"landmine" // Menu
+	{
+		"en"			"Сlaymore Mine"
 	}
 	
 	"m32" // Menu
@@ -149,10 +154,14 @@
 	
 	// Info
 	
+	"landmine info"
+	{
+		"en"			"Use the <font color='#3294CC'>right</font> mouse button to switch the mine operation mode on the remote control"
+	}
+	
 	"chainsaw info" // Hint
 	{
 		"en"			"Strong <font color='#7A1A0B'>slash</font> on the right mouse button"
-		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
 	}
 
 	"turret info" // Hint

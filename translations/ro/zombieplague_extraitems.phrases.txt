@@ -107,6 +107,11 @@
 		"ro"			"Suna pentru drop aerian"
 	}
 	
+	"landmine" // Menu
+	{
+		"ro"			"Mina antipersonal"
+	}
+	
 	"m32" // Menu
 	{
 		"ro"			"M32 Milkor"
@@ -149,10 +154,14 @@
 	
 	// Info
 	
+	"landmine info"
+	{
+		"ro"			"Folosiți butonul <font color='#3294CC'>dreapta</font> al mouse-ului pentru a comuta modul de funcționare a minei pe telecomandă"
+	}
+	
 	"chainsaw info" // Hint
 	{
 		"ro"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
-		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
 	}
 
 	"turret info" // Hint

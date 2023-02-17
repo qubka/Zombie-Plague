@@ -15,14 +15,4 @@
 	{
 		"chi"			"要激活呼叫，请设置传感器并激活遥控器"
 	}
-
-	"trigger on info" // Hint (no color)
-	{
-		"chi"			"呼叫空中轰炸机"
-	}
-
-	"trigger off info" // Hint (no color)
-	{
-		"chi"			"呼叫空投直升机"
-	}
 }

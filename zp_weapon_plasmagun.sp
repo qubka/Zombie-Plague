@@ -261,7 +261,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	Weapon_OnCreatePlasma(client, weapon);
 
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client);
-	float vKickback[] = { /*upBase = */0.25, /* lateralBase = */0.45, /* upMod = */0.155, /* lateralMod = */0.05, /* upMax = */1.5, /* lateralMax = */2.5, /* directionChange = */5.0 };
+	float vKickback[] = { /*upBase = */0.15, /* lateralBase = */0.2, /* upMod = */0.15, /* lateralMod = */0.05, /* upMax = */1.5, /* lateralMax = */2.5, /* directionChange = */4.0 };
 	
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 

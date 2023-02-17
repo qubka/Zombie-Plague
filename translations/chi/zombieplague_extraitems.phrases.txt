@@ -107,6 +107,11 @@
 		"chi"			"呼叫空投"
 	}
 	
+	"landmine" // Menu
+	{
+		"chi"			"殺傷人員地雷"
+	}
+	
 	"m32" // Menu
 	{
 		"chi"			"M32 榴弹发射器"
@@ -149,10 +154,14 @@
 	
 	// Info
 	
+	"landmine info"
+	{
+		"chi"			"使用<font color='#3294CC'>鼠標右鍵</font>在遙控器上切換礦場操作模式"
+	}
+	
 	"chainsaw info" // Hint
 	{
 		"chi"			"加强 <font color='#7A1A0B'>削减</font> 通过鼠标右键"
-		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
 	}
 
 	"turret info" // Hint

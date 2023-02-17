@@ -107,6 +107,11 @@
 		"ru"			"Вызов вертолета"
 	}
 	
+	"landmine" // Menu
+	{
+		"ru"			"Противопехотная мина"
+	}
+	
 	"m32" // Menu
 	{
 		"ru"			"M32 Milkor"
@@ -149,10 +154,14 @@
 	
 	// Info
 	
+	"landmine info"
+	{
+		"ru"			"Используйте <font color='#3294CC'>правую</font> кнопку мыши, чтобы переключить режим работы мины на пульте дистанционного управления"
+	}
+	
 	"chainsaw info" // Hint
 	{
 		"ru"			"Сильный <font color='#7A1A0B'>удар</font> на правую кнопку мыши"
-		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
 	}
 
 	"turret info" // Hint

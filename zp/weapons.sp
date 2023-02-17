@@ -2133,21 +2133,10 @@ void WeaponsSetMaxClipAmmo(int weapon, int iMaxAmmo)
 }
 
 /**
- * @brief Gets the animation delay.
- *
- * @param weapon            The weapon index.
- * @param flDelay           The delay duration.  
- **/
-/*float WeaponsGetAnimating(int weapon)
-{
-	return GetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle");
-}*/
-
-/**
  * @brief Sets the animation delay.
  *
  * @param weapon            The weapon index.
- * @param flDelay           The delay duration.  
+ * @param flDelay           The delay time.  
  **/
 void WeaponsSetAnimating(int weapon, float flDelay)
 {

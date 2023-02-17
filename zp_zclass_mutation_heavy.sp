@@ -197,12 +197,12 @@ public void ZP_OnClientSkillOver(int client)
 				SetVariantString("!activator");
 				AcceptEntityInput(trap, "SetParent", entity, trap);
 
-				SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", trap); /// Store for animating
+				SetEntPropEnt(entity, Prop_Data, "m_pParent", trap); /// Store for animating
 				
 				SDKHook(trap, SDKHook_SetTransmit, TrapTransmitHook);
 			}
 			
-			SetEntPropEnt(entity, Prop_Data, "m_pParent", client); 
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client); 
 
 			AcceptEntityInput(entity, "DisableDraw"); 
 			AcceptEntityInput(entity, "DisableShadow"); 
@@ -252,7 +252,7 @@ public Action TrapTouchHook(int entity, int target)
 			SetGlobalTransTarget(target);
 			PrintHintText(target, "%t", "mutationheavy catch");
 			
-			int owner = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+			int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 
 			if (IsPlayerExist(owner, false))
 			{
@@ -265,14 +265,14 @@ public Action TrapTouchHook(int entity, int target)
 				ZP_SetClientMoney(owner, ZP_GetClientMoney(owner) + hCvarSkillReward.IntValue);
 			}
 
-			int trapIndex = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+			int trap = GetEntPropEnt(entity, Prop_Data, "m_pParent");
 
-			if (trapIndex != -1)
+			if (trap != -1)
 			{
 				SetVariantString("trap");
-				AcceptEntityInput(trapIndex, "SetAnimation");
+				AcceptEntityInput(trap, "SetAnimation");
 				
-				SDKUnhook(trapIndex, SDKHook_SetTransmit, TrapTransmitHook);
+				SDKUnhook(trap, SDKHook_SetTransmit, TrapTransmitHook);
 			}
 
 			UTIL_RemoveEntity(entity, flDuration);

@@ -15,14 +15,4 @@
 	{
 		"zho"			"要激活呼叫，請設置傳感器並激活遙控器"
 	}
-
-	"trigger on info" // Hint (no color)
-	{
-		"zho"			"呼叫空中轟炸機"
-	}
-
-	"trigger off info" // Hint (no color)
-	{
-		"zho"			"呼叫空投直升機"
-	}
 }

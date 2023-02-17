@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"trigger on info" // Hint (no color)
+	{
+		"zho"			"传感器模式：启用"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"zho"			"传感器模式：禁用"
+	}
+}

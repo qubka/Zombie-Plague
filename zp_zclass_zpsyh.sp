@@ -221,6 +221,8 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
 			
 			UTIL_CreateFadeScreen(i, 0.1, 0.2, FFADE_IN, {114, 22, 17, 75});  
 			
+			UTIL_CreateShakeScreen(i, 3.0, 1.0, 0.1);
+			
 			ZP_TakeDamage(i, client, client, flDamage, DMG_SONIC);
 		}
 	   

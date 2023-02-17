@@ -164,6 +164,7 @@ void WeaponHDRSwapViewModel(int client, int weapon, int view1, int view2, int iD
 	
 	WeaponHDRSetPlaybackRate(view2, WeaponHDRGetPlaybackRate(view1));
 
+	//WeaponHDRSetSequence(view2, -1); 
 	WeaponHDRSetSwappedWeapon(view2, -1);
 	WeaponHDRToggleViewModel(client, view2, iD);
 

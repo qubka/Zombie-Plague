@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"trigger on info" // Hint (no color)
+	{
+		"ru"			"Modul senzor: activat"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"ru"			"Modul senzor: dezactivat"
+	}
+}

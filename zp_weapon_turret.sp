@@ -521,7 +521,6 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			SetEntProp(entity, Prop_Send, "m_nSkin", iSkin);
 			SetEntProp(entity, Prop_Send, "m_nBody", 2);
 
-			int iHealth = hCvarSkillHealth.IntValue;
 			if (iHealth > 0)
 			{
 				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_EVENTS_ONLY);
@@ -533,7 +532,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
 			}
 			
-			SetEntPropEnt(entity, Prop_Data, "m_pParent", owner); 
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner); 
 
 			SetEntProp(entity, Prop_Data, "m_iAmmo", iAmmo); 
 			SetEntProp(entity, Prop_Data, "m_iMySquadSlot", iRocket); 
@@ -554,7 +553,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				SetEntProp(upgrade, Prop_Send, "m_nSkin", iSkin);
 				SetEntProp(upgrade, Prop_Send, "m_nBody", 2);
 
-				SetEntPropEnt(upgrade, Prop_Data, "m_hOwnerEntity", entity);
+				SetEntPropEnt(upgrade, Prop_Data, "m_pParent", entity);
 				
 				SetEntPropEnt(entity, Prop_Data, "m_hInteractionPartner", upgrade); 
 				
@@ -776,12 +775,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{ 
 		public get() 
 		{  
-			return GetEntPropEnt(this.Index, Prop_Data, "m_pParent");  
+			return GetEntPropEnt(this.Index, Prop_Data, "m_hOwnerEntity");  
 		}
 
 		public set(int entity) 
 		{
-			SetEntPropEnt(this.Index, Prop_Data, "m_pParent", entity); 
+			SetEntPropEnt(this.Index, Prop_Data, "m_hOwnerEntity", entity); 
 		}
 	}
 
@@ -2241,7 +2240,7 @@ public Action SentryActivateHook(Handle hTimer, int refID)
 
 	if (entity != -1)
 	{
-		int sentry = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+		int sentry = GetEntPropEnt(entity, Prop_Data, "m_pParent");
 	  
 		if (sentry != -1)
 		{

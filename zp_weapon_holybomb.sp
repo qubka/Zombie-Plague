@@ -187,7 +187,6 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-
 	static float vPosition[3]; static float vPosition2[3];
 
 	int grenade = hEvent.GetInt("entityid");

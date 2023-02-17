@@ -704,10 +704,15 @@ stock int ZP_GetWeaponAnimation(int client)
  **/
 stock void ZP_SetWeaponAnimation(int client, int nSequence)
 {
-	int view = ZP_GetClientViewModel(client, false); /// Play anims on the original model 
+	int view = ZP_GetClientViewModel(client, false); /// Sets anims on the original model 
 
 	if (view != -1)
 	{
+		/*if (GetEntProp(view, Prop_Send, "m_nSequence") == -1)
+		{
+			view = ZP_GetClientViewModel(client, true); /// Sets anims on the custom model if anim on ariginal is locked
+		}*/
+		
 		SetEntProp(view, Prop_Send, "m_nSequence", nSequence);
 	}
 }

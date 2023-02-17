@@ -1,0 +1,12 @@
+"Phrases"
+{
+	"trigger on info" // Hint (no color)
+	{
+		"en"			"Sensor mode: Enabled"
+	}
+
+	"trigger off info" // Hint (no color)
+	{
+		"en"			"Sensor mode: Disabled"
+	}
+}

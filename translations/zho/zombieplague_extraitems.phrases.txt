@@ -107,6 +107,11 @@
 		"zho"			"呼叫空投"
 	}
 	
+	"landmine" // Menu
+	{
+		"zho"			"杀伤人员地雷"
+	}
+	
 	"m32" // Menu
 	{
 		"zho"			"M32 榴彈發射器"
@@ -149,10 +154,14 @@
 	
 	// Info
 	
+	"landmine info"
+	{
+		"zho"			"使用<font color='#3294CC'>鼠标右键</font>在遥控器上切换矿场操作模式"
+	}
+	
 	"chainsaw info" // Hint
 	{
 		"zho"			"加強 <font color='#7A1A0B'>削減</font> 通過鼠標右鍵"
-		"ua"			"Atac <font color='#7A1A0B'>puternic</font> de pe click dreapta"
 	}
 
 	"turret info" // Hint
