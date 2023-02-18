@@ -41,9 +41,6 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
-// Sound index
-int gSound;
- 
 // Item index
 int gWeaponKevlar; int gWeaponAssault; int gWeaponHeavy;
 
@@ -73,9 +70,6 @@ public void ZP_OnEngineExecute()
 	if (gWeaponAssault == -1) SetFailState("[ZP] Custom weapon ID from name : \"assaultsuit\" wasn't find");
 	gWeaponHeavy = ZP_GetWeaponNameID("heavysuit");
 	if (gWeaponHeavy == -1) SetFailState("[ZP] Custom weapon ID from name : \"heavysuit\" wasn't find");
-
-	gSound = ZP_GetSoundKeyID("ARMOR_BUY_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"ARMOR_BUY_SOUNDS\" wasn't find");
 }
 
 /**

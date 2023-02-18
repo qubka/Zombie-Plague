@@ -81,6 +81,15 @@ public void OnLibraryAdded(const char[] sLibrary)
 }
 
 /**
+ * @brief The map is starting.
+ **/
+public void OnMapStart()
+{
+	PrecacheSound("survival/jump_ability_01.wav", true);
+	PrecacheSound("survival/jump_ability_long_01.wav", true);
+}
+
+/**
  * @brief Called after a zombie core is loaded.
  **/
 public void ZP_OnEngineExecute()
@@ -252,6 +261,8 @@ public void OnPlayerRunCmdPost(int client, int iButtons, int iImpulse, const flo
 		vVelocity[2] = GetRandomFloat(265.0, 285.0);
 		
 		TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
+		
+		EmitSoundToAll(GetRandomInt(0, 1) ? "survival/jump_ability_01.wav" : "survival/jump_ability_long_01.wav", entity, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
 		
 		bDoJump[client] = false;
 	}

@@ -138,8 +138,9 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void OnMapStart()
 {
-	PrecacheSound("survival/missile_gas_01.wav", true);
 	PrecacheSound("survival/breach_land_01.wav", true);
+	PrecacheSound("survival/breach_activate_01.wav", true);
+	PrecacheSound("survival/breach_defuse_01.wav", true);
 	PrecacheSound("survival/breach_activate_nobombs_01.wav", true);
 	PrecacheSound("survival/missile_land_01.wav", true);
 	PrecacheSound("survival/missile_land_02.wav", true);
@@ -147,6 +148,12 @@ public void OnMapStart()
 	PrecacheSound("survival/missile_land_04.wav", true);
 	PrecacheSound("survival/missile_land_05.wav", true);
 	PrecacheSound("survival/missile_land_06.wav", true);
+	
+	PrecacheModel("models/gibs/metal_gib1.mdl", true);
+	PrecacheModel("models/gibs/metal_gib2.mdl", true);
+	PrecacheModel("models/gibs/metal_gib3.mdl", true);
+	PrecacheModel("models/gibs/metal_gib4.mdl", true);
+	PrecacheModel("models/gibs/metal_gib5.mdl", true);
 }
 
 /**
@@ -495,6 +502,8 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			if (entity != -1)
 			{
 				SetEntProp(entity, Prop_Data, "m_iHammerID", iStateMode);
+				
+				EmitSoundToAll(iStateMode ? "survival/breach_activate_01.wav" : "survival/breach_defuse_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
 			}
 		}
 	
@@ -552,7 +561,7 @@ public Action MineThinkHook(Handle hTimer, int refID)
 				continue;
 			}
 			
-			MineExpload(entity);
+			MineExpload(entity, true);
 			
 			return Plugin_Stop;
 		}
@@ -568,9 +577,10 @@ public Action MineThinkHook(Handle hTimer, int refID)
 /**
  * @brief Exploade mine.
  * 
- * @param entity            The entity index.                    
+ * @param entity            The entity index.   
+ * @param bRemove           (Optional) Remove client's trigger? 
  **/
-void MineExpload(int entity)
+void MineExpload(int entity, bool bRemove = false)
 {
 	static float vPosition[3]; static float vGib[3]; float vShoot[3];
 
@@ -587,15 +597,20 @@ void MineExpload(int entity)
 		iFlags |= EXP_NOFIREBALL; /// remove effect sprite
 	}
 	
-	int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
-	int parent = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+	int client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+	int weapon = GetEntPropEnt(entity, Prop_Data, "m_pParent");
 	
-	if (parent != -1)
+	if (weapon != -1)
 	{
-		SetEntPropEnt(parent, Prop_Data, "m_hEffectEntity", -1);
+		SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", -1);
+		
+		if (bRemove && IsPlayerExist(client)) 
+		{
+			ZP_RemoveWeapon(client, weapon);
+		}
 	}
 
-	UTIL_CreateExplosion(vPosition, iFlags, _, hCvarLandmineDamage.FloatValue, hCvarLandmineRadius.FloatValue, "landmine", owner, entity);
+	UTIL_CreateExplosion(vPosition, iFlags, _, hCvarLandmineDamage.FloatValue, hCvarLandmineRadius.FloatValue, "landmine", client, entity);
 	
 	switch (GetRandomInt(0, 5))
 	{
