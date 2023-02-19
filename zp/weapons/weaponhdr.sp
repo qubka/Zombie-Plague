@@ -48,9 +48,12 @@ int WeaponHDRCreateViewModel(int client)
 	SetEntProp(view, Prop_Data, "m_bIsAutoaimTarget", false); /// toogle state
 
 	DispatchSpawn(view);
-
-	WeaponHDRSetPlayerViewModel(client, 1, view);
 	
+	SetVariantString("!activator");
+	AcceptEntityInput(view, "SetParent", client, view);
+	
+	WeaponHDRSetPlayerViewModel(client, 1, view);
+
 	return view;
 }
 
