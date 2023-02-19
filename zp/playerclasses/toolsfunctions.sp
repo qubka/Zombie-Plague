@@ -152,15 +152,15 @@ public Action ToolsOnCommandListened(int client, char[] commandMsg, int iArgumen
 				DataBaseOnClientUpdate(client, ColumnType_Vision);
 				
 				VOverlayOnClientNvgs(client);
-				
-				SoundsOnClientNvgs(client);
+
+				EmitSoundToClient(client, gClientData[client].Vision ? SOUND_NVG_ON : SOUND_NVG_OFF, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 			}
 		}
 		else
 		{
 			ToolsSetFlashLight(client, true);
-			
-			SoundsOnClientFlashLight(client);
+
+			EmitSoundToClient(client, SOUND_FLASHLIGHT, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		}
 		
 		return gCvarList.LIGHT_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;

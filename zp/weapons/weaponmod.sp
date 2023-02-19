@@ -975,7 +975,7 @@ public void WeaponMODOnSwitch(int client, int weapon)
 		if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
 		{
 			gClientData[client].CustomWeapon = weapon;
-			//SEffectsInputClientWeapon(client, iItem, false);
+			//SEffectsClientWeapon(client, iItem, false);
 		}
 
 		if (WeaponsGetModelWorldID(iD) || (gClientData[client].Zombie && IsMelee(iItem)))
@@ -1409,7 +1409,7 @@ void WeaponMODOnClientBuyammo(int client)
 
 				AccountSetClientCash(client, gClientData[client].Money - iCost);
 
-				SoundsOnClientAmmunition(client);
+				EmitSoundToClient(client, SOUND_AMMO, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 			}
 		}
 	}

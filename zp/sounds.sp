@@ -107,6 +107,15 @@ void SoundsOnCacheData()
 		return;
 	}
 	
+	if (gServerData.Durations == null)
+	{
+		gServerData.Durations = new StringMap();
+	}
+	else
+	{
+		gServerData.Durations.Clear();
+	}
+	
 	for (int i = 0; i < iSounds; i++)
 	{
 		ArrayList arraySound = SoundsGetKey(i, sBuffer, sizeof(sBuffer), true);
@@ -117,6 +126,8 @@ void SoundsOnCacheData()
 			for (int x = 1; x < iSize; x++)
 			{
 				arraySound.GetString(x, sBuffer, sizeof(sBuffer));
+
+				gServerData.Durations.SetValue(sBuffer, GetSoundDuration(sBuffer), false);
 
 				Format(sBuffer, sizeof(sBuffer), "sound/%s", sBuffer);
 
@@ -183,7 +194,7 @@ void SoundsOnCounterStart()
 void SoundsOnRoundEnd(CSRoundEndReason reason)
 {
 	VoiceOnRoundEnd();
-	SEffectsInputStopAll();
+	SEffectsStopAll();
 	
 	delete gServerData.EndTimer;
 	gServerData.EndTimer = CreateTimer(0.2, PlayerSoundsOnRoundEndPost, reason, TIMER_FLAG_NO_MAPCHANGE);
@@ -282,46 +293,6 @@ void SoundsOnClientJump(int client)
 }
 
 /**
- * @brief Client has been swith nightvision.
- * 
- * @param client            The client index.
- **/
-void SoundsOnClientNvgs(int client)
-{
-	PlayerSoundsOnClientNvgs(client);
-}
-
-/**
- * @brief Client has been swith flashlight.
- * 
- * @param client            The client index.
- **/
-void SoundsOnClientFlashLight(int client)
-{
-	PlayerSoundsOnClientFlashLight(client);
-}
-
-/**
- * @brief Client has been buy ammunition.
- * 
- * @param client            The client index.
- **/
-void SoundsOnClientAmmunition(int client)
-{
-	PlayerSoundsOnClientAmmunition(client);
-}
-
-/**
- * @brief Client has been level up.
- * 
- * @param client            The client index.
- **/
-void SoundsOnClientLevelUp(int client)
-{
-	PlayerSoundsOnClientLevelUp(client);
-}
-
-/**
  * @brief Client has been shoot.
  * 
  * @param client            The client index.
@@ -341,11 +312,13 @@ Action SoundsOnClientShoot(int client, int iD)
  **/
 void SoundsOnNativeInit() 
 {
-	CreateNative("ZP_GetSoundKeyID",     API_GetSoundKeyID);
-	CreateNative("ZP_GetSound",          API_GetSound);
-	CreateNative("ZP_EmitSoundToAll",    API_EmitSoundToAll);
-	CreateNative("ZP_EmitSoundToClient", API_EmitSoundToClient);
-	CreateNative("ZP_EmitAmbientSound",  API_EmitAmbientSound);
+	CreateNative("ZP_GetSoundKeyID",      API_GetSoundKeyID);
+	CreateNative("ZP_GetSound",           API_GetSound);
+	CreateNative("ZP_EmitSoundToHumans",  API_EmitSoundToHumans);
+	CreateNative("ZP_EmitSoundToZombies", API_EmitSoundToZombies);
+	CreateNative("ZP_EmitSoundToAll",     API_EmitSoundToAll);
+	CreateNative("ZP_EmitSoundToClient",  API_EmitSoundToClient);
+	CreateNative("ZP_EmitAmbientSound",   API_EmitAmbientSound);
 }
  
 /**
@@ -373,28 +346,52 @@ public int API_GetSoundKeyID(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets sound from a key id from sounds config.
  *
- * @note native void ZP_GetSound(keyID, sound, maxlenght, position);
+ * @note native bool ZP_GetSound(keyID, num, sound, maxlenght);
  **/
 public int API_GetSound(Handle hPlugin, int iNumParams)
 {
-	int maxLen = GetNativeCell(3);
+	int maxLen = GetNativeCell(4);
 
 	if (!maxLen)
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Sounds, "Native Validation", "No buffer size");
 		return -1;
 	}
-	
+
 	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
 	
-	SoundsGetPath(GetNativeCell(1), sSound, sizeof(sSound), GetNativeCell(4));
+	SoundsGetPath(GetNativeCell(1), sSound, sizeof(sSound), GetNativeCell(2));
 	
 	if (hasLength(sSound))
 	{
 		Format(sSound, sizeof(sSound), "*/%s", sSound);
+		
+		SetNativeString(3, sSound, maxLen);
+		
+		return true;
 	}
 	
-	return SetNativeString(2, sSound, maxLen);
+	return false;
+}
+
+/**
+ * @brief Emits a sound to all humans.
+ *
+ * @note native bool ZP_EmitSoundToHumans(keyID, num, entity, channel, level, flags, volume, pitch);
+ **/
+public int API_EmitSoundToHumans(Handle hPlugin, int iNumParams)
+{
+	return SEffectsEmitToHumans(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
+}
+
+/**
+ * @brief Emits a sound to all zombies.
+ *
+ * @note native bool ZP_EmitSoundToZombies(keyID, num, entity, channel, level, flags, volume, pitch);
+ **/
+public int API_EmitSoundToZombies(Handle hPlugin, int iNumParams)
+{
+	return SEffectsEmitToZombies(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
 }
 
 /**
@@ -404,7 +401,7 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
  **/
 public int API_EmitSoundToAll(Handle hPlugin, int iNumParams)
 {
-	return SEffectsInputEmitToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
+	return SEffectsEmitToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
 }
 
 /**
@@ -414,7 +411,7 @@ public int API_EmitSoundToAll(Handle hPlugin, int iNumParams)
  **/
 public int API_EmitSoundToClient(Handle hPlugin, int iNumParams)
 {
-	return SEffectsInputEmitToClient(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
+	return SEffectsEmitToClient(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
 }
 
 /**
@@ -427,7 +424,7 @@ public int API_EmitAmbientSound(Handle hPlugin, int iNumParams)
 	static float vPosition[3];
 	GetNativeArray(3, vPosition, sizeof(vPosition));
 	
-	return SEffectsInputEmitAmbient(GetNativeCell(1), GetNativeCell(2), vPosition, GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
+	return SEffectsEmitAmbient(GetNativeCell(1), GetNativeCell(2), vPosition, GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
 }
  
 /*

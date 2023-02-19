@@ -305,9 +305,9 @@ void LevelSystemOnSetLvl(int client, int iLevel)
 	}
 	else
 	{
-		if (IsPlayerExist(client)) 
+		if (IsPlayerExist(client, false)) 
 		{
-			SoundsOnClientLevelUp(client);
+			EmitSoundToClient(client, SOUND_LEVELUP, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		}
 	}
 	

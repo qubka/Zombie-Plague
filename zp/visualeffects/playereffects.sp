@@ -98,7 +98,7 @@ void PlayerVEffectsOnClientInfected(int client, int attacker)
 
 	static float flDuration;
 
-	if (gServerData.RoundStart && !attacker)
+	if (gServerData.RoundStart && attacker < 1)
 	{
 		if (!gCvarList.VEFFECTS_RESPAWN.BoolValue) 
 		{

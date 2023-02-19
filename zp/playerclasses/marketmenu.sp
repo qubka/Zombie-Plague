@@ -179,7 +179,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 					{
 						TranslationPrintHintText(client, "block buying time");
 				
-						EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+						EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 						return 0;
 					}
 				
@@ -609,7 +609,7 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 				
 						TranslationPrintHintText(client, "block buying item", sBuffer);
 						
-						EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
+						EmitSoundToClient(client, SOUND_BUY_ITEM_FAILED, SOUND_FROM_PLAYER, SNDCHAN_ITEM);  
 					}
 				}
 			}

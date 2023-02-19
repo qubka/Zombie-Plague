@@ -191,6 +191,8 @@ stock void TranslationPrintHintText(int client, any ...)
 		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 2);
 
 		UTIL_CreateClientHint(client, sTranslation);
+		
+		EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 	}
 }
 
@@ -218,6 +220,8 @@ stock void TranslationPrintHintTextAll(any ...)
 			UTIL_CreateClientHint(i, sTranslation);
 		}
 	}
+	
+	EmitSoundToAll(SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 }
 
 /**

@@ -30,11 +30,11 @@
  **/
 void TeleportMenuOnCommandInit()
 {
-	RegAdminCmd("zp_ztele_menu", TeleportMenuOnCommandCatched, ADMFLAG_CONFIG, "Opens the teleport menu.");
+	RegAdminCmd("zp_teleport_menu", TeleportMenuOnCommandCatched, ADMFLAG_CONFIG, "Opens the teleport menu.");
 }
 
 /**
- * Console command callback (zp_ztele_menu)
+ * Console command callback (zp_teleport_menu)
  * @brief Opens the teleport menu.
  * 
  * @param client            The client index.

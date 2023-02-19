@@ -48,12 +48,12 @@ void ApplyOnClientSpawn(int client)
 	{
 		case TEAM_ZOMBIE : 
 		{
-			ApplyOnClientUpdate(client, _, ModesGetTypeZombie(gServerData.RoundMode));
+			ApplyOnClientUpdate(client, -1, ModesGetTypeZombie(gServerData.RoundMode));
 		}
 		
 		case TEAM_HUMAN  : 
 		{
-			ApplyOnClientUpdate(client, _, ModesGetTypeHuman(gServerData.RoundMode));
+			ApplyOnClientUpdate(client, -1, ModesGetTypeHuman(gServerData.RoundMode));
 		}
 	}    
 }
@@ -62,8 +62,8 @@ void ApplyOnClientSpawn(int client)
  * @brief Infects/humanize a client.
  *
  * @param client            The victim index.
- * @param attacker          (Optional) The attacker index.
- * @param iType             (Optional) The class type.
+ * @param attacker          (Optional) The attacker index. (0=world, -1=respawn)
+ * @param iType             (Optional) The class type. (-2=zombie, -3=human)
  * @return                  True or false.
  **/
 bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
@@ -127,7 +127,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 	ToolsResetProgressBarTime(client);
 	ToolsSetLMV(client, 1.0);
 
-	if (WeaponsRemoveAll(client, !!attacker)) /// Give default
+	if (WeaponsRemoveAll(client, attacker > 0)) /// Give default
 	{
 		static int iWeapon[SMALL_LINE_LENGTH];
 		ClassGetWeapon(gClientData[client].Class, iWeapon, sizeof(iWeapon));
@@ -179,7 +179,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 			ToolsSetHealth(attacker, ToolsGetHealth(attacker) + ClassGetLifeSteal(gClientData[attacker].Class));
 		}
 	}
-	else if (!attacker)
+	else if (!attacker) /// Not respawn on spawn
 	{
 		if (ModesIsEscape(gServerData.RoundMode))
 		{

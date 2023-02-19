@@ -229,6 +229,8 @@ public Action CS_OnBuyCommand(int client, const char[] sClassname)
 			
 			WeaponsGive(client, iD);
 			
+			EmitSoundToClient(client, SOUND_BUY_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);    
+			
 			if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
 			{
 				static char sInfo[SMALL_LINE_LENGTH];
@@ -307,6 +309,8 @@ bool MarketBuyItem(int client, int iD, bool bInfo = true)
 	}
 
 	WeaponsGive(client, ItemsGetWeaponID(iD));
+	
+	EmitSoundToClient(client, SOUND_BUY_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);    
 
 	int iCost = ItemsGetCost(iD);
 	if (iCost)

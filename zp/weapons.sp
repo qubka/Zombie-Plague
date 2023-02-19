@@ -2350,6 +2350,8 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 				ToolsSetCustomID(client, iD); /// used for attachment model
 				ToolsSetDefuser(client, true);
 				
+				EmitSoundToClient(client, SOUND_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+				
 				return 0;
 			}
 			
@@ -2358,6 +2360,8 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 				ToolsSetHelmet(client, true);
 				ToolsSetArmor(client, WeaponsGetClip(iD));
 				ToolsSetHeavySuit(client, true);
+				
+				EmitSoundToClient(client, SOUND_ARMOR, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 				
 				return 0;
 			}
@@ -2368,6 +2372,8 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 				ToolsSetNightVision(client, true, true);
 				ToolsSetNightVision(client, true);
 				
+				EmitSoundToClient(client, SOUND_NVG_ON, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+				
 				return 0;
 			}
 					
@@ -2377,6 +2383,8 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 				ToolsSetArmor(client, WeaponsGetClip(iD));
 				ToolsSetHeavySuit(client, false);
 				
+				EmitSoundToClient(client, SOUND_ARMOR, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+				
 				return 0;
 			}
 				
@@ -2385,6 +2393,8 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 				ToolsSetHelmet(client, true);
 				ToolsSetArmor(client, WeaponsGetClip(iD));
 				ToolsSetHeavySuit(client, false);
+				
+				EmitSoundToClient(client, SOUND_ARMOR, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 				
 				return 0;
 			}

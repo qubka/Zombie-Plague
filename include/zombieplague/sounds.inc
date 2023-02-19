@@ -47,11 +47,43 @@ native int ZP_GetSoundKeyID(char[] key);
  * @brief Gets sound from a key id from sounds config.
  *
  * @param keyID             The key index.
+ * @param num               (Optional) The position index. (for not random sound)
  * @param sound             The string to return sound in.
  * @param maxlenght         The lenght of string.
- * @param num               (Optional) The position index. (for not random sound)
+ *
+ * @return                  True if sound was found, false otherwise.
  **/
-native void ZP_GetSound(int keyID, char[] sound, int maxlenght = 256, int num = 0);
+native bool ZP_GetSound(int keyID, int num = 0, char[] sound, int maxlenght = 256);
+
+/**
+ * @brief Emits a sound to all humans.
+ *
+ * @param keyID             The key array.
+ * @param num               (Optional) The position index. (for not random sound)
+ * @param entity            (Optional) The entity to emit from.
+ * @param channel           (Optional) The channel to emit with.
+ * @param level             (Optional) The sound level.
+ * @param flags             (Optional) The sound flags.
+ * @param volume            (Optional) The sound volume.
+ * @param pitch             (Optional) The sound pitch.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+native bool ZP_EmitSoundToHumans(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
+
+/**
+ * @brief Emits a sound to all zombies.
+ *
+ * @param keyID             The key array.
+ * @param num               (Optional) The position index. (for not random sound)
+ * @param entity            (Optional) The entity to emit from.
+ * @param channel           (Optional) The channel to emit with.
+ * @param level             (Optional) The sound level.
+ * @param flags             (Optional) The sound flags.
+ * @param volume            (Optional) The sound volume.
+ * @param pitch             (Optional) The sound pitch.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+native bool ZP_EmitSoundToZombies(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
 
 /**
  * @brief Emits a sound to all clients.

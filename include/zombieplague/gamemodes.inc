@@ -255,6 +255,15 @@ native int ZP_GetGameModeSoundEndZombieID(int modeID);
 native int ZP_GetGameModeSoundEndDrawID(int modeID);
 
 /**
+ * @brief Gets the comeback sound key of the game mode.
+ *
+ * @param modeID            The mode index.
+ *
+ * @return                  The key id.
+ **/
+native int ZP_GetGameModeSoundComebackID(int modeID);
+
+/**
  * @brief Gets the ambient sound key of the game mode.
  *
  * @param modeID            The mode index.

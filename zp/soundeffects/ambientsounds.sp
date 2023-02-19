@@ -76,9 +76,9 @@ void AmbientSoundsOnClientUpdate(int client)
 		return;
 	}
 	
-	SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
+	SEffectsStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
-	SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
+	SEffectsEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
 
 	delete gClientData[client].AmbientTimer;
 	gClientData[client].AmbientTimer = CreateTimer(flAmbientDuration, AmbientSoundsOnMP3Repeat, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -104,9 +104,9 @@ public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
 			return Plugin_Stop;
 		}
 	
-		SEffectsInputStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
+		SEffectsStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
-		SEffectsInputEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
+		SEffectsEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
 
 		return Plugin_Continue;
 	}

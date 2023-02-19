@@ -24,6 +24,172 @@
  *
  * ============================================================================
  **/
+ 
+/**
+ * @brief Gets sound from a key id from sounds config.
+ *
+ * @param iKey              The key index.
+ * @param iNum              (Optional) The position index. (for not random sound)
+ * @param sSample           The string to return sound in.
+ *
+ * @return                  True if sound was found, false otherwise.
+ **/
+bool SEffectsGetSound(int iKey, int iNum = 0, char sSample[PLATFORM_MAX_PATH])
+{
+	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
+	
+	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
+	
+	if (hasLength(sSound))
+	{
+		Format(sSample, sizeof(sSample), "*/%s", sSound);
+
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * @brief Emits a sound to all clients. (Can't emit sounds until the previous emit finish)
+ *
+ * @param flEmitTime        The previous emit time.
+ * @param iKey              The key array.
+ * @param iNum              (Optional) The position index. (for not random sound)
+ * @param entity            (Optional) The entity to emit from.
+ * @param iChannel          (Optional) The channel to emit with.
+ * @param iLevel            (Optional) The sound level.
+ * @param iFlags            (Optional) The sound flags.
+ * @param flVolume          (Optional) The sound volume.
+ * @param iPitch            (Optional) The sound pitch.
+ * @param speaker           (Optional) Unknown.
+ * @param vPosition         (Optional) The sound origin.
+ * @param vDirection        (Optional) The sound direction.
+ * @param updatePos         (Optional) Unknown (update positions?)
+ * @param flSoundTime       (Optional) Alternate time to play sound for.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+bool SEffectsEmitToAllNoRestart(float &flEmitTime, int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+{
+	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
+	
+	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
+	
+	if (hasLength(sSound))
+	{
+		float flCurrentTime = GetGameTime();
+
+		if (flCurrentTime > flEmitTime)
+		{
+			float flDuration;
+			gServerData.Durations.GetValue(sSound, flDuration);
+			
+			Format(sSound, sizeof(sSound), "*/%s", sSound);
+
+			EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+		
+			flEmitTime = flCurrentTime + flDuration;
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+/**
+ * @brief Emits a sound to all humans.
+ *
+ * @param iKey              The key array.
+ * @param iNum              (Optional) The position index. (for not random sound)
+ * @param entity            (Optional) The entity to emit from.
+ * @param iChannel          (Optional) The channel to emit with.
+ * @param iLevel            (Optional) The sound level.
+ * @param iFlags            (Optional) The sound flags.
+ * @param flVolume          (Optional) The sound volume.
+ * @param iPitch            (Optional) The sound pitch.
+ * @param speaker           (Optional) Unknown.
+ * @param vPosition         (Optional) The sound origin.
+ * @param vDirection        (Optional) The sound direction.
+ * @param updatePos         (Optional) Unknown (update positions?)
+ * @param flSoundTime       (Optional) Alternate time to play sound for.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+bool SEffectsEmitToHumans(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+{
+	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
+	
+	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
+	
+	if (hasLength(sSound))
+	{
+		int[] clients = new int[MaxClients]; int iTotal = 0;
+
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i) && !gClientData[i].Zombie)
+			{
+				clients[iTotal++] = i;
+			}
+		}
+
+		if (iTotal)
+		{
+			Format(sSound, sizeof(sSound), "*/%s", sSound);
+			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * @brief Emits a sound to all zombies.
+ *
+ * @param iKey              The key array.
+ * @param iNum              (Optional) The position index. (for not random sound)
+ * @param entity            (Optional) The entity to emit from.
+ * @param iChannel          (Optional) The channel to emit with.
+ * @param iLevel            (Optional) The sound level.
+ * @param iFlags            (Optional) The sound flags.
+ * @param flVolume          (Optional) The sound volume.
+ * @param iPitch            (Optional) The sound pitch.
+ * @param speaker           (Optional) Unknown.
+ * @param vPosition         (Optional) The sound origin.
+ * @param vDirection        (Optional) The sound direction.
+ * @param updatePos         (Optional) Unknown (update positions?)
+ * @param flSoundTime       (Optional) Alternate time to play sound for.
+ * @return                  True if the sound was emitted, false otherwise.
+ **/
+bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+{
+	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
+	
+	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
+	
+	if (hasLength(sSound))
+	{
+		int[] clients = new int[MaxClients]; int iTotal = 0;
+
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i) && gClientData[i].Zombie)
+			{
+				clients[iTotal++] = i;
+			}
+		}
+
+		if (iTotal)
+		{
+			Format(sSound, sizeof(sSound), "*/%s", sSound);
+			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+		}
+		return true;
+	}
+
+	return false;
+}
 
 /**
  * @brief Emits a sound to all clients.
@@ -43,7 +209,7 @@
  * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsInputEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
 {
 	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
 	
@@ -53,7 +219,7 @@ bool SEffectsInputEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAY
 	{
 		Format(sSound, sizeof(sSound), "*/%s", sSound);
 
-		EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, gCvarList.SEFFECTS_VOLUME.FloatValue * flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+		EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
 		return true;
 	}
 
@@ -79,7 +245,7 @@ bool SEffectsInputEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAY
  * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsInputEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
 {
 	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
 	
@@ -89,7 +255,7 @@ bool SEffectsInputEmitToClient(int iKey, int iNum = 0, int client, int entity = 
 	{
 		Format(sSound, sizeof(sSound), "*/%s", sSound);
 
-		EmitSoundToClient(client, sSound, entity, iChannel, iLevel, iFlags, gCvarList.SEFFECTS_VOLUME.FloatValue * flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+		EmitSoundToClient(client, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
 		return true;
 	}
 
@@ -110,7 +276,7 @@ bool SEffectsInputEmitToClient(int iKey, int iNum = 0, int client, int entity = 
  * @param flDelay           (Optional) The play delay.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int entity = SOUND_FROM_WORLD, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, float flDelay = 0.0)
+bool SEffectsEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int entity = SOUND_FROM_WORLD, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, float flDelay = 0.0)
 {
 	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
 	
@@ -120,7 +286,7 @@ bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int en
 	{
 		Format(sSound, sizeof(sSound), "*/%s", sSound);
 
-		EmitAmbientSound(sSound, vPosition, entity, iLevel, iFlags, gCvarList.SEFFECTS_VOLUME.FloatValue * flVolume, iPitch, flDelay);
+		EmitAmbientSound(sSound, vPosition, entity, iLevel, iFlags, flVolume, iPitch, flDelay);
 		return true;
 	}
 
@@ -134,7 +300,7 @@ bool SEffectsInputEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int en
  * @param client            (Optional) The client index.
  * @param iChannel          (Optional) The channel to emit with.
  **/
-void SEffectsInputStopSound(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
+void SEffectsStopSound(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
 {
 	SoundsStopAll(iKey, client, iChannel);
 }
@@ -142,7 +308,7 @@ void SEffectsInputStopSound(int iKey, int client = -1, int iChannel = SNDCHAN_AU
 /**
  * @brief Stop all sounds.
  **/
-void SEffectsInputStopAll()
+void SEffectsStopAll()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -152,215 +318,3 @@ void SEffectsInputStopAll()
 		}
 	}
 }
-
-/**
- * @brief Control sounds of a weapon on the client side.
- *  
- * @param client            The client index.
- * @param iItem             The weapon def.
- * @param bEnable           True to enable sounds, false otherwise.
- **/
-/*void SEffectsInputClientWeapon(int client, ItemDef iItem, bool bEnable)
-{
-	if (IsFakeClient(client))
-	{
-		return;
-	}
-	
-	static char sSound[NORMAL_LINE_LENGTH];
-	FormatEx(sSound, sizeof(sSound), "snd_setsoundparam ");
-	switch (iItem)
-	{
-		case ItemDef_Deagle : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_DEagle.Single");
-		}
-		case ItemDef_Elite : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Elite.Single");
-		}
-		case ItemDef_FiveSeven : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_FiveSeven.Single");
-		}
-		case ItemDef_Glock : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Glock.Single");
-		}
-		case ItemDef_AK47 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_AK47.Single");
-		}
-		case ItemDef_AUG : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_AUG.Single");
-		}
-		case ItemDef_AWP : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_AWP.Single");
-		}
-		case ItemDef_Famas : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_FAMAS.Single");
-		}
-		case ItemDef_G3SG1 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_G3SG1.Single");
-		}
-		case ItemDef_GalilAR : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_GalilAR.Single");
-		}
-		case ItemDef_M249 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_M249.Single");
-		}
-		case ItemDef_M4A4 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_M4A4.Single");
-		}
-		case ItemDef_MAC10 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_MAC10.Single");
-		}
-		case ItemDef_P90 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_P90.Single");
-		}
-		case ItemDef_MP5 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_MP5.Single");
-		}
-		case ItemDef_UMP45 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_UMP45.Single");
-		}
-		case ItemDef_XM1014 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_XM1014.Single");
-		}
-		case ItemDef_Bizon : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_bizon.Single");
-		}
-		case ItemDef_MAG7 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Mag7.Single");
-		}
-		case ItemDef_Negev : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Negev.Single");
-		}
-		case ItemDef_SawedOff : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Sawedoff.Single");
-		}
-		case ItemDef_TEC9 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_tec9.Single");
-		}
-		case ItemDef_Taser : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Taser.Single");
-		}
-		case ItemDef_HKP2000 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_hkp2000.Single");
-		}
-		case ItemDef_MP7 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_MP7.Single");
-		}
-		case ItemDef_MP9 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_MP9.Single");
-		}
-		case ItemDef_Nova : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Nova.Single");
-		}
-		case ItemDef_P250 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_P250.Single");
-		}
-		case ItemDef_SCAR20 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_scar20.Single");
-		}
-		case ItemDef_SG553 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_SG556.Single");
-		}
-		case ItemDef_SSG08 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_SSG08.Single");
-		}
-		case ItemDef_FlashBang : 
-		{
-			StrCat(sSound, sizeof(sSound), "Flashbang.Throw");
-		}
-		case ItemDef_HEGrenade : 
-		{
-			StrCat(sSound, sizeof(sSound), "HEGrenade.Throw");
-		}
-		case ItemDef_SmokeGrenade : 
-		{
-			StrCat(sSound, sizeof(sSound), "SmokeGrenade.Throw");
-		}
-		case ItemDef_Molotov : 
-		{
-			StrCat(sSound, sizeof(sSound), "MolotovGrenade.Throw");
-		}
-		case ItemDef_Decoy : 
-		{
-			StrCat(sSound, sizeof(sSound), "Decoy.Throw");
-		}
-		case ItemDef_IncGrenade : 
-		{
-			StrCat(sSound, sizeof(sSound), "IncGrenade.Throw");
-		}
-		case ItemDef_C4 : 
-		{
-			StrCat(sSound, sizeof(sSound), "c4.plant");
-		}
-		case ItemDef_Healthshot : 
-		{
-			StrCat(sSound, sizeof(sSound), "c4.plant");
-		}
-		case ItemDef_M4A1 : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_M4A1.Silenced");
-		}
-		case ItemDef_USP : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_USP.Single");
-		}
-		case ItemDef_CZ75A : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_CZ75A.Single");
-		}
-		case ItemDef_Revolver : 
-		{
-			StrCat(sSound, sizeof(sSound), "Weapon_Revolver.Single");
-		}
-		case ItemDef_TAGrenade : 
-		{
-			StrCat(sSound, sizeof(sSound), "Decoy.Throw");
-		}
-		case ItemDef_BreachCharge : 
-		{
-			StrCat(sSound, sizeof(sSound), "c4.plant");
-		}
-		case ItemDef_SnowBall :
-		{
-			StrCat(sSound, sizeof(sSound), "Player.SnowballThrow");
-		}
-		default :
-		{
-			return;
-		}
-	}
-	Format(sSound, sizeof(sSound), "%s volume %d", sSound, bEnable);
-	
-	ClientCommand(client, sSound);
-}*/

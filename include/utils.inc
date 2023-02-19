@@ -364,9 +364,18 @@
  * @section Default sounds.
  **/
 #define SOUND_CLIP_EMPTY            "weapons/clipempty_rifle.wav"
-#define SOUND_WEAPON_CANT_BUY       "buttons/weapon_cant_buy.wav"
 #define SOUND_BUTTON_CMD_ERROR      "buttons/button10.wav"
 #define SOUND_BUTTON_MENU_ERROR     "buttons/button11.wav"
+#define SOUND_FLASHLIGHT            "items/flashlight1.wav"
+#define SOUND_NVG_ON                "items/nvg_on.wav"
+#define SOUND_NVG_OFF               "items/nvg_off.wav"
+#define SOUND_AMMO                  "items/pickup_ammo_01.wav"
+#define SOUND_ITEM                  "items/itempickup.wav"
+#define SOUND_ARMOR                 "survival/armor_pickup_01.wav"
+#define SOUND_LEVELUP               "survival/bonus_award_01.wav"
+#define SOUND_INFO_TIPS             "survival/info_tips_01.wav"
+#define SOUND_BUY_ITEM              "survival/buy_item_01.wav"
+#define SOUND_BUY_ITEM_FAILED       "survival/buy_item_failed_01.wav"
 /**
  * @endsection
  **/ 

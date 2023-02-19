@@ -194,7 +194,7 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 			{
 				TranslationPrintHintText(client, "block using menu");
 				
-				EmitSoundToClient(client, SOUND_WEAPON_CANT_BUY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
+				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
 			}
 
@@ -214,6 +214,8 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 				default :
 				{
 					WeaponsGive(client, iD);
+					
+					EmitSoundToClient(client, SOUND_BUY_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 					
 					if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
 					{
