@@ -119,7 +119,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		flLMV[client] = GetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue");
 		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hCvarSkillSpeed.FloatValue);
 		
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 		
 		float flDuration = ZP_GetClassSkillDuration(gHuman);
 		

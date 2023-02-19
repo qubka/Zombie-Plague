@@ -127,7 +127,7 @@ public Action ZP_OnClientSkillUsed(int client)
 
 		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 		
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 		
 		int entity = UTIL_CreateProjectile(vPosition, vAngle);
 		
@@ -221,7 +221,7 @@ public Action BombTouchHook(int entity, int target)
 			TE_SendToAll();
 		}
 			
-		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC);
 
 		AcceptEntityInput(entity, "Kill");
 	}

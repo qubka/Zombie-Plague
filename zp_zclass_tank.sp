@@ -112,7 +112,7 @@ public Action ZP_OnClientSkillUsed(int client)
 {
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 		
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
@@ -131,19 +131,6 @@ public Action ZP_OnClientSkillUsed(int client)
 	}
 	
 	return Plugin_Continue;
-}
-
-/**
- * @brief Called when a skill duration is over.
- * 
- * @param client            The client index.
- **/
-public void ZP_OnClientSkillOver(int client)
-{
-	if (ZP_GetClientClass(client) == gZombie)
-	{
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
-	}
 }
 
 /**

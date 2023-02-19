@@ -304,7 +304,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 				CreateTimer(ZP_GetWeaponModelHeat(gWeapon), MineActivateHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 				CreateTimer(0.1, MineSolidHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 				
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC);
 			}
 			
 			ZP_RemoveWeapon(client, weapon);
@@ -491,7 +491,7 @@ void MineExpload(int entity)
 
 	UTIL_CreateExplosion(vPosition, /*EXP_NOFIREBALL | */EXP_NOSOUND | EXP_NODAMAGE);
 	
-	ZP_EmitSoundToAll(gSound, 5, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 5, entity, SNDCHAN_STATIC);
 	
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	for (int x = 0; x <= 4; x++)
@@ -527,7 +527,7 @@ public Action MineActivateHook(Handle hTimer, int refID)
 
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC);
 		
 		CreateTimer(ZP_GetWeaponShoot(gWeapon), MineUpdateHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
@@ -651,7 +651,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 				{    
 					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 			
-					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
+					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM);
 					
 					float flForce = ZP_GetClassKnockBack(ZP_GetClientClass(victim)) * ZP_GetWeaponKnockBack(gWeapon); 
 					if (flForce > 0.0)
@@ -682,8 +682,8 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 				TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, bZombie ? WEAPON_BEAM_ZOMBIE_COLOR : WEAPON_BEAM_HUMAN_COLOR, 30);
 				TE_SendToAll();
 
-				EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
-				EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.3, SNDPITCH_LOW);
+				EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
+				EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, SND_NOFLAGS, 0.3, SNDPITCH_LOW);
 			}
 		}
 		else
@@ -700,7 +700,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 				{
 					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 				
-					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
+					ZP_EmitSoundToAll(gSound, 4, victim, SNDCHAN_ITEM);
 				}
 			}
 

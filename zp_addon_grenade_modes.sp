@@ -251,6 +251,8 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			
 			SetGlobalTransTarget(client);
 			PrintHintText(client, "%t", "grenade mode", sModes[iMode]);
+			
+			EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		}
 	}
 	else if (iButtons & IN_ATTACK2 && !(iLastButtons & IN_ATTACK2))
@@ -361,7 +363,9 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 					GrenadePush(client, grenade);
 					
 					SetGlobalTransTarget(client);
-					PrintHintText(client, "%t", "satchel info");   
+					PrintHintText(client, "%t", "satchel info");  
+					
+					EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 				}
 				
 				case GRENADE_MODE_HOMING :
@@ -496,7 +500,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 	
 	if (flCounter <= 0.0)
 	{
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_NORMAL);
+		EmitSoundToAll("buttons/blip2.wav", grenade, _);
 		
 		iState    = PROXIMITY_STATE_DETECT;
 		flCounter = 0.0;
@@ -510,7 +514,7 @@ Action GrenadeProximityThinkPowerUp(int grenade, int &iState, float &flCounter)
 			iPitch = 100;
 		}
 		
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_NORMAL, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, _, _, _, iPitch);
 	}
 	
 	return Plugin_Continue;
@@ -773,7 +777,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 	
 	if (flCounter <= 0.0)
 	{
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_NORMAL);
+		EmitSoundToAll("buttons/blip2.wav", grenade);
 		
 		iState    = TRIPWIRE_STATE_DETECT;
 		flCounter = 0.0;
@@ -787,7 +791,7 @@ Action GrenadeTripwireThinkPowerUp(int grenade, int &iState, float &flCounter)
 			iPitch = 100;
 		}
 		
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_NORMAL, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, _, _, _, iPitch);
 	}
 	
 	return Plugin_Continue;
@@ -1024,7 +1028,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 	
 	if (flCounter <= 0.0)
 	{
-		EmitSoundToAll("buttons/blip2.wav", grenade, _, SNDLEVEL_NORMAL);
+		EmitSoundToAll("buttons/blip2.wav", grenade);
 		
 		iState    = SATCHEL_STATE_ENABLED;
 		flCounter = 0.0;
@@ -1038,7 +1042,7 @@ Action GrenadeSatchelThinkPowerUp(int grenade, int &iState, float &flCounter)
 			iPitch = 100;
 		}
 		
-		EmitSoundToAll("buttons/blip1.wav", grenade, _, SNDLEVEL_NORMAL, _, _, iPitch);
+		EmitSoundToAll("buttons/blip1.wav", grenade, _, _, _, _, iPitch);
 	}
 	
 	return Plugin_Continue;
@@ -1158,7 +1162,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 			
-		int target = GetEntPropEnt(grenade, Prop_Data, "m_pParent");
+		int target = GetEntPropEnt(grenade, Prop_Data, "m_hEffectEntity");
 		if (target != 0 || !UTIL_CanSeeEachOther(grenade, target, vPosition, SelfFilter) || ZP_GetPlayerTeam(target) != GetEntProp(grenade, Prop_Data, "m_iMaxHealth")) /// If team was changed, reset target
 		{
 			int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
@@ -1183,7 +1187,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 				if (flNewDistance < flOldDistance)
 				{
 					flOldDistance = flNewDistance;
-					SetEntPropEnt(grenade, Prop_Data, "m_pParent", i);
+					SetEntPropEnt(grenade, Prop_Data, "m_hEffectEntity", i);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iPending);
 					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flOldDistance);
 				}

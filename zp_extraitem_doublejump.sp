@@ -262,7 +262,7 @@ public void OnPlayerRunCmdPost(int client, int iButtons, int iImpulse, const flo
 		
 		TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
 		
-		EmitSoundToAll(GetRandomInt(0, 1) ? "survival/jump_ability_01.wav" : "survival/jump_ability_long_01.wav", entity, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		EmitSoundToAll(GetRandomInt(0, 1) ? "survival/jump_ability_01.wav" : "survival/jump_ability_long_01.wav", client, SNDCHAN_VOICE);
 		
 		bDoJump[client] = false;
 	}

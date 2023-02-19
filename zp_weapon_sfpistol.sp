@@ -146,7 +146,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 	ZP_SetWeaponAnimation(client, ANIM_IDLE); 
 	
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_FRIDGE);
 
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
@@ -240,7 +240,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	}
 	
 	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
-	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON);
 
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 	
@@ -270,26 +270,8 @@ void Weapon_OnCreateBeam(int client, int weapon)
 
 	ZP_GetPlayerEyePosition(client, 30.0, 3.5, -10.0, vPosition);
 
-	float flLife = ZP_GetWeaponShoot(gWeapon);
-	
-	TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-	TE_SendToClient(client);
-	
-	int world = GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel");
-	
-	if (world != -1)
-	{
-		GetEntPropVector(world, Prop_Data, "m_vecAbsOrigin", vPosition); 
-		
-		TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, flLife, 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
-		int[] iClients = new int[MaxClients]; int iCount;
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (!IsPlayerExist(i, false) || i == client || IsFakeClient(i)) continue;
-			iClients[iCount++] = i;
-		}
-		TE_Send(iClients, iCount);
-	}
+	TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, ZP_GetWeaponShoot(gWeapon), 2.0, 2.0, 10, 1.0, WEAPON_BEAM_COLOR, 30);
+	TE_SendToAll();
 }
 
 void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)

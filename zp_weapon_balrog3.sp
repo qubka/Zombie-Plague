@@ -209,7 +209,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 
 	if (iClip <= 0)
 	{
-		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
@@ -232,7 +232,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	
 	if (iStateMode)
 	{
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON);
 		
 		iAmmo -= 1; SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo); 
 		
@@ -240,7 +240,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	}
 	else
 	{
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 
 		iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 		

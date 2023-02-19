@@ -218,13 +218,13 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK2_TIME);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponReload(gWeapon));    
 	
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON);
 	}
 	else
 	{
 		if (iAmmo <= 0)
 		{
-			EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+			EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 			SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 			return;
 		}
@@ -237,10 +237,12 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
 
 			SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
 
-			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_VOICE);
 
 			SetGlobalTransTarget(client);
 			PrintHintText(client, "%t", "janus activated");
+			
+			EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		}
 		
 		if (!iAmmo)
@@ -258,7 +260,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, int iCounter, int
    
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));  
 		
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	}
 	
 	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
@@ -533,7 +535,7 @@ public Action GrenadeTouchHook(int entity, int target)
 
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarJanusGrenadeDamage.FloatValue, hCvarJanusGrenadeRadius.FloatValue, "janus1", thrower, entity);
 
-		ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC);
 
 		AcceptEntityInput(entity, "Kill");
 	}

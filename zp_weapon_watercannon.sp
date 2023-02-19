@@ -269,7 +269,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 				return;
 			}
 
-			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 
 			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 			
@@ -565,29 +565,6 @@ public Action FireTouchHook(int entity, int target)
 
 	return Plugin_Continue;
 }
-
-/**
- * @brief Called when a sound is going to be emitted to one or more clients. NOTICE: all params can be overwritten to modify the default behaviour.
- *  
- * @param clients           Array of client indexes.
- * @param numClients        Number of clients in the array (modify this value if you add/remove elements from the client array).
- * @param sSample           Sound file name relative to the "sounds" folder.
- * @param entity            Entity emitting the sound.
- * @param iChannel          Channel emitting the sound.
- * @param flVolume          The sound volume.
- * @param iLevel            The sound level.
- * @param iPitch            The sound pitch.
- * @param iFlags            The sound flags.
- **/ 
-/*public Action SoundsNormalHook(int clients[MAXPLAYERS-1], int &numClients, char[] sSample, int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags)
-{
-	if (IsValidEdict(entity))
-	{
-		
-	}
-	
-	return Plugin_Continue;
-}*/
 
 /**
  * @brief Called before a grenade sound is emitted.

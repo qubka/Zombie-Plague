@@ -187,7 +187,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 	if (iClip <= 0)
 	{
-		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
@@ -196,7 +196,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });   
 
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? WEAPON_ATTACK_TIME : ZP_GetWeaponShoot(gWeapon)));       
 
@@ -242,7 +242,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, floa
 
 	if (iClip <= 0)
 	{
-		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
@@ -251,7 +251,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, floa
 
 	ZP_SetViewAnimation(client, { ANIM_SHOOT1_SP, ANIM_SHOOT2_SP });   
 
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (!iClip ? WEAPON_ATTACK_TIME : WEAPON_ATTACK_SP_TIME));       
 

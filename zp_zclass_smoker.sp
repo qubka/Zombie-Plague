@@ -106,12 +106,12 @@ public Action ZP_OnClientSkillUsed(int client)
 {
 	if (ZP_GetClientClass(client) == gZombie)
 	{
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 
 		static float vPosition[3];
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 				
-		static char sEffect[SMALL_LINE_LENGTH];
+		static char sEffect[NORMAL_LINE_LENGTH];
 		hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
 
 		int entity = UTIL_CreateParticle(_, vPosition, _, _, sEffect, ZP_GetClassSkillDuration(gZombie));

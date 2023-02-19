@@ -167,13 +167,12 @@ public Action ZP_OnClientSkillUsed(int client)
 				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
 			}
 			
-			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC);
 			
 			TE_SetupBeamRingPoint(vPosition, 10.0, 200.0, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, {150, 150, 150, 200}, 0, 0);
 			TE_SendToAll();
 			
 			CreateTimer(ZP_GetClassSkillDuration(gZombie), CoffinExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-			CreateTimer(1.0, CoffinIdleHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 			CreateTimer(0.1, CoffinThinkHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
@@ -202,34 +201,12 @@ public Action CoffinDamageHook(int entity, int &attacker, int &inflictor, float 
 	}
 	else
 	{
-		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 3), entity, SNDCHAN_STATIC);
 		
 		SetEntProp(entity, Prop_Data, "m_iHealth", iHealth);
 	}
 
 	return Plugin_Handled;
-}
-
-/**
- * @brief Main timer for coffin idle.
- * 
- * @param hTimer            The timer handle.
- * @param refID             The reference index.                    
- **/
-public Action CoffinIdleHook(Handle hTimer, int refID)
-{
-	int entity = EntRefToEntIndex(refID);
-
-	if (entity != -1)
-	{
-		ZP_EmitSoundToAll(gSound, GetRandomInt(5, 6), entity, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
-	}
-	else
-	{
-		return Plugin_Stop;
-	}
-	
-	return Plugin_Continue;
 }
 
 /**
@@ -337,7 +314,7 @@ void CoffinExpload(int entity)
 		TE_SendToAll();
 	}
 	
-	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC);
 	
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	for (int x = 0; x <= 4; x++)

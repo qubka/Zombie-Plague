@@ -187,7 +187,7 @@ public void ZP_OnClientBuyExtraItem(int client, int itemID)
 		static float vPosition[3];
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 
 		float flDuration = hCvarMadnessDuration.FloatValue;
 

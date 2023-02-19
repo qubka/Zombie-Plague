@@ -92,6 +92,7 @@ enum struct ServerData
 	StringMap Listeners
 	StringMap Configs;
 	StringMap Modules;
+	StringMap Durations;
 	ArrayList Sections;
 	ArrayList Types;
 	ArrayList Arsenal;

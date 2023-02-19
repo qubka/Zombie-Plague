@@ -281,7 +281,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 				{
 					UTIL_RemoveEntity(ice, flDuration);
 					
-					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+					ZP_EmitSoundToAll(gSound, 1, ice, SNDCHAN_STATIC);
 				}
 			}
 
@@ -325,7 +325,7 @@ public Action ClientRemoveFreeze(Handle hTimer, int userID)
 
 		SetEntityMoveType(client, MOVETYPE_WALK);
 		
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE);
 
 		static char sBuffer[NORMAL_LINE_LENGTH];
 		for (int x = 0; x <= 5; x++)
@@ -370,15 +370,15 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 		{
 			if (!strncmp(sSample[31], "hit", 3, false))
 			{
-				ZP_EmitSoundToAll(gSound, GetRandomInt(4, 6), entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
-				
-				return Plugin_Stop; 
+				if (ZP_GetSound(gSound, GetRandomInt(4, 6), sSample, sizeof(sSample)))
+				{
+					return Plugin_Changed; 
+				}
 			}
 			else if (!strncmp(sSample[29], "emit", 4, false))
 			{
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
-			   
-				return Plugin_Stop; 
+				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample)))
+				return Plugin_Changed; 
 			}
 		}
 	}

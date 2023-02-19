@@ -202,7 +202,7 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 		
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 	
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_FRIDGE);
 	}
 	else
 	{
@@ -328,7 +328,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 			if (GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") < flCurrentTime)
 			{
-				ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+				ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON);
 				SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flCurrentTime + WEAPON_ATTACK_SOUND_TIME);
 			}
 			
@@ -396,13 +396,13 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 	{
 		ZP_SetViewAnimation(client, { ANIM_EMPTY_SHOOT1, ANIM_EMPTY_SHOOT2 });    
 		
-		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSoundAttack, 4, client, SNDCHAN_WEAPON);
 	}
 	else
 	{
 		ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });     
 
-		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSoundAttack, GetRandomInt(2, 3), client, SNDCHAN_WEAPON);
 	}
 	
 	flCurrentTime += WEAPON_ATTACK_TIME;
@@ -457,7 +457,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 			TE_SetupSparks(vEndPosition, vNormal, 50, 2);
 			TE_SendToAll();
 			
-			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSoundHit, GetRandomInt(1, 2), client, SNDCHAN_ITEM);
 		}
 		else
 		{
@@ -465,7 +465,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, bool bSlash)
 
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
-				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
+				ZP_EmitSoundToAll(gSoundHit, GetRandomInt(3, 4), victim, SNDCHAN_ITEM);
 			}
 		}
 	}

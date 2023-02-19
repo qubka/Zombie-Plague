@@ -184,7 +184,7 @@ void Item_OnActive(int client)
 	
 	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, vVelocity);
 	
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 	
 	int entity = ZP_GetClientAttachModel(client, BitType_DefuseKit);
 
@@ -220,6 +220,8 @@ public Action Item_OnDisable(Handle hTimer, int userID)
 		SetGlobalTransTarget(client);
 		PrintHintText(client, "%t", "jetpack empty");
 		
+		EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+		
 		delete hItemReload[client];
 		hItemReload[client] = CreateTimer(ZP_GetWeaponReload(gWeapon), Item_OnReload, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
@@ -243,6 +245,8 @@ public Action Item_OnReload(Handle hTimer, int userID)
 	{
 		SetGlobalTransTarget(client);
 		PrintHintText(client, "%t", "jetpack reloaded");
+		
+		EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 	}
 	
 	return Plugin_Stop;

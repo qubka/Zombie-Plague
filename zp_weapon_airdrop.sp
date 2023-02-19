@@ -515,6 +515,8 @@ public void ZP_OnGameModeStart(int mode)
 
 				SetGlobalTransTarget(client);
 				PrintHintText(client, "%t", "airdrop info");
+				
+				EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 			}
 		}
 	}
@@ -560,21 +562,24 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 
 	if (IsValidEdict(grenade))
 	{
-		GetEntPropVector(grenade, Prop_Data, "m_angAbsRotation", vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
-	
-		float flDuration = hCvarAirdropSmokeLife.FloatValue;
-		int smoke = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", flDuration, flDuration + 3.0);
-		
-		CreateHelicopter(vPosition, vAngle);
-		
-		if (smoke != -1)
+		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
 		{
-			EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+			vAngle[1] = GetRandomFloat(0.0, 360.0);
+		
+			float flDuration = hCvarAirdropSmokeLife.FloatValue;
+			int smoke = UTIL_CreateSmoke(_, vPosition, vAngle, _, _, _, _, _, _, _, _, _, "255 20 147", "255", "particle/particle_smokegrenade1.vmt", flDuration, flDuration + 3.0);
+			
+			CreateHelicopter(vPosition, vAngle);
+			
+			if (smoke != -1)
+			{
+				EmitSoundToAll("survival/missile_gas_01.wav", smoke, SNDCHAN_STATIC);
+			}
+			
+			AcceptEntityInput(grenade, "Kill");
+			
+			RequestFrame(EventEntityTanadePost);
 		}
-		
-		AcceptEntityInput(grenade, "Kill");
-		
-		RequestFrame(EventEntityTanadePost);
 	}
 	
 	return Plugin_Continue;
@@ -666,7 +671,7 @@ public Action HelicopterSoundHook(Handle hTimer, int refID)
 		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "dropped");
 		GetEntityAttachment(entity, entity, vPosition, vAngle); 
 
-		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD, SNDLEVEL_NORMAL); 
+		ZP_EmitAmbientSound(gSound, 1, vPosition, SOUND_FROM_WORLD); 
 	}
 	else
 	{
@@ -691,7 +696,7 @@ public Action HelicopterIdleHook(Handle hTimer, int refID)
 		SetVariantString("helicopter_coop_towerhover_idle");
 		AcceptEntityInput(entity, "SetAnimation");
 		
-		EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		EmitSoundToAll("survival/dropbigguns.wav", SOUND_FROM_PLAYER, SNDCHAN_VOICE);
 		
 		CreateTimer(1.0, HelicopterDropHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		
@@ -753,6 +758,8 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 					{
 						SetGlobalTransTarget(i);
 						PrintHintText(i, "%t", "airdrop safe", hCvarAirdropExplosions.IntValue);
+						
+						EmitSoundToClient(i, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 					}
 				}
 			}
@@ -911,11 +918,11 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 {
 	switch (GetRandomInt(0, 4))
 	{
-		case 0 : EmitSoundToAll("survival/container_damage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 1 : EmitSoundToAll("survival/container_damage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 2 : EmitSoundToAll("survival/container_damage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 3 : EmitSoundToAll("survival/container_damage_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 4 : EmitSoundToAll("survival/container_damage_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 0 : EmitSoundToAll("survival/container_damage_01.wav", entity, SNDCHAN_STATIC);
+		case 1 : EmitSoundToAll("survival/container_damage_02.wav", entity, SNDCHAN_STATIC);
+		case 2 : EmitSoundToAll("survival/container_damage_03.wav", entity, SNDCHAN_STATIC);
+		case 3 : EmitSoundToAll("survival/container_damage_04.wav", entity, SNDCHAN_STATIC);
+		case 4 : EmitSoundToAll("survival/container_damage_05.wav", entity, SNDCHAN_STATIC);
 	}
 	
 	if (GetEntProp(entity, Prop_Send, "m_nBody"))
@@ -980,13 +987,22 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 							SetEntProp(door, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
 						}
 						
+						int[] clients = new int[MaxClients]; int iTotal = 0;
+						
 						for (int i = 1; i <= MaxClients; i++)
 						{
 							if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
 							{
 								SetGlobalTransTarget(i);
-								PrintHintTextToAll("%t", "airdrop bag");
+								PrintHintText(i, "%t", "airdrop bag");
+								
+								clients[iTotal++] = i;
 							}
+						}
+						
+						if (iTotal)
+						{
+							EmitSound(clients, iTotal, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 						}
 					}
 				}
@@ -1025,9 +1041,9 @@ void SafeExpload(int entity)
 	
 	switch (GetRandomInt(0, 2))
 	{
-		case 0 : EmitSoundToAll("survival/container_death_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 1 : EmitSoundToAll("survival/container_death_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 2 : EmitSoundToAll("survival/container_death_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 0 : EmitSoundToAll("survival/container_death_01.wav", entity, SNDCHAN_STATIC);
+		case 1 : EmitSoundToAll("survival/container_death_02.wav", entity, SNDCHAN_STATIC);
+		case 2 : EmitSoundToAll("survival/container_death_03.wav", entity, SNDCHAN_STATIC);
 	}
 
 	UTIL_RemoveEntity(entity, 0.1);

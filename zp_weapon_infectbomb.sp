@@ -297,21 +297,24 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 		{
 			if (!strncmp(sSample[30], "arm", 3, false))
 			{
-				ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
-				
-				return Plugin_Stop; 
+				if (ZP_GetSound(gSound, 1, sSample, sizeof(sSample)))
+				{
+					return Plugin_Changed; 
+				}
 			}
 			else if (!strncmp(sSample[30], "det", 3, false))
 			{
-				ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
-				
-				return Plugin_Stop; 
+				if (ZP_GetSound(gSound, 2, sSample, sizeof(sSample)))
+				{
+					return Plugin_Changed; 
+				}
 			}
 			else if (!strncmp(sSample[30], "exp", 3, false))
 			{
-				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC, SNDLEVEL_FRIDGE);
-				
-				return Plugin_Stop; 
+				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample)))
+				{
+					return Plugin_Changed; 
+				}
 			}
 		}
 	}

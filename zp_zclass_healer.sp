@@ -122,7 +122,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 
 		UTIL_CreateFadeScreen(client, 0.3, 1.0, FFADE_IN, {255, 127, 80, 50});  
 
@@ -155,7 +155,6 @@ public Action ZP_OnClientSkillUsed(int client)
 
 			int iClass = ZP_GetClientClass(i);
 			int iHealth = ZP_GetClassHealth(iClass);
-			int iSound = ZP_GetClassSoundRegenID(iClass);
 
 			if (GetEntProp(i, Prop_Send, "m_iHealth") < iHealth)
 			{
@@ -163,10 +162,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				
 				UTIL_CreateFadeScreen(i, 0.3, 1.0, FFADE_IN, {0, 255, 0, 50});
 				
-				if (iSound != -1)
-				{
-					ZP_EmitSoundToAll(iSound, _, i, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
-				}
+				ZP_EmitSoundToAll(gSound, 2, i, SNDCHAN_VOICE);
 				
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 				

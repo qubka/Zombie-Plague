@@ -187,7 +187,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	delete hWeaponSwing[client];
 	hWeaponSwing[client] = CreateTimer(1.0, Weapon_OnSwing, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
-	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
 	
@@ -208,7 +208,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 	delete hWeaponStab[client];
 	hWeaponStab[client] = CreateTimer(1.0, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	
-	ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON);
 	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 				
@@ -261,7 +261,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 			TE_SetupSparks(vEndPosition, vNormal, 50, 2);
 			TE_SendToAll();
 			
-			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSound, 4, client, SNDCHAN_ITEM);
 		}
 		else
 		{
@@ -269,7 +269,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 
 			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 			{
-				ZP_EmitSoundToAll(gSound, 3, victim, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
+				ZP_EmitSoundToAll(gSound, 3, victim, SNDCHAN_ITEM);
 			}
 		}
 	}
@@ -277,7 +277,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 	{
 		if (bSlash) ZP_SetWeaponAnimation(client, ANIM_STAB_MISS);   
 
-		ZP_EmitSoundToAll(gSound, 5, client, SNDCHAN_ITEM, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 5, client, SNDCHAN_ITEM);
 	}
 	
 	delete hTrace;

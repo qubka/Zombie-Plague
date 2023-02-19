@@ -216,7 +216,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	
 	if (iClip <= 0)
 	{
-		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_LIBRARY);
+		EmitSoundToClient(client, SOUND_CLIP_EMPTY, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.2);
 		return;
 	}
@@ -233,7 +233,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
 	
-	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	ZP_EmitSoundToAll(gSound, 3, client, SNDCHAN_WEAPON);
 	
 	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });
 	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
@@ -298,7 +298,7 @@ void Weapon_OnCreateRocket(int client)
 
 		SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01); 
 		
-		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL / 2);
+		ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC / 2);
 		
 		SDKHook(entity, SDKHook_Touch, RocketTouchHook);
 		
@@ -460,7 +460,7 @@ public Action RocketTouchHook(int entity, int target)
 		
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarBazookaDamage.FloatValue, hCvarBazookaRadius.FloatValue, "bazooka", thrower, entity);
 
-		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC);
 		
 		AcceptEntityInput(entity, "Kill");
 	}

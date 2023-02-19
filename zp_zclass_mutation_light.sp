@@ -144,7 +144,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		bInvisible[client] = true;
 
-		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 		
 		int view = ZP_GetClientViewModel(client, true);
 		
@@ -171,7 +171,7 @@ public void ZP_OnClientSkillOver(int client)
 		
 		bInvisible[client] = false;
 
-		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, GetRandomInt(2, 4), client, SNDCHAN_VOICE);
 		
 		int view = ZP_GetClientViewModel(client, true);
 		

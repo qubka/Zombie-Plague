@@ -161,6 +161,8 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		SetGlobalTransTarget(client);
 		PrintHintText(client, "%t", "mutationheavy set");
+		
+		EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 	}
 	
 	return Plugin_Continue;
@@ -197,7 +199,7 @@ public void ZP_OnClientSkillOver(int client)
 				SetVariantString("!activator");
 				AcceptEntityInput(trap, "SetParent", entity, trap);
 
-				SetEntPropEnt(entity, Prop_Data, "m_pParent", trap); /// Store for animating
+				SetEntPropEnt(entity, Prop_Data, "m_hEffectEntity", trap); /// Store for animating
 				
 				SDKHook(trap, SDKHook_SetTransmit, TrapTransmitHook);
 			}
@@ -207,13 +209,15 @@ public void ZP_OnClientSkillOver(int client)
 			AcceptEntityInput(entity, "DisableDraw"); 
 			AcceptEntityInput(entity, "DisableShadow"); 
 			
-			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSound, 1, entity, SNDCHAN_STATIC);
 			
 			SDKHook(entity, SDKHook_Touch, TrapTouchHook);
 		}
 		
 		SetGlobalTransTarget(client);
 		PrintHintText(client, "%t", "mutationheavy success");
+		
+		EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 	}
 }
 
@@ -247,10 +251,12 @@ public Action TrapTouchHook(int entity, int target)
 			delete hHumanTrapped[target];
 			hHumanTrapped[target] = CreateTimer(flDuration, ClientRemoveTrap, GetClientUserId(target), TIMER_FLAG_NO_MAPCHANGE);
 
-			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSound, 2, entity, SNDCHAN_STATIC);
 
 			SetGlobalTransTarget(target);
 			PrintHintText(target, "%t", "mutationheavy catch");
+			
+			EmitSoundToClient(target, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 			
 			int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 
@@ -262,10 +268,12 @@ public Action TrapTouchHook(int entity, int target)
 				SetGlobalTransTarget(owner);
 				PrintHintText(owner, "%t", "mutationheavy catched", sName);
 				
+				EmitSoundToClient(owner, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+				
 				ZP_SetClientMoney(owner, ZP_GetClientMoney(owner) + hCvarSkillReward.IntValue);
 			}
 
-			int trap = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+			int trap = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
 
 			if (trap != -1)
 			{
@@ -348,6 +356,8 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			
 			SetGlobalTransTarget(client);
 			PrintHintText(client, "%t", "mutationheavy cancel");
+			
+			EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		}
 	}
 	

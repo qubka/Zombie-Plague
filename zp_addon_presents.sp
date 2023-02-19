@@ -593,6 +593,8 @@ public Action CaseSpawnHook(Handle hTimer)
 		gCaseCount++;
 	}
 	
+	int[] clients = new int[MaxClients]; int iTotal = 0;
+	
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsPlayerExist(i))
@@ -601,11 +603,18 @@ public Action CaseSpawnHook(Handle hTimer)
 			{
 				SetGlobalTransTarget(i);
 				PrintHintText(i, "%t", "present arrived");
+				
+				clients[iTotal++] = i;
 			}
-			
-			ZP_EmitSoundToClient(gSound, 1, i, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY);
 		}
 	}
+	
+	if (iTotal)
+	{
+		EmitSound(clients, iTotal, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+	}
+	
+	ZP_EmitSoundToHumans(gSound, 1, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 	
 	return Plugin_Continue;
 }

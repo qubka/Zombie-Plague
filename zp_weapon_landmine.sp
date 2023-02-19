@@ -309,6 +309,8 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int bTrigger, int iStateMo
 	
 	SetGlobalTransTarget(client);
 	PrintHintText(client, "%t", !iStateMode ? "trigger on info" : "trigger off info");
+	
+	EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 }
 
 /**
@@ -351,12 +353,12 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
 				
 				SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
-				SetEntPropEnt(entity, Prop_Data, "m_pParent", weapon);
+				SetEntPropEnt(entity, Prop_Data, "m_hDamageFilter", weapon);
 				SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", entity);
 				
 				SetEntProp(entity, Prop_Data, "m_iHammerID", STATE_TRIGGER_OFF);
 				
-				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC);
 				
 				CreateTimer(0.2, MineThinkHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 			}
@@ -495,7 +497,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", iStateMode);
 			
-			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON);
 
 			int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity"); 
 
@@ -503,7 +505,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			{
 				SetEntProp(entity, Prop_Data, "m_iHammerID", iStateMode);
 				
-				EmitSoundToAll(iStateMode ? "survival/breach_activate_01.wav" : "survival/breach_defuse_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+				EmitSoundToAll(iStateMode ? "survival/breach_activate_01.wav" : "survival/breach_defuse_01.wav", entity, SNDCHAN_STATIC);
 			}
 		}
 	
@@ -598,7 +600,7 @@ void MineExpload(int entity, bool bRemove = false)
 	}
 	
 	int client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
-	int weapon = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+	int weapon = GetEntPropEnt(entity, Prop_Data, "m_hDamageFilter");
 	
 	if (weapon != -1)
 	{
@@ -614,12 +616,12 @@ void MineExpload(int entity, bool bRemove = false)
 	
 	switch (GetRandomInt(0, 5))
 	{
-		case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 2 : EmitSoundToAll("survival/missile_land_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 3 : EmitSoundToAll("survival/missile_land_04.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case 0 : EmitSoundToAll("survival/missile_land_01.wav", entity, SNDCHAN_STATIC);
+		case 1 : EmitSoundToAll("survival/missile_land_02.wav", entity, SNDCHAN_STATIC);
+		case 2 : EmitSoundToAll("survival/missile_land_03.wav", entity, SNDCHAN_STATIC);
+		case 3 : EmitSoundToAll("survival/missile_land_04.wav", entity, SNDCHAN_STATIC);
+		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC);
+		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC);
 	}
 	
 	static char sBuffer[NORMAL_LINE_LENGTH];

@@ -133,7 +133,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 		static float vPosition[3];
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSound, 1, grenade, SNDCHAN_STATIC);
 
 		float flDuration = hCvarFlareDuration.FloatValue;
 		

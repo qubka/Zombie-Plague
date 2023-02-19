@@ -553,11 +553,11 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				SetEntProp(upgrade, Prop_Send, "m_nSkin", iSkin);
 				SetEntProp(upgrade, Prop_Send, "m_nBody", 2);
 
-				SetEntPropEnt(upgrade, Prop_Data, "m_pParent", entity);
+				SetEntPropEnt(upgrade, Prop_Data, "m_hEffectEntity", entity);
 				
 				SetEntPropEnt(entity, Prop_Data, "m_hInteractionPartner", upgrade); 
 				
-				ZP_EmitSoundToAll(gSoundUpgrade, 1, upgrade, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+				ZP_EmitSoundToAll(gSoundUpgrade, 1, upgrade, SNDCHAN_STATIC);
 				
 				CreateTimer(5.0, SentryActivateHook, EntIndexToEntRef(upgrade), TIMER_FLAG_NO_MAPCHANGE);
 			}
@@ -1027,7 +1027,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	
 	public void EmitSound(int iIndex)
 	{
-		ZP_EmitSoundToAll(gSoundShoot, iIndex, this.Index, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSoundShoot, iIndex, this.Index, SNDCHAN_STATIC);
 	}
 	
 	public void FoundTarget(int target) 
@@ -1536,7 +1536,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			
 			SetEntPropEnt(upgrade, Prop_Data, "m_hOwnerEntity", this.Index); 
 			
-			ZP_EmitSoundToAll(gSoundUpgrade, 2, upgrade, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSoundUpgrade, 2, upgrade, SNDCHAN_STATIC);
 			
 			this.UpgradeModel = upgrade;
 			
@@ -1701,7 +1701,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{
 		static float vPosition[3]; static float vGib[3]; float vShoot[3];
 
-		EmitSoundToAll("survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		EmitSoundToAll("survival/turret_death_01.wav", this.Index, SNDCHAN_STATIC);
 		
 		GetAbsOrigin(this.Index, vPosition);
 		
@@ -1827,6 +1827,8 @@ void Weapon_OnDeploy(int client, int weapon, float flCurrentTime)
 	
 	SetGlobalTransTarget(client);
 	PrintHintText(client, "%t", "rotate info");
+	
+	EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 }
 
 void Weapon_OnDrop(int client, int weapon, float flCurrentTime)
@@ -1948,6 +1950,8 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 						
 						SetGlobalTransTarget(client);
 						PrintHintText(client, "%t", "control info");
+						
+						EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 					}
 					else
 					{
@@ -2240,7 +2244,7 @@ public Action SentryActivateHook(Handle hTimer, int refID)
 
 	if (entity != -1)
 	{
-		int sentry = GetEntPropEnt(entity, Prop_Data, "m_pParent");
+		int sentry = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
 	  
 		if (sentry != -1)
 		{
@@ -2288,9 +2292,9 @@ public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float 
 				
 				switch (GetRandomInt(0, 2))
 				{
-					case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-					case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-					case 2 : EmitSoundToAll("survival/turret_takesdamage_03.wav", entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+					case 0 : EmitSoundToAll("survival/turret_takesdamage_01.wav", entity, SNDCHAN_STATIC);
+					case 1 : EmitSoundToAll("survival/turret_takesdamage_02.wav", entity, SNDCHAN_STATIC);
+					case 2 : EmitSoundToAll("survival/turret_takesdamage_03.wav", entity, SNDCHAN_STATIC);
 				}
 			}
 		}
@@ -2325,7 +2329,7 @@ public Action RocketTouchHook(int entity, int target)
 		
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarSentryRocketDamage.FloatValue, hCvarSentryRocketRadius.FloatValue, "rocket", _, entity);
 
-		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC);
 
 		AcceptEntityInput(entity, "Kill");
 	}

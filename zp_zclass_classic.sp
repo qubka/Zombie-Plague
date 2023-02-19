@@ -53,6 +53,7 @@ int gZombie;
 // Cvars
 ConVar hCvarSkillChance;
 ConVar hCvarSkillDuration;
+ConVar hCvarSkillAlpha;
 ConVar hCvarSkillEffect;
 
 /**
@@ -63,6 +64,7 @@ public void OnPluginStart()
 {
 	hCvarSkillChance   = CreateConVar("zp_zclass_classic_chance", "20", "Smaller = more likely", 0, true, 0.0, true, 999.0);
 	hCvarSkillDuration = CreateConVar("zp_zclass_classic_duration", "2.5", "Sleep duration", 0, true, 0.0);
+	hCvarSkillAlpha    = CreateConVar("zp_zclass_classic_alpha", "255", "Sleep blind alpha", 0, true, 0.0, true, 255.0);
 	hCvarSkillEffect   = CreateConVar("zp_zclass_classic_effect", "sila_trail_apalaal", "Particle effect for the skill (''-default)");
 
 	AutoExecConfig(true, "zp_zclass_classic", "sourcemod/zombieplague");
@@ -129,11 +131,13 @@ public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float fl
 		
 		if (iChance[client] < hCvarSkillChance.IntValue)
 		{
-			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE, SNDLEVEL_NORMAL);
+			ZP_EmitSoundToAll(gSound, 1, attacker, SNDCHAN_VOICE);
 			
 			float flDuration = hCvarSkillDuration.FloatValue;
 
-			UTIL_CreateFadeScreen(attacker, flDuration, flDuration + 0.5, FFADE_IN, {0, 0, 0, 255});
+			static int iColor[4];
+			iColor[3] = hCvarSkillAlpha.IntValue;
+			UTIL_CreateFadeScreen(attacker, flDuration, flDuration + 0.5, FFADE_IN, iColor);
 			
 			static char sEffect[SMALL_LINE_LENGTH];
 			hCvarSkillEffect.GetString(sEffect, sizeof(sEffect));
