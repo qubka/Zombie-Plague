@@ -54,6 +54,9 @@ int gSound;
 // Zombie index
 int gZombie;
 
+// Type index
+int gType;
+
 // Cvars
 ConVar hCvarSkillRadius;
 ConVar hCvarSkillDamage;
@@ -96,6 +99,9 @@ public void ZP_OnEngineExecute()
 	
 	gSound = ZP_GetSoundKeyID("PSYH_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PSYH_SKILL_SOUNDS\" wasn't find");
+	
+	gType = ZP_GetClassTypeID("zombie");
+	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"zombie\" wasn't find");
 }
 
 /**
@@ -208,6 +214,8 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
 		static float vPosition[3];
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition); vPosition[2] += 25.0;  
 
+		bool bInfect = ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound();
+
 		float flRadius = hCvarSkillRadius.FloatValue;
 		float flDamage = hCvarSkillDamage.FloatValue;
 
@@ -223,7 +231,14 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
 			
 			UTIL_CreateShakeScreen(i, 3.0, 1.0, 0.1);
 			
-			ZP_TakeDamage(i, client, client, flDamage, DMG_SONIC);
+			if (bInfect && GetEntProp(i, Prop_Send, "m_iHealth") <= RoundToCeil(flDamage))
+			{
+				ZP_ChangeClient(i, client, gType);
+			}
+			else
+			{
+				ZP_TakeDamage(i, client, client, flDamage, DMG_SONIC);
+			}
 		}
 	   
 		TE_SetupBeamRingPoint(vPosition, 50.0, flRadius * 2.0, gTrail, 0, 1, 10, 1.0, 15.0, 0.0, {255, 0, 0, 200}, 50, 0);

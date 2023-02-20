@@ -48,6 +48,9 @@ int gSound;
 // Zombie index
 int gZombie;
 
+// Type index
+int gType;
+
 // Cvars
 ConVar hCvarSkillDelay;
 ConVar hCvarSkillDamage;
@@ -92,6 +95,9 @@ public void ZP_OnEngineExecute()
 	
 	gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
 	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SMOKE_SKILL_SOUNDS\" wasn't find");
+
+	gType = ZP_GetClassTypeID("zombie");
+	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"zombie\" wasn't find");
 }
 
 /**
@@ -144,6 +150,8 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
  
 		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 		
+		bool bInfect = ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound();
+		
 		float flRadius = hCvarSkillRadius.FloatValue;
 		float flDamage = hCvarSkillDamage.FloatValue;
 		
@@ -157,7 +165,14 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
 			
 			UTIL_CreateFadeScreen(i, 0.1, 0.2, FFADE_IN, {38, 87, 16, 75});  
 
-			ZP_TakeDamage(i, owner, owner, flDamage, DMG_NERVEGAS);
+			if (bInfect && GetEntProp(i, Prop_Send, "m_iHealth") <= RoundToCeil(flDamage))
+			{
+				ZP_ChangeClient(i, owner, gType);
+			}
+			else
+			{
+				ZP_TakeDamage(i, owner, owner, flDamage, DMG_NERVEGAS);
+			}
 		}
 		
 		return Plugin_Continue;
