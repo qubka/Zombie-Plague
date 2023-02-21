@@ -509,14 +509,9 @@ float SoundsGetSound(int iKey, int iNum = 0, char sPath[PLATFORM_LINE_LENGTH], f
 		iLevel = arraySound.Get(iD + SOUNDS_DATA_LEVEL);
 		iFlags = arraySound.Get(iD + SOUNDS_DATA_FLAGS);
 		iPitch = arraySound.Get(iD + SOUNDS_DATA_PITCH);
-		PrintToServer("KEY=%d ~ NUM=%d ~ ID=%d ~ SIZE=%d ||| %s | flVolume = %f | flDuration = %f", iKey, iNum, iD, iSize, sPath, flVolume, arraySound.Get(iD + SOUNDS_DATA_DURATION));
 		return arraySound.Get(iD + SOUNDS_DATA_DURATION);
 	}
-	
-	char sKKK[SMALL_LINE_LENGTH];
-	SoundsGetKey(iKey, sKKK, sizeof(sKKK));
-	
-	PrintToServer("failed KEY= %s (%d)  ~ NUM=%d ~ SIZE=%d ",  sKKK, iKey, iNum, iSize);
+
 	return 0.0;
 }
 

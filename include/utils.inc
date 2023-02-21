@@ -598,12 +598,11 @@ stock int UTIL_CreatePath(char[] sClassname, float vPosition[3], float vAngle[3]
  * @param vPosition         The position to the spawn.
  * @param vAngle            The angle to the spawn.
  * @param sModel            The model path.
- * @param flScale           The model scale.
  * @param iFlags            (Optional) The bits with some flags.
  *
  * @return                  The entity index.                         
  **/
-stock int UTIL_CreateMonster(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, float flScale, int iFlags = 0)
+stock int UTIL_CreateMonster(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, int iFlags = 0)
 {
 	int entity = CreateEntityByName("monster_generic"); 
 		
@@ -616,7 +615,6 @@ stock int UTIL_CreateMonster(char[] sClassname, float vPosition[3], float vAngle
 		DispatchKeyValueVector(entity, "origin", vPosition); 
 		DispatchKeyValueVector(entity, "angles", vAngle);
 		DispatchKeyValue(entity, "model", sModel); 
-		DispatchKeyValueFloat(entity, "modelscale", flScale); 
 		DispatchKeyValue(entity, "spawnflags", sFlags); 
 
 		DispatchSpawn(entity);
