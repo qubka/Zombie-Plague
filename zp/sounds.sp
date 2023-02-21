@@ -500,7 +500,7 @@ float SoundsGetSound(int iKey, int iNum = 0, char sPath[PLATFORM_LINE_LENGTH], f
 	ArrayList arraySound = gServerData.Sounds.Get(iKey);
 
 	int iSize = (arraySound.Length - 1) / SOUNDS_DATA_DURATION;
-	if (iNum < iSize)
+	if (iNum <= iSize)
 	{
 		int iD = ((iNum ? iNum : GetRandomInt(1, iSize)) - 1) * SOUNDS_DATA_DURATION;
 
