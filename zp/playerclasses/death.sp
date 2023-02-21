@@ -115,7 +115,7 @@ void DeathOnClientInit(int client)
  **/
 public Action DeathOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		return Plugin_Handled;
 	}
@@ -135,7 +135,7 @@ public Action DeathOnClientDeathPre(Event hEvent, char[] sName, bool dontBroadca
 {
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		return Plugin_Continue;
 	}
@@ -186,12 +186,12 @@ public Action DeathOnClientDeathPost(Event hEvent, char[] sName, bool dontBroadc
 	int client   = GetClientOfUserId(hEvent.GetInt("userid"));
 	int attacker = GetClientOfUserId(hEvent.GetInt("attacker"));
 	
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		return Plugin_Continue;
 	}
 	
-	DeathOnClientDeath(client, IsPlayerExist(attacker, false) ? attacker : 0);
+	DeathOnClientDeath(client, IsClientValid(attacker, false) ? attacker : 0);
 	
 	return Plugin_Continue;
 }
@@ -211,7 +211,7 @@ void DeathOnClientDeath(int client, int attacker = 0)
 	ToolsSetHud(client, true);
 	ToolsSetFov(client);
 	
-	if (IsPlayerExist(attacker, false))
+	if (IsClientValid(attacker, false))
 	{
 		LevelSystemOnSetExp(attacker, gClientData[attacker].Exp + ClassGetExp(gClientData[attacker].Class, BonusType_Kill));
 		AccountSetClientCash(attacker, gClientData[attacker].Money + ClassGetMoney(gClientData[attacker].Class, BonusType_Kill));
@@ -356,7 +356,10 @@ void DeathCreateIcon(int userID, int attackerID, char[] sIcon, bool bHead = fals
 
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsPlayerExist(i, false) && !IsFakeClient(i)) hEvent.FireToClient(i);
+			if (IsClientValid(i, false, false))
+			{
+				hEvent.FireToClient(i);
+			}
 		}
 		
 		hEvent.Cancel();

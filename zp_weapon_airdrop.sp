@@ -593,7 +593,7 @@ public void EventEntityTanadePost()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+		if (IsClientValid(i) && ZP_IsPlayerHuman(i))
 		{
 			SetEntPropFloat(i, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
 		}
@@ -754,7 +754,7 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 				
 				for (int i = 1; i <= MaxClients; i++)
 				{
-					if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+					if (IsClientValid(i) && ZP_IsPlayerHuman(i))
 					{
 						SetGlobalTransTarget(i);
 						PrintHintText(i, "%t", "airdrop safe", hCvarAirdropExplosions.IntValue);
@@ -991,7 +991,7 @@ public Action SafeDamageHook(int entity, int &attacker, int &inflictor, float &f
 						
 						for (int i = 1; i <= MaxClients; i++)
 						{
-							if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+							if (IsClientValid(i) && ZP_IsPlayerHuman(i))
 							{
 								SetGlobalTransTarget(i);
 								PrintHintText(i, "%t", "airdrop bag");
@@ -1141,7 +1141,7 @@ public bool ClientFilter(int entity, int contentsMask)
  **/
 public bool HullEnumerator(int entity, ArrayList hData)
 {
-	if (IsPlayerExist(entity))
+	if (IsClientValid(entity))
 	{
 		TR_ClipCurrentRayToEntity(MASK_ALL, entity);
 		if (TR_DidHit()) hData.Push(entity);

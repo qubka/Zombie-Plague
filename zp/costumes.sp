@@ -124,7 +124,7 @@ void CostumesOnLoad()
 
 	ConfigSetConfigPath(File_Costumes, sBuffer);
 
-	bool bSuccess = ConfigLoadConfig(File_Costumes, gServerData.Costumes);
+	bool bSuccess = ConfigLoadConfig(File_Costumes, gServerData.Costumes, PLATFORM_LINE_LENGTH);
 
 	if (!bSuccess)
 	{
@@ -210,7 +210,7 @@ void CostumesOnUnload()
 {
 	for (int i = 1; i <= MaxClients; i++) 
 	{
-		if (IsPlayerExist(i, false)) 
+		if (IsClientValid(i, false)) 
 		{
 			CostumesRemove(i);
 		}
@@ -917,7 +917,7 @@ public MRESReturn CostumesDhookOnSetEntityModel(int client)
  **/
 void CostumesCreateEntity(int client)
 {
-	if (IsPlayerExist(client))
+	if (IsClientValid(client))
 	{
 		CostumesRemove(client);
 

@@ -132,7 +132,7 @@ public Action TeleportOnCommandCatched(int client, int iArguments)
  **/
 bool TeleportClient(int client, bool bForce = false)
 {
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return false;
 	}

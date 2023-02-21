@@ -247,7 +247,7 @@ void ConfigOnCacheData()
 		return;
 	}
 
-	ArrayList hList = new ArrayList(BIG_LINE_LENGTH);
+	ArrayList hList = new ArrayList(PLATFORM_MAX_PATH);
 
 	GetCurrentMap(sName, sizeof(sName));
 	

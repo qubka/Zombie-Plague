@@ -71,7 +71,6 @@ void PlayerSoundsOnCvarInit()
 	gCvarList.SEFFECTS_BURN              = FindConVar("zp_seffects_burn");
 	gCvarList.SEFFECTS_DEATH             = FindConVar("zp_seffects_death");
 	gCvarList.SEFFECTS_FOOTSTEPS         = FindConVar("zp_seffects_footsteps");
-	gCvarList.SEFFECTS_CLAWS             = FindConVar("zp_seffects_claws");
 	gCvarList.SEFFECTS_ROUND_START       = FindConVar("zp_seffects_round_start");   
 	gCvarList.SEFFECTS_ROUND_COUNT       = FindConVar("zp_seffects_round_count");   
 	gCvarList.SEFFECTS_ROUND_BLAST       = FindConVar("zp_seffects_round_blast");
@@ -278,17 +277,17 @@ bool PlayerSoundsOnClientShoot(int client, int iD)
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
- * @param iFrags            The sound flags.
+ * @param iFlags            The sound flags.
  * @param sEntry            The game sound entry name.
  * @param iSeed             The sound seed.
  **/ 
-public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
+public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
-	if (IsPlayerExist(entity))
+	if (IsClientValid(entity))
 	{
 		if (gCvarList.SEFFECTS_FOOTSTEPS.BoolValue && StrContains(sSample, "footsteps", false) != -1)
 		{
-			float oVolume; int oLevel; int oFlags; int oPitch;
+			float oVolume; int oLevel; int oFlags; int oPitch; // not change default values
 			if (SoundsGetSound(ClassGetSoundFootID(gClientData[entity].Class), _, sSample, oVolume, oLevel, oFlags, oPitch))
 			{
 				return Plugin_Changed; 
@@ -300,20 +299,80 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 		static char sClassname[SMALL_LINE_LENGTH];
 		GetEdictClassname(entity, sClassname, sizeof(sClassname));
 
-		if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && // weapon_
-			(sClassname[7] == 'k' ||                          // knife
-			(sClassname[7] == 'm' && sClassname[8] == 'e') || // melee
-			(sClassname[7] == 'f' && sClassname[9] == 's')))  // fist
+		if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && sClassname[7] == 'k') // weapon_knife
 		{
-			if (gCvarList.SEFFECTS_CLAWS.BoolValue && StrContains(sSample, "knife", false) != -1)
+			int iD = ToolsGetCustomID(entity);
+			
+			if (iD != -1)
 			{
-				int client = ToolsGetOwner(entity);
-				if (IsPlayerExist(client))
+				int iSound = WeaponsGetSoundID(iD)
+				if (iSound != -1 && !strncmp(sSample[1], "weapons/knife/", 14, false))
 				{
-					float oVolume; int oLevel; int oFlags; int oPitch;
-					if (SoundsGetSound(ClassGetSoundAttackID(gClientData[client].Class), _, sSample, oVolume, oLevel, oFlags, oPitch))
+					// 1 = knife_hit_01
+					// 2 = knife_hit_02
+					// 3 = knife_hit_03
+					// 4 = knife_hit_04
+					// 5 = knife_hit_05
+					// 6 = knife_hit1
+					// 7 = knife_hit2
+					// 8 = knife_hit3
+					// 9 = knife_hit4
+					// 10 = knife_hitwall1
+					// 11 = knife_hitwall2
+					// 12 = knife_hitwall3
+					// 13 = knife_hitwall4
+					// 14 = knife_slash1
+					// 15 = knife_slash2
+					// 16 = knife_stab
+					
+					int iCount = SoundsGetCount(iSound);
+					if (iCount != 16)
 					{
-						return Plugin_Changed; 
+						static char sKey[SMALL_LINE_LENGTH];
+						SoundsGetKey(iSound, sKey, sizeof(sKey));
+					
+						LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Sound Validation", "Invalid amount of sounds \"%s\" for knife. Required (16), provided (%d)", sKey, iCount);
+						return Plugin_Continue;
+					}
+
+					if (!strncmp(sSample[15], "knife_", 6, false))
+					{
+						int iNum = 0;
+					
+						if (sSample[21] == 'h') // hit
+						{
+							if (sSample[24] == '_') /// knife_hit_0x
+							{
+								iNum = StringToInt(sSample[26]);
+							}
+							else if (sSample[24] == 'w') /// knife_hitwallx
+							{
+								iNum = 9 + StringToInt(sSample[28]);
+							}
+							else /// knife_hitx
+							{
+								iNum = 5 + StringToInt(sSample[26]);
+							}
+						}
+						else if (sSample[22] == 'l') /// knife_slashx
+						{
+							iNum = 13 + StringToInt(sSample[26]);
+						}					
+						else if (sSample[22] == 't') /// knife_stab
+						{
+							iNum = 16;
+						}
+						
+						float oVolume; int oLevel; int oFlags; int oPitch; // not change default values
+						if (SoundsGetSound(iSound, iNum, sSample, oVolume, oLevel, oFlags, oPitch))
+						{
+							int client = ToolsGetOwner(entity);
+							if (IsClientInGame(client)) 
+							{
+								clients[numClients++] = client;
+							}
+							return Plugin_Changed; 
+						}
 					}
 				}
 			}

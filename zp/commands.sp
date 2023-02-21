@@ -86,7 +86,7 @@ stock int FindTargetByID(int client, char[] sArgument)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false) && !IsFakeClient(i))
+		if (IsClientValid(i, false, false))
 		{
 			if (mType == AuthId_Engine)
 			{

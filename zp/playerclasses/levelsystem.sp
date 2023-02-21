@@ -49,7 +49,7 @@ void LevelSystemOnInit()
 			{
 				for (int i = 1; i <= MaxClients; i++)
 				{
-					if (IsPlayerExist(i, false))
+					if (IsClientValid(i, false))
 					{
 						delete gClientData[i].LevelTimer;
 					}
@@ -72,7 +72,7 @@ void LevelSystemOnInit()
 
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsPlayerExist(i, false))
+			if (IsClientValid(i, false))
 			{
 				LevelSystemOnClientUpdate(i);
 			}
@@ -305,7 +305,7 @@ void LevelSystemOnSetLvl(int client, int iLevel)
 	}
 	else
 	{
-		if (IsPlayerExist(client, false)) 
+		if (IsClientValid(client, false)) 
 		{
 			EmitSoundToClient(client, SOUND_LEVELUP, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 		}
@@ -379,7 +379,7 @@ public Action LevelSystemOnClientHUD(Handle hTimer, int userID)
 			
 			target = ToolsGetObserverTarget(client);
 			
-			if (!IsPlayerExist(target)) 
+			if (!IsClientValid(target)) 
 			{
 				return Plugin_Continue;
 			}
@@ -462,7 +462,7 @@ public void LevelSystemOnCvarHookRatio(ConVar hConVar, char[] oldValue, char[] n
 	{
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsPlayerExist(i))
+			if (IsClientValid(i))
 			{
 				ToolsSetHealth(i, ClassGetHealth(gClientData[i].Class) + (RoundToNearest(gCvarList.LEVEL_HEALTH_RATIO.FloatValue * float(gClientData[i].Level))), true);
 				ToolsSetGravity(i, ClassGetGravity(gClientData[i].Class) + (gCvarList.LEVEL_GRAVITY_RATIO.FloatValue * float(gClientData[i].Level)));

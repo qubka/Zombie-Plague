@@ -191,7 +191,7 @@ public Action BatTouchHook(int entity, int target)
 		static float vPosition[3];
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
-		if (IsPlayerExist(target))
+		if (IsClientValid(target))
 		{
 			int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly2", false);
 
@@ -256,7 +256,7 @@ public Action BatAttachHook(Handle hTimer, int refID)
 		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 		int target = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity"); 
 
-		if (IsPlayerExist(owner) && IsPlayerExist(target))
+		if (IsClientValid(owner) && IsClientValid(target))
 		{
 			static float vPosition[3]; static float vAngle[3]; static float vVelocity[3];
 

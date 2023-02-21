@@ -42,7 +42,7 @@ void ArsenalMenuOnCommandInit()
  **/ 
 public Action ArsenalMenuOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client) && gCvarList.ARSENAL.BoolValue && !gCvarList.ARSENAL_RANDOM_WEAPONS.BoolValue)
+	if (IsClientValid(client) && gCvarList.ARSENAL.BoolValue && !gCvarList.ARSENAL_RANDOM_WEAPONS.BoolValue)
 	{
 		ArsenalOpen(client, gClientData[client].CurrentMenu);
 	}
@@ -185,7 +185,7 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client))
+			if (!IsClientValid(client))
 			{
 				return 0;
 			}

@@ -668,15 +668,6 @@ native int ZP_GetClassSoundRespawnID(int classID);
 native int ZP_GetClassSoundBurnID(int classID);
 
 /**
- * @brief Gets the attack sound key of the class.
- *
- * @param classID           The class index.
- *
- * @return                  The key id.   
- **/
-native int ZP_GetClassSoundAttackID(int classID);
-
-/**
  * @brief Gets the footstep sound key of the class.
  *
  * @param classID           The class index.

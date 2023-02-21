@@ -69,7 +69,7 @@ void ArsenalOnLoad()
 	
 	for (int i = 1; i <= MaxClients; i++) 
 	{
-		if (IsPlayerExist(i, false)) 
+		if (IsClientValid(i, false)) 
 		{
 			for (int x = ArsenalType_Primary; x <= ArsenalType_Melee; x++)
 			{

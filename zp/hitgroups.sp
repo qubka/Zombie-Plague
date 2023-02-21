@@ -69,7 +69,7 @@ void HitGroupsOnInit()
 	{
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsPlayerExist(i, false))
+			if (IsClientValid(i, false))
 			{
 				HitGroupsOnClientInit(i);
 			}
@@ -102,7 +102,7 @@ void HitGroupsOnLoad()
 
 	ConfigSetConfigPath(File_HitGroups, sBuffer);
 
-	bool bSuccess = ConfigLoadConfig(File_HitGroups, gServerData.HitGroups);
+	bool bSuccess = ConfigLoadConfig(File_HitGroups, gServerData.HitGroups, SMALL_LINE_LENGTH);
 
 	if (!bSuccess)
 	{
@@ -291,7 +291,7 @@ public Action HitGroupsOnTraceAttack(int client, int &attacker, int &inflictor, 
 		return Plugin_Handled;
 	}
 	
-	if (IsPlayerAlive(client) && IsPlayerExist(attacker))
+	if (IsPlayerAlive(client) && IsClientValid(attacker))
 	{
 		if (ToolsGetTeam(client) == ToolsGetTeam(attacker))
 		{
@@ -447,7 +447,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 
 	/*_________________________________________________________________________________________________________________________________________*/
 
-	if (IsPlayerExist(attacker, false))
+	if (IsClientValid(attacker, false))
 	{
 		if (!bSelfDamage && ToolsGetTeam(client) == ToolsGetTeam(attacker))
 		{
@@ -613,7 +613,7 @@ public int API_TakeDamage(Handle hPlugin, const int iNumParams)
 	{
 		if (!IsValidEdict(inflictor)) inflictor = client;
 
-		if (!IsPlayerExist(attacker, false)) attacker = client;
+		if (!IsClientValid(attacker, false)) attacker = client;
 
 		SDKHooks_TakeDamage(client, inflictor, attacker, flDamage);
 	}

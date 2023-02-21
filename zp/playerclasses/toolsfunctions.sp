@@ -139,7 +139,7 @@ void ToolsOnClientUpdate(int client)
  **/
 public Action ToolsOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client))
+	if (IsClientValid(client))
 	{
 		static char sOverlay[PLATFORM_LINE_LENGTH];
 		ClassGetOverlay(gClientData[client].Class, sOverlay, sizeof(sOverlay));
@@ -250,7 +250,7 @@ public void ToolsOnMessageFix(DataPack hPack)
 	{
 		client = hPack.ReadCell();
 		
-		if (IsPlayerExist(client, false))
+		if (IsClientValid(client, false))
 		{
 			iPlayers[iCount++] = client;
 		}
@@ -293,7 +293,7 @@ public void ToolsOnMessageFix(DataPack hPack)
  **/
 bool ToolsForceToRespawn(int client)
 {
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		return false;
 	}

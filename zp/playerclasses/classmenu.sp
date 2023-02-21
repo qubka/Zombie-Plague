@@ -49,7 +49,7 @@ void ClassMenuOnCommandInit()
  **/ 
 public Action ClassHumanOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		ClassMenu(client, "choose humanclass", gServerData.Human, gClientData[client].HumanClassNext);
 	}
@@ -65,7 +65,7 @@ public Action ClassHumanOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ClassZombieOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		ClassMenu(client, "choose zombieclass", gServerData.Zombie, gClientData[client].ZombieClassNext);
 	}
@@ -81,7 +81,7 @@ public Action ClassZombieOnCommandCatched(int client, int iArguments)
  **/ 
 public Action ClassMenuOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		ClassesMenu(client);
 	}
@@ -357,7 +357,7 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -369,7 +369,7 @@ int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, 
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, bInstant))
+			if (!IsClientValid(client, bInstant))
 			{
 				return 0;
 			}
@@ -458,7 +458,7 @@ void ClassesMenu(int client)
 	int iAmount;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i, false))
+		if (!IsClientValid(i, false))
 		{
 			continue;
 		}
@@ -506,7 +506,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -518,7 +518,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}
@@ -623,7 +623,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -634,7 +634,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}

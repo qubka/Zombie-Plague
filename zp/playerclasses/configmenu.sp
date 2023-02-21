@@ -42,7 +42,7 @@ void ConfigMenuOnCommandInit()
  **/ 
 public Action ConfigMenuOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		ConfigMenu(client);
 	}
@@ -108,7 +108,7 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -120,7 +120,7 @@ public int ConfigMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}

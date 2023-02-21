@@ -395,7 +395,7 @@ public Action Weapon_OnRemove(Handle hTimer, int refID)
 	{
 		int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
 
-		if (IsPlayerExist(client))
+		if (IsClientValid(client))
 		{
 			ZP_RemoveWeapon(client, weapon);
 		}
@@ -606,7 +606,7 @@ void MineExpload(int entity, bool bRemove = false)
 	{
 		SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", -1);
 		
-		if (bRemove && IsPlayerExist(client)) 
+		if (bRemove && IsClientValid(client)) 
 		{
 			ZP_RemoveWeapon(client, weapon);
 		}
@@ -652,24 +652,6 @@ void MineExpload(int entity, bool bRemove = false)
 public bool ClientFilter(int entity, int contentsMask)
 {
 	return !(1 <= entity <= MaxClients);
-}
-
-/**
- * @brief Trace filter.
- *
- * @param entity            The entity index.  
- * @param contentsMask      The contents mask.
- * @param filter            The filter index.
- * @return                  True or false.
- **/
-public bool PlayerFilter(int entity, int contentsMask, int filter)
-{
-	if (IsPlayerExist(entity)) 
-	{
-		return false;
-	}
-
-	return (entity != filter);
 }
 
 /**

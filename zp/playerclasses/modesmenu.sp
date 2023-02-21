@@ -42,7 +42,7 @@ void ModesMenuOnCommandInit()
  **/ 
 public Action ModesMenuOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		ModesMenu(client); 
 	}
@@ -167,7 +167,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -179,7 +179,7 @@ public int ModesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}
@@ -255,7 +255,7 @@ void ModesOptionMenu(int client)
 	int iAmount;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i))
+		if (!IsClientValid(i))
 		{
 			continue;
 		}
@@ -301,7 +301,7 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -312,7 +312,7 @@ public int ModesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int mS
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}

@@ -282,10 +282,7 @@ int ClassDumpData(int iD, char[] sBuffer, int iMaxLen)
 	
 	FormatEx(sAttribute, sizeof(sAttribute), "burn:       \"%d\"\n", ClassGetSoundBurnID(iD));
 	iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
-	
-	FormatEx(sAttribute, sizeof(sAttribute), "attack:     \"%d\"\n", ClassGetSoundAttackID(iD));
-	iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
-	
+
 	FormatEx(sAttribute, sizeof(sAttribute), "footstep:   \"%d\"\n", ClassGetSoundFootID(iD));
 	iCellCount += StrCat(sBuffer, iMaxLen, sAttribute);
 	

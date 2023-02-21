@@ -43,12 +43,12 @@
 #define HUGE_LINE_LENGTH        512
 #define CONSOLE_LINE_LENGTH     1024
 #define FILE_LINE_LENGTH        2048
-#define TEAM_NONE               0    /**< No team yet */
-#define TEAM_SPECTATOR          1    /**< Spectators  */
-#define TEAM_T                  2    /**< Terrorist   */
-#define TEAM_CT                 3    /**< CT          */
-#define TEAM_ZOMBIE             2    /**< Zombies     */
-#define TEAM_HUMAN              3    /**< Humans      */
+#define TEAM_NONE               0 /**< No team yet */
+#define TEAM_SPECTATOR          1 /**< Spectators  */
+#define TEAM_T                  2 /**< Terrorist   */
+#define TEAM_CT                 3 /**< CT          */
+#define TEAM_ZOMBIE             2 /**< Zombies     */
+#define TEAM_HUMAN              3 /**< Humans      */
 #define SPECMODE_NONE           0
 #define SPECMODE_FIRSTPERSON    4
 #define SPECMODE_3RDPERSON      5
@@ -75,7 +75,7 @@
  * @section Damage type values.
  **/
 #define DAMAGE_NO               0
-#define DAMAGE_EVENTS_ONLY      1    //! Call damage functions, but don't modify health
+#define DAMAGE_EVENTS_ONLY      1 //! Call damage functions, but don't modify health
 #define DAMAGE_YES              2
 #define DAMAGE_AIM              3
 /**
@@ -243,18 +243,18 @@
 /**
  * @section Hud elements flags.
  **/
-#define HIDEHUD_WEAPONSELECTION     (1<<0)   /// Hide ammo count & weapon selection
-#define HIDEHUD_FLASHLIGHT          (1<<1)
-#define HIDEHUD_ALL                 (1<<2)
-#define HIDEHUD_HEALTH              (1<<3)   /// Hide health & armor / suit battery
-#define HIDEHUD_PLAYERDEAD          (1<<4)   /// Hide when local player's dead
-#define HIDEHUD_NEEDSUIT            (1<<5)   /// Hide when the local player doesn't have the HEV suit
-#define HIDEHUD_MISCSTATUS          (1<<6)   /// Hide miscellaneous status elements (trains, pickup history, death notices, etc)
-#define HIDEHUD_CHAT                (1<<7)   /// Hide all communication elements (saytext, voice icon, etc)
-#define HIDEHUD_CROSSHAIR           (1<<8)   /// Hide crosshairs
-#define HIDEHUD_VEHICLE_CROSSHAIR   (1<<9)   /// Hide vehicle crosshair
-#define HIDEHUD_INVEHICLE           (1<<10)
-#define HIDEHUD_BONUS_PROGRESS      (1<<11)  /// Hide bonus progress display (for bonus map challenges)
+#define HIDEHUD_WEAPONSELECTION     (1<<0) /// Hide ammo count & weapon selection
+#define HIDEHUD_FLASHLIGHT          (1<<1) 
+#define HIDEHUD_ALL                 (1<<2) 
+#define HIDEHUD_HEALTH              (1<<3) /// Hide health & armor / suit battery
+#define HIDEHUD_PLAYERDEAD          (1<<4) /// Hide when local player's dead
+#define HIDEHUD_NEEDSUIT            (1<<5) /// Hide when the local player doesn't have the HEV suit
+#define HIDEHUD_MISCSTATUS          (1<<6) /// Hide miscellaneous status elements (trains, pickup history, death notices, etc)
+#define HIDEHUD_CHAT                (1<<7) /// Hide all communication elements (saytext, voice icon, etc)
+#define HIDEHUD_CROSSHAIR           (1<<8) /// Hide crosshairs
+#define HIDEHUD_VEHICLE_CROSSHAIR   (1<<9) /// Hide vehicle crosshair
+#define HIDEHUD_INVEHICLE           (1<<10 
+#define HIDEHUD_BONUS_PROGRESS      (1<<11 /// Hide bonus progress display (for bonus map challenges)
 /**
  * @endsection
  **/
@@ -262,16 +262,16 @@
 /**
  * @section Entity effects flags.
  **/
-#define EF_BONEMERGE                (1<<0)     /// Performs bone merge on client side
-#define EF_BRIGHTLIGHT              (1<<1)     /// DLIGHT centered at entity origin
-#define EF_DIMLIGHT                 (1<<2)     /// Player flashlight
-#define EF_NOINTERP                 (1<<3)     /// Don't interpolate the next frame
-#define EF_NOSHADOW                 (1<<4)     /// Disables shadow
-#define EF_NODRAW                   (1<<5)     /// Prevents the entity from drawing and networking
-#define EF_NORECEIVESHADOW          (1<<6)     /// Don't receive shadows
-#define EF_BONEMERGE_FASTCULL       (1<<7)     /// For use with EF_BONEMERGE. If this is set, then it places this ents origin at its parent and uses the parent's bbox + the max extents of the aiment. Otherwise, it sets up the parent's bones every frame to figure out where to place the aiment, which is inefficient because it'll setup the parent's bones even if the parent is not in the PVS.
-#define EF_ITEM_BLINK               (1<<8)     /// Makes the entity blink
-#define EF_PARENT_ANIMATES          (1<<9)     /// Always assume that the parent entity is animating
+#define EF_BONEMERGE                (1<<0) /// Performs bone merge on client side
+#define EF_BRIGHTLIGHT              (1<<1) /// DLIGHT centered at entity origin
+#define EF_DIMLIGHT                 (1<<2) /// Player flashlight
+#define EF_NOINTERP                 (1<<3) /// Don't interpolate the next frame
+#define EF_NOSHADOW                 (1<<4) /// Disables shadow
+#define EF_NODRAW                   (1<<5) /// Prevents the entity from drawing and networking
+#define EF_NORECEIVESHADOW          (1<<6) /// Don't receive shadows
+#define EF_BONEMERGE_FASTCULL       (1<<7) /// For use with EF_BONEMERGE. If this is set, then it places this ents origin at its parent and uses the parent's bbox + the max extents of the aiment. Otherwise, it sets up the parent's bones every frame to figure out where to place the aiment, which is inefficient because it'll setup the parent's bones even if the parent is not in the PVS.
+#define EF_ITEM_BLINK               (1<<8) /// Makes the entity blink
+#define EF_PARENT_ANIMATES          (1<<9) /// Always assume that the parent entity is animating
 #define EF_FOLLOWBONE               (1<<10)    
 /**
  * @endsection
@@ -280,11 +280,11 @@
  /**
  * @section Fade flags.
  **/
-#define FFADE_IN                    0x0001      /// Just here so we don't pass 0 into the function
-#define FFADE_OUT                   0x0002      /// Fade out (not in)
-#define FFADE_MODULATE              0x0004      /// Modulate (don't blend)
-#define FFADE_STAYOUT               0x0008      /// ignores the duration, stays faded out until new ScreenFade message received
-#define FFADE_PURGE                 0x0010      /// Purges all other fades, replacing them with this one
+#define FFADE_IN                    0x0001 /// Just here so we don't pass 0 into the function
+#define FFADE_OUT                   0x0002 /// Fade out (not in)
+#define FFADE_MODULATE              0x0004 /// Modulate (don't blend)
+#define FFADE_STAYOUT               0x0008 /// ignores the duration, stays faded out until new ScreenFade message received
+#define FFADE_PURGE                 0x0010 /// Purges all other fades, replacing them with this one
 /**
  * @endsection
  **/
@@ -303,7 +303,7 @@
 /**
  * @endsection
  **/
- 
+
 /**
  * @section Collision groups.
  **/
@@ -333,16 +333,16 @@
 /**
  * @section Solid flags.
  **/
-#define FSOLID_CUSTOMRAYTEST                0x0001     /// Ignore solid type + always call into the entity for ray tests
-#define FSOLID_CUSTOMBOXTEST                0x0002     /// Ignore solid type + always call into the entity for swept box tests
-#define FSOLID_NOT_SOLID                    0x0004     /// Are we currently not solid?
-#define FSOLID_TRIGGER                      0x0008     /// This is something may be collideable but fires touch functions
-#define FSOLID_NOT_STANDABLE                0x0010     /// You can't stand on this
-#define FSOLID_VOLUME_CONTENTS              0x0020     /// Contains volumetric contents (like water)
-#define FSOLID_FORCE_WORLD_ALIGNED          0x0040     /// Forces the collision rep to be world-aligned even if it's SOLID_BSP or SOLID_VPHYSICS
-#define FSOLID_USE_TRIGGER_BOUNDS           0x0080     /// Uses a special trigger bounds separate from the normal OBB
-#define FSOLID_ROOT_PARENT_ALIGNED          0x0100     /// Collisions are defined in root parent's local coordinate space
-#define FSOLID_TRIGGER_TOUCH_DEBRIS         0x0200     /// This trigger will touch debris objects
+#define FSOLID_CUSTOMRAYTEST                0x0001 /// Ignore solid type + always call into the entity for ray tests
+#define FSOLID_CUSTOMBOXTEST                0x0002 /// Ignore solid type + always call into the entity for swept box tests
+#define FSOLID_NOT_SOLID                    0x0004 /// Are we currently not solid?
+#define FSOLID_TRIGGER                      0x0008 /// This is something may be collideable but fires touch functions
+#define FSOLID_NOT_STANDABLE                0x0010 /// You can't stand on this
+#define FSOLID_VOLUME_CONTENTS              0x0020 /// Contains volumetric contents (like water)
+#define FSOLID_FORCE_WORLD_ALIGNED          0x0040 /// Forces the collision rep to be world-aligned even if it's SOLID_BSP or SOLID_VPHYSICS
+#define FSOLID_USE_TRIGGER_BOUNDS           0x0080 /// Uses a special trigger bounds separate from the normal OBB
+#define FSOLID_ROOT_PARENT_ALIGNED          0x0100 /// Collisions are defined in root parent's local coordinate space
+#define FSOLID_TRIGGER_TOUCH_DEBRIS         0x0200 /// This trigger will touch debris objects
 /**
  * @endsection
  **/
@@ -2299,31 +2299,32 @@ stock int Sort_ByLength(int iIndex1, int iIndex2, ArrayList hList, Handle hCusto
 /*_____________________________________________________________________________________________________________*/
 
 /**
- * @brief Returns true if the player is connected and alive, false if not.
+ * @brief Returns true if the client is valid, false if not.
  *
  * @param client            The client index.
  * @param bAlive            (Optional) Set to true to validate that the client is alive, false to ignore.
+ * @param bBot              (Optional) Set to false to validate that the client is bot, true to ignore.
  *  
  * @return                  True or false.
  **/
-stock bool IsPlayerExist(int client, bool bAlive = true)
+stock bool IsClientValid(int client, bool bAlive = true, bool bBot = true)
 {
 	if (client <= 0 || client > MaxClients)
 	{
 		return false;
 	}
 
-	if (!IsClientConnected(client))
+	if (!IsClientInGame(client))
 	{
 		return false;
 	}
 
-	if (!IsClientInGame(client) || IsClientInKickQueue(client))
+	if (IsClientSourceTV(client) || IsClientReplay(client))
 	{
 		return false;
 	}
-
-	if (IsClientSourceTV(client))
+	
+	if (!bBot && IsFakeClient(client))
 	{
 		return false;
 	}
@@ -2334,56 +2335,6 @@ stock bool IsPlayerExist(int client, bool bAlive = true)
 	}
 
 	return true;
-}
-
-/**
- * @brief Returns whether a player is in a spesific group or not.
- *
- * @param client            The client index.
- * @param sGroup            The SourceMod group name to check.
- *
- * @return                  True or false.
- **/
-stock bool IsPlayerInGroup(int client, char[] sGroup)
-{
-	if (!hasLength(sGroup))
-	{
-		return true;
-	}
-
-	GroupId nGroup = FindAdmGroup(sGroup);
-	
-	if (nGroup == INVALID_GROUP_ID)
-	{
-		return false;
-	}
-	 	
-	if (!IsPlayerExist(client, false))
-	{
-		return false;
-	}
-
-	AdminId nAdmin = GetUserAdmin(client);
-	
-	if (nAdmin == INVALID_ADMIN_ID)
-	{
-		return false;
-	}
-
-	static char sGroupName[SMALL_LINE_LENGTH];
-
-	int iSize = nAdmin.GroupCount;
-	for (int i = 0; i < iSize; i++)
-	{
-		nGroup = nAdmin.GetGroup(i, sGroupName, sizeof(sGroupName));
-
-		if (!strcmp(sGroup, sGroupName, false))
-		{
-			return true;
-		}
-	}
-	
-	return false;
 }
 
 /**

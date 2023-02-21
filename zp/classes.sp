@@ -80,7 +80,6 @@ enum
 	CLASSES_DATA_SOUND_INFECT,
 	CLASSES_DATA_SOUND_RESPAWN,
 	CLASSES_DATA_SOUND_BURN,
-	CLASSES_DATA_SOUND_ATTACK,
 	CLASSES_DATA_SOUND_FOOTSTEP,
 	CLASSES_DATA_SOUND_REGEN,
 	CLASSES_DATA_SOUND_JUMP
@@ -195,7 +194,7 @@ void ClassesOnLoad(bool bInit = false)
 
 	ConfigSetConfigPath(File_Classes, sBuffer);
 
-	bool bSuccess = ConfigLoadConfig(File_Classes, gServerData.Classes);
+	bool bSuccess = ConfigLoadConfig(File_Classes, gServerData.Classes, PLATFORM_LINE_LENGTH);
 
 	if (!bSuccess)
 	{
@@ -403,14 +402,12 @@ void ClassesOnCacheData(bool bInit)
 		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 58
 		kvClasses.GetString("burn", sBuffer, sizeof(sBuffer), "");              
 		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 59
-		kvClasses.GetString("attack", sBuffer, sizeof(sBuffer), "");            
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 60
 		kvClasses.GetString("footstep", sBuffer, sizeof(sBuffer), "");          
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 61
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 60
 		kvClasses.GetString("regen", sBuffer, sizeof(sBuffer), "");             
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 62
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 61
 		kvClasses.GetString("jump", sBuffer, sizeof(sBuffer), "");              
-		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 63
+		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 62
 	}
 	
 	// TODO: set default from cvar
@@ -565,7 +562,6 @@ void ClassesOnNativeInit()
 	CreateNative("ZP_GetClassSoundInfectID",    API_GetClassSoundInfectID);
 	CreateNative("ZP_GetClassSoundRespawnID",   API_GetClassSoundRespawnID);
 	CreateNative("ZP_GetClassSoundBurnID",      API_GetClassSoundBurnID);
-	CreateNative("ZP_GetClassSoundAttackID",    API_GetClassSoundAttackID);
 	CreateNative("ZP_GetClassSoundFootID",      API_GetClassSoundFootID);
 	CreateNative("ZP_GetClassSoundRegenID",     API_GetClassSoundRegenID);
 	CreateNative("ZP_GetClassSoundJumpID",      API_GetClassSoundJumpID);
@@ -584,7 +580,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
@@ -592,7 +588,7 @@ public int API_ChangeClient(Handle hPlugin, int iNumParams)
 	
 	int attacker = GetNativeCell(2);
 
-	if (attacker > 0 && !IsPlayerExist(attacker, false))
+	if (attacker > 0 && !IsClientValid(attacker, false))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the attacker index (%d)", attacker);
 		return false;
@@ -1811,24 +1807,6 @@ public int API_GetClassSoundBurnID(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the attack sound key of the class.
- *
- * @note native void ZP_GetClassSoundAttackID(iD);
- **/
-public int API_GetClassSoundAttackID(Handle hPlugin, int iNumParams)
-{
-	int iD = GetNativeCell(1);
-
-	if (iD >= gServerData.Classes.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Classes, "Native Validation", "Invalid the class index (%d)", iD);
-		return -1;
-	}
-
-	return ClassGetSoundAttackID(iD);
-}
-
-/**
  * @brief Gets the footstep sound key of the class.
  *
  * @note native void ZP_GetClassSoundFootID(iD);
@@ -2547,19 +2525,6 @@ int ClassGetSoundBurnID(int iD)
 	ArrayList arrayClass = gServerData.Classes.Get(iD);
 
 	return arrayClass.Get(CLASSES_DATA_SOUND_BURN);
-}
-
-/**
- * @brief Gets the attack sound key of the class.
- *
- * @param iD                The class index.
- * @return                  The key index.
- **/
-int ClassGetSoundAttackID(int iD)
-{
-	ArrayList arrayClass = gServerData.Classes.Get(iD);
-
-	return arrayClass.Get(CLASSES_DATA_SOUND_ATTACK);
 }
 
 /**

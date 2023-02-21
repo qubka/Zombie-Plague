@@ -123,7 +123,7 @@ void GameModesOnLoad()
 	
 	ConfigSetConfigPath(File_GameModes, sBuffer);
 
-	bool bSuccess = ConfigLoadConfig(File_GameModes, gServerData.GameModes);
+	bool bSuccess = ConfigLoadConfig(File_GameModes, gServerData.GameModes, PLATFORM_LINE_LENGTH);
 
 	if (!bSuccess)
 	{
@@ -640,7 +640,7 @@ public Action GameModesOnBlast(Handle hTimer)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i) && gClientData[i].Zombie)
+		if (IsClientValid(i) && gClientData[i].Zombie)
 		{
 			VEffectsOnBlast(i);
 	
@@ -819,7 +819,7 @@ public int API_StartGameMode(Handle hPlugin, int iNumParams)
 
 	int target = GetNativeCell(2);
 
-	if (target != -1 && !IsPlayerExist(target))
+	if (target != -1 && !IsClientValid(target))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the target index (%d)", target);
 		return -1;
@@ -2587,7 +2587,7 @@ void ModesBalanceTeams()
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false))
+		if (IsClientValid(i, false))
 		{
 			if (ToolsGetTeam(i) <= TEAM_SPECTATOR)
 			{
@@ -2626,7 +2626,7 @@ void ModesKillEntities(bool bDrop = false)
 				{
 					int client = WeaponsGetOwner(i);
 					
-					if (!IsPlayerExist(client))
+					if (!IsClientValid(client))
 					{
 						if (!WeaponsIsSpawnedByMap(i))
 						{
@@ -2657,7 +2657,7 @@ void ModesKillEntities(bool bDrop = false)
 				{
 					int client = WeaponsGetOwner(i);
 					
-					if (!IsPlayerExist(client))
+					if (!IsClientValid(client))
 					{
 						if (!WeaponsSpawnedByMap(i, sClassname))
 						{
@@ -2681,7 +2681,7 @@ void ModesUpdateClientArray(int target = -1)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i))
+		if (IsClientValid(i))
 		{
 			if (gServerData.LastZombies.FindValue(GetClientUserId(i)) == -1)
 			{
@@ -2697,7 +2697,7 @@ void ModesUpdateClientArray(int target = -1)
 	for (int i = 0; i < iSize; i++)
 	{
 		int client = GetClientOfUserId(gServerData.LastZombies.Get(i));
-		if (IsPlayerExist(client))
+		if (IsClientValid(client))
 		{
 			gServerData.Clients.Push(client);
 		}
@@ -2726,7 +2726,7 @@ void ModesReward(BonusType nZombie, BonusType nHuman, OverlayType nOverlay)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false))
+		if (IsClientValid(i, false))
 		{
 			if (ToolsGetTeam(i) <= TEAM_SPECTATOR)
 			{

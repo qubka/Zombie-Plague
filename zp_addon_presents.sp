@@ -597,7 +597,7 @@ public Action CaseSpawnHook(Handle hTimer)
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i))
+		if (IsClientValid(i))
 		{
 			if (ZP_IsPlayerHuman(i))
 			{
@@ -657,7 +657,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
  **/
 public Action CaseTouchHook(int entity, int target)
 {
-	if (IsPlayerExist(target))
+	if (IsClientValid(target))
 	{
 		if (ZP_IsPlayerHuman(target))
 		{

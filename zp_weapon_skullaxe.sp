@@ -267,7 +267,7 @@ void Weapon_OnSlash(int client, int weapon, float flRightShift, float flUpShift,
 		{
 			UTIL_CreateDamage(_, vEndPosition, client, (bSlash ? hCvarSkullaxeSlashDamage : hCvarSkullaxeStabDamage).FloatValue, hCvarSkullaxeRadiusDamage.FloatValue, DMG_NEVERGIB, gWeapon);
 
-			if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
+			if (IsClientValid(victim) && ZP_IsPlayerZombie(victim))
 			{
 				ZP_EmitSoundToAll(gSound, 3, victim, SNDCHAN_ITEM);
 			}

@@ -424,7 +424,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  **/ 
 public void MineUseHook(int entity, int activator, int caller, UseType use, float flValue)
 {
-	if (IsPlayerExist(activator))
+	if (IsClientValid(activator))
 	{
 		if (ZP_IsPlayerHasWeapon(activator, gWeapon) == -1 && IsEntitySameTeam(entity, activator))
 		{
@@ -456,7 +456,7 @@ public void MineUseHook(int entity, int activator, int caller, UseType use, floa
  **/
 public Action MineDamageHook(int entity, int &attacker, int &inflictor, float &flDamage, int &damageBits)
 {
-	if (IsPlayerExist(attacker))
+	if (IsClientValid(attacker))
 	{
 		if (!IsEntitySameTeam(entity, attacker))
 		{
@@ -632,7 +632,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
 		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
-		int attacker = hCvarMineRewards.BoolValue && IsPlayerExist(owner, false) && IsEntitySameTeam(entity, owner) ? owner : -1;
+		int attacker = hCvarMineRewards.BoolValue && IsClientValid(owner, false) && IsEntitySameTeam(entity, owner) ? owner : -1;
 		float flDamage = hCvarMineDamage.FloatValue;
 
 		if (hCvarMineImpulse.BoolValue)
@@ -647,7 +647,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 
 				TR_GetEndPosition(vEndPosition);
 
-				if (IsPlayerExist(victim) && !IsEntitySameTeam(entity, victim))
+				if (IsClientValid(victim) && !IsEntitySameTeam(entity, victim))
 				{    
 					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 			
@@ -696,7 +696,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 			{
 				int victim = hList.Get(i);
 				
-				if (IsPlayerExist(victim) && !IsEntitySameTeam(entity, victim))
+				if (IsClientValid(victim) && !IsEntitySameTeam(entity, victim))
 				{
 					ZP_TakeDamage(victim, attacker, entity, flDamage, DMG_BULLET);
 				
@@ -792,7 +792,7 @@ public bool ClientFilter(int entity, int contentsMask)
  **/
 public bool PlayerFilter(int entity, int contentsMask, int filter)
 {
-	if (IsPlayerExist(entity)) 
+	if (IsClientValid(entity)) 
 	{
 		return false;
 	}
@@ -810,7 +810,7 @@ public bool PlayerFilter(int entity, int contentsMask, int filter)
  **/
 public bool TeamFilter(int entity, int contentsMask, int filter)
 {
-	if (IsPlayerExist(entity) && IsEntitySameTeam(entity, filter)) 
+	if (IsClientValid(entity) && IsEntitySameTeam(filter, entity)) 
 	{
 		return false;
 	}
@@ -827,7 +827,7 @@ public bool TeamFilter(int entity, int contentsMask, int filter)
  **/
 public bool HullEnumerator(int entity, ArrayList hData)
 {
-	if (IsPlayerExist(entity))
+	if (IsClientValid(entity))
 	{
 		TR_ClipCurrentRayToEntity(MASK_ALL, entity);
 		if (TR_DidHit()) hData.Push(entity);
@@ -845,7 +845,7 @@ public bool HullEnumerator(int entity, ArrayList hData)
  **/
 public bool RayEnumerator(int entity, ArrayList hData)
 {
-	if (IsPlayerExist(entity))
+	if (IsClientValid(entity))
 	{
 		TR_ClipCurrentRayToEntity(MASK_ALL, entity);
 		if (TR_DidHit()) hData.Push(entity);

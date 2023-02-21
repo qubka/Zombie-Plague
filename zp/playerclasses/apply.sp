@@ -68,7 +68,7 @@ void ApplyOnClientSpawn(int client)
  **/
 bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 {
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return false;
 	}
@@ -162,7 +162,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 
 	/*_________________________________________________________________________________________________________________________________________*/
 	
-	if (IsPlayerExist(attacker, false)) 
+	if (IsClientValid(attacker, false)) 
 	{
 		static char sIcon[SMALL_LINE_LENGTH];
 		gCvarList.ICON_INFECT.GetString(sIcon, sizeof(sIcon));

@@ -267,7 +267,7 @@ public void EventEntityTanadePost()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i) && ZP_IsPlayerHuman(i))
+		if (IsClientValid(i) && ZP_IsPlayerHuman(i))
 		{
 			SetEntPropFloat(i, Prop_Send, "m_flDetectedByEnemySensorTime", ZP_IsGameModeXRay(ZP_GetCurrentGameMode()) ? (GetGameTime() + 9999.0) : 0.0);
 		}
@@ -285,11 +285,11 @@ public void EventEntityTanadePost()
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
- * @param iFrags            The sound flags.
+ * @param iFlags            The sound flags.
  * @param sEntry            The game sound entry name.
  * @param iSeed             The sound seed.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
+public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
 	if (IsValidEdict(entity))
 	{

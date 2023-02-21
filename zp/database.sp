@@ -190,7 +190,7 @@ void DataBaseOnLoad()
 			continue;
 		}
 
-		if (IsPlayerExist(i, false) && !IsFakeClient(i))
+		if (IsClientValid(i, false, false))
 		{
 			if (gClientData[i].AccountID)
 			{ 
@@ -583,7 +583,7 @@ public void SQLBaseAdd_Callback(Database hDatabase, DBResultSet hResult, bool My
  **/
 public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int client)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		if (hDatabase == null || hResult == null || hasLength(sError))
 		{
@@ -661,7 +661,7 @@ public void SQLBaseSelect_Callback(Database hDatabase, DBResultSet hResult, char
  **/
 public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int client)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		if (hDatabase == null || hResult == null || hasLength(sError))
 		{
@@ -700,7 +700,7 @@ public void SQLBaseExtract_Callback(Database hDatabase, DBResultSet hResult, cha
  **/
 public void SQLBaseInsert_Callback(Database hDatabase, DBResultSet hResult, char[] sError, int client)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		if (hDatabase == null || hResult == null || hasLength(sError))
 		{

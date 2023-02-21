@@ -66,7 +66,7 @@ void AntiStickOnInit()
 	{
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsPlayerExist(i, false))
+			if (IsClientValid(i, false))
 			{
 				AntiStickOnClientInit(i);
 			}
@@ -141,7 +141,7 @@ public void AntiStickOnStartTouch(int client, int entity)
 		return;
 	}
 
-	if (!IsPlayerExist(entity))
+	if (!IsClientValid(entity))
 	{
 		return;
 	}
@@ -183,7 +183,7 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i))
+		if (!IsClientValid(i))
 		{
 			continue;
 		}
@@ -214,7 +214,7 @@ public Action AntiStickOnClientSolidify(Handle hTimer, int userID)
  **/ 
 public Action AntiStickOnCommandCatched(int client, int iArguments)
 {
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return Plugin_Handled;
 	}
@@ -431,7 +431,7 @@ int AntiStickFindPlayerInSphere(int &it, float vPosition[3], float flRadius)
 
 	for (int i = it; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i))
+		if (IsClientValid(i))
 		{
 			AntiStickBuildModelBox(i, clientmodelbox, ANTISTICK_DEFAULT_HULL_WIDTH);
 

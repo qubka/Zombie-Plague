@@ -257,7 +257,7 @@ public Action EventPlayerBlind(Event hEvent, char[] sName, bool dontBroadcast)
 	
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return Plugin_Continue;
 	}
@@ -279,11 +279,11 @@ public Action EventPlayerBlind(Event hEvent, char[] sName, bool dontBroadcast)
  * @param flVolume          The sound volume.
  * @param iLevel            The sound level.
  * @param iPitch            The sound pitch.
- * @param iFrags            The sound flags.
+ * @param iFlags            The sound flags.
  * @param sEntry            The game sound entry name.
  * @param iSeed             The sound seed.
  **/ 
-public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFrags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
+public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sSample[PLATFORM_MAX_PATH], int &entity, int &iChannel, float &flVolume, int &iLevel, int &iPitch, int &iFlags, char sEntry[PLATFORM_MAX_PATH], int& iSeed)
 {
 	if (IsValidEdict(entity))
 	{

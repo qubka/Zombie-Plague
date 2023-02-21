@@ -88,7 +88,7 @@ public void VAmbienceOnCvarHookSky(ConVar iConVar, char[] oldValue, char[] newVa
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false))
+		if (IsClientValid(i, false))
 		{
 			VAmbienceApplySky(i, !bSky);
 		}

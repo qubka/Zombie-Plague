@@ -366,7 +366,7 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return Plugin_Continue;
 	}
@@ -396,7 +396,7 @@ public Action WeaponsOnBullet(Event hEvent, char[] sName, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return Plugin_Continue;
 	}
@@ -431,7 +431,7 @@ public Action WeaponsOnHostage(Event hEvent, char[] sName, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return Plugin_Continue;
 	}
@@ -454,7 +454,7 @@ public Action WeaponsOnShoot(char[] sTEName, int[] iPlayers, int numClients, flo
 { 
 	int client = TE_ReadNum("m_iPlayer") + 1;
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return Plugin_Continue;
 	}
@@ -640,7 +640,7 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;
@@ -666,7 +666,7 @@ public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
@@ -693,7 +693,7 @@ public int API_GetClientViewModel(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;
@@ -711,7 +711,7 @@ public int API_GetClientAttachModel(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;

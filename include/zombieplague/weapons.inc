@@ -634,7 +634,7 @@ stock int ZP_IsPlayerHasWeapon(int client, int weaponID)
  **/
 stock bool ZP_IsPlayerHoldWeapon(int client, int &weapon, int weaponID)
 {
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return false;
 	}

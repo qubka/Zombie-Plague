@@ -300,9 +300,9 @@ void WeaponMODOnUnload()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i))
+		if (IsClientValid(i))
 		{
-			if (gClientData[i].CustomWeapon != -1)
+			if (EntRefToEntIndex(gClientData[i].CustomWeapon) != -1)
 			{
 				int view1 = EntRefToEntIndex(gClientData[i].ViewModels[0]);
 				int view2 = EntRefToEntIndex(gClientData[i].ViewModels[1]);
@@ -576,7 +576,7 @@ public void WeaponMODOnInfernoSpawn(int entity)
 	
 	int iD = -1;
 	
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		iD = gClientData[client].LastGrenade;
 		gClientData[client].LastGrenade = -1;
@@ -600,7 +600,7 @@ public void WeaponMODOnGrenadeSpawn(int grenade)
 
 	int client = ToolsGetOwner(grenade);
 	
-	if (IsPlayerExist(client, false)) 
+	if (IsClientValid(client, false)) 
 	{
 		int weapon = ToolsGetActiveWeapon(client);
 	
@@ -680,7 +680,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 	{
 		int client = WeaponsGetOwner(weapon);
 		
-		if (!IsPlayerExist(client)) 
+		if (!IsClientValid(client)) 
 		{
 			return;
 		}
@@ -919,7 +919,7 @@ public Action WeaponMODOnWeaponRemove(Handle hTimer, int refID)
 	{
 		int client = WeaponsGetOwner(weapon);
 		
-		if (!IsPlayerExist(client)) 
+		if (!IsClientValid(client)) 
 		{
 			AcceptEntityInput(weapon, "Kill"); /// Destroy
 		}
@@ -974,7 +974,7 @@ public void WeaponMODOnSwitch(int client, int weapon)
 		ItemDef iItem = WeaponsGetDefIndex(iD);
 		if (WeaponsGetModelViewID(iD) || (ClassGetClawID(gClientData[client].Class) && IsMelee(iItem)) || (ClassGetGrenadeID(gClientData[client].Class) && IsGrenade(iItem)))
 		{
-			gClientData[client].CustomWeapon = weapon;
+			gClientData[client].CustomWeapon = EntIndexToEntRef(weapon);
 			//SEffectsClientWeapon(client, iItem, false);
 		}
 
@@ -1014,7 +1014,7 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 		{
 			ItemDef iItem = WeaponsGetDefIndex(iD);
 
-			if (weapon == gClientData[client].CustomWeapon)
+			if (weapon == EntRefToEntIndex(gClientData[client].CustomWeapon))
 			{
 				WeaponHDRSwapViewModel(client, weapon, view1, view2, iD);
 				
@@ -1029,7 +1029,7 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 				WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
 			}
 			
-			if (IsPlayerExist(client))
+			if (IsClientValid(client))
 			{
 				gForwardData._OnWeaponDeploy(client, weapon, iD);
 			}
@@ -1053,7 +1053,7 @@ public void WeaponMODOnPostThinkPost(int client)
 {
 	WeaponAttachSetAddons(client); /// Back weapon models
 	
-	int weapon = gClientData[client].CustomWeapon;
+	int weapon = EntRefToEntIndex(gClientData[client].CustomWeapon);
 	
 	if (weapon == -1)
 	{
@@ -1327,7 +1327,7 @@ public void WeaponMODOnHostagePost(int userID)
 
 	if (client)
 	{
-		if (gClientData[client].CustomWeapon != -1)
+		if (EntRefToEntIndex(gClientData[client].CustomWeapon) != -1)
 		{
 			int view2 = WeaponHDRGetPlayerViewModel(client, 1);
 
@@ -1355,7 +1355,7 @@ public void WeaponMODOnHostagePost(int userID)
  **/
 public Action WeaponMODOnCommandListenedBuy(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client))
+	if (IsClientValid(client))
 	{
 		WeaponMODOnClientBuyammo(client);
 	}
@@ -1428,7 +1428,7 @@ void WeaponMODOnClientBuyammo(int client)
  **/
 public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client))
+	if (IsClientValid(client))
 	{
 		int weapon = ToolsGetActiveWeapon(client);
 
@@ -1534,7 +1534,7 @@ public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
 	{
 		int client = WeaponsGetOwner(weapon);
 		
-		if (!IsPlayerExist(client)) 
+		if (!IsClientValid(client)) 
 		{
 			return MRES_Ignored;
 		}
@@ -1561,7 +1561,7 @@ public MRESReturn WeaponDHookOnHolster(int weapon, Handle hReturn, Handle hParam
 	{
 		int client = WeaponsGetOwner(weapon);
 		
-		/*if (!IsPlayerExist(client)) 
+		/*if (!IsClientValid(client)) 
 		{
 			return MRES_Ignored;
 		}*/
@@ -1634,7 +1634,7 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weapon, Handle hReturn, Handle 
  **/
 public MRESReturn WeaponDHookGetPlayerMaxSpeed(int client, Handle hReturn)
 {
-	if (IsPlayerExist(client))
+	if (IsClientValid(client))
 	{
 		float flLMV = ToolsGetLMV(client) + (gCvarList.LEVEL_SYSTEM.BoolValue ? (gCvarList.LEVEL_SPEED_RATIO.FloatValue * float(gClientData[client].Level)) : 0.0);
 		

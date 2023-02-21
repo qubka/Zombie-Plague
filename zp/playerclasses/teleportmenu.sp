@@ -42,7 +42,7 @@ void TeleportMenuOnCommandInit()
  **/ 
 public Action TeleportMenuOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		TeleportMenu(client);
 	}
@@ -68,7 +68,7 @@ void TeleportMenu(int client)
 	int iAmount;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i))
+		if (!IsClientValid(i))
 		{
 			continue;
 		}
@@ -114,7 +114,7 @@ public int TeleportMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -126,7 +126,7 @@ public int TeleportMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSl
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}

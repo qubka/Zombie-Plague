@@ -229,7 +229,7 @@ public void ZP_OnClientSkillOver(int client)
  **/
 public Action TrapTouchHook(int entity, int target)
 {
-	if (IsPlayerExist(target))
+	if (IsClientValid(target))
 	{
 		if (ZP_IsPlayerHuman(target) && GetEntityMoveType(target) != MOVETYPE_NONE)
 		{
@@ -260,7 +260,7 @@ public Action TrapTouchHook(int entity, int target)
 			
 			int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 
-			if (IsPlayerExist(owner, false))
+			if (IsClientValid(owner, false))
 			{
 				static char sName[NORMAL_LINE_LENGTH];
 				GetClientName(target, sName, sizeof(sName));

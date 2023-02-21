@@ -88,7 +88,7 @@ void SpawnOnCommandInit()
  **/
 public Action SpawnOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		static char sArg[SMALL_LINE_LENGTH];
 		GetCmdArg(1, sArg, sizeof(sArg));
@@ -192,7 +192,7 @@ public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		return Plugin_Continue;
 	}

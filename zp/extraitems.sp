@@ -86,7 +86,7 @@ void ExtraItemsOnLoad()
 
 	ConfigSetConfigPath(File_ExtraItems, sBuffer);
 
-	bool bSuccess = ConfigLoadConfig(File_ExtraItems, gServerData.ExtraItems);
+	bool bSuccess = ConfigLoadConfig(File_ExtraItems, gServerData.ExtraItems, SMALL_LINE_LENGTH);
 
 	if (!bSuccess)
 	{
@@ -174,7 +174,7 @@ void ExtraItemsOnCacheData()
 				}
 				
 								
-				ArrayList arrayExtraItem = new ArrayList(NORMAL_LINE_LENGTH);
+				ArrayList arrayExtraItem = new ArrayList(SMALL_LINE_LENGTH);
 
 				arrayExtraItem.Push(i);                                // Index: 0
 				arrayExtraItem.PushString(sBuffer);                    // Index: 1
@@ -260,7 +260,7 @@ public int API_GiveClientExtraItem(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 	
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
 		return -1;
@@ -295,7 +295,7 @@ public int API_SetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 	
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
 		return -1;
@@ -323,7 +323,7 @@ public int API_GetClientExtraItemLimit(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 	
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_ExtraItems, "Native Validation", "Player doens't exist (%d)", client);
 		return -1;

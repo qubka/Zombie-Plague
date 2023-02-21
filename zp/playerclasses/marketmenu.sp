@@ -43,7 +43,7 @@ void MarketMenuOnCommandInit()
  **/ 
 public Action MarketMenuFavorOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false) && gCvarList.MARKET.BoolValue && gCvarList.MARKET_FAVORITES.BoolValue)
+	if (IsClientValid(client, false) && gCvarList.MARKET.BoolValue && gCvarList.MARKET_FAVORITES.BoolValue)
 	{
 		MarketEditMenu(client);
 	}
@@ -59,7 +59,7 @@ public Action MarketMenuFavorOnCommandCatched(int client, int iArguments)
  **/ 
 public Action MarketMenuBuyOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false) && gCvarList.MARKET.BoolValue)
+	if (IsClientValid(client, false) && gCvarList.MARKET.BoolValue)
 	{
 		MarketMenu(client);
 	}
@@ -145,7 +145,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -157,7 +157,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}
@@ -378,7 +378,7 @@ public int MarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int m
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -397,7 +397,7 @@ public int MarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int m
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}
@@ -455,7 +455,7 @@ public int MarketBuyMenuSlots2(Menu hMenu, MenuAction mAction, int client, int m
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -466,7 +466,7 @@ public int MarketBuyMenuSlots2(Menu hMenu, MenuAction mAction, int client, int m
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}
@@ -536,7 +536,7 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -547,7 +547,7 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client))
+			if (!IsClientValid(client))
 			{
 				return 0;
 			}
@@ -689,7 +689,7 @@ public int MarketEditMenuSlots(Menu hMenu, MenuAction mAction, int client, int m
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -700,7 +700,7 @@ public int MarketEditMenuSlots(Menu hMenu, MenuAction mAction, int client, int m
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}

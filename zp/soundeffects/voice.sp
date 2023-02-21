@@ -121,7 +121,7 @@ public void VoiceOnCvarHookMute(ConVar hConVar, char[] oldValue, char[] newValue
 	
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsPlayerExist(i, false) && gClientData[i].Zombie)
+			if (IsClientValid(i, false) && gClientData[i].Zombie)
 			{
 				SetClientListeningFlags(i, bVoiceMute ? VOICE_MUTED : VOICE_NORMAL);
 			}

@@ -250,7 +250,7 @@ stock int fnGetPlaying()
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false))
+		if (IsClientValid(i, false))
 		{
 			iPlaying++;
 		}
@@ -270,7 +270,7 @@ stock int fnGetHumans()
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i) && !gClientData[i].Zombie)
+		if (IsClientValid(i) && !gClientData[i].Zombie)
 		{
 			iHumans++;
 		}
@@ -290,7 +290,7 @@ stock int fnGetZombies()
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i) && gClientData[i].Zombie)
+		if (IsClientValid(i) && gClientData[i].Zombie)
 		{
 			iZombies++;
 		}
@@ -310,7 +310,7 @@ stock int fnGetAlive()
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i))
+		if (IsClientValid(i))
 		{
 			iAlive++;
 		}
@@ -330,7 +330,7 @@ stock int fnGetRandomHuman()
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i) && !gClientData[i].Zombie)
+		if (IsClientValid(i) && !gClientData[i].Zombie)
 		{
 			client[iRandom++] = i;
 		}
@@ -350,7 +350,7 @@ stock int fnGetRandomZombie()
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i) && gClientData[i].Zombie)
+		if (IsClientValid(i) && gClientData[i].Zombie)
 		{
 			client[iRandom++] = i;
 		}

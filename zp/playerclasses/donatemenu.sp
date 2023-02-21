@@ -42,7 +42,7 @@ void DonateMenuOnCommandInit()
  **/ 
 public Action DonateMenuOnCommandCatched(int client, int iArguments)
 {
-	if (IsPlayerExist(client, false))
+	if (IsClientValid(client, false))
 	{
 		DonateMenu(client, gCvarList.ACCOUNT_BET.IntValue, gCvarList.ACCOUNT_COMMISION.FloatValue);
 	}
@@ -103,7 +103,7 @@ void DonateMenu(int client, int iMoney, float flCommision)
 	int iAmount;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i, false) || client == i)
+		if (!IsClientValid(i, false) || client == i)
 		{
 			continue;
 		}
@@ -149,7 +149,7 @@ public int DonateMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		{
 			if (mSlot == MenuCancel_ExitBack)
 			{
-				if (!IsPlayerExist(client, false))
+				if (!IsClientValid(client, false))
 				{
 					return 0;
 				}
@@ -161,7 +161,7 @@ public int DonateMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 		
 		case MenuAction_Select :
 		{
-			if (!IsPlayerExist(client, false))
+			if (!IsClientValid(client, false))
 			{
 				return 0;
 			}

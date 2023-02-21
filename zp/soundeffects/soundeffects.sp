@@ -239,7 +239,7 @@ void SEffectsStopAll()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false) && !IsFakeClient(i))
+		if (IsClientValid(i, false, false))
 		{
 			ClientCommand(i, "playgamesound Music.StopAllExceptMusic");
 		}

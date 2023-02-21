@@ -419,7 +419,7 @@ public Action FireTouchHook(int entity, int target)
 			return Plugin_Continue;
 		}
 
-		if (IsPlayerExist(target))
+		if (IsClientValid(target))
 		{
 			if (ZP_IsPlayerZombie(target)) 
 			{

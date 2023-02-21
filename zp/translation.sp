@@ -157,21 +157,18 @@ stock void TranslationPrintToConsoleAll(bool bServer, any ...)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i, false))
+		if (!IsClientValid(i, false, false))
 		{
 			continue;
 		}
-		
-		if (!IsFakeClient(i))
-		{
-			SetGlobalTransTarget(i);
 
-			VFormat(sTranslation, sizeof(sTranslation), "%t", 3);
+		SetGlobalTransTarget(i);
 
-			TranslationPluginFormatString(sTranslation, sizeof(sTranslation), false);
+		VFormat(sTranslation, sizeof(sTranslation), "%t", 3);
 
-			PrintToConsole(i, sTranslation);
-		}
+		TranslationPluginFormatString(sTranslation, sizeof(sTranslation), false);
+
+		PrintToConsole(i, sTranslation);
 	}
 }
 
@@ -205,20 +202,17 @@ stock void TranslationPrintHintTextAll(any ...)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i, false))
+		if (!IsClientValid(i, false, false))
 		{
 			continue;
 		}
+
+		SetGlobalTransTarget(i);
 		
-		if (!IsFakeClient(i))
-		{
-			SetGlobalTransTarget(i);
-			
-			static char sTranslation[CHAT_LINE_LENGTH];
-			VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 1);
-			
-			UTIL_CreateClientHint(i, sTranslation);
-		}
+		static char sTranslation[CHAT_LINE_LENGTH];
+		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 1);
+		
+		UTIL_CreateClientHint(i, sTranslation);
 	}
 	
 	EmitSoundToAll(SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
@@ -276,20 +270,17 @@ stock void TranslationPrintHudTextAll(Handle hSync, float x, float y, float hold
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i, false))
+		if (!IsClientValid(i, false, false))
 		{
 			continue;
 		}
-		
-		if (!IsFakeClient(i))
-		{
-			SetGlobalTransTarget(i);
-			
-			static char sTranslation[CHAT_LINE_LENGTH];
-			VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 13);
 
-			UTIL_CreateClientHud(hSync, i, x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut, sTranslation);
-		}
+		SetGlobalTransTarget(i);
+		
+		static char sTranslation[CHAT_LINE_LENGTH];
+		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 13);
+
+		UTIL_CreateClientHud(hSync, i, x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut, sTranslation);
 	}
 }
 
@@ -323,22 +314,19 @@ stock void TranslationPrintToChatAll(any ...)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (!IsPlayerExist(i, false))
+		if (!IsClientValid(i, false, false))
 		{
 			continue;
 		}
+
+		SetGlobalTransTarget(i);
 		
-		if (!IsFakeClient(i))
-		{
-			SetGlobalTransTarget(i);
-			
-			static char sTranslation[CHAT_LINE_LENGTH];
-			VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 1);
-			
-			TranslationPluginFormatString(sTranslation, CHAT_LINE_LENGTH);
-			
-			PrintToChat(i, sTranslation);
-		}
+		static char sTranslation[CHAT_LINE_LENGTH];
+		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 1);
+		
+		TranslationPluginFormatString(sTranslation, CHAT_LINE_LENGTH);
+		
+		PrintToChat(i, sTranslation);
 	}
 }
 
@@ -367,7 +355,7 @@ stock void TranslationPrintToServer(any:...)
  **/
 stock void TranslationReplyToCommand(int client, any ...)
 {
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		return;
 	}

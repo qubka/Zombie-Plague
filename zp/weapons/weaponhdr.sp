@@ -479,7 +479,7 @@ public Action WeaponHDROnDroppedTransmit(int entity, int client)
 	if (weapon != -1)
 	{
 		int owner = WeaponsGetOwner(weapon);
-		if (IsPlayerExist(owner))
+		if (IsClientValid(owner))
 		{
 			return Plugin_Handled;
 		}

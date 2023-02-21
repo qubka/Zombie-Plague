@@ -37,7 +37,7 @@ void AmbientSoundsOnGameModeStart()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false))
+		if (IsClientValid(i, false))
 		{
 			AmbientSoundsOnClientUpdate(i);
 		}

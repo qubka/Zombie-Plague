@@ -118,7 +118,7 @@ public void OnMapStart()
  **/
 public void ZP_OnClientDamaged(int client, int attacker, int inflictor, float flDamage, int iBits, int weapon, int iHealth, int iArmor)
 {
-	if (!IsPlayerExist(attacker))
+	if (weapon == -1 || !IsClientValid(attacker))
 	{
 		return;
 	}

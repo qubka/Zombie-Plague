@@ -66,7 +66,7 @@ void MenusOnLoad()
 
 	ConfigSetConfigPath(File_Menus, sBuffer);
 
-	bool bSuccess = ConfigLoadConfig(File_Menus, gServerData.Menus);
+	bool bSuccess = ConfigLoadConfig(File_Menus, gServerData.Menus, SMALL_LINE_LENGTH);
 
 	if (!bSuccess)
 	{
@@ -240,7 +240,7 @@ public Action MenusOnCommandListened(int client, char[] commandMsg, int iArgumen
  **/
 public Action MenusOnCommandListenedCommand(int client, char[] commandMsg, int iArguments)
 {
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		return Plugin_Handled;
 	}
@@ -500,7 +500,7 @@ public int API_OpenMenuSub(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Menus, "Native Validation", "Invalid the client index (%d)", client);
 		return -1;

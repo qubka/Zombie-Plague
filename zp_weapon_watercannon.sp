@@ -555,7 +555,7 @@ public Action FireTouchHook(int entity, int target)
 
 		UTIL_CreateDamage(_, vPosition, thrower, hCvarWaterDamage.FloatValue, hCvarWaterRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 		
-		if (IsPlayerExist(target) && ZP_IsPlayerZombie(target)) 
+		if (IsClientValid(target) && ZP_IsPlayerZombie(target)) 
 		{
 			UTIL_IgniteEntity(target, hCvarWaterIgnite.FloatValue);   
 		}

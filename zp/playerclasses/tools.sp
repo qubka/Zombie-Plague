@@ -379,7 +379,7 @@ public int API_FireBullets(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
@@ -412,7 +412,7 @@ public int API_RespawnPlayer(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
 		return false;
@@ -449,7 +449,7 @@ public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 
-	if (!IsPlayerExist(client))
+	if (!IsClientValid(client))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Tools, "Native Validation", "Invalid the client index (%d)", client);
 		return false;

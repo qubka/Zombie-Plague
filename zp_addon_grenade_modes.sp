@@ -393,7 +393,7 @@ public Action GrenadeDamageHook(int grenade, int &attacker, int &inflictor, floa
 {
 	if (hCvarGrenadeDamageMode.BoolValue)
 	{
-		if (IsPlayerExist(attacker))
+		if (IsClientValid(attacker))
 		{
 			int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 			
@@ -825,7 +825,7 @@ Action GrenadeTripwireThinkDetect(int grenade, int &iState, float &flCounter)
 			
 			int victim = TR_GetEntityIndex();
 			
-			if ((IsPlayerExist(victim)) && (ZP_GetPlayerTeam(victim) != iTeam))
+			if ((IsClientValid(victim)) && (ZP_GetPlayerTeam(victim) != iTeam))
 			{
 				bDetonate = true;
 			}
@@ -1335,7 +1335,7 @@ public bool SelfFilter(int entity, int contentsMask, int filter)
  **/
 public bool PlayerFilter(int entity, int contentsMask, int filter)
 {
-	if (IsPlayerExist(entity)) 
+	if (IsClientValid(entity)) 
 	{
 		return false;
 	}

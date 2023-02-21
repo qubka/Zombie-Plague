@@ -78,7 +78,7 @@ public void SkillSystemOnCvarHook(ConVar hConVar, char[] oldValue, char[] newVal
  **/
 public Action SkillSystemOnCommandListenedZombie(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client) && gClientData[client].Zombie)
+	if (IsClientValid(client) && gClientData[client].Zombie)
 	{
 		SkillSystemOnClientStart(client);
 		return gCvarList.SKILL_ZOMBIE_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
@@ -97,7 +97,7 @@ public Action SkillSystemOnCommandListenedZombie(int client, char[] commandMsg, 
  **/
 public Action SkillSystemOnCommandListenedHuman(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client) && !gClientData[client].Zombie)
+	if (IsClientValid(client) && !gClientData[client].Zombie)
 	{
 		SkillSystemOnClientStart(client);
 		return gCvarList.SKILL_HUMAN_BUTTON_BLOCK.BoolValue ? Plugin_Handled : Plugin_Continue;
@@ -339,7 +339,7 @@ public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
 {
 	int client = GetNativeCell(1);
 	
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Skills, "Native Validation", "Invalid the client index (%d)", client);
 		return 0;

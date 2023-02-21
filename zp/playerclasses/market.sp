@@ -172,7 +172,7 @@ public void MarketOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
  **/
 public Action MarketOnCommandListened(int client, char[] commandMsg, int iArguments)
 {
-	if (IsPlayerExist(client, false) && !IsFakeClient(client))
+	if (IsClientValid(client, false, false))
 	{
 		gCvarList.ACCOUNT_BUY_ANYWHERE.ReplicateToClient(client, "0");
 		

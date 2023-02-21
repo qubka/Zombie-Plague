@@ -444,7 +444,7 @@ public Action BowTouchHook(int entity, int target)
 		
 		UTIL_CreateDamage(_, vPosition, thrower, hCvarDrillDamage.FloatValue, hCvarDrillRadius.FloatValue, DMG_NEVERGIB, gWeapon);
 
-		if (IsPlayerExist(target))
+		if (IsClientValid(target))
 		{
 			AcceptEntityInput(entity, "Kill");
 		}

@@ -56,7 +56,7 @@ void AccountOnInit()
 			{
 				for (int i = 1; i <= MaxClients; i++)
 				{
-					if (IsPlayerExist(i))
+					if (IsClientValid(i))
 					{
 						delete gClientData[i].AccountTimer;
 					}
@@ -79,7 +79,7 @@ void AccountOnInit()
 	{
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsPlayerExist(i, false))
+			if (IsClientValid(i, false))
 			{
 				_call.AccountOnClientUpdate(i);
 			}
@@ -231,7 +231,7 @@ public Action AccountOnClientHUD(Handle hTimer, int userID)
 			
 			target = ToolsGetObserverTarget(client);
 			
-			if (!IsPlayerExist(target)) 
+			if (!IsClientValid(target)) 
 			{
 				return Plugin_Continue;
 			}
@@ -297,7 +297,7 @@ public Action AccountGiveOnCommandCatched(int client, int iArguments)
  **/ 
 public Action AccountDonateOnCommandCatched(int client, int iArguments)
 {
-	if (!IsPlayerExist(client, false))
+	if (!IsClientValid(client, false))
 	{
 		return Plugin_Handled;
 	}
