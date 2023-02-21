@@ -141,8 +141,8 @@ public void ZP_OnEngineExecute()
 	gWeapon = ZP_GetWeaponNameID("fists");
 	if (gWeapon == -1) SetFailState("[ZP] Custom weapon ID from name : \"fists\" wasn't find");
 	
-	gSound = ZP_GetSoundKeyID("FISTS_HIT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FISTS_HIT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("fists_hit_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"fists_hit_sounds\" wasn't find");
 }
 
 //*********************************************************************

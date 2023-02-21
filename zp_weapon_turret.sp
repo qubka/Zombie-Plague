@@ -171,6 +171,7 @@ enum
 };
 
 // Cvars
+ConVar hCvarSentryRewards;			
 ConVar hCvarSentryAttackNpc;			
 ConVar hCvarSentryAttackVisibililty;
 ConVar hCvarSentryBulletDamage;
@@ -198,6 +199,7 @@ ConVar hCvarSentryDeathEffect;
  **/
 public void OnPluginStart()
 {
+	hCvarSentryRewards             = CreateConVar("zp_weapon_sentry_rewards", "1", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
 	hCvarSentryAttackNpc           = CreateConVar("zp_weapon_sentry_attack_npc", "0", "Attack npc? (chicken, ect)", 0, true, 0.0, true, 1.0);
 	hCvarSentryAttackVisibililty   = CreateConVar("zp_weapon_sentry_attack_visibility", "50.0", "Min alpha to see target", 0, true, 0.0);
 	hCvarSentryBulletDamage        = CreateConVar("zp_weapon_sentry_bullet_damage ", "20.0", "Bullet damage", 0, true, 0.0);
@@ -342,10 +344,10 @@ public void ZP_OnEngineExecute()
 	
 	gItem = ZP_GetExtraItemNameID("turret");
 	
-	gSoundShoot = ZP_GetSoundKeyID("TURRET_SOUNDS");
-	if (gSoundShoot == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_SOUNDS\" wasn't find");
-	gSoundUpgrade = ZP_GetSoundKeyID("TURRET_UP_SOUNDS");
-	if (gSoundUpgrade == -1) SetFailState("[ZP] Custom sound key ID from name : \"TURRET_UP_SOUNDS\" wasn't find");
+	gSoundShoot = ZP_GetSoundKeyID("turret_sounds");
+	if (gSoundShoot == -1) SetFailState("[ZP] Custom sound key ID from name : \"turret_sounds\" wasn't find");
+	gSoundUpgrade = ZP_GetSoundKeyID("turret_up_sounds");
+	if (gSoundUpgrade == -1) SetFailState("[ZP] Custom sound key ID from name : \"turret_up_sounds\" wasn't find");
 
 	gKnockback = FindConVar("zp_knockback"); 
 	if (gKnockback == null) SetFailState("[ZP] Custom cvar key ID from name : \"zp_knockback\" wasn't find");
@@ -534,6 +536,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			
 			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner); 
 
+			SetEntProp(entity, Prop_Data, "m_iTeamNum", ZP_IsPlayerZombie(owner) ? TEAM_ZOMBIE : TEAM_HUMAN); 
 			SetEntProp(entity, Prop_Data, "m_iAmmo", iAmmo); 
 			SetEntProp(entity, Prop_Data, "m_iMySquadSlot", iRocket); 
 			SetEntProp(entity, Prop_Data, "m_iHammerID", iLevel); 
@@ -651,6 +654,19 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		public set(int iSkin) 
 		{
 			SetEntPropEnt(this.Index, Prop_Send, "m_nSkin", iSkin); 
+		}
+	}
+
+	property int Team
+	{
+		public get() 
+		{  
+			return GetEntProp(this.Index, Prop_Data, "m_iTeamNum");  
+		}
+
+		public set(int iTeam) 
+		{
+			SetEntPropEnt(this.Index, Prop_Data, "m_iTeamNum", iTeam); 
 		}
 	}
 
@@ -1067,12 +1083,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				continue;
 			}
 	
-			if (!ZP_IsPlayerZombie(i))
+			if (IsEntitySameTeam(this.Index, i))
 			{
 				continue;
 			}
 
-			if (UTIL_GetRenderColor(i, Color_Alpha) < flVisibility)
+			if (GetEntProp(i, Prop_Send, "m_fEffects") & EF_NODRAW || UTIL_GetRenderColor(i, Color_Alpha) < flVisibility)
 			{
 				continue;
 			}
@@ -1321,6 +1337,11 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				}
 			}
 
+			SetEntProp(entity, Prop_Data, "m_iTeamNum", this.Team); 
+			
+			SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", this.Owner); 
+			SetEntPropEnt(entity, Prop_Data, "m_hEffectEntity", this.Index);
+
 			SetEntPropFloat(entity, Prop_Data, "m_flGravity", 0.01);
 
 			SDKHook(entity, SDKHook_Touch, RocketTouchHook);
@@ -1368,7 +1389,10 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			}
 			else
 			{
-				UTIL_CreateDamage(_, vEndPosition, this.Index, hCvarSentryBulletDamage.FloatValue, hCvarSentryBulletRadius.FloatValue, DMG_BULLET);
+				int owner = this.Owner;
+				int attacker = hCvarSentryRewards.BoolValue && IsPlayerExist(owner, false) && IsEntitySameTeam(this.Index, owner) ? owner : this.Index;
+			
+				UTIL_CreateDamage(_, vEndPosition, attacker, hCvarSentryBulletDamage.FloatValue, hCvarSentryBulletRadius.FloatValue, DMG_BULLET);
 		
 				if (IsPlayerExist(victim) && ZP_IsPlayerZombie(victim))
 				{
@@ -1534,7 +1558,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			SetEntProp(upgrade, Prop_Send, "m_nSkin", this.Skin);
 			SetEntProp(upgrade, Prop_Send, "m_nBody", 2);
 			
-			SetEntPropEnt(upgrade, Prop_Data, "m_hOwnerEntity", this.Index); 
+			SetEntPropEnt(upgrade, Prop_Data, "m_hEffectEntity", this.Index); 
 			
 			ZP_EmitSoundToAll(gSoundUpgrade, 2, upgrade, SNDCHAN_STATIC);
 			
@@ -1990,7 +2014,7 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 	{
 		entity = TR_GetEntityIndex();
 
-		if (IsEntityTurret(entity))
+		if (IsEntityTurret(entity) && IsEntitySameTeam(entity, client))
 		{
 			SentryGun sentry = view_as<SentryGun>(entity); 
 	
@@ -2045,7 +2069,7 @@ bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
 	{
 		entity = TR_GetEntityIndex();
 
-		if (IsEntityTurret(entity))
+		if (IsEntityTurret(entity) && IsEntitySameTeam(entity, client))
 		{
 			SentryGun sentry = view_as<SentryGun>(entity); 
 	
@@ -2173,7 +2197,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	{
 		if (iButtons & IN_USE && !(iLastButtons & IN_USE))
 		{
-			if (ZP_IsPlayerHuman(client) && ZP_IsPlayerHasWeapon(client, gWeapon) == -1)
+			if (ZP_IsPlayerHasWeapon(client, gWeapon) == -1)
 			{
 				int entity; /// Initialize index
 				if (_call.PickupTurret(client, entity))
@@ -2198,15 +2222,12 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 **/
 public Action ZP_OnClientValidateButton(int client)
 {
-	if (ZP_IsPlayerHuman(client))
+	int entity; /// Initialize index
+	if (_call.MenuTurret(client, entity))
 	{
-		int entity; /// Initialize index
-		if (_call.MenuTurret(client, entity))
-		{
-			return Plugin_Handled;
-		}
+		return Plugin_Handled;
 	}
-	
+
 	return Plugin_Continue;
 }
 
@@ -2273,7 +2294,7 @@ public Action SentryDamageHook(int entity, int &attacker, int &inflictor, float 
 {
 	if (IsPlayerExist(attacker))
 	{
-		if (ZP_IsPlayerZombie(attacker))
+		if (!IsEntitySameTeam(entity, attacker))
 		{
 			SentryGun sentry = view_as<SentryGun>(entity); 
 	
@@ -2327,7 +2348,12 @@ public Action RocketTouchHook(int entity, int target)
 			iFlags |= EXP_NOFIREBALL; /// remove effect sprite
 		}
 		
-		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarSentryRocketDamage.FloatValue, hCvarSentryRocketRadius.FloatValue, "rocket", _, entity);
+		int sentry = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
+		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity"); 
+		
+		int attacker = hCvarSentryRewards.BoolValue && IsPlayerExist(owner, false) && IsEntitySameTeam(entity, owner) ? owner : sentry;
+		
+		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarSentryRocketDamage.FloatValue, hCvarSentryRocketRadius.FloatValue, "rocket", attacker, entity);
 
 		ZP_EmitSoundToAll(gSoundShoot, SENTRY_SOUND_EXPLOAD, entity, SNDCHAN_STATIC);
 
@@ -2369,21 +2395,18 @@ public Action RocketExploadHook(Handle hTimer, int refID)
  **/
 public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor, float &flDamage, int &iBits, int &weapon)
 {
-	if (iBits & DMG_BULLET)
+	if (iBits & DMG_BULLET || iBits & DMG_BLAST)
 	{
 		if (IsEntityTurret(attacker))
 		{
-			if (ZP_IsPlayerHuman(client))
+			if (IsEntitySameTeam(attacker, client))
 			{
 				flDamage = 0.0;
 			}
-		}
-	}
-	else if (iBits & DMG_BLAST)
-	{
-		if (IsEntityRocket(inflictor))
+		} 
+		else if (IsEntityRocket(inflictor))
 		{
-			if (ZP_IsPlayerHuman(client))
+			if (IsEntitySameTeam(inflictor, client))
 			{
 				flDamage = 0.0;
 			}
@@ -2605,6 +2628,19 @@ int GetCost(float flPercentage)
 int GetDraw(bool menuCondition)
 {
 	return menuCondition ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
+}
+
+/**
+ * @brief Validates that an entity in the same team as a given client.
+ *
+ * @param entity            The entity index.
+ * @param client            The client index.
+ * @return                  True or false.
+ **/
+bool IsEntitySameTeam(int entity, int client)
+{
+	int iTeam = GetEntProp(entity, Prop_Data, "m_iTeamNum");
+	return (iTeam == TEAM_HUMAN && ZP_IsPlayerHuman(client)) || (iTeam == TEAM_ZOMBIE && ZP_IsPlayerZombie(client));
 }
 
 /**

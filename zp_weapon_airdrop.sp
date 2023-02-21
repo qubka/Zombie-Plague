@@ -198,8 +198,8 @@ public void ZP_OnEngineExecute()
 	gWeapon = ZP_GetWeaponNameID("airdrop");
 	gWeaponC4 = ZP_GetWeaponNameID("breachcharge");
 
-	gSound = ZP_GetSoundKeyID("HELICOPTER_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HELICOPTER_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("helicopter_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"helicopter_sounds\" wasn't find");
 	
 	gType = ZP_GetClassTypeID("human");
 	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"human\" wasn't find");

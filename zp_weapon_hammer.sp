@@ -149,8 +149,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("big hammer");
 
-	gSound = ZP_GetSoundKeyID("HAMMER_HIT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HAMMER_HIT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("hammer_hit_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"hammer_hit_sounds\" wasn't find");
 }
 
 //*********************************************************************

@@ -89,8 +89,8 @@ public void ZP_OnEngineExecute()
 {
 	gZombie = ZP_GetClassNameID("mutationheavy");
 	
-	gSound = ZP_GetSoundKeyID("TRAP_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"TRAP_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("trap_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"trap_skill_sounds\" wasn't find");
 }
 
 /**

@@ -31,7 +31,12 @@
 enum
 {
 	SOUNDS_DATA_KEY,
-	SOUNDS_DATA_VALUE
+	SOUNDS_DATA_PATH,
+	SOUNDS_DATA_VOLUME,
+	SOUNDS_DATA_LEVEL,
+	SOUNDS_DATA_FLAGS,
+	SOUNDS_DATA_PITCH,
+	SOUNDS_DATA_DURATION
 };
 /**
  * @endsection
@@ -58,14 +63,14 @@ void SoundsOnInit()
  **/
 void SoundsOnLoad()
 {
-	ConfigRegisterConfig(File_Sounds, Structure_ArrayList, CONFIG_FILE_ALIAS_SOUNDS);
+	ConfigRegisterConfig(File_Sounds, Structure_KeyValue, CONFIG_FILE_ALIAS_SOUNDS);
 
 	static char sBuffer[PLATFORM_LINE_LENGTH];
 	bool bExists = ConfigGetFullPath(CONFIG_FILE_ALIAS_SOUNDS, sBuffer, sizeof(sBuffer));
 
 	if (!bExists)
 	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds file: \"%s\"", sBuffer);
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sounds config file: \"%s\"", sBuffer);
 		return;
 	}
 
@@ -95,58 +100,63 @@ void SoundsOnCacheData()
 {
 	static char sBuffer[PLATFORM_LINE_LENGTH];
 	ConfigGetConfigPath(File_Sounds, sBuffer, sizeof(sBuffer));
-	
-	LogEvent(true, LogType_Normal, LOG_DEBUG, LogModule_Sounds, "Config Validation", "Loading sounds from file \"%s\"", sBuffer);
 
-	int iSoundCount; int iSoundValidCount; int iSoundUnValidCount;
-	
-	int iSounds = iSoundCount = gServerData.Sounds.Length;
-	if (!iSounds)
+	KeyValues kvSounds;
+	bool bSuccess = ConfigOpenConfigFile(File_Sounds, kvSounds);
+
+	if (!bSuccess)
+	{
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Unexpected error caching data from sounds config file: \"%s\"", sBuffer);
+		return;
+	}
+
+	int iSize = gServerData.Sounds.Length;
+	if (!iSize)
 	{
 		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "No usable data found in sounds config file: \"%s\"", sBuffer);
 		return;
 	}
-	
-	if (gServerData.Durations == null)
-	{
-		gServerData.Durations = new StringMap();
-	}
-	else
-	{
-		gServerData.Durations.Clear();
-	}
-	
-	for (int i = 0; i < iSounds; i++)
-	{
-		ArrayList arraySound = SoundsGetKey(i, sBuffer, sizeof(sBuffer), true);
 
-		if (ParamParseString(arraySound, sBuffer, sizeof(sBuffer), '=') == PARAM_ERROR_NO)
+	for (int i = 0; i < iSize; i++)
+	{
+		SoundsGetKey(i, sBuffer, sizeof(sBuffer)); // Index: 0
+		kvSounds.Rewind();
+		if (!kvSounds.JumpToKey(sBuffer))
 		{
-			int iSize = arraySound.Length;
-			for (int x = 1; x < iSize; x++)
+			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Couldn't cache sound data for: \"%s\" (check sounds config)", sBuffer);
+			continue;
+		}
+		
+		ArrayList arraySound = gServerData.Sounds.Get(i);
+		
+		if (kvSounds.GotoFirstSubKey())
+		{
+			do
 			{
-				arraySound.GetString(x, sBuffer, sizeof(sBuffer));
+				kvSounds.GetSectionName(sBuffer, sizeof(sBuffer));
+				Format(sBuffer, sizeof(sBuffer), "*/%s", sBuffer);
+				arraySound.PushString(sBuffer);                    // Index: i + 0
+				arraySound.Push(kvSounds.GetFloat("volume", 1.0)); // Index: i + 1
+				arraySound.Push(kvSounds.GetNum("level", 75));     // Index: i + 2
+				arraySound.Push(kvSounds.GetNum("flags", 0));      // Index: i + 3
+				arraySound.Push(kvSounds.GetNum("pitch", 0));      // Index: i + 4
+				
+				Format(sBuffer, sizeof(sBuffer), "sound/%s", sBuffer[2]);
 
-				gServerData.Durations.SetValue(sBuffer, GetSoundDuration(sBuffer), false);
-
-				Format(sBuffer, sizeof(sBuffer), "sound/%s", sBuffer);
-
-				if (DownloadsOnPrecache(sBuffer)) iSoundValidCount++; else iSoundUnValidCount++;
+				if (DownloadsOnPrecache(sBuffer))
+				{
+					arraySound.Push(GetSoundDuration(sBuffer[6])); // Index: i + 5
+				}
+				else
+				{
+					arraySound.Push(0.0);                          // Index: i + 5
+				}
 			}
-		}
-		else
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Error with parsing of the sound block: \"%d\" = \"%s\"", i + 1, sBuffer);
-			
-			gServerData.Sounds.Erase(i);
-
-			iSounds--;
-
-			i--;
+			while (kvSounds.GotoNextKey());
 		}
 	}
 	
-	LogEvent(true, LogType_Normal, LOG_DEBUG_DETAIL, LogModule_Sounds, "Config Validation", "Total blocks: \"%d\" | Unsuccessful blocks: \"%d\" | Total: %d | Successful: \"%d\" | Unsuccessful: \"%d\"", iSoundCount, iSoundCount - iSounds, iSoundValidCount + iSoundUnValidCount, iSoundValidCount, iSoundUnValidCount);
+	delete kvSounds;
 }
 
 /**
@@ -237,6 +247,7 @@ void SoundsOnGameModeStart()
 void SoundsOnClientDeath(int client)
 {
 	PlayerSoundsOnClientDeath(client);
+	AmbientSoundsOnClientDeath(client);
 }
 
 /**
@@ -319,6 +330,7 @@ void SoundsOnNativeInit()
 	CreateNative("ZP_EmitSoundToAll",     API_EmitSoundToAll);
 	CreateNative("ZP_EmitSoundToClient",  API_EmitSoundToClient);
 	CreateNative("ZP_EmitAmbientSound",   API_EmitAmbientSound);
+	CreateNative("ZP_StopSoundToAll",     API_StopSoundToAll);
 }
  
 /**
@@ -344,9 +356,9 @@ public int API_GetSoundKeyID(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets sound from a key id from sounds config.
+ * @brief Gets the sound of a block at a given key.
  *
- * @note native bool ZP_GetSound(keyID, num, sound, maxlenght);
+ * @note native float ZP_GetSound(keyID, num, sound, maxlenght, volume, level, flags, pitch);
  **/
 public int API_GetSound(Handle hPlugin, int iNumParams)
 {
@@ -359,72 +371,80 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
 	}
 
 	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
+
+	float flVolume; int iLevel; int iFlags; int iPitch; 
+	float flDuration = SoundsGetSound(GetNativeCell(1), GetNativeCell(2), sSound, flVolume, iLevel, iFlags, iPitch);
 	
-	SoundsGetPath(GetNativeCell(1), sSound, sizeof(sSound), GetNativeCell(2));
-	
-	if (hasLength(sSound))
-	{
-		Format(sSound, sizeof(sSound), "*/%s", sSound);
-		
-		SetNativeString(3, sSound, maxLen);
-		
-		return true;
-	}
-	
-	return false;
+	SetNativeString(3, sSound, maxLen);
+	SetNativeCellRef(5, flVolume);
+	SetNativeCellRef(6, iLevel);
+	SetNativeCellRef(7, iFlags);
+	SetNativeCellRef(8, iPitch);
+
+	return view_as<int>(flDuration);
 }
 
 /**
  * @brief Emits a sound to all humans.
  *
- * @note native bool ZP_EmitSoundToHumans(keyID, num, entity, channel, level, flags, volume, pitch);
+ * @note native bool ZP_EmitSoundToHumans(keyID, num, entity, channel);
  **/
 public int API_EmitSoundToHumans(Handle hPlugin, int iNumParams)
 {
-	return SEffectsEmitToHumans(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
+	return SEffectsEmitToHumans(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
 }
 
 /**
  * @brief Emits a sound to all zombies.
  *
- * @note native bool ZP_EmitSoundToZombies(keyID, num, entity, channel, level, flags, volume, pitch);
+ * @note native bool ZP_EmitSoundToZombies(keyID, num, entity, channel);
  **/
 public int API_EmitSoundToZombies(Handle hPlugin, int iNumParams)
 {
-	return SEffectsEmitToZombies(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
+	return SEffectsEmitToZombies(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
 }
 
 /**
  * @brief Emits a sound to all clients.
  *
- * @note native bool ZP_EmitSoundToAll(keyID, num, entity, channel, level, flags, volume, pitch);
+ * @note native bool ZP_EmitSoundToAll(keyID, num, entity, channel);
  **/
 public int API_EmitSoundToAll(Handle hPlugin, int iNumParams)
 {
-	return SEffectsEmitToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8));
+	return SEffectsEmitToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
 }
 
 /**
  * @brief Emits a sound to the client.
  *
- * @note native bool ZP_EmitSoundToClient(keyID, num, client, entity, channel, level, flags, volume, pitch);
+ * @note native bool ZP_EmitSoundToClient(keyID, num, client, entity, channel);
  **/
 public int API_EmitSoundToClient(Handle hPlugin, int iNumParams)
 {
-	return SEffectsEmitToClient(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
+	return SEffectsEmitToClient(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5));
 }
 
 /**
  * @brief Emits an ambient sound.
  *
- * @note native bool ZP_EmitAmbientSound(keyID, num, origin, entity, level, flags, volume, pitch, delay);
+ * @note native bool ZP_EmitAmbientSound(keyID, num, origin, entity, delay);
  **/
 public int API_EmitAmbientSound(Handle hPlugin, int iNumParams)
 {
 	static float vPosition[3];
 	GetNativeArray(3, vPosition, sizeof(vPosition));
 	
-	return SEffectsEmitAmbient(GetNativeCell(1), GetNativeCell(2), vPosition, GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7), GetNativeCell(8), GetNativeCell(9));
+	return SEffectsEmitAmbient(GetNativeCell(1), GetNativeCell(2), vPosition, GetNativeCell(4), GetNativeCell(5));
+}
+
+/**
+ * @brief Stops a sound to all clients.
+ *
+ * @note native bool ZP_StopSoundToAll(keyID, num, entity, channel);
+ **/
+public int API_StopSoundToAll(Handle hPlugin, int iNumParams)
+{
+	return SEffectsStopToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
 }
  
 /*
@@ -434,89 +454,70 @@ public int API_EmitAmbientSound(Handle hPlugin, int iNumParams)
 /**
  * @brief Gets the key of a sound list at a given key.
  * 
- * @param iKey              The sound array index.
+ * @param iKey              The sound index.
  * @param sKey              The string to return key in.
  * @param iMaxLen           The lenght of string.
- * @param bDelete           (Optional) Clear the array key position.
  **/
-ArrayList SoundsGetKey(int iKey, char[] sKey, int iMaxLen, bool bDelete = false)
+void SoundsGetKey(int iKey, char[] sKey, int iMaxLen)
 {
 	ArrayList arraySound = gServerData.Sounds.Get(iKey);
 	
 	arraySound.GetString(SOUNDS_DATA_KEY, sKey, iMaxLen);
-	
-	if (bDelete) arraySound.Erase(SOUNDS_DATA_KEY);
-	
-	return arraySound;
 }
- 
+
 /**
- * @brief Gets the path of a sound list at a given key.
+ * @brief Gets the number of a sounds at a given key.
  * 
- * @param iKey              The sound array index.
- * @param sPath             The string to return name in.
- * @param iMaxLen           The lenght of string.
- * @param iNum              (Optional) The position index. (for not random sound)
+ * @param iKey              The sound index.
+ * @return                  The sound count.
  **/
-void SoundsGetPath(int iKey, char[] sPath, int iMaxLen, int iNum = 0)
+int SoundsGetCount(int iKey)
+{
+	ArrayList arraySound = gServerData.Sounds.Get(iKey);
+		
+	return (arraySound.Length - 1) / SOUNDS_DATA_DURATION;
+}
+
+/**
+ * @brief Gets the sound of a block at a given key.
+ * 
+ * @param iKey              The block index.
+ * @param iNum              (Optional) The position index. (for not random sound)
+ * @param sPath             The string to return path in.
+ * @param flVolume          The sound volume.
+ * @param iLevel            The sound level.
+ * @param iFlags            The sound flags.
+ * @param iPitch            The sound pitch.
+ * @return                  The sound duration. (returns 0 if not found)
+ **/
+float SoundsGetSound(int iKey, int iNum = 0, char sPath[PLATFORM_LINE_LENGTH], float &flVolume, int &iLevel , int &iFlags, int &iPitch)
 {
 	if (iKey == -1)
 	{
-		return;
+		return 0.0;
 	}
-	
+
 	ArrayList arraySound = gServerData.Sounds.Get(iKey);
 
-	int iSize = arraySound.Length;
+	int iSize = (arraySound.Length - 1) / SOUNDS_DATA_DURATION;
 	if (iNum < iSize)
 	{
-		arraySound.GetString(iNum ? iNum : GetRandomInt(SOUNDS_DATA_VALUE, iSize - 1), sPath, iMaxLen);
-	}
-}
+		int iD = ((iNum ? iNum : GetRandomInt(1, iSize)) - 1) * SOUNDS_DATA_DURATION;
 
-/**
- * @brief Stops a sound list at a given key.
- * 
- * @param iKey              The sound array index.
- * @param client            (Optional) The client index.
- * @param iChannel          (Optional) The channel to emit with.
- **/
-void SoundsStopAll(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
-{
-	if (iKey == -1)
-	{
-		return;
+		arraySound.GetString(iD + SOUNDS_DATA_PATH, sPath, sizeof(sPath));
+		flVolume = arraySound.Get(iD + SOUNDS_DATA_VOLUME);
+		iLevel = arraySound.Get(iD + SOUNDS_DATA_LEVEL);
+		iFlags = arraySound.Get(iD + SOUNDS_DATA_FLAGS);
+		iPitch = arraySound.Get(iD + SOUNDS_DATA_PITCH);
+		PrintToServer("KEY=%d ~ NUM=%d ~ ID=%d ~ SIZE=%d ||| %s | flVolume = %f | flDuration = %f", iKey, iNum, iD, iSize, sPath, flVolume, arraySound.Get(iD + SOUNDS_DATA_DURATION));
+		return arraySound.Get(iD + SOUNDS_DATA_DURATION);
 	}
 	
-	static char sSound[PLATFORM_LINE_LENGTH];
+	char sKKK[SMALL_LINE_LENGTH];
+	SoundsGetKey(iKey, sKKK, sizeof(sKKK));
 	
-	ArrayList arraySound = gServerData.Sounds.Get(iKey);
-
-	int iSize = arraySound.Length;
-	for (int i = 1; i < iSize; i++)
-	{
-		arraySound.GetString(i, sSound, sizeof(sSound));
-		
-		if (hasLength(sSound))
-		{
-			Format(sSound, sizeof(sSound), "*/%s", sSound);
-			
-			if (IsPlayerExist(client, false) && !IsFakeClient(client))
-			{
-				StopSound(client, iChannel, sSound);
-			}
-			else
-			{
-				for (int x = 1; x <= MaxClients; x++)
-				{
-					if (IsPlayerExist(x, false) && !IsFakeClient(x))
-					{
-						StopSound(x, iChannel, sSound);
-					}
-				}
-			}
-		}
-	}
+	PrintToServer("failed KEY= %s (%d)  ~ NUM=%d ~ SIZE=%d ",  sKKK, iKey, iNum, iSize);
+	return 0.0;
 }
 
 /*
@@ -524,27 +525,27 @@ void SoundsStopAll(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
  */
 
 /**
- * @brief Find the random index at which the sound key is at.
+ * @brief Find the index at which the sound key is at.
  * 
  * @param sKey              The key name.
  * @return                  The array index containing the given sound key.
  **/
 int SoundsKeyToIndex(char[] sKey)
 {
-	static char sSoundKey[SMALL_LINE_LENGTH]; 
+	static char sSoundKey[SMALL_LINE_LENGTH];
 	
-	int iSize = gServerData.Sounds.Length; int iRandom; static int keyID[MAXPLAYERS+1];
+	int iSize = gServerData.Sounds.Length;
 	for (int i = 0; i < iSize; i++)
 	{
 		SoundsGetKey(i, sSoundKey, sizeof(sSoundKey));
-		
-		if (!strcmp(sSoundKey, sKey, false))
+
+		if (!strcmp(sKey, sSoundKey, false))
 		{
-			keyID[iRandom++] = i;
+			return i;
 		}
 	}
 	
-	return (iRandom) ? keyID[GetRandomInt(0, iRandom-1)] : -1;
+	return -1;
 }
 
 /**

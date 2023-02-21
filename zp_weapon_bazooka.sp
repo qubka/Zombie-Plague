@@ -114,8 +114,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("bazooka");
 
-	gSound = ZP_GetSoundKeyID("BAZOOKA_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BAZOOKA_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("bazooka_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"bazooka_shoot_sounds\" wasn't find");
 }
 
 /**

@@ -24,31 +24,6 @@
  *
  * ============================================================================
  **/
- 
-/**
- * @brief Gets sound from a key id from sounds config.
- *
- * @param iKey              The key index.
- * @param iNum              (Optional) The position index. (for not random sound)
- * @param sSample           The string to return sound in.
- *
- * @return                  True if sound was found, false otherwise.
- **/
-bool SEffectsGetSound(int iKey, int iNum = 0, char sSample[PLATFORM_MAX_PATH])
-{
-	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
-	
-	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
-	
-	if (hasLength(sSound))
-	{
-		Format(sSample, sizeof(sSample), "*/%s", sSound);
-
-		return true;
-	}
-
-	return false;
-}
 
 /**
  * @brief Emits a sound to all clients. (Can't emit sounds until the previous emit finish)
@@ -58,38 +33,22 @@ bool SEffectsGetSound(int iKey, int iNum = 0, char sSample[PLATFORM_MAX_PATH])
  * @param iNum              (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @param iLevel            (Optional) The sound level.
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The sound volume.
- * @param iPitch            (Optional) The sound pitch.
- * @param speaker           (Optional) Unknown.
- * @param vPosition         (Optional) The sound origin.
- * @param vDirection        (Optional) The sound direction.
- * @param updatePos         (Optional) Unknown (update positions?)
- * @param flSoundTime       (Optional) Alternate time to play sound for.
- * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsEmitToAllNoRestart(float &flEmitTime, int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsEmitToAllNoRestart(float &flEmitTime, int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {
-	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
+	static char sSound[PLATFORM_LINE_LENGTH];
+	float flVolume; int iLevel; int iFlags; int iPitch;
 	
-	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
-	
-	if (hasLength(sSound))
+	float flDuration = SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch);
+	if (flDuration)
 	{
 		float flCurrentTime = GetGameTime();
 
 		if (flCurrentTime > flEmitTime)
 		{
-			float flDuration;
-			gServerData.Durations.GetValue(sSound, flDuration);
-			
-			Format(sSound, sizeof(sSound), "*/%s", sSound);
-
-			EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+			EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
 		
 			flEmitTime = flCurrentTime + flDuration;
-			
 			return true;
 		}
 	}
@@ -104,24 +63,14 @@ bool SEffectsEmitToAllNoRestart(float &flEmitTime, int iKey, int iNum = 0, int e
  * @param iNum              (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @param iLevel            (Optional) The sound level.
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The sound volume.
- * @param iPitch            (Optional) The sound pitch.
- * @param speaker           (Optional) Unknown.
- * @param vPosition         (Optional) The sound origin.
- * @param vDirection        (Optional) The sound direction.
- * @param updatePos         (Optional) Unknown (update positions?)
- * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsEmitToHumans(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsEmitToHumans(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {
-	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
-	
-	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
-	
-	if (hasLength(sSound))
+	static char sSound[PLATFORM_LINE_LENGTH];
+	float flVolume; int iLevel; int iFlags; int iPitch;
+
+	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
 	{
 		int[] clients = new int[MaxClients]; int iTotal = 0;
 
@@ -135,8 +84,7 @@ bool SEffectsEmitToHumans(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER
 
 		if (iTotal)
 		{
-			Format(sSound, sizeof(sSound), "*/%s", sSound);
-			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
 		}
 		return true;
 	}
@@ -151,24 +99,14 @@ bool SEffectsEmitToHumans(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER
  * @param iNum              (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @param iLevel            (Optional) The sound level.
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The sound volume.
- * @param iPitch            (Optional) The sound pitch.
- * @param speaker           (Optional) Unknown.
- * @param vPosition         (Optional) The sound origin.
- * @param vDirection        (Optional) The sound direction.
- * @param updatePos         (Optional) Unknown (update positions?)
- * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {
-	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
-	
-	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
-	
-	if (hasLength(sSound))
+	static char sSound[PLATFORM_LINE_LENGTH];
+	float flVolume; int iLevel; int iFlags; int iPitch;
+
+	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
 	{
 		int[] clients = new int[MaxClients]; int iTotal = 0;
 
@@ -182,8 +120,7 @@ bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYE
 
 		if (iTotal)
 		{
-			Format(sSound, sizeof(sSound), "*/%s", sSound);
-			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
 		}
 		return true;
 	}
@@ -198,28 +135,16 @@ bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYE
  * @param iNum              (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @param iLevel            (Optional) The sound level.
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The sound volume.
- * @param iPitch            (Optional) The sound pitch.
- * @param speaker           (Optional) Unknown.
- * @param vPosition         (Optional) The sound origin.
- * @param vDirection        (Optional) The sound direction.
- * @param updatePos         (Optional) Unknown (update positions?)
- * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {
-	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
-	
-	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
-	
-	if (hasLength(sSound))
-	{
-		Format(sSound, sizeof(sSound), "*/%s", sSound);
+	static char sSound[PLATFORM_LINE_LENGTH];
+	float flVolume; int iLevel; int iFlags; int iPitch;
 
-		EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
+	{
+		EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
 		return true;
 	}
 
@@ -234,28 +159,16 @@ bool SEffectsEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, i
  * @param client            The client index.
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @param iLevel            (Optional) The sound level.
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The sound volume.
- * @param iPitch            (Optional) The sound pitch.
- * @param speaker           (Optional) Unknown.
- * @param vPosition         (Optional) The sound origin.
- * @param vDirection        (Optional) The sound direction.
- * @param updatePos         (Optional) Unknown (update positions?)
- * @param flSoundTime       (Optional) Alternate time to play sound for.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, int speaker = -1, float vPosition[3] = NULL_VECTOR, float vDirection[3] = NULL_VECTOR, bool updatePos = true, float flSoundTime = 0.0)
+bool SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {
-	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
-	
-	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
-	
-	if (hasLength(sSound))
-	{
-		Format(sSound, sizeof(sSound), "*/%s", sSound);
+	static char sSound[PLATFORM_LINE_LENGTH];
+	float flVolume; int iLevel; int iFlags; int iPitch;
 
-		EmitSoundToClient(client, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch, speaker, vPosition, vDirection, updatePos, flSoundTime);
+	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
+	{
+		EmitSoundToClient(client, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
 		return true;
 	}
 
@@ -269,23 +182,16 @@ bool SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND
  * @param iNum              (Optional) The position index. (for not random sound)
  * @param vPosition         The sound origin.
  * @param entity            (Optional) The entity to associate sound with.
- * @param iLevel            (Optional) The sound level.
- * @param iFlags            (Optional) The sound flags.
- * @param flVolume          (Optional) The sound volume.
- * @param iPitch            (Optional) The sound pitch.
  * @param flDelay           (Optional) The play delay.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int entity = SOUND_FROM_WORLD, int iLevel = SNDLEVEL_NORMAL, int iFlags = SND_NOFLAGS, float flVolume = SNDVOL_NORMAL, int iPitch = SNDPITCH_NORMAL, float flDelay = 0.0)
+bool SEffectsEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int entity = SOUND_FROM_WORLD, float flDelay = 0.0)
 {
-	static char sSound[PLATFORM_LINE_LENGTH]; sSound[0] = NULL_STRING[0];
-	
-	SoundsGetPath(iKey, sSound, sizeof(sSound), iNum);
-	
-	if (hasLength(sSound))
-	{
-		Format(sSound, sizeof(sSound), "*/%s", sSound);
+	static char sSound[PLATFORM_LINE_LENGTH];
+	float flVolume; int iLevel; int iFlags; int iPitch;
 
+	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
+	{
 		EmitAmbientSound(sSound, vPosition, entity, iLevel, iFlags, flVolume, iPitch, flDelay);
 		return true;
 	}
@@ -294,15 +200,36 @@ bool SEffectsEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int entity 
 }
 
 /**
- * @brief Stop sounds.
- *  
+ * @brief Stops a sound to all clients.
+ *
  * @param iKey              The key array.
- * @param client            (Optional) The client index.
+ * @param iNum              (Optional) The position index. (for all sounds)
+ * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
+ * @return                  True if the sound was emitted, false otherwise.
  **/
-void SEffectsStopSound(int iKey, int client = -1, int iChannel = SNDCHAN_AUTO)
+bool SEffectsStopToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {
-	SoundsStopAll(iKey, client, iChannel);
+	if (iNum == 0)
+	{
+		int iSize = SoundsGetCount(iKey);
+		for (int i = 1; i <= iSize; i++)
+		{
+			SEffectsStopToAll(iKey, i, entity, iChannel);
+		}
+		return true;
+	}
+	
+	static char sSound[PLATFORM_LINE_LENGTH];
+	float flVolume; int iLevel; int iFlags; int iPitch;
+
+	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
+	{
+		StopSound(entity, iChannel, sSound);
+		return true;
+	}
+
+	return false;
 }
 
 /**

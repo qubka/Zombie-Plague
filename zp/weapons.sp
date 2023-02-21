@@ -2034,6 +2034,18 @@ void WeaponsSetOwner(int weapon, int owner)
 }
 
 /**
+ * @brief Sets the ammo for the client.
+ *
+ * @param client            The client index.
+ * @param iAmmoType         The ammo type.    
+ * @param iAmmo             The ammo count.    
+ **/
+void WeaponsSetAmmo(int client, int iAmmoType, int iAmmo)
+{
+	SetEntProp(client, Prop_Send, "m_iAmmo", iAmmo, _, iAmmoType);
+} 
+
+/**
  * @brief Gets the ammo type.
  *
  * @param weapon            The weapon index.
@@ -2196,6 +2208,11 @@ bool WeaponsRemoveAll(int client, bool bDrop = false)
 				{
 					if (bDrop && WeaponsIsDrop(iD))
 					{
+						ItemDef iItem = WeaponsGetDefIndex(iD);
+						if (IsGrenade(iItem))
+						{
+							WeaponsSetAmmo(client, WeaponsGetAmmoType(weapon), 1); /// sets grenade count to 1
+						}
 						WeaponsDrop(client, weapon, false);
 					}
 					else

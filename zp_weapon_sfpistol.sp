@@ -101,10 +101,10 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("sfpistol");
 
-	gSoundAttack = ZP_GetSoundKeyID("SFPISTOL_SHOOT_SOUNDS");
-	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFPISTOL_SHOOT_SOUNDS\" wasn't find");
-	gSoundIdle = ZP_GetSoundKeyID("SFPISTOL_IDLE_SOUNDS");
-	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFPISTOL_IDLE_SOUNDS\" wasn't find");
+	gSoundAttack = ZP_GetSoundKeyID("sfpistol_shoot_sounds");
+	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"sfpistol_shoot_sounds\" wasn't find");
+	gSoundIdle = ZP_GetSoundKeyID("sfpistol_idle_sounds");
+	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"sfpistol_idle_sounds\" wasn't find");
 }
 
 /**
@@ -124,7 +124,7 @@ void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iStateMo
 {
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 }
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -145,8 +145,8 @@ void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode,
 	
 	ZP_SetWeaponAnimation(client, ANIM_IDLE); 
 	
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_FRIDGE);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
+	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 }
@@ -177,7 +177,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 	
 	flCurrentTime -= 0.5;
 	
@@ -239,7 +239,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		return;
 	}
 	
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON);
 
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);

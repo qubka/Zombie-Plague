@@ -103,8 +103,8 @@ ConVar hCvarMineDamage;
 public void OnPluginStart()
 {
 	hCvarMineImpulse = CreateConVar("zp_weapon_lasermine_impulse", "0", "Use the classical beam?", 0, true, 0.0, true, 1.0);
-	hCvarMineRewards = CreateConVar("zp_weapon_lasermine_rewards", "0", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
-	hCvarMineDamage = CreateConVar("zp_weapon_lasermine_damage", "150.0", "Damage amount", 0, true, 0.0);
+	hCvarMineRewards = CreateConVar("zp_weapon_lasermine_rewards", "1", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
+	hCvarMineDamage  = CreateConVar("zp_weapon_lasermine_damage", "150.0", "Damage amount", 0, true, 0.0);
 	
 	AutoExecConfig(true, "zp_weapon_lasermine", "sourcemod/zombieplague");
 }
@@ -131,8 +131,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("lasermine");
 
-	gSound = ZP_GetSoundKeyID("LASERMINE_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"LASERMINE_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("lasermine_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"lasermine_shoot_sounds\" wasn't find");
 }
 
 /**

@@ -165,12 +165,12 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("sfsword");
 
-	gSoundAttack = ZP_GetSoundKeyID("SFSWORD_HIT_SOUNDS");
-	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFSWORD_HIT_SOUNDS\" wasn't find");
-	gSoundHit = ZP_GetSoundKeyID("SFSWORD2_HIT_SOUNDS");
-	if (gSoundHit == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFSWORD2_HIT_SOUNDS\" wasn't find");
-	gSoundIdle = ZP_GetSoundKeyID("SFSWORD_IDLE_SOUNDS");
-	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"SFSWORD_IDLE_SOUNDS\" wasn't find");
+	gSoundAttack = ZP_GetSoundKeyID("sfsword_hit_sounds");
+	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"sfsword_hit_sounds\" wasn't find");
+	gSoundHit = ZP_GetSoundKeyID("sfsword2_hit_sounds");
+	if (gSoundHit == -1) SetFailState("[ZP] Custom sound key ID from name : \"sfsword2_hit_sounds\" wasn't find");
+	gSoundIdle = ZP_GetSoundKeyID("sfsword_idle_sounds");
+	if (gSoundIdle == -1) SetFailState("[ZP] Custom sound key ID from name : \"sfsword_idle_sounds\" wasn't find");
 }
 
 //*********************************************************************
@@ -185,7 +185,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
 		return;
 	}
 	
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 
 	if (iChangeMode)
 	{
@@ -199,7 +199,7 @@ void Weapon_OnIdle(int client, int weapon, int iStep, int iChangeMode, float flC
 	
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_ON_TIME);
 	
-		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 	}
 }
 
@@ -209,7 +209,7 @@ void Weapon_OnHolster(int client, int weapon, int iStep, int iChangeMode, float 
 	delete hWeaponSwing[client];
 	delete hWeaponSwingAgain[client];
 	
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 }
 
 void Weapon_OnDeploy(int client, int weapon, int iStep, int iChangeMode, float flCurrentTime)
@@ -234,7 +234,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 		return;
 	}
 	
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 
 	if (iChangeMode)
 	{
@@ -289,7 +289,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode
 		return;
 	}
 
-	ZP_EmitSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON, SNDLEVEL_NONE, SND_STOP, 0.0);
+	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 	
 	if (iChangeMode)
 	{

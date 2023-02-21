@@ -72,18 +72,10 @@ void PlayerSoundsOnCvarInit()
 	gCvarList.SEFFECTS_DEATH             = FindConVar("zp_seffects_death");
 	gCvarList.SEFFECTS_FOOTSTEPS         = FindConVar("zp_seffects_footsteps");
 	gCvarList.SEFFECTS_CLAWS             = FindConVar("zp_seffects_claws");
-	gCvarList.SEFFECTS_PLAYER_FLASHLIGHT = FindConVar("zp_seffects_player_flashlight");  
-	gCvarList.SEFFECTS_PLAYER_NVGS       = FindConVar("zp_seffects_player_nvgs");  
-	gCvarList.SEFFECTS_PLAYER_AMMUNITION = FindConVar("zp_seffects_player_ammunition");
-	gCvarList.SEFFECTS_PLAYER_LEVEL      = FindConVar("zp_seffects_player_level");
 	gCvarList.SEFFECTS_ROUND_START       = FindConVar("zp_seffects_round_start");   
 	gCvarList.SEFFECTS_ROUND_COUNT       = FindConVar("zp_seffects_round_count");   
 	gCvarList.SEFFECTS_ROUND_BLAST       = FindConVar("zp_seffects_round_blast");
-	
-	HookConVarChange(gCvarList.SEFFECTS_PLAYER_FLASHLIGHT, PlayerSoundsOnCvarHook);
-	HookConVarChange(gCvarList.SEFFECTS_PLAYER_NVGS,       PlayerSoundsOnCvarHook);
-	HookConVarChange(gCvarList.SEFFECTS_PLAYER_AMMUNITION, PlayerSoundsOnCvarHook);
-	HookConVarChange(gCvarList.SEFFECTS_PLAYER_LEVEL,      PlayerSoundsOnCvarHook);
+
 	HookConVarChange(gCvarList.SEFFECTS_ROUND_START,       PlayerSoundsOnCvarHook);
 	HookConVarChange(gCvarList.SEFFECTS_ROUND_COUNT,       PlayerSoundsOnCvarHook);
 	HookConVarChange(gCvarList.SEFFECTS_ROUND_BLAST,       PlayerSoundsOnCvarHook);
@@ -94,7 +86,7 @@ void PlayerSoundsOnCvarInit()
  **/
 void PlayerSoundsOnCounterStart()
 {
-	SEffectsEmitToAll(gSoundData.Start, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+	SEffectsEmitToAll(gSoundData.Start, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 }
 
 /**
@@ -108,9 +100,9 @@ public Action PlayerSoundsOnRoundEndPost(Handle hTimer, CSRoundEndReason reason)
 	
 	switch (reason)
 	{
-		case CSRoundEnd_TerroristWin : SEffectsEmitToAll(ModesGetSoundEndZombieID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_NORMAL);   
-		case CSRoundEnd_CTWin :        SEffectsEmitToAll(ModesGetSoundEndHumanID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
-		case CSRoundEnd_Draw :         SEffectsEmitToAll(ModesGetSoundEndDrawID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		case CSRoundEnd_TerroristWin : SEffectsEmitToAll(ModesGetSoundEndZombieID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);   
+		case CSRoundEnd_CTWin :        SEffectsEmitToAll(ModesGetSoundEndHumanID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
+		case CSRoundEnd_Draw :         SEffectsEmitToAll(ModesGetSoundEndDrawID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 	}
 	
 	return Plugin_Stop;
@@ -123,7 +115,7 @@ public Action PlayerSoundsOnRoundEndPost(Handle hTimer, CSRoundEndReason reason)
  **/
 bool PlayerSoundsOnCounter()
 {
-	return SEffectsEmitToAll(gSoundData.Count, gServerData.RoundCount, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_CONVO);
+	return SEffectsEmitToAll(gSoundData.Count, gServerData.RoundCount, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 }
 
 /**
@@ -133,7 +125,7 @@ public Action PlayerSoundsOnBlastPost(Handle hTimer)
 {
 	gServerData.BlastTimer = null;
 	
-	SEffectsEmitToAll(gSoundData.Blast, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+	SEffectsEmitToAll(gSoundData.Blast, _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 
 	return Plugin_Stop;
 }
@@ -143,7 +135,7 @@ public Action PlayerSoundsOnBlastPost(Handle hTimer)
  **/
 void PlayerSoundsOnGameModeStart()
 {
-	SEffectsEmitToAll(ModesGetSoundStartID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+	SEffectsEmitToAll(ModesGetSoundStartID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 }
 
 /**
@@ -159,7 +151,7 @@ void PlayerSoundsOnClientDeath(int client)
 		return;
 	}
 
-	SEffectsEmitToAll(ClassGetSoundDeathID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+	SEffectsEmitToAll(ClassGetSoundDeathID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
 }
 
 /**
@@ -176,14 +168,14 @@ void PlayerSoundsOnClientHurt(int client, bool bBurning)
 		{
 			static float flBurn[MAXPLAYERS+1];
 			
-			SEffectsEmitToAllNoRestart(flBurn[client], ClassGetSoundBurnID(gClientData[client].Class), _, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+			SEffectsEmitToAllNoRestart(flBurn[client], ClassGetSoundBurnID(gClientData[client].Class), _, client, SNDCHAN_WEAPON);
 			return; /// Exit here
 		}
 	}
 	
 	static float flGroan[MAXPLAYERS+1];
 
-	SEffectsEmitToAllNoRestart(flGroan[client], ClassGetSoundHurtID(gClientData[client].Class), _, client, SNDCHAN_BODY, SNDLEVEL_NORMAL);
+	SEffectsEmitToAllNoRestart(flGroan[client], ClassGetSoundHurtID(gClientData[client].Class), _, client, SNDCHAN_BODY);
 }
 
 /**
@@ -198,17 +190,17 @@ void PlayerSoundsOnClientInfected(int client, int attacker)
 	{
 		if (attacker < 1)
 		{
-			SEffectsEmitToAll(ClassGetSoundRespawnID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+			SEffectsEmitToAll(ClassGetSoundRespawnID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
 		}
 		else
 		{
-			SEffectsEmitToAll(ClassGetSoundInfectID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+			SEffectsEmitToAll(ClassGetSoundInfectID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
 		}
 	}
 	
 	if (gCvarList.SEFFECTS_COMEBACK.BoolValue && gServerData.RoundStart && attacker == -1)
 	{
-		SEffectsEmitToHumans(ModesGetSoundComebackID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_NORMAL);
+		SEffectsEmitToHumans(ModesGetSoundComebackID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 	}
 	
 	float flInterval = gCvarList.SEFFECTS_MOAN.FloatValue;
@@ -233,7 +225,7 @@ public Action PlayerSoundsOnMoanRepeat(Handle hTimer, int userID)
 
 	if (client)
 	{
-		SEffectsEmitToAll(ClassGetSoundIdleID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_CONVO);
+		SEffectsEmitToAll(ClassGetSoundIdleID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
 
 		return Plugin_Continue;
 	}
@@ -250,7 +242,7 @@ public Action PlayerSoundsOnMoanRepeat(Handle hTimer, int userID)
  **/
 void PlayerSoundsOnClientRegen(int client)
 {
-	SEffectsEmitToAll(ClassGetSoundRegenID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_CONVO);
+	SEffectsEmitToAll(ClassGetSoundRegenID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
 }
 
 /**
@@ -260,7 +252,7 @@ void PlayerSoundsOnClientRegen(int client)
  **/
 void PlayerSoundsOnClientJump(int client)
 {
-	SEffectsEmitToAll(ClassGetSoundJumpID(gClientData[client].Class), _, client, SNDCHAN_STATIC, SNDLEVEL_CONVO);
+	SEffectsEmitToAll(ClassGetSoundJumpID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
 }
 
 /**
@@ -272,7 +264,7 @@ void PlayerSoundsOnClientJump(int client)
  **/
 bool PlayerSoundsOnClientShoot(int client, int iD)
 {
-	return SEffectsEmitToAll(WeaponsGetSoundID(iD), _, client, SNDCHAN_WEAPON, SNDLEVEL_NORMAL);
+	return SEffectsEmitToAll(WeaponsGetSoundID(iD), _, client, SNDCHAN_WEAPON);
 }
 
 /**
@@ -296,7 +288,8 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 	{
 		if (gCvarList.SEFFECTS_FOOTSTEPS.BoolValue && StrContains(sSample, "footsteps", false) != -1)
 		{
-			if (SEffectsGetSound(ClassGetSoundFootID(gClientData[entity].Class), _, sSample))
+			float oVolume; int oLevel; int oFlags; int oPitch;
+			if (SoundsGetSound(ClassGetSoundFootID(gClientData[entity].Class), _, sSample, oVolume, oLevel, oFlags, oPitch))
 			{
 				return Plugin_Changed; 
 			}
@@ -317,7 +310,8 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 				int client = ToolsGetOwner(entity);
 				if (IsPlayerExist(client))
 				{
-					if (SEffectsGetSound(ClassGetSoundAttackID(gClientData[client].Class), _, sSample))
+					float oVolume; int oLevel; int oFlags; int oPitch;
+					if (SoundsGetSound(ClassGetSoundAttackID(gClientData[client].Class), _, sSample, oVolume, oLevel, oFlags, oPitch))
 					{
 						return Plugin_Changed; 
 					}
@@ -344,7 +338,7 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 }
 
 /**
- * Cvar hook callback (zp_seffects_player_*, zp_seffects_round_*)
+ * Cvar hook callback (zp_seffects_round_*)
  * @brief Load the sound variables.
  * 
  * @param hConVar           The cvar handle.

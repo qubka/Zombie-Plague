@@ -114,8 +114,8 @@ public void OnLibraryAdded(const char[] sLibrary)
  **/
 public void ZP_OnEngineExecute()
 {
-	gSound = ZP_GetSoundKeyID("PRESENT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"PRESENT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("present_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"present_sounds\" wasn't find");
 	
 	gType = ZP_GetClassTypeID("human");
 	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"human\" wasn't find");

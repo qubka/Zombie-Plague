@@ -105,8 +105,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("flare grenade");
 
-	gSound = ZP_GetSoundKeyID("FLARE_GRENADE_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FLARE_GRENADE_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("flare_grenade_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"flare_grenade_sounds\" wasn't find");
 }
 
 /**

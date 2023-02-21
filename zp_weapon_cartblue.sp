@@ -118,8 +118,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("cartblue");
 	
-	gSound = ZP_GetSoundKeyID("CARTBLUE_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"CARTBLUE_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("cartblue_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"cartblue_shoot_sounds\" wasn't find");
 }
 
 //*********************************************************************

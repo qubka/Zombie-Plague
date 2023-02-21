@@ -86,8 +86,8 @@ public void ZP_OnEngineExecute()
 {
 	gHuman = ZP_GetClassNameID("redtank");
 	
-	gSound = ZP_GetSoundKeyID("REDTANK_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDTANK_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("redtank_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"redtank_skill_sounds\" wasn't find");
 }
 
 /**

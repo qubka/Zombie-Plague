@@ -72,8 +72,8 @@ public void ZP_OnEngineExecute()
 {
 	gHuman = ZP_GetClassNameID("bluealice");
 	
-	gSound = ZP_GetSoundKeyID("BLUEALICE_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BLUEALICE_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("bluealice_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"bluealice_skill_sounds\" wasn't find");
 }
 
 /**

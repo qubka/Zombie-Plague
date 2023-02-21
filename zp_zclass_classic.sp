@@ -92,8 +92,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 {
 	gZombie = ZP_GetClassNameID("classic");
 	
-	gSound = ZP_GetSoundKeyID("SLEEPER_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SLEEPER_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("sleeper_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"sleeper_skill_sounds\" wasn't find");
 }
 
 /**

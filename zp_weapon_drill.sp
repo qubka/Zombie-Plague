@@ -118,8 +118,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("drillgun");
 
-	gSound = ZP_GetSoundKeyID("DRILL_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"DRILL_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("drill_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"drill_shoot_sounds\" wasn't find");
 }
 
 /**

@@ -87,8 +87,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("jetpack");
 	
-	gSound = ZP_GetSoundKeyID("JETPACK_FLY_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JETPACK_FLY_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("jetpack_fly_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"jetpack_fly_sounds\" wasn't find");
 }
 
 /**

@@ -130,8 +130,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("m32");
 
-	gSound = ZP_GetSoundKeyID("M32_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"M32_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("m32_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"m32_shoot_sounds\" wasn't find");
 }
 
 /**

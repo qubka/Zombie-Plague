@@ -347,6 +347,7 @@ public int API_ResetClientSkill(Handle hPlugin, int iNumParams)
 	
 	delete gClientData[client].SkillTimer;
 	delete gClientData[client].CounterTimer;
+	
 	gClientData[client].Skill = false;
 	gClientData[client].SkillCounter = 0.0;
 	

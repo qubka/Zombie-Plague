@@ -44,16 +44,20 @@
 native int ZP_GetSoundKeyID(char[] key);
 
 /**
- * @brief Gets sound from a key id from sounds config.
+ * @brief Gets the sound of a block at a given key.
  *
  * @param keyID             The key index.
  * @param num               (Optional) The position index. (for not random sound)
  * @param sound             The string to return sound in.
  * @param maxlenght         The lenght of string.
+ * @param volume            The sound volume.
+ * @param level             The sound level.
+ * @param flags             The sound flags.
+ * @param pitch             The sound pitch.
  *
- * @return                  True if sound was found, false otherwise.
+ * @return                  The sound duration. (returns 0 if not found)
  **/
-native bool ZP_GetSound(int keyID, int num = 0, char[] sound, int maxlenght = 256);
+native float ZP_GetSound(int keyID, int num = 0, char[] sound, int maxlenght = 256, float &volume, int &level, int &flags, int &pitch);
 
 /**
  * @brief Emits a sound to all humans.
@@ -62,13 +66,9 @@ native bool ZP_GetSound(int keyID, int num = 0, char[] sound, int maxlenght = 25
  * @param num               (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param channel           (Optional) The channel to emit with.
- * @param level             (Optional) The sound level.
- * @param flags             (Optional) The sound flags.
- * @param volume            (Optional) The sound volume.
- * @param pitch             (Optional) The sound pitch.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-native bool ZP_EmitSoundToHumans(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
+native bool ZP_EmitSoundToHumans(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
 
 /**
  * @brief Emits a sound to all zombies.
@@ -77,13 +77,9 @@ native bool ZP_EmitSoundToHumans(int keyID, int num = 0, int entity = SOUND_FROM
  * @param num               (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param channel           (Optional) The channel to emit with.
- * @param level             (Optional) The sound level.
- * @param flags             (Optional) The sound flags.
- * @param volume            (Optional) The sound volume.
- * @param pitch             (Optional) The sound pitch.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-native bool ZP_EmitSoundToZombies(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
+native bool ZP_EmitSoundToZombies(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
 
 /**
  * @brief Emits a sound to all clients.
@@ -92,13 +88,9 @@ native bool ZP_EmitSoundToZombies(int keyID, int num = 0, int entity = SOUND_FRO
  * @param num               (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param channel           (Optional) The channel to emit with.
- * @param level             (Optional) The sound level.
- * @param flags             (Optional) The sound flags.
- * @param volume            (Optional) The sound volume.
- * @param pitch             (Optional) The sound pitch.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-native bool ZP_EmitSoundToAll(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
+native bool ZP_EmitSoundToAll(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
 
 /**
  * @brief Emits a sound to the client.
@@ -108,13 +100,9 @@ native bool ZP_EmitSoundToAll(int keyID, int num = 0, int entity = SOUND_FROM_PL
  * @param client            The client index.
  * @param entity            (Optional) The entity to emit from.
  * @param channel           (Optional) The channel to emit with.
- * @param level             (Optional) The sound level.
- * @param flags             (Optional) The sound flags.
- * @param volume            (Optional) The sound volume.
- * @param pitch             (Optional) The sound pitch.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-native bool ZP_EmitSoundToClient(int keyID, int num = 0, int client, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL);
+native bool ZP_EmitSoundToClient(int keyID, int num = 0, int client, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
 
 /**
  * @brief Emits an ambient sound.
@@ -130,4 +118,15 @@ native bool ZP_EmitSoundToClient(int keyID, int num = 0, int client, int entity 
  * @param delay             (Optional) The play delay.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-native bool ZP_EmitAmbientSound(int keyID, int num = 0, float origin[3], int entity = SOUND_FROM_WORLD, int level = SNDLEVEL_NORMAL, int flags = SND_NOFLAGS, float volume = SNDVOL_NORMAL, int pitch = SNDPITCH_NORMAL, float delay = 0.0);
+native bool ZP_EmitAmbientSound(int keyID, int num = 0, float origin[3], int entity = SOUND_FROM_WORLD, float delay = 0.0);
+
+/**
+ * @brief Stops a sound to all clients.
+ *
+ * @param keyID             The key array.
+ * @param num               (Optional) The position index. (for all sounds)
+ * @param entity            (Optional) The entity to emit from.
+ * @param channel           (Optional) The channel to emit with.
+ * @return                  True if the sound was stopped, false otherwise.
+ **/
+native bool ZP_StopSoundToAll(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);

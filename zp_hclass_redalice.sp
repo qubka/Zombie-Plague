@@ -91,8 +91,8 @@ public void ZP_OnEngineExecute()
 {
 	gHuman = ZP_GetClassNameID("redalice");
 	
-	gSound = ZP_GetSoundKeyID("REDALICE_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"REDALICE_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("redalice_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"redalice_skill_sounds\" wasn't find");
 }
 
 /**

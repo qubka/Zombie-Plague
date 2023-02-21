@@ -273,24 +273,6 @@ native int ZP_GetGameModeSoundComebackID(int modeID);
 native int ZP_GetGameModeSoundAmbientID(int modeID);
 
 /**
- * @brief Gets the ambient sound duration of the game mode.
- *
- * @param modeID            The mode index.
- *
- * @return                  The duration amount.
- **/
-native float ZP_GetGameModeSoundDuration(int modeID);
-
-/**
- * @brief Gets the ambient sound volume of the game mode.
- *
- * @param modeID            The mode index.
- *
- * @return                  The volume amount.
- **/
-native float ZP_GetGameModeSoundVolume(int modeID);
-
-/**
  * @brief Checks the infection type of the game mode.
  * 
  * @param modeID            The mode index.

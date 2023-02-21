@@ -86,8 +86,8 @@ public void ZP_OnEngineExecute()
 {
 	gHuman = ZP_GetClassNameID("bluetank");
 	
-	gSound = ZP_GetSoundKeyID("BLUETANK_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BLUETANK_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("bluetank_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"bluetank_skill_sounds\" wasn't find");
 }
 
 /**

@@ -112,8 +112,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("infect bomb");
 
-	gSound = ZP_GetSoundKeyID("INFECT_GRENADE_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"INFECT_GRENADE_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("infect_grenade_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"infect_grenade_sounds\" wasn't find");
 	
 	gType = ZP_GetClassTypeID("zombie");
 	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"zombie\" wasn't find");
@@ -297,21 +297,24 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 		{
 			if (!strncmp(sSample[30], "arm", 3, false))
 			{
-				if (ZP_GetSound(gSound, 1, sSample, sizeof(sSample)))
+				float oVolume; int oLevel; int oFlags; int oPitch;
+				if (ZP_GetSound(gSound, 1, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
 				}
 			}
 			else if (!strncmp(sSample[30], "det", 3, false))
 			{
-				if (ZP_GetSound(gSound, 2, sSample, sizeof(sSample)))
+				float oVolume; int oLevel; int oFlags; int oPitch;
+				if (ZP_GetSound(gSound, 2, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
 				}
 			}
 			else if (!strncmp(sSample[30], "exp", 3, false))
 			{
-				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample)))
+				float oVolume; int oLevel; int oFlags; int oPitch;
+				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
 				}

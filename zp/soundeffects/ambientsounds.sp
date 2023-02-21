@@ -26,29 +26,34 @@
  **/
 
 /**
+ * Array to store the client current ambients.
+ **/
+char gAmbient[MAXPLAYERS+1][PLATFORM_MAX_PATH]; 
+
+/**
  * @brief The gamemode is starting.
  **/
 void AmbientSoundsOnGameModeStart()
 {
-	float flAmbientDuration = ModesGetSoundDuration(gServerData.RoundMode);
-	if (!flAmbientDuration)
-	{
-		return;
-	}
-	
-	float flAmbientVolume = ModesGetSoundVolume(gServerData.RoundMode);
-	if (!flAmbientVolume)
-	{
-		return;
-	}
-
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsPlayerExist(i, false) && !IsFakeClient(i))
+		if (IsPlayerExist(i, false))
 		{
-			delete gClientData[i].AmbientTimer;
-			gClientData[i].AmbientTimer = CreateTimer(flAmbientDuration, AmbientSoundsOnMP3Repeat, GetClientUserId(i), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			AmbientSoundsOnClientUpdate(i);
 		}
+	}
+}
+
+/**
+ * @brief Client has been killed.
+ * 
+ * @param client            The client index.
+ **/
+void AmbientSoundsOnClientDeath(int client)
+{
+	if (hasLength(gAmbient[client]))
+	{
+		StopSound(client, SNDCHAN_STATIC, gAmbient[client]);
 	}
 }
 
@@ -59,29 +64,23 @@ void AmbientSoundsOnGameModeStart()
  **/
 void AmbientSoundsOnClientUpdate(int client)
 {
+	gAmbient[client][0] = NULL_STRING[0];
+
 	if (!gServerData.RoundStart)
 	{
 		return;
 	}
-	
-	float flAmbientDuration = ModesGetSoundDuration(gServerData.RoundMode);
-	if (!flAmbientDuration)
-	{
-		return;
-	}
-	
-	float flAmbientVolume = ModesGetSoundVolume(gServerData.RoundMode);
-	if (!flAmbientVolume)
-	{
-		return;
-	}
-	
-	SEffectsStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
 
-	SEffectsEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
+	float flVolume; int iLevel; int iFlags; int iPitch;
 
-	delete gClientData[client].AmbientTimer;
-	gClientData[client].AmbientTimer = CreateTimer(flAmbientDuration, AmbientSoundsOnMP3Repeat, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+	float flDuration = SoundsGetSound(ModesGetSoundAmbientID(gServerData.RoundMode), _, gAmbient[client], flVolume, iLevel, iFlags, iPitch);
+	if (flDuration)
+	{
+		EmitSoundToClient(client, gAmbient[client], SOUND_FROM_PLAYER, SNDCHAN_STATIC, iLevel, iFlags, flVolume, iPitch);
+
+		delete gClientData[client].AmbientTimer;
+		gClientData[client].AmbientTimer = CreateTimer(flDuration, AmbientSoundsOnMP3Repeat, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
 }
  
 /**
@@ -94,24 +93,20 @@ public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
 {
 	int client = GetClientOfUserId(userID);
 
+	gClientData[client].AmbientTimer = null;
+
 	if (client)
 	{
-		float flAmbientVolume = ModesGetSoundVolume(gServerData.RoundMode);
-		if (!flAmbientVolume || !ModesGetSoundDuration(gServerData.RoundMode))
+		float flVolume; int iLevel; int iFlags; int iPitch;
+	
+		float flDuration = SoundsGetSound(ModesGetSoundAmbientID(gServerData.RoundMode), _, gAmbient[client], flVolume, iLevel, iFlags, iPitch);
+		if (flDuration)
 		{
-			gClientData[client].AmbientTimer = null;
-	
-			return Plugin_Stop;
+			EmitSoundToClient(client, gAmbient[client], SOUND_FROM_PLAYER, SNDCHAN_STATIC, iLevel, iFlags, flVolume, iPitch);
+
+			gClientData[client].AmbientTimer = CreateTimer(flDuration, AmbientSoundsOnMP3Repeat, userID, TIMER_FLAG_NO_MAPCHANGE);
 		}
-	
-		SEffectsStopSound(ModesGetSoundAmbientID(gServerData.RoundMode), client, SNDCHAN_STATIC);
-
-		SEffectsEmitToClient(ModesGetSoundAmbientID(gServerData.RoundMode), _, client, SOUND_FROM_PLAYER, SNDCHAN_STATIC, SNDLEVEL_LIBRARY, _, flAmbientVolume);
-
-		return Plugin_Continue;
 	}
-
-	gClientData[client].AmbientTimer = null;
 	
 	return Plugin_Stop;
 }

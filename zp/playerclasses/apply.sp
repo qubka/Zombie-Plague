@@ -230,7 +230,9 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 	
 	if (IsFakeClient(client))
 	{
-		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		delete gClientData[client].ThinkTimer;
+		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		
 		gClientData[client].Money += GetRandomInt(5000, 20000);
 	}
 
@@ -263,6 +265,8 @@ public Action ApplyOnBotClientThink(Handle hTimer, int userID)
 {
 	int client = GetClientOfUserId(userID);
 
+	gClientData[client].ThinkTimer = null;
+
 	if (client)
 	{
 		SkillSystemOnFakeClientThink(client);
@@ -270,10 +274,8 @@ public Action ApplyOnBotClientThink(Handle hTimer, int userID)
 		WeaponsOnFakeClientThink(client);
 		CostumesOnFakeClientThink(client);
 
-		return Plugin_Continue;
+		gClientData[client].ThinkTimer = CreateTimer(GetRandomFloat(10.0, 30.0), ApplyOnBotClientThink, userID, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
-	gClientData[client].ThinkTimer = null;
-
 	return Plugin_Stop;
 }

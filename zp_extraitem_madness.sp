@@ -92,8 +92,8 @@ public void ZP_OnEngineExecute()
 {
 	gItem = ZP_GetExtraItemNameID("madness");
 	
-	gSound = ZP_GetSoundKeyID("ZOMBIE_MADNESS_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"ZOMBIE_MADNESS_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("zombie_madness_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"zombie_madness_sounds\" wasn't find");
 }
 
 /**

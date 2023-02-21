@@ -93,8 +93,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("skull1");
 
-	gSound = ZP_GetSoundKeyID("SKULLI_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SKULLI_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("skulli_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"skulli_shoot_sounds\" wasn't find");
 }
 
 //*********************************************************************

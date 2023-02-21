@@ -93,8 +93,8 @@ public void ZP_OnEngineExecute()
 {
 	gZombie = ZP_GetClassNameID("deimos");
 	
-	gSound = ZP_GetSoundKeyID("DEIMOS_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"DEIMOS_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("deimos_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"deimos_skill_sounds\" wasn't find");
 }
 
 /**

@@ -183,6 +183,7 @@ void HealthOnClientHurt(int client, int attacker, int iHealth)
 		HealthShowSprite(attacker, HealthGetFrame(client));
 		
 		gClientData[attacker].HealthDuration = gCvarList.VEFFECTS_HEALTH_DURATION.FloatValue;
+		
 		delete gClientData[attacker].SpriteTimer;
 		gClientData[attacker].SpriteTimer = CreateTimer(0.1, HealthOnClientSprite, GetClientUserId(attacker), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}

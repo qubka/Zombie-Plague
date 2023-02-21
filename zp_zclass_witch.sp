@@ -93,8 +93,8 @@ public void ZP_OnEngineExecute()
 {
 	gZombie = ZP_GetClassNameID("witch");
 	
-	gSound = ZP_GetSoundKeyID("WITCH_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"WITCH_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("witch_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"witch_skill_sounds\" wasn't find");
 }
 
 /**

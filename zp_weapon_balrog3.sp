@@ -112,8 +112,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("balrog3");
 	
-	gSound = ZP_GetSoundKeyID("BALROGIII_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"BALROGIII_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("balrogiii_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"balrogiii_shoot_sounds\" wasn't find");
 }
 
 //*********************************************************************

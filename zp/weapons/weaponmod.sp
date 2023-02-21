@@ -1029,7 +1029,10 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 				WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
 			}
 			
-			gForwardData._OnWeaponDeploy(client, weapon, iD);
+			if (IsPlayerExist(client))
+			{
+				gForwardData._OnWeaponDeploy(client, weapon, iD);
+			}
 		}
 	}
 	

@@ -54,8 +54,6 @@ enum
 	GAMEMODES_DATA_SOUND_ENDDRAW,
 	GAMEMODES_DATA_SOUND_COMEBACK,
 	GAMEMODES_DATA_SOUND_AMBIENT,
-	GAMEMODES_DATA_SOUND_DURATION,
-	GAMEMODES_DATA_SOUND_VOLUME,
 	GAMEMODES_DATA_INFECTION,
 	GAMEMODES_DATA_RESPAWN,
 	GAMEMODES_DATA_TYPE_HUMAN,
@@ -214,46 +212,44 @@ void GameModesOnCacheData()
 		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 17
 		kvGameModes.GetString("ambient", sBuffer, sizeof(sBuffer), "");             
 		arrayGameMode.Push(SoundsKeyToIndex(sBuffer));                              // Index: 18
-		arrayGameMode.Push(kvGameModes.GetFloat("duration", 60.0));                 // Index: 19
-		arrayGameMode.Push(kvGameModes.GetFloat("volume", 1.0));                    // Index: 20
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 21
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 22
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "infect", "yes"));    // Index: 19
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "respawn", "yes"));   // Index: 20
 		kvGameModes.GetString("type_human", sBuffer, sizeof(sBuffer), "human");
-		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 23
+		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 21
 		kvGameModes.GetString("type_zombie", sBuffer, sizeof(sBuffer), "zombie");   
-		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 24
+		arrayGameMode.Push(gServerData.Types.FindString(sBuffer));                  // Index: 22
 		kvGameModes.GetString("overlay_human", sBuffer, sizeof(sBuffer), "");       
-		arrayGameMode.PushString(sBuffer);                                          // Index: 25
+		arrayGameMode.PushString(sBuffer);                                          // Index: 23
 		if (hasLength(sBuffer))                                                     
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
 			DecryptPrecacheTextures("self", sBuffer);
 		}
 		kvGameModes.GetString("overlay_zombie", sBuffer, sizeof(sBuffer), "");
-		arrayGameMode.PushString(sBuffer);                                          // Index: 26
+		arrayGameMode.PushString(sBuffer);                                          // Index: 24
 		if (hasLength(sBuffer)) 
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
 			DecryptPrecacheTextures("self", sBuffer);
 		}
 		kvGameModes.GetString("overlay_draw", sBuffer, sizeof(sBuffer), "");
-		arrayGameMode.PushString(sBuffer);                                          // Index: 27
+		arrayGameMode.PushString(sBuffer);                                          // Index: 25
 		if (hasLength(sBuffer)) 
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/%s", sBuffer);
 			DecryptPrecacheTextures("self", sBuffer);
 		}
-		arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 28
-		arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 29
-		arrayGameMode.Push(kvGameModes.GetFloat("delay", 0.0));                     // Index: 30
-		arrayGameMode.Push(kvGameModes.GetNum("last", 0));                          // Index: 31
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "suicide", "no"));    // Index: 32
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "escape", "off"));    // Index: 33
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "blast", "on"));      // Index: 34
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 35
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 36
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 37
-		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 38
+		arrayGameMode.Push(kvGameModes.GetNum("deathmatch", 0));                    // Index: 26
+		arrayGameMode.Push(kvGameModes.GetNum("amount", 0));                        // Index: 27
+		arrayGameMode.Push(kvGameModes.GetFloat("delay", 0.0));                     // Index: 28
+		arrayGameMode.Push(kvGameModes.GetNum("last", 0));                          // Index: 29
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "suicide", "no"));    // Index: 30
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "escape", "off"));    // Index: 31
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "blast", "on"));      // Index: 32
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "xray", "on"));       // Index: 33
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "regen", "on"));      // Index: 34
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "skill", "yes"));     // Index: 35
+		arrayGameMode.Push(ConfigKvGetStringBool(kvGameModes, "leapjump", "yes"));  // Index: 36
 	}
 
 	delete kvGameModes;
@@ -750,8 +746,6 @@ void GameModesOnNativeInit()
 	CreateNative("ZP_GetGameModeSoundEndDrawID",   API_GetGameModeSoundEndDrawID);
 	CreateNative("ZP_GetGameModeSoundComebackID",  API_GetGameModeSoundComebackID);
 	CreateNative("ZP_GetGameModeSoundAmbientID",   API_GetGameModeSoundAmbientID);
-	CreateNative("ZP_GetGameModeSoundDuration",    API_GetGameModeSoundDuration);
-	CreateNative("ZP_GetGameModeSoundVolume",      API_GetGameModeSoundVolume);
 	CreateNative("ZP_IsGameModeInfect",            API_IsGameModeInfect);
 	CreateNative("ZP_IsGameModeRespawn",           API_IsGameModeRespawn);
 	CreateNative("ZP_GetGameModeTypeHuman",        API_GetGameModeTypeHuman);
@@ -1338,52 +1332,6 @@ public int API_GetGameModeSoundAmbientID(Handle hPlugin, int iNumParams)
 	}
 
 	return ModesGetSoundAmbientID(iD);
-}
-
-/**
- * @brief Gets the ambient sound duration of the game mode.
- *
- * @note native int ZP_GetGameModeSoundDuration(iD);
- **/
-public int API_GetGameModeSoundDuration(Handle hPlugin, int iNumParams)
-{
-	int iD = GetNativeCell(1);
-
-	if (iD == -1)
-	{
-		return iD;
-	}
-	
-	if (iD >= gServerData.GameModes.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
-		return -1;
-	}
-
-	return view_as<int>(ModesGetSoundDuration(iD));
-}
-
-/**
- * @brief Gets the ambient sound volume of the game mode.
- *
- * @note native int ZP_GetGameModeSoundVolume(iD);
- **/
-public int API_GetGameModeSoundVolume(Handle hPlugin, int iNumParams)
-{
-	int iD = GetNativeCell(1);
-
-	if (iD == -1)
-	{
-		return iD;
-	}
-	
-	if (iD >= gServerData.GameModes.Length)
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_GameModes, "Native Validation", "Invalid the mode index (%d)", iD);
-		return -1;
-	}
-
-	return view_as<int>(ModesGetSoundVolume(iD));
 }
 
 /**
@@ -2184,42 +2132,6 @@ int ModesGetSoundAmbientID(int iD)
 	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
 	
 	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_AMBIENT);
-}
-
-/**
- * @brief Gets the ambient sound duration of the game mode.
- *
- * @param iD                The mode index.
- * @return                  The duration amount.
- **/
-float ModesGetSoundDuration(int iD)
-{
-	if (iD == -1)
-	{
-		return 0.0;
-	}
-	
-	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
-	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_DURATION);
-}
-
-/**
- * @brief Gets the ambient sound volume of the game mode.
- *
- * @param iD                The mode index.
- * @return                  The volume amount.
- **/
-float ModesGetSoundVolume(int iD)
-{
-	if (iD == -1)
-	{
-		return 0.0;
-	}
-	
-	ArrayList arrayGameMode = gServerData.GameModes.Get(iD);
-	
-	return arrayGameMode.Get(GAMEMODES_DATA_SOUND_VOLUME);
 }
 
 /**

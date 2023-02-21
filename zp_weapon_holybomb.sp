@@ -118,8 +118,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("holy grenade");
 	
-	gSound = ZP_GetSoundKeyID("HOLY_GRENADE_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"HOLY_GRENADE_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("holy_grenade_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"holy_grenade_sounds\" wasn't find");
 }
 
 /**
@@ -260,14 +260,16 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 		{
 			if (!strncmp(sSample[23], "bounce", 6, false))
 			{
-				if (ZP_GetSound(gSound, 2, sSample, sizeof(sSample)))
+				float oVolume; int oLevel; int oFlags; int oPitch;
+				if (ZP_GetSound(gSound, 2, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
 				}
 			}
 			else if (!strncmp(sSample[20], "explode", 7, false))
 			{
-				if (ZP_GetSound(gSound, 1, sSample, sizeof(sSample)))
+				float oVolume; int oLevel; int oFlags; int oPitch;
+				if (ZP_GetSound(gSound, 1, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
 				}

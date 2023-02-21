@@ -93,8 +93,8 @@ public void ZP_OnEngineExecute()
 {
 	gZombie = ZP_GetClassNameID("smoker");
 	
-	gSound = ZP_GetSoundKeyID("SMOKE_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"SMOKE_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("smoke_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"smoke_skill_sounds\" wasn't find");
 
 	gType = ZP_GetClassTypeID("zombie");
 	if (gType == -1) SetFailState("[ZP] Custom class type ID from name : \"zombie\" wasn't find");

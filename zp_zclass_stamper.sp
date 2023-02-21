@@ -108,8 +108,8 @@ public void ZP_OnEngineExecute()
 {
 	gZombie = ZP_GetClassNameID("stamper");
 	
-	gSound = ZP_GetSoundKeyID("COFFIN_SKILL_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"COFFIN_SKILL_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("coffin_skill_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"coffin_skill_sounds\" wasn't find");
 }
 
 /**

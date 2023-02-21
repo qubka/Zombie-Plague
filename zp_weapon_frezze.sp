@@ -125,8 +125,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("freeze grenade");
 
-	gSound = ZP_GetSoundKeyID("FREEZE_GRENADE_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"FREEZE_GRENADE_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("freeze_grenade_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"freeze_grenade_sounds\" wasn't find");
 }
 
 /**
@@ -370,15 +370,19 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 		{
 			if (!strncmp(sSample[31], "hit", 3, false))
 			{
-				if (ZP_GetSound(gSound, GetRandomInt(4, 6), sSample, sizeof(sSample)))
+				float oVolume; int oLevel; int oFlags; int oPitch;
+				if (ZP_GetSound(gSound, GetRandomInt(4, 6), sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
 				}
 			}
 			else if (!strncmp(sSample[29], "emit", 4, false))
 			{
-				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample)))
-				return Plugin_Changed; 
+				float oVolume; int oLevel; int oFlags; int oPitch;
+				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
+				{
+					return Plugin_Changed; 
+				}
 			}
 		}
 	}

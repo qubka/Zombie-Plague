@@ -136,8 +136,8 @@ public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("janus7");
 
-	gSound = ZP_GetSoundKeyID("JANUSVII_SHOOT_SOUNDS");
-	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"JANUSVII_SHOOT_SOUNDS\" wasn't find");
+	gSound = ZP_GetSoundKeyID("janusvii_shoot_sounds");
+	if (gSound == -1) SetFailState("[ZP] Custom sound key ID from name : \"janusvii_shoot_sounds\" wasn't find");
 }
 
 //*********************************************************************

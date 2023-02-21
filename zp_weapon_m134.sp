@@ -100,10 +100,10 @@ public void ZP_OnEngineExecute()
 	gWeapon = ZP_GetWeaponNameID("m134");
 	gWeaponS = ZP_GetWeaponNameID("m134s");
 	
-	gSoundAttack = ZP_GetSoundKeyID("M134_SHOOT_SOUNDS");
-	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"M134_SHOOT_SOUNDS\" wasn't find");	
-	gSoundSpin = ZP_GetSoundKeyID("M134_SPIN_SOUNDS");
-	if (gSoundSpin == -1) SetFailState("[ZP] Custom sound key ID from name : \"M134_SPIN_SOUNDS\" wasn't find");
+	gSoundAttack = ZP_GetSoundKeyID("m134_shoot_sounds");
+	if (gSoundAttack == -1) SetFailState("[ZP] Custom sound key ID from name : \"m134_shoot_sounds\" wasn't find");	
+	gSoundSpin = ZP_GetSoundKeyID("m134_spin_sounds");
+	if (gSoundSpin == -1) SetFailState("[ZP] Custom sound key ID from name : \"m134_spin_sounds\" wasn't find");
 }
 
 //*********************************************************************
@@ -225,7 +225,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		{
 			ZP_SetWeaponAnimation(client, ANIM_ATTACK_START);        
 
-			ZP_EmitSoundToAll(gSoundSpin, 1, client, weapon, SNDCHAN_WEAPON, SNDLEVEL_FRIDGE);
+			ZP_EmitSoundToAll(gSoundSpin, 1, weapon, SNDCHAN_WEAPON);
 
 			SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ATTACK);
 
@@ -293,7 +293,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
 	{
 		ZP_SetWeaponAnimation(client, ANIM_ATTACK_END);        
 		
-		ZP_EmitSoundToAll(gSoundSpin, 2, client, weapon, SNDCHAN_WEAPON, SNDLEVEL_FRIDGE);
+		ZP_EmitSoundToAll(gSoundSpin, 2, weapon, SNDCHAN_WEAPON);
 
 		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
 
