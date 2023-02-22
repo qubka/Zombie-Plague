@@ -244,7 +244,7 @@ public Action ToolsOnHintHook(UserMsg hMessage, Protobuf hMsg, const int[] iPlay
 public void ToolsOnMessageFix(DataPack hPack)
 {
 	int iCount = 0; int iCountAll = hPack.ReadCell();
-	static int iPlayers[MAXPLAYERS+1];
+	static int clients[MAXPLAYERS+1];
 	
 	for (int i = 0, client; i < iCountAll; i++)
 	{
@@ -252,7 +252,7 @@ public void ToolsOnMessageFix(DataPack hPack)
 		
 		if (IsClientValid(client, false))
 		{
-			iPlayers[iCount++] = client;
+			clients[iCount++] = client;
 		}
 	}
 	
@@ -261,7 +261,7 @@ public void ToolsOnMessageFix(DataPack hPack)
 		static char sBuffer[FILE_LINE_LENGTH];
 		hPack.ReadString(sBuffer, sizeof(sBuffer));
 
-		Protobuf hMessage = view_as<Protobuf>(StartMessageEx(hTextMsg, iPlayers, iCount, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+		Protobuf hMessage = view_as<Protobuf>(StartMessageEx(hTextMsg, clients, iCount, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
 		
 		if (hMessage != null)
 		{
