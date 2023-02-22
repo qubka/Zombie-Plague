@@ -72,19 +72,19 @@ bool SEffectsEmitToHumans(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER
 
 	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
 	{
-		int[] clients = new int[MaxClients]; int iTotal = 0;
+		int[] clients = new int[MaxClients]; int iCount = 0;
 
 		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsClientInGame(i) && !gClientData[i].Zombie)
 			{
-				clients[iTotal++] = i;
+				clients[iCount++] = i;
 			}
 		}
 
-		if (iTotal)
+		if (iCount)
 		{
-			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
+			EmitSound(clients, iCount, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
 		}
 		return true;
 	}
@@ -108,19 +108,19 @@ bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYE
 
 	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
 	{
-		int[] clients = new int[MaxClients]; int iTotal = 0;
+		int[] clients = new int[MaxClients]; int iCount = 0;
 
 		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsClientInGame(i) && gClientData[i].Zombie)
 			{
-				clients[iTotal++] = i;
+				clients[iCount++] = i;
 			}
 		}
 
-		if (iTotal)
+		if (iCount)
 		{
-			EmitSound(clients, iTotal, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
+			EmitSound(clients, iCount, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
 		}
 		return true;
 	}
