@@ -448,8 +448,17 @@
 	{
 		"chi"			"購買所有\n \n"
 	}
-		
-	"market remember" // Menu
+	
+	// ===========================
+	// Arsenal
+	// ===========================
+	
+	"arsenal skip" // Menu
+	{
+		"chi"			"跳過"
+	}
+	
+	"arsenal remember" // Menu
 	{
 		"chi"			"记住"
 	}

@@ -137,7 +137,7 @@ public void ArsenalOnCvarHook(ConVar hConVar, char[] oldValue, char[] newValue)
 bool ArsenalOnClientUpdate(int client)
 {
 	gClientData[client].CurrentMenu = ArsenalType_Primary;
-	gClientData[client].BlockMenu = false;
+	gClientData[client].ArsenalUsed = false;
 	
 	if (gCvarList.ARSENAL.BoolValue)
 	{
@@ -268,7 +268,11 @@ bool ArsenallDistribute(int client)
 
 			for (int i = ArsenalType_Melee; i != -1; i--)
 			{
-				weapon = ArsenalGiveMain(client, i, gClientData[client].Arsenal[i]);
+				int iD = gClientData[client].Arsenal[i];
+				if (iD != -2)
+				{
+					weapon = ArsenalGiveMain(client, i, iD);
+				}
 			}
 			
 			if (weapon != -1)
@@ -348,7 +352,7 @@ int ArsenalGiveAdds(int client)
 	}
 
 	gClientData[client].CurrentMenu = ArsenalType_Primary;
-	gClientData[client].BlockMenu = true;
+	gClientData[client].ArsenalUsed = true;
 	
 	return weapon;
 }

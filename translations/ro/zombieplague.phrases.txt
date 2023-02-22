@@ -449,8 +449,17 @@
 	{
 		"ro"			"Cumpara tot\n \n"
 	}
-		
-	"market remember" // Menu
+	
+	// ===========================
+	// Arsenal
+	// ===========================
+	
+	"arsenal skip" // Menu
+	{
+		"ro"			"Ocolire"
+	}
+	
+	"arsenal remember" // Menu
 	{
 		"ro"			"Tine minte"
 	}

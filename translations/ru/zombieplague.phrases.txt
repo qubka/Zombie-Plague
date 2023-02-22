@@ -448,8 +448,17 @@
 	{
 		"ru"			"Купить все\n \n"
 	}
-		
-	"market remember" // Menu
+	
+	// ===========================
+	// Arsenal
+	// ===========================
+	
+	"arsenal skip" // Menu
+	{
+		"ru"			"Пропустить"
+	}
+	
+	"arsenal remember" // Menu
 	{
 		"ru"			"Запомнить"
 	}

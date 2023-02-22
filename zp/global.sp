@@ -243,7 +243,7 @@ enum struct ClientData
 		this.CustomWeapon         = -1;
 		this.RunCmd               = false;
 		this.AutoSelect           = false;
-		this.BlockMenu            = false;
+		this.ArsenalUsed          = false;
 		this.CurrentMenu          = 0;
 		this.Arsenal[0]           = -1;
 		this.Arsenal[1]           = -1;

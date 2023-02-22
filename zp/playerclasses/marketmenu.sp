@@ -502,7 +502,7 @@ public int MarketBuyMenuSlots3(Menu hMenu, MenuAction mAction, int client, int m
 }
 
 /**
- * @brief Called when client selects option in the shop menu, and handles it.
+ * @brief Called when client selects option in the market buy menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -515,7 +515,7 @@ public int MarketBuyMenuSlots4(Menu hMenu, MenuAction mAction, int client, int m
 }
 
 /**
- * @brief Called when client selects option in the shop menu, and handles it.
+ * @brief Called when client selects option in the market buy menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).

@@ -57,7 +57,7 @@ public Action ArsenalMenuOnCommandCatched(int client, int iArguments)
  **/
 void ArsenalMenu(int client, int iSection)
 {
-	bool bDisabled = gClientData[client].BlockMenu || gClientData[client].Zombie || gClientData[client].Custom;
+	bool bLocked = gClientData[client].ArsenalUsed || gClientData[client].Zombie || gClientData[client].Custom;
 
 	static char sBuffer[NORMAL_LINE_LENGTH]; 
 	static char sName[SMALL_LINE_LENGTH];
@@ -112,14 +112,19 @@ void ArsenalMenu(int client, int iSection)
 		}
 		
 		IntToString(iD, sInfo, sizeof(sInfo));
-		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(bEnabled && !bDisabled));
-	}
-
-	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t [%t]", "market remember", gClientData[client].AutoSelect ? "On" : "Off");
-		hMenu.AddItem("-1", sBuffer);
+		hMenu.AddItem(sInfo, sBuffer, MenusGetItemDraw(bEnabled && !bLocked));
 	}
 	
+	{
+		FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "arsenal skip");
+		hMenu.AddItem("-2", sBuffer);
+	}
+	
+	{
+		FormatEx(sBuffer, sizeof(sBuffer), "%t [%t]", "arsenal remember", gClientData[client].AutoSelect ? "On" : "Off");
+		hMenu.AddItem("-1", sBuffer);
+	}
+
 	hMenu.ExitButton = true;
 
 	hMenu.OptionFlags = MENUFLAG_BUTTON_EXIT;
@@ -127,7 +132,7 @@ void ArsenalMenu(int client, int iSection)
 }
 
 /**
- * @brief Called when client selects option in the market buy menu, and handles it. (primary)
+ * @brief Called when client selects option in the arsenal menu, and handles it. (primary)
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -140,7 +145,7 @@ public int ArsenalMenuSlots1(Menu hMenu, MenuAction mAction, int client, int mSl
 }
 
 /**
- * @brief Called when client selects option in the market buy menu, and handles it. (secondary)
+ * @brief Called when client selects option in the arsenal menu, and handles it. (secondary)
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -153,7 +158,7 @@ public int ArsenalMenuSlots2(Menu hMenu, MenuAction mAction, int client, int mSl
 }
 
 /**
- * @brief Called when client selects option in the market buy menu, and handles it. (melee)
+ * @brief Called when client selects option in the arsenal menu, and handles it. (melee)
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -166,7 +171,7 @@ public int ArsenalMenuSlots3(Menu hMenu, MenuAction mAction, int client, int mSl
 }
 
 /**
- * @brief Called when client selects option in the market buy menu, and handles it.
+ * @brief Called when client selects option in the arsenal menu, and handles it.
  *  
  * @param hMenu             The handle of the menu being used.
  * @param mAction           The action done on the menu (see menus.inc, enum MenuAction).
@@ -210,18 +215,25 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 					
 					ArsenalMenu(client, iIndex);
 				}
-				
+
 				default :
 				{
-					WeaponsGive(client, iD);
-					
-					EmitSoundToClient(client, SOUND_BUY_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
-					
-					if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
+					if (iD != -2)
 					{
-						WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
+						WeaponsGive(client, iD);
 						
-						if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+						EmitSoundToClient(client, SOUND_BUY_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+						
+						if (gCvarList.MESSAGES_WEAPON_INFO.BoolValue)
+						{
+							WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
+							
+							if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+						}
+					}
+					else
+					{
+						EmitSoundToClient(client, SOUND_BUY_ITEM_FAILED, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 					}
 					
 					gClientData[client].Arsenal[iIndex] = iD;
@@ -231,12 +243,15 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 					{
 						return 0;
 					}
-
-					ArsenalGiveAdds(client);
 					
-					if (gClientData[client].DefaultCart.Length)
+					if (!gClientData[client].ArsenalUsed)
 					{
-						MarketBuyMenu(client, MenuType_FavBuy);
+						ArsenalGiveAdds(client);
+						
+						if (gClientData[client].DefaultCart.Length)
+						{
+							MarketBuyMenu(client, MenuType_FavBuy);
+						}
 					}
 				}
 			}
