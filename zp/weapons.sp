@@ -2428,7 +2428,7 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 
 				for (int i = 0; i < iAmount; i++)
 				{
-					weapon = WeaponsCreate(iD, _, _, false);
+					weapon = WeaponsCreate(iD);
 					
 					if (weapon != -1) 
 					{
@@ -2453,7 +2453,7 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
  * @param bDrop             (Optional) Spawn as dropped?
  * @return                  The weapon index.
  **/
-int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0}, bool bDrop = true)
+int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] = {0.0, 0.0, 0.0})
 {
 	int weapon = WeaponsSpawn(iD, vPosition, vAngle);
 	
@@ -2461,13 +2461,6 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
 	{
 		ToolsSetCustomID(weapon, iD);
 		WeaponsSetSpawnedByMap(weapon, false);
-
-		gForwardData._OnWeaponCreated(weapon, iD);
-		
-		if (bDrop)
-		{
-			_exec.WeaponMODOnWeaponDropPost(weapon);
-		}
 	}
 	
 	return weapon;
@@ -2579,6 +2572,27 @@ int WeaponsFindByID(int client, int iD)
 }
 
 /**
+ * @brief Returns the first available weapon id for the given weapon.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The weapon id.
+ **/
+int WeaponsFindID(int weapon)
+{
+	if (gServerData.Entities == null)
+	{
+		return -1;
+	}
+	
+	static char sClassname[SMALL_LINE_LENGTH];
+	GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+	
+	int iD = -1; 
+	gServerData.Entities.GetValue(sClassname, iD);
+	return iD;
+}
+
+/**
  * @brief Gets the slot index of a weapon.
  *
  * @param weapon            The weapon index.
@@ -2673,33 +2687,4 @@ bool WeaponsCanUse(int client, int weapon)
 	}
 	
 	return true;
-}
-
-/**
- * @brief Returns true if the weapon has an access to spawn by a map, false if not.
- *
- * @param weapon            The weapon index.
- * @param sClassname        The weapon entity.
- * @return                  True or false.
- **/
-bool WeaponsSpawnedByMap(int weapon, char[] sClassname)
-{
-	if (gServerData.Entities == null)
-	{
-		return false;
-	}
-	
-	int iD = -1; gServerData.Entities.GetValue(sClassname, iD);
-	if (iD == -1)
-	{
-		return false;
-	}
-
-	ToolsSetCustomID(weapon, iD);
-	WeaponsSetSpawnedByMap(weapon, true);
-	
-	_exec.WeaponMODOnWeaponSpawnPost(weapon);
-	_exec.WeaponMODOnWeaponDropPost(weapon);
-	
-	return true; 
 }

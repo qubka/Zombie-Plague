@@ -80,6 +80,7 @@ Address pItemSchema;
  * Variables to store dynamic SDK offsets.
  **/
 int Player_hViewModel;
+int Animating_bSuppressAnimSounds;
 int ItemDef_Index;
 
 /**
@@ -210,6 +211,7 @@ void WeaponMODOnInit()
 
 	fnInitGameConfOffset(gServerData.Config, ItemDef_Index, "CEconItemDefinition::GetDefinitionIndex");
 	fnInitSendPropOffset(Player_hViewModel, "CBasePlayer", "m_hViewModel");
+	fnInitSendPropOffset(Animating_bSuppressAnimSounds, "CBaseAnimating", "m_bSuppressAnimSounds");
 	
 	fnInitGameConfOffset(gServerData.SDKHooks, DHook_WeaponCanUse, /*CCSPlayer::*/"Weapon_CanUse");
 	fnInitGameConfOffset(gServerData.Config, DHook_WeaponHolster, "CBaseCombatWeapon::Holster");
@@ -302,7 +304,7 @@ void WeaponMODOnUnload()
 	{
 		if (IsClientValid(i))
 		{
-			if (EntRefToEntIndex(gClientData[i].CustomWeapon) != -1)
+			if (gClientData[i].CustomWeapon != -1)
 			{
 				int view1 = EntRefToEntIndex(gClientData[i].ViewModels[0]);
 				int view2 = EntRefToEntIndex(gClientData[i].ViewModels[1]);
@@ -316,6 +318,8 @@ void WeaponMODOnUnload()
 				{
 					AcceptEntityInput(view2, "DisableDraw"); 
 				}
+				
+				gClientData[i].CustomWeapon = -1;
 			}
 		}
 	}
@@ -484,7 +488,7 @@ void WeaponMODOnEntityCreated(int weapon, const char[] sClassname)
  **/
 public void WeaponMODOnItemSpawn(int item)
 {
-	ToolsSetCustomID(item, -1);
+	ToolsSetCustomID(item, WeaponsFindID(item));
 }
 
 /**
@@ -495,7 +499,7 @@ public void WeaponMODOnItemSpawn(int item)
  **/
 public void WeaponMODOnWeaponSpawn(int weapon)
 {
-	ToolsSetCustomID(weapon, -1);
+	ToolsSetCustomID(weapon, WeaponsFindID(weapon));
 
 	if (hDHookWeaponHolster) 
 	{
@@ -509,9 +513,9 @@ public void WeaponMODOnWeaponSpawn(int weapon)
 	if (WeaponsGetAmmoType(weapon) != -1)
 	{
 		SDKHook(weapon, SDKHook_ReloadPost, WeaponMODOnWeaponReload);
-
-		_exec.WeaponMODOnWeaponSpawnPost(weapon);
 	}
+	
+	_exec.WeaponMODOnWeaponSpawnPost(weapon);
 }
 
 /**
@@ -529,36 +533,48 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 		int iD = ToolsGetCustomID(weapon);
 		if (iD != -1)
 		{
-			int iClip = WeaponsGetClip(iD);
-			if (iClip)
+			if (WeaponsGetAmmoType(weapon) != -1)
 			{
-				WeaponsSetClipAmmo(weapon, iClip); 
-				WeaponsSetMaxClipAmmo(weapon, iClip);
-				
-				if (hDHookGetMaxClip) 
+				int iClip = WeaponsGetClip(iD);
+				if (iClip)
 				{
-					DHookEntity(hDHookGetMaxClip, true, weapon);
+					WeaponsSetClipAmmo(weapon, iClip); 
+					WeaponsSetMaxClipAmmo(weapon, iClip);
+					
+					if (hDHookGetMaxClip) 
+					{
+						DHookEntity(hDHookGetMaxClip, true, weapon);
+					}
+					else
+					{
+						LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+					}
 				}
-				else
+
+				int iAmmo = WeaponsGetAmmo(iD);
+				if (iAmmo)
 				{
-					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CBaseCombatWeapon::GetMaxClip1\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+					WeaponsSetReserveAmmo(weapon, iAmmo); 
+					WeaponsSetMaxReserveAmmo(weapon, iAmmo);
+					
+					if (hDHookGetReserveAmmoMax)
+					{
+						DHookEntity(hDHookGetReserveAmmoMax, true, weapon);
+					}
+					else
+					{
+						LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+					}
 				}
 			}
 
-			int iAmmo = WeaponsGetAmmo(iD);
-			if (iAmmo)
+			gForwardData._OnWeaponCreated(weapon, iD);
+			
+			int client = WeaponsGetOwner(weapon);
+			
+			if (!IsClientValid(client)) 
 			{
-				WeaponsSetReserveAmmo(weapon, iAmmo); 
-				WeaponsSetMaxReserveAmmo(weapon, iAmmo);
-				
-				if (hDHookGetReserveAmmoMax)
-				{
-					DHookEntity(hDHookGetReserveAmmoMax, true, weapon);
-				}
-				else
-				{
-					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "DHook Validation", "Failed to attach DHook to \"CBaseCombatWeapon::GetReserveAmmoMax\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-				}
+				_exec.WeaponMODOnWeaponDropPost(weapon);
 			}
 		}
 	}
@@ -983,6 +999,10 @@ public void WeaponMODOnSwitch(int client, int weapon)
 			WeaponHDRSetPlayerWorldModel(weapon, iD, ModelType_World);
 		}
 	}
+
+	// Should surpress sounds on view model ?
+	SetEntData(view1, Animating_bSuppressAnimSounds, gClientData[client].CustomWeapon != -1, 1, true);
+	SetEntData(view2, Animating_bSuppressAnimSounds, gClientData[client].CustomWeapon == -1, 1, true);
 	
 	static char sArm[PLATFORM_LINE_LENGTH];
 	ClassGetArmModel(gClientData[client].Class, sArm, sizeof(sArm));
@@ -1327,7 +1347,7 @@ public void WeaponMODOnHostagePost(int userID)
 
 	if (client)
 	{
-		if (EntRefToEntIndex(gClientData[client].CustomWeapon) != -1)
+		if (gClientData[client].CustomWeapon != -1)
 		{
 			int view2 = WeaponHDRGetPlayerViewModel(client, 1);
 
@@ -1337,6 +1357,8 @@ public void WeaponMODOnHostagePost(int userID)
 			}
 
 			WeaponHDRSetPlayerViewModel(client, 1, EntRefToEntIndex(gClientData[client].ViewModels[1]));
+			
+			gClientData[client].CustomWeapon = -1;
 		}
 	}
 }

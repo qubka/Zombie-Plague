@@ -2659,9 +2659,13 @@ void ModesKillEntities(bool bDrop = false)
 					
 					if (!IsClientValid(client))
 					{
-						if (!WeaponsSpawnedByMap(i, sClassname))
+						if (ToolsGetCustomID(i) == -1)
 						{
-							AcceptEntityInput(i, "Kill"); /// Destroy
+							AcceptEntityInput(i, "Kill");
+						}
+						else
+						{
+							WeaponsSetSpawnedByMap(i, true);
 						}
 					}
 				}

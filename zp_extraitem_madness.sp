@@ -106,6 +106,7 @@ public void OnMapEnd()
 		hZombieMadness[i] = null; /// with flag TIMER_FLAG_NO_MAPCHANGE
 	}
 }
+
 /**
  * @brief Called once a client is authorized and fully in-game, and 
  *        after all post-connection authorizations have been performed.  
