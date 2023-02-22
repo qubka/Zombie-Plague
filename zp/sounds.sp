@@ -523,7 +523,7 @@ float SoundsGetSound(int iKey, int iNum = 0, char sPath[PLATFORM_LINE_LENGTH], f
  * @brief Find the index at which the sound key is at.
  * 
  * @param sKey              The key name.
- * @return                  The array index containing the given sound key.
+ * @return                  The sound index.
  **/
 int SoundsKeyToIndex(char[] sKey)
 {

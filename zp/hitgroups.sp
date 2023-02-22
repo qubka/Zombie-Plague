@@ -967,7 +967,7 @@ bool HitGroupsIsProtect(int iD)
  * @brief Find the index at which the hitgroup name is at.
  * 
  * @param sName             The hitgroup name.
- * @return                  The array index containing the given hitgroup name.
+ * @return                  The hitgroup index.
  **/
 int HitGroupsNameToIndex(char[] sName)
 {

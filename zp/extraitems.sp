@@ -1032,7 +1032,7 @@ int ItemsGetTypes(int iD)
  * @brief Find the index at which the extraitem name is at.
  * 
  * @param sName             The item name.
- * @return                  The array index containing the given item name.
+ * @return                  The item index.
  **/
 int ItemsNameToIndex(char[] sName)
 {

@@ -877,7 +877,7 @@ int CostumesGetLevel(int iD)
  * @brief Find the index at which the costume name is at.
  * 
  * @param sName             The costume name.
- * @return                  The array index containing the given costume name.
+ * @return                  The costume index.
  **/
 int CostumesNameToIndex(char[] sName)
 {

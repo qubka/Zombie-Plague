@@ -2574,7 +2574,7 @@ int ClassGetSoundJumpID(int iD)
  * @brief Find the index at which the class name is at.
  * 
  * @param sName             The class name.
- * @return                  The array index containing the given class name.
+ * @return                  The class index.
  **/
 int ClassNameToIndex(char[] sName)
 {
@@ -2623,20 +2623,22 @@ int ClassTypeToIndex(char[] sBuffer)
  * @brief Find the random index at which the class type is at.
  * 
  * @param iType             The class type.
- * @return                  The array index containing the given class type.
+ * @return                  The class id.
  **/
 int ClassTypeToRandomClassIndex(int iType)
 {
-	int iSize = gServerData.Classes.Length; int iRandom; static int class[MAXPLAYERS+1];
+	int iRandom; static int iClass[MAXPLAYERS+1];
+
+	int iSize = gServerData.Classes.Length;
 	for (int i = 0; i < iSize; i++)
 	{
 		if (ClassGetType(i) == iType)
 		{
-			class[iRandom++] = i;
+			iClass[iRandom++] = i;
 		}
 	}
 	
-	return (iRandom) ? class[GetRandomInt(0, iRandom-1)] : -1;
+	return (iRandom) ? iClass[GetRandomInt(0, iRandom-1)] : -1;
 }
 
 /**

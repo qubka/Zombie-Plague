@@ -2472,7 +2472,7 @@ bool ModesIsLeapJump(int iD)
  * @brief Find the index at which the gamemode name is at.
  * 
  * @param sName             The mode name.
- * @return                  The array index containing the given mode name.
+ * @return                  The mode index.
  **/
 int ModesNameToIndex(char[] sName)
 {

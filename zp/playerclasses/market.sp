@@ -112,7 +112,7 @@ void MarketOnClientUpdate(int client, bool bOpen = true)
 	{
 		MarketResetShoppingCart(client); 
 		
-		if (bOpen && gClientData[client].DefaultCart.Length)
+		if (bOpen && gClientData[client].DefaultCart != null)
 		{
 			MarketBuyMenu(client, MenuType_FavBuy);
 		}
@@ -255,12 +255,7 @@ public Action CS_OnBuyCommand(int client, const char[] sClassname)
  **/
 void MarketResetShoppingCart(int client)
 {
-	if (gClientData[client].DefaultCart == null)
-	{
-		gClientData[client].DefaultCart = new ArrayList();
-	}
-	
-	if (gClientData[client].DefaultCart.Length)
+	if (gClientData[client].DefaultCart != null)
 	{
 		delete gClientData[client].ShoppingCart;
 		gClientData[client].ShoppingCart = gClientData[client].DefaultCart.Clone();
