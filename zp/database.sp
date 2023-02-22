@@ -343,7 +343,7 @@ void DataBaseOnClientDisconnectPost(int client)
  * @param mFactory          (Optional) The request type.
  * @param sData             (Optional) The string input.
  **/
-void DataBaseOnClientUpdate(int client, ColumnType nColumn, FactoryType mFactory = FactoryType_Update, char[] sData = "")
+void DataBaseOnClientUpdate(int client, ColumnType nColumn, FactoryType mFactory = FactoryType_Update, const char[] sData = "")
 {
 	if (gServerData.DBI == null)
 	{
@@ -746,7 +746,7 @@ public void SQLBaseUpdate_Callback(Database hDatabase, DBResultSet hResult, char
  * @param client            (Optional) The client index.
  * @param sData             (Optional) The string input.
  **/
-void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnType nColumn, FactoryType mFactory, int client = 0, char[] sData = "")
+void SQLBaseFactory__(bool MySQL = false, char[] sRequest, int iMaxLen, ColumnType nColumn, FactoryType mFactory, int client = 0, const char[] sData = "")
 {   
 	switch (mFactory)
 	{

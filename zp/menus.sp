@@ -634,7 +634,7 @@ void MenusGetCommand(int iD, char[] sCommand, int iMaxLen, int iSubMenu = 0)
  * @param sCommand          The menu command.
  * @return                  The array containing the given menu command.
  **/
-int[] MenusCommandToArray(char[] sCommand)
+int[] MenusCommandToArray(const char[] sCommand)
 {
 	static char sMenuCommand[SMALL_LINE_LENGTH];
 	
@@ -669,7 +669,7 @@ int[] MenusCommandToArray(char[] sCommand)
  * @param sCommand          The menu command.
  * @return                  True or false.    
  **/
-bool MenusHasAccessByCommand(int client, char[] sCommand)
+bool MenusHasAccessByCommand(int client, const char[] sCommand)
 {
 	int iD[2]; iD = MenusCommandToArray(sCommand);
 	if (iD[0] != -1)

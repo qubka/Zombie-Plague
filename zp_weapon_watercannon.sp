@@ -365,7 +365,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
 	}
 }
 
-void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
+void Weapon_OnCreateEffect(int weapon, const char[] sInput = "")
 {
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	

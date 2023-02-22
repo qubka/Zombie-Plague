@@ -528,7 +528,7 @@ enum ColorType
  *
  * @return                  The entity index.                       
  **/
-stock int UTIL_CreateTrain(char[] sClassname, float vPosition[3], float vAngle[3], char[] sPath, char[] sSpeed, char[] sSound = "", int iFlags = 0)
+stock int UTIL_CreateTrain(const char[] sClassname, const float vPosition[3], const float vAngle[3], const char[] sPath, const char[] sSpeed, const char[] sSound = "", int iFlags = 0)
 {
 	int entity = CreateEntityByName("func_tracktrain"); 
 	
@@ -568,7 +568,7 @@ stock int UTIL_CreateTrain(char[] sClassname, float vPosition[3], float vAngle[3
  *
  * @return                  The entity index.                       
  **/
-stock int UTIL_CreatePath(char[] sClassname, float vPosition[3], float vAngle[3], char[] sNextTarget, int iFlags = 0)
+stock int UTIL_CreatePath(const char[] sClassname, const float vPosition[3], const float vAngle[3], const char[] sNextTarget, int iFlags = 0)
 {
 	int entity = CreateEntityByName("path_track");
 	
@@ -602,7 +602,7 @@ stock int UTIL_CreatePath(char[] sClassname, float vPosition[3], float vAngle[3]
  *
  * @return                  The entity index.                         
  **/
-stock int UTIL_CreateMonster(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, int iFlags = 0)
+stock int UTIL_CreateMonster(const char[] sClassname, const float vPosition[3], const float vAngle[3], const char[] sModel, int iFlags = 0)
 {
 	int entity = CreateEntityByName("monster_generic"); 
 		
@@ -636,7 +636,7 @@ stock int UTIL_CreateMonster(char[] sClassname, float vPosition[3], float vAngle
  *
  * @return                  The entity index.                       
  **/
-stock int UTIL_CreatePhysics(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, int iFlags = 0)
+stock int UTIL_CreatePhysics(const char[] sClassname, const float vPosition[3], const float vAngle[3], const char[] sModel, int iFlags = 0)
 {
 	int entity = CreateEntityByName("prop_physics_multiplayer"); 
 
@@ -672,7 +672,7 @@ stock int UTIL_CreatePhysics(char[] sClassname, float vPosition[3], float vAngle
  *
  * @return                  The entity index.                       
  **/
-stock int UTIL_CreateDynamic(char[] sClassname, float vPosition[3], float vAngle[3], char[] sModel, char[] sDefaultAnim = "", bool bOverride = true, bool bHoldAnim = false, bool bSolid = false, int iFlags = DYN_COLLISIONDISABLED)
+stock int UTIL_CreateDynamic(const char[] sClassname, const float vPosition[3], const float vAngle[3], const char[] sModel, const char[] sDefaultAnim = "", bool bOverride = true, bool bHoldAnim = false, bool bSolid = false, int iFlags = DYN_COLLISIONDISABLED)
 {
 	int entity = CreateEntityByName(bOverride ? "prop_dynamic_override" : "prop_dynamic");
 
@@ -706,7 +706,7 @@ stock int UTIL_CreateDynamic(char[] sClassname, float vPosition[3], float vAngle
  *
  * @return                  The entity index.                       
  **/
-stock int UTIL_CreateProjectile(float vPosition[3], float vAngle[3], int weaponID = -1, char[] sModel = "")
+stock int UTIL_CreateProjectile(const float vPosition[3], const float vAngle[3], int weaponID = -1, const char[] sModel = "")
 {
 	int entity = CreateEntityByName("hegrenade_projectile");
 
@@ -748,7 +748,7 @@ stock int UTIL_CreateProjectile(float vPosition[3], float vAngle[3], int weaponI
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateSmoke(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sSpreadBase = "100", char[] sSpreadSpeed = "70", char[] sSpeed = "80", char[] sStartSize = "200", char[] sEndSize = "2", char[] sDensity = "30", char[] sLength = "400", char[] sTwist = "20", char[] sColor, char[] sTransparency, char[] sSpriteName, float flRemoveTime = 0.0, float flDurationTime = 0.0)
+stock int UTIL_CreateSmoke(int parent = -1, const float vPosition[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sSpreadBase = "100", const char[] sSpreadSpeed = "70", const char[] sSpeed = "80", const char[] sStartSize = "200", const char[] sEndSize = "2", const char[] sDensity = "30", const char[] sLength = "400", const char[] sTwist = "20", const char[] sColor, const char[] sTransparency, const char[] sSpriteName, float flRemoveTime = 0.0, float flDurationTime = 0.0)
 {
 	int entity = CreateEntityByName("env_smokestack");
 
@@ -813,7 +813,7 @@ stock int UTIL_CreateSmoke(int parent = -1, float vPosition[3] = NULL_VECTOR, fl
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateParticle(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sEffect, float flDurationTime = 0.0)
+stock int UTIL_CreateParticle(int parent = -1, const float vPosition[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sEffect, float flDurationTime = 0.0)
 {
 	int entity = CreateEntityByName("info_particle_system");
 	
@@ -867,7 +867,7 @@ stock int UTIL_CreateParticle(int parent = -1, float vPosition[3] = NULL_VECTOR,
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateExplosion(float vPosition[3]/*, float vAngle[3] = NULL_VECTOR*/, int iFlags = 0, char[] sSpriteName = "materials/sprites/xfireball3.vmt", float flDamage = 0.0, float flRadius = 0.0, char[] sWeapon = "", int attacker = -1, int inflictor = -1, char[] sIgnore = "")
+stock int UTIL_CreateExplosion(const float vPosition[3]/*, const float vAngle[3] = NULL_VECTOR*/, int iFlags = 0, const char[] sSpriteName = "materials/sprites/xfireball3.vmt", float flDamage = 0.0, float flRadius = 0.0, const char[] sWeapon = "", int attacker = -1, int inflictor = -1, const char[] sIgnore = "")
 {
 	int entity = CreateEntityByName("env_explosion");
 
@@ -923,7 +923,7 @@ stock int UTIL_CreateExplosion(float vPosition[3]/*, float vAngle[3] = NULL_VECT
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateDamage(int parent = -1, float vPosition[3] = NULL_VECTOR, int attacker, float flDamage, float flRadius, int iBits = DMG_GENERIC, int weaponID = -1, char[] sAttach = "")
+stock int UTIL_CreateDamage(int parent = -1, const float vPosition[3] = NULL_VECTOR, int attacker, float flDamage, float flRadius, int iBits = DMG_GENERIC, int weaponID = -1, const char[] sAttach = "")
 {
 	int entity = CreateEntityByName("point_hurt");           
 
@@ -982,7 +982,7 @@ stock int UTIL_CreateDamage(int parent = -1, float vPosition[3] = NULL_VECTOR, i
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateSprite(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sSprite, char[] sScale, char[] sRender, float flDurationTime = 0.0)
+stock int UTIL_CreateSprite(int parent = -1, const float vPosition[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sSprite, const char[] sScale, const char[] sRender, float flDurationTime = 0.0)
 {
 	int entity = CreateEntityByName("env_sprite");
 	
@@ -1029,7 +1029,7 @@ stock int UTIL_CreateSprite(int parent = -1, float vPosition[3] = NULL_VECTOR, f
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateSpriteController(int parent, char[] sSprite, char[] sVar)
+stock int UTIL_CreateSpriteController(int parent, const char[] sSprite, const char[] sVar)
 {
 	int entity = CreateEntityByName("material_modify_control");
 	
@@ -1074,7 +1074,7 @@ stock int UTIL_CreateSpriteController(int parent, char[] sSprite, char[] sVar)
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateTesla(int parent = -1, float vPosition[3] = NULL_VECTOR, float vAngle[3] = NULL_VECTOR, char[] sAttach = "", char[] sRadius = "500.0", char[] sSound = "DoSpark", char[] sCountMin = "42", char[] sCountMax = "62", char[] sTextureName = "materials/sprites/physbeam.vmt", char[] sColor = "255 255 255", char[] sThickMin = "10.0", char[] sThickMax = "11.0", char[] sLifeMin = "0.3", char[] sLifeMax = "0.3", char[] sIntervalMin = "0.1", char[] sIntervalMax = "0.2", float flDurationTime = 0.0)
+stock int UTIL_CreateTesla(int parent = -1, const float vPosition[3] = NULL_VECTOR, const float vAngle[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sRadius = "500.0", const char[] sSound = "DoSpark", const char[] sCountMin = "42", const char[] sCountMax = "62", const char[] sTextureName = "materials/sprites/physbeam.vmt", const char[] sColor = "255 255 255", const char[] sThickMin = "10.0", const char[] sThickMax = "11.0", const char[] sLifeMin = "0.3", const char[] sLifeMax = "0.3", const char[] sIntervalMin = "0.1", const char[] sIntervalMax = "0.2", float flDurationTime = 0.0)
 {
 	int entity = CreateEntityByName("point_tesla");
 
@@ -1143,7 +1143,7 @@ stock int UTIL_CreateTesla(int parent = -1, float vPosition[3] = NULL_VECTOR, fl
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateShooter(int parent, char[] sAttach, char[] sRender = "5", char[] sSound = "-1", int iSkin = 0, char[] sTextureName, float vAngle[3] = NULL_VECTOR, float vGibAngle[3] = NULL_VECTOR, float iGibs, float flDelay, float flVelocity, float flVariance, float flLife, float flDurationTime)
+stock int UTIL_CreateShooter(int parent, const char[] sAttach, const char[] sRender = "5", const char[] sSound = "-1", int iSkin = 0, const char[] sTextureName, const float vAngle[3] = NULL_VECTOR, float vGibAngle[3] = NULL_VECTOR, float iGibs, float flDelay, float flVelocity, float flVariance, float flLife, float flDurationTime)
 {
 	int entity = CreateEntityByName("env_shooter");
 
@@ -1213,7 +1213,7 @@ stock int UTIL_CreateShooter(int parent, char[] sAttach, char[] sRender = "5", c
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateBeam(float vStartPosition[3], float vEndPosition[3], char[] sDamage = "0", char[] sFrame = "0", char[] sWidth = "4.0", char[] sRenderFX = "0", char[] sType = "3", char[] sRate = "0", char[] sDecalName = "Bigshot", char[] sScroll = "35", char[] sScale = "1.0", char[] sTextureName = "materials/sprites/purplelaser1.vmt", char[] sLife = "0", char[] sStrike = "1", int iFlags = 0, char[] sAmplitude = "0", char[] sRadius = "256", char[] sRenderAMT = "100", char[] sColor, float flDelayTime, float flDurationTime, char[] sName)
+stock int UTIL_CreateBeam(const float vStartPosition[3],const  float vEndPosition[3], const char[] sDamage = "0", const char[] sFrame = "0", const char[] sWidth = "4.0", const char[] sRenderFX = "0", const char[] sType = "3", const char[] sRate = "0", const char[] sDecalName = "Bigshot", const char[] sScroll = "35", const char[] sScale = "1.0", const char[] sTextureName = "materials/sprites/purplelaser1.vmt", const char[] sLife = "0", const char[] sStrike = "1", int iFlags = 0, const char[] sAmplitude = "0", const char[] sRadius = "256", const char[] sRenderAMT = "100", const char[] sColor, float flDelayTime, float flDurationTime, const char[] sName)
 {
 	int entity = CreateEntityByName("env_beam");
 
@@ -1304,7 +1304,7 @@ stock int UTIL_CreateBeam(float vStartPosition[3], float vEndPosition[3], char[]
  *
  * @return                  The entity index.
  **/
-stock int UTIL_CreateLight(int parent = -1, float vPosition[3] = NULL_VECTOR, char[] sAttach = "", char[] sInnerCone = "0", char[] sCone = "80", char[] sBrightness = "1", char[] sPitch = "90", char[] sStyle = "1", int iFlags = 0, char[] sColor, float flDistance, float flRadius, float flDurationTime = 0.0)
+stock int UTIL_CreateLight(int parent = -1, const float vPosition[3] = NULL_VECTOR, const char[] sAttach = "", const char[] sInnerCone = "0", const char[] sCone = "80", const char[] sBrightness = "1", const char[] sPitch = "90", const char[] sStyle = "1", int iFlags = 0, const char[] sColor, float flDistance, float flRadius, float flDurationTime = 0.0)
 {
 	int entity = CreateEntityByName("light_dynamic");
 
@@ -1425,7 +1425,7 @@ stock int UTIL_GetRenderColor(int entity, ColorType color)
  * @param vBullet           The position of a bullet hit.
  * @param flDurationTime    The duration of life.
  **/
-stock void UTIL_CreateTracer(int parent, char[] sAttach, char[] sEffect, float vBullet[3], float flDurationTime)
+stock void UTIL_CreateTracer(int parent, const char[] sAttach, const char[] sEffect, const float vBullet[3], float flDurationTime)
 {
 	if (!hasLength(sEffect))
 	{
@@ -1514,7 +1514,7 @@ stock void UTIL_CreateShakeScreen(int client, float flAmplitude, float flFrequen
  * @param iFlags            The bits with some flags.
  * @param vColor            The array with RGB color.
  **/
-stock void UTIL_CreateFadeScreen(int client, float flDuration, float flHoldTime, int iFlags, int vColor[4])
+stock void UTIL_CreateFadeScreen(int client, float flDuration, float flHoldTime, int iFlags, const int vColor[4])
 {
 	Protobuf hFade = view_as<Protobuf>(StartMessageOne("Fade", client));
 
@@ -1539,7 +1539,7 @@ stock void UTIL_CreateFadeScreen(int client, float flDuration, float flHoldTime,
  * @param flForce           The force amount.
  * @param flRadius          The radius amount.
 **/
-stock void UTIL_CreatePhysForce(int client, float vPosition[3], float vOrigin[3], float flDistance, float flForce, float flRadius)
+stock void UTIL_CreatePhysForce(int client, const float vPosition[3], const float vOrigin[3], float flDistance, float flForce, float flRadius)
 {
 	static float vVelocity[3];
 	MakeVectorFromPoints(vPosition, vOrigin, vVelocity);
@@ -1559,7 +1559,7 @@ stock void UTIL_CreatePhysForce(int client, float vPosition[3], float vOrigin[3]
  * @param client            The client index.
  * @param sMessage          The message to send.
  **/
-stock void UTIL_CreateClientHint(int client, char[] sMessage)
+stock void UTIL_CreateClientHint(int client, const char[] sMessage)
 {
 	Protobuf hMessage = view_as<Protobuf>(StartMessageOne("HintText", client));
 
@@ -1589,7 +1589,7 @@ stock void UTIL_CreateClientHint(int client, char[] sMessage)
  * @param fadeOut           Number of seconds to spend fading out.
  * @param sMessage          The message to send.
  **/
-stock void UTIL_CreateClientHud(Handle hSync, int client, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, char[] sMessage)
+stock void UTIL_CreateClientHud(Handle hSync, int client, float x, float y, float holdTime, int r, int g, int b, int a, int effect, float fxTime, float fadeIn, float fadeOut, const char[] sMessage)
 {
 	SetHudTextParams(x, y, holdTime, r, g, b, a, effect, fxTime, fadeIn, fadeOut);
 	
@@ -1605,7 +1605,7 @@ stock void UTIL_CreateClientHud(Handle hSync, int client, float x, float y, floa
  *
  * @return                  The model index.
  **/
-stock int UTIL_PrecacheModel(char[] sModel)
+stock int UTIL_PrecacheModel(const char[] sModel)
 {
 	int iModel = PrecacheModel(sModel, true);
 	
@@ -1682,7 +1682,7 @@ stock void UTIL_RemoveEntity(int entity, float flDelayTime)
  *
  * @return                  The decal index.
  **/
-stock int UTIL_PrecacheDecal(char[] sDecal)
+stock int UTIL_PrecacheDecal(const char[] sDecal)
 {
 	int iDecal = PrecacheDecal(sDecal, true);
 	
@@ -1702,7 +1702,7 @@ stock int UTIL_PrecacheDecal(char[] sDecal)
  * 
  * @param soundPath         The sound path.
  **/
-stock void UTIL_PrecacheSound(char[] sSound)
+stock void UTIL_PrecacheSound(const char[] sSound)
 {
 	static char sPath[PLATFORM_MAX_PATH];
 	
@@ -1735,7 +1735,7 @@ stock void UTIL_PrecacheSound(char[] sSound)
  * @param filter            The function to use as a filter.
  * @param data              The data value to pass through to the filter function.
  **/
-stock void UTIL_FindHullIntersection(Handle &hTrace, float vPosition[3], const float vMins[3], const float vMaxs[3], TraceEntityFilter filter, any data)
+stock void UTIL_FindHullIntersection(Handle &hTrace, const float vPosition[3], const float vMins[3], const float vMaxs[3], TraceEntityFilter filter, any data)
 {
 	static float vEndPosition[3]; static float vHullPosition[3]; static float vHullEnd[3]; static float vHullBox[2][3];
 
@@ -1804,7 +1804,7 @@ stock void UTIL_FindHullIntersection(Handle &hTrace, float vPosition[3], const f
  * @param flSpeedScale      (Optional) The speed scale value.
  * @param verticalScale     (Optional) Set to true for reversing vertical velocity's value, false to reset.
  **/
-stock void UTIL_GetVelocityByAim(float vStartPosition[3], float vEndPosition[3], float vAngle[3], float vVelocity[3], float flSpeedScale = 1.0, bool verticalScale = false)
+stock void UTIL_GetVelocityByAim(const float vStartPosition[3], const float vEndPosition[3], float vAngle[3], float vVelocity[3], float flSpeedScale = 1.0, bool verticalScale = false)
 {
 	MakeVectorFromPoints(vStartPosition, vEndPosition, vVelocity);
 	
@@ -1832,7 +1832,7 @@ stock void UTIL_GetVelocityByAim(float vStartPosition[3], float vEndPosition[3],
  *
  * @return                  True of false.        
  **/
-stock bool UTIL_CanSeeEachOther(int entity, int target, float vPosition[3], TraceEntityFilter filter)
+stock bool UTIL_CanSeeEachOther(int entity, int target, const float vPosition[3], TraceEntityFilter filter)
 {
 	static float vOrigin[3]; static float vMaxs[3];
 
@@ -1875,7 +1875,7 @@ stock bool UTIL_CanSeeEachOther(int entity, int target, float vPosition[3], Trac
  *
  * @return                  True of false.        
  **/
-stock bool UTIL_TraceRay(int entity, int target, float vStartPosition[3], float vEndPosition[3], TraceEntityFilter filter)
+stock bool UTIL_TraceRay(int entity, int target, const float vStartPosition[3], const float vEndPosition[3], TraceEntityFilter filter)
 {
 	TR_TraceRayFilter(vStartPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, filter, entity);
 
@@ -1934,7 +1934,7 @@ stock float UTIL_GetDistanceBetween(int client, int entity)
  *
  * @return                  The string index.
  **/
-stock int GetEffectIndex(char[] sEffect)
+stock int GetEffectIndex(const char[] sEffect)
 {
 	static int table = INVALID_STRING_TABLE;
 
@@ -1960,7 +1960,7 @@ stock int GetEffectIndex(char[] sEffect)
  *
  * @return                  The string index.
  **/
-stock int GetParticleEffectIndex(char[] sEffect)
+stock int GetParticleEffectIndex(const char[] sEffect)
 {
 	static int table = INVALID_STRING_TABLE;
 
@@ -1985,7 +1985,7 @@ stock int GetParticleEffectIndex(char[] sEffect)
  * @param client            (Optional) The client index.
  * @param sEffect           The effect name.
  **/
-stock void PrecacheParticleFile(int client = 0, char[] sEffect)
+stock void PrecacheParticleFile(int client = 0, const char[] sEffect)
 {
 	static int table = INVALID_STRING_TABLE;
 	
@@ -2017,7 +2017,7 @@ stock void PrecacheParticleFile(int client = 0, char[] sEffect)
  *
  * @param sEffect           The effect name.
  **/
-stock void PrecacheParticleEffect(char[] sEffect)
+stock void PrecacheParticleEffect(const char[] sEffect)
 {
 	static int table = INVALID_STRING_TABLE;
 	
@@ -2112,7 +2112,7 @@ stock int GetParticleEffectCount()
  * @param cSymbol           The character to search for.
  * @return                  The amount of characters in the string, or -1 if the characters were not found.
  */
-stock int CountCharInString(char[] sBuffer, char cSymbol)
+stock int CountCharInString(const char[] sBuffer, char cSymbol)
 {
 	int iCount;
 	
@@ -2137,7 +2137,7 @@ stock int CountCharInString(char[] sBuffer, char cSymbol)
  * @param endPos            The end position of string to extract.
  * @return                  The number of cells written.
  **/
-stock int ExtractString(char[] sBuffer, char[] sSource, int startPos, int endPos)
+stock int ExtractString(char[] sBuffer, const char[] sSource, int startPos, int endPos)
 {
 	int iMaxLen = endPos - startPos + 1;
 	
@@ -2155,7 +2155,7 @@ stock int ExtractString(char[] sBuffer, char[] sSource, int startPos, int endPos
  *
  * @param sBuffer           The input string buffer.
  */
-stock void StringToLower(char[] sBuffer)
+stock void StringToLower(const char[] sBuffer)
 {
 	int iLen = strlen(sBuffer);
 	for (int i = 0; i < iLen; i++) 
@@ -2169,7 +2169,7 @@ stock void StringToLower(char[] sBuffer)
  *
  * @param sBuffer           The input string buffer.
  */
-stock void StringToUpper(char[] sBuffer)
+stock void StringToUpper(const char[] sBuffer)
 {
 	int iLen = strlen(sBuffer);
 	for (int i = 0; i < iLen; i++) 
@@ -2183,7 +2183,7 @@ stock void StringToUpper(char[] sBuffer)
  *
  * @param sBuffer           The input string buffer.
  */
-stock bool IsStringNumeric(char[] sBuffer)
+stock bool IsStringNumeric(const char[] sBuffer)
 {
 	int iLen = strlen(sBuffer);
 	for (int i = 0; i < iLen; i++) 
@@ -2373,7 +2373,7 @@ stock bool IsTimeBetween(int min, int max)
  * @param sSource      The source of data to be copied.
  * @param iSize        The number of bytes to copy.
  **/
-stock void memcpy(Address pDest, char[] sSource, int iSize)
+stock void memcpy(Address pDest, const char[] sSource, int iSize)
 {
 	int i = iSize / 4;
 	memcpy4b(pDest, view_as<any>(sSource), i);
@@ -2391,7 +2391,7 @@ stock void memcpy(Address pDest, char[] sSource, int iSize)
  * @param sSource      The source of data to be copied.
  * @param iSize        The number of bytes to copy.
  **/
-stock void memcpy4b(Address pDest, any[] sSource, int iSize)
+stock void memcpy4b(Address pDest, const any[] sSource, int iSize)
 {
 	for (int i = 0; i < iSize; i++)
 	{
@@ -2407,7 +2407,7 @@ stock void memcpy4b(Address pDest, any[] sSource, int iSize)
  * @param pAddress        The address of the call.
  * @param iOffset         (Optional) The address offset. (Where 0x0 starts)
  **/
-stock void writeDWORD(char[] asm, any pAddress, int iOffset = 0)
+stock void writeDWORD(const char[] asm, any pAddress, int iOffset = 0)
 {
 	asm[iOffset]   = pAddress & 0xFF;
 	asm[iOffset+1] = pAddress >> 8 & 0xFF;

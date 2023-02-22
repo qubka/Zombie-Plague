@@ -969,7 +969,7 @@ bool HitGroupsIsProtect(int iD)
  * @param sName             The hitgroup name.
  * @return                  The hitgroup index.
  **/
-int HitGroupsNameToIndex(char[] sName)
+int HitGroupsNameToIndex(const char[] sName)
 {
 	static char sHitGroupName[SMALL_LINE_LENGTH];
 	
@@ -1100,7 +1100,7 @@ bool HitGroupsHasArmor(int client, int iHitGroup)
  * @param inflictor         The inflictor index.
  * @return                  True or false.    
  **/
-bool HitGroupsHasInfclictor(char[] sClassname)
+bool HitGroupsHasInfclictor(const char[] sClassname)
 {
 	int iLen = strlen(sClassname) - 11;
 	

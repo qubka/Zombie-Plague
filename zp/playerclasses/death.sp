@@ -340,7 +340,7 @@ public MRESReturn DeathDhookOnCommitSuicide(int client)
  * @param bDominated        (Optional) Did killer dominate victim with this kill.
  * @param assisterID        (Optional) The user id who assisted in the kill.
  **/
-void DeathCreateIcon(int userID, int attackerID, char[] sIcon, bool bHead = false, bool bPenetrated = false, bool bRevenge = false, bool bDominated = false, int assisterID = 0)
+void DeathCreateIcon(int userID, int attackerID, const char[] sIcon, bool bHead = false, bool bPenetrated = false, bool bRevenge = false, bool bDominated = false, int assisterID = 0)
 {
 	Event hEvent = CreateEvent("player_death");
 	if (hEvent != null)

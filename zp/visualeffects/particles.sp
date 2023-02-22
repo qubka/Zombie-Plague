@@ -38,7 +38,7 @@
  * @param flDurationTime    The duration of an effect.
  * @return                  The entity index.
  **/
-int ParticlesCreate(int parent, char[] sAttach, char[] sEffect, float flDurationTime)
+int ParticlesCreate(int parent, const char[] sAttach, const char[] sEffect, float flDurationTime)
 {
 	if (!hasLength(sEffect)/* || (hasLength(sAttach) && !LookupEntityAttachment(parent, sAttach))*/)
 	{

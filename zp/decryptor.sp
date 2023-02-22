@@ -33,7 +33,7 @@
  * @param sModel            The model path.
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int DecryptPrecacheModel(char[] sModel)
+int DecryptPrecacheModel(const char[] sModel)
 {
 	if (!hasLength(sModel))
 	{
@@ -67,7 +67,7 @@ int DecryptPrecacheModel(char[] sModel)
  * @param sModel            The model path. 
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int DecryptPrecacheWeapon(char[] sModel)
+int DecryptPrecacheWeapon(const char[] sModel)
 {
 	if (!hasLength(sModel))
 	{
@@ -103,7 +103,7 @@ int DecryptPrecacheWeapon(char[] sModel)
  * @param sModel            The model path. 
  * @return                  The model index if was precached, 0 otherwise.
  **/
-int DecryptPrecacheParticle(char[] sModel)
+int DecryptPrecacheParticle(const char[] sModel)
 {
 	if (!hasLength(sModel))
 	{
@@ -133,7 +133,7 @@ int DecryptPrecacheParticle(char[] sModel)
  *
  * @param sModel            The model path.
  **/
-void DecryptPrecacheResources(char[] sModel)
+void DecryptPrecacheResources(const char[] sModel)
 {
 	AddFileToDownloadsTable(sModel);
 
@@ -162,7 +162,7 @@ void DecryptPrecacheResources(char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheSounds(char[] sModel)
+bool DecryptPrecacheSounds(const char[] sModel)
 {
 	int iFormat = FindCharInString(sModel, '.', true);
 	
@@ -263,7 +263,7 @@ bool DecryptPrecacheSounds(char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheMaterials(char[] sModel)
+bool DecryptPrecacheMaterials(const char[] sModel)
 {
 	int iFormat = FindCharInString(sModel, '.', true);
 	
@@ -431,7 +431,7 @@ bool DecryptPrecacheMaterials(char[] sModel)
  * @param sModel            The model path.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheEffects(char[] sModel)
+bool DecryptPrecacheEffects(const char[] sModel)
 {
 	int iFormat = FindCharInString(sModel, '.', true);
 	
@@ -540,7 +540,7 @@ bool DecryptPrecacheEffects(char[] sModel)
  * @param bDecal            (Optional) If true, the texture will be precached like a decal.
  * @return                  True if was precached, false otherwise.
  **/
-bool DecryptPrecacheTextures(char[] sModel, char[] sPath)
+bool DecryptPrecacheTextures(const char[] sModel, const char[] sPath)
 {
 	int iSlash = max(FindCharInString(sModel, '/', true), FindCharInString(sModel, '\\', true));
 	if (iSlash == -1) iSlash = 0; else iSlash++; /// For the root directory to get correct name

@@ -215,12 +215,12 @@ public Action CS_OnBuyCommand(int client, const char[] sClassname)
 {
 	if (gCvarList.MARKET_BUYMENU.BoolValue)
 	{
-		int iD = -1; gServerData.Entities.GetValue(sClassname, iD);
+		ItemDef iItem = WeaponsGetItemDefIndex(sClassname);
+	
+		int iD = WeaponsDefToIndex(iItem);
 		if (iD != -1 && WeaponsHasAccessByType(client, iD))
 		{
-			int iItem = view_as<int>(WeaponsGetDefIndex(iD));
-
-			int iCost = CS_GetWeaponPrice(client, CS_ItemDefIndexToID(iItem));
+			int iCost = CS_GetWeaponPrice(client, CS_ItemDefIndexToID(view_as<int>(iItem)));
 			if (iCost)
 			{
 				AccountSetClientCash(client, gClientData[client].Money - iCost);

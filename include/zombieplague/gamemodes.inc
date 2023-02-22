@@ -99,7 +99,7 @@ native void ZP_StartGameMode(int modeID, int target = -1);
  *
  * @return                  The mode index, or -1 on failure.
  **/
-native int ZP_GetGameModeNameID(char[] name);
+native int ZP_GetGameModeNameID(const char[] name);
 
 /**
  * @brief Gets the name of a game mode at a given index.

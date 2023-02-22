@@ -879,7 +879,7 @@ int CostumesGetLevel(int iD)
  * @param sName             The costume name.
  * @return                  The costume index.
  **/
-int CostumesNameToIndex(char[] sName)
+int CostumesNameToIndex(const char[] sName)
 {
 	static char sCostumeName[SMALL_LINE_LENGTH];
 	

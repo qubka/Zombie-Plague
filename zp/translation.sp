@@ -377,7 +377,7 @@ stock void TranslationReplyToCommand(int client, any ...)
  * @param sPhrase           The phrase to look.
  * @return                  True or false.
  **/
-bool TranslationIsPhraseExists(char[] sPhrase)
+bool TranslationIsPhraseExists(const char[] sPhrase)
 {
 	StringToLower(sPhrase); 
 	

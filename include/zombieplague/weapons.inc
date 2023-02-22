@@ -174,7 +174,7 @@ forward void ZP_OnWeaponReload(int client, int weapon, int weaponID);
  *
  * @noreturn
  **/
-forward void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID);
+forward void ZP_OnWeaponBullet(int client, const float vBullet[3], int weapon, int weaponID);
 
 /**
  * @brief Called on shoot of a weapon.
@@ -217,7 +217,7 @@ forward void ZP_OnWeaponDrop(int weapon, int weaponID);
  *
  * @return                  The weapon index.
  **/
-native int ZP_CreateWeapon(int weaponID, float origin[3], float angle[3]);
+native int ZP_CreateWeapon(int weaponID, const float origin[3], const float angle[3]);
 
 /**
  * @brief Emulate bullet shot on the server and does the damage calculations.
@@ -236,7 +236,7 @@ native int ZP_CreateWeapon(int weaponID, float origin[3], float angle[3]);
  *
  * @return                  True or false.
  **/
-native bool ZP_FireBullets(int clientIndex, int weaponIndex, float origin[3], float angle[3], int mode, int seed, float inaccuracy, float spread, float fishtail, int sound, float recoil);
+native bool ZP_FireBullets(int clientIndex, int weaponIndex, const float origin[3], const float angle[3], int mode, int seed, float inaccuracy, float spread, float fishtail, int sound, float recoil);
 
 /**
  * @brief Gives the weapon by a given name.
@@ -286,7 +286,7 @@ native int ZP_GetClientAttachModel(int client, BitType bits);
  *
  * @return                  The weapon ID or -1 if no weapon was found.
  **/
-native int ZP_GetWeaponNameID(char[] name);
+native int ZP_GetWeaponNameID(const char[] name);
 
 /**
  * @brief Gets the amount of all weapons.
@@ -491,7 +491,7 @@ native int ZP_GetWeaponSoundID(int weaponID);
  * @param icon              The string to return icon in.
  * @param maxlenght         The lenght of string.
  **/
-native int ZP_GetWeaponIcon(int weaponID, char[] icon, int maxlenght = 32);
+native void ZP_GetWeaponIcon(int weaponID, char[] icon, int maxlenght = 32);
 
 /**
  * @brief Gets the viewmodel path of a weapon at a given id.
@@ -723,7 +723,7 @@ stock void ZP_SetWeaponAnimation(int client, int nSequence)
  * @param client            The client index.
  * @param nSequence         The sequence array.
  **/
-stock void ZP_SetViewAnimation(int client, int nSequence[2])
+stock void ZP_SetViewAnimation(int client, const int nSequence[2])
 {
 	int view = ZP_GetClientViewModel(client, false); /// Play anims on the original model 
 
@@ -744,7 +744,7 @@ stock void ZP_SetViewAnimation(int client, int nSequence[2])
  *
  * @return                  The weapon index.
  **/
-stock int ZP_GetPlayerWeapon(int client, char[] sType)
+stock int ZP_GetPlayerWeapon(int client, const char[] sType)
 {
 	static char sClassname[SMALL_LINE_LENGTH];
 
@@ -798,7 +798,7 @@ stock void ZP_RemoveWeapon(int client, int weapon, int slot = SlotIndex_Melee)
  * @param vBullet           The position of a bullet hit.
  * @param flDurationTime    The duration of life.
  **/
-stock void ZP_CreateWeaponTracer(int client, int weapon, char[] sAttach1, char[] sAttach2, char[] sEffect, float vBullet[3], float flDurationTime)
+stock void ZP_CreateWeaponTracer(int client, int weapon, const char[] sAttach1, const char[] sAttach2, const char[] sEffect, const float vBullet[3], float flDurationTime)
 {
 	if (!hasLength(sEffect))
 	{

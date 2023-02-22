@@ -518,7 +518,7 @@ enum struct ForwardData
 	 *
 	 * @noreturn
 	 **/
-	void _OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
+	void _OnWeaponBullet(int client, const float vBullet[3], int weapon, int weaponID)
 	{
 		Call_StartForward(this.OnWeaponBullet);
 		Call_PushCell(client);

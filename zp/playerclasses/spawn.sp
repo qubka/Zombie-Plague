@@ -58,7 +58,7 @@ void SpawnOnLoad()
  *
  * @param sClassname        The string with info name. 
  **/
-void SpawnOnCacheData(char[] sClassname)
+void SpawnOnCacheData(const char[] sClassname)
 {
 	int entity;
 	while ((entity = FindEntityByClassname(entity, sClassname)) != -1)

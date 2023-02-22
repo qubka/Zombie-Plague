@@ -402,7 +402,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
 	}
 }
 
-void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
+void Weapon_OnCreateEffect(int weapon, const char[] sInput = "")
 {
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	
@@ -489,7 +489,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
+public void ZP_OnWeaponBullet(int client, const float vBullet[3], int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

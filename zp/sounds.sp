@@ -525,7 +525,7 @@ float SoundsGetSound(int iKey, int iNum = 0, char sPath[PLATFORM_LINE_LENGTH], f
  * @param sKey              The key name.
  * @return                  The sound index.
  **/
-int SoundsKeyToIndex(char[] sKey)
+int SoundsKeyToIndex(const char[] sKey)
 {
 	static char sSoundKey[SMALL_LINE_LENGTH];
 	
@@ -549,7 +549,7 @@ int SoundsKeyToIndex(char[] sKey)
  * @param sPath             The sound path.
  * @return                  True if was precached, false otherwise.
  **/
-bool SoundsPrecacheQuirk(char[] sPath)
+bool SoundsPrecacheQuirk(const char[] sPath)
 {
 	if (!FileExists(sPath))
 	{

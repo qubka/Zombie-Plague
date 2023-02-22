@@ -1173,7 +1173,7 @@ stock int LeftToBody(int iLeft)
  * @param vAngle            The angle of the spawn.
  * @param vVelocity         The velocity of the spawn.
  **/
-stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3], float vVelocity[3])
+stock void SpawnRandomWeapon(const float vPosition[3], const float vAngle[3], const float vVelocity[3])
 {
 	int iD = FindRandomWeapon();
 	if (iD != -1)

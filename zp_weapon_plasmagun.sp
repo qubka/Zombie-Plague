@@ -333,7 +333,7 @@ void Weapon_OnCreatePlasma(int client, int weapon)
 	}
 }
 
-void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
+void Weapon_OnCreateEffect(int client, int weapon, const char[] sInput = "")
 {
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	

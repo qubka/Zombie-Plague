@@ -224,7 +224,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
 	Weapon_OnCreateEffect(weapon, "FireUser2");
 }
 
-void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
+void Weapon_OnCreateFire(int client, int weapon, const float vPosition[3])
 {
 	static float vAngle[3]; static float vVelocity[3]; static float vEndVelocity[3];
 
@@ -267,7 +267,7 @@ void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
 	}
 }
 
-void Weapon_OnCreateEffect(int weapon, char[] sInput = "")
+void Weapon_OnCreateEffect(int weapon, const char[] sInput = "")
 {
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	

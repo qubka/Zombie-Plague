@@ -94,7 +94,7 @@ native int ZP_GetNumberExtraItem();
  *
  * @return                  The item index, or -1 on failure.
  **/
-native int ZP_GetExtraItemNameID(char[] name);
+native int ZP_GetExtraItemNameID(const char[] name);
 
 /**
  * @brief Gets the section id of a extra item.

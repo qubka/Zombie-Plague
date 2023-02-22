@@ -448,7 +448,7 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	ZP_CreateWeaponTracer(client, weapon, "1", "muzzle_flash", sEffect, vPosition2, ZP_GetWeaponShoot(gWeapon));
 }
 
-void Weapon_OnCreateEffect(int client, int weapon, char[] sInput = "")
+void Weapon_OnCreateEffect(int client, int weapon, const char[] sInput = "")
 {
 	int entity = GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity");
 	
@@ -527,7 +527,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
+public void ZP_OnWeaponBullet(int client, const float vBullet[3], int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

@@ -175,7 +175,7 @@ void LogOnCvarInit()
  *                          but not trimmed for white space.
  * @return                  The matcing module type or LogModule_Invalid if failed.
  **/
-LogModule LogGetModule(char[] sModuleName)
+LogModule LogGetModule(const char[] sModuleName)
 {
 	LogModule iModule;
 	if (gServerData.Modules.GetValue(sModuleName, iModule))
@@ -341,7 +341,7 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
  * @param sMessage          Log message. Can be formatted.
  * @param ...               Formatting parameters.
  **/
-void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent = LOG_CORE_EVENTS, LogModule iModule = LogModule_Config, char[] sDescription, char[] sMessage, any ...)
+void LogEvent(bool isConsole = false, LogType iType = LogType_Normal, int iEvent = LOG_CORE_EVENTS, LogModule iModule = LogModule_Config, const char[] sDescription, const char[] sMessage, any ...)
 {    
 	if ((iType != LogType_Fatal && iType != LogType_Error) || (iType == LogType_Error && !gCvarList.LOG_ERROR_OVERRIDE.BoolValue))
 	{

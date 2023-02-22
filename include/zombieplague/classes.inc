@@ -203,7 +203,7 @@ native int ZP_GetRandomClassTypeID(int type);
  *
  * @return                  The class index, or -1 on failure.
  **/
-native int ZP_GetClassNameID(char[] name);
+native int ZP_GetClassNameID(const char[] name);
 
 /**
  * @brief Gets the name of a class at a given index.
@@ -230,7 +230,7 @@ native void ZP_GetClassInfo(int classID, char[] info, int maxlenght = 32);
  *
  * @return                  The type index, or -1 on failure.
  **/
-native int ZP_GetClassTypeID(char[] name);
+native int ZP_GetClassTypeID(const char[] name);
 
 /**
  * @brief Gets the type of the class.

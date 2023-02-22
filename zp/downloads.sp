@@ -156,7 +156,7 @@ public void DownloadsOnConfigReload()
  * @param sPath             The path to file.
  * @return                  True or false.
  **/
-bool DownloadsOnPrecache(char[] sPath)
+bool DownloadsOnPrecache(const char[] sPath)
 {
 	int iFormat = FindCharInString(sPath, '.', true);
 	

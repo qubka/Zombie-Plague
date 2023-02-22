@@ -254,7 +254,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 	UTIL_CreateParticle(view, _, _, "2", sName, 0.1);
 }
 
-void Weapon_OnCreateFire(int client, int weapon, float vPosition[3])
+void Weapon_OnCreateFire(int client, int weapon, const float vPosition[3])
 {
 	static float vAngle[3]; static float vVelocity[3]; static float vEndVelocity[3];
 

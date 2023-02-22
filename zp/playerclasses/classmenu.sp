@@ -208,7 +208,7 @@ int ClassValidateIndex(int client, int iType)
  * @param iClass            The current class.
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/
-void ClassMenu(int client, char[] sTitle, int iType, int iClass, bool bInstant = false) 
+void ClassMenu(int client, const char[] sTitle, int iType, int iClass, bool bInstant = false) 
 {
 	static char sBuffer[NORMAL_LINE_LENGTH];
 	static char sName[SMALL_LINE_LENGTH];
@@ -344,7 +344,7 @@ public int ClassHumanMenuSlots2(Menu hMenu, MenuAction mAction, int client, int 
  * @param mSlot             The slot index selected (starting from 0).
  * @param bInstant          (Optional) True to set the class instantly, false to set it on the next class change.
  **/ 
-int ClassMenuSlots(Menu hMenu, MenuAction mAction, char[] sCommand, int client, int mSlot, bool bInstant = false)
+int ClassMenuSlots(Menu hMenu, MenuAction mAction, const char[] sCommand, int client, int mSlot, bool bInstant = false)
 {
 	switch (mAction)
 	{

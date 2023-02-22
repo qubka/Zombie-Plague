@@ -362,7 +362,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
+public void ZP_OnWeaponBullet(int client, const float vBullet[3], int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

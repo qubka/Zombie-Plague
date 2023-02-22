@@ -344,7 +344,7 @@ void CoffinExpload(int entity)
  * @param flVertical        (Optional) The vertical distance.
  * @param vOutput           The calculated position vector output.
  **/
-void GetOriginDistance(int entity, float vAngle[3], float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOutput[3])
+void GetOriginDistance(int entity, const float vAngle[3], float flForward = 0.0, float flRight = 0.0, float flVertical = 0.0, float vOutput[3])
 {
 	static float vPosition[3]; static float vForward[3]; static float vRight[3];  static float vVertical[3]; 
 
@@ -363,7 +363,7 @@ void GetOriginDistance(int entity, float vAngle[3], float flForward = 0.0, float
  * @param vPosition         The position of the entity.
  * @return                  True or false.
  **/
-bool IsEntityStuck(int entity, float vPosition[3])
+bool IsEntityStuck(int entity, const float vPosition[3])
 {
 	static float vCenter[3]; vCenter = vPosition;
 

@@ -128,7 +128,7 @@ native bool ZP_IsMenuSpace(int menuID, int iSub = 0);
  *
  * @note Array contains the menu index and the submenu index.
  **/
-native void ZP_GetMenuCommandID(char[] command, int[] index, int maxlenght = 2);
+native void ZP_GetMenuCommandID(const char[] command, int[] index, int maxlenght = 2);
 
 /**
  * @brief Gets the command of a menu at a given index.

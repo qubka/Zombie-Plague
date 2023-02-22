@@ -1034,7 +1034,7 @@ int ItemsGetTypes(int iD)
  * @param sName             The item name.
  * @return                  The item index.
  **/
-int ItemsNameToIndex(char[] sName)
+int ItemsNameToIndex(const char[] sName)
 {
 	static char sItemName[SMALL_LINE_LENGTH];
 	

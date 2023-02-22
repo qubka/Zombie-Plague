@@ -101,7 +101,7 @@ native int ZP_GetHitGroupID(int hitgroup);
  *
  * @return                  The higroup index, or -1 on failure.
  **/
-native int ZP_GetHitGroupNameID(char[] name);
+native int ZP_GetHitGroupNameID(const char[] name);
 
 /**
  * @brief Gets the name of a hitgroup at a given index.

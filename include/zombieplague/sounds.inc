@@ -41,7 +41,7 @@
  *
  * @note                    Can return a random index for multiple same unique keys!
  **/
-native int ZP_GetSoundKeyID(char[] key);
+native int ZP_GetSoundKeyID(const char[] key);
 
 /**
  * @brief Gets the sound of a block at a given key.
@@ -118,7 +118,7 @@ native bool ZP_EmitSoundToClient(int keyID, int num = 0, int client, int entity 
  * @param delay             (Optional) The play delay.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-native bool ZP_EmitAmbientSound(int keyID, int num = 0, float origin[3], int entity = SOUND_FROM_WORLD, float delay = 0.0);
+native bool ZP_EmitAmbientSound(int keyID, int num = 0, const float origin[3], int entity = SOUND_FROM_WORLD, float delay = 0.0);
 
 /**
  * @brief Stops a sound to all clients.

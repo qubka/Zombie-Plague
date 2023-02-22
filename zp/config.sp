@@ -338,7 +338,7 @@ void ConfigOnCommandInit()
  * @param iFile             Config file entry to register.
  * @param sAlias            Config file alias, used for client interaction.
  **/
-stock void ConfigRegisterConfig(int iFile, ConfigStructure iStructure, char[] sAlias = "")
+stock void ConfigRegisterConfig(int iFile, ConfigStructure iStructure, const char[] sAlias = "")
 {
 	gConfigData[iFile].Loaded = false;
 	gConfigData[iFile].Structure = iStructure;
@@ -398,7 +398,7 @@ stock void ConfigSetConfigHandle(int iConfig, ArrayList iFile)
  * @param iConfig           Config file to set file path of.
  * @param sPath             File path.
  **/
-stock void ConfigSetConfigPath(int iConfig, char[] sPath)
+stock void ConfigSetConfigPath(int iConfig, const char[] sPath)
 {
 	strcopy(gConfigData[iConfig].Path, PLATFORM_LINE_LENGTH, sPath);
 }
@@ -409,7 +409,7 @@ stock void ConfigSetConfigPath(int iConfig, char[] sPath)
  * @param iConfig           Config file to set alias of.
  * @param sAlias            Alias of the config file entry.
  **/
-stock void ConfigSetConfigAlias(int iConfig, char[] sAlias)
+stock void ConfigSetConfigAlias(int iConfig, const char[] sAlias)
 {
 	strcopy(gConfigData[iConfig].Alias, NORMAL_LINE_LENGTH, sAlias);
 }
@@ -710,7 +710,7 @@ stock bool ConfigOpenConfigFile(int iConfig, Handle &hConfig)
  * @param iMaxLen           (Optional) The maxlength of the retrieved value.
  * @return                  True if the change was made successfully, false otherwise. 
  **/
-stock bool ConfigKeyValueTreeSetting(int iConfig, ConfigKvAction mAction = KvAction_Create, char[][] sKeys, int keysMax, char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
+stock bool ConfigKeyValueTreeSetting(int iConfig, ConfigKvAction mAction = KvAction_Create, const char[][] sKeys, int keysMax, const char[] sSetting = "", char[] sValue = "", int iMaxLen = 0)
 {
 	ConfigStructure iStructure = ConfigGetConfigStructure(iConfig);
 	
@@ -781,7 +781,7 @@ stock bool ConfigKeyValueTreeSetting(int iConfig, ConfigKvAction mAction = KvAct
  * @param sAlias            The alias to find config file entry of.
  * @return                  Config file entry, ConfigInvalid is returned if alias was not found.
  **/
-stock int ConfigAliasToConfigFile(char[] sAlias)
+stock int ConfigAliasToConfigFile(const char[] sAlias)
 {
 	static char sCheckAlias[NORMAL_LINE_LENGTH];
 	
@@ -807,7 +807,7 @@ stock int ConfigAliasToConfigFile(char[] sAlias)
  * @param bRoot             This should be used instead of directly referencing to sourcemod root.
  * @return                  True if the file exists, false if not.
  **/
-stock bool ConfigGetFullPath(char[] sAlias, char[] sPath, int iMaxLen, bool bRoot = true)
+stock bool ConfigGetFullPath(const char[] sAlias, char[] sPath, int iMaxLen, bool bRoot = true)
 {
 	if (bRoot)
 	{
@@ -830,7 +830,7 @@ stock bool ConfigGetFullPath(char[] sAlias, char[] sPath, int iMaxLen, bool bRoo
  * @param sOption           The string to be converted.
  * @return                  True if string is "yes", false otherwise.
  **/
-stock bool ConfigSettingToBool(char[] sOption)
+stock bool ConfigSettingToBool(const char[] sOption)
 {
 	if (!strcmp(sOption, "yes", false) || !strcmp(sOption, "on", false) || !strcmp(sOption, "true", false) || !strcmp(sOption, "1", false))
 	{
@@ -890,7 +890,7 @@ stock void ConfigBoolToSetting(bool bOption, char[] sOption, int iMaxLen, bool b
  * @param sKey              The keyname the value is under.
  * @param sDefaultValue     (Optional) Value to return if setting is missing.
  **/
-stock bool ConfigKvGetStringBool(KeyValues kv, char[] sKey, char[] sDefaultValue = "yes")
+stock bool ConfigKvGetStringBool(KeyValues kv, const char[] sKey, const char[] sDefaultValue = "yes")
 {
 	static char sValue[NORMAL_LINE_LENGTH];
 	kv.GetString(sKey, sValue, sizeof(sValue), sDefaultValue);
@@ -904,7 +904,7 @@ stock bool ConfigKvGetStringBool(KeyValues kv, char[] sKey, char[] sDefaultValue
  * @param sGroup            The SourceMod group name to check.
  * @return                  A  bitstring containing which flags are enabled.
  **/
-stock int ConfigGetAdmFlags(char[] sGroup)
+stock int ConfigGetAdmFlags(const char[] sGroup)
 {
 	if (hasLength(sGroup))
 	{

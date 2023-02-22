@@ -366,7 +366,7 @@ stock int fnGetRandomZombie()
  * @param iOffset           An offset, or -1 on failure.
  * @param sKey              Key to retrieve from the offset section.
  **/
-stock void fnInitGameConfOffset(GameData gameConf, int &iOffset, char[] sKey, bool bFatal = true)
+stock void fnInitGameConfOffset(GameData gameConf, int &iOffset, const char[] sKey, bool bFatal = true)
 {
 	if ((iOffset = gameConf.GetOffset(sKey)) == -1)
 	{
@@ -382,7 +382,7 @@ stock void fnInitGameConfOffset(GameData gameConf, int &iOffset, char[] sKey, bo
  * @param sKey              Key to retrieve from the address section.
  * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitGameConfAddress(GameData gameConf, Address &pAddress, char[] sKey, bool bFatal = true)
+stock void fnInitGameConfAddress(GameData gameConf, Address &pAddress, const char[] sKey, bool bFatal = true)
 {
 	if ((pAddress = gameConf.GetAddress(sKey)) == Address_Null)
 	{
@@ -399,7 +399,7 @@ stock void fnInitGameConfAddress(GameData gameConf, Address &pAddress, char[] sK
  * @param iMaxLen           The lenght of string.
  * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitGameConfKey(GameData gameConf, char[] sKey, char[] sIdentifier, int iMaxLen, bool bFatal = true)
+stock void fnInitGameConfKey(GameData gameConf, const char[] sKey, char[] sIdentifier, int iMaxLen, bool bFatal = true)
 {
 	if (!gameConf.GetKeyValue(sKey, sIdentifier, iMaxLen)) 
 	{
@@ -415,7 +415,7 @@ stock void fnInitGameConfKey(GameData gameConf, char[] sKey, char[] sIdentifier,
  * @param sProp             The property name.
  * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp, bool bFatal = true)
+stock void fnInitSendPropOffset(int &iOffset, const char[] sClass, const char[] sProp, bool bFatal = true)
 {
 	if ((iOffset = FindSendPropInfo(sClass, sProp)) < 1)
 	{
@@ -431,7 +431,7 @@ stock void fnInitSendPropOffset(int &iOffset, char[] sClass, char[] sProp, bool 
  * @param sProp             The property name.
  * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-stock void fnInitDataPropOffset(int &iOffset, int entity, char[] sProp, bool bFatal = true)
+stock void fnInitDataPropOffset(int &iOffset, int entity, const char[] sProp, bool bFatal = true)
 {
 	if ((iOffset = FindDataMapInfo(entity, sProp)) < 1)
 	{
@@ -447,7 +447,7 @@ stock void fnInitDataPropOffset(int &iOffset, int entity, char[] sProp, bool bFa
  * @param sKey              Key to retrieve from the key section.
  * @param pAddress          (Optional) The optional interface address.
  **/
-stock Address fnCreateEngineInterface(GameData gameConf, char[] sKey, Address pAddress = Address_Null) 
+stock Address fnCreateEngineInterface(GameData gameConf, const char[] sKey, Address pAddress = Address_Null) 
 {
 	static Handle hInterface = null;
 	if (hInterface == null) 
@@ -532,7 +532,7 @@ stock int fnGetModuleSize(Address pAddress)
  * @param eMode             (Optional) EventHookMode determining the type of hook.
  * @error                   No errors.
  **/
-stock void UnhookEvent2(char[] sName, EventHook hCallBack, EventHookMode eMode = EventHookMode_Post)
+stock void UnhookEvent2(const char[] sName, EventHook hCallBack, EventHookMode eMode = EventHookMode_Post)
 {
 	HookEvent(sName, hCallBack, eMode);
 	UnhookEvent(sName, hCallBack, eMode);
@@ -546,7 +546,7 @@ stock void UnhookEvent2(char[] sName, EventHook hCallBack, EventHookMode eMode =
  *                          The command is case insensitive.
  * @error                   No errors..
  **/
-stock void RemoveCommandListener2(CommandListener hCallBack, char[] sCommand = "")
+stock void RemoveCommandListener2(CommandListener hCallBack, const char[] sCommand = "")
 {
 	AddCommandListener(hCallBack, sCommand);
 	RemoveCommandListener(hCallBack, sCommand);

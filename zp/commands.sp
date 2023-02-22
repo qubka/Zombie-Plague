@@ -51,7 +51,7 @@ void CommandsOnInit()
  * @param sArgument     The target argument.
  * @return              The index of target client, or -1 on error.
  */
-stock int FindTargetByID(int client, char[] sArgument)
+stock int FindTargetByID(int client, const char[] sArgument)
 {
 	int iD = strlen(sArgument);
 	if (iD == 0)

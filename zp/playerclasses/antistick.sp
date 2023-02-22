@@ -330,7 +330,7 @@ void AntiStickBuildModelBox(int client, float flBoundaries[AntiStickBoxBound][3]
  * @param flDistance        Distance to jump
  * @param flResult          Resultant point.
  **/
-void AntiStickJumpToPoint(float vVector[3], float vAngle[3], float flDistance, float vResult[3])
+void AntiStickJumpToPoint(const float vVector[3], const float vAngle[3], float flDistance, float vResult[3])
 {
 	static float vViewLoc[3];
 	
@@ -350,7 +350,7 @@ void AntiStickJumpToPoint(float vVector[3], float vAngle[3], float flDistance, f
  * @param flBoundaries      The boundaries to check.
  * @param bMin              Return the min value instead.
  **/
-float AntiStickGetBoxMaxBoundary(int iAxis, float flBoundaries[AntiStickBoxBound][3], bool bMin = false)
+float AntiStickGetBoxMaxBoundary(int iAxis, const float flBoundaries[AntiStickBoxBound][3], bool bMin = false)
 {
 	float flOutlier = flBoundaries[0][iAxis];
 	
@@ -425,7 +425,7 @@ bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
  * @param vPosition         The sphere origin.
  * @param flRadius          The sphere radius.
  **/
-int AntiStickFindPlayerInSphere(int &it, float vPosition[3], float flRadius)
+int AntiStickFindPlayerInSphere(int &it, const float vPosition[3], float flRadius)
 {
 	static float clientmodelbox[AntiStickBoxBound][3];
 
@@ -458,7 +458,7 @@ int AntiStickFindPlayerInSphere(int &it, float vPosition[3], float flRadius)
  *
  * @link https://github.com/erich666/GraphicsGems/blob/master/gems/BoxSphere.c
  **/
-bool AntiStickIsBoxIntersectingSphere(float flBoundaries[AntiStickBoxBound][3], float vPosition[3], float flRadius)
+bool AntiStickIsBoxIntersectingSphere(const float flBoundaries[AntiStickBoxBound][3], const float vPosition[3], float flRadius)
 {
 	float flDelta; float flDistance;
 

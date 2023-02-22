@@ -758,7 +758,7 @@ void ToolsSetHud(int entity, bool bEnable)
  * @param entity            The entity index.
  * @param sModel            The model path.
  **/
-void ToolsSetArm(int entity, char[] sModel)
+void ToolsSetArm(int entity, const char[] sModel)
 {
 	SetEntPropString(entity, Prop_Send, "m_szArmsModel", sModel);
 }
@@ -1036,7 +1036,7 @@ bool ToolsIsBSPModel(int entity)
  * @param iSoundType        The sound type.
  * @param flRecoilIndex     The recoil variable.
  **/
-void ToolsFireBullets(int client, int weapon, float vPosition[3], float vAngle[3], int iMode, int iSeed, float flInaccuracy, float flSpread, float flFishTail, int iSoundType, float flRecoilIndex)
+void ToolsFireBullets(int client, int weapon, const float vPosition[3], const float vAngle[3], int iMode, int iSeed, float flInaccuracy, float flSpread, float flFishTail, int iSoundType, float flRecoilIndex)
 {
 	TE_Start("Shotgun Shot");
 	TE_WriteVector("m_vecOrigin", vPosition);

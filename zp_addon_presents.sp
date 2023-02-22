@@ -701,7 +701,7 @@ public Action CaseTouchHook(int entity, int target)
  * @param vPosition         The origin of the spawn.
  * @param vAngle            The angle of the spawn.
  **/
-stock void SpawnRandomWeapon(float vPosition[3], float vAngle[3])
+stock void SpawnRandomWeapon(const float vPosition[3], const float vAngle[3])
 {
 	int iD = FindRandomWeapon();
 	if (iD != -1)

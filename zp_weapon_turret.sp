@@ -488,7 +488,7 @@ methodmap CAnimationOverlay
 
 methodmap SentryGun /** Regards to Pelipoika **/
 {
-	public SentryGun(int owner, float vPosition[3], float vAngle[3], int iHealth, int iAmmo, int iRocket, int iSkin, int iLevel) 
+	public SentryGun(int owner, const float vPosition[3], const float vAngle[3], int iHealth, int iAmmo, int iRocket, int iSkin, int iLevel) 
 	{
 		int entity = UTIL_CreateMonster("npc_turret", vPosition, vAngle, "models/buildables/sentry1.mdl", NPC_GAG | NPC_WAITFORSCRIPT | NPC_DONTDROPWEAPONS | NPC_IGNOREPLAYERPUSH);
 		
@@ -878,7 +878,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		GetEntPropVector(this.Index, Prop_Data, "m_vecLastPosition", vOutput); 
 	}
 	
-	public void SetCurAngles(float vInput[3])
+	public void SetCurAngles(const float vInput[3])
 	{
 		SetEntPropVector(this.Index, Prop_Data, "m_vecLastPosition", vInput); 
 	}
@@ -888,7 +888,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		GetEntPropVector(this.Index, Prop_Data, "m_vecStoredPathGoal", vOutput); 
 	}
 	
-	public void SetGoalAngles(float vInput[3])
+	public void SetGoalAngles(const float vInput[3])
 	{
 		SetEntPropVector(this.Index, Prop_Data, "m_vecStoredPathGoal", vInput); 
 	}
@@ -942,7 +942,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	
 	/*__________________________________________________________________________________________________*/
 	
-	public int FindGestureLayer(char[] sAnim) 
+	public int FindGestureLayer(const char[] sAnim) 
 	{
 		int iSequence = this.LookupSequence(sAnim); 
 		if (iSequence < 0) 
@@ -973,7 +973,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		return -1; 
 	}
 
-	public int AddGesture(char[] sAnim, bool bAutoKill = true) 
+	public int AddGesture(const char[] sAnim, bool bAutoKill = true) 
 	{ 
 		int iSequence = this.LookupSequence(sAnim); 
 		if (iSequence < 0) 
@@ -996,12 +996,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		return iLayer;
 	} 
 
-	public bool IsPlayingGesture(char[] sAnim)    
+	public bool IsPlayingGesture(const char[] sAnim)    
 	{ 
 		return this.FindGestureLayer(sAnim) != -1 ? true : false; 
 	} 
 
-	public void RemoveGesture(char[] sAnim) 
+	public void RemoveGesture(const char[] sAnim) 
 	{ 
 		int iLayer = this.FindGestureLayer(sAnim); 
 		if (iLayer == -1) 
@@ -1020,7 +1020,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 
 	/*__________________________________________________________________________________________________*/
 
-	public bool ValidTargetPlayer(int target, float vStart[3], float vEndPosition[3]) 
+	public bool ValidTargetPlayer(int target, const float vStart[3], const float vEndPosition[3]) 
 	{
 		TR_TraceRayFilter(vStart, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
 		
@@ -1033,7 +1033,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		return bHit;
 	} 
 	 
-	public void SelectTargetPoint(float vStart[3], float vCenter[3]) 
+	public void SelectTargetPoint(const float vStart[3], float vCenter[3]) 
 	{
 		GetCenterOrigin(this.Enemy, vCenter); 
 	 
@@ -1326,7 +1326,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		return bMoved; 
 	}
 	
-	public void Rocket(float vPosition[3], float vAngle[3], float vVelocity[3])
+	public void Rocket(const float vPosition[3], const float vAngle[3], const float vVelocity[3])
 	{
 		static char sBuffer[SMALL_LINE_LENGTH];
 	
@@ -1390,7 +1390,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		AcceptEntityInput(this.Index, "FireUser2"); /// Reset body
 	}
 	
-	public void Shot(float vPosition[3], float vDirection[3], char[] sAttach) 
+	public void Shot(const float vPosition[3], float vDirection[3], const char[] sAttach) 
 	{ 
 		static float vEndPosition[3]; static float vVelocity[3]; static float vVelocity2[3];
 		
@@ -1789,7 +1789,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		UTIL_RemoveEntity(this.Index, 0.1);
 	}
 	
-	public int LookupPoseParameter(char[] sPose)
+	public int LookupPoseParameter(const char[] sPose)
 	{
 		Address pStudioHdrClass = this.GetStudioHdrClass();
 		if (pStudioHdrClass == Address_Null)
@@ -1800,7 +1800,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		return SDKCall(hSDKCallLookupPoseParameter, this.Index, pStudioHdrClass, sPose); 
 	}
 
-	public int LookupSequence(char[] sAnim)
+	public int LookupSequence(const char[] sAnim)
 	{
 		if (gPlatform == OS_Windows)
 		{
@@ -1818,7 +1818,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		}
 	}
 
-	public void ResetSequence(char[] sAnim) 
+	public void ResetSequence(const char[] sAnim) 
 	{ 
 		int iSequence = this.LookupSequence(sAnim); 
 		if (iSequence < 0) 

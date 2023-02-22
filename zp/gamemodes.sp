@@ -2474,7 +2474,7 @@ bool ModesIsLeapJump(int iD)
  * @param sName             The mode name.
  * @return                  The mode index.
  **/
-int ModesNameToIndex(char[] sName)
+int ModesNameToIndex(const char[] sName)
 {
 	static char sModeName[SMALL_LINE_LENGTH];
 	

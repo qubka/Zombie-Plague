@@ -448,7 +448,7 @@ void WeaponAttachSetAddons(int client)
  * @param mBits             The bits type.
  * @param sAttach           The attachment name.
  **/
-void WeaponAttachCreateAddons(int client, int iD, BitType mBits, char[] sAttach)
+void WeaponAttachCreateAddons(int client, int iD, BitType mBits, const char[] sAttach)
 {
 	WeaponAttachRemoveAddons(client, mBits);
 

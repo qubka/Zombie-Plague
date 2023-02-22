@@ -471,7 +471,7 @@ public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
  * @param sKey              Key to retrieve from the address section.
  * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
  **/
-void ToolsPatchSendTable(GameData gameConf, Address &pAddress, char[] sKey, int iBits)
+void ToolsPatchSendTable(GameData gameConf, Address &pAddress, const char[] sKey, int iBits)
 {
 	fnInitGameConfAddress(gameConf, pAddress, sKey, false);
 	

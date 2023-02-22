@@ -2576,7 +2576,7 @@ int ClassGetSoundJumpID(int iD)
  * @param sName             The class name.
  * @return                  The class index.
  **/
-int ClassNameToIndex(char[] sName)
+int ClassNameToIndex(const char[] sName)
 {
 	static char sClassName[SMALL_LINE_LENGTH];
 	
@@ -2600,7 +2600,7 @@ int ClassNameToIndex(char[] sName)
  * @param sBuffer           The class types.
  * @return                  The class bits.
  **/
-int ClassTypeToIndex(char[] sBuffer)
+int ClassTypeToIndex(const char[] sBuffer)
 {
 	static char sClass[SMALL_LINE_LENGTH][SMALL_LINE_LENGTH]; int iType;
 

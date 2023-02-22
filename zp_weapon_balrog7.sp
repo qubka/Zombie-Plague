@@ -107,12 +107,12 @@ public void OnMapStart()
 //*             you know _exactly_ what you are doing!!!              *
 //*********************************************************************
 
-void Weapon_OnReload(int client, int weapon, float vBullet[3], int iCounter, float flCurrentTime)
+void Weapon_OnReload(int client, int weapon, const float vBullet[3], int iCounter, float flCurrentTime)
 {
 	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
 }
 
-void Weapon_OnSecondaryAttack(int client, int weapon, float vBullet[3], int iCounter, float flCurrentTime)
+void Weapon_OnSecondaryAttack(int client, int weapon, const float vBullet[3], int iCounter, float flCurrentTime)
 {
 	if (GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") > flCurrentTime)
 	{
@@ -125,7 +125,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float vBullet[3], int iCou
 	SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iFOV") == iDefaultFOV ? 55 : iDefaultFOV);
 }
 
-void Weapon_OnBullet(int client, int weapon, float vBullet[3], int iCounter, float flCurrentTime)
+void Weapon_OnBullet(int client, int weapon, const float vBullet[3], int iCounter, float flCurrentTime)
 {
 	if (iCounter > (ZP_GetWeaponClip(gWeapon) / hCvarBalrogRatio.IntValue))
 	{
@@ -204,7 +204,7 @@ public void ZP_OnWeaponReload(int client, int weapon, int weaponID)
  * @param weapon            The weapon index.
  * @param weaponID          The weapon id.
  **/
-public void ZP_OnWeaponBullet(int client, float vBullet[3], int weapon, int weaponID)
+public void ZP_OnWeaponBullet(int client, const float vBullet[3], int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{

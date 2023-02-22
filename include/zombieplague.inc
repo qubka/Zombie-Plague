@@ -111,7 +111,7 @@ native bool ZP_SetProgressBarTime(int client, int duration);
  *  
  * @return                  The client index.
  **/
-native int ZP_FindPlayerInSphere(int &it, float center[3], float radius);
+native int ZP_FindPlayerInSphere(int &it, const float center[3], float radius);
 
 /**
  * @brief Returns true if the player is a zombie, false if not. 

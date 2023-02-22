@@ -185,7 +185,7 @@ bool SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND
  * @param flDelay           (Optional) The play delay.
  * @return                  True if the sound was emitted, false otherwise.
  **/
-bool SEffectsEmitAmbient(int iKey, int iNum = 0, float vPosition[3], int entity = SOUND_FROM_WORLD, float flDelay = 0.0)
+bool SEffectsEmitAmbient(int iKey, int iNum = 0, const float vPosition[3], int entity = SOUND_FROM_WORLD, float flDelay = 0.0)
 {
 	static char sSound[PLATFORM_LINE_LENGTH];
 	float flVolume; int iLevel; int iFlags; int iPitch;
