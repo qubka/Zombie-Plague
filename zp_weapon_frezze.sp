@@ -107,7 +107,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 {
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		HookEvent("smokegrenade_detonate", EventEntitySmoke, EventHookMode_Post);
+		HookEvent("smokegrenade_detonate", EventEntitySmokePre, EventHookMode_Pre);
+		HookEvent("smokegrenade_detonate", EventEntitySmokePost, EventHookMode_Post);
 
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 		
@@ -228,13 +229,31 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 
 /**
  * Event callback (smokegrenade_detonate)
+ * @brief The smokegrenade is about to explode.
+ * 
+ * @param hEvent            The event handle.
+ * @param sName             The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action EventEntitySmokePre(Event hEvent, char[] sName, bool dontBroadcast) 
+{
+	if (!dontBroadcast) 
+	{
+		hEvent.BroadcastDisabled = true;
+	}
+	
+	return Plugin_Changed;
+}
+
+/**
+ * Event callback (smokegrenade_detonate)
  * @brief The smokegrenade is exployed.
  * 
  * @param hEvent            The event handle.
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast) 
+public Action EventEntitySmokePost(Event hEvent, char[] sName, bool dontBroadcast) 
 {
 	static float vPosition[3]; static float vAngle[3]; static float vPosition2[3];
 

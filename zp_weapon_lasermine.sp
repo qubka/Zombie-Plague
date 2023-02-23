@@ -297,7 +297,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 				
 				SetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 				
-				SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client); 
+				SetEntPropEnt(entity, Prop_Data, "m_hEffectEntity", client); /// m_hOwnerEntity will block SDKHook_UsePost
 				
 				SetEntProp(entity, Prop_Data, "m_iTeamNum", ZP_IsPlayerZombie(client) ? TEAM_ZOMBIE : TEAM_HUMAN); 
 
@@ -428,7 +428,7 @@ public void MineUseHook(int entity, int activator, int caller, UseType use, floa
 	{
 		if (ZP_IsPlayerHasWeapon(activator, gWeapon) == -1 && IsEntitySameTeam(entity, activator))
 		{
-			int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+			int owner = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
 			
 			if (owner == activator)
 			{
@@ -631,7 +631,7 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
-		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+		int owner = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
 		int attacker = hCvarMineRewards.BoolValue && IsClientValid(owner, false) && IsEntitySameTeam(entity, owner) ? owner : -1;
 		float flDamage = hCvarMineDamage.FloatValue;
 
@@ -682,8 +682,8 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 				TE_SetupBeamPoints(vPosition, vEndPosition, gBeam, 0, 0, 0, WEAPON_BEAM_LIFE, WEAPON_BEAM_WIDTH, WEAPON_BEAM_WIDTH, 10, 1.0, bZombie ? WEAPON_BEAM_ZOMBIE_COLOR : WEAPON_BEAM_HUMAN_COLOR, 30);
 				TE_SendToAll();
 
-				EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, SND_NOFLAGS, 0.5, SNDPITCH_LOW);
-				EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, SND_NOFLAGS, 0.3, SNDPITCH_LOW);
+				EmitAmbientSound("weapons/taser/taser_hit.wav", vEndPosition, SOUND_FROM_WORLD, _, _, 0.5, SNDPITCH_LOW);
+				EmitAmbientSound("weapons/taser/taser_shoot.wav", vPosition, SOUND_FROM_WORLD, _, _, 0.3, SNDPITCH_LOW);
 			}
 		}
 		else

@@ -88,7 +88,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 	{
 		HookEvent("player_blind", EventPlayerBlind, EventHookMode_Pre);
 
-		HookEvent("flashbang_detonate", EventEntityFlash, EventHookMode_Post);
+		HookEvent("flashbang_detonate", EventEntityFlashPre, EventHookMode_Pre);
+		HookEvent("flashbang_detonate", EventEntityFlashPost, EventHookMode_Post);
 
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 		
@@ -141,13 +142,31 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 
 /**
  * Event callback (flashbang_detonate)
+ * @brief The flashbang is about to explode.
+ * 
+ * @param hEvent            The event handle.
+ * @param sName             The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action EventEntityFlashPre(Event hEvent, char[] sName, bool dontBroadcast) 
+{
+	if (!dontBroadcast) 
+	{
+		hEvent.BroadcastDisabled = true;
+	}
+	
+	return Plugin_Changed;
+}
+
+/**
+ * Event callback (flashbang_detonate)
  * @brief The flashbang is exployed.
  * 
  * @param hEvent            The event handle.
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventEntityFlash(Event hEvent, char[] sName, bool dontBroadcast) 
+public Action EventEntityFlashPost(Event hEvent, char[] sName, bool dontBroadcast) 
 {
 	static float vPosition[3]; static float vPosition2[3];
 
