@@ -62,8 +62,8 @@ void ApplyOnClientSpawn(int client)
  * @brief Infects/humanize a client.
  *
  * @param client            The victim index.
- * @param attacker          (Optional) The attacker index. (0=world, -1=respawn)
- * @param iType             (Optional) The class type. (-2=zombie, -3=human)
+ * @param attacker          (Optional) The attacker index. (0 = world, -1 = respawn)
+ * @param iType             (Optional) The class type. (-2 = zombie, -3 = human)
  * @return                  True or false.
  **/
 bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
@@ -157,7 +157,7 @@ bool ApplyOnClientUpdate(int client, int attacker = 0, int iType = -2)
 	{
 		ClassGetInfo(gClientData[client].Class, sModel, sizeof(sModel));
 		
-		if (hasLength(sModel)) TranslationPrintHintText(client, sModel);
+		if (hasLength(sModel)) TranslationPrintHintText(client, true, sModel);
 	}
 
 	/*_________________________________________________________________________________________________________________________________________*/

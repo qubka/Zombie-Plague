@@ -26,7 +26,7 @@
 
 	"general buttons reminder" // Hint
 	{
-		"ru"			"Нажмите <font color='#FF0000'>F/B</font> для открытия меню\nНажмите <font color='#FF0000'>G/F4</font> для способности зомби/людей\nНажмите <font color='#FF0000'>F3</font> для включения фонарика"
+		"ru"			"Нажмите F/B для открытия меню\nНажмите G/F4 для способности зомби/людей\nНажмите F3 для включения фонарика"
 	}
 	
 	"general ammunition reminder" // Chat

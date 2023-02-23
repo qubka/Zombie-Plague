@@ -176,29 +176,34 @@ stock void TranslationPrintToConsoleAll(bool bServer, any ...)
  * @brief Print hint center text to the client.
  * 
  * @param client            The client index.
+ * @param bSound            True to emit sound, false skip.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHintText(int client, any ...)
+stock void TranslationPrintHintText(int client, bool bSound, any ...)
 {
 	if (!IsFakeClient(client))
 	{
 		SetGlobalTransTarget(client);
 
 		static char sTranslation[CHAT_LINE_LENGTH];
-		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 2);
+		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 3);
 
 		UTIL_CreateClientHint(client, sTranslation);
 		
-		EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+		if (bSound)
+		{
+			EmitSoundToClient(client, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+		}
 	}
 }
 
 /**
  * @brief Print hint center text to all clients.
  *
+ * @param bSound            True to emit sound, false skip.
  * @param ...               Formatting parameters.
  **/
-stock void TranslationPrintHintTextAll(any ...)
+stock void TranslationPrintHintTextAll(bool bSound, any ...)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -210,12 +215,15 @@ stock void TranslationPrintHintTextAll(any ...)
 		SetGlobalTransTarget(i);
 		
 		static char sTranslation[CHAT_LINE_LENGTH];
-		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 1);
+		VFormat(sTranslation, CHAT_LINE_LENGTH, "%t", 2);
 		
 		UTIL_CreateClientHint(i, sTranslation);
 	}
 	
-	EmitSoundToAll(SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+	if (bSound)
+	{
+		EmitSoundToAll(SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
+	}
 }
 
 /**

@@ -33,99 +33,79 @@
  * @param iNum              (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
+ * @param bHuman            (Optional) True to include zombie players.
+ * @param bZombie           (Optional) True to include human players.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-bool SEffectsEmitToAllNoRestart(float &flEmitTime, int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
+float SEffectsEmitToAllNoRep(float &flEmitTime, int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, bool bHuman = true, bool bZombie = true)
 {
 	static char sSound[PLATFORM_LINE_LENGTH];
 	float flVolume; int iLevel; int iFlags; int iPitch;
-	
 	float flDuration = SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch);
+	
 	if (flDuration)
 	{
 		float flCurrentTime = GetGameTime();
 
 		if (flCurrentTime > flEmitTime)
 		{
-			EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
+			int[] clients = new int[MaxClients]; int iCount = 0;
+
+			if (bHuman && bZombie)
+			{
+				for (int i = 1; i <= MaxClients; i++)
+				{
+					if (IsClientInGame(i))
+					{
+						clients[iCount++] = i;
+					}
+				}
+			}
+			else if (bHuman)
+			{
+				for (int i = 1; i <= MaxClients; i++)
+				{
+					if (IsClientInGame(i) && !gClientData[i].Zombie)
+					{
+						clients[iCount++] = i;
+					}
+				}
+			}
+			else if (bZombie)
+			{
+				for (int i = 1; i <= MaxClients; i++)
+				{
+					if (IsClientInGame(i) && gClientData[i].Zombie)
+					{
+						clients[iCount++] = i;
+					}
+				}
+			}
+			else
+			{
+				for (int i = 1; i <= MaxClients; i++)
+				{
+					if (IsClientInGame(i) && gClientData[i].Custom)
+					{
+						clients[iCount++] = i;
+					}
+				}
+			}
+			
+			if (iCount)
+			{
+				EmitSound(clients, iCount, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
+			}
 		
 			flEmitTime = flCurrentTime + flDuration;
-			return true;
+		}
+		else
+		{
+			flDuration = 0.0;
 		}
 	}
 	
-	return false;
-}
-
-/**
- * @brief Emits a sound to all humans.
- *
- * @param iKey              The key array.
- * @param iNum              (Optional) The position index. (for not random sound)
- * @param entity            (Optional) The entity to emit from.
- * @param iChannel          (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
- **/
-bool SEffectsEmitToHumans(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
-{
-	static char sSound[PLATFORM_LINE_LENGTH];
-	float flVolume; int iLevel; int iFlags; int iPitch;
-
-	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
-	{
-		int[] clients = new int[MaxClients]; int iCount = 0;
-
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (IsClientInGame(i) && !gClientData[i].Zombie)
-			{
-				clients[iCount++] = i;
-			}
-		}
-
-		if (iCount)
-		{
-			EmitSound(clients, iCount, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
-		}
-		return true;
-	}
-
-	return false;
-}
-
-/**
- * @brief Emits a sound to all zombies.
- *
- * @param iKey              The key array.
- * @param iNum              (Optional) The position index. (for not random sound)
- * @param entity            (Optional) The entity to emit from.
- * @param iChannel          (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
- **/
-bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
-{
-	static char sSound[PLATFORM_LINE_LENGTH];
-	float flVolume; int iLevel; int iFlags; int iPitch;
-
-	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
-	{
-		int[] clients = new int[MaxClients]; int iCount = 0;
-
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (IsClientInGame(i) && gClientData[i].Zombie)
-			{
-				clients[iCount++] = i;
-			}
-		}
-
-		if (iCount)
-		{
-			EmitSound(clients, iCount, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
-		}
-		return true;
-	}
-
-	return false;
+	return flDuration;
 }
 
 /**
@@ -135,20 +115,68 @@ bool SEffectsEmitToZombies(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYE
  * @param iNum              (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
+ * @param bHuman            (Optional) True to include zombie players.
+ * @param bZombie           (Optional) True to include human players.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-bool SEffectsEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
+float SEffectsEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO, bool bHuman = true, bool bZombie = true)
 {
 	static char sSound[PLATFORM_LINE_LENGTH];
 	float flVolume; int iLevel; int iFlags; int iPitch;
-
-	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
+	float flDuration = SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch);
+	
+	if (flDuration)
 	{
-		EmitSoundToAll(sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
-		return true;
+		int[] clients = new int[MaxClients]; int iCount = 0;
+
+		if (bHuman && bZombie)
+		{
+			for (int i = 1; i <= MaxClients; i++)
+			{
+				if (IsClientInGame(i))
+				{
+					clients[iCount++] = i;
+				}
+			}
+		}
+		else if (bHuman)
+		{
+			for (int i = 1; i <= MaxClients; i++)
+			{
+				if (IsClientInGame(i) && !gClientData[i].Zombie)
+				{
+					clients[iCount++] = i;
+				}
+			}
+		}
+		else if (bZombie)
+		{
+			for (int i = 1; i <= MaxClients; i++)
+			{
+				if (IsClientInGame(i) && gClientData[i].Zombie)
+				{
+					clients[iCount++] = i;
+				}
+			}
+		}
+		else
+		{
+			for (int i = 1; i <= MaxClients; i++)
+			{
+				if (IsClientInGame(i) && gClientData[i].Custom)
+				{
+					clients[iCount++] = i;
+				}
+			}
+		}
+		
+		if (iCount)
+		{
+			EmitSound(clients, iCount, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
+		}
 	}
 
-	return false;
+	return flDuration;
 }
 
 /**
@@ -159,20 +187,20 @@ bool SEffectsEmitToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, i
  * @param client            The client index.
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-bool SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
+float SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {
 	static char sSound[PLATFORM_LINE_LENGTH];
 	float flVolume; int iLevel; int iFlags; int iPitch;
-
-	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
+	float flDuration = SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch);
+	
+	if (flDuration)
 	{
 		EmitSoundToClient(client, sSound, entity, iChannel, iLevel, iFlags, flVolume, iPitch);
-		return true;
 	}
 
-	return false;
+	return flDuration;
 }
 
 /**
@@ -183,20 +211,20 @@ bool SEffectsEmitToClient(int iKey, int iNum = 0, int client, int entity = SOUND
  * @param vPosition         The sound origin.
  * @param entity            (Optional) The entity to associate sound with.
  * @param flDelay           (Optional) The play delay.
- * @return                  True if the sound was emitted, false otherwise.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-bool SEffectsEmitAmbient(int iKey, int iNum = 0, const float vPosition[3], int entity = SOUND_FROM_WORLD, float flDelay = 0.0)
+float SEffectsEmitAmbient(int iKey, int iNum = 0, const float vPosition[3], int entity = SOUND_FROM_WORLD, float flDelay = 0.0)
 {
 	static char sSound[PLATFORM_LINE_LENGTH];
 	float flVolume; int iLevel; int iFlags; int iPitch;
-
-	if (SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch))
+	float flDuration = SoundsGetSound(iKey, iNum, sSound, flVolume, iLevel, iFlags, iPitch);
+	
+	if (flDuration)
 	{
 		EmitAmbientSound(sSound, vPosition, entity, iLevel, iFlags, flVolume, iPitch, flDelay);
-		return true;
 	}
 
-	return false;
+	return flDuration;
 }
 
 /**
@@ -206,7 +234,7 @@ bool SEffectsEmitAmbient(int iKey, int iNum = 0, const float vPosition[3], int e
  * @param iNum              (Optional) The position index. (for all sounds)
  * @param entity            (Optional) The entity to emit from.
  * @param iChannel          (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
+ * @return                  True if the sound was stopped, false otherwise.
  **/
 bool SEffectsStopToAll(int iKey, int iNum = 0, int entity = SOUND_FROM_PLAYER, int iChannel = SNDCHAN_AUTO)
 {

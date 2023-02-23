@@ -60,26 +60,18 @@ native int ZP_GetSoundKeyID(const char[] key);
 native float ZP_GetSound(int keyID, int num = 0, char[] sound, int maxlenght = 256, float &volume, int &level, int &flags, int &pitch);
 
 /**
- * @brief Emits a sound to all humans.
+ * @brief Emits a sound to all clients. (Can't emit sounds until the previous emit finish)
  *
+ * @param time              The previous emit time.
  * @param keyID             The key array.
  * @param num               (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param channel           (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
+ * @param human             (Optional) True to include zombie players.
+ * @param zombie            (Optional) True to include human players.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-native bool ZP_EmitSoundToHumans(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
-
-/**
- * @brief Emits a sound to all zombies.
- *
- * @param keyID             The key array.
- * @param num               (Optional) The position index. (for not random sound)
- * @param entity            (Optional) The entity to emit from.
- * @param channel           (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
- **/
-native bool ZP_EmitSoundToZombies(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
+native float ZP_EmitSoundToAllNoRep(float& time, int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, bool human = true, bool zombie = true);
 
 /**
  * @brief Emits a sound to all clients.
@@ -88,9 +80,11 @@ native bool ZP_EmitSoundToZombies(int keyID, int num = 0, int entity = SOUND_FRO
  * @param num               (Optional) The position index. (for not random sound)
  * @param entity            (Optional) The entity to emit from.
  * @param channel           (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
+ * @param human             (Optional) True to include zombie players.
+ * @param zombie            (Optional) True to include human players.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-native bool ZP_EmitSoundToAll(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
+native float ZP_EmitSoundToAll(int keyID, int num = 0, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO, bool human = true, bool zombie = true);
 
 /**
  * @brief Emits a sound to the client.
@@ -100,9 +94,9 @@ native bool ZP_EmitSoundToAll(int keyID, int num = 0, int entity = SOUND_FROM_PL
  * @param client            The client index.
  * @param entity            (Optional) The entity to emit from.
  * @param channel           (Optional) The channel to emit with.
- * @return                  True if the sound was emitted, false otherwise.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-native bool ZP_EmitSoundToClient(int keyID, int num = 0, int client, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
+native float ZP_EmitSoundToClient(int keyID, int num = 0, int client, int entity = SOUND_FROM_PLAYER, int channel = SNDCHAN_AUTO);
 
 /**
  * @brief Emits an ambient sound.
@@ -116,9 +110,9 @@ native bool ZP_EmitSoundToClient(int keyID, int num = 0, int client, int entity 
  * @param volume            (Optional) The sound volume.
  * @param pitch             (Optional) The sound pitch.
  * @param delay             (Optional) The play delay.
- * @return                  True if the sound was emitted, false otherwise.
+ * @return                  The sound duration. (returns 0 if not emitted)
  **/
-native bool ZP_EmitAmbientSound(int keyID, int num = 0, const float origin[3], int entity = SOUND_FROM_WORLD, float delay = 0.0);
+native float ZP_EmitAmbientSound(int keyID, int num = 0, const float origin[3], int entity = SOUND_FROM_WORLD, float delay = 0.0);
 
 /**
  * @brief Stops a sound to all clients.

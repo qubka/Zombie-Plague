@@ -250,16 +250,6 @@ native bool ZP_FireBullets(int clientIndex, int weaponIndex, const float origin[
 native int ZP_GiveClientWeapon(int client, int weaponID, bool switch_ = true);
 
 /**
- * @brief Switches the weapon by an index.
- *
- * @param client            The client index.
- * @param weapon            The weapon index.
- *
- * @return                  True or false.
- **/
-native bool ZP_SwitchClientWeapon(int client, int weapon);
-
-/**
  * @brief Gets the client viewmodel. 
  *
  * @param client            The client index.
@@ -780,7 +770,10 @@ stock void ZP_RemoveWeapon(int client, int weapon, int slot = SlotIndex_Melee)
 	
 	if (weapon2 != -1)
 	{
-		ZP_SwitchClientWeapon(client, weapon2);
+		static char sClassname[SMALL_LINE_LENGTH];
+		GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+
+		FakeClientCommand(client, "use %s", sClassname);
 	}
 	
 	RemovePlayerItem(client, weapon);

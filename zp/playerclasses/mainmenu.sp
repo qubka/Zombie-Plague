@@ -177,7 +177,7 @@ public int MainMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			}
 			else
 			{
-				TranslationPrintHintText(client, "block using menu"); 
+				TranslationPrintHintText(client, true, "block using menu"); 
 		
 				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 			}
@@ -328,7 +328,7 @@ public int SubMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot)
 			}
 			else
 			{
-				TranslationPrintHintText(client, "block using menu"); 
+				TranslationPrintHintText(client, true, "block using menu"); 
 				
 				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 			}

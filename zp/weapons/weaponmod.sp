@@ -346,7 +346,6 @@ void WeaponMODOnClientInit(int client)
 	SDKHook(client, SDKHook_WeaponEquipPost,  WeaponMODOnEquipPost);
 	SDKHook(client, SDKHook_PostThinkPost,    WeaponMODOnPostThinkPost);
 
-
 	if (hDHookWeaponCanUse)
 	{
 		DHookEntity(hDHookWeaponCanUse, true, client);
@@ -488,7 +487,7 @@ void WeaponMODOnEntityCreated(int weapon, const char[] sClassname)
  **/
 public void WeaponMODOnItemSpawn(int item)
 {
-	ToolsSetCustomID(item, WeaponsFindID(item));
+	ToolsSetCustomID(item, WeaponsDefToIndex(WeaponsGetDefentionIndex(item)));
 }
 
 /**
@@ -499,7 +498,7 @@ public void WeaponMODOnItemSpawn(int item)
  **/
 public void WeaponMODOnWeaponSpawn(int weapon)
 {
-	ToolsSetCustomID(weapon, WeaponsFindID(weapon));
+	ToolsSetCustomID(weapon, WeaponsDefToIndex(WeaponsGetDefentionIndex(weapon)));
 
 	if (hDHookWeaponHolster) 
 	{
@@ -812,11 +811,14 @@ void WeaponMODOnClientUpdate(int client)
 	gClientData[client].ViewModels[0] = EntIndexToEntRef(view1);
 	gClientData[client].ViewModels[1] = EntIndexToEntRef(view2);
 
-	int weapon = ToolsGetActiveWeapon(client);
-	
-	if (weapon != -1)
+	if (hSDKCallWeaponSwitch)
 	{
-		WeaponsSwitch(client, weapon);
+		int weapon = ToolsGetActiveWeapon(client);
+		
+		if (weapon != -1)
+		{
+			SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
+		}
 	}
 }
 
@@ -1248,7 +1250,7 @@ void WeaponMODOnFire(int client, int weapon)
  * @param vBullet           The position of a bullet hit.
  * @param weapon            The weapon index.
  **/
-void WeaponMODOnBullet(int client, float vBullet[3], int weapon) 
+void WeaponMODOnBullet(int client, const float vBullet[3], int weapon) 
 { 
 	int iD = ToolsGetCustomID(weapon);
 	if (iD != -1)    
@@ -1417,7 +1419,7 @@ void WeaponMODOnClientBuyammo(int client)
 			
 			if (gClientData[client].Money < iCost)
 			{
-				TranslationPrintHintText(client, "block buying ammunition");
+				TranslationPrintHintText(client, true, "block buying ammunition");
 				
 				EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_NORMAL);    
 				return;

@@ -525,7 +525,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 			HitGroupsGiveExp(attacker, iDamage);
 		}
 		
-		if (gCvarList.MESSAGES_DAMAGE.BoolValue) TranslationPrintHintText(attacker, (iArmor > 0) ? "info damage full" : "info damage", (iHealth > 0) ? iHealth : 0, iArmor);
+		if (gCvarList.MESSAGES_DAMAGE.BoolValue) TranslationPrintHintText(attacker, false, (iArmor > 0) ? "info damage full" : "info damage", (iHealth > 0) ? iHealth : 0, iArmor);
 
 		if (iBits & DMG_NEVERGIB)
 		{

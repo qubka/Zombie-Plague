@@ -197,7 +197,7 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 			
 			if (gClientData[client].Zombie || gClientData[client].Custom)
 			{
-				TranslationPrintHintText(client, "block using menu");
+				TranslationPrintHintText(client, true, "block using menu");
 				
 				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
@@ -228,7 +228,7 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 						{
 							WeaponsGetInfo(iD, sBuffer, sizeof(sBuffer));
 							
-							if (hasLength(sBuffer)) TranslationPrintHintText(client, sBuffer);
+							if (hasLength(sBuffer)) TranslationPrintHintText(client, true, sBuffer);
 						}
 					}
 					else
@@ -247,8 +247,8 @@ int ArsenalMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, int 
 					if (!gClientData[client].ArsenalUsed)
 					{
 						ArsenalGiveAdds(client);
-						
-						if (gClientData[client].DefaultCart.Length)
+
+						if (gClientData[client].DefaultCart != null)
 						{
 							MarketBuyMenu(client, MenuType_FavBuy);
 						}

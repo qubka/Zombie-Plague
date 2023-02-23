@@ -233,14 +233,14 @@ public Action SkillSystemOnClientCount(Handle hTimer, int userID)
 		
 		if (gClientData[client].SkillCounter <= 0.0)
 		{
-			TranslationPrintHintText(client, "skill ready");
+			TranslationPrintHintText(client, true, "skill ready");
 
 			gClientData[client].CounterTimer = null;
 			
 			return Plugin_Stop;
 		}
 
-		TranslationPrintHintText(client, "skill countdown", RoundToNearest(gClientData[client].SkillCounter));
+		TranslationPrintHintText(client, false, "skill countdown", RoundToNearest(gClientData[client].SkillCounter));
 		
 		return Plugin_Continue;
 	}

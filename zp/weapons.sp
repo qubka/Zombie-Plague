@@ -154,16 +154,7 @@ void WeaponsOnCacheData()
 		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Unexpected error caching data from weapons config file: \"%s\"", sBuffer);
 		return;
 	}
-	
-	if (gServerData.Entities == null)
-	{
-		gServerData.Entities = new StringMap();
-	}
-	else
-	{
-		gServerData.Entities.Clear();
-	}
-	
+
 	int iSize = gServerData.Weapons.Length;
 	if (!iSize)
 	{
@@ -197,9 +188,8 @@ void WeaponsOnCacheData()
 		arrayWeapon.PushString(sBuffer);                                  // Index: 1
 		kvWeapons.GetString("entity", sBuffer, sizeof(sBuffer), "");
 		arrayWeapon.PushString(sBuffer);                                  // Index: 2
-		gServerData.Entities.SetValue(sBuffer, i, false);  /// Unique entity catched
-		int iItem = WeaponsGetItemDefIndex(sBuffer);
-		if (iItem == 0)
+		ItemDef iItem = WeaponsGetItemDefIndex(sBuffer);
+		if (iItem == ItemDef_Invalid)
 		{
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Weapons, "Config Validation", "Couldn't cache weapon entity: \"%s\" (check weapons config)", sBuffer);
 		}
@@ -377,8 +367,7 @@ public Action WeaponsOnFire(Event hEvent, char[] sName, bool dontBroadcast)
 	{
 		return Plugin_Continue;
 	}
-	
-	
+
 	WeaponMODOnFire(client, weapon);
 	
 	return Plugin_Continue;
@@ -568,7 +557,6 @@ void WeaponsOnNativeInit()
 {
 	CreateNative("ZP_CreateWeapon",          API_CreateWeapon);
 	CreateNative("ZP_GiveClientWeapon",      API_GiveClientWeapon);
-	CreateNative("ZP_SwitchClientWeapon",    API_SwitchClientWeapon);
 	CreateNative("ZP_GetClientViewModel",    API_GetClientViewModel);
 	CreateNative("ZP_GetClientAttachModel",  API_GetClientAttachModel);
 	CreateNative("ZP_GetWeaponNameID",       API_GetWeaponNameID);
@@ -655,33 +643,6 @@ public int API_GiveClientWeapon(Handle hPlugin, int iNumParams)
 	}
 
 	return WeaponsGive(client, iD, GetNativeCell(3));
-}
-
-/**
- * @brief Switches to the weapon by an index.
- *
- * @note native bool ZP_SwitchClientWeapon(client, weapon);
- **/
-public int API_SwitchClientWeapon(Handle hPlugin, int iNumParams)
-{
-	int client = GetNativeCell(1);
-
-	if (!IsClientValid(client))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the client index (%d)", client);
-		return false;
-	}
-	
-	int weapon = GetNativeCell(2);
-	
-	if (!IsValidEdict(weapon))
-	{
-		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", weapon);
-		return false;
-	}
-	
-	WeaponsSwitch(client, weapon);
-	return true;
 }
 
 /**
@@ -1990,6 +1951,17 @@ void WeaponsSetSequenceSwap(int iD, int[] iSeq, int iMaxLen)
  */
  
 /**
+ * @brief Gets the defenition index.
+ *
+ * @param weapon            The weapon index.
+ * @return                  The def index. 
+ **/
+ItemDef WeaponsGetDefentionIndex(int weapon)
+{
+	return view_as<ItemDef>(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"));
+}
+
+/**
  * @brief Gets the map weapon state.
  *
  * @param weapon            The weapon index.
@@ -2161,9 +2133,9 @@ void WeaponsSetAnimating(int weapon, float flDelay)
  * @brief Find the index at which the weapon name is at.
  * 
  * @param sName             The weapon name.
- * @return                  The array index containing the given weapon name.
+ * @return                  The weapon id.
  **/
-int WeaponsNameToIndex(char[] sName)
+int WeaponsNameToIndex(const char[] sName)
 {
 	static char sWeaponName[SMALL_LINE_LENGTH];
 	
@@ -2173,6 +2145,26 @@ int WeaponsNameToIndex(char[] sName)
 		WeaponsGetName(i, sWeaponName, sizeof(sWeaponName));
 
 		if (!strcmp(sName, sWeaponName, false))
+		{
+			return i;
+		}
+	}
+	
+	return -1;
+}
+
+/**
+ * @brief Find the index at which the weapon def is at.
+ *
+ * @param iItem             The def index.
+ * @return                  The weapon id.
+ **/
+int WeaponsDefToIndex(ItemDef iItem)
+{
+	int iSize = gServerData.Weapons.Length;
+	for (int i = 0; i < iSize; i++)
+	{
+		if (WeaponsGetDefIndex(i) == iItem)
 		{
 			return i;
 		}
@@ -2274,19 +2266,10 @@ void WeaponsDrop(int client, int weapon, bool bMsg = true)
  **/
 void WeaponsSwitch(int client, int weapon) 
 {
-	int weapon2 = ToolsGetActiveWeapon(client);
-	
-	if (hSDKCallWeaponSwitch && (weapon2 == -1 || WeaponsGetSlot(weapon) == WeaponsGetSlot(weapon2)))
-	{
-		SDKCall(hSDKCallWeaponSwitch, client, weapon, 1);
-	}
-	else
-	{
-		static char sClassname[SMALL_LINE_LENGTH];
-		GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+	static char sClassname[SMALL_LINE_LENGTH];
+	GetEdictClassname(weapon, sClassname, sizeof(sClassname));
 
-		FakeClientCommand(client, "use %s", sClassname);
-	}
+	FakeClientCommand(client, "use %s", sClassname);
 }
 
 /**
@@ -2522,7 +2505,7 @@ int WeaponsSpawn(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] =
  * @param sName             The weapon entity.
  * @return                  The weapon index.
  **/
-int WeaponsFindByName(int client, char[] sName)
+int WeaponsFindByName(int client, const char[] sName)
 {
 	static char sClassname[SMALL_LINE_LENGTH];
 
@@ -2572,27 +2555,6 @@ int WeaponsFindByID(int client, int iD)
 }
 
 /**
- * @brief Returns the first available weapon id for the given weapon.
- *
- * @param weapon            The weapon index.
- * @return                  The weapon id.
- **/
-int WeaponsFindID(int weapon)
-{
-	if (gServerData.Entities == null)
-	{
-		return -1;
-	}
-	
-	static char sClassname[SMALL_LINE_LENGTH];
-	GetEdictClassname(weapon, sClassname, sizeof(sClassname));
-	
-	int iD = -1; 
-	gServerData.Entities.GetValue(sClassname, iD);
-	return iD;
-}
-
-/**
  * @brief Gets the slot index of a weapon.
  *
  * @param weapon            The weapon index.
@@ -2617,20 +2579,20 @@ int WeaponsGetSlot(int weapon)
  * @param sClassname        The weapon entity.
  * @return                  The def index.
  **/
-int WeaponsGetItemDefIndex(char[] sClassname)
+ItemDef WeaponsGetItemDefIndex(const char[] sClassname)
 {
 	if (!hasLength(sClassname))
 	{
-		return 0;
+		return ItemDef_Invalid;
 	}
 	
 	Address pItemDefenition = view_as<Address>(SDKCall(hSDKCallGetItemDefinitionByName, pItemSchema, sClassname));
 	if (pItemDefenition == Address_Null)
 	{
-		return 0;
+		return ItemDef_Invalid;
 	}
 	
-	return LoadFromAddress(pItemDefenition + view_as<Address>(ItemDef_Index), NumberType_Int16);
+	return view_as<ItemDef>(LoadFromAddress(pItemDefenition + view_as<Address>(ItemDef_Index), NumberType_Int16));
 }
 
 /**

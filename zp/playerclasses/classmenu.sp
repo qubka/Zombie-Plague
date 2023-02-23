@@ -439,7 +439,7 @@ void ClassesMenu(int client)
 {
 	if (!gServerData.RoundStart)
 	{
-		TranslationPrintHintText(client, "block classes round"); 
+		TranslationPrintHintText(client, true, "block classes round"); 
 
 		EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		return;
@@ -525,7 +525,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			
 			if (!gServerData.RoundStart)
 			{
-				TranslationPrintHintText(client, "block using menu");
+				TranslationPrintHintText(client, true, "block using menu");
 		
 				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
@@ -549,7 +549,7 @@ public int ClassesMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlo
 			}
 			else
 			{
-				TranslationPrintHintText(client, "block selecting target");
+				TranslationPrintHintText(client, true, "block selecting target");
 					
 				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 			}
@@ -641,7 +641,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			
 			if (!gServerData.RoundStart)
 			{
-				TranslationPrintHintText(client, "block using menu");
+				TranslationPrintHintText(client, true, "block using menu");
 		
 				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 				return 0;
@@ -663,7 +663,7 @@ public int ClassesListMenuSlots(Menu hMenu, MenuAction mAction, int client, int 
 			}
 			else
 			{
-				TranslationPrintHintText(client, "block selecting target");
+				TranslationPrintHintText(client, true, "block selecting target");
 					
 				EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);  
 			}

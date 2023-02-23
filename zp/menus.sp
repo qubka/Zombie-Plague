@@ -247,7 +247,7 @@ public Action MenusOnCommandListenedCommand(int client, char[] commandMsg, int i
 	
 	if (!MenusHasAccessByCommand(client, commandMsg))
 	{
-		TranslationPrintHintText(client, "block using menu"); 
+		TranslationPrintHintText(client, true, "block using menu"); 
 
 		EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);
 		

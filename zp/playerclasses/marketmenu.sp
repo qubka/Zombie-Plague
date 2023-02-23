@@ -177,7 +177,7 @@ public int MarketMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 				{
 					if (!IsPlayerAlive(client) || MarketIsBuyTimeExpired(client, iD))
 					{
-						TranslationPrintHintText(client, "block buying time");
+						TranslationPrintHintText(client, true, "block buying time");
 				
 						EmitSoundToClient(client, SOUND_BUTTON_MENU_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 						return 0;
@@ -221,6 +221,7 @@ void MarketBuyMenu(int client, int iSection = MenuType_Buy, char[] sTitle = "mar
 	}
 	
 	Action hResult; Menu hMenu = MarketSectionToHandle(iSection);
+	int iSize = MarketSectionToCount(client, iSection);
 
 	SetGlobalTransTarget(client);
 
@@ -235,7 +236,7 @@ void MarketBuyMenu(int client, int iSection = MenuType_Buy, char[] sTitle = "mar
 		case MenuType_FavBuy :
 		{
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", "market buy all");
-			hMenu.AddItem("-1", sBuffer);
+			hMenu.AddItem("-1", sBuffer, MenusGetItemDraw(iSize > 0));
 		}
 	}
 	
@@ -249,7 +250,7 @@ void MarketBuyMenu(int client, int iSection = MenuType_Buy, char[] sTitle = "mar
 	int iPlaying = fnGetPlaying();
 	int iFlags = GetUserFlagBits(client);
 	
-	int iSize = MarketSectionToCount(client, iSection); int iAmount;
+	int iAmount;
 	for (int i = 0; i < iSize; i++)
 	{
 		int iD = MarketSectionToIndex(client, iSection, i);
@@ -418,7 +419,15 @@ public int MarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int m
 					int iIndex = gClientData[client].DefaultCart.FindValue(iD);
 					if (iIndex != -1)
 					{
-						gClientData[client].DefaultCart.Erase(iIndex);
+						int iSize = gClientData[client].DefaultCart.Length;
+						if (iSize == 1)
+						{
+							delete gClientData[client].DefaultCart;
+						}
+						else
+						{
+							gClientData[client].DefaultCart.Erase(iIndex);
+						}
 					}
 					
 					ItemsGetName(iD, sBuffer, sizeof(sBuffer));
@@ -476,6 +485,11 @@ public int MarketBuyMenuSlots2(Menu hMenu, MenuAction mAction, int client, int m
 			int iD = StringToInt(sBuffer);
 
 			ItemsGetName(iD, sBuffer, sizeof(sBuffer));
+			
+			if (gClientData[client].DefaultCart == null)
+			{
+				gClientData[client].DefaultCart = new ArrayList();
+			}
 			
 			gClientData[client].DefaultCart.Push(iD);
 
@@ -574,6 +588,11 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 							i--;
 						}
 					}
+					
+					if (iSize == 0)
+					{
+						delete gClientData[client].ShoppingCart;
+					}
 				}
 				
 				default :
@@ -585,10 +604,15 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 							int iIndex = gClientData[client].ShoppingCart.FindValue(iD);
 							if (iIndex != -1)
 							{
-								gClientData[client].ShoppingCart.Erase(iIndex);
-
-								if (gClientData[client].ShoppingCart.Length)
+								int iSize = gClientData[client].ShoppingCart.Length;
+								if (iSize == 1)
 								{
+									delete gClientData[client].ShoppingCart;
+								}
+								else
+								{
+									gClientData[client].ShoppingCart.Erase(iIndex);
+									
 									MarketBuyMenu(client, MenuType_FavBuy);
 								}
 							}
@@ -607,7 +631,7 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 					{
 						ItemsGetName(iD, sBuffer, sizeof(sBuffer));    
 				
-						TranslationPrintHintText(client, "block buying item", sBuffer);
+						TranslationPrintHintText(client, true, "block buying item", sBuffer);
 						
 						EmitSoundToClient(client, SOUND_BUY_ITEM_FAILED, SOUND_FROM_PLAYER, SNDCHAN_ITEM);  
 					}
@@ -715,7 +739,7 @@ public int MarketEditMenuSlots(Menu hMenu, MenuAction mAction, int client, int m
 				{
 					MarketResetShoppingCart(client); 
 					
-					if (gClientData[client].DefaultCart.Length)
+					if (gClientData[client].DefaultCart != null)
 					{
 						MarketBuyMenu(client, MenuType_FavBuy);
 					}
@@ -806,12 +830,12 @@ int MarketSectionToCount(int client, int iSection)
 	{
 		case MenuType_FavEdit :
 		{
-			return gClientData[client].DefaultCart.Length;
+			return gClientData[client].DefaultCart != null ? gClientData[client].DefaultCart.Length : 0;
 		}
    
 		case MenuType_FavBuy :
 		{
-			return gClientData[client].ShoppingCart.Length;
+			return gClientData[client].ShoppingCart != null ? gClientData[client].ShoppingCart.Length : 0;
 		}
 
 		default :

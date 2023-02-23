@@ -236,7 +236,7 @@ public Action CS_OnBuyCommand(int client, const char[] sClassname)
 				static char sInfo[SMALL_LINE_LENGTH];
 				WeaponsGetInfo(iD, sInfo, sizeof(sInfo));
 				
-				if (hasLength(sInfo)) TranslationPrintHintText(client, sInfo);
+				if (hasLength(sInfo)) TranslationPrintHintText(client, true, sInfo);
 			}
 		}
 	}
@@ -340,7 +340,7 @@ bool MarketBuyItem(int client, int iD, bool bInfo = true)
 		static char sInfo[SMALL_LINE_LENGTH];
 		ItemsGetInfo(iD, sInfo, sizeof(sInfo));
 		
-		if (hasLength(sInfo)) TranslationPrintHintText(client, sInfo);
+		if (hasLength(sInfo)) TranslationPrintHintText(client, true, sInfo);
 	}
 
 	gForwardData._OnClientBuyExtraItem(client, iD); /// Buy item

@@ -114,7 +114,7 @@ public Action PlayerSoundsOnRoundEndPost(Handle hTimer, CSRoundEndReason reason)
  **/
 bool PlayerSoundsOnCounter()
 {
-	return SEffectsEmitToAll(gSoundData.Count, gServerData.RoundCount, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
+	return SEffectsEmitToAll(gSoundData.Count, gServerData.RoundCount, SOUND_FROM_PLAYER, SNDCHAN_STATIC) != 0.0;
 }
 
 /**
@@ -166,15 +166,13 @@ void PlayerSoundsOnClientHurt(int client, bool bBurning)
 		if (gCvarList.SEFFECTS_BURN.BoolValue) 
 		{
 			static float flBurn[MAXPLAYERS+1];
-			
-			SEffectsEmitToAllNoRestart(flBurn[client], ClassGetSoundBurnID(gClientData[client].Class), _, client, SNDCHAN_WEAPON);
+			SEffectsEmitToAllNoRep(flBurn[client], ClassGetSoundBurnID(gClientData[client].Class), _, client, SNDCHAN_WEAPON);
 			return; /// Exit here
 		}
 	}
 	
 	static float flGroan[MAXPLAYERS+1];
-
-	SEffectsEmitToAllNoRestart(flGroan[client], ClassGetSoundHurtID(gClientData[client].Class), _, client, SNDCHAN_BODY);
+	SEffectsEmitToAllNoRep(flGroan[client], ClassGetSoundHurtID(gClientData[client].Class), _, client, SNDCHAN_BODY);
 }
 
 /**
@@ -199,7 +197,8 @@ void PlayerSoundsOnClientInfected(int client, int attacker)
 	
 	if (gCvarList.SEFFECTS_COMEBACK.BoolValue && gServerData.RoundStart && attacker == -1)
 	{
-		SEffectsEmitToHumans(ModesGetSoundComebackID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
+		static float flComeback;
+		SEffectsEmitToAllNoRep(flComeback, ModesGetSoundComebackID(gServerData.RoundMode), _, SOUND_FROM_PLAYER, SNDCHAN_STATIC, true, false); /// only for humans
 	}
 	
 	float flInterval = gCvarList.SEFFECTS_MOAN.FloatValue;
@@ -209,7 +208,7 @@ void PlayerSoundsOnClientInfected(int client, int attacker)
 	}
 
 	delete gClientData[client].MoanTimer;
-	gClientData[client].MoanTimer = CreateTimer(flInterval, PlayerSoundsOnMoanRepeat, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+	gClientData[client].MoanTimer = CreateTimer(GetRandomFloat(flInterval / 4.0, flInterval), PlayerSoundsOnMoanRepeat, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 /**
@@ -222,14 +221,22 @@ public Action PlayerSoundsOnMoanRepeat(Handle hTimer, int userID)
 {
 	int client = GetClientOfUserId(userID);
 
+	gClientData[client].MoanTimer = null;
+
 	if (client)
 	{
-		SEffectsEmitToAll(ClassGetSoundIdleID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
-
-		return Plugin_Continue;
+		float flInterval = gCvarList.SEFFECTS_MOAN.FloatValue;
+		if (!flInterval)
+		{
+			return Plugin_Stop;
+		}
+	
+		float flDuration = SEffectsEmitToAll(ClassGetSoundIdleID(gClientData[client].Class), _, client, SNDCHAN_STATIC);
+		if (flDuration)
+		{
+			gClientData[client].MoanTimer = CreateTimer(GetRandomFloat(flDuration + flInterval / 4.0, flDuration + flInterval), PlayerSoundsOnMoanRepeat, userID, TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
-
-	gClientData[client].MoanTimer = null;
 	
 	return Plugin_Stop;
 }
@@ -263,7 +270,7 @@ void PlayerSoundsOnClientJump(int client)
  **/
 bool PlayerSoundsOnClientShoot(int client, int iD)
 {
-	return SEffectsEmitToAll(WeaponsGetSoundID(iD), _, client, SNDCHAN_WEAPON);
+	return SEffectsEmitToAll(WeaponsGetSoundID(iD), _, client, SNDCHAN_WEAPON) != 0.0;
 }
 
 /**

@@ -37,7 +37,7 @@
 #define PLUGIN_BRANCH       "master"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "13-February-2023T18:56:00-GMT+00:00"
+#define PLUGIN_DATE         "23-February-2023T14:23:00-GMT+00:00"
 /**
  * @endsection
  **/

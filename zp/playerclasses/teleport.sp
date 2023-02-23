@@ -187,7 +187,7 @@ bool TeleportClient(int client, bool bForce = false)
 	gClientData[client].TeleCounter = bInfect ? gCvarList.TELEPORT_DELAY_ZOMBIE.IntValue : gCvarList.TELEPORT_DELAY_HUMAN.IntValue;
 	if (gClientData[client].TeleCounter > 0)
 	{
-		TranslationPrintHintText(client, "teleport countdown", gClientData[client].TeleCounter);
+		TranslationPrintHintText(client, false, "teleport countdown", gClientData[client].TeleCounter);
 		
 		gClientData[client].TeleTimer = CreateTimer(1.0, TeleportOnClientCount, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 	}
@@ -197,7 +197,7 @@ bool TeleportClient(int client, bool bForce = false)
 		
 		gClientData[client].TeleTimes++;
 		
-		TranslationPrintHintText(client, "teleport countdown end", gClientData[client].TeleTimes, iTeleportMax);
+		TranslationPrintHintText(client, true, "teleport countdown end", gClientData[client].TeleTimes, iTeleportMax);
 	}
 	
 	return true;
@@ -225,7 +225,7 @@ public Action TeleportOnClientCount(Handle timer, int userID)
   
 			if (flDistance > flAutoCancelDist)
 			{
-				TranslationPrintHintText(client, "teleport autocancel centertext");
+				TranslationPrintHintText(client, true, "teleport autocancel centertext");
 				TranslationPrintToChat(client, "teleport autocancel text", RoundToNearest(flAutoCancelDist));
 				
 				gClientData[client].TeleTimer = null;
@@ -236,7 +236,7 @@ public Action TeleportOnClientCount(Handle timer, int userID)
 
 		gClientData[client].TeleCounter--;
 		
-		TranslationPrintHintText(client, "teleport countdown", gClientData[client].TeleCounter);
+		TranslationPrintHintText(client, false, "teleport countdown", gClientData[client].TeleCounter);
 		
 		if (gClientData[client].TeleCounter <= 0)
 		{
@@ -244,7 +244,7 @@ public Action TeleportOnClientCount(Handle timer, int userID)
 			
 			gClientData[client].TeleTimes++;
 			
-			TranslationPrintHintText(client, "teleport countdown end", gClientData[client].TeleTimes, gClientData[client].Zombie ? gCvarList.TELEPORT_MAX_ZOMBIE.IntValue : gCvarList.TELEPORT_MAX_HUMAN.IntValue);
+			TranslationPrintHintText(client, true, "teleport countdown end", gClientData[client].TeleTimes, gClientData[client].Zombie ? gCvarList.TELEPORT_MAX_ZOMBIE.IntValue : gCvarList.TELEPORT_MAX_HUMAN.IntValue);
 			
 			gClientData[client].TeleTimer = null;
 			

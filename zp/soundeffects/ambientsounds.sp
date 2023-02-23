@@ -54,6 +54,7 @@ void AmbientSoundsOnClientDeath(int client)
 	if (hasLength(gAmbient[client]))
 	{
 		StopSound(client, SNDCHAN_STATIC, gAmbient[client]);
+		gAmbient[client][0] = NULL_STRING[0];
 	}
 }
 
@@ -64,7 +65,11 @@ void AmbientSoundsOnClientDeath(int client)
  **/
 void AmbientSoundsOnClientUpdate(int client)
 {
-	gAmbient[client][0] = NULL_STRING[0];
+	if (hasLength(gAmbient[client]))
+	{
+		StopSound(client, SNDCHAN_STATIC, gAmbient[client]);
+		gAmbient[client][0] = NULL_STRING[0];
+	}
 
 	if (!gServerData.RoundStart)
 	{
@@ -72,8 +77,8 @@ void AmbientSoundsOnClientUpdate(int client)
 	}
 
 	float flVolume; int iLevel; int iFlags; int iPitch;
-
 	float flDuration = SoundsGetSound(ModesGetSoundAmbientID(gServerData.RoundMode), _, gAmbient[client], flVolume, iLevel, iFlags, iPitch);
+	
 	if (flDuration)
 	{
 		EmitSoundToClient(client, gAmbient[client], SOUND_FROM_PLAYER, SNDCHAN_STATIC, iLevel, iFlags, flVolume, iPitch);
@@ -98,8 +103,8 @@ public Action AmbientSoundsOnMP3Repeat(Handle hTimer, int userID)
 	if (client)
 	{
 		float flVolume; int iLevel; int iFlags; int iPitch;
-	
 		float flDuration = SoundsGetSound(ModesGetSoundAmbientID(gServerData.RoundMode), _, gAmbient[client], flVolume, iLevel, iFlags, iPitch);
+		
 		if (flDuration)
 		{
 			EmitSoundToClient(client, gAmbient[client], SOUND_FROM_PLAYER, SNDCHAN_STATIC, iLevel, iFlags, flVolume, iPitch);

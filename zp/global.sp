@@ -44,7 +44,6 @@ enum struct ServerData
 	/* Map */
 	bool MapLoaded;
 	ArrayList Spawns;
-	StringMap Entities;
 	StringMap ItemLimit;
 	
 	/* OS */
@@ -164,7 +163,7 @@ enum struct ClientData
 	int CustomWeapon;
 	bool RunCmd;
 	bool AutoSelect;
-	bool BlockMenu;
+	bool ArsenalUsed;
 	int CurrentMenu;
 	int Arsenal[3];
 	

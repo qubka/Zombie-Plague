@@ -409,8 +409,7 @@ void ClassesOnCacheData(bool bInit)
 		kvClasses.GetString("jump", sBuffer, sizeof(sBuffer), "");              
 		arrayClass.Push(SoundsKeyToIndex(sBuffer));                             // Index: 62
 	}
-	
-	// TODO: set default from cvar
+
 	gServerData.Zombie = gServerData.Types.FindString("zombie");
 	gServerData.Human = gServerData.Types.FindString("human");
 

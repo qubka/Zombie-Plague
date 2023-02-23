@@ -134,16 +134,31 @@ void SoundsOnCacheData()
 			do
 			{
 				kvSounds.GetSectionName(sBuffer, sizeof(sBuffer));
-				Format(sBuffer, sizeof(sBuffer), "*/%s", sBuffer);
+				
+				int iFormat = FindCharInString(sBuffer, '.', true);
+				
+				if (iFormat == -1)
+				{
+					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing file format: %s", sBuffer);
+					continue;
+				}
+				
+				bool bMP3 = !strcmp(sBuffer[iFormat], ".mp3", false);
+				
+				if (bMP3)
+				{
+					Format(sBuffer, sizeof(sBuffer), "*/%s", sBuffer);
+				}
+				
 				arraySound.PushString(sBuffer);                    // Index: i + 0
 				arraySound.Push(kvSounds.GetFloat("volume", 1.0)); // Index: i + 1
 				arraySound.Push(kvSounds.GetNum("level", 75));     // Index: i + 2
 				arraySound.Push(kvSounds.GetNum("flags", 0));      // Index: i + 3
 				arraySound.Push(kvSounds.GetNum("pitch", 0));      // Index: i + 4
 				
-				Format(sBuffer, sizeof(sBuffer), "sound/%s", sBuffer[2]);
+				Format(sBuffer, sizeof(sBuffer), "sound/%s", sBuffer[bMP3 ? 2 : 0]);
 
-				if (DownloadsOnPrecache(sBuffer))
+				if (SoundsPrecacheQuirk(sBuffer))
 				{
 					arraySound.Push(GetSoundDuration(sBuffer[6])); // Index: i + 5
 				}
@@ -323,14 +338,13 @@ Action SoundsOnClientShoot(int client, int iD)
  **/
 void SoundsOnNativeInit() 
 {
-	CreateNative("ZP_GetSoundKeyID",      API_GetSoundKeyID);
-	CreateNative("ZP_GetSound",           API_GetSound);
-	CreateNative("ZP_EmitSoundToHumans",  API_EmitSoundToHumans);
-	CreateNative("ZP_EmitSoundToZombies", API_EmitSoundToZombies);
-	CreateNative("ZP_EmitSoundToAll",     API_EmitSoundToAll);
-	CreateNative("ZP_EmitSoundToClient",  API_EmitSoundToClient);
-	CreateNative("ZP_EmitAmbientSound",   API_EmitAmbientSound);
-	CreateNative("ZP_StopSoundToAll",     API_StopSoundToAll);
+	CreateNative("ZP_GetSoundKeyID",           API_GetSoundKeyID);
+	CreateNative("ZP_GetSound",                API_GetSound);
+	CreateNative("ZP_EmitSoundToAllNoRep", API_EmitSoundToAllNoRep);
+	CreateNative("ZP_EmitSoundToAll",          API_EmitSoundToAll);
+	CreateNative("ZP_EmitSoundToClient",       API_EmitSoundToClient);
+	CreateNative("ZP_EmitAmbientSound",        API_EmitAmbientSound);
+	CreateNative("ZP_StopSoundToAll",          API_StopSoundToAll);
 }
  
 /**
@@ -385,56 +399,54 @@ public int API_GetSound(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Emits a sound to all humans.
+ * @brief Emits a sound to all clients. (Can't emit sounds until the previous emit finish)
  *
- * @note native bool ZP_EmitSoundToHumans(keyID, num, entity, channel);
+ * @note native float ZP_EmitSoundToAllNoRep(&time, keyID, num, entity, channel, human, zombie);
  **/
-public int API_EmitSoundToHumans(Handle hPlugin, int iNumParams)
+public int API_EmitSoundToAllNoRep(Handle hPlugin, int iNumParams)
 {
-	return SEffectsEmitToHumans(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
-}
-
-/**
- * @brief Emits a sound to all zombies.
- *
- * @note native bool ZP_EmitSoundToZombies(keyID, num, entity, channel);
- **/
-public int API_EmitSoundToZombies(Handle hPlugin, int iNumParams)
-{
-	return SEffectsEmitToZombies(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
+	float flEmitTime = GetNativeCellRef(1);
+	float flDuration = SEffectsEmitToAllNoRep(flEmitTime, GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6), GetNativeCell(7));
+	
+	if (flDuration)
+	{
+		SetNativeCellRef(1, flEmitTime);
+	}
+	
+	return view_as<int>(flDuration);
 }
 
 /**
  * @brief Emits a sound to all clients.
  *
- * @note native bool ZP_EmitSoundToAll(keyID, num, entity, channel);
+ * @note native float ZP_EmitSoundToAll(keyID, num, entity, channel, human, zombie);
  **/
 public int API_EmitSoundToAll(Handle hPlugin, int iNumParams)
 {
-	return SEffectsEmitToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
+	return view_as<int>(SEffectsEmitToAll(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5), GetNativeCell(6)));
 }
 
 /**
  * @brief Emits a sound to the client.
  *
- * @note native bool ZP_EmitSoundToClient(keyID, num, client, entity, channel);
+ * @note native float ZP_EmitSoundToClient(keyID, num, client, entity, channel);
  **/
 public int API_EmitSoundToClient(Handle hPlugin, int iNumParams)
 {
-	return SEffectsEmitToClient(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5));
+	return view_as<int>(SEffectsEmitToClient(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), GetNativeCell(5)));
 }
 
 /**
  * @brief Emits an ambient sound.
  *
- * @note native bool ZP_EmitAmbientSound(keyID, num, origin, entity, delay);
+ * @note native float ZP_EmitAmbientSound(keyID, num, origin, entity, delay);
  **/
 public int API_EmitAmbientSound(Handle hPlugin, int iNumParams)
 {
 	static float vPosition[3];
 	GetNativeArray(3, vPosition, sizeof(vPosition));
 	
-	return SEffectsEmitAmbient(GetNativeCell(1), GetNativeCell(2), vPosition, GetNativeCell(4), GetNativeCell(5));
+	return view_as<int>(SEffectsEmitAmbient(GetNativeCell(1), GetNativeCell(2), vPosition, GetNativeCell(4), GetNativeCell(5)));
 }
 
 /**
@@ -564,28 +576,20 @@ bool SoundsPrecacheQuirk(const char[] sPath)
 	}
 	
 	static char sSound[PLATFORM_LINE_LENGTH];
-	strcopy(sSound, sizeof(sSound), sPath);
+	FormatEx(sSound, sizeof(sSound), "*%s", sPath[5]);
 
-	if (ReplaceStringEx(sSound, sizeof(sSound), "sound", "*", 5, 1, true) != -1)
+	static int table = INVALID_STRING_TABLE;
+
+	if (table == INVALID_STRING_TABLE)
 	{
-		static int table = INVALID_STRING_TABLE;
-
-		if (table == INVALID_STRING_TABLE)
-		{
-			table = FindStringTable("soundprecache");
-		}
-
-		if (FindStringIndex(table, sSound) == INVALID_STRING_INDEX)
-		{
-			AddFileToDownloadsTable(sPath);
-
-			AddToStringTable(table, sSound);
-		}
+		table = FindStringTable("soundprecache");
 	}
-	else
+
+	if (FindStringIndex(table, sSound) == INVALID_STRING_INDEX)
 	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Invalid sound path. File not found: \"%s\"", sPath);
-		return false;
+		AddFileToDownloadsTable(sPath);
+
+		AddToStringTable(table, sSound);
 	}
 	
 	return true;

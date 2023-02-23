@@ -244,7 +244,7 @@ public Action AntiStickOnCommandCatched(int client, int iArguments)
 	}
 	else
 	{
-		TranslationPrintHintText(client, "block unstucking prop");
+		TranslationPrintHintText(client, true, "block unstucking prop");
 		
 		EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER);    
 	}

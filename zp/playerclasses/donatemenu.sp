@@ -215,7 +215,7 @@ public int DonateMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot
 					else
 					{
 
-						TranslationPrintHintText(client, "block selecting target");
+						TranslationPrintHintText(client, true, "block selecting target");
 					
 						EmitSoundToClient(client, SOUND_BUTTON_CMD_ERROR, SOUND_FROM_PLAYER, SNDCHAN_ITEM, SNDLEVEL_WHISPER); 
 					}

@@ -128,8 +128,8 @@ forward Action ZP_OnClientValidateClass(int client, int classID);
  * @brief Infect/humanize a player.
  *
  * @param client            The client index.
- * @param attacker          (Optional) The attacker index.
- * @param type              (Optional) The class type. (-2 = zombie | -3 = human)
+ * @param attacker          (Optional) The attacker index. (0 = world, -1 = respawn)
+ * @param type              (Optional) The class type. (-2 = zombie, -3 = human)
  *  
  * @return                  True or false.
  **/

@@ -408,7 +408,7 @@ public Action GameModesOnCounter(Handle hTimer)
 				{
 					TranslationPrintToChatAll("general round objective");
 					TranslationPrintToChatAll("general ammunition reminder");
-					TranslationPrintHintTextAll("general buttons reminder");
+					TranslationPrintHintTextAll(true, "general buttons reminder");
 				}
 				
 				float flTime = gCvarList.MESSAGES_WELCOME_HUD_TIME.FloatValue;
@@ -424,7 +424,7 @@ public Action GameModesOnCounter(Handle hTimer)
 			{
 				if (gCvarList.MESSAGES_COUNTER.BoolValue)
 				{
-					TranslationPrintHintTextAll("generic zombie comming", gServerData.RoundCount);
+					TranslationPrintHintTextAll(false, "generic zombie comming", gServerData.RoundCount);
 				}
 			}
 		}
@@ -536,8 +536,6 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 		}
 	}
 
-	SoundsOnGameModeStart();
-	
 	ModesKillEntities(true);
 
 	gServerData.RoundStart = true;
@@ -547,6 +545,8 @@ void GameModesOnBegin(int mode = -1, int target = -1)
 		delete gServerData.CounterTimer;
 	}
 
+	SoundsOnGameModeStart();
+	
 	gForwardData._OnGameModeStart(gServerData.RoundMode);
 	
 	gServerData.RoundLast = gServerData.RoundMode;
@@ -2559,7 +2559,7 @@ void ModesDisconnectLast()
 		
 		GetClientName(client, sName, sizeof(sName));
 		
-		TranslationPrintHintTextAll("generic zombie left", sName); 
+		TranslationPrintHintTextAll(true, "generic zombie left", sName); 
 	}
 	else if (iZombies > 1 && !iHumans)
 	{
@@ -2569,13 +2569,13 @@ void ModesDisconnectLast()
 		
 		GetClientName(client, sName, sizeof(sName));
 		
-		TranslationPrintHintTextAll("generic human left", sName); 
+		TranslationPrintHintTextAll(true, "generic human left", sName); 
 	}
 	else if (!iZombies && !iHumans)
 	{
 		CS_TerminateRound(gCvarList.GAMEMODE_RESTART_DELAY.FloatValue, CSRoundEnd_Draw, false);
 		
-		TranslationPrintHintTextAll("generic player left"); 
+		TranslationPrintHintTextAll(true, "generic player left"); 
 	}
 }
 
@@ -2764,7 +2764,7 @@ void ModesBlast(float flDelay)
 		
 		if (gCvarList.MESSAGES_BLAST.BoolValue)
 		{
-			TranslationPrintHintTextAll("general blast reminder");
+			TranslationPrintHintTextAll(true, "general blast reminder");
 		}
 
 		CreateTimer(flTime, GameModesOnBlast, _, TIMER_FLAG_NO_MAPCHANGE); 

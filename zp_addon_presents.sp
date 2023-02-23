@@ -614,7 +614,7 @@ public Action CaseSpawnHook(Handle hTimer)
 		EmitSound(clients, iTotal, SOUND_INFO_TIPS, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 	}
 	
-	ZP_EmitSoundToHumans(gSound, 1, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
+	ZP_EmitSoundToAll(gSound, 1, SOUND_FROM_PLAYER, SNDCHAN_STATIC, true, false);
 	
 	return Plugin_Continue;
 }
