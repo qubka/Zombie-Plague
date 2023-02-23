@@ -771,7 +771,7 @@ stock void ZP_RemoveWeapon(int client, int weapon, int slot = SlotIndex_Melee)
 	if (weapon2 != -1)
 	{
 		static char sClassname[SMALL_LINE_LENGTH];
-		GetEdictClassname(weapon, sClassname, sizeof(sClassname));
+		GetEdictClassname(weapon2, sClassname, sizeof(sClassname));
 
 		FakeClientCommand(client, "use %s", sClassname);
 	}

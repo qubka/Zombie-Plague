@@ -111,6 +111,16 @@ public void ZP_OnEngineExecute()
 }
 
 /**
+ * @brief The map is starting.
+ **/
+public void OnMapStart()
+{
+	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
+	gBeam = PrecacheModel("materials/sprites/lgtning.vmt", true);
+	gHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
+}
+
+/**
  * @brief Called after a custom grenade is created.
  *
  * @param client            The client index.
