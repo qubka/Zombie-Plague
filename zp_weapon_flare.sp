@@ -126,7 +126,7 @@ public void OnMapStart()
  **/
 public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
-	if (weaponID == gWeapon) /* OR if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)*/
+	if (weaponID == gWeapon)
 	{
 		SetEntProp(grenade, Prop_Data, "m_nNextThinkTick", -1);
 

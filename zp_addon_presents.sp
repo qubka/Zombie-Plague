@@ -551,7 +551,7 @@ public Action CaseSpawnHook(Handle hTimer)
 		
 		if (drop != -1)
 		{
-			SetEntProp(drop, Prop_Data, "m_iHammerID", iType);
+			//SetEntProp(drop, Prop_Data, "m_iHammerID", iType);
 			
 			if (iHealth > 0)
 			{

@@ -536,7 +536,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			SetEntProp(entity, Prop_Data, "m_iMySquadSlot", iRocket); 
 			SetEntProp(entity, Prop_Data, "m_iHammerID", iLevel); 
 			SetEntProp(entity, Prop_Data, "m_iDesiredWeaponState", SENTRY_MODE_NORMAL); 
-			SetEntPropFloat(entity, Prop_Data, "m_flUseLookAtAngle", 0.0); ///
+			SetEntPropFloat(entity, Prop_Data, "m_flSoundWaitTime", 0.0);
 
 			UTIL_SetRenderColor(entity, Color_Alpha, 0);
 			//AcceptEntityInput(entity, "DisableDraw"); 
@@ -615,12 +615,12 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{
 		public get() 
 		{  
-			return GetEntPropFloat(this.Index, Prop_Data, "m_flUseLookAtAngle");  
+			return GetEntPropFloat(this.Index, Prop_Data, "m_flSoundWaitTime");  
 		}
 
 		public set(float flDelay) 
 		{
-			SetEntPropFloat(this.Index, Prop_Data, "m_flUseLookAtAngle", flDelay); 
+			SetEntPropFloat(this.Index, Prop_Data, "m_flSoundWaitTime", flDelay); 
 		}
 	}
 	
@@ -1897,10 +1897,10 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	float flAngle = GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") + 0.5;
+	float flAngle = GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime") + 0.5;
 	if (flAngle > 360.0) flAngle = 0.0;
 
-	SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flAngle);
+	SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", flAngle);
 }
 
 void Weapon_OnCreateEffect(int client, int weapon, int iMode)
@@ -1973,7 +1973,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 				}
 			}
 
-			vAngle[1] += GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle");
+			vAngle[1] += GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime");
 			
 			TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
 			
@@ -2156,7 +2156,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 		SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", ZP_GetWeaponAmmunition(gWeapon));
 		SetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount", GetRandomInt(0, 1));
 		SetEntProp(weapon, Prop_Data, "m_iWeaponModule", SENTRY_MODE_NORMAL);
-		SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
+		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 	}
 }   
 

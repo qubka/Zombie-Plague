@@ -144,7 +144,7 @@ public void ZP_OnEngineExecute()
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
+	SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 }
@@ -347,7 +347,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		
 		flCurrentTime -= 0.5;
 		
-		SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flCurrentTime);
+		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", flCurrentTime);
 	}
 }
 
@@ -409,7 +409,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 	{
 		SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
 		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_NORMAL);
-		SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
+		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
 } 
@@ -477,9 +477,9 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	if (weaponID == gWeapon)
 	{
 		static float flApplyModeTime;
-		if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle")) && flApplyModeTime <= GetGameTime())
+		if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime")) && flApplyModeTime <= GetGameTime())
 		{
-			SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
+			SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_ACTIVE);
 		}
 		

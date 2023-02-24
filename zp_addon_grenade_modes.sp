@@ -332,7 +332,7 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 					
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", false);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", TRIPWIRE_STATE_POWERUP);
-					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", hCvarGrenadeTripwirePowerupTime.FloatValue);
+					SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", hCvarGrenadeTripwirePowerupTime.FloatValue);
 					
 					SDKHook(grenade, SDKHook_Touch, GrenadeTripwireTouch);
 				}
@@ -343,7 +343,7 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 					
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", (iGrenadeMode[owner] == GRENADE_MODE_SENSOR));
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", PROXIMITY_STATE_WAIT_IDLE);
-					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", 0.0);
+					SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", 0.0);
 					
 					CreateTimer(0.1, GrenadeProximityThinkHook, EntIndexToEntRef(grenade), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 					
@@ -356,7 +356,7 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 
 					SetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget", false);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", SATCHEL_STATE_POWERUP);
-					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", hCvarGrenadeSatchelPowerupTime.FloatValue);
+					SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", hCvarGrenadeSatchelPowerupTime.FloatValue);
 
 					SDKHook(grenade, SDKHook_Touch, GrenadeSatchelTouch);
 					
@@ -371,7 +371,7 @@ public void ZP_OnGrenadeCreatedPost(DataPack hPack)
 				case GRENADE_MODE_HOMING :
 				{
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", GetEntProp(grenade, Prop_Data, "m_iTeamNum"));
-					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", 0.0);
+					SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", 0.0);
 					
 					CreateTimer(0.1, GrenadeHomingThinkHook, EntIndexToEntRef(grenade), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 				}
@@ -620,7 +620,7 @@ public Action GrenadeProximityThinkHook(Handle hTimer, int refID)
 	if (grenade != -1)
 	{
 		int iState = GetEntProp(grenade, Prop_Data, "m_iMaxHealth");
-		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle");
+		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime");
 
 		if (flCounter > 0.0)
 		{
@@ -644,7 +644,7 @@ public Action GrenadeProximityThinkHook(Handle hTimer, int refID)
 		}
 		
 		SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iState);
-		SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flCounter);
+		SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", flCounter);
 	}
 	
 	return hResult;
@@ -887,7 +887,7 @@ public Action GrenadeTripwireThinkHook(Handle hTimer, int refID)
 	if (grenade != -1)
 	{
 		int iState = GetEntProp(grenade, Prop_Data, "m_iMaxHealth");
-		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle");
+		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime");
 
 		if (flCounter > 0.0)
 		{
@@ -907,7 +907,7 @@ public Action GrenadeTripwireThinkHook(Handle hTimer, int refID)
 		}
 		
 		SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iState);
-		SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flCounter);
+		SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", flCounter);
 	}
 	
 	return hResult;
@@ -1116,7 +1116,7 @@ public Action GrenadeSatchelThinkHook(Handle hTimer, int refID)
 	if (grenade != -1)
 	{
 		int iState = GetEntProp(grenade, Prop_Data, "m_iMaxHealth");
-		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle");
+		float flCounter = GetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime");
 
 		if (flCounter > 0.0)
 		{
@@ -1136,7 +1136,7 @@ public Action GrenadeSatchelThinkHook(Handle hTimer, int refID)
 		}
 		
 		SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iState);
-		SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flCounter);
+		SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", flCounter);
 	}
 	
 	return hResult;
@@ -1189,7 +1189,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 					flOldDistance = flNewDistance;
 					SetEntPropEnt(grenade, Prop_Data, "m_hEffectEntity", i);
 					SetEntProp(grenade, Prop_Data, "m_iMaxHealth", iPending);
-					SetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle", flOldDistance);
+					SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", flOldDistance);
 				}
 			}
 		}
@@ -1202,7 +1202,7 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 
 			MakeVectorFromPoints(vPosition, vPosition2, vEndVelocity);
 
-			if (GetEntPropFloat(grenade, Prop_Data, "m_flUseLookAtAngle") > hCvarGrenadeHomingAvoid.FloatValue)
+			if (GetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime") > hCvarGrenadeHomingAvoid.FloatValue)
 			{
 				NormalizeVector(vEndVelocity, vEndVelocity);
 				NormalizeVector(vVelocity, vVelocity);

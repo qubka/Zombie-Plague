@@ -204,7 +204,7 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iCounter, 
 
 void Weapon_OnHolster(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, int iReloadMode, float flCurrentTime)
 {
-	SetEntPropFloat(weapon, Prop_Send, "m_flUseLookAtAngle", 0.0);
+	SetEntPropFloat(weapon, Prop_Send, "m_flDissolveStartTime", 0.0);
 }
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, int iReloadMode, float flCurrentTime)
@@ -374,7 +374,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		
 		flCurrentTime -= 0.5;
 		
-		SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", flCurrentTime);
+		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", flCurrentTime);
 	}
 }
 
@@ -490,7 +490,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 		SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
 		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_NORMAL);
 		SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", RELOAD_START);
-		SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", 0.0);
+		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 	}
 }
 
